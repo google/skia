@@ -761,6 +761,8 @@ public:
 
     MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
+    int glyphSrcPadding() const override { return 0; }
+
     void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const override {
         fGlyphs.packedGlyphIDToGlyph(cache);
     }
@@ -839,11 +841,6 @@ public:
         return {clip, std::move(op)};
     }
 
-    std::tuple<bool, int>
-    regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const override {
-        return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 0, target);
-    }
-
     void fillVertexData(void* vertexDst, int offset, int count,
                         GrColor color,
                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
@@ -858,11 +855,13 @@ public:
     }
 #endif  // defined(SK_GANESH)
 
-#if defined(SK_GRAPHITE)
-    std::tuple<bool, int>
-    regenerateAtlas(int begin, int end, Recorder* target) const override {
-        return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 0, target);
+    std::tuple<bool, int> regenerateAtlas(int begin, int end,
+                                          RegenerateAtlasDelegate regenerateAtlas) const override {
+        return regenerateAtlas(
+                &fGlyphs, begin, end, fVertexFiller.grMaskType(), this->glyphSrcPadding());
     }
+
+#if defined(SK_GRAPHITE)
 
     std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(
             const Transform& localToDevice, SkPoint drawOrigin) const override {
@@ -983,6 +982,8 @@ public:
 
     MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
+    int glyphSrcPadding() const override { return 1; }
+
     void draw(SkCanvas*,
               SkPoint drawOrigin,
               const SkPaint& paint,
@@ -1036,11 +1037,6 @@ public:
         return {clip, std::move(op)};
     }
 
-    std::tuple<bool, int> regenerateAtlas(int begin, int end,
-                                          GrMeshDrawTarget* target) const override {
-        return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, target);
-    }
-
     void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color,
@@ -1056,11 +1052,13 @@ public:
     }
 #endif  // defined(SK_GANESH)
 
-#if defined(SK_GRAPHITE)
-
-    std::tuple<bool, int> regenerateAtlas(int begin, int end, Recorder* recorder) const override {
-        return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, recorder);
+    std::tuple<bool, int> regenerateAtlas(int begin, int end,
+                                          RegenerateAtlasDelegate regenerateAtlas) const override {
+        return regenerateAtlas(
+                &fGlyphs, begin, end, fVertexFiller.grMaskType(), this->glyphSrcPadding());
     }
+
+#if defined(SK_GRAPHITE)
 
     std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
                                                           SkPoint drawOrigin) const override {
@@ -1228,6 +1226,7 @@ public:
         SkASSERT(fVertexFiller.grMaskType() == MaskFormat::kA8);
         return MaskFormat::kA8;
     }
+    int glyphSrcPadding() const override { return SK_DistanceFieldInset; }
 
     void draw(SkCanvas*,
               SkPoint drawOrigin,
@@ -1288,11 +1287,6 @@ public:
         return {clip, std::move(op)};
     }
 
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawTarget* target) const override {
-        return fGlyphs.regenerateAtlas(begin, end, MaskFormat::kA8, SK_DistanceFieldInset, target);
-    }
-
     void fillVertexData(
             void *vertexDst, int offset, int count,
             GrColor color,
@@ -1310,12 +1304,12 @@ public:
 
 #endif  // defined(SK_GANESH)
 
-#if defined(SK_GRAPHITE)
-
-    std::tuple<bool, int> regenerateAtlas(int begin, int end, Recorder *recorder) const override {
-        return fGlyphs.regenerateAtlas(
-                begin, end, MaskFormat::kA8, SK_DistanceFieldInset, recorder);
+    std::tuple<bool, int> regenerateAtlas(int begin, int end,
+                                          RegenerateAtlasDelegate regenerateAtlas) const override {
+        return regenerateAtlas(&fGlyphs, begin, end, MaskFormat::kA8, this->glyphSrcPadding());
     }
+
+#if defined(SK_GRAPHITE)
 
     std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
                                                           SkPoint drawOrigin) const override {

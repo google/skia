@@ -55,6 +55,7 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkImageShader.h"
 #include "src/text/GlyphRun.h"
+#include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SlugImpl.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
@@ -820,9 +821,9 @@ void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect
 
 sktext::gpu::AtlasDrawDelegate Device::atlasDelegate() {
     return [&](const sktext::gpu::AtlasSubRun* subRun,
-                             SkPoint drawOrigin,
-                             const SkPaint& paint,
-                             sk_sp<SkRefCnt> subRunStorage) {
+               SkPoint drawOrigin,
+               const SkPaint& paint,
+               sk_sp<SkRefCnt> subRunStorage) {
         this->drawAtlasSubRun(subRun, drawOrigin, paint, subRunStorage);
     };
 }
@@ -844,9 +845,17 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage) {
     const int subRunEnd = subRun->glyphCount();
+    auto regenerateDelegate = [&](sktext::gpu::GlyphVector* glyphs,
+                                  int begin,
+                                  int end,
+                                  skgpu::MaskFormat maskFormat,
+                                  int padding) {
+        return glyphs->regenerateAtlasForGraphite(begin, end, maskFormat, padding, fRecorder);
+    };
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
         // For the remainder of the run, add any atlas uploads to the Recorder's AtlasManager
-        auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(subRunCursor, subRunEnd, fRecorder);
+        auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(subRunCursor, subRunEnd,
+                                                              regenerateDelegate);
         // There was a problem allocating the glyph in the atlas. Bail.
         if (!ok) {
             return;

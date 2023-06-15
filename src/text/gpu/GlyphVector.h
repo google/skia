@@ -24,12 +24,12 @@ class SkReadBuffer;
 class SkStrikeClient;
 class SkWriteBuffer;
 
-#if defined(SK_GANESH)
 class GrMeshDrawTarget;
-#endif
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite { class Recorder; }
-#endif
+namespace skgpu::ganesh { class AtlasTextOp; }
+namespace skgpu::graphite {
+class Device;
+class Recorder;
+}
 
 namespace sktext::gpu {
 class Glyph;
@@ -69,28 +69,30 @@ public:
 
     void packedGlyphIDToGlyph(StrikeCache* cache);
 
-#if defined(SK_GANESH)
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end,
-            skgpu::MaskFormat maskFormat,
-            int srcPadding,
-            GrMeshDrawTarget*);
-#endif
-
-#if defined(SK_GRAPHITE)
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end,
-            skgpu::MaskFormat maskFormat,
-            int srcPadding,
-            skgpu::graphite::Recorder*);
-#endif
-
     static size_t GlyphVectorSize(size_t count) {
         return sizeof(Variant) * count;
     }
 
 private:
     friend class GlyphVectorTestingPeer;
+    friend class ::skgpu::graphite::Device;
+    friend class ::skgpu::ganesh::AtlasTextOp;
+
+    // This function is implemented in ganesh/text/GrAtlasManager.cpp, and should only be called
+    // from AtlasTextOp or linking issues may occur.
+    std::tuple<bool, int> regenerateAtlasForGanesh(
+            int begin, int end,
+            skgpu::MaskFormat maskFormat,
+            int srcPadding,
+            GrMeshDrawTarget*);
+
+    // This function is implemented in graphite/text/AtlasManager.cpp, and should only be called
+    // from graphite::Device or linking issues may occur.
+    std::tuple<bool, int> regenerateAtlasForGraphite(
+            int begin, int end,
+            skgpu::MaskFormat maskFormat,
+            int srcPadding,
+            skgpu::graphite::Recorder*);
 
     SkStrikePromise fStrikePromise;
     SkSpan<Variant> fGlyphs;

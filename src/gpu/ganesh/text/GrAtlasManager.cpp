@@ -364,10 +364,8 @@ bool GrAtlasManager::initAtlas(MaskFormat format) {
 
 namespace sktext::gpu {
 
-std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
-                                                   MaskFormat maskFormat,
-                                                   int srcPadding,
-                                                   GrMeshDrawTarget* target) {
+std::tuple<bool, int> GlyphVector::regenerateAtlasForGanesh(
+        int begin, int end, MaskFormat maskFormat, int srcPadding, GrMeshDrawTarget* target) {
     GrAtlasManager* atlasManager = target->atlasManager();
     GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
 

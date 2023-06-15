@@ -299,10 +299,11 @@ namespace sktext::gpu {
 
 using DrawAtlas = skgpu::graphite::DrawAtlas;
 
-std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
-                                                   skgpu::MaskFormat maskFormat,
-                                                   int srcPadding,
-                                                   skgpu::graphite::Recorder* recorder) {
+std::tuple<bool, int> GlyphVector::regenerateAtlasForGraphite(int begin,
+                                                              int end,
+                                                              skgpu::MaskFormat maskFormat,
+                                                              int srcPadding,
+                                                              skgpu::graphite::Recorder* recorder) {
     auto atlasManager = recorder->priv().atlasManager();
     auto tokenTracker = recorder->priv().tokenTracker();
 
