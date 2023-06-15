@@ -1702,6 +1702,8 @@ BASE_SRCS_ALL = [
     "src/text/gpu/SDFTControl.cpp",
     "src/text/gpu/SDFTControl.h",
     "src/text/gpu/Slug.cpp",
+    "src/text/gpu/SlugImpl.cpp",
+    "src/text/gpu/SlugImpl.h",
     "src/text/gpu/StrikeCache.cpp",
     "src/text/gpu/StrikeCache.h",
     "src/text/gpu/SubRunAllocator.cpp",

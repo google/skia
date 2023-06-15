@@ -17,6 +17,7 @@ class SkData;
 
 namespace sktext::gpu {
 
+// This is implemented in SlugImpl.cpp
 sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 
 sk_sp<Slug> Slug::ConvertBlob(
@@ -58,8 +59,6 @@ uint32_t Slug::NextUniqueID() {
     static std::atomic<uint32_t> nextUnique = 1;
     return nextUnique++;
 }
-
-// Most of Slug's implementation is in TextBlob.cpp to share common code.
 
 }  // namespace sktext::gpu
 

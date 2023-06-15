@@ -16,6 +16,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkTo.h"
+#include "include/private/chromium/Slug.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkImageFilterCache.h"
@@ -33,9 +34,6 @@
 #include "src/shaders/SkLocalMatrixShader.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
         : SkMatrixProvider(/* localToDevice = */ SkMatrix::I())
@@ -486,7 +484,6 @@ void SkBaseDevice::simplifyGlyphRunRSXFormAndRedraw(SkCanvas* canvas,
     }
 }
 
-#if (defined(SK_GANESH) || defined(SK_GRAPHITE))
 sk_sp<sktext::gpu::Slug> SkBaseDevice::convertGlyphRunListToSlug(
         const sktext::GlyphRunList& glyphRunList,
         const SkPaint& initialPaint,
@@ -497,7 +494,6 @@ sk_sp<sktext::gpu::Slug> SkBaseDevice::convertGlyphRunListToSlug(
 void SkBaseDevice::drawSlug(SkCanvas*, const sktext::gpu::Slug*, const SkPaint&) {
     SK_ABORT("Slug drawing not supported.");
 }
-#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
 

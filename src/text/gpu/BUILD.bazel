@@ -15,6 +15,8 @@ GPU_FILES = [
     "SDFTControl.cpp",
     "SDFTControl.h",
     "Slug.cpp",
+    "SlugImpl.cpp",
+    "SlugImpl.h",
     "StrikeCache.cpp",
     "StrikeCache.h",
     "SubRunAllocator.cpp",

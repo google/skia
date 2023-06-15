@@ -2295,16 +2295,14 @@ protected:
 
     virtual void onDiscard();
 
-#if (defined(SK_GANESH) || defined(SK_GRAPHITE))
-    /** Experimental
+    /**
      */
     virtual sk_sp<sktext::gpu::Slug> onConvertGlyphRunListToSlug(
             const sktext::GlyphRunList& glyphRunList, const SkPaint& paint);
 
-    /** Experimental
+    /**
      */
     virtual void onDrawSlug(const sktext::gpu::Slug* slug);
-#endif
 
 private:
 
@@ -2452,19 +2450,17 @@ private:
     SkCanvas& operator=(SkCanvas&&) = delete;
     SkCanvas& operator=(const SkCanvas&) = delete;
 
-#if (defined(SK_GANESH) || defined(SK_GRAPHITE))
     friend class sktext::gpu::Slug;
-    /** Experimental
+    /**
      * Convert a SkTextBlob to a sktext::gpu::Slug using the current canvas state.
      */
     sk_sp<sktext::gpu::Slug> convertBlobToSlug(const SkTextBlob& blob, SkPoint origin,
                                                const SkPaint& paint);
 
-    /** Experimental
+    /**
      * Draw an sktext::gpu::Slug given the current canvas state.
      */
     void drawSlug(const sktext::gpu::Slug* slug);
-#endif
 
     /** Experimental
      *  Saves the specified subset of the current pixels in the current layer,
