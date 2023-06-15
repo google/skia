@@ -121,6 +121,14 @@ class SKUNICODE_API SkUnicode {
 
         virtual SkString toUpper(const SkString&) = 0;
 
+        virtual bool isControl(SkUnichar utf8) = 0;
+        virtual bool isWhitespace(SkUnichar utf8) = 0;
+        virtual bool isSpace(SkUnichar utf8) = 0;
+        virtual bool isTabulation(SkUnichar utf8) = 0;
+        virtual bool isHardBreak(SkUnichar utf8) = 0;
+        virtual bool isEmoji(SkUnichar utf8) = 0;
+        virtual bool isIdeographic(SkUnichar utf8) = 0;
+
         // Methods used in SkShaper and SkText
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
             (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
@@ -131,12 +139,13 @@ class SKUNICODE_API SkUnicode {
         virtual std::unique_ptr<SkBreakIterator> makeBreakIterator(BreakType type) = 0;
 
         // Methods used in SkParagraph
-        static bool isTabulation(SkUnicode::CodeUnitFlags flags);
-        static bool isHardLineBreak(SkUnicode::CodeUnitFlags flags);
-        static bool isSoftLineBreak(SkUnicode::CodeUnitFlags flags);
-        static bool isGraphemeStart(SkUnicode::CodeUnitFlags flags);
-        static bool isControl(SkUnicode::CodeUnitFlags flags);
-        static bool isPartOfWhiteSpaceBreak(SkUnicode::CodeUnitFlags flags);
+        static bool hasTabulationFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasHardLineBreakFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasSoftLineBreakFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasGraphemeStartFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasControlFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasPartOfWhiteSpaceBreakFlag(SkUnicode::CodeUnitFlags flags);
+
         static bool extractBidi(const char utf8[],
                                 int utf8Units,
                                 TextDirection dir,

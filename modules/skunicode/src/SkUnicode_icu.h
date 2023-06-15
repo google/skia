@@ -20,6 +20,7 @@
 
 #define SKICU_EMIT_FUNCS              \
     SKICU_FUNC(u_errorName)           \
+    SKICU_FUNC(u_hasBinaryProperty)   \
     SKICU_FUNC(u_getIntPropertyValue) \
     SKICU_FUNC(u_iscntrl)             \
     SKICU_FUNC(u_isspace)             \

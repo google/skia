@@ -27,7 +27,7 @@ UNIX_ONLY_TEST(SkUnicode_Client, reporter) {
     client->computeCodeUnitFlags(utf8.data(), utf8.size(), false, &results);
 
     for (auto flag : results) {
-        REPORTER_ASSERT(reporter, !SkUnicode::isPartOfWhiteSpaceBreak(flag));
+        REPORTER_ASSERT(reporter, !SkUnicode::hasPartOfWhiteSpaceBreakFlag(flag));
     }
 }
 #endif
@@ -39,7 +39,7 @@ UNIX_ONLY_TEST(SkUnicode_Native, reporter) {
     skia_private::TArray<SkUnicode::CodeUnitFlags, true> results;
     icu->computeCodeUnitFlags(utf8.data(), utf8.size(), false, &results);
     for (auto flag : results) {
-        REPORTER_ASSERT(reporter, !SkUnicode::isPartOfWhiteSpaceBreak(flag));
+        REPORTER_ASSERT(reporter, !SkUnicode::hasPartOfWhiteSpaceBreakFlag(flag));
     }
 }
 #endif
@@ -198,4 +198,28 @@ UNIX_ONLY_TEST(SkUnicode_ReorderVisual, reporter) {
     reorder({0}, {0});
     reorder({1}, {0});
     reorder({0, 1, 0, 1}, {0, 1, 2, 3});
+}
+
+UNIX_ONLY_TEST(SkUnicode_Emoji, reporter) {
+    std::u32string emojis(U"😄😁😆😅😂🤣");
+    std::u32string not_emojis(U"満毎行昼本可");
+    auto icu = SkUnicode::Make();
+    for (auto e : emojis) {
+        REPORTER_ASSERT(reporter, icu->isEmoji(e));
+    }
+    for (auto n: not_emojis) {
+        REPORTER_ASSERT(reporter, !icu->isEmoji(n));
+    }
+}
+
+UNIX_ONLY_TEST(SkUnicode_Ideographic, reporter) {
+    std::u32string ideographic(U"満毎行昼本可");
+    std::u32string not_ideographic(U"😄😁😆😅😂🤣");
+    auto icu = SkUnicode::Make();
+    for (auto i : ideographic) {
+        REPORTER_ASSERT(reporter, icu->isIdeographic(i));
+    }
+    for (auto n: not_ideographic) {
+        REPORTER_ASSERT(reporter, !icu->isIdeographic(n));
+    }
 }

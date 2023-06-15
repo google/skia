@@ -286,7 +286,7 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     TextIndex firstWhitespace = EMPTY_INDEX;
     for (int i = 0; i < fCodeUnitProperties.size(); ++i) {
         auto flags = fCodeUnitProperties[i];
-        if (SkUnicode::isPartOfWhiteSpaceBreak(flags)) {
+        if (SkUnicode::hasPartOfWhiteSpaceBreakFlag(flags)) {
             if (fTrailingSpaces  == fText.size()) {
                 fTrailingSpaces = i;
             }
@@ -296,7 +296,7 @@ bool ParagraphImpl::computeCodeUnitProperties() {
         } else {
             fTrailingSpaces = fText.size();
         }
-        if (SkUnicode::isHardLineBreak(flags)) {
+        if (SkUnicode::hasHardLineBreakFlag(flags)) {
             fHasLineBreaks = true;
         }
     }

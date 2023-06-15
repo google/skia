@@ -12,6 +12,7 @@
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
 #include "modules/skunicode/src/SkUnicode_client.h"
+#include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
 #include "src/base/SkUTF.h"
 
@@ -68,7 +69,7 @@ void SkUnicode_IcuBidi::bidi_reorderVisual(const SkUnicode::BidiLevel runLevels[
 }
 #endif
 
-class SkUnicode_client : public SkUnicode {
+class SkUnicode_client : public SkUnicodeHardCodedCharProperties {
 public:
     struct Data {
         SkSpan<const char> fText8;
@@ -131,81 +132,6 @@ public:
         return SkUnicode::extractBidi(utf8, utf8Units, dir, results);
     }
 
-    // TODO: Take if from the Client or hard code here?
-    static bool isControl(SkUnichar utf8) {
-        return (utf8 < ' ') || (utf8 >= 0x7f && utf8 <= 0x9f) ||
-               (utf8 >= 0x200D && utf8 <= 0x200F) ||
-               (utf8 >= 0x202A && utf8 <= 0x202E);
-    }
-
-    static bool isWhitespace(SkUnichar unichar) {
-        static constexpr std::array<SkUnichar, 21> whitespaces {
-                0x0009, // character tabulation
-                0x000A, // line feed
-                0x000B, // line tabulation
-                0x000C, // form feed
-                0x000D, // carriage return
-                0x0020, // space
-              //0x0085, // next line
-              //0x00A0, // no-break space
-                0x1680, // ogham space mark
-                0x2000, // en quad
-                0x2001, // em quad
-                0x2002, // en space
-                0x2003, // em space
-                0x2004, // three-per-em space
-                0x2005, // four-per-em space
-                0x2006, // six-per-em space
-              //0x2007, // figure space
-                0x2008, // punctuation space
-                0x2009, // thin space
-                0x200A, // hair space
-                0x2028, // line separator
-                0x2029, // paragraph separator
-              //0x202F, // narrow no-break space
-                0x205F, // medium mathematical space
-                0x3000};// ideographic space
-        return std::find(whitespaces.begin(), whitespaces.end(), unichar) != whitespaces.end();
-    }
-
-    static bool isSpace(SkUnichar unichar) {
-        static constexpr std::array<SkUnichar, 25> spaces {
-                0x0009, // character tabulation
-                0x000A, // line feed
-                0x000B, // line tabulation
-                0x000C, // form feed
-                0x000D, // carriage return
-                0x0020, // space
-                0x0085, // next line
-                0x00A0, // no-break space
-                0x1680, // ogham space mark
-                0x2000, // en quad
-                0x2001, // em quad
-                0x2002, // en space
-                0x2003, // em space
-                0x2004, // three-per-em space
-                0x2005, // four-per-em space
-                0x2006, // six-per-em space
-                0x2007, // figure space
-                0x2008, // punctuation space
-                0x2009, // thin space
-                0x200A, // hair space
-                0x2028, // line separator
-                0x2029, // paragraph separator
-                0x202F, // narrow no-break space
-                0x205F, // medium mathematical space
-                0x3000}; // ideographic space
-        return std::find(spaces.begin(), spaces.end(), unichar) != spaces.end();
-    }
-
-    static bool isTabulation(SkUnichar utf8) {
-        return utf8 == '\t';
-    }
-
-    static bool isHardBreak(SkUnichar utf8) {
-        return utf8 == '\n';
-    }
-
     bool computeCodeUnitFlags(char utf8[],
                               int utf8Units,
                               bool replaceTabs,
@@ -228,7 +154,7 @@ public:
             SkUnichar unichar = SkUTF::NextUTF8(&current, end);
             if (unichar < 0) unichar = 0xFFFD;
             auto after = current - utf8;
-            if (replaceTabs && SkUnicode_client::isTabulation(unichar)) {
+            if (replaceTabs && this->isTabulation(unichar)) {
                 results->at(before) |= SkUnicode::kTabulation;
                 if (replaceTabs) {
                     unichar = ' ';
@@ -236,13 +162,13 @@ public:
                 }
             }
             for (auto i = before; i < after; ++i) {
-                if (SkUnicode_client::isSpace(unichar)) {
+                if (this->isSpace(unichar)) {
                     results->at(i) |= SkUnicode::kPartOfIntraWordBreak;
                 }
-                if (SkUnicode_client::isWhitespace(unichar)) {
+                if (this->isWhitespace(unichar)) {
                     results->at(i) |= SkUnicode::kPartOfWhiteSpaceBreak;
                 }
-                if (SkUnicode_client::isControl(unichar)) {
+                if (this->isControl(unichar)) {
                     results->at(i) |= SkUnicode::kControl;
                 }
             }

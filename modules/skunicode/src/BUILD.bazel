@@ -21,6 +21,8 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "SkUnicode.cpp",
+        "SkUnicode_hardcoded.cpp",
+        "SkUnicode_hardcoded.h",
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
