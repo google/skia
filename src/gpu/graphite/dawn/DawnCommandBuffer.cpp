@@ -535,7 +535,7 @@ void DawnCommandBuffer::syncUniformBuffers() {
         uint32_t numBuffers = 0;
 
         entries[numBuffers].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
-        entries[numBuffers].buffer = fInstrinsicConstantBuffer;
+        entries[numBuffers].buffer = fIntrinsicConstantBuffer;
         entries[numBuffers].offset = 0;
         entries[numBuffers].size = sizeof(IntrinsicConstant);
         ++numBuffers;
@@ -610,27 +610,27 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     const float invTwoH = 2.f / viewport.height();
     const IntrinsicConstant rtAdjust = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
 
-    if (!fInstrinsicConstantBuffer) {
+    if (!fIntrinsicConstantBuffer) {
         wgpu::BufferDescriptor desc;
 #if defined(SK_DEBUG)
-        desc.label = "CommandBufferInstrinsicConstant";
+        desc.label = "CommandBufferIntrinsicConstant";
 #endif
         desc.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform;
         desc.size = sizeof(IntrinsicConstant);
         desc.mappedAtCreation = false;
-        fInstrinsicConstantBuffer = fSharedContext->device().CreateBuffer(&desc);
-        SkASSERT(fInstrinsicConstantBuffer);
+        fIntrinsicConstantBuffer = fSharedContext->device().CreateBuffer(&desc);
+        SkASSERT(fIntrinsicConstantBuffer);
     }
 
     // TODO: https://b.corp.google.com/issues/259267703
-    // Make updating instrinsic constants faster. Metal has setVertexBytes method
-    // to quickly sending instrinsic constants to vertex shader without any buffer. But Dawn doesn't
+    // Make updating intrinsic constants faster. Metal has setVertexBytes method
+    // to quickly sending intrinsic constants to vertex shader without any buffer. But Dawn doesn't
     // have similar capability. So we have to use WriteBuffer(), and this method is not allowed to
     // be called when there is an active render pass.
     SkASSERT(!fActiveRenderPassEncoder);
     SkASSERT(!fActiveComputePassEncoder);
 
-    fCommandEncoder.WriteBuffer(fInstrinsicConstantBuffer,
+    fCommandEncoder.WriteBuffer(fIntrinsicConstantBuffer,
                                 0,
                                 reinterpret_cast<const uint8_t*>(rtAdjust),
                                 sizeof(rtAdjust));
