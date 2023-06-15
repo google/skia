@@ -10,10 +10,12 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAttributes.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
 #include <cstddef>
+#include <functional>
 #include <iterator>
 #include <memory>
 #include <tuple>
@@ -80,7 +82,7 @@ class StrikeCache;
 //      * SDFTSubRun* - scaled distance field text handles largish single color glyphs that still
 //        can fit in the atlas; the sizes between direct SubRun, and path SubRun. The destination
 //        rectangles are in source space.
-class AtlasSubRun  {
+class AtlasSubRun {
 public:
     virtual ~AtlasSubRun() = default;
 
@@ -130,15 +132,12 @@ public:
 #endif
 
     virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const = 0;
-
-protected:
-#if defined(SK_GRAPHITE)
-    void draw(skgpu::graphite::Device*,
-              SkPoint drawOrigin,
-              const SkPaint&,
-              sk_sp<SkRefCnt> subRunStorage) const;
-#endif
 };
+
+using AtlasDrawDelegate = std::function<void(const sktext::gpu::AtlasSubRun* subRun,
+                                             SkPoint drawOrigin,
+                                             const SkPaint& paint,
+                                             sk_sp<SkRefCnt> subRunStorage)>;
 
 // -- SubRun -------------------------------------------------------------------------------------
 // SubRun defines the most basic functionality of a SubRun; the ability to draw, and the
@@ -148,24 +147,9 @@ using SubRunOwner = std::unique_ptr<SubRun, SubRunAllocator::Destroyer>;
 class SubRun {
 public:
     virtual ~SubRun();
-#if defined(SK_GANESH)
-    // Produce GPU ops for this subRun or just draw them.
-    virtual void draw(SkCanvas*,
-                      const GrClip*,
-                      const SkMatrixProvider& viewMatrix,
-                      SkPoint drawOrigin,
-                      const SkPaint&,
-                      sk_sp<SkRefCnt> subRunStorage,
-                      skgpu::ganesh::SurfaceDrawContext*) const = 0;
-#endif
-#if defined(SK_GRAPHITE)
-    // Produce uploads and draws for this subRun
-    virtual void draw(SkCanvas*,
-                      SkPoint drawOrigin,
-                      const SkPaint&,
-                      sk_sp<SkRefCnt> subRunStorage,
-                      skgpu::graphite::Device*) const = 0;
-#endif
+
+    virtual void draw(SkCanvas*, SkPoint drawOrigin, const SkPaint&, sk_sp<SkRefCnt> subRunStorage,
+                      AtlasDrawDelegate) const = 0;
 
     void flatten(SkWriteBuffer& buffer) const;
     static SubRunOwner MakeFromBuffer(SkReadBuffer& buffer,
@@ -269,22 +253,8 @@ public:
 
     static size_t EstimateAllocSize(const GlyphRunList& glyphRunList);
 
-#if defined(SK_GANESH)
-    void draw(SkCanvas* canvas,
-              const GrClip* clip,
-              const SkMatrixProvider& viewMatrix,
-              SkPoint drawOrigin,
-              const SkPaint& paint,
-              const SkRefCnt* subRunStorage,
-              skgpu::ganesh::SurfaceDrawContext* sdc) const;
-#endif
-#if defined(SK_GRAPHITE)
-    void draw(SkCanvas*,
-              SkPoint drawOrigin,
-              const SkPaint&,
-              const SkRefCnt* subRunStorage,
-              skgpu::graphite::Device*) const;
-#endif
+    void draw(SkCanvas*, SkPoint drawOrigin, const SkPaint&, const SkRefCnt* subRunStorage,
+              AtlasDrawDelegate) const;
 
     const SkMatrix& initialPosition() const { return fInitialPositionMatrix; }
     bool isEmpty() const { return fSubRuns.isEmpty(); }
@@ -295,6 +265,10 @@ private:
     const SkMatrix fInitialPositionMatrix;
     SubRunList fSubRuns;
 };
+
+// Returns the empty span if there is a problem reading the positions.
+SkSpan<SkPoint> MakePointsFromBuffer(SkReadBuffer&, SubRunAllocator*);
+
 }  // namespace sktext::gpu
 
 #endif  // sktext_gpu_SubRunContainer_DEFINED

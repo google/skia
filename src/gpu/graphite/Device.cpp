@@ -59,6 +59,7 @@
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
+#include <functional>
 #include <unordered_map>
 #include <vector>
 
@@ -817,6 +818,15 @@ void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect
     this->drawEdgeAAImageSet(&single, 1, nullptr, nullptr, sampling, paint, constraint);
 }
 
+sktext::gpu::AtlasDrawDelegate Device::atlasDelegate() {
+    return [&](const sktext::gpu::AtlasSubRun* subRun,
+                             SkPoint drawOrigin,
+                             const SkPaint& paint,
+                             sk_sp<SkRefCnt> subRunStorage) {
+        this->drawAtlasSubRun(subRun, drawOrigin, paint, subRunStorage);
+    };
+}
+
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                 const sktext::GlyphRunList& glyphRunList,
                                 const SkPaint& initialPaint,
@@ -826,7 +836,7 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                                         glyphRunList,
                                                         drawingPaint,
                                                         this->strikeDeviceInfo(),
-                                                        this);
+                                                        this->atlasDelegate());
 }
 
 void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
@@ -1326,7 +1336,8 @@ sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRu
 void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
                       const SkPaint& drawingPaint) {
     auto slugImpl = static_cast<const sktext::gpu::SlugImpl*>(slug);
-    slugImpl->subRuns()->draw(canvas, slugImpl->origin(), drawingPaint, slugImpl, this);
+    slugImpl->subRuns()->draw(canvas, slugImpl->origin(), drawingPaint, slugImpl,
+                              this->atlasDelegate());
 }
 
 } // namespace skgpu::graphite

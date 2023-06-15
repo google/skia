@@ -16,7 +16,6 @@
 
 #include <utility>
 
-class GrClip;
 class SkCanvas;
 class SkPaint;
 
@@ -37,40 +36,23 @@ TextBlobRedrawCoordinator::TextBlobRedrawCoordinator(uint32_t messageBusID)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
-#if defined(SK_GANESH)
-void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
-                                                 const GrClip* clip,
-                                                 const SkMatrixProvider& viewMatrix,
-                                                 const GlyphRunList& glyphRunList,
-                                                 const SkPaint& paint,
-                                                 SkStrikeDeviceInfo strikeDeviceInfo,
-                                                 skgpu::ganesh::SurfaceDrawContext* sdc) {
-    sk_sp<TextBlob> blob = this->findOrCreateBlob(viewMatrix, glyphRunList, paint,
-                                                  strikeDeviceInfo);
-
-    blob->draw(canvas, clip, viewMatrix, glyphRunList.origin(), paint, sdc);
-}
-#endif
-
-#if defined(SK_GRAPHITE)
 void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                  const SkMatrix& viewMatrix,
                                                  const sktext::GlyphRunList& glyphRunList,
                                                  const SkPaint& paint,
                                                  SkStrikeDeviceInfo strikeDeviceInfo,
-                                                 skgpu::graphite::Device* device) {
+                                                 AtlasDrawDelegate atlasDelegate) {
     sk_sp<TextBlob> blob = this->findOrCreateBlob(viewMatrix, glyphRunList, paint,
                                                   strikeDeviceInfo);
 
-    blob->draw(canvas, glyphRunList.origin(), paint, device);
+    blob->draw(canvas, glyphRunList.origin(), paint, atlasDelegate);
 }
-#endif
 
-sk_sp<TextBlob> TextBlobRedrawCoordinator::findOrCreateBlob(const SkMatrixProvider& viewMatrix,
+sk_sp<TextBlob> TextBlobRedrawCoordinator::findOrCreateBlob(const SkMatrix& viewMatrix,
                                                             const GlyphRunList& glyphRunList,
                                                             const SkPaint& paint,
                                                             SkStrikeDeviceInfo strikeDeviceInfo) {
-    SkMatrix positionMatrix{viewMatrix.localToDevice()};
+    SkMatrix positionMatrix{viewMatrix};
     positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
     auto [canCache, key] = TextBlob::Key::Make(

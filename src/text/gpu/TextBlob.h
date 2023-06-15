@@ -34,13 +34,6 @@ class GlyphRunList;
 class StrikeForGPUCacheInterface;
 }
 
-#if defined(SK_GANESH)
-class GrClip;
-namespace skgpu::ganesh {
-class SurfaceDrawContext;
-}
-#endif
-
 namespace sktext::gpu {
 class Slug;
 
@@ -120,20 +113,11 @@ public:
     const Key& key() const;
     size_t size() const { return SkTo<size_t>(fSize); }
 
-#if defined(SK_GANESH)
-    void draw(SkCanvas*,
-              const GrClip* clip,
-              const SkMatrixProvider& viewMatrix,
-              SkPoint drawOrigin,
-              const SkPaint& paint,
-              skgpu::ganesh::SurfaceDrawContext* sdc);
-#endif
-#if defined(SK_GRAPHITE)
     void draw(SkCanvas*,
               SkPoint drawOrigin,
               const SkPaint& paint,
-              skgpu::graphite::Device* device);
-#endif
+              AtlasDrawDelegate);
+
     const AtlasSubRun* testingOnlyFirstSubRun() const;
 
 private:

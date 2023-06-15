@@ -21,11 +21,6 @@
 
 class SkStrokeRec;
 
-namespace sktext::gpu {
-class AtlasSubRun;
-enum class Budgeted : bool;
-}  // namespace sktext::gpu
-
 namespace skgpu::graphite {
 
 class BoundsManager;
@@ -213,6 +208,7 @@ private:
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
     void drawClipShape(const Transform&, const Shape&, const Clip&, DrawOrder);
 
+    sktext::gpu::AtlasDrawDelegate atlasDelegate();
     // Handles primitive processing for atlas-based text
     void drawAtlasSubRun(const sktext::gpu::AtlasSubRun*,
                          SkPoint drawOrigin,
@@ -263,7 +259,6 @@ private:
     bool fDrawsOverlap;
 
     friend class ClipStack; // for recordDraw
-    friend class sktext::gpu::AtlasSubRun; // for drawAtlasSubRun
 };
 
 SK_MAKE_BITMASK_OPS(Device::DrawFlags)

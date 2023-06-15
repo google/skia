@@ -27,6 +27,8 @@ GPU_FILES = [
     "TextBlob.h",
     "TextBlobRedrawCoordinator.cpp",
     "TextBlobRedrawCoordinator.h",
+    "VertexFiller.cpp",
+    "VertexFiller.h",
 ]
 
 split_srcs_and_hdrs(

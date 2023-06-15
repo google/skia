@@ -30,12 +30,6 @@
 
 class SkMaskFilter;
 
-#if defined(SK_GRAPHITE)  // Graphite Support
-#include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#endif
-
 using namespace sktext::gpu;
 namespace {
 
@@ -242,25 +236,12 @@ bool TextBlob::canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) co
 
 const TextBlob::Key& TextBlob::key() const { return fKey; }
 
-#if defined(SK_GANESH)
-void TextBlob::draw(SkCanvas* canvas,
-                    const GrClip* clip,
-                    const SkMatrixProvider& viewMatrix,
-                    SkPoint drawOrigin,
-                    const SkPaint& paint,
-                    skgpu::ganesh::SurfaceDrawContext* sdc) {
-    fSubRuns->draw(canvas, clip, viewMatrix, drawOrigin, paint, this, sdc);
-}
-#endif
-
-#if defined(SK_GRAPHITE)
 void TextBlob::draw(SkCanvas* canvas,
                     SkPoint drawOrigin,
                     const SkPaint& paint,
-                    skgpu::graphite::Device* device) {
-    fSubRuns->draw(canvas, drawOrigin, paint, this, device);
+                    AtlasDrawDelegate atlasDelegate) {
+    fSubRuns->draw(canvas, drawOrigin, paint, this, atlasDelegate);
 }
-#endif
 
 #if GR_TEST_UTILS
 struct SubRunContainerPeer {

@@ -1714,6 +1714,8 @@ BASE_SRCS_ALL = [
     "src/text/gpu/TextBlob.h",
     "src/text/gpu/TextBlobRedrawCoordinator.cpp",
     "src/text/gpu/TextBlobRedrawCoordinator.h",
+    "src/text/gpu/VertexFiller.cpp",
+    "src/text/gpu/VertexFiller.h",
     "src/text/StrikeForGPU.cpp",
     "src/text/StrikeForGPU.h",
     "src/utils/SkAnimCodecPlayer.cpp",

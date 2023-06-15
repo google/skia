@@ -102,6 +102,7 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <tuple>
 #include <utility>
@@ -1429,8 +1430,20 @@ void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
         SkASSERT(slugMatrix == positionMatrix);
     }
 #endif
-    slugImpl->subRuns()->draw(canvas, this->clip(), matrixProvider, slugImpl->origin(),
-                              drawingPaint, slugImpl, fSurfaceDrawContext.get());
+    auto atlasDelegate = [&](const sktext::gpu::AtlasSubRun* subRun,
+                             SkPoint drawOrigin,
+                             const SkPaint& paint,
+                             sk_sp<SkRefCnt> subRunStorage) {
+        auto[drawingClip, op] = subRun->makeAtlasTextOp(
+                this->clip(), matrixProvider.localToDevice(), drawOrigin, paint,
+                std::move(subRunStorage), fSurfaceDrawContext.get());
+        if (op != nullptr) {
+            fSurfaceDrawContext->addDrawOp(drawingClip, std::move(op));
+        }
+    };
+
+    slugImpl->subRuns()->draw(canvas, slugImpl->origin(),
+                              drawingPaint, slugImpl, atlasDelegate);
 }
 
 }  // namespace skgpu::ganesh
