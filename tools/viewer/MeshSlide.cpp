@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkCubicMap.h"
@@ -72,6 +73,10 @@ static constexpr struct ShaderFactory {
             return SkGradientShader::MakeRadial({0.5f, 0.5f}, 0.5f, gColors, nullptr,
                                                 std::size(gColors), SkTileMode::kRepeat);
         }
+    },
+    {
+        "Colors",
+        []() ->sk_sp<SkShader> { return nullptr; }
     },
 };
 
@@ -161,6 +166,7 @@ public:
 
         SkPaint p;
         p.setAntiAlias(true);
+        p.setColor(SK_ColorWHITE);
 
         static constexpr float kMeshFraction = 0.85f;
         const float mesh_size = std::min(fSize.fWidth, fSize.fHeight)*kMeshFraction;
@@ -172,12 +178,12 @@ public:
         auto verts = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
                                           fVertices.size(),
                                           fVertices.data(),
-                                          fUVs.data(),
-                                          nullptr,
+                                          fShader ? fUVs.data() : nullptr,
+                                          fShader ? nullptr : fColors.data(),
                                           fIndices.size(),
                                           fIndices.data());
         p.setShader(fShader);
-        canvas->drawVertices(verts, SkBlendMode::kSrcOver, p);
+        canvas->drawVertices(verts, SkBlendMode::kModulate, p);
 
         if (fShowMesh) {
             p.setShader(nullptr);
@@ -228,11 +234,15 @@ private:
 
         fVertices.resize(vertex_count);
         fUVs.resize(vertex_count);
+        fColors.resize(vertex_count);
         for (size_t i = 0; i < vertex_count; ++i) {
             fVertices[i] = fUVs[i] = {
                 static_cast<float>(i % n) / (n - 1),
                 static_cast<float>(i / n) / (n - 1),
             };
+            fColors[i] = SkColorSetRGB(!!(i%2)*255,
+                                       !!(i%3)*255,
+                                       !!((i+1)%3)*255);
         }
 
         // Trivial triangle tessellation pattern:
@@ -279,7 +289,7 @@ private:
     void drawControls() {
         ImGui::Begin("Mesh Options");
 
-        if (ImGui::BeginCombo("Shader", fCurrentShaderFactory->fName)) {
+        if (ImGui::BeginCombo("Texture", fCurrentShaderFactory->fName)) {
             for (const auto& fact : gShaderFactories) {
                 const auto is_selected = (fCurrentShaderFactory->fName == fact.fName);
                 if (ImGui::Selectable(fact.fName) && !is_selected) {
@@ -334,6 +344,7 @@ private:
     sk_sp<SkShader>         fShader;
     std::vector<SkPoint>    fVertices,
                             fUVs;
+    std::vector<SkColor>    fColors;
     std::vector<uint16_t>   fIndices;
 
     double                  fTimeBase = 0;
