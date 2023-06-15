@@ -54,26 +54,6 @@ bool SkImageGenerator::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     return this->onGetYUVAPlanes(yuvaPixmaps);
 }
 
-#if defined(SK_GRAPHITE)
-sk_sp<SkImage> SkImageGenerator::makeTextureImage(skgpu::graphite::Recorder* recorder,
-                                                  const SkImageInfo& info,
-                                                  skgpu::Mipmapped mipmapped) {
-    // This still allows for a difference in colorType and colorSpace. Just no subsetting.
-    if (fInfo.dimensions() != info.dimensions()) {
-        return nullptr;
-    }
-
-    return this->onMakeTextureImage(recorder, info, mipmapped);
-}
-
-sk_sp<SkImage> SkImageGenerator::onMakeTextureImage(skgpu::graphite::Recorder*,
-                                                    const SkImageInfo&,
-                                                    skgpu::Mipmapped) {
-    return nullptr;
-}
-
-#endif // SK_GRAPHITE
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static SkGraphics::ImageGeneratorFromEncodedDataFactory gFactory;

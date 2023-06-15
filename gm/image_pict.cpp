@@ -234,14 +234,6 @@ protected:
                 /*label=*/"SurfaceProxyView_GenerateTexture");
     }
 
-#if defined(SK_GRAPHITE)
-    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
-                                      const SkImageInfo&,
-                                      skgpu::Mipmapped) override {
-        return fImage;
-    }
-#endif
-
 private:
     sk_sp<GrRecordingContext> fRContext;
     sk_sp<SkImage>            fImage;

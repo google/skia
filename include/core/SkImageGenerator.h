@@ -113,12 +113,6 @@ public:
 
     virtual bool isTextureGenerator() const { return false; }
 
-#if defined(SK_GRAPHITE)
-    sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
-                                    const SkImageInfo&,
-                                    skgpu::Mipmapped);
-#endif
-
 protected:
     static constexpr int kNeedNewImageUniqueID = 0;
 
@@ -132,11 +126,6 @@ protected:
                                  SkYUVAPixmapInfo*) const { return false; }
     virtual bool onGetYUVAPlanes(const SkYUVAPixmaps&) { return false; }
 
-#if defined(SK_GRAPHITE)
-    virtual sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
-                                              const SkImageInfo&,
-                                              skgpu::Mipmapped);
-#endif
     const SkImageInfo fInfo;
 
 private:
