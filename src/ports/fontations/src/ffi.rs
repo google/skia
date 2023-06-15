@@ -8,6 +8,7 @@ use skrifa::{
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
     scale::Context,
+    setting::VariationSetting,
     string::{LocalizedStrings, StringId},
     MetadataProvider, Tag,
 };
@@ -71,7 +72,7 @@ fn get_path(
             let mut scaler = cx
                 .new_scaler()
                 .size(Size::new(size))
-                .normalized_coords(coords.0.into_iter())
+                .normalized_coords(coords.normalized_coords.into_iter())
                 .build(f);
             let mut pen_dump = PathWrapperPen {
                 path_wrapper: path_wrapper,
@@ -89,7 +90,7 @@ fn advance_width_or_zero(
 ) -> f32 {
     font_ref
         .with_font(|f| {
-            GlyphMetrics::new(f, Size::new(size), coords.0.coords())
+            GlyphMetrics::new(f, Size::new(size), coords.normalized_coords.coords())
                 .advance_width(GlyphId::new(glyph_id))
         })
         .unwrap_or_default()
@@ -124,7 +125,8 @@ fn get_skia_metrics(
 ) -> ffi::Metrics {
     font_ref
         .with_font(|f| {
-            let fontations_metrics = Metrics::new(f, Size::new(size), coords.0.coords());
+            let fontations_metrics =
+                Metrics::new(f, Size::new(size), coords.normalized_coords.coords());
             Some(convert_metrics(&fontations_metrics))
         })
         .unwrap_or_default()
@@ -227,6 +229,29 @@ fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16 {
         .unwrap_or_default();
 }
 
+fn variation_position(
+    coords: &BridgeNormalizedCoords,
+    coordinates: &mut [SkiaDesignCoordinate],
+) -> isize {
+    if coordinates.len() > 0 {
+        if coords.filtered_user_coords.len() > coordinates.len() {
+            return -1;
+        }
+        let skia_design_coordinates =
+            coords
+                .filtered_user_coords
+                .iter()
+                .map(|setting| SkiaDesignCoordinate {
+                    axis: u32::from_be_bytes(setting.selector.into_bytes()),
+                    value: setting.value,
+                });
+        for (i, coord) in skia_design_coordinates.enumerate() {
+            coordinates[i] = coord;
+        }
+    }
+    coords.filtered_user_coords.len().try_into().unwrap()
+}
+
 fn make_font_ref_internal<'a>(font_data: &'a [u8], index: u32) -> Result<FontRef<'a>, ReadError> {
     match FileRef::new(font_data) {
         Ok(file_ref) => match file_ref {
@@ -254,11 +279,15 @@ fn resolve_into_normalized_coords(
     let variation_tuples = design_coords
         .into_iter()
         .map(|coord| (Tag::from_be_bytes(coord.axis.to_be_bytes()), coord.value));
-    Box::new(BridgeNormalizedCoords(
-        font_ref
-            .with_font(|f| Some(f.axes().location(variation_tuples)))
-            .unwrap_or_default(),
-    ))
+    let bridge_normalized_coords = font_ref
+        .with_font(|f| {
+            Some(BridgeNormalizedCoords {
+                filtered_user_coords: f.axes().filter(variation_tuples.clone()).collect(),
+                normalized_coords: f.axes().location(variation_tuples),
+            })
+        })
+        .unwrap_or_default();
+    Box::new(bridge_normalized_coords)
 }
 
 struct BridgeFontRef<'a>(Option<FontRef<'a>>);
@@ -269,7 +298,11 @@ impl<'a> BridgeFontRef<'a> {
     }
 }
 
-struct BridgeNormalizedCoords(Location);
+#[derive(Default)]
+struct BridgeNormalizedCoords {
+    normalized_coords: Location,
+    filtered_user_coords: Vec<VariationSetting>,
+}
 
 struct BridgeLocalizedStrings<'a> {
     #[allow(dead_code)]
@@ -343,6 +376,10 @@ mod ffi {
 
         fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut [u8]) -> usize;
         fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16;
+        fn variation_position(
+            coords: &BridgeNormalizedCoords,
+            coordinates: &mut [SkiaDesignCoordinate],
+        ) -> isize;
 
         type BridgeLocalizedStrings<'a>;
         unsafe fn get_localized_strings<'a>(

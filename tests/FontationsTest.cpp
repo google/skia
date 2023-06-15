@@ -16,6 +16,8 @@
 namespace {
 const char kFontResource[] = "fonts/ahem.ttf";
 const char kTtcResource[] = "fonts/test.ttc";
+const char kVariableResource[] = "fonts/test_glyphs-glyf_colr_1_variable.ttf";
+constexpr size_t kNumVariableAxes = 44;
 }  // namespace
 
 DEF_TEST(Fontations_DoNotMakeFromNull, reporter) {
@@ -136,4 +138,41 @@ DEF_TEST(Fontations_TableTags, reporter) {
     REPORTER_ASSERT(reporter, testTypeface->getTableTags(tagsBuffer) == kNumTags);
     REPORTER_ASSERT(reporter, tagsBuffer[0] == firstTag);
     REPORTER_ASSERT(reporter, tagsBuffer[kNumTags - 1] == lastTag);
+}
+
+DEF_TEST(Fontations_VariationPosition, reporter) {
+    sk_sp<SkTypeface> variableTypeface(
+            SkTypeface_Make_Fontations(GetResourceAsStream(kVariableResource), SkFontArguments()));
+    // Everything at default.
+    REPORTER_ASSERT(reporter, variableTypeface->getVariationDesignPosition(nullptr, 0) == 0);
+
+    SkFontArguments::VariationPosition::Coordinate kSwpsCoordinateFirst = {SkSetFourByteTag('S', 'W', 'P', 'S'), 25};
+    SkFontArguments::VariationPosition::Coordinate kSwpsCoordinateSecond = {SkSetFourByteTag('S', 'W', 'P', 'S'), 55};
+    SkFontArguments::VariationPosition::Coordinate kSwpeCoordinate = {SkSetFourByteTag('S', 'W', 'P', 'E'), 45};
+    SkFontArguments::VariationPosition::Coordinate kInvalidCoordinate = {SkSetFourByteTag('_', '_', '_', '_'), 0};
+
+    // 'SWPS' and 'SWPE' exist. Second 'SWPS' should override first, invalid tag should be stripped.
+    SkFontArguments::VariationPosition::Coordinate cloneCoordinates[4] = {
+            kSwpsCoordinateFirst, kSwpsCoordinateSecond, kSwpeCoordinate, kInvalidCoordinate};
+
+    SkFontArguments::VariationPosition clonePosition;
+    clonePosition.coordinates = cloneCoordinates;
+    clonePosition.coordinateCount = 4;
+
+    sk_sp<SkTypeface> clonedTypeface = variableTypeface->makeClone(
+            SkFontArguments().setVariationDesignPosition(clonePosition));
+    REPORTER_ASSERT(reporter, clonedTypeface->getVariationDesignPosition(nullptr, 0) == 2);
+
+    SkFontArguments::VariationPosition::Coordinate retrieveCoordinates[kNumVariableAxes] = {};
+    // Error when providing too little space.
+    REPORTER_ASSERT(reporter, clonedTypeface->getVariationDesignPosition(retrieveCoordinates, 1) == -1);
+
+    REPORTER_ASSERT(reporter,
+                    clonedTypeface->getVariationDesignPosition(retrieveCoordinates, kNumVariableAxes) == 2);
+    REPORTER_ASSERT(reporter,
+                    retrieveCoordinates[0].axis == kSwpsCoordinateSecond.axis &&
+                            retrieveCoordinates[0].value == kSwpsCoordinateSecond.value);
+    REPORTER_ASSERT(reporter,
+                    retrieveCoordinates[1].axis == kSwpeCoordinate.axis &&
+                            retrieveCoordinates[1].value == kSwpeCoordinate.value);
 }
