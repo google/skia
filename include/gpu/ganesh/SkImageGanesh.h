@@ -14,9 +14,6 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAPI.h"
 
-// TODO(kjlubick) remove after chromium is migrated to include this directly
-#include "include/private/chromium/SkImageChromium.h"  // IWYU pragma: keep
-
 #include <functional>
 #include <utility>
 
