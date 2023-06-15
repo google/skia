@@ -17,8 +17,9 @@
 
 namespace skgpu::graphite {
 
-class VulkanSharedContext;
 class Attribute;
+struct RenderPassDesc;
+class VulkanSharedContext;
 
 class VulkanGraphicsPipeline final : public GraphicsPipeline {
 public:
@@ -43,8 +44,8 @@ public:
                                               VkShaderModule fragShader,
                                               DepthStencilSettings,
                                               PrimitiveType,
-                                              int numTexturesAndSamplers,
-                                              const BlendInfo&);
+                                              const BlendInfo&,
+                                              const RenderPassDesc&);
 
     ~VulkanGraphicsPipeline() override {}
 

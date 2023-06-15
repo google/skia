@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 
 #include "include/private/base/SkTArray.h"
+#include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
@@ -434,8 +435,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         VkShaderModule fragShader,
         DepthStencilSettings stencilSettings,
         PrimitiveType primitiveType,
-        int numTexturesAndSamplers,
-        const BlendInfo& blendInfo) {
+        const BlendInfo& blendInfo,
+        const RenderPassDesc& renderPassDesc) {
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     skia_private::STArray<2, VkVertexInputBindingDescription, true> bindingDescs;
@@ -461,7 +462,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     setup_viewport_scissor_state(&viewportInfo);
 
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
-    setup_multisample_state(numTexturesAndSamplers, &multisampleInfo);
+    setup_multisample_state(renderPassDesc.fColorAttachment.fTextureInfo.numSamples(),
+                            &multisampleInfo);
 
     // We will only have one color blend attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];
