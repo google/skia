@@ -449,12 +449,12 @@ SkGlyphDigest RemoteStrike::digestFor(ActionType actionType, SkPackedGlyphID pac
     SkGlyph* glyph;
     this->ensureScalerContext();
     switch (actionType) {
-        case kPath: {
+        case skglyph::kPath: {
             fPathsToSend.emplace_back(fContext->makeGlyph(packedGlyphID, &fAlloc));
             glyph = &fPathsToSend.back();
             break;
         }
-        case kDrawable: {
+        case skglyph::kDrawable: {
             fDrawablesToSend.emplace_back(fContext->makeGlyph(packedGlyphID, &fAlloc));
             glyph = &fDrawablesToSend.back();
             break;
