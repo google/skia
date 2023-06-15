@@ -124,35 +124,34 @@ enum class ImageDrawMode {
  * Optimize the src rect sampling area within an image (sized 'width' x 'height') such that
  * 'outSrcRect' will be completely contained in the image's bounds. The corresponding rect
  * to draw will be output to 'outDstRect'. The mapping between src and dst will be cached in
- * 'srcToDst'. Outputs are not always updated when kSkip is returned.
+ * 'outSrcToDst'. Outputs are not always updated when kSkip is returned.
  *
- * If 'origSrcRect' is null, implicitly use the image bounds. If 'origDstRect' is null, use the
- * original src rect. 'dstClip' should be null when there is no additional clipping.
+ * 'dstClip' should be null when there is no additional clipping.
  */
-ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* origSrcRect,
-                                   const SkRect* origDstRect, const SkPoint dstClip[4],
-                                   SkRect* outSrcRect, SkRect* outDstRect,
-                                   SkMatrix* srcToDst) {
-    SkRect srcBounds = SkRect::MakeIWH(image.fWidth, image.fHeight);
+ImageDrawMode optimize_sample_area(const SkISize& imageSize,
+                                   const SkRect& origSrcRect,
+                                   const SkRect& origDstRect,
+                                   const SkPoint dstClip[4],
+                                   SkRect* outSrcRect,
+                                   SkRect* outDstRect,
+                                   SkMatrix* outSrcToDst) {
 
-    SkRect src = origSrcRect ? *origSrcRect : srcBounds;
-    SkRect dst = origDstRect ? *origDstRect : src;
-
-    if (src.isEmpty() || dst.isEmpty()) {
+    if (origSrcRect.isEmpty() || origDstRect.isEmpty()) {
         return ImageDrawMode::kSkip;
     }
 
-    if (outDstRect) {
-        *srcToDst = SkMatrix::RectToRect(src, dst);
-    } else {
-        srcToDst->setIdentity();
-    }
+    *outSrcToDst = SkMatrix::RectToRect(origSrcRect, origDstRect);
 
-    if (origSrcRect && !srcBounds.contains(src)) {
+    SkRect src = origSrcRect;
+    SkRect dst = origDstRect;
+
+    const SkRect srcBounds = SkRect::Make(imageSize);
+
+    if (!srcBounds.contains(src)) {
         if (!src.intersect(srcBounds)) {
             return ImageDrawMode::kSkip;
         }
-        srcToDst->mapRect(&dst, src);
+        outSrcToDst->mapRect(&dst, src);
 
         // Both src and dst have gotten smaller. If dstClip is provided, confirm it is still
         // contained in dst, otherwise cannot optimize the sample area and must use a decal instead
@@ -162,8 +161,7 @@ ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* origSrcRe
                     // Must resort to using a decal mode restricted to the clipped 'src', and
                     // use the original dst rect (filling in src bounds as needed)
                     *outSrcRect = src;
-                    *outDstRect = (origDstRect ? *origDstRect
-                                               : (origSrcRect ? *origSrcRect : srcBounds));
+                    *outDstRect = origDstRect;
                     return ImageDrawMode::kDecal;
                 }
             }
@@ -490,8 +488,8 @@ void Device::drawSpecial(SkSpecialImage* special,
 }
 
 void Device::drawImageQuad(const SkImage* image,
-                           const SkRect* srcRect,
-                           const SkRect* dstRect,
+                           const SkRect& srcRect,
+                           const SkRect& dstRect,
                            const SkPoint dstClip[4],
                            SkCanvas::QuadAAFlags aaFlags,
                            const SkMatrix* preViewMatrix,
@@ -615,7 +613,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
             this->drawImageQuad(
-                    set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
+                    set[i].fImage.get(), set[i].fSrcRect, set[i].fDstRect,
                     set[i].fHasClip ? dstClips + dstClipIndex : nullptr,
                     static_cast<SkCanvas::QuadAAFlags>(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
@@ -695,7 +693,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
             this->drawImageQuad(
-                    image, &set[i].fSrcRect, &set[i].fDstRect, clip,
+                    image, set[i].fSrcRect, set[i].fDstRect, clip,
                     static_cast<SkCanvas::QuadAAFlags>(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
                     sampling, *entryPaint, constraint);
