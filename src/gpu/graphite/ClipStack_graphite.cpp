@@ -371,7 +371,8 @@ void ClipStack::RawElement::drawClip(Device* device) {
         // draw directly.
         SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
                  (fOp == SkClipOp::kIntersect && fShape.inverted()));
-        device->drawClipShape(fLocalToDevice, fShape, Clip{drawBounds, scissor.asSkIRect()}, order);
+        device->drawClipShape(
+                fLocalToDevice, fShape, Clip{drawBounds, drawBounds, scissor.asSkIRect()}, order);
     }
 
     // After the clip shape is drawn, reset its state. If the clip element is being popped off the
@@ -511,24 +512,22 @@ void ClipStack::RawElement::updateForElement(RawElement* added, const SaveRecord
     }
 }
 
-std::pair<bool, CompressedPaintersOrder>
-ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
-                                     const TransformedShape& draw,
-                                     PaintersDepth drawZ) {
+ClipStack::RawElement::DrawInfluence
+ClipStack::RawElement::testForDraw(const TransformedShape& draw) const {
     if (this->isInvalid()) {
         // Cannot affect the draw
-        return {/*clippedOut=*/false, DrawOrder::kNoIntersection};
+        return DrawInfluence::kNone;
     }
 
     // For this analysis, A refers to the Element and B refers to the draw
     switch(Simplify(*this, draw)) {
         case SimplifyResult::kEmpty:
             // The more detailed per-element checks have determined the draw is clipped out.
-            return {/*clippedOut=*/true, DrawOrder::kNoIntersection};
+            return DrawInfluence::kClipOut;
 
         case SimplifyResult::kBOnly:
             // This element does not affect the draw
-            return {/*clippedOut=*/false, DrawOrder::kNoIntersection};
+            return DrawInfluence::kNone;
 
         case SimplifyResult::kAOnly:
             // If this were the only element, we could replace the draw's geometry but that only
@@ -537,48 +536,57 @@ ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
             [[fallthrough]];
 
         case SimplifyResult::kBoth:
-            if (!this->hasPendingDraw()) {
-                // No usage yet so we need an order that we will use when drawing to just the depth
-                // attachment. It is sufficient to use the next CompressedPaintersOrder after the
-                // most recent draw under this clip's outer bounds. It is necessary to use the
-                // entire clip's outer bounds because the order has to be determined before the
-                // final usage bounds are known and a subsequent draw could require a completely
-                // different portion of the clip than this triggering draw.
-                //
-                // Lazily determining the order has several benefits to computing it when the clip
-                // element was first created:
-                //  - Elements that are invalidated by nested clips before draws are made do not
-                //    waste time in the BoundsManager.
-                //  - Elements that never actually modify a draw (e.g. a defensive clip) do not
-                //    waste time in the BoundsManager.
-                //  - A draw that triggers clip usage on multiple elements will more likely assign
-                //    the same order to those elements, meaning their depth-only draws are more
-                //    likely to batch in the final DrawPass.
-                //
-                // However, it does mean that clip elements can have the same order as each other,
-                // or as later draws (e.g. after the clip has been popped off the stack). Any
-                // overlap between clips or draws is addressed when the clip is drawn by selecting
-                // an appropriate DisjointStencilIndex value. Stencil-aside, this order assignment
-                // logic, max Z tracking, and the depth test during rasterization are able to
-                // resolve everything correctly even if clips have the same order value.
-                // See go/clip-stack-order for a detailed analysis of why this works.
-                fOrder = boundsManager->getMostRecentDraw(fOuterBounds).next();
-                fUsageBounds = draw.fOuterBounds;
-                fMaxZ = drawZ;
-            } else {
-                // Earlier draws have already used this element so we cannot change where the
-                // depth-only draw will be sorted to, but we need to ensure we cover the new draw's
-                // bounds and use a Z value that will clip out its pixels as appropriate.
-                fUsageBounds.join(draw.fOuterBounds);
-                if (drawZ > fMaxZ) {
-                    fMaxZ = drawZ;
-                }
-            }
-
-            return {/*clippedOut=*/false, fOrder};
+            return DrawInfluence::kIntersect;
     }
 
     SkUNREACHABLE;
+}
+
+CompressedPaintersOrder ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
+                                                             const Rect& outerBounds,
+                                                             PaintersDepth drawZ) {
+    SkASSERT(!this->isInvalid());
+    SkASSERT(!outerBounds.isEmptyNegativeOrNaN());
+
+    if (!this->hasPendingDraw()) {
+        // No usage yet so we need an order that we will use when drawing to just the depth
+        // attachment. It is sufficient to use the next CompressedPaintersOrder after the
+        // most recent draw under this clip's outer bounds. It is necessary to use the
+        // entire clip's outer bounds because the order has to be determined before the
+        // final usage bounds are known and a subsequent draw could require a completely
+        // different portion of the clip than this triggering draw.
+        //
+        // Lazily determining the order has several benefits to computing it when the clip
+        // element was first created:
+        //  - Elements that are invalidated by nested clips before draws are made do not
+        //    waste time in the BoundsManager.
+        //  - Elements that never actually modify a draw (e.g. a defensive clip) do not
+        //    waste time in the BoundsManager.
+        //  - A draw that triggers clip usage on multiple elements will more likely assign
+        //    the same order to those elements, meaning their depth-only draws are more
+        //    likely to batch in the final DrawPass.
+        //
+        // However, it does mean that clip elements can have the same order as each other,
+        // or as later draws (e.g. after the clip has been popped off the stack). Any
+        // overlap between clips or draws is addressed when the clip is drawn by selecting
+        // an appropriate DisjointStencilIndex value. Stencil-aside, this order assignment
+        // logic, max Z tracking, and the depth test during rasterization are able to
+        // resolve everything correctly even if clips have the same order value.
+        // See go/clip-stack-order for a detailed analysis of why this works.
+        fOrder = boundsManager->getMostRecentDraw(outerBounds).next();
+        fUsageBounds = outerBounds;
+        fMaxZ = drawZ;
+    } else {
+        // Earlier draws have already used this element so we cannot change where the
+        // depth-only draw will be sorted to, but we need to ensure we cover the new draw's
+        // bounds and use a Z value that will clip out its pixels as appropriate.
+        fUsageBounds.join(outerBounds);
+        if (drawZ > fMaxZ) {
+            fMaxZ = drawZ;
+        }
+    }
+
+    return fOrder;
 }
 
 ClipStack::ClipState ClipStack::RawElement::clipType() const {
@@ -1075,14 +1083,12 @@ void ClipStack::clipShape(const Transform& localToDevice,
     }
 }
 
-std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
-        const BoundsManager* boundsManager,
-        const Transform& localToDevice,
-        const Geometry& geometry,
-        const SkStrokeRec& style,
-        PaintersDepth z) {
-    static const std::pair<Clip, CompressedPaintersOrder> kClippedOut =
-            {{Rect::InfiniteInverted(), SkIRect::MakeEmpty()}, DrawOrder::kNoIntersection};
+Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
+                                      const Geometry& geometry,
+                                      const SkStrokeRec& style,
+                                      ClipStack::ElementList* outEffectiveElements) const {
+    static const Clip kClippedOut = {
+            Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty()};
 
     const SaveRecord& cs = this->currentSaveRecord();
     if (cs.state() == ClipState::kEmpty) {
@@ -1106,64 +1112,71 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
 
     auto origSize = geometry.bounds().size();
     if (!std::isfinite(origSize.x()) || !std::isfinite(origSize.y())) {
-        // Discard all non-fininte geometry as if it were clipped out
+        // Discard all non-finite geometry as if it were clipped out
         return kClippedOut;
     }
 
-    Rect drawBounds; // defined in device space
+    // Query the invertedness of the shape before any of the `setRect` calls below, which can
+    // modify it.
+    const bool isInverted = styledShape->inverted();
+
+    // Discard fills and strokes that cannot produce any coverage: an empty fill, or a
+    // zero-length stroke that has butt caps. Otherwise the stroke style applies to a vertical
+    // or horizontal line (making it non-empty), or it's a zero-length path segment that
+    // must produce round or square caps (making it non-empty):
+    //     https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes
+    if (!isInverted && (styledShape->isLine() || any(origSize == 0.f))) {
+        if (style.isFillStyle() || (style.getCap() == SkPaint::kButt_Cap && all(origSize == 0.f))) {
+            return kClippedOut;
+        }
+    }
+
+    Rect transformedShapeBounds;  // defined in device space
     bool shapeInDeviceSpace = false;
-    if (styledShape->inverted()) {
+
+    // Regular filled shapes and strokes get larger based on style and transform
+    transformedShapeBounds = styledShape->bounds();
+    if (!style.isHairlineStyle()) {
+        float localStyleOutset = style.getInflationRadius();
+        transformedShapeBounds.outset(localStyleOutset);
+
+        if (!style.isFillStyle()) {
+            // While this loses any shape type, the bounds remain local so hopefully tests are
+            // fairly accurate.
+            styledShape.writable()->setRect(transformedShapeBounds);
+        }
+    }
+
+    transformedShapeBounds = localToDevice.mapRect(transformedShapeBounds);
+
+    // Hairlines get an extra pixel *after* transforming to device space
+    if (style.isHairlineStyle()) {
+        transformedShapeBounds.outset(0.5f);
+        // and the associated transform must be kIdentity since the bounds have been mapped by
+        // localToDevice already.
+        styledShape.writable()->setRect(transformedShapeBounds);
+        shapeInDeviceSpace = true;
+    }
+
+    // Restrict bounds to the device limits.
+    transformedShapeBounds.intersect(deviceBounds);
+
+    Rect drawBounds;  // defined in device space
+    if (isInverted) {
         // Inverse-filled shapes always fill the entire device (restricted to the clip).
         drawBounds = deviceBounds;
         styledShape.writable()->setRect(drawBounds);
         shapeInDeviceSpace = true;
     } else {
-        // Discard fills and strokes that cannot produce any coverage: an empty fill, or a
-        // zero-length stroke that has butt caps. Otherwise the stroke style applies to a vertical
-        // or horizontal line (making it non-empty), or it's a zero-length path segment that
-        // must produce round or square caps (making it non-empty):
-        //     https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes
-        if (styledShape->isLine() || any(origSize == 0.f)) {
-            if (style.isFillStyle() ||
-                (style.getCap() == SkPaint::kButt_Cap && all(origSize == 0.f))) {
-                return kClippedOut;
-            }
-        }
-
-        // Regular filled shapes and strokes get larger based on style and transform
-        drawBounds = styledShape->bounds();
-        if (!style.isHairlineStyle()) {
-            float localStyleOutset = style.getInflationRadius();
-            drawBounds.outset(localStyleOutset);
-
-            if (!style.isFillStyle()) {
-                // While this loses any shape type, the bounds remain local so hopefully tests are
-                // fairly accurate.
-                styledShape.writable()->setRect(drawBounds);
-            }
-        }
-        drawBounds = localToDevice.mapRect(drawBounds);
-
-        // Hairlines get an extra pixel *after* transforming to device space
-        if (style.isHairlineStyle()) {
-            drawBounds.outset(0.5f);
-            // and the associated transform must be kIdentity since drawBounds has been mapped by
-            // localToDevice already.
-            styledShape.writable()->setRect(drawBounds);
-            shapeInDeviceSpace = true;
-        }
         // TODO: b/273924867 incorporate any outset required for analytic AA, too.
-
-        // Restrict bounds to the device limits
-        drawBounds.intersect(deviceBounds);
+        drawBounds = transformedShapeBounds;
     }
 
     if (drawBounds.isEmptyNegativeOrNaN() || cs.state() == ClipState::kWideOpen) {
         // Either the draw is off screen, so it's clipped out regardless of the state of the
         // SaveRecord, or there are no elements to apply to the draw. In both cases, 'drawBounds'
-        // has the correct value, the scissor is the device bounds (ignored if clipped-out), and
-        // we can return kNoIntersection for the painter's order.
-        return {Clip{drawBounds, deviceBounds.asSkIRect()}, DrawOrder::kNoIntersection};
+        // has the correct value, the scissor is the device bounds (ignored if clipped-out).
+        return Clip(drawBounds, transformedShapeBounds, deviceBounds.asSkIRect());
     }
 
     // We don't evaluate Simplify() on the SaveRecord and the draw because a reduced version of
@@ -1177,9 +1190,10 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
     // coordinates.
     Rect scissor = cs.scissor(deviceBounds, drawBounds).makeRoundOut();
     drawBounds.intersect(scissor);
+    transformedShapeBounds.intersect(scissor);
     if (drawBounds.isEmptyNegativeOrNaN() || cs.innerBounds().contains(drawBounds)) {
-        // Like above, in both cases drawBounds holds the right value and can return kNoIntersection
-        return {Clip{drawBounds, scissor.asSkIRect()}, DrawOrder::kNoIntersection};
+        // Like above, in both cases drawBounds holds the right value.
+        return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect());
     }
 
     // If we made it here, the clip stack affects the draw in a complex way so iterate each element.
@@ -1194,9 +1208,10 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
                           /*op=*/SkClipOp::kIntersect,
                           /*containsChecksOnlyBounds=*/true};
 
-    CompressedPaintersOrder maxClipOrder = DrawOrder::kNoIntersection;
+    SkASSERT(outEffectiveElements);
+    SkASSERT(outEffectiveElements->empty());
     int i = fElements.count();
-    for (RawElement& e : fElements.ritems()) {
+    for (const RawElement& e : fElements.ritems()) {
         --i;
         if (i < cs.oldestElementIndex()) {
             // All earlier elements have been invalidated by elements already processed so the draw
@@ -1204,16 +1219,43 @@ std::pair<Clip, CompressedPaintersOrder> ClipStack::applyClipToDraw(
             break;
         }
 
-        auto [clippedOut, order] = e.updateForDraw(boundsManager, draw, z);
-        if (clippedOut) {
-            drawBounds = Rect::InfiniteInverted();
-            break;
-        } else {
-            maxClipOrder = std::max(order, maxClipOrder);
+        auto influence = e.testForDraw(draw);
+        if (influence == RawElement::DrawInfluence::kClipOut) {
+            outEffectiveElements->clear();
+            return kClippedOut;
+        }
+        if (influence == RawElement::DrawInfluence::kIntersect) {
+            outEffectiveElements->push_back(&e);
         }
     }
 
-    return {Clip{drawBounds, scissor.asSkIRect()}, maxClipOrder};
+    return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect());
+}
+
+CompressedPaintersOrder ClipStack::updateClipStateForDraw(const Clip& clip,
+                                                          const ElementList& effectiveElements,
+                                                          const BoundsManager* boundsManager,
+                                                          PaintersDepth z) {
+    if (clip.isClippedOut()) {
+        return DrawOrder::kNoIntersection;
+    }
+
+    SkDEBUGCODE(const SaveRecord& cs = this->currentSaveRecord();)
+    SkASSERT(cs.state() != ClipState::kEmpty);
+
+    CompressedPaintersOrder maxClipOrder = DrawOrder::kNoIntersection;
+    for (int i = 0; i < effectiveElements.size(); ++i) {
+        // ClipStack owns the elements in the `clipState` so it's OK to downcast and cast away
+        // const.
+        // TODO: Enforce the ownership? In debug builds we could invalidate a `ClipStateForDraw` if
+        // its element pointers become dangling and assert validity here.
+        const RawElement* e = static_cast<const RawElement*>(effectiveElements[i]);
+        CompressedPaintersOrder order =
+                const_cast<RawElement*>(e)->updateForDraw(boundsManager, clip.drawBounds(), z);
+        maxClipOrder = std::max(order, maxClipOrder);
+    }
+
+    return maxClipOrder;
 }
 
 void ClipStack::recordDeferredClipDraws() {
