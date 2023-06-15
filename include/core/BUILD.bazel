@@ -101,6 +101,7 @@ skia_filegroup(
         "SkSwizzle.h",
         "SkTextBlob.h",
         "SkTextureCompressionType.h",
+        "SkTiledImageUtils.h",
         "SkTileMode.h",
         "SkTime.h",
         "SkTraceMemoryDump.h",

@@ -27,6 +27,7 @@ CORE_FILES = [
     "SkSurface_Null.cpp",
     "SkSurface_Raster.cpp",
     "SkSurface_Raster.h",
+    "SkTiledImageUtils.cpp",
 ]
 
 split_srcs_and_hdrs(
