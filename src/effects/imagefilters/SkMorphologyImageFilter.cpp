@@ -783,10 +783,8 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(const Context& ctx,
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/base/SkOnce.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -903,30 +901,24 @@ sk_sp<SkShader> make_linear_morphology(sk_sp<SkShader> input,
                                        MorphDirection direction,
                                        int radius) {
     SkASSERT(radius <= kMaxLinearRadius);
-    static const SkRuntimeEffect* effect;
-    static SkOnce once;
-    once([] {
-        SkString sksl;
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+            "const int kMaxLinearRadius = 14;" // KEEP IN SYNC WITH ABOVE DEFINITION
 
-        sksl.append("uniform shader child;"
-                    "uniform half2 offset;"
-                    "uniform half flip;" // -1 converts the max() calls to min()
-                    "uniform int radius;"
+            "uniform shader child;"
+            "uniform half2 offset;"
+            "uniform half flip;" // -1 converts the max() calls to min()
+            "uniform int radius;"
 
-                    "half4 main(float2 coord) {"
-                        "half4 aggregate = flip*child.eval(coord);" // case 0 only samples once
-                        "switch(radius) {");
-        for (int i = kMaxLinearRadius; i >= 1; --i) {
-            sksl.appendf("case %d: aggregate = max(aggregate,"
-                                                  "max(flip*child.eval(coord + %d*offset),"
-                                                      "flip*child.eval(coord - %d*offset)));",
-                         i, i, i);
-        }
-        sksl.append("}");
-        sksl.append("return flip*aggregate;");
-        sksl.append("}");
-        effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, sksl.c_str());
-    });
+            "half4 main(float2 coord) {"
+                "half4 aggregate = flip*child.eval(coord);" // case 0 only samples once
+                "for (int i = 1; i <= kMaxLinearRadius; ++i) {"
+                    "if (i > radius) break;"
+                    "half2 delta = half(i) * offset;"
+                    "aggregate = max(aggregate, max(flip*child.eval(coord + delta),"
+                                                   "flip*child.eval(coord - delta)));"
+                "}"
+                "return flip*aggregate;"
+            "}");
 
     SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
     builder.child("child") = std::move(input);
