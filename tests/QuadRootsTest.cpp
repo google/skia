@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "src/base/SkQuads.h"
+
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/base/SkQuads.h"
 #include "src/pathops/SkPathOpsQuad.h"
 #include "tests/Test.h"
 
@@ -18,6 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <limits>
 #include <string>
 
 static void testQuadRootsReal(skiatest::Reporter* reporter, std::string name,
@@ -267,6 +269,109 @@ DEF_TEST(QuadRoots_Fibonacci, reporter) {
 
         F[2] = F[1];
         F[1] = F[0];
+    }
+}
+
+// These are test cases used in the paper "The Ins and Outs of Solving Quadratic Equations with
+// Floating-Point Arithmetic" located at
+// https://github.com/goualard-f/QuadraticEquation.jl/blob/main/test/tests.jl
+
+struct TestCase {
+    const double A;
+    const double B;
+    const double C;
+    const double answerLo;
+    const double answerHi;
+};
+
+DEF_TEST(QuadRoots_Hard, reporter) {
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double infinity = std::numeric_limits<double>::infinity();
+
+    auto specialEqual = [] (double actual, double test) {
+        if (std::isnan(actual)) {
+            return std::isnan(test);
+        }
+
+        if (std::isinf(actual)) {
+            return std::isinf(test);
+        }
+
+        // Comparison function from the paper "The Ins and Outs ...."
+        const double errorFactor = std::sqrt(std::numeric_limits<double>::epsilon());
+        return std::abs(test - actual) <= errorFactor * std::max(std::abs(test), std::abs(actual));
+    };
+
+    auto p2 = [](double a) {
+        return std::exp2(a);
+    };
+
+    TestCase cases[] = {
+        // no real solutions
+        {2, 0, 3, nan, nan},
+        {1, 1, 1, nan, nan},
+        {2.0 * p2(600), 0, 2.0 * p2(600), nan, nan},
+        {-2.0 * p2(600), 0, -2.0 * p2(600), nan, nan},
+
+        // degenerate cases
+        {0, 0, 0, infinity, infinity},
+        {0, 1, 0, 0, 0},
+        {0, 1, 2, -2, -2},
+        {0, 3, 4, -4.0/3.0, -4.0/3.0},
+        {0, p2(600), -p2(600), 1, 1},
+        {0, p2(600), p2(600), -1, -1},
+        {0, p2(-600), p2(600), -infinity, -infinity},
+        {0, p2(600), p2(-600), 0, 0},
+        {0, 2, -1.0e-323, 5.0e-324, 5.0e-324},
+        {3, 0, 0, 0, 0},
+        {p2(600), 0, 0, 0, 0},
+        {2, 0, -3, -sqrt(3.0/2.0), sqrt(3.0/2.0)},
+        // {p2(600), 0, -p2(600), -1, 1}, determinant is infinity
+        {3, 2, 0, -2.0/3.0, 0},
+        // {p2(600), p2(700), 0, -p2(100), 0},
+        {p2(-600), p2(700), 0, -infinity, 0},
+        {p2(600), p2(-700), 0, 0, 0},
+
+        // two solutions tests
+        {1, -1, -1, -0.6180339887498948, 1.618033988749895},
+        {1, 1 + p2(-52), 0.25 + p2(-53), (-1 - p2(-51)) / 2.0, -0.5},
+        {1, p2(-511) + p2(-563), std::exp2(-1024), -7.458340888372987e-155,-7.458340574027429e-155},
+        {1, p2(27), 0.75, -134217728.0, -5.587935447692871e-09},
+        {1, -1e9, 1, 1e-09, 1000000000.0},
+        // {1.3407807929942596e154, -1.3407807929942596e154, -1.3407807929942596e154, -0.6180339887498948, 1.618033988749895},
+        {p2(600), 0.5, -p2(-600), -3.086568504549085e-181, 1.8816085719976428e-181},
+        // {p2(600), 0.5, -p2(600), -1.0, 1.0},
+        // {8.0, p2(800),-p2(500), -8.335018041099818e+239, 4.909093465297727e-91},
+        {1, p2(26), -0.125, -67108864.0, 1.862645149230957e-09},
+        // {p2(-1073), -p2(-1073), -p2(-1073), -0.6180339887498948,1.618033988749895},
+        {p2(600), -p2(-600), -p2(-600), -2.409919865102884e-181, 2.409919865102884e-181},
+
+        // Tests in Nivergelt paper
+        {-158114166017, 316227766017, -158113600000, 0.99999642020057874, 1},
+        {-312499999999.0, 707106781186.0, -400000000000.0, 1.131369396027, 1.131372303775},
+        {-67, 134, -65, 0.82722631488372798, 1.17277368511627202},
+        {0.247260273973, 0.994520547945, -0.138627953316, -4.157030027041105, 0.1348693622211607},
+        {1, -2300000, 2.0e11, 90518.994979145, 2209481.005020854},
+        {1.5*p2(-1026), 0, -p2(1022), -1.4678102981723264e308, 1.4678102981723264e308},
+
+        // one solution tests
+        {1.5*p2(-1026), 0, -p2(1022), -1.4678102981723264e308, 1.4678102981723264e308},
+    };
+
+    for (auto testCase : cases) {
+        double A = testCase.A,
+               B = testCase.B,
+               C = testCase.C,
+               answerLo = testCase.answerLo,
+               answerHi = testCase.answerHi;
+        if (std::isfinite(answerLo) && std::isfinite(answerHi)) {
+            SkASSERT(answerLo <= answerHi);
+        }
+        auto [discriminate, r0, r1] = SkQuads::Roots(A, -0.5*B, C);
+        double rLo = std::min(r0, r1),
+               rHi = std::max(r0, r1);
+        REPORTER_ASSERT(reporter, specialEqual(rLo, answerLo));
+        REPORTER_ASSERT(reporter, specialEqual(rHi, answerHi));
     }
 }
 
