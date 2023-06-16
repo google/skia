@@ -142,7 +142,7 @@ SkMaskFilter* SkTableMaskFilter::CreateClip(uint8_t min, uint8_t max) {
 
 void SkTableMaskFilter::MakeGammaTable(uint8_t table[256], SkScalar gamma) {
     const float dx = 1 / 255.0f;
-    const float g = SkScalarToFloat(gamma);
+    const float g = gamma;
 
     float x = 0;
     for (int i = 0; i < 256; i++) {

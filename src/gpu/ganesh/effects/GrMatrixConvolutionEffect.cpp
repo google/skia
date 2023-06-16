@@ -77,7 +77,7 @@ GrMatrixConvolutionEffect::KernelWrapper::Make(GrRecordingContext* rContext,
     KernelWrapper result(size);
     if (length <= kMaxUniformSize) {
         for (int i = 0; i < length; i++) {
-            result.fArray[i] = SkScalarToFloat(values[i]);
+            result.fArray[i] = values[i];
         }
         return {result, nullptr};
     }
@@ -100,10 +100,9 @@ GrMatrixConvolutionEffect::KernelWrapper::Make(GrRecordingContext* rContext,
         // Treat near-0 gain (i.e. box blur) as 1, and let the kernelBias
         // move everything up to the final value.
         const SkScalar computedGain = max - min;
-        scalableSampler.fGain =
-            SkScalarNearlyZero(computedGain) ? 1.0f : SkScalarToFloat(computedGain);
+        scalableSampler.fGain = SkScalarNearlyZero(computedGain) ? 1.0f : computedGain;
         // Inner bias is pre-inner-gain so we divide that out.
-        scalableSampler.fBias = SkScalarToFloat(min) / scalableSampler.fGain;
+        scalableSampler.fBias = min / scalableSampler.fGain;
     }
 
     // TODO: Pick cache or dont-cache based on observed perf.
@@ -302,8 +301,8 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(std::unique_ptr<GrFragmentP
         // parameters.
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
         , fKernel(kernel)
-        , fGain(SkScalarToFloat(gain))
-        , fBias(SkScalarToFloat(bias) / 255.0f)
+        , fGain(gain)
+        , fBias(bias / 255.0f)
         , fConvolveAlpha(convolveAlpha) {
     this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     this->registerChild(std::move(kernelFP), SkSL::SampleUsage::Explicit());

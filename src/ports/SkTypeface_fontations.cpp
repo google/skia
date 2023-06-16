@@ -171,9 +171,9 @@ protected:
         x_advance = fontations_ffi::advance_width_or_zero(
                 fBridgeFontRef, scale.y(), fBridgeNormalizedCoords, glyph->getGlyphID());
         // TODO(drott): y-advance?
-        const SkVector advance = remainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
-        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
+        const SkVector advance = remainingMatrix.mapXY(x_advance, 0.f);
+        glyph->fAdvanceX = advance.fX;
+        glyph->fAdvanceY = advance.fY;
         return true;
     }
 

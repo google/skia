@@ -1101,8 +1101,8 @@ bool SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
     }
 
     const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
-    glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
-    glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
+    glyph->fAdvanceX = fMatrix22Scalar.getScaleX() * advanceScalar;
+    glyph->fAdvanceY = fMatrix22Scalar.getSkewY() * advanceScalar;
     return true;
 }
 
@@ -1354,8 +1354,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
     if (this->isVertical()) {
         if (fDoLinearMetrics) {
             const SkScalar advanceScalar = SkFT_FixedToScalar(fFace->glyph->linearVertAdvance);
-            glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getSkewX() * advanceScalar);
-            glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getScaleY() * advanceScalar);
+            glyph->fAdvanceX = fMatrix22Scalar.getSkewX() * advanceScalar;
+            glyph->fAdvanceY = fMatrix22Scalar.getScaleY() * advanceScalar;
         } else {
             glyph->fAdvanceX = -SkFDot6ToFloat(fFace->glyph->advance.x);
             glyph->fAdvanceY =  SkFDot6ToFloat(fFace->glyph->advance.y);
@@ -1363,8 +1363,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph, SkArenaAlloc* all
     } else {
         if (fDoLinearMetrics) {
             const SkScalar advanceScalar = SkFT_FixedToScalar(fFace->glyph->linearHoriAdvance);
-            glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
-            glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
+            glyph->fAdvanceX = fMatrix22Scalar.getScaleX() * advanceScalar;
+            glyph->fAdvanceY = fMatrix22Scalar.getSkewY() * advanceScalar;
         } else {
             glyph->fAdvanceX =  SkFDot6ToFloat(fFace->glyph->advance.x);
             glyph->fAdvanceY = -SkFDot6ToFloat(fFace->glyph->advance.y);

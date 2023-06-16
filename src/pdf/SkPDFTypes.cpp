@@ -305,7 +305,7 @@ SkPDFUnion SkPDFUnion::ColorComponent(uint8_t value) {
 }
 
 SkPDFUnion SkPDFUnion::ColorComponentF(float value) {
-    return SkPDFUnion(Type::kColorComponentF, SkFloatToScalar(value));
+    return SkPDFUnion(Type::kColorComponentF, value);
 }
 
 SkPDFUnion SkPDFUnion::Bool(bool value) {

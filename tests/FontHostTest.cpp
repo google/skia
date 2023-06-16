@@ -271,7 +271,7 @@ static void test_advances(skiatest::Reporter* reporter) {
                 SkScalar width2 = font.measureText(txt, textLen, SkTextEncoding::kUTF8, &bounds);
 
                 // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
-                //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));
+                //    faces[i], width1, width2);
 
                 REPORTER_ASSERT(reporter, width1 == width2);
             }

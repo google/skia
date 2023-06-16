@@ -291,10 +291,10 @@ SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
     SkVector scale;
     fRec.computeMatrices(SkScalerContextRec::PreMatrixScale::kVertical, &scale, &fSkXform);
 
-    fXform.m11 = SkScalarToFloat(fSkXform.getScaleX());
-    fXform.m12 = SkScalarToFloat(fSkXform.getSkewY());
-    fXform.m21 = SkScalarToFloat(fSkXform.getSkewX());
-    fXform.m22 = SkScalarToFloat(fSkXform.getScaleY());
+    fXform.m11 = fSkXform.getScaleX();
+    fXform.m12 = fSkXform.getSkewY();
+    fXform.m21 = fSkXform.getSkewX();
+    fXform.m22 = fSkXform.getScaleY();
     fXform.dx = 0;
     fXform.dy = 0;
 
@@ -655,7 +655,7 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
         {
             Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
             HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
-                     SkScalarToFloat(fTextSizeRender),
+                     fTextSizeRender,
                      &glyphId,
                      nullptr, //advances
                      nullptr, //offsets
@@ -1105,7 +1105,7 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
         {
             Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
             HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
-                     SkScalarToFloat(fTextSizeRender),
+                     fTextSizeRender,
                      &glyphId,
                      nullptr, //advances
                      nullptr, //offsets
@@ -1296,7 +1296,7 @@ bool SkScalerContext_DW::generateColorV1PaintBounds(
         {
             Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
             HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
-                    SkScalarToFloat(fTextSizeRender),
+                    fTextSizeRender,
                     &glyphId,
                     nullptr, //advances
                     nullptr, //offsets
@@ -1340,7 +1340,7 @@ bool SkScalerContext_DW::generateColorV1PaintBounds(
         {
             Exclusive l(maybe_dw_mutex(*this->getDWriteTypeface()));
             HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
-                     SkScalarToFloat(fTextSizeRender),
+                     fTextSizeRender,
                      &glyphId,
                      nullptr, //advances
                      nullptr, //offsets
@@ -1503,8 +1503,8 @@ bool SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
     }
     fSkXform.mapVectors(&advance, 1);
 
-    glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-    glyph->fAdvanceY = SkScalarToFloat(advance.fY);
+    glyph->fAdvanceX = advance.fX;
+    glyph->fAdvanceY = advance.fY;
     return true;
 }
 
@@ -1530,7 +1530,7 @@ bool SkScalerContext_DW::generateDWMetrics(SkGlyph* glyph,
     run.glyphCount = 1;
     run.glyphAdvances = &advance;
     run.fontFace = typeface->fDWriteFontFace.get();
-    run.fontEmSize = SkScalarToFloat(fTextSizeRender);
+    run.fontEmSize = fTextSizeRender;
     run.bidiLevel = 0;
     run.glyphIndices = &glyphId;
     run.isSideways = FALSE;
@@ -1610,7 +1610,7 @@ bool SkScalerContext_DW::getColorGlyphRun(const SkGlyph& glyph,
     run.glyphCount = 1;
     run.glyphAdvances = &advance;
     run.fontFace = this->getDWriteTypeface()->fDWriteFontFace.get();
-    run.fontEmSize = SkScalarToFloat(fTextSizeRender);
+    run.fontEmSize = fTextSizeRender;
     run.bidiLevel = 0;
     run.glyphIndices = &glyphId;
     run.isSideways = FALSE;
@@ -2085,7 +2085,7 @@ const void* SkScalerContext_DW::getDWMaskBits(const SkGlyph& glyph,
     run.glyphCount = 1;
     run.glyphAdvances = &advance;
     run.fontFace = typeface->fDWriteFontFace.get();
-    run.fontEmSize = SkScalarToFloat(fTextSizeRender);
+    run.fontEmSize = fTextSizeRender;
     run.bidiLevel = 0;
     run.glyphIndices = &index;
     run.isSideways = FALSE;
@@ -2446,7 +2446,7 @@ bool SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
         //TODO: convert to<->from DIUs? This would make a difference if hinting.
         //It may not be needed, it appears that DirectWrite only hints at em size.
         HRBM(this->getDWriteTypeface()->fDWriteFontFace->GetGlyphRunOutline(
-             SkScalarToFloat(fTextSizeRender),
+             fTextSizeRender,
              &glyphId,
              nullptr, //advances
              nullptr, //offsets

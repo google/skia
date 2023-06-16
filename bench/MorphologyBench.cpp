@@ -39,7 +39,7 @@ public:
         fStyle = style;
         const char* name = rad > 0 ? gStyleName[style] : "none";
         if (SkScalarFraction(rad) != 0) {
-            fName.printf("morph_%.2f_%s", SkScalarToFloat(rad), name);
+            fName.printf("morph_%.2f_%s", rad, name);
         } else {
             fName.printf("morph_%d_%s", SkScalarRoundToInt(rad), name);
         }

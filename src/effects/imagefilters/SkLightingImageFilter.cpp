@@ -1762,9 +1762,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DiffuseLightingEffect)
 #if GR_TEST_UTILS
 
 static SkPoint3 random_point3(SkRandom* random) {
-    return SkPoint3::Make(SkScalarToFloat(random->nextSScalar1()),
-                          SkScalarToFloat(random->nextSScalar1()),
-                          SkScalarToFloat(random->nextSScalar1()));
+    return SkPoint3::Make(random->nextSScalar1(),
+                          random->nextSScalar1(),
+                          random->nextSScalar1());
 }
 
 static SkImageFilterLight* create_random_light(SkRandom* random) {

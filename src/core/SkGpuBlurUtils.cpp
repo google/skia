@@ -27,8 +27,8 @@ using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
 static void fill_in_2D_gaussian_kernel(
         float* kernel, int width, int height, SkScalar sigmaX, SkScalar sigmaY) {
-    const float twoSigmaSqrdX = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaX));
-    const float twoSigmaSqrdY = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaY));
+    const float twoSigmaSqrdX = 2.0f * SkScalarSquare(sigmaX);
+    const float twoSigmaSqrdY = 2.0f * SkScalarSquare(sigmaY);
 
     // SkGpuBlurUtils::GaussianBlur() should have detected the cases where a 2D blur
     // degenerates to a 1D on X or Y, or to the identity.
