@@ -276,11 +276,23 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
         return false;
     }
 
+    VkViewport vkViewport = {
+        viewport.fLeft,
+        viewport.fTop,
+        viewport.width(),
+        viewport.height(),
+        0.0f, // minDepth
+        1.0f, // maxDepth
+    };
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdSetViewport(fPrimaryCommandBuffer,
+                               /*firstViewport=*/0,
+                               /*viewportCount=*/1,
+                               &vkViewport));
+
     for (const auto& drawPass : drawPasses) {
         this->addDrawPass(drawPass.get());
     }
-
-    // TODO: Set viewport
 
     this->endRenderPass();
     return true;
@@ -762,7 +774,15 @@ void VulkanCommandBuffer::bindTextureSamplers() {
 
 void VulkanCommandBuffer::setScissor(unsigned int left, unsigned int top, unsigned int width,
                                      unsigned int height) {
-    // TODO: Implement
+    VkRect2D scissor = {
+        {(int32_t)left, (int32_t)top},
+        {width, height}
+    };
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdSetScissor(fPrimaryCommandBuffer,
+                              /*firstScissor=*/0,
+                              /*scissorCount=*/1,
+                              &scissor));
 }
 
 void VulkanCommandBuffer::draw(PrimitiveType,
