@@ -14,6 +14,9 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 
+namespace skottie::internal {
+class AnimationBuilder;
+} // namespace skottie::internal
 namespace sksg {
 
 class Shader;
@@ -73,6 +76,8 @@ private:
     explicit Color(SkColor);
 
     SkColor fColor;
+
+    friend class skottie::internal::AnimationBuilder;
 };
 
 /**
