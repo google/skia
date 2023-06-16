@@ -1118,6 +1118,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLLogicalOrShortCircuit_GPU")
 	}
 
+	if b.matchOs("iOS") && !b.extraConfig("Metal") {
+		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_GPU")
+	}
+
 	if b.matchOs("Mac") && b.extraConfig("Metal") && (b.gpu("IntelIrisPlus") ||
 		b.gpu("IntelHD6000")) {
 		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_GPU")         // skia:14025
