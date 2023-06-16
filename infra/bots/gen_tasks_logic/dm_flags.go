@@ -287,6 +287,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// Fail on Iris Xe (skbug:13921)
 			skip("gltestthreading", "gm", ALL, "circular_arcs_stroke_and_fill_round")
 			skip("gltestthreading", "gm", ALL, "degeneratesegments")
+			skip("gltestthreading", "gm", ALL, "imagemakewithfilter")
+			skip("gltestthreading", "gm", ALL, "imagemakewithfilter_crop_ref")
 			skip("gltestthreading", "gm", ALL, "ovals")
 			skip("gltestthreading", "gm", ALL, "persp_images")
 			skip("gltestthreading", "gm", ALL, "rtif_distort")
