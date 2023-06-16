@@ -4085,34 +4085,41 @@ public:
     void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false);
-        fontCollection->disableFontFallback();
+        const char* text1 = "World    domination is     such an ugly phrase - I     prefer to call it    world optimisation";
+        const char* text2 =
+                "左線読設重説切abc後碁給能上目秘使約。満毎冠行   来昼本可   def   必図将発確年。今属場育"
+                "図情闘陰野高備込制詩西校客。審対江置講今固残必託地集済決維駆年策。立得庭"
+                "際輝求佐抗蒼提夜合逃表。注統天言件自謙雅載報紙喪。作画稿愛器灯女書利変探"
+                "訃第金線朝開化建。子戦年帝励害表月幕株漠新期刊人秘。図的海力生禁挙保天戦"
+                "聞条年所在口。";
+        const char* text3 = "من أسر وإعلان الخاصّة وهولندا،, عل def    قائمة الضغوط بالمabcطالبة تلك. الصفحة "
+            "بمباركة التقليدية قام عن. تصفح";
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
 
-        fontCollection->addFontFromFile("abc/abc.ttf", "abc");
-        fontCollection->addFontFromFile("abc/abc+grave.ttf", "abc+grave");
-        fontCollection->addFontFromFile("abc/abc+agrave.ttf", "abc+agrave");
-
-        TextStyle text_style;
-        text_style.setFontSize(40);
-        text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("abc")});
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextStyle(text_style);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        builder.pushStyle(text_style);
-        builder.addText("a\u0300bcàbc");
-        auto paragraph = builder.Build();
-        paragraph->layout(this->size().width());
-        paragraph->paint(canvas, 0, 0);
-        if (this->isVerbose()) {
-            SkDebugf("Unresolved glyphs: %d\n", paragraph->unresolvedGlyphs());
-            SkDebugf("Unresolved codepoints:");
-            auto codepoints = paragraph->unresolvedCodepoints();
-            for (auto cp : codepoints) {
-                SkDebugf("%ul ", cp);
-            }
-            SkDebugf("\n");
-        }
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+
+        auto draw = [&](const char* text, TextDirection textDirection) {
+            paragraph_style.setTextDirection(textDirection);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            TextStyle text_style;
+            text_style.setFontFamilies({SkString("Katibeh"), SkString("Roboto"), SkString("Source Han Serif CN")});
+            text_style.setFontSize(40);
+            text_style.setColor(SK_ColorBLACK);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+
+            auto paragraph = builder.Build();
+            paragraph->layout(this->size().width()); // 497
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(0, paragraph->getHeight() + 20);
+        };
+
+        draw(text1, TextDirection::kLtr);
+        draw(text2, TextDirection::kLtr);
+        draw(text3, TextDirection::kLtr);
     }
 };
 }  // namespace

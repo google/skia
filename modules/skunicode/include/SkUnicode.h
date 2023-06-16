@@ -86,6 +86,7 @@ class SKUNICODE_API SkUnicode {
             kControl = 0x20,
             kTabulation = 0x40,
             kGlyphClusterStart = 0x80,
+            kIdeographic = 0x100,
         };
         enum class TextDirection {
             kLTR,
