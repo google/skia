@@ -332,6 +332,7 @@ gm_sources = [
   "$_gm/scaledrects.cpp",
   "$_gm/scaledstrokes.cpp",
   "$_gm/shadermaskfilter.cpp",
+  "$_gm/shaderpath.cpp",
   "$_gm/shadertext3.cpp",
   "$_gm/shadowutils.cpp",
   "$_gm/shallowgradient.cpp",
