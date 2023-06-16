@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/ops/GrOvalOpFactory.h"
 
 #include "include/core/SkStrokeRec.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BufferWriter.h"
@@ -2012,8 +2013,8 @@ private:
             struct { float xOuter, yOuter, xInner, yInner; } invRadii = {
                 SkScalarInvert(xRadius),
                 SkScalarInvert(yRadius),
-                SkScalarInvert(ellipse.fInnerXRadius),
-                SkScalarInvert(ellipse.fInnerYRadius)
+                sk_ieee_float_divide(1.0f, ellipse.fInnerXRadius),
+                sk_ieee_float_divide(1.0f, ellipse.fInnerYRadius)
             };
             SkScalar xMaxOffset = xRadius + aaBloat;
             SkScalar yMaxOffset = yRadius + aaBloat;
@@ -3032,8 +3033,9 @@ private:
             float reciprocalRadii[4] = {
                 SkScalarInvert(rrect.fXRadius),
                 SkScalarInvert(rrect.fYRadius),
-                SkScalarInvert(rrect.fInnerXRadius),
-                SkScalarInvert(rrect.fInnerYRadius)
+                // Pinned below, so divide by zero is acceptable
+                sk_ieee_float_divide(1.0f, rrect.fInnerXRadius),
+                sk_ieee_float_divide(1.0f, rrect.fInnerYRadius)
             };
 
             // If the stroke width is exactly double the radius, the inner radii will be zero.
