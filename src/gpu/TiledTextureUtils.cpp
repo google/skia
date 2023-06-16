@@ -284,4 +284,73 @@ void TiledTextureUtils::DrawTiledBitmap(SkBaseDevice* device,
     }
 }
 
+/**
+ * Optimize the src rect sampling area within an image (sized 'width' x 'height') such that
+ * 'outSrcRect' will be completely contained in the image's bounds. The corresponding rect
+ * to draw will be output to 'outDstRect'. The mapping between src and dst will be cached in
+ * 'outSrcToDst'. Outputs are not always updated when kSkip is returned.
+ *
+ * 'dstClip' should be null when there is no additional clipping.
+ */
+TiledTextureUtils::ImageDrawMode TiledTextureUtils::OptimizeSampleArea(const SkISize& imageSize,
+                                                                       const SkRect& origSrcRect,
+                                                                       const SkRect& origDstRect,
+                                                                       const SkPoint dstClip[4],
+                                                                       SkRect* outSrcRect,
+                                                                       SkRect* outDstRect,
+                                                                       SkMatrix* outSrcToDst) {
+    if (origSrcRect.isEmpty() || origDstRect.isEmpty()) {
+        return ImageDrawMode::kSkip;
+    }
+
+    *outSrcToDst = SkMatrix::RectToRect(origSrcRect, origDstRect);
+
+    SkRect src = origSrcRect;
+    SkRect dst = origDstRect;
+
+    const SkRect srcBounds = SkRect::Make(imageSize);
+
+    if (!srcBounds.contains(src)) {
+        if (!src.intersect(srcBounds)) {
+            return ImageDrawMode::kSkip;
+        }
+        outSrcToDst->mapRect(&dst, src);
+
+        // Both src and dst have gotten smaller. If dstClip is provided, confirm it is still
+        // contained in dst, otherwise cannot optimize the sample area and must use a decal instead
+        if (dstClip) {
+            for (int i = 0; i < 4; ++i) {
+                if (!dst.contains(dstClip[i].fX, dstClip[i].fY)) {
+                    // Must resort to using a decal mode restricted to the clipped 'src', and
+                    // use the original dst rect (filling in src bounds as needed)
+                    *outSrcRect = src;
+                    *outDstRect = origDstRect;
+                    return ImageDrawMode::kDecal;
+                }
+            }
+        }
+    }
+
+    // The original src and dst were fully contained in the image, or there was no dst clip to
+    // worry about, or the clip was still contained in the restricted dst rect.
+    *outSrcRect = src;
+    *outDstRect = dst;
+    return ImageDrawMode::kOptimized;
+}
+
+bool TiledTextureUtils::CanDisableMipmap(const SkMatrix& viewM, const SkMatrix& localM) {
+    SkMatrix matrix;
+    matrix.setConcat(viewM, localM);
+    // We bias mipmap lookups by -0.5. That means our final LOD is >= 0 until
+    // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
+    // 0.5?
+    //
+    // Want:  0       = log2(1/s) - 0.5
+    //        0.5     = log2(1/s)
+    //        2^0.5   = 1/s
+    //        1/2^0.5 = s
+    //        2^0.5/2 = s
+    return matrix.getMinScale() >= SK_ScalarRoot2Over2;
+}
+
 } // namespace skgpu
