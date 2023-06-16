@@ -706,6 +706,12 @@ def go_repositories():
         sum = "h1:6zsha5zo/TWhRhwqCD3+EarCAgZ2yN28ipRnGPnwkI0=",
         version = "v0.2.2",
     )
+    go_repository(
+        name = "com_github_go_chi_chi_v5",
+        importpath = "github.com/go-chi/chi/v5",
+        sum = "h1:lD+NLqFcAi1ovnVZpsnObHGW4xb4J8lNmoYVfECH1Y0=",
+        version = "v5.0.8",
+    )
 
     go_repository(
         name = "com_github_go_errors_errors",
@@ -3050,8 +3056,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:6lYnNp7V2+R9L5viz0UZjvxw/lLqfgFp2a2sDTMQEQI=",
-        version = "v0.0.0-20230615002639-894306cf4c91",
+        sum = "h1:6nzRRq9Q5Jjflu+bFolW6Gsf7C1FyuiXY6MK1boti2s=",
+        version = "v0.0.0-20230616001333-d044984a01de",
     )
     go_repository(
         name = "org_uber_go_atomic",
