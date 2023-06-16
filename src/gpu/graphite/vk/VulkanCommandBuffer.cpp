@@ -1011,7 +1011,42 @@ bool VulkanCommandBuffer::onCopyTextureToTexture(const Texture* src,
                                                  SkIRect srcRect,
                                                  const Texture* dst,
                                                  SkIPoint dstPoint) {
-    return false;
+    const VulkanTexture* srcTexture = static_cast<const VulkanTexture*>(src);
+    const VulkanTexture* dstTexture = static_cast<const VulkanTexture*>(dst);
+
+    VkImageCopy copyRegion;
+    memset(&copyRegion, 0, sizeof(VkImageCopy));
+    copyRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    copyRegion.srcOffset = { srcRect.fLeft, srcRect.fTop, 0 };
+    copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    copyRegion.dstOffset = { dstPoint.fX, dstPoint.fY, 0 };
+    copyRegion.extent = { (uint32_t)srcRect.width(), (uint32_t)srcRect.height(), 1 };
+
+    // Enable editing of the src texture so we can change its layout so it can be copied from.
+    const_cast<VulkanTexture*>(srcTexture)->setImageLayout(this,
+                                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                           VK_ACCESS_TRANSFER_READ_BIT,
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                           false);
+    // Enable editing of the destination texture so we can change its layout so it can be copied to.
+    const_cast<VulkanTexture*>(dstTexture)->setImageLayout(this,
+                                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                           VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                           false);
+
+    this->submitPipelineBarriers();
+
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdCopyImage(fPrimaryCommandBuffer,
+                             srcTexture->vkImage(),
+                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                             dstTexture->vkImage(),
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                             /*regionCount=*/1,
+                             &copyRegion));
+
+    return true;
 }
 
 bool VulkanCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* outDidResultInWork) {

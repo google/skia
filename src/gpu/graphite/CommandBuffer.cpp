@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -163,6 +164,11 @@ bool CommandBuffer::copyTextureToTexture(sk_sp<Texture> src,
                                          SkIPoint dstPoint) {
     SkASSERT(src);
     SkASSERT(dst);
+    if (src->textureInfo().isProtected() == Protected::kYes &&
+        dst->textureInfo().isProtected() != Protected::kYes) {
+        SKGPU_LOG_E("Can't copy from protected memory to non-protected");
+        return false;
+    }
 
     if (!this->onCopyTextureToTexture(src.get(), srcRect, dst.get(), dstPoint)) {
         return false;
