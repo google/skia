@@ -20,6 +20,7 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -49,13 +50,21 @@ struct IRHelpers {
     }
 
     std::unique_ptr<Expression> Swizzle(std::unique_ptr<Expression> base, ComponentArray c) const {
-        return Swizzle::Make(fContext, Position(), std::move(base), std::move(c));
+        Position pos = base->fPosition;
+        return Swizzle::Make(fContext, pos, std::move(base), std::move(c));
+    }
+
+    std::unique_ptr<Expression> Index(std::unique_ptr<Expression> base,
+                                      std::unique_ptr<Expression> idx) const {
+        Position pos = base->fPosition.rangeThrough(idx->fPosition);
+        return IndexExpression::Make(fContext, pos, std::move(base), std::move(idx));
     }
 
     std::unique_ptr<Expression> Binary(std::unique_ptr<Expression> l,
                                        Operator op,
                                        std::unique_ptr<Expression> r) const {
-        return BinaryExpression::Make(fContext, Position(), std::move(l), op, std::move(r));
+        Position pos = l->fPosition.rangeThrough(r->fPosition);
+        return BinaryExpression::Make(fContext, pos, std::move(l), op, std::move(r));
     }
 
     std::unique_ptr<Expression> Mul(std::unique_ptr<Expression> l,
@@ -68,8 +77,12 @@ struct IRHelpers {
         return Binary(std::move(l), OperatorKind::PLUS, std::move(r));
     }
 
-    std::unique_ptr<Expression> Float(double value) const {
+    std::unique_ptr<Expression> Float(float value) const {
         return Literal::MakeFloat(Position(), value, fContext.fTypes.fFloat.get());
+    }
+
+    std::unique_ptr<Expression> Int(int value) const {
+        return Literal::MakeInt(Position(), value, fContext.fTypes.fInt.get());
     }
 
     std::unique_ptr<Expression> CtorXYZW(std::unique_ptr<Expression> xy,

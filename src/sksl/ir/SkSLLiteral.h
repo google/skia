@@ -40,8 +40,7 @@ public:
         , fValue(value) {}
 
     // Makes a literal of $floatLiteral type.
-    static std::unique_ptr<Literal> MakeFloat(const Context& context, Position pos,
-            float value) {
+    static std::unique_ptr<Literal> MakeFloat(const Context& context, Position pos, float value) {
         return std::make_unique<Literal>(pos, value, context.fTypes.fFloatLiteral.get());
     }
 

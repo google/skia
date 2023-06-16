@@ -7,7 +7,6 @@
 
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -15,6 +14,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLIRHelpers.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSetting.h"
@@ -41,34 +41,26 @@ static bool is_low_precision_matrix_vector_multiply(const Expression& left,
 static std::unique_ptr<Expression> rewrite_matrix_vector_multiply(const Context& context,
                                                                   Position pos,
                                                                   const Expression& left,
-                                                                  const Operator& op,
-                                                                  const Expression& right,
-                                                                  const Type& resultType) {
+                                                                  const Expression& right) {
     // Rewrite m33 * v3 as (m[0] * v[0] + m[1] * v[1] + m[2] * v[2])
+    IRHelpers helpers(context);
+
     std::unique_ptr<Expression> sum;
     for (int n = 0; n < left.type().rows(); ++n) {
         // Get mat[N] with an index expression.
-        std::unique_ptr<Expression> matN = IndexExpression::Make(
-                context, pos, left.clone(), Literal::MakeInt(context, left.fPosition, n));
-        // Get vec[N] with a swizzle expression.
-        std::unique_ptr<Expression> vecN = Swizzle::Make(context,
-                left.fPosition.rangeThrough(right.fPosition), right.clone(),
-                ComponentArray{(SkSL::SwizzleComponent::Type)n});
+        std::unique_ptr<Expression> matN = helpers.Index(left.clone(), helpers.Int(n));
+
+        // Get vec[N] with another index expression.
+        std::unique_ptr<Expression> vecN = helpers.Index(right.clone(), helpers.Int(n));
+
         // Multiply them together.
-        const Type* matNType = &matN->type();
-        std::unique_ptr<Expression> product =
-                BinaryExpression::Make(context, pos, std::move(matN), op, std::move(vecN),
-                                       matNType);
+        std::unique_ptr<Expression> product = helpers.Binary(std::move(matN), OperatorKind::STAR,
+                                                             std::move(vecN));
         // Sum all the components together.
         if (!sum) {
             sum = std::move(product);
         } else {
-            sum = BinaryExpression::Make(context,
-                                         pos,
-                                         std::move(sum),
-                                         Operator(Operator::Kind::PLUS),
-                                         std::move(product),
-                                         matNType);
+            sum = helpers.Binary(std::move(sum), OperatorKind::PLUS, std::move(product));
         }
     }
 
@@ -106,20 +98,20 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
     if (!op.determineBinaryType(context, *rawLeftType, *rawRightType,
                                 &leftType, &rightType, &resultType)) {
         context.fErrors->error(pos, "type mismatch: '" + std::string(op.tightOperatorName()) +
-                "' cannot operate on '" + left->type().displayName() + "', '" +
-                right->type().displayName() + "'");
+                                    "' cannot operate on '" + left->type().displayName() + "', '" +
+                                    right->type().displayName() + "'");
         return nullptr;
     }
 
     if (isAssignment && (leftType->componentType().isOpaque() || leftType->isOrContainsAtomic())) {
         context.fErrors->error(pos, "assignments to opaque type '" + left->type().displayName() +
-                "' are not permitted");
+                                    "' are not permitted");
         return nullptr;
     }
     if (context.fConfig->strictES2Mode()) {
         if (!op.isAllowedInStrictES2Mode()) {
             context.fErrors->error(pos, "operator '" + std::string(op.tightOperatorName()) +
-                    "' is not allowed");
+                                        "' is not allowed");
             return nullptr;
         }
         if (leftType->isOrContainsArray()) {
@@ -127,7 +119,7 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
             // the *only* operator allowed on arrays is subscripting (and the rules against
             // assignment, comparison, and even sequence apply to structs containing arrays as well)
             context.fErrors->error(pos, "operator '" + std::string(op.tightOperatorName()) +
-                    "' can not operate on arrays (or structs containing arrays)");
+                                   "' can not operate on arrays (or structs containing arrays)");
             return nullptr;
         }
     }
@@ -203,8 +195,7 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
             if (capsBitIsTrue || !caps->isBoolLiteral()) {
                 // Rewrite the multiplication as a sum of vector-scalar products.
                 std::unique_ptr<Expression> rewrite =
-                        rewrite_matrix_vector_multiply(context, pos, *left, op, *right,
-                                                       *resultType);
+                        rewrite_matrix_vector_multiply(context, pos, *left, *right);
 
                 // If we know the caps bit is true, return the rewritten expression directly.
                 if (capsBitIsTrue) {
