@@ -24,6 +24,9 @@ public:
     SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkPathMeasure();
 
+    SkPathMeasure(SkPathMeasure&&) = default;
+    SkPathMeasure& operator=(SkPathMeasure&&) = default;
+
     /** Reset the pathmeasure with the specified path. The parts of the path that are needed
      *  are copied, so the client is free to modify/delete the path after this call..
      */
@@ -80,9 +83,6 @@ public:
 private:
     SkContourMeasureIter    fIter;
     sk_sp<SkContourMeasure> fContour;
-
-    SkPathMeasure(const SkPathMeasure&) = delete;
-    SkPathMeasure& operator=(const SkPathMeasure&) = delete;
 };
 
 #endif

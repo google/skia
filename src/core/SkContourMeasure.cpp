@@ -481,6 +481,9 @@ SkContourMeasureIter::SkContourMeasureIter(const SkPath& path, bool forceClosed,
 
 SkContourMeasureIter::~SkContourMeasureIter() {}
 
+SkContourMeasureIter::SkContourMeasureIter(SkContourMeasureIter&&) = default;
+SkContourMeasureIter& SkContourMeasureIter::operator=(SkContourMeasureIter&&) = default;
+
 /** Assign a new path, or null to have none.
 */
 void SkContourMeasureIter::reset(const SkPath& path, bool forceClosed, SkScalar resScale) {
