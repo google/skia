@@ -76,10 +76,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/Device.h"
 #include "src/utils/SkTestCanvas.h"
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-#   include "src/gpu/ganesh/GrRenderTarget.h"
-#   include "src/gpu/ganesh/GrRenderTargetProxy.h"
-#endif
 #endif
 
 #if defined(SK_GRAPHITE)
@@ -1719,20 +1715,6 @@ SkMatrix SkCanvas::getTotalMatrix() const {
 SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
-
-// TODO(kjlubick) remove after migrating Android
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_GANESH)
-
-#include "include/android/SkCanvasAndroid.h"
-
-SkIRect SkCanvas::topLayerBounds() const {
-    return skgpu::ganesh::TopLayerBounds(this);
-}
-
-GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
-    return skgpu::ganesh::TopLayerBackendRenderTarget(this);
-}
-#endif
 
 GrRecordingContext* SkCanvas::recordingContext() {
 #if defined(SK_GANESH)

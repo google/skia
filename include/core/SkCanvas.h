@@ -74,10 +74,6 @@ namespace skgpu::graphite { class Recorder; }
 namespace sktext::gpu { class Slug; }
 namespace SkRecords { class Draw; }
 
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_GANESH)
-class GrBackendRenderTarget;
-#endif
-
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.
@@ -2177,12 +2173,6 @@ public:
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
-
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_GANESH)
-    // These methods exist to support WebView in Android Framework.
-    SkIRect topLayerBounds() const;
-    GrBackendRenderTarget topLayerBackendRenderTarget() const;
-#endif
 
     /**
      *  Returns the global clip as a region. If the clip contains AA, then only the bounds
