@@ -49,6 +49,10 @@ static inline float sk_float_pow(float base, float exp) {
 #define sk_float_exp(x)         expf(x)
 #define sk_float_log(x)         logf(x)
 
+constexpr int sk_float_sgn(float x) {
+    return (0.0f < x) - (x < 0.0f);
+}
+
 constexpr float sk_float_degrees_to_radians(float degrees) {
     return degrees * (SK_FloatPI / 180);
 }

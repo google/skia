@@ -8,10 +8,10 @@
 #ifndef SkPoint_DEFINED
 #define SkPoint_DEFINED
 
-#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkSafe32.h"
 
+#include <cmath>
 #include <cstdint>
 
 struct SkIPoint;
@@ -160,16 +160,16 @@ typedef SkPoint SkVector;
     SkPoint holds two 32-bit floating point coordinates.
 */
 struct SK_API SkPoint {
-    SkScalar fX; //!< x-axis value
-    SkScalar fY; //!< y-axis value
+    float fX; //!< x-axis value
+    float fY; //!< y-axis value
 
     /** Sets fX to x, fY to y. Used both to set SkPoint and vector.
 
-        @param x  SkScalar x-axis value of constructed SkPoint or vector
-        @param y  SkScalar y-axis value of constructed SkPoint or vector
+        @param x  float x-axis value of constructed SkPoint or vector
+        @param y  float y-axis value of constructed SkPoint or vector
         @return   SkPoint (x, y)
     */
-    static constexpr SkPoint Make(SkScalar x, SkScalar y) {
+    static constexpr SkPoint Make(float x, float y) {
         return {x, y};
     }
 
@@ -177,13 +177,13 @@ struct SK_API SkPoint {
 
         @return  fX
     */
-    constexpr SkScalar x() const { return fX; }
+    constexpr float x() const { return fX; }
 
     /** Returns y-axis value of SkPoint or vector.
 
         @return  fY
     */
-    constexpr SkScalar y() const { return fY; }
+    constexpr float y() const { return fY; }
 
     /** Returns true if fX and fY are both zero.
 
@@ -196,36 +196,36 @@ struct SK_API SkPoint {
         @param x  new value for fX
         @param y  new value for fY
     */
-    void set(SkScalar x, SkScalar y) {
+    void set(float x, float y) {
         fX = x;
         fY = y;
     }
 
-    /** Sets fX to x and fY to y, promoting integers to SkScalar values.
+    /** Sets fX to x and fY to y, promoting integers to float values.
 
         Assigning a large integer value directly to fX or fY may cause a compiler
-        error, triggered by narrowing conversion of int to SkScalar. This safely
+        error, triggered by narrowing conversion of int to float. This safely
         casts x and y to avoid the error.
 
         @param x  new value for fX
         @param y  new value for fY
     */
     void iset(int32_t x, int32_t y) {
-        fX = SkIntToScalar(x);
-        fY = SkIntToScalar(y);
+        fX = static_cast<float>(x);
+        fY = static_cast<float>(y);
     }
 
-    /** Sets fX to p.fX and fY to p.fY, promoting integers to SkScalar values.
+    /** Sets fX to p.fX and fY to p.fY, promoting integers to float values.
 
         Assigning an SkIPoint containing a large integer value directly to fX or fY may
-        cause a compiler error, triggered by narrowing conversion of int to SkScalar.
+        cause a compiler error, triggered by narrowing conversion of int to float.
         This safely casts p.fX and p.fY to avoid the error.
 
-        @param p  SkIPoint members promoted to SkScalar
+        @param p  SkIPoint members promoted to float
     */
     void iset(const SkIPoint& p) {
-        fX = SkIntToScalar(p.fX);
-        fY = SkIntToScalar(p.fY);
+        fX = static_cast<float>(p.fX);
+        fY = static_cast<float>(p.fY);
     }
 
     /** Sets fX to absolute value of pt.fX; and fY to absolute value of pt.fY.
@@ -233,8 +233,8 @@ struct SK_API SkPoint {
         @param pt  members providing magnitude for fX and fY
     */
     void setAbs(const SkPoint& pt) {
-        fX = SkScalarAbs(pt.fX);
-        fY = SkScalarAbs(pt.fY);
+        fX = std::abs(pt.fX);
+        fY = std::abs(pt.fY);
     }
 
     /** Adds offset to each SkPoint in points array with count entries.
@@ -254,7 +254,7 @@ struct SK_API SkPoint {
         @param dx      added to fX in points
         @param dy      added to fY in points
     */
-    static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy) {
+    static void Offset(SkPoint points[], int count, float dx, float dy) {
         for (int i = 0; i < count; ++i) {
             points[i].offset(dx, dy);
         }
@@ -265,7 +265,7 @@ struct SK_API SkPoint {
         @param dx  added to fX
         @param dy  added to fY
     */
-    void offset(SkScalar dx, SkScalar dy) {
+    void offset(float dx, float dy) {
         fX += dx;
         fY += dy;
     }
@@ -278,7 +278,7 @@ struct SK_API SkPoint {
 
         @return  straight-line distance to origin
     */
-    SkScalar length() const { return SkPoint::Length(fX, fY); }
+    float length() const { return SkPoint::Length(fX, fY); }
 
     /** Returns the Euclidean distance from origin, computed as:
 
@@ -288,7 +288,7 @@ struct SK_API SkPoint {
 
         @return  straight-line distance to origin
     */
-    SkScalar distanceToOrigin() const { return this->length(); }
+    float distanceToOrigin() const { return this->length(); }
 
     /** Scales (fX, fY) so that length() returns one, while preserving ratio of fX to fY,
         if possible. If prior length is nearly zero, sets vector to (0, 0) and returns
@@ -310,7 +310,7 @@ struct SK_API SkPoint {
 
         example: https://fiddle.skia.org/c/@Point_setNormalize
     */
-    bool setNormalize(SkScalar x, SkScalar y);
+    bool setNormalize(float x, float y);
 
     /** Scales vector so that distanceToOrigin() returns length, if possible. If former
         length is nearly zero, sets vector to (0, 0) and return false; otherwise returns
@@ -321,7 +321,7 @@ struct SK_API SkPoint {
 
         example: https://fiddle.skia.org/c/@Point_setLength
     */
-    bool setLength(SkScalar length);
+    bool setLength(float length);
 
     /** Sets vector to (x, y) scaled to length, if possible. If former
         length is nearly zero, sets vector to (0, 0) and return false; otherwise returns
@@ -334,7 +334,7 @@ struct SK_API SkPoint {
 
         example: https://fiddle.skia.org/c/@Point_setLength_2
     */
-    bool setLength(SkScalar x, SkScalar y, SkScalar length);
+    bool setLength(float x, float y, float length);
 
     /** Sets dst to SkPoint times scale. dst may be SkPoint to modify SkPoint in place.
 
@@ -343,13 +343,13 @@ struct SK_API SkPoint {
 
         example: https://fiddle.skia.org/c/@Point_scale
     */
-    void scale(SkScalar scale, SkPoint* dst) const;
+    void scale(float scale, SkPoint* dst) const;
 
     /** Scales SkPoint in place by scale.
 
         @param value  factor to multiply SkPoint by
     */
-    void scale(SkScalar value) { this->scale(value, this); }
+    void scale(float value) { this->scale(value, this); }
 
     /** Changes the sign of fX and fY.
     */
@@ -386,19 +386,19 @@ struct SK_API SkPoint {
 
     /** Returns SkPoint multiplied by scale.
 
-        @param scale  scalar to multiply by
+        @param scale  float to multiply by
         @return       SkPoint as (fX * scale, fY * scale)
     */
-    SkPoint operator*(SkScalar scale) const {
+    SkPoint operator*(float scale) const {
         return {fX * scale, fY * scale};
     }
 
     /** Multiplies SkPoint by scale. Sets SkPoint to: (fX * scale, fY * scale).
 
-        @param scale  scalar to multiply by
+        @param scale  float to multiply by
         @return       reference to SkPoint
     */
-    SkPoint& operator*=(SkScalar scale) {
+    SkPoint& operator*=(float scale) {
         fX *= scale;
         fY *= scale;
         return *this;
@@ -409,16 +409,16 @@ struct SK_API SkPoint {
         @return  true for values other than infinities and NaN
     */
     bool isFinite() const {
-        SkScalar accum = 0;
+        float accum = 0;
         accum *= fX;
         accum *= fY;
 
         // accum is either NaN or it is finite (zero).
-        SkASSERT(0 == accum || SkScalarIsNaN(accum));
+        SkASSERT(0 == accum || std::isnan(accum));
 
         // value==value will be true iff value is not NaN
         // TODO: is it faster to say !accum or accum==accum?
-        return !SkScalarIsNaN(accum);
+        return !std::isnan(accum);
     }
 
     /** Returns true if SkPoint is equivalent to SkPoint constructed from (x, y).
@@ -427,7 +427,7 @@ struct SK_API SkPoint {
         @param y  value compared with fY
         @return   true if SkPoint equals (x, y)
     */
-    bool equals(SkScalar x, SkScalar y) const {
+    bool equals(float x, float y) const {
         return fX == x && fY == y;
     }
 
@@ -490,13 +490,13 @@ struct SK_API SkPoint {
 
         example: https://fiddle.skia.org/c/@Point_Length
     */
-    static SkScalar Length(SkScalar x, SkScalar y);
+    static float Length(float x, float y);
 
     /** Scales (vec->fX, vec->fY) so that length() returns one, while preserving ratio of vec->fX
         to vec->fY, if possible. If original length is nearly zero, sets vec to (0, 0) and returns
         zero; otherwise, returns length of vec before vec is scaled.
 
-        Returned prior length may be SK_ScalarInfinity if it can not be represented by SkScalar.
+        Returned prior length may be INFINITY if it can not be represented by float.
 
         Note that normalize() is faster if prior length is not required.
 
@@ -505,7 +505,7 @@ struct SK_API SkPoint {
 
         example: https://fiddle.skia.org/c/@Point_Normalize
     */
-    static SkScalar Normalize(SkVector* vec);
+    static float Normalize(SkVector* vec);
 
     /** Returns the Euclidean distance between a and b.
 
@@ -513,7 +513,7 @@ struct SK_API SkPoint {
         @param b  line end point
         @return   straight-line distance from a to b
     */
-    static SkScalar Distance(const SkPoint& a, const SkPoint& b) {
+    static float Distance(const SkPoint& a, const SkPoint& b) {
         return Length(a.fX - b.fX, a.fY - b.fY);
     }
 
@@ -523,7 +523,7 @@ struct SK_API SkPoint {
         @param b  right side of dot product
         @return   product of input magnitudes and cosine of the angle between them
     */
-    static SkScalar DotProduct(const SkVector& a, const SkVector& b) {
+    static float DotProduct(const SkVector& a, const SkVector& b) {
         return a.fX * b.fX + a.fY * b.fY;
     }
 
@@ -537,7 +537,7 @@ struct SK_API SkPoint {
         @param b  right side of cross product
         @return   area spanned by vectors signed by angle direction
     */
-    static SkScalar CrossProduct(const SkVector& a, const SkVector& b) {
+    static float CrossProduct(const SkVector& a, const SkVector& b) {
         return a.fX * b.fY - a.fY * b.fX;
     }
 
@@ -550,7 +550,7 @@ struct SK_API SkPoint {
         @param vec  right side of cross product
         @return     area spanned by vectors signed by angle direction
     */
-    SkScalar cross(const SkVector& vec) const {
+    float cross(const SkVector& vec) const {
         return CrossProduct(*this, vec);
     }
 
@@ -559,7 +559,7 @@ struct SK_API SkPoint {
         @param vec  right side of dot product
         @return     product of input magnitudes and cosine of the angle between them
     */
-    SkScalar dot(const SkVector& vec) const {
+    float dot(const SkVector& vec) const {
         return DotProduct(*this, vec);
     }
 
