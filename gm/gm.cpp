@@ -19,9 +19,12 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"  // IWYU pragma: keep
 #include "include/core/SkTileMode.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/GrRecordingContext.h"
+#endif
 
 #include <atomic>
 #include <cstdarg>
@@ -142,11 +145,13 @@ DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(canvas, errorMsg);
 }
 
+#if defined(SK_GANESH)
 SkISize SimpleGpuGM::onISize() { return fSize; }
 SkString SimpleGpuGM::onShortName() { return fName; }
 DrawResult SimpleGpuGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(rContext, canvas, errorMsg);
 }
+#endif
 
 const char* GM::getName() {
     if (fShortName.size() == 0) {
@@ -188,6 +193,7 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
+#if defined(SK_GANESH)
 std::unique_ptr<verifiers::VerifierList> GpuGM::getVerifiers() const {
     return nullptr;
 }
@@ -213,6 +219,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     }
     return this->onDraw(rContext, canvas, errorMsg);
 }
+#endif
 
 template <typename Fn>
 static void mark(SkCanvas* canvas, SkScalar x, SkScalar y, Fn&& fn) {

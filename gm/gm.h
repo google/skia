@@ -57,6 +57,7 @@ namespace skiagm { namespace verifiers { class VerifierList; } }
     skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)(SkCanvas* CANVAS, SkString* ERR_MSG)
 
 
+#if defined(SK_GANESH)
 // A Simple GpuGM makes direct GPU calls. Its onDraw hook that includes GPU objects as params, and
 // is only invoked on GPU configs. Non-GPU configs automatically draw a GPU-only message and abort.
 #define DEF_SIMPLE_GPU_GM(NAME, GR_CONTEXT, CANVAS, W, H)                                         \
@@ -80,6 +81,7 @@ namespace skiagm { namespace verifiers { class VerifierList; } }
                                           SK_MACRO_CONCAT(NAME,_GM));)                            \
     skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)(                                                 \
             GrRecordingContext* GR_CONTEXT, SkCanvas* CANVAS, SkString* ERR_MSG)
+#endif
 
 namespace skiagm {
 
@@ -190,6 +192,7 @@ namespace skiagm {
     using GMFactory = std::unique_ptr<skiagm::GM> (*)();
     using GMRegistry = sk_tools::Registry<GMFactory>;
 
+#if defined(SK_GANESH)
     // A GpuGM replaces the onDraw method with one that also accepts GPU objects alongside the
     // SkCanvas. Its onDraw is only invoked on GPU configs; on non-GPU configs it will automatically
     // draw a GPU-only message and abort.
@@ -209,6 +212,7 @@ namespace skiagm {
         virtual DrawResult onDraw(GrRecordingContext*, SkCanvas*, SkString* errorMsg);
         virtual void onDraw(GrRecordingContext*, SkCanvas*);
     };
+#endif
 
     // SimpleGM is intended for basic GMs that can define their entire implementation inside a
     // single "draw" function pointer.
@@ -229,6 +233,7 @@ namespace skiagm {
         const DrawProc fDrawProc;
     };
 
+#if defined(SK_GANESH)
     class SimpleGpuGM : public GpuGM {
     public:
         using DrawProc = DrawResult (*)(GrRecordingContext*, SkCanvas*, SkString* errorMsg);
@@ -245,6 +250,7 @@ namespace skiagm {
         const SkISize fSize;
         const DrawProc fDrawProc;
     };
+#endif
 }  // namespace skiagm
 
 void MarkGMGood(SkCanvas*, SkScalar x, SkScalar y);
