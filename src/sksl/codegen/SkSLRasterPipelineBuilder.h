@@ -277,6 +277,9 @@ private:
     // Appends a stack_rewind op on platforms where it is needed (when SK_HAS_MUSTTAIL is not set).
     void appendStackRewind(skia_private::TArray<Stage>* pipeline) const;
 
+    class Dumper;
+    friend class Dumper;
+
     skia_private::TArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
     int fNumUniformSlots = 0;
