@@ -23,7 +23,7 @@ const char* Benchmark::getUniqueName() {
     return this->onGetUniqueName();
 }
 
-SkIPoint Benchmark::getSize() {
+SkISize Benchmark::getSize() {
     return this->onGetSize();
 }
 
@@ -56,6 +56,6 @@ void Benchmark::setupPaint(SkPaint* paint) {
     paint->setAntiAlias(true);
 }
 
-SkIPoint Benchmark::onGetSize() {
-    return SkIPoint::Make(640, 480);
+SkISize Benchmark::onGetSize() {
+    return SkISize::Make(640, 480);
 }

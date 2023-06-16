@@ -248,11 +248,11 @@ private:
         return m;
     }
 
-    SkIPoint onGetSize() override {
+    SkISize onGetSize() override {
         SkRect size = SkRect::MakeWH(1.25f * fTileSize.fWidth * fTileGridSize.fWidth,
                                      1.25f * fTileSize.fHeight * fTileGridSize.fHeight);
         this->getTransform().mapRect(&size);
-        return SkIPoint::Make(SkScalarCeilToInt(size.width()), SkScalarCeilToInt(size.height()));
+        return SkISize::Make(SkScalarCeilToInt(size.width()), SkScalarCeilToInt(size.height()));
     }
 
     unsigned getEdgeFlags(int x, int y) const {

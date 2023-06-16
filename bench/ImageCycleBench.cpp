@@ -82,7 +82,7 @@ protected:
     }
 
 private:
-    SkIPoint onGetSize() override { return {kDeviceSize.fWidth, kDeviceSize.fHeight}; }
+    SkISize onGetSize() override { return {kDeviceSize.fWidth, kDeviceSize.fHeight}; }
 
     inline static constexpr SkISize kImageSize{4, 4};
     inline static constexpr SkISize kDeviceSize{64, 64};

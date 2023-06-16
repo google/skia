@@ -143,7 +143,7 @@ private:
         return fName.c_str();
     }
 
-    SkIPoint onGetSize() override {
+    SkISize onGetSize() override {
         return { 256, 256 };
     }
 

@@ -40,7 +40,7 @@ public:
     }
 
     const char* onGetName() override { return fName.c_str(); }
-    SkIPoint onGetSize() override { return SkIPoint::Make(1024,1024); }
+    SkISize onGetSize() override { return SkISize::Make(1024,1024); }
 
     void onDelayedSetup() override {
         std::unique_ptr<SkBBHFactory> factory;

@@ -704,8 +704,8 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
         return nullptr;
     }
 
-    SkImageInfo info = SkImageInfo::Make(bench->getSize().fX, bench->getSize().fY,
-                                         config.color, config.alpha, config.colorSpace);
+    SkImageInfo info =
+            SkImageInfo::Make(bench->getSize(), config.color, config.alpha, config.colorSpace);
 
     Target* target = nullptr;
 
@@ -1443,7 +1443,8 @@ int main(int argc, char** argv) {
         }
 
         if (!configs.empty()) {
-            log.beginBench(bench->getUniqueName(), bench->getSize().fX, bench->getSize().fY);
+            log.beginBench(
+                    bench->getUniqueName(), bench->getSize().width(), bench->getSize().height());
             bench->delayedSetup();
         }
         for (int i = 0; i < configs.size(); ++i) {

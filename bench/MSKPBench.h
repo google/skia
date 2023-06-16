@@ -20,7 +20,7 @@ public:
 protected:
     void onDraw(int loops, SkCanvas*) override;
     const char* onGetName() override;
-    SkIPoint onGetSize() override;
+    SkISize onGetSize() override;
     void onPreDraw(SkCanvas*) override;
     void onPostDraw(SkCanvas*) override;
 

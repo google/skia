@@ -17,7 +17,7 @@ public:
 protected:
     const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) override { return backend == kRaster_Backend; }
-    SkIPoint onGetSize() override { return { 1, 1 }; }
+    SkISize onGetSize() override { return { 1, 1 }; }
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkM44 m = SkM44::Rotate({0, 0, 1}, 1);

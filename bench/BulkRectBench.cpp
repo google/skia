@@ -262,7 +262,7 @@ protected:
         }
     }
 
-    SkIPoint onGetSize() override {
+    SkISize onGetSize() override {
         return { kWidth, kHeight };
     }
 

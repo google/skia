@@ -51,7 +51,6 @@ void GMBench::onDraw(int loops, SkCanvas* canvas) {
     }
 }
 
-SkIPoint GMBench::onGetSize() {
-    SkISize size = fGM->getISize();
-    return SkIPoint::Make(size.fWidth, size.fHeight);
+SkISize GMBench::onGetSize() {
+    return fGM->getISize();
 }

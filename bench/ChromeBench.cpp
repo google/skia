@@ -473,7 +473,7 @@ protected:
             }
         }
     }
-    SkIPoint onGetSize() override { return SkIPoint::Make(W, H); }
+    SkISize onGetSize() override { return SkISize::Make(W, H); }
 
     void setRectangle(SkRect& current, int i) {
         current.setWH(SkIntToScalar(gmailScrollingRectSpec[i*3+1]),

@@ -43,7 +43,7 @@ private:
         }
         return fName.c_str();
     }
-    SkIPoint onGetSize() override { return SkIPoint::Make(kScreenWidth, kScreenHeight); }
+    SkISize onGetSize() override { return SkISize::Make(kScreenWidth, kScreenHeight); }
 
     void onDelayedSetup() override {
         SkFont defaultFont;

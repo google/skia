@@ -107,8 +107,8 @@ bool SKPBench::isSuitableFor(Backend backend) {
     return backend != kNonRendering_Backend;
 }
 
-SkIPoint SKPBench::onGetSize() {
-    return SkIPoint::Make(fClip.width(), fClip.height());
+SkISize SKPBench::onGetSize() {
+    return SkISize::Make(fClip.width(), fClip.height());
 }
 
 void SKPBench::onDraw(int loops, SkCanvas* canvas) {
