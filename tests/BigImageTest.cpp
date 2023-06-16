@@ -25,6 +25,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTiledImageUtils.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
@@ -336,8 +337,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Ganesh,
                             canvas->clipRect(clipRect);
 
                             canvas->clear(SK_ColorBLACK);
-                            canvas->drawImageRect(img, srcRect, destRect, sampling, nullptr,
-                                                  constraint);
+                            SkTiledImageUtils::DrawImageRect(canvas, img, srcRect, destRect,
+                                                             sampling, nullptr, constraint);
                             SkAssertResult(surface->readPixels(expected, 0, 0));
                             int actualNumTiles = gNumTilesDrawn.load(std::memory_order_acquire);
                             REPORTER_ASSERT(reporter, actualNumTiles == 0);
@@ -346,8 +347,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Ganesh,
                             gOverrideMaxTextureSize = kOverrideMaxTextureSize;
 
                             canvas->clear(SK_ColorBLACK);
-                            canvas->drawImageRect(img, srcRect, destRect, sampling, nullptr,
-                                                  constraint);
+                            SkTiledImageUtils::DrawImageRect(canvas, img, srcRect, destRect,
+                                                             sampling, nullptr, constraint);
                             SkAssertResult(surface->readPixels(actual, 0, 0));
 
                             actualNumTiles = gNumTilesDrawn.load(std::memory_order_acquire);

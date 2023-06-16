@@ -147,6 +147,7 @@ static void imagesubsetproc(SkCanvas* canvas, sk_sp<SkImage> image, const SkBitm
     auto direct = GrAsDirectContext(canvas->recordingContext());
     if (sk_sp<SkImage> subset = image->makeSubset(direct, srcR)) {
         canvas->drawImageRect(subset, dstR, sampling, paint);
+        return;
     }
 #if defined(SK_GRAPHITE)
     if (sk_sp<SkImage> subset = image->makeSubset(canvas->recorder(), srcR, {})) {
