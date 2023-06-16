@@ -359,6 +359,11 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
                                    "initializers are not permitted on interface block fields");
             return false;
         }
+        if (context.fConfig->strictES2Mode() && var.type().isOrContainsArray()) {
+            context.fErrors->error(value->fPosition, "initializers are not permitted on arrays "
+                                                     "(or structs containing arrays)");
+            return false;
+        }
         value = var.type().coerceExpression(std::move(value), context);
         if (!value) {
             return false;
@@ -490,6 +495,8 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Make(const Context& context,
     SkASSERT(!(value && (var->modifiers().fFlags & Modifiers::kIn_Flag)));
     // 'uniform' variables cannot use initializer expressions
     SkASSERT(!(value && (var->modifiers().fFlags & Modifiers::kUniform_Flag)));
+    // in strict-ES2 mode, is-or-contains-array types cannot use initializer expressions
+    SkASSERT(!(value && var->type().isOrContainsArray() && context.fConfig->strictES2Mode()));
 
     auto result = std::make_unique<VarDeclaration>(var, baseType, arraySize, std::move(value));
     var->setVarDeclaration(result.get());

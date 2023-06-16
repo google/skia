@@ -17,6 +17,10 @@ void assign_A() { a1 = a2; }
 void assign_S() { s1 = s2; }
 void assign_T() { t1 = t2; }
 
+void vardecl_A() { int local_a[1] = a1; }
+void vardecl_S() { S   local_s    = s1; }
+void vardecl_T() { T   local_t    = t1; }
+
 // Note: No way to even write return_A()
 S return_S() { return s1; }
 T return_T() { return t1; }
@@ -41,6 +45,9 @@ int ternary_T(bool b) { return (b ? t1 : t2).s.x[0]; }
 operator '=' can not operate on arrays (or structs containing arrays)
 operator '=' can not operate on arrays (or structs containing arrays)
 operator '=' can not operate on arrays (or structs containing arrays)
+initializers are not permitted on arrays (or structs containing arrays)
+initializers are not permitted on arrays (or structs containing arrays)
+initializers are not permitted on arrays (or structs containing arrays)
 functions may not return structs containing arrays
 functions may not return structs containing arrays
 operator '==' can not operate on arrays (or structs containing arrays)
