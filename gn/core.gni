@@ -183,6 +183,7 @@ skia_core_sources = [
   "$_include/private/base/SkNoncopyable.h",
   "$_include/private/base/SkOnce.h",
   "$_include/private/base/SkPathEnums.h",
+  "$_include/private/base/SkPoint_impl.h",
   "$_include/private/base/SkSafe32.h",
   "$_include/private/base/SkSemaphore.h",
   "$_include/private/base/SkSpan_impl.h",

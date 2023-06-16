@@ -268,6 +268,7 @@ BASE_SRCS_ALL = [
     "include/private/base/SkNoncopyable.h",
     "include/private/base/SkOnce.h",
     "include/private/base/SkPathEnums.h",
+    "include/private/base/SkPoint_impl.h",
     "include/private/base/SkSafe32.h",
     "include/private/base/SkSemaphore.h",
     "include/private/base/SkSpan_impl.h",
