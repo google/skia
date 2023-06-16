@@ -148,7 +148,9 @@ public:
      * Create a generic type which maps to the listed types--e.g. $genType is a generic type which
      * can match float, float2, float3 or float4.
      */
-    static std::unique_ptr<Type> MakeGenericType(const char* name, SkSpan<const Type* const> types);
+    static std::unique_ptr<Type> MakeGenericType(const char* name,
+                                                 SkSpan<const Type* const> types,
+                                                 const Type* slotType);
 
     /** Create a type for literal scalars. */
     static std::unique_ptr<Type> MakeLiteralType(const char* name, const Type& scalarType,
@@ -423,6 +425,14 @@ public:
      */
     virtual size_t slotCount() const {
         return 0;
+    }
+
+    /**
+     * Returns the type of the value in the nth slot. For scalar, vector and matrix types, should
+     * always match `componentType()`.
+     */
+    virtual const Type& slotType(size_t) const {
+        return *this;
     }
 
     virtual SkSpan<const Field> fields() const {

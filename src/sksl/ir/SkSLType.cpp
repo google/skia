@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLType.h"
 
+#include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkTHash.h"
@@ -39,8 +40,8 @@ static constexpr int kMaxStructDepth = 8;
 class AliasType final : public Type {
 public:
     AliasType(std::string_view name, const Type& targetType)
-        : INHERITED(name, targetType.abbreviatedName(), targetType.typeKind())
-        , fTargetType(targetType) {}
+            : INHERITED(name, targetType.abbreviatedName(), targetType.typeKind())
+            , fTargetType(targetType) {}
 
     const Type& resolve() const override {
         return fTargetType;
@@ -76,6 +77,10 @@ public:
 
     size_t slotCount() const override {
         return fTargetType.slotCount();
+    }
+
+    const Type& slotType(size_t n) const override {
+        return fTargetType.slotType(n);
     }
 
     SpvDim_ dimensions() const override {
@@ -145,9 +150,9 @@ public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kArray;
 
     ArrayType(std::string_view name, const char* abbrev, const Type& componentType, int count)
-        : INHERITED(name, abbrev, kTypeKind)
-        , fComponentType(componentType)
-        , fCount(count) {
+            : INHERITED(name, abbrev, kTypeKind)
+            , fComponentType(componentType)
+            , fCount(count) {
         SkASSERT(count > 0 || count == kUnsizedArray);
         // Disallow multi-dimensional arrays.
         SkASSERT(!componentType.is<ArrayType>());
@@ -183,6 +188,11 @@ public:
         return fCount * fComponentType.slotCount();
     }
 
+    const Type& slotType(size_t n) const override {
+        SkASSERT(fCount == kUnsizedArray || n < this->slotCount());
+        return fComponentType.slotType(n % fComponentType.slotCount());
+    }
+
 private:
     using INHERITED = Type;
 
@@ -194,8 +204,9 @@ class GenericType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kGeneric;
 
-    GenericType(const char* name, SkSpan<const Type* const> coercibleTypes)
-        : INHERITED(name, "G", kTypeKind) {
+    GenericType(const char* name, SkSpan<const Type* const> coercibleTypes, const Type* slotType)
+            : INHERITED(name, "G", kTypeKind)
+            , fSlotType(slotType) {
         fNumTypes = coercibleTypes.size();
         SkASSERT(fNumTypes <= std::size(fCoercibleTypes));
         std::copy(coercibleTypes.begin(), coercibleTypes.end(), fCoercibleTypes);
@@ -205,10 +216,15 @@ public:
         return SkSpan(fCoercibleTypes, fNumTypes);
     }
 
+    const Type& slotType(size_t) const override {
+        return *fSlotType;
+    }
+
 private:
     using INHERITED = Type;
 
     const Type* fCoercibleTypes[9];
+    const Type* fSlotType;
     size_t fNumTypes;
 };
 
@@ -217,9 +233,9 @@ public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kLiteral;
 
     LiteralType(const char* name, const Type& scalarType, int8_t priority)
-        : INHERITED(name, "L", kTypeKind)
-        , fScalarType(scalarType)
-        , fPriority(priority) {}
+            : INHERITED(name, "L", kTypeKind)
+            , fScalarType(scalarType)
+            , fPriority(priority) {}
 
     const Type& scalarTypeForLiteral() const override {
         return fScalarType;
@@ -265,6 +281,11 @@ public:
         return 1;
     }
 
+    const Type& slotType(size_t n) const override {
+        SkASSERT(n == 0);
+        return fScalarType;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -279,10 +300,10 @@ public:
 
     ScalarType(std::string_view name, const char* abbrev, NumberKind numberKind, int8_t priority,
                int8_t bitWidth)
-        : INHERITED(name, abbrev, kTypeKind)
-        , fNumberKind(numberKind)
-        , fPriority(priority)
-        , fBitWidth(bitWidth) {}
+            : INHERITED(name, abbrev, kTypeKind)
+            , fNumberKind(numberKind)
+            , fPriority(priority)
+            , fBitWidth(bitWidth) {}
 
     NumberKind numberKind() const override {
         return fNumberKind;
@@ -314,6 +335,11 @@ public:
 
     size_t slotCount() const override {
         return 1;
+    }
+
+    const Type& slotType(size_t n) const override {
+        SkASSERT(n == 0);
+        return *this;
     }
 
     using int_limits = std::numeric_limits<int32_t>;
@@ -371,6 +397,11 @@ public:
 
     bool isAllowedInES2() const override { return false; }
 
+    const Type& slotType(size_t n) const override {
+        SkASSERT(n == 0);
+        return *this;
+    }
+
 private:
     using INHERITED = Type;
 };
@@ -381,10 +412,10 @@ public:
 
     MatrixType(std::string_view name, const char* abbrev, const Type& componentType,
                int8_t columns, int8_t rows)
-        : INHERITED(name, abbrev, kTypeKind)
-        , fComponentType(componentType.as<ScalarType>())
-        , fColumns(columns)
-        , fRows(rows) {
+            : INHERITED(name, abbrev, kTypeKind)
+            , fComponentType(componentType.as<ScalarType>())
+            , fColumns(columns)
+            , fRows(rows) {
         SkASSERT(columns >= 2 && columns <= 4);
         SkASSERT(rows >= 2 && rows <= 4);
     }
@@ -417,6 +448,11 @@ public:
         return fColumns * fRows;
     }
 
+    const Type& slotType(size_t n) const override {
+        SkASSERT(n < this->slotCount());
+        return fComponentType;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -431,12 +467,12 @@ public:
 
     TextureType(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed,
                 bool isMultisampled, TextureAccess textureAccess)
-        : INHERITED(name, "T", kTypeKind)
-        , fDimensions(dimensions)
-        , fIsDepth(isDepth)
-        , fIsArrayed(isArrayed)
-        , fIsMultisampled(isMultisampled)
-        , fTextureAccess(textureAccess) {}
+            : INHERITED(name, "T", kTypeKind)
+            , fDimensions(dimensions)
+            , fIsDepth(isDepth)
+            , fIsArrayed(isArrayed)
+            , fIsMultisampled(isMultisampled)
+            , fTextureAccess(textureAccess) {}
 
     SpvDim_ dimensions() const override {
         return fDimensions;
@@ -458,6 +494,11 @@ public:
         return fTextureAccess;
     }
 
+    const Type& slotType(size_t n) const override {
+        SkASSERT(n == 0);
+        return *this;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -473,8 +514,8 @@ public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kSampler;
 
     SamplerType(const char* name, const Type& textureType)
-        : INHERITED(name, "Z", kTypeKind)
-        , fTextureType(textureType.as<TextureType>()) {}
+            : INHERITED(name, "Z", kTypeKind)
+            , fTextureType(textureType.as<TextureType>()) {}
 
     const TextureType& textureType() const override {
         return fTextureType;
@@ -498,6 +539,11 @@ public:
 
     TextureAccess textureAccess() const override {
         return fTextureType.textureAccess();
+    }
+
+    const Type& slotType(size_t n) const override {
+        SkASSERT(n == 0);
+        return *this;
     }
 
 private:
@@ -541,6 +587,19 @@ public:
         return slots;
     }
 
+    const Type& slotType(size_t n) const override {
+        for (const Field& field : fFields) {
+            size_t fieldSlots = field.fType->slotCount();
+            if (n < fieldSlots) {
+                return field.fType->slotType(n);
+            } else {
+                n -= fieldSlots;
+            }
+        }
+        SkDEBUGFAIL("slot index out of range");
+        return *this;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -554,9 +613,9 @@ public:
 
     VectorType(std::string_view name, const char* abbrev, const Type& componentType,
                int8_t columns)
-        : INHERITED(name, abbrev, kTypeKind)
-        , fComponentType(componentType.as<ScalarType>())
-        , fColumns(columns) {
+            : INHERITED(name, abbrev, kTypeKind)
+            , fComponentType(componentType.as<ScalarType>())
+            , fColumns(columns) {
         SkASSERT(columns >= 2 && columns <= 4);
     }
 
@@ -588,6 +647,11 @@ public:
         return fColumns;
     }
 
+    const Type& slotType(size_t n) const override {
+        SkASSERT(n < SkToSizeT(fColumns));
+        return fComponentType;
+    }
+
 private:
     using INHERITED = Type;
 
@@ -613,8 +677,10 @@ std::unique_ptr<Type> Type::MakeArrayType(std::string_view name, const Type& com
                                        componentType, columns);
 }
 
-std::unique_ptr<Type> Type::MakeGenericType(const char* name, SkSpan<const Type* const> types) {
-    return std::make_unique<GenericType>(name, types);
+std::unique_ptr<Type> Type::MakeGenericType(const char* name,
+                                            SkSpan<const Type* const> types,
+                                            const Type* slotType) {
+    return std::make_unique<GenericType>(name, types, slotType);
 }
 
 std::unique_ptr<Type> Type::MakeLiteralType(const char* name, const Type& scalarType,
