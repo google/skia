@@ -27,7 +27,9 @@ struct DawnTextureSpec {
     }
 
     SkString toString() const {
-        return SkStringPrintf("format=0x%08X,usage=0x%08X", fFormat, fUsage);
+        return SkStringPrintf("format=0x%08X,usage=0x%08X",
+                              static_cast<unsigned int>(fFormat),
+                              static_cast<unsigned int>(fUsage));
     }
 
     wgpu::TextureFormat fFormat;
