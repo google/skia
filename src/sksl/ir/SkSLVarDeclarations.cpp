@@ -137,26 +137,15 @@ void VarDeclaration::ErrorCheck(const Context& context,
                                 Position modifiersPosition,
                                 const Modifiers& modifiers,
                                 const Type* type,
+                                const Type* baseType,
                                 Variable::Storage storage) {
-    const Type* baseType = type;
-    if (baseType->isArray()) {
-        baseType = &baseType->componentType();
-    }
-    SkASSERT(!baseType->isArray());
-
-    if (baseType->matches(*context.fTypes.fInvalid)) {
-        context.fErrors->error(pos, "invalid type");
-        return;
-    }
-    if (baseType->isVoid()) {
-        context.fErrors->error(pos, "variables of type 'void' are not allowed");
-        return;
-    }
+    SkASSERT(type->isArray() ? baseType->matches(type->componentType())
+                             : baseType->matches(*type));
 
     if (baseType->componentType().isOpaque() && !baseType->componentType().isAtomic() &&
         storage != Variable::Storage::kGlobal) {
-        context.fErrors->error(pos,
-                "variables of type '" + baseType->displayName() + "' must be global");
+        context.fErrors->error(pos, "variables of type '" + baseType->displayName() +
+                                    "' must be global");
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) && baseType->isMatrix()) {
         context.fErrors->error(pos, "'in' variables may not have matrix type");
@@ -211,9 +200,8 @@ void VarDeclaration::ErrorCheck(const Context& context,
 
         if (!isWorkgroup &&
             !(baseType->isInterfaceBlock() ? isWritableStorageBuffer : isBlockMember)) {
-            context.fErrors->error(pos,
-                                   "atomics are only permitted in workgroup variables and writable "
-                                   "storage blocks");
+            context.fErrors->error(pos, "atomics are only permitted in workgroup variables and "
+                                        "writable storage blocks");
         }
     }
     if (modifiers.fLayout.fFlags & Layout::kColor_Flag) {
@@ -221,17 +209,15 @@ void VarDeclaration::ErrorCheck(const Context& context,
             context.fErrors->error(pos, "'layout(color)' is only permitted in runtime effects");
         }
         if (!(modifiers.fFlags & Modifiers::kUniform_Flag)) {
-            context.fErrors->error(pos,
-                                   "'layout(color)' is only permitted on 'uniform' variables");
+            context.fErrors->error(pos, "'layout(color)' is only permitted on 'uniform' variables");
         }
         auto validColorXformType = [](const Type& t) {
             return t.isVector() && t.componentType().isFloat() &&
                    (t.columns() == 3 || t.columns() == 4);
         };
         if (!validColorXformType(*baseType)) {
-            context.fErrors->error(pos,
-                                   "'layout(color)' is not permitted on variables of type '" +
-                                           baseType->displayName() + "'");
+            context.fErrors->error(pos, "'layout(color)' is not permitted on variables of type '" +
+                                        baseType->displayName() + "'");
         }
     }
 
@@ -335,9 +321,19 @@ void VarDeclaration::ErrorCheck(const Context& context,
 
 bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
                                          const Variable& var,
+                                         const Type* baseType,
                                          std::unique_ptr<Expression>& value) {
+    if (baseType->matches(*context.fTypes.fInvalid)) {
+        context.fErrors->error(var.fPosition, "invalid type");
+        return false;
+    }
+    if (baseType->isVoid()) {
+        context.fErrors->error(var.fPosition, "variables of type 'void' are not allowed");
+        return false;
+    }
+
     ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.modifiers(), &var.type(),
-               var.storage());
+               baseType, var.storage());
     if (value) {
         if (var.type().isOpaque()) {
             context.fErrors->error(value->fPosition, "opaque type '" + var.type().displayName() +
@@ -426,14 +422,14 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
 std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
                                                         std::unique_ptr<Variable> var,
                                                         std::unique_ptr<Expression> value) {
-    if (!ErrorCheckAndCoerce(context, *var, value)) {
-        return nullptr;
-    }
     const Type* baseType = &var->type();
     int arraySize = 0;
     if (baseType->isArray()) {
         arraySize = baseType->columns();
         baseType = &baseType->componentType();
+    }
+    if (!ErrorCheckAndCoerce(context, *var, baseType, value)) {
+        return nullptr;
     }
     std::unique_ptr<VarDeclaration> varDecl = VarDeclaration::Make(context, var.get(), baseType,
                                                                    arraySize, std::move(value));

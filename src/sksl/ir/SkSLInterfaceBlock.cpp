@@ -70,12 +70,13 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
         }
     }
     // Build a struct type corresponding to the passed-in fields.
-    const Type* type = context.fSymbolTable->add(Type::MakeStructType(context,
-                                                                      pos,
-                                                                      typeName,
-                                                                      std::move(fields),
-                                                                      /*interfaceBlock=*/true));
+    const Type* baseType = context.fSymbolTable->add(Type::MakeStructType(context,
+                                                                          pos,
+                                                                          typeName,
+                                                                          std::move(fields),
+                                                                          /*interfaceBlock=*/true));
     // Array-ify the type if necessary.
+    const Type* type = baseType;
     if (arraySize > 0) {
         arraySize = type->convertArraySize(context, pos, pos, arraySize);
         if (!arraySize) {
@@ -83,13 +84,16 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
         }
         type = context.fSymbolTable->addArrayDimension(type, arraySize);
     }
+
     // Error-check the interface block as if it were being declared as a global variable.
     VarDeclaration::ErrorCheck(context,
                                pos,
                                modifiersPos,
                                modifiers,
                                type,
+                               baseType,
                                VariableStorage::kGlobal);
+
     // Create a global variable for the Interface Block.
     std::unique_ptr<SkSL::Variable> var = SkSL::Variable::Convert(context,
                                                                   pos,

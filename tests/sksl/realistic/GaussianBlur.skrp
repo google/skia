@@ -18,6 +18,9 @@ error: 17: unknown identifier 'unorm_Stage1_c0_c0_c0'
 error: 23: unknown identifier 'sample'
     half4 textureColor = sample(uTextureSampler_0_Stage1, (clampedCoord) * unorm_Stage1_c0_c0_c0.zw);
                          ^^^^^^
+error: 23: unknown identifier 'uTextureSampler_0_Stage1'
+    half4 textureColor = sample(uTextureSampler_0_Stage1, (clampedCoord) * unorm_Stage1_c0_c0_c0.zw);
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
 error: 23: unknown identifier 'unorm_Stage1_c0_c0_c0'
     half4 textureColor = sample(uTextureSampler_0_Stage1, (clampedCoord) * unorm_Stage1_c0_c0_c0.zw);
                                                                            ^^^^^^^^^^^^^^^^^^^^^
@@ -348,4 +351,4 @@ void main()
 error: 133: unknown identifier 'sk_FragColor'
         sk_FragColor = output_Stage1 * outputCoverage_Stage0;
         ^^^^^^^^^^^^
-116 errors
+117 errors

@@ -21,4 +21,10 @@ void main() {
 error: 15: unknown identifier 'sk_FragColor'
     sk_FragColor = helper(aTexture, aSampledTexture);
     ^^^^^^^^^^^^
-7 errors
+error: 15: unknown identifier 'aTexture'
+    sk_FragColor = helper(aTexture, aSampledTexture);
+                          ^^^^^^^^
+error: 15: unknown identifier 'aSampledTexture'
+    sk_FragColor = helper(aTexture, aSampledTexture);
+                                    ^^^^^^^^^^^^^^^
+9 errors

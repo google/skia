@@ -6,4 +6,7 @@ layout(binding=0) uniform sampler2D t;
 error: 4: unknown identifier 'sampleGrad'
     return sampleGrad(t, coords, dFdx(coords), dFdy(coords));
            ^^^^^^^^^^
-2 errors
+error: 4: unknown identifier 't'
+    return sampleGrad(t, coords, dFdx(coords), dFdy(coords));
+                      ^
+3 errors

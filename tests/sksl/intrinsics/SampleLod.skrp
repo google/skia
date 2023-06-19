@@ -9,6 +9,9 @@ void main()
 error: 4: unknown identifier 'sampleLod'
     half4 c = sampleLod(t, half2(0), 0);
               ^^^^^^^^^
+error: 4: unknown identifier 't'
+    half4 c = sampleLod(t, half2(0), 0);
+                        ^
 error: 5: unknown identifier 'sk_FragColor'
     sk_FragColor = c * sampleLod(t, half3(1), 0);
     ^^^^^^^^^^^^
@@ -18,4 +21,7 @@ error: 5: unknown identifier 'c'
 error: 5: unknown identifier 'sampleLod'
     sk_FragColor = c * sampleLod(t, half3(1), 0);
                        ^^^^^^^^^
-6 errors
+error: 5: unknown identifier 't'
+    sk_FragColor = c * sampleLod(t, half3(1), 0);
+                                 ^
+8 errors

@@ -60,7 +60,8 @@ public:
     // errors if needed. This method is implicitly called during Convert(), but is also explicitly
     // called while processing interface block fields.
     static void ErrorCheck(const Context& context, Position pos, Position modifiersPosition,
-                           const Modifiers& modifiers, const Type* type, Variable::Storage storage);
+                           const Modifiers& modifiers, const Type* type, const Type* baseType,
+                           Variable::Storage storage);
 
     // For use when no Variable yet exists. The newly-created variable will be added to the active
     // symbol table. Performs proper error checking and type coercion; reports errors via
@@ -119,6 +120,7 @@ public:
 private:
     static bool ErrorCheckAndCoerce(const Context& context,
                                     const Variable& var,
+                                    const Type* baseType,
                                     std::unique_ptr<Expression>& value);
 
     Variable* fVar;

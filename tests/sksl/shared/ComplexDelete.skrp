@@ -12,4 +12,7 @@ error: 6: unknown identifier 'sk_FragColor'
 error: 8: unknown identifier 'sample'
             (tmpColor = sample(s, float2(1)),
                         ^^^^^^
-4 errors
+error: 8: unknown identifier 's'
+            (tmpColor = sample(s, float2(1)),
+                               ^
+5 errors
