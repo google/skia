@@ -602,10 +602,13 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
         return false;
     }
 
-    // We don't allow inlining a function with out parameters that are written to.
-    // (See skia:11326 for rationale.)
     for (const Variable* param : functionDef->declaration().parameters()) {
-        if (param->modifiers().fFlags & Modifiers::Flag::kOut_Flag) {
+        // We don't allow inlining functions with parameters that are written-to, if they...
+        // - are `out` parameters (see skia:11326 for rationale.)
+        // - are arrays or structures (introducing temporary copies is non-trivial)
+        if ((param->modifiers().fFlags & Modifiers::Flag::kOut_Flag) ||
+            param->type().isArray() ||
+            param->type().isStruct()) {
             ProgramUsage::VariableCounts counts = usage.get(*param);
             if (counts.fWrite > 0) {
                 return false;
