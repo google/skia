@@ -98,15 +98,15 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
 void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
     if (!this->setBoundsCheck(pts, count)) {
-        this->setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
+        this->setLTRB(SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN);
     }
 }
 
 #define CHECK_INTERSECT(al, at, ar, ab, bl, bt, br, bb) \
-    SkScalar L = std::max(al, bl);                   \
-    SkScalar R = std::min(ar, br);                   \
-    SkScalar T = std::max(at, bt);                   \
-    SkScalar B = std::min(ab, bb);                   \
+    float L = std::max(al, bl);                         \
+    float R = std::min(ar, br);                         \
+    float T = std::max(at, bt);                         \
+    float B = std::min(ab, bb);                         \
     do { if (!(L < R && T < B)) return false; } while (0)
     // do the !(opposite) check so we return false if either arg is NaN
 
@@ -142,7 +142,7 @@ void SkRect::join(const SkRect& r) {
 #include "include/core/SkString.h"
 #include "src/core/SkStringUtils.h"
 
-static const char* set_scalar(SkString* storage, SkScalar value, SkScalarAsStringType asType) {
+static const char* set_scalar(SkString* storage, float value, SkScalarAsStringType asType) {
     storage->reset();
     SkAppendScalar(storage, value, asType);
     return storage->c_str();
