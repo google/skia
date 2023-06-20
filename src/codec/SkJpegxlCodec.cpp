@@ -8,6 +8,7 @@
 #include "src/codec/SkJpegxlCodec.h"
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkJpegxlDecoder.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
@@ -465,7 +466,7 @@ const SkFrameHolder* SkJpegxlCodec::getFrameHolder() const {
 // TODO(eustas): implement
 // SkSampler* SkJpegxlCodec::getSampler(bool /*createIfNecessary*/) { return nullptr; }
 
-namespace SkJpegDecoder {
+namespace SkJpegxlDecoder {
 bool IsJpegxl(const void* data, size_t len) {
     return SkJpegxlCodec::IsJpegxl(data, len);
 }

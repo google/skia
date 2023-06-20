@@ -8,6 +8,7 @@
 #include "src/codec/SkPngCodec.h"
 
 #include "include/codec/SkPngChunkReader.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"

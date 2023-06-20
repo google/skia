@@ -8,6 +8,7 @@
 #include "src/codec/SkWbmpCodec.h"
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkWbmpDecoder.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"

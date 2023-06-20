@@ -8,6 +8,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/codec/SkEncodedImageFormat.h"
+#include "include/codec/SkGifDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"

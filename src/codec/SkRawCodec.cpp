@@ -8,6 +8,7 @@
 #include "src/codec/SkRawCodec.h"
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkRawDecoder.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"

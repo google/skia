@@ -1021,7 +1021,7 @@ using MakeFromStreamCallback = std::unique_ptr<SkCodec> (*)(std::unique_ptr<SkSt
                                                             SkCodec::Result*,
                                                             DecodeContext);
 
-struct Decoder {
+struct SK_API Decoder {
     // By convention, we use all lowercase letters and go with the primary filename extension.
     // For example "png", "jpg", "ico", "webp", etc
     std::string id;
@@ -1033,7 +1033,7 @@ struct Decoder {
 // SkCodec::MakeFromStream. If a decoder with the same id already exists, this new decoder
 // will replace the existing one (in the same position). This is not thread-safe, so make sure all
 // initialization is done before the first call.
-void Register(Decoder d);
+void SK_API Register(Decoder d);
 }
 
 #endif // SkCodec_DEFINED

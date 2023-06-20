@@ -7,6 +7,7 @@
 
 #include "src/codec/SkAvifCodec.h"
 
+#include "include/codec/SkAvifDecoder.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkColorType.h"

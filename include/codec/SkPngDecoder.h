@@ -9,6 +9,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 
 class SkData;
 class SkStream;

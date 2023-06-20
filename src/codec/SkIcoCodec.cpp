@@ -7,6 +7,7 @@
 
 #include "src/codec/SkIcoCodec.h"
 
+#include "include/codec/SkIcoDecoder.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"

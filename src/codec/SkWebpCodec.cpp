@@ -9,6 +9,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
+#include "include/codec/SkWebpDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
