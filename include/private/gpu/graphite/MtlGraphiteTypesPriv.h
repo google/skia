@@ -64,6 +64,14 @@ struct MtlTextureSpec {
                fFramebufferOnly == that.fFramebufferOnly;
     }
 
+    bool isCompatible(const MtlTextureSpec& that) const {
+        // The usages may match or the usage passed in may be a superset of the usage stored within.
+        return fFormat == that.fFormat &&
+               fStorageMode == that.fStorageMode &&
+               fFramebufferOnly == that.fFramebufferOnly &&
+               (fUsage & that.fUsage) == fUsage;
+    }
+
     SkString toString() const {
         return SkStringPrintf("format=%u,usage=0x%04X,storageMode=%d,framebufferOnly=%d",
                               fFormat,

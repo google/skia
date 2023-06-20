@@ -100,6 +100,7 @@ public:
     }
 #endif
 
+    bool isCompatible(const TextureInfo& that) const;
     SkString toString() const;
 
 private:

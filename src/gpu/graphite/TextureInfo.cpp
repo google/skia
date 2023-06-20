@@ -79,6 +79,39 @@ bool TextureInfo::operator==(const TextureInfo& that) const {
     }
 }
 
+bool TextureInfo::isCompatible(const TextureInfo& that) const {
+    if (!this->isValid() || !that.isValid()) {
+        return false;
+    }
+
+    if (fSampleCount != that.fSampleCount ||
+        fMipmapped != that.fMipmapped ||
+        fProtected != that.fProtected) {
+        return false;
+    }
+
+    if (fBackend != that.fBackend) {
+        return false;
+    }
+
+    switch (fBackend) {
+#ifdef SK_DAWN
+        case BackendApi::kDawn:
+            return fDawnSpec.isCompatible(that.fDawnSpec);
+#endif
+#ifdef SK_METAL
+        case BackendApi::kMetal:
+            return fMtlSpec.isCompatible(that.fMtlSpec);
+#endif
+#ifdef SK_VULKAN
+        case BackendApi::kVulkan:
+            return fVkSpec.isCompatible(that.fVkSpec);
+#endif
+        default:
+            return false;
+    }
+}
+
 #ifdef SK_DAWN
 bool TextureInfo::getDawnTextureInfo(DawnTextureInfo* info) const {
     if (!this->isValid() || fBackend != BackendApi::kDawn) {

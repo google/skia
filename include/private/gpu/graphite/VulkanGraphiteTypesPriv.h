@@ -38,6 +38,16 @@ struct VulkanTextureSpec {
                fAspectMask == that.fAspectMask;
     }
 
+    bool isCompatible(const VulkanTextureSpec& that) const {
+        // The usages may match or the usage passed in may be a superset of the usage stored within.
+        return fFlags == that.fFlags &&
+               fFormat == that.fFormat &&
+               fImageTiling == that.fImageTiling &&
+               fSharingMode == that.fSharingMode &&
+               fAspectMask == that.fAspectMask &&
+               (fImageUsageFlags & that.fImageUsageFlags) == fImageUsageFlags;
+    }
+
     SkString toString() const {
         return SkStringPrintf(
                 "flags=0x%08X,format=%d,imageTiling=%d,imageUsageFlags=0x%08X,sharingMode=%d,"

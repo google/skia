@@ -179,8 +179,8 @@ sk_sp<TextureProxy> TextureProxy::MakeStorage(const Caps* caps,
 #ifdef SK_DEBUG
 void TextureProxy::validateTexture(const Texture* texture) {
     SkASSERT(this->isFullyLazy() || fDimensions == texture->dimensions());
-    SkASSERTF(fInfo == texture->textureInfo(),
-              "proxy->fInfo[%s] != texture->fInfo[%s]",
+    SkASSERTF(fInfo.isCompatible(texture->textureInfo()),
+              "proxy->fInfo[%s] incompatible with texture->fInfo[%s]",
               fInfo.toString().c_str(),
               texture->textureInfo().toString().c_str());
 }

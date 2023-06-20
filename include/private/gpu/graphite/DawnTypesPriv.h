@@ -26,6 +26,12 @@ struct DawnTextureSpec {
                fFormat == that.fFormat;
     }
 
+    bool isCompatible(const DawnTextureSpec& that) const {
+        // The usages may match or the usage passed in may be a superset of the usage stored within.
+        return fFormat == that.fFormat &&
+               (fUsage & that.fUsage) == fUsage;
+    }
+
     SkString toString() const {
         return SkStringPrintf("format=0x%08X,usage=0x%08X",
                               static_cast<unsigned int>(fFormat),
