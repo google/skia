@@ -192,9 +192,10 @@ protected:
     bool generateAdvance(SkGlyph* glyph) override {
         this->getTestSVGTypeface()->getAdvance(glyph);
 
-        const SkVector advance = fMatrix.mapXY(glyph->fAdvanceX, glyph->fAdvanceY);
-        glyph->fAdvanceX = advance.fX;
-        glyph->fAdvanceY = advance.fY;
+        const SkVector advance =
+                fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX), SkFloatToScalar(glyph->fAdvanceY));
+        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
         return true;
     }
 

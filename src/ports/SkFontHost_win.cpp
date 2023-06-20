@@ -727,10 +727,10 @@ SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
 
         // fPost2x2 is column-major, left handed (y down).
         // XFORM 2x2 is row-major, left handed (y down).
-        xform.eM11 = sA.get(SkMatrix::kMScaleX);
-        xform.eM12 = sA.get(SkMatrix::kMSkewY);
-        xform.eM21 = sA.get(SkMatrix::kMSkewX);
-        xform.eM22 = sA.get(SkMatrix::kMScaleY);
+        xform.eM11 = SkScalarToFloat(sA.get(SkMatrix::kMScaleX));
+        xform.eM12 = SkScalarToFloat(sA.get(SkMatrix::kMSkewY));
+        xform.eM21 = SkScalarToFloat(sA.get(SkMatrix::kMSkewX));
+        xform.eM22 = SkScalarToFloat(sA.get(SkMatrix::kMScaleY));
         xform.eDx = 0;
         xform.eDy = 0;
 
@@ -909,16 +909,16 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
         if (GDI_ERROR != status) {
             SkPoint advance;
             fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
-            glyph->fAdvanceX = advance.fX;
-            glyph->fAdvanceY = advance.fY;
+            glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+            glyph->fAdvanceY = SkScalarToFloat(advance.fY);
         }
     } else if (!isAxisAligned(this->fRec)) {
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fGsA);
         if (GDI_ERROR != status) {
             SkPoint advance;
             fG_inv.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
-            glyph->fAdvanceX = advance.fX;
-            glyph->fAdvanceY = advance.fY;
+            glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+            glyph->fAdvanceY = SkScalarToFloat(advance.fY);
         }
     }
 }

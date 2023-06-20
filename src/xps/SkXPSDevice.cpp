@@ -60,6 +60,10 @@
 
 using namespace skia_private;
 
+//Windows defines a FLOAT type,
+//make it clear when converting a scalar that this is what is wanted.
+#define SkScalarToFLOAT(n) SkScalarToFloat(n)
+
 //Placeholder representation of a GUID from createId.
 #define L_GUID_ID L"XXXXXXXXsXXXXsXXXXsXXXXsXXXXXXXXXXXX"
 //Length of GUID representation from createId, including nullptr terminator.
@@ -258,8 +262,10 @@ bool SkXPSDevice::endSheet() {
     static const float xpsDPI = 96.0f;
     static const float inchesPerMeter = 10000.0f / 254.0f;
     static const float targetUnitsPerMeter = xpsDPI * inchesPerMeter;
-    const float scaleX = targetUnitsPerMeter / this->fCurrentUnitsPerMeter.fX;
-    const float scaleY = targetUnitsPerMeter / this->fCurrentUnitsPerMeter.fY;
+    const float scaleX = targetUnitsPerMeter
+                       / SkScalarToFLOAT(this->fCurrentUnitsPerMeter.fX);
+    const float scaleY = targetUnitsPerMeter
+                       / SkScalarToFLOAT(this->fCurrentUnitsPerMeter.fY);
 
     //Create the scale canvas.
     SkTScopedComPtr<IXpsOMCanvas> scaleCanvas;
@@ -282,8 +288,8 @@ bool SkXPSDevice::endSheet() {
 
     //Create the page.
     XPS_SIZE pageSize = {
-        this->fCurrentCanvasSize.width() * scaleX,
-        this->fCurrentCanvasSize.height() * scaleY,
+        SkScalarToFLOAT(this->fCurrentCanvasSize.width()) * scaleX,
+        SkScalarToFLOAT(this->fCurrentCanvasSize.height()) * scaleY,
     };
     SkTScopedComPtr<IXpsOMPage> page;
     HRB(this->createXpsPage(pageSize, &page));
@@ -444,8 +450,8 @@ static XPS_COLOR xps_color(const SkColor skColor) {
 
 static XPS_POINT xps_point(const SkPoint& point) {
     XPS_POINT xpsPoint = {
-        point.fX,
-        point.fY,
+        SkScalarToFLOAT(point.fX),
+        SkScalarToFLOAT(point.fY),
     };
     return xpsPoint;
 }
@@ -515,12 +521,12 @@ HRESULT SkXPSDevice::createXpsTransform(const SkMatrix& matrix,
         return S_FALSE;
     }
     XPS_MATRIX rawXpsMatrix = {
-        affine[SkMatrix::kAScaleX],
-        affine[SkMatrix::kASkewY],
-        affine[SkMatrix::kASkewX],
-        affine[SkMatrix::kAScaleY],
-        affine[SkMatrix::kATransX],
-        affine[SkMatrix::kATransY],
+        SkScalarToFLOAT(affine[SkMatrix::kAScaleX]),
+        SkScalarToFLOAT(affine[SkMatrix::kASkewY]),
+        SkScalarToFLOAT(affine[SkMatrix::kASkewX]),
+        SkScalarToFLOAT(affine[SkMatrix::kAScaleY]),
+        SkScalarToFLOAT(affine[SkMatrix::kATransX]),
+        SkScalarToFLOAT(affine[SkMatrix::kATransY]),
     };
     HRM(this->fXpsFactory->CreateMatrixTransform(&rawXpsMatrix, xpsTransform),
         "Could not create transform.");
@@ -675,7 +681,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
     } else {
         //TODO(bungeman): compute how big this really needs to be.
         const SkScalar BIG = SkIntToScalar(1000); //SK_ScalarMax;
-        const FLOAT BIG_F = BIG;
+        const FLOAT BIG_F = SkScalarToFLOAT(BIG);
         const SkScalar bWidth = SkIntToScalar(bitmap.width());
         const SkScalar bHeight = SkIntToScalar(bitmap.height());
 
@@ -816,7 +822,7 @@ HRESULT SkXPSDevice::createXpsGradientStop(const SkColor skColor,
     XPS_COLOR gradStopXpsColor = xps_color(skColor);
     HRM(this->fXpsFactory->CreateGradientStop(&gradStopXpsColor,
                                               nullptr,
-                                              offset,
+                                              SkScalarToFLOAT(offset),
                                               xpsGradStop),
         "Could not create gradient stop.");
     return S_OK;
@@ -906,8 +912,8 @@ HRESULT SkXPSDevice::createXpsRadialGradient(SkShaderBase::GradientInfo info,
     if (xpsMatrix) {
         centerPoint = xps_point(info.fPoint[0]);
         gradientOrigin = xps_point(info.fPoint[0]);
-        radiiSizes.width = info.fRadius[0];
-        radiiSizes.height = info.fRadius[0];
+        radiiSizes.width = SkScalarToFLOAT(info.fRadius[0]);
+        radiiSizes.height = SkScalarToFLOAT(info.fRadius[0]);
     } else {
         centerPoint = xps_point(info.fPoint[0], localMatrix);
         gradientOrigin = xps_point(info.fPoint[0], localMatrix);
@@ -922,8 +928,8 @@ HRESULT SkXPSDevice::createXpsRadialGradient(SkShaderBase::GradientInfo info,
         SkScalar d0 = vec[0].length();
         SkScalar d1 = vec[1].length();
 
-        radiiSizes.width = d0;
-        radiiSizes.height = d1;
+        radiiSizes.width = SkScalarToFLOAT(d0);
+        radiiSizes.height = SkScalarToFLOAT(d1);
     }
 
     SkTScopedComPtr<IXpsOMRadialGradientBrush> gradientBrush;
@@ -1097,9 +1103,9 @@ HRESULT SkXPSDevice::createXpsQuad(const SkPoint (&points)[4],
 
     // Define the x and y coordinates of each corner of the figure.
     FLOAT segmentData[6] = {
-        points[1].fX, points[1].fY,
-        points[2].fX, points[2].fY,
-        points[3].fX, points[3].fY,
+        SkScalarToFLOAT(points[1].fX), SkScalarToFLOAT(points[1].fY),
+        SkScalarToFLOAT(points[2].fX), SkScalarToFLOAT(points[2].fY),
+        SkScalarToFLOAT(points[3].fX), SkScalarToFLOAT(points[3].fY),
     };
 
     // Describe if the segments are stroked.
@@ -1308,26 +1314,26 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
             case SkPath::kLine_Verb:
                 if (iter.isCloseLine()) break; //ignore the line, auto-closed
                 segmentTypes.push_back(XPS_SEGMENT_TYPE_LINE);
-                segmentData.push_back(points[1].fX);
-                segmentData.push_back(points[1].fY);
+                segmentData.push_back(SkScalarToFLOAT(points[1].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[1].fY));
                 segmentStrokes.push_back(stroke);
                 break;
             case SkPath::kQuad_Verb:
                 segmentTypes.push_back(XPS_SEGMENT_TYPE_QUADRATIC_BEZIER);
-                segmentData.push_back(points[1].fX);
-                segmentData.push_back(points[1].fY);
-                segmentData.push_back(points[2].fX);
-                segmentData.push_back(points[2].fY);
+                segmentData.push_back(SkScalarToFLOAT(points[1].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[1].fY));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fY));
                 segmentStrokes.push_back(stroke);
                 break;
             case SkPath::kCubic_Verb:
                 segmentTypes.push_back(XPS_SEGMENT_TYPE_BEZIER);
-                segmentData.push_back(points[1].fX);
-                segmentData.push_back(points[1].fY);
-                segmentData.push_back(points[2].fX);
-                segmentData.push_back(points[2].fY);
-                segmentData.push_back(points[3].fX);
-                segmentData.push_back(points[3].fY);
+                segmentData.push_back(SkScalarToFLOAT(points[1].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[1].fY));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fY));
+                segmentData.push_back(SkScalarToFLOAT(points[3].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[3].fY));
                 segmentStrokes.push_back(stroke);
                 break;
             case SkPath::kConic_Verb: {
@@ -1337,10 +1343,10 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
                     converter.computeQuads(points, iter.conicWeight(), tol);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     segmentTypes.push_back(XPS_SEGMENT_TYPE_QUADRATIC_BEZIER);
-                    segmentData.push_back(quads[2 * i + 1].fX);
-                    segmentData.push_back(quads[2 * i + 1].fY);
-                    segmentData.push_back(quads[2 * i + 2].fX);
-                    segmentData.push_back(quads[2 * i + 2].fY);
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 1].fX));
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 1].fY));
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 2].fX));
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 2].fY));
                     segmentStrokes.push_back(stroke);
                 }
                 break;
@@ -1459,7 +1465,8 @@ HRESULT SkXPSDevice::shadePath(IXpsOMPath* shadedPath,
         HR(this->createXpsBrush(shaderPaint, &strokeBrush, &matrix));
         HRM(shadedPath->SetStrokeBrushLocal(strokeBrush.get()),
             "Could not set stroke brush for shaded path.");
-        HRM(shadedPath->SetStrokeThickness(shaderPaint.getStrokeWidth()),
+        HRM(shadedPath->SetStrokeThickness(
+                SkScalarToFLOAT(shaderPaint.getStrokeWidth())),
             "Could not set shaded path stroke thickness.");
 
         if (0 == shaderPaint.getStrokeWidth()) {
@@ -1796,8 +1803,8 @@ HRESULT SkXPSDevice::AddGlyphs(IXpsOMObjectFactory* xpsFactory,
     //...except positioning text.
     bool useCanvasForClip;
     if (transform.isTranslate()) {
-        origin->x += transform.getTranslateX();
-        origin->y += transform.getTranslateY();
+        origin->x += SkScalarToFLOAT(transform.getTranslateX());
+        origin->y += SkScalarToFLOAT(transform.getTranslateY());
         useCanvasForClip = false;
     } else {
         SkTScopedComPtr<IXpsOMMatrixTransform> xpsMatrixToUse;
@@ -1909,7 +1916,7 @@ void SkXPSDevice::onDrawGlyphRunList(SkCanvas*,
 
         // Advance width and offsets for glyphs measured in hundredths of the font em size
         // (XPS Spec 5.1.3).
-        FLOAT centemPerUnit = 100.0f / font.getSize();
+        FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(font.getSize());
         AutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
         size_t numGlyphs = typeface->glyphsUsed.size();
         size_t actualGlyphCount = 0;
@@ -1922,8 +1929,8 @@ void SkXPSDevice::onDrawGlyphRunList(SkCanvas*,
             XPS_GLYPH_INDEX& xpsGlyph = xpsGlyphs[actualGlyphCount++];
             xpsGlyph.index = glyphIDs[i];
             xpsGlyph.advanceWidth = 0.0f;
-            xpsGlyph.horizontalOffset = (position.fX * centemPerUnit);
-            xpsGlyph.verticalOffset = (position.fY * -centemPerUnit);
+            xpsGlyph.horizontalOffset = (SkScalarToFloat(position.fX) * centemPerUnit);
+            xpsGlyph.verticalOffset = (SkScalarToFloat(position.fY) * -centemPerUnit);
             typeface->glyphsUsed.set(xpsGlyph.index);
         }
 
@@ -1942,7 +1949,7 @@ void SkXPSDevice::onDrawGlyphRunList(SkCanvas*,
                       nullptr,
                       xpsGlyphs.get(), actualGlyphCount,
                       &origin,
-                      font.getSize(),
+                      SkScalarToFLOAT(font.getSize()),
                       XPS_STYLE_SIMULATION_NONE,
                       this->localToDevice(),
                       drawingPaint));

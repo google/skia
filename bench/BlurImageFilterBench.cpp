@@ -72,7 +72,7 @@ public:
             fIsSmall ? "small" : "large",
             fIsCropped ? "_cropped" : "",
             fIsExpanded ? "_expanded" : "",
-            sigmaX, sigmaY);
+            SkScalarToFloat(sigmaX), SkScalarToFloat(sigmaY));
         SkASSERT(!fIsExpanded || fIsCropped); // never want expansion w/o cropping
     }
 
