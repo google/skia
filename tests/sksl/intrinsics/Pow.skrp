@@ -1,13 +1,15 @@
+[immutable slots]
+exponents(0) = 0x40000000 (2.0)
+exponents(1) = 0x40400000 (3.0)
+exponents(2) = 0x3F800000 (1.0)
+exponents(3) = 0x3FC00000 (1.5)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  expected(0) = 0xBFC80000 (-1.5625)
 copy_constant                  expected(1) = 0
 copy_constant                  expected(2) = 0x3F400000 (0.75)
 copy_constant                  expected(3) = 0x40580000 (3.375)
-copy_constant                  exponents(0) = 0x40000000 (2.0)
-copy_constant                  exponents(1) = 0x40400000 (3.0)
-copy_constant                  exponents(2) = 0x3F800000 (1.0)
-copy_constant                  exponents(3) = 0x3FC00000 (1.5)
 copy_uniform                   $0 = testInputs(0)
 copy_constant                  $1 = 0x40000000 (2.0)
 pow_n_floats                   $0 = pow($0, $1)

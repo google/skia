@@ -1,18 +1,29 @@
+[immutable slots]
+globalArray[0] = 0x3F800000 (1.0)
+globalArray[1] = 0x3F800000 (1.0)
+globalArray[2] = 0x3F800000 (1.0)
+globalArray[3] = 0x3F800000 (1.0)
+globalArray[4] = 0x3F800000 (1.0)
+globalVector(0) = 0x3F800000 (1.0)
+globalVector(1) = 0x3F800000 (1.0)
+globalMatrix(0) = 0x3F800000 (1.0)
+globalMatrix(1) = 0x3F800000 (1.0)
+globalMatrix(2) = 0x3F800000 (1.0)
+globalMatrix(3) = 0x3F800000 (1.0)
+localArray[0] = 0
+localArray[1] = 0x3F800000 (1.0)
+localArray[2] = 0x40000000 (2.0)
+localArray[3] = 0x40400000 (3.0)
+localArray[4] = 0x40800000 (4.0)
+localVector(0) = 0x3F800000 (1.0)
+localVector(1) = 0x3F800000 (1.0)
+localMatrix(0) = 0
+localMatrix(1) = 0x3F800000 (1.0)
+localMatrix(2) = 0x40000000 (2.0)
+localMatrix(3) = 0x40400000 (3.0)
+
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_4_constants              globalArray[0], globalArray[1], globalArray[2], globalArray[3] = 0x3F800000 (1.0)
-splat_4_constants              globalArray[4], globalVector, globalMatrix(0) = 0x3F800000 (1.0)
-splat_3_constants              globalMatrix(1..3) = 0x3F800000 (1.0)
-copy_constant                  localArray[0] = 0
-copy_constant                  localArray[1] = 0x3F800000 (1.0)
-copy_constant                  localArray[2] = 0x40000000 (2.0)
-copy_constant                  localArray[3] = 0x40400000 (3.0)
-copy_constant                  localArray[4] = 0x40800000 (4.0)
-splat_2_constants              localVector = 0x3F800000 (1.0)
-copy_constant                  localMatrix(0) = 0
-copy_constant                  localMatrix(1) = 0x3F800000 (1.0)
-copy_constant                  localMatrix(2) = 0x40000000 (2.0)
-copy_constant                  localMatrix(3) = 0x40400000 (3.0)
 copy_4_slots_unmasked          $0..3 = globalArray[0], globalArray[1], globalArray[2], globalArray[3]
 copy_slot_unmasked             $4 = globalArray[4]
 copy_4_uniforms                $5..8 = testArray[0], testArray[1], testArray[2], testArray[3]
@@ -52,7 +63,7 @@ cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
 bitwise_and_2_ints             $1..2 &= $3..4
 bitwise_and_int                $1 &= $2
 bitwise_or_int                 $0 |= $1
-branch_if_no_active_lanes_eq   branch +4 (label 0 at #59) if no lanes of $0 == 0xFFFFFFFF
+branch_if_no_active_lanes_eq   branch +4 (label 0 at #46) if no lanes of $0 == 0xFFFFFFFF
 copy_4_uniforms                $1..4 = colorRed
 copy_4_slots_masked            [main].result = Mask($1..4)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)

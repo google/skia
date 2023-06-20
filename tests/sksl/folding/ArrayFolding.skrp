@@ -1,10 +1,12 @@
+[immutable slots]
+_8_flatten0 = 0x00000001 (1.401298e-45)
+_10_flatten2 = 0x00000003 (4.203895e-45)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  globalValue = 0
 copy_constant                  _7_two = 0x00000002 (2.802597e-45)
-copy_constant                  _8_flatten0 = 0x00000001 (1.401298e-45)
 copy_slot_unmasked             _9_flatten1 = _7_two
-copy_constant                  _10_flatten2 = 0x00000003 (4.203895e-45)
 copy_slot_unmasked             $12 = _7_two
 add_imm_int                    $12 += 0xFFFFFFFF
 copy_slot_unmasked             _7_two = $12

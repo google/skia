@@ -1,9 +1,19 @@
+[immutable slots]
+negativeVal(0) = 0xBF800000 (-1.0)
+negativeVal(1) = 0xC0800000 (-4.0)
+negativeVal(2) = 0xC1800000 (-16.0)
+negativeVal(3) = 0xC2800000 (-64.0)
+expected(0) = 0x3F800000 (1.0)
+expected(1) = 0x40000000 (2.0)
+expected(2) = 0x40400000 (3.0)
+expected(3) = 0x40800000 (4.0)
+allowedDelta(0) = 0x3D4CCCCD (0.05)
+allowedDelta(1) = 0x3D4CCCCD (0.05)
+allowedDelta(2) = 0x3D4CCCCD (0.05)
+allowedDelta(3) = 0x3D4CCCCD (0.05)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  negativeVal(0) = 0xBF800000 (-1.0)
-copy_constant                  negativeVal(1) = 0xC0800000 (-4.0)
-copy_constant                  negativeVal(2) = 0xC1800000 (-16.0)
-copy_constant                  negativeVal(3) = 0xC2800000 (-64.0)
 copy_4_slots_unmasked          $0..3 = negativeVal
 sqrt_float                     $0 = sqrt($0)
 sqrt_float                     $1 = sqrt($1)
@@ -17,11 +27,6 @@ copy_constant                  $6 = 0x40C00000 (6.0)
 copy_constant                  $7 = 0x41400000 (12.0)
 add_4_floats                   $0..3 += $4..7
 copy_4_slots_unmasked          inputVal = $0..3
-copy_constant                  expected(0) = 0x3F800000 (1.0)
-copy_constant                  expected(1) = 0x40000000 (2.0)
-copy_constant                  expected(2) = 0x40400000 (3.0)
-copy_constant                  expected(3) = 0x40800000 (4.0)
-splat_4_constants              allowedDelta = 0x3D4CCCCD (0.05)
 copy_slot_unmasked             $0 = inputVal(0)
 sqrt_float                     $0 = sqrt($0)
 add_imm_float                  $0 += 0xBF800000 (-1.0)

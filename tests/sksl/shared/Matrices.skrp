@@ -1,3 +1,25 @@
+[immutable slots]
+_3_m4(0) = 0x40C00000 (6.0)
+_3_m4(1) = 0
+_3_m4(2) = 0
+_3_m4(3) = 0x40C00000 (6.0)
+_7_m10(0) = 0x41300000 (11.0)
+_7_m10(1) = 0
+_7_m10(2) = 0
+_7_m10(3) = 0
+_7_m10(4) = 0
+_7_m10(5) = 0x41300000 (11.0)
+_7_m10(6) = 0
+_7_m10(7) = 0
+_7_m10(8) = 0
+_7_m10(9) = 0
+_7_m10(10) = 0x41300000 (11.0)
+_7_m10(11) = 0
+_7_m10(12) = 0
+_7_m10(13) = 0
+_7_m10(14) = 0
+_7_m10(15) = 0x41300000 (11.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  _0_ok = 0xFFFFFFFF
@@ -28,10 +50,6 @@ bitwise_and_2_ints             $1..2 &= $3..4
 bitwise_and_int                $1 &= $2
 bitwise_and_int                $0 &= $1
 copy_slot_unmasked             _0_ok = $0
-copy_constant                  $0 = 0
-copy_constant                  $1 = 0x40C00000 (6.0)
-swizzle_4                      $0..3 = ($0..3).yxxy
-copy_4_slots_unmasked          _3_m4 = $0..3
 copy_4_slots_unmasked          $4..7 = _2_m3
 copy_4_slots_unmasked          $8..11 = _3_m4
 matrix_multiply_2              mat2x2($0..3) = mat2x2($4..7) * mat2x2($8..11)
@@ -77,13 +95,6 @@ bitwise_and_2_ints             $1..2 &= $3..4
 bitwise_and_int                $1 &= $2
 bitwise_and_int                $0 &= $1
 copy_slot_unmasked             _0_ok = $0
-copy_constant                  $0 = 0
-copy_constant                  $1 = 0x41300000 (11.0)
-shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
-copy_4_slots_unmasked          _7_m10(0..3) = $0..3
-copy_4_slots_unmasked          _7_m10(4..7) = $4..7
-copy_4_slots_unmasked          _7_m10(8..11) = $8..11
-copy_4_slots_unmasked          _7_m10(12..15) = $12..15
 splat_4_constants              _8_m11(0..3) = 0x41A00000 (20.0)
 splat_4_constants              _8_m11(4..7) = 0x41A00000 (20.0)
 splat_4_constants              _8_m11(8..11) = 0x41A00000 (20.0)
@@ -126,7 +137,7 @@ store_condition_mask           $68 = CondMask
 copy_slot_unmasked             $69 = _0_ok
 copy_constant                  $34 = 0
 merge_condition_mask           CondMask = $68 & $69
-branch_if_no_lanes_active      branch_if_no_lanes_active +191 (label 2 at #320)
+branch_if_no_lanes_active      branch_if_no_lanes_active +191 (label 2 at #309)
 copy_constant                  ok = 0xFFFFFFFF
 copy_constant                  m1(0) = 0x3F800000 (1.0)
 copy_constant                  m1(1) = 0x40000000 (2.0)
@@ -321,7 +332,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $68
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $33 & $34
-branch_if_no_lanes_active      branch_if_no_lanes_active +20 (label 1 at #344)
+branch_if_no_lanes_active      branch_if_no_lanes_active +20 (label 1 at #333)
 splat_4_constants              x = 0
 splat_4_constants              y = 0
 copy_constant                  $1 = 0x3F800000 (1.0)

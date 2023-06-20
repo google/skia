@@ -1,9 +1,11 @@
+[immutable slots]
+constGreen(0) = 0
+constGreen(1) = 0x3F800000 (1.0)
+constGreen(2) = 0
+constGreen(3) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  constGreen(0) = 0
-copy_constant                  constGreen(1) = 0x3F800000 (1.0)
-copy_constant                  constGreen(2) = 0
-copy_constant                  constGreen(3) = 0x3F800000 (1.0)
 splat_2_constants              expectedA(0..1) = 0
 splat_4_constants              expectedA(2..3), expectedB(0..1) = 0x3F800000 (1.0)
 splat_2_constants              expectedB(2..3) = 0

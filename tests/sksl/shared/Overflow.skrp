@@ -1,3 +1,13 @@
+[immutable slots]
+i4(0) = 0x00000002 (2.802597e-45)
+i4(1) = 0x00000002 (2.802597e-45)
+i4(2) = 0x00000002 (2.802597e-45)
+i4(3) = 0x00000002 (2.802597e-45)
+u4(0) = 0x00000002 (2.802597e-45)
+u4(1) = 0x00000002 (2.802597e-45)
+u4(2) = 0x00000002 (2.802597e-45)
+u4(3) = 0x00000002 (2.802597e-45)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  $0 = 0x7B2D556E (9.000001e+35)
@@ -131,7 +141,6 @@ mul_imm_int                    $0 *= 0x00000002
 mul_imm_int                    $0 *= 0x00000002
 mul_imm_int                    $0 *= 0x00000002
 copy_slot_unmasked             hugeNS = $0
-splat_4_constants              i4 = 0x00000002 (2.802597e-45)
 splat_4_constants              $0..3 = 0x40000000 (2.0)
 splat_4_constants              $4..7 = 0x00000002 (2.802597e-45)
 mul_4_ints                     $0..3 *= $4..7
@@ -164,7 +173,6 @@ mul_4_ints                     $0..3 *= $4..7
 splat_4_constants              $4..7 = 0x00000002 (2.802597e-45)
 mul_4_ints                     $0..3 *= $4..7
 copy_4_slots_unmasked          hugeIvec = $0..3
-splat_4_constants              u4 = 0x00000002 (2.802597e-45)
 splat_4_constants              $0..3 = 0x80000000 (-0.0)
 splat_4_constants              $4..7 = 0x00000002 (2.802597e-45)
 mul_4_ints                     $0..3 *= $4..7

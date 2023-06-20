@@ -1,9 +1,11 @@
+[immutable slots]
+negativeVal(0) = 0xBF800000 (-1.0)
+negativeVal(1) = 0xC0800000 (-4.0)
+negativeVal(2) = 0xC1800000 (-16.0)
+negativeVal(3) = 0xC2800000 (-64.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  negativeVal(0) = 0xBF800000 (-1.0)
-copy_constant                  negativeVal(1) = 0xC0800000 (-4.0)
-copy_constant                  negativeVal(2) = 0xC1800000 (-16.0)
-copy_constant                  negativeVal(3) = 0xC2800000 (-64.0)
 copy_uniform                   $4 = inputVal(0)
 invsqrt_float                  $4 = inversesqrt($4)
 copy_uniform                   $5 = expected(0)
@@ -82,9 +84,9 @@ cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
 bitwise_and_2_ints             $5..6 &= $7..8
 bitwise_and_int                $5 &= $6
 bitwise_and_int                $4 &= $5
-branch_if_no_active_lanes_eq   branch +3 (label 0 at #88) if no lanes of $4 == 0xFFFFFFFF
+branch_if_no_active_lanes_eq   branch +3 (label 0 at #84) if no lanes of $4 == 0xFFFFFFFF
 copy_4_uniforms                $0..3 = colorGreen
-jump                           jump +3 (label 1 at #90)
+jump                           jump +3 (label 1 at #86)
 label                          label 0
 copy_4_uniforms                $0..3 = colorRed
 label                          label 0x00000001

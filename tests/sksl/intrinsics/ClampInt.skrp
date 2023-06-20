@@ -1,3 +1,13 @@
+[immutable slots]
+clampLow(0) = 0xFFFFFF9C
+clampLow(1) = 0xFFFFFF38
+clampLow(2) = 0xFFFFFF38
+clampLow(3) = 0x00000064 (1.401298e-43)
+clampHigh(0) = 0x00000064 (1.401298e-43)
+clampHigh(1) = 0x000000C8 (2.802597e-43)
+clampHigh(2) = 0x00000032 (7.006492e-44)
+clampHigh(3) = 0x0000012C (4.203895e-43)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                $0..3 = testInputs
@@ -9,17 +19,10 @@ copy_constant                  expectedA(0) = 0xFFFFFF9C
 copy_constant                  expectedA(1) = 0
 copy_constant                  expectedA(2) = 0x0000004B (1.050974e-43)
 copy_constant                  expectedA(3) = 0x00000064 (1.401298e-43)
-copy_constant                  clampLow(0) = 0xFFFFFF9C
-splat_2_constants              clampLow(1..2) = 0xFFFFFF38
-copy_constant                  clampLow(3) = 0x00000064 (1.401298e-43)
 copy_constant                  expectedB(0) = 0xFFFFFF9C
 copy_constant                  expectedB(1) = 0
 copy_constant                  expectedB(2) = 0x00000032 (7.006492e-44)
 copy_constant                  expectedB(3) = 0x000000E1 (3.152922e-43)
-copy_constant                  clampHigh(0) = 0x00000064 (1.401298e-43)
-copy_constant                  clampHigh(1) = 0x000000C8 (2.802597e-43)
-copy_constant                  clampHigh(2) = 0x00000032 (7.006492e-44)
-copy_constant                  clampHigh(3) = 0x0000012C (4.203895e-43)
 copy_slot_unmasked             $0 = intValues(0)
 copy_constant                  $1 = 0xFFFFFF9C
 max_int                        $0 = max($0, $1)

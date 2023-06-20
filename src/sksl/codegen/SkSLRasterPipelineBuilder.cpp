@@ -1748,6 +1748,13 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::store_device_xy01, SlotA()});
                 break;
 
+            case BuilderOp::store_immutable_value: {
+                float* dst = SlotA();
+                for (int index = 0; index < N; ++index) {
+                    dst[index] = sk_bit_cast<float>(inst.fImmA);
+                }
+                break;
+            }
             case BuilderOp::load_src:
                 pipeline->push_back({ProgramOp::load_src, SlotA()});
                 break;
@@ -2661,6 +2668,23 @@ void Program::Dumper::dump(SkWStream* out) {
     // Assemble lookup tables for program labels and slot names.
     this->buildLabelToStageMap();
     this->buildUniqueSlotNameList();
+
+    // Emit all of the program's immutable data.
+    const char* header = "[immutable slots]\n";
+    const char* footer = "";
+    for (const Instruction& inst : fProgram.fInstructions) {
+        if (inst.fOp == BuilderOp::store_immutable_value) {
+            out->writeText(header);
+            out->writeText(this->slotName({inst.fSlotA, 1}).c_str());
+            out->writeText(" = ");
+            out->writeText(this->imm(sk_bit_cast<float>(inst.fImmA)).c_str());
+            out->writeText("\n");
+
+            header = "";
+            footer = "\n";
+        }
+    }
+    out->writeText(footer);
 
     // Emit the program's instruction list.
     for (int index = 0; index < fStages.size(); ++index) {

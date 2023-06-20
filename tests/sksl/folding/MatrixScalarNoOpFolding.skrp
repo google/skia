@@ -1,3 +1,92 @@
+[immutable slots]
+z(0) = 0
+z(1) = 0
+z(2) = 0
+z(3) = 0
+z₁(0) = 0
+z₁(1) = 0
+z₁(2) = 0
+z₁(3) = 0
+z₁(4) = 0
+z₁(5) = 0
+z₁(6) = 0
+z₁(7) = 0
+z₁(8) = 0
+z₂(0) = 0
+z₂(1) = 0
+z₂(2) = 0
+z₂(3) = 0
+z₂(4) = 0
+z₂(5) = 0
+z₂(6) = 0
+z₂(7) = 0
+z₂(8) = 0
+z₂(9) = 0
+z₂(10) = 0
+z₂(11) = 0
+z₂(12) = 0
+z₂(13) = 0
+z₂(14) = 0
+z₂(15) = 0
+z₃(0) = 0
+z₃(1) = 0
+z₃(2) = 0
+z₃(3) = 0
+s(0) = 0x3F800000 (1.0)
+s(1) = 0x3F800000 (1.0)
+s(2) = 0x3F800000 (1.0)
+s(3) = 0x3F800000 (1.0)
+z₄(0) = 0
+z₄(1) = 0
+z₄(2) = 0
+z₄(3) = 0
+z₄(4) = 0
+z₄(5) = 0
+z₄(6) = 0
+z₄(7) = 0
+z₄(8) = 0
+s₁(0) = 0x3F800000 (1.0)
+s₁(1) = 0x3F800000 (1.0)
+s₁(2) = 0x3F800000 (1.0)
+s₁(3) = 0x3F800000 (1.0)
+s₁(4) = 0x3F800000 (1.0)
+s₁(5) = 0x3F800000 (1.0)
+s₁(6) = 0x3F800000 (1.0)
+s₁(7) = 0x3F800000 (1.0)
+s₁(8) = 0x3F800000 (1.0)
+z₅(0) = 0
+z₅(1) = 0
+z₅(2) = 0
+z₅(3) = 0
+z₅(4) = 0
+z₅(5) = 0
+z₅(6) = 0
+z₅(7) = 0
+z₅(8) = 0
+z₅(9) = 0
+z₅(10) = 0
+z₅(11) = 0
+z₅(12) = 0
+z₅(13) = 0
+z₅(14) = 0
+z₅(15) = 0
+s₂(0) = 0x3F800000 (1.0)
+s₂(1) = 0x3F800000 (1.0)
+s₂(2) = 0x3F800000 (1.0)
+s₂(3) = 0x3F800000 (1.0)
+s₂(4) = 0x3F800000 (1.0)
+s₂(5) = 0x3F800000 (1.0)
+s₂(6) = 0x3F800000 (1.0)
+s₂(7) = 0x3F800000 (1.0)
+s₂(8) = 0x3F800000 (1.0)
+s₂(9) = 0x3F800000 (1.0)
+s₂(10) = 0x3F800000 (1.0)
+s₂(11) = 0x3F800000 (1.0)
+s₂(12) = 0x3F800000 (1.0)
+s₂(13) = 0x3F800000 (1.0)
+s₂(14) = 0x3F800000 (1.0)
+s₂(15) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 store_condition_mask           $51 = CondMask
@@ -5,13 +94,10 @@ store_condition_mask           $82 = CondMask
 store_condition_mask           $98 = CondMask
 store_condition_mask           $150 = CondMask
 store_condition_mask           $181 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +74 (label 6 at #82)
+branch_if_no_lanes_active      branch_if_no_lanes_active +71 (label 6 at #79)
 store_return_mask              $182 = RetMask
 splat_4_constants              m = 0
 splat_4_constants              mm = 0
-splat_2_constants              $183..184 = 0
-swizzle_4                      $183..186 = ($183..186).yxxy
-copy_4_slots_unmasked          z = $183..186
 copy_4_uniforms                $183..186 = testMatrix2x2
 copy_4_slots_masked            m = Mask($183..186)
 copy_4_uniforms                $183..186 = testMatrix2x2
@@ -82,18 +168,13 @@ copy_slot_unmasked             $182 = [test_no_op_scalar_X_mat2].result
 label                          label 0x00000006
 copy_constant                  $151 = 0
 merge_condition_mask           CondMask = $181 & $182
-branch_if_no_lanes_active      branch_if_no_lanes_active +129 (label 5 at #214)
+branch_if_no_lanes_active      branch_if_no_lanes_active +124 (label 5 at #206)
 store_return_mask              $152 = RetMask
 splat_4_constants              m₁(0..3) = 0
 splat_4_constants              m₁(4..7) = 0
 splat_4_constants              m₁(8), mm₁(0..2) = 0
 splat_4_constants              mm₁(3..6) = 0
 splat_2_constants              mm₁(7..8) = 0
-splat_2_constants              $153..154 = 0
-shuffle                        $153..161 = ($153..161)[1 0 0 0 1 0 0 0 1]
-copy_4_slots_unmasked          z₁(0..3) = $153..156
-copy_4_slots_unmasked          z₁(4..7) = $157..160
-copy_slot_unmasked             z₁(8) = $161
 copy_4_uniforms                $153..156 = testMatrix3x3(0..3)
 copy_4_uniforms                $157..160 = testMatrix3x3(4..7)
 copy_uniform                   $161 = testMatrix3x3(8)
@@ -215,7 +296,7 @@ label                          label 0x00000005
 load_condition_mask            CondMask = $181
 copy_constant                  $99 = 0
 merge_condition_mask           CondMask = $150 & $151
-branch_if_no_lanes_active      branch_if_no_lanes_active +161 (label 4 at #379)
+branch_if_no_lanes_active      branch_if_no_lanes_active +155 (label 4 at #365)
 store_return_mask              $100 = RetMask
 copy_4_uniforms                testMatrix4x4(0..3) = testInputs
 copy_4_uniforms                testMatrix4x4(4..7) = testInputs
@@ -229,12 +310,6 @@ splat_4_constants              mm₂(0..3) = 0
 splat_4_constants              mm₂(4..7) = 0
 splat_4_constants              mm₂(8..11) = 0
 splat_4_constants              mm₂(12..15) = 0
-splat_2_constants              $101..102 = 0
-shuffle                        $101..116 = ($101..116)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
-copy_4_slots_unmasked          z₂(0..3) = $101..104
-copy_4_slots_unmasked          z₂(4..7) = $105..108
-copy_4_slots_unmasked          z₂(8..11) = $109..112
-copy_4_slots_unmasked          z₂(12..15) = $113..116
 copy_4_slots_unmasked          $101..104 = testMatrix4x4(0..3)
 copy_4_slots_unmasked          $105..108 = testMatrix4x4(4..7)
 copy_4_slots_unmasked          $109..112 = testMatrix4x4(8..11)
@@ -380,14 +455,10 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $150
 copy_constant                  $83 = 0
 merge_condition_mask           CondMask = $98 & $99
-branch_if_no_lanes_active      branch_if_no_lanes_active +114 (label 3 at #497)
+branch_if_no_lanes_active      branch_if_no_lanes_active +110 (label 3 at #479)
 store_return_mask              $84 = RetMask
 splat_4_constants              m₃ = 0
 splat_4_constants              mm₃ = 0
-splat_2_constants              $85..86 = 0
-swizzle_4                      $85..88 = ($85..88).yxxy
-copy_4_slots_unmasked          z₃ = $85..88
-splat_4_constants              s = 0x3F800000 (1.0)
 copy_uniform                   scalar = testInputs(0)
 copy_constant                  $85 = 0
 copy_slot_unmasked             $86 = scalar
@@ -498,22 +569,13 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $98
 copy_constant                  $52 = 0
 merge_condition_mask           CondMask = $82 & $83
-branch_if_no_lanes_active      branch_if_no_lanes_active +182 (label 2 at #683)
-stack_rewind
+branch_if_no_lanes_active      branch_if_no_lanes_active +174 (label 2 at #657)
 store_return_mask              $53 = RetMask
 splat_4_constants              m₄(0..3) = 0
 splat_4_constants              m₄(4..7) = 0
 splat_4_constants              m₄(8), mm₄(0..2) = 0
 splat_4_constants              mm₄(3..6) = 0
 splat_2_constants              mm₄(7..8) = 0
-splat_2_constants              $54..55 = 0
-shuffle                        $54..62 = ($54..62)[1 0 0 0 1 0 0 0 1]
-copy_4_slots_unmasked          z₄(0..3) = $54..57
-copy_4_slots_unmasked          z₄(4..7) = $58..61
-copy_slot_unmasked             z₄(8) = $62
-splat_4_constants              s₁(0..3) = 0x3F800000 (1.0)
-splat_4_constants              s₁(4..7) = 0x3F800000 (1.0)
-copy_constant                  s₁(8) = 0x3F800000 (1.0)
 copy_uniform                   scalar₁ = testInputs(0)
 copy_slot_unmasked             $54 = scalar₁
 swizzle_3                      $54..56 = ($54..56).xxx
@@ -526,6 +588,7 @@ copy_4_slots_masked            m₄(4..7) = Mask($58..61)
 copy_slot_masked               m₄(8) = Mask($62)
 copy_constant                  $54 = 0
 copy_slot_unmasked             $55 = scalar₁
+stack_rewind
 shuffle                        $54..62 = ($54..62)[1 0 0 0 1 0 0 0 1]
 copy_4_slots_masked            m₄(0..3) = Mask($54..57)
 copy_4_slots_masked            m₄(4..7) = Mask($58..61)
@@ -684,7 +747,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $82
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $51 & $52
-branch_if_no_lanes_active      branch_if_no_lanes_active +219 (label 1 at #906)
+branch_if_no_lanes_active      branch_if_no_lanes_active +209 (label 1 at #870)
 store_return_mask              $1 = RetMask
 splat_4_constants              m₅(0..3) = 0
 splat_4_constants              m₅(4..7) = 0
@@ -694,16 +757,6 @@ splat_4_constants              mm₅(0..3) = 0
 splat_4_constants              mm₅(4..7) = 0
 splat_4_constants              mm₅(8..11) = 0
 splat_4_constants              mm₅(12..15) = 0
-splat_2_constants              $2..3 = 0
-shuffle                        $2..17 = ($2..17)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
-copy_4_slots_unmasked          z₅(0..3) = $2..5
-copy_4_slots_unmasked          z₅(4..7) = $6..9
-copy_4_slots_unmasked          z₅(8..11) = $10..13
-copy_4_slots_unmasked          z₅(12..15) = $14..17
-splat_4_constants              s₂(0..3) = 0x3F800000 (1.0)
-splat_4_constants              s₂(4..7) = 0x3F800000 (1.0)
-splat_4_constants              s₂(8..11) = 0x3F800000 (1.0)
-splat_4_constants              s₂(12..15) = 0x3F800000 (1.0)
 copy_uniform                   scalar₂ = testInputs(0)
 copy_slot_unmasked             $2 = scalar₂
 swizzle_4                      $2..5 = ($2..5).xxxx

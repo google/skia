@@ -1,11 +1,13 @@
+[immutable slots]
+expected1(0) = 0xC0400000 (-3.0)
+expected1(1) = 0x40C00000 (6.0)
+expected1(2) = 0xC0400000 (-3.0)
+expected2(0) = 0x40C00000 (6.0)
+expected2(1) = 0xC1400000 (-12.0)
+expected2(2) = 0x40C00000 (6.0)
+
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expected1(0) = 0xC0400000 (-3.0)
-copy_constant                  expected1(1) = 0x40C00000 (6.0)
-copy_constant                  expected1(2) = 0xC0400000 (-3.0)
-copy_constant                  expected2(0) = 0x40C00000 (6.0)
-copy_constant                  expected2(1) = 0xC1400000 (-12.0)
-copy_constant                  expected2(2) = 0x40C00000 (6.0)
 copy_3_uniforms                $11..13 = testMatrix3x3(0..2)
 copy_3_slots_unmasked          $4..6 = $11..13
 swizzle_3                      $4..6 = ($4..6).yzx
@@ -39,9 +41,9 @@ cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
 bitwise_and_int                $6 &= $7
 bitwise_and_int                $5 &= $6
 bitwise_and_int                $4 &= $5
-branch_if_no_active_lanes_eq   branch +3 (label 0 at #45) if no lanes of $4 == 0xFFFFFFFF
+branch_if_no_active_lanes_eq   branch +3 (label 0 at #39) if no lanes of $4 == 0xFFFFFFFF
 copy_4_uniforms                $0..3 = colorGreen
-jump                           jump +3 (label 1 at #47)
+jump                           jump +3 (label 1 at #41)
 label                          label 0
 copy_4_uniforms                $0..3 = colorRed
 label                          label 0x00000001

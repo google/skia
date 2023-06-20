@@ -1,8 +1,32 @@
+[immutable slots]
+_1_splat_4(0) = 0x40800000 (4.0)
+_1_splat_4(1) = 0x40800000 (4.0)
+_1_splat_4(2) = 0x40800000 (4.0)
+_1_splat_4(3) = 0x40800000 (4.0)
+_1_splat_4(4) = 0x40800000 (4.0)
+_1_splat_4(5) = 0x40800000 (4.0)
+_3_splat_4(0) = 0x40800000 (4.0)
+_3_splat_4(1) = 0x40800000 (4.0)
+_3_splat_4(2) = 0x40800000 (4.0)
+_3_splat_4(3) = 0x40800000 (4.0)
+_3_splat_4(4) = 0x40800000 (4.0)
+_3_splat_4(5) = 0x40800000 (4.0)
+splat_4(0) = 0x40800000 (4.0)
+splat_4(1) = 0x40800000 (4.0)
+splat_4(2) = 0x40800000 (4.0)
+splat_4(3) = 0x40800000 (4.0)
+splat_4(4) = 0x40800000 (4.0)
+splat_4(5) = 0x40800000 (4.0)
+splat_4₁(0) = 0x40800000 (4.0)
+splat_4₁(1) = 0x40800000 (4.0)
+splat_4₁(2) = 0x40800000 (4.0)
+splat_4₁(3) = 0x40800000 (4.0)
+splat_4₁(4) = 0x40800000 (4.0)
+splat_4₁(5) = 0x40800000 (4.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  _0_ok = 0xFFFFFFFF
-splat_4_constants              _1_splat_4(0..3) = 0x40800000 (4.0)
-splat_2_constants              _1_splat_4(4..5) = 0x40800000 (4.0)
 copy_constant                  $0 = 0
 copy_constant                  $1 = 0x40000000 (2.0)
 shuffle                        $0..5 = ($0..5)[1 0 0 1 0 0]
@@ -71,8 +95,6 @@ bitwise_and_int                $2 &= $3
 bitwise_and_int                $1 &= $2
 bitwise_and_int                $0 &= $1
 copy_slot_unmasked             _0_ok = $0
-splat_4_constants              _3_splat_4(0..3) = 0x40800000 (4.0)
-splat_2_constants              _3_splat_4(4..5) = 0x40800000 (4.0)
 copy_4_slots_unmasked          _4_m(0..3) = _3_splat_4(0..3)
 copy_2_slots_unmasked          _4_m(4..5) = _3_splat_4(4..5)
 copy_4_slots_unmasked          $0..3 = _4_m(0..3)
@@ -288,10 +310,8 @@ store_condition_mask           $26 = CondMask
 copy_slot_unmasked             $27 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $26 & $27
-branch_if_no_lanes_active      branch_if_no_lanes_active +288 (label 1 at #579)
+branch_if_no_lanes_active      branch_if_no_lanes_active +284 (label 1 at #571)
 copy_constant                  ok = 0xFFFFFFFF
-splat_4_constants              splat_4(0..3) = 0x40800000 (4.0)
-splat_2_constants              splat_4(4..5) = 0x40800000 (4.0)
 copy_constant                  $1 = 0
 copy_constant                  $2 = 0x40000000 (2.0)
 shuffle                        $1..6 = ($1..6)[1 0 0 1 0 0]
@@ -360,8 +380,6 @@ bitwise_and_int                $3 &= $4
 bitwise_and_int                $2 &= $3
 bitwise_and_int                $1 &= $2
 copy_slot_masked               ok = Mask($1)
-splat_4_constants              splat_4₁(0..3) = 0x40800000 (4.0)
-splat_2_constants              splat_4₁(4..5) = 0x40800000 (4.0)
 copy_4_slots_unmasked          m₁(0..3) = splat_4₁(0..3)
 copy_2_slots_unmasked          m₁(4..5) = splat_4₁(4..5)
 copy_4_slots_unmasked          $1..4 = m₁(0..3)
@@ -499,7 +517,6 @@ copy_4_slots_unmasked          $2..5 = m₃(0..3)
 copy_4_slots_unmasked          $6..9 = m₃(4..7)
 copy_constant                  $10 = 0x41100000 (9.0)
 copy_constant                  $11 = 0x41900000 (18.0)
-stack_rewind
 copy_constant                  $12 = 0x41D80000 (27.0)
 copy_constant                  $13 = 0x42100000 (36.0)
 copy_constant                  $14 = 0x42340000 (45.0)
@@ -508,6 +525,7 @@ copy_constant                  $16 = 0x427C0000 (63.0)
 copy_constant                  $17 = 0x42900000 (72.0)
 cmpeq_n_floats                 $2..9 = equal($2..9, $10..17)
 bitwise_and_4_ints             $2..5 &= $6..9
+stack_rewind
 bitwise_and_2_ints             $2..3 &= $4..5
 bitwise_and_int                $2 &= $3
 bitwise_and_int                $1 &= $2

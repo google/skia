@@ -1,8 +1,11 @@
+[immutable slots]
+expectedA(0) = 0xBF800000 (-1.0)
+expectedA(1) = 0
+expectedA(2) = 0
+expectedA(3) = 0x40000000 (2.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expectedA(0) = 0xBF800000 (-1.0)
-splat_2_constants              expectedA(1..2) = 0
-copy_constant                  expectedA(3) = 0x40000000 (2.0)
 copy_uniform                   $4 = testInputs(0)
 cast_to_int_from_float         $4 = FloatToInt($4)
 cast_to_float_from_int         $4 = IntToFloat($4)
@@ -32,9 +35,9 @@ cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
 bitwise_and_2_ints             $5..6 &= $7..8
 bitwise_and_int                $5 &= $6
 bitwise_and_int                $4 &= $5
-branch_if_no_active_lanes_eq   branch +3 (label 0 at #38) if no lanes of $4 == 0xFFFFFFFF
+branch_if_no_active_lanes_eq   branch +3 (label 0 at #35) if no lanes of $4 == 0xFFFFFFFF
 copy_4_uniforms                $0..3 = colorGreen
-jump                           jump +3 (label 1 at #40)
+jump                           jump +3 (label 1 at #37)
 label                          label 0
 copy_4_uniforms                $0..3 = colorRed
 label                          label 0x00000001

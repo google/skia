@@ -1,3 +1,7 @@
+[immutable slots]
+cf2[0] = 0x3F800000 (1.0)
+cf2[1] = 0x40000000 (2.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  i2[0] = 0x00000001 (1.401298e-45)
@@ -12,8 +16,6 @@ copy_2_slots_unmasked          i2[0], i2[1] = s2[0], s2[1]
 copy_2_slots_unmasked          s2[0], s2[1] = i2[0], i2[1]
 copy_2_slots_unmasked          f2[0], f2[1] = h2[0], h2[1]
 copy_2_slots_unmasked          h2[0], h2[1] = f2[0], f2[1]
-copy_constant                  cf2[0] = 0x3F800000 (1.0)
-copy_constant                  cf2[1] = 0x40000000 (2.0)
 copy_2_slots_unmasked          $0..1 = i2[0], i2[1]
 copy_2_slots_unmasked          $12..13 = s2[0], s2[1]
 copy_2_slots_unmasked          $2..3 = $12..13

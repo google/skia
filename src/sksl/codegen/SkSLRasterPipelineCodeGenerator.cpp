@@ -273,6 +273,7 @@ public:
     [[nodiscard]] bool writeReturnStatement(const ReturnStatement& r);
     [[nodiscard]] bool writeSwitchStatement(const SwitchStatement& s);
     [[nodiscard]] bool writeVarDeclaration(const VarDeclaration& v);
+    [[nodiscard]] bool writeImmutableVarDeclaration(const VarDeclaration& d);
 
     /** Pushes an expression to the value stack. */
     [[nodiscard]] bool pushBinaryExpression(const BinaryExpression& e);
@@ -1977,7 +1978,76 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
     return true;
 }
 
+bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
+    SkASSERT(d.var()->modifiers().fFlags & Modifiers::kConst_Flag);
+
+    // Find the constant value for this variable.
+    const Expression& initialValue = *d.value();
+    SlotRange varSlots = this->getVariableSlots(*d.var());
+    size_t numSlots = varSlots.count;
+
+    STArray<16, Type::NumberKind> kinds;
+    kinds.reserve_exact(numSlots);
+
+    STArray<16, double> values;
+    values.reserve_exact(numSlots);
+
+    for (size_t index = 0; index < numSlots; ++index) {
+        // Determine the number-kind of the slot; bail if it's non-numeric.
+        Type::NumberKind kind = initialValue.type().slotType(index).numberKind();
+        switch (kind) {
+            case Type::NumberKind::kFloat:
+            case Type::NumberKind::kSigned:
+            case Type::NumberKind::kUnsigned:
+            case Type::NumberKind::kBoolean:
+                kinds.push_back(kind);
+                break;
+            default:
+                return false;
+        }
+
+        // Determine the constant-value of the slot.
+        std::optional<double> v = initialValue.getConstantValue(index);
+        if (!v.has_value()) {
+            return false;
+        }
+        values.push_back(*v);
+    }
+
+    // Write out the constant value back to slots immutably. (This generates no runtime code.)
+    for (int index = 0; index < varSlots.count; ++index) {
+        switch (kinds[index]) {
+            case Type::NumberKind::kFloat:
+                fBuilder.store_immutable_value_f(varSlots.index + index, values[index]);
+                break;
+            case Type::NumberKind::kSigned:
+                fBuilder.store_immutable_value_i(varSlots.index + index, values[index]);
+                break;
+            case Type::NumberKind::kUnsigned:
+                fBuilder.store_immutable_value_u(varSlots.index + index, values[index]);
+                break;
+            case Type::NumberKind::kBoolean:
+                fBuilder.store_immutable_value_u(varSlots.index + index, values[index] ? ~0 : 0);
+                break;
+            default:
+                SkUNREACHABLE;
+        }
+    }
+
+    // In a debugging session, we still expect debug traces for this variable declaration to appear.
+    if (this->shouldWriteTraceOps()) {
+        fBuilder.trace_var(fTraceMask->stackID(), varSlots);
+    }
+
+    return true;
+}
+
 bool Generator::writeVarDeclaration(const VarDeclaration& v) {
+    if (v.var()->modifiers().fFlags & Modifiers::kConst_Flag) {
+        if (this->writeImmutableVarDeclaration(v)) {
+            return true;
+        }
+    }
     if (v.value()) {
         if (!this->pushExpression(*v.value())) {
             return unsupported();

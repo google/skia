@@ -1,3 +1,32 @@
+[immutable slots]
+n(0) = 0xBF800000 (-1.0)
+n(1) = 0xBF800000 (-1.0)
+i(0) = 0x3F800000 (1.0)
+i(1) = 0x3F800000 (1.0)
+z(0) = 0
+z(1) = 0
+n₁(0) = 0xBF800000 (-1.0)
+n₁(1) = 0xBF800000 (-1.0)
+n₁(2) = 0xBF800000 (-1.0)
+i₁(0) = 0x3F800000 (1.0)
+i₁(1) = 0x3F800000 (1.0)
+i₁(2) = 0x3F800000 (1.0)
+z₁(0) = 0
+z₁(1) = 0
+z₁(2) = 0
+n₂(0) = 0xBF800000 (-1.0)
+n₂(1) = 0xBF800000 (-1.0)
+n₂(2) = 0xBF800000 (-1.0)
+n₂(3) = 0xBF800000 (-1.0)
+i₂(0) = 0x3F800000 (1.0)
+i₂(1) = 0x3F800000 (1.0)
+i₂(2) = 0x3F800000 (1.0)
+i₂(3) = 0x3F800000 (1.0)
+z₂(0) = 0
+z₂(1) = 0
+z₂(2) = 0
+z₂(3) = 0
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 store_condition_mask           $26 = CondMask
@@ -201,12 +230,9 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $71
 copy_constant                  $45 = 0
 merge_condition_mask           CondMask = $55 & $56
-branch_if_no_lanes_active      branch_if_no_lanes_active +76 (label 3 at #280)
+branch_if_no_lanes_active      branch_if_no_lanes_active +73 (label 3 at #277)
 store_return_mask              $46 = RetMask
-splat_2_constants              n = 0xBF800000 (-1.0)
-splat_2_constants              i = 0x3F800000 (1.0)
-splat_4_constants              z, v₃ = 0
-splat_2_constants              vv₃ = 0
+splat_4_constants              v₃, vv₃ = 0
 splat_2_constants              $47..48 = 0
 copy_2_slots_masked            vv₃ = Mask($47..48)
 store_condition_mask           $47 = CondMask
@@ -281,13 +307,10 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $55
 copy_constant                  $27 = 0
 merge_condition_mask           CondMask = $44 & $45
-branch_if_no_lanes_active      branch_if_no_lanes_active +94 (label 2 at #378)
+branch_if_no_lanes_active      branch_if_no_lanes_active +91 (label 2 at #372)
 store_return_mask              $28 = RetMask
-splat_3_constants              n₁ = 0xBF800000 (-1.0)
-splat_3_constants              i₁ = 0x3F800000 (1.0)
-splat_4_constants              z₁, v₄(0) = 0
-splat_4_constants              v₄(1..2), vv₄(0..1) = 0
-copy_constant                  vv₄(2) = 0
+splat_4_constants              v₄, vv₄(0) = 0
+splat_2_constants              vv₄(1..2) = 0
 splat_3_constants              $29..31 = 0
 copy_3_slots_masked            vv₄ = Mask($29..31)
 store_condition_mask           $29 = CondMask
@@ -379,11 +402,8 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $44
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $26 & $27
-branch_if_no_lanes_active      branch_if_no_lanes_active +100 (label 1 at #482)
+branch_if_no_lanes_active      branch_if_no_lanes_active +97 (label 1 at #473)
 store_return_mask              $1 = RetMask
-splat_4_constants              n₂ = 0xBF800000 (-1.0)
-splat_4_constants              i₂ = 0x3F800000 (1.0)
-splat_4_constants              z₂ = 0
 copy_4_uniforms                testMatrix4x4(0..3) = testMatrix2x2
 copy_4_uniforms                testMatrix4x4(4..7) = testMatrix2x2
 copy_4_uniforms                testMatrix4x4(8..11) = testMatrix2x2

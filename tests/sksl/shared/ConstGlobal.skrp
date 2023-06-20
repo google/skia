@@ -1,14 +1,25 @@
+[immutable slots]
+SEVEN = 0x00000007 (9.809089e-45)
+TEN = 0x0000000A (1.401298e-44)
+MATRIXFIVE(0) = 0x40A00000 (5.0)
+MATRIXFIVE(1) = 0
+MATRIXFIVE(2) = 0
+MATRIXFIVE(3) = 0
+MATRIXFIVE(4) = 0
+MATRIXFIVE(5) = 0x40A00000 (5.0)
+MATRIXFIVE(6) = 0
+MATRIXFIVE(7) = 0
+MATRIXFIVE(8) = 0
+MATRIXFIVE(9) = 0
+MATRIXFIVE(10) = 0x40A00000 (5.0)
+MATRIXFIVE(11) = 0
+MATRIXFIVE(12) = 0
+MATRIXFIVE(13) = 0
+MATRIXFIVE(14) = 0
+MATRIXFIVE(15) = 0x40A00000 (5.0)
+
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  SEVEN = 0x00000007 (9.809089e-45)
-copy_constant                  TEN = 0x0000000A (1.401298e-44)
-copy_constant                  $0 = 0
-copy_constant                  $1 = 0x40A00000 (5.0)
-shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
-copy_4_slots_unmasked          MATRIXFIVE(0..3) = $0..3
-copy_4_slots_unmasked          MATRIXFIVE(4..7) = $4..7
-copy_4_slots_unmasked          MATRIXFIVE(8..11) = $8..11
-copy_4_slots_unmasked          MATRIXFIVE(12..15) = $12..15
 copy_constant                  seven = 0x00000007 (9.809089e-45)
 copy_constant                  ten = 0x0000000A (1.401298e-44)
 copy_4_slots_unmasked          matrixFive(0..3) = MATRIXFIVE(0..3)

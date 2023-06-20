@@ -1,3 +1,9 @@
+[immutable slots]
+expectedB(0) = 0x3F800000 (1.0)
+expectedB(1) = 0x40000000 (2.0)
+expectedB(2) = 0xC0400000 (-3.0)
+expectedB(3) = 0xC0800000 (-4.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                $0..3 = testMatrix2x2
@@ -5,10 +11,6 @@ splat_2_constants              $4..5 = 0x3F800000 (1.0)
 splat_2_constants              $6..7 = 0xBF800000 (-1.0)
 mul_4_floats                   $0..3 *= $4..7
 copy_4_slots_unmasked          inputVal = $0..3
-copy_constant                  expectedB(0) = 0x3F800000 (1.0)
-copy_constant                  expectedB(1) = 0x40000000 (2.0)
-copy_constant                  expectedB(2) = 0xC0400000 (-3.0)
-copy_constant                  expectedB(3) = 0xC0800000 (-4.0)
 copy_slot_unmasked             $0 = inputVal(0)
 cmpeq_imm_int                  $0 = equal($0, 0x3F800000)
 copy_2_slots_unmasked          $1..2 = inputVal(0..1)
