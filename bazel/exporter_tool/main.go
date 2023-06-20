@@ -278,6 +278,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_ganesh_private",
 			Rules: []string{
 				"//include/private/gpu/ganesh:private_hdrs",
+				"//include/private/gpu/ganesh:gl_private_hdrs",
 				"//src/gpu/ganesh/effects:effects_hdrs",
 				"//src/gpu/ganesh/effects:effects_srcs",
 				"//src/gpu/ganesh/geometry:geometry_hdrs",

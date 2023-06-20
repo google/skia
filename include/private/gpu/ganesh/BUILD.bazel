@@ -10,6 +10,11 @@ skia_filegroup(
     srcs = ["GrDawnTypesPriv.h"],
 )
 
+skia_filegroup(
+    name = "gl_private_hdrs",
+    srcs = ["GrGLTypesPriv.h"],
+)
+
 # In own group for mapping to //gpu.gni:skia_gpu_vk_private.
 skia_filegroup(
     name = "vk_private_hdrs",
@@ -40,7 +45,7 @@ skia_filegroup(
     ] + select_multi(
         {
             "//src/gpu:dawn_backend": [":dawn_private_hdrs"],
-            "//src/gpu:gl_backend": ["GrGLTypesPriv.h"],
+            "//src/gpu:gl_backend": [":gl_private_hdrs"],
             "//src/gpu:vulkan_backend": [":vk_private_hdrs"],
             "//src/gpu:metal_backend": [":mtl_private_hdrs"],
             # TODO(kjlubick) Direct3D Backend
