@@ -536,7 +536,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         return nullptr;
     }
     uint8_t imageFilterType;
-    fuzz->nextRange(&imageFilterType, 0, 23);
+    fuzz->nextRange(&imageFilterType, 0, 22);
     switch (imageFilterType) {
         case 0:
             return nullptr;
