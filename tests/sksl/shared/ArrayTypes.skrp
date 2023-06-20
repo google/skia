@@ -1,19 +1,24 @@
+[immutable slots]
+float2(1.0, 0.0)(0) = 0x3F800000 (1.0)
+float2(1.0, 0.0)(1) = 0
+float2(0.0, 1.0)(0) = 0
+float2(0.0, 1.0)(1) = 0x3F800000 (1.0)
+float2(-1.0, 2.0)(0) = 0xBF800000 (-1.0)
+float2(-1.0, 2.0)(1) = 0x40000000 (2.0)
+float2(2.0, 1.0)(0) = 0x40000000 (2.0)
+float2(2.0, 1.0)(1) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              x[0], x[1] = 0
 splat_2_constants              x[0] = 0
-copy_constant                  x[1](0) = 0x3F800000 (1.0)
-splat_4_constants              x[1](1), y[0], y[1](0) = 0
-copy_constant                  y[1](1) = 0
-copy_constant                  y[0](0) = 0
-copy_constant                  y[0](1) = 0x3F800000 (1.0)
-copy_constant                  y[1](0) = 0xBF800000 (-1.0)
-copy_constant                  y[1](1) = 0x40000000 (2.0)
+copy_2_slots_unmasked          x[1] = float2(1.0, 0.0)
+splat_4_constants              y[0], y[1] = 0
+copy_2_slots_unmasked          y[0] = float2(0.0, 1.0)
+copy_2_slots_unmasked          y[1] = float2(-1.0, 2.0)
 splat_4_constants              z[0].v, z[1].v = 0
-copy_constant                  z[0].v₁(0) = 0
-copy_constant                  z[0].v₁(1) = 0x3F800000 (1.0)
-copy_constant                  z[1].v₁(0) = 0x40000000 (2.0)
-copy_constant                  z[1].v₁(1) = 0x3F800000 (1.0)
+copy_2_slots_unmasked          z[0].v₁ = float2(0.0, 1.0)
+copy_2_slots_unmasked          z[1].v₁ = float2(2.0, 1.0)
 copy_4_slots_unmasked          z[0].v, z[1].v = z[0].v₁, z[1].v₁
 label                          label 0
 copy_slot_unmasked             $0 = x[0](0)

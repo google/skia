@@ -1,9 +1,12 @@
+[immutable slots]
+half4(3.0, 2.0, 1.0, 0.0)(0) = 0x40400000 (3.0)
+half4(3.0, 2.0, 1.0, 0.0)(1) = 0x40000000 (2.0)
+half4(3.0, 2.0, 1.0, 0.0)(2) = 0x3F800000 (1.0)
+half4(3.0, 2.0, 1.0, 0.0)(3) = 0
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  x(0) = 0x40400000 (3.0)
-copy_constant                  x(1) = 0x40000000 (2.0)
-copy_constant                  x(2) = 0x3F800000 (1.0)
-copy_constant                  x(3) = 0
+copy_4_slots_unmasked          x = half4(3.0, 2.0, 1.0, 0.0)
 copy_4_slots_unmasked          $0..3 = x
 swizzle_3                      $0..2 = ($0..2).zyx
 copy_3_slots_unmasked          x(0..2) = $0..2

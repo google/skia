@@ -405,16 +405,6 @@ public:
         fInstructions.push_back({BuilderOp::store_immutable_value, {slot}, val});
     }
 
-    void store_immutable_value_f(Slot slot, float val) {
-        fInstructions.push_back({BuilderOp::store_immutable_value,
-                                 {slot}, sk_bit_cast<int32_t>(val)});
-    }
-
-    void store_immutable_value_u(Slot slot, uint32_t val) {
-        fInstructions.push_back({BuilderOp::store_immutable_value,
-                                 {slot}, sk_bit_cast<int32_t>(val)});
-    }
-
     // Translates into copy_uniforms (from uniforms into value-slots) in Raster Pipeline.
     void copy_uniform_to_slots_unmasked(SlotRange dst, SlotRange src);
 

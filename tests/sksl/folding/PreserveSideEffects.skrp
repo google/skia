@@ -1,3 +1,19 @@
+[immutable slots]
+float2(1.0, 0.0)(0) = 0x3F800000 (1.0)
+float2(1.0, 0.0)(1) = 0
+float3(1.0, 0.0, 0.0)(0) = 0x3F800000 (1.0)
+float3(1.0, 0.0, 0.0)(1) = 0
+float3(1.0, 0.0, 0.0)(2) = 0
+float2(1.0, 2.0)(0) = 0x3F800000 (1.0)
+float2(1.0, 2.0)(1) = 0x40000000 (2.0)
+float2(3.0, 4.0)(0) = 0x40400000 (3.0)
+float2(3.0, 4.0)(1) = 0x40800000 (4.0)
+float3(4.0, 5.0, 6.0)(0) = 0x40800000 (4.0)
+float3(4.0, 5.0, 6.0)(1) = 0x40A00000 (5.0)
+float3(4.0, 5.0, 6.0)(2) = 0x40C00000 (6.0)
+float2(13.0, 14.0)(0) = 0x41500000 (13.0)
+float2(13.0, 14.0)(1) = 0x41600000 (14.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  _0_ok = 0xFFFFFFFF
@@ -35,15 +51,14 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 2 at #50)
+branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 2 at #49)
 copy_slot_unmasked             $1 = _1_num
 add_imm_float                  $1 += 0x3F800000 (1.0)
 copy_slot_masked               _1_num = Mask($1)
 copy_constant                  $2 = 0x3F800000 (1.0)
 copy_constant                  $3 = 0
 swizzle_2                      $1..2 = ($1..3).yz
-copy_constant                  $3 = 0x3F800000 (1.0)
-copy_constant                  $4 = 0
+copy_2_slots_unmasked          $3..4 = float2(1.0, 0.0)
 cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
 bitwise_and_int                $1 &= $2
 copy_slot_masked               $0 = Mask($1)
@@ -54,14 +69,13 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 3 at #68)
+branch_if_no_lanes_active      branch_if_no_lanes_active +10 (label 3 at #66)
 copy_constant                  $1 = 0x3F800000 (1.0)
 copy_constant                  $2 = 0
 copy_slot_unmasked             $3 = _1_num
 add_imm_float                  $3 += 0x3F800000 (1.0)
 copy_slot_masked               _1_num = Mask($3)
-copy_constant                  $3 = 0x3F800000 (1.0)
-copy_constant                  $4 = 0
+copy_2_slots_unmasked          $3..4 = float2(1.0, 0.0)
 cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
 bitwise_and_int                $1 &= $2
 copy_slot_masked               $0 = Mask($1)
@@ -72,15 +86,14 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 4 at #87)
+branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 4 at #84)
 copy_slot_unmasked             $1 = _1_num
 add_imm_float                  $1 += 0x3F800000 (1.0)
 copy_slot_masked               _1_num = Mask($1)
 copy_constant                  $2 = 0x3F800000 (1.0)
 copy_constant                  $3 = 0
 swizzle_2                      $1..2 = ($1..3).yz
-copy_constant                  $3 = 0x3F800000 (1.0)
-copy_constant                  $4 = 0
+copy_2_slots_unmasked          $3..4 = float2(1.0, 0.0)
 cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
 bitwise_and_int                $1 &= $2
 copy_slot_masked               $0 = Mask($1)
@@ -91,15 +104,14 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 5 at #107)
+branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 5 at #103)
 copy_slot_unmasked             $1 = _1_num
 add_imm_float                  $1 += 0x3F800000 (1.0)
 copy_slot_masked               _1_num = Mask($1)
 copy_constant                  $2 = 0x3F800000 (1.0)
 splat_2_constants              $3..4 = 0
 swizzle_3                      $1..3 = ($1..4).yzw
-copy_constant                  $4 = 0x3F800000 (1.0)
-splat_2_constants              $5..6 = 0
+copy_3_slots_unmasked          $4..6 = float3(1.0, 0.0, 0.0)
 cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
 bitwise_and_int                $2 &= $3
 bitwise_and_int                $1 &= $2
@@ -111,7 +123,7 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 6 at #121)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 6 at #117)
 copy_constant                  $1 = 0x3F800000 (1.0)
 copy_slot_unmasked             $2 = _1_num
 add_imm_float                  $2 += 0x3F800000 (1.0)
@@ -125,7 +137,7 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +10 (label 7 at #138)
+branch_if_no_lanes_active      branch_if_no_lanes_active +10 (label 7 at #134)
 copy_constant                  $1 = 0x3F800000 (1.0)
 copy_constant                  $2 = 0
 copy_slot_unmasked             $3 = _1_num
@@ -142,16 +154,14 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 8 at #159)
+branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 8 at #153)
 copy_constant                  $1 = 0x3F800000 (1.0)
 copy_constant                  $2 = 0
 copy_constant                  $3 = 0x3F800000 (1.0)
 copy_slot_unmasked             $4 = _1_num
 add_imm_float                  $4 += 0x3F800000 (1.0)
 copy_slot_masked               _1_num = Mask($4)
-copy_constant                  $4 = 0x3F800000 (1.0)
-copy_constant                  $5 = 0
-copy_constant                  $6 = 0x3F800000 (1.0)
+copy_3_slots_unmasked          $4..6 = float2(1.0, 0.0), float3(1.0, 0.0, 0.0)(0)
 cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
 bitwise_and_int                $2 &= $3
 bitwise_and_int                $1 &= $2
@@ -165,14 +175,14 @@ cmpeq_imm_float                $14 = equal($14, 0x41100000 (9.0))
 bitwise_and_int                $13 &= $14
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +258 (label 10 at #426)
+branch_if_no_lanes_active      branch_if_no_lanes_active +251 (label 10 at #413)
 copy_constant                  ok = 0xFFFFFFFF
 copy_constant                  num = 0
 store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 12 at #188)
+branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 12 at #181)
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_constant                  $18 = 0x40000000 (2.0)
 copy_constant                  $19 = 0x40400000 (3.0)
@@ -180,8 +190,7 @@ copy_slot_unmasked             $20 = num
 add_imm_float                  $20 += 0x3F800000 (1.0)
 copy_slot_masked               num = Mask($20)
 copy_2_slots_unmasked          $2..3 = $17..18
-copy_constant                  $4 = 0x3F800000 (1.0)
-copy_constant                  $5 = 0x40000000 (2.0)
+copy_2_slots_unmasked          $4..5 = float2(1.0, 2.0)
 cmpeq_2_floats                 $2..3 = equal($2..3, $4..5)
 bitwise_and_int                $2 &= $3
 copy_slot_masked               $1 = Mask($2)
@@ -192,7 +201,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 13 at #208)
+branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 13 at #200)
 copy_slot_unmasked             $17 = num
 add_imm_float                  $17 += 0x3F800000 (1.0)
 copy_slot_masked               num = Mask($17)
@@ -200,8 +209,7 @@ copy_slot_unmasked             $18 = $17
 copy_constant                  $19 = 0x40400000 (3.0)
 copy_constant                  $20 = 0x40800000 (4.0)
 copy_2_slots_unmasked          $2..3 = $19..20
-copy_constant                  $4 = 0x40400000 (3.0)
-copy_constant                  $5 = 0x40800000 (4.0)
+copy_2_slots_unmasked          $4..5 = float2(3.0, 4.0)
 cmpeq_2_floats                 $2..3 = equal($2..3, $4..5)
 bitwise_and_int                $2 &= $3
 copy_slot_masked               $1 = Mask($2)
@@ -212,7 +220,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 14 at #228)
+branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 14 at #220)
 splat_3_constants              $17..19 = 0x3F800000 (1.0)
 copy_slot_unmasked             $20 = num
 add_imm_float                  $20 += 0x3F800000 (1.0)
@@ -232,7 +240,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 15 at #248)
+branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 15 at #240)
 splat_3_constants              $17..19 = 0x3F800000 (1.0)
 copy_slot_unmasked             $20 = num
 add_imm_float                  $20 += 0x3F800000 (1.0)
@@ -252,7 +260,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 16 at #268)
+branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 16 at #260)
 copy_slot_unmasked             $17 = num
 add_imm_float                  $17 += 0x3F800000 (1.0)
 copy_slot_masked               num = Mask($17)
@@ -272,7 +280,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +20 (label 17 at #295)
+branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 17 at #285)
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_constant                  $18 = 0x40000000 (2.0)
 copy_constant                  $19 = 0x40400000 (3.0)
@@ -285,9 +293,7 @@ copy_constant                  $23 = 0x40E00000 (7.0)
 copy_constant                  $24 = 0x41000000 (8.0)
 copy_constant                  $25 = 0x41100000 (9.0)
 copy_3_slots_unmasked          $2..4 = $17..19
-copy_constant                  $5 = 0x3F800000 (1.0)
-copy_constant                  $6 = 0x40000000 (2.0)
-copy_constant                  $7 = 0x40400000 (3.0)
+copy_3_slots_unmasked          $5..7 = float2(1.0, 2.0), float2(3.0, 4.0)(0)
 cmpeq_3_floats                 $2..4 = equal($2..4, $5..7)
 bitwise_and_int                $3 &= $4
 bitwise_and_int                $2 &= $3
@@ -299,7 +305,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +21 (label 18 at #323)
+branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 18 at #311)
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_constant                  $18 = 0x40000000 (2.0)
 copy_constant                  $19 = 0x40400000 (3.0)
@@ -313,9 +319,7 @@ copy_slot_masked               num = Mask($24)
 copy_constant                  $24 = 0x41000000 (8.0)
 copy_constant                  $25 = 0x41100000 (9.0)
 copy_3_slots_unmasked          $2..4 = $20..22
-copy_constant                  $5 = 0x40800000 (4.0)
-copy_constant                  $6 = 0x40A00000 (5.0)
-copy_constant                  $7 = 0x40C00000 (6.0)
+copy_3_slots_unmasked          $5..7 = float3(4.0, 5.0, 6.0)
 cmpeq_3_floats                 $2..4 = equal($2..4, $5..7)
 bitwise_and_int                $3 &= $4
 bitwise_and_int                $2 &= $3
@@ -327,7 +331,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 19 at #344)
+branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 19 at #332)
 copy_slot_unmasked             $17 = num
 add_imm_float                  $17 += 0x3F800000 (1.0)
 copy_slot_masked               num = Mask($17)
@@ -348,7 +352,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 20 at #365)
+branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 20 at #353)
 splat_4_constants              $17..20 = 0x3F800000 (1.0)
 copy_slot_unmasked             $21 = num
 add_imm_float                  $21 += 0x3F800000 (1.0)
@@ -369,7 +373,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 21 at #386)
+branch_if_no_lanes_active      branch_if_no_lanes_active +14 (label 21 at #374)
 splat_4_constants              $17..20 = 0x3F800000 (1.0)
 splat_4_constants              $21..24 = 0x3F800000 (1.0)
 copy_slot_unmasked             $25 = num
@@ -390,7 +394,7 @@ store_condition_mask           $15 = CondMask
 copy_slot_unmasked             $16 = ok
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +25 (label 22 at #418)
+branch_if_no_lanes_active      branch_if_no_lanes_active +24 (label 22 at #405)
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_constant                  $18 = 0x40000000 (2.0)
 copy_constant                  $19 = 0x40400000 (3.0)
@@ -410,8 +414,7 @@ add_imm_float                  $31 += 0x3F800000 (1.0)
 copy_slot_masked               num = Mask($31)
 copy_constant                  $32 = 0x41800000 (16.0)
 copy_4_slots_unmasked          $2..5 = $29..32
-copy_constant                  $4 = 0x41500000 (13.0)
-copy_constant                  $5 = 0x41600000 (14.0)
+copy_2_slots_unmasked          $4..5 = float2(13.0, 14.0)
 cmpeq_2_floats                 $2..3 = equal($2..3, $4..5)
 bitwise_and_int                $2 &= $3
 copy_slot_masked               $1 = Mask($2)

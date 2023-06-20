@@ -1,3 +1,12 @@
+[immutable slots]
+float3(1.0, 2.0, 3.0)(0) = 0x3F800000 (1.0)
+float3(1.0, 2.0, 3.0)(1) = 0x40000000 (2.0)
+float3(1.0, 2.0, 3.0)(2) = 0x40400000 (3.0)
+float4(1.0, 2.0, 3.0, 4.0)(0) = 0x3F800000 (1.0)
+float4(1.0, 2.0, 3.0, 4.0)(1) = 0x40000000 (2.0)
+float4(1.0, 2.0, 3.0, 4.0)(2) = 0x40400000 (3.0)
+float4(1.0, 2.0, 3.0, 4.0)(3) = 0x40800000 (4.0)
+
 store_device_xy01              $35..38 = DeviceCoords.xy01
 splat_2_constants              $37..38 = 0x3F000000 (0.5)
 cmpeq_2_floats                 $35..36 = equal($35..36, $37..38)
@@ -25,7 +34,7 @@ copy_slot_masked               $0 = Mask($1)
 trace_scope                    TraceScope(+1) when $0 is true
 trace_line                     TraceLine(28) when $35 is true
 store_condition_mask           $39 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +70 (label 2 at #98)
+branch_if_no_lanes_active      branch_if_no_lanes_active +68 (label 2 at #96)
 trace_enter                    TraceEnter(bool test3x3()) when $35 is true
 copy_constant                  $40 = 0
 copy_slot_unmasked             $41 = $35
@@ -37,15 +46,13 @@ splat_4_constants              matrix(4..7) = 0
 copy_constant                  matrix(8) = 0
 trace_var                      TraceVar(matrix) when $35 is true
 trace_line                     TraceLine(9) when $35 is true
-copy_constant                  values(0) = 0x3F800000 (1.0)
-copy_constant                  values(1) = 0x40000000 (2.0)
-copy_constant                  values(2) = 0x40400000 (3.0)
+copy_3_slots_unmasked          values = float3(1.0, 2.0, 3.0)
 trace_var                      TraceVar(values) when $35 is true
 copy_constant                  $41 = 0
 copy_slot_unmasked             $42 = $35
 copy_slot_masked               $41 = Mask($42)
 trace_scope                    TraceScope(+1) when $41 is true
-branch_if_no_lanes_active      branch_if_no_lanes_active +31 (label 3 at #79)
+branch_if_no_lanes_active      branch_if_no_lanes_active +31 (label 3 at #77)
 trace_line                     TraceLine(10) when $35 is true
 copy_constant                  index = 0
 trace_var                      TraceVar(index) when $35 is true
@@ -75,7 +82,7 @@ trace_var                      TraceVar(index) when $35 is true
 copy_slot_unmasked             $42 = index
 cmplt_imm_int                  $42 = lessThan($42, 0x00000003)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -26 (label 4 at #52) if no lanes of $42 == 0
+branch_if_no_active_lanes_eq   branch -26 (label 4 at #50) if no lanes of $42 == 0
 label                          label 0x00000003
 trace_scope                    TraceScope(-1) when $41 is true
 trace_line                     TraceLine(14) when $35 is true
@@ -98,7 +105,7 @@ copy_slot_unmasked             $40 = [test3x3].result
 label                          label 0x00000002
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $39 & $40
-branch_if_no_lanes_active      branch_if_no_lanes_active +77 (label 1 at #178)
+branch_if_no_lanes_active      branch_if_no_lanes_active +74 (label 1 at #173)
 trace_enter                    TraceEnter(bool test4x4()) when $35 is true
 copy_constant                  $2 = 0
 copy_slot_unmasked             $3 = $35
@@ -111,16 +118,13 @@ splat_4_constants              matrix₁(8..11) = 0
 splat_4_constants              matrix₁(12..15) = 0
 trace_var                      TraceVar(matrix₁) when $35 is true
 trace_line                     TraceLine(19) when $35 is true
-copy_constant                  values₁(0) = 0x3F800000 (1.0)
-copy_constant                  values₁(1) = 0x40000000 (2.0)
-copy_constant                  values₁(2) = 0x40400000 (3.0)
-copy_constant                  values₁(3) = 0x40800000 (4.0)
+copy_4_slots_unmasked          values₁ = float4(1.0, 2.0, 3.0, 4.0)
 trace_var                      TraceVar(values₁) when $35 is true
 copy_constant                  $3 = 0
 copy_slot_unmasked             $4 = $35
 copy_slot_masked               $3 = Mask($4)
 trace_scope                    TraceScope(+1) when $3 is true
-branch_if_no_lanes_active      branch_if_no_lanes_active +31 (label 6 at #154)
+branch_if_no_lanes_active      branch_if_no_lanes_active +31 (label 6 at #149)
 trace_line                     TraceLine(20) when $35 is true
 copy_constant                  index₁ = 0
 trace_var                      TraceVar(index₁) when $35 is true
@@ -150,7 +154,7 @@ trace_var                      TraceVar(index₁) when $35 is true
 copy_slot_unmasked             $4 = index₁
 cmplt_imm_int                  $4 = lessThan($4, 0x00000004)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -26 (label 7 at #127) if no lanes of $4 == 0
+branch_if_no_active_lanes_eq   branch -26 (label 7 at #122) if no lanes of $4 == 0
 label                          label 0x00000006
 trace_scope                    TraceScope(-1) when $3 is true
 trace_line                     TraceLine(24) when $35 is true

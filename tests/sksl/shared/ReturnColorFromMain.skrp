@@ -1,7 +1,10 @@
+[immutable slots]
+half4(1.0, 2.0, 3.0, 4.0)(0) = 0x3F800000 (1.0)
+half4(1.0, 2.0, 3.0, 4.0)(1) = 0x40000000 (2.0)
+half4(1.0, 2.0, 3.0, 4.0)(2) = 0x40400000 (3.0)
+half4(1.0, 2.0, 3.0, 4.0)(3) = 0x40800000 (4.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  $0 = 0x3F800000 (1.0)
-copy_constant                  $1 = 0x40000000 (2.0)
-copy_constant                  $2 = 0x40400000 (3.0)
-copy_constant                  $3 = 0x40800000 (4.0)
+copy_4_slots_unmasked          $0..3 = half4(1.0, 2.0, 3.0, 4.0)
 load_src                       src.rgba = $0..3

@@ -1,11 +1,18 @@
+[immutable slots]
+float3(3.0, 2.0, 1.0)(0) = 0x40400000 (3.0)
+float3(3.0, 2.0, 1.0)(1) = 0x40000000 (2.0)
+float3(3.0, 2.0, 1.0)(2) = 0x3F800000 (1.0)
+float4(4.0, 3.0, 2.0, 1.0)(0) = 0x40800000 (4.0)
+float4(4.0, 3.0, 2.0, 1.0)(1) = 0x40400000 (3.0)
+float4(4.0, 3.0, 2.0, 1.0)(2) = 0x40000000 (2.0)
+float4(4.0, 3.0, 2.0, 1.0)(3) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              _0_matrix(0..3) = 0
 splat_4_constants              _0_matrix(4..7) = 0
 copy_constant                  _0_matrix(8) = 0
-copy_constant                  _1_values(0) = 0x40400000 (3.0)
-copy_constant                  _1_values(1) = 0x40000000 (2.0)
-copy_constant                  _1_values(2) = 0x3F800000 (1.0)
+copy_3_slots_unmasked          _1_values = float3(3.0, 2.0, 1.0)
 copy_constant                  _2_index = 0
 label                          label 0x00000001
 copy_slot_unmasked             $33 = _2_index
@@ -25,7 +32,7 @@ add_imm_int                    _2_index += 0x00000001
 copy_slot_unmasked             $0 = _2_index
 cmplt_imm_int                  $0 = lessThan($0, 0x00000003)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -18 (label 1 at #10) if no lanes of $0 == 0
+branch_if_no_active_lanes_eq   branch -18 (label 1 at #8) if no lanes of $0 == 0
 label                          label 0
 store_condition_mask           $33 = CondMask
 copy_4_slots_unmasked          $34..37 = _0_matrix(0..3)
@@ -41,16 +48,13 @@ bitwise_and_int                $35 &= $36
 bitwise_and_int                $34 &= $35
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $33 & $34
-branch_if_no_lanes_active      branch_if_no_lanes_active +48 (label 3 at #92)
+branch_if_no_lanes_active      branch_if_no_lanes_active +45 (label 3 at #87)
 splat_4_constants              matrix(0..3) = 0
 splat_4_constants              matrix(4..7) = 0
 splat_4_constants              matrix(8..11) = 0
 splat_4_constants              matrix(12..15) = 0
-copy_constant                  values(0) = 0x40800000 (4.0)
-copy_constant                  values(1) = 0x40400000 (3.0)
-copy_constant                  values(2) = 0x40000000 (2.0)
-copy_constant                  values(3) = 0x3F800000 (1.0)
-branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 5 at #75)
+copy_4_slots_unmasked          values = float4(4.0, 3.0, 2.0, 1.0)
+branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 5 at #70)
 copy_constant                  index = 0
 label                          label 0x00000006
 copy_slot_unmasked             $52 = index
@@ -71,7 +75,7 @@ add_imm_int                    $1 += 0x00000001
 copy_slot_masked               index = Mask($1)
 cmplt_imm_int                  $1 = lessThan($1, 0x00000004)
 stack_rewind
-branch_if_no_active_lanes_eq   branch -19 (label 6 at #55) if no lanes of $1 == 0
+branch_if_no_active_lanes_eq   branch -19 (label 6 at #50) if no lanes of $1 == 0
 label                          label 0x00000005
 copy_4_slots_unmasked          $1..4 = matrix(0..3)
 copy_4_slots_unmasked          $5..8 = matrix(4..7)

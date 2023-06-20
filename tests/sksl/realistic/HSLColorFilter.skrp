@@ -1,3 +1,8 @@
+[immutable slots]
+half3(0.0, 0.6666667, 0.333333343)(0) = 0
+half3(0.0, 0.6666667, 0.333333343)(1) = 0x3F2AAAAB (0.6666667)
+half3(0.0, 0.6666667, 0.333333343)(2) = 0x3EAAAAAB (0.333333343)
+
 store_src                      hsl = src.rgba
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  $0 = 0x3F800000 (1.0)
@@ -11,9 +16,7 @@ mul_float                      $0 *= $1
 copy_slot_unmasked             C = $0
 copy_4_slots_unmasked          $0..3 = hsl
 swizzle_3                      $0..2 = ($0..2).xxx
-copy_constant                  $3 = 0
-copy_constant                  $4 = 0x3F2AAAAB (0.6666667)
-copy_constant                  $5 = 0x3EAAAAAB (0.333333343)
+copy_3_slots_unmasked          $3..5 = half3(0.0, 0.6666667, 0.333333343)
 add_3_floats                   $0..2 += $3..5
 copy_3_slots_unmasked          p = $0..2
 copy_3_slots_unmasked          $3..5 = $0..2

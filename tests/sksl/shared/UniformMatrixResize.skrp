@@ -1,3 +1,18 @@
+[immutable slots]
+float2x2(1.0, 2.0, 4.0, 5.0)(0) = 0x3F800000 (1.0)
+float2x2(1.0, 2.0, 4.0, 5.0)(1) = 0x40000000 (2.0)
+float2x2(1.0, 2.0, 4.0, 5.0)(2) = 0x40800000 (4.0)
+float2x2(1.0, 2.0, 4.0, 5.0)(3) = 0x40A00000 (5.0)
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(0) = 0x3F800000 (1.0)
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(1) = 0x40000000 (2.0)
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(2) = 0
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(3) = 0x40800000 (4.0)
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(4) = 0x40A00000 (5.0)
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(5) = 0
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(6) = 0
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(7) = 0
+float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(8) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 store_condition_mask           $19 = CondMask
@@ -7,16 +22,13 @@ copy_4_uniforms                $24..27 = testMatrix3x3(4..7)
 copy_uniform                   $28 = testMatrix3x3(8)
 shuffle                        $22..23 = ($22..23)[1 2]
 label                          label 0x00000002
-copy_constant                  $24 = 0x3F800000 (1.0)
-copy_constant                  $25 = 0x40000000 (2.0)
-copy_constant                  $26 = 0x40800000 (4.0)
-copy_constant                  $27 = 0x40A00000 (5.0)
+copy_4_slots_unmasked          $24..27 = float2x2(1.0, 2.0, 4.0, 5.0)
 cmpeq_4_floats                 $20..23 = equal($20..23, $24..27)
 bitwise_and_2_ints             $20..21 &= $22..23
 bitwise_and_int                $20 &= $21
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $19 & $20
-branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 1 at #41)
+branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 1 at #34)
 copy_4_uniforms                $1..4 = testMatrix3x3(0..3)
 copy_4_uniforms                $5..8 = testMatrix3x3(4..7)
 copy_uniform                   $9 = testMatrix3x3(8)
@@ -25,13 +37,9 @@ label                          label 0x00000003
 copy_constant                  $5 = 0
 copy_constant                  $6 = 0x3F800000 (1.0)
 shuffle                        $3..9 = ($3..9)[2 0 1 2 2 2 3]
-copy_constant                  $10 = 0x3F800000 (1.0)
-copy_constant                  $11 = 0x40000000 (2.0)
-copy_constant                  $12 = 0
-copy_constant                  $13 = 0x40800000 (4.0)
-copy_constant                  $14 = 0x40A00000 (5.0)
-splat_3_constants              $15..17 = 0
-copy_constant                  $18 = 0x3F800000 (1.0)
+copy_4_slots_unmasked          $10..13 = float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(0..3)
+copy_4_slots_unmasked          $14..17 = float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(4..7)
+copy_slot_unmasked             $18 = float3x3(1.0, 2.0, 0.0, 4.0, 5.0, 0.0, 0.0, 0.0, 1.0)(8)
 cmpeq_n_floats                 $1..9 = equal($1..9, $10..18)
 bitwise_and_4_ints             $2..5 &= $6..9
 bitwise_and_2_ints             $2..3 &= $4..5

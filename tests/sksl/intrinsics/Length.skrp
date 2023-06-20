@@ -1,4 +1,8 @@
 [immutable slots]
+float4(2.0, -2.0, 1.0, 8.0)(0) = 0x40000000 (2.0)
+float4(2.0, -2.0, 1.0, 8.0)(1) = 0xC0000000 (-2.0)
+float4(2.0, -2.0, 1.0, 8.0)(2) = 0x3F800000 (1.0)
+float4(2.0, -2.0, 1.0, 8.0)(3) = 0x41000000 (8.0)
 expected(0) = 0x40400000 (3.0)
 expected(1) = 0x40400000 (3.0)
 expected(2) = 0x40A00000 (5.0)
@@ -8,10 +12,7 @@ allowedDelta = 0x3D4CCCCD (0.05)
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                $0..3 = testMatrix2x2
-copy_constant                  $4 = 0x40000000 (2.0)
-copy_constant                  $5 = 0xC0000000 (-2.0)
-copy_constant                  $6 = 0x3F800000 (1.0)
-copy_constant                  $7 = 0x41000000 (8.0)
+copy_4_slots_unmasked          $4..7 = float4(2.0, -2.0, 1.0, 8.0)
 add_4_floats                   $0..3 += $4..7
 copy_4_slots_unmasked          inputVal = $0..3
 copy_slot_unmasked             $0 = inputVal(0)

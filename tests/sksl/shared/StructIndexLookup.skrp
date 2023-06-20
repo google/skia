@@ -1,3 +1,32 @@
+[immutable slots]
+float3(1.0, 10.0, 100.0)(0) = 0x3F800000 (1.0)
+float3(1.0, 10.0, 100.0)(1) = 0x41200000 (10.0)
+float3(1.0, 10.0, 100.0)(2) = 0x42C80000 (100.0)
+float3(2.0, 20.0, 200.0)(0) = 0x40000000 (2.0)
+float3(2.0, 20.0, 200.0)(1) = 0x41A00000 (20.0)
+float3(2.0, 20.0, 200.0)(2) = 0x43480000 (200.0)
+float3(3.0, 30.0, 300.0)(0) = 0x40400000 (3.0)
+float3(3.0, 30.0, 300.0)(1) = 0x41F00000 (30.0)
+float3(3.0, 30.0, 300.0)(2) = 0x43960000 (300.0)
+float3(4.0, 40.0, 400.0)(0) = 0x40800000 (4.0)
+float3(4.0, 40.0, 400.0)(1) = 0x42200000 (40.0)
+float3(4.0, 40.0, 400.0)(2) = 0x43C80000 (400.0)
+float3(5.0, 50.0, 500.0)(0) = 0x40A00000 (5.0)
+float3(5.0, 50.0, 500.0)(1) = 0x42480000 (50.0)
+float3(5.0, 50.0, 500.0)(2) = 0x43FA0000 (500.0)
+float3(6.0, 60.0, 600.0)(0) = 0x40C00000 (6.0)
+float3(6.0, 60.0, 600.0)(1) = 0x42700000 (60.0)
+float3(6.0, 60.0, 600.0)(2) = 0x44160000 (600.0)
+float3(7.0, 70.0, 700.0)(0) = 0x40E00000 (7.0)
+float3(7.0, 70.0, 700.0)(1) = 0x428C0000 (70.0)
+float3(7.0, 70.0, 700.0)(2) = 0x442F0000 (700.0)
+float3(8.0, 80.0, 800.0)(0) = 0x41000000 (8.0)
+float3(8.0, 80.0, 800.0)(1) = 0x42A00000 (80.0)
+float3(8.0, 80.0, 800.0)(2) = 0x44480000 (800.0)
+float3(9.0, 90.0, 900.0)(0) = 0x41100000 (9.0)
+float3(9.0, 90.0, 900.0)(1) = 0x42B40000 (90.0)
+float3(9.0, 90.0, 900.0)(2) = 0x44610000 (900.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              data.outer[0].inner[0].values, data.outer[0].inner[1].values(0) = 0
@@ -7,54 +36,34 @@ splat_4_constants              data.outer[1].inner[1].values, data.outer[1].inne
 splat_4_constants              data.outer[1].inner[2].values(1..2), data.outer[2].inner[0].values(0..1) = 0
 splat_4_constants              data.outer[2].inner[0].values(2), data.outer[2].inner[1].values = 0
 splat_3_constants              data.outer[2].inner[2].values = 0
-copy_constant                  $0 = 0x3F800000 (1.0)
-copy_constant                  $1 = 0x41200000 (10.0)
-copy_constant                  $2 = 0x42C80000 (100.0)
+copy_3_slots_unmasked          $0..2 = float3(1.0, 10.0, 100.0)
 copy_3_slots_masked            data.outer[0].inner[0].values = Mask($0..2)
-copy_constant                  $0 = 0x40000000 (2.0)
-copy_constant                  $1 = 0x41A00000 (20.0)
-copy_constant                  $2 = 0x43480000 (200.0)
+copy_3_slots_unmasked          $0..2 = float3(2.0, 20.0, 200.0)
 copy_3_slots_masked            data.outer[0].inner[1].values = Mask($0..2)
-copy_constant                  $0 = 0x40400000 (3.0)
-copy_constant                  $1 = 0x41F00000 (30.0)
-copy_constant                  $2 = 0x43960000 (300.0)
+copy_3_slots_unmasked          $0..2 = float3(3.0, 30.0, 300.0)
 copy_3_slots_masked            data.outer[0].inner[2].values = Mask($0..2)
-copy_constant                  $0 = 0x40800000 (4.0)
-copy_constant                  $1 = 0x42200000 (40.0)
-copy_constant                  $2 = 0x43C80000 (400.0)
+copy_3_slots_unmasked          $0..2 = float3(4.0, 40.0, 400.0)
 copy_3_slots_masked            data.outer[1].inner[0].values = Mask($0..2)
-copy_constant                  $0 = 0x40A00000 (5.0)
-copy_constant                  $1 = 0x42480000 (50.0)
-copy_constant                  $2 = 0x43FA0000 (500.0)
+copy_3_slots_unmasked          $0..2 = float3(5.0, 50.0, 500.0)
 copy_3_slots_masked            data.outer[1].inner[1].values = Mask($0..2)
-copy_constant                  $0 = 0x40C00000 (6.0)
-copy_constant                  $1 = 0x42700000 (60.0)
-copy_constant                  $2 = 0x44160000 (600.0)
+copy_3_slots_unmasked          $0..2 = float3(6.0, 60.0, 600.0)
 copy_3_slots_masked            data.outer[1].inner[2].values = Mask($0..2)
-copy_constant                  $0 = 0x40E00000 (7.0)
-copy_constant                  $1 = 0x428C0000 (70.0)
-copy_constant                  $2 = 0x442F0000 (700.0)
+copy_3_slots_unmasked          $0..2 = float3(7.0, 70.0, 700.0)
 copy_3_slots_masked            data.outer[2].inner[0].values = Mask($0..2)
-copy_constant                  $0 = 0x41000000 (8.0)
-copy_constant                  $1 = 0x42A00000 (80.0)
-copy_constant                  $2 = 0x44480000 (800.0)
+copy_3_slots_unmasked          $0..2 = float3(8.0, 80.0, 800.0)
 copy_3_slots_masked            data.outer[2].inner[1].values = Mask($0..2)
-copy_constant                  $0 = 0x41100000 (9.0)
-copy_constant                  $1 = 0x42B40000 (90.0)
-copy_constant                  $2 = 0x44610000 (900.0)
+copy_3_slots_unmasked          $0..2 = float3(9.0, 90.0, 900.0)
 copy_3_slots_masked            data.outer[2].inner[2].values = Mask($0..2)
 splat_4_constants              expected, i = 0
 store_loop_mask                $0 = LoopMask
-jump                           jump +77 (label 1 at #125)
+jump                           jump +75 (label 1 at #105)
 label                          label 0x00000002
 copy_constant                  j = 0
 store_loop_mask                $1 = LoopMask
-jump                           jump +62 (label 4 at #114)
+jump                           jump +60 (label 4 at #94)
 label                          label 0x00000005
 copy_3_slots_unmasked          $2..4 = expected
-copy_constant                  $5 = 0x3F800000 (1.0)
-copy_constant                  $6 = 0x41200000 (10.0)
-copy_constant                  $7 = 0x42C80000 (100.0)
+copy_3_slots_unmasked          $5..7 = float3(1.0, 10.0, 100.0)
 add_3_floats                   $2..4 += $5..7
 copy_3_slots_masked            expected = Mask($2..4)
 store_condition_mask           $2 = CondMask
@@ -76,7 +85,7 @@ mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $2
 copy_constant                  k = 0
 store_loop_mask                $2 = LoopMask
-jump                           jump +24 (label 7 at #103)
+jump                           jump +24 (label 7 at #83)
 label                          label 0x00000008
 store_condition_mask           $3 = CondMask
 copy_slot_unmasked             $9 = i
@@ -105,7 +114,7 @@ copy_slot_unmasked             $3 = k
 cmplt_imm_int                  $3 = lessThan($3, 0x00000003)
 merge_loop_mask                LoopMask &= $3
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -28 (label 8 at #80)
+branch_if_any_lanes_active     branch_if_any_lanes_active -28 (label 8 at #60)
 label                          label 0x00000006
 load_loop_mask                 LoopMask = $2
 copy_slot_unmasked             $2 = j
@@ -116,7 +125,7 @@ copy_slot_unmasked             $2 = j
 cmplt_imm_int                  $2 = lessThan($2, 0x00000003)
 merge_loop_mask                LoopMask &= $2
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -66 (label 5 at #53)
+branch_if_any_lanes_active     branch_if_any_lanes_active -64 (label 5 at #35)
 label                          label 0x00000003
 load_loop_mask                 LoopMask = $1
 copy_slot_unmasked             $1 = i
@@ -127,7 +136,7 @@ copy_slot_unmasked             $1 = i
 cmplt_imm_int                  $1 = lessThan($1, 0x00000003)
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -81 (label 2 at #49)
+branch_if_any_lanes_active     branch_if_any_lanes_active -79 (label 2 at #31)
 label                          label 0
 load_loop_mask                 LoopMask = $0
 copy_4_uniforms                $0..3 = colorGreen

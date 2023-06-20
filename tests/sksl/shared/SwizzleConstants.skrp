@@ -1,3 +1,9 @@
+[immutable slots]
+half4(0.0, 1.0, 1.0, 1.0)(0) = 0
+half4(0.0, 1.0, 1.0, 1.0)(1) = 0x3F800000 (1.0)
+half4(0.0, 1.0, 1.0, 1.0)(2) = 0x3F800000 (1.0)
+half4(0.0, 1.0, 1.0, 1.0)(3) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                v = testInputs
@@ -43,8 +49,7 @@ copy_constant                  v(3) = 0x3F800000 (1.0)
 copy_constant                  v(0) = 0
 splat_2_constants              v(1..2) = 0x3F800000 (1.0)
 copy_4_slots_unmasked          $0..3 = v
-copy_constant                  $4 = 0
-splat_3_constants              $5..7 = 0x3F800000 (1.0)
+copy_4_slots_unmasked          $4..7 = half4(0.0, 1.0, 1.0, 1.0)
 cmpeq_4_floats                 $0..3 = equal($0..3, $4..7)
 bitwise_and_2_ints             $0..1 &= $2..3
 bitwise_and_int                $0 &= $1
