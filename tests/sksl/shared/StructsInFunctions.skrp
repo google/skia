@@ -1,3 +1,12 @@
+[immutable slots]
+c1.f4(0) = 0x3F800000 (1.0)
+c1.f4(1) = 0x40000000 (2.0)
+c1.f4(2) = 0x40400000 (3.0)
+c1.f4(3) = 0x40800000 (4.0)
+c1.i3(0) = 0x00000005 (7.006492e-45)
+c1.i3(1) = 0x00000006 (8.407791e-45)
+c1.i3(2) = 0x00000007 (9.809089e-45)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              s.x, s.y = 0
@@ -37,13 +46,6 @@ add_imm_float                  s.x₃ += 0x3F800000 (1.0)
 add_imm_int                    s.y₃ += 0x00000001
 copy_2_slots_unmasked          n3.b.x, n3.b.y = s.x₃, s.y₃
 label                          label 0x00000005
-copy_constant                  c1.f4(0) = 0x3F800000 (1.0)
-copy_constant                  c1.f4(1) = 0x40000000 (2.0)
-copy_constant                  c1.f4(2) = 0x40400000 (3.0)
-copy_constant                  c1.f4(3) = 0x40800000 (4.0)
-copy_constant                  c1.i3(0) = 0x00000005 (7.006492e-45)
-copy_constant                  c1.i3(1) = 0x00000006 (8.407791e-45)
-copy_constant                  c1.i3(2) = 0x00000007 (9.809089e-45)
 copy_uniform                   c2.f4(0) = colorGreen(1)
 copy_constant                  c2.f4(1) = 0x40000000 (2.0)
 copy_constant                  c2.f4(2) = 0x40400000 (3.0)
@@ -87,9 +89,9 @@ bitwise_and_int                $14 &= $15
 bitwise_and_int                $13 &= $14
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #107)
+branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #100)
 copy_slot_unmasked             $1 = s.x₁
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #99)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #92)
 splat_2_constants              s.x, s.y = 0
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_slot_masked               s.x = Mask($17)

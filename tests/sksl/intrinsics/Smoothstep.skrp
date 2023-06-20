@@ -3,14 +3,17 @@ constVal(0) = 0xBFA00000 (-1.25)
 constVal(1) = 0
 constVal(2) = 0x3F400000 (0.75)
 constVal(3) = 0x40100000 (2.25)
+expectedA(0) = 0
+expectedA(1) = 0
+expectedA(2) = 0x3F580000 (0.84375)
+expectedA(3) = 0x3F800000 (1.0)
+expectedB(0) = 0x3F800000 (1.0)
+expectedB(1) = 0
+expectedB(2) = 0x3F800000 (1.0)
+expectedB(3) = 0x3F800000 (1.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_2_constants              expectedA(0..1) = 0
-copy_constant                  expectedA(2) = 0x3F580000 (0.84375)
-splat_2_constants              expectedA(3), expectedB(0) = 0x3F800000 (1.0)
-copy_constant                  expectedB(1) = 0
-splat_2_constants              expectedB(2..3) = 0x3F800000 (1.0)
 copy_slot_unmasked             $0 = expectedA(0)
 cmpeq_imm_float                $0 = equal($0, 0)
 splat_2_constants              $1..2 = 0

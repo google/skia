@@ -1,11 +1,13 @@
+[immutable slots]
+expected(0) = 0x40A00000 (5.0)
+expected(1) = 0x41880000 (17.0)
+expected(2) = 0x42180000 (38.0)
+expected(3) = 0x428C0000 (70.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                inputA = testMatrix4x4(0..3)
 copy_4_uniforms                inputB = testMatrix4x4(4..7)
-copy_constant                  expected(0) = 0x40A00000 (5.0)
-copy_constant                  expected(1) = 0x41880000 (17.0)
-copy_constant                  expected(2) = 0x42180000 (38.0)
-copy_constant                  expected(3) = 0x428C0000 (70.0)
 copy_slot_unmasked             $0 = inputA(0)
 copy_slot_unmasked             $1 = inputB(0)
 mul_float                      $0 *= $1

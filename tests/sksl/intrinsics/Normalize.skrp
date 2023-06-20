@@ -1,7 +1,11 @@
+[immutable slots]
+expectedVec(0) = 0x3F800000 (1.0)
+expectedVec(1) = 0
+expectedVec(2) = 0
+expectedVec(3) = 0
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expectedVec(0) = 0x3F800000 (1.0)
-splat_3_constants              expectedVec(1..3) = 0
 copy_uniform                   $0 = inputVal(0)
 copy_slot_unmasked             $1 = $0
 bitwise_and_imm_int            $1 &= 0x7FFFFFFF

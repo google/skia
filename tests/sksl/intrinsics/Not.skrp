@@ -1,13 +1,15 @@
+[immutable slots]
+expected(0) = 0xFFFFFFFF
+expected(1) = 0
+expected(2) = 0xFFFFFFFF
+expected(3) = 0
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                $0..3 = colorGreen
 splat_4_constants              $4..7 = 0
 cmpne_4_floats                 $0..3 = notEqual($0..3, $4..7)
 copy_4_slots_unmasked          inputVal = $0..3
-copy_constant                  expected(0) = 0xFFFFFFFF
-copy_constant                  expected(1) = 0
-copy_constant                  expected(2) = 0xFFFFFFFF
-copy_constant                  expected(3) = 0
 copy_2_slots_unmasked          $0..1 = inputVal(0..1)
 splat_2_constants              $2..3 = 0xFFFFFFFF
 bitwise_xor_2_ints             $0..1 ^= $2..3

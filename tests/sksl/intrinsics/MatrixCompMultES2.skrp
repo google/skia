@@ -1,9 +1,11 @@
+[immutable slots]
+h22(0) = 0
+h22(1) = 0x40A00000 (5.0)
+h22(2) = 0x41200000 (10.0)
+h22(3) = 0x41700000 (15.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  h22(0) = 0
-copy_constant                  h22(1) = 0x40A00000 (5.0)
-copy_constant                  h22(2) = 0x41200000 (10.0)
-copy_constant                  h22(3) = 0x41700000 (15.0)
 copy_4_uniforms                $0..3 = testMatrix2x2
 copy_constant                  $4 = 0
 copy_constant                  $5 = 0x3F800000 (1.0)

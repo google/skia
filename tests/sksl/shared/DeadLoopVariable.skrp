@@ -1,17 +1,19 @@
+[immutable slots]
+x = 0
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  x = 0
 store_loop_mask                $0 = LoopMask
-jump                           jump +4 (label 1 at #9)
+jump                           jump +4 (label 1 at #8)
 label                          label 0x00000002
-branch_if_all_lanes_active     branch_if_all_lanes_active +8 (label 0 at #15)
+branch_if_all_lanes_active     branch_if_all_lanes_active +8 (label 0 at #14)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000001
 copy_slot_unmasked             $1 = x
 cmplt_imm_int                  $1 = lessThan($1, 0x00000004)
 merge_loop_mask                LoopMask &= $1
 stack_rewind
-branch_if_any_lanes_active     branch_if_any_lanes_active -8 (label 2 at #6)
+branch_if_any_lanes_active     branch_if_any_lanes_active -8 (label 2 at #5)
 label                          label 0
 load_loop_mask                 LoopMask = $0
 copy_4_uniforms                $0..3 = colorGreen

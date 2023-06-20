@@ -1,8 +1,11 @@
+[immutable slots]
+expected(0) = 0xFFFFFFFF
+expected(1) = 0
+expected(2) = 0
+expected(3) = 0x00000001 (1.401298e-45)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expected(0) = 0xFFFFFFFF
-splat_2_constants              expected(1..2) = 0
-copy_constant                  expected(3) = 0x00000001 (1.401298e-45)
 copy_uniform                   $0 = testInputs(0)
 cast_to_int_from_float         $0 = FloatToInt($0)
 copy_constant                  $1 = 0xFFFFFFFF

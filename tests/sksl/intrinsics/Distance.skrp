@@ -1,8 +1,11 @@
+[immutable slots]
+expected(0) = 0x40400000 (3.0)
+expected(1) = 0x40400000 (3.0)
+expected(2) = 0x40A00000 (5.0)
+expected(3) = 0x41500000 (13.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_2_constants              expected(0..1) = 0x40400000 (3.0)
-copy_constant                  expected(2) = 0x40A00000 (5.0)
-copy_constant                  expected(3) = 0x41500000 (13.0)
 copy_uniform                   $0 = pos1(0)
 copy_uniform                   $1 = pos2(0)
 sub_float                      $0 -= $1

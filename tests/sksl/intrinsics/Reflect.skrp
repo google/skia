@@ -1,15 +1,17 @@
+[immutable slots]
+expectedX = 0xC2440000 (-49.0)
+expectedXY(0) = 0xC3290000 (-169.0)
+expectedXY(1) = 0x434A0000 (202.0)
+expectedXYZ(0) = 0xC3BD8000 (-379.0)
+expectedXYZ(1) = 0x43E30000 (454.0)
+expectedXYZ(2) = 0xC4044000 (-529.0)
+expectedXYZW(0) = 0xC42EC000 (-699.0)
+expectedXYZW(1) = 0x44518000 (838.0)
+expectedXYZW(2) = 0xC4744000 (-977.0)
+expectedXYZW(3) = 0x448B8000 (1116.0)
+
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expectedX = 0xC2440000 (-49.0)
-copy_constant                  expectedXY(0) = 0xC3290000 (-169.0)
-copy_constant                  expectedXY(1) = 0x434A0000 (202.0)
-copy_constant                  expectedXYZ(0) = 0xC3BD8000 (-379.0)
-copy_constant                  expectedXYZ(1) = 0x43E30000 (454.0)
-copy_constant                  expectedXYZ(2) = 0xC4044000 (-529.0)
-copy_constant                  expectedXYZW(0) = 0xC42EC000 (-699.0)
-copy_constant                  expectedXYZW(1) = 0x44518000 (838.0)
-copy_constant                  expectedXYZW(2) = 0xC4744000 (-977.0)
-copy_constant                  expectedXYZW(3) = 0x448B8000 (1116.0)
 copy_uniform                   $0 = I(0)
 copy_uniform                   $1 = N(0)
 copy_2_slots_unmasked          $2..3 = $0..1

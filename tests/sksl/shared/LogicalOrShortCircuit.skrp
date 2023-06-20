@@ -1,7 +1,12 @@
+[immutable slots]
+_2_y = 0x00000001 (1.401298e-45)
+x = 0x00000001 (1.401298e-45)
+x₁ = 0x00000001 (1.401298e-45)
+x₂ = 0x00000001 (1.401298e-45)
+
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  _0_TrueTrue = 0
-copy_constant                  _2_y = 0x00000001 (1.401298e-45)
 copy_slot_unmasked             $0 = _2_y
 cmpeq_imm_int                  $0 = equal($0, 0x00000001)
 copy_slot_unmasked             _0_TrueTrue = $0
@@ -11,8 +16,8 @@ store_condition_mask           $24 = CondMask
 copy_slot_unmasked             $25 = _0_TrueTrue
 copy_constant                  $19 = 0
 merge_condition_mask           CondMask = $24 & $25
-branch_if_no_lanes_active      branch_if_no_lanes_active +29 (label 3 at #43)
-splat_2_constants              x, y = 0x00000001 (1.401298e-45)
+branch_if_no_lanes_active      branch_if_no_lanes_active +29 (label 3 at #42)
+copy_constant                  y = 0x00000001 (1.401298e-45)
 store_condition_mask           $20 = CondMask
 store_condition_mask           $26 = CondMask
 copy_slot_unmasked             $27 = x
@@ -44,8 +49,8 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $24
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $18 & $19
-branch_if_no_lanes_active      branch_if_no_lanes_active +29 (label 2 at #76)
-splat_2_constants              x₁, y₁ = 0x00000001 (1.401298e-45)
+branch_if_no_lanes_active      branch_if_no_lanes_active +29 (label 2 at #75)
+copy_constant                  y₁ = 0x00000001 (1.401298e-45)
 store_condition_mask           $14 = CondMask
 store_condition_mask           $24 = CondMask
 copy_slot_unmasked             $25 = x₁
@@ -77,8 +82,8 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $18
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +29 (label 1 at #109)
-splat_2_constants              x₂, y₂ = 0x00000001 (1.401298e-45)
+branch_if_no_lanes_active      branch_if_no_lanes_active +29 (label 1 at #108)
+copy_constant                  y₂ = 0x00000001 (1.401298e-45)
 store_condition_mask           $1 = CondMask
 store_condition_mask           $18 = CondMask
 copy_slot_unmasked             $19 = x₂

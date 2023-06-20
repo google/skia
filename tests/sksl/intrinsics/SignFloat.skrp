@@ -1,8 +1,11 @@
+[immutable slots]
+expected(0) = 0xBF800000 (-1.0)
+expected(1) = 0
+expected(2) = 0x3F800000 (1.0)
+expected(3) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expected(0) = 0xBF800000 (-1.0)
-copy_constant                  expected(1) = 0
-splat_2_constants              expected(2..3) = 0x3F800000 (1.0)
 copy_uniform                   $0 = testInputs(0)
 mul_imm_float                  $0 *= 0x7F7FFFFF (3.40282347e+38)
 max_imm_float                  $0 = max($0, 0xBF800000 (-1.0))

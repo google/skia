@@ -1,3 +1,9 @@
+[immutable slots]
+c(0) = 0
+c(1) = 0x3F800000 (1.0)
+c(2) = 0x40000000 (2.0)
+c(3) = 0x40400000 (3.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                _0_v = testInputs
@@ -5,10 +11,6 @@ copy_4_slots_unmasked          _1_x, _2_y, _3_z, _4_w = _0_v
 copy_4_slots_unmasked          a = _1_x, _2_y, _3_z, _4_w
 copy_4_uniforms                _9_x, _10_y, _11_z, _12_w = testInputs
 copy_4_slots_unmasked          b = _9_x, _10_y, _11_z, _12_w
-copy_constant                  c(0) = 0
-copy_constant                  c(1) = 0x3F800000 (1.0)
-copy_constant                  c(2) = 0x40000000 (2.0)
-copy_constant                  c(3) = 0x40400000 (3.0)
 copy_4_slots_unmasked          $0..3 = a
 copy_constant                  $4 = 0xBFA00000 (-1.25)
 copy_constant                  $5 = 0

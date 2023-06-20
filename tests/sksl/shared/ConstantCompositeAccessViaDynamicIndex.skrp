@@ -1,4 +1,5 @@
 [immutable slots]
+zero = 0
 globalArray[0] = 0x3F800000 (1.0)
 globalArray[1] = 0x3F800000 (1.0)
 globalVector(0) = 0x3F800000 (1.0)
@@ -18,7 +19,6 @@ localMatrix(3) = 0x40400000 (3.0)
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  zero = 0
 copy_slot_unmasked             $6 = zero
 copy_from_indirect_unmasked    $0 = Indirect(globalArray[0] + $6)
 copy_slot_unmasked             $6 = zero

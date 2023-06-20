@@ -1,5 +1,8 @@
 [immutable slots]
 _0_var = 0xFFFFFFFF
+S = 0xFFFFFFFF
+S.i = 0x00000001 (1.401298e-45)
+glob₁ = 0x00000001 (1.401298e-45)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -20,8 +23,7 @@ copy_constant                  $19 = 0
 label                          label 0x00000005
 copy_constant                  $16 = 0
 merge_condition_mask           CondMask = $18 & $19
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #25)
-copy_constant                  S = 0xFFFFFFFF
+branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 3 at #24)
 copy_slot_unmasked             $17 = S
 label                          label 0x00000007
 copy_slot_masked               $16 = Mask($17)
@@ -29,8 +31,7 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $18
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 2 at #35)
-copy_constant                  S.i = 0x00000001 (1.401298e-45)
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 2 at #33)
 copy_slot_unmasked             $14 = S.i
 cmpeq_imm_int                  $14 = equal($14, 0x00000001)
 label                          label 0x00000008
@@ -39,8 +40,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $15
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 1 at #45)
-copy_constant                  glob₁ = 0x00000001 (1.401298e-45)
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 1 at #42)
 copy_slot_unmasked             $1 = glob₁
 cmpeq_imm_int                  $1 = equal($1, 0x00000001)
 label                          label 0x00000009

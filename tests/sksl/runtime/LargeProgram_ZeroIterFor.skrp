@@ -1,6 +1,8 @@
+[immutable slots]
+i = 0
+
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  i = 0
 copy_slot_unmasked             $0 = i
 cast_to_float_from_int         $0 = IntToFloat($0)
 swizzle_4                      $0..3 = ($0..3).xxxx

@@ -1,6 +1,8 @@
+[immutable slots]
+ok = 0xFFFFFFFF
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  ok = 0xFFFFFFFF
 copy_4_uniforms                green = colorGreen
 copy_4_uniforms                red = colorRed
 copy_constant                  param = 0

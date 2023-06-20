@@ -1,11 +1,15 @@
+[immutable slots]
+expectedA(0) = 0xBFA00000 (-1.25)
+expectedA(1) = 0
+expectedA(2) = 0x3F000000 (0.5)
+expectedA(3) = 0x3F000000 (0.5)
+expectedB(0) = 0xBFA00000 (-1.25)
+expectedB(1) = 0
+expectedB(2) = 0
+expectedB(3) = 0x3F800000 (1.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expectedA(0) = 0xBFA00000 (-1.25)
-copy_constant                  expectedA(1) = 0
-splat_2_constants              expectedA(2..3) = 0x3F000000 (0.5)
-copy_constant                  expectedB(0) = 0xBFA00000 (-1.25)
-splat_2_constants              expectedB(1..2) = 0
-copy_constant                  expectedB(3) = 0x3F800000 (1.0)
 copy_uniform                   $0 = testInputs(0)
 min_imm_float                  $0 = min($0, 0x3F000000 (0.5))
 copy_slot_unmasked             $1 = expectedA(0)

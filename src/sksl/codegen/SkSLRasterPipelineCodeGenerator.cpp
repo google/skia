@@ -24,6 +24,7 @@
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -1979,10 +1980,16 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
 }
 
 bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
-    SkASSERT(d.var()->modifiers().fFlags & Modifiers::kConst_Flag);
-
     // Find the constant value for this variable.
-    const Expression& initialValue = *d.value();
+    const Expression* initialValue = ConstantFolder::GetConstantValueForVariable(*d.value());
+    SkASSERT(initialValue);
+
+    // For a variable to be immutable, it cannot be written-to besides its initial declaration.
+    ProgramUsage::VariableCounts counts = fProgram.fUsage->get(*d.var());
+    if (counts.fWrite != 1) {
+        return false;
+    }
+
     SlotRange varSlots = this->getVariableSlots(*d.var());
     size_t numSlots = varSlots.count;
 
@@ -1994,7 +2001,7 @@ bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
 
     for (size_t index = 0; index < numSlots; ++index) {
         // Determine the number-kind of the slot; bail if it's non-numeric.
-        Type::NumberKind kind = initialValue.type().slotType(index).numberKind();
+        Type::NumberKind kind = initialValue->type().slotType(index).numberKind();
         switch (kind) {
             case Type::NumberKind::kFloat:
             case Type::NumberKind::kSigned:
@@ -2007,7 +2014,7 @@ bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
         }
 
         // Determine the constant-value of the slot.
-        std::optional<double> v = initialValue.getConstantValue(index);
+        std::optional<double> v = initialValue->getConstantValue(index);
         if (!v.has_value()) {
             return false;
         }
@@ -2043,12 +2050,12 @@ bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
 }
 
 bool Generator::writeVarDeclaration(const VarDeclaration& v) {
-    if (v.var()->modifiers().fFlags & Modifiers::kConst_Flag) {
+    if (v.value()) {
+        // If a variable never actually changes, we can make it immutable.
         if (this->writeImmutableVarDeclaration(v)) {
             return true;
         }
-    }
-    if (v.value()) {
+        // This is a real variable which can change over the course of execution.
         if (!this->pushExpression(*v.value())) {
             return unsupported();
         }

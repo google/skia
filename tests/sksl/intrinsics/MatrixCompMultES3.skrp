@@ -1,3 +1,17 @@
+[immutable slots]
+f43(0) = 0x41400000 (12.0)
+f43(1) = 0x41B00000 (22.0)
+f43(2) = 0x41F00000 (30.0)
+f43(3) = 0x42100000 (36.0)
+f43(4) = 0x42200000 (40.0)
+f43(5) = 0x42280000 (42.0)
+f43(6) = 0x42280000 (42.0)
+f43(7) = 0x42200000 (40.0)
+f43(8) = 0x42100000 (36.0)
+f43(9) = 0x41F00000 (30.0)
+f43(10) = 0x41B00000 (22.0)
+f43(11) = 0x41400000 (12.0)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              $0..3 = 0x41100000 (9.0)
@@ -20,17 +34,6 @@ copy_4_uniforms                $12..15 = colorGreen
 mul_n_floats                   $0..7 *= $8..15
 copy_4_slots_unmasked          h42(0..3) = $0..3
 copy_4_slots_unmasked          h42(4..7) = $4..7
-copy_constant                  f43(0) = 0x41400000 (12.0)
-copy_constant                  f43(1) = 0x41B00000 (22.0)
-copy_constant                  f43(2) = 0x41F00000 (30.0)
-copy_constant                  f43(3) = 0x42100000 (36.0)
-copy_constant                  f43(4) = 0x42200000 (40.0)
-splat_2_constants              f43(5..6) = 0x42280000 (42.0)
-copy_constant                  f43(7) = 0x42200000 (40.0)
-copy_constant                  f43(8) = 0x42100000 (36.0)
-copy_constant                  f43(9) = 0x41F00000 (30.0)
-copy_constant                  f43(10) = 0x41B00000 (22.0)
-copy_constant                  f43(11) = 0x41400000 (12.0)
 copy_4_slots_unmasked          $0..3 = h24(0..3)
 copy_4_slots_unmasked          $4..7 = h24(4..7)
 copy_constant                  $8 = 0x41100000 (9.0)

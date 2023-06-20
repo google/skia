@@ -1,7 +1,15 @@
+[immutable slots]
+one(0) = 0x3F800000 (1.0)
+one(1) = 0x3F800000 (1.0)
+one(2) = 0x3F800000 (1.0)
+one(3) = 0x3F800000 (1.0)
+zero(0) = 0
+zero(1) = 0
+zero(2) = 0
+zero(3) = 0
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_4_constants              one = 0x3F800000 (1.0)
-splat_4_constants              zero = 0
 copy_4_uniforms                green = colorGreen
 copy_4_slots_unmasked          $0..3 = green
 copy_4_slots_unmasked          $4..7 = one

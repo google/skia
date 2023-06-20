@@ -1,13 +1,15 @@
+[immutable slots]
+expectedPos(0) = 0x3F800000 (1.0)
+expectedPos(1) = 0x40000000 (2.0)
+expectedPos(2) = 0x40400000 (3.0)
+expectedPos(3) = 0x40800000 (4.0)
+expectedNeg(0) = 0xBF800000 (-1.0)
+expectedNeg(1) = 0xC0000000 (-2.0)
+expectedNeg(2) = 0xC0400000 (-3.0)
+expectedNeg(3) = 0xC0800000 (-4.0)
+
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  expectedPos(0) = 0x3F800000 (1.0)
-copy_constant                  expectedPos(1) = 0x40000000 (2.0)
-copy_constant                  expectedPos(2) = 0x40400000 (3.0)
-copy_constant                  expectedPos(3) = 0x40800000 (4.0)
-copy_constant                  expectedNeg(0) = 0xBF800000 (-1.0)
-copy_constant                  expectedNeg(1) = 0xC0000000 (-2.0)
-copy_constant                  expectedNeg(2) = 0xC0400000 (-3.0)
-copy_constant                  expectedNeg(3) = 0xC0800000 (-4.0)
 copy_uniform                   $0 = N(0)
 copy_constant                  $1 = 0
 copy_uniform                   $2 = I(0)

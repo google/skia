@@ -1,3 +1,13 @@
+[immutable slots]
+expectedA(0) = 0x00000032 (7.006492e-44)
+expectedA(1) = 0
+expectedA(2) = 0x00000032 (7.006492e-44)
+expectedA(3) = 0x00000032 (7.006492e-44)
+expectedB(0) = 0
+expectedB(1) = 0
+expectedB(2) = 0
+expectedB(3) = 0x00000064 (1.401298e-43)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                $0..3 = testInputs
@@ -11,11 +21,6 @@ splat_4_constants              $4..7 = 0x42C80000 (100.0)
 mul_4_floats                   $0..3 *= $4..7
 cast_to_uint_from_4_floats     $0..3 = FloatToUint($0..3)
 copy_4_slots_unmasked          uintGreen = $0..3
-copy_constant                  expectedA(0) = 0x00000032 (7.006492e-44)
-copy_constant                  expectedA(1) = 0
-splat_2_constants              expectedA(2..3) = 0x00000032 (7.006492e-44)
-splat_3_constants              expectedB(0..2) = 0
-copy_constant                  expectedB(3) = 0x00000064 (1.401298e-43)
 copy_slot_unmasked             $0 = uintValues(0)
 copy_constant                  $1 = 0x00000032 (7.006492e-44)
 min_uint                       $0 = min($0, $1)

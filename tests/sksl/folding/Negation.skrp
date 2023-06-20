@@ -1,16 +1,17 @@
 [immutable slots]
+_4_ok = 0xFFFFFFFF
+one = 0x00000001 (1.401298e-45)
 two = 0x00000002 (2.802597e-45)
+ok₁ = 0xFFFFFFFF
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  _4_ok = 0xFFFFFFFF
 store_condition_mask           $12 = CondMask
 store_condition_mask           $21 = CondMask
 copy_slot_unmasked             $22 = _4_ok
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $21 & $22
-branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 2 at #31)
-copy_constant                  one = 0x00000001 (1.401298e-45)
+branch_if_no_lanes_active      branch_if_no_lanes_active +21 (label 2 at #29)
 copy_constant                  ok = 0xFFFFFFFF
 copy_slot_unmasked             $14 = ok
 copy_slot_unmasked             $15 = one
@@ -35,8 +36,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $21
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 1 at #40)
-copy_constant                  ok₁ = 0xFFFFFFFF
+branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 1 at #37)
 copy_slot_unmasked             $1 = ok₁
 label                          label 0x00000004
 copy_slot_masked               $0 = Mask($1)

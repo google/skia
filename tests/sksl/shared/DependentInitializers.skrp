@@ -1,6 +1,8 @@
+[immutable slots]
+x = 0x3F000000 (0.5)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  x = 0x3F000000 (0.5)
 copy_slot_unmasked             $0 = x
 mul_imm_float                  $0 *= 0x40000000 (2.0)
 copy_slot_unmasked             y = $0

@@ -1,10 +1,15 @@
+[immutable slots]
+expectedBW(0) = 0x3F000000 (0.5)
+expectedBW(1) = 0x3F000000 (0.5)
+expectedBW(2) = 0x3F000000 (0.5)
+expectedBW(3) = 0x3F800000 (1.0)
+expectedWT(0) = 0x3F800000 (1.0)
+expectedWT(1) = 0x3F000000 (0.5)
+expectedWT(2) = 0x3F800000 (1.0)
+expectedWT(3) = 0x40100000 (2.25)
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_3_constants              expectedBW(0..2) = 0x3F000000 (0.5)
-splat_2_constants              expectedBW(3), expectedWT(0) = 0x3F800000 (1.0)
-copy_constant                  expectedWT(1) = 0x3F000000 (0.5)
-copy_constant                  expectedWT(2) = 0x3F800000 (1.0)
-copy_constant                  expectedWT(3) = 0x40100000 (2.25)
 splat_4_constants              $0..3 = 0
 copy_4_uniforms                $4..7 = colorGreen
 copy_4_uniforms                $8..11 = colorRed
