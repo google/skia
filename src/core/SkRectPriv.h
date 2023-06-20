@@ -63,12 +63,12 @@ public:
     }
 
     // Returns r.width()/2 but divides first to avoid width() overflowing.
-    static float HalfWidth(const SkRect& r) {
-        return sk_float_midpoint(-r.fLeft, r.fRight);
+    static SkScalar HalfWidth(const SkRect& r) {
+        return SkScalarHalf(r.fRight) - SkScalarHalf(r.fLeft);
     }
     // Returns r.height()/2 but divides first to avoid height() overflowing.
-    static float HalfHeight(const SkRect& r) {
-        return sk_float_midpoint(-r.fTop, r.fBottom);
+    static SkScalar HalfHeight(const SkRect& r) {
+        return SkScalarHalf(r.fBottom) - SkScalarHalf(r.fTop);
     }
 
     // Evaluate A-B. If the difference shape cannot be represented as a rectangle then false is
