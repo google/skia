@@ -325,10 +325,23 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "gm", ALL, "image_subset")
 
 			// Could not readback from surface.
-			skip(ALL, "gm", ALL, "hugebitmapshader")
-			skip(ALL, "gm", ALL, "path_huge_aa")
-			skip(ALL, "gm", ALL, "verylargebitmap")
 			skip(ALL, "gm", ALL, "verylarge_picture_image")
+			skip(ALL, "gm", ALL, "verylarge_picture_image_manual")
+			skip(ALL, "gm", ALL, "verylargebitmap")
+			skip(ALL, "gm", ALL, "verylargebitmap_manual")
+			skip(ALL, "gm", ALL, "path_huge_aa")
+			skip(ALL, "gm", ALL, "path_huge_aa_manual")
+			skip(ALL, "gm", ALL, "fast_constraint_red_is_allowed_manual")
+			skip(ALL, "gm", ALL, "fast_constraint_red_is_allowed")
+			skip(ALL, "gm", ALL, "strict_constraint_batch_no_red_allowed_manual")
+			skip(ALL, "gm", ALL, "strict_constraint_batch_no_red_allowed")
+			skip(ALL, "gm", ALL, "strict_constraint_no_red_allowed_manual")
+			skip(ALL, "gm", ALL, "strict_constraint_no_red_allowed")
+			skip(ALL, "gm", ALL, "hugebitmapshader")
+			skip(ALL, "gm", ALL, "async_rescale_and_read_no_bleed")
+			skip(ALL, "gm", ALL, "async_rescale_and_read_text_up")
+			skip(ALL, "gm", ALL, "async_rescale_and_read_dog_down")
+			skip(ALL, "gm", ALL, "async_rescale_and_read_rose")
 
 			if b.extraConfig("Metal") {
 				configs = []string{"grmtl"}
@@ -347,13 +360,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
 				skip(ALL, "test", ALL, "MakeColorSpace_Test")
 				skip(ALL, "test", ALL, "PaintParamsKeyTest")
-				if b.matchOs("Win") {
-					// Async read call failed
-					skip(ALL, "gm", ALL, "async_rescale_and_read_no_bleed")
-					skip(ALL, "gm", ALL, "async_rescale_and_read_text_up")
-					skip(ALL, "gm", ALL, "async_rescale_and_read_dog_down")
-					skip(ALL, "gm", ALL, "async_rescale_and_read_rose")
-				}
 			}
 			if b.extraConfig("Vulkan") {
 				configs = []string{"grvk"}

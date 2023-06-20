@@ -25,7 +25,11 @@
 #include "include/private/chromium/Slug.h"
 #include "tools/ToolUtils.h"
 
-#if defined(SK_GANESH)
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/ContextOptions.h"
+#endif
+
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "include/gpu/GrContextOptions.h"
 
 class SlugGM : public skiagm::GM {
@@ -36,6 +40,12 @@ protected:
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
         ctxOptions->fSupportBilerpFromGlyphAtlas = true;
     }
+
+#if defined(SK_GRAPHITE)
+    void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
+        options->fSupportBilerpFromGlyphAtlas = true;
+    }
+#endif
 
     void onOnceBeforeDraw() override {
         fTypeface = ToolUtils::create_portable_typeface("serif", SkFontStyle());

@@ -15,6 +15,10 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/ToolUtils.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/ContextOptions.h"
+#endif
+
 namespace skiagm {
 
 /**
@@ -32,6 +36,12 @@ private:
         // This will test the case where the atlas runs out of room if fMaxAtlasSize is small.
         ctxOptions->fMaxTextureAtlasSize = fMaxAtlasSize;
     }
+
+#if defined(SK_GRAPHITE)
+ void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
+        options->fMaxTextureAtlasSize = fMaxAtlasSize;
+    }
+#endif
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SkColors::kYellow);
