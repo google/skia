@@ -148,3 +148,14 @@ DEF_TEST(FMA, reporter) {
     REPORTER_ASSERT(reporter, x == 0);
     REPORTER_ASSERT(reporter, y == -exp2(-62));
 }
+
+DEF_TEST(Midpoint, reporter) {
+    const float smallest = std::numeric_limits<float>::denorm_min();
+    REPORTER_ASSERT(reporter, sk_float_midpoint(smallest, smallest) == smallest);
+    REPORTER_ASSERT(reporter, sk_float_midpoint(smallest, -smallest) == 0);
+
+    const float biggest = std::numeric_limits<float>::max();
+    REPORTER_ASSERT(reporter, sk_float_midpoint(biggest, biggest) == biggest);
+    REPORTER_ASSERT(reporter, sk_float_midpoint(biggest, -biggest) == 0);
+
+}
