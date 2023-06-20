@@ -1764,6 +1764,7 @@ BASE_SRCS_ALL = [
     "src/utils/SkShadowTessellator.cpp",
     "src/utils/SkShadowTessellator.h",
     "src/utils/SkShadowUtils.cpp",
+    "src/utils/SkTestCanvas.cpp",
     "src/utils/SkTestCanvas.h",
     "src/utils/SkTextUtils.cpp",
     "src/xps/SkXPSDevice.cpp",

@@ -9,7 +9,9 @@
 #define SkCanvasPriv_DEFINED
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
 
 #include <cstddef>
@@ -17,7 +19,6 @@
 class SkBaseDevice;
 class SkImageFilter;
 class SkMatrix;
-class SkPaint;
 class SkReadBuffer;
 class SkWriteBuffer;
 struct SkRect;
@@ -90,6 +91,13 @@ public:
     static void SetBackdropScaleFactor(SkCanvas::SaveLayerRec* rec, SkScalar scale) {
         rec->fExperimentalBackdropScale = scale;
     }
+
+    // Attempts to convert an image filter to its equivalent color filter, which if possible,
+    // modifies the paint to compose the image filter's color filter into the paint's color filter
+    // slot.
+    // Returns true if the paint has been modified.
+    // Requires the paint to have an image filter and the copy-on-write be initialized.
+    static bool ImageToColorFilter(SkPaint*);
 };
 
 /**
@@ -100,5 +108,48 @@ public:
  *  the type of ops contained) may justify changing this value.
  */
 constexpr int kMaxPictureOpsToUnrollInsteadOfRef = 1;
+
+/**
+ *  We implement ImageFilters for a given draw by creating a layer, then applying the
+ *  imagefilter to the pixels of that layer (its backing surface/image), and then
+ *  we call restore() to xfer that layer to the main canvas.
+ *
+ *  1. SaveLayer (with a paint containing the current imagefilter and xfermode)
+ *  2. Generate the src pixels:
+ *      Remove the imagefilter and the xfermode from the paint that we (AutoDrawLooper)
+ *      return (fPaint). We then draw the primitive (using srcover) into a cleared
+ *      buffer/surface.
+ *  3. Restore the layer created in #1
+ *      The imagefilter is passed the buffer/surface from the layer (now filled with the
+ *      src pixels of the primitive). It returns a new "filtered" buffer, which we
+ *      draw onto the previous layer using the xfermode from the original paint.
+ */
+class AutoLayerForImageFilter {
+public:
+    // "rawBounds" is the original bounds of the primitive about to be drawn, unmodified by the
+    // paint. It's used to determine the size of the offscreen layer for filters.
+    // If null, the clip will be used instead.
+    //
+    // Draw functions should use layer->paint() instead of the passed-in paint.
+    AutoLayerForImageFilter(SkCanvas* canvas,
+                            const SkPaint& paint,
+                            const SkRect* rawBounds = nullptr);
+
+    AutoLayerForImageFilter(const AutoLayerForImageFilter&) = delete;
+    AutoLayerForImageFilter& operator=(const AutoLayerForImageFilter&) = delete;
+    AutoLayerForImageFilter(AutoLayerForImageFilter&&) = default;
+    AutoLayerForImageFilter& operator=(AutoLayerForImageFilter&&) = default;
+
+    ~AutoLayerForImageFilter();
+
+    const SkPaint& paint() const { return fPaint; }
+
+private:
+    SkPaint         fPaint;
+    SkCanvas*       fCanvas;
+    bool            fTempLayerForImageFilter;
+
+    SkDEBUGCODE(int fSaveCount;)
+};
 
 #endif

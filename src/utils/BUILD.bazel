@@ -55,6 +55,7 @@ CORE_FILES = [
     "SkShadowTessellator.h",
     "SkShadowUtils.cpp",
     "SkTestCanvas.h",
+    "SkTestCanvas.cpp",
     "SkTextUtils.cpp",
 ]
 
