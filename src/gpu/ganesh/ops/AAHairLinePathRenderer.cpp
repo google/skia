@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/ops/AAHairLinePathRenderer.h"
 
 #include "include/core/SkPoint3.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
@@ -512,7 +513,7 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     SkScalar lineBW = -normB.dot(ptB);
 
     SkScalar wInv = normA.fX * normB.fY - normA.fY * normB.fX;
-    wInv = SkScalarInvert(wInv);
+    wInv = sk_ieee_float_divide(1.0f, wInv);
     if (!SkScalarIsFinite(wInv)) {
         // lines are parallel, pick the point in between
         *result = (ptA + ptB)*SK_ScalarHalf;
