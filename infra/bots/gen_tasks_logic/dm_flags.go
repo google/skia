@@ -1221,6 +1221,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU") // skia:11919
 		skip(ALL, "tests", ALL, "SkSLMatrixEquality_GPU")   // skia:11919
 		skip(ALL, "tests", ALL, "SkSLIntrinsicFract_GPU")
+		skip(ALL, "tests", ALL, "SkSLModifiedStructParametersCannotBeInlined_GPU")
 	}
 
 	if b.gpu("QuadroP400") && b.matchOs("Ubuntu") && b.matchModel("Golo") {
