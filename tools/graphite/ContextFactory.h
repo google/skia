@@ -10,6 +10,7 @@
 
 #include <vector>
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "tools/graphite/GraphiteTestContext.h"
 
@@ -51,17 +52,19 @@ public:
         std::unique_ptr<skgpu::graphite::Context> fContext;
     };
 
+    explicit ContextFactory(const skgpu::graphite::ContextOptions&);
     ContextFactory() = default;
     ContextFactory(const ContextFactory&) = delete;
     ContextFactory& operator=(const ContextFactory&) = delete;
 
-    ~ContextFactory() = default;
+    ~ContextFactory();
 
     std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> getContextInfo(
             GrContextFactory::ContextType);
 
 private:
     std::vector<ContextInfo> fContexts;
+    const skgpu::graphite::ContextOptions fOptions;
 };
 
 } // namespace skiatest::graphite

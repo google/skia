@@ -167,7 +167,6 @@ void GM::setBGColor(SkColor color) {
 bool GM::animate(double nanos) { return this->onAnimate(nanos); }
 
 bool GM::runAsBench() const { return false; }
-void GM::modifyGrContextOptions(GrContextOptions* options) {}
 
 std::unique_ptr<verifiers::VerifierList> GM::getVerifiers() const {
     // No verifiers by default.

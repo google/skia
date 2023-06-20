@@ -47,11 +47,12 @@ std::unique_ptr<GraphiteTestContext> MtlTestContext::Make() {
     return std::unique_ptr<GraphiteTestContext>(new MtlTestContext(backendContext));
 }
 
-std::unique_ptr<skgpu::graphite::Context> MtlTestContext::makeContext() {
-    skgpu::graphite::ContextOptions contextOptions;
-    contextOptions.fStoreContextRefInRecorder = true;
-    return skgpu::graphite::ContextFactory::MakeMetal(fMtl, contextOptions);
+std::unique_ptr<skgpu::graphite::Context> MtlTestContext::makeContext(
+        const skgpu::graphite::ContextOptions& options) {
+    skgpu::graphite::ContextOptions revisedOptions(options);
+    revisedOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
+
+    return skgpu::graphite::ContextFactory::MakeMetal(fMtl, revisedOptions);
 }
 
 }  // namespace skiatest::graphite
-

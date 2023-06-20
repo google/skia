@@ -87,6 +87,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
@@ -156,6 +157,13 @@ void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     gm->modifyGrContextOptions(options);
 }
+
+#if defined(SK_GRAPHITE)
+void GMSrc::modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const {
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    gm->modifyGraphiteContextOptions(options);
+}
+#endif
 
 std::unique_ptr<skiagm::verifiers::VerifierList> GMSrc::getVerifiers() const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
@@ -2112,9 +2120,13 @@ Result GraphiteSink::draw(const Src& src,
                           SkBitmap* dst,
                           SkWStream* dstStream,
                           SkString* log) const {
+    skgpu::graphite::ContextOptions options;
+
+    src.modifyGraphiteContextOptions(&options);
+
     SkImageInfo ii = SkImageInfo::Make(src.size(), this->colorInfo());
 
-    skiatest::graphite::ContextFactory factory;
+    skiatest::graphite::ContextFactory factory(options);
     auto [_, context] = factory.getContextInfo(fContextType);
     if (!context) {
         return Result::Fatal("Could not create a context.");

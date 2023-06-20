@@ -27,7 +27,8 @@ public:
 
     skgpu::BackendApi backend() override { return skgpu::BackendApi::kDawn; }
 
-    std::unique_ptr<skgpu::graphite::Context> makeContext() override;
+    std::unique_ptr<skgpu::graphite::Context> makeContext(
+            const skgpu::graphite::ContextOptions&) override;
 
     const skgpu::graphite::DawnBackendContext& getBackendContext() const {
         return fBackendContext;

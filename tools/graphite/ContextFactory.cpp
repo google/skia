@@ -36,6 +36,12 @@ ContextFactory::ContextInfo::ContextInfo(GrContextFactory::ContextType type,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+ContextFactory::ContextFactory(const skgpu::graphite::ContextOptions& options)
+        : fOptions(options) {
+}
+
+ContextFactory::~ContextFactory() {}
+
 std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getContextInfo(
         GrContextFactory::ContextType type) {
 
@@ -93,7 +99,7 @@ std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getC
         return {};
     }
 
-    std::unique_ptr<skgpu::graphite::Context> context = testCtx->makeContext();
+    std::unique_ptr<skgpu::graphite::Context> context = testCtx->makeContext(fOptions);
     if (!context) {
         return {};
     }

@@ -82,10 +82,12 @@ VulkanTestContext::~VulkanTestContext() {
     delete fFeatures;
 }
 
-std::unique_ptr<skgpu::graphite::Context> VulkanTestContext::makeContext() {
-    skgpu::graphite::ContextOptions contextOptions;
-    contextOptions.fStoreContextRefInRecorder = true;
-    return skgpu::graphite::ContextFactory::MakeVulkan(fVulkan, contextOptions);
+std::unique_ptr<skgpu::graphite::Context> VulkanTestContext::makeContext(
+        const skgpu::graphite::ContextOptions& options) {
+    skgpu::graphite::ContextOptions revisedOptions(options);
+    revisedOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
+
+    return skgpu::graphite::ContextFactory::MakeVulkan(fVulkan, revisedOptions);
 }
 
 }  // namespace skiatest::graphite

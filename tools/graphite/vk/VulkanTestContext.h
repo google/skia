@@ -22,7 +22,8 @@ public:
 
     skgpu::BackendApi backend() override { return skgpu::BackendApi::kVulkan; }
 
-    std::unique_ptr<skgpu::graphite::Context> makeContext() override;
+    std::unique_ptr<skgpu::graphite::Context> makeContext(
+            const skgpu::graphite::ContextOptions&) override;
 
     const skgpu::VulkanBackendContext& getBackendContext() const {
         return fVulkan;

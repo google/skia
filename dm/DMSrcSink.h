@@ -22,11 +22,13 @@
 
 //#define TEST_VIA_SVG
 
-namespace skiagm {
-namespace verifiers {
+namespace skiagm::verifiers {
 class VerifierList;
-}  // namespace verifiers
-}  // namespace skiagm
+}
+
+namespace skgpu::graphite {
+struct Options;
+}
 
 namespace DM {
 
@@ -95,7 +97,8 @@ struct Src {
     virtual Result SK_WARN_UNUSED_RESULT draw(SkCanvas* canvas) const = 0;
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
-    virtual void modifyGrContextOptions(GrContextOptions* options) const {}
+    virtual void modifyGrContextOptions(GrContextOptions*) const  {}
+    virtual void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const {}
     virtual bool veto(SinkFlags) const { return false; }
 
     virtual int pageCount() const { return 1; }
@@ -143,6 +146,9 @@ public:
     SkISize size() const override;
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
+#if defined(SK_GRAPHITE)
+    void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const override;
+#endif
 
     std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const override;
 

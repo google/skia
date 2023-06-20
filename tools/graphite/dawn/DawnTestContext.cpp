@@ -105,12 +105,12 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     return std::unique_ptr<GraphiteTestContext>(new DawnTestContext(backendContext));
 }
 
-std::unique_ptr<skgpu::graphite::Context> DawnTestContext::makeContext() {
-    skgpu::graphite::ContextOptions contextOptions;
-    contextOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
-    return skgpu::graphite::ContextFactory::MakeDawn(fBackendContext,
-                                                     contextOptions);
+std::unique_ptr<skgpu::graphite::Context> DawnTestContext::makeContext(
+        const skgpu::graphite::ContextOptions& options) {
+    skgpu::graphite::ContextOptions revisedOptions(options);
+    revisedOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
+
+    return skgpu::graphite::ContextFactory::MakeDawn(fBackendContext, revisedOptions);
 }
 
 }  // namespace skiatest::graphite
-
