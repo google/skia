@@ -488,18 +488,18 @@ void Device::drawImageQuad(const SkImage* image,
             // sending to the GPU if tiling.
             if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
                 // This is the funnel for all paths that draw tiled bitmaps/images.
-                skgpu::TiledTextureUtils::DrawTiledBitmap(this,
-                                                          bm,
-                                                          tileSize,
-                                                          srcToDst,
-                                                          src,
-                                                          clippedSubset,
-                                                          paint,
-                                                          aaFlags,
-                                                          ctm,
-                                                          constraint,
-                                                          sampling,
-                                                          tileMode);
+                skgpu::TiledTextureUtils::DrawTiledBitmap_Ganesh(this,
+                                                                 bm,
+                                                                 tileSize,
+                                                                 srcToDst,
+                                                                 src,
+                                                                 clippedSubset,
+                                                                 paint,
+                                                                 aaFlags,
+                                                                 ctm,
+                                                                 constraint,
+                                                                 sampling,
+                                                                 tileMode);
                 return;
             }
         }

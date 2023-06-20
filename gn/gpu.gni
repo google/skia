@@ -363,6 +363,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/SurfaceFillContext.cpp",
   "$_src/gpu/ganesh/SurfaceFillContext.h",
   "$_src/gpu/ganesh/TestFormatColorTypeCombination.h",
+  "$_src/gpu/ganesh/TiledTextureUtils_Ganesh.cpp",
   "$_src/gpu/ganesh/effects/GrAtlasedShaderHelpers.h",
   "$_src/gpu/ganesh/effects/GrBezierEffect.cpp",
   "$_src/gpu/ganesh/effects/GrBezierEffect.h",
