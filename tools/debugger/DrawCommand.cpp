@@ -75,6 +75,7 @@ class GrDirectContext;
 #define DEBUGCANVAS_ATTRIBUTE_MODE "mode"
 #define DEBUGCANVAS_ATTRIBUTE_POINTS "points"
 #define DEBUGCANVAS_ATTRIBUTE_PATH "path"
+#define DEBUGCANVAS_ATTRIBUTE_CLUSTERS "clusters"
 #define DEBUGCANVAS_ATTRIBUTE_TEXT "text"
 #define DEBUGCANVAS_ATTRIBUTE_COLOR "color"
 #define DEBUGCANVAS_ATTRIBUTE_ALPHA "alpha"
@@ -1689,10 +1690,25 @@ bool DrawTextBlobCommand::render(SkCanvas* canvas) const {
 
 void DrawTextBlobCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
+    writer.appendFloat(DEBUGCANVAS_ATTRIBUTE_X, fXPos);
+    writer.appendFloat(DEBUGCANVAS_ATTRIBUTE_Y, fYPos);
+    SkRect bounds = fBlob->bounds();
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_BOUNDS);
+    MakeJsonRect(writer, bounds);
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
+    MakeJsonPaint(writer, fPaint, urlDataManager);
+
     writer.beginArray(DEBUGCANVAS_ATTRIBUTE_RUNS);
     SkTextBlobRunIterator iter(fBlob.get());
     while (!iter.done()) {
         writer.beginObject();  // run
+        if (iter.textSize()) {
+            writer.appendString(DEBUGCANVAS_ATTRIBUTE_TEXT, iter.text(), iter.textSize());
+        }
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_FONT);
+        MakeJsonFont(iter.font(), writer, urlDataManager);
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
+        MakeJsonPoint(writer, iter.offset());
         writer.beginArray(DEBUGCANVAS_ATTRIBUTE_GLYPHS);
         for (uint32_t i = 0; i < iter.glyphCount(); i++) {
             writer.appendU32(iter.glyphs()[i]);
@@ -1717,22 +1733,17 @@ void DrawTextBlobCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMa
             }
             writer.endArray();  // positions
         }
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_FONT);
-        MakeJsonFont(iter.font(), writer, urlDataManager);
-        writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
-        MakeJsonPoint(writer, iter.offset());
-
+        if (iter.clusters()) {
+            writer.beginArray(DEBUGCANVAS_ATTRIBUTE_CLUSTERS);
+            for (uint32_t i = 0; i < iter.glyphCount(); i++) {
+                writer.appendU32(iter.clusters()[i]);
+            }
+            writer.endArray();  // clusters
+        }
         writer.endObject();  // run
         iter.next();
     }
     writer.endArray();  // runs
-    writer.appendFloat(DEBUGCANVAS_ATTRIBUTE_X, fXPos);
-    writer.appendFloat(DEBUGCANVAS_ATTRIBUTE_Y, fYPos);
-    SkRect bounds = fBlob->bounds();
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
-    MakeJsonRect(writer, bounds);
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
-    MakeJsonPaint(writer, fPaint, urlDataManager);
 
     SkString desc;
     // make the bounds local by applying the x,y
