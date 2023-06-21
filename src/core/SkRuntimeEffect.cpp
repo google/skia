@@ -30,7 +30,6 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
-#include "src/core/SkFilterColorProgram.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
@@ -777,8 +776,6 @@ SkRuntimeEffect::SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
                                sizeof(options.allowPrivateAccess), fHash);
     fHash = SkChecksum::Hash32(&options.maxVersionAllowed,
                                sizeof(options.maxVersionAllowed), fHash);
-
-    fFilterColorProgram = SkFilterColorProgram::Make(this);
 }
 
 SkRuntimeEffect::~SkRuntimeEffect() = default;
@@ -804,10 +801,6 @@ const SkRuntimeEffect::Child* SkRuntimeEffect::findChild(std::string_view name) 
         return c.name == name;
     });
     return iter == fChildren.end() ? nullptr : &(*iter);
-}
-
-const SkFilterColorProgram* SkRuntimeEffect::getFilterColorProgram() const {
-    return fFilterColorProgram.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

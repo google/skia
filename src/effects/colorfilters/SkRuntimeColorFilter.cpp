@@ -27,7 +27,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
@@ -38,17 +37,11 @@
 #error This only be compiled if SKSL is enabled. See _none.cpp for the non-SKSL version.
 #endif
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkFilterColorProgram.h"
-#endif
-
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
-
-class SkColorSpace;
 
 SkRuntimeColorFilter::SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect,
                                            sk_sp<const SkData> uniforms,
@@ -98,36 +91,6 @@ bool SkRuntimeColorFilter::appendStages(const SkStageRec& rec, bool) const {
     }
 #endif
     return false;
-}
-
-SkPMColor4f SkRuntimeColorFilter::onFilterColor4f(const SkPMColor4f& color,
-                                                  SkColorSpace* dstCS) const {
-#if defined(DELETE_ME_SKVM)
-    // Get the generic program for filtering a single color
-    if (const SkFilterColorProgram* program = fEffect->getFilterColorProgram()) {
-        // Get our specific uniform values
-        sk_sp<const SkData> inputs =
-                SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(), fUniforms, dstCS);
-        SkASSERT(inputs);
-
-        auto evalChild = [&](int index, SkPMColor4f inColor) {
-            const auto& child = fChildren[index];
-
-            // SkFilterColorProgram::Make has guaranteed that any children will be color filters.
-            SkASSERT(!child.shader());
-            SkASSERT(!child.blender());
-            if (SkColorFilter* colorFilter = child.colorFilter()) {
-                return as_CFB(colorFilter)->onFilterColor4f(inColor, dstCS);
-            }
-            return inColor;
-        };
-
-        return program->eval(color, inputs->data(), evalChild);
-    }
-#endif
-    // We were unable to build a cached (per-effect) program. Use the base-class fallback,
-    // which builds a program for the specific filter instance.
-    return SkColorFilterBase::onFilterColor4f(color, dstCS);
 }
 
 bool SkRuntimeColorFilter::onIsAlphaUnchanged() const {

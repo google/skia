@@ -466,8 +466,6 @@ BASE_SRCS_ALL = [
     "src/core/SkEnumerate.h",
     "src/core/SkExecutor.cpp",
     "src/core/SkFDot6.h",
-    "src/core/SkFilterColorProgram.cpp",
-    "src/core/SkFilterColorProgram.h",
     "src/core/SkFlattenable.cpp",
     "src/core/SkFont.cpp",
     "src/core/SkFontDescriptor.cpp",

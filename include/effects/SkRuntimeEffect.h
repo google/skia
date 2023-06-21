@@ -40,7 +40,6 @@
 #include "include/sksl/SkSLVersion.h"
 
 class GrRecordingContext;
-class SkFilterColorProgram;
 class SkImage;
 struct SkIPoint;
 struct SkImageInfo;
@@ -316,7 +315,6 @@ private:
     bool alwaysOpaque()       const { return (fFlags & kAlwaysOpaque_Flag);       }
     bool isAlphaUnchanged()   const { return (fFlags & kAlphaUnchanged_Flag);     }
 
-    const SkFilterColorProgram* getFilterColorProgram() const;
     const SkSL::RP::Program* getRPProgram(SkSL::DebugTracePriv* debugTrace) const;
 
 #if defined(SK_GANESH)
@@ -328,7 +326,6 @@ private:
     friend class SkRuntimeBlender;      //
     friend class SkRuntimeColorFilter;  //
 
-    friend class SkFilterColorProgram;
     friend class SkRuntimeEffectPriv;
 
     uint32_t fHash;
@@ -340,8 +337,6 @@ private:
     std::vector<Uniform> fUniforms;
     std::vector<Child> fChildren;
     std::vector<SkSL::SampleUsage> fSampleUsages;
-
-    std::unique_ptr<SkFilterColorProgram> fFilterColorProgram;
 
     uint32_t fFlags;  // Flags
 };
