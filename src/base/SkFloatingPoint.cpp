@@ -11,11 +11,6 @@
 #include <cmath>
 #include <limits>
 
-// Use double math to avoid underflow and overflow.
-float sk_float_midpoint(float a, float b) {
-    return static_cast<float>(0.5 * (static_cast<double>(a) + b));
-}
-
 // Return the positive magnitude of a double.
 // * normalized - given 1.bbb...bbb x 2^e return 2^e.
 // * subnormal - return 0.

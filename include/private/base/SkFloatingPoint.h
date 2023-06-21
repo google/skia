@@ -166,7 +166,10 @@ static inline float sk_double_to_float(double x) {
 #define SK_DoubleNaN                std::numeric_limits<double>::quiet_NaN()
 
 // Calculate the midpoint between a and b. Similar to std::midpoint in c++20.
-float sk_float_midpoint(float a, float b);
+static constexpr float sk_float_midpoint(float a, float b) {
+    // Use double math to avoid underflow and overflow.
+    return static_cast<float>(0.5 * (static_cast<double>(a) + b));
+}
 
 // Returns false if any of the floats are outside of [0...1]
 // Returns true if count is 0
