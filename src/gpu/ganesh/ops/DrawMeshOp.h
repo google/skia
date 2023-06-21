@@ -16,14 +16,14 @@
 class GrColorSpaceXform;
 class GrPaint;
 class GrRecordingContext;
+class SkMatrix;
 class SkMesh;
-class SkMatrixProvider;
 
 namespace skgpu::ganesh::DrawMeshOp {
 GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
                  const SkMesh&,
-                 const SkMatrixProvider&,
+                 const SkMatrix&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>);
 
@@ -31,7 +31,7 @@ GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
                  sk_sp<SkVertices>,
                  const GrPrimitiveType* overridePrimitiveType,
-                 const SkMatrixProvider&,
+                 const SkMatrix&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>);
 }  // namespace skgpu::ganesh::DrawMeshOp

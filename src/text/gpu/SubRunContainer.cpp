@@ -38,7 +38,6 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
@@ -762,14 +761,13 @@ public:
 
     std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
             const GrClip* clip,
-            const SkMatrixProvider& viewMatrix,
+            const SkMatrix& viewMatrix,
             SkPoint drawOrigin,
             const SkPaint& paint,
             sk_sp<SkRefCnt>&& subRunStorage,
             skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         SkASSERT(this->glyphCount() != 0);
-        const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-        const SkMatrix& positionMatrix = position_matrix(drawMatrix, drawOrigin);
+        const SkMatrix& positionMatrix = position_matrix(viewMatrix, drawOrigin);
 
         auto [integerTranslate, subRunDeviceBounds] =
                 fVertexFiller.deviceRectAndCheckTransform(positionMatrix);
@@ -806,12 +804,12 @@ public:
         GrPaint grPaint;
         const SkPMColor4f drawingColor = calculate_colors(sdc,
                                                           paint,
-                                                          drawMatrix,
+                                                          viewMatrix,
                                                           fVertexFiller.grMaskType(),
                                                           &grPaint);
 
         auto geometry = AtlasTextOp::Geometry::Make(*this,
-                                                    drawMatrix,
+                                                    viewMatrix,
                                                     drawOrigin,
                                                     geometricClipRect,
                                                     std::move(subRunStorage),
@@ -976,24 +974,22 @@ public:
 
     std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
             const GrClip* clip,
-            const SkMatrixProvider& viewMatrix,
+            const SkMatrix& viewMatrix,
             SkPoint drawOrigin,
             const SkPaint& paint,
             sk_sp<SkRefCnt>&& subRunStorage,
             skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         SkASSERT(this->glyphCount() != 0);
 
-        const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-
         GrPaint grPaint;
         SkPMColor4f drawingColor = calculate_colors(sdc,
                                                     paint,
-                                                    drawMatrix,
+                                                    viewMatrix,
                                                     fVertexFiller.grMaskType(),
                                                     &grPaint);
 
         auto geometry = AtlasTextOp::Geometry::Make(*this,
-                                                    drawMatrix,
+                                                    viewMatrix,
                                                     drawOrigin,
                                                     SkIRect::MakeEmpty(),
                                                     std::move(subRunStorage),
@@ -1001,7 +997,7 @@ public:
                                                     sdc->arenaAlloc());
 
         GrRecordingContext* const rContext = sdc->recordingContext();
-        SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
+        SkMatrix positionMatrix = position_matrix(viewMatrix, drawOrigin);
         auto [_, deviceRect] = fVertexFiller.deviceRectAndCheckTransform(positionMatrix);
         GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
                                                  fVertexFiller.opMaskType(),
@@ -1206,27 +1202,25 @@ public:
 
     std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
             const GrClip* clip,
-            const SkMatrixProvider& viewMatrix,
+            const SkMatrix& viewMatrix,
             SkPoint drawOrigin,
             const SkPaint& paint,
             sk_sp<SkRefCnt>&& subRunStorage,
             skgpu::ganesh::SurfaceDrawContext* sdc) const override {
         SkASSERT(this->glyphCount() != 0);
 
-        const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-
         GrPaint grPaint;
         SkPMColor4f drawingColor = calculate_colors(sdc,
                                                     paint,
-                                                    drawMatrix,
+                                                    viewMatrix,
                                                     MaskFormat::kA8,
                                                     &grPaint);
 
         auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
-                calculate_sdf_parameters(*sdc, drawMatrix, fUseLCDText, fAntiAliased);
+                calculate_sdf_parameters(*sdc, viewMatrix, fUseLCDText, fAntiAliased);
 
         auto geometry = AtlasTextOp::Geometry::Make(*this,
-                                                    drawMatrix,
+                                                    viewMatrix,
                                                     drawOrigin,
                                                     SkIRect::MakeEmpty(),
                                                     std::move(subRunStorage),
@@ -1234,7 +1228,7 @@ public:
                                                     sdc->arenaAlloc());
 
         GrRecordingContext* const rContext = sdc->recordingContext();
-        SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
+        SkMatrix positionMatrix = position_matrix(viewMatrix, drawOrigin);
         auto [_, deviceRect] = fVertexFiller.deviceRectAndCheckTransform(positionMatrix);
         GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
                                                  maskType,

@@ -271,7 +271,7 @@ TextBlob::TextBlob(SubRunAllocator&& alloc,
         , fSize(totalMemorySize)
         , fInitialLuminance{initialLuminance} { }
 
-sk_sp<Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
+sk_sp<Slug> MakeSlug(const SkMatrix& drawMatrix,
                      const sktext::GlyphRunList& glyphRunList,
                      const SkPaint& initialPaint,
                      const SkPaint& drawingPaint,

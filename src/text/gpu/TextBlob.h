@@ -25,7 +25,6 @@
 #include <tuple>
 
 class SkCanvas;
-class SkMatrixProvider;
 struct SkPoint;
 struct SkStrikeDeviceInfo;
 
@@ -135,7 +134,7 @@ private:
     Key fKey;
 };
 
-sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
+sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrix& drawMatrix,
                                   const sktext::GlyphRunList& glyphRunList,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint,

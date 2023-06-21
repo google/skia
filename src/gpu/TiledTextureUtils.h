@@ -17,7 +17,6 @@ class SkBitmap;
 struct SkIRect;
 struct SkISize;
 class SkMatrix;
-class SkMatrixProvider;
 class SkPaint;
 struct SkRect;
 struct SkSamplingOptions;

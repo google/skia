@@ -435,9 +435,10 @@ void Device::drawImageQuad(const SkImage* image,
                                                                            : SkTileMode::kClamp;
 
     // Get final CTM matrix
-    SkPreConcatMatrixProvider matrixProvider(this->asMatrixProvider(),
-                                             preViewMatrix ? *preViewMatrix : SkMatrix::I());
-    const SkMatrix& ctm(matrixProvider.localToDevice());
+    SkMatrix ctm = this->localToDevice();
+    if (preViewMatrix) {
+        ctm.preConcat(*preViewMatrix);
+    }
 
     SkSamplingOptions sampling = origSampling;
     if (sampling.mipmap != SkMipmapMode::kNone &&

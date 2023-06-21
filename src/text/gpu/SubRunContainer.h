@@ -22,7 +22,6 @@
 #include <utility>
 
 class SkCanvas;
-class SkMatrixProvider;
 class SkPaint;
 class SkReadBuffer;
 class SkStrikeClient;
@@ -96,7 +95,7 @@ public:
 
     virtual std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
             const GrClip*,
-            const SkMatrixProvider& viewMatrix,
+            const SkMatrix& viewMatrix,
             SkPoint drawOrigin,
             const SkPaint&,
             sk_sp<SkRefCnt>&& subRunStorage,

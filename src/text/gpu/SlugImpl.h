@@ -13,7 +13,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/chromium/Slug.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
@@ -41,7 +40,7 @@ public:
              SkPoint origin);
     ~SlugImpl() override = default;
 
-    static sk_sp<SlugImpl> Make(const SkMatrixProvider& viewMatrix,
+    static sk_sp<SlugImpl> Make(const SkMatrix& viewMatrix,
                                 const sktext::GlyphRunList& glyphRunList,
                                 const SkPaint& initialPaint,
                                 const SkPaint& drawingPaint,

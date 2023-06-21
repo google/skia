@@ -41,7 +41,6 @@ struct SkDrawShadowRec;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
-class SkMatrixProvider;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -373,7 +372,7 @@ public:
      */
     void drawVertices(const GrClip*,
                       GrPaint&& paint,
-                      const SkMatrixProvider& matrixProvider,
+                      const SkMatrix& viewMatrix,
                       sk_sp<SkVertices> vertices,
                       GrPrimitiveType* overridePrimType = nullptr,
                       bool skipColorXform = false);
@@ -381,13 +380,13 @@ public:
     /**
      * Draws a custom mesh with a paint.
      *
-     * @param   paint            describes how to color pixels.
-     * @param   matrixProvider   provides the transformation matrix
-     * @param   mesh             the mesh to draw.
+     * @param   paint      describes how to color pixels.
+     * @param   viewMatrix transformation matrix
+     * @param   mesh       the mesh to draw.
      */
     void drawMesh(const GrClip*,
                   GrPaint&& paint,
-                  const SkMatrixProvider& matrixProvider,
+                  const SkMatrix& viewMatrix,
                   const SkMesh& mesh);
 
     /**
@@ -484,12 +483,12 @@ public:
     /**
      * Draw the text specified by the GlyphRunList.
      *
-     * @param viewMatrix      transformationMatrix
+     * @param viewMatrix      transformation matrix
      * @param glyphRunList    text, text positions, and paint.
      */
     void drawGlyphRunList(SkCanvas*,
                           const GrClip*,
-                          const SkMatrixProvider& viewMatrix,
+                          const SkMatrix& viewMatrix,
                           const sktext::GlyphRunList& glyphRunList,
                           SkStrikeDeviceInfo strikeDeviceInfo,
                           const SkPaint& paint);

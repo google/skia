@@ -108,7 +108,7 @@ public:
     static GrOp::Owner CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext*,
                                            const SkPaint&,
                                            const SkFont&,
-                                           const SkMatrixProvider&,
+                                           const SkMatrix&,
                                            const char* text,
                                            int x,
                                            int y);

@@ -25,7 +25,6 @@
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -330,7 +329,7 @@ void SurfaceDrawContext::willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask
 
 void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
                                           const GrClip* clip,
-                                          const SkMatrixProvider& viewMatrix,
+                                          const SkMatrix& viewMatrix,
                                           const sktext::GlyphRunList& glyphRunList,
                                           SkStrikeDeviceInfo strikeDeviceInfo,
                                           const SkPaint& paint) {
@@ -353,16 +352,15 @@ void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage,
                              sktext::gpu::RendererData) {
-        auto[drawingClip, op] = subRun->makeAtlasTextOp(
-                clip, viewMatrix.localToDevice(), drawOrigin, paint, std::move(subRunStorage),
-                this);
+        auto [drawingClip, op] = subRun->makeAtlasTextOp(
+                clip, viewMatrix, drawOrigin, paint, std::move(subRunStorage), this);
         if (op != nullptr) {
             this->addDrawOp(drawingClip, std::move(op));
         }
     };
 
-    textBlobCache->drawGlyphRunList(canvas, viewMatrix.localToDevice(), glyphRunList, paint,
-        strikeDeviceInfo, atlasDelegate);
+    textBlobCache->drawGlyphRunList(
+            canvas, viewMatrix, glyphRunList, paint, strikeDeviceInfo, atlasDelegate);
 }
 
 void SurfaceDrawContext::drawPaint(const GrClip* clip,
@@ -914,7 +912,7 @@ void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
 
 void SurfaceDrawContext::drawVertices(const GrClip* clip,
                                       GrPaint&& paint,
-                                      const SkMatrixProvider& matrixProvider,
+                                      const SkMatrix& viewMatrix,
                                       sk_sp<SkVertices> vertices,
                                       GrPrimitiveType* overridePrimType,
                                       bool skipColorXform) {
@@ -932,7 +930,7 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
                                       std::move(paint),
                                       std::move(vertices),
                                       overridePrimType,
-                                      matrixProvider,
+                                      viewMatrix,
                                       aaType,
                                       std::move(xform));
     this->addDrawOp(clip, std::move(op));
@@ -940,7 +938,7 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
 
 void SurfaceDrawContext::drawMesh(const GrClip* clip,
                                   GrPaint&& paint,
-                                  const SkMatrixProvider& matrixProvider,
+                                  const SkMatrix& viewMatrix,
                                   const SkMesh& mesh) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -959,7 +957,7 @@ void SurfaceDrawContext::drawMesh(const GrClip* clip,
     GrOp::Owner op = DrawMeshOp::Make(fContext,
                                       std::move(paint),
                                       mesh,
-                                      matrixProvider,
+                                      viewMatrix,
                                       aaType,
                                       std::move(xform));
     this->addDrawOp(clip, std::move(op));

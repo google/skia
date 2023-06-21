@@ -519,13 +519,13 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext* sdc,
                                              const SkPaint& skPaint,
                                              const SkFont& font,
-                                             const SkMatrixProvider& mtxProvider,
+                                             const SkMatrix& ctm,
                                              const char* text,
                                              int x,
                                              int y) {
     size_t textLen = (int)strlen(text);
 
-    SkMatrix drawMatrix(mtxProvider.localToDevice());
+    SkMatrix drawMatrix = ctm;
     drawMatrix.preTranslate(x, y);
     auto drawOrigin = SkPoint::Make(x, y);
     sktext::GlyphRunBuilder builder;
@@ -552,7 +552,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext* 
 
     GrOp::Owner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(
-            nullptr, mtxProvider, glyphRunList.origin(), skPaint, blob, sdc);
+            nullptr, ctm, glyphRunList.origin(), skPaint, blob, sdc);
     return op;
 }
 #endif
@@ -561,7 +561,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext* 
 
 #if GR_TEST_UTILS
 GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
-    SkMatrixProvider matrixProvider(GrTest::TestMatrixInvertible(random));
+    SkMatrix ctm = GrTest::TestMatrixInvertible(random);
 
     SkPaint skPaint;
     skPaint.setColor(random->nextU());
@@ -583,7 +583,7 @@ GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
     int xInt = (random->nextU() % kMaxTrans) * xPos;
     int yInt = (random->nextU() % kMaxTrans) * yPos;
 
-    return skgpu::ganesh::AtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, matrixProvider,
+    return skgpu::ganesh::AtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, ctm,
                                                            text, xInt, yInt);
 }
 #endif

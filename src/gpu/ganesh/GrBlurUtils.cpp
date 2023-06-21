@@ -50,7 +50,6 @@
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ResourceKey.h"
@@ -1750,29 +1749,22 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* rContext,
                                           skgpu::ganesh::SurfaceDrawContext* sdc,
                                           const GrClip* clip,
                                           const SkPaint& paint,
-                                          const SkMatrixProvider& matrixProvider,
+                                          const SkMatrix& ctm,
                                           const GrStyledShape& shape) {
     if (rContext->abandoned()) {
         return;
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(rContext,
-                          sdc->colorInfo(),
-                          paint,
-                          matrixProvider.localToDevice(),
-                          sdc->surfaceProps(),
-                          &grPaint)) {
+    if (!SkPaintToGrPaint(rContext, sdc->colorInfo(), paint, ctm, sdc->surfaceProps(), &grPaint)) {
         return;
     }
 
-    const SkMatrix& viewMatrix(matrixProvider.localToDevice());
     SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     if (mf && !GrFragmentProcessors::IsSupported(mf)) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
-        draw_shape_with_mask_filter(rContext, sdc, clip, std::move(grPaint), viewMatrix, mf, shape);
+        draw_shape_with_mask_filter(rContext, sdc, clip, std::move(grPaint), ctm, mf, shape);
     } else {
-        sdc->drawShape(clip, std::move(grPaint), sdc->chooseAA(paint), viewMatrix,
-                       GrStyledShape(shape));
+        sdc->drawShape(clip, std::move(grPaint), sdc->chooseAA(paint), ctm, GrStyledShape(shape));
     }
 }

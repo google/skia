@@ -27,7 +27,6 @@ class SurfaceDrawContext;
 }
 }  // namespace skgpu
 class GrSWMaskHelper;
-class SkMatrixProvider;
 
 namespace skgpu::ganesh {
 
@@ -52,8 +51,8 @@ public:
         using sk_is_trivially_relocatable = std::true_type;
     };
 
-    // The SkMatrixProvider must outlive the ClipStack.
-    ClipStack(const SkIRect& deviceBounds, const SkMatrixProvider* matrixProvider, bool forceAA);
+    // The ctm must outlive the ClipStack.
+    ClipStack(const SkIRect& deviceBounds, const SkMatrix* ctm, bool forceAA);
 
     ~ClipStack() override;
 
@@ -324,7 +323,7 @@ private:
     mutable GrProxyProvider* fProxyProvider;
 
     const SkIRect            fDeviceBounds;
-    const SkMatrixProvider*  fMatrixProvider;
+    const SkMatrix*          fCTM;
 
     // When there's MSAA, clip elements are applied using the stencil buffer. If a backend cannot
     // disable MSAA per draw, then all elements are effectively AA'ed. Tracking them as such makes

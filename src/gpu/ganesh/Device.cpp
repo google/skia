@@ -56,7 +56,6 @@
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkLatticeIter.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
@@ -278,7 +277,7 @@ Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, DeviceFlags flags)
                        sdc->surfaceProps().isUseDeviceIndependentFonts()))
         , fSurfaceDrawContext(std::move(sdc))
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
-                &this->asMatrixProvider(),
+                &this->localToDevice(),
                 force_aa_clip(fSurfaceDrawContext.get())) {
     if (flags & DeviceFlags::kNeedClear) {
         this->clearAll();
@@ -518,12 +517,11 @@ void Device::drawPoints(SkCanvas::PointMode mode,
         return;
     }
 
-    const SkMatrixProvider* matrixProvider = this;
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->recordingContext(),
                           fSurfaceDrawContext->colorInfo(),
                           paint,
-                          matrixProvider->localToDevice(),
+                          this->localToDevice(),
                           fSurfaceDrawContext->surfaceProps(),
                           &grPaint)) {
         return;
@@ -534,7 +532,7 @@ void Device::drawPoints(SkCanvas::PointMode mode,
                                                       nullptr);
 
     GrPrimitiveType primitiveType = point_mode_to_primitive_type(mode);
-    fSurfaceDrawContext->drawVertices(this->clip(), std::move(grPaint), *matrixProvider,
+    fSurfaceDrawContext->drawVertices(this->clip(), std::move(grPaint), this->localToDevice(),
                                       std::move(vertices), &primitiveType);
 }
 
@@ -551,7 +549,7 @@ void Device::drawRect(const SkRect& rect, const SkPaint& paint) {
         GrStyledShape shape(rect, style);
 
         GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fSurfaceDrawContext.get(),
-                                             this->clip(), paint, this->asMatrixProvider(), shape);
+                                             this->clip(), paint, this->localToDevice(), shape);
         return;
     }
 
@@ -624,7 +622,7 @@ void Device::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         GrStyledShape shape(rrect, style);
 
         GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fSurfaceDrawContext.get(),
-                                             this->clip(), paint, this->asMatrixProvider(), shape);
+                                             this->clip(), paint, this->localToDevice(), shape);
         return;
     }
 
@@ -693,7 +691,7 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
     GrStyledShape shape(path, paint);
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fSurfaceDrawContext.get(), this->clip(),
-                                         paint, this->asMatrixProvider(), shape);
+                                         paint, this->localToDevice(), shape);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -805,7 +803,7 @@ void Device::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool path
     GrStyledShape shape(origSrcPath, paint);
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fSurfaceDrawContext.get(), this->clip(),
-                                         paint, this->asMatrixProvider(), shape);
+                                         paint, this->localToDevice(), shape);
 }
 
 skif::Context Device::createContext(const skif::ContextInfo& ctxInfo) const {
@@ -1050,7 +1048,7 @@ void Device::drawVertices(const SkVertices* vertices,
     }
     fSurfaceDrawContext->drawVertices(this->clip(),
                                       std::move(grPaint),
-                                      this->asMatrixProvider(),
+                                      this->localToDevice(),
                                       sk_ref_sp(const_cast<SkVertices*>(vertices)),
                                       nullptr,
                                       skipColorXform);
@@ -1072,7 +1070,7 @@ void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPain
                              &grPaint)) {
         return;
     }
-    fSurfaceDrawContext->drawMesh(this->clip(), std::move(grPaint), this->asMatrixProvider(), mesh);
+    fSurfaceDrawContext->drawMesh(this->clip(), std::move(grPaint), this->localToDevice(), mesh);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1152,7 +1150,7 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
     } else {
         fSurfaceDrawContext->drawGlyphRunList(canvas,
                                               this->clip(),
-                                              this->asMatrixProvider(),
+                                              this->localToDevice(),
                                               glyphRunList,
                                               this->strikeDeviceInfo(),
                                               drawingPaint);
@@ -1405,7 +1403,7 @@ sk_sp<sktext::gpu::Slug>
 Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint) {
-    return sktext::gpu::SlugImpl::Make(this->asMatrixProvider(),
+    return sktext::gpu::SlugImpl::Make(this->localToDevice(),
                                        glyphRunList,
                                        initialPaint,
                                        drawingPaint,
@@ -1418,14 +1416,13 @@ void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
     SkASSERT(canvas);
     SkASSERT(slug);
     const sktext::gpu::SlugImpl* slugImpl = static_cast<const sktext::gpu::SlugImpl*>(slug);
-    auto matrixProvider = this->asMatrixProvider();
 #if defined(SK_DEBUG)
     if (!fContext->priv().options().fSupportBilerpFromGlyphAtlas) {
         // We can draw a slug if the atlas has padding or if the creation matrix and the
         // drawing matrix are the same. If they are the same, then the Slug will use the direct
         // drawing code and not use bi-lerp.
         SkMatrix slugMatrix = slugImpl->initialPositionMatrix();
-        SkMatrix positionMatrix = matrixProvider.localToDevice();
+        SkMatrix positionMatrix = this->localToDevice();
         positionMatrix.preTranslate(slugImpl->origin().x(), slugImpl->origin().y());
         SkASSERT(slugMatrix == positionMatrix);
     }
@@ -1436,7 +1433,7 @@ void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
                              sk_sp<SkRefCnt> subRunStorage,
                              sktext::gpu::RendererData) {
         auto[drawingClip, op] = subRun->makeAtlasTextOp(
-                this->clip(), matrixProvider.localToDevice(), drawOrigin, paint,
+                this->clip(), this->localToDevice(), drawOrigin, paint,
                 std::move(subRunStorage), fSurfaceDrawContext.get());
         if (op != nullptr) {
             fSurfaceDrawContext->addDrawOp(drawingClip, std::move(op));

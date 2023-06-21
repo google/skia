@@ -1351,7 +1351,7 @@ TextureProxyView Device::readSurfaceView() const {
 sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
                                                            const SkPaint& initialPaint,
                                                            const SkPaint& drawingPaint) {
-    return sktext::gpu::SlugImpl::Make(this->asMatrixProvider(),
+    return sktext::gpu::SlugImpl::Make(this->localToDevice(),
                                        glyphRunList,
                                        initialPaint,
                                        drawingPaint,

@@ -53,16 +53,4 @@ private:
     SkMatrix fLocalToDevice33;  // Cached SkMatrix version of above, for legacy usage
 };
 
-class SkPostTranslateMatrixProvider : public SkMatrixProvider {
-public:
-    SkPostTranslateMatrixProvider(const SkMatrixProvider& parent, SkScalar dx, SkScalar dy)
-            : SkMatrixProvider(SkM44::Translate(dx, dy) * parent.localToDevice44()) {}
-};
-
-class SkPreConcatMatrixProvider : public SkMatrixProvider {
-public:
-    SkPreConcatMatrixProvider(const SkMatrixProvider& parent, const SkMatrix& preMatrix)
-            : SkMatrixProvider(parent.localToDevice44() * SkM44(preMatrix)) {}
-};
-
 #endif

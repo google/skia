@@ -20,7 +20,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -226,10 +225,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
     font.setEdging(SkFont::Edging::kAlias);
 
     const char* text = "a";
-    SkMatrixProvider matrixProvider(SkMatrix::I());
 
     GrOp::Owner op = AtlasTextOp::CreateOpTestingOnly(sdc.get(), paint,
-                                                      font, matrixProvider,
+                                                      font, SkMatrix::I(),
                                                       text, 16, 16);
     if (!op) {
         return;

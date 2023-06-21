@@ -12,7 +12,6 @@ class GrClip;
 class GrPaint;
 class GrRecordingContext;
 class GrStyledShape;
-class SkMatrixProvider;
 class SkMaskFilter;
 class SkMatrix;
 class SkPaint;
@@ -33,7 +32,7 @@ void drawShapeWithMaskFilter(GrRecordingContext*,
                              skgpu::ganesh::SurfaceDrawContext*,
                              const GrClip*,
                              const SkPaint&,
-                             const SkMatrixProvider&,
+                             const SkMatrix&,
                              const GrStyledShape&);
 
 /**

@@ -13,7 +13,6 @@
 
 class GrColorInfo;
 class GrRecordingContext;
-class SkMatrixProvider;
 class SkSurfaceProps;
 
 struct GrFPArgs {

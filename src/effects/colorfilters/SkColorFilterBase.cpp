@@ -9,13 +9,11 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h" // IWYU pragma: keep
 #include "include/core/SkColorType.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkEffectPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
@@ -44,7 +42,6 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
     pipeline.append_constant_color(&alloc, color.vec());
-    SkMatrixProvider matrixProvider(SkMatrix::I());
     SkSurfaceProps props{}; // default OK; colorFilters don't render text
     SkStageRec rec = {&pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, color.unpremul(), props};
 

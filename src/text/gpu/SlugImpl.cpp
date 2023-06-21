@@ -13,7 +13,6 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -73,7 +72,7 @@ SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
     return position_matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 }
 
-sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
+sk_sp<SlugImpl> SlugImpl::Make(const SkMatrix& viewMatrix,
                                const sktext::GlyphRunList& glyphRunList,
                                const SkPaint& initialPaint,
                                const SkPaint& drawingPaint,
@@ -83,8 +82,7 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrixProvider& viewMatrix,
     auto [initializer, _, alloc] =
             SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(subRunSizeHint);
 
-    const SkMatrix positionMatrix =
-            position_matrix(viewMatrix.localToDevice(), glyphRunList.origin());
+    const SkMatrix positionMatrix = position_matrix(viewMatrix, glyphRunList.origin());
 
     auto subRuns = gpu::SubRunContainer::MakeInAlloc(glyphRunList,
                                                 positionMatrix,
