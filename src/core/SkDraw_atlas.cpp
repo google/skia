@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkBlender.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
@@ -34,15 +33,13 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/core/SkVMBlitter.h"
-#include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/SkTransformShader.h"
 
 #include <cstdint>
 #include <optional>
-#include <utility>
 
+class SkBlender;
 class SkBlitter;
 enum class SkBlendMode;
 
@@ -95,101 +92,61 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
     p.setShader(nullptr);
     p.setMaskFilter(nullptr);
 
-    // The RSXForms can't contain perspective - only the CTM cab.
+    // The RSXForms can't contain perspective - only the CTM can.
     const bool perspective = fCTM->hasPerspective();
 
     auto transformShader = alloc.make<SkTransformShader>(*as_SB(atlasShader), perspective);
 
-    auto rpblit = [&]() {
-        SkRasterPipeline pipeline(&alloc);
-        SkSurfaceProps props = SkSurfacePropsCopyOrDefault(fProps);
-        SkStageRec rec = {
-                &pipeline, &alloc, fDst.colorType(), fDst.colorSpace(), p.getColor4f(), props};
-        // We pass an identity matrix here rather than the CTM. The CTM gets folded into the
-        // per-triangle matrix.
-        if (!as_SB(transformShader)->appendRootStages(rec, SkMatrix::I())) {
-            return false;
+    SkRasterPipeline pipeline(&alloc);
+    SkSurfaceProps props = SkSurfacePropsCopyOrDefault(fProps);
+    SkStageRec rec = {&pipeline, &alloc, fDst.colorType(), fDst.colorSpace(),
+                      p.getColor4f(), props};
+    // We pass an identity matrix here rather than the CTM. The CTM gets folded into the
+    // per-triangle matrix.
+    if (!as_SB(transformShader)->appendRootStages(rec, SkMatrix::I())) {
+        return;
+    }
+
+    SkRasterPipeline_UniformColorCtx* uniformCtx = nullptr;
+    SkColorSpaceXformSteps steps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                                 rec.fDstCS, kUnpremul_SkAlphaType);
+    if (colors) {
+        // we will late-bind the values in ctx, once for each color in the loop
+        uniformCtx = alloc.make<SkRasterPipeline_UniformColorCtx>();
+        rec.fPipeline->append(SkRasterPipelineOp::uniform_color_dst, uniformCtx);
+        std::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode();
+        if (!bm.has_value()) {
+            return;
         }
+        SkBlendMode_AppendStages(*bm, rec.fPipeline);
+    }
 
-        SkRasterPipeline_UniformColorCtx* uniformCtx = nullptr;
-        SkColorSpaceXformSteps steps(
-                sk_srgb_singleton(), kUnpremul_SkAlphaType, rec.fDstCS, kUnpremul_SkAlphaType);
+    bool isOpaque = !colors && transformShader->isOpaque();
+    if (p.getAlphaf() != 1) {
+        rec.fPipeline->append(SkRasterPipelineOp::scale_1_float, alloc.make<float>(p.getAlphaf()));
+        isOpaque = false;
+    }
 
+    auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, &alloc,
+                                                 fRC->clipShader());
+    if (!blitter) {
+        return;
+    }
+    SkPath scratchPath;
+
+    for (int i = 0; i < count; ++i) {
         if (colors) {
-            // we will late-bind the values in ctx, once for each color in the loop
-            uniformCtx = alloc.make<SkRasterPipeline_UniformColorCtx>();
-            rec.fPipeline->append(SkRasterPipelineOp::uniform_color_dst, uniformCtx);
-            if (std::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode(); bm.has_value()) {
-                SkBlendMode_AppendStages(*bm, rec.fPipeline);
-            } else {
-                return false;
-            }
+            SkColor4f c4 = SkColor4f::FromColor(colors[i]);
+            steps.apply(c4.vec());
+            load_color(uniformCtx, c4.premul().vec());
         }
 
-        bool isOpaque = !colors && transformShader->isOpaque();
-        if (p.getAlphaf() != 1) {
-            rec.fPipeline->append(SkRasterPipelineOp::scale_1_float,
-                                  alloc.make<float>(p.getAlphaf()));
-            isOpaque = false;
-        }
-
-        auto blitter = SkCreateRasterPipelineBlitter(
-                fDst, p, pipeline, isOpaque, &alloc, fRC->clipShader());
-        if (!blitter) {
-            return false;
-        }
-        SkPath scratchPath;
-
-        for (int i = 0; i < count; ++i) {
-            if (colors) {
-                SkColor4f c4 = SkColor4f::FromColor(colors[i]);
-                steps.apply(c4.vec());
-                load_color(uniformCtx, c4.premul().vec());
-            }
-
-            SkMatrix mx;
-            mx.setRSXform(xform[i]);
-            mx.preTranslate(-textures[i].fLeft, -textures[i].fTop);
-            mx.postConcat(*fCTM);
-            if (transformShader->update(mx)) {
-                fill_rect(mx, *fRC, textures[i], blitter, &scratchPath);
-            }
-        }
-        return true;
-    };
-
-    if (!rpblit()) {
-        SkUpdatableColorShader* colorShader = nullptr;
-        sk_sp<SkShader> shader;
-        if (colors) {
-            colorShader = alloc.make<SkUpdatableColorShader>(fDst.colorSpace());
-            shader = SkShaders::Blend(std::move(blender),
-                                      sk_ref_sp(colorShader),
-                                      sk_ref_sp(transformShader));
-        } else {
-            shader = sk_ref_sp(transformShader);
-        }
-        p.setShader(std::move(shader));
-        // We use identity here and fold the CTM into the update matrix.
-        if (auto blitter = SkVMBlitter::Make(fDst,
-                                             p,
-                                             SkMatrix::I(),
-                                             &alloc,
-                                             fRC->clipShader())) {
-            SkPath scratchPath;
-            for (int i = 0; i < count; ++i) {
-                if (colorShader) {
-                    colorShader->updateColor(colors[i]);
-                }
-
-                SkMatrix mx;
-                mx.setRSXform(xform[i]);
-                mx.preTranslate(-textures[i].fLeft, -textures[i].fTop);
-                mx.postConcat(*fCTM);
-                if (transformShader->update(mx)) {
-                    fill_rect(mx, *fRC, textures[i], blitter, &scratchPath);
-                }
-            }
+        SkMatrix mx;
+        mx.setRSXform(xform[i]);
+        mx.preTranslate(-textures[i].fLeft, -textures[i].fTop);
+        mx.postConcat(*fCTM);
+        if (transformShader->update(mx)) {
+            fill_rect(mx, *fRC, textures[i], blitter, &scratchPath);
         }
     }
 }

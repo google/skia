@@ -688,8 +688,6 @@ BASE_SRCS_ALL = [
     "src/core/SkUnPreMultiply.cpp",
     "src/core/SkVM.cpp",
     "src/core/SkVM.h",
-    "src/core/SkVMBlitter.cpp",
-    "src/core/SkVMBlitter.h",
     "src/core/SkVM_fwd.h",
     "src/core/SkValidationUtils.h",
     "src/core/SkVertState.cpp",

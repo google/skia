@@ -25,7 +25,6 @@
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkSpriteBlitter.h"
-#include "src/core/SkVMBlitter.h"
 
 #include <cstdint>
 #include <cstring>
@@ -238,5 +237,5 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         return blitter;
     }
 
-    return SkVMBlitter::Make(dst, paint, source,left,top, alloc, std::move(clipShader));
+    return nullptr;
 }

@@ -32,7 +32,6 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRegionPriv.h"
-#include "src/core/SkVMBlitter.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>
@@ -735,28 +734,15 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         paint.writable()->setDither(false);
     }
 
-    // Same basic idea used a few times: try SkRP, then try SkVM, then give up with a null-blitter.
-    auto create_SkRP_or_SkVMBlitter = [&]() -> SkBlitter* {
-
-        // We need to make sure that in case RP blitter cannot be created we use VM and
-        // when VM blitter cannot be created we use RP
-        if (auto blitter = SkCreateRasterPipelineBlitter(device,
-                                                         *paint,
-                                                         ctm,
-                                                         alloc,
-                                                         clipShader,
-                                                         props)) {
-            return blitter;
-        }
-        if (auto blitter = SkVMBlitter::Make(device, *paint, ctm, alloc, clipShader)) {
-            return blitter;
-        }
-        return alloc->make<SkNullBlitter>();
+    auto CreateSkRPBlitter = [&]() -> SkBlitter* {
+        auto blitter = SkCreateRasterPipelineBlitter(device, *paint, ctm, alloc, clipShader, props);
+        return blitter ? blitter
+                       : alloc->make<SkNullBlitter>();
     };
 
     // We'll end here for many interesting cases: color spaces, color filters, most color types.
     if (clipShader || !UseLegacyBlitter(device, *paint, ctm)) {
-        return create_SkRP_or_SkVMBlitter();
+        return CreateSkRPBlitter();
     }
 
     // Everything but legacy kN32_SkColorType should already be handled.
@@ -778,7 +764,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
         // Creating the context isn't always possible... try fallbacks before giving up.
         if (!shaderContext) {
-            return create_SkRP_or_SkVMBlitter();
+            return CreateSkRPBlitter();
         }
     }
 

@@ -35,7 +35,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/core/SkVMBlitter.h"
 #include "src/core/SkVertState.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkShaderBase.h"
@@ -285,59 +284,28 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
     SkPaint finalPaint{paint};
     finalPaint.setShader(std::move(blenderShader));
 
-    auto rpblit = [&]() {
-        VertState state(vertexCount, indices, indexCount);
-        VertState::Proc vertProc = state.chooseProc(info.mode());
-        SkSurfaceProps props = SkSurfacePropsCopyOrDefault(fProps);
+    VertState state(vertexCount, indices, indexCount);
+    VertState::Proc vertProc = state.chooseProc(info.mode());
+    SkSurfaceProps props = SkSurfacePropsCopyOrDefault(fProps);
 
-        auto blitter = SkCreateRasterPipelineBlitter(fDst,
-                                                     finalPaint,
-                                                     *ctm,
-                                                     outerAlloc,
-                                                     fRC->clipShader(),
-                                                     props);
-        if (!blitter) {
-            return false;
+    auto blitter = SkCreateRasterPipelineBlitter(fDst,
+                                                 finalPaint,
+                                                 *ctm,
+                                                 outerAlloc,
+                                                 fRC->clipShader(),
+                                                 props);
+    if (!blitter) {
+        return;
+    }
+    while (vertProc(&state)) {
+        if (triColorShader && !triColorShader->update(ctmInverse, positions, dstColors,
+                                                      state.f0, state.f1, state.f2)) {
+            continue;
         }
-        while (vertProc(&state)) {
-            if (triColorShader && !triColorShader->update(ctmInverse, positions, dstColors,
-                                                          state.f0, state.f1, state.f2)) {
-                continue;
-            }
 
-            SkMatrix localM;
-            if (!transformShader || (texture_to_matrix(state, positions, texCoords, &localM) &&
-                                     transformShader->update(SkMatrix::Concat(*fCTM, localM)))) {
-                fill_triangle(state, blitter, *fRC, dev2, dev3);
-            }
-        }
-        return true;
-    };
-
-    if (!rpblit()) {
-        VertState state(vertexCount, indices, indexCount);
-        VertState::Proc vertProc = state.chooseProc(info.mode());
-
-        auto blitter = SkVMBlitter::Make(fDst,
-                                         finalPaint,
-                                         *ctm,
-                                         outerAlloc,
-                                         this->fRC->clipShader());
-        if (!blitter) {
-            return;
-        }
-        while (vertProc(&state)) {
-            SkMatrix localM;
-            if (transformShader && !(texture_to_matrix(state, positions, texCoords, &localM) &&
-                                     transformShader->update(SkMatrix::Concat(*fCTM, localM)))) {
-                continue;
-            }
-
-            if (triColorShader && !triColorShader->update(ctmInverse, positions, dstColors,state.f0,
-                                                          state.f1, state.f2)) {
-                continue;
-            }
-
+        SkMatrix localM;
+        if (!transformShader || (texture_to_matrix(state, positions, texCoords, &localM) &&
+                                 transformShader->update(SkMatrix::Concat(*fCTM, localM)))) {
             fill_triangle(state, blitter, *fRC, dev2, dev3);
         }
     }
