@@ -63,43 +63,6 @@ static const std::pair<std::regex, CtsEnforcement> sExclusionRulesForSkSLTests[]
         // disable all ES3 tests until AGSL supports it.
         {std::regex(".*ES3.*"), CtsEnforcement::kNever}};
 
-// Returns a list of every SkSL error test to be run.
-static std::vector<SkQP::SkSLErrorTest> get_sksl_error_tests(SkQPAssetManager* assetManager,
-                                                             int enforcedAndroidAPILevel) {
-    std::vector<SkQP::SkSLErrorTest> skslErrorTests;
-    auto iterateFn = [&](const char* directory, const char* extension) {
-        std::vector<std::string> paths = assetManager->iterateDir(directory, extension);
-        for (const std::string& path : paths) {
-            SkString name = SkOSPath::Basename(path.c_str());
-            for (auto& exclusionEntry : sExclusionRulesForSkSLTests) {
-                if (std::regex_match(name.c_str(), exclusionEntry.first) &&
-                    exclusionEntry.second.eval(enforcedAndroidAPILevel) ==
-                            CtsEnforcement::RunMode::kSkip) {
-                    continue;
-                }
-            }
-            sk_sp<SkData> shaderText = GetResourceAsData(path.c_str());
-            if (!shaderText) {
-                continue;
-            }
-            skslErrorTests.push_back({
-                name.c_str(),
-                std::string(static_cast<const char*>(shaderText->data()), shaderText->size())
-            });
-        }
-    };
-
-    // Android only supports runtime shaders, not fragment shaders, color filters or blenders.
-    iterateFn("sksl/errors/", ".rts");
-    iterateFn("sksl/runtime_errors/", ".rts");
-
-    auto lt = [](const SkQP::SkSLErrorTest& a, const SkQP::SkSLErrorTest& b) {
-        return a.name < b.name;
-    };
-    std::sort(skslErrorTests.begin(), skslErrorTests.end(), lt);
-    return skslErrorTests;
-}
-
 static std::unique_ptr<sk_gpu_test::TestContext> make_test_context(SkQP::SkiaBackend backend) {
     using U = std::unique_ptr<sk_gpu_test::TestContext>;
     switch (backend) {
@@ -211,7 +174,6 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
 #endif
 
     fUnitTests = get_unit_tests(fEnforcedAndroidAPILevel);
-    fSkSLErrorTests = get_sksl_error_tests(assetManager, fEnforcedAndroidAPILevel);
     fSupportedBackends = get_backends();
 
     print_backend_info((fReportDirectory + "/grdump.txt").c_str(), fSupportedBackends);

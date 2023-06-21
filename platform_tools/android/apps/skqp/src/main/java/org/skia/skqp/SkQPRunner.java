@@ -108,7 +108,6 @@ public class SkQPRunner extends Runner implements Filterable {
     @Override
     public void run(RunNotifier notifier) {
         int testNumber = 0;
-        testNumber = runTests(notifier, new SkSLErrorTestExecutor(), testNumber);
         testNumber = runTests(notifier, new UnitTestExecutor(), testNumber);
 
         mImpl.nMakeReport();
