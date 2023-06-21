@@ -23,7 +23,6 @@
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMaskGamma.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -532,11 +531,10 @@ void SkScalerContext::GenerateImageFromPath(
     sk_bzero(dst.writable_addr(), dst.computeByteSize());
 
     SkDrawBase  draw;
-    SkMatrixProvider matrixProvider(matrix);
     draw.fBlitterChooser = SkA8Blitter_Choose;
     draw.fDst            = dst;
     draw.fRC             = &clip;
-    draw.fMatrixProvider = &matrixProvider;
+    draw.fCTM            = &matrix;
     draw.drawPath(*pathToUse, paint);
 
     switch (mask.fFormat) {

@@ -32,7 +32,6 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskCache.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkResourceCache.h"
@@ -125,13 +124,11 @@ template <typename Proc> bool draw_into_mask(SkMask* mask, const SkRect& bounds,
 
     SkMatrix ctm = SkMatrix::Translate(-SkIntToScalar(dx), -SkIntToScalar(dy));
 
-    SkMatrixProvider matrixProvider(ctm);
-
     SkDrawBase draw;
     draw.fBlitterChooser = SkA8Blitter_Choose;
-    draw.fMatrixProvider = &matrixProvider;
-    draw.fDst            = pm;
-    draw.fRC             = &rclip;
+    draw.fCTM = &ctm;
+    draw.fDst = pm;
+    draw.fRC  = &rclip;
 
     SkPaint paint;
     paint.setAntiAlias(true);

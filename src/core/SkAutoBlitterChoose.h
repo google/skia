@@ -12,7 +12,6 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkDrawBase.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSurfacePriv.h"
 
@@ -23,22 +22,21 @@ class SkPixmap;
 class SkAutoBlitterChoose : SkNoncopyable {
 public:
     SkAutoBlitterChoose() {}
-    SkAutoBlitterChoose(const SkDrawBase& draw, const SkMatrixProvider* matrixProvider,
-                        const SkPaint& paint, bool drawCoverage = false) {
-        this->choose(draw, matrixProvider, paint, drawCoverage);
+    SkAutoBlitterChoose(const SkDrawBase& draw,
+                        const SkMatrix* ctm,
+                        const SkPaint& paint,
+                        bool drawCoverage = false) {
+        this->choose(draw, ctm, paint, drawCoverage);
     }
 
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
 
-    SkBlitter* choose(const SkDrawBase& draw, const SkMatrixProvider* matrixProvider,
+    SkBlitter* choose(const SkDrawBase& draw, const SkMatrix* ctm,
                       const SkPaint& paint, bool drawCoverage = false) {
         SkASSERT(!fBlitter);
-        if (!matrixProvider) {
-            matrixProvider = draw.fMatrixProvider;
-        }
         fBlitter = draw.fBlitterChooser(draw.fDst,
-                                        matrixProvider->localToDevice(),
+                                        ctm ? *ctm : *draw.fCTM,
                                         paint,
                                         &fAlloc,
                                         drawCoverage,
