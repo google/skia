@@ -170,8 +170,8 @@ public:
     virtual const AtlasSubRun* testingOnly_atlasSubRun() const = 0;
 
 protected:
-    enum SubRunType : int;
-    virtual SubRunType subRunType() const = 0;
+    enum SubRunStreamTag : int;
+    virtual SubRunStreamTag subRunStreamTag() const = 0;
     virtual void doFlatten(SkWriteBuffer& buffer) const = 0;
 
 private:
@@ -179,7 +179,7 @@ private:
     SubRunOwner fNext;
 };
 
-// -- SubRunList ---------------------------------------------------------------------------------
+// -- SubRunList -----------------------------------------------------------------------------------
 class SubRunList {
 public:
     class Iterator {

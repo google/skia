@@ -100,17 +100,17 @@ using namespace skglyph;
 //   GrContextOptions.
 
 namespace sktext::gpu {
-// -- SubRunType -----------------------------------------------------------------------------------
-enum SubRun::SubRunType : int {
+// -- SubRunStreamTag ------------------------------------------------------------------------------
+enum SubRun::SubRunStreamTag : int {
     kBad = 0,  // Make this 0 to line up with errors from readInt.
-    kDirectMask,
+    kDirectMaskStreamTag,
 #if !defined(SK_DISABLE_SDF_TEXT)
-    kSDFT,
+    kSDFTStreamTag,
 #endif
-    kTransformMask,
-    kPath,
-    kDrawable,
-    kSubRunTypeCount,
+    kTransformMaskStreamTag,
+    kPathStreamTag,
+    kDrawableStreamTag,
+    kSubRunStreamTagCount,
 };
 
 }  // namespace sktext::gpu
@@ -420,7 +420,7 @@ public:
                                       const SkStrikeClient* client);
 
 protected:
-    SubRunType subRunType() const override { return SubRunType::kPath; }
+    SubRunStreamTag subRunStreamTag() const override { return SubRunStreamTag::kPathStreamTag; }
     void doFlatten(SkWriteBuffer& buffer) const override;
 
 private:
@@ -624,7 +624,7 @@ public:
     const AtlasSubRun* testingOnly_atlasSubRun() const override;
 
 protected:
-    SubRunType subRunType() const override { return SubRunType::kDrawable; }
+    SubRunStreamTag subRunStreamTag() const override { return SubRunStreamTag::kDrawableStreamTag; }
     void doFlatten(SkWriteBuffer& buffer) const override;
 
 private:
@@ -896,7 +896,9 @@ public:
     }
 
 protected:
-    SubRunType subRunType() const override { return SubRunType::kDirectMask; }
+    SubRunStreamTag subRunStreamTag() const override {
+        return SubRunStreamTag::kDirectMaskStreamTag;
+    }
 
     void doFlatten(SkWriteBuffer& buffer) const override {
         fVertexFiller.flatten(buffer);
@@ -1085,7 +1087,9 @@ public:
 #endif  // SK_GRAPHITE
 
 protected:
-    SubRunType subRunType() const override { return SubRunType::kTransformMask; }
+    SubRunStreamTag subRunStreamTag() const override {
+        return SubRunStreamTag::kTransformMaskStreamTag;
+    }
 
     void doFlatten(SkWriteBuffer& buffer) const override {
         fVertexFiller.flatten(buffer);
@@ -1334,7 +1338,7 @@ public:
 #endif  // SK_GRAPHITE
 
 protected:
-    SubRunType subRunType() const override { return SubRunType::kSDFT; }
+    SubRunStreamTag subRunStreamTag() const override { return SubRunStreamTag::kSDFTStreamTag; }
     void doFlatten(SkWriteBuffer& buffer) const override {
         buffer.writeInt(fUseLCDText);
         buffer.writeInt(fAntiAliased);
@@ -1389,7 +1393,7 @@ void add_multi_mask_format(
 namespace sktext::gpu {
 SubRun::~SubRun() = default;
 void SubRun::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(this->subRunType());
+    buffer.writeInt(this->subRunStreamTag());
     this->doFlatten(buffer);
 }
 
@@ -1400,7 +1404,7 @@ SubRunOwner SubRun::MakeFromBuffer(SkReadBuffer& buffer,
                                   SubRunAllocator*,
                                   const SkStrikeClient*);
 
-    static Maker makers[kSubRunTypeCount] = {
+    static Maker makers[kSubRunStreamTagCount] = {
             nullptr,                                             // 0 index is bad.
             DirectMaskSubRun::MakeFromBuffer,
 #if !defined(SK_DISABLE_SDF_TEXT)
@@ -1411,8 +1415,8 @@ SubRunOwner SubRun::MakeFromBuffer(SkReadBuffer& buffer,
             DrawableSubRun::MakeFromBuffer,
     };
     int subRunTypeInt = buffer.readInt();
-    SkASSERT(kBad < subRunTypeInt && subRunTypeInt < kSubRunTypeCount);
-    if (!buffer.validate(kBad < subRunTypeInt && subRunTypeInt < kSubRunTypeCount)) {
+    SkASSERT(kBad < subRunTypeInt && subRunTypeInt < kSubRunStreamTagCount);
+    if (!buffer.validate(kBad < subRunTypeInt && subRunTypeInt < kSubRunStreamTagCount)) {
         return nullptr;
     }
     auto maker = makers[subRunTypeInt];
