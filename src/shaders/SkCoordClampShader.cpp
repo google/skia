@@ -59,33 +59,6 @@ bool SkCoordClampShader::appendStages(const SkStageRec& rec,
     return as_SB(fShader)->appendStages(rec, *childMRec);
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkCoordClampShader::program(skvm::Builder* p,
-                                        skvm::Coord device,
-                                        skvm::Coord local,
-                                        skvm::Color paint,
-                                        const SkShaders::MatrixRec& mRec,
-                                        const SkColorInfo& cinfo,
-                                        skvm::Uniforms* uniforms,
-                                        SkArenaAlloc* alloc) const {
-    std::optional<SkShaders::MatrixRec> childMRec = mRec.apply(p, &local, uniforms);
-    if (!childMRec.has_value()) {
-        return {};
-    }
-    // See comment in appendStages about not marking childMRec with an invalid total matrix.
-
-    auto l = uniforms->pushF(fSubset.left());
-    auto t = uniforms->pushF(fSubset.top());
-    auto r = uniforms->pushF(fSubset.right());
-    auto b = uniforms->pushF(fSubset.bottom());
-
-    local.x = p->clamp(local.x, p->uniformF(l), p->uniformF(r));
-    local.y = p->clamp(local.y, p->uniformF(t), p->uniformF(b));
-
-    return as_SB(fShader)->program(p, device, local, paint, *childMRec, cinfo, uniforms, alloc);
-}
-#endif
-
 #if defined(SK_GRAPHITE)
 void SkCoordClampShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                   skgpu::graphite::PaintParamsKeyBuilder* builder,

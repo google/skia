@@ -93,17 +93,6 @@ private:
 
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const SkShaders::MatrixRec&,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc*) const override;
-#endif  // defined(DELETE_ME_SKVM)
-
 #if defined(SK_GRAPHITE)
     void addYUVImageToKey(const skgpu::graphite::KeyContext&,
                           skgpu::graphite::PaintParamsKeyBuilder*,

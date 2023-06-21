@@ -69,34 +69,6 @@ bool SkColorFilterShader::appendStages(const SkStageRec& rec,
     return true;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkColorFilterShader::program(skvm::Builder* p,
-                                         skvm::Coord device,
-                                         skvm::Coord local,
-                                         skvm::Color paint,
-                                         const SkShaders::MatrixRec& mRec,
-                                         const SkColorInfo& dst,
-                                         skvm::Uniforms* uniforms,
-                                         SkArenaAlloc* alloc) const {
-    // Run the shader.
-    skvm::Color c = as_SB(fShader)->program(p, device, local, paint, mRec, dst, uniforms, alloc);
-    if (!c) {
-        return {};
-    }
-    // Scale that by alpha.
-    if (fAlpha != 1.0f) {
-        skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
-        c.r *= A;
-        c.g *= A;
-        c.b *= A;
-        c.a *= A;
-    }
-
-    // Finally run that through the color filter.
-    return fFilter->program(p,c, dst, uniforms,alloc);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(SK_GRAPHITE)

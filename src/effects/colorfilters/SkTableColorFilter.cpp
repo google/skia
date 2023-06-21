@@ -59,27 +59,6 @@ bool SkTableColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque
     return true;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkTableColorFilter::onProgram(skvm::Builder* p,
-                                          skvm::Color c,
-                                          const SkColorInfo& dst,
-                                          skvm::Uniforms* uniforms,
-                                          SkArenaAlloc*) const {
-    auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
-        skvm::I32 index = to_unorm(8, clamp01(c));
-        skvm::Uniform table = uniforms->pushPtr(bytePtr);
-        return from_unorm(8, gather8(table, index));
-    };
-
-    c = unpremul(c);
-    c.a = apply_table_to_component(c.a, fTable->alphaTable());
-    c.r = apply_table_to_component(c.r, fTable->redTable());
-    c.g = apply_table_to_component(c.g, fTable->greenTable());
-    c.b = apply_table_to_component(c.b, fTable->blueTable());
-    return premul(c);
-}
-#endif
-
 void SkTableColorFilter::flatten(SkWriteBuffer& buffer) const {
     fTable->flatten(buffer);
 }

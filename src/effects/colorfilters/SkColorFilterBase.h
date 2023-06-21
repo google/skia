@@ -52,12 +52,6 @@ public:
     SK_WARN_UNUSED_RESULT
     virtual bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
-#if defined(DELETE_ME_SKVM)
-    SK_WARN_UNUSED_RESULT
-    skvm::Color program(skvm::Builder*, skvm::Color,
-                        const SkColorInfo& dst, skvm::Uniforms*, SkArenaAlloc*) const;
-#endif
-
     /** Returns the flags for this filter. Override in subclasses to return custom flags.
     */
     virtual bool onIsAlphaUnchanged() const { return false; }
@@ -117,11 +111,6 @@ protected:
     virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
 
 private:
-#if defined(DELETE_ME_SKVM)
-    virtual skvm::Color onProgram(skvm::Builder*, skvm::Color,
-                                  const SkColorInfo& dst, skvm::Uniforms*, SkArenaAlloc*) const = 0;
-#endif
-
     friend class SkColorFilter;
 
     using INHERITED = SkFlattenable;

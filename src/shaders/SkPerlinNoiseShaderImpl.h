@@ -304,19 +304,6 @@ public:
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord,
-                        skvm::Coord,
-                        skvm::Color,
-                        const SkShaders::MatrixRec&,
-                        const SkColorInfo&,
-                        skvm::Uniforms*,
-                        SkArenaAlloc*) const override {
-        // Unimplemented
-        return {};
-    }
-#endif
 
     SkPerlinNoiseShader::Type noiseType() const { return fType; }
     int numOctaves() const { return fNumOctaves; }

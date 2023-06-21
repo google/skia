@@ -131,29 +131,6 @@ bool SkWorkingFormatColorFilter::appendStages(const SkStageRec& rec, bool shader
     return true;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkWorkingFormatColorFilter::onProgram(skvm::Builder* p,
-                                                  skvm::Color c,
-                                                  const SkColorInfo& rawDst,
-                                                  skvm::Uniforms* uniforms,
-                                                  SkArenaAlloc* alloc) const {
-    sk_sp<SkColorSpace> dstCS = rawDst.refColorSpace();
-    if (!dstCS) {
-        dstCS = SkColorSpace::MakeSRGB();
-    }
-
-    SkAlphaType workingAT;
-    sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
-
-    SkColorInfo dst = {rawDst.colorType(), kPremul_SkAlphaType, dstCS},
-                working = {rawDst.colorType(), workingAT, workingCS};
-
-    c = SkColorSpaceXformSteps{dst, working}.program(p, uniforms, c);
-    c = as_CFB(fChild)->program(p, c, working, uniforms, alloc);
-    return c ? SkColorSpaceXformSteps{working, dst}.program(p, uniforms, c) : c;
-}
-#endif
-
 SkPMColor4f SkWorkingFormatColorFilter::onFilterColor4f(const SkPMColor4f& origColor,
                                                         SkColorSpace* rawDstCS) const {
     sk_sp<SkColorSpace> dstCS = sk_ref_sp(rawDstCS);

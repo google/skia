@@ -97,35 +97,6 @@ void SkRuntimeBlender::flatten(SkWriteBuffer& buffer) const {
     SkRuntimeEffectPriv::WriteChildEffects(buffer, fChildren);
 }
 
-#ifdef DELETE_ME_SKVM
-skvm::Color SkRuntimeBlender::onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
-                                        const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
-                                        SkArenaAlloc* alloc) const {
-    if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
-        return {};
-    }
-
-    sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
-                                                                        fUniforms,
-                                                                        colorInfo.colorSpace());
-    SkASSERT(inputs);
-
-    SkShaders::MatrixRec mRec(SkMatrix::I());
-    mRec.markTotalMatrixInvalid();
-    RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, mRec, src, colorInfo);
-    std::vector<skvm::Val> uniform = SkRuntimeEffectPriv::MakeSkVMUniforms(p,
-                                                                           uniforms,
-                                                                           fEffect->uniformSize(),
-                                                                           *inputs);
-
-    // Emit the blend function as an SkVM program.
-    skvm::Coord zeroCoord = {p->splat(0.0f), p->splat(0.0f)};
-    return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p,/*debugTrace=*/nullptr,
-                               SkSpan(uniform), /*device=*/zeroCoord, /*local=*/zeroCoord,
-                               src, dst, &callbacks);
-}
-#endif
-
 #if defined(SK_GRAPHITE)
 void SkRuntimeBlender::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,

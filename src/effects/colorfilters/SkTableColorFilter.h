@@ -52,14 +52,6 @@ public:
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Color c,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms,
-                          SkArenaAlloc*) const override;
-#endif
-
     void flatten(SkWriteBuffer& buffer) const override;
 
     const SkBitmap& bitmap() const { return fTable->bitmap(); }

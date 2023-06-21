@@ -90,19 +90,6 @@ bool SkBlendModeColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkBlendModeColorFilter::onProgram(skvm::Builder* p,
-                                              skvm::Color c,
-                                              const SkColorInfo& dstInfo,
-                                              skvm::Uniforms* uniforms,
-                                              SkArenaAlloc*) const {
-    SkPMColor4f color = map_color(fColor, sk_srgb_singleton(), dstInfo.colorSpace());
-    // The blend program operates on this as if it were premul but the API takes an SkColor4f
-    skvm::Color dst = c, src = p->uniformColor({color.fR, color.fG, color.fB, color.fA}, uniforms);
-    return p->blend(fMode, src, dst);
-}
-#endif
-
 #if defined(SK_GRAPHITE)
 void SkBlendModeColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                       skgpu::graphite::PaintParamsKeyBuilder* builder,

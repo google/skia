@@ -100,40 +100,6 @@ bool SkRuntimeColorFilter::appendStages(const SkStageRec& rec, bool) const {
     return false;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkRuntimeColorFilter::onProgram(skvm::Builder* p,
-                                            skvm::Color c,
-                                            const SkColorInfo& colorInfo,
-                                            skvm::Uniforms* uniforms,
-                                            SkArenaAlloc* alloc) const {
-    SkASSERT(SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get()));
-
-    sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(
-            fEffect->uniforms(), fUniforms, colorInfo.colorSpace());
-    SkASSERT(inputs);
-
-    SkShaders::MatrixRec mRec(SkMatrix::I());
-    mRec.markTotalMatrixInvalid();
-    RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, mRec, c, colorInfo);
-    std::vector<skvm::Val> uniform =
-            SkRuntimeEffectPriv::MakeSkVMUniforms(p, uniforms, fEffect->uniformSize(), *inputs);
-
-    // There should be no way for the color filter to use device coords, but we need to supply
-    // something. (Uninitialized values can trigger asserts in skvm::Builder).
-    skvm::Coord zeroCoord = {p->splat(0.0f), p->splat(0.0f)};
-    return SkSL::ProgramToSkVM(*fEffect->fBaseProgram,
-                               fEffect->fMain,
-                               p,
-                               /*debugTrace=*/nullptr,
-                               SkSpan(uniform),
-                               /*device=*/zeroCoord,
-                               /*local=*/zeroCoord,
-                               c,
-                               c,
-                               &callbacks);
-}
-#endif
-
 SkPMColor4f SkRuntimeColorFilter::onFilterColor4f(const SkPMColor4f& color,
                                                   SkColorSpace* dstCS) const {
 #if defined(DELETE_ME_SKVM)

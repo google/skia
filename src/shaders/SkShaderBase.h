@@ -405,36 +405,6 @@ public:
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
-#if defined(DELETE_ME_SKVM)
-    /**
-     * Called at the root of a shader tree to build a VM that produces color. The device coords
-     * should be initialized to the centers of device space pixels being shaded and the inverse of
-     * ctm should be the transform of those coords to local space.
-     */
-    SK_WARN_UNUSED_RESULT
-    skvm::Color rootProgram(skvm::Builder*,
-                            skvm::Coord device,
-                            skvm::Color paint,
-                            const SkMatrix& ctm,
-                            const SkColorInfo& dst,
-                            skvm::Uniforms* uniforms,
-                            SkArenaAlloc* alloc) const;
-
-    /**
-     * Virtualized implementation of above. A note on the local coords param: it must be transformed
-     * by the inverse of the "pending" matrix in MatrixRec to be put in the correct space for this
-     * shader. This is done by calling MatrixRec::apply().
-     */
-    virtual skvm::Color program(skvm::Builder*,
-                                skvm::Coord device,
-                                skvm::Coord local,
-                                skvm::Color paint,
-                                const SkShaders::MatrixRec&,
-                                const SkColorInfo& dst,
-                                skvm::Uniforms*,
-                                SkArenaAlloc*) const = 0;
-#endif  // defined(DELETE_ME_SKVM)
-
 #if defined(SK_GRAPHITE)
     /**
         Add implementation details, for the specified backend, of this SkShader to the

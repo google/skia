@@ -38,17 +38,6 @@ protected:
 
     ShaderType type() const override { return ShaderType::kEmpty; }
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord,
-                        skvm::Coord,
-                        skvm::Color,
-                        const SkShaders::MatrixRec&,
-                        const SkColorInfo&,
-                        skvm::Uniforms*,
-                        SkArenaAlloc*) const override;
-#endif
-
 private:
     friend void ::SkRegisterEmptyShaderFlattenable();
     SK_FLATTENABLE_HOOKS(SkEmptyShader)

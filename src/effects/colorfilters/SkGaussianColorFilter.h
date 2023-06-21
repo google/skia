@@ -52,14 +52,6 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override {}
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Color c,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms*,
-                          SkArenaAlloc*) const override;
-#endif
-
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
 };

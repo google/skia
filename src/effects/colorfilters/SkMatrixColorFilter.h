@@ -50,14 +50,6 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMatrix(float matrix[20]) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color onProgram(skvm::Builder*,
-                          skvm::Color,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms,
-                          SkArenaAlloc*) const override;
-#endif
-
     float fMatrix[20];
     bool fAlphaIsUnchanged;
     Domain fDomain;

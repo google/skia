@@ -29,14 +29,6 @@ public:
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Color c,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms,
-                          SkArenaAlloc* alloc) const override;
-#endif
-
     SkColorFilterBase::Type type() const override {
         return SkColorFilterBase::Type::kColorSpaceXform;
     }

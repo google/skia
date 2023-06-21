@@ -99,11 +99,3 @@ bool SkBlendModeBlender::onAppendStages(const SkStageRec& rec) const {
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }
-
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkBlendModeBlender::onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
-                                          const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
-                                          SkArenaAlloc* alloc) const {
-    return p->blend(fMode, src, dst);
-}
-#endif

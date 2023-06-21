@@ -24,14 +24,6 @@ public:
 
     SkColorFilterBase::Type type() const override { return SkColorFilterBase::Type::kCompose; }
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Color c,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms,
-                          SkArenaAlloc* alloc) const override;
-#endif
-
 #if defined(SK_GRAPHITE)
     void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,

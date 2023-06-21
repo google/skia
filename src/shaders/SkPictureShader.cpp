@@ -310,29 +310,6 @@ bool SkPictureShader::appendStages(const SkStageRec& rec, const SkShaders::Matri
     return as_SB(bitmapShader)->appendStages(rec, mRec);
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkPictureShader::program(skvm::Builder* p,
-                                     skvm::Coord device,
-                                     skvm::Coord local,
-                                     skvm::Color paint,
-                                     const SkShaders::MatrixRec& mRec,
-                                     const SkColorInfo& dst,
-                                     skvm::Uniforms* uniforms,
-                                     SkArenaAlloc* alloc) const {
-    // TODO: We'll need additional plumbing to get the correct props from our callers.
-    SkSurfaceProps props{};
-
-    // Keep bitmapShader alive by using alloc instead of stack memory
-    auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->rasterShader(mRec.totalMatrix(), dst.colorType(), dst.colorSpace(), props);
-    if (!bitmapShader) {
-        return {};
-    }
-
-    return as_SB(bitmapShader)->program(p, device, local, paint, mRec, dst, uniforms, alloc);
-}
-#endif
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT

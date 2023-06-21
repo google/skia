@@ -29,11 +29,6 @@
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #endif
 
-#ifdef DELETE_ME_SKVM
-#include "include/core/SkImageInfo.h"
-#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#endif
-
 class SkArenaAlloc;
 class SkCapabilities;
 class SkColorSpace;
@@ -88,11 +83,7 @@ public:
         if (!effect->allowColorFilter() || !effect->children().empty()) {
             return false;
         }
-#if defined(DELETE_ME_SKVM)
-        return effect->getFilterColorProgram();
-#else
         return true;
-#endif
     }
 
     static uint32_t Hash(const SkRuntimeEffect& effect) {
@@ -140,13 +131,6 @@ public:
                                  skia_private::TArray<SkRuntimeEffect::ChildPtr>* children);
     static void WriteChildEffects(SkWriteBuffer &buffer,
                                   const std::vector<SkRuntimeEffect::ChildPtr> &children);
-
-#ifdef DELETE_ME_SKVM
-    static std::vector<skvm::Val> MakeSkVMUniforms(skvm::Builder*,
-                                                   skvm::Uniforms*,
-                                                   size_t inputSize,
-                                                   const SkData& inputs);
-#endif
 
 #if defined(SK_GRAPHITE)
 static void AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPtr> children,
@@ -225,44 +209,6 @@ private:
     SkSpan<const SkSL::SampleUsage> fSampleUsages;
 };
 #endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-
-#if defined(DELETE_ME_SKVM)
-class RuntimeEffectVMCallbacks : public SkSL::SkVMCallbacks {
-public:
-    RuntimeEffectVMCallbacks(skvm::Builder* builder,
-                             skvm::Uniforms* uniforms,
-                             SkArenaAlloc* alloc,
-                             const std::vector<SkRuntimeEffect::ChildPtr>& children,
-                             const SkShaders::MatrixRec& mRec,
-                             skvm::Color inColor,
-                             const SkColorInfo& colorInfo)
-            : fBuilder(builder)
-            , fUniforms(uniforms)
-            , fAlloc(alloc)
-            , fChildren(children)
-            , fMRec(mRec)
-            , fInColor(inColor)
-            , fColorInfo(colorInfo) {}
-
-    skvm::Color sampleShader(int ix, skvm::Coord coord) override;
-
-    skvm::Color sampleColorFilter(int ix, skvm::Color color) override;
-
-    skvm::Color sampleBlender(int ix, skvm::Color src, skvm::Color dst) override;
-
-    skvm::Color toLinearSrgb(skvm::Color color) override;
-
-    skvm::Color fromLinearSrgb(skvm::Color color) override;
-
-    skvm::Builder* fBuilder;
-    skvm::Uniforms* fUniforms;
-    SkArenaAlloc* fAlloc;
-    const std::vector<SkRuntimeEffect::ChildPtr>& fChildren;
-    const SkShaders::MatrixRec& fMRec;
-    const skvm::Color fInColor;
-    const SkColorInfo& fColorInfo;
-};
-#endif  // defined(DELETE_ME_SKVM)
 
 #endif  // SK_ENABLE_SKSL
 

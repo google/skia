@@ -123,49 +123,6 @@ bool SkRuntimeShader::appendStages(const SkStageRec& rec, const SkShaders::Matri
     return false;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkRuntimeShader::program(skvm::Builder* p,
-                                     skvm::Coord device,
-                                     skvm::Coord local,
-                                     skvm::Color paint,
-                                     const SkShaders::MatrixRec& mRec,
-                                     const SkColorInfo& colorInfo,
-                                     skvm::Uniforms* uniforms,
-                                     SkArenaAlloc* alloc) const {
-    if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
-        return {};
-    }
-
-    sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(
-            fEffect->uniforms(), this->uniformData(colorInfo.colorSpace()), colorInfo.colorSpace());
-    SkASSERT(inputs);
-
-    // Ensure any pending transform is applied before running the runtime shader's code, which
-    // gets to use and manipulate the coordinates.
-    std::optional<SkShaders::MatrixRec> newMRec = mRec.apply(p, &local, uniforms);
-    if (!newMRec.has_value()) {
-        return {};
-    }
-    // We could omit this for children that are only sampled with passthrough coords.
-    newMRec->markTotalMatrixInvalid();
-
-    RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, *newMRec, paint, colorInfo);
-    std::vector<skvm::Val> uniform =
-            SkRuntimeEffectPriv::MakeSkVMUniforms(p, uniforms, fEffect->uniformSize(), *inputs);
-
-    return SkSL::ProgramToSkVM(*fEffect->fBaseProgram,
-                               fEffect->fMain,
-                               p,
-                               fDebugTrace.get(),
-                               SkSpan(uniform),
-                               device,
-                               local,
-                               paint,
-                               paint,
-                               &callbacks);
-}
-#endif
-
 void SkRuntimeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeString(fEffect->source().c_str());
     buffer.writeDataAsByteArray(this->uniformData(nullptr).get());

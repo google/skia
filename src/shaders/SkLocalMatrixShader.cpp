@@ -93,26 +93,6 @@ bool SkLocalMatrixShader::appendStages(const SkStageRec& rec,
     return as_SB(fWrappedShader)->appendStages(rec, mRec.concat(fLocalMatrix));
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkLocalMatrixShader::program(skvm::Builder* p,
-                                         skvm::Coord device,
-                                         skvm::Coord local,
-                                         skvm::Color paint,
-                                         const SkShaders::MatrixRec& mRec,
-                                         const SkColorInfo& dst,
-                                         skvm::Uniforms* uniforms,
-                                         SkArenaAlloc* alloc) const {
-    return as_SB(fWrappedShader)->program(p,
-                                          device,
-                                          local,
-                                          paint,
-                                          mRec.concat(fLocalMatrix),
-                                          dst,
-                                          uniforms,
-                                          alloc);
-}
-#endif
-
 ////////////////////////////////////////////////////////////////////
 
 SkCTMShader::SkCTMShader(sk_sp<SkShader> proxy, const SkMatrix& ctm)
@@ -126,19 +106,6 @@ SkShaderBase::GradientType SkCTMShader::asGradient(GradientInfo* info,
 bool SkCTMShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const {
     return as_SB(fProxyShader)->appendRootStages(rec, fCTM);
 }
-
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkCTMShader::program(skvm::Builder* p,
-                                 skvm::Coord device,
-                                 skvm::Coord local,
-                                 skvm::Color paint,
-                                 const SkShaders::MatrixRec& mRec,
-                                 const SkColorInfo& dst,
-                                 skvm::Uniforms* uniforms,
-                                 SkArenaAlloc* alloc) const {
-    return as_SB(fProxyShader)->rootProgram(p, device, paint, fCTM, dst, uniforms, alloc);
-}
-#endif
 
 sk_sp<SkFlattenable> SkCTMShader::CreateProc(SkReadBuffer& buffer) {
     SkASSERT(false);

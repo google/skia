@@ -103,24 +103,6 @@ bool SkBlendShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
     return true;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkBlendShader::program(skvm::Builder* p,
-                                   skvm::Coord device,
-                                   skvm::Coord local,
-                                   skvm::Color paint,
-                                   const SkShaders::MatrixRec& mRec,
-                                   const SkColorInfo& cinfo,
-                                   skvm::Uniforms* uniforms,
-                                   SkArenaAlloc* alloc) const {
-    skvm::Color d, s;
-    if ((d = as_SB(fDst)->program(p, device, local, paint, mRec, cinfo, uniforms, alloc)) &&
-        (s = as_SB(fSrc)->program(p, device, local, paint, mRec, cinfo, uniforms, alloc))) {
-        return p->blend(fMode, s, d);
-    }
-    return {};
-}
-#endif
-
 #if defined(SK_GRAPHITE)
 void SkBlendShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,

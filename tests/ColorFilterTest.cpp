@@ -153,16 +153,6 @@ DEF_TEST(WorkingFormatFilterFlags, r) {
 }
 
 struct FailureColorFilter final : public SkColorFilterBase {
-#if defined(DELETE_ME_SKVM)
-    skvm::Color onProgram(skvm::Builder*,
-                          skvm::Color c,
-                          const SkColorInfo&,
-                          skvm::Uniforms*,
-                          SkArenaAlloc*) const override {
-        return {};
-    }
-#endif
-
     SkColorFilterBase::Type type() const override { return SkColorFilterBase::Type::kNoop; }
 
     bool appendStages(const SkStageRec&, bool) const override { return false; }

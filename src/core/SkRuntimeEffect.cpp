@@ -452,28 +452,6 @@ void SkRuntimeEffectPriv::WriteChildEffects(
     }
 }
 
-
-#ifdef DELETE_ME_SKVM
-std::vector<skvm::Val> SkRuntimeEffectPriv::MakeSkVMUniforms(skvm::Builder* p,
-                                                             skvm::Uniforms* uniforms,
-                                                             size_t inputSize,
-                                                             const SkData& inputs) {
-    SkASSERTF(!(inputSize & 3), "inputSize was %zu, expected a multiple of 4", inputSize);
-
-    const int32_t* data = reinterpret_cast<const int32_t*>(inputs.data());
-    const size_t uniformCount = inputSize / sizeof(int32_t);
-    std::vector<skvm::Val> uniform;
-    uniform.reserve(uniformCount);
-    for (size_t index = 0; index < uniformCount; ++index) {
-        int32_t bits;
-        memcpy(&bits, data + index, sizeof(int32_t));
-        uniform.push_back(p->uniform32(uniforms->push(bits)).id);
-    }
-
-    return uniform;
-}
-#endif
-
 SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options) {
     SkSL::ProgramSettings settings;
     settings.fInlineThreshold = 0;
@@ -874,64 +852,6 @@ void SkRuntimeEffectPriv::AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPt
     }
 }
 #endif
-
-#if defined(DELETE_ME_SKVM)
-
-skvm::Color RuntimeEffectVMCallbacks::sampleShader(int ix, skvm::Coord coord) {
-    // We haven't tracked device coords and the runtime effect could have arbitrarily
-    // manipulated the passed coords. We should be in a state where any pending matrix was
-    // already applied before the runtime effect's code could have manipulated the coords
-    // and the total matrix from child shader to device space is flagged as unknown.
-    SkASSERT(!fMRec.hasPendingMatrix());
-    SkASSERT(!fMRec.totalMatrixIsValid());
-    if (SkShader* shader = fChildren[ix].shader()) {
-        return as_SB(shader)->program(fBuilder,
-                                      coord,
-                                      coord,
-                                      fInColor,
-                                      fMRec,
-                                      fColorInfo,
-                                      fUniforms,
-                                      fAlloc);
-    }
-    return fInColor;
-}
-
-skvm::Color RuntimeEffectVMCallbacks::sampleColorFilter(int ix, skvm::Color color) {
-    if (SkColorFilter* colorFilter = fChildren[ix].colorFilter()) {
-        return as_CFB(colorFilter)->program(fBuilder, color, fColorInfo, fUniforms, fAlloc);
-    }
-    return color;
-}
-
-skvm::Color RuntimeEffectVMCallbacks::sampleBlender(int ix, skvm::Color src, skvm::Color dst) {
-    if (SkBlender* blender = fChildren[ix].blender()) {
-        return as_BB(blender)->program(fBuilder, src, dst, fColorInfo, fUniforms, fAlloc);
-    }
-    return blend(SkBlendMode::kSrcOver, src, dst);
-}
-
-skvm::Color RuntimeEffectVMCallbacks::toLinearSrgb(skvm::Color color) {
-    if (!fColorInfo.colorSpace()) {
-        // These intrinsics do nothing when color management is disabled
-        return color;
-    }
-    return SkColorSpaceXformSteps{fColorInfo.colorSpace(),    kUnpremul_SkAlphaType,
-                                  sk_srgb_linear_singleton(), kUnpremul_SkAlphaType}
-            .program(fBuilder, fUniforms, color);
-}
-
-skvm::Color RuntimeEffectVMCallbacks::fromLinearSrgb(skvm::Color color) {
-    if (!fColorInfo.colorSpace()) {
-        // These intrinsics do nothing when color management is disabled
-        return color;
-    }
-    return SkColorSpaceXformSteps{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
-                                  fColorInfo.colorSpace(),    kUnpremul_SkAlphaType}
-            .program(fBuilder, fUniforms, color);
-}
-
-#endif  // defined(DELETE_ME_SKVM)
 
 sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(const SkRuntimeEffect* effect,
                                                         UniformsCallback uniformsCallback,

@@ -67,16 +67,6 @@ bool SkColorSpaceXformColorFilter::appendStages(const SkStageRec& rec, bool shad
     return true;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkColorSpaceXformColorFilter::onProgram(skvm::Builder* p,
-                                                    skvm::Color c,
-                                                    const SkColorInfo& dst,
-                                                    skvm::Uniforms* uniforms,
-                                                    SkArenaAlloc* alloc) const {
-    return premul(fSteps.program(p, uniforms, unpremul(c)));
-}
-#endif
-
 void SkColorSpaceXformColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeDataAsByteArray(fSrc->serialize().get());
     buffer.writeDataAsByteArray(fDst->serialize().get());

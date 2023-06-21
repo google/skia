@@ -40,17 +40,6 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const SkShaders::MatrixRec&,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc*) const override;
-#endif
-
     SK_FLATTENABLE_HOOKS(SkColorFilterShader)
 
     sk_sp<SkShader>          fShader;

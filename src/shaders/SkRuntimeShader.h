@@ -59,17 +59,6 @@ public:
 
     bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder* p,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const SkShaders::MatrixRec& mRec,
-                        const SkColorInfo& colorInfo,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc* alloc) const override;
-#endif
-
     void flatten(SkWriteBuffer& buffer) const override;
 
     SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }

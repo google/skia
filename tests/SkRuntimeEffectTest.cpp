@@ -125,8 +125,7 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
 }
 
 DEF_TEST(SkRuntimeEffect_DeadCodeEliminationStackOverflow, r) {
-    // Verify that a deeply-nested loop does not cause stack overflow during SkVM dead-code
-    // elimination.
+    // Verify that a deeply-nested loop does not cause stack overflow during dead-code elimination.
     auto [effect, errorText] = SkRuntimeEffect::MakeForColorFilter(SkString(R"(
         half4 main(half4 color) {
             half value = color.r;
@@ -889,17 +888,6 @@ DEF_TEST(SkRuntimeEffectTraceShader, r) {
         )");
         int center = imageSize / 2;
         std::string dump = effect.trace({center, 1});
-        static constexpr char kSkVMSlotDump[] =
-R"($0 = [main].result (float4 : slot 1/4, L2)
-$1 = [main].result (float4 : slot 2/4, L2)
-$2 = [main].result (float4 : slot 3/4, L2)
-$3 = [main].result (float4 : slot 4/4, L2)
-$4 = p (float2 : slot 1/2, L2)
-$5 = p (float2 : slot 2/2, L2)
-$6 = val (float2 : slot 1/2, L3)
-$7 = val (float2 : slot 2/2, L3)
-F0 = half4 main(float2 p)
-)";
         static constexpr char kSkRPSlotDump[] =
 R"($0 = p (float2 : slot 1/2, L0)
 $1 = p (float2 : slot 2/2, L0)
@@ -929,8 +917,7 @@ exit half4 main(float2 p)
 )", center, center);
         REPORTER_ASSERT(
                 r,
-                skstd::ends_with(dump, expectedTrace) && (skstd::starts_with(dump, kSkVMSlotDump) ||
-                                                          skstd::starts_with(dump, kSkRPSlotDump)),
+                skstd::starts_with(dump, kSkRPSlotDump) && skstd::ends_with(dump, expectedTrace),
                 "Trace does not match expectation for %dx%d:\n%.*s\n",
                 imageSize, imageSize, (int)dump.size(), dump.data());
     }
@@ -952,19 +939,6 @@ DEF_TEST(SkRuntimeEffectTracesAreUnoptimized, r) {
         }
     )");
     std::string dump = effect.trace({1, 1});
-    static constexpr char kSkVMSlotDump[] =
-R"($0 = globalUnreferencedVar (int, L2)
-$1 = [main].result (float4 : slot 1/4, L6)
-$2 = [main].result (float4 : slot 2/4, L6)
-$3 = [main].result (float4 : slot 3/4, L6)
-$4 = [main].result (float4 : slot 4/4, L6)
-$5 = p (float2 : slot 1/2, L6)
-$6 = p (float2 : slot 2/2, L6)
-$7 = localUnreferencedVar (int, L8)
-$8 = [inlinableFunction].result (float, L3)
-F0 = half4 main(float2 p)
-F1 = half inlinableFunction()
-)";
     static constexpr char kSkRPSlotDump[] =
 R"($0 = p (float2 : slot 1/2, L0)
 $1 = p (float2 : slot 2/2, L0)
@@ -1005,8 +979,7 @@ exit half4 main(float2 p)
 )";
     REPORTER_ASSERT(
             r,
-            skstd::ends_with(dump, kExpectedTrace) && (skstd::starts_with(dump, kSkVMSlotDump) ||
-                                                       skstd::starts_with(dump, kSkRPSlotDump)),
+            skstd::starts_with(dump, kSkRPSlotDump) && skstd::ends_with(dump, kExpectedTrace),
             "Trace output does not match expectation:\n%.*s\n", (int)dump.size(), dump.data());
 }
 
@@ -1024,15 +997,6 @@ DEF_TEST(SkRuntimeEffectTraceCodeThatCannotBeUnoptimized, r) {
         }
     )");
     std::string dump = effect.trace({1, 1});
-    static constexpr char kSkVMSlotDump[] =
-R"($0 = [main].result (float4 : slot 1/4, L2)
-$1 = [main].result (float4 : slot 2/4, L2)
-$2 = [main].result (float4 : slot 3/4, L2)
-$3 = [main].result (float4 : slot 4/4, L2)
-$4 = p (float2 : slot 1/2, L2)
-$5 = p (float2 : slot 2/2, L2)
-F0 = half4 main(float2 p)
-)";
     static constexpr char kSkRPSlotDump[] =
 R"($0 = p (float2 : slot 1/2, L0)
 $1 = p (float2 : slot 2/2, L0)
@@ -1059,8 +1023,7 @@ exit half4 main(float2 p)
 )";
     REPORTER_ASSERT(
             r,
-            skstd::ends_with(dump, kExpectedTrace) && (skstd::starts_with(dump, kSkVMSlotDump) ||
-                                                       skstd::starts_with(dump, kSkRPSlotDump)),
+            skstd::starts_with(dump, kSkRPSlotDump) && skstd::ends_with(dump, kExpectedTrace),
             "Trace output does not match expectation:\n%.*s\n", (int)dump.size(), dump.data());
 }
 

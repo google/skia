@@ -70,17 +70,6 @@ protected:
 
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const SkShaders::MatrixRec&,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc*) const override;
-#endif
-
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixShader)
 
@@ -108,17 +97,6 @@ protected:
     void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
 
     bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const override;
-
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder* p,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const SkShaders::MatrixRec& mRec,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc* alloc) const override;
-#endif
 
 private:
     SK_FLATTENABLE_HOOKS(SkCTMShader)

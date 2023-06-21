@@ -117,17 +117,6 @@ protected:
 
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
-#if defined(DELETE_ME_SKVM)
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const SkShaders::MatrixRec&,
-                        const SkColorInfo& dstCS,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc* alloc) const override;
-#endif
-
     virtual void appendGradientStages(SkArenaAlloc* alloc,
                                       SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;

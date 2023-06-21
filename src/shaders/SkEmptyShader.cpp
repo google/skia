@@ -13,19 +13,6 @@
 
 class SkReadBuffer;
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkEmptyShader::program(skvm::Builder*,
-                                   skvm::Coord,
-                                   skvm::Coord,
-                                   skvm::Color,
-                                   const SkShaders::MatrixRec&,
-                                   const SkColorInfo&,
-                                   skvm::Uniforms*,
-                                   SkArenaAlloc*) const {
-    return {};  // signal failure
-}
-#endif
-
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
     return SkShaders::Empty();
 }

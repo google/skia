@@ -42,22 +42,6 @@ bool SkColorFilterBase::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
-                                       const SkColorInfo& dst,
-                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    skvm::F32 original = c.a;
-    if ((c = this->onProgram(p,c, dst, uniforms,alloc))) {
-        if (this->isAlphaUnchanged()) {
-            c.a = original;
-        }
-        return c;
-    }
-    //SkDebugf("cannot program %s\n", this->getTypeName());
-    return {};
-}
-#endif
-
 SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
                                                SkColorSpace* dstCS) const {
     constexpr size_t kEnoughForCommonFilters = 2048;  // big enough for a tiny SkSL program
@@ -75,23 +59,6 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
         pipeline.run(0,0, 1,1);
         return dst;
     }
-
-#if defined(DELETE_ME_SKVM)
-    // This filter doesn't support SkRasterPipeline... try skvm.
-    skvm::Builder b;
-    skvm::Uniforms uni(b.uniform(), 4);
-    SkColor4f uniColor = {color.fR, color.fG, color.fB, color.fA};
-    SkColorInfo dstInfo = {kRGBA_F32_SkColorType, kPremul_SkAlphaType, sk_ref_sp(dstCS)};
-    if (skvm::Color filtered =
-            as_CFB(this)->program(&b, b.uniformColor(uniColor, &uni), dstInfo, &uni, &alloc)) {
-
-        b.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96},
-                b.varying<SkColor4f>(), filtered);
-
-        b.done("filterColor4f").eval(1, uni.buf.data(), &color);
-        return color;
-    }
-#endif
 
     SkDEBUGFAIL("onFilterColor4f unimplemented for this filter");
     return SkPMColor4f{0,0,0,0};
