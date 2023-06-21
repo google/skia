@@ -7,13 +7,23 @@
 
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 
+#include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/Attribute.h"
+#include "src/gpu/graphite/ContextUtils.h"
+#include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
+#include "src/sksl/SkSLProgramKind.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 namespace skgpu::graphite {
 
@@ -429,34 +439,95 @@ static void setup_shader_stage_info(VkShaderStageFlagBits stage,
 
 sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         const VulkanSharedContext* sharedContext,
-        VkShaderModule vertexShader,
-        SkSpan<const Attribute> vertexAttrs,
-        SkSpan<const Attribute> instanceAttrs,
-        VkShaderModule fragShader,
-        DepthStencilSettings stencilSettings,
-        PrimitiveType primitiveType,
-        const BlendInfo& blendInfo,
+        SkSL::Compiler* compiler,
+        const RuntimeEffectDictionary* runtimeDict,
+        const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
+    SkSL::Program::Interface vsInterface, fsInterface;
+    SkSL::ProgramSettings settings;
+    settings.fForceNoRTFlip = true; // TODO: Confirm
+    ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
+
+    const RenderStep* step =
+            sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
+    bool useShadingSsboIndex =
+            sharedContext->caps()->storageBufferPreferred() && step->performsShading();
+
+    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
+                                              sharedContext->shaderCodeDictionary(),
+                                              runtimeDict,
+                                              step,
+                                              pipelineDesc.paintParamsID(),
+                                              useShadingSsboIndex,
+                                              renderPassDesc.fWriteSwizzle);
+    const std::string& fsSkSL = fsSkSLInfo.fSkSL;
+    const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
+
+    bool hasFragment = !fsSkSL.empty();
+    std::string vsSPIRV, fsSPIRV;
+    VkShaderModule fsModule = VK_NULL_HANDLE, vsModule = VK_NULL_HANDLE;
+
+    if (hasFragment) {
+        if (!SkSLToSPIRV(compiler,
+                         fsSkSL,
+                         SkSL::ProgramKind::kGraphiteFragment,
+                         settings,
+                         &fsSPIRV,
+                         &fsInterface,
+                         errorHandler)) {
+            return nullptr;
+        }
+
+        fsModule = createVulkanShaderModule(sharedContext, fsSPIRV, VK_SHADER_STAGE_FRAGMENT_BIT);
+        if (!fsModule) {
+            return nullptr;
+        }
+    }
+
+    if (!SkSLToSPIRV(compiler,
+                     GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
+                               step,
+                               useShadingSsboIndex,
+                               localCoordsNeeded),
+                     SkSL::ProgramKind::kGraphiteVertex,
+                     settings,
+                     &vsSPIRV,
+                     &vsInterface,
+                     errorHandler)) {
+        return nullptr;
+    }
+
+    vsModule = createVulkanShaderModule(sharedContext, vsSPIRV, VK_SHADER_STAGE_VERTEX_BIT);
+    if (!vsModule) {
+        return nullptr;
+    }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     skia_private::STArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     skia_private::STArray<16, VkVertexInputAttributeDescription> attributeDescs;
-    if (vertexAttrs.size() + instanceAttrs.size() >
+    if (step->vertexAttributes().size() + step->instanceAttributes().size() >
         sharedContext->vulkanCaps().maxVertexAttributes()) {
         SKGPU_LOG_W("Requested more than the supported number of vertex attributes");
+        // Clean up shader modules before returning.
+        VULKAN_CALL(sharedContext->interface(),
+            DestroyShaderModule(sharedContext->device(), vsModule, nullptr));
+        if (fsModule != VK_NULL_HANDLE) {
+            VULKAN_CALL(sharedContext->interface(),
+                        DestroyShaderModule(sharedContext->device(), fsModule, nullptr));
+        }
         return nullptr;
     }
-    setup_vertex_input_state(vertexAttrs,
-                             instanceAttrs,
+    setup_vertex_input_state(step->vertexAttributes(),
+                             step->instanceAttributes(),
                              &vertexInputInfo,
                              &bindingDescs,
                              &attributeDescs);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-    setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
+    setup_input_assembly_state(step->primitiveType(), &inputAssemblyInfo);
 
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
-    setup_depth_stencil_state(stencilSettings, &depthStencilInfo);
+    setup_depth_stencil_state(step->depthStencilSettings(), &depthStencilInfo);
 
     VkPipelineViewportStateCreateInfo viewportInfo;
     setup_viewport_scissor_state(&viewportInfo);
@@ -468,7 +539,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     // We will only have one color blend attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];
     VkPipelineColorBlendStateCreateInfo colorBlendInfo;
-    setup_color_blend_state(blendInfo, &colorBlendInfo, attachmentStates);
+    setup_color_blend_state(fsSkSLInfo.fBlendInfo, &colorBlendInfo, attachmentStates);
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
     // TODO: Check for wire frame mode once that is an available context option within graphite.
@@ -476,21 +547,21 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 
     VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
     setup_shader_stage_info(VK_SHADER_STAGE_VERTEX_BIT,
-                            vertexShader,
+                            vsModule,
                             &vertexShaderStageInfo);
     VkPipelineShaderStageCreateInfo fragShaderStageInfo;
     setup_shader_stage_info(VK_SHADER_STAGE_FRAGMENT_BIT,
-                            fragShader,
+                            fsModule,
                             &fragShaderStageInfo);
 
     // TODO: Set up other helpers and structs to populate VkGraphicsPipelineCreateInfo.
 
-    // After setting modules in VkPipelineShaderStageCreateInfo, we can clean them up.
+    // After creating the pipeline object, we can clean up the VkShaderModule(s).
     VULKAN_CALL(sharedContext->interface(),
-                DestroyShaderModule(sharedContext->device(), vertexShader, nullptr));
-    if (fragShader != VK_NULL_HANDLE) {
+                DestroyShaderModule(sharedContext->device(), vsModule, nullptr));
+    if (fsModule != VK_NULL_HANDLE) {
         VULKAN_CALL(sharedContext->interface(),
-                    DestroyShaderModule(sharedContext->device(), fragShader, nullptr));
+                    DestroyShaderModule(sharedContext->device(), fsModule, nullptr));
     }
 
     return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(sharedContext));

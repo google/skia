@@ -15,11 +15,17 @@
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 
+namespace SkSL {
+    class Compiler;
+}
+
 namespace skgpu::graphite {
 
 class Attribute;
-struct RenderPassDesc;
+class GraphicsPipelineDesc;
+class RuntimeEffectDictionary;
 class VulkanSharedContext;
+struct RenderPassDesc;
 
 class VulkanGraphicsPipeline final : public GraphicsPipeline {
 public:
@@ -37,14 +43,10 @@ public:
     inline static constexpr unsigned int kInstanceBufferIndex = 1;
     inline static constexpr unsigned int kNumInputBuffers = 2;
 
-    static sk_sp<VulkanGraphicsPipeline> Make(const VulkanSharedContext* sharedContext,
-                                              VkShaderModule vertexShader,
-                                              SkSpan<const Attribute> vertexAttrs,
-                                              SkSpan<const Attribute> instanceAttrs,
-                                              VkShaderModule fragShader,
-                                              DepthStencilSettings,
-                                              PrimitiveType,
-                                              const BlendInfo&,
+    static sk_sp<VulkanGraphicsPipeline> Make(const VulkanSharedContext*,
+                                              SkSL::Compiler* compiler,
+                                              const RuntimeEffectDictionary*,
+                                              const GraphicsPipelineDesc&,
                                               const RenderPassDesc&);
 
     ~VulkanGraphicsPipeline() override {}
