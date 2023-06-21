@@ -32,7 +32,8 @@ SDFTextRenderStep::SDFTextRenderStep(bool isA8)
         : RenderStep("SDFTextRenderStep",
                      isA8 ? "A8" : "565",
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
-                     /*uniforms=*/{{"deviceMatrix", SkSLType::kFloat4x4},
+                     /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
+                                   {"deviceToLocal", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2},
                                    {"distAdjust", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
@@ -60,8 +61,16 @@ std::string SDFTextRenderStep::vertexSkSL() const {
         "float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));"
         "baseCoords.xy *= float2(size);"
 
-        "stepLocalCoords = strikeToSourceScale*baseCoords + float2(xyPos);"
-        "float4 position = deviceMatrix*float4(stepLocalCoords, 0, 1);"
+        // Sub runs have a decomposed transform and are sometimes already transformed into device
+        // space, in which `subRunCoords` represents the bounds projected to device space without
+        // the local-to-device translation and `subRunDeviceMatrix` contains the translation.
+        "float2 subRunCoords = strikeToSourceScale * baseCoords + float2(xyPos);"
+        "float4 position = subRunDeviceMatrix * float4(subRunCoords, 0, 1);"
+
+        // Calculate the local coords used for shading.
+        // TODO(b/246963258): This is incorrect if the transform has perspective, which would
+        // require a division + a valid z coordinate (which is currently set to 0).
+        "stepLocalCoords = (deviceToLocal * position).xy;"
 
         "unormTexCoords = baseCoords + float2(uvPos);"
         "textureCoords = unormTexCoords * atlasSizeInv;"
@@ -160,7 +169,8 @@ void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     SkASSERT(proxies && numProxies > 0);
 
     // write uniforms
-    gatherer->write(params.transform());
+    gatherer->write(params.transform());  // subRunDeviceMatrix
+    gatherer->write(subRunData.deviceToLocal());
     SkV2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
                                    1.f/proxies[0]->dimensions().height()};
     gatherer->write(atlasDimensionsInverse);

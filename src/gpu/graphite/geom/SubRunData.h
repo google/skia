@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_geom_SubRunData_DEFINED
 #define skgpu_graphite_geom_SubRunData_DEFINED
 
+#include "include/core/SkM44.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 namespace sktext::gpu { class AtlasSubRun; }
@@ -28,15 +29,17 @@ public:
     SubRunData(const sktext::gpu::AtlasSubRun* subRun,
                sk_sp<SkRefCnt> supportDataKeepAlive,
                Rect deviceBounds,
+               const SkM44& deviceToLocal,
                int startGlyphIndex,
                int glyphCount,
                Recorder* recorder)
-        : fSubRun(subRun)
-        , fSupportDataKeepAlive(std::move(supportDataKeepAlive))
-        , fBounds(deviceBounds)
-        , fStartGlyphIndex(startGlyphIndex)
-        , fGlyphCount(glyphCount)
-        , fRecorder(recorder) {}
+            : fSubRun(subRun)
+            , fSupportDataKeepAlive(std::move(supportDataKeepAlive))
+            , fBounds(deviceBounds)
+            , fDeviceToLocal(deviceToLocal)
+            , fStartGlyphIndex(startGlyphIndex)
+            , fGlyphCount(glyphCount)
+            , fRecorder(recorder) {}
 
     ~SubRunData() = default;
 
@@ -45,8 +48,11 @@ public:
     SubRunData& operator=(SubRunData&&) = delete;
     SubRunData& operator=(const SubRunData& that) = default;
 
-    // The bounding box of the subrun data.
+    // The bounding box of the originating AtlasSubRun.
     Rect bounds() const { return fBounds; }
+
+    // The inverse local-to-device matrix.
+    const SkM44& deviceToLocal() const { return fDeviceToLocal; }
 
     // Access the individual elements of the subrun data.
     const sktext::gpu::AtlasSubRun* subRun() const { return fSubRun; }
@@ -60,6 +66,7 @@ private:
     sk_sp<SkRefCnt> fSupportDataKeepAlive;
 
     Rect fBounds;  // bounds of the data stored in the SubRun
+    SkM44 fDeviceToLocal;
     int fStartGlyphIndex;
     int fGlyphCount;
     Recorder* fRecorder; // this SubRun can only be associated with this Recorder's atlas
