@@ -1,1 +1,0 @@
-`SkImageFilters::AlphaThreshold` has been removed. Its only use was in ChromeOS and that usage has been replaced with a `Blend(kSrcIn, input, Picture(region))` filter graph to achieve the same effect.
