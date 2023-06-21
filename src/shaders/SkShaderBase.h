@@ -50,15 +50,16 @@ class PipelineDataGatherer;
 namespace SkShaders {
 /**
  * This is used to accumulate matrices, starting with the CTM, when building up
- * SkRasterPipeline, SkVM, and GrFragmentProcessor by walking the SkShader tree. It avoids
+ * SkRasterPipeline, SkVM, or GrFragmentProcessor by walking the SkShader tree. It avoids
  * adding a matrix multiply for each individual matrix. It also handles the reverse matrix
  * concatenation order required by Android Framework, see b/256873449.
  *
- * This also tracks the dubious concept of a "total matrix", which includes all the matrices
- * encountered during traversal to the current shader, including ones that have already been
- * applied. The total matrix represents the transformation from the current shader's coordinate
- * space to device space. It is dubious because it doesn't account for SkShaders that manipulate
- * the coordinates passed to their children, which may not even be representable by a matrix.
+ * This also tracks the dubious concept of a "total matrix", in the legacy Context/shadeSpan system.
+ * That includes all the matrices encountered during traversal to the current shader, including ones
+ * that have already been applied. The total matrix represents the transformation from the current
+ * shader's coordinate space to device space. It is dubious because it doesn't account for SkShaders
+ * that manipulate the coordinates passed to their children, which may not even be representable by
+ * a matrix.
  *
  * The total matrix is used for mipmap level selection and a filter downgrade optimizations in
  * SkImageShader and sizing of the SkImage created by SkPictureShader. If we can remove usages
@@ -290,21 +291,30 @@ public:
      *  ContextRec acts as a parameter bundle for creating Contexts.
      */
     struct ContextRec {
-        ContextRec(SkAlpha paintAlpha, const SkMatrix& matrix, const SkMatrix* localM,
-                   SkColorType dstColorType, SkColorSpace* dstColorSpace, SkSurfaceProps props)
-            : fMatrix(&matrix)
-            , fLocalMatrix(localM)
-            , fDstColorType(dstColorType)
-            , fDstColorSpace(dstColorSpace)
-            , fProps(props)
-            , fPaintAlpha(paintAlpha) {}
+        ContextRec(SkAlpha paintAlpha,
+                   const SkShaders::MatrixRec& matrixRec,
+                   SkColorType dstColorType,
+                   SkColorSpace* dstColorSpace,
+                   SkSurfaceProps props)
+                : fMatrixRec(matrixRec)
+                , fDstColorType(dstColorType)
+                , fDstColorSpace(dstColorSpace)
+                , fProps(props)
+                , fPaintAlpha(paintAlpha) {}
 
-        const SkMatrix* fMatrix;           // the current matrix in the canvas
-        const SkMatrix* fLocalMatrix;      // optional local matrix
-        SkColorType     fDstColorType;     // the color type of the dest surface
-        SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
-        SkSurfaceProps  fProps;            // props of the dest surface
-        SkAlpha         fPaintAlpha;
+        static ContextRec Concat(const ContextRec& parentRec, const SkMatrix& localM) {
+            return {parentRec.fPaintAlpha,
+                    parentRec.fMatrixRec.concat(localM),
+                    parentRec.fDstColorType,
+                    parentRec.fDstColorSpace,
+                    parentRec.fProps};
+        }
+
+        const SkShaders::MatrixRec fMatrixRec;
+        SkColorType                fDstColorType;   // the color type of the dest surface
+        SkColorSpace*              fDstColorSpace;  // the color space of the dest surface (if any)
+        SkSurfaceProps             fProps;          // props of the dest surface
+        SkAlpha                    fPaintAlpha;
 
         bool isLegacyCompatible(SkColorSpace* shadersColorSpace) const;
     };
@@ -337,14 +347,10 @@ public:
 
         uint8_t         getPaintAlpha() const { return fPaintAlpha; }
         const SkMatrix& getTotalInverse() const { return fTotalInverse; }
-        const SkMatrix& getCTM() const { return fCTM; }
 
     private:
-        SkMatrix    fCTM;
         SkMatrix    fTotalInverse;
         uint8_t     fPaintAlpha;
-
-        using INHERITED = SkNoncopyable;
     };
 
     /**
@@ -378,10 +384,6 @@ public:
      * coords). The default impl creates shadercontext and calls that (not very efficient).
      */
     virtual bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const;
-
-    bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
-                                                   const SkMatrix* localMatrix,
-                                                   SkMatrix* totalInverse) const;
 
     virtual SkImage* onIsAImage(SkMatrix*, SkTileMode[2]) const {
         return nullptr;

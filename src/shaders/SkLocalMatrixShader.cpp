@@ -6,7 +6,6 @@
  */
 #include "src/shaders/SkLocalMatrixShader.h"
 
-#include "src/base/SkTLazy.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -63,18 +62,9 @@ void SkLocalMatrixShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
-SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
-    const ContextRec& rec, SkArenaAlloc* alloc) const
-{
-    SkTCopyOnFirstWrite<SkMatrix> lm(fLocalMatrix);
-    if (rec.fLocalMatrix) {
-        *lm.writable() = ConcatLocalMatrices(*rec.fLocalMatrix, *lm);
-    }
-
-    ContextRec newRec(rec);
-    newRec.fLocalMatrix = lm;
-
-    return as_SB(fWrappedShader)->makeContext(newRec, alloc);
+SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(const ContextRec& rec,
+                                                          SkArenaAlloc* alloc) const {
+    return as_SB(fWrappedShader)->makeContext(ContextRec::Concat(rec, fLocalMatrix), alloc);
 }
 #endif
 
