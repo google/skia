@@ -1141,6 +1141,7 @@ export interface ParagraphStyle {
     textDirection?: TextDirection;
     textHeightBehavior?: TextHeightBehavior;
     textStyle?: TextStyle;
+    applyRoundingHack?: boolean;
 }
 
 export interface PositionWithAffinity {
