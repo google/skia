@@ -65,7 +65,7 @@ public:
 
     // Forwarded to the wrapped canvas.
     SkISize getBaseLayerSize() const override { return proxy()->getBaseLayerSize(); }
-    GrRecordingContext* recordingContext() override { return proxy()->recordingContext(); }
+    GrRecordingContext* recordingContext() const override { return proxy()->recordingContext(); }
 
 protected:
     /**

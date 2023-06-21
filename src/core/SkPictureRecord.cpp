@@ -47,12 +47,6 @@ SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPictureRecord::onFlush() {
-    size_t size = sizeof(kUInt32Size);
-    size_t initialOffset = this->addDraw(FLUSH, &size);
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::willSave() {
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.

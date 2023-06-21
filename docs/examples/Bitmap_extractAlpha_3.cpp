@@ -14,7 +14,6 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
     offscreen.drawCircle(50, 50, 39, paint);
-    offscreen.flush();
     paint.setMaskFilter(SkMaskFilter::MakeBlur(kOuter_SkBlurStyle, 3));
     SkIPoint offset;
     bitmap.extractAlpha(&alpha, &paint, nullptr, &offset);

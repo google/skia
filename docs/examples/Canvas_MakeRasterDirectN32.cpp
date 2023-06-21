@@ -19,7 +19,6 @@ void draw(SkCanvas* ) {
     SkPMColor pmWhite = pixels[0][0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black
     canvas->drawPoint(1, 1, paint);  // draw in the center
-    canvas->flush();  // ensure that pixels is ready to be read
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             SkDebugf("%c", pixels[y][x] == pmWhite ? '-' : 'x');

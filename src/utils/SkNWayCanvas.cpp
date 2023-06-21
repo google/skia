@@ -405,10 +405,3 @@ void SkNWayCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
                 set, count, dstClips, preViewMatrices, sampling, paint, constraint);
     }
 }
-
-void SkNWayCanvas::onFlush() {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->flush();
-    }
-}
