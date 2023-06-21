@@ -12,6 +12,7 @@ declare_args() {
   skia_android_serial = ""
   skia_compile_modules = false
   skia_compile_sksl_tests = false
+  skia_dwritecore_sdk = ""
   skia_enable_api_available_macro = true
   skia_enable_android_utils = is_skia_dev_build
   skia_enable_discrete_gpu = true

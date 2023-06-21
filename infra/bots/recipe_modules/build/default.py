@@ -78,6 +78,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   clang_linux      = str(api.vars.workdir.join('clang_linux'))
   win_toolchain    = str(api.vars.workdir.join('win_toolchain'))
+  dwritecore       = str(api.vars.workdir.join('dwritecore'))
 
   cc, cxx, ccache = None, None, None
   extra_cflags = []
@@ -313,6 +314,7 @@ def compile_fn(api, checkout_root, out_dir):
     'target_os': 'ios' if 'iOS' in extra_tokens else '',
     'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
     'win_vc': win_toolchain + '/VC' if 'Win' in os else '',
+    'skia_dwritecore_sdk': dwritecore if 'DWriteCore' in extra_tokens else '',
   }.items():
     if v:
       args[k] = '"%s"' % v

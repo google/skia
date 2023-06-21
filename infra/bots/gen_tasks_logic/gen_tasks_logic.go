@@ -1321,6 +1321,9 @@ func (b *jobBuilder) compile() string {
 				if b.compiler("Clang") {
 					b.asset("clang_win")
 				}
+				if b.extraConfig("DWriteCore") {
+					b.asset("dwritecore")
+				}
 			} else if b.matchOs("Mac") {
 				b.cipd(CIPD_PKGS_XCODE...)
 				b.Spec.Caches = append(b.Spec.Caches, &specs.Cache{
@@ -1637,6 +1640,10 @@ func (b *taskBuilder) commonTestPerfAssets() {
 				b.asset("mesa_intel_driver_linux")
 			}
 		}
+	}
+
+	if b.matchOs("Win") && b.extraConfig("DWriteCore") {
+		b.asset("dwritecore")
 	}
 }
 
