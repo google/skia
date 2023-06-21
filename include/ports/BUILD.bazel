@@ -5,18 +5,48 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_filegroup(
+    name = "android_fontmgr_hdrs",
+    srcs = ["SkFontMgr_android.h"],
+)
+
+skia_filegroup(
+    name = "directory_fontmgr_hdrs",
+    srcs = ["SkFontMgr_directory.h"],
+)
+
+skia_filegroup(
+    name = "embedded_fontmgr_hdrs",
+    srcs = ["SkFontMgr_data.h"],
+)
+
+skia_filegroup(
+    name = "empty_fontmgr_hdrs",
+    srcs = ["SkFontMgr_empty.h"],
+)
+
+skia_filegroup(
+    name = "fontconfig_fontmgr_hdrs",
+    srcs = ["SkFontMgr_fontconfig.h"],
+)
+
+skia_filegroup(
+    name = "fci_fontmgr_hdrs",
+    srcs = [
+        "SkFontConfigInterface.h",
+        "SkFontMgr_FontConfigInterface.h",
+    ],
+)
+
+skia_filegroup(
     name = "fontmgr",
     srcs = select_multi(
         {
-            "//bazel/common_config_settings:uses_android_fontmgr": ["SkFontMgr_android.h"],
-            "//bazel/common_config_settings:uses_custom_directory_fontmgr": ["SkFontMgr_directory.h"],
-            "//bazel/common_config_settings:uses_custom_embedded_fontmgr": ["SkFontMgr_data.h"],
-            "//bazel/common_config_settings:uses_custom_empty_fontmgr": ["SkFontMgr_empty.h"],
-            "//bazel/common_config_settings:uses_fontconfig_fontmgr": ["SkFontMgr_fontconfig.h"],
-            "//bazel/common_config_settings:uses_fci_fontmgr": [
-                "SkFontConfigInterface.h",
-                "SkFontMgr_FontConfigInterface.h",
-            ],
+            "//bazel/common_config_settings:uses_android_fontmgr": [":android_fontmgr_hdrs"],
+            "//bazel/common_config_settings:uses_custom_directory_fontmgr": [":directory_fontmgr_hdrs"],
+            "//bazel/common_config_settings:uses_custom_embedded_fontmgr": [":embedded_fontmgr_hdrs"],
+            "//bazel/common_config_settings:uses_custom_empty_fontmgr": [":empty_fontmgr_hdrs"],
+            "//bazel/common_config_settings:uses_fontconfig_fontmgr": [":fontconfig_fontmgr_hdrs"],
+            "//bazel/common_config_settings:uses_fci_fontmgr": [":fci_fontmgr_hdrs"],
             # TODO(kjlubick, bungeman) fuchsia_fontmgr, fontmgr_mac_ct, fontmgr_win
         },
     ),

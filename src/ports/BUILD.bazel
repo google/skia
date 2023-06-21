@@ -94,6 +94,13 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "fontmgr_android_hdrs",
+    srcs = [
+        "SkFontMgr_android_parser.h",
+    ],
+)
+
+skia_filegroup(
     name = "fontmgr_android_factory",
     srcs = [
         "SkFontMgr_android_factory.cpp",
@@ -287,7 +294,7 @@ skia_filegroup(
         "@platforms//os:ios": ["SkOSFile_ios.h"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:uses_android_fontmgr": ["SkFontMgr_android_parser.h"],
+        "//bazel/common_config_settings:uses_android_fontmgr": [":fontmgr_android_hdrs"],
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:uses_fci_fontmgr": [
