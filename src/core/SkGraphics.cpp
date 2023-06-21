@@ -97,8 +97,6 @@ SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory()
     return gSVGDecoderFactory;
 }
 
-extern bool gSkVMAllowJIT;
-
 void SkGraphics::AllowJIT() {
-    gSkVMAllowJIT = true;
+    // SkVM has been removed
 }

@@ -29,9 +29,7 @@ template <typename Fn>
 static void test_jit_and_interpreter(const skvm::Builder& b, Fn&& test) {
     skvm::Program p = b.done();
     test(p);
-    if (p.hasJIT()) {
-        test(b.done(/*debug_name=*/nullptr, /*allow_jit=*/false));
-    }
+    test(b.done(/*debug_name=*/nullptr));
 }
 
 DEF_TEST(SkVM_eliminate_dead_code, r) {
@@ -105,19 +103,6 @@ DEF_TEST(SkVM_memcpy, r) {
         size_t i = std::size(src)-1;
         REPORTER_ASSERT(r, dst[i] == 0);
     });
-}
-
-DEF_TEST(SkVM_allow_jit, r) {
-    skvm::Builder b;
-    {
-        auto src = b.varying<int>(),
-             dst = b.varying<int>();
-        b.store32(dst, b.load32(src));
-    }
-
-    if (b.done("test-allow_jit", /*allow_jit=*/true).hasJIT()) {
-        REPORTER_ASSERT(r, !b.done("", false).hasJIT());
-    }
 }
 
 DEF_TEST(SkVM_LoopCounts, r) {

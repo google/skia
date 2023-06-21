@@ -184,7 +184,7 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
 
     // We'll use this program to filter one color at a time, don't bother with jit
     return std::unique_ptr<SkFilterColorProgram>(
-            new SkFilterColorProgram(p.done(/*debug_name=*/nullptr, /*allow_jit=*/false),
+            new SkFilterColorProgram(p.done(/*debug_name=*/nullptr, false),
                                      std::move(sampleCalls)));
 }
 

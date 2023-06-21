@@ -587,15 +587,10 @@ SkVMBlitter::~SkVMBlitter() {
 }
 
 SkLRUCache<SkVMBlitter::Key, skvm::Program>* SkVMBlitter::TryAcquireProgramCache() {
-#if defined(SKVM_JIT)
-    thread_local static SkLRUCache<Key, skvm::Program> cache{64};
-    return &cache;
-#else
     // iOS now supports thread_local since iOS 9.
     // On the other hand, we'll never be able to JIT there anyway.
     // It's probably fine to not cache any interpreted programs, anywhere.
     return nullptr;
-#endif
 }
 
 SkString SkVMBlitter::DebugName(const Key& key) {
@@ -648,21 +643,6 @@ skvm::Program* SkVMBlitter::buildProgram(Coverage coverage) {
               "%zu, prev was %zu", fUniforms.buf.size(), prev);
 
     skvm::Program program = builder.done(DebugName(key).c_str());
-    if ((false)) {
-        static std::atomic<int> missed{0},
-                                total{0};
-        if (!program.hasJIT()) {
-            SkDebugf("\ncouldn't JIT %s\n", DebugName(key).c_str());
-            builder.dump();
-            program.dump();
-
-            missed++;
-        }
-        if (0 == total++) {
-            atexit([]{ SkDebugf("SkVMBlitter compiled %d programs, %d without JIT.\n",
-                                total.load(), missed.load()); });
-        }
-    }
     fProgramPtrs[coverage] = fPrograms[coverage].set(std::move(program));
     return fProgramPtrs[coverage];
 }

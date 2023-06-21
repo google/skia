@@ -67,7 +67,6 @@ enum class Output {
 #if defined(SK_ENABLE_SKVM)
     kSkVM,     // raw SkVM bytecode
     kSkVMOpt,  // optimized SkVM bytecode
-    kSkVMJIT,  // optimized native assembly code
 #endif
 };
 
@@ -85,7 +84,6 @@ public:
 #if defined(SK_ENABLE_SKVM)
             case Output::kSkVM:    return "skvm_";
             case Output::kSkVMOpt: return "skvm_opt_";
-            case Output::kSkVMJIT: return "skvm_jit_";
 #endif
         }
         SkUNREACHABLE;
@@ -158,8 +156,7 @@ protected:
 #endif
 #if defined(SK_ENABLE_SKVM)
                 case Output::kSkVM:
-                case Output::kSkVMOpt:
-                case Output::kSkVMJIT: SkAssertResult(CompileToSkVM(*program, fOutput)); break;
+                case Output::kSkVMOpt: SkAssertResult(CompileToSkVM(*program, fOutput)); break;
 #endif
             }
         }
@@ -168,13 +165,12 @@ protected:
 #if defined(SK_ENABLE_SKVM)
     static bool CompileToSkVM(const SkSL::Program& program, Output mode) {
         const bool optimize = (mode >= Output::kSkVMOpt);
-        const bool allowJIT = (mode >= Output::kSkVMJIT);
         skvm::Builder builder{skvm::Features{}};
         if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder, /*debugTrace=*/nullptr)) {
             return false;
         }
         if (optimize) {
-            builder.done("SkSLBench", allowJIT);
+            builder.done("SkSLBench");
         }
         return true;
     }
@@ -235,8 +231,7 @@ private:
 #if defined(SK_ENABLE_SKVM)
   #define COMPILER_BENCH_SKVM(name, text) \
   DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVM);)    \
-  DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVMOpt);) \
-  DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVMJIT);)
+  DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVMOpt);)
 #else
   #define COMPILER_BENCH_SKVM(name, text) /* SkVM is disabled; no benchmarking */
 #endif

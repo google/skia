@@ -88,8 +88,7 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
         b.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96},
                 b.varying<SkColor4f>(), filtered);
 
-        const bool allow_jit = false;  // We're only filtering one color, no point JITing.
-        b.done("filterColor4f", allow_jit).eval(1, uni.buf.data(), &color);
+        b.done("filterColor4f").eval(1, uni.buf.data(), &color);
         return color;
     }
 #endif

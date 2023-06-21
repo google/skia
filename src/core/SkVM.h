@@ -22,23 +22,6 @@ class SkWStream;
 
 #if defined(SK_ENABLE_SKVM)
 
-#if defined(SKVM_JIT_WHEN_POSSIBLE) && !defined(SK_BUILD_FOR_IOS)
-    #if defined(__x86_64__) || defined(_M_X64)
-        #if defined(_WIN32) || defined(__linux) || defined(__APPLE__)
-            #define SKVM_JIT
-        #endif
-    #endif
-    #if defined(__aarch64__)
-        #if defined(__ANDROID__) || defined(__APPLE__)
-            #define SKVM_JIT
-        #endif
-    #endif
-#endif
-
-#if 0
-    #undef SKVM_JIT
-#endif
-
 namespace SkSL {
 class TraceHook;
 }
@@ -606,8 +589,7 @@ namespace skvm {
         Builder(bool createDuplicates = false);
         Builder(Features, bool createDuplicates = false);
 
-        Program done(const char* debug_name = nullptr,
-                     bool allow_jit=true) const;
+        Program done(const char* debug_name = nullptr, bool = true) const;
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
@@ -1030,7 +1012,7 @@ namespace skvm {
         Program(const std::vector<OptimizedInstruction>& instructions,
                 const std::vector<int>& strides,
                 const std::vector<SkSL::TraceHook*>& traceHooks,
-                const char* debug_name, bool allow_jit);
+                const char* debug_name, bool);
 
         Program();
         ~Program();
@@ -1057,7 +1039,6 @@ namespace skvm {
         int  loop () const;
         bool empty() const;
 
-        bool hasJIT() const;         // Has this Program been JITted?
         bool hasTraceHooks() const;  // Is this program instrumented for debugging?
 
         void dump(SkWStream* = nullptr) const;
@@ -1065,13 +1046,6 @@ namespace skvm {
 
     private:
         void setupInterpreter(const std::vector<OptimizedInstruction>&);
-        void setupJIT        (const std::vector<OptimizedInstruction>&, const char* debug_name);
-
-        bool jit(const std::vector<OptimizedInstruction>&,
-                 int* stack_hint, uint32_t* registers_used,
-                 Assembler*) const;
-
-        void dropJIT();
 
         struct Impl;
         std::unique_ptr<Impl> fImpl;

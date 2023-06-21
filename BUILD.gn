@@ -776,7 +776,6 @@ if (skia_compile_sksl_tests) {
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
-      ":skvm_jit",
       "//third_party/externals/dawn/src/tint:libtint",
       "//third_party/externals/spirv-tools:spvtools",
       "//third_party/externals/spirv-tools:spvtools_val",
@@ -1367,11 +1366,6 @@ optional("xml") {
             ]
 }
 
-optional("skvm_jit") {
-  enabled = skia_enable_skvm_jit_when_possible
-  public_defines = [ "SKVM_JIT_WHEN_POSSIBLE" ]
-}
-
 if (skia_enable_ganesh && skia_generate_workarounds) {
   action("workaround_list") {
     script = "tools/build_workaround_header.py"
@@ -1433,7 +1427,6 @@ skia_component("skia") {
     ":ndk_images",
     ":png_decode",
     ":raw",
-    ":skvm_jit",
     ":skx",
     ":ssse3",
     ":vello",
