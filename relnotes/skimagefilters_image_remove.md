@@ -1,1 +1,0 @@
-The single-argument `SkImageFilters::Image(sk_sp<SkImage>)` factory is removed. The `SkSamplingOptions` to use when rendering the image during filtering must be provided. `SkFilterMode::kLinear` is recommended over the previous bicubic default.

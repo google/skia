@@ -2,6 +2,49 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 116
+-------------
+  * `SkPromiseImageTexture` has been removed from the public API, as well as
+    `SkImages::PromiseTextureFrom` and `SkImages::PromiseTextureFromYUVA`, public consumers of that
+    data type.
+  * `SkDeferredDisplayList`, `SkDeferredDisplayListRecorder`, and `SkSurfaceCharacterization` have
+    been removed from the public API.
+  * The intermediate color computed by `SkBlenders::Arithmetic` is now always clamped to between 0 and 1 (inclusive), and then `enforcePremul` is applied when that parameter is true.
+  * Added a new public type, `SkColorTable`, to own the lookup tables passed into `SkColorFilters::Table`, which allows clients and the returned `SkColorFilter` to share the table memory instead of having to duplicate it in any wrapper types that lazily create Skia representations.
+  * The deprecated `SkImageFilters::Magnifier` factory that did *not* take a lens bounds parameter has been removed.
+  * `SkImageFilters::RuntimeShader` has variations that take a maximum sample radius, which is used to provide padded input images to the runtime effect so that boundary conditions are avoided.
+  * `SkImageFilters::AlphaThreshold` has been removed. Its only use was in ChromeOS and that usage has been replaced with a `Blend(kSrcIn, input, Picture(region))` filter graph to achieve the same effect.
+  * The single-argument `SkImageFilters::Image(sk_sp<SkImage>)` factory is removed. The `SkSamplingOptions` to use when rendering the image during filtering must be provided. `SkFilterMode::kLinear` is recommended over the previous bicubic default.
+  * `GrTextureGenerator` now has a subclass `GrExternalTextureGenerator` which can be subclassed by
+    clients and used with `SkImages::DeferredFromTextureGenerator` in order to create images from
+    textures that were created outside of skia. `GrTextureGenerator` has been removed from the public
+    API in favor of `GrExternalTextureGenerator`.
+  * SkPoint now uses float for its coordinates. This starts the process of removing SkScalar from Skia.
+    SkScalar was a typedef for float, so this has no practical impact on code that uses Skia.
+  * `SkSamplingOptions(SkFilterMode)` and `SkSamplingOptions(SkCubicResampler)` are no longer marked `explicit` so that samplings can be created inline more succinctly.
+  * `SkShaders` is now a namespace (was previously a non-constructable class with only static
+    functions). `SkPerlinNoiseShader::MakeFractalNoise` and `SkPerlinNoiseShader::MakeTurbulence` have
+    been moved to the `SkShaders` namespace and `SkPerlinNoiseShader` (the public non-constructable
+    class) has been slated for moving into private internals of Skia.
+    There are no functional differences in the moved functions, however the change of some #includes
+    in `include/core/SkShader.h`, `include/effects/SkGradientShader.h`, and
+    `include/effects/SkPerlinNoiseShader.h` may cause clients who were depending on the transitive
+    dependencies to now fail to compile.
+  * The following methods have been removed from SkSurface and relocated to other methods/functions:
+      - `SkSurface::asImage` -> `SkSurfaces::AsImage` (include/gpu/graphite/Surface.h)
+      - `SkSurface::flushAndSubmit` -> `GrDirectContext::flushAndSubmit`
+      - `SkSurface::flush` -> `GrDirectContext::flush`
+      - `SkSurface::makeImageCopy` -> `SkSurfaces::AsImageCopy` (include/gpu/graphite/Surface.h)
+      - `SkSurface::resolveMSAA` -> `SkSurfaces::ResolveMSAA()` (include/gpu/ganesh/SkSurfaceGanesh.h)
+
+    Additionally, `SkSurface::BackendSurfaceAccess` is now in the `SkSurfaces` namespace.
+  * The deprecated `SkTableColorFilter` class and its methods have been removed. Clients should use
+    `SkColorFilters::Table` and `SkColorFilters::TableARGB` (defined in include/core/SkColorFilter.h).
+  * The `SkYUVAPixmapInfo::SupportedDataTypes(const GrImageContext&)` constructor has been removed from
+    the public API.
+
+* * *
+
 Milestone 115
 -------------
   * Clients now need to register codecs which Skia should use to decode raw bytes. For example:
