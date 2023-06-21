@@ -290,15 +290,14 @@ public:
      *  ContextRec acts as a parameter bundle for creating Contexts.
      */
     struct ContextRec {
-        ContextRec(const SkColor4f& paintColor, const SkMatrix& matrix, const SkMatrix* localM,
+        ContextRec(SkAlpha paintAlpha, const SkMatrix& matrix, const SkMatrix* localM,
                    SkColorType dstColorType, SkColorSpace* dstColorSpace, SkSurfaceProps props)
             : fMatrix(&matrix)
             , fLocalMatrix(localM)
             , fDstColorType(dstColorType)
             , fDstColorSpace(dstColorSpace)
-            , fProps(props) {
-                fPaintAlpha = SkColorGetA(paintColor.toSkColor());
-            }
+            , fProps(props)
+            , fPaintAlpha(paintAlpha) {}
 
         const SkMatrix* fMatrix;           // the current matrix in the canvas
         const SkMatrix* fLocalMatrix;      // optional local matrix
