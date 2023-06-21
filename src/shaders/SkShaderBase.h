@@ -199,8 +199,7 @@ private:
     M(Picture)            \
     M(Runtime)            \
     M(Transform)          \
-    M(TriColor)           \
-    M(UpdatableColor)
+    M(TriColor)
 
 #define SK_ALL_GRADIENTS(M) \
     M(Conical)              \

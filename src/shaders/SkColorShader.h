@@ -12,7 +12,6 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/shaders/SkShaderBase.h"
 
 #if defined(SK_GRAPHITE)
@@ -93,23 +92,6 @@ private:
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f fColor;
-};
-
-class SkUpdatableColorShader : public SkShaderBase {
-public:
-    explicit SkUpdatableColorShader(SkColorSpace* cs);
-
-    ShaderType type() const override { return ShaderType::kUpdatableColor; }
-
-    void updateColor(SkColor c) const;
-
-private:
-    // For serialization.  This will never be called.
-    Factory getFactory() const override { return nullptr; }
-    const char* getTypeName() const override { return nullptr; }
-
-    SkColorSpaceXformSteps fSteps;
-    mutable float fValues[4];
 };
 
 #endif

@@ -810,12 +810,6 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkTriColorShade
     return nullptr;
 }
 
-static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkUpdatableColorShader* shader,
-                                                           const GrFPArgs&,
-                                                           const SkShaders::MatrixRec&) {
-    return nullptr;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGradient* shader,

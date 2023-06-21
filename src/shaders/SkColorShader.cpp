@@ -107,19 +107,6 @@ void SkColor4Shader::addToKey(const skgpu::graphite::KeyContext& keyContext,
 }
 #endif
 
-SkUpdatableColorShader::SkUpdatableColorShader(SkColorSpace* cs)
-        : fSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType, cs, kUnpremul_SkAlphaType} {}
-
-void SkUpdatableColorShader::updateColor(SkColor c) const {
-    SkColor4f c4 = SkColor4f::FromColor(c);
-    fSteps.apply(c4.vec());
-    auto cp4 = c4.premul();
-    fValues[0] = cp4.fR;
-    fValues[1] = cp4.fG;
-    fValues[2] = cp4.fB;
-    fValues[3] = cp4.fA;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkRegisterColor4ShaderFlattenable() {
