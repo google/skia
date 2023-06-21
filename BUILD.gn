@@ -51,9 +51,6 @@ config("skia_public") {
   if (skia_enable_sksl_in_raster_pipeline) {
     defines += [ "SK_ENABLE_SKSL_IN_RASTER_PIPELINE" ]
   }
-  if (skia_enable_skvm) {
-    defines += [ "SK_ENABLE_SKVM" ]
-  }
   if (skia_enable_precompile) {
     defines += [ "SK_ENABLE_PRECOMPILE" ]
   }
@@ -744,7 +741,6 @@ if (skia_compile_sksl_tests) {
       "SKSL_ENABLE_TRACING",
       "SKSL_STANDALONE",
       "SK_DISABLE_TRACING",
-      "SK_ENABLE_SKVM",
       "SK_ENABLE_SKSL_IN_RASTER_PIPELINE",
       "SK_ENABLE_SPIRV_CROSS",
       "SK_ENABLE_SPIRV_VALIDATION",

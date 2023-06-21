@@ -23,7 +23,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif // SK_GRAPHITE
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #endif
@@ -59,7 +59,7 @@ bool SkCoordClampShader::appendStages(const SkStageRec& rec,
     return as_SB(fShader)->appendStages(rec, *childMRec);
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkCoordClampShader::program(skvm::Builder* p,
                                         skvm::Coord device,
                                         skvm::Coord local,

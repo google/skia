@@ -16,7 +16,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -29,7 +29,7 @@ bool SkTriColorShader::appendStages(const SkStageRec& rec, const SkShaders::Matr
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkTriColorShader::program(skvm::Builder* b,
                                       skvm::Coord device,
                                       skvm::Coord local,

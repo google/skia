@@ -141,7 +141,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
     if (flags.premul)          { p->append(SkRasterPipelineOp::premul); }
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::F32 sk_program_transfer_fn(
     skvm::F32 v, skcms_TFType tf_type,
     skvm::F32 G, skvm::F32 A, skvm::F32 B, skvm::F32 C, skvm::F32 D, skvm::F32 E, skvm::F32 F)
@@ -226,4 +226,4 @@ skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* un
     }
     return c;
 }
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)

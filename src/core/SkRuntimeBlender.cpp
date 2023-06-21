@@ -97,7 +97,7 @@ void SkRuntimeBlender::flatten(SkWriteBuffer& buffer) const {
     SkRuntimeEffectPriv::WriteChildEffects(buffer, fChildren);
 }
 
-#ifdef SK_ENABLE_SKVM
+#ifdef DELETE_ME_SKVM
 skvm::Color SkRuntimeBlender::onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                                         const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
                                         SkArenaAlloc* alloc) const {

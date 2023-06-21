@@ -117,7 +117,7 @@ protected:
 
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -131,7 +131,7 @@ protected:
     virtual void appendGradientStages(SkArenaAlloc* alloc,
                                       SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     // Produce t from (x,y), modifying mask if it should be anything other than ~0.
     virtual skvm::F32 transformT(skvm::Builder*,
                                  skvm::Uniforms*,

@@ -50,7 +50,7 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMatrix(float matrix[20]) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color onProgram(skvm::Builder*,
                           skvm::Color,
                           const SkColorInfo& dst,

@@ -35,7 +35,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKSL) && defined(SK_ENABLE_SKVM)
+#if defined(SK_ENABLE_SKSL) && defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -59,7 +59,7 @@ bool SkTableColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkTableColorFilter::onProgram(skvm::Builder* p,
                                           skvm::Color c,
                                           const SkColorInfo& dst,

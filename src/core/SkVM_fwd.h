@@ -7,7 +7,7 @@
 
 #ifndef SkVM_fwd_DEFINED
 #define SkVM_fwd_DEFINED
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 namespace skvm {
     class Assembler;
@@ -21,5 +21,5 @@ namespace skvm {
     struct Uniforms;
 }  // namespace skvm
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 #endif  // SkVM_fwd_DEFINED

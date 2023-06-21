@@ -63,7 +63,7 @@ private:
 
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -102,7 +102,7 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord device,
                         skvm::Coord local,
@@ -120,7 +120,7 @@ private:
 class SkUpdatableColorShader : public SkShaderBase {
 public:
     explicit SkUpdatableColorShader(SkColorSpace* cs);
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder* builder,
                         skvm::Coord device,
                         skvm::Coord local,

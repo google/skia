@@ -20,7 +20,7 @@
 
 class SkWStream;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 namespace SkSL {
 class TraceHook;
@@ -1329,5 +1329,5 @@ namespace skvm {
 #undef SI
 }  // namespace skvm
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 #endif  // SkVM_DEFINED

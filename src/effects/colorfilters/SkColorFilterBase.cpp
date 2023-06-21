@@ -26,7 +26,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -42,7 +42,7 @@ bool SkColorFilterBase::onAsAColorMatrix(float matrix[20]) const {
     return false;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
                                        const SkColorInfo& dst,
                                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -76,7 +76,7 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
         return dst;
     }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     // This filter doesn't support SkRasterPipeline... try skvm.
     skvm::Builder b;
     skvm::Uniforms uni(b.uniform(), 4);

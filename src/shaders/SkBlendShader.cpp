@@ -103,7 +103,7 @@ bool SkBlendShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkBlendShader::program(skvm::Builder* p,
                                    skvm::Coord device,
                                    skvm::Coord local,

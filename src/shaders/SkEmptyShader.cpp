@@ -13,7 +13,7 @@
 
 class SkReadBuffer;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkEmptyShader::program(skvm::Builder*,
                                    skvm::Coord,
                                    skvm::Coord,

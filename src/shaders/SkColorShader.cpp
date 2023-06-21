@@ -86,7 +86,7 @@ bool SkColor4Shader::appendStages(const SkStageRec& rec, const SkShaders::Matrix
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkColorShader::program(skvm::Builder* p,
                                    skvm::Coord /*device*/,
                                    skvm::Coord /*local*/,
@@ -114,7 +114,7 @@ skvm::Color SkColor4Shader::program(skvm::Builder* p,
                             dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
     return p->uniformColor(color, uniforms);
 }
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 
 #if defined(SK_GRAPHITE)
 void SkColorShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
@@ -140,7 +140,7 @@ void SkColor4Shader::addToKey(const skgpu::graphite::KeyContext& keyContext,
 SkUpdatableColorShader::SkUpdatableColorShader(SkColorSpace* cs)
         : fSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType, cs, kUnpremul_SkAlphaType} {}
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkUpdatableColorShader::program(skvm::Builder* builder,
                                             skvm::Coord device,
                                             skvm::Coord local,

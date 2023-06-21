@@ -31,7 +31,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "include/core/SkImageInfo.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkVM_fwd.h"
@@ -52,7 +52,7 @@ public:
     SK_WARN_UNUSED_RESULT
     virtual bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     SK_WARN_UNUSED_RESULT
     skvm::Color program(skvm::Builder*, skvm::Color,
                         const SkColorInfo& dst, skvm::Uniforms*, SkArenaAlloc*) const;
@@ -117,7 +117,7 @@ protected:
     virtual bool onAsAColorMode(SkColor* color, SkBlendMode* bmode) const;
 
 private:
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     virtual skvm::Color onProgram(skvm::Builder*, skvm::Color,
                                   const SkColorInfo& dst, skvm::Uniforms*, SkArenaAlloc*) const = 0;
 #endif

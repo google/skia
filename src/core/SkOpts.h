@@ -115,7 +115,7 @@ namespace SkOpts {
     extern size_t raster_pipeline_lowp_stride;
     extern size_t raster_pipeline_highp_stride;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
                                   int nregs, int loop, const int strides[],
                                   SkSL::TraceHook* traceHooks[], int nTraceHooks,

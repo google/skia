@@ -18,7 +18,7 @@
 class SkRuntimeEffect;
 
 #if defined(SK_ENABLE_SKSL)
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 /**
  * Runtime effects are often long lived & cached. Individual color filters or FPs created from them
@@ -62,7 +62,7 @@ private:
     std::vector<SampleCall> fSampleCalls;
 };
 
-#else  // !defined(SK_ENABLE_SKVM)
+#else  // !defined(DELETE_ME_SKVM)
 
 // SkRP does not use SkFilterColorProgram; this stub implementation can be removed post-SkVM.
 class SkFilterColorProgram {
@@ -70,6 +70,6 @@ public:
     static std::unique_ptr<SkFilterColorProgram> Make(const SkRuntimeEffect*) { return nullptr; }
 };
 
-#endif  // SK_ENABLE_SKVM
+#endif  // DELETE_ME_SKVM
 #endif  // SK_ENABLE_SKSL
 #endif  // SkFilterColorProgram_DEFINED

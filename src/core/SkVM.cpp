@@ -28,7 +28,7 @@
 
 using namespace skia_private;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 #if defined(SKSL_STANDALONE)
     // skslc needs to link against this module (for the VM code generator). This module pulls in
@@ -2648,4 +2648,4 @@ namespace skvm {
 
 }  // namespace skvm
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)

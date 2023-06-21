@@ -48,7 +48,7 @@ namespace SkOpts {
         start_pipeline_lowp = SK_OPTS_NS::lowp::start_pipeline;
     #undef M
 
-    #if defined(SK_ENABLE_SKVM)
+    #if defined(DELETE_ME_SKVM)
         interpret_skvm = SK_OPTS_NS::interpret_skvm;
     #endif
     }

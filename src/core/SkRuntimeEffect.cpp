@@ -453,7 +453,7 @@ void SkRuntimeEffectPriv::WriteChildEffects(
 }
 
 
-#ifdef SK_ENABLE_SKVM
+#ifdef DELETE_ME_SKVM
 std::vector<skvm::Val> SkRuntimeEffectPriv::MakeSkVMUniforms(skvm::Builder* p,
                                                              skvm::Uniforms* uniforms,
                                                              size_t inputSize,
@@ -875,7 +875,7 @@ void SkRuntimeEffectPriv::AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPt
 }
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 skvm::Color RuntimeEffectVMCallbacks::sampleShader(int ix, skvm::Coord coord) {
     // We haven't tracked device coords and the runtime effect could have arbitrarily
@@ -931,7 +931,7 @@ skvm::Color RuntimeEffectVMCallbacks::fromLinearSrgb(skvm::Color color) {
             .program(fBuilder, fUniforms, color);
 }
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 
 sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(const SkRuntimeEffect* effect,
                                                         UniformsCallback uniformsCallback,

@@ -92,7 +92,7 @@ bool SkMatrixColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaqu
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkMatrixColorFilter::onProgram(skvm::Builder* p,
                                            skvm::Color c,
                                            const SkColorInfo& /*dst*/,

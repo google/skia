@@ -12,7 +12,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -23,7 +23,7 @@ SkTransformShader::SkTransformShader(const SkShaderBase& shader, bool allowPersp
     SkMatrix::I().get9(fMatrixStorage);
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkTransformShader::program(skvm::Builder* b,
                                        skvm::Coord device,
                                        skvm::Coord local,

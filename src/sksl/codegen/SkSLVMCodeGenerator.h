@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 #include "src/core/SkVM.h"
 #include <cstddef>
@@ -79,5 +79,5 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
 
 }  // namespace SkSL
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 #endif  // SKSL_VMGENERATOR

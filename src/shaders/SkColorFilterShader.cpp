@@ -69,7 +69,7 @@ bool SkColorFilterShader::appendStages(const SkStageRec& rec,
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkColorFilterShader::program(skvm::Builder* p,
                                          skvm::Coord device,
                                          skvm::Coord local,

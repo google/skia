@@ -28,7 +28,7 @@
 
 #include <cinttypes>
 
-#ifdef SK_ENABLE_SKVM
+#ifdef DELETE_ME_SKVM
 
 namespace {
 
@@ -790,4 +790,4 @@ SkVMBlitter* SkVMBlitter::Make(const SkPixmap& device,
     return ok ? blitter : nullptr;
 }
 
-#endif  // SK_ENABLE_SKVM
+#endif  // DELETE_ME_SKVM

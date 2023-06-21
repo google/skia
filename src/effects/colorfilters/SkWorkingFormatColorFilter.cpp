@@ -131,7 +131,7 @@ bool SkWorkingFormatColorFilter::appendStages(const SkStageRec& rec, bool shader
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkWorkingFormatColorFilter::onProgram(skvm::Builder* p,
                                                   skvm::Color c,
                                                   const SkColorInfo& rawDst,

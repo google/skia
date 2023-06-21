@@ -27,7 +27,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 class SkArenaAlloc;
 class SkColorInfo;
@@ -40,7 +40,7 @@ bool SkGaussianColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpa
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkGaussianColorFilter::onProgram(skvm::Builder* p,
                                              skvm::Color c,
                                              const SkColorInfo& dst,

@@ -45,7 +45,7 @@ struct SkColorSpaceXformSteps {
 
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*) const;
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder*, skvm::Uniforms*, skvm::Color) const;
 #endif
 

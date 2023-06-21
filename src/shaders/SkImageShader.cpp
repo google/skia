@@ -68,7 +68,7 @@ static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swiz
 }
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -921,7 +921,7 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
     return append_misc();
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkImageShader::program(skvm::Builder* p,
                                    skvm::Coord device,
                                    skvm::Coord origLocal,

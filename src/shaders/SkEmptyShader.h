@@ -9,7 +9,7 @@
 
 #include "include/core/SkFlattenable.h"
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -38,7 +38,7 @@ protected:
 
     ShaderType type() const override { return ShaderType::kEmpty; }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord,
                         skvm::Coord,

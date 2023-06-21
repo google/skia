@@ -32,7 +32,7 @@ public:
 protected:
     bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder*,
                         skvm::Coord,
                         skvm::Coord,
@@ -85,7 +85,7 @@ private:
     SkMatrix fM33;
     const bool fIsOpaque;
     const bool fUsePersp;  // controls our stages, and what we do in update()
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     mutable skvm::Uniform fColorMatrix;
     mutable skvm::Uniform fCoordMatrix;
 #endif

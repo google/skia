@@ -17,7 +17,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"
 
-#ifdef SK_ENABLE_SKVM
+#ifdef DELETE_ME_SKVM
 
 class SkVMBlitter final : public SkBlitter {
 public:
@@ -143,5 +143,5 @@ public:
     ~SkVMBlitter() override = default;
 };
 
-#endif  // SK_ENABLE_SKVM
+#endif  // DELETE_ME_SKVM
 #endif  // SkVMBlitter_DEFINED

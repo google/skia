@@ -42,7 +42,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "include/core/SkImageInfo.h"
 #include "src/core/SkVM.h"
 #endif
@@ -87,7 +87,7 @@ public:
     std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(const SkStageRec& rec,
                                                          const SkMatrix& postInv = {}) const;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     /**
      * Muls local by the inverse of the pending matrix. 'postInv' is an additional matrix to
      * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
@@ -405,7 +405,7 @@ public:
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     /**
      * Called at the root of a shader tree to build a VM that produces color. The device coords
      * should be initialized to the centers of device space pixels being shaded and the inverse of
@@ -433,7 +433,7 @@ public:
                                 const SkColorInfo& dst,
                                 skvm::Uniforms*,
                                 SkArenaAlloc*) const = 0;
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 
 #if defined(SK_GRAPHITE)
     /**
@@ -476,7 +476,7 @@ protected:
     }
 
 protected:
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
 #endif
 

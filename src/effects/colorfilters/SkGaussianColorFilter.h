@@ -25,7 +25,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 class SkArenaAlloc;
 class SkColorInfo;
@@ -52,7 +52,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override {}
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color onProgram(skvm::Builder* p,
                           skvm::Color c,
                           const SkColorInfo& dst,

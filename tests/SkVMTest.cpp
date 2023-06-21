@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 #include "include/core/SkColorType.h"
 #include "include/core/SkScalar.h"
@@ -2833,4 +2833,4 @@ DEF_TEST(SkVM_duplicates, reporter) {
     }
 }
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)

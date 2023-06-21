@@ -43,7 +43,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkFilterColorProgram.h"
 #endif
 
@@ -496,7 +496,7 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
 
     // We weren't able to run the Raster Pipeline program.
     return color;
-#elif defined(SK_ENABLE_SKVM)
+#elif defined(DELETE_ME_SKVM)
     const SkFilterColorProgram* program = fEffect->getFilterColorProgram();
     SkASSERT(program);
 

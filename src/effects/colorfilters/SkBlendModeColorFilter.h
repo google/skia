@@ -47,7 +47,7 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAsAColorMode(SkColor*, SkBlendMode*) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color onProgram(skvm::Builder*,
                           skvm::Color,
                           const SkColorInfo&,

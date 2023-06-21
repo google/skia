@@ -4,7 +4,7 @@
 #ifndef SkVM_opts_DEFINED
 #define SkVM_opts_DEFINED
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 #include "src/base/SkVx.h"
 #include "src/core/SkVM.h"
@@ -350,5 +350,5 @@ namespace SkVMInterpreterTypes {
 
 }  // namespace SK_OPTS_NS
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 #endif  // SkVM_opts_DEFINED

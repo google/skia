@@ -38,7 +38,7 @@
 #error This only be compiled if SKSL is enabled. See _none.cpp for the non-SKSL version.
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkFilterColorProgram.h"
 #endif
 
@@ -100,7 +100,7 @@ bool SkRuntimeColorFilter::appendStages(const SkStageRec& rec, bool) const {
     return false;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkRuntimeColorFilter::onProgram(skvm::Builder* p,
                                             skvm::Color c,
                                             const SkColorInfo& colorInfo,
@@ -136,7 +136,7 @@ skvm::Color SkRuntimeColorFilter::onProgram(skvm::Builder* p,
 
 SkPMColor4f SkRuntimeColorFilter::onFilterColor4f(const SkPMColor4f& color,
                                                   SkColorSpace* dstCS) const {
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     // Get the generic program for filtering a single color
     if (const SkFilterColorProgram* program = fEffect->getFilterColorProgram()) {
         // Get our specific uniform values

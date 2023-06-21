@@ -29,7 +29,7 @@
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #endif
 
-#ifdef SK_ENABLE_SKVM
+#ifdef DELETE_ME_SKVM
 #include "include/core/SkImageInfo.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #endif
@@ -88,7 +88,7 @@ public:
         if (!effect->allowColorFilter() || !effect->children().empty()) {
             return false;
         }
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
         return effect->getFilterColorProgram();
 #else
         return true;
@@ -141,7 +141,7 @@ public:
     static void WriteChildEffects(SkWriteBuffer &buffer,
                                   const std::vector<SkRuntimeEffect::ChildPtr> &children);
 
-#ifdef SK_ENABLE_SKVM
+#ifdef DELETE_ME_SKVM
     static std::vector<skvm::Val> MakeSkVMUniforms(skvm::Builder*,
                                                    skvm::Uniforms*,
                                                    size_t inputSize,
@@ -226,7 +226,7 @@ private:
 };
 #endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 class RuntimeEffectVMCallbacks : public SkSL::SkVMCallbacks {
 public:
     RuntimeEffectVMCallbacks(skvm::Builder* builder,
@@ -262,7 +262,7 @@ public:
     const skvm::Color fInColor;
     const SkColorInfo& fColorInfo;
 };
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 
 #endif  // SK_ENABLE_SKSL
 

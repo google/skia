@@ -64,7 +64,7 @@ enum class Output {
 #if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
     kSkRP,
 #endif
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     kSkVM,     // raw SkVM bytecode
     kSkVMOpt,  // optimized SkVM bytecode
 #endif
@@ -81,7 +81,7 @@ public:
 #if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
             case Output::kSkRP:    return "skrp_";
 #endif
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
             case Output::kSkVM:    return "skvm_";
             case Output::kSkVMOpt: return "skvm_opt_";
 #endif
@@ -154,7 +154,7 @@ protected:
 #if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
                 case Output::kSkRP:    SkAssertResult(CompileToSkRP(*program)); break;
 #endif
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
                 case Output::kSkVM:
                 case Output::kSkVMOpt: SkAssertResult(CompileToSkVM(*program, fOutput)); break;
 #endif
@@ -162,7 +162,7 @@ protected:
         }
     }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     static bool CompileToSkVM(const SkSL::Program& program, Output mode) {
         const bool optimize = (mode >= Output::kSkVMOpt);
         skvm::Builder builder{skvm::Features{}};
@@ -228,7 +228,7 @@ private:
   #define COMPILER_BENCH_SKRP(name, text) /* SkRP is disabled; no benchmarking */
 #endif
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
   #define COMPILER_BENCH_SKVM(name, text) \
   DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVM);)    \
   DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVMOpt);)

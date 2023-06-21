@@ -123,7 +123,7 @@ bool SkRuntimeShader::appendStages(const SkStageRec& rec, const SkShaders::Matri
     return false;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkRuntimeShader::program(skvm::Builder* p,
                                      skvm::Coord device,
                                      skvm::Coord local,

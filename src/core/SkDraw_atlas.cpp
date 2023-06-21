@@ -47,7 +47,7 @@
 class SkBlitter;
 enum class SkBlendMode;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 class SkColorInfo;
 #endif

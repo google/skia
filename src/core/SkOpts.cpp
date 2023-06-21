@@ -74,7 +74,7 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     DEFINE_DEFAULT(interpret_skvm);
 #endif
 #undef DEFINE_DEFAULT

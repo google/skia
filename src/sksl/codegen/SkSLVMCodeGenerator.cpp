@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
@@ -2304,4 +2304,4 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
 
 }  // namespace SkSL
 
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)

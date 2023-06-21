@@ -25,9 +25,6 @@ GENERAL_DEFINES = [
     "//bazel/common_config_settings:enable_effect_serialization_false": ["SK_DISABLE_EFFECT_DESERIALIZATION"],
     "//conditions:default": [],
 }) + select({
-    "//bazel/common_config_settings:enable_skvm_true": ["SK_ENABLE_SKVM"],
-    "//conditions:default": [],
-}) + select({
     "//bazel/common_config_settings:enable_sksl_in_raster_pipeline_true": ["SK_ENABLE_SKSL_IN_RASTER_PIPELINE"],
     "//conditions:default": [],
 }) + select({
@@ -41,7 +38,6 @@ GENERAL_DEFINES = [
         "SKSL_STANDALONE",
         "SK_DISABLE_TRACING",
         "SK_ENABLE_SKSL_IN_RASTER_PIPELINE",
-        "SK_ENABLE_SKVM",
         "SK_ENABLE_SPIRV_CROSS",
         "SK_ENABLE_SPIRV_VALIDATION",
         "SK_ENABLE_WGSL_VALIDATION",

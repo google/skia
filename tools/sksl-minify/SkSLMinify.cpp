@@ -45,7 +45,7 @@ void SkDebugf(const char format[], ...) {
 
 namespace SkOpts {
     size_t raster_pipeline_highp_stride = 1;
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     decltype(interpret_skvm) interpret_skvm = SK_OPTS_NS::interpret_skvm;
 #endif
 }

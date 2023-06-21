@@ -37,7 +37,7 @@ bool SkComposeColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaq
     return fInner->appendStages(rec, shaderIsOpaque) && fOuter->appendStages(rec, innerIsOpaque);
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkComposeColorFilter::onProgram(skvm::Builder* p,
                                             skvm::Color c,
                                             const SkColorInfo& dst,

@@ -249,7 +249,7 @@ void SkConicalGradient::appendGradientStages(SkArenaAlloc* alloc,
     }
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::F32 SkConicalGradient::transformT(skvm::Builder* p,
                                         skvm::Uniforms* uniforms,
                                         skvm::Coord coord,

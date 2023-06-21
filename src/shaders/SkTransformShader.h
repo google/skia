@@ -24,7 +24,7 @@ class SkTransformShader : public SkShaderBase {
 public:
     explicit SkTransformShader(const SkShaderBase& shader, bool allowPerspective);
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     // Adds instructions to use the mapping stored in the uniforms represented by fMatrix. After
     // generating a new skvm::Coord, it passes the mapped coordinates to fShader's program
     // along with the identity matrix.

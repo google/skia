@@ -59,7 +59,7 @@ public:
 
     bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color program(skvm::Builder* p,
                         skvm::Coord device,
                         skvm::Coord local,

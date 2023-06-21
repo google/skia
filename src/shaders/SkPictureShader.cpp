@@ -310,7 +310,7 @@ bool SkPictureShader::appendStages(const SkStageRec& rec, const SkShaders::Matri
     return as_SB(bitmapShader)->appendStages(rec, mRec);
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkPictureShader::program(skvm::Builder* p,
                                      skvm::Coord device,
                                      skvm::Coord local,

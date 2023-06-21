@@ -53,7 +53,7 @@ std::optional<MatrixRec> MatrixRec::apply(const SkStageRec& rec, const SkMatrix&
                      /*ctmApplied=*/true};
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 std::optional<MatrixRec> MatrixRec::apply(skvm::Builder* p,
                                           skvm::Coord* local,
                                           skvm::Uniforms* uniforms,
@@ -236,7 +236,7 @@ sk_sp<SkShader> SkShaderBase::makeWithCTM(const SkMatrix& postM) const {
     return sk_sp<SkShader>(new SkCTMShader(sk_ref_sp(this), postM));
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkShaderBase::rootProgram(skvm::Builder* p,
                                       skvm::Coord device,
                                       skvm::Color paint,
@@ -276,14 +276,14 @@ skvm::Color SkShaderBase::rootProgram(skvm::Builder* p,
     }
     return {};
 }
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)
 
 // need a cheap way to invert the alpha channel of a shader (i.e. 1 - a)
 sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
     return this->makeWithColorFilter(SkColorFilters::Blend(0xFFFFFFFF, SkBlendMode::kSrcOut));
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p,
                                       const SkMatrix& m,
                                       skvm::Coord coord,
@@ -314,4 +314,4 @@ skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p,
     }
     return {x, y};
 }
-#endif  // defined(SK_ENABLE_SKVM)
+#endif  // defined(DELETE_ME_SKVM)

@@ -90,7 +90,7 @@ bool SkBlendModeColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOp
     return true;
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkBlendModeColorFilter::onProgram(skvm::Builder* p,
                                               skvm::Color c,
                                               const SkColorInfo& dstInfo,

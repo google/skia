@@ -36,7 +36,7 @@ public:
 
     bool onAppendStages(const SkStageRec& rec) const override;
 
-#ifdef SK_ENABLE_SKVM
+#ifdef DELETE_ME_SKVM
     skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
                           SkArenaAlloc* alloc) const override;

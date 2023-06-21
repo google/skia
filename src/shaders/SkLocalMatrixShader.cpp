@@ -93,7 +93,7 @@ bool SkLocalMatrixShader::appendStages(const SkStageRec& rec,
     return as_SB(fWrappedShader)->appendStages(rec, mRec.concat(fLocalMatrix));
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkLocalMatrixShader::program(skvm::Builder* p,
                                          skvm::Coord device,
                                          skvm::Coord local,
@@ -127,7 +127,7 @@ bool SkCTMShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec
     return as_SB(fProxyShader)->appendRootStages(rec, fCTM);
 }
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
 skvm::Color SkCTMShader::program(skvm::Builder* p,
                                  skvm::Coord device,
                                  skvm::Coord local,

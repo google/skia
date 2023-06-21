@@ -32,7 +32,7 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKSL) && defined(SK_ENABLE_SKVM)
+#if defined(SK_ENABLE_SKSL) && defined(DELETE_ME_SKVM)
 #include "src/core/SkVM.h"
 #endif
 
@@ -52,7 +52,7 @@ public:
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
-#if defined(SK_ENABLE_SKVM)
+#if defined(DELETE_ME_SKVM)
     skvm::Color onProgram(skvm::Builder* p,
                           skvm::Color c,
                           const SkColorInfo& dst,
