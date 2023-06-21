@@ -61,6 +61,9 @@ public:
 
     static bool CanDisableMipmap(const SkMatrix& viewM, const SkMatrix& localM);
 
+    static void ClampedOutsetWithOffset(SkIRect* iRect, int outset, SkPoint* offset,
+                                        const SkIRect& clamp);
+
     static void DrawTiledBitmap_Ganesh(SkBaseDevice*,
                                        const SkBitmap&,
                                        int tileSize,

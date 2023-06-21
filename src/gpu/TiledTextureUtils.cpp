@@ -208,4 +208,36 @@ bool TiledTextureUtils::CanDisableMipmap(const SkMatrix& viewM, const SkMatrix& 
     return matrix.getMinScale() >= SK_ScalarRoot2Over2;
 }
 
+
+// This method outsets 'iRect' by 'outset' all around and then clamps its extents to
+// 'clamp'. 'offset' is adjusted to remain positioned over the top-left corner
+// of 'iRect' for all possible outsets/clamps.
+void TiledTextureUtils::ClampedOutsetWithOffset(SkIRect* iRect, int outset, SkPoint* offset,
+                                                const SkIRect& clamp) {
+    iRect->outset(outset, outset);
+
+    int leftClampDelta = clamp.fLeft - iRect->fLeft;
+    if (leftClampDelta > 0) {
+        offset->fX -= outset - leftClampDelta;
+        iRect->fLeft = clamp.fLeft;
+    } else {
+        offset->fX -= outset;
+    }
+
+    int topClampDelta = clamp.fTop - iRect->fTop;
+    if (topClampDelta > 0) {
+        offset->fY -= outset - topClampDelta;
+        iRect->fTop = clamp.fTop;
+    } else {
+        offset->fY -= outset;
+    }
+
+    if (iRect->fRight > clamp.fRight) {
+        iRect->fRight = clamp.fRight;
+    }
+    if (iRect->fBottom > clamp.fBottom) {
+        iRect->fBottom = clamp.fBottom;
+    }
+}
+
 } // namespace skgpu
