@@ -13,9 +13,8 @@
 
 namespace skgpu::graphite {
 
-sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(
-        const VulkanSharedContext* context,
-        SkSpan<DescTypeAndCount> requestedDescCounts) {
+sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext* context,
+                                                       SkSpan<DescriptorData> requestedDescCounts) {
 
     if (requestedDescCounts.empty()) {
         return nullptr;
