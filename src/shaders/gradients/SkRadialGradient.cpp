@@ -90,13 +90,6 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
     p->append(SkRasterPipelineOp::xy_to_radius);
 }
 
-#if defined(DELETE_ME_SKVM)
-skvm::F32 SkRadialGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
-                                       skvm::Coord coord, skvm::I32* mask) const {
-    return sqrt(coord.x*coord.x + coord.y*coord.y);
-}
-#endif
-
 #if defined(SK_GRAPHITE)
 void SkRadialGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,

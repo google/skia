@@ -35,10 +35,6 @@ protected:
 
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const final;
-#if defined(DELETE_ME_SKVM)
-    skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
-                         skvm::Coord coord, skvm::I32* mask) const final;
-#endif
 
 private:
     friend void ::SkRegisterLinearGradientShaderFlattenable();
