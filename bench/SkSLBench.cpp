@@ -18,7 +18,6 @@
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
-#include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -64,10 +63,6 @@ enum class Output {
 #if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
     kSkRP,
 #endif
-#if defined(DELETE_ME_SKVM)
-    kSkVM,     // raw SkVM bytecode
-    kSkVMOpt,  // optimized SkVM bytecode
-#endif
 };
 
 class SkSLCompileBench : public Benchmark {
@@ -80,10 +75,6 @@ public:
             case Output::kSPIRV:   return "spirv_";
 #if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
             case Output::kSkRP:    return "skrp_";
-#endif
-#if defined(DELETE_ME_SKVM)
-            case Output::kSkVM:    return "skvm_";
-            case Output::kSkVMOpt: return "skvm_opt_";
 #endif
         }
         SkUNREACHABLE;
@@ -154,27 +145,9 @@ protected:
 #if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
                 case Output::kSkRP:    SkAssertResult(CompileToSkRP(*program)); break;
 #endif
-#if defined(DELETE_ME_SKVM)
-                case Output::kSkVM:
-                case Output::kSkVMOpt: SkAssertResult(CompileToSkVM(*program, fOutput)); break;
-#endif
             }
         }
     }
-
-#if defined(DELETE_ME_SKVM)
-    static bool CompileToSkVM(const SkSL::Program& program, Output mode) {
-        const bool optimize = (mode >= Output::kSkVMOpt);
-        skvm::Builder builder{skvm::Features{}};
-        if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder, /*debugTrace=*/nullptr)) {
-            return false;
-        }
-        if (optimize) {
-            builder.done("SkSLBench");
-        }
-        return true;
-    }
-#endif
 
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     static bool CompileToSkRP(const SkSL::Program& program) {
@@ -228,14 +201,6 @@ private:
   #define COMPILER_BENCH_SKRP(name, text) /* SkRP is disabled; no benchmarking */
 #endif
 
-#if defined(DELETE_ME_SKVM)
-  #define COMPILER_BENCH_SKVM(name, text) \
-  DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVM);)    \
-  DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kSkVMOpt);)
-#else
-  #define COMPILER_BENCH_SKVM(name, text) /* SkVM is disabled; no benchmarking */
-#endif
-
 #define COMPILER_BENCH(name, text)                                                               \
   static constexpr char name ## _SRC[] = text;                                                   \
   DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/false, Output::kNone);)  \
@@ -243,9 +208,7 @@ private:
   DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true,  Output::kGLSL);)  \
   DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true,  Output::kMetal);) \
   DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true,  Output::kSPIRV);) \
-  COMPILER_BENCH_SKRP(name, text)                                                                \
-  COMPILER_BENCH_SKVM(name, text)
-
+  COMPILER_BENCH_SKRP(name, text)
 
 // This fragment shader is from the third tile on the top row of GM_gradients_2pt_conical_outside.
 // To get an ES2 compatible shader, nonconstantArrayIndexSupport in GrShaderCaps is forced off.

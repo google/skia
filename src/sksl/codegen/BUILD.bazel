@@ -9,7 +9,6 @@ skia_filegroup(
     srcs = [
         "SkSLRasterPipelineBuilder.cpp",
         "SkSLRasterPipelineCodeGenerator.cpp",
-        "SkSLVMCodeGenerator.cpp",
     ],
 )
 
@@ -52,7 +51,6 @@ skia_filegroup(
     srcs = [
         "SkSLRasterPipelineBuilder.h",
         "SkSLRasterPipelineCodeGenerator.h",
-        "SkSLVMCodeGenerator.h",
     ] + select({
         "//src/sksl:use_sksl_gpu_srcs": [":gpu_hdrs"],
         "//conditions:default": [],
