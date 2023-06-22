@@ -363,6 +363,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 			if b.extraConfig("Vulkan") {
 				configs = []string{"grvk"}
+                                // Couldn't readback
+                                skip(ALL, "gm", ALL, "aaxfermodes")
                                 // Test failures
                                 skip(ALL, "test", ALL, "DeviceTestVertexTransparency")
                                 skip(ALL, "test", ALL, "GraphitePromiseImageMultipleImgUses")
