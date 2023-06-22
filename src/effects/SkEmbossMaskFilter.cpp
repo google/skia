@@ -10,6 +10,7 @@
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
@@ -22,25 +23,19 @@
 
 #include <cstring>
 
-static void normalize3(SkScalar dst[3], const SkScalar src[3]) {
-    SkScalar mag = SkScalarSquare(src[0]) + SkScalarSquare(src[1]) + SkScalarSquare(src[2]);
-    SkScalar scale = SkScalarInvert(SkScalarSqrt(mag));
-
-    for (int i = 0; i < 3; i++) {
-        dst[i] = src[i] * scale;
-    }
-}
-
 sk_sp<SkMaskFilter> SkEmbossMaskFilter::Make(SkScalar blurSigma, const Light& light) {
     if (!SkScalarIsFinite(blurSigma) || blurSigma <= 0) {
         return nullptr;
     }
 
-    Light newLight = light;
-    normalize3(newLight.fDirection, light.fDirection);
-    if (!SkScalarsAreFinite(newLight.fDirection, 3)) {
+    SkPoint3 lightDir{light.fDirection[0], light.fDirection[1], light.fDirection[2]};
+    if (!lightDir.normalize()) {
         return nullptr;
     }
+    Light newLight = light;
+    newLight.fDirection[0] = lightDir.x();
+    newLight.fDirection[1] = lightDir.y();
+    newLight.fDirection[2] = lightDir.z();
 
     return sk_sp<SkMaskFilter>(new SkEmbossMaskFilter(blurSigma, newLight));
 }
