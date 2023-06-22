@@ -7,6 +7,7 @@
 
 #include "include/gpu/graphite/Context.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkPathTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
@@ -183,7 +184,7 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
                               const SkIRect& srcRect,
                               SkImage::ReadPixelsCallback callback,
                               SkImage::ReadPixelsContext callbackContext) {
-    if (!proxy) {
+    if (!proxy || proxy->textureInfo().isProtected() == Protected::kYes) {
         callback(callbackContext, nullptr);
         return;
     }
@@ -251,6 +252,125 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
     if (!fQueueManager->addFinishInfo(info, fResourceProvider.get())) {
         SKGPU_LOG_E("Failed to register finish callbacks for asyncReadPixels.");
     }
+}
+
+void Context::asyncRescaleAndReadPixelsYUV420(const SkImage* image,
+                                              SkYUVColorSpace yuvColorSpace,
+                                              sk_sp<SkColorSpace> dstColorSpace,
+                                              const SkIRect& srcRect,
+                                              const SkISize& dstSize,
+                                              SkImage::RescaleGamma rescaleGamma,
+                                              SkImage::RescaleMode rescaleMode,
+                                              SkImage::ReadPixelsCallback callback,
+                                              SkImage::ReadPixelsContext callbackContext) {
+    if (!as_IB(image)->isGraphiteBacked()) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    // TODO(b/238756380): YUVA read not supported right now
+    if (as_IB(image)->isYUVA()) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
+    TextureProxyView proxyView = graphiteImage->textureProxyView();
+
+    this->asyncRescaleAndReadPixelsYUV420(proxyView.proxy(),
+                                          image->imageInfo(),
+                                          yuvColorSpace,
+                                          dstColorSpace,
+                                          srcRect,
+                                          dstSize,
+                                          rescaleGamma,
+                                          rescaleMode,
+                                          callback,
+                                          callbackContext);
+}
+
+void Context::asyncRescaleAndReadPixelsYUV420(const SkSurface* surface,
+                                              SkYUVColorSpace yuvColorSpace,
+                                              sk_sp<SkColorSpace> dstColorSpace,
+                                              const SkIRect& srcRect,
+                                              const SkISize& dstSize,
+                                              SkImage::RescaleGamma rescaleGamma,
+                                              SkImage::RescaleMode rescaleMode,
+                                              SkImage::ReadPixelsCallback callback,
+                                              SkImage::ReadPixelsContext callbackContext) {
+    if (!static_cast<const SkSurface_Base*>(surface)->isGraphiteBacked()) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    auto graphiteSurface = reinterpret_cast<const skgpu::graphite::Surface*>(surface);
+    TextureProxyView proxyView = graphiteSurface->readSurfaceView();
+
+     this->asyncRescaleAndReadPixelsYUV420(proxyView.proxy(),
+                                           surface->imageInfo(),
+                                           yuvColorSpace,
+                                           dstColorSpace,
+                                           srcRect,
+                                           dstSize,
+                                           rescaleGamma,
+                                           rescaleMode,
+                                           callback,
+                                           callbackContext);
+}
+
+void Context::asyncRescaleAndReadPixelsYUV420(const TextureProxy* proxy,
+                                              const SkImageInfo& srcImageInfo,
+                                              SkYUVColorSpace yuvColorSpace,
+                                              sk_sp<SkColorSpace> dstColorSpace,
+                                              const SkIRect& srcRect,
+                                              const SkISize& dstSize,
+                                              SkImage::RescaleGamma rescaleGamma,
+                                              SkImage::RescaleMode rescaleMode,
+                                              SkImage::ReadPixelsCallback callback,
+                                              SkImage::ReadPixelsContext callbackContext) {
+    if (!proxy || proxy->textureInfo().isProtected() == Protected::kYes) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
+    if (!SkImageInfoIsValid(srcImageInfo)) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
+    if (!SkIRect::MakeSize(srcImageInfo.dimensions()).contains(srcRect)) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
+    const Caps* caps = fSharedContext->caps();
+    if (!caps->supportsReadPixels(proxy->textureInfo())) {
+        // TODO: try to copy to a readable texture instead
+        callback(callbackContext, nullptr);
+        return;
+    }
+
+    if (srcRect.size() == dstSize &&
+        SkColorSpace::Equals(srcImageInfo.colorInfo().colorSpace(),
+                             dstColorSpace.get())) {
+        // No need for rescale
+        this->asyncReadPixelsYUV420(proxy,
+                                    srcImageInfo,
+                                    yuvColorSpace,
+                                    srcRect,
+                                    callback,
+                                    callbackContext);
+    }
+
+    // TODO: fill in rescaling code, then call asyncReadPixelsYUV420 on result
+    callback(callbackContext, nullptr);
+}
+
+void Context::asyncReadPixelsYUV420(const TextureProxy* textureProxy,
+                                    const SkImageInfo& srcImageInfo,
+                                    SkYUVColorSpace yuvColorSpace,
+                                    const SkIRect& srcRect,
+                                    SkImage::ReadPixelsCallback callback,
+                                    SkImage::ReadPixelsContext callbackContext) {
+    // TODO
+    callback(callbackContext, nullptr);
 }
 
 Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,

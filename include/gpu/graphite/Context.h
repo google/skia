@@ -19,6 +19,7 @@
 #include <functional>
 #include <memory>
 
+class SkColorSpace;
 class SkRuntimeEffect;
 
 namespace skgpu::graphite {
@@ -64,6 +65,26 @@ public:
                          const SkIRect& srcRect,
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);
+
+    void asyncRescaleAndReadPixelsYUV420(const SkImage*,
+                                         SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         SkImage::RescaleGamma rescaleGamma,
+                                         SkImage::RescaleMode rescaleMode,
+                                         SkImage::ReadPixelsCallback callback,
+                                         SkImage::ReadPixelsContext context);
+
+    void asyncRescaleAndReadPixelsYUV420(const SkSurface*,
+                                         SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         SkImage::RescaleGamma rescaleGamma,
+                                         SkImage::RescaleMode rescaleMode,
+                                         SkImage::ReadPixelsCallback callback,
+                                         SkImage::ReadPixelsContext context);
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.
@@ -123,6 +144,24 @@ private:
                          const SkIRect& srcRect,
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);
+
+    void asyncRescaleAndReadPixelsYUV420(const TextureProxy*,
+                                         const SkImageInfo& srcImageInfo,
+                                         SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         SkImage::RescaleGamma rescaleGamma,
+                                         SkImage::RescaleMode rescaleMode,
+                                         SkImage::ReadPixelsCallback callback,
+                                         SkImage::ReadPixelsContext context);
+
+    void asyncReadPixelsYUV420(const TextureProxy*,
+                               const SkImageInfo& srcImageInfo,
+                               SkYUVColorSpace yuvColorSpace,
+                               const SkIRect& srcRect,
+                               SkImage::ReadPixelsCallback callback,
+                               SkImage::ReadPixelsContext context);
 
     // Inserts a texture to buffer transfer task, used by asyncReadPixels methods
     struct PixelTransferResult {
