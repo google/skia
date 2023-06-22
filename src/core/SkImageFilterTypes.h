@@ -65,8 +65,6 @@ struct Vector {
     Vector() = default;
     Vector(SkScalar x, SkScalar y) : fX(x), fY(y) {}
     explicit Vector(const SkVector& v) : fX(v.fX), fY(v.fY) {}
-
-    bool isFinite() const { return SkScalarsAreFinite(fX, fY); }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
