@@ -30,7 +30,7 @@ public:
     static sk_sp<VulkanDescriptorPool> Make(const VulkanSharedContext*,
                                             SkSpan<DescTypeAndCount>);
 
-    VkDescriptorPool* descPool() { return &fDescPool; }
+    VkDescriptorPool descPool() { return fDescPool; }
 
 private:
     // Conservative overestimation of a maximum number of descriptors of any given type that can be

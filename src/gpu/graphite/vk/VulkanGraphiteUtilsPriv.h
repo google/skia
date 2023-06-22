@@ -12,6 +12,8 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/vk/VulkanInterface.h"
 
+#include <string>
+
 // Helper macros to call functions on the VulkanInterface
 #define VULKAN_CALL(IFACE, X) (IFACE)->fFunctions.f##X
 

@@ -18,6 +18,7 @@ namespace skgpu::graphite {
 
 class VulkanResourceProvider;
 class VulkanSharedContext;
+class Buffer;
 
 class VulkanCommandBuffer final : public CommandBuffer {
 public:
@@ -178,7 +179,10 @@ private:
     // Track whether certain descriptor sets need to be bound
     bool fBindUniformBuffers = false;
     bool fBindTextureSamplers = false;
-    skia_private::TArray<BindBufferInfo> fUniformBuffersToBind;
+
+    sk_sp<Buffer> fIntrinsicUniformBuffer;
+    std::array<BindBufferInfo, VulkanGraphicsPipeline::kNumUniformBuffers> fUniformBuffersToBind
+            = {{{nullptr, 0}}};
     VkDescriptorSet fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
 
     VkBuffer fBoundInputBuffers[VulkanGraphicsPipeline::kNumInputBuffers];
