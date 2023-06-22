@@ -10,6 +10,7 @@
 
 #include "include/core/SkM44.h"
 #include "src/gpu/graphite/geom/Rect.h"
+#include "src/text/gpu/SubRunContainer.h"
 
 namespace sktext::gpu { class AtlasSubRun; }
 
@@ -32,14 +33,16 @@ public:
                const SkM44& deviceToLocal,
                int startGlyphIndex,
                int glyphCount,
-               Recorder* recorder)
-            : fSubRun(subRun)
-            , fSupportDataKeepAlive(std::move(supportDataKeepAlive))
-            , fBounds(deviceBounds)
-            , fDeviceToLocal(deviceToLocal)
-            , fStartGlyphIndex(startGlyphIndex)
-            , fGlyphCount(glyphCount)
-            , fRecorder(recorder) {}
+               Recorder* recorder,
+               sktext::gpu::RendererData rendererData)
+        : fSubRun(subRun)
+        , fSupportDataKeepAlive(std::move(supportDataKeepAlive))
+        , fBounds(deviceBounds)
+        , fDeviceToLocal(deviceToLocal)
+        , fStartGlyphIndex(startGlyphIndex)
+        , fGlyphCount(glyphCount)
+        , fRecorder(recorder)
+        , fRendererData(rendererData) {}
 
     ~SubRunData() = default;
 
@@ -59,6 +62,7 @@ public:
     int startGlyphIndex() const { return fStartGlyphIndex; }
     int glyphCount() const { return fGlyphCount; }
     Recorder* recorder() const { return fRecorder; }
+    const sktext::gpu::RendererData& rendererData() const { return fRendererData; }
 
 private:
     const sktext::gpu::AtlasSubRun* fSubRun;
@@ -70,6 +74,7 @@ private:
     int fStartGlyphIndex;
     int fGlyphCount;
     Recorder* fRecorder; // this SubRun can only be associated with this Recorder's atlas
+    sktext::gpu::RendererData fRendererData;
 };
 
 } // namespace skgpu::graphite

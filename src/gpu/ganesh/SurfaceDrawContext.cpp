@@ -351,7 +351,8 @@ void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
     auto atlasDelegate = [&](const sktext::gpu::AtlasSubRun* subRun,
                              SkPoint drawOrigin,
                              const SkPaint& paint,
-                             sk_sp<SkRefCnt> subRunStorage) {
+                             sk_sp<SkRefCnt> subRunStorage,
+                             sktext::gpu::RendererData) {
         auto[drawingClip, op] = subRun->makeAtlasTextOp(
                 clip, viewMatrix.localToDevice(), drawOrigin, paint, std::move(subRunStorage),
                 this);

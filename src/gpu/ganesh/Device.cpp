@@ -1433,7 +1433,8 @@ void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
     auto atlasDelegate = [&](const sktext::gpu::AtlasSubRun* subRun,
                              SkPoint drawOrigin,
                              const SkPaint& paint,
-                             sk_sp<SkRefCnt> subRunStorage) {
+                             sk_sp<SkRefCnt> subRunStorage,
+                             sktext::gpu::RendererData) {
         auto[drawingClip, op] = subRun->makeAtlasTextOp(
                 this->clip(), matrixProvider.localToDevice(), drawOrigin, paint,
                 std::move(subRunStorage), fSurfaceDrawContext.get());

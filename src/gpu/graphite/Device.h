@@ -213,7 +213,8 @@ private:
     void drawAtlasSubRun(const sktext::gpu::AtlasSubRun*,
                          SkPoint drawOrigin,
                          const SkPaint& paint,
-                         sk_sp<SkRefCnt> subRunStorage);
+                         sk_sp<SkRefCnt> subRunStorage,
+                         sktext::gpu::RendererData);
 
     sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
                                                        const SkPaint& initialPaint,

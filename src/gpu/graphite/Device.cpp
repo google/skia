@@ -824,8 +824,9 @@ sktext::gpu::AtlasDrawDelegate Device::atlasDelegate() {
     return [&](const sktext::gpu::AtlasSubRun* subRun,
                SkPoint drawOrigin,
                const SkPaint& paint,
-               sk_sp<SkRefCnt> subRunStorage) {
-        this->drawAtlasSubRun(subRun, drawOrigin, paint, subRunStorage);
+               sk_sp<SkRefCnt> subRunStorage,
+               sktext::gpu::RendererData rendererData) {
+        this->drawAtlasSubRun(subRun, drawOrigin, paint, subRunStorage, rendererData);
     };
 }
 
@@ -844,7 +845,8 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
 void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                              SkPoint drawOrigin,
                              const SkPaint& paint,
-                             sk_sp<SkRefCnt> subRunStorage) {
+                             sk_sp<SkRefCnt> subRunStorage,
+                             sktext::gpu::RendererData rendererData) {
     const int subRunEnd = subRun->glyphCount();
     auto regenerateDelegate = [&](sktext::gpu::GlyphVector* glyphs,
                                   int begin,
@@ -877,7 +879,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                                    this->localToDeviceTransform().inverse(),
                                                    subRunCursor,
                                                    glyphsRegenerated,
-                                                   fRecorder)),
+                                                   fRecorder,
+                                                   rendererData)),
                                subRunPaint,
                                DefaultFillStyle(),
                                DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
@@ -1135,11 +1138,16 @@ const Renderer* Device::chooseRenderer(const Transform& localToDevice,
                                        const SkStrokeRec& style,
                                        bool requireMSAA) const {
     const RendererProvider* renderers = fRecorder->priv().rendererProvider();
+    SkASSERT(renderers);
     SkStrokeRec::Style type = style.getStyle();
 
     if (geometry.isSubRun()) {
         SkASSERT(!requireMSAA);
-        return geometry.subRunData().subRun()->renderer(renderers);
+        sktext::gpu::RendererData rendererData = geometry.subRunData().rendererData();
+        if (!rendererData.isSDF) {
+            return renderers->bitmapText();
+        }
+        return renderers->sdfText(rendererData.isLCD);
     } else if (geometry.isVertices()) {
         SkVerticesPriv info(geometry.vertices()->priv());
         return renderers->vertices(info.mode(), info.hasColors(), info.hasTexCoords());
