@@ -1,0 +1,1 @@
+`SkRuntimeEffect::makeImage` and `SkRuntimeShaderBuilder::makeImage` have been removed.
