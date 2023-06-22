@@ -873,11 +873,6 @@ public:
 
 #if defined(SK_GRAPHITE)
 
-    std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(
-            const Transform& localToDevice, SkPoint drawOrigin) const override {
-        return fVertexFiller.boundsAndDeviceMatrix(localToDevice, drawOrigin);
-    }
-
     const Renderer* renderer(const RendererProvider* renderers) const override {
         return renderers->bitmapText();
     }
@@ -1069,11 +1064,6 @@ public:
     const VertexFiller& vertexFiller() const override { return fVertexFiller; }
 
 #if defined(SK_GRAPHITE)
-
-    std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
-                                                          SkPoint drawOrigin) const override {
-        return fVertexFiller.boundsAndDeviceMatrix(localToDevice, drawOrigin);
-    }
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
         return renderers->bitmapText();
@@ -1319,11 +1309,6 @@ public:
     const VertexFiller& vertexFiller() const override { return fVertexFiller; }
 
 #if defined(SK_GRAPHITE)
-
-    std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
-                                                          SkPoint drawOrigin) const override {
-        return fVertexFiller.boundsAndDeviceMatrix(localToDevice, drawOrigin);
-    }
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
         return renderers->sdfText(fUseLCDText);

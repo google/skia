@@ -59,6 +59,7 @@
 #include "src/text/gpu/SlugImpl.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
+#include "src/text/gpu/VertexFiller.h"
 
 #include <functional>
 #include <unordered_map>
@@ -861,7 +862,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
             return;
         }
         if (glyphsRegenerated) {
-            auto [bounds, localToDevice] = subRun->boundsAndDeviceMatrix(
+            auto [bounds, localToDevice] = subRun->vertexFiller().boundsAndDeviceMatrix(
                                                    this->localToDeviceTransform(), drawOrigin);
             SkPaint subRunPaint = paint;
             // For color emoji, only the paint alpha affects the final color

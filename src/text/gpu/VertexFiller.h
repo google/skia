@@ -32,15 +32,10 @@ enum class MaskFormat : int;
 
 namespace graphite {
 class DrawWriter;
-}
-}
-
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite {
 class Rect;
 class Transform;
 }
-#endif  // defined(SK_GRAPHITE)
+}
 
 namespace sktext::gpu {
 class Glyph;
@@ -104,10 +99,8 @@ public:
                           SkSpan<const Glyph*> glyphs,
                           SkScalar depth) const;
 
-#if defined(SK_GRAPHITE)
     std::tuple<skgpu::graphite::Rect, skgpu::graphite::Transform> boundsAndDeviceMatrix(
             const skgpu::graphite::Transform& localToDevice, SkPoint drawOrigin) const;
-#endif  // defined(SK_GRAPHITE)
 
     // Return true if the positionMatrix represents an integer translation. Return the device
     // bounding box of all the glyphs. If the bounding box is empty, then something went singular

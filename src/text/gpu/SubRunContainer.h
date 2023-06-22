@@ -124,9 +124,6 @@ public:
     virtual const VertexFiller& vertexFiller() const = 0;
 
 #if defined(SK_GRAPHITE)
-    // returns bounds of the stored data and matrix to transform it to device space
-    virtual std::tuple<skgpu::graphite::Rect, skgpu::graphite::Transform> boundsAndDeviceMatrix(
-            const skgpu::graphite::Transform& localToDevice, SkPoint drawOrigin) const = 0;
 
     virtual const skgpu::graphite::Renderer* renderer(
             const skgpu::graphite::RendererProvider*) const = 0;
