@@ -48,10 +48,6 @@
 
 class SkBlitter;
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 static bool SK_WARN_UNUSED_RESULT
 texture_to_matrix(const VertState& state, const SkPoint verts[], const SkPoint texs[],
                   SkMatrix* matrix) {

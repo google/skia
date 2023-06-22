@@ -28,7 +28,7 @@ public:
     // shader is called with no pending local matrix and the total transform as unknowable.
     bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const override;
 
-    // Change the matrix used by the generated SkRasterpipeline or SkVM.
+    // Change the matrix used by the generated SkRasterPipeline.
     bool update(const SkMatrix& matrix);
 
     ShaderType type() const override { return ShaderType::kTransform; }

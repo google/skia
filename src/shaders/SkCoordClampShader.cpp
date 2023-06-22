@@ -23,11 +23,6 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif // SK_GRAPHITE
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkRuntimeEffectPriv.h"
-#include "src/core/SkVM.h"
-#endif
-
 #include <optional>
 
 sk_sp<SkFlattenable> SkCoordClampShader::CreateProc(SkReadBuffer& buffer) {

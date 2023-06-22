@@ -175,8 +175,7 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/FontationsTest.cpp:"\
 "tests/FCITest.cpp:"\
 "tests/JpegGainmapTest.cpp:"\
-"tests/TypefaceMacTest.cpp:"\
-"tests/SkVMTest.cpp:"
+"tests/TypefaceMacTest.cpp:"
 
 # These tests do complex things with TestContexts, which is not easily supported for the WASM
 # test harness. Thus we omit them.

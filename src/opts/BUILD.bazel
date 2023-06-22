@@ -37,7 +37,6 @@ skia_filegroup(
         "SkRasterPipeline_opts.h",
         "SkSwizzler_opts.h",
         "SkUtils_opts.h",
-        "SkVM_opts.h",
     ],
     visibility = ["//src:__pkg__"],
 )

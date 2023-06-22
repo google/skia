@@ -10,13 +10,10 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #define SK_OPTS_NS skx
-#include "src/opts/SkVM_opts.h"
 
 namespace SkOpts {
     void Init_skx() {
-#if defined(DELETE_ME_SKVM)
-        interpret_skvm = SK_OPTS_NS::interpret_skvm;
-#endif
+        // TODO: remove skx from SkOpts entirely
     }
 }  // namespace SkOpts
 

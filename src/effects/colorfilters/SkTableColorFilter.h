@@ -32,10 +32,6 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKSL) && defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 class SkTableColorFilter final : public SkColorFilterBase {
 public:
     SkTableColorFilter(sk_sp<SkColorTable> table) : fTable(table) {

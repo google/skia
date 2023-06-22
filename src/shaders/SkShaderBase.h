@@ -42,15 +42,10 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(DELETE_ME_SKVM)
-#include "include/core/SkImageInfo.h"
-#include "src/core/SkVM.h"
-#endif
-
 namespace SkShaders {
 /**
  * This is used to accumulate matrices, starting with the CTM, when building up
- * SkRasterPipeline, SkVM, or GrFragmentProcessor by walking the SkShader tree. It avoids
+ * SkRasterPipeline or GrFragmentProcessor by walking the SkShader tree. It avoids
  * adding a matrix multiply for each individual matrix. It also handles the reverse matrix
  * concatenation order required by Android Framework, see b/256873449.
  *
@@ -88,23 +83,11 @@ public:
     std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(const SkStageRec& rec,
                                                          const SkMatrix& postInv = {}) const;
 
-#if defined(DELETE_ME_SKVM)
     /**
-     * Muls local by the inverse of the pending matrix. 'postInv' is an additional matrix to
-     * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
-     * std::optional result won't have a value and the Builder will be unmodified.
-     */
-    std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(skvm::Builder*,
-                                                         skvm::Coord* local,  // inout
-                                                         skvm::Uniforms*,
-                                                         const SkMatrix& postInv = {}) const;
-#endif
-
-    /**
-     * FP matrices work differently than SkRasterPipeline and SkVM. The starting coordinates
-     * provided to the root SkShader's FP are already in local space. So we never apply the inverse
-     * CTM. This returns the inverted pending local matrix with the provided postInv matrix
-     * applied after it. If the pending local matrix cannot be inverted, the boolean is false.
+     * FP matrices work differently than SkRasterPipeline. The starting coordinates provided to the
+     * root SkShader's FP are already in local space. So we never apply the inverse CTM. This
+     * returns the inverted pending local matrix with the provided postInv matrix applied after it.
+     * If the pending local matrix cannot be inverted, the boolean is false.
      */
     std::tuple<SkMatrix, bool> applyForFragmentProcessor(const SkMatrix& postInv) const;
 
@@ -445,11 +428,6 @@ protected:
     virtual bool onAsLuminanceColor(SkColor*) const {
         return false;
     }
-
-protected:
-#if defined(DELETE_ME_SKVM)
-    static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
-#endif
 
     friend class SkShaders::MatrixRec;
 };

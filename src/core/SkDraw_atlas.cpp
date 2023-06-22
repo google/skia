@@ -43,11 +43,6 @@ class SkBlender;
 class SkBlitter;
 enum class SkBlendMode;
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-class SkColorInfo;
-#endif
-
 static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
                       const SkRect& r, SkBlitter* blitter, SkPath* scratchPath) {
     if (ctm.rectStaysRect()) {

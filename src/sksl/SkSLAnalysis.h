@@ -77,9 +77,7 @@ bool ReturnsInputAlpha(const FunctionDefinition& function, const ProgramUsage& u
 /**
  * Checks for recursion or overly-deep function-call chains, and rejects programs which have them.
  * Also, computes the size of the program in a completely flattened state--loops fully unrolled,
- * function calls inlined--and rejects programs that exceed an arbitrary upper bound. This is
- * intended to prevent absurdly large programs from overwhemling SkVM. Only strict-ES2 mode is
- * supported; complex control flow is not SkVM-compatible (and this becomes the halting problem)
+ * function calls inlined--and rejects programs that exceed an arbitrary upper bound.
  */
 bool CheckProgramStructure(const Program& program, bool enforceSizeLimit);
 

@@ -39,11 +39,6 @@ class SkFlattenable;
 struct GrContextOptions;
 struct SkStageRec;
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-class SkArenaAlloc;
-#endif
-
 static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
     SkBinaryWriteBuffer wb;
     wb.writeFlattenable(obj);

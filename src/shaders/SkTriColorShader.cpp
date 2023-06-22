@@ -16,10 +16,6 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 bool SkTriColorShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const {
     rec.fPipeline->append(SkRasterPipelineOp::seed_shader);
     if (fUsePersp) {

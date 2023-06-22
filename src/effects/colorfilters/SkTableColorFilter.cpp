@@ -35,10 +35,6 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(SK_ENABLE_SKSL) && defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 bool SkTableColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     SkRasterPipeline* p = rec.fPipeline;
     if (!shaderIsOpaque) {

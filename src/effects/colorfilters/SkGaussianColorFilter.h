@@ -25,12 +25,6 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-class SkArenaAlloc;
-class SkColorInfo;
-#endif
-
 /**
  * Remaps the input color's alpha to a Gaussian ramp and then outputs premul white using the
  * remapped alpha.

@@ -9,10 +9,6 @@
 
 #include "include/core/SkFlattenable.h"
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 class SkReadBuffer;
 class SkWriteBuffer;
 struct SkStageRec;

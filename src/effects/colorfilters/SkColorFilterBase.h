@@ -31,12 +31,6 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(DELETE_ME_SKVM)
-#include "include/core/SkImageInfo.h"
-#include "src/base/SkArenaAlloc.h"
-#include "src/core/SkVM_fwd.h"
-#endif
-
 #define SK_ALL_COLOR_FILTERS(M) \
     M(BlendMode)                \
     M(ColorSpaceXform)          \

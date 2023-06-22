@@ -15,7 +15,6 @@
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 #include "src/opts/SkUtils_opts.h"
-#include "src/opts/SkVM_opts.h"
 
 namespace SkOpts {
     void Init_hsw() {
@@ -47,10 +46,6 @@ namespace SkOpts {
         just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
         start_pipeline_lowp = SK_OPTS_NS::lowp::start_pipeline;
     #undef M
-
-    #if defined(DELETE_ME_SKVM)
-        interpret_skvm = SK_OPTS_NS::interpret_skvm;
-    #endif
     }
 }  // namespace SkOpts
 

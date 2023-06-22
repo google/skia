@@ -91,7 +91,7 @@ public:
     /** The device-coordinate pixel to trace (controlled by setTraceCoord) */
     SkIPoint fTraceCoord = {};
 
-    /** SkRP stores uniform slot info in fUniformInfo. (In SkVM, they're mixed into fSlotInfo.) */
+    /** SkRP stores uniform slot info in fUniformInfo. (In SkVM, they were mixed into fSlotInfo.) */
     std::vector<SlotDebugInfo> fUniformInfo;
 
     /** A 1:1 mapping of slot numbers to debug information. */

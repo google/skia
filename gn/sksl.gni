@@ -300,7 +300,6 @@ skslc_deps = [
   "$_src/core/SkStream.cpp",
   "$_src/core/SkString.cpp",
   "$_src/core/SkStringUtils.cpp",
-  "$_src/core/SkVM.cpp",
   "$_src/gpu/ganesh/GrMemoryPool.cpp",
   "$_src/ports/SkMemory_malloc.cpp",
   "$_src/ports/SkOSFile_stdio.cpp",

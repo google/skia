@@ -58,9 +58,6 @@
 
 struct SkBitmapProcState;
 struct SkRasterPipelineStage;
-namespace skvm {
-struct InterpreterInstruction;
-}
 namespace SkSL {
 class TraceHook;
 }
@@ -114,13 +111,6 @@ namespace SkOpts {
 
     extern size_t raster_pipeline_lowp_stride;
     extern size_t raster_pipeline_highp_stride;
-
-#if defined(DELETE_ME_SKVM)
-    extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
-                                  int nregs, int loop, const int strides[],
-                                  SkSL::TraceHook* traceHooks[], int nTraceHooks,
-                                  int nargs, int n, void* args[]);
-#endif
 }  // namespace SkOpts
 
 #endif // SkOpts_DEFINED

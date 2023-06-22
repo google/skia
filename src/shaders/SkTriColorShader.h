@@ -74,10 +74,6 @@ private:
     SkMatrix fM33;
     const bool fIsOpaque;
     const bool fUsePersp;  // controls our stages, and what we do in update()
-#if defined(DELETE_ME_SKVM)
-    mutable skvm::Uniform fColorMatrix;
-    mutable skvm::Uniform fCoordMatrix;
-#endif
 };
 
 #endif

@@ -68,10 +68,6 @@ static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swiz
 }
 #endif
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 #include "src/shaders/SkBitmapProcShader.h"
 #endif

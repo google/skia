@@ -26,10 +26,6 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 #include <cstddef>
 
 enum class SkBlendMode;

@@ -1101,8 +1101,8 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
 
 DEF_SIMPLE_GM_CAN_FAIL(deferred_shader_rt, canvas, errorMsg, 150, 50) {
     // Skip this GM on recording devices. It actually works okay on serialize-8888, but pic-8888
-    // does not. Ultimately, behavior on CPU is potentially strange (especially with SkVM), because
-    // SkVM will build the shader more than once per draw.
+    // does not. Ultimately, behavior on CPU is potentially strange (especially with SkRP), because
+    // SkRP will build the shader more than once per draw.
     if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
         return skiagm::DrawResult::kSkip;
     }

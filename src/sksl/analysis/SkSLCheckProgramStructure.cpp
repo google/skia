@@ -34,9 +34,10 @@ using namespace skia_private;
 namespace SkSL {
 
 bool Analysis::CheckProgramStructure(const Program& program, bool enforceSizeLimit) {
-    // We check the size of strict-ES2 programs; since SkVM will completely unroll them, it's
-    // important to know how large the result will be. For non-ES2 code, we compute an approximate
-    // lower bound by assuming all non-unrollable loops will execute one time only.
+    // We check the size of strict-ES2 programs; this behavior is a holdover from SkVM, which would
+    // completely unroll all loops. (SkRP supports loops properly, but does inline function calls.)
+    // For non-ES2 code, we compute an approximate lower bound by assuming all non-unrollable loops
+    // will execute one time only.
     const Context& context = *program.fContext;
 
     // If we decide that expressions are cheaper than statements, or that certain statements are

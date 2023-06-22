@@ -10,7 +10,6 @@
 #include "src/base/SkStringView.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
-#include "src/opts/SkVM_opts.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"
@@ -45,9 +44,6 @@ void SkDebugf(const char format[], ...) {
 
 namespace SkOpts {
     size_t raster_pipeline_highp_stride = 1;
-#if defined(DELETE_ME_SKVM)
-    decltype(interpret_skvm) interpret_skvm = SK_OPTS_NS::interpret_skvm;
-#endif
 }
 
 static std::string base_name(const std::string& path) {

@@ -27,12 +27,6 @@ class PipelineDataGatherer;
 }
 #endif
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-class SkArenaAlloc;
-class SkColorInfo;
-#endif
-
 SkGaussianColorFilter::SkGaussianColorFilter() : SkColorFilterBase() {}
 
 bool SkGaussianColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {

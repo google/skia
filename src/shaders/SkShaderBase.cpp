@@ -53,29 +53,6 @@ std::optional<MatrixRec> MatrixRec::apply(const SkStageRec& rec, const SkMatrix&
                      /*ctmApplied=*/true};
 }
 
-#if defined(DELETE_ME_SKVM)
-std::optional<MatrixRec> MatrixRec::apply(skvm::Builder* p,
-                                          skvm::Coord* local,
-                                          skvm::Uniforms* uniforms,
-                                          const SkMatrix& postInv) const {
-    SkMatrix total = fPendingLocalMatrix;
-    if (!fCTMApplied) {
-        total = SkMatrix::Concat(fCTM, total);
-    }
-    if (!total.invert(&total)) {
-        return {};
-    }
-    total = SkMatrix::Concat(postInv, total);
-    // ApplyMatrix is a no-op if total worked out to identity.
-    *local = SkShaderBase::ApplyMatrix(p, total, *local, uniforms);
-    return MatrixRec{fCTM,
-                     fTotalLocalMatrix,
-                     /*pendingLocalMatrix=*/SkMatrix::I(),
-                     fTotalMatrixIsValid,
-                     /*ctmApplied=*/true};
-}
-#endif
-
 std::tuple<SkMatrix, bool> MatrixRec::applyForFragmentProcessor(const SkMatrix& postInv) const {
     SkASSERT(!fCTMApplied);
     SkMatrix total;
@@ -224,36 +201,3 @@ sk_sp<SkShader> SkShaderBase::makeWithCTM(const SkMatrix& postM) const {
 sk_sp<SkShader> SkShaderBase::makeInvertAlpha() const {
     return this->makeWithColorFilter(SkColorFilters::Blend(0xFFFFFFFF, SkBlendMode::kSrcOut));
 }
-
-#if defined(DELETE_ME_SKVM)
-skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p,
-                                      const SkMatrix& m,
-                                      skvm::Coord coord,
-                                      skvm::Uniforms* uniforms) {
-    skvm::F32 x = coord.x, y = coord.y;
-    if (m.isIdentity()) {
-        // That was easy.
-    } else if (m.isTranslate()) {
-        x = p->add(x, p->uniformF(uniforms->pushF(m[2])));
-        y = p->add(y, p->uniformF(uniforms->pushF(m[5])));
-    } else if (m.isScaleTranslate()) {
-        x = p->mad(x, p->uniformF(uniforms->pushF(m[0])), p->uniformF(uniforms->pushF(m[2])));
-        y = p->mad(y, p->uniformF(uniforms->pushF(m[4])), p->uniformF(uniforms->pushF(m[5])));
-    } else {  // Affine or perspective.
-        auto dot = [&, x, y](int row) {
-            return p->mad(x,
-                          p->uniformF(uniforms->pushF(m[3 * row + 0])),
-                          p->mad(y,
-                                 p->uniformF(uniforms->pushF(m[3 * row + 1])),
-                                 p->uniformF(uniforms->pushF(m[3 * row + 2]))));
-        };
-        x = dot(0);
-        y = dot(1);
-        if (m.hasPerspective()) {
-            x = x * (1.0f / dot(2));
-            y = y * (1.0f / dot(2));
-        }
-    }
-    return {x, y};
-}
-#endif  // defined(DELETE_ME_SKVM)

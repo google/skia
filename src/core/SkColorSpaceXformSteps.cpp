@@ -13,7 +13,6 @@
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkVM.h"
 
 // See skia.org/user/color  (== site/user/color.md).
 

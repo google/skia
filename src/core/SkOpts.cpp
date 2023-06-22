@@ -40,7 +40,6 @@
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 #include "src/opts/SkUtils_opts.h"
-#include "src/opts/SkVM_opts.h"
 
 namespace SkOpts {
     // Define default function pointer values here...
@@ -74,9 +73,6 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
 
-#if defined(DELETE_ME_SKVM)
-    DEFINE_DEFAULT(interpret_skvm);
-#endif
 #undef DEFINE_DEFAULT
 
     size_t raster_pipeline_lowp_stride  = SK_OPTS_NS::raster_pipeline_lowp_stride();

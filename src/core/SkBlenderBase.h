@@ -10,7 +10,6 @@
 
 #include "include/core/SkBlender.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkVM.h"
 
 #include <memory>
 #include <optional>

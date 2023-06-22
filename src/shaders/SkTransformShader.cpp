@@ -12,10 +12,6 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
-#if defined(DELETE_ME_SKVM)
-#include "src/core/SkVM.h"
-#endif
-
 #include <optional>
 
 SkTransformShader::SkTransformShader(const SkShaderBase& shader, bool allowPerspective)
