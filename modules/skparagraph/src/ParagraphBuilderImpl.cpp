@@ -123,7 +123,7 @@ void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderSty
 #if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     // The very last placeholder is added automatically
     // and only AFTER finalize() is called
-    SkASSERT(!fTextIsFinalized && !lastOne);
+    SkASSERT(!fTextIsFinalized || lastOne);
 #endif
     if (!fUtf8.isEmpty() && !lastOne) {
         // We keep the very last text style
