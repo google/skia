@@ -183,6 +183,7 @@ skia_graphite_sources = [
   "$_src/render/CoverBoundsRenderStep.cpp",
   "$_src/render/CoverBoundsRenderStep.h",
   "$_src/render/DynamicInstancesPatchAllocator.h",
+  "$_src/render/GraphiteVertexFiller.cpp",
   "$_src/render/MiddleOutFanRenderStep.cpp",
   "$_src/render/MiddleOutFanRenderStep.h",
   "$_src/render/SDFTextRenderStep.cpp",

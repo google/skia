@@ -65,7 +65,9 @@ class RendererProvider;
 
 namespace sktext::gpu {
 class GlyphVector;
+class Glyph;
 class StrikeCache;
+class VertexFiller;
 
 using RegenerateAtlasDelegate = std::function<std::tuple<bool, int>(GlyphVector*,
                                                                     int begin,
@@ -91,9 +93,11 @@ class AtlasSubRun {
 public:
     virtual ~AtlasSubRun() = default;
 
+    virtual SkSpan<const Glyph*> glyphs() const = 0;
     virtual int glyphCount() const = 0;
     virtual skgpu::MaskFormat maskFormat() const = 0;
     virtual int glyphSrcPadding() const = 0;
+    virtual unsigned short instanceFlags() const = 0;
 
 #if defined(SK_GANESH)
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
@@ -117,6 +121,8 @@ public:
     virtual std::tuple<bool, int> regenerateAtlas(
             int begin, int end, RegenerateAtlasDelegate) const = 0;
 
+    virtual const VertexFiller& vertexFiller() const = 0;
+
 #if defined(SK_GRAPHITE)
     // returns bounds of the stored data and matrix to transform it to device space
     virtual std::tuple<skgpu::graphite::Rect, skgpu::graphite::Transform> boundsAndDeviceMatrix(
@@ -125,11 +131,6 @@ public:
     virtual const skgpu::graphite::Renderer* renderer(
             const skgpu::graphite::RendererProvider*) const = 0;
 
-    virtual void fillInstanceData(
-            skgpu::graphite::DrawWriter*,
-            int offset, int count,
-            int ssboIndex,
-            SkScalar depth) const = 0;
 #endif
 
     virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const = 0;

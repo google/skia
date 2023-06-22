@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/text/AtlasManager.h"
 #include "src/sksl/SkSLString.h"
 #include "src/text/gpu/SubRunContainer.h"
+#include "src/text/gpu/VertexFiller.h"
 
 using AtlasSubRun = sktext::gpu::AtlasSubRun;
 
@@ -122,8 +123,13 @@ void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
                                          int ssboIndex) const {
     const SubRunData& subRunData = params.geometry().subRunData();
 
-    subRunData.subRun()->fillInstanceData(dw, subRunData.startGlyphIndex(), subRunData.glyphCount(),
-                                          ssboIndex, params.order().depthAsFloat());
+    subRunData.subRun()->vertexFiller().fillInstanceData(dw,
+                                                         subRunData.startGlyphIndex(),
+                                                         subRunData.glyphCount(),
+                                                         subRunData.subRun()->instanceFlags(),
+                                                         ssboIndex,
+                                                         subRunData.subRun()->glyphs(),
+                                                         params.order().depthAsFloat());
 }
 
 void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,

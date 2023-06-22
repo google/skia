@@ -759,9 +759,17 @@ public:
         return SkCount(fGlyphs.glyphs());
     }
 
+    SkSpan<const Glyph*> glyphs() const override {
+        return fGlyphs.glyphs();
+    }
+
     MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
     int glyphSrcPadding() const override { return 0; }
+
+    unsigned short instanceFlags() const override {
+        return (unsigned short)fVertexFiller.grMaskType();
+    }
 
     void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const override {
         fGlyphs.packedGlyphIDToGlyph(cache);
@@ -861,6 +869,8 @@ public:
                 &fGlyphs, begin, end, fVertexFiller.grMaskType(), this->glyphSrcPadding());
     }
 
+    const VertexFiller& vertexFiller() const override { return fVertexFiller; }
+
 #if defined(SK_GRAPHITE)
 
     std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(
@@ -872,18 +882,6 @@ public:
         return renderers->bitmapText();
     }
 
-    void fillInstanceData(DrawWriter* dw,
-                          int offset, int count,
-                          int ssboIndex,
-                          SkScalar depth) const override {
-        unsigned short flags = (unsigned short)fVertexFiller.grMaskType();
-        fVertexFiller.fillInstanceData(dw,
-                                       offset, count,
-                                       flags,
-                                       ssboIndex,
-                                       fGlyphs.glyphs(),
-                                       depth);
-    }
 #endif  // defined(SK_GRAPHITE)
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
@@ -982,6 +980,14 @@ public:
 
     int glyphCount() const override { return SkCount(fGlyphs.glyphs()); }
 
+    SkSpan<const Glyph*> glyphs() const override {
+        return fGlyphs.glyphs();
+    }
+
+    unsigned short instanceFlags() const override {
+        return (unsigned short)fVertexFiller.grMaskType();
+    }
+
     MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
     int glyphSrcPadding() const override { return 1; }
@@ -1060,6 +1066,8 @@ public:
                 &fGlyphs, begin, end, fVertexFiller.grMaskType(), this->glyphSrcPadding());
     }
 
+    const VertexFiller& vertexFiller() const override { return fVertexFiller; }
+
 #if defined(SK_GRAPHITE)
 
     std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
@@ -1069,19 +1077,6 @@ public:
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
         return renderers->bitmapText();
-    }
-
-    void fillInstanceData(DrawWriter* dw,
-                          int offset, int count,
-                          int ssboIndex,
-                          SkScalar depth) const override {
-        unsigned short flags = (unsigned short)fVertexFiller.grMaskType();
-        fVertexFiller.fillInstanceData(dw,
-                                       offset, count,
-                                       flags,
-                                       ssboIndex,
-                                       fGlyphs.glyphs(),
-                                       depth);
     }
 
 #endif  // SK_GRAPHITE
@@ -1232,6 +1227,14 @@ public:
     }
     int glyphSrcPadding() const override { return SK_DistanceFieldInset; }
 
+    SkSpan<const Glyph*> glyphs() const override {
+        return fGlyphs.glyphs();
+    }
+
+    unsigned short instanceFlags() const override {
+        return (unsigned short)MaskFormat::kA8;
+    }
+
     void draw(SkCanvas*,
               SkPoint drawOrigin,
               const SkPaint& paint,
@@ -1313,6 +1316,8 @@ public:
         return regenerateAtlas(&fGlyphs, begin, end, MaskFormat::kA8, this->glyphSrcPadding());
     }
 
+    const VertexFiller& vertexFiller() const override { return fVertexFiller; }
+
 #if defined(SK_GRAPHITE)
 
     std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
@@ -1322,17 +1327,6 @@ public:
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
         return renderers->sdfText(fUseLCDText);
-    }
-
-    void fillInstanceData(DrawWriter* dw,
-                          int offset, int count,
-                          int ssboIndex,
-                          SkScalar depth) const override {
-        fVertexFiller.fillInstanceData(dw,
-                                       offset, count, /*flags=*/0,
-                                       ssboIndex,
-                                       fGlyphs.glyphs(),
-                                       depth);
     }
 
 #endif  // SK_GRAPHITE
