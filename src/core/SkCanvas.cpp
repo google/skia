@@ -51,7 +51,6 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSurfacePriv.h"
-#include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
@@ -2352,10 +2351,6 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform x
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
-#if defined(SK_GANESH) && GR_TEST_UTILS
-bool gSkBlobAsSlugTesting = false;
-#endif
-
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2375,22 +2370,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         totalGlyphCount += r.fGlyphCount;
     }
 
-#if defined(SK_GANESH) && GR_TEST_UTILS
-    // Draw using text blob normally or if the blob has RSX form because slugs can't convert that
-    // form.
-    if (!gSkBlobAsSlugTesting ||
-        this->topDevice()->asGaneshDevice() == nullptr ||
-        SkTextBlobPriv::HasRSXForm(*blob))
-#endif
-    {
-        this->onDrawTextBlob(blob, x, y, paint);
-    }
-#if defined(SK_GANESH) && GR_TEST_UTILS
-    else {
-        auto slug = Slug::ConvertBlob(this, *blob, {x, y}, paint);
-        slug->draw(this);
-    }
-#endif
+    this->onDrawTextBlob(blob, x, y, paint);
 }
 
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,

@@ -14,8 +14,6 @@ DEFINE_int(gpuThreads,
              "Create this many extra threads to assist with GPU work, "
              "including software path rendering. Defaults to two.");
 
-extern bool gSkBlobAsSlugTesting;
-
 namespace CommonFlags {
 
 static DEFINE_bool(cachePathMasks, true,
@@ -106,8 +104,6 @@ void SetCtxOptions(GrContextOptions* ctxOptions) {
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
     ctxOptions->fResourceCacheLimitOverride          = FLAGS_gpuResourceCacheLimit;
-    // If testing with slugs ensure that padding is added in the atlas.
-    ctxOptions->fSupportBilerpFromGlyphAtlas        |= gSkBlobAsSlugTesting;
 
     if (FLAGS_internalSamples >= 0) {
         ctxOptions->fInternalMultisampleCount = FLAGS_internalSamples;
