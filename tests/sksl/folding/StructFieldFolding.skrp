@@ -1,10 +1,10 @@
 [immutable slots]
-_6_two = 0x00000002 (2.802597e-45)
-_8_flatten1 = 0x00000002 (2.802597e-45)
+i0 = 0x00000002 (2.802597e-45)
+i1 = 0x00000002 (2.802597e-45)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_immutable_unmasked        $0 = _8_flatten1
+copy_constant                  $0 = 0x00000002 (2.802597e-45)
 cmpeq_imm_int                  $0 = equal($0, 0x00000002)
 swizzle_4                      $0..3 = ($0..3).xxxx
 copy_4_uniforms                $4..7 = colorRed

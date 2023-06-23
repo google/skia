@@ -166,6 +166,7 @@ public:
     Program(skia_private::TArray<Instruction> instrs,
             int numValueSlots,
             int numUniformSlots,
+            int numImmutableSlots,
             int numLabels,
             DebugTracePriv* debugTrace);
     ~Program();
@@ -185,6 +186,7 @@ private:
     struct SlotData {
         SkSpan<float> values;
         SkSpan<float> stack;
+        SkSpan<float> immutable;
     };
     SlotData allocateSlotData(SkArenaAlloc* alloc) const;
 
@@ -291,6 +293,7 @@ private:
     skia_private::TArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
     int fNumUniformSlots = 0;
+    int fNumImmutableSlots = 0;
     int fNumTempStackSlots = 0;
     int fNumLabels = 0;
     StackDepths fTempStackMaxDepths;
@@ -303,6 +306,7 @@ public:
     /** Finalizes and optimizes the program. */
     std::unique_ptr<Program> finish(int numValueSlots,
                                     int numUniformSlots,
+                                    int numImmutableSlots,
                                     DebugTracePriv* debugTrace = nullptr);
     /**
      * Peels off a label ID for use in the program. Set the label's position in the program with

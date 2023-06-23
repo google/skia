@@ -1,13 +1,13 @@
 [immutable slots]
-half2(0.0, 1.0)(0) = 0
-half2(0.0, 1.0)(1) = 0x3F800000 (1.0)
-half3(0.0, 1.0, 2.0)(0) = 0
-half3(0.0, 1.0, 2.0)(1) = 0x3F800000 (1.0)
-half3(0.0, 1.0, 2.0)(2) = 0x40000000 (2.0)
-half4(0.0, 1.0, 2.0, 3.0)(0) = 0
-half4(0.0, 1.0, 2.0, 3.0)(1) = 0x3F800000 (1.0)
-half4(0.0, 1.0, 2.0, 3.0)(2) = 0x40000000 (2.0)
-half4(0.0, 1.0, 2.0, 3.0)(3) = 0x40400000 (3.0)
+i0 = 0
+i1 = 0x3F800000 (1.0)
+i2 = 0
+i3 = 0x3F800000 (1.0)
+i4 = 0x40000000 (2.0)
+i5 = 0
+i6 = 0x3F800000 (1.0)
+i7 = 0x40000000 (2.0)
+i8 = 0x40400000 (3.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -44,18 +44,18 @@ bitwise_and_int                $4 &= $5
 copy_uniform                   $5 = expected(0)
 cmpeq_imm_float                $5 = equal($5, 0)
 bitwise_and_int                $4 &= $5
-copy_2_immutables_unmasked     $5..6 = half2(0.0, 1.0)
+copy_2_immutables_unmasked     $5..6 = i0..1 [0, 0x3F800000 (1.0)]
 copy_2_uniforms                $7..8 = expected(0..1)
 cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
 bitwise_and_int                $5 &= $6
 bitwise_and_int                $4 &= $5
-copy_3_immutables_unmasked     $5..7 = half3(0.0, 1.0, 2.0)
+copy_3_immutables_unmasked     $5..7 = i2..4 [0, 0x3F800000 (1.0), 0x40000000 (2.0)]
 copy_3_uniforms                $8..10 = expected(0..2)
 cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
 bitwise_and_int                $6 &= $7
 bitwise_and_int                $5 &= $6
 bitwise_and_int                $4 &= $5
-copy_4_immutables_unmasked     $5..8 = half4(0.0, 1.0, 2.0, 3.0)
+copy_4_immutables_unmasked     $5..8 = i5..8 [0, 0x3F800000 (1.0), 0x40000000 (2.0), 0x40400000 (3.0)]
 copy_4_uniforms                $9..12 = expected
 cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
 bitwise_and_2_ints             $5..6 &= $7..8

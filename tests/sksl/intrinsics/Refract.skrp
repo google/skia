@@ -1,13 +1,13 @@
 [immutable slots]
-half2(0.5, -0.8660254)(0) = 0x3F000000 (0.5)
-half2(0.5, -0.8660254)(1) = 0xBF5DB3D7 (-0.8660254)
-half3(0.5, 0.0, -0.8660254)(0) = 0x3F000000 (0.5)
-half3(0.5, 0.0, -0.8660254)(1) = 0
-half3(0.5, 0.0, -0.8660254)(2) = 0xBF5DB3D7 (-0.8660254)
-half4(0.5, 0.0, 0.0, -0.8660254)(0) = 0x3F000000 (0.5)
-half4(0.5, 0.0, 0.0, -0.8660254)(1) = 0
-half4(0.5, 0.0, 0.0, -0.8660254)(2) = 0
-half4(0.5, 0.0, 0.0, -0.8660254)(3) = 0xBF5DB3D7 (-0.8660254)
+i0 = 0x3F000000 (0.5)
+i1 = 0xBF5DB3D7 (-0.8660254)
+i2 = 0x3F000000 (0.5)
+i3 = 0
+i4 = 0xBF5DB3D7 (-0.8660254)
+i5 = 0x3F000000 (0.5)
+i6 = 0
+i7 = 0
+i8 = 0xBF5DB3D7 (-0.8660254)
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -24,8 +24,8 @@ copy_4_uniforms                $4..7 = e
 copy_uniform                   $8 = c
 refract_4_floats               $0..3 = refract($0..3, $4..7, $8)
 copy_4_slots_unmasked          result = $0..3
-copy_2_immutables_unmasked     result(0..1) = half2(0.5, -0.8660254)
-copy_3_immutables_unmasked     result(0..2) = half3(0.5, 0.0, -0.8660254)
-copy_4_immutables_unmasked     result = half4(0.5, 0.0, 0.0, -0.8660254)
+copy_2_immutables_unmasked     result(0..1) = i0..1 [0x3F000000 (0.5), 0xBF5DB3D7 (-0.8660254)]
+copy_3_immutables_unmasked     result(0..2) = i2..4 [0x3F000000 (0.5), 0, 0xBF5DB3D7 (-0.8660254)]
+copy_4_immutables_unmasked     result = i5..8 [0x3F000000 (0.5), 0, 0, 0xBF5DB3D7 (-0.8660254)]
 copy_4_slots_unmasked          $0..3 = result
 load_src                       src.rgba = $0..3

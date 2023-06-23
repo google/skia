@@ -1,7 +1,7 @@
 [immutable slots]
-minus = 0x00000002 (2.802597e-45)
-star = 0x00000003 (4.203895e-45)
-slash = 0x00000004 (5.605194e-45)
+i0 = 0x00000002 (2.802597e-45)
+i1 = 0x00000003 (4.203895e-45)
+i2 = 0x00000004 (5.605194e-45)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

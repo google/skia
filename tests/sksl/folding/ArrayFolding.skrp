@@ -1,6 +1,6 @@
 [immutable slots]
-_8_flatten0 = 0x00000001 (1.401298e-45)
-_10_flatten2 = 0x00000003 (4.203895e-45)
+i0 = 0x00000001 (1.401298e-45)
+i1 = 0x00000003 (4.203895e-45)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

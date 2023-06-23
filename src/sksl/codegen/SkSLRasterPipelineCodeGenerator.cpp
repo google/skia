@@ -176,7 +176,8 @@ public:
             , fDebugTrace(debugTrace)
             , fWriteTraceOps(writeTraceOps)
             , fProgramSlots(debugTrace ? &debugTrace->fSlotInfo : nullptr)
-            , fUniformSlots(debugTrace ? &debugTrace->fUniformInfo : nullptr) {
+            , fUniformSlots(debugTrace ? &debugTrace->fUniformInfo : nullptr)
+            , fImmutableSlots(nullptr) {
         fContext.fModifiersPool = &fModifiersPool;
         fContext.fConfig = fProgram.fConfig.get();
         fContext.fModule = fProgram.fContext->fModule;
@@ -208,15 +209,26 @@ public:
      */
     int getFunctionDebugInfo(const FunctionDeclaration& decl);
 
-    /** Looks up the slots associated with an SkSL variable; creates the slot if necessary. */
+    /** Looks up the slots associated with an SkSL variable; creates the slots if necessary. */
     SlotRange getVariableSlots(const Variable& v) {
         SkASSERT(!IsUniform(v));
+        SkASSERT(!fImmutableVariables.contains(&v));
         return fProgramSlots.getVariableSlots(v);
     }
 
-    /** Looks up the slots associated with an SkSL uniform; creates the slot if necessary. */
+    /**
+     * Looks up the slots associated with an SkSL immutable variable; creates the slot if necessary.
+     */
+    SlotRange getImmutableSlots(const Variable& v) {
+        SkASSERT(!IsUniform(v));
+        SkASSERT(fImmutableVariables.contains(&v));
+        return fImmutableSlots.getVariableSlots(v);
+    }
+
+    /** Looks up the slots associated with an SkSL uniform; creates the slots if necessary. */
     SlotRange getUniformSlots(const Variable& v) {
         SkASSERT(IsUniform(v));
+        SkASSERT(!fImmutableVariables.contains(&v));
         return fUniformSlots.getVariableSlots(v);
     }
 
@@ -455,6 +467,7 @@ private:
 
     SlotManager fProgramSlots;
     SlotManager fUniformSlots;
+    SlotManager fImmutableSlots;
 
     std::optional<AutoStack> fTraceMask;
     const FunctionDefinition* fCurrentFunction = nullptr;
@@ -840,8 +853,7 @@ public:
     }
 
     SlotRange fixedSlotRange(Generator* gen) override {
-        // TODO(skia:14396): immutable variables should be stored in a separate slot range
-        return gen->getVariableSlots(*fVariable);
+        return gen->getImmutableSlots(*fVariable);
     }
 
     AutoStack* dynamicSlotRange() override {
@@ -2043,6 +2055,12 @@ bool Generator::writeSwitchStatement(const SwitchStatement& s) {
 }
 
 bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
+    // In a debugging session, we expect debug traces for a variable declaration to appear, even if
+    // it's constant, so we don't use immutable slots for variables when tracing is on.
+    if (this->shouldWriteTraceOps()) {
+        return false;
+    }
+
     // Find the constant value for this variable.
     const Expression* initialValue = ConstantFolder::GetConstantValueForVariable(*d.value());
     SkASSERT(initialValue);
@@ -2060,14 +2078,8 @@ bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
 
     // Write out the constant value back to slots immutably. (This generates no runtime code.)
     fImmutableVariables.add(d.var());
-    // TODO(skia:14396): immutable variables should be stored in a separate slot range
-    SlotRange varSlots = this->getVariableSlots(*d.var());
-    this->storeImmutableValueToSlots(immutableValues, varSlots);
-
-    // In a debugging session, we still expect debug traces for this variable declaration to appear.
-    if (this->shouldWriteTraceOps()) {
-        fBuilder.trace_var(fTraceMask->stackID(), varSlots);
-    }
+    SlotRange slots = this->getImmutableSlots(*d.var());
+    this->storeImmutableValueToSlots(immutableValues, slots);
 
     return true;
 }
@@ -2667,10 +2679,10 @@ bool Generator::pushImmutableData(const Expression& e) {
     if (this->pushPreexistingImmutableData(immutableValues)) {
         return true;
     }
-    SlotRange range = fProgramSlots.createSlots(e.description(),
-                                                e.type(),
-                                                e.fPosition,
-                                                /*isFunctionReturnValue=*/false);
+    SlotRange range = fImmutableSlots.createSlots(e.description(),
+                                                  e.type(),
+                                                  e.fPosition,
+                                                  /*isFunctionReturnValue=*/false);
     this->storeImmutableValueToSlots(immutableValues, range);
     fBuilder.push_immutable(range);
     return true;
@@ -3801,14 +3813,14 @@ bool Generator::pushTernaryExpression(const Expression& test,
 }
 
 bool Generator::pushVariableReference(const VariableReference& var) {
-    // If we are pushing a constant-value variable, and it's a scalar or splat-vector, just push
-    // the value directly. This shouldn't consume extra ops, and literal values are more amenable to
-    // optimization.
+    // If we are pushing a constant-value variable, push the value directly; literal values are more
+    // amenable to optimization.
     if (var.type().isScalar() || var.type().isVector()) {
         if (const Expression* expr = ConstantFolder::GetConstantValueOrNullForVariable(var)) {
-            if (ConstantFolder::IsConstantSplat(*expr, *expr->getConstantValue(0))) {
-                return this->pushExpression(*expr);
-            }
+            return this->pushExpression(*expr);
+        }
+        if (fImmutableVariables.contains(var.variable())) {
+            return this->pushExpression(*var.variable()->initialValue());
         }
     }
     return this->pushVariableReferencePartial(var, SlotRange{0, (int)var.type().slotCount()});
@@ -3824,8 +3836,7 @@ bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRan
         r.count = subset.count;
         fBuilder.push_uniform(r);
     } else if (fImmutableVariables.contains(&var)) {
-        // TODO(skia:14396): immutable variables should be stored in a separate slot range
-        r = this->getVariableSlots(var);
+        r = this->getImmutableSlots(var);
         SkASSERT(r.count == (int)var.type().slotCount());
         r.index += subset.index;
         r.count = subset.count;
@@ -3931,7 +3942,10 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
 }
 
 std::unique_ptr<RP::Program> Generator::finish() {
-    return fBuilder.finish(fProgramSlots.slotCount(), fUniformSlots.slotCount(), fDebugTrace);
+    return fBuilder.finish(fProgramSlots.slotCount(),
+                           fUniformSlots.slotCount(),
+                           fImmutableSlots.slotCount(),
+                           fDebugTrace);
 }
 
 }  // namespace RP

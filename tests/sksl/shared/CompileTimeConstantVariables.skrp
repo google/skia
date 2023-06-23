@@ -1,19 +1,19 @@
 [immutable slots]
-kConstant = 0
-kOtherConstant = 0x00000001 (1.401298e-45)
-kAnotherConstant = 0x00000002 (2.802597e-45)
-kFloatConstant = 0x4008F5C3 (2.14)
-kFloatConstantAlias = 0x4008F5C3 (2.14)
-kConstVec(0) = 0x3F800000 (1.0)
-kConstVec(1) = 0x3E4CCCCD (0.2)
-kConstVec(2) = 0x4008F5C3 (2.14)
-kConstVec(3) = 0x3F800000 (1.0)
-kLocalFloatConstant = 0x4048F5C3 (3.14)
-kLocalFloatConstantAlias = 0x4048F5C3 (3.14)
-half4(1.0, 0.0, 0.0, 1.0)(0) = 0x3F800000 (1.0)
-half4(1.0, 0.0, 0.0, 1.0)(1) = 0
-half4(1.0, 0.0, 0.0, 1.0)(2) = 0
-half4(1.0, 0.0, 0.0, 1.0)(3) = 0x3F800000 (1.0)
+i0 = 0
+i1 = 0x00000001 (1.401298e-45)
+i2 = 0x00000002 (2.802597e-45)
+i3 = 0x4008F5C3 (2.14)
+i4 = 0x4008F5C3 (2.14)
+i5 = 0x3F800000 (1.0)
+i6 = 0x3E4CCCCD (0.2)
+i7 = 0x4008F5C3 (2.14)
+i8 = 0x3F800000 (1.0)
+i9 = 0x4048F5C3 (3.14)
+i10 = 0x4048F5C3 (3.14)
+i11 = 0x3F800000 (1.0)
+i12 = 0
+i13 = 0
+i14 = 0x3F800000 (1.0)
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -38,7 +38,7 @@ store_condition_mask           $4 = CondMask
 copy_slot_unmasked             $5 = integerInput
 cmpeq_imm_int                  $5 = equal($5, 0x00000002)
 merge_condition_mask           CondMask = $4 & $5
-copy_4_immutables_unmasked     $6..9 = kConstVec
+copy_4_immutables_unmasked     $6..9 = i5..8 [0x3F800000 (1.0), 0x3E4CCCCD (0.2), 0x4008F5C3 (2.14), 0x3F800000 (1.0)]
 copy_4_slots_masked            [main].result = Mask($6..9)
 merge_inv_condition_mask       CondMask = $4 & ~$5
 copy_constant                  $6 = 0x4048F5C3 (3.14)
@@ -58,7 +58,7 @@ splat_4_constants              $8..11 = 0
 copy_4_slots_masked            [main].result = Mask($8..11)
 jump                           jump +4 (label 3 at #46)
 label                          label 0x00000002
-copy_4_immutables_unmasked     $8..11 = half4(1.0, 0.0, 0.0, 1.0)
+copy_4_immutables_unmasked     $8..11 = i11..14 [0x3F800000 (1.0), 0, 0, 0x3F800000 (1.0)]
 copy_4_slots_masked            [main].result = Mask($8..11)
 label                          label 0x00000003
 label                          label 0x00000001

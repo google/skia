@@ -1,10 +1,10 @@
 [immutable slots]
-expected1(0) = 0xC0400000 (-3.0)
-expected1(1) = 0x40C00000 (6.0)
-expected1(2) = 0xC0400000 (-3.0)
-expected2(0) = 0x40C00000 (6.0)
-expected2(1) = 0xC1400000 (-12.0)
-expected2(2) = 0x40C00000 (6.0)
+i0 = 0xC0400000 (-3.0)
+i1 = 0x40C00000 (6.0)
+i2 = 0xC0400000 (-3.0)
+i3 = 0x40C00000 (6.0)
+i4 = 0xC1400000 (-12.0)
+i5 = 0x40C00000 (6.0)
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -20,7 +20,7 @@ swizzle_3                      $14..16 = ($14..16).yzx
 mul_3_floats                   $11..13 *= $14..16
 copy_3_slots_unmasked          $7..9 = $11..13
 sub_3_floats                   $4..6 -= $7..9
-copy_3_immutables_unmasked     $7..9 = expected1
+copy_3_immutables_unmasked     $7..9 = i0..2 [0xC0400000 (-3.0), 0x40C00000 (6.0), 0xC0400000 (-3.0)]
 cmpeq_3_floats                 $4..6 = equal($4..6, $7..9)
 bitwise_and_int                $5 &= $6
 bitwise_and_int                $4 &= $5
@@ -36,7 +36,7 @@ swizzle_3                      $14..16 = ($14..16).yzx
 mul_3_floats                   $11..13 *= $14..16
 copy_3_slots_unmasked          $8..10 = $11..13
 sub_3_floats                   $5..7 -= $8..10
-copy_3_immutables_unmasked     $8..10 = expected2
+copy_3_immutables_unmasked     $8..10 = i3..5 [0x40C00000 (6.0), 0xC1400000 (-12.0), 0x40C00000 (6.0)]
 cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
 bitwise_and_int                $6 &= $7
 bitwise_and_int                $5 &= $6

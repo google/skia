@@ -206,12 +206,20 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIdentitySwizzle, r) {
                                           1.0, 0.0, 0.0, 1.0};
     test(r,
          R"__SkSL__(
-            uniform half4 colorGreen, colorRed;
-            half4 main(vec4 color) {
-                return (color.r   == 0.5             &&
-                        color.rg  == half2(0.5, 1.0) &&
-                        color.rgb == half3(0.5, 1.0, 0.0)) ? colorGreen : colorRed;
-            }
+
+uniform half4 colorGreen, colorRed;
+
+const int SEVEN = 7, TEN = 10;
+const half4x4 MATRIXFIVE = half4x4(5);
+
+noinline bool verify_const_globals(int seven, int ten, half4x4 matrixFive) {
+    return seven == 7 && ten == 10 && matrixFive == half4x4(5);
+}
+
+half4 main(float4) {
+    return verify_const_globals(SEVEN, TEN, MATRIXFIVE) ? colorGreen : colorRed;
+}
+
          )__SkSL__",
          kUniforms,
          /*startingColor=*/SkColor4f{0.5, 1.0, 0.0, 0.25},

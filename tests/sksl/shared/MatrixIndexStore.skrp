@@ -1,11 +1,11 @@
 [immutable slots]
-float3(1.0, 2.0, 3.0)(0) = 0x3F800000 (1.0)
-float3(1.0, 2.0, 3.0)(1) = 0x40000000 (2.0)
-float3(1.0, 2.0, 3.0)(2) = 0x40400000 (3.0)
-float4(1.0, 2.0, 3.0, 4.0)(0) = 0x3F800000 (1.0)
-float4(1.0, 2.0, 3.0, 4.0)(1) = 0x40000000 (2.0)
-float4(1.0, 2.0, 3.0, 4.0)(2) = 0x40400000 (3.0)
-float4(1.0, 2.0, 3.0, 4.0)(3) = 0x40800000 (4.0)
+i0 = 0x3F800000 (1.0)
+i1 = 0x40000000 (2.0)
+i2 = 0x40400000 (3.0)
+i3 = 0x3F800000 (1.0)
+i4 = 0x40000000 (2.0)
+i5 = 0x40400000 (3.0)
+i6 = 0x40800000 (4.0)
 
 store_device_xy01              $35..38 = DeviceCoords.xy01
 splat_2_constants              $37..38 = 0x3F000000 (0.5)
@@ -46,7 +46,7 @@ splat_4_constants              matrix(4..7) = 0
 copy_constant                  matrix(8) = 0
 trace_var                      TraceVar(matrix) when $35 is true
 trace_line                     TraceLine(9) when $35 is true
-copy_3_immutables_unmasked     values = float3(1.0, 2.0, 3.0)
+copy_3_immutables_unmasked     values = i0..2 [0x3F800000 (1.0), 0x40000000 (2.0), 0x40400000 (3.0)]
 trace_var                      TraceVar(values) when $35 is true
 copy_constant                  $41 = 0
 copy_slot_unmasked             $42 = $35
@@ -118,7 +118,7 @@ splat_4_constants              matrix₁(8..11) = 0
 splat_4_constants              matrix₁(12..15) = 0
 trace_var                      TraceVar(matrix₁) when $35 is true
 trace_line                     TraceLine(19) when $35 is true
-copy_4_immutables_unmasked     values₁ = float4(1.0, 2.0, 3.0, 4.0)
+copy_4_immutables_unmasked     values₁ = i3..6 [0x3F800000 (1.0), 0x40000000 (2.0), 0x40400000 (3.0), 0x40800000 (4.0)]
 trace_var                      TraceVar(values₁) when $35 is true
 copy_constant                  $3 = 0
 copy_slot_unmasked             $4 = $35

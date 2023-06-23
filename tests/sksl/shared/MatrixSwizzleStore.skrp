@@ -1,18 +1,18 @@
 [immutable slots]
-float3(3.0, 2.0, 1.0)(0) = 0x40400000 (3.0)
-float3(3.0, 2.0, 1.0)(1) = 0x40000000 (2.0)
-float3(3.0, 2.0, 1.0)(2) = 0x3F800000 (1.0)
-float4(4.0, 3.0, 2.0, 1.0)(0) = 0x40800000 (4.0)
-float4(4.0, 3.0, 2.0, 1.0)(1) = 0x40400000 (3.0)
-float4(4.0, 3.0, 2.0, 1.0)(2) = 0x40000000 (2.0)
-float4(4.0, 3.0, 2.0, 1.0)(3) = 0x3F800000 (1.0)
+i0 = 0x40400000 (3.0)
+i1 = 0x40000000 (2.0)
+i2 = 0x3F800000 (1.0)
+i3 = 0x40800000 (4.0)
+i4 = 0x40400000 (3.0)
+i5 = 0x40000000 (2.0)
+i6 = 0x3F800000 (1.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              _0_matrix(0..3) = 0
 splat_4_constants              _0_matrix(4..7) = 0
 copy_constant                  _0_matrix(8) = 0
-copy_3_immutables_unmasked     _1_values = float3(3.0, 2.0, 1.0)
+copy_3_immutables_unmasked     _1_values = i0..2 [0x40400000 (3.0), 0x40000000 (2.0), 0x3F800000 (1.0)]
 copy_constant                  _2_index = 0
 label                          label 0x00000001
 copy_slot_unmasked             $33 = _2_index
@@ -53,7 +53,7 @@ splat_4_constants              matrix(0..3) = 0
 splat_4_constants              matrix(4..7) = 0
 splat_4_constants              matrix(8..11) = 0
 splat_4_constants              matrix(12..15) = 0
-copy_4_immutables_unmasked     values = float4(4.0, 3.0, 2.0, 1.0)
+copy_4_immutables_unmasked     values = i3..6 [0x40800000 (4.0), 0x40400000 (3.0), 0x40000000 (2.0), 0x3F800000 (1.0)]
 branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 5 at #70)
 copy_constant                  index = 0
 label                          label 0x00000006

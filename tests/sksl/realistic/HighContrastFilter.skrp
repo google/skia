@@ -1,10 +1,10 @@
 [immutable slots]
-half3(0.2126, 0.7152, 0.0722)(0) = 0x3E59B3D0 (0.2126)
-half3(0.2126, 0.7152, 0.0722)(1) = 0x3F371759 (0.7152)
-half3(0.2126, 0.7152, 0.0722)(2) = 0x3D93DD98 (0.0722)
-half3(0.0, 0.6666667, 0.333333343)(0) = 0
-half3(0.0, 0.6666667, 0.333333343)(1) = 0x3F2AAAAB (0.6666667)
-half3(0.0, 0.6666667, 0.333333343)(2) = 0x3EAAAAAB (0.333333343)
+i0 = 0x3E59B3D0 (0.2126)
+i1 = 0x3F371759 (0.7152)
+i2 = 0x3D93DD98 (0.0722)
+i3 = 0
+i4 = 0x3F2AAAAB (0.6666667)
+i5 = 0x3EAAAAAB (0.333333343)
 
 store_src                      inColor = src.rgba
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -12,7 +12,7 @@ copy_3_slots_unmasked          c = inColor(0..2)
 copy_uniform                   $0 = grayscale
 cmpeq_imm_float                $0 = equal($0, 0x3F800000 (1.0))
 branch_if_no_active_lanes_eq   branch +6 (label 0 at #12) if no lanes of $0 == 0xFFFFFFFF
-copy_3_immutables_unmasked     $1..3 = half3(0.2126, 0.7152, 0.0722)
+copy_3_immutables_unmasked     $1..3 = i0..2 [0x3E59B3D0 (0.2126), 0x3F371759 (0.7152), 0x3D93DD98 (0.0722)]
 copy_3_slots_unmasked          $4..6 = c
 dot_3_floats                   $1 = dot($1..3, $4..6)
 swizzle_3                      $1..3 = ($1..3).xxx
@@ -141,7 +141,7 @@ mul_float                      $2 *= $3
 copy_slot_unmasked             _9_C = $2
 copy_3_slots_unmasked          $2..4 = c
 swizzle_3                      $2..4 = ($2..4).xxx
-copy_3_immutables_unmasked     $5..7 = half3(0.0, 0.6666667, 0.333333343)
+copy_3_immutables_unmasked     $5..7 = i3..5 [0, 0x3F2AAAAB (0.6666667), 0x3EAAAAAB (0.333333343)]
 add_3_floats                   $2..4 += $5..7
 copy_3_slots_unmasked          _10_p = $2..4
 copy_3_slots_unmasked          $5..7 = $2..4

@@ -1,6 +1,6 @@
 [immutable slots]
-r = 0
-g = 0x3F800000 (1.0)
+i0 = 0
+i1 = 0x3F800000 (1.0)
 
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

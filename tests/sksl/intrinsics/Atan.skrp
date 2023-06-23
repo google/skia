@@ -1,8 +1,8 @@
 [immutable slots]
-constVal2(0) = 0x3F800000 (1.0)
-constVal2(1) = 0x3F800000 (1.0)
-constVal2(2) = 0x3F800000 (1.0)
-constVal2(3) = 0x3F800000 (1.0)
+i0 = 0x3F800000 (1.0)
+i1 = 0x3F800000 (1.0)
+i2 = 0x3F800000 (1.0)
+i3 = 0x3F800000 (1.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

@@ -1,5 +1,5 @@
 [immutable slots]
-ok = 0xFFFFFFFF
+i0 = 0xFFFFFFFF
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -11,7 +11,7 @@ copy_constant                  $0 = 0
 copy_slot_unmasked             param = x
 label                          label 0
 copy_constant                  call = 0xFFFFFFFF
-copy_immutable_unmasked        $0 = ok
+copy_constant                  $0 = 0xFFFFFFFF
 copy_slot_unmasked             $1 = param
 bitwise_and_int                $0 &= $1
 copy_slot_unmasked             $1 = call

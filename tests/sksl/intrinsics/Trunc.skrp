@@ -1,8 +1,8 @@
 [immutable slots]
-expectedA(0) = 0xBF800000 (-1.0)
-expectedA(1) = 0
-expectedA(2) = 0
-expectedA(3) = 0x40000000 (2.0)
+i0 = 0xBF800000 (-1.0)
+i1 = 0
+i2 = 0
+i3 = 0x40000000 (2.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -13,14 +13,14 @@ cmpeq_imm_float                $4 = equal($4, 0xBF800000 (-1.0))
 copy_2_uniforms                $5..6 = testInputs(0..1)
 cast_to_int_from_2_floats      $5..6 = FloatToInt($5..6)
 cast_to_float_from_2_ints      $5..6 = IntToFloat($5..6)
-copy_2_immutables_unmasked     $7..8 = expectedA(0..1)
+copy_2_immutables_unmasked     $7..8 = i0..1 [0xBF800000 (-1.0), 0]
 cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
 bitwise_and_int                $5 &= $6
 bitwise_and_int                $4 &= $5
 copy_3_uniforms                $5..7 = testInputs(0..2)
 cast_to_int_from_3_floats      $5..7 = FloatToInt($5..7)
 cast_to_float_from_3_ints      $5..7 = IntToFloat($5..7)
-copy_3_immutables_unmasked     $8..10 = expectedA(0..2)
+copy_3_immutables_unmasked     $8..10 = i0..2 [0xBF800000 (-1.0), 0, 0]
 cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
 bitwise_and_int                $6 &= $7
 bitwise_and_int                $5 &= $6
@@ -28,7 +28,7 @@ bitwise_and_int                $4 &= $5
 copy_4_uniforms                $5..8 = testInputs
 cast_to_int_from_4_floats      $5..8 = FloatToInt($5..8)
 cast_to_float_from_4_ints      $5..8 = IntToFloat($5..8)
-copy_4_immutables_unmasked     $9..12 = expectedA
+copy_4_immutables_unmasked     $9..12 = i0..3 [0xBF800000 (-1.0), 0, 0, 0x40000000 (2.0)]
 cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
 bitwise_and_2_ints             $5..6 &= $7..8
 bitwise_and_int                $5 &= $6
