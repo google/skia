@@ -69,7 +69,8 @@ l(7) = 0
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  result = 0
-copy_2_slots_unmasked          $0..1 = result, g(0)
+copy_slot_unmasked             $0 = result
+copy_slot_unmasked             $1 = g(0)
 add_float                      $0 += $1
 copy_slot_unmasked             result = $0
 copy_slot_unmasked             $0 = result

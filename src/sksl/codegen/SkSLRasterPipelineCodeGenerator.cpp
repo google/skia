@@ -831,6 +831,52 @@ private:
     const Variable* fVariable;
 };
 
+class ImmutableLValue final : public LValue {
+public:
+    explicit ImmutableLValue(const Variable* v) : fVariable(v) {}
+
+    bool isWritable() const override {
+        return false;
+    }
+
+    SlotRange fixedSlotRange(Generator* gen) override {
+        // TODO(skia:14396): immutable variables should be stored in a separate slot range
+        return gen->getVariableSlots(*fVariable);
+    }
+
+    AutoStack* dynamicSlotRange() override {
+        return nullptr;
+    }
+
+    [[nodiscard]] bool push(Generator* gen,
+                            SlotRange fixedOffset,
+                            AutoStack* dynamicOffset,
+                            SkSpan<const int8_t> swizzle) override {
+        if (dynamicOffset) {
+            // TODO(skia:14396): add `push_immutable_indirect` builder op and RP op
+            gen->builder()->push_slots_indirect(fixedOffset, dynamicOffset->stackID(),
+                                                this->fixedSlotRange(gen));
+        } else {
+            gen->builder()->push_immutable(fixedOffset);
+        }
+        if (!swizzle.empty()) {
+            gen->builder()->swizzle(fixedOffset.count, swizzle);
+        }
+        return true;
+    }
+
+    [[nodiscard]] bool store(Generator* gen,
+                             SlotRange fixedOffset,
+                             AutoStack* dynamicOffset,
+                             SkSpan<const int8_t> swizzle) override {
+        SkDEBUGFAIL("immutable values cannot be stored into");
+        return unsupported();
+    }
+
+private:
+    const Variable* fVariable;
+};
+
 class SwizzleLValue final : public LValue {
 public:
     explicit SwizzleLValue(std::unique_ptr<LValue> p, const ComponentArray& c)
@@ -1159,7 +1205,11 @@ static bool is_sliceable_swizzle(SkSpan<const int8_t> components) {
 
 std::unique_ptr<LValue> Generator::makeLValue(const Expression& e, bool allowScratch) {
     if (e.is<VariableReference>()) {
-        return std::make_unique<VariableLValue>(e.as<VariableReference>().variable());
+        const Variable* variable = e.as<VariableReference>().variable();
+        if (fImmutableVariables.contains(variable)) {
+            return std::make_unique<ImmutableLValue>(variable);
+        }
+        return std::make_unique<VariableLValue>(variable);
     }
     if (e.is<Swizzle>()) {
         const Swizzle& swizzleExpr = e.as<Swizzle>();
