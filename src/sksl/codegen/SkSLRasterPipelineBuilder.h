@@ -88,14 +88,15 @@ enum class BuilderOp {
 
     // ... and also has Builder-specific ops. These ops generally interface with the stack, and are
     // converted into ProgramOps during `makeStages`.
+    push_clone,
+    push_clone_from_stack,
+    push_clone_indirect_from_stack,
     push_constant,
+    push_immutable,
     push_slots,
     push_slots_indirect,
     push_uniform,
     push_uniform_indirect,
-    push_clone,
-    push_clone_from_stack,
-    push_clone_indirect_from_stack,
     copy_stack_to_slots,
     copy_stack_to_slots_unmasked,
     copy_stack_to_slots_indirect,
@@ -414,8 +415,18 @@ public:
     // `limitRange`; this is used as a hard cap, to avoid indexing outside of bounds.
     void push_uniform_indirect(SlotRange fixedRange, int dynamicStack, SlotRange limitRange);
 
+
     // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
-    void push_slots(SlotRange src);
+    void push_slots(SlotRange src) {
+        this->push_slots_or_immutable(src, BuilderOp::push_slots);
+    }
+
+    // Translates into copy_slots_unmasked (from immutables into temp stack) in Raster Pipeline.
+    void push_immutable(SlotRange src) {
+        this->push_slots_or_immutable(src, BuilderOp::push_immutable);
+    }
+
+    void push_slots_or_immutable(SlotRange src, BuilderOp op);
 
     // Translates into copy_from_indirect_unmasked (from values into temp stack) in Raster Pipeline.
     // `fixedRange` denotes a fixed set of slots; this range is pushed forward by the value at the

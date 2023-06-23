@@ -287,8 +287,10 @@ bool Builder::simplifyImmediateUnmaskedOp() {
         if (is_immediate_op(immInstruction.fOp) && immInstruction.fImmA == popInstruction.fImmA) {
             // ... and we support multiple-slot immediates (if this op calls for it)...
             if (immInstruction.fImmA == 1 || is_multi_slot_immediate_op(immInstruction.fOp)) {
-                // ... and the prior instruction was `push_slots` of at least that many slots...
-                if (pushInstruction.fOp == BuilderOp::push_slots &&
+                // ... and the prior instruction was `push_slots` or `push_immutable` of at least
+                // that many slots...
+                if ((pushInstruction.fOp == BuilderOp::push_slots ||
+                     pushInstruction.fOp == BuilderOp::push_immutable) &&
                     pushInstruction.fImmA >= popInstruction.fImmA) {
                     // ... onto the same slot range...
                     Slot immSlot = popInstruction.fSlotA + popInstruction.fImmA;
@@ -321,10 +323,11 @@ void Builder::discard_stack(int32_t count) {
                 lastInstruction.fImmA += count;
                 return;
 
-            case BuilderOp::push_constant:
             case BuilderOp::push_clone:
             case BuilderOp::push_clone_from_stack:
             case BuilderOp::push_clone_indirect_from_stack:
+            case BuilderOp::push_constant:
+            case BuilderOp::push_immutable:
             case BuilderOp::push_slots:
             case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform:
@@ -493,14 +496,14 @@ void Builder::branch_if_no_active_lanes_on_stack_top_equal(int value, int labelI
                              {}, labelID, value});
 }
 
-void Builder::push_slots(SlotRange src) {
+void Builder::push_slots_or_immutable(SlotRange src, BuilderOp op) {
     SkASSERT(src.count >= 0);
     if (!fInstructions.empty()) {
         Instruction& lastInstruction = fInstructions.back();
 
         // If the previous instruction was pushing slots contiguous to this range, we can collapse
         // the two pushes into one larger push.
-        if (lastInstruction.fOp == BuilderOp::push_slots &&
+        if (lastInstruction.fOp == op &&
             lastInstruction.fSlotA + lastInstruction.fImmA == src.index) {
             lastInstruction.fImmA += src.count;
             src.count = 0;
@@ -508,7 +511,7 @@ void Builder::push_slots(SlotRange src) {
     }
 
     if (src.count > 0) {
-        fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
+        fInstructions.push_back({op, {src.index}, src.count});
     }
 
     // Look for a sequence of "copy stack to X, discard stack, copy X to stack". This is a common
@@ -758,8 +761,9 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
         return;
     }
 
-    // If the last instruction is pushing a slot, we can just copy that slot.
-    if (lastInstruction.fOp == BuilderOp::push_slots) {
+    // If the last instruction is pushing a slot or immutable, we can just copy that slot.
+    if (lastInstruction.fOp == BuilderOp::push_slots ||
+        lastInstruction.fOp == BuilderOp::push_immutable) {
         // Get the last slot.
         Slot sourceSlot = lastInstruction.fSlotA + lastInstruction.fImmA - 1;
         lastInstruction.fImmA--;
@@ -775,7 +779,15 @@ void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
         this->simplifyPopSlotsUnmasked(dst);
 
         // Copy the slot directly.
-        if (destinationSlot != sourceSlot) {
+        if (lastInstruction.fOp == BuilderOp::push_slots) {
+            if (destinationSlot != sourceSlot) {
+                this->copy_slots_unmasked({destinationSlot, 1}, {sourceSlot, 1});
+            } else {
+                // Copying from a value-slot into the same value-slot is a no-op.
+            }
+        } else {
+            // Copy from immutable data directly to the destination slot.
+            // TODO: when immutables have dedicated storage, this copy will need to reflect that.
             this->copy_slots_unmasked({destinationSlot, 1}, {sourceSlot, 1});
         }
         return;
@@ -1212,6 +1224,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_device_xy01:
             return 4;
 
+        case BuilderOp::push_immutable:
         case BuilderOp::push_constant:
         case BuilderOp::push_slots:
         case BuilderOp::push_slots_indirect:
@@ -1934,7 +1947,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::load_dst, src});
                 break;
             }
-            case BuilderOp::push_slots: {
+            case BuilderOp::push_slots:
+            case BuilderOp::push_immutable: {
                 float* dst = tempStackPtr;
                 this->appendCopySlotsUnmasked(pipeline, alloc,
                                               OffsetFromBase(dst),

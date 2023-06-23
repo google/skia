@@ -62,7 +62,7 @@ bitwise_and_int                $80 &= $81
 bitwise_and_int                $79 &= $80
 copy_constant                  $50 = 0
 merge_condition_mask           CondMask = $78 & $79
-branch_if_no_lanes_active      branch_if_no_lanes_active +63 (label 2 at #97)
+branch_if_no_lanes_active      branch_if_no_lanes_active +64 (label 2 at #98)
 splat_4_constants              m(0..3) = 0
 splat_4_constants              m(4..7) = 0
 splat_4_constants              m(8), mm(0..2) = 0
@@ -114,9 +114,10 @@ bitwise_and_int                $52 &= $53
 bitwise_and_int                $51 &= $52
 copy_4_slots_unmasked          $52..55 = mm(0..3)
 copy_4_slots_unmasked          $56..59 = mm(4..7)
-copy_4_slots_unmasked          $60..63 = mm(8), z(0..2)
-copy_4_slots_unmasked          $64..67 = z(3..6)
-copy_2_slots_unmasked          $68..69 = z(7..8)
+copy_slot_unmasked             $60 = mm(8)
+copy_4_slots_unmasked          $61..64 = z(0..3)
+copy_4_slots_unmasked          $65..68 = z(4..7)
+copy_slot_unmasked             $69 = z(8)
 cmpeq_n_floats                 $52..60 = equal($52..60, $61..69)
 bitwise_and_4_ints             $53..56 &= $57..60
 bitwise_and_2_ints             $53..54 &= $55..56
@@ -129,7 +130,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $78
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $49 & $50
-branch_if_no_lanes_active      branch_if_no_lanes_active +86 (label 1 at #187)
+branch_if_no_lanes_active      branch_if_no_lanes_active +86 (label 1 at #188)
 copy_4_uniforms                testMatrix4x4(0..3) = testInputs
 copy_4_uniforms                testMatrix4x4(4..7) = testInputs
 copy_4_uniforms                testMatrix4x4(8..11) = testInputs

@@ -468,6 +468,7 @@ private:
     THashMap<const FunctionDefinition*, Analysis::ReturnComplexity> fReturnComplexityMap;
 
     THashMap<ImmutableBits, THashSet<Slot>> fImmutableSlotMap;
+    THashSet<const Variable*> fImmutableVariables;
 
     // `fInsideCompoundStatement` will be nonzero if we are currently writing statements inside of a
     // compound-statement Block. (Conceptually those statements should all count as one.)
@@ -2009,6 +2010,8 @@ bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
     }
 
     // Write out the constant value back to slots immutably. (This generates no runtime code.)
+    fImmutableVariables.add(d.var());
+    // TODO(skia:14396): immutable variables should be stored in a separate slot range
     SlotRange varSlots = this->getVariableSlots(*d.var());
     this->storeImmutableValueToSlots(immutableValues, varSlots);
 
@@ -2598,7 +2601,7 @@ bool Generator::pushPreexistingImmutableData(const TArray<ImmutableBits>& immuta
         }
         if (found) {
             // We've found an exact match for the input value; push its slot-range onto the stack.
-            fBuilder.push_slots({firstSlot, slotArray.size()});
+            fBuilder.push_immutable({firstSlot, slotArray.size()});
             return true;
         }
     }
@@ -2620,7 +2623,7 @@ bool Generator::pushImmutableData(const Expression& e) {
                                                 e.fPosition,
                                                 /*isFunctionReturnValue=*/false);
     this->storeImmutableValueToSlots(immutableValues, range);
-    fBuilder.push_slots(range);
+    fBuilder.push_immutable(range);
     return true;
 }
 
@@ -3771,6 +3774,13 @@ bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRan
         r.index += subset.index;
         r.count = subset.count;
         fBuilder.push_uniform(r);
+    } else if (fImmutableVariables.contains(&var)) {
+        // TODO(skia:14396): immutable variables should be stored in a separate slot range
+        r = this->getVariableSlots(var);
+        SkASSERT(r.count == (int)var.type().slotCount());
+        r.index += subset.index;
+        r.count = subset.count;
+        fBuilder.push_immutable(r);
     } else {
         r = this->getVariableSlots(var);
         SkASSERT(r.count == (int)var.type().slotCount());

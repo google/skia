@@ -108,7 +108,7 @@ store_condition_mask           $25 = CondMask
 store_condition_mask           $33 = CondMask
 store_condition_mask           $69 = CondMask
 store_condition_mask           $81 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +27 (label 7 at #77)
+branch_if_no_lanes_active      branch_if_no_lanes_active +29 (label 7 at #79)
 trace_enter                    TraceEnter(bool test_scalar()) when $13 is true
 copy_constant                  $82 = 0
 copy_slot_unmasked             $83 = $13
@@ -125,9 +125,11 @@ trace_line                     TraceLine(9) when $13 is true
 copy_slot_unmasked             imp = ihp
 trace_var                      TraceVar(imp) when $13 is true
 trace_line                     TraceLine(11) when $13 is true
-copy_2_slots_unmasked          $83..84 = mp, hp
+copy_slot_unmasked             $83 = mp
+copy_slot_unmasked             $84 = hp
 cmpeq_float                    $83 = equal($83, $84)
-copy_2_slots_unmasked          $84..85 = ihp, imp
+copy_slot_unmasked             $84 = ihp
+copy_slot_unmasked             $85 = imp
 cmpeq_int                      $84 = equal($84, $85)
 bitwise_and_int                $83 &= $84
 copy_slot_masked               [test_scalar].result = Mask($83)
@@ -138,7 +140,7 @@ copy_slot_unmasked             $82 = [test_scalar].result
 label                          label 0x00000007
 copy_constant                  $70 = 0
 merge_condition_mask           CondMask = $81 & $82
-branch_if_no_lanes_active      branch_if_no_lanes_active +76 (label 6 at #156)
+branch_if_no_lanes_active      branch_if_no_lanes_active +77 (label 6 at #159)
 trace_enter                    TraceEnter(bool test_vector()) when $13 is true
 copy_constant                  $71 = 0
 copy_slot_unmasked             $72 = $13
@@ -175,7 +177,8 @@ trace_line                     TraceLine(27) when $13 is true
 copy_4_slots_unmasked          imp4 = ihp4
 trace_var                      TraceVar(imp4) when $13 is true
 trace_line                     TraceLine(29) when $13 is true
-copy_4_slots_unmasked          $72..75 = mp2, hp2
+copy_2_slots_unmasked          $72..73 = mp2
+copy_2_slots_unmasked          $74..75 = hp2
 cmpeq_2_floats                 $72..73 = equal($72..73, $74..75)
 bitwise_and_int                $72 &= $73
 copy_3_slots_unmasked          $73..75 = hp3
@@ -195,8 +198,8 @@ copy_2_slots_unmasked          $75..76 = ihp2
 cmpeq_2_ints                   $73..74 = equal($73..74, $75..76)
 bitwise_and_int                $73 &= $74
 bitwise_and_int                $72 &= $73
-copy_4_slots_unmasked          $73..76 = ihp3, imp3(0)
-copy_2_slots_unmasked          $77..78 = imp3(1..2)
+copy_3_slots_unmasked          $73..75 = ihp3
+copy_3_slots_unmasked          $76..78 = imp3
 cmpeq_3_ints                   $73..75 = equal($73..75, $76..78)
 bitwise_and_int                $74 &= $75
 bitwise_and_int                $73 &= $74
@@ -218,7 +221,7 @@ label                          label 0x00000006
 load_condition_mask            CondMask = $81
 copy_constant                  $34 = 0
 merge_condition_mask           CondMask = $69 & $70
-branch_if_no_lanes_active      branch_if_no_lanes_active +66 (label 5 at #226)
+branch_if_no_lanes_active      branch_if_no_lanes_active +66 (label 5 at #229)
 trace_enter                    TraceEnter(bool test_matrix()) when $13 is true
 copy_constant                  $35 = 0
 copy_slot_unmasked             $36 = $13
@@ -288,7 +291,7 @@ label                          label 0x00000005
 load_condition_mask            CondMask = $69
 copy_constant                  $26 = 0
 merge_condition_mask           CondMask = $33 & $34
-branch_if_no_lanes_active      branch_if_no_lanes_active +62 (label 4 at #292)
+branch_if_no_lanes_active      branch_if_no_lanes_active +62 (label 4 at #295)
 trace_enter                    TraceEnter(bool test_array()) when $13 is true
 copy_constant                  $27 = 0
 copy_slot_unmasked             $28 = $13
@@ -354,7 +357,7 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $33
 copy_constant                  $22 = 0
 merge_condition_mask           CondMask = $25 & $26
-branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 3 at #314)
+branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 3 at #317)
 trace_enter                    TraceEnter(bool highp_param(float value)) when $13 is true
 copy_constant                  value = 0x3F800000 (1.0)
 trace_var                      TraceVar(value) when $13 is true
@@ -376,7 +379,7 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $25
 copy_constant                  $18 = 0
 merge_condition_mask           CondMask = $21 & $22
-branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 2 at #336)
+branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 2 at #339)
 trace_enter                    TraceEnter(bool mediump_param(half value)) when $13 is true
 copy_constant                  value₁ = 0x40000000 (2.0)
 trace_var                      TraceVar(value₁) when $13 is true
@@ -398,7 +401,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $21
 copy_constant                  $1 = 0
 merge_condition_mask           CondMask = $17 & $18
-branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 1 at #358)
+branch_if_no_lanes_active      branch_if_no_lanes_active +18 (label 1 at #361)
 trace_enter                    TraceEnter(bool lowp_param(half value)) when $13 is true
 copy_constant                  value₂ = 0x40400000 (3.0)
 trace_var                      TraceVar(value₂) when $13 is true
