@@ -1,12 +1,5 @@
 [immutable slots]
 i0 = 0xFFFFFFFF
-i1 = 0xFFFFFFFF
-i2 = 0xFFFFFFFF
-i3 = 0xFFFFFFFF
-i4 = 0xFFFFFFFF
-i5 = 0xFFFFFFFF
-i6 = 0xFFFFFFFF
-i7 = 0xFFFFFFFF
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

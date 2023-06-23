@@ -2,7 +2,6 @@
 i0 = 0xFFFFFFFF
 i1 = 0x00000001 (1.401298e-45)
 i2 = 0x00000002 (2.802597e-45)
-i3 = 0xFFFFFFFF
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

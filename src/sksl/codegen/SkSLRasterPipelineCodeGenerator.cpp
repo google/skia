@@ -13,6 +13,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkStringView.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkTHash.h"
@@ -113,6 +114,12 @@ public:
                           const Type& type,
                           Position pos,
                           bool isFunctionReturnValue);
+
+    /**
+     * Associates previously-created slots with an SkSL variable. (This would result in multiple
+     * variables sharing a slot range.)
+     */
+    void mapVariableToSlots(const Variable& v, SlotRange range);
 
     /** Looks up the slots associated with an SkSL variable; creates the slot if necessary. */
     SlotRange getVariableSlots(const Variable& v);
@@ -217,7 +224,7 @@ public:
     }
 
     /**
-     * Looks up the slots associated with an SkSL immutable variable; creates the slot if necessary.
+     * Looks up the slots associated with an immutable variable; creates the slots if necessary.
      */
     SlotRange getImmutableSlots(const Variable& v) {
         SkASSERT(!IsUniform(v));
@@ -332,7 +339,8 @@ public:
     using ImmutableBits = int32_t;
 
     [[nodiscard]] bool pushImmutableData(const Expression& e);
-    [[nodiscard]] bool pushPreexistingImmutableData(const TArray<ImmutableBits>& immutableValues);
+    [[nodiscard]] std::optional<SlotRange> findPreexistingImmutableData(
+            const TArray<ImmutableBits>& immutableValues);
     [[nodiscard]] bool getImmutableValueForExpression(const Expression& expr,
                                                       TArray<ImmutableBits>* immutableValues);
     void storeImmutableValueToSlots(const TArray<ImmutableBits>& immutableValues, SlotRange slots);
@@ -1176,6 +1184,12 @@ SlotRange SlotManager::createSlots(std::string name,
     return result;
 }
 
+void SlotManager::mapVariableToSlots(const Variable& v, SlotRange range) {
+    SkASSERT(fSlotMap.find(&v) == nullptr);
+    SkASSERT(v.type().slotCount() == SkToSizeT(range.count));
+    fSlotMap.set(&v, range);
+}
+
 SlotRange SlotManager::getVariableSlots(const Variable& v) {
     SlotRange* entry = fSlotMap.find(&v);
     if (entry != nullptr) {
@@ -1185,7 +1199,7 @@ SlotRange SlotManager::getVariableSlots(const Variable& v) {
                                         v.type(),
                                         v.fPosition,
                                         /*isFunctionReturnValue=*/false);
-    fSlotMap.set(&v, range);
+    this->mapVariableToSlots(v, range);
     return range;
 }
 
@@ -2076,10 +2090,18 @@ bool Generator::writeImmutableVarDeclaration(const VarDeclaration& d) {
         return false;
     }
 
-    // Write out the constant value back to slots immutably. (This generates no runtime code.)
     fImmutableVariables.add(d.var());
-    SlotRange slots = this->getImmutableSlots(*d.var());
-    this->storeImmutableValueToSlots(immutableValues, slots);
+
+    std::optional<SlotRange> preexistingSlots = this->findPreexistingImmutableData(immutableValues);
+    if (preexistingSlots.has_value()) {
+        // Associate this variable with a preexisting range of immutable data (no new data or code).
+        fImmutableSlots.mapVariableToSlots(*d.var(), *preexistingSlots);
+    } else {
+        // Write out the constant value back to immutable slots. (This generates data, but no
+        // runtime code.)
+        SlotRange slots = this->getImmutableSlots(*d.var());
+        this->storeImmutableValueToSlots(immutableValues, slots);
+    }
 
     return true;
 }
@@ -2625,7 +2647,8 @@ void Generator::storeImmutableValueToSlots(const TArray<ImmutableBits>& immutabl
     }
 }
 
-bool Generator::pushPreexistingImmutableData(const TArray<ImmutableBits>& immutableValues) {
+std::optional<SlotRange> Generator::findPreexistingImmutableData(
+        const TArray<ImmutableBits>& immutableValues) {
     STArray<16, const THashSet<Slot>*> slotArray;
     slotArray.reserve_exact(immutableValues.size());
 
@@ -2634,7 +2657,7 @@ bool Generator::pushPreexistingImmutableData(const TArray<ImmutableBits>& immuta
     for (const ImmutableBits& immutableValue : immutableValues) {
         const THashSet<Slot>* slotsForValue = fImmutableSlotMap.find(immutableValue);
         if (!slotsForValue) {
-            return false;
+            return std::nullopt;
         }
         slotArray.push_back(slotsForValue);
     }
@@ -2661,14 +2684,13 @@ bool Generator::pushPreexistingImmutableData(const TArray<ImmutableBits>& immuta
             }
         }
         if (found) {
-            // We've found an exact match for the input value; push its slot-range onto the stack.
-            fBuilder.push_immutable({firstSlot, slotArray.size()});
-            return true;
+            // We've found an exact match for the input value; return its slot-range.
+            return SlotRange{firstSlot, slotArray.size()};
         }
     }
 
     // We didn't find any reusable slot ranges.
-    return false;
+    return std::nullopt;
 }
 
 bool Generator::pushImmutableData(const Expression& e) {
@@ -2676,7 +2698,9 @@ bool Generator::pushImmutableData(const Expression& e) {
     if (!this->getImmutableValueForExpression(e, &immutableValues)) {
         return false;
     }
-    if (this->pushPreexistingImmutableData(immutableValues)) {
+    std::optional<SlotRange> preexistingData = this->findPreexistingImmutableData(immutableValues);
+    if (preexistingData.has_value()) {
+        fBuilder.push_immutable(*preexistingData);
         return true;
     }
     SlotRange range = fImmutableSlots.createSlots(e.description(),

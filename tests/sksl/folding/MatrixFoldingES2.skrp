@@ -12,13 +12,6 @@ i9 = 0x40800000 (4.0)
 i10 = 0
 i11 = 0
 i12 = 0xFFFFFFFF
-i13 = 0xFFFFFFFF
-i14 = 0xFFFFFFFF
-i15 = 0xFFFFFFFF
-i16 = 0xFFFFFFFF
-i17 = 0xFFFFFFFF
-i18 = 0xFFFFFFFF
-i19 = 0xFFFFFFFF
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

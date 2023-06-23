@@ -3,8 +3,6 @@ i0 = 0x00000001 (1.401298e-45)
 i1 = 0x00000002 (2.802597e-45)
 i2 = 0x3F800000 (1.0)
 i3 = 0x40000000 (2.0)
-i4 = 0x3F800000 (1.0)
-i5 = 0x40000000 (2.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -35,7 +33,7 @@ bitwise_and_int                $1 &= $2
 bitwise_and_int                $0 &= $1
 copy_2_slots_unmasked          $12..13 = h2[0], h2[1]
 copy_2_slots_unmasked          $1..2 = $12..13
-copy_2_immutables_unmasked     $3..4 = i4..5 [0x3F800000 (1.0), 0x40000000 (2.0)]
+copy_2_immutables_unmasked     $3..4 = i2..3 [0x3F800000 (1.0), 0x40000000 (2.0)]
 cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
 bitwise_and_int                $1 &= $2
 bitwise_and_int                $0 &= $1
