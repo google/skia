@@ -105,7 +105,8 @@ public:
                       }
                       switch (a->kind()) {
                           case ProgramElement::Kind::kGlobalVar:
-                              SkASSERT(a == b || GlobalVarBuiltinName(*a) != GlobalVarBuiltinName(*b));
+                              SkASSERT(a == b ||
+                                       GlobalVarBuiltinName(*a) != GlobalVarBuiltinName(*b));
                               return GlobalVarBuiltinName(*a) < GlobalVarBuiltinName(*b);
 
                           case ProgramElement::Kind::kInterfaceBlock:
