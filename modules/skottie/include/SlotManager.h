@@ -63,8 +63,7 @@ private:
 
     // pass value to the SlotManager for manipulation and node for invalidation
     void trackColorValue(SlotID, SkColor*, sk_sp<sksg::Node>);
-    sk_sp<skresources::ImageAsset> trackImageValue(SlotID, sk_sp<skresources::ImageAsset>,
-                                                   sk_sp<sksg::Node>);
+    sk_sp<skresources::ImageAsset> trackImageValue(SlotID, sk_sp<skresources::ImageAsset>);
     void trackScalarValue(SlotID, SkScalar*, sk_sp<sksg::Node>);
     void trackScalarValue(SlotID, SkScalar*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
 
@@ -94,10 +93,10 @@ private:
 
     class ImageAssetProxy;
     template <typename T>
-    using SlotMap = THashMap<SlotID, TArray<ValuePair<T>>>;
+    using SlotMap = THashMap<SlotID, TArray<T>>;
 
-    SlotMap<SkColor*>               fColorMap;
-    SlotMap<SkScalar*>              fScalarMap;
+    SlotMap<ValuePair<SkColor*>>    fColorMap;
+    SlotMap<ValuePair<SkScalar*>>   fScalarMap;
     SlotMap<sk_sp<ImageAssetProxy>> fImageMap;
 
     const sk_sp<skottie::internal::SceneGraphRevalidator> fRevalidator;

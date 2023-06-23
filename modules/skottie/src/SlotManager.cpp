@@ -54,11 +54,10 @@ void skottie::SlotManager::setColorSlot(SlotID slotID, SkColor c) {
 }
 
 void skottie::SlotManager::setImageSlot(SlotID slotID, sk_sp<skresources::ImageAsset> i) {
-    const auto valueGroup = fImageMap.find(slotID);
-    if (valueGroup) {
-        for (auto& iPair : *valueGroup) {
-            iPair.value->setImageAsset(i);
-            iPair.node->invalidate();
+    const auto imageGroup = fImageMap.find(slotID);
+    if (imageGroup) {
+        for (auto& imageAsset : *imageGroup) {
+            imageAsset->setImageAsset(i);
         }
         fRevalidator->revalidate();
     }
@@ -85,8 +84,8 @@ SkColor skottie::SlotManager::getColorSlot (SlotID slotID) const {
 }
 
 sk_sp<const skresources::ImageAsset> skottie::SlotManager::getImageSlot (SlotID slotID) const {
-    const auto valueGroup = fImageMap.find(slotID);
-    return valueGroup && !valueGroup->empty() ? valueGroup->at(0).value->getImageAsset() : nullptr;
+    const auto imageGroup = fImageMap.find(slotID);
+    return imageGroup && !imageGroup->empty() ? imageGroup->at(0)->getImageAsset() : nullptr;
 }
 
 SkScalar skottie::SlotManager::getScalarSlot (SlotID slotID) const {
@@ -102,10 +101,9 @@ void skottie::SlotManager::trackColorValue(SlotID slotID, SkColor* colorValue,
 
 sk_sp<skresources::ImageAsset> skottie::SlotManager::trackImageValue(SlotID slotID,
                                                                      sk_sp<skresources::ImageAsset>
-                                                                        imageAsset,
-                                                                     sk_sp<sksg::Node> node) {
+                                                                        imageAsset) {
     auto proxy = sk_make_sp<ImageAssetProxy>(std::move(imageAsset));
-    fImageMap[slotID].push_back({proxy, std::move(node), nullptr});
+    fImageMap[slotID].push_back(proxy);
     return std::move(proxy);
 }
 

@@ -111,20 +111,16 @@ AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& defaultJImage) con
         return cached_info;
     }
 
-    // If a slotID is present, we lose asset_id info during the load call. If this is an issue, we
-    // will extend the base ResourceProvider and provide a new loadImageAsset call that passes all
-    // four arguments (path, name, id, slotID)
-    auto asset = fResourceProvider->loadImageAsset(path->begin(),
-                                               name->begin(),
-                                               slotID
-                                                   ? slotID->begin()
-                                                   : id->begin());
+    auto asset = fResourceProvider->loadImageAsset(path->begin(), name->begin(), id->begin());
     if (!asset) {
         this->log(Logger::Level::kError, nullptr, "Could not load image asset: %s/%s (id: '%s').",
                   path->begin(), name->begin(), id->begin());
         return nullptr;
     }
 
+    if (slotID) {
+        asset = fSlotManager->trackImageValue(SkString(slotID->begin()), std::move(asset));
+    }
     const auto size = SkISize::Make(ParseDefault<int>((*jimage)["w"], 0),
                                     ParseDefault<int>((*jimage)["h"], 0));
     return fImageAssetCache.set(res_id, { std::move(asset), size });
