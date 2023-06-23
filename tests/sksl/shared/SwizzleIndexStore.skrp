@@ -19,7 +19,7 @@ init_lane_masks                CondMask = LoopMask = RetMask = true
 store_condition_mask           $12 = CondMask
 branch_if_no_lanes_active      branch_if_no_lanes_active +57 (label 2 at #61)
 store_return_mask              $13 = RetMask
-copy_3_slots_unmasked          expected = float3(3.0, 2.0, 1.0)
+copy_3_immutables_unmasked     expected = float3(3.0, 2.0, 1.0)
 splat_4_constants              vec, c = 0
 store_loop_mask                $14 = LoopMask
 jump                           jump +40 (label 4 at #49)
@@ -28,7 +28,7 @@ branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 6 at #30)
 copy_constant                  r = 0
 label                          label 0x00000007
 copy_slot_unmasked             $23 = r
-copy_3_slots_unmasked          $27..29 = int3(2, 1, 0)
+copy_3_immutables_unmasked     $27..29 = int3(2, 1, 0)
 copy_from_indirect_unmasked    $22 = Indirect($27 + $23)
 copy_slot_unmasked             $27 = c
 mul_imm_int                    $27 *= 0x00000003
@@ -79,7 +79,7 @@ copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
 branch_if_no_lanes_active      branch_if_no_lanes_active +60 (label 1 at #124)
 store_return_mask              $1 = RetMask
-copy_4_slots_unmasked          expected₁ = float4(4.0, 3.0, 2.0, 1.0)
+copy_4_immutables_unmasked     expected₁ = float4(4.0, 3.0, 2.0, 1.0)
 splat_4_constants              vec₁ = 0
 copy_constant                  c₁ = 0
 store_loop_mask                $2 = LoopMask
@@ -89,7 +89,7 @@ branch_if_no_lanes_active      branch_if_no_lanes_active +19 (label 12 at #91)
 copy_constant                  r₁ = 0
 label                          label 0x0000000D
 copy_slot_unmasked             $27 = r₁
-copy_4_slots_unmasked          $23..26 = int4(3, 2, 1, 0)
+copy_4_immutables_unmasked     $23..26 = int4(3, 2, 1, 0)
 copy_from_indirect_unmasked    $22 = Indirect($23 + $27)
 copy_slot_unmasked             $23 = c₁
 mul_imm_int                    $23 *= 0x00000004

@@ -33,7 +33,7 @@ trace_exit                     TraceExit(void init_globals()) when $3 is true
 label                          label 0
 trace_line                     TraceLine(13) when $3 is true
 copy_constant                  [main].result(0) = 0
-copy_slot_unmasked             [main].result(1) = gInitializedFromOther
+copy_immutable_unmasked        [main].result(1) = gInitializedFromOther
 copy_constant                  [main].result(2) = 0
 copy_slot_unmasked             [main].result(3) = gUninitialized
 trace_var                      TraceVar([main].result) when $3 is true

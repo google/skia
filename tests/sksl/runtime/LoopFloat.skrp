@@ -369,7 +369,7 @@ label                          label 0x0000001A
 trace_scope                    TraceScope(-1) when $64 is true
 trace_line                     TraceLine(54) when $13 is true
 copy_4_slots_unmasked          $64..67 = result
-copy_4_slots_unmasked          $68..71 = float4(9.0, 1.0, 2.0, 3.0)
+copy_4_immutables_unmasked     $68..71 = float4(9.0, 1.0, 2.0, 3.0)
 cmpeq_4_floats                 $64..67 = equal($64..67, $68..71)
 bitwise_and_2_ints             $64..65 &= $66..67
 bitwise_and_int                $64 &= $65
@@ -426,7 +426,7 @@ label                          label 0x0000001D
 trace_scope                    TraceScope(-1) when $53 is true
 trace_line                     TraceLine(66) when $13 is true
 copy_4_slots_unmasked          $53..56 = result₁
-copy_4_slots_unmasked          $57..60 = float4(9.0, 1.0, 2.0, 3.0)
+copy_4_immutables_unmasked     $57..60 = float4(9.0, 1.0, 2.0, 3.0)
 cmpeq_4_floats                 $53..56 = equal($53..56, $57..60)
 bitwise_and_2_ints             $53..54 &= $55..56
 bitwise_and_int                $53 &= $54
@@ -484,7 +484,7 @@ label                          label 0x00000020
 trace_scope                    TraceScope(-1) when $42 is true
 trace_line                     TraceLine(78) when $13 is true
 copy_4_slots_unmasked          $42..45 = result₂
-copy_4_slots_unmasked          $46..49 = float4(9.0, 3.0, 2.0, 1.0)
+copy_4_immutables_unmasked     $46..49 = float4(9.0, 3.0, 2.0, 1.0)
 cmpeq_4_floats                 $42..45 = equal($42..45, $46..49)
 bitwise_and_2_ints             $42..43 &= $44..45
 bitwise_and_int                $42 &= $43
@@ -542,7 +542,7 @@ label                          label 0x00000023
 trace_scope                    TraceScope(-1) when $31 is true
 trace_line                     TraceLine(90) when $13 is true
 copy_4_slots_unmasked          $31..34 = result₃
-copy_4_slots_unmasked          $35..38 = float4(9.0, 3.0, 2.0, 1.0)
+copy_4_immutables_unmasked     $35..38 = float4(9.0, 3.0, 2.0, 1.0)
 cmpeq_4_floats                 $31..34 = equal($31..34, $35..38)
 bitwise_and_2_ints             $31..32 &= $33..34
 bitwise_and_int                $31 &= $32
@@ -590,7 +590,7 @@ label                          label 0x00000026
 trace_scope                    TraceScope(-1) when $20 is true
 trace_line                     TraceLine(112) when $13 is true
 copy_4_slots_unmasked          $20..23 = result₄
-copy_4_slots_unmasked          $24..27 = float4(9.0, 9.0, 9.0, 1.0)
+copy_4_immutables_unmasked     $24..27 = float4(9.0, 9.0, 9.0, 1.0)
 cmpeq_4_floats                 $20..23 = equal($20..23, $24..27)
 bitwise_and_2_ints             $20..21 &= $22..23
 bitwise_and_int                $20 &= $21
@@ -646,7 +646,7 @@ label                          label 0x00000029
 trace_scope                    TraceScope(-1) when $3 is true
 trace_line                     TraceLine(101) when $13 is true
 copy_4_slots_unmasked          $3..6 = result₅
-copy_4_slots_unmasked          $7..10 = float4(9.0, 1.0, 2.0, 3.0)
+copy_4_immutables_unmasked     $7..10 = float4(9.0, 1.0, 2.0, 3.0)
 cmpeq_4_floats                 $3..6 = equal($3..6, $7..10)
 bitwise_and_2_ints             $3..4 &= $5..6
 bitwise_and_int                $3 &= $4

@@ -38,7 +38,7 @@ store_condition_mask           $4 = CondMask
 copy_slot_unmasked             $5 = integerInput
 cmpeq_imm_int                  $5 = equal($5, 0x00000002)
 merge_condition_mask           CondMask = $4 & $5
-copy_4_slots_unmasked          $6..9 = kConstVec
+copy_4_immutables_unmasked     $6..9 = kConstVec
 copy_4_slots_masked            [main].result = Mask($6..9)
 merge_inv_condition_mask       CondMask = $4 & ~$5
 copy_constant                  $6 = 0x4048F5C3 (3.14)
@@ -58,7 +58,7 @@ splat_4_constants              $8..11 = 0
 copy_4_slots_masked            [main].result = Mask($8..11)
 jump                           jump +4 (label 3 at #46)
 label                          label 0x00000002
-copy_4_slots_unmasked          $8..11 = half4(1.0, 0.0, 0.0, 1.0)
+copy_4_immutables_unmasked     $8..11 = half4(1.0, 0.0, 0.0, 1.0)
 copy_4_slots_masked            [main].result = Mask($8..11)
 label                          label 0x00000003
 label                          label 0x00000001

@@ -12,7 +12,7 @@ init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_4_constants              _0_matrix(0..3) = 0
 splat_4_constants              _0_matrix(4..7) = 0
 copy_constant                  _0_matrix(8) = 0
-copy_3_slots_unmasked          _1_values = float3(3.0, 2.0, 1.0)
+copy_3_immutables_unmasked     _1_values = float3(3.0, 2.0, 1.0)
 copy_constant                  _2_index = 0
 label                          label 0x00000001
 copy_slot_unmasked             $33 = _2_index
@@ -53,7 +53,7 @@ splat_4_constants              matrix(0..3) = 0
 splat_4_constants              matrix(4..7) = 0
 splat_4_constants              matrix(8..11) = 0
 splat_4_constants              matrix(12..15) = 0
-copy_4_slots_unmasked          values = float4(4.0, 3.0, 2.0, 1.0)
+copy_4_immutables_unmasked     values = float4(4.0, 3.0, 2.0, 1.0)
 branch_if_no_lanes_active      branch_if_no_lanes_active +22 (label 5 at #70)
 copy_constant                  index = 0
 label                          label 0x00000006

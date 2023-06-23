@@ -6,7 +6,7 @@ half4(3.0, 2.0, 1.0, 0.0)(3) = 0
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_4_slots_unmasked          x = half4(3.0, 2.0, 1.0, 0.0)
+copy_4_immutables_unmasked     x = half4(3.0, 2.0, 1.0, 0.0)
 copy_4_slots_unmasked          $0..3 = x
 swizzle_3                      $0..2 = ($0..2).zyx
 copy_3_slots_unmasked          x(0..2) = $0..2

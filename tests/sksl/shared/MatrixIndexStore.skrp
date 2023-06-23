@@ -46,7 +46,7 @@ splat_4_constants              matrix(4..7) = 0
 copy_constant                  matrix(8) = 0
 trace_var                      TraceVar(matrix) when $35 is true
 trace_line                     TraceLine(9) when $35 is true
-copy_3_slots_unmasked          values = float3(1.0, 2.0, 3.0)
+copy_3_immutables_unmasked     values = float3(1.0, 2.0, 3.0)
 trace_var                      TraceVar(values) when $35 is true
 copy_constant                  $41 = 0
 copy_slot_unmasked             $42 = $35
@@ -118,7 +118,7 @@ splat_4_constants              matrix₁(8..11) = 0
 splat_4_constants              matrix₁(12..15) = 0
 trace_var                      TraceVar(matrix₁) when $35 is true
 trace_line                     TraceLine(19) when $35 is true
-copy_4_slots_unmasked          values₁ = float4(1.0, 2.0, 3.0, 4.0)
+copy_4_immutables_unmasked     values₁ = float4(1.0, 2.0, 3.0, 4.0)
 trace_var                      TraceVar(values₁) when $35 is true
 copy_constant                  $3 = 0
 copy_slot_unmasked             $4 = $35

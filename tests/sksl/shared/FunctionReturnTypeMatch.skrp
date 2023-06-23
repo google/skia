@@ -121,12 +121,12 @@ store_condition_mask           $214 = CondMask
 store_condition_mask           $224 = CondMask
 store_condition_mask           $232 = CondMask
 store_condition_mask           $238 = CondMask
-copy_slot_unmasked             $239 = x1
+copy_immutable_unmasked        $239 = x1
 cmpeq_imm_float                $239 = equal($239, 0x3F800000 (1.0))
 copy_constant                  $233 = 0
 merge_condition_mask           CondMask = $238 & $239
 branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 21 at #36)
-copy_2_slots_unmasked          $234..235 = x2
+copy_2_immutables_unmasked     $234..235 = x2
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 22 at #32)
 splat_2_constants              $236..237 = 0x40000000 (2.0)
 label                          label 0x00000016
@@ -138,7 +138,7 @@ load_condition_mask            CondMask = $238
 copy_constant                  $225 = 0
 merge_condition_mask           CondMask = $232 & $233
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 20 at #49)
-copy_3_slots_unmasked          $226..228 = x3
+copy_3_immutables_unmasked     $226..228 = x3
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 23 at #44)
 splat_3_constants              $229..231 = 0x40400000 (3.0)
 label                          label 0x00000017
@@ -151,7 +151,7 @@ load_condition_mask            CondMask = $232
 copy_constant                  $215 = 0
 merge_condition_mask           CondMask = $224 & $225
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 19 at #62)
-copy_4_slots_unmasked          $216..219 = x4
+copy_4_immutables_unmasked     $216..219 = x4
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 24 at #57)
 splat_4_constants              $220..223 = 0x40800000 (4.0)
 label                          label 0x00000018
@@ -164,7 +164,7 @@ load_condition_mask            CondMask = $224
 copy_constant                  $205 = 0
 merge_condition_mask           CondMask = $214 & $215
 branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 18 at #77)
-copy_4_slots_unmasked          $206..209 = x5
+copy_4_immutables_unmasked     $206..209 = x5
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 25 at #72)
 copy_constant                  $210 = 0
 copy_constant                  $211 = 0x40000000 (2.0)
@@ -179,9 +179,9 @@ load_condition_mask            CondMask = $214
 copy_constant                  $185 = 0
 merge_condition_mask           CondMask = $204 & $205
 branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 17 at #96)
-copy_4_slots_unmasked          $186..189 = x6(0..3)
-copy_4_slots_unmasked          $190..193 = x6(4..7)
-copy_slot_unmasked             $194 = x6(8)
+copy_4_immutables_unmasked     $186..189 = x6(0..3)
+copy_4_immutables_unmasked     $190..193 = x6(4..7)
+copy_immutable_unmasked        $194 = x6(8)
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 26 at #89)
 copy_constant                  $195 = 0
 copy_constant                  $196 = 0x40400000 (3.0)
@@ -198,10 +198,10 @@ load_condition_mask            CondMask = $204
 copy_constant                  $151 = 0
 merge_condition_mask           CondMask = $184 & $185
 branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 16 at #117)
-copy_4_slots_unmasked          $152..155 = x7(0..3)
-copy_4_slots_unmasked          $156..159 = x7(4..7)
-copy_4_slots_unmasked          $160..163 = x7(8..11)
-copy_4_slots_unmasked          $164..167 = x7(12..15)
+copy_4_immutables_unmasked     $152..155 = x7(0..3)
+copy_4_immutables_unmasked     $156..159 = x7(4..7)
+copy_4_immutables_unmasked     $160..163 = x7(8..11)
+copy_4_immutables_unmasked     $164..167 = x7(12..15)
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 27 at #109)
 copy_constant                  $168 = 0
 copy_constant                  $169 = 0x40800000 (4.0)
@@ -219,7 +219,7 @@ load_condition_mask            CondMask = $184
 copy_constant                  $147 = 0
 merge_condition_mask           CondMask = $150 & $151
 branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 15 at #128)
-copy_slot_unmasked             $148 = x8
+copy_immutable_unmasked        $148 = x8
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 28 at #125)
 copy_constant                  $149 = 0x3F800000 (1.0)
 label                          label 0x0000001C
@@ -230,7 +230,7 @@ load_condition_mask            CondMask = $150
 copy_constant                  $141 = 0
 merge_condition_mask           CondMask = $146 & $147
 branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 14 at #140)
-copy_2_slots_unmasked          $142..143 = x9
+copy_2_immutables_unmasked     $142..143 = x9
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 29 at #136)
 splat_2_constants              $144..145 = 0x40000000 (2.0)
 label                          label 0x0000001D
@@ -242,7 +242,7 @@ load_condition_mask            CondMask = $146
 copy_constant                  $133 = 0
 merge_condition_mask           CondMask = $140 & $141
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 13 at #153)
-copy_3_slots_unmasked          $134..136 = x10
+copy_3_immutables_unmasked     $134..136 = x10
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 30 at #148)
 splat_3_constants              $137..139 = 0x40400000 (3.0)
 label                          label 0x0000001E
@@ -255,7 +255,7 @@ load_condition_mask            CondMask = $140
 copy_constant                  $123 = 0
 merge_condition_mask           CondMask = $132 & $133
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 12 at #166)
-copy_4_slots_unmasked          $124..127 = x11
+copy_4_immutables_unmasked     $124..127 = x11
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 31 at #161)
 splat_4_constants              $128..131 = 0x40800000 (4.0)
 label                          label 0x0000001F
@@ -268,7 +268,7 @@ load_condition_mask            CondMask = $132
 copy_constant                  $113 = 0
 merge_condition_mask           CondMask = $122 & $123
 branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 11 at #181)
-copy_4_slots_unmasked          $114..117 = x12
+copy_4_immutables_unmasked     $114..117 = x12
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 32 at #176)
 copy_constant                  $118 = 0
 copy_constant                  $119 = 0x40000000 (2.0)
@@ -283,9 +283,9 @@ load_condition_mask            CondMask = $122
 copy_constant                  $93 = 0
 merge_condition_mask           CondMask = $112 & $113
 branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 10 at #200)
-copy_4_slots_unmasked          $94..97 = x13(0..3)
-copy_4_slots_unmasked          $98..101 = x13(4..7)
-copy_slot_unmasked             $102 = x13(8)
+copy_4_immutables_unmasked     $94..97 = x13(0..3)
+copy_4_immutables_unmasked     $98..101 = x13(4..7)
+copy_immutable_unmasked        $102 = x13(8)
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 33 at #193)
 copy_constant                  $103 = 0
 copy_constant                  $104 = 0x40400000 (3.0)
@@ -302,10 +302,10 @@ load_condition_mask            CondMask = $112
 copy_constant                  $59 = 0
 merge_condition_mask           CondMask = $92 & $93
 branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 9 at #221)
-copy_4_slots_unmasked          $60..63 = x14(0..3)
-copy_4_slots_unmasked          $64..67 = x14(4..7)
-copy_4_slots_unmasked          $68..71 = x14(8..11)
-copy_4_slots_unmasked          $72..75 = x14(12..15)
+copy_4_immutables_unmasked     $60..63 = x14(0..3)
+copy_4_immutables_unmasked     $64..67 = x14(4..7)
+copy_4_immutables_unmasked     $68..71 = x14(8..11)
+copy_4_immutables_unmasked     $72..75 = x14(12..15)
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 34 at #213)
 copy_constant                  $76 = 0
 copy_constant                  $77 = 0x40800000 (4.0)
@@ -323,7 +323,7 @@ load_condition_mask            CondMask = $92
 copy_constant                  $55 = 0
 merge_condition_mask           CondMask = $58 & $59
 branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 8 at #232)
-copy_slot_unmasked             $56 = x15
+copy_immutable_unmasked        $56 = x15
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 35 at #229)
 copy_constant                  $57 = 0xFFFFFFFF
 label                          label 0x00000023
@@ -334,7 +334,7 @@ load_condition_mask            CondMask = $58
 copy_constant                  $49 = 0
 merge_condition_mask           CondMask = $54 & $55
 branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 7 at #244)
-copy_2_slots_unmasked          $50..51 = x16
+copy_2_immutables_unmasked     $50..51 = x16
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 36 at #240)
 splat_2_constants              $52..53 = 0xFFFFFFFF
 label                          label 0x00000024
@@ -346,7 +346,7 @@ load_condition_mask            CondMask = $54
 copy_constant                  $41 = 0
 merge_condition_mask           CondMask = $48 & $49
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 6 at #257)
-copy_3_slots_unmasked          $42..44 = x17
+copy_3_immutables_unmasked     $42..44 = x17
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 37 at #252)
 splat_3_constants              $45..47 = 0xFFFFFFFF
 label                          label 0x00000025
@@ -359,7 +359,7 @@ load_condition_mask            CondMask = $48
 copy_constant                  $31 = 0
 merge_condition_mask           CondMask = $40 & $41
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 5 at #270)
-copy_4_slots_unmasked          $32..35 = x18
+copy_4_immutables_unmasked     $32..35 = x18
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 38 at #265)
 splat_4_constants              $36..39 = 0xFFFFFFFF
 label                          label 0x00000026
@@ -372,7 +372,7 @@ load_condition_mask            CondMask = $40
 copy_constant                  $27 = 0
 merge_condition_mask           CondMask = $30 & $31
 branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 4 at #281)
-copy_slot_unmasked             $28 = x19
+copy_immutable_unmasked        $28 = x19
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 39 at #278)
 copy_constant                  $29 = 0x00000001 (1.401298e-45)
 label                          label 0x00000027
@@ -383,7 +383,7 @@ load_condition_mask            CondMask = $30
 copy_constant                  $21 = 0
 merge_condition_mask           CondMask = $26 & $27
 branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 3 at #293)
-copy_2_slots_unmasked          $22..23 = x20
+copy_2_immutables_unmasked     $22..23 = x20
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 40 at #289)
 splat_2_constants              $24..25 = 0x00000002 (2.802597e-45)
 label                          label 0x00000028
@@ -395,7 +395,7 @@ load_condition_mask            CondMask = $26
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $20 & $21
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 2 at #306)
-copy_3_slots_unmasked          $14..16 = x21
+copy_3_immutables_unmasked     $14..16 = x21
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 41 at #301)
 splat_3_constants              $17..19 = 0x00000003 (4.203895e-45)
 label                          label 0x00000029
@@ -408,7 +408,7 @@ load_condition_mask            CondMask = $20
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 1 at #319)
-copy_4_slots_unmasked          $1..4 = x22
+copy_4_immutables_unmasked     $1..4 = x22
 branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 42 at #314)
 splat_4_constants              $5..8 = 0x00000004 (5.605194e-45)
 label                          label 0x0000002A

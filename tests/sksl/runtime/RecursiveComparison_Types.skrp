@@ -80,7 +80,7 @@ store_condition_mask           $48 = CondMask
 store_condition_mask           $57 = CondMask
 store_condition_mask           $66 = CondMask
 store_condition_mask           $74 = CondMask
-copy_slot_unmasked             $75 = EQ
+copy_immutable_unmasked        $75 = EQ
 copy_slot_unmasked             $67 = _1_a[0].f1
 copy_slot_unmasked             $68 = _2_b[0].f1
 cmpne_float                    $67 = notEqual($67, $68)
@@ -123,7 +123,7 @@ load_condition_mask            CondMask = $74
 copy_constant                  $58 = 0
 merge_condition_mask           CondMask = $66 & $67
 branch_if_no_lanes_active      branch_if_no_lanes_active +87 (label 7 at #208)
-copy_slot_unmasked             eq = NE
+copy_immutable_unmasked        eq = NE
 copy_slot_unmasked             f1 = F42
 copy_slot_unmasked             v2 = ZM
 copy_slot_unmasked             f3 = ZP
@@ -214,7 +214,7 @@ load_condition_mask            CondMask = $66
 copy_constant                  $49 = 0
 merge_condition_mask           CondMask = $57 & $58
 branch_if_no_lanes_active      branch_if_no_lanes_active +85 (label 6 at #297)
-copy_slot_unmasked             eq = NE
+copy_immutable_unmasked        eq = NE
 copy_slot_unmasked             f1 = F42
 copy_2_slots_unmasked          v2, f3 = NAN1, NAN2
 copy_3_slots_unmasked          f4, f5, f6 = F43, F44, F45
@@ -303,7 +303,7 @@ load_condition_mask            CondMask = $57
 copy_constant                  $40 = 0
 merge_condition_mask           CondMask = $48 & $49
 branch_if_no_lanes_active      branch_if_no_lanes_active +86 (label 5 at #387)
-copy_slot_unmasked             eq = EQ
+copy_immutable_unmasked        eq = EQ
 copy_slot_unmasked             f1 = F42
 copy_2_slots_unmasked          v2, f3 = NAN1, NAN2
 copy_3_slots_unmasked          f4, f5, f6 = F43, F44, F45
@@ -393,7 +393,7 @@ load_condition_mask            CondMask = $48
 copy_constant                  $31 = 0
 merge_condition_mask           CondMask = $39 & $40
 branch_if_no_lanes_active      branch_if_no_lanes_active +82 (label 4 at #473)
-copy_slot_unmasked             eq₁ = NE
+copy_immutable_unmasked        eq₁ = NE
 copy_4_slots_unmasked          f1₁, v2₁, f3₁, f4₁ = F42, F43, F44, F45
 copy_2_slots_unmasked          f5₁, f6₁ = F46, F47
 copy_uniform                   $32 = colorGreen(0)
@@ -479,7 +479,7 @@ load_condition_mask            CondMask = $39
 copy_constant                  $22 = 0
 merge_condition_mask           CondMask = $30 & $31
 branch_if_no_lanes_active      branch_if_no_lanes_active +84 (label 3 at #561)
-copy_slot_unmasked             eq₁ = EQ
+copy_immutable_unmasked        eq₁ = EQ
 copy_4_slots_unmasked          f1₁, v2₁, f3₁, f4₁ = F42, F43, F44, F45
 copy_2_slots_unmasked          f5₁, f6₁ = F46, F47
 copy_uniform                   $23 = colorGreen(0)
@@ -567,7 +567,7 @@ load_condition_mask            CondMask = $30
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $21 & $22
 branch_if_no_lanes_active      branch_if_no_lanes_active +84 (label 2 at #649)
-copy_slot_unmasked             eq₁ = NE
+copy_immutable_unmasked        eq₁ = NE
 copy_slot_unmasked             f1₁ = NAN1
 copy_slot_unmasked             v2₁ = ZM
 copy_slot_unmasked             f3₁ = ZP
@@ -655,7 +655,7 @@ load_condition_mask            CondMask = $21
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
 branch_if_no_lanes_active      branch_if_no_lanes_active +85 (label 1 at #738)
-copy_slot_unmasked             eq₁ = EQ
+copy_immutable_unmasked        eq₁ = EQ
 copy_slot_unmasked             f1₁ = NAN1
 copy_slot_unmasked             v2₁ = ZM
 copy_slot_unmasked             f3₁ = ZP

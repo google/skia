@@ -15,7 +15,7 @@ store_return_mask              $13 = RetMask
 copy_4_uniforms                matrix(0..3) = testMatrix3x3(0..3)
 copy_4_uniforms                matrix(4..7) = testMatrix3x3(4..7)
 copy_uniform                   matrix(8) = testMatrix3x3(8)
-copy_3_slots_unmasked          expected = float3(1.0, 2.0, 3.0)
+copy_3_immutables_unmasked     expected = float3(1.0, 2.0, 3.0)
 copy_constant                  index = 0
 store_loop_mask                $14 = LoopMask
 jump                           jump +22 (label 4 at #34)
@@ -61,7 +61,7 @@ copy_4_uniforms                matrix₁(0..3) = testMatrix4x4(0..3)
 copy_4_uniforms                matrix₁(4..7) = testMatrix4x4(4..7)
 copy_4_uniforms                matrix₁(8..11) = testMatrix4x4(8..11)
 copy_4_uniforms                matrix₁(12..15) = testMatrix4x4(12..15)
-copy_4_slots_unmasked          expected₁ = float4(1.0, 2.0, 3.0, 4.0)
+copy_4_immutables_unmasked     expected₁ = float4(1.0, 2.0, 3.0, 4.0)
 copy_constant                  index₁ = 0
 store_loop_mask                $2 = LoopMask
 jump                           jump +22 (label 8 at #80)

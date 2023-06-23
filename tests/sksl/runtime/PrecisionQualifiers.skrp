@@ -84,9 +84,9 @@ copy_4_uniforms                green = colorGreen
 trace_var                      TraceVar(green) when $13 is true
 trace_line                     TraceLine(61) when $13 is true
 copy_4_slots_unmasked          $1..4 = green
-copy_4_slots_unmasked          $5..8 = one
+copy_4_immutables_unmasked     $5..8 = one
 mul_4_floats                   $1..4 *= $5..8
-copy_4_slots_unmasked          $5..8 = zero
+copy_4_immutables_unmasked     $5..8 = zero
 add_4_floats                   $1..4 += $5..8
 copy_4_slots_unmasked          green = $1..4
 trace_var                      TraceVar(green) when $13 is true
@@ -95,9 +95,9 @@ copy_4_uniforms                red = colorRed
 trace_var                      TraceVar(red) when $13 is true
 trace_line                     TraceLine(64) when $13 is true
 copy_4_slots_unmasked          $1..4 = red
-copy_4_slots_unmasked          $5..8 = zero
+copy_4_immutables_unmasked     $5..8 = zero
 add_4_floats                   $1..4 += $5..8
-copy_4_slots_unmasked          $5..8 = one
+copy_4_immutables_unmasked     $5..8 = one
 mul_4_floats                   $1..4 *= $5..8
 copy_4_slots_unmasked          red = $1..4
 trace_var                      TraceVar(red) when $13 is true
@@ -117,18 +117,18 @@ trace_scope                    TraceScope(+1) when $82 is true
 trace_line                     TraceLine(6) when $13 is true
 trace_var                      TraceVar(mp) when $13 is true
 trace_line                     TraceLine(7) when $13 is true
-copy_slot_unmasked             hp = mp
+copy_immutable_unmasked        hp = mp
 trace_var                      TraceVar(hp) when $13 is true
 trace_line                     TraceLine(8) when $13 is true
 trace_var                      TraceVar(ihp) when $13 is true
 trace_line                     TraceLine(9) when $13 is true
-copy_slot_unmasked             imp = ihp
+copy_immutable_unmasked        imp = ihp
 trace_var                      TraceVar(imp) when $13 is true
 trace_line                     TraceLine(11) when $13 is true
-copy_slot_unmasked             $83 = mp
+copy_immutable_unmasked        $83 = mp
 copy_slot_unmasked             $84 = hp
 cmpeq_float                    $83 = equal($83, $84)
-copy_slot_unmasked             $84 = ihp
+copy_immutable_unmasked        $84 = ihp
 copy_slot_unmasked             $85 = imp
 cmpeq_int                      $84 = equal($84, $85)
 bitwise_and_int                $83 &= $84
@@ -149,63 +149,63 @@ trace_scope                    TraceScope(+1) when $71 is true
 trace_line                     TraceLine(15) when $13 is true
 trace_var                      TraceVar(mp2) when $13 is true
 trace_line                     TraceLine(16) when $13 is true
-copy_2_slots_unmasked          hp2 = mp2
+copy_2_immutables_unmasked     hp2 = mp2
 trace_var                      TraceVar(hp2) when $13 is true
 trace_line                     TraceLine(17) when $13 is true
 trace_var                      TraceVar(mp3) when $13 is true
 trace_line                     TraceLine(18) when $13 is true
-copy_3_slots_unmasked          hp3 = mp3
+copy_3_immutables_unmasked     hp3 = mp3
 trace_var                      TraceVar(hp3) when $13 is true
 trace_line                     TraceLine(19) when $13 is true
 trace_var                      TraceVar(mp4) when $13 is true
 trace_line                     TraceLine(20) when $13 is true
-copy_4_slots_unmasked          hp4 = mp4
+copy_4_immutables_unmasked     hp4 = mp4
 trace_var                      TraceVar(hp4) when $13 is true
 trace_line                     TraceLine(22) when $13 is true
 trace_var                      TraceVar(ihp2) when $13 is true
 trace_line                     TraceLine(23) when $13 is true
-copy_2_slots_unmasked          imp2 = ihp2
+copy_2_immutables_unmasked     imp2 = ihp2
 trace_var                      TraceVar(imp2) when $13 is true
 trace_line                     TraceLine(24) when $13 is true
 trace_var                      TraceVar(ihp3) when $13 is true
 trace_line                     TraceLine(25) when $13 is true
-copy_3_slots_unmasked          imp3 = ihp3
+copy_3_immutables_unmasked     imp3 = ihp3
 trace_var                      TraceVar(imp3) when $13 is true
 trace_line                     TraceLine(26) when $13 is true
 trace_var                      TraceVar(ihp4) when $13 is true
 trace_line                     TraceLine(27) when $13 is true
-copy_4_slots_unmasked          imp4 = ihp4
+copy_4_immutables_unmasked     imp4 = ihp4
 trace_var                      TraceVar(imp4) when $13 is true
 trace_line                     TraceLine(29) when $13 is true
-copy_2_slots_unmasked          $72..73 = mp2
+copy_2_immutables_unmasked     $72..73 = mp2
 copy_2_slots_unmasked          $74..75 = hp2
 cmpeq_2_floats                 $72..73 = equal($72..73, $74..75)
 bitwise_and_int                $72 &= $73
 copy_3_slots_unmasked          $73..75 = hp3
-copy_3_slots_unmasked          $76..78 = mp3
+copy_3_immutables_unmasked     $76..78 = mp3
 cmpeq_3_floats                 $73..75 = equal($73..75, $76..78)
 bitwise_and_int                $74 &= $75
 bitwise_and_int                $73 &= $74
 bitwise_and_int                $72 &= $73
-copy_4_slots_unmasked          $73..76 = mp4
+copy_4_immutables_unmasked     $73..76 = mp4
 copy_4_slots_unmasked          $77..80 = hp4
 cmpeq_4_floats                 $73..76 = equal($73..76, $77..80)
 bitwise_and_2_ints             $73..74 &= $75..76
 bitwise_and_int                $73 &= $74
 bitwise_and_int                $72 &= $73
 copy_2_slots_unmasked          $73..74 = imp2
-copy_2_slots_unmasked          $75..76 = ihp2
+copy_2_immutables_unmasked     $75..76 = ihp2
 cmpeq_2_ints                   $73..74 = equal($73..74, $75..76)
 bitwise_and_int                $73 &= $74
 bitwise_and_int                $72 &= $73
-copy_3_slots_unmasked          $73..75 = ihp3
+copy_3_immutables_unmasked     $73..75 = ihp3
 copy_3_slots_unmasked          $76..78 = imp3
 cmpeq_3_ints                   $73..75 = equal($73..75, $76..78)
 bitwise_and_int                $74 &= $75
 bitwise_and_int                $73 &= $74
 bitwise_and_int                $72 &= $73
 copy_4_slots_unmasked          $73..76 = imp4
-copy_4_slots_unmasked          $77..80 = ihp4
+copy_4_immutables_unmasked     $77..80 = ihp4
 cmpeq_4_ints                   $73..76 = equal($73..76, $77..80)
 bitwise_and_2_ints             $73..74 &= $75..76
 bitwise_and_int                $73 &= $74
@@ -230,25 +230,25 @@ trace_scope                    TraceScope(+1) when $35 is true
 trace_line                     TraceLine(34) when $13 is true
 trace_var                      TraceVar(mp2₁) when $13 is true
 trace_line                     TraceLine(35) when $13 is true
-copy_4_slots_unmasked          hp2₁ = mp2₁
+copy_4_immutables_unmasked     hp2₁ = mp2₁
 trace_var                      TraceVar(hp2₁) when $13 is true
 trace_line                     TraceLine(36) when $13 is true
 trace_var                      TraceVar(mp3₁) when $13 is true
 trace_line                     TraceLine(37) when $13 is true
-copy_4_slots_unmasked          hp3₁(0..3) = mp3₁(0..3)
-copy_4_slots_unmasked          hp3₁(4..7) = mp3₁(4..7)
-copy_slot_unmasked             hp3₁(8) = mp3₁(8)
+copy_4_immutables_unmasked     hp3₁(0..3) = mp3₁(0..3)
+copy_4_immutables_unmasked     hp3₁(4..7) = mp3₁(4..7)
+copy_immutable_unmasked        hp3₁(8) = mp3₁(8)
 trace_var                      TraceVar(hp3₁) when $13 is true
 trace_line                     TraceLine(38) when $13 is true
 trace_var                      TraceVar(mp4₁) when $13 is true
 trace_line                     TraceLine(39) when $13 is true
-copy_4_slots_unmasked          hp4₁(0..3) = mp4₁(0..3)
-copy_4_slots_unmasked          hp4₁(4..7) = mp4₁(4..7)
-copy_4_slots_unmasked          hp4₁(8..11) = mp4₁(8..11)
-copy_4_slots_unmasked          hp4₁(12..15) = mp4₁(12..15)
+copy_4_immutables_unmasked     hp4₁(0..3) = mp4₁(0..3)
+copy_4_immutables_unmasked     hp4₁(4..7) = mp4₁(4..7)
+copy_4_immutables_unmasked     hp4₁(8..11) = mp4₁(8..11)
+copy_4_immutables_unmasked     hp4₁(12..15) = mp4₁(12..15)
 trace_var                      TraceVar(hp4₁) when $13 is true
 trace_line                     TraceLine(41) when $13 is true
-copy_4_slots_unmasked          $36..39 = mp2₁
+copy_4_immutables_unmasked     $36..39 = mp2₁
 copy_4_slots_unmasked          $40..43 = hp2₁
 cmpeq_4_floats                 $36..39 = equal($36..39, $40..43)
 bitwise_and_2_ints             $36..37 &= $38..39
@@ -256,19 +256,19 @@ bitwise_and_int                $36 &= $37
 copy_4_slots_unmasked          $37..40 = hp3₁(0..3)
 copy_4_slots_unmasked          $41..44 = hp3₁(4..7)
 copy_slot_unmasked             $45 = hp3₁(8)
-copy_4_slots_unmasked          $46..49 = mp3₁(0..3)
-copy_4_slots_unmasked          $50..53 = mp3₁(4..7)
-copy_slot_unmasked             $54 = mp3₁(8)
+copy_4_immutables_unmasked     $46..49 = mp3₁(0..3)
+copy_4_immutables_unmasked     $50..53 = mp3₁(4..7)
+copy_immutable_unmasked        $54 = mp3₁(8)
 cmpeq_n_floats                 $37..45 = equal($37..45, $46..54)
 bitwise_and_4_ints             $38..41 &= $42..45
 bitwise_and_2_ints             $38..39 &= $40..41
 bitwise_and_int                $38 &= $39
 bitwise_and_int                $37 &= $38
 bitwise_and_int                $36 &= $37
-copy_4_slots_unmasked          $37..40 = mp4₁(0..3)
-copy_4_slots_unmasked          $41..44 = mp4₁(4..7)
-copy_4_slots_unmasked          $45..48 = mp4₁(8..11)
-copy_4_slots_unmasked          $49..52 = mp4₁(12..15)
+copy_4_immutables_unmasked     $37..40 = mp4₁(0..3)
+copy_4_immutables_unmasked     $41..44 = mp4₁(4..7)
+copy_4_immutables_unmasked     $45..48 = mp4₁(8..11)
+copy_4_immutables_unmasked     $49..52 = mp4₁(12..15)
 copy_4_slots_unmasked          $53..56 = hp4₁(0..3)
 copy_4_slots_unmasked          $57..60 = hp4₁(4..7)
 copy_4_slots_unmasked          $61..64 = hp4₁(8..11)
@@ -315,22 +315,22 @@ trace_line                     TraceLine(47) when $13 is true
 splat_4_constants              mv[0], mv[1] = 0
 trace_var                      TraceVar(mv[0], mv[1]) when $13 is true
 trace_line                     TraceLine(47) when $13 is true
-copy_2_slots_unmasked          $28..29 = zero(3), one(0)
+copy_2_immutables_unmasked     $28..29 = zero(3), one(0)
 copy_2_slots_masked            mv[0] = Mask($28..29)
 trace_var                      TraceVar(mv[0]) when $13 is true
 trace_line                     TraceLine(47) when $13 is true
-copy_2_slots_unmasked          $28..29 = half2(2.0, 3.0)
+copy_2_immutables_unmasked     $28..29 = half2(2.0, 3.0)
 copy_2_slots_masked            mv[1] = Mask($28..29)
 trace_var                      TraceVar(mv[1]) when $13 is true
 trace_line                     TraceLine(48) when $13 is true
 splat_4_constants              hv[0], hv[1] = 0
 trace_var                      TraceVar(hv[0], hv[1]) when $13 is true
 trace_line                     TraceLine(48) when $13 is true
-copy_2_slots_unmasked          $28..29 = zero(3), one(0)
+copy_2_immutables_unmasked     $28..29 = zero(3), one(0)
 copy_2_slots_masked            hv[0] = Mask($28..29)
 trace_var                      TraceVar(hv[0]) when $13 is true
 trace_line                     TraceLine(48) when $13 is true
-copy_2_slots_unmasked          $28..29 = half2(2.0, 3.0)
+copy_2_immutables_unmasked     $28..29 = half2(2.0, 3.0)
 copy_2_slots_masked            hv[1] = Mask($28..29)
 trace_var                      TraceVar(hv[1]) when $13 is true
 trace_line                     TraceLine(50) when $13 is true

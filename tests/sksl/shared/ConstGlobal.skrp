@@ -22,10 +22,10 @@ store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  seven = 0x00000007 (9.809089e-45)
 copy_constant                  ten = 0x0000000A (1.401298e-44)
-copy_4_slots_unmasked          matrixFive(0..3) = MATRIXFIVE(0..3)
-copy_4_slots_unmasked          matrixFive(4..7) = MATRIXFIVE(4..7)
-copy_4_slots_unmasked          matrixFive(8..11) = MATRIXFIVE(8..11)
-copy_4_slots_unmasked          matrixFive(12..15) = MATRIXFIVE(12..15)
+copy_4_immutables_unmasked     matrixFive(0..3) = MATRIXFIVE(0..3)
+copy_4_immutables_unmasked     matrixFive(4..7) = MATRIXFIVE(4..7)
+copy_4_immutables_unmasked     matrixFive(8..11) = MATRIXFIVE(8..11)
+copy_4_immutables_unmasked     matrixFive(12..15) = MATRIXFIVE(12..15)
 copy_slot_unmasked             $0 = seven
 cmpeq_imm_int                  $0 = equal($0, 0x00000007)
 copy_slot_unmasked             $1 = ten

@@ -10,7 +10,7 @@ half4(2.0, 3.0, 0.0, 5.0)(3) = 0x40A00000 (5.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_4_slots_unmasked          result = half4(0.0, 1.0, 2.0, 3.0)
+copy_4_immutables_unmasked     result = half4(0.0, 1.0, 2.0, 3.0)
 copy_4_slots_unmasked          color = result
 copy_constant                  x = 0x3F800000 (1.0)
 copy_constant                  y = 0x40000000 (2.0)
@@ -31,7 +31,7 @@ swizzle_copy_2_slots_masked    (color).yw = Mask($0..1)
 copy_4_slots_unmasked          result = color
 label                          label 0
 copy_4_slots_unmasked          $0..3 = result
-copy_4_slots_unmasked          $4..7 = half4(2.0, 3.0, 0.0, 5.0)
+copy_4_immutables_unmasked     $4..7 = half4(2.0, 3.0, 0.0, 5.0)
 cmpeq_4_floats                 $0..3 = equal($0..3, $4..7)
 bitwise_and_2_ints             $0..1 &= $2..3
 bitwise_and_int                $0 &= $1

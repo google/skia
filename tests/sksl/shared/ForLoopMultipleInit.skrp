@@ -57,12 +57,12 @@ stack_rewind
 branch_if_any_lanes_active     branch_if_any_lanes_active -12 (label 5 at #36)
 label                          label 0x00000003
 load_loop_mask                 LoopMask = $0
-copy_2_slots_unmasked          d[0], d[1] = float[2](0.0, 10.0)[0], float[2](0.0, 10.0)[1]
+copy_2_immutables_unmasked     d[0], d[1] = float[2](0.0, 10.0)[0], float[2](0.0, 10.0)[1]
 store_loop_mask                $0 = LoopMask
 jump                           jump +9 (label 7 at #62)
 label                          label 0x00000008
-copy_slot_unmasked             $1 = e[0]
-copy_slot_unmasked             $2 = f
+copy_immutable_unmasked        $1 = e[0]
+copy_immutable_unmasked        $2 = f
 mul_float                      $1 *= $2
 copy_slot_masked               result(3) = Mask($1)
 copy_slot_unmasked             $1 = d[0]

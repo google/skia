@@ -6,15 +6,15 @@ i4 = 0x88CA6C00 (-1.21828235e-33)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_slot_unmasked             $0 = i1
+copy_immutable_unmasked        $0 = i1
 cmpeq_imm_int                  $0 = equal($0, 0x00000001)
-copy_slot_unmasked             $1 = i2
+copy_immutable_unmasked        $1 = i2
 cmpeq_imm_int                  $1 = equal($1, 0x00053977)
 bitwise_and_int                $0 &= $1
-copy_slot_unmasked             $1 = i3
+copy_immutable_unmasked        $1 = i3
 cmpeq_imm_int                  $1 = equal($1, 0x77359400)
 bitwise_and_int                $0 &= $1
-copy_slot_unmasked             $1 = i4
+copy_immutable_unmasked        $1 = i4
 cmpeq_imm_int                  $1 = equal($1, 0x88CA6C00)
 bitwise_and_int                $0 &= $1
 swizzle_4                      $0..3 = ($0..3).xxxx
