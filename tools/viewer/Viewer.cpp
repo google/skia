@@ -1870,6 +1870,18 @@ bool Viewer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
     return true;
 }
 
+bool Viewer::onMouseWheel(float delta, int x, int y, skui::ModifierKey) {
+    // Rather than updating the fixed zoom level, treat a mouse wheel event as a gesture, which
+    // applies a pre- and post-translation to the transform, resulting in a zoom effect centered at
+    // the mouse cursor position.
+    SkScalar scale = exp(delta * 0.001);
+    fGesture.startZoom();
+    fGesture.updateZoom(scale, x, y, x, y);
+    fGesture.endZoom();
+    fWindow->inval();
+    return true;
+}
+
 bool Viewer::onFling(skui::InputState state) {
     if (skui::InputState::kRight == state) {
         this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.size() - 1);

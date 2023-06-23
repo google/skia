@@ -268,10 +268,10 @@ bool Window_unix::handleEvent(const XEvent& event) {
                                   skui::InputState::kDown, get_modifiers(event));
                     break;
                 case Button4:
-                    this->onMouseWheel(1.0f, get_modifiers(event));
+                    this->onMouseWheel(1.0f, 0, 0, get_modifiers(event));
                     break;
                 case Button5:
-                    this->onMouseWheel(-1.0f, get_modifiers(event));
+                    this->onMouseWheel(-1.0f, 0, 0, get_modifiers(event));
                     break;
             }
             break;

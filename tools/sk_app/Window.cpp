@@ -57,8 +57,9 @@ bool Window::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
     return this->signalLayers([=](Layer* layer) { return layer->onMouse(x, y, state, modifiers); });
 }
 
-bool Window::onMouseWheel(float delta, skui::ModifierKey modifiers) {
-    return this->signalLayers([=](Layer* layer) { return layer->onMouseWheel(delta, modifiers); });
+bool Window::onMouseWheel(float delta, int x, int y, skui::ModifierKey modifiers) {
+    return this->signalLayers(
+            [=](Layer* layer) { return layer->onMouseWheel(delta, x, y, modifiers); });
 }
 
 bool Window::onTouch(intptr_t owner, skui::InputState state, float x, float y) {

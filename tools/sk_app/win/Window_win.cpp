@@ -294,10 +294,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                                            get_modifiers(message, wParam, lParam));
         } break;
 
-        case WM_MOUSEWHEEL:
+        case WM_MOUSEWHEEL: {
+            int xPos = GET_X_LPARAM(lParam);
+            int yPos = GET_Y_LPARAM(lParam);
             eventHandled = window->onMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? +1.0f : -1.0f,
+                                                xPos,
+                                                yPos,
                                                 get_modifiers(message, wParam, lParam));
-            break;
+        } break;
 
         case WM_TOUCH: {
             uint16_t numInputs = LOWORD(wParam);

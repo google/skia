@@ -453,10 +453,18 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
 }
 
 - (void)scrollWheel:(NSEvent *)event {
+    NSView* view = fWindow->window().contentView;
+    CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(view);
+
     skui::ModifierKey modifiers = [self updateModifierKeys:event];
 
     // TODO: support hasPreciseScrollingDeltas?
-    fWindow->onMouseWheel([event scrollingDeltaY], modifiers);
+    const NSPoint pos = [event locationInWindow];
+    const NSRect rect = [view frame];
+    fWindow->onMouseWheel([event scrollingDeltaY],
+                          pos.x * backingScaleFactor,
+                          (rect.size.height - pos.y) * backingScaleFactor,
+                          modifiers);
 }
 
 - (void)drawRect:(NSRect)rect {
