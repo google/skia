@@ -97,7 +97,7 @@ bool SkRuntimeColorFilter::onIsAlphaUnchanged() const {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     return fEffect->isAlphaUnchanged();
 #else
-    return fEffect->getFilterColorProgram() && fEffect->isAlphaUnchanged();
+    return false;
 #endif
 }
 
