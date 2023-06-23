@@ -475,6 +475,7 @@ protected:
 private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
+    friend class SkCanvasPriv; // for onGetClipType
     friend class SkDraw;
     friend class SkDrawBase;
     friend class SkSurface_Raster;

@@ -10,6 +10,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
@@ -21,7 +22,6 @@ class SkImageFilter;
 class SkMatrix;
 class SkReadBuffer;
 class SkWriteBuffer;
-struct SkRect;
 
 #if GRAPHITE_TEST_UTILS
 namespace skgpu::graphite {
@@ -98,6 +98,8 @@ public:
     // Returns true if the paint has been modified.
     // Requires the paint to have an image filter and the copy-on-write be initialized.
     static bool ImageToColorFilter(SkPaint*);
+
+    static SkIRect DeviceClipBounds(SkCanvas* canvas);
 };
 
 /**
