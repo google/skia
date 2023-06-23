@@ -281,6 +281,15 @@ public:
     */
     SkSurfaceProps getTopProps() const;
 
+    /** Triggers the immediate execution of all pending draw operations.
+        If SkCanvas is associated with GPU surface, resolves all pending GPU operations.
+        If SkCanvas is associated with raster surface, has no effect; raster draw
+        operations are never deferred.
+
+        DEPRECATED: Replace usage with GrDirectContext::flush()
+    */
+    void flush();
+
     /** Gets the size of the base or root layer in global canvas coordinates. The
         origin of the base layer is always (0,0). The area available for drawing may be
         smaller (due to clipping or saveLayer).
@@ -305,20 +314,19 @@ public:
     */
     sk_sp<SkSurface> makeSurface(const SkImageInfo& info, const SkSurfaceProps* props = nullptr);
 
-    /** Returns Ganesh context of the GPU surface associated with SkCanvas.
+    /** Returns GPU context of the GPU surface associated with SkCanvas.
 
         @return  GPU context, if available; nullptr otherwise
 
         example: https://fiddle.skia.org/c/@Canvas_recordingContext
      */
-    virtual GrRecordingContext* recordingContext() const;
-
+    virtual GrRecordingContext* recordingContext();
 
     /** Returns Recorder for the GPU surface associated with SkCanvas.
 
         @return  Recorder, if available; nullptr otherwise
      */
-    virtual skgpu::graphite::Recorder* recorder() const;
+    virtual skgpu::graphite::Recorder* recorder();
 
     /** Sometimes a canvas is owned by a surface. If it is, getSurface() will return a bare
      *  pointer to that surface, else this will return nullptr.
@@ -2184,6 +2192,7 @@ protected:
     virtual bool onAccessTopLayerPixels(SkPixmap* pixmap);
     virtual SkImageInfo onImageInfo() const;
     virtual bool onGetProps(SkSurfaceProps* props, bool top) const;
+    virtual void onFlush();
 
     // Subclass save/restore notifiers.
     // Overriders should call the corresponding INHERITED method up the inheritance chain.
@@ -2546,25 +2555,7 @@ private:
 
     std::unique_ptr<sktext::GlyphRunBuilder> fScratchGlyphRunBuilder;
 
-#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
-public:
-    /** Triggers the immediate execution of all pending draw operations.
-        If SkCanvas is associated with GPU surface, resolves all pending GPU operations.
-        If SkCanvas is associated with raster surface, has no effect; raster draw
-        operations are never deferred.
-
-        DEPRECATED: Replace usage with GrDirectContext::flush()
-    */
-    void flush();
-protected:
-    virtual void onFlush();
-#endif
-
-#if !defined(SK_LEGACY_GPU_GETTERS_CONST)
-public:
-    virtual GrRecordingContext* recordingContext();
-    virtual skgpu::graphite::Recorder* recorder();
-#endif
+    using INHERITED = SkRefCnt;
 };
 
 /** \class SkAutoCanvasRestore

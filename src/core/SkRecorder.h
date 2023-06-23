@@ -89,6 +89,8 @@ public:
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
 
+    void onFlush() override;
+
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     bool onDoSaveBehind(const SkRect*) override;

@@ -1006,7 +1006,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
         fuzz->nextRange(&drawCommand, 0, 62);
         switch (drawCommand) {
             case 0:
-                // This used to be flush
+                canvas->flush();
                 break;
             case 1:
                 canvas->save();

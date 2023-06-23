@@ -343,6 +343,10 @@ void SkRecorder::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
             this->copy(preViewMatrices, totalMatrixCount), sampling, constraint);
 }
 
+void SkRecorder::onFlush() {
+    this->append<SkRecords::Flush>();
+}
+
 void SkRecorder::willSave() {
     this->append<SkRecords::Save>();
 }

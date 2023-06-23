@@ -65,6 +65,7 @@ namespace SkRecords {
 template <> void Draw::draw(const NoOp&) {}
 
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
+DRAW(Flush, flush())
 DRAW(Restore, restore())
 DRAW(Save, save())
 DRAW(SaveLayer, saveLayer(SkCanvasPriv::ScaledBackdropLayer(r.bounds,
@@ -383,6 +384,8 @@ private:
             fSaveStack.back().bounds.join(bounds);
         }
     }
+
+    Bounds bounds(const Flush&) const { return fCullRect; }
 
     Bounds bounds(const DrawPaint&) const { return fCullRect; }
     Bounds bounds(const DrawBehind&) const { return fCullRect; }

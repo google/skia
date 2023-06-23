@@ -140,6 +140,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->skip(size - 4);
         } break;
         case FLUSH:
+            canvas->flush();
             break;
         case CLIP_PATH: {
             const SkPath& path = fPictureData->getPath(reader);

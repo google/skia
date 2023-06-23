@@ -68,6 +68,16 @@
 #include <tuple>
 #include <utility>
 
+#if defined(SK_GANESH)
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/ganesh/Device.h"
+#endif
+
+#if defined(SK_GRAPHITE)
+#include "src/gpu/graphite/Device.h"
+#endif
+
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
@@ -344,12 +354,6 @@ SkCanvas::~SkCanvas() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
-#if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
-#endif
-
 void SkCanvas::flush() {
     this->onFlush();
 }
@@ -363,7 +367,6 @@ void SkCanvas::onFlush() {
     }
 #endif
 }
-#endif
 
 SkSurface* SkCanvas::getSurface() const {
     return fSurfaceBase;
@@ -1606,23 +1609,26 @@ SkM44 SkCanvas::getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
 
-GrRecordingContext* SkCanvas::recordingContext() const {
-    return this->topDevice()->recordingContext();
-}
-
-skgpu::graphite::Recorder* SkCanvas::recorder() const {
-    return this->topDevice()->recorder();
-}
-
-#if !defined(SK_LEGACY_GPU_GETTERS_CONST)
 GrRecordingContext* SkCanvas::recordingContext() {
-    return this->topDevice()->recordingContext();
+#if defined(SK_GANESH)
+    if (auto gpuDevice = this->topDevice()->asGaneshDevice()) {
+        return gpuDevice->recordingContext();
+    }
+#endif
+
+    return nullptr;
 }
 
 skgpu::graphite::Recorder* SkCanvas::recorder() {
-    return this->topDevice()->recorder();
-}
+#if defined(SK_GRAPHITE)
+    if (auto graphiteDevice = this->topDevice()->asGraphiteDevice()) {
+        return graphiteDevice->recorder();
+    }
 #endif
+
+    return nullptr;
+}
+
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {

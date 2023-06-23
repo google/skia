@@ -95,7 +95,7 @@ enum DrawType {
     DRAW_REGION,
     DRAW_VERTICES_OBJECT,
 
-    FLUSH,  // no-op
+    FLUSH,
 
     DRAW_EDGEAA_IMAGE_SET,
 
