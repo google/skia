@@ -328,6 +328,7 @@ void Builder::discard_stack(int32_t count) {
             case BuilderOp::push_clone_indirect_from_stack:
             case BuilderOp::push_constant:
             case BuilderOp::push_immutable:
+            case BuilderOp::push_immutable_indirect:
             case BuilderOp::push_slots:
             case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform:
@@ -540,12 +541,15 @@ void Builder::push_slots_or_immutable(SlotRange src, BuilderOp op) {
     }
 }
 
-void Builder::push_slots_indirect(SlotRange fixedRange, int dynamicStackID, SlotRange limitRange) {
+void Builder::push_slots_or_immutable_indirect(SlotRange fixedRange,
+                                               int dynamicStackID,
+                                               SlotRange limitRange,
+                                               BuilderOp op) {
     // SlotA: fixed-range start
     // SlotB: limit-range end
     // immA: number of slots
     // immB: dynamic stack ID
-    fInstructions.push_back({BuilderOp::push_slots_indirect,
+    fInstructions.push_back({op,
                              {fixedRange.index, limitRange.index + limitRange.count},
                              fixedRange.count,
                              dynamicStackID});
@@ -1225,6 +1229,7 @@ static int stack_usage(const Instruction& inst) {
             return 4;
 
         case BuilderOp::push_immutable:
+        case BuilderOp::push_immutable_indirect:
         case BuilderOp::push_constant:
         case BuilderOp::push_slots:
         case BuilderOp::push_slots_indirect:
@@ -1957,6 +1962,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 break;
             }
             case BuilderOp::copy_stack_to_slots_indirect:
+            case BuilderOp::push_immutable_indirect:
             case BuilderOp::push_slots_indirect:
             case BuilderOp::push_uniform_indirect: {
                 // SlotA: fixed-range start
@@ -1970,6 +1976,11 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 ctx->indirectLimit = inst.fSlotB - inst.fSlotA - inst.fImmA;
                 ctx->slots = inst.fImmA;
                 if (inst.fOp == BuilderOp::push_slots_indirect) {
+                    op = ProgramOp::copy_from_indirect_unmasked;
+                    ctx->src = SlotA();
+                    ctx->dst = tempStackPtr;
+                } else if (inst.fOp == BuilderOp::push_immutable_indirect) {
+                    // TODO(skia:14396): immutables should be stored as scalars in a dedicated range
                     op = ProgramOp::copy_from_indirect_unmasked;
                     ctx->src = SlotA();
                     ctx->dst = tempStackPtr;

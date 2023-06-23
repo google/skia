@@ -93,6 +93,7 @@ enum class BuilderOp {
     push_clone_indirect_from_stack,
     push_constant,
     push_immutable,
+    push_immutable_indirect,
     push_slots,
     push_slots_indirect,
     push_uniform,
@@ -432,7 +433,18 @@ public:
     // `fixedRange` denotes a fixed set of slots; this range is pushed forward by the value at the
     // top of stack `dynamicStack`. Pass the slot range of the variable being indexed as
     // `limitRange`; this is used as a hard cap, to avoid indexing outside of bounds.
-    void push_slots_indirect(SlotRange fixedRange, int dynamicStack, SlotRange limitRange);
+    void push_slots_indirect(SlotRange fixedRange, int dynamicStack, SlotRange limitRange) {
+        this->push_slots_or_immutable_indirect(fixedRange, dynamicStack, limitRange,
+                                               BuilderOp::push_slots_indirect);
+    }
+
+    void push_immutable_indirect(SlotRange fixedRange, int dynamicStack, SlotRange limitRange) {
+        this->push_slots_or_immutable_indirect(fixedRange, dynamicStack, limitRange,
+                                               BuilderOp::push_immutable_indirect);
+    }
+
+    void push_slots_or_immutable_indirect(SlotRange fixedRange, int dynamicStack,
+                                          SlotRange limitRange, BuilderOp op);
 
     // Translates into copy_slots_masked (from temp stack to values) in Raster Pipeline.
     // Does not discard any values on the temp stack.

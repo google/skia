@@ -853,9 +853,8 @@ public:
                             AutoStack* dynamicOffset,
                             SkSpan<const int8_t> swizzle) override {
         if (dynamicOffset) {
-            // TODO(skia:14396): add `push_immutable_indirect` builder op and RP op
-            gen->builder()->push_slots_indirect(fixedOffset, dynamicOffset->stackID(),
-                                                this->fixedSlotRange(gen));
+            gen->builder()->push_immutable_indirect(fixedOffset, dynamicOffset->stackID(),
+                                                    this->fixedSlotRange(gen));
         } else {
             gen->builder()->push_immutable(fixedOffset);
         }
