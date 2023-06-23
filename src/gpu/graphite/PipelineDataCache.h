@@ -78,7 +78,8 @@ private:
     SkArenaAlloc fArena{0};
 };
 
-// A UniformDataCache lives for the entire duration of a Recorder.
+// A UniformDataCache only lives for a single Recording. It's used to deduplicate uniform data
+// blocks uploaded to uniform/storage buffers for a DrawPass pipeline.
 using UniformDataCache = PipelineDataCache<UniformDataBlock>;
 
 // A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled

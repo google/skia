@@ -161,7 +161,7 @@ std::unique_ptr<Recording> Recorder::snap() {
         fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(),
                                                        fSharedContext->caps()));
         fTextureDataCache = std::make_unique<TextureDataCache>();
-        // We leave the UniformDataCache alone
+        fUniformDataCache = std::make_unique<UniformDataCache>();
         fGraph->reset();
         fRuntimeEffectDict->reset();
         return nullptr;
@@ -185,6 +185,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fGraph = std::make_unique<TaskGraph>();
     fRuntimeEffectDict->reset();
     fTextureDataCache = std::make_unique<TextureDataCache>();
+    fUniformDataCache = std::make_unique<UniformDataCache>();
 
     // inject an initial task to maintain atlas state for next Recording
     auto uploads = std::make_unique<UploadList>();
