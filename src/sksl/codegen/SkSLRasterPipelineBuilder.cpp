@@ -1388,14 +1388,17 @@ Program::~Program() = default;
 void Program::appendCopy(TArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
                          ProgramOp baseStage,
-                         SkRPOffset dst,
-                         SkRPOffset src,
+                         SkRPOffset dst, int dstStride,
+                         SkRPOffset src, int srcStride,
                          int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
-        this->appendCopy(pipeline, alloc, baseStage, dst, src, /*numSlots=*/4);
-        dst += 4 * SkOpts::raster_pipeline_highp_stride * sizeof(float);
-        src += 4 * SkOpts::raster_pipeline_highp_stride * sizeof(float);
+        this->appendCopy(pipeline, alloc, baseStage,
+                         dst, dstStride,
+                         src, srcStride,
+                         /*numSlots=*/4);
+        dst += 4 * dstStride * sizeof(float);
+        src += 4 * srcStride * sizeof(float);
         numSlots -= 4;
     }
 
@@ -1416,7 +1419,9 @@ void Program::appendCopySlotsUnmasked(TArray<Stage>* pipeline,
                                       int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_unmasked,
-                     dst,  src, numSlots);
+                     dst, SkOpts::raster_pipeline_highp_stride,
+                     src, SkOpts::raster_pipeline_highp_stride,
+                     numSlots);
 }
 
 void Program::appendCopyImmutableUnmasked(TArray<Stage>* pipeline,
@@ -1426,7 +1431,9 @@ void Program::appendCopyImmutableUnmasked(TArray<Stage>* pipeline,
                                           int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_immutable_unmasked,
-                     dst,  src, numSlots);
+                     dst, SkOpts::raster_pipeline_highp_stride,
+                     src, 1,
+                     numSlots);
 }
 
 void Program::appendCopySlotsMasked(TArray<Stage>* pipeline,
@@ -1436,7 +1443,9 @@ void Program::appendCopySlotsMasked(TArray<Stage>* pipeline,
                                     int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_masked,
-                     dst, src, numSlots);
+                     dst, SkOpts::raster_pipeline_highp_stride,
+                     src, SkOpts::raster_pipeline_highp_stride,
+                     numSlots);
 }
 
 void Program::appendSingleSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp stage,
@@ -1563,16 +1572,18 @@ static void* context_bit_pun(intptr_t val) {
 Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) const {
     // Allocate a contiguous slab of slot data for immutables, values, and stack entries.
     const int N = SkOpts::raster_pipeline_highp_stride;
+    const int scalarWidth = 1 * sizeof(float);
     const int vectorWidth = N * sizeof(float);
-    const int allocSize = vectorWidth * (fNumValueSlots + fNumTempStackSlots + fNumImmutableSlots);
+    const int allocSize = vectorWidth * (fNumValueSlots + fNumTempStackSlots) +
+                          scalarWidth * fNumImmutableSlots;
     float* slotPtr = static_cast<float*>(alloc->makeBytesAlignedTo(allocSize, vectorWidth));
     sk_bzero(slotPtr, allocSize);
 
-    // Store the temp stack immediately after the values.
+    // Store the temp stack immediately after the values, and immutable data after the stack.
     SlotData s;
     s.values    = SkSpan{slotPtr,        N * fNumValueSlots};
     s.stack     = SkSpan{s.values.end(), N * fNumTempStackSlots};
-    s.immutable = SkSpan{s.stack.end(),  N * fNumImmutableSlots};
+    s.immutable = SkSpan{s.stack.end(),  1 * fNumImmutableSlots};
     return s;
 }
 
@@ -1738,8 +1749,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
     // Write each BuilderOp to the pipeline array.
     pipeline->reserve_exact(pipeline->size() + fInstructions.size());
     for (const Instruction& inst : fInstructions) {
-        auto ImmutableA = [&]() { return &slots.immutable[N * inst.fSlotA]; };
-        auto ImmutableB = [&]() { return &slots.immutable[N * inst.fSlotB]; };
+        auto ImmutableA = [&]() { return &slots.immutable[1 * inst.fSlotA]; };
+        auto ImmutableB = [&]() { return &slots.immutable[1 * inst.fSlotB]; };
         auto SlotA      = [&]() { return &slots.values[N * inst.fSlotA]; };
         auto SlotB      = [&]() { return &slots.values[N * inst.fSlotB]; };
         auto UniformA   = [&]() { return &uniforms[inst.fSlotA]; };
@@ -1805,9 +1816,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
             case BuilderOp::store_immutable_value: {
                 float* dst = ImmutableA();
-                for (int index = 0; index < N; ++index) {
-                    dst[index] = sk_bit_cast<float>(inst.fImmA);
-                }
+                *dst = sk_bit_cast<float>(inst.fImmA);
                 break;
             }
             case BuilderOp::load_src:
@@ -2032,8 +2041,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
                     ctx->src = SlotA();
                     ctx->dst = tempStackPtr;
                 } else if (inst.fOp == BuilderOp::push_immutable_indirect) {
-                    // TODO(skia:14396): immutables should be stored as scalars in a dedicated range
-                    op = ProgramOp::copy_from_indirect_unmasked;
+                    // We reuse the indirect-uniform op for indirect copies of immutable data.
+                    op = ProgramOp::copy_from_indirect_uniform_unmasked;
                     ctx->src = ImmutableA();
                     ctx->dst = tempStackPtr;
                 } else if (inst.fOp == BuilderOp::push_uniform_indirect) {
@@ -2509,18 +2518,17 @@ public:
 
     // Attempts to interpret the passed-in pointer as a immutable slot range.
     std::string immutablePtrCtx(const float* ptr, int numSlots) const {
-        // TODO(skia:14396): immutable data should be scalar; when that happens, remove `N` below
-        const float* end = ptr + (N * numSlots);
+        const float* end = ptr + numSlots;
         if (ptr >= fSlots.immutable.begin() && end <= fSlots.immutable.end()) {
             int index = ptr - fSlots.immutable.begin();
-            return 'i' + this->asRange(index / N, numSlots) + ' ' +
-                   this->multiImmCtx(ptr, numSlots, /*stride=*/N);
+            return 'i' + this->asRange(index, numSlots) + ' ' +
+                   this->multiImmCtx(ptr, numSlots);
         }
         return {};
     }
 
     // Interprets the context value as a pointer to `count` immediate values.
-    std::string multiImmCtx(const float* ptr, int count, int stride = 1) const {
+    std::string multiImmCtx(const float* ptr, int count) const {
         // If this is a uniform, print it by name.
         if (std::string text = this->uniformPtrCtx(ptr, count); !text.empty()) {
             return text;
@@ -2534,8 +2542,7 @@ public:
         auto separator = SkSL::String::Separator();
         while (count--) {
             text += separator();
-            text += this->imm(*ptr);
-            ptr += stride;
+            text += this->imm(*ptr++);
         }
         return text + ']';
     }
@@ -2999,19 +3006,13 @@ void Program::Dumper::dump(SkWStream* out) {
                 std::tie(opArg1, opArg2) = this->binaryOpCtx(stage.ctx, 4);
                 break;
 
+            case POp::copy_from_indirect_uniform_unmasked:
             case POp::copy_from_indirect_unmasked:
             case POp::copy_to_indirect_masked: {
                 const auto* ctx = static_cast<SkRasterPipeline_CopyIndirectCtx*>(stage.ctx);
                 // We don't incorporate the indirect-limit in the output
                 opArg1 = this->ptrCtx(ctx->dst, ctx->slots);
                 opArg2 = this->ptrCtx(ctx->src, ctx->slots);
-                opArg3 = this->ptrCtx(ctx->indirectOffset, 1);
-                break;
-            }
-            case POp::copy_from_indirect_uniform_unmasked: {
-                const auto* ctx = static_cast<SkRasterPipeline_CopyIndirectCtx*>(stage.ctx);
-                opArg1 = this->ptrCtx(ctx->dst, ctx->slots);
-                opArg2 = this->uniformPtrCtx(ctx->src, ctx->slots);
                 opArg3 = this->ptrCtx(ctx->indirectOffset, 1);
                 break;
             }

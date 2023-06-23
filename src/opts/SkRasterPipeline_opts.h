@@ -3603,19 +3603,34 @@ STAGE_TAIL(copy_4_slots_unmasked, SkRasterPipeline_BinaryOpCtx* packed) {
     copy_n_slots_unmasked_fn<4>(packed, base);
 }
 
+template <int NumSlots>
+SI void copy_n_immutable_unmasked_fn(SkRasterPipeline_BinaryOpCtx* packed, std::byte* base) {
+    auto ctx = SkRPCtxUtils::Unpack(packed);
+
+    // Load the scalar values.
+    float* src = (float*)(base + ctx.src);
+    float values[NumSlots];
+    for (int index = 0; index < NumSlots; ++index) {
+        values[index] = src[index];
+    }
+    // Broadcast the scalars into the destination.
+    F* dst = (F*)(base + ctx.dst);
+    for (int index = 0; index < NumSlots; ++index) {
+        dst[index] = values[index];
+    }
+}
+
 STAGE_TAIL(copy_immutable_unmasked, SkRasterPipeline_BinaryOpCtx* packed) {
-    // TODO(skia:14396): immutable values should be stored as scalars, not SIMD multi-lane vectors.
-    // At present, these stages are cloned from `copy_slots` above.
-    copy_n_slots_unmasked_fn<1>(packed, base);
+    copy_n_immutable_unmasked_fn<1>(packed, base);
 }
 STAGE_TAIL(copy_2_immutables_unmasked, SkRasterPipeline_BinaryOpCtx* packed) {
-    copy_n_slots_unmasked_fn<2>(packed, base);
+    copy_n_immutable_unmasked_fn<2>(packed, base);
 }
 STAGE_TAIL(copy_3_immutables_unmasked, SkRasterPipeline_BinaryOpCtx* packed) {
-    copy_n_slots_unmasked_fn<3>(packed, base);
+    copy_n_immutable_unmasked_fn<3>(packed, base);
 }
 STAGE_TAIL(copy_4_immutables_unmasked, SkRasterPipeline_BinaryOpCtx* packed) {
-    copy_n_slots_unmasked_fn<4>(packed, base);
+    copy_n_immutable_unmasked_fn<4>(packed, base);
 }
 
 template <int NumSlots>

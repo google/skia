@@ -205,8 +205,8 @@ private:
     void appendCopy(skia_private::TArray<Stage>* pipeline,
                     SkArenaAlloc* alloc,
                     ProgramOp baseStage,
-                    SkRPOffset dst,
-                    SkRPOffset src,
+                    SkRPOffset dst, int dstStride,
+                    SkRPOffset src, int srcStride,
                     int numSlots) const;
     void appendCopyImmutableUnmasked(skia_private::TArray<Stage>* pipeline,
                                      SkArenaAlloc* alloc,
