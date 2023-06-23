@@ -1092,9 +1092,6 @@ void Device::drawGeometry(const Transform& localToDevice,
     // and record a single AtlashShape draw.
     if (pathAtlas != nullptr) {
         // Record the draw as a fill since stroking is handled by the atlas render.
-        // TODO(b/283876923): For an inverse fill the bounds of the shape for the atlas and the
-        // bounds of the mask are not the same. AtlasShape will be changed to store the correct draw
-        // bounds to handle that case.
         Geometry atlasShape(AtlasShape(geometry.shape(),
                                        pathAtlas,
                                        localToDevice.inverse(),

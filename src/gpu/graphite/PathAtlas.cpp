@@ -49,10 +49,12 @@ bool PathAtlas::addShape(Recorder* recorder,
             return false;
         }
     }
-    // Add a 1 pixel-wide border around the shape bounds when allocating the atlas slot.
-    // TODO(b/273924867) Should this outset get applied in drawGeometry as is planned for
-    // applyClipToDraw?
-    Rect bounds = maskBounds.makeOutset(1);
+    // Add a 2 pixel-wide border around the shape bounds when allocating the atlas slot. The outer
+    // border acts as a buffer between atlas entries and the pixels contain 0. The inner border is
+    // included in the mask and provides additional coverage pixels for analytic AA.
+    // TODO(b/273924867) Should the inner outset get applied in drawGeometry/applyClipToDraw  and
+    // included implicitly?
+    Rect bounds = maskBounds.makeOutset(2);
     skvx::float2 size = bounds.size();
     SkIPoint16 pos;
     if (!fRectanizer.addRect(size.x(), size.y(), &pos)) {
@@ -124,16 +126,16 @@ void ComputePathAtlas::onAddShape(const Shape& shape,
     // outside the atlas region (the implementation of Rect::size() implies that the bottom-right
     // bounds are exclusive). For the clip shape we inset the bottom and right edges by one pixel to
     // avoid filling into neighboring regions.
-    Rect clipBounds(atlasBounds.topLeft(), atlasBounds.botRight() - 1);
+    Rect clipBounds(atlasBounds.topLeft() + 1, atlasBounds.botRight() - 1);
     SkPath clipRect = SkPath::Rect(clipBounds.asSkRect());
     fScene.pushClipLayer(clipRect, Transform::Identity());
 
     // The atlas transform of the shape is the linear-components (scale, rotation, skew) of
-    // `localToDevice` translated by the top-left offset of `atlasBounds`, accounting for the 1
+    // `localToDevice` translated by the top-left offset of `atlasBounds`, accounting for the 2
     // pixel-wide border we added earlier, so that the shape is correctly centered.
     SkM44 atlasMatrix = localToDevice.matrix();
-    atlasMatrix.postTranslate(atlasBounds.x() + 1 - deviceOffsetX,
-                              atlasBounds.y() + 1 - deviceOffsetY);
+    atlasMatrix.postTranslate(atlasBounds.x() + 2 - deviceOffsetX,
+                              atlasBounds.y() + 2 - deviceOffsetY);
     Transform atlasTransform(atlasMatrix);
     SkPath devicePath = shape.asPath();
 

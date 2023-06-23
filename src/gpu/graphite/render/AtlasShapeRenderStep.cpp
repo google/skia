@@ -19,24 +19,32 @@ AtlasShapeRenderStep::AtlasShapeRenderStep()
         : RenderStep("AtlasShapeRenderStep",
                      "",
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
-                     /*uniforms=*/{{"atlasSizeInv", SkSLType::kFloat2}},
+                     /*uniforms=*/{{"atlasSizeInv", SkSLType::kFloat2},
+                                   {"isInverted", SkSLType::kInt}},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGEqualPass,
                      /*vertexAttrs=*/{},
                      /*instanceAttrs=*/
-                     {{"size",  VertexAttribType::kUShort2, SkSLType::kUShort2},
-                      {"uvPos", VertexAttribType::kUShort2, SkSLType::kUShort2},
-                      {"xyPos", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                      {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt},
+                     {{"drawBounds"  , VertexAttribType::kFloat4 , SkSLType::kFloat4},  // ltrb
+                      {"deviceOrigin", VertexAttribType::kFloat2 , SkSLType::kFloat2},
+                      {"uvOrigin"    , VertexAttribType::kUShort2, SkSLType::kUShort2},
+                      {"maskSize"    , VertexAttribType::kUShort2, SkSLType::kUShort2},
+                      {"depth"     , VertexAttribType::kFloat, SkSLType::kFloat},
+                      {"ssboIndex" , VertexAttribType::kInt  , SkSLType::kInt},
                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}},
                      /*varyings=*/
-                     {{"textureCoords", SkSLType::kFloat2}}) {}
+                     {// `maskBounds` are the atlas-relative bounds of the coverage mask.
+                      // `textureCoords` are the atlas-relative UV coordinates of the draw, which
+                      // can spill beyond `maskBounds` for inverse fills.
+                      // TODO: maskBounds is constant for all fragments for a given instance,
+                      // could we store them in the draw's SSBO?
+                      {"maskBounds"   , SkSLType::kFloat4},
+                      {"textureCoords", SkSLType::kFloat2}}) {}
 
 std::string AtlasShapeRenderStep::vertexSkSL() const {
-    // An atlas shape is a axis-aligned rectangle tessellated as a triangle strip.
+    // An atlas shape is an axis-aligned rectangle tessellated as a triangle strip.
     //
     // The bounds coordinates that we use here have already been transformed to device space and
     // match the desired vertex coordinates of the draw (taking clipping into account), so a
@@ -48,16 +56,34 @@ std::string AtlasShapeRenderStep::vertexSkSL() const {
     return R"(
         float3x3 deviceToLocal = float3x3(mat0, mat1, mat2);
         float2 quadCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));
-        quadCoords.xy *= float2(size);
 
-        float2 pos = quadCoords + xyPos;
-        float3 localCoords = deviceToLocal * pos.xy1;
+        // Vertex coordinates.
+        float2 maskDims = float2(maskSize);
+        float2 drawCoords =
+                drawBounds.xy + quadCoords * max(drawBounds.zw - drawBounds.xy, maskDims);
+
+        // Local coordinates used for shading.
+        float3 localCoords = deviceToLocal * drawCoords.xy1;
         stepLocalCoords = localCoords.xy / localCoords.z;
 
-        float2 unormTexCoords = quadCoords + float2(uvPos);
-        textureCoords = unormTexCoords * atlasSizeInv;
+        // Adjust the `maskBounds` to span the full atlas entry with a 2-pixel outset (-1 since the
+        // clamp we apply in the fragment shader is inclusive). `textureCoords` get set with a 1
+        // pixel inset and its dimensions should exactly match the draw coords.
+        //
+        // For an inverse fill, `textureCoords` will get clamped to `maskBounds` and the edge pixels
+        // will always land on a 0-coverage border pixel.
+        float2 uvPos  = float2(uvOrigin);
+        if (maskDims.x > 0 && maskDims.y > 0) {
+            maskBounds    = float4(uvPos, uvPos + maskDims + float2(1)) * atlasSizeInv.xyxy;
+            textureCoords = (uvPos + float2(1) + drawCoords - deviceOrigin) * atlasSizeInv;
+        } else {
+            // The mask is clipped out so send the texture coordinates to 0. This pixel should
+            // always be empty.
+            maskBounds = float4(0);
+            textureCoords = float2(0);
+        }
 
-        float4 devPosition = float4(pos.xy, depth, 1);
+        float4 devPosition = float4(drawCoords.xy, depth, 1);
     )";
 }
 
@@ -67,10 +93,9 @@ std::string AtlasShapeRenderStep::texturesAndSamplersSkSL(
 }
 
 const char* AtlasShapeRenderStep::fragmentCoverageSkSL() const {
-    // TODO(b/283876923): Support inverse fills.
     return R"(
-        half4 texColor = sample(pathAtlas, textureCoords);
-        outputCoverage = texColor.rrrr;
+        half c = sample(pathAtlas, clamp(textureCoords, maskBounds.xy, maskBounds.zw)).r;
+        outputCoverage = half4(isInverted == 1 ? (1 - c) : c);
     )";
 }
 
@@ -80,18 +105,29 @@ void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
     const AtlasShape& atlasShape = params.geometry().atlasShape();
 
     // A quad is a 4-vertex instance. The coordinates are derived from the vertex IDs.
-    // TODO(b/283876964): For inverse fills and clipping, assign xyPos based on the draw bounds. We
-    // will also need to still use the top-left position of `deviceSpaceMaskBounds` to track the
-    // position of the mask shape relative to the actual draw bounds for inverse fills apply the
-    // mask sample correctly.
     DrawWriter::Instances instances(*dw, {}, {}, 4);
-    skvx::float2 size  = atlasShape.maskSize() + 1;
-    skvx::float2 uvPos = atlasShape.atlasOrigin() + 1;
-    skvx::float2 xyPos = atlasShape.deviceOrigin();
+
+    skvx::float2 maskSize, deviceOrigin, uvOrigin;
+    if (params.clip().transformedShapeBounds().isEmptyNegativeOrNaN()) {
+        // If the mask shape is clipped out then this must be an inverse fill. There is no mask to
+        // sample but we still need to paint the fill region that excludes the mask shape. Signal
+        // this by setting the mask size to 0.
+        SkASSERT(atlasShape.inverted());
+        maskSize = deviceOrigin = uvOrigin = 0;
+    } else {
+        // Adjust the mask size and device origin for the 1-pixel atlas border for AA. `uvOrigin` is
+        // positioned to include the additional 1-pixel border between atlas entries (which
+        // corresponds to their clip bounds and should contain 0).
+        maskSize     = atlasShape.maskSize() + 2;
+        deviceOrigin = atlasShape.deviceOrigin() - 1;
+        uvOrigin     = atlasShape.atlasOrigin();
+    }
+
     const SkM44& m = atlasShape.deviceToLocal();
-    instances.append(1) << uint16_t(size.x())  << uint16_t(size.y())   // size
-                        << uint16_t(uvPos.x()) << uint16_t(uvPos.y())  // uvPos
-                        << xyPos                                       // xyPos
+    instances.append(1) << params.clip().drawBounds().ltrb()                 // drawBounds
+                        << deviceOrigin                                      // deviceOrigin
+                        << uint16_t(uvOrigin.x()) << uint16_t(uvOrigin.y())  // uvOrigin
+                        << uint16_t(maskSize.x()) << uint16_t(maskSize.y())  // maskSize
                         << params.order().depthAsFloat() << ssboIndex
                         << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)   // mat0
                         << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)   // mat1
@@ -109,6 +145,7 @@ void AtlasShapeRenderStep::writeUniformsAndTextures(const DrawParams& params,
     // write uniforms
     SkV2 atlasSizeInv = {1.f / proxy->dimensions().width(), 1.f / proxy->dimensions().height()};
     gatherer->write(atlasSizeInv);
+    gatherer->write(int(atlasShape.inverted()));
 
     // write textures and samplers
     const SkSamplingOptions kSamplingOptions(SkFilterMode::kNearest);

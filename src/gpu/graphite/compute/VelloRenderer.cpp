@@ -54,16 +54,16 @@ WorkgroupSize to_wg_size(const vello_cpp::WorkgroupSize& src) {
 }
 
 vello_cpp::Fill to_fill_type(SkPathFillType fillType) {
+    // Vello does not provide an encoding for inverse fill types. When Skia uses vello to render
+    // a coverage mask for an inverse fill, it encodes a regular fill and inverts the coverage value
+    // after sampling the mask.
     switch (fillType) {
         case SkPathFillType::kWinding:
+        case SkPathFillType::kInverseWinding:
             return vello_cpp::Fill::NonZero;
         case SkPathFillType::kEvenOdd:
+        case SkPathFillType::kInverseEvenOdd:
             return vello_cpp::Fill::EvenOdd;
-        default:
-            // TODO(b/238756757): vello doesn't define fill types for kInverseWinding and
-            // kInverseEvenOdd. This should be updated to support those cases.
-            SkDebugf("fill type not supported by vello\n");
-            break;
     }
     return vello_cpp::Fill::NonZero;
 }
