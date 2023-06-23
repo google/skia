@@ -150,17 +150,23 @@ SkIRect rect_to_pixelbounds(const Rect& r) {
     return r.makeRoundOut().asSkIRect();
 }
 
-// TODO: this doesn't support the SrcRectConstraint option.
 bool create_img_shader_paint(sk_sp<SkImage> image,
                              const SkRect& subset,
+                             SkCanvas::SrcRectConstraint constraint,
                              const SkSamplingOptions& sampling,
                              const SkMatrix* localMatrix,
                              SkPaint* paint) {
     bool imageIsAlphaOnly = SkColorTypeIsAlphaOnly(image->colorType());
 
-    sk_sp<SkShader> imgShader = SkImageShader::MakeSubset(std::move(image), subset,
-                                                          SkTileMode::kClamp, SkTileMode::kClamp,
-                                                          sampling, localMatrix);
+    sk_sp<SkShader> imgShader;
+    if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
+        imgShader = SkImageShader::MakeSubset(std::move(image), subset,
+                                              SkTileMode::kClamp, SkTileMode::kClamp,
+                                              sampling, localMatrix);
+    } else {
+        imgShader = image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
+                                      sampling, localMatrix);
+    }
     if (!imgShader) {
         SKGPU_LOG_W("Couldn't create subset image shader");
         return false;
@@ -775,7 +781,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // TODO: Produce an image shading paint key and data directly without having to reconstruct
         // the equivalent SkPaint for each entry. Reuse the key and data between entries if possible
         paintWithShader.setShader(paint.refShader());
-        if (!create_img_shader_paint(std::move(imageToDraw), src, newSampling,
+        if (!create_img_shader_paint(std::move(imageToDraw), src, constraint, newSampling,
                                      &localMatrix, &paintWithShader)) {
             return;
         }
@@ -1293,7 +1299,8 @@ void Device::drawSpecial(SkSpecialImage* special,
     SkASSERT(srcToDst.isTranslate());
 
     SkPaint paintWithShader(paint);
-    if (!create_img_shader_paint(std::move(img), src, sampling, &srcToDst, &paintWithShader)) {
+    if (!create_img_shader_paint(std::move(img), src, SkCanvas::kStrict_SrcRectConstraint ,sampling,
+                                 &srcToDst, &paintWithShader)) {
         return;
     }
 
