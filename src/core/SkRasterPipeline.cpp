@@ -223,6 +223,11 @@ void SkRasterPipeline::append_load(SkColorType ct, const SkRasterPipeline_Memory
                                              this->append(Op::force_opaque);
                                              break;
 
+        case kBGR_888x_SkColorType:          this->append(Op::load_8888, ctx);
+                                             this->append(Op::force_opaque);
+                                             this->append(Op::swap_rb);
+                                             break;
+
         case kBGRA_1010102_SkColorType:      this->append(Op::load_1010102, ctx);
                                              this->append(Op::swap_rb);
                                              break;
@@ -283,6 +288,11 @@ void SkRasterPipeline::append_load_dst(SkColorType ct, const SkRasterPipeline_Me
                                               this->append(Op::force_opaque_dst);
                                               break;
 
+        case kBGR_888x_SkColorType:           this->append(Op::load_8888_dst, ctx);
+                                              this->append(Op::force_opaque_dst);
+                                              this->append(Op::swap_rb_dst);
+                                              break;
+
         case kBGRA_1010102_SkColorType:       this->append(Op::load_1010102_dst, ctx);
                                               this->append(Op::swap_rb_dst);
                                               break;
@@ -336,6 +346,11 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
         case kRGBA_F32_SkColorType:           this->append(Op::store_f32,     ctx); break;
 
         case kRGB_888x_SkColorType:           this->append(Op::force_opaque);
+                                              this->append(Op::store_8888, ctx);
+                                              break;
+
+        case kBGR_888x_SkColorType:           this->append(Op::force_opaque);
+                                              this->append(Op::swap_rb);
                                               this->append(Op::store_8888, ctx);
                                               break;
 

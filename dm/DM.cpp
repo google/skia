@@ -1052,6 +1052,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("rgba",        RasterSink, kRGBA_8888_SkColorType);
         SINK("bgra",        RasterSink, kBGRA_8888_SkColorType);
         SINK("rgbx",        RasterSink, kRGB_888x_SkColorType);
+        SINK("bgrx",        RasterSink, kBGR_888x_SkColorType);
         SINK("1010102",     RasterSink, kRGBA_1010102_SkColorType);
         SINK("101010x",     RasterSink, kRGB_101010x_SkColorType);
         SINK("bgra1010102", RasterSink, kBGRA_1010102_SkColorType);

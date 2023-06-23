@@ -34,6 +34,7 @@ static const char* color_type_name(SkColorType colorType) {
         case kRGBA_8888_SkColorType:          return "8888";
         case kRGB_888x_SkColorType:           return "888x";
         case kBGRA_8888_SkColorType:          return "8888";
+        case kBGR_888x_SkColorType:           return "888x";
         case kRGBA_1010102_SkColorType:       return "1010102";
         case kRGB_101010x_SkColorType:        return "101010x";
         case kBGRA_1010102_SkColorType:       return "bgra1010102";

@@ -391,6 +391,8 @@ static bool parse_option_gpu_color(const SkString& value,
         *outColorType  = kRGB_888x_SkColorType;
     } else if (value.equals("bgra8")) {
         *outColorType  = kBGRA_8888_SkColorType;
+    } else if (value.equals("bgrx8")) {
+        *outColorType  = kBGR_888x_SkColorType;
     } else if (value.equals("4444")) {
         *outColorType  = kARGB_4444_SkColorType;
     } else if (value.equals("565")) {

@@ -22,6 +22,7 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
         case kRGBA_8888_SkColorType:          return 4;
         case kBGRA_8888_SkColorType:          return 4;
         case kRGB_888x_SkColorType:           return 4;
+        case kBGR_888x_SkColorType:           return 4;
         case kRGBA_1010102_SkColorType:       return 4;
         case kRGB_101010x_SkColorType:        return 4;
         case kBGRA_1010102_SkColorType:       return 4;
@@ -222,6 +223,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
         case kR16G16_float_SkColorType:
         case kRGB_565_SkColorType:
         case kRGB_888x_SkColorType:
+        case kBGR_888x_SkColorType:
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
         case kBGR_101010x_XR_SkColorType:
