@@ -5,16 +5,4 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkOpts.h"
-
-#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-
-#define SK_OPTS_NS skx
-
-namespace SkOpts {
-    void Init_skx() {
-        // TODO: remove skx from SkOpts entirely
-    }
-}  // namespace SkOpts
-
-#endif // SK_ENABLE_OPTIMIZE_SIZE
+// Intentionally empty, to be cleaned up
