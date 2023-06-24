@@ -74,7 +74,6 @@
       s['textDirection'] = s['textDirection'] || CanvasKit.TextDirection.LTR;
       s['textHeightBehavior'] = s['textHeightBehavior'] || CanvasKit.TextHeightBehavior.All;
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
-      s['applyRoundingHack'] = s['applyRoundingHack'] ?? true;
       return s;
     };
 

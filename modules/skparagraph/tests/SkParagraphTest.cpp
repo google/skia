@@ -240,6 +240,8 @@ UNIX_ONLY_TEST(SkParagraph_SimpleParagraph, reporter) {
 }
 
 UNIX_ONLY_TEST(SkParagraph_Rounding_Off_LineBreaks, reporter) {
+    // To be removed after migration.
+    if (std::getenv("SKPARAGRAPH_REMOVE_ROUNDING_HACK") == nullptr) return;
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "AAAAAAAAAA";
@@ -247,7 +249,6 @@ UNIX_ONLY_TEST(SkParagraph_Rounding_Off_LineBreaks, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    paragraph_style.setApplyRoundingHack(false);
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
     text_style.setColor(SK_ColorBLACK);
