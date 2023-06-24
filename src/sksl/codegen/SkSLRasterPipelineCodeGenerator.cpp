@@ -1187,7 +1187,6 @@ SlotRange SlotManager::createSlots(std::string name,
 }
 
 void SlotManager::mapVariableToSlots(const Variable& v, SlotRange range) {
-    SkASSERT(fSlotMap.find(&v) == nullptr);
     SkASSERT(v.type().slotCount() == SkToSizeT(range.count));
     fSlotMap.set(&v, range);
 }
