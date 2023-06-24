@@ -341,6 +341,8 @@ public:
     [[nodiscard]] bool pushImmutableData(const Expression& e);
     [[nodiscard]] std::optional<SlotRange> findPreexistingImmutableData(
             const TArray<ImmutableBits>& immutableValues);
+    [[nodiscard]] std::optional<ImmutableBits> getImmutableBitsForSlot(const Expression& expr,
+                                                                       size_t slot);
     [[nodiscard]] bool getImmutableValueForExpression(const Expression& expr,
                                                       TArray<ImmutableBits>* immutableValues);
     void storeImmutableValueToSlots(const TArray<ImmutableBits>& immutableValues, SlotRange slots);
@@ -2596,6 +2598,34 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
                   : true;
 }
 
+std::optional<Generator::ImmutableBits> Generator::getImmutableBitsForSlot(const Expression& expr,
+                                                                           size_t slot) {
+    // Determine the constant-value of the slot; bail if it isn't constant.
+    std::optional<double> v = expr.getConstantValue(slot);
+    if (!v.has_value()) {
+        return std::nullopt;
+    }
+    // Determine the number-kind of the slot, and convert the value to its bit-representation.
+    Type::NumberKind kind = expr.type().slotType(slot).numberKind();
+    double value = *v;
+    switch (kind) {
+        case Type::NumberKind::kFloat:
+            return sk_bit_cast<ImmutableBits>((float)value);
+
+        case Type::NumberKind::kSigned:
+            return sk_bit_cast<ImmutableBits>((int32_t)value);
+
+        case Type::NumberKind::kUnsigned:
+            return sk_bit_cast<ImmutableBits>((uint32_t)value);
+
+        case Type::NumberKind::kBoolean:
+            return value ? ~0 : 0;
+
+        default:
+            return std::nullopt;
+    }
+}
+
 bool Generator::getImmutableValueForExpression(const Expression& expr,
                                                TArray<ImmutableBits>* immutableValues) {
     if (!expr.supportsConstantValues()) {
@@ -2604,32 +2634,11 @@ bool Generator::getImmutableValueForExpression(const Expression& expr,
     size_t numSlots = expr.type().slotCount();
     immutableValues->reserve_exact(numSlots);
     for (size_t index = 0; index < numSlots; ++index) {
-        // Determine the constant-value of the slot; bail if it isn't constant.
-        std::optional<double> v = expr.getConstantValue(index);
-        if (!v.has_value()) {
+        std::optional<ImmutableBits> bits = this->getImmutableBitsForSlot(expr, index);
+        if (!bits.has_value()) {
             return false;
         }
-        // Determine the number-kind of the slot, and convert the value to its bit-representation.
-        Type::NumberKind kind = expr.type().slotType(index).numberKind();
-        double value = *v;
-        ImmutableBits bits;
-        switch (kind) {
-            case Type::NumberKind::kFloat:
-                bits = sk_bit_cast<ImmutableBits>((float)value);
-                break;
-            case Type::NumberKind::kSigned:
-                bits = sk_bit_cast<ImmutableBits>((int32_t)value);
-                break;
-            case Type::NumberKind::kUnsigned:
-                bits = sk_bit_cast<ImmutableBits>((uint32_t)value);
-                break;
-            case Type::NumberKind::kBoolean:
-                bits = value ? ~0 : 0;
-                break;
-            default:
-                return false;
-        }
-        immutableValues->push_back(bits);
+        immutableValues->push_back(*bits);
     }
     return true;
 }
@@ -3854,18 +3863,31 @@ bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRan
     const Variable& var = *v.variable();
     SlotRange r;
     if (IsUniform(var)) {
+        // Push a uniform.
         r = this->getUniformSlots(var);
         SkASSERT(r.count == (int)var.type().slotCount());
         r.index += subset.index;
         r.count = subset.count;
         fBuilder.push_uniform(r);
     } else if (fImmutableVariables.contains(&var)) {
+        // If we only need a single slot, we can push a constant. This saves a lookup, and can
+        // occasionally permit the use of an immediate-mode op.
+        if (subset.count == 1) {
+            const Expression& expr = *v.variable()->initialValue();
+            std::optional<ImmutableBits> bits = this->getImmutableBitsForSlot(expr, subset.index);
+            if (bits.has_value()) {
+                fBuilder.push_constant_i(*bits);
+                return true;
+            }
+        }
+        // Push the immutable slot range.
         r = this->getImmutableSlots(var);
         SkASSERT(r.count == (int)var.type().slotCount());
         r.index += subset.index;
         r.count = subset.count;
         fBuilder.push_immutable(r);
     } else {
+        // Push the variable.
         r = this->getVariableSlots(var);
         SkASSERT(r.count == (int)var.type().slotCount());
         r.index += subset.index;
