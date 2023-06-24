@@ -27,6 +27,12 @@
     #define SI static inline
 #endif
 
+#if defined(__clang__)
+    #define SK_UNROLL _Pragma("unroll")
+#else
+    #define SK_UNROLL
+#endif
+
 template <typename Dst, typename Src>
 SI Dst widen_cast(const Src& src) {
     static_assert(sizeof(Dst) > sizeof(Src));
@@ -3610,12 +3616,12 @@ SI void copy_n_immutable_unmasked_fn(SkRasterPipeline_BinaryOpCtx* packed, std::
     // Load the scalar values.
     float* src = (float*)(base + ctx.src);
     float values[NumSlots];
-    for (int index = 0; index < NumSlots; ++index) {
+    SK_UNROLL for (int index = 0; index < NumSlots; ++index) {
         values[index] = src[index];
     }
     // Broadcast the scalars into the destination.
     F* dst = (F*)(base + ctx.dst);
-    for (int index = 0; index < NumSlots; ++index) {
+    SK_UNROLL for (int index = 0; index < NumSlots; ++index) {
         dst[index] = values[index];
     }
 }
@@ -3638,7 +3644,7 @@ SI void copy_n_slots_masked_fn(SkRasterPipeline_BinaryOpCtx* packed, std::byte* 
     auto ctx = SkRPCtxUtils::Unpack(packed);
     F* dst = (F*)(base + ctx.dst);
     F* src = (F*)(base + ctx.src);
-    for (int count = 0; count < NumSlots; ++count) {
+    SK_UNROLL for (int count = 0; count < NumSlots; ++count) {
         *dst = if_then_else(mask, *src, *dst);
         dst += 1;
         src += 1;
@@ -3661,7 +3667,7 @@ STAGE_TAIL(copy_4_slots_masked, SkRasterPipeline_BinaryOpCtx* packed) {
 template <int LoopCount, typename OffsetType>
 SI void shuffle_fn(std::byte* ptr, OffsetType* offsets, int numSlots) {
     F scratch[16];
-    for (int count = 0; count < LoopCount; ++count) {
+    SK_UNROLL for (int count = 0; count < LoopCount; ++count) {
         scratch[count] = *(F*)(ptr + offsets[count]);
     }
     // Surprisingly, this switch generates significantly better code than a memcpy (on x86-64) when
@@ -3715,7 +3721,7 @@ STAGE_TAIL(shuffle, SkRasterPipeline_ShuffleCtx* ctx) {
 template <int NumSlots>
 SI void swizzle_copy_masked_fn(F* dst, const F* src, uint16_t* offsets, I32 mask) {
     std::byte* dstB = (std::byte*)dst;
-    for (int count = 0; count < NumSlots; ++count) {
+    SK_UNROLL for (int count = 0; count < NumSlots; ++count) {
         F* dstS = (F*)(dstB + *offsets);
         *dstS = if_then_else(mask, *src, *dstS);
         offsets += 1;
@@ -4024,7 +4030,7 @@ SI void apply_binary_immediate(SkRasterPipeline_ConstantCtx* packed, std::byte* 
     V* dst = (V*)(base + ctx.dst);         // get a pointer to the destination
     S scalar = sk_bit_cast<S>(ctx.value);  // bit-pun the constant value as desired
     V src = scalar;                        // broadcast the constant value into a vector
-    for (int index = 0; index < N; ++index) {
+    SK_UNROLL for (int index = 0; index < N; ++index) {
         ApplyFn(dst, &src);                // perform the operation
         dst += 1;
     }
