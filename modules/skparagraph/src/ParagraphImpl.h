@@ -118,7 +118,7 @@ public:
     PositionWithAffinity getGlyphPositionAtCoordinate(SkScalar dx, SkScalar dy) override;
     SkRange<size_t> getWordBoundary(unsigned offset) override;
 
-    bool getApplyRoundingHack() const { return fApplyRoundingHack; }
+    bool getApplyRoundingHack() const { return fParagraphStyle.getApplyRoundingHack(); }
 
     size_t lineNumber() override { return fLines.size(); }
 
@@ -292,7 +292,6 @@ private:
     bool fHasLineBreaks;
     bool fHasWhitespacesInside;
     TextIndex fTrailingSpaces;
-    bool fApplyRoundingHack = std::getenv("SKPARAGRAPH_REMOVE_ROUNDING_HACK") == nullptr;
 };
 }  // namespace textlayout
 }  // namespace skia

@@ -707,6 +707,35 @@ describe('Paragraph Behavior', function() {
         fontMgr.delete();
     });
 
+    it('paragraph_rounding_hack', () => {
+        const paraStyleDefault = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Light,
+                }
+            },
+            textDirection: CanvasKit.TextDirection.RTL,
+            disableHinting: true,
+        });
+        expect(paraStyleDefault.applyRoundingHack).toEqual(true);
+
+        const paraStyleOverride = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Light,
+                }
+            },
+            textDirection: CanvasKit.TextDirection.RTL,
+            disableHinting: true,
+            applyRoundingHack: false,
+        });
+        expect(paraStyleOverride.applyRoundingHack).toEqual(false);
+    });
+
     gm('paragraph_font_provider', (canvas) => {
         const paint = new CanvasKit.Paint();
 
