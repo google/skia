@@ -22,7 +22,7 @@ struct SkRect;
 struct SkSamplingOptions;
 
 namespace skgpu::ganesh {
-    class SurfaceDrawContext;
+    class Device;
 }
 
 namespace skgpu {
@@ -74,6 +74,16 @@ public:
                                        const SkMatrix& localToDevice,
                                        SkCanvas::SrcRectConstraint constraint,
                                        SkSamplingOptions sampling);
+
+    static void DrawImageRect_Ganesh(skgpu::ganesh::Device*,
+                                     const SkImage*,
+                                     const SkRect& srcRect,
+                                     const SkRect& dstRect,
+                                     SkCanvas::QuadAAFlags,
+                                     const SkSamplingOptions&,
+                                     const SkPaint&,
+                                     SkCanvas::SrcRectConstraint);
+
 };
 
 } // namespace skgpu

@@ -19,6 +19,9 @@
 #include "src/core/SkSamplingPriv.h"
 
 #if GR_TEST_UTILS
+// GrContextOptions::fMaxTextureSizeOverride exists but doesn't allow for changing the
+// maxTextureSize on the fly.
+int gOverrideMaxTextureSize = 0;
 std::atomic<int>  gNumTilesDrawn{0};
 #endif
 

@@ -12,12 +12,15 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSamplingPriv.h"
+#include "src/gpu/ganesh/Device.h"
 #include "src/image/SkImage_Base.h"
 
 #if GR_TEST_UTILS
+extern int gOverrideMaxTextureSize;
 extern std::atomic<int>  gNumTilesDrawn;
 #endif
 
@@ -136,5 +139,110 @@ void TiledTextureUtils::DrawTiledBitmap_Ganesh(SkBaseDevice* device,
     }
 }
 
+void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
+                                             const SkImage* image,
+                                             const SkRect& srcRect,
+                                             const SkRect& dstRect,
+                                             SkCanvas::QuadAAFlags aaFlags,
+                                             const SkSamplingOptions& origSampling,
+                                             const SkPaint& paint,
+                                             SkCanvas::SrcRectConstraint constraint) {
+    SkRect src;
+    SkRect dst;
+    SkMatrix srcToDst;
+    auto mode = TiledTextureUtils::OptimizeSampleArea(SkISize::Make(image->width(),
+                                                                    image->height()),
+                                                      srcRect, dstRect, /* dstClip= */ nullptr,
+                                                      &src, &dst, &srcToDst);
+    if (mode == TiledTextureUtils::ImageDrawMode::kSkip) {
+        return;
+    }
+
+    SkASSERT(mode != TiledTextureUtils::ImageDrawMode::kDecal); // can only happen w/ a 'dstClip'
+
+    if (src.contains(image->bounds())) {
+        constraint = SkCanvas::kFast_SrcRectConstraint;
+    }
+
+    const SkMatrix& ctm = device->localToDevice();
+
+    SkSamplingOptions sampling = origSampling;
+    if (sampling.mipmap != SkMipmapMode::kNone &&
+        TiledTextureUtils::CanDisableMipmap(ctm, srcToDst)) {
+        sampling = SkSamplingOptions(sampling.filter);
+    }
+    const GrClip* clip = device->clip();
+
+    if (!image->isTextureBacked()) {
+        int tileFilterPad;
+        if (sampling.useCubic) {
+            tileFilterPad = kBicubicFilterTexelPad;
+        } else if (sampling.filter == SkFilterMode::kLinear || sampling.isAniso()) {
+            // Aniso will fallback to linear filtering in the tiling case.
+            tileFilterPad = 1;
+        } else {
+            tileFilterPad = 0;
+        }
+
+        GrRecordingContext* rContext = device->recordingContext();
+        int maxTileSize = rContext->maxTextureSize() - 2*tileFilterPad;
+#if GR_TEST_UTILS
+        if (gOverrideMaxTextureSize) {
+            maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
+        }
+#endif
+        size_t cacheSize = 0;
+        if (auto dContext = rContext->asDirectContext(); dContext) {
+            // NOTE: if the context is not a direct context, it doesn't have access to the resource
+            // cache, and theoretically, the resource cache's limits could be being changed on
+            // another thread, so even having access to just the limit wouldn't be a reliable
+            // test during recording here.
+            cacheSize = dContext->getResourceCacheLimit();
+        }
+        int tileSize;
+        SkIRect clippedSubset;
+        if (skgpu::TiledTextureUtils::ShouldTileImage(
+                clip ? clip->getConservativeBounds()
+                     : device->bounds(),
+                image->dimensions(),
+                ctm,
+                srcToDst,
+                &src,
+                maxTileSize,
+                cacheSize,
+                &tileSize,
+                &clippedSubset)) {
+            // Extract pixels on the CPU, since we have to split into separate textures before
+            // sending to the GPU if tiling.
+            if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
+                // This is the funnel for all paths that draw tiled bitmaps/images.
+                skgpu::TiledTextureUtils::DrawTiledBitmap_Ganesh(device,
+                                                                 bm,
+                                                                 tileSize,
+                                                                 srcToDst,
+                                                                 src,
+                                                                 clippedSubset,
+                                                                 paint,
+                                                                 aaFlags,
+                                                                 ctm,
+                                                                 constraint,
+                                                                 sampling);
+                return;
+            }
+        }
+    }
+
+    device->drawEdgeAAImage(image,
+                            src,
+                            dst,
+                            /* dstClip= */ nullptr,
+                            aaFlags,
+                            ctm,
+                            sampling,
+                            paint,
+                            constraint,
+                            srcToDst,
+                            SkTileMode::kClamp);
+}
 
 } // namespace skgpu

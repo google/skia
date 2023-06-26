@@ -65,7 +65,10 @@ struct SkDrawShadowRec;
 struct SkISize;
 struct SkPoint;
 struct SkRSXform;
-namespace skgpu { enum class Budgeted : bool; }
+namespace skgpu {
+enum class Budgeted : bool;
+class TiledTextureUtils;
+}
 namespace sktext {
 class GlyphRunList;
 namespace gpu {
@@ -315,14 +318,6 @@ private:
                              const SkPaint&,
                              SkCanvas::SrcRectConstraint);
 
-    void drawImageQuadPossiblyTiled(const SkImage*,
-                                    const SkRect& src,
-                                    const SkRect& dst,
-                                    SkCanvas::QuadAAFlags,
-                                    const SkSamplingOptions&,
-                                    const SkPaint&,
-                                    SkCanvas::SrcRectConstraint);
-
     void drawEdgeAAImage(const SkImage*,
                          const SkRect& src,
                          const SkRect& dst,
@@ -345,6 +340,7 @@ private:
                          const SkPaint&);
 
     friend class ::SkSurface_Ganesh;  // for access to surfaceProps
+    friend class skgpu::TiledTextureUtils;   // for clip() and drawEdgeAAImage
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(Device::DeviceFlags)
