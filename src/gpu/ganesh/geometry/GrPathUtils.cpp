@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkPointPriv.h"
@@ -455,7 +456,7 @@ void convert_noninflect_cubic_to_quads_with_constraint(const SkPoint p[4],
             cAvg.fX = ab.fY * z1 - z0 * dc.fY;
             cAvg.fY = z0 * dc.fX - ab.fX * z1;
             SkScalar z = ab.fX * dc.fY - ab.fY * dc.fX;
-            z = SkScalarInvert(z);
+            z = sk_ieee_float_divide(1.0f, z);
             cAvg.fX *= z;
             cAvg.fY *= z;
             if (sublevel <= kMaxSubdivs) {
