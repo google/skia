@@ -1237,6 +1237,8 @@ TINT_SRCS = [
     "src/tint/writer/append_vector.h",
     "src/tint/writer/array_length_from_uniform_options.cc",
     "src/tint/writer/array_length_from_uniform_options.h",
+    "src/tint/writer/ast_text_generator.cc",
+    "src/tint/writer/ast_text_generator.h",
     "src/tint/writer/binding_point.h",
     "src/tint/writer/binding_remapper_options.cc",
     "src/tint/writer/binding_remapper_options.h",
