@@ -200,6 +200,15 @@ describe('Font Behavior', () => {
         if (fontMgr.dumpFamilies) {
             fontMgr.dumpFamilies();
         }
+
+        const font1 = fontMgr.matchFamilyStyle(fontMgr.getFamilyName(0), {});
+        expect(font1).toBeTruthy();
+
+        const font2 = fontMgr.matchFamilyStyle(fontMgr.getFamilyName(1), { width: 5, weight: 400 });
+        expect(font2).toBeTruthy();
+
+        font1.delete();
+        font2.delete();
         fontMgr.delete();
     });
 

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `FontMgr.matchFamilyStyle` finds the closest matching typeface to the specified familyName and style.
+
 ### Fixed
  - `EmbindObject` has been updated to allow TypeScript to differentiate between opaque
    types such as Shader, ColorFilter, et cetera.

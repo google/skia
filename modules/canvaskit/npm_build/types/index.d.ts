@@ -1920,6 +1920,11 @@ export interface FontMgr extends EmbindObject<"FontMgr"> {
      * @param index
      */
     getFamilyName(index: number): string;
+
+    /**
+     * Find the closest matching typeface to the specified familyName and style.
+     */
+    matchFamilyStyle(name: string, style: FontStyle): Typeface;
 }
 
 /**

@@ -1497,6 +1497,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.getFamilyName(index, &s);
             return emscripten::val(s.c_str());
         }))
+        .function("matchFamilyStyle", optional_override([](SkFontMgr& self, std::string name, emscripten::val jsFontStyle)->sk_sp<SkTypeface> {
+            auto weight = SkFontStyle::Weight(jsFontStyle["weight"].isUndefined() ? SkFontStyle::kNormal_Weight : jsFontStyle["weight"].as<int>());
+            auto width = SkFontStyle::Width(jsFontStyle["width"].isUndefined() ? SkFontStyle::kNormal_Width : jsFontStyle["width"].as<int>());
+            auto slant = SkFontStyle::Slant(jsFontStyle["slant"].isUndefined() ? SkFontStyle::kUpright_Slant : static_cast<SkFontStyle::Slant>(jsFontStyle["slant"].as<int>()));
+
+            SkFontStyle style(weight, width, slant);
+
+            return self.matchFamilyStyle(name.c_str(), style);
+    }), allow_raw_pointers())
 #ifdef SK_DEBUG
         .function("dumpFamilies", optional_override([](SkFontMgr& self) {
             int numFam = self.countFamilies();
