@@ -23,6 +23,11 @@
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#endif
+
 namespace {
 struct AsyncContext {
     bool fCalled = false;
@@ -70,6 +75,7 @@ static sk_sp<SkImage> do_read_and_scale(Src* src,
 template <typename Src>
 static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
                                             GrDirectContext* direct,
+                                            skgpu::graphite::Recorder* recorder,
                                             SkYUVColorSpace yuvCS,
                                             const SkIRect& srcRect,
                                             SkISize size,
@@ -83,15 +89,43 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     SkImageInfo uvII = SkImageInfo::Make(uvSize, kGray_8_SkColorType, kPremul_SkAlphaType);
 
     AsyncContext asyncContext;
-    src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(), srcRect, size,
-                                         rescaleGamma, rescaleMode, async_callback, &asyncContext);
-    if (direct) {
-        direct->submit();
-    }
-    while (!asyncContext.fCalled) {
-        // Only GPU should actually be asynchronous.
-        SkASSERT(direct);
-        direct->checkAsyncWorkCompletion();
+    if (recorder) {
+#if defined(SK_GRAPHITE)
+        skgpu::graphite::Context* graphiteContext = recorder->priv().context();
+        if (!graphiteContext) {
+            return nullptr;
+        }
+        // We need to flush the existing drawing commands before we try to read
+        std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+        if (!recording) {
+            return nullptr;
+        }
+        skgpu::graphite::InsertRecordingInfo recordingInfo;
+        recordingInfo.fRecording = recording.get();
+        if (!graphiteContext->insertRecording(recordingInfo)) {
+            return nullptr;
+        }
+
+        graphiteContext->asyncRescaleAndReadPixelsYUV420(src, yuvCS, /*dstColorSpace=*/nullptr,
+                                                         srcRect, size, rescaleGamma, rescaleMode,
+                                                         async_callback, &asyncContext);
+        graphiteContext->submit();
+        while (!asyncContext.fCalled) {
+            graphiteContext->checkAsyncWorkCompletion();
+        }
+#endif
+    } else {
+        src->asyncRescaleAndReadPixelsYUV420(yuvCS, /*dstColorSpace=*/nullptr,
+                                             srcRect, size, rescaleGamma, rescaleMode,
+                                             async_callback, &asyncContext);
+        if (direct) {
+            direct->submit();
+        }
+        while (!asyncContext.fCalled) {
+            // Only GPU should actually be asynchronous.
+            SkASSERT(direct);
+            direct->checkAsyncWorkCompletion();
+        }
     }
     if (!asyncContext.fResult) {
         return nullptr;
@@ -109,7 +143,14 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
     SkASSERT(pixmaps.isValid());
     auto lazyYUVImage = sk_gpu_test::LazyYUVImage::Make(pixmaps);
     SkASSERT(lazyYUVImage);
-    return lazyYUVImage->refImage(direct, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+#if defined(SK_GRAPHITE)
+    if (recorder) {
+        return lazyYUVImage->refImage(recorder, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+    } else
+#endif
+    {
+        return lazyYUVImage->refImage(direct, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+    }
 }
 
 // Draws a grid of rescales. The columns are none, low, and high filter quality. The rows are
@@ -144,7 +185,8 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
             SkScopeExit cleanup;
             sk_sp<SkImage> result;
             if (doYUV420) {
-                result = do_read_and_scale_yuv(src, direct, yuvColorSpace, srcRect, newSize, gamma,
+                result = do_read_and_scale_yuv(src, direct, /*recorder=*/nullptr,
+                                               yuvColorSpace, srcRect, newSize, gamma,
                                                mode, &cleanup);
                 if (!result) {
                     errorMsg->printf("YUV420 async call failed. Allowed for now.");
@@ -298,9 +340,10 @@ DEF_SIMPLE_GM_CAN_FAIL(async_yuv_no_scale, canvas, errorMsg, 400, 300) {
     SkPaint paint;
     canvas->drawImage(image.get(), 0, 0);
 
+    skgpu::graphite::Recorder* recorder = canvas->recorder();
     SkScopeExit scopeExit;
     auto yuvImage = do_read_and_scale_yuv(
-            surface, dContext, kRec601_SkYUVColorSpace, SkIRect::MakeWH(400, 300),
+            surface, dContext, recorder, kRec601_SkYUVColorSpace, SkIRect::MakeWH(400, 300),
             {400, 300}, SkImage::RescaleGamma::kSrc, SkImage::RescaleMode::kNearest, &scopeExit);
 
     canvas->clear(SK_ColorWHITE);
