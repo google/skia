@@ -407,15 +407,15 @@ void Device::drawSpecial(SkSpecialImage* special,
                           SkTileMode::kClamp);
 }
 
-void Device::drawImageQuad(const SkImage* image,
-                           const SkRect& srcRect,
-                           const SkRect& dstRect,
-                           const SkPoint dstClip[4],
-                           SkCanvas::QuadAAFlags aaFlags,
-                           const SkMatrix* preViewMatrix,
-                           const SkSamplingOptions& origSampling,
-                           const SkPaint& paint,
-                           SkCanvas::SrcRectConstraint constraint) {
+void Device::drawImageQuadDirect(const SkImage* image,
+                                 const SkRect& srcRect,
+                                 const SkRect& dstRect,
+                                 const SkPoint dstClip[4],
+                                 SkCanvas::QuadAAFlags aaFlags,
+                                 const SkMatrix* preViewMatrix,
+                                 const SkSamplingOptions& origSampling,
+                                 const SkPaint& paint,
+                                 SkCanvas::SrcRectConstraint constraint) {
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
@@ -439,6 +439,51 @@ void Device::drawImageQuad(const SkImage* image,
     if (preViewMatrix) {
         ctm.preConcat(*preViewMatrix);
     }
+
+    SkSamplingOptions sampling = origSampling;
+    if (sampling.mipmap != SkMipmapMode::kNone &&
+        TiledTextureUtils::CanDisableMipmap(ctm, srcToDst)) {
+        sampling = SkSamplingOptions(sampling.filter);
+    }
+
+    this->drawEdgeAAImage(image,
+                          src,
+                          dst,
+                          dstClip,
+                          aaFlags,
+                          ctm,
+                          sampling,
+                          paint,
+                          constraint,
+                          srcToDst,
+                          tileMode);
+}
+
+void Device::drawImageQuadPossiblyTiled(const SkImage* image,
+                                        const SkRect& srcRect,
+                                        const SkRect& dstRect,
+                                        SkCanvas::QuadAAFlags aaFlags,
+                                        const SkSamplingOptions& origSampling,
+                                        const SkPaint& paint,
+                                        SkCanvas::SrcRectConstraint constraint) {
+    SkRect src;
+    SkRect dst;
+    SkMatrix srcToDst;
+    auto mode = TiledTextureUtils::OptimizeSampleArea(SkISize::Make(image->width(),
+                                                                    image->height()),
+                                                      srcRect, dstRect, /* dstClip= */ nullptr,
+                                                      &src, &dst, &srcToDst);
+    if (mode == TiledTextureUtils::ImageDrawMode::kSkip) {
+        return;
+    }
+
+    SkASSERT(mode != TiledTextureUtils::ImageDrawMode::kDecal); // can only happen w/ a 'dstClip'
+
+    if (src.contains(image->bounds())) {
+        constraint = SkCanvas::kFast_SrcRectConstraint;
+    }
+
+    const SkMatrix& ctm = this->localToDevice();
 
     SkSamplingOptions sampling = origSampling;
     if (sampling.mipmap != SkMipmapMode::kNone &&
@@ -499,8 +544,7 @@ void Device::drawImageQuad(const SkImage* image,
                                                                  aaFlags,
                                                                  ctm,
                                                                  constraint,
-                                                                 sampling,
-                                                                 tileMode);
+                                                                 sampling);
                 return;
             }
         }
@@ -509,7 +553,7 @@ void Device::drawImageQuad(const SkImage* image,
     this->drawEdgeAAImage(image,
                           src,
                           dst,
-                          dstClip,
+                          /* dstClip= */ nullptr,
                           aaFlags,
                           ctm,
                           sampling,
@@ -537,7 +581,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 auto paintAlpha = paint.getAlphaf();
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
-            this->drawImageQuad(
+            this->drawImageQuadDirect(
                     set[i].fImage.get(), set[i].fSrcRect, set[i].fDstRect,
                     set[i].fHasClip ? dstClips + dstClipIndex : nullptr,
                     static_cast<SkCanvas::QuadAAFlags>(set[i].fAAFlags),
@@ -617,7 +661,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 auto paintAlpha = paint.getAlphaf();
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
-            this->drawImageQuad(
+            this->drawImageQuadDirect(
                     image, set[i].fSrcRect, set[i].fDstRect, clip,
                     static_cast<SkCanvas::QuadAAFlags>(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,

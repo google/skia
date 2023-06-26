@@ -73,8 +73,7 @@ public:
                                        SkCanvas::QuadAAFlags origAAFlags,
                                        const SkMatrix& localToDevice,
                                        SkCanvas::SrcRectConstraint constraint,
-                                       SkSamplingOptions sampling,
-                                       SkTileMode tileMode);
+                                       SkSamplingOptions sampling);
 };
 
 } // namespace skgpu

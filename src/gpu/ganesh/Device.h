@@ -305,15 +305,23 @@ private:
 
     // If not null, dstClip must be contained inside dst and will also respect the edge AA flags.
     // If 'preViewMatrix' is not null, final CTM will be this->ctm() * preViewMatrix.
-    void drawImageQuad(const SkImage*,
-                       const SkRect& src,
-                       const SkRect& dst,
-                       const SkPoint dstClip[4],
-                       SkCanvas::QuadAAFlags,
-                       const SkMatrix* preViewMatrix,
-                       const SkSamplingOptions&,
-                       const SkPaint&,
-                       SkCanvas::SrcRectConstraint);
+    void drawImageQuadDirect(const SkImage*,
+                             const SkRect& src,
+                             const SkRect& dst,
+                             const SkPoint dstClip[4],
+                             SkCanvas::QuadAAFlags,
+                             const SkMatrix* preViewMatrix,
+                             const SkSamplingOptions&,
+                             const SkPaint&,
+                             SkCanvas::SrcRectConstraint);
+
+    void drawImageQuadPossiblyTiled(const SkImage*,
+                                    const SkRect& src,
+                                    const SkRect& dst,
+                                    SkCanvas::QuadAAFlags,
+                                    const SkSamplingOptions&,
+                                    const SkPaint&,
+                                    SkCanvas::SrcRectConstraint);
 
     void drawEdgeAAImage(const SkImage*,
                          const SkRect& src,

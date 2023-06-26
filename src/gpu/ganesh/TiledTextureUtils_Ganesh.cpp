@@ -33,8 +33,7 @@ void TiledTextureUtils::DrawTiledBitmap_Ganesh(SkBaseDevice* device,
                                                SkCanvas::QuadAAFlags origAAFlags,
                                                const SkMatrix& localToDevice,
                                                SkCanvas::SrcRectConstraint constraint,
-                                               SkSamplingOptions sampling,
-                                               SkTileMode tileMode) {
+                                               SkSamplingOptions sampling) {
     if (sampling.isAniso()) {
         sampling = SkSamplingPriv::AnisoFallback(/* imageIsMipped= */ false);
     }
@@ -127,7 +126,7 @@ void TiledTextureUtils::DrawTiledBitmap_Ganesh(SkBaseDevice* device,
                                         paint,
                                         constraint,
                                         offsetSrcToDst,
-                                        tileMode);
+                                        SkTileMode::kClamp);
 
 #if GR_TEST_UTILS
                 (void)gNumTilesDrawn.fetch_add(+1, std::memory_order_relaxed);
