@@ -1448,7 +1448,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
         bool supportsBGRAColorType = GR_IS_GR_GL(standard) &&
                 (version >= GR_GL_VER(1, 2) || ctxInfo.hasExtension("GL_EXT_bgra"));
-        info.fColorTypeInfoCount = supportsBGRAColorType ? 3 : 2;
+        info.fColorTypeInfoCount = supportsBGRAColorType ? 4 : 2;
         info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA8, Surface: kRGBA_8888
@@ -1536,6 +1536,40 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 ioFormat.fColorType = GrColorType::kRGB_888x;
                 ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
                 ioFormat.fExternalTexImageFormat = GR_GL_RGBA;
+                ioFormat.fExternalReadFormat = GR_GL_RGBA;
+            }
+        }
+
+        // Format: RGBA8, Surface: kBGR_888x
+        if (supportsBGRAColorType) {
+            auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = GrColorType::kBGR_888x;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
+
+            // External IO ColorTypes:
+            ctInfo.fExternalIOFormatCount = 2;
+            ctInfo.fExternalIOFormats = std::make_unique<ColorTypeInfo::ExternalIOFormats[]>(
+                    ctInfo.fExternalIOFormatCount);
+            int ioIdx = 0;
+            // Format: RGBA8, Surface: kBGR_888x, Data: kBGR_888x
+            {
+                auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                ioFormat.fColorType = GrColorType::kBGR_888x;
+                ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
+                ioFormat.fExternalTexImageFormat = GR_GL_BGRA;
+                ioFormat.fExternalReadFormat =
+                        formatWorkarounds.fDisallowBGRA8ReadPixels ? 0 : GR_GL_BGRA;
+                // Not guaranteed by ES/WebGL.
+                ioFormat.fRequiresImplementationReadQuery = !GR_IS_GR_GL(standard);
+            }
+
+            // Format: RGBA8, Surface: kBGR_888x, Data: kRGB_888x
+            {
+                auto& ioFormat = ctInfo.fExternalIOFormats[ioIdx++];
+                ioFormat.fColorType = GrColorType::kRGB_888x;
+                ioFormat.fExternalType = GR_GL_UNSIGNED_BYTE;
+                ioFormat.fExternalTexImageFormat = 0;
                 ioFormat.fExternalReadFormat = GR_GL_RGBA;
             }
         }
