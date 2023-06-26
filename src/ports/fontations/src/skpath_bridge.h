@@ -4,9 +4,8 @@
 #define SkPathBridge_DEFINED
 
 #include <memory>
+#include "include/core/SkFontParameters.h"
 #include "include/core/SkPath.h"
-
-class SkPath;
 
 namespace fontations_ffi {
 class SkPathWrapper {
@@ -22,6 +21,23 @@ public:
 
 private:
     SkPath path_;
+};
+
+/** C++ type opaque to Rust side to be able to write out variation design
+ * parameters to the caller-side allocated SkFontParameters::Variation::Axis. A
+ * direct cast between a shared C++/Rust struct and a Skia side struct is not
+ * possible because the hidden-axis flag is private on
+ * SkFontParameters::Variation::Axis.  */
+class SkAxisWrapper {
+public:
+    SkAxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount);
+    SkAxisWrapper() = delete;
+    bool populate_axis(size_t i, uint32_t axisTag, float min, float def, float max, bool hidden);
+    size_t size() const;
+
+private:
+    SkFontParameters::Variation::Axis* fAxisArray;
+    size_t fAxisCount;
 };
 
 }  // namespace fontations_ffi

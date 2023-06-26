@@ -14,6 +14,7 @@ use skrifa::{
 };
 use std::pin::Pin;
 
+use crate::ffi::SkAxisWrapper;
 use crate::ffi::SkPathWrapper;
 
 fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16 {
@@ -252,6 +253,31 @@ fn variation_position(
     coords.filtered_user_coords.len().try_into().unwrap()
 }
 
+fn populate_axes(font_ref: &BridgeFontRef, mut axis_wrapper: Pin<&mut SkAxisWrapper>) -> isize {
+    font_ref
+        .with_font(|f| {
+            let axes = f.axes();
+            // Populate incoming allocated SkFontParameters::Variation::Axis[] only when a
+            // buffer is passed.
+            if axis_wrapper.as_ref().size() > 0 {
+                for (i, axis) in axes.iter().enumerate() {
+                    if !axis_wrapper.as_mut().populate_axis(
+                        i,
+                        u32::from_be_bytes(axis.tag().into_bytes()),
+                        axis.min_value(),
+                        axis.default_value(),
+                        axis.max_value(),
+                        axis.is_hidden(),
+                    ) {
+                        return None;
+                    }
+                }
+            }
+            isize::try_from(axes.len()).ok()
+        })
+        .unwrap_or(-1)
+}
+
 fn make_font_ref_internal<'a>(font_data: &'a [u8], index: u32) -> Result<FontRef<'a>, ReadError> {
     match FileRef::new(font_data) {
         Ok(file_ref) => match file_ref {
@@ -381,6 +407,8 @@ mod ffi {
             coordinates: &mut [SkiaDesignCoordinate],
         ) -> isize;
 
+        fn populate_axes(font_ref: &BridgeFontRef, axis_wrapper: Pin<&mut SkAxisWrapper>) -> isize;
+
         type BridgeLocalizedStrings<'a>;
         unsafe fn get_localized_strings<'a>(
             font_ref: &'a BridgeFontRef<'a>,
@@ -401,6 +429,7 @@ mod ffi {
     unsafe extern "C++" {
 
         include!("src/ports/fontations/src/skpath_bridge.h");
+
         type SkPathWrapper;
 
         #[allow(dead_code)]
@@ -423,5 +452,19 @@ mod ffi {
         fn close(self: Pin<&mut SkPathWrapper>);
         #[allow(dead_code)]
         fn dump(self: Pin<&mut SkPathWrapper>);
+
+        type SkAxisWrapper;
+
+        fn populate_axis(
+            self: Pin<&mut SkAxisWrapper>,
+            i: usize,
+            axis: u32,
+            min: f32,
+            def: f32,
+            max: f32,
+            hidden: bool,
+        ) -> bool;
+        fn size(self: Pin<&SkAxisWrapper>) -> usize;
+
     }
 }

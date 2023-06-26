@@ -294,3 +294,9 @@ int SkTypeface_Fontations::onGetVariationDesignPosition(
     }
     return fontations_ffi::variation_position(*fBridgeNormalizedCoords, copyToCoordinates);
 }
+
+int SkTypeface_Fontations::onGetVariationDesignParameters(
+        SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
+    fontations_ffi::SkAxisWrapper axisWrapper(parameters, parameterCount);
+    return fontations_ffi::populate_axes(*fBridgeFontRef, axisWrapper);
+}
