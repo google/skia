@@ -115,7 +115,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
         }
 #endif
     } else {
-        src->asyncRescaleAndReadPixelsYUV420(yuvCS, /*dstColorSpace=*/nullptr,
+        src->asyncRescaleAndReadPixelsYUV420(yuvCS, SkColorSpace::MakeSRGB(),
                                              srcRect, size, rescaleGamma, rescaleMode,
                                              async_callback, &asyncContext);
         if (direct) {
