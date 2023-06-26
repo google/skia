@@ -7,6 +7,7 @@
 
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkPath.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkTSearch.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathMeasurePriv.h"
@@ -177,7 +178,7 @@ public:
     Impl(const SkPath& path, bool forceClosed, SkScalar resScale)
         : fPath(path)
         , fIter(SkPathPriv::Iterate(fPath).begin())
-        , fTolerance(CHEAP_DIST_LIMIT * SkScalarInvert(resScale))
+        , fTolerance(CHEAP_DIST_LIMIT * sk_ieee_float_divide(1.0f, resScale))
         , fForceClosed(forceClosed) {}
 
     bool hasNextSegments() const { return fIter != SkPathPriv::Iterate(fPath).end(); }
