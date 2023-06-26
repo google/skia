@@ -80,8 +80,9 @@ skia_core_sources += skia_skpicture_sources
 
 skia_core_public += skia_pathops_public
 skia_core_public += skia_skpicture_public
-# TODO(kjlubick) Move this into Chromium's BUILD.gn file.
-skia_core_public += skia_discardable_memory_chromium
+
+# TODO(kjlubick) Fill this with a real file after updating Chromium to use it.
+skia_no_slug_srcs = []
 `
 
 // The footer written to gn/sksl_tests.gni.

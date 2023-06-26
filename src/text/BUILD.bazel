@@ -27,3 +27,9 @@ skia_filegroup(
     srcs = [":text_hdrs"],
     visibility = ["//src:__pkg__"],
 )
+
+skia_filegroup(
+    name = "no_slug_srcs",
+    srcs = [],
+    visibility = ["//src:__pkg__"],
+)
