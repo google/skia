@@ -1030,7 +1030,6 @@ using namespace skia_private;
 #include "docs/examples/Surface_MakeRenderTarget.cpp"
 #include "docs/examples/Surface_MakeRenderTarget_2.cpp"
 #include "docs/examples/Surface_MakeRenderTarget_3.cpp"
-#include "docs/examples/Surface_characterize.cpp"
 #include "docs/examples/Surface_draw.cpp"
 #include "docs/examples/Surface_draw_2.cpp"
 #include "docs/examples/Surface_getCanvas.cpp"
