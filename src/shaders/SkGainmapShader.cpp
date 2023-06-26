@@ -116,6 +116,10 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
         }
     }
 
+    if (gainmapInfo.fBaseImageType == SkGainmapInfo::BaseImageType::kHDR) {
+        W -= 1.f;
+    }
+
     // Return the base image directly if the gainmap will not be applied at all.
     if (W == 0.f) {
         return baseImage->makeShader(baseSamplingOptions, &baseRectToDstRect);
