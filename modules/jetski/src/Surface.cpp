@@ -10,6 +10,7 @@
 #include <android/log.h>
 
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/core/SkPicture.h"
 #include "tools/window/DisplayParams.h"
 #include "tools/window/android/WindowContextFactory_android.h"
 

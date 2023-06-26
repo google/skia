@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
@@ -25,7 +26,6 @@
 #include <cstdint>
 #include <initializer_list>
 
-class SkPicture;
 struct GrContextOptions;
 
 static void check_isopaque(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,

@@ -7,10 +7,18 @@
 
 #include "src/core/SkRecordOpts.h"
 
-#include "include/private/base/SkTDArray.h"
-#include "src/core/SkCanvasPriv.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkMath.h"
+#include "src/core/SkRecord.h"
 #include "src/core/SkRecordPattern.h"
 #include "src/core/SkRecords.h"
+
+#include <cstdint>
+#include <optional>
 
 using namespace SkRecords;
 

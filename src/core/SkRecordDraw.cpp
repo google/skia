@@ -5,14 +5,40 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBBHFactory.h"
-#include "include/core/SkImage.h"
-#include "include/private/base/SkTDArray.h"
-#include "src/core/SkCanvasPriv.h"
-#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRecordDraw.h"
+
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMesh.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkVertices.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/chromium/Slug.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/utils/SkPatchUtils.h"
+
+#include <algorithm>
+#include <optional>
+#include <vector>
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -126,12 +152,7 @@ DRAW(DrawRRect, drawRRect(r.rrect, r.paint))
 DRAW(DrawRect, drawRect(r.rect, r.paint))
 DRAW(DrawRegion, drawRegion(r.region, r.paint))
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint))
-#if defined(SK_GANESH)
 DRAW(DrawSlug, drawSlug(r.slug.get()))
-#else
-// Turn draw into a nop.
-template <> void Draw::draw(const DrawSlug&) {}
-#endif
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
                           r.cull, r.paint))
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))

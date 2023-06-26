@@ -42,7 +42,9 @@ skia_filegroup(
             "//src/gpu:srcs",
             "//src/text/gpu:srcs",
         ],
-        "//conditions:default": [],
+        "//conditions:default": [
+            "//src/text:no_slug_srcs",
+        ],
     }) + select({
         "//src/sksl:needs_sksl": ["//src/sksl:srcs"],
         "//conditions:default": [],

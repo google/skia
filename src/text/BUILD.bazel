@@ -30,6 +30,6 @@ skia_filegroup(
 
 skia_filegroup(
     name = "no_slug_srcs",
-    srcs = [],
+    srcs = ["EmptySlugImpl.cpp"],
     visibility = ["//src:__pkg__"],
 )

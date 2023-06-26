@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/graphite/Context.h"

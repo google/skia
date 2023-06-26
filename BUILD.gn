@@ -1589,6 +1589,10 @@ skia_component("skia") {
     defines += [ "SK_ANDROID_FRAMEWORK_USE_PERFETTO" ]
     sources += [ "src/android/SkAndroidFrameworkPerfettoStaticStorage.cpp" ]
   }
+
+  if (!skia_enable_ganesh && !skia_enable_graphite) {
+    sources += skia_no_slug_srcs
+  }
 }
 
 # DebugCanvas used in experimental/wasm-skp-debugger

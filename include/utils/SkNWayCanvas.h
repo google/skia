@@ -45,11 +45,7 @@ struct SkPoint;
 struct SkRSXform;
 struct SkRect;
 
-#if defined(SK_GANESH)
-namespace sktext::gpu {
-class Slug;
-}
-#endif
+namespace sktext::gpu { class Slug; }
 
 class SK_API SkNWayCanvas : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
@@ -77,9 +73,7 @@ protected:
     void onDrawGlyphRunList(const sktext::GlyphRunList&, const SkPaint&) override;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
-#if defined(SK_GANESH)
     void onDrawSlug(const sktext::gpu::Slug* slug) override;
-#endif
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint) override;
 

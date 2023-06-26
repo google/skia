@@ -27,16 +27,13 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "include/private/chromium/Slug.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
-
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
 
 #include <cstdint>
 #include <cstring>
@@ -253,11 +250,9 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->append<SkRecords::DrawTextBlob>(paint, sk_ref_sp(blob), x, y);
 }
 
-#if defined(SK_GANESH)
 void SkRecorder::onDrawSlug(const sktext::gpu::Slug* slug) {
     this->append<SkRecords::DrawSlug>(sk_ref_sp(slug));
 }
-#endif
 
 void SkRecorder::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {

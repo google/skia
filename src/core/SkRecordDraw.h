@@ -10,12 +10,13 @@
 
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkMatrix.h"
-#include "src/core/SkBigPicture.h"
-#include "src/core/SkRecord.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkPicture.h"
+#include "include/private/base/SkNoncopyable.h"
 
 class SkDrawable;
-class SkLayerInfo;
+class SkRecord;
+struct SkRect;
 
 // Calculate conservative identity space bounds for each op in the record.
 void SkRecordFillBounds(const SkRect& cullRect, const SkRecord&,

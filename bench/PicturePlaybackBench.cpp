@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "bench/Benchmark.h"
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"

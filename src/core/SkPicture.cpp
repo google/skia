@@ -7,9 +7,11 @@
 
 #include "include/core/SkPicture.h"
 
-#include "include/core/SkImageGenerator.h"
+#include "include/core/SkData.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkStream.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkCanvasPriv.h"
@@ -17,14 +19,14 @@
 #include "src/core/SkPicturePlayback.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkPictureRecord.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/core/SkWriteBuffer.h"
 
 #include <atomic>
-
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
+#include <cstring>
+#include <memory>
 
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.
 // Note: in the read/write buffer versions, we have a slightly different convention:

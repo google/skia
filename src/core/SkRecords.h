@@ -8,28 +8,38 @@
 #ifndef SkRecords_DEFINED
 #define SkRecords_DEFINED
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkData.h"
-#include "include/core/SkDrawable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkMesh.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRRect.h"
-#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/chromium/Slug.h"
 #include "src/core/SkDrawShadowInfo.h"
 
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
+#include <cstdint>
+
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkPoint;
+struct SkRSXform;
 
 namespace SkRecords {
 
@@ -300,12 +310,8 @@ RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         sk_sp<const SkTextBlob> blob;
         SkScalar x;
         SkScalar y)
-#if defined(SK_GANESH)
 RECORD(DrawSlug, kDraw_Tag|kHasText_Tag,
        sk_sp<const sktext::gpu::Slug> slug)
-#else
-RECORD(DrawSlug, 0)
-#endif
 RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<SkPoint> cubics;

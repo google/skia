@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -17,8 +18,6 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-
-class SkPicture;
 
 static int32_t next_generation_id() {
     static std::atomic<int32_t> nextID{1};

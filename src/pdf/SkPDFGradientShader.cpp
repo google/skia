@@ -7,6 +7,7 @@
 
 #include "src/pdf/SkPDFGradientShader.h"
 
+#include "include/core/SkTileMode.h"
 #include "include/docs/SkPDFDocument.h"
 #include "src/core/SkChecksum.h"
 #include "src/pdf/SkPDFDocumentPriv.h"

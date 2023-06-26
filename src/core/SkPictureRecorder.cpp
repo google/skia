@@ -5,18 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include <memory>
-
-#include "include/core/SkData.h"
-#include "include/core/SkDrawable.h"
 #include "include/core/SkPictureRecorder.h"
+
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecordedDrawable.h"
 #include "src/core/SkRecorder.h"
+
+#include <cstddef>
+#include <memory>
+#include <utility>
 
 using namespace skia_private;
 

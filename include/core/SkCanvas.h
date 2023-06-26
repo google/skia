@@ -2441,6 +2441,7 @@ private:
     SkCanvas& operator=(const SkCanvas&) = delete;
 
     friend class sktext::gpu::Slug;
+    friend class SkPicturePlayback;
     /**
      * Convert a SkTextBlob to a sktext::gpu::Slug using the current canvas state.
      */

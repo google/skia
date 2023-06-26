@@ -12,6 +12,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"

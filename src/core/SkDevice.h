@@ -614,10 +614,7 @@ protected:
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
 #endif
 
-#if defined(SK_GANESH)
     void drawSlug(SkCanvas*, const sktext::gpu::Slug*, const SkPaint&) override {}
-#endif
-
     void onDrawGlyphRunList(
             SkCanvas*, const sktext::GlyphRunList&, const SkPaint&, const SkPaint&) override {}
 

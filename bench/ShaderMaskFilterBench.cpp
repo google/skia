@@ -6,11 +6,13 @@
  */
 
 #include "bench/Benchmark.h"
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "src/shaders/SkPictureShader.h"
 

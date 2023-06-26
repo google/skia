@@ -5,18 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkMatrix.h"
+#include "src/core/SkRecordedDrawable.h"
+
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSize.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkPictureData.h"
 #include "src/core/SkPicturePlayback.h"
 #include "src/core/SkPictureRecord.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkRecordDraw.h"
-#include "src/core/SkRecordedDrawable.h"
+#include "src/core/SkWriteBuffer.h"
 
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
+class SkCanvas;
 
 size_t SkRecordedDrawable::onApproximateBytesUsed() {
     size_t drawablesSize = 0;

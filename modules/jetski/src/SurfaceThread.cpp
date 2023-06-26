@@ -11,6 +11,7 @@
 #include "tools/window/android/WindowContextFactory_android.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkTypes.h"
 
 SurfaceThread::SurfaceThread() {

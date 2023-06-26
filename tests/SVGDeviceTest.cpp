@@ -17,6 +17,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/private/base/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
