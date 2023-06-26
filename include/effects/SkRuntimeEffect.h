@@ -39,7 +39,10 @@
 #include "include/sksl/SkSLDebugTrace.h"
 #include "include/sksl/SkSLVersion.h"
 
+class GrRecordingContext;
+class SkImage;
 struct SkIPoint;
+struct SkImageInfo;
 
 namespace SkSL {
 class DebugTracePriv;
@@ -215,6 +218,13 @@ public:
     sk_sp<SkShader> makeShader(sk_sp<const SkData> uniforms,
                                SkSpan<ChildPtr> children,
                                const SkMatrix* localMatrix = nullptr) const;
+
+    sk_sp<SkImage> makeImage(GrRecordingContext*,
+                             sk_sp<const SkData> uniforms,
+                             SkSpan<ChildPtr> children,
+                             const SkMatrix* localMatrix,
+                             SkImageInfo resultInfo,
+                             bool mipmapped) const;
 
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<const SkData> uniforms) const;
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<const SkData> uniforms,
@@ -481,6 +491,10 @@ public:
     ~SkRuntimeShaderBuilder();
 
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr);
+    sk_sp<SkImage> makeImage(GrRecordingContext*,
+                             const SkMatrix* localMatrix,
+                             SkImageInfo resultInfo,
+                             bool mipmapped);
 
 private:
     using INHERITED = SkRuntimeEffectBuilder;

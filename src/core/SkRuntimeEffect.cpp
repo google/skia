@@ -8,10 +8,16 @@
 #include "include/effects/SkRuntimeEffect.h"
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkSurface.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
@@ -61,6 +67,15 @@
 
 class SkColorSpace;
 struct SkIPoint;
+
+#if defined(SK_GANESH)
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/graphite/KeyContext.h"
@@ -884,6 +899,48 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
                                                              children);
 }
 
+sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
+                                          sk_sp<const SkData> uniforms,
+                                          SkSpan<ChildPtr> children,
+                                          const SkMatrix* localMatrix,
+                                          SkImageInfo resultInfo,
+                                          bool mipmapped) const {
+    if (resultInfo.alphaType() == kUnpremul_SkAlphaType ||
+        resultInfo.alphaType() == kUnknown_SkAlphaType) {
+        return nullptr;
+    }
+    sk_sp<SkSurface> surface;
+    if (rContext) {
+#if defined(SK_GANESH)
+        if (!rContext->priv().caps()->mipmapSupport()) {
+            mipmapped = false;
+        }
+        surface = SkSurfaces::RenderTarget(rContext,
+                                           skgpu::Budgeted::kYes,
+                                           resultInfo,
+                                           1,
+                                           kTopLeft_GrSurfaceOrigin,
+                                           nullptr,
+                                           mipmapped);
+#endif
+    } else {
+        surface = SkSurfaces::Raster(resultInfo);
+    }
+    if (!surface) {
+        return nullptr;
+    }
+    SkCanvas* canvas = surface->getCanvas();
+    auto shader = this->makeShader(std::move(uniforms), children, localMatrix);
+    if (!shader) {
+        return nullptr;
+    }
+    SkPaint paint;
+    paint.setShader(std::move(shader));
+    paint.setBlendMode(SkBlendMode::kSrc);
+    canvas->drawPaint(paint);
+    return surface->makeImageSnapshot();
+}
+
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<const SkData> uniforms,
                                                       sk_sp<SkColorFilter> childColorFilters[],
                                                       size_t childCount) const {
@@ -996,6 +1053,18 @@ SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
         : INHERITED(std::move(effect)) {}
 
 SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
+
+sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingContext,
+                                                 const SkMatrix* localMatrix,
+                                                 SkImageInfo resultInfo,
+                                                 bool mipmapped) {
+    return this->effect()->makeImage(recordingContext,
+                                     this->uniforms(),
+                                     this->children(),
+                                     localMatrix,
+                                     resultInfo,
+                                     mipmapped);
+}
 
 sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix) {
     return this->effect()->makeShader(this->uniforms(), this->children(), localMatrix);
