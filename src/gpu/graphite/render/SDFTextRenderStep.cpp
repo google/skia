@@ -16,7 +16,7 @@
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
-#include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/gpu/graphite/text/TextAtlasManager.h"
 #include "src/sksl/SkSLString.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/VertexFiller.h"

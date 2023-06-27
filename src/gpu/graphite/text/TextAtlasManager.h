@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_AtlasManager_DEFINED
-#define skgpu_graphite_AtlasManager_DEFINED
+#ifndef skgpu_graphite_TextAtlasManager_DEFINED
+#define skgpu_graphite_TextAtlasManager_DEFINED
 
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/AtlasTypes.h"
@@ -24,12 +24,12 @@ class Recorder;
 class UploadList;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-/** The AtlasManager manages the lifetime of and access to DrawAtlases.
+/** The TextAtlasManager manages the lifetime of and access to DrawAtlases used in glyph rendering.
  */
-class AtlasManager : public AtlasGenerationCounter {
+class TextAtlasManager : public AtlasGenerationCounter {
 public:
-    AtlasManager(Recorder*);
-    ~AtlasManager();
+    TextAtlasManager(Recorder*);
+    ~TextAtlasManager();
 
     // If getProxies returns nullptr, the client must not try to use other functions on the
     // StrikeCache which use the atlas.  This function *must* be called first, before other
@@ -114,4 +114,4 @@ private:
 
 }  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_AtlasManager_DEFINED
+#endif  // skgpu_graphite_TextAtlasManager_DEFINED

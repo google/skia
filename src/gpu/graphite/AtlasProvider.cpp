@@ -10,12 +10,12 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/gpu/graphite/text/TextAtlasManager.h"
 
 namespace skgpu::graphite {
 
 AtlasProvider::AtlasProvider(Recorder* recorder)
-        : fTextAtlasManager(std::make_unique<AtlasManager>(recorder)) {
+        : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder)) {
 #ifdef SK_ENABLE_VELLO_SHADERS
     if (recorder->priv().caps()->computeSupport()) {
         fComputePathAtlas = std::make_unique<ComputePathAtlas>();

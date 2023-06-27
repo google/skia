@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/gpu/graphite/text/TextAtlasManager.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
@@ -25,7 +25,7 @@ using Glyph = sktext::gpu::Glyph;
 
 namespace skgpu::graphite {
 
-AtlasManager::AtlasManager(Recorder* recorder)
+TextAtlasManager::TextAtlasManager(Recorder* recorder)
         : fRecorder(recorder)
         , fSupportBilerpAtlas{recorder->priv().caps()->supportBilerpFromGlyphAtlas()}
         , fAtlasConfig{recorder->priv().caps()->maxTextureSize(),
@@ -34,21 +34,21 @@ AtlasManager::AtlasManager(Recorder* recorder)
         // multitexturing supported only if range can represent the index + texcoords fully
         !(recorder->priv().caps()->shaderCaps()->fFloatIs32Bits ||
           recorder->priv().caps()->shaderCaps()->fIntegerSupport)) {
-       fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kNo;
+        fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kNo;
     } else {
-       fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kYes;
+        fAllowMultitexturing = DrawAtlas::AllowMultitexturing::kYes;
     }
 }
 
-AtlasManager::~AtlasManager() = default;
+TextAtlasManager::~TextAtlasManager() = default;
 
-void AtlasManager::freeAll() {
+void TextAtlasManager::freeAll() {
     for (int i = 0; i < kMaskFormatCount; ++i) {
         fAtlases[i] = nullptr;
     }
 }
 
-bool AtlasManager::hasGlyph(MaskFormat format, Glyph* glyph) {
+bool TextAtlasManager::hasGlyph(MaskFormat format, Glyph* glyph) {
     SkASSERT(glyph);
     return this->getAtlas(format)->hasID(glyph->fAtlasLocator.plotLocator());
 }
@@ -150,7 +150,7 @@ static void get_packed_glyph_image(
     }
 }
 
-MaskFormat AtlasManager::resolveMaskFormat(MaskFormat format) const {
+MaskFormat TextAtlasManager::resolveMaskFormat(MaskFormat format) const {
     if (MaskFormat::kA565 == format &&
         !fRecorder->priv().caps()->getDefaultSampledTextureInfo(kRGB_565_SkColorType,
                                                                 /*mipmapped=*/Mipmapped::kNo,
@@ -163,9 +163,9 @@ MaskFormat AtlasManager::resolveMaskFormat(MaskFormat format) const {
 
 // Returns kSucceeded if glyph successfully added to texture atlas, kTryAgain if a RenderPassTask
 // needs to be snapped before adding the glyph, and kError if it can't be added at all.
-DrawAtlas::ErrorCode AtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
-                                                   Glyph* glyph,
-                                                   int srcPadding) {
+DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
+                                                       Glyph* glyph,
+                                                       int srcPadding) {
 #if !defined(SK_DISABLE_SDF_TEXT)
     SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
 #else
@@ -240,7 +240,7 @@ DrawAtlas::ErrorCode AtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     return errorCode;
 }
 
-bool AtlasManager::recordUploads(UploadList* ul, bool useCachedUploads) {
+bool TextAtlasManager::recordUploads(UploadList* ul, bool useCachedUploads) {
     for (int i = 0; i < skgpu::kMaskFormatCount; i++) {
         if (fAtlases[i] && !fAtlases[i]->recordUploads(ul, fRecorder, useCachedUploads)) {
             return false;
@@ -251,16 +251,17 @@ bool AtlasManager::recordUploads(UploadList* ul, bool useCachedUploads) {
     return true;
 }
 
-void AtlasManager::addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater* updater,
-                                                MaskFormat format, Glyph* glyph,
-                                                AtlasToken token) {
+void TextAtlasManager::addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater* updater,
+                                                    MaskFormat format,
+                                                    Glyph* glyph,
+                                                    AtlasToken token) {
     SkASSERT(glyph);
     if (updater->add(glyph->fAtlasLocator)) {
         this->getAtlas(format)->setLastUseToken(glyph->fAtlasLocator, token);
     }
 }
 
-void AtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
+void TextAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     // Delete any old atlases.
     // This should be safe to do as long as we are not in the middle of a flush.
     for (int i = 0; i < skgpu::kMaskFormatCount; i++) {
@@ -271,7 +272,7 @@ void AtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     new (&fAtlasConfig) DrawAtlasConfig{2048, 0};
 }
 
-bool AtlasManager::initAtlas(MaskFormat format) {
+bool TextAtlasManager::initAtlas(MaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
         SkColorType colorType = MaskFormatToColorType(format);

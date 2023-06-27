@@ -12,9 +12,9 @@
 
 namespace skgpu::graphite {
 
-class AtlasManager;
 class ComputePathAtlas;
 class Recorder;
+class TextAtlasManager;
 
 /**
  * AtlasProvider groups various texture atlas management algorithms together.
@@ -24,9 +24,9 @@ public:
     explicit AtlasProvider(Recorder*);
     ~AtlasProvider() = default;
 
-    // Returns the AtlasManager that provides access to persistent DrawAtlas'es used in glyph
-    // rendering. This AtlasManager is always available.
-    AtlasManager* textAtlasManager() const { return fTextAtlasManager.get(); }
+    // Returns the TextAtlasManager that provides access to persistent DrawAtlas'es used in glyph
+    // rendering. This TextAtlasManager is always available.
+    TextAtlasManager* textAtlasManager() const { return fTextAtlasManager.get(); }
 
     // Returns the transient atlas handler that uses compute shaders to rasterize coverage masks for
     // path rendering. This method returns nullptr if compute shaders are not supported by the
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    std::unique_ptr<AtlasManager> fTextAtlasManager;
+    std::unique_ptr<TextAtlasManager> fTextAtlasManager;
 #ifdef SK_ENABLE_VELLO_SHADERS
     std::unique_ptr<ComputePathAtlas> fComputePathAtlas;
 #endif

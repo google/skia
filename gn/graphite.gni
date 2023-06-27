@@ -202,8 +202,8 @@ skia_graphite_sources = [
   "$_src/render/TessellateWedgesRenderStep.h",
   "$_src/render/VerticesRenderStep.cpp",
   "$_src/render/VerticesRenderStep.h",
-  "$_src/text/AtlasManager.cpp",
-  "$_src/text/AtlasManager.h",
+  "$_src/text/TextAtlasManager.cpp",
+  "$_src/text/TextAtlasManager.h",
 ]
 
 skia_graphite_dawn_public = [

@@ -38,7 +38,7 @@
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 #include "src/gpu/graphite/UploadTask.h"
-#include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/gpu/graphite/text/TextAtlasManager.h"
 #include "src/image/SkImage_Base.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"

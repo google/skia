@@ -35,7 +35,7 @@
 #include "src/gpu/graphite/geom/IntersectionTree.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
-#include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/gpu/graphite/text/TextAtlasManager.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPath.h"
@@ -863,7 +863,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
         return glyphs->regenerateAtlasForGraphite(begin, end, maskFormat, padding, fRecorder);
     };
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
-        // For the remainder of the run, add any atlas uploads to the Recorder's AtlasManager
+        // For the remainder of the run, add any atlas uploads to the Recorder's TextAtlasManager
         auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(subRunCursor, subRunEnd,
                                                               regenerateDelegate);
         // There was a problem allocating the glyph in the atlas. Bail.
@@ -1229,7 +1229,7 @@ void Device::flushPendingWorkToRecorder() {
     // push any pending uploads from the atlasmanager
     auto textAtlasManager = fRecorder->priv().atlasProvider()->textAtlasManager();
     if (!fDC->recordTextUploads(textAtlasManager)) {
-        SKGPU_LOG_E("AtlasManager uploads have failed -- may see invalid results.");
+        SKGPU_LOG_E("TextAtlasManager uploads have failed -- may see invalid results.");
     }
 
     auto uploadTask = fDC->snapUploadTask(fRecorder);

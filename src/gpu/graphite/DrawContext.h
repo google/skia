@@ -29,11 +29,11 @@ class Geometry;
 class Recorder;
 class Transform;
 
-class AtlasManager;
 class Caps;
 class DispatchGroup;
 class DrawPass;
 class Task;
+class TextAtlasManager;
 class TextureProxy;
 class TextureProxyView;
 
@@ -71,7 +71,7 @@ public:
                     const PaintParams* paint,
                     const StrokeStyle* stroke);
 
-    bool recordTextUploads(AtlasManager*);
+    bool recordTextUploads(TextAtlasManager*);
     bool recordUpload(Recorder* recorder,
                       sk_sp<TextureProxy> targetProxy,
                       const SkColorInfo& srcColorInfo,

@@ -30,7 +30,7 @@
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
-#include "src/gpu/graphite/text/AtlasManager.h"
+#include "src/gpu/graphite/text/TextAtlasManager.h"
 
 namespace skgpu::graphite {
 
@@ -101,7 +101,7 @@ void DrawContext::recordDraw(const Renderer* renderer,
     fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paint, stroke);
 }
 
-bool DrawContext::recordTextUploads(AtlasManager* am) {
+bool DrawContext::recordTextUploads(TextAtlasManager* am) {
     return am->recordUploads(fPendingUploads.get(), /*useCachedUploads=*/false);
 }
 
