@@ -110,6 +110,7 @@ public:
     // V97: SkImageFilters::RuntimeShader takes a sample radius
     // V98: Merged SkImageFilters::Blend and ::Arithmetic implementations
     // V99: Remove legacy Magnifier filter
+    // V100: SkImageFilters::DropShadow does not have a dedicated implementation
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -130,6 +131,7 @@ public:
         kRuntimeImageFilterSampleRadius     = 97,
         kCombineBlendArithmeticFilters      = 98,
         kRemoveLegacyMagnifierFilter        = 99,
+        kDropShadowImageFilterComposition   = 100,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -154,7 +156,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kRemoveLegacyMagnifierFilter
+        kCurrent_Version = kDropShadowImageFilterComposition
     };
 };
 

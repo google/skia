@@ -956,7 +956,8 @@ DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {
     sk_sp<SkImageFilter> filter2(make_drop_shadow(std::move(filter1)));
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
+    // Drop shadow offset pads 1px on top-left for linear filtering
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-134, -134, 237, 237);
     bounds = filter2->filterBounds(bounds, SkMatrix::I(),
                                    SkImageFilter::kReverse_MapDirection, &bounds);
 
@@ -968,7 +969,8 @@ DEF_TEST(ImageFilterShadowThenBlurBounds, reporter) {
     sk_sp<SkImageFilter> filter2(make_blur(std::move(filter1)));
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 236, 236);
+    // Drop shadow offset pads 1px on top-left for linear filtering
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-134, -134, 237, 237);
     bounds = filter2->filterBounds(bounds, SkMatrix::I(),
                                    SkImageFilter::kReverse_MapDirection, &bounds);
 
@@ -980,7 +982,8 @@ DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
     sk_sp<SkImageFilter> filter2(make_drop_shadow(std::move(filter1)));
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-132, -132, 234, 234);
+    // Drop shadow offset pads 1px on top-left for linear filtering
+    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 235, 235);
     bounds = filter2->filterBounds(bounds, SkMatrix::I(),
                                    SkImageFilter::kReverse_MapDirection, &bounds);
 
@@ -1011,8 +1014,11 @@ DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
         SkIRect shadowBounds = dropShadow->filterBounds(
                 bounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
         REPORTER_ASSERT(reporter, shadowBounds == expectedShadowBounds);
+
+        // An outset by 1px for linear filtering is applied to the input bounds, but only
+        // the L and T values are visible after the original bounds are joined with it.
         SkIRect expectedReverseShadowBounds =
-                SkIRect::MakeLTRB(-260, -260, 200, 200);
+                SkIRect::MakeLTRB(-261, -261, 200, 200);
         SkIRect reverseShadowBounds = dropShadow->filterBounds(
                 bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &bounds);
         REPORTER_ASSERT(reporter, reverseShadowBounds == expectedReverseShadowBounds);
@@ -1035,8 +1041,10 @@ DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
         SkIRect shadowBounds = dropShadow->filterBounds(
                 bounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
         REPORTER_ASSERT(reporter, shadowBounds == expectedShadowBounds);
+        // Like above, the linear outset of 1px only remains visible on the L and B edges
+        // after joining the original bounds with what's required for the offset.
         SkIRect expectedReverseShadowBounds =
-                SkIRect::MakeLTRB(-130, -100, 100, 130);
+                SkIRect::MakeLTRB(-131, -100, 100, 131);
         SkIRect reverseShadowBounds = dropShadow->filterBounds(
                 bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &bounds);
         REPORTER_ASSERT(reporter, reverseShadowBounds == expectedReverseShadowBounds);
