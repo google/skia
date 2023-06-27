@@ -24,19 +24,19 @@ extern int gOverrideMaxTextureSize;
 extern std::atomic<int>  gNumTilesDrawn;
 #endif
 
-namespace skgpu {
+namespace {
 
-void TiledTextureUtils::DrawTiledBitmap_Ganesh(SkBaseDevice* device,
-                                               const SkBitmap& bitmap,
-                                               int tileSize,
-                                               const SkMatrix& srcToDst,
-                                               const SkRect& srcRect,
-                                               const SkIRect& clippedSrcIRect,
-                                               const SkPaint& paint,
-                                               SkCanvas::QuadAAFlags origAAFlags,
-                                               const SkMatrix& localToDevice,
-                                               SkCanvas::SrcRectConstraint constraint,
-                                               SkSamplingOptions sampling) {
+void draw_tiled_bitmap_ganesh(skgpu::ganesh::Device* device,
+                              const SkBitmap& bitmap,
+                              int tileSize,
+                              const SkMatrix& srcToDst,
+                              const SkRect& srcRect,
+                              const SkIRect& clippedSrcIRect,
+                              const SkPaint& paint,
+                              SkCanvas::QuadAAFlags origAAFlags,
+                              const SkMatrix& localToDevice,
+                              SkCanvas::SrcRectConstraint constraint,
+                              SkSamplingOptions sampling) {
     if (sampling.isAniso()) {
         sampling = SkSamplingPriv::AnisoFallback(/* imageIsMipped= */ false);
     }
@@ -86,7 +86,8 @@ void TiledTextureUtils::DrawTiledBitmap_Ganesh(SkBaseDevice* device,
                     srcRect.roundOut(&iClampRect);
                 }
                 int outset = sampling.useCubic ? kBicubicFilterTexelPad : 1;
-                ClampedOutsetWithOffset(&iTileR, outset, &offset, iClampRect);
+                skgpu::TiledTextureUtils::ClampedOutsetWithOffset(&iTileR, outset, &offset,
+                                                                  iClampRect);
             }
 
             // We must subset as a bitmap and then turn it into an SkImage if we want caching to
@@ -115,7 +116,7 @@ void TiledTextureUtils::DrawTiledBitmap_Ganesh(SkBaseDevice* device,
                     aaFlags |= SkCanvas::kBottom_QuadAAFlag;
                 }
 
-                // now offset it to make it "local" to our tmp bitmap
+                // Offset the source rect to make it "local" to our tmp bitmap
                 tileR.offset(-offset.fX, -offset.fY);
                 SkMatrix offsetSrcToDst = srcToDst;
                 offsetSrcToDst.preTranslate(offset.fX, offset.fY);
@@ -139,6 +140,10 @@ void TiledTextureUtils::DrawTiledBitmap_Ganesh(SkBaseDevice* device,
     }
 }
 
+} // anonymous namespace
+
+namespace skgpu {
+
 void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
                                              const SkImage* image,
                                              const SkRect& srcRect,
@@ -150,28 +155,27 @@ void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
-    auto mode = TiledTextureUtils::OptimizeSampleArea(SkISize::Make(image->width(),
-                                                                    image->height()),
-                                                      srcRect, dstRect, /* dstClip= */ nullptr,
-                                                      &src, &dst, &srcToDst);
-    if (mode == TiledTextureUtils::ImageDrawMode::kSkip) {
+    ImageDrawMode mode = OptimizeSampleArea(SkISize::Make(image->width(), image->height()),
+                                            srcRect, dstRect, /* dstClip= */ nullptr,
+                                            &src, &dst, &srcToDst);
+    if (mode == ImageDrawMode::kSkip) {
         return;
     }
 
-    SkASSERT(mode != TiledTextureUtils::ImageDrawMode::kDecal); // can only happen w/ a 'dstClip'
+    SkASSERT(mode != ImageDrawMode::kDecal); // only happens if there is a 'dstClip'
 
     if (src.contains(image->bounds())) {
         constraint = SkCanvas::kFast_SrcRectConstraint;
     }
 
-    const SkMatrix& ctm = device->localToDevice();
+    const SkMatrix& localToDevice = device->localToDevice();
 
     SkSamplingOptions sampling = origSampling;
-    if (sampling.mipmap != SkMipmapMode::kNone &&
-        TiledTextureUtils::CanDisableMipmap(ctm, srcToDst)) {
+    if (sampling.mipmap != SkMipmapMode::kNone && CanDisableMipmap(localToDevice, srcToDst)) {
         sampling = SkSamplingOptions(sampling.filter);
     }
     const GrClip* clip = device->clip();
+    SkIRect clipRect = clip ? clip->getConservativeBounds() : device->bounds();
 
     if (!image->isTextureBacked()) {
         int tileFilterPad;
@@ -201,32 +205,29 @@ void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
         }
         int tileSize;
         SkIRect clippedSubset;
-        if (skgpu::TiledTextureUtils::ShouldTileImage(
-                clip ? clip->getConservativeBounds()
-                     : device->bounds(),
-                image->dimensions(),
-                ctm,
-                srcToDst,
-                &src,
-                maxTileSize,
-                cacheSize,
-                &tileSize,
-                &clippedSubset)) {
+        if (ShouldTileImage(clipRect,
+                            image->dimensions(),
+                            localToDevice,
+                            srcToDst,
+                            &src,
+                            maxTileSize,
+                            cacheSize,
+                            &tileSize,
+                            &clippedSubset)) {
             // Extract pixels on the CPU, since we have to split into separate textures before
             // sending to the GPU if tiling.
             if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
-                // This is the funnel for all paths that draw tiled bitmaps/images.
-                skgpu::TiledTextureUtils::DrawTiledBitmap_Ganesh(device,
-                                                                 bm,
-                                                                 tileSize,
-                                                                 srcToDst,
-                                                                 src,
-                                                                 clippedSubset,
-                                                                 paint,
-                                                                 aaFlags,
-                                                                 ctm,
-                                                                 constraint,
-                                                                 sampling);
+                draw_tiled_bitmap_ganesh(device,
+                                         bm,
+                                         tileSize,
+                                         srcToDst,
+                                         src,
+                                         clippedSubset,
+                                         paint,
+                                         aaFlags,
+                                         localToDevice,
+                                         constraint,
+                                         sampling);
                 return;
             }
         }
@@ -237,7 +238,7 @@ void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
                             dst,
                             /* dstClip= */ nullptr,
                             aaFlags,
-                            ctm,
+                            localToDevice,
                             sampling,
                             paint,
                             constraint,

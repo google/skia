@@ -211,6 +211,25 @@ public:
                             const SkMatrix preViewMatrices[], const SkSamplingOptions&,
                             const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
+    // Assumes the src and dst rects have already been optimized to fit the proxy.
+    // Only implemented by the gpu devices.
+    // This method is the lowest level draw used for tiled bitmap draws. It doesn't attempt to
+    // modify its parameters (e.g., adjust src & dst) but just draws the image however it can. It
+    // could, almost, be replaced with a drawEdgeAAImageSet call for the tiled bitmap draw use
+    // case but the extra tilemode requirement and the intermediate parameter processing (e.g.,
+    // trying to alter the SrcRectConstraint) currently block that.
+    void drawEdgeAAImage(const SkImage*,
+                         const SkRect& src,
+                         const SkRect& dst,
+                         const SkPoint dstClip[4],
+                         SkCanvas::QuadAAFlags,
+                         const SkMatrix& localToDevice,
+                         const SkSamplingOptions&,
+                         const SkPaint&,
+                         SkCanvas::SrcRectConstraint,
+                         const SkMatrix& srcToDst,
+                         SkTileMode);
+
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
@@ -317,18 +336,6 @@ private:
                              const SkSamplingOptions&,
                              const SkPaint&,
                              SkCanvas::SrcRectConstraint);
-
-    void drawEdgeAAImage(const SkImage*,
-                         const SkRect& src,
-                         const SkRect& dst,
-                         const SkPoint dstClip[4],
-                         SkCanvas::QuadAAFlags,
-                         const SkMatrix& localToDevice,
-                         const SkSamplingOptions&,
-                         const SkPaint&,
-                         SkCanvas::SrcRectConstraint,
-                         const SkMatrix& srcToDst,
-                         SkTileMode tm) override;
 
     // FIXME(michaelludwig) - Should be removed in favor of using drawImageQuad with edge flags to
     // for every element in the SkLatticeIter.
