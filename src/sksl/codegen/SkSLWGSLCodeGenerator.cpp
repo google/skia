@@ -1790,7 +1790,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         }
 
         case k_dot_IntrinsicKind: {
-            if (arguments[0]->type().columns() == 1) {
+            if (arguments[0]->type().isScalar()) {
                 return this->assembleBinaryOpIntrinsic(OperatorKind::STAR, call, parentPrecedence);
             }
             return this->assembleSimpleIntrinsic("dot", call);
@@ -1799,7 +1799,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             return this->assembleBinaryOpIntrinsic(OperatorKind::EQEQ, call, parentPrecedence);
 
         case k_faceforward_IntrinsicKind: {
-            if (arguments[0]->type().columns() == 1) {
+            if (arguments[0]->type().isScalar()) {
                 // (select(-1.0, 1.0, (I * Nref) < 0) * N)
                 return this->writeScratchLet(
                         "(select(-1.0, 1.0, (" +
@@ -1863,6 +1863,37 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_notEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::NEQ, call, parentPrecedence);
 
+        case k_reflect_IntrinsicKind:
+            if (arguments[0]->type().isScalar()) {
+                // I - 2 * N * I * N
+                std::string I = this->writeNontrivialScratchLet(*arguments[0],
+                                                                Precedence::kAdditive);
+                std::string N = this->writeNontrivialScratchLet(*arguments[1],
+                                                                Precedence::kMultiplicative);
+                return this->writeScratchLet(String::printf("%s - 2 * %s * %s * %s",
+                                                            I.c_str(), N.c_str(),
+                                                            I.c_str(), N.c_str()));
+            }
+            return this->assembleSimpleIntrinsic("reflect", call);
+
+        case k_refract_IntrinsicKind:
+            if (arguments[0]->type().isScalar()) {
+                // WGSL only implements refract for vectors; rather than reimplementing refract from
+                // scratch, we can replace the call with `refract(float2(I,0), float2(N,0), eta).x`.
+                std::string I = this->writeNontrivialScratchLet(*arguments[0],
+                                                                Precedence::kSequence);
+                std::string N = this->writeNontrivialScratchLet(*arguments[1],
+                                                                Precedence::kSequence);
+                std::string Eta = this->writeNontrivialScratchLet(*arguments[2],
+                                                                  Precedence::kSequence);
+                return this->writeScratchLet(
+                        String::printf("refract(vec2<%s>(%s, 0), vec2<%s>(%s, 0), %s).x",
+                                       to_wgsl_type(arguments[0]->type()).c_str(), I.c_str(),
+                                       to_wgsl_type(arguments[1]->type()).c_str(), N.c_str(),
+                                       Eta.c_str()));
+            }
+            return this->assembleSimpleIntrinsic("refract", call);
+
         case k_clamp_IntrinsicKind:
         case k_max_IntrinsicKind:
         case k_min_IntrinsicKind:
@@ -1877,11 +1908,14 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_asin_IntrinsicKind:
         case k_ceil_IntrinsicKind:
         case k_cos_IntrinsicKind:
+        case k_cross_IntrinsicKind:
         case k_degrees_IntrinsicKind:
+        case k_distance_IntrinsicKind:
         case k_exp_IntrinsicKind:
         case k_exp2_IntrinsicKind:
         case k_floor_IntrinsicKind:
         case k_fract_IntrinsicKind:
+        case k_length_IntrinsicKind:
         case k_log_IntrinsicKind:
         case k_log2_IntrinsicKind:
         case k_radians_IntrinsicKind:
