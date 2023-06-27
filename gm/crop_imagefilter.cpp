@@ -87,6 +87,8 @@ void get_example_rects(CropRelation outputRelation, CropRelation inputRelation, 
             break;
     }
 
+    SkAssertResult(cropRect->intersect(kExampleBounds));
+
     // Determine content bounds for example based on computed crop rect and input relation
     if (hintContent) {
         switch(inputRelation) {
@@ -109,6 +111,8 @@ void get_example_rects(CropRelation outputRelation, CropRelation inputRelation, 
                 SkASSERT(!contentBounds->intersects(*cropRect));
                 break;
         }
+
+        SkAssertResult(contentBounds->intersect(kExampleBounds));
     } else {
         *contentBounds = kExampleBounds;
     }
@@ -152,56 +156,85 @@ sk_sp<SkImage> make_image(SkCanvas* canvas, const SkRect* contentBounds) {
 
     // Fill everything outside of the content bounds with red since it shouldn't be sampled from.
     if (contentBounds) {
-        surf->getCanvas()->clipRect(*contentBounds, SkClipOp::kDifference);
+        SkRect buffer = contentBounds->makeOutset(1.f, 1.f);
+        surf->getCanvas()->clipRect(buffer, SkClipOp::kDifference);
         surf->getCanvas()->clear(SK_ColorRED);
     }
 
     return surf->makeImageSnapshot();
 }
 
-void draw_example(
+// Subset 'image' to contentBounds, apply 'contentTile' mode to fill 'cropRect'-sized image.
+sk_sp<SkImage> make_cropped_image(sk_sp<SkImage> image,
+                                  const SkRect& contentBounds,
+                                  SkTileMode contentTile,
+                                  const SkRect& cropRect) {
+    auto surface = SkSurfaces::Raster(
+            image->imageInfo().makeWH(SkScalarCeilToInt(cropRect.width()),
+                                      SkScalarCeilToInt(cropRect.height())));
+    auto content = image->makeSubset(nullptr,
+                                     contentTile == SkTileMode::kDecal ? contentBounds.roundOut()
+                                                                       : contentBounds.roundIn());
+    if (!content || !surface) {
+        return nullptr;
+    }
+    SkPaint tiledContent;
+    tiledContent.setShader(content->makeShader(contentTile, contentTile,
+                                               SkFilterMode::kNearest,
+                                               SkMatrix::Translate(contentBounds.left(),
+                                                                   contentBounds.top())));
+    surface->getCanvas()->translate(-cropRect.left(), -cropRect.top());
+    surface->getCanvas()->drawPaint(tiledContent);
+    return surface->makeImageSnapshot();
+}
+
+void draw_example_tile(
         SkCanvas* canvas,
-        SkTileMode inputMode,        // the tile mode of the input to the crop filter
-        SkTileMode outputMode,       // the tile mode that the crop filter outputs
-        CropRelation outputRelation, // how crop rect relates to output bounds
-        CropRelation inputRelation,  // how crop rect relates to content bounds
-        bool hintContent) {          // whether or not contentBounds is hinted to saveLayer()
-    SkASSERT(inputMode == SkTileMode::kDecal && outputMode == SkTileMode::kDecal);
+        SkTileMode inputMode,         // the tile mode applied to content bounds
+        CropRelation inputRelation,   // how crop rect relates to content bounds
+        bool hintContent,             // whether or not contentBounds is hinted to saveLayer()
+        SkTileMode outputMode,        // the tile mode applied to the crop rect output
+        CropRelation outputRelation) {// how crop rect relates to output bounds (clip pre-saveLayer)
 
     // Determine crop rect for example based on output relation
     SkRect outputBounds, cropRect, contentBounds;
     get_example_rects(outputRelation, inputRelation, hintContent,
                       &outputBounds, &cropRect, &contentBounds);
+    SkASSERT(kExampleBounds.contains(outputBounds) &&
+             kExampleBounds.contains(cropRect) &&
+             kExampleBounds.contains(contentBounds));
 
     auto image = make_image(canvas, hintContent ? &contentBounds : nullptr);
 
     canvas->save();
-    canvas->clipRect(kExampleBounds);
-    // Visualize the image tiled on the content bounds, semi-transparent
+    // Visualize the image tiled on the content bounds (blue border) and then tiled on the crop
+    // rect (green) border, semi-transparent
     {
-        SkRect clippedContentBounds;
-        if (clippedContentBounds.intersect(contentBounds, kExampleBounds)) {
-            auto contentImage = ToolUtils::MakeTextureImage(
-                    canvas, image->makeSubset(nullptr, clippedContentBounds.roundOut()));
-            if (contentImage) {
-                SkPaint tiledPaint;
-                tiledPaint.setShader(contentImage->makeShader(
-                        inputMode, inputMode, SkSamplingOptions(SkFilterMode::kLinear)));
-                tiledPaint.setAlphaf(0.15f);
+        auto cropImage = ToolUtils::MakeTextureImage(
+                canvas, make_cropped_image(image, contentBounds, inputMode, cropRect));
+        if (cropImage) {
+            SkPaint tiledPaint;
+            tiledPaint.setShader(cropImage->makeShader(outputMode, outputMode,
+                                                       SkFilterMode::kNearest,
+                                                       SkMatrix::Translate(cropRect.left(),
+                                                                           cropRect.top())));
+            tiledPaint.setAlphaf(0.25f);
 
-                canvas->save();
-                canvas->translate(clippedContentBounds.fLeft, clippedContentBounds.fTop);
-                canvas->drawPaint(tiledPaint);
-                canvas->restore();
-            }
+            canvas->save();
+            canvas->clipRect(kExampleBounds);
+            canvas->drawPaint(tiledPaint);
+            canvas->restore();
         }
     }
 
     // Build filter, clip, save layer, draw, restore - the interesting part is in the tile modes
     // and how the various bounds intersect each other.
     {
-        sk_sp<SkImageFilter> filter = SkImageFilters::Blur(4.f, 4.f, nullptr);
-        filter = SkMakeCropImageFilter(cropRect, std::move(filter));
+        SkASSERT(inputMode == SkTileMode::kDecal);
+        sk_sp<SkImageFilter> filter = SkMakeCropImageFilter(contentBounds, /*inputMode,*/ nullptr);
+        filter = SkImageFilters::Blur(4.f, 4.f, std::move(filter));
+        SkASSERT(outputMode == SkTileMode::kDecal);
+        filter = SkMakeCropImageFilter(cropRect, /*outputMode,*/ std::move(filter));
         SkPaint layerPaint;
         layerPaint.setImageFilter(std::move(filter));
 
@@ -211,8 +244,8 @@ void draw_example(
 
         auto tmp = ToolUtils::MakeTextureImage(canvas, image);
         canvas->drawImageRect(tmp, contentBounds, contentBounds,
-                              SkSamplingOptions(SkFilterMode::kLinear), nullptr,
-                              SkCanvas::kFast_SrcRectConstraint);
+                              SkSamplingOptions(SkFilterMode::kNearest), nullptr,
+                              SkCanvas::kStrict_SrcRectConstraint);
         canvas->restore();
         canvas->restore();
     }
@@ -237,59 +270,13 @@ void draw_example(
     canvas->restore();
 }
 
-
-// Draws 2x2 examples for a given input/output tile mode that show 4 relationships between the
-// output bounds and the crop rect (intersect, output contains crop, crop contains output, and
-// no intersection).
-static constexpr SkRect kPaddedTileBounds = {kExampleBounds.fLeft,
-                                             kExampleBounds.fTop,
-                                             2.f * (kExampleBounds.fRight + 1.f),
-                                             2.f * (kExampleBounds.fBottom + 1.f)};
-void draw_example_tile(
-        SkCanvas* canvas,
-        SkTileMode inputMode,
-        SkTileMode outputMode,
-        CropRelation inputRelation,
-        bool hintContent) {
-    auto drawQuadrant = [&](int tx, int ty, CropRelation outputRelation) {
-        canvas->save();
-        canvas->translate(tx * (kExampleBounds.fRight + 1.f), ty * (kExampleBounds.fBottom + 1.f));
-        draw_example(canvas, inputMode, outputMode, outputRelation, inputRelation, hintContent);
-        canvas->restore();
-    };
-
-    // The 4 examples, here Rect refers to the output bounds
-    drawQuadrant(0, 0, CropRelation::kCropOverlapsRect); // top left
-    drawQuadrant(1, 0, CropRelation::kRectContainsCrop); // top right
-    drawQuadrant(0, 1, CropRelation::kCropRectDisjoint); // bot left
-    drawQuadrant(1, 1, CropRelation::kCropContainsRect); // bot right
-
-    // Draw dotted lines in the 1px gap between examples
-    SkPaint dottedLine;
-    dottedLine.setColor(SK_ColorGRAY);
-    dottedLine.setStyle(SkPaint::kStroke_Style);
-    dottedLine.setStrokeCap(SkPaint::kSquare_Cap);
-    static const float kDots[2] = {0.f, 5.f};
-    dottedLine.setPathEffect(SkDashPathEffect::Make(kDots, 2, 0.f));
-
-    canvas->drawLine({kPaddedTileBounds.fLeft + 0.5f, kPaddedTileBounds.centerY() - 0.5f},
-                     {kPaddedTileBounds.fRight - 0.5f, kPaddedTileBounds.centerY() - 0.5f},
-                     dottedLine);
-    canvas->drawLine({kPaddedTileBounds.centerX() - 0.5f, kPaddedTileBounds.fTop + 0.5f},
-                     {kPaddedTileBounds.centerX() - 0.5f, kPaddedTileBounds.fBottom - 0.5f},
-                     dottedLine);
-}
-
 // Draw 5 example tiles in a column for 5 relationships between content bounds and crop rect:
 // no content hint, intersect, content contains crop, crop contains content, and no intersection
-static constexpr SkRect kPaddedColumnBounds = {kPaddedTileBounds.fLeft,
-                                               kPaddedTileBounds.fTop,
-                                               kPaddedTileBounds.fRight,
-                                               5.f * kPaddedTileBounds.fBottom - 1.f};
 void draw_example_column(
         SkCanvas* canvas,
         SkTileMode inputMode,
-        SkTileMode outputMode) {
+        SkTileMode outputMode,
+        CropRelation outputRelation) {
     const std::pair<CropRelation, bool> inputRelations[5] = {
             { CropRelation::kCropOverlapsRect, false },
             { CropRelation::kCropOverlapsRect, true },
@@ -300,25 +287,31 @@ void draw_example_column(
 
     canvas->save();
     for (auto [inputRelation, hintContent] : inputRelations) {
-        draw_example_tile(canvas, inputMode, outputMode, inputRelation, hintContent);
-        canvas->translate(0.f, kPaddedTileBounds.fBottom);
+        draw_example_tile(canvas, inputMode, inputRelation, hintContent,
+                          outputMode, outputRelation);
+        canvas->translate(0.f, kExampleBounds.fBottom + 1.f);
     }
 
     canvas->restore();
 }
 
-// Draw 5x1 grid of examples covering supported input tile modes and crop rect relations
+// Draw 5x4 grid of examples covering supported input tile modes and crop rect relations
 static constexpr int kNumRows = 5;
-static constexpr int kNumCols = 1;
-static constexpr float kGridWidth = kNumCols * kPaddedColumnBounds.fRight - 1.f;
+static constexpr int kNumCols = 4;
+static constexpr float kGridWidth = kNumCols * (kExampleBounds.fRight+1.f) - 1.f;
+static constexpr float kGridHeight = kNumRows * (kExampleBounds.fBottom+1.f) - 1.f;
 
 void draw_example_grid(
         SkCanvas* canvas,
+        SkTileMode inputMode,
         SkTileMode outputMode) {
     canvas->save();
-    for (auto inputMode : {SkTileMode::kDecal}) {
-        draw_example_column(canvas, inputMode, outputMode);
-        canvas->translate(kPaddedColumnBounds.fRight, 0.f);
+    for (auto outputRelation : { CropRelation::kCropOverlapsRect,
+                                 CropRelation::kCropContainsRect,
+                                 CropRelation::kRectContainsCrop,
+                                 CropRelation::kCropRectDisjoint }) {
+        draw_example_column(canvas, inputMode, outputMode, outputRelation);
+        canvas->translate(kExampleBounds.fRight + 1.f, 0.f);
     }
     canvas->restore();
 
@@ -331,12 +324,13 @@ void draw_example_grid(
     dashedLine.setPathEffect(SkDashPathEffect::Make(kDashes, 2, 0.f));
 
     for (int y = 1; y < kNumRows; ++y) {
-        canvas->drawLine({0.5f, y * kPaddedTileBounds.fBottom - 0.5f},
-                         {kGridWidth - 0.5f, y * kPaddedTileBounds.fBottom - 0.5f}, dashedLine);
+        canvas->drawLine({0.5f, y * (kExampleBounds.fBottom+1.f) - 0.5f},
+                         {kGridWidth - 0.5f, y * (kExampleBounds.fBottom+1.f) - 0.5f},
+                         dashedLine);
     }
     for (int x = 1; x < kNumCols; ++x) {
-        canvas->drawLine({x * kPaddedTileBounds.fRight - 0.5f, 0.5f},
-                         {x * kPaddedTileBounds.fRight - 0.5f, kPaddedColumnBounds.fBottom - 0.5f},
+        canvas->drawLine({x * (kExampleBounds.fRight+1.f) - 0.5f, 0.5f},
+                         {x * (kExampleBounds.fRight+1.f) - 0.5f, kGridHeight - 0.5f},
                          dashedLine);
     }
 }
@@ -347,32 +341,63 @@ namespace skiagm {
 
 class CropImageFilterGM : public GM {
 public:
-    CropImageFilterGM(SkTileMode outputMode) : fOutputMode(outputMode) {}
+    CropImageFilterGM(SkTileMode inputMode, SkTileMode outputMode)
+            : fInputMode(inputMode)
+            , fOutputMode(outputMode) {}
 
 protected:
     SkISize onISize() override {
-        return {SkScalarRoundToInt(kGridWidth), SkScalarRoundToInt(kPaddedColumnBounds.fBottom)};
+        return {SkScalarRoundToInt(4.f * (kExampleBounds.fRight + 1.f) - 1.f),
+                SkScalarRoundToInt(5.f * (kExampleBounds.fBottom + 1.f) - 1.f)};
     }
     SkString onShortName() override {
         SkString name("crop_imagefilter_");
+        switch(fInputMode) {
+            case SkTileMode::kDecal:  name.append("decal");  break;
+            case SkTileMode::kClamp:  name.append("clamp");  break;
+            case SkTileMode::kRepeat: name.append("repeat"); break;
+            case SkTileMode::kMirror: name.append("mirror"); break;
+        }
+        name.append("-in_");
+
         switch (fOutputMode) {
             case SkTileMode::kDecal:  name.append("decal");  break;
             case SkTileMode::kClamp:  name.append("clamp");  break;
             case SkTileMode::kRepeat: name.append("repeat"); break;
             case SkTileMode::kMirror: name.append("mirror"); break;
         }
+        name.append("-out");
         return name;
     }
 
     void onDraw(SkCanvas* canvas) override {
-        draw_example_grid(canvas, fOutputMode);
+        draw_example_grid(canvas, fInputMode, fOutputMode);
     }
 
 private:
+    SkTileMode fInputMode;
     SkTileMode fOutputMode;
 };
 
-DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal); )
-// TODO(michaelludwig) - will add GM defs for other output tile modes once supported
+DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kDecal); )
+// TODO: Requires SkMakeCropImageFilter to accept an SkTileMode.
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kClamp); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kRepeat); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kMirror); )
+
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kDecal); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kClamp); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kRepeat); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kMirror); )
+
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kDecal); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kClamp); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kRepeat); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kMirror); )
+
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kDecal); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kClamp); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kRepeat); )
+// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kMirror); )
 
 }  // namespace skiagm
