@@ -40,15 +40,15 @@ static inline float sk_float_exp(float x) { return std::exp(x); }
 static inline float sk_float_log(float x) { return std::log(x); }
 static inline float sk_float_log2(float x) { return std::log2(x); }
 
-constexpr int sk_float_sgn(float x) {
+static constexpr int sk_float_sgn(float x) {
     return (0.0f < x) - (x < 0.0f);
 }
 
-constexpr float sk_float_degrees_to_radians(float degrees) {
+static constexpr float sk_float_degrees_to_radians(float degrees) {
     return degrees * (SK_FloatPI / 180);
 }
 
-constexpr float sk_float_radians_to_degrees(float radians) {
+static constexpr float sk_float_radians_to_degrees(float radians) {
     return radians * (180 / SK_FloatPI);
 }
 
@@ -78,11 +78,8 @@ static inline bool sk_float_isinf(float x) {
     return SkFloatBits_IsInf(SkFloat2Bits(x));
 }
 
-static inline bool sk_float_isnan(float x) {
-    return !(x == x);
-}
-#define sk_double_isnan(a)          sk_float_isnan(a)
-#define sk_double_isnan(a)          sk_float_isnan(a)
+static constexpr bool sk_float_isnan(float x) { return x != x; }
+static constexpr bool sk_double_isnan(double x) { return x != x; }
 
 inline constexpr int SK_MaxS32FitsInFloat = 2147483520;
 inline constexpr int SK_MinS32FitsInFloat = -SK_MaxS32FitsInFloat;
@@ -94,7 +91,7 @@ inline constexpr int64_t SK_MinS64FitsInFloat = -SK_MaxS64FitsInFloat;
 /**
  *  Return the closest int for the given float. Returns SK_MaxS32FitsInFloat for NaN.
  */
-static inline int sk_float_saturate2int(float x) {
+static constexpr int sk_float_saturate2int(float x) {
     x = x < SK_MaxS32FitsInFloat ? x : SK_MaxS32FitsInFloat;
     x = x > SK_MinS32FitsInFloat ? x : SK_MinS32FitsInFloat;
     return (int)x;
@@ -103,7 +100,7 @@ static inline int sk_float_saturate2int(float x) {
 /**
  *  Return the closest int for the given double. Returns SK_MaxS32 for NaN.
  */
-static inline int sk_double_saturate2int(double x) {
+static constexpr int sk_double_saturate2int(double x) {
     x = x < SK_MaxS32 ? x : SK_MaxS32;
     x = x > SK_MinS32 ? x : SK_MinS32;
     return (int)x;
@@ -112,7 +109,7 @@ static inline int sk_double_saturate2int(double x) {
 /**
  *  Return the closest int64_t for the given float. Returns SK_MaxS64FitsInFloat for NaN.
  */
-static inline int64_t sk_float_saturate2int64(float x) {
+static constexpr int64_t sk_float_saturate2int64(float x) {
     x = x < SK_MaxS64FitsInFloat ? x : SK_MaxS64FitsInFloat;
     x = x > SK_MinS64FitsInFloat ? x : SK_MinS64FitsInFloat;
     return (int64_t)x;
@@ -137,7 +134,7 @@ static inline int64_t sk_float_saturate2int64(float x) {
 // Clang thinks this is undefined, but it's actually implementation defined to return either
 // the largest float or infinity (one of the two bracketing representable floats).  Good enough!
 SK_NO_SANITIZE("float-cast-overflow")
-static inline float sk_double_to_float(double x) {
+static constexpr float sk_double_to_float(double x) {
     return static_cast<float>(x);
 }
 
@@ -153,8 +150,8 @@ static constexpr float sk_float_midpoint(float a, float b) {
     return static_cast<float>(0.5 * (static_cast<double>(a) + b));
 }
 
-// Returns false if any of the floats are outside of [0...1]
-// Returns true if count is 0
+// Returns false if any of the floats are outside the range [0...1].
+// Returns true if count is 0.
 bool sk_floats_are_unit(const float array[], size_t count);
 
 static inline float sk_float_rsqrt_portable(float x) { return 1.0f / sk_float_sqrt(x); }
@@ -163,22 +160,16 @@ static inline float sk_float_rsqrt         (float x) { return 1.0f / sk_float_sq
 // The number of significant digits to print.
 inline constexpr int SK_FLT_DECIMAL_DIG = std::numeric_limits<float>::max_digits10;
 
-// IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not
+// IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not,
 // so we have a helper that suppresses the possible undefined-behavior warnings.
-
 SK_NO_SANITIZE("float-divide-by-zero")
-static inline float sk_ieee_float_divide(float numer, float denom) {
+static constexpr float sk_ieee_float_divide(float numer, float denom) {
     return numer / denom;
 }
 
 SK_NO_SANITIZE("float-divide-by-zero")
-static inline double sk_ieee_double_divide(double numer, double denom) {
+static constexpr double sk_ieee_double_divide(double numer, double denom) {
     return numer / denom;
-}
-
-// While we clean up divide by zero, we'll replace places that do divide by zero with this TODO.
-static inline float sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(float n, float d) {
-    return sk_ieee_float_divide(n,d);
 }
 
 // Return a*b + c.
