@@ -449,28 +449,6 @@ bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
     return false;
 }
 
-void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
-                                       SkIRect srcRect,
-                                       RescaleGamma rescaleGamma,
-                                       RescaleMode rescaleMode,
-                                       ReadPixelsCallback callback,
-                                       ReadPixelsContext context) {
-    // Not supported for Graphite
-    callback(context, nullptr);
-}
-
-void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                             sk_sp<SkColorSpace> dstColorSpace,
-                                             SkIRect srcRect,
-                                             SkISize dstSize,
-                                             RescaleGamma rescaleGamma,
-                                             RescaleMode rescaleMode,
-                                             ReadPixelsCallback callback,
-                                             ReadPixelsContext context) {
-    // TODO: implement for Graphite
-    callback(context, nullptr);
-}
-
 bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     // TODO: we may need to share this in a more central place to handle uploads
     // to backend textures

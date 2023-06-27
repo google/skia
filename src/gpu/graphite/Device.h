@@ -73,22 +73,6 @@ public:
 
     TextureProxyView createCopy(const SkIRect* subset, Mipmapped);
 
-    void asyncRescaleAndReadPixels(const SkImageInfo& info,
-                                   SkIRect srcRect,
-                                   SkImage::RescaleGamma rescaleGamma,
-                                   SkImage::RescaleMode rescaleMode,
-                                   SkImage::ReadPixelsCallback callback,
-                                   SkImage::ReadPixelsContext context);
-
-    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         SkIRect srcRect,
-                                         SkISize dstSize,
-                                         SkImage::RescaleGamma rescaleGamma,
-                                         SkImage::RescaleMode,
-                                         SkImage::ReadPixelsCallback callback,
-                                         SkImage::ReadPixelsContext context);
-
     const Transform& localToDeviceTransform();
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
