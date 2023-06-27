@@ -1138,6 +1138,7 @@ skia_filegroup(
         "intrinsics/Sqrt.sksl",
         "intrinsics/Step.sksl",
         "intrinsics/Tan.sksl",
+        "shared/ArrayCast.sksl",
         "shared/ArrayComparison.sksl",
         "shared/ArrayConstructors.sksl",
         "shared/ArrayFollowedByScalar.sksl",

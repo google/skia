@@ -30,6 +30,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
@@ -1451,6 +1452,12 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
 
         case Expression::Kind::kConstructorCompound:
             return this->assembleConstructorCompound(e.as<ConstructorCompound>(), parentPrecedence);
+
+        case Expression::Kind::kConstructorArrayCast:
+            // This is a no-op, since WGSL 1.0 doesn't have any concept of precision qualifiers.
+            // When we add support for f16, this will need to copy the array contents.
+            return this->assembleExpression(*e.as<ConstructorArrayCast>().argument(),
+                                            parentPrecedence);
 
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorCompoundCast:
