@@ -375,6 +375,46 @@ DEF_TEST(Rect_QuadContainsRect, reporter) {
     }
 }
 
+DEF_TEST(Rect_ClosestDisjointEdge, r) {
+    struct TestCase {
+        std::string label;
+        SkIRect dst;
+        SkIRect expect;
+    };
+
+    // All test cases will use this rect for the src, so dst can be conveniently relative to it.
+    static constexpr SkIRect kSrc = {0,0,10,10};
+    TestCase tests[] = {
+        { "src left edge",                  /*dst=*/{-15, -5, -2, 15}, /*expected=*/{0, 0,  1, 10}},
+        { "src left edge clipped to dst",   /*dst=*/{-15,  2, -2,  8}, /*expected=*/{0, 2,  1,  8}},
+        { "src top-left corner",            /*dst=*/{-15,-15, -2, -2}, /*expected=*/{0, 0,  1,  1}},
+        { "src top edge",                   /*dst=*/{ -5,-10, 15, -2}, /*expected=*/{0, 0, 10,  1}},
+        { "src top edge clipped to dst",    /*dst=*/{  2,-10,  8, -2}, /*expected=*/{2, 0,  8,  1}},
+        { "src top-right corner",           /*dst=*/{ 15,-15, 20, -2}, /*expected=*/{9, 0, 10,  1}},
+        { "src right edge",                 /*dst=*/{ 15, -5, 20, 15}, /*expected=*/{9, 0, 10, 10}},
+        { "src right edge clipped to dst",  /*dst=*/{ 15,  2, 20,  8}, /*expected=*/{9, 2, 10,  8}},
+        { "src bottom-right corner",        /*dst=*/{ 15, 15, 20, 20}, /*expected=*/{9, 9, 10, 10}},
+        { "src bottom edge",                /*dst=*/{ -5, 15, 15, 20}, /*expected=*/{0, 9, 10, 10}},
+        { "src bottom edge clipped to dst", /*dst=*/{  2, 15,  8, 20}, /*expected=*/{2, 9,  8, 10}},
+        { "src bottom-left corner",         /*dst=*/{-15, 15, -2, 20}, /*expected=*/{0, 9,  1, 10}},
+        { "src intersects dst high",        /*dst=*/{  2,  2, 15, 15}, /*expected=*/{2, 2, 10, 10}},
+        { "src intersects dst low",         /*dst=*/{ -5, -5,  8,  8}, /*expected=*/{0, 0,  8,  8}},
+        { "src contains dst",               /*dst=*/{  2,  2,  8,  8}, /*expected=*/{2, 2,  8,  8}},
+        { "src contained in dst",           /*dst=*/{ -5, -5, 15, 15}, /*expected=*/{0, 0, 10, 10}}
+    };
+
+    for (const TestCase& t : tests) {
+        skiatest::ReporterContext c{r, t.label};
+        SkIRect actual = SkRectPriv::ClosestDisjointEdge(kSrc, t.dst);
+        REPORTER_ASSERT(r, actual == t.expect);
+    }
+
+    // Test emptiness of src and dst
+    REPORTER_ASSERT(r, SkRectPriv::ClosestDisjointEdge(SkIRect::MakeEmpty(), {0,0,8,8}).isEmpty());
+    REPORTER_ASSERT(r, SkRectPriv::ClosestDisjointEdge({0,0,8,8}, SkIRect::MakeEmpty()).isEmpty());
+    REPORTER_ASSERT(r, SkRectPriv::ClosestDisjointEdge({10,10,-1,2}, {15,8,-2,20}).isEmpty());
+}
+
 // Before the fix, this sequence would trigger a release_assert in the Tiler
 // in SkBitmapDevice.cpp
 DEF_TEST(big_tiled_rect_crbug_927075, reporter) {

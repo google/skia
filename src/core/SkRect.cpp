@@ -9,6 +9,7 @@
 
 #include "include/core/SkM44.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTPin.h"
 #include "src/core/SkRectPriv.h"
 
 class SkMatrix;
@@ -306,4 +307,39 @@ bool SkRectPriv::QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect&
 
     // 'b' is contained in the mapped rectangle if all distances are >= 0
     return all((d0 >= 0.f) & (d1 >= 0.f) & (d2 >= 0.f) & (d3 >= 0.f));
+}
+
+SkIRect SkRectPriv::ClosestDisjointEdge(const SkIRect& src, const SkIRect& dst) {
+    if (src.isEmpty() || dst.isEmpty()) {
+        return SkIRect::MakeEmpty();
+    }
+
+    int l = src.fLeft;
+    int r = src.fRight;
+    if (r <= dst.fLeft) {
+        // Select right column of pixels in crop
+        l = r - 1;
+    } else if (l >= dst.fRight) {
+        // Left column of 'crop'
+        r = l + 1;
+    } else {
+        // Regular intersection along X axis.
+        l = SkTPin(l, dst.fLeft, dst.fRight);
+        r = SkTPin(r, dst.fLeft, dst.fRight);
+    }
+
+    int t = src.fTop;
+    int b = src.fBottom;
+    if (b <= dst.fTop) {
+        // Select bottom row of pixels in crop
+        t = b - 1;
+    } else if (t >= dst.fBottom) {
+        // Top row of 'crop'
+        b = t + 1;
+    } else {
+        t = SkTPin(t, dst.fTop, dst.fBottom);
+        b = SkTPin(b, dst.fTop, dst.fBottom);
+    }
+
+    return SkIRect::MakeLTRB(l,t,r,b);
 }

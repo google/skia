@@ -93,6 +93,15 @@ public:
     // Returns true if the quadrilateral formed by transforming the four corners of 'a' contains 'b'
     static bool QuadContainsRect(const SkMatrix& m, const SkIRect& a, const SkIRect& b);
     static bool QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect& b);
+
+    // Assuming 'src' does not intersect 'dst', returns the edge or corner of 'src' that is closest
+    // to 'dst', e.g. the pixels that would be sampled from 'src' when clamp-tiled into 'dst'.
+    //
+    // The returned rectangle will not be empty if 'src' is not empty and 'dst' is not empty.
+    // At least one of its width or height will be equal to 1 (possibly both if a corner is closest)
+    //
+    // Returns src.intersect(dst) if they do actually intersect.
+    static SkIRect ClosestDisjointEdge(const SkIRect& src, const SkIRect& dst);
 };
 
 
