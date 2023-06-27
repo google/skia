@@ -61,7 +61,7 @@ public:
 
     Device* asGraphiteDevice() override { return this; }
 
-    Recorder* recorder() { return fRecorder; }
+    Recorder* recorder() const override { return fRecorder; }
     // This call is triggered from the Recorder on its registered Devices. It is typically called
     // when the Recorder is abandoned or deleted.
     void abandonRecorder();

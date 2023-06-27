@@ -95,7 +95,7 @@ public:
     GrSurfaceProxyView readSurfaceView();
     GrRenderTargetProxy* targetProxy();
 
-    GrRecordingContext* recordingContext() const { return fContext.get(); }
+    GrRecordingContext* recordingContext() const override { return fContext.get(); }
 
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
