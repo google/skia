@@ -759,9 +759,6 @@ private:
 
     SkMatrix    fLocalMatrix         = SkMatrix::InvalidMatrix();
     SkPMColor4f fColor               = SK_PMColor4fILLEGAL;
-    float       fPrevRadius          = SK_FloatNaN;
-    float       fPrevCenterX         = SK_FloatNaN;
-    float       fPrevIntervalLength  = SK_FloatNaN;
 
     UniformHandle fParamUniform;
     UniformHandle fColorUniform;
