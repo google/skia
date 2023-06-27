@@ -78,10 +78,6 @@
 
 using namespace skia_private;
 
-// TODO(skia:13092): This is a temporary debug feature. Remove when the implementation is
-// complete and this is no longer needed.
-#define DUMP_SRC_IR 0
-
 namespace SkSL {
 
 enum class ProgramKind : int8_t;
@@ -617,16 +613,6 @@ bool WGSLCodeGenerator::generateCode() {
         for (const ProgramElement* e : fProgram.elements()) {
             this->writeProgramElement(*e);
         }
-
-// TODO(skia:13092): This is a temporary debug feature. Remove when the implementation is
-// complete and this is no longer needed.
-#if DUMP_SRC_IR
-        this->writeLine("\n----------");
-        this->writeLine("Source IR:\n");
-        for (const ProgramElement* e : fProgram.elements()) {
-            this->writeLine(e->description().c_str());
-        }
-#endif
     }
 
     write_stringstream(header, *fOut);
@@ -1505,9 +1491,7 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
             return this->assembleVariableReference(e.as<VariableReference>());
 
         default:
-            SkDEBUGFAILF("unsupported expression (kind: %d) %s",
-                         static_cast<int>(e.kind()),
-                         e.description().c_str());
+            SkDEBUGFAILF("unsupported expression:\n%s", e.description().c_str());
             return {};
     }
 }
