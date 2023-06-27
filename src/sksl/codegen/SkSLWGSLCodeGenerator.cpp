@@ -1826,6 +1826,20 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_lessThanEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::LTEQ, call, parentPrecedence);
 
+        case k_matrixCompMult_IntrinsicKind: {
+            std::string arg0 = this->writeNontrivialScratchLet(*arguments[0], Precedence::kPostfix);
+            std::string arg1 = this->writeNontrivialScratchLet(*arguments[1], Precedence::kPostfix);
+            std::string expr = to_wgsl_type(arguments[0]->type()) + '(';
+
+            auto separator = String::Separator();
+            int columns = arguments[0]->type().columns();
+            for (int c = 0; c < columns; ++c) {
+                String::appendf(&expr, "%s%s[%d] * %s[%d]",
+                                separator().c_str(), arg0.c_str(), c, arg1.c_str(), c);
+            }
+            expr += ')';
+            return this->writeScratchLet(expr);
+        }
         case k_mix_IntrinsicKind: {
             const char* name = arguments[2]->type().componentType().isBoolean() ? "select" : "mix";
             return this->assembleVectorizedIntrinsic(name, call);
@@ -1858,6 +1872,8 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
 
         case k_abs_IntrinsicKind:
         case k_acos_IntrinsicKind:
+        case k_all_IntrinsicKind:
+        case k_any_IntrinsicKind:
         case k_asin_IntrinsicKind:
         case k_ceil_IntrinsicKind:
         case k_cos_IntrinsicKind:
