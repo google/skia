@@ -145,19 +145,7 @@ private:
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);
 
-    void asyncRescaleAndReadPixelsYUV420(const TextureProxy*,
-                                         const SkImageInfo& srcImageInfo,
-                                         SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         const SkIRect& srcRect,
-                                         const SkISize& dstSize,
-                                         SkImage::RescaleGamma rescaleGamma,
-                                         SkImage::RescaleMode rescaleMode,
-                                         SkImage::ReadPixelsCallback callback,
-                                         SkImage::ReadPixelsContext context);
-
-    void asyncReadPixelsYUV420(const TextureProxy*,
-                               const SkImageInfo& srcImageInfo,
+    void asyncReadPixelsYUV420(const SkImage*,
                                SkYUVColorSpace yuvColorSpace,
                                const SkIRect& srcRect,
                                SkImage::ReadPixelsCallback callback,
