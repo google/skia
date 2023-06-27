@@ -177,7 +177,7 @@ class ApplyAction {
     };
     struct CropParams {
         LayerSpace<SkIRect> fRect;
-        // SkTileMode fTileMode;
+        SkTileMode fTileMode;
     };
 
 public:
@@ -185,28 +185,35 @@ public:
                 const SkSamplingOptions& sampling,
                 Expect expectation,
                 const SkSamplingOptions& expectedSampling,
+                SkTileMode expectedTileMode,
                 sk_sp<SkColorFilter> expectedColorFilter)
             : fAction{TransformParams{LayerSpace<SkMatrix>(transform), sampling}}
             , fExpectation(expectation)
             , fExpectedSampling(expectedSampling)
+            , fExpectedTileMode(expectedTileMode)
             , fExpectedColorFilter(std::move(expectedColorFilter)) {}
 
     ApplyAction(const SkIRect& cropRect,
+                SkTileMode tileMode,
                 Expect expectation,
                 const SkSamplingOptions& expectedSampling,
+                SkTileMode expectedTileMode,
                 sk_sp<SkColorFilter> expectedColorFilter)
-            : fAction{CropParams{LayerSpace<SkIRect>(cropRect)}}
+            : fAction{CropParams{LayerSpace<SkIRect>(cropRect), tileMode}}
             , fExpectation(expectation)
             , fExpectedSampling(expectedSampling)
+            , fExpectedTileMode(expectedTileMode)
             , fExpectedColorFilter(std::move(expectedColorFilter)) {}
 
     ApplyAction(sk_sp<SkColorFilter> colorFilter,
                 Expect expectation,
                 const SkSamplingOptions& expectedSampling,
+                SkTileMode expectedTileMode,
                 sk_sp<SkColorFilter> expectedColorFilter)
             : fAction(std::move(colorFilter))
             , fExpectation(expectation)
             , fExpectedSampling(expectedSampling)
+            , fExpectedTileMode(expectedTileMode)
             , fExpectedColorFilter(std::move(expectedColorFilter)) {}
 
     // Test-simplified logic for bounds propagation similar to how image filters calculate bounds
@@ -218,7 +225,7 @@ public:
                     ? out : LayerSpace<SkIRect>::Empty();
         } else if (auto* c = std::get_if<CropParams>(&fAction)) {
             LayerSpace<SkIRect> intersection = c->fRect;
-            if (!intersection.intersect(desiredOutput)) {
+            if (c->fTileMode == SkTileMode::kDecal && !intersection.intersect(desiredOutput)) {
                 intersection = LayerSpace<SkIRect>::Empty();
             }
             return intersection;
@@ -233,6 +240,8 @@ public:
         if (auto* t = std::get_if<TransformParams>(&fAction)) {
             return in.applyTransform(ctx, t->fMatrix, t->fSampling);
         } else if (auto* c = std::get_if<CropParams>(&fAction)) {
+            // TODO: Pass fTileMode into applyCrop()
+            SkASSERT(c->fTileMode == SkTileMode::kDecal);
             return in.applyCrop(ctx, c->fRect);
         } else if (auto* cf = std::get_if<sk_sp<SkColorFilter>>(&fAction)) {
             return in.applyColorFilter(ctx, *cf);
@@ -242,6 +251,7 @@ public:
 
     Expect expectation() const { return fExpectation; }
     const SkSamplingOptions& expectedSampling() const { return fExpectedSampling; }
+    SkTileMode expectedTileMode() const { return fExpectedTileMode; }
     const SkColorFilter* expectedColorFilter() const { return fExpectedColorFilter.get(); }
 
     LayerSpace<SkIRect> expectedBounds(const LayerSpace<SkIRect>& inputBounds) const {
@@ -256,7 +266,8 @@ public:
             if (!intersection.intersect(inputBounds)) {
                 intersection = LayerSpace<SkIRect>::Empty();
             }
-            return intersection;
+            return c->fTileMode == SkTileMode::kDecal
+                    ? intersection : LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
         } else if (auto* cf = std::get_if<sk_sp<SkColorFilter>>(&fAction)) {
             if (as_CFB(*cf)->affectsTransparentBlack()) {
                 // Fills out infinitely
@@ -270,7 +281,7 @@ public:
 
     sk_sp<SkSpecialImage> renderExpectedImage(const Context& ctx,
                                               sk_sp<SkSpecialImage> source,
-                                              const LayerSpace<SkIPoint>& origin,
+                                              LayerSpace<SkIPoint> origin,
                                               const LayerSpace<SkIRect>& desiredOutput) const {
         SkASSERT(source);
 
@@ -296,6 +307,7 @@ public:
             paint.setBlendMode(SkBlendMode::kSrc);
             // Start with NN to match exact subsetting FilterResult does for deferred images
             SkSamplingOptions sampling = {};
+            SkTileMode tileMode = SkTileMode::kDecal;
             if (auto* t = std::get_if<TransformParams>(&fAction)) {
                 SkMatrix m{t->fMatrix};
                 // FilterResult treats default/bilerp filtering as NN when it has an integer
@@ -307,11 +319,20 @@ public:
                 }
                 canvas->concat(m);
             } else if (auto* c = std::get_if<CropParams>(&fAction)) {
-                canvas->clipIRect(SkIRect(c->fRect));
+                LayerSpace<SkIRect> imageBounds(
+                        SkIRect::MakeXYWH(origin.x(), origin.y(),
+                                          source->width(), source->height()));
+                SkAssertResult(imageBounds.intersect(c->fRect));
+                source = source->makeSubset({imageBounds.left() - origin.x(),
+                                             imageBounds.top() - origin.y(),
+                                             imageBounds.right() - origin.x(),
+                                             imageBounds.bottom() - origin.y()});
+                origin = imageBounds.topLeft();
+                tileMode = c->fTileMode;
             } else if (auto* cf = std::get_if<sk_sp<SkColorFilter>>(&fAction)) {
                 paint.setColorFilter(*cf);
             }
-            paint.setShader(source->asShader(SkTileMode::kDecal,
+            paint.setShader(source->asShader(tileMode,
                                              sampling,
                                              SkMatrix::Translate(origin.x(), origin.y())));
             canvas->drawPaint(paint);
@@ -329,6 +350,7 @@ private:
     // Expectation
     Expect fExpectation;
     SkSamplingOptions fExpectedSampling;
+    SkTileMode fExpectedTileMode;
     sk_sp<SkColorFilter> fExpectedColorFilter;
     // The expected desired outputs and layer bounds are calculated automatically based on the
     // action type and parameters to simplify test case specification.
@@ -662,10 +684,22 @@ public:
         return *this;
     }
 
+
+    TestCase& applyCrop(const SkIRect& crop, Expect expectation) {
+        return this->applyCrop(crop, SkTileMode::kDecal, expectation);
+    }
+
     TestCase& applyCrop(const SkIRect& crop,
-                        Expect expectation) {
-        fActions.emplace_back(crop, expectation,
+                        SkTileMode tileMode,
+                        Expect expectation,
+                        std::optional<SkTileMode> expectedTileMode = {}) {
+        // Fill-in automated expectations, which is to equal 'tileMode' when not overridden.
+        if (!expectedTileMode) {
+            expectedTileMode = tileMode;
+        }
+        fActions.emplace_back(crop, tileMode, expectation,
                               this->getDefaultExpectedSampling(expectation),
+                              *expectedTileMode,
                               this->getDefaultExpectedColorFilter(expectation));
         return *this;
     }
@@ -684,6 +718,7 @@ public:
             expectedSampling = sampling;
         }
         fActions.emplace_back(matrix, sampling, expectation, *expectedSampling,
+                              this->getDefaultExpectedTileMode(expectation),
                               this->getDefaultExpectedColorFilter(expectation));
         return *this;
     }
@@ -700,6 +735,7 @@ public:
         }
         fActions.emplace_back(std::move(colorFilter), expectation,
                               this->getDefaultExpectedSampling(expectation),
+                              this->getDefaultExpectedTileMode(expectation),
                               std::move(*expectedColorFilter));
         return *this;
     }
@@ -812,6 +848,8 @@ public:
                 REPORTER_ASSERT(fRunner, !expectedBounds.isEmpty());
                 REPORTER_ASSERT(fRunner, SkIRect(output.layerBounds()) == SkIRect(expectedBounds));
                 REPORTER_ASSERT(fRunner, output.sampling() == fActions[i].expectedSampling());
+                // TODO: Check against output.tileMode() once FilterResult exposes it
+                REPORTER_ASSERT(fRunner, SkTileMode::kDecal == fActions[i].expectedTileMode());
                 REPORTER_ASSERT(fRunner, colorfilter_equals(output.colorFilter(),
                                                             fActions[i].expectedColorFilter()));
             }
@@ -841,6 +879,15 @@ private:
             return FilterResult::kDefaultSampling;
         } else {
             return fActions[fActions.size() - 1].expectedSampling();
+        }
+    }
+    // By default an action that doesn't define its own tiling will not change the tiling, unless it
+    // produces a new image, at which point it becomes kDecal again.
+    SkTileMode getDefaultExpectedTileMode(Expect expectation) const {
+        if (expectation != Expect::kDeferredImage || fActions.empty()) {
+            return SkTileMode::kDecal;
+        } else {
+            return fActions[fActions.size() - 1].expectedTileMode();
         }
     }
     // By default an action that doesn't define its own color filter will not change filtering,
