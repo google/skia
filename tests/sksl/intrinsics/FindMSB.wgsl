@@ -1,0 +1,33 @@
+### Compilation failed:
+
+error: :14:20 error: unresolved call target 'findMSB'
+    let _skTemp0 = findMSB(_globalUniforms.a);
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+struct FSIn {
+  @builtin(front_facing) sk_Clockwise: bool,
+};
+struct FSOut {
+  @location(0) sk_FragColor: vec4<f32>,
+};
+struct _GlobalUniforms {
+  a: i32,
+  b: u32,
+};
+@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+fn main(_stageOut: ptr<function, FSOut>) {
+  {
+    let _skTemp0 = findMSB(_globalUniforms.a);
+    (*_stageOut).sk_FragColor.x = f32(_skTemp0);
+    let _skTemp1 = findMSB(_globalUniforms.b);
+    (*_stageOut).sk_FragColor.y = f32(_skTemp1);
+  }
+}
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+  var _stageOut: FSOut;
+  main(&_stageOut);
+  return _stageOut;
+}
+
+1 error

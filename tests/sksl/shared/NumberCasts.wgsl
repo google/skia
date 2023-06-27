@@ -1,0 +1,30 @@
+struct FSIn {
+  @builtin(front_facing) sk_Clockwise: bool,
+  @builtin(position) sk_FragCoord: vec4<f32>,
+};
+struct FSOut {
+  @location(0) sk_FragColor: vec4<f32>,
+};
+fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+  let coords = _skParam0;
+  {
+    var B: vec3<bool>;
+    B.x = true;
+    B.y = true;
+    B.z = true;
+    var F: vec3<f32>;
+    F.x = 1.23;
+    F.y = 0.0;
+    F.z = 1.0;
+    var I: vec3<i32>;
+    I.x = 1;
+    I.y = 1;
+    I.z = 1;
+    return vec4<f32>(f32((F.x * F.y) * F.z), f32((B.x && B.y) && B.z), 0.0, f32((I.x * I.y) * I.z));
+  }
+}
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+  var _stageOut: FSOut;
+  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  return _stageOut;
+}

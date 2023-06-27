@@ -1,0 +1,37 @@
+struct FSIn {
+  @builtin(front_facing) sk_Clockwise: bool,
+};
+struct FSOut {
+  @location(0) sk_FragColor: vec4<f32>,
+};
+struct _GlobalUniforms {
+  unknownInput: f32,
+};
+@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+fn main(_stageOut: ptr<function, FSOut>) {
+  {
+    var value: f32 = 0.0;
+    switch 0 {
+      case 0, 1 {
+        var _skTemp0: bool = false;
+        if 0 == 0 {
+          value = 0.0;
+          if (_globalUniforms.unknownInput == 2.0) {
+            {
+              (*_stageOut).sk_FragColor = vec4<f32>(value);
+              break;
+            }
+          }
+          // fallthrough
+        }
+        value = 1.0;
+      }
+      case default {}
+    }
+  }
+}
+@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+  var _stageOut: FSOut;
+  main(&_stageOut);
+  return _stageOut;
+}
