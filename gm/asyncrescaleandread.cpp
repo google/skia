@@ -159,15 +159,12 @@ template <typename Src>
 static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                                           Src* src,
                                           GrDirectContext* direct,
+                                          skgpu::graphite::Recorder* recorder,
                                           const SkIRect& srcRect,
                                           SkISize newSize,
                                           bool doYUV420,
                                           SkString* errorMsg,
                                           int pad = 0) {
-    if (doYUV420 && !direct) {
-        errorMsg->printf("YUV420 only supported on direct GPU for now.");
-        return skiagm::DrawResult::kSkip;
-    }
     if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
         *errorMsg = "Not supported on recording/vector backends.";
         return skiagm::DrawResult::kSkip;
@@ -185,7 +182,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
             SkScopeExit cleanup;
             sk_sp<SkImage> result;
             if (doYUV420) {
-                result = do_read_and_scale_yuv(src, direct, /*recorder=*/nullptr,
+                result = do_read_and_scale_yuv(src, direct, recorder,
                                                yuvColorSpace, srcRect, newSize, gamma,
                                                mode, &cleanup);
                 if (!result) {
@@ -233,6 +230,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         *errorMsg = "Not supported in DDL mode";
         return skiagm::DrawResult::kSkip;
     }
+    auto recorder = canvas->recorder();
 
     if (doSurface) {
         // Turn the image into a surface in order to call the read and rescale API
@@ -253,7 +251,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         surface->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
-        return do_rescale_grid(canvas, surface.get(), dContext, srcRect, newSize,
+        return do_rescale_grid(canvas, surface.get(), dContext, recorder, srcRect, newSize,
                                doYUV420, errorMsg);
     } else if (dContext) {
         image = SkImages::TextureFromImage(dContext, image);
@@ -266,7 +264,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
             return skiagm::DrawResult::kFail;
         }
     }
-    return do_rescale_grid(canvas, image.get(), dContext, srcRect, newSize, doYUV420,
+    return do_rescale_grid(canvas, image.get(), dContext, recorder, srcRect, newSize, doYUV420,
                            errorMsg);
 }
 
@@ -363,6 +361,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
         *errorMsg = "Not supported in DDL mode";
         return skiagm::DrawResult::kSkip;
     }
+    auto recorder = canvas->recorder();
 
     static constexpr int kBorder = 5;
     static constexpr int kInner = 5;
@@ -388,16 +387,16 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     canvas->translate(kPad, kPad);
     skiagm::DrawResult result;
     SkISize downSize = {static_cast<int>(kInner/2),  static_cast<int>(kInner / 2)};
-    result = do_rescale_grid(canvas, surface.get(), dContext, srcRect, downSize, false, errorMsg,
-                             kPad);
+    result = do_rescale_grid(canvas, surface.get(), dContext, recorder, srcRect, downSize, false,
+                             errorMsg, kPad);
 
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
     canvas->translate(0, 4 * downSize.height());
     SkISize upSize = {static_cast<int>(kInner * 3.5), static_cast<int>(kInner * 4.6)};
-    result = do_rescale_grid(canvas, surface.get(), dContext, srcRect, upSize, false, errorMsg,
-                             kPad);
+    result = do_rescale_grid(canvas, surface.get(), dContext, recorder, srcRect, upSize, false,
+                             errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
