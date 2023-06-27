@@ -1,4 +1,5 @@
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 
 licenses(["notice"])
 
@@ -22,10 +23,28 @@ skia_cc_library(
         "verifiers/gmverifier.h",
     ],
     hdrs = ["gm.h"],
-    visibility = ["//tools/viewer:__pkg__"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
     deps = [
         "//:skia_internal",
         "//tools:registry",
         "//tools:tool_utils",
+    ],
+)
+
+# Can be executed with "bazel run --config=linux_rbe //gm:circle_sizes_test".
+cc_test_with_flags(
+    name = "circle_sizes_test",
+    srcs = [
+        "BazelGMRunner.cpp",
+        "circle_sizes.cpp",
+        "//src/utils:json_hdrs",
+        "//src/utils:json_srcs",
+    ],
+    deps = [
+        ":gm",
+        "//tools:hash_and_encode",
     ],
 )

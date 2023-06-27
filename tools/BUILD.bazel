@@ -43,6 +43,21 @@ skia_cc_library(
     deps = ["//:skia_internal"],
 )
 
+skia_cc_library(
+    name = "hash_and_encode",
+    testonly = True,
+    srcs = [
+        "HashAndEncode.cpp",
+        "//tools/flags",
+    ],
+    hdrs = ["HashAndEncode.h"],
+    visibility = ["//gm:__pkg__"],
+    deps = [
+        "//:skia_internal",
+        "@libpng",
+    ],
+)
+
 py_binary(
     name = "embed_resources",
     srcs = ["embed_resources.py"],

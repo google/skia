@@ -79,6 +79,7 @@ skia_filegroup(
         "SkJSONWriter.h",
     ],
     visibility = [
+        "//gm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tools/debugger:__pkg__",
     ],
@@ -91,6 +92,7 @@ skia_filegroup(
         "SkJSONWriter.cpp",
     ],
     visibility = [
+        "//gm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tools/debugger:__pkg__",
     ],
