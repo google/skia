@@ -25,9 +25,6 @@ class GrRecordingContext;
 // actual API surface that Skia will use to compute the filtered images.
 class SkImageFilter_Base : public SkImageFilter {
 public:
-    // DEPRECATED - Use skif::Context directly.
-    using Context = skif::Context;
-
     /**
      *  Request a new filtered image to be created from the src image. The returned skif::Image
      *  provides both the pixel data and the origin point that it should be drawn at, relative to
@@ -202,7 +199,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
     // DEPRECATED - Use the private context-only variant
-    virtual sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const {
+    virtual sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const {
         return nullptr;
     }
 
@@ -215,7 +212,7 @@ protected:
                                        MapDirection, const SkIRect* inputRect) const;
 
     // DEPRECRATED - Call the Context-only getChildOutput()
-    sk_sp<SkSpecialImage> filterInput(int index, const Context& ctx, SkIPoint* offset) const;
+    sk_sp<SkSpecialImage> filterInput(int index, const skif::Context& ctx, SkIPoint* offset) const;
 
     // Helper function to calculate the required input/output of a specific child filter,
     // automatically handling if the child filter is null.
@@ -271,7 +268,7 @@ protected:
      *  necessary to provide a similar convenience function to compute the output bounds given the
      *  images returned by filterInput().
      */
-    bool applyCropRect(const Context&, const SkIRect& srcBounds, SkIRect* dstBounds) const;
+    bool applyCropRect(const skif::Context&, const SkIRect& srcBounds, SkIRect* dstBounds) const;
 
     /** A variant of the above call which takes the original source bitmap and
      *  source offset. If the resulting crop rect is not entirely contained by
@@ -284,8 +281,10 @@ protected:
      *
      *  DEPRECATED - Remove once cropping is handled by a separate filter.
      */
-    sk_sp<SkSpecialImage> applyCropRectAndPad(const Context&, SkSpecialImage* src,
-                                              SkIPoint* srcOffset, SkIRect* bounds) const;
+    sk_sp<SkSpecialImage> applyCropRectAndPad(const skif::Context&,
+                                              SkSpecialImage* src,
+                                              SkIPoint* srcOffset,
+                                              SkIRect* bounds) const;
 
     /**
      *  Creates a modified Context for use when recursing up the image filter DAG.
@@ -296,7 +295,7 @@ protected:
     // TODO (michaelludwig) - I don't think this is necessary to keep as protected. Other than the
     // real use case in recursing through the DAG for filterInput(), it feels wrong for blur and
     // other filters to need to call it.
-    Context mapContext(const Context& ctx) const;
+    skif::Context mapContext(const skif::Context& ctx) const;
 
 #if defined(SK_GANESH)
     static sk_sp<SkSpecialImage> DrawWithFP(GrRecordingContext* context,

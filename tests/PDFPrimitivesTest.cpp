@@ -35,6 +35,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -282,7 +283,7 @@ public:
     bool visited() const { return fVisited; }
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(const Context& ctx, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context& ctx, SkIPoint* offset) const override {
         fVisited = true;
         offset->fX = offset->fY = 0;
         return sk_ref_sp<SkSpecialImage>(ctx.sourceImage());

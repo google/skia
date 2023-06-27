@@ -114,7 +114,7 @@ void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-skif::FilterResult SkColorFilterImageFilter::onFilterImage(const Context& ctx) const {
+skif::FilterResult SkColorFilterImageFilter::onFilterImage(const skif::Context& ctx) const {
     return this->getChildOutput(0, ctx).applyColorFilter(ctx, fColorFilter);
 }
 

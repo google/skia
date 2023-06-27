@@ -21,6 +21,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTo.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -55,7 +56,7 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
@@ -121,7 +122,7 @@ void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(const Context& ctx,
+sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(const skif::Context& ctx,
                                                              SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));

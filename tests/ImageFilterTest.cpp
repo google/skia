@@ -85,7 +85,7 @@ public:
     }
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(const Context& ctx, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context& ctx, SkIPoint* offset) const override {
         REPORTER_ASSERT(fReporter, ctx.ctm() == fExpectedMatrix);
         offset->fX = offset->fY = 0;
         return sk_ref_sp<SkSpecialImage>(ctx.sourceImage());
@@ -114,7 +114,7 @@ class FailImageFilter : public SkImageFilter_Base {
 public:
     FailImageFilter() : INHERITED(nullptr, 0, nullptr) { }
 
-    sk_sp<SkSpecialImage> onFilterImage(const Context& ctx, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context& ctx, SkIPoint* offset) const override {
         return nullptr;
     }
 
@@ -296,7 +296,7 @@ private:
     Factory getFactory() const override { return nullptr; }
     const char* getTypeName() const override { return nullptr; }
 
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override {
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const override {
         return nullptr;
     }
 

@@ -55,6 +55,10 @@ using namespace skia_private;
 class SkPicture;
 class SkReadBuffer;
 
+namespace skif {
+class Context;
+}
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "include/core/SkColorSpace.h"
 #include "include/private/SkColorData.h"
@@ -639,7 +643,7 @@ public:
     static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint*) const override {
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint*) const override {
         return nullptr;
     }
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&,

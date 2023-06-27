@@ -24,6 +24,7 @@
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
@@ -78,7 +79,7 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
     bool onAffectsTransparentBlack() const override;
@@ -351,7 +352,7 @@ void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src,
     }
 }
 
-sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(const Context& ctx,
+sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(const skif::Context& ctx,
                                                                     SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));

@@ -48,7 +48,7 @@ public:
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
 
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const override;
 
 private:
     friend void ::SkRegisterTileImageFilterFlattenable();
@@ -102,7 +102,7 @@ void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(const Context& ctx,
+sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(const skif::Context& ctx,
                                                        SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));

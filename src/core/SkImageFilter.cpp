@@ -374,7 +374,8 @@ void SkImageFilter_Base::CropRect::applyTo(const SkIRect& imageBounds, const SkM
     }
 }
 
-bool SkImageFilter_Base::applyCropRect(const Context& ctx, const SkIRect& srcBounds,
+bool SkImageFilter_Base::applyCropRect(const skif::Context& ctx,
+                                       const SkIRect& srcBounds,
                                        SkIRect* dstBounds) const {
     SkIRect tmpDst = this->onFilterNodeBounds(srcBounds, ctx.ctm(), kForward_MapDirection, nullptr);
     fCropRect.applyTo(tmpDst, ctx.ctm(), this->onAffectsTransparentBlack(), dstBounds);
@@ -388,8 +389,12 @@ bool SkImageFilter_Base::applyCropRect(const Context& ctx, const SkIRect& srcBou
 
 // Return a larger (newWidth x newHeight) copy of 'src' with black padding
 // around it.
-static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src, const SkImageFilter_Base::Context& ctx,
-                                       int newWidth, int newHeight, int offX, int offY) {
+static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src,
+                                       const skif::Context& ctx,
+                                       int newWidth,
+                                       int newHeight,
+                                       int offX,
+                                       int offY) {
     // We would like to operate in the source's color space (so that we return an "identical"
     // image, other than the padding. To achieve that, we'd create a new context using
     // src->getColorSpace() to replace ctx.colorSpace().
@@ -420,7 +425,7 @@ static sk_sp<SkSpecialImage> pad_image(SkSpecialImage* src, const SkImageFilter_
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkSpecialImage> SkImageFilter_Base::applyCropRectAndPad(const Context& ctx,
+sk_sp<SkSpecialImage> SkImageFilter_Base::applyCropRectAndPad(const skif::Context& ctx,
                                                               SkSpecialImage* src,
                                                               SkIPoint* srcOffset,
                                                               SkIRect* bounds) const {
@@ -560,7 +565,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index,
     return result.imageAndOffset(inputCtx, offset);
 }
 
-SkImageFilter_Base::Context SkImageFilter_Base::mapContext(const Context& ctx) const {
+skif::Context SkImageFilter_Base::mapContext(const skif::Context& ctx) const {
     // We don't recurse through the child input filters because that happens automatically
     // as part of the filterImage() evaluation. In this case, we want the bounds for the
     // edge from this node to its children, without the effects of the child filters.

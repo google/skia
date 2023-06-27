@@ -38,7 +38,7 @@ public:
     SkRect computeFastBounds(const SkRect& src) const override;
 
 protected:
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
+    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const override;
     SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
     MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
@@ -84,7 +84,7 @@ SkRect SkComposeImageFilter::computeFastBounds(const SkRect& src) const {
     return outer->computeFastBounds(inner->computeFastBounds(src));
 }
 
-sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(const Context& ctx,
+sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(const skif::Context& ctx,
                                                           SkIPoint* offset) const {
     // The bounds passed to the inner filter must be filtered by the outer
     // filter, so that the inner filter produces the pixels that the outer
@@ -95,7 +95,8 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(const Context& ctx,
     SkIRect innerClipBounds;
     innerClipBounds = this->getInput(0)->filterBounds(ctx.clipBounds(), ctx.ctm(),
                                                       kReverse_MapDirection, &innerOutputBounds);
-    Context innerContext = ctx.withNewDesiredOutput(skif::LayerSpace<SkIRect>(innerClipBounds));
+    skif::Context innerContext =
+            ctx.withNewDesiredOutput(skif::LayerSpace<SkIRect>(innerClipBounds));
     SkIPoint innerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> inner(this->filterInput(1, innerContext, &innerOffset));
     if (!inner) {
@@ -107,7 +108,7 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(const Context& ctx,
     // were already created, there's no alternative way for the leaf nodes of the outer DAG to
     // get the results of the inner DAG. Overriding the source image of the context has the correct
     // effect, but means that the source image is not fixed for the entire filter process.
-    Context outerContext = ctx.withNewSource(inner, skif::LayerSpace<SkIPoint>(innerOffset));
+    skif::Context outerContext = ctx.withNewSource(inner, skif::LayerSpace<SkIPoint>(innerOffset));
 
     SkIPoint outerOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> outer(this->filterInput(0, outerContext, &outerOffset));
