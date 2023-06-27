@@ -262,14 +262,15 @@ bool AnimationBuilder::dispatchTextProperty(const sk_sp<TextAdapter>& t,
                                             const skjson::ObjectValue* jtext) const {
     bool dispatched = false;
 
-    if (fPropertyObserver) {
-        const char * node_name = fPropertyObserverContext;
-        if (jtext) {
-            if (const skjson::StringValue* slotID = (*jtext)["sid"]) {
-                node_name = slotID->begin();
-            }
+    if (jtext) {
+        if (const skjson::StringValue* slotID = (*jtext)["sid"]) {
+            fSlotManager->trackTextValue(SkString(slotID->begin()), t);
+            dispatched = true;
         }
-        fPropertyObserver->onTextProperty(node_name,
+    }
+
+    if (fPropertyObserver) {
+        fPropertyObserver->onTextProperty(fPropertyObserverContext,
             [&]() {
                 dispatched = true;
                 return std::make_unique<TextPropertyHandle>(t, fRevalidator);

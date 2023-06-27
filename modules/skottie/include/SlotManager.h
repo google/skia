@@ -26,10 +26,13 @@ class Node;
 }
 namespace skottie {
 
+struct TextPropertyValue;
+
 namespace internal {
 class AnimationBuilder;
 class SceneGraphRevalidator;
 class AnimatablePropertyContainer;
+class TextAdapter;
 } // namespace internal
 
 using namespace skia_private;
@@ -45,11 +48,12 @@ public:
     void setColorSlot(SlotID, SkColor);
     void setImageSlot(SlotID, sk_sp<skresources::ImageAsset>);
     void setScalarSlot(SlotID, SkScalar);
-    //TODO: surface Text value options
+    void setTextSlot(SlotID, TextPropertyValue&);
 
     SkColor getColorSlot(SlotID) const;
     sk_sp<const skresources::ImageAsset> getImageSlot(SlotID) const;
     SkScalar getScalarSlot(SlotID) const;
+    TextPropertyValue getTextSlot(SlotID) const;
 
     struct SlotInfo {
         SlotID slotID;
@@ -66,6 +70,7 @@ private:
     sk_sp<skresources::ImageAsset> trackImageValue(SlotID, sk_sp<skresources::ImageAsset>);
     void trackScalarValue(SlotID, SkScalar*, sk_sp<sksg::Node>);
     void trackScalarValue(SlotID, SkScalar*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
+    void trackTextValue(SlotID, sk_sp<skottie::internal::TextAdapter>);
 
     TArray<SlotInfo> fSlotInfos;
 
@@ -95,9 +100,10 @@ private:
     template <typename T>
     using SlotMap = THashMap<SlotID, TArray<T>>;
 
-    SlotMap<ValuePair<SkColor*>>    fColorMap;
-    SlotMap<ValuePair<SkScalar*>>   fScalarMap;
-    SlotMap<sk_sp<ImageAssetProxy>> fImageMap;
+    SlotMap<ValuePair<SkColor*>>                       fColorMap;
+    SlotMap<ValuePair<SkScalar*>>                      fScalarMap;
+    SlotMap<sk_sp<ImageAssetProxy>>                    fImageMap;
+    SlotMap<sk_sp<skottie::internal::TextAdapter>>     fTextMap;
 
     const sk_sp<skottie::internal::SceneGraphRevalidator> fRevalidator;
 
