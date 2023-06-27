@@ -8,11 +8,8 @@
 #define SkUnicode_hardcoded_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTArray.h"
 #include "modules/skunicode/include/SkUnicode.h"
 #include "src/base/SkUTF.h"
-
-using namespace skia_private;
 
 class SkUnicodeHardCodedCharProperties : public SkUnicode {
 public:
