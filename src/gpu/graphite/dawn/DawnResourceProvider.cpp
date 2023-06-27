@@ -165,10 +165,19 @@ sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
         SkISize dimensions, const TextureInfo& msaaInfo) {
     SkASSERT(msaaInfo.isValid());
 
+    // Derive the load texture's info from MSAA texture's info.
     DawnTextureInfo dawnMsaaLoadTextureInfo;
     msaaInfo.getDawnTextureInfo(&dawnMsaaLoadTextureInfo);
     dawnMsaaLoadTextureInfo.fSampleCount = 1;
     dawnMsaaLoadTextureInfo.fUsage |= wgpu::TextureUsage::TextureBinding;
+
+    // MSAA texture can be transient attachment (memoryless) but the load texture cannot be.
+    // This is because the load texture will need to have its content retained between two passes
+    // loading:
+    // - first pass: the resolve texture is blitted to the load texture.
+    // - 2nd pass: the actual render pass is started and the load texture is blitted to the MSAA
+    // texture.
+    dawnMsaaLoadTextureInfo.fUsage &= (~wgpu::TextureUsage::TransientAttachment);
 
     auto texture = this->findOrCreateDiscardableMSAAAttachment(dimensions, dawnMsaaLoadTextureInfo);
 

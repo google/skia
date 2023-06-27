@@ -107,6 +107,8 @@ private:
 
     wgpu::TextureFormat fColorTypeToFormatTable[kSkColorTypeCnt];
     void setColorType(SkColorType, std::initializer_list<wgpu::TextureFormat> formats);
+
+    bool fTransientAttachmentSupport = false;
 };
 
 } // namespace skgpu::graphite
