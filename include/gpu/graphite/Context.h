@@ -145,7 +145,8 @@ private:
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);
 
-    void asyncReadPixelsYUV420(const SkImage*,
+    void asyncReadPixelsYUV420(Recorder*,
+                               const SkImage*,
                                SkYUVColorSpace yuvColorSpace,
                                const SkIRect& srcRect,
                                SkImage::ReadPixelsCallback callback,

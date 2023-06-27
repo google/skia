@@ -276,11 +276,15 @@ void Context::asyncRescaleAndReadPixelsYUV420(const SkImage* image,
         return;
     }
 
+    // Make a recorder to record drawing commands into
+    std::unique_ptr<Recorder> recorder = this->makeRecorder();
+
     if (srcRect.size() == dstSize &&
         SkColorSpace::Equals(srcImageInfo.colorInfo().colorSpace(),
                              dstColorSpace.get())) {
         // No need for rescale
-        return this->asyncReadPixelsYUV420(image,
+        return this->asyncReadPixelsYUV420(recorder.get(),
+                                           image,
                                            yuvColorSpace,
                                            srcRect,
                                            callback,
@@ -317,21 +321,19 @@ void Context::asyncRescaleAndReadPixelsYUV420(const SkSurface* surface,
                                           callbackContext);
 }
 
-void Context::asyncReadPixelsYUV420(const SkImage* srcImage,
+void Context::asyncReadPixelsYUV420(Recorder* recorder,
+                                    const SkImage* srcImage,
                                     SkYUVColorSpace yuvColorSpace,
                                     const SkIRect& srcRect,
                                     SkImage::ReadPixelsCallback callback,
                                     SkImage::ReadPixelsContext callbackContext) {
-    // Make a recorder to record drawing commands into
-    std::unique_ptr<Recorder> recorder = this->makeRecorder();
-
     // Make three Surfaces to draw the YUV planes into
     SkImageInfo yInfo = SkImageInfo::MakeA8(srcRect.size());
-    sk_sp<SkSurface> ySurface = Surface::MakeGraphite(recorder.get(), yInfo, Budgeted::kNo);
+    sk_sp<SkSurface> ySurface = Surface::MakeGraphite(recorder, yInfo, Budgeted::kNo);
 
     SkImageInfo uvInfo = yInfo.makeWH(yInfo.width()/2, yInfo.height()/2);
-    sk_sp<SkSurface> uSurface = Surface::MakeGraphite(recorder.get(), uvInfo, Budgeted::kNo);
-    sk_sp<SkSurface> vSurface = Surface::MakeGraphite(recorder.get(), uvInfo, Budgeted::kNo);
+    sk_sp<SkSurface> uSurface = Surface::MakeGraphite(recorder, uvInfo, Budgeted::kNo);
+    sk_sp<SkSurface> vSurface = Surface::MakeGraphite(recorder, uvInfo, Budgeted::kNo);
 
     if (!ySurface || !uSurface || !vSurface) {
         callback(callbackContext, nullptr);
