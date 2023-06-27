@@ -82,6 +82,10 @@ declare_args() {
   skia_use_x11 = is_linux
   skia_use_xps = true
 
+  # Use the safe mode for libcxx
+  # See: https://libcxx.llvm.org/UsingLibcxx.html#enabling-the-safe-libc-mode
+  skia_use_safe_libcxx = false
+
   # deprecated, we will eventually use just skia_enable_ganesh
   skia_enable_gpu = true
   skia_enable_graphite = false
