@@ -126,7 +126,7 @@ public:
                 canvas->drawPaint(paint);
             } else {
                 SkASSERT(fMethod == Method::kDrawToCanvas);
-                image.draw(canvas);
+                image.draw(canvas, ctx.desiredOutput());
             }
 
             return {surface->makeImageSnapshot(), SkIPoint(ctx.desiredOutput().topLeft())};

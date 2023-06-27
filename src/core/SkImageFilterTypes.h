@@ -767,6 +767,11 @@ private:
     std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>
     resolve(const Context& ctx, LayerSpace<SkIRect> dstBounds) const;
 
+    // Returns true if tiling and color filtering affect pixels outside of the image's bounds that
+    // are within the layer bounds (limited to 'dstBounds'). This does not consider the layer bounds
+    // which are considered separately in isCropped().
+    bool modifiesPixelsBeyondImage(const LayerSpace<SkIRect>& dstBounds) const;
+
     // Returns true if the effects of the fLayerBounds crop are visible when this image is drawn
     // with 'xtraTransform' restricted to 'dstBounds'.
     bool isCropped(const LayerSpace<SkMatrix>& xtraTransform,
@@ -774,7 +779,7 @@ private:
 
     // Draw directly to the canvas, which draws the same image as produced by resolve() but can be
     // useful if multiple operations need to be performed on the canvas.
-    void draw(SkCanvas* canvas) const;
+    void draw(SkCanvas* canvas, const LayerSpace<SkIRect>& dstBounds) const;
 
     // Returns the FilterResult as a shader, ideally without resolving to an axis-aligned image.
     // 'xtraSampling' is the sampling that any parent shader applies to the FilterResult.
