@@ -401,11 +401,12 @@ private:
 
 sk_sp<TextureProxy> add_copy_target_task(Recorder* recorder,
                                          sk_sp<TextureProxy> target,
-                                         const SkImageInfo& targetInfo) {
+                                         const SkImageInfo& targetInfo,
+                                         const SkIPoint& targetOffset) {
     SkASSERT(recorder->priv().caps()->isTexturable(target->textureInfo()));
-    SkIRect dstSrcRect = SkIRect::MakeSize(targetInfo.dimensions());
+    SkIRect dstSrcRect = SkIRect::MakePtSize(targetOffset, targetInfo.dimensions());
     sk_sp<TextureProxy> copy = TextureProxy::Make(recorder->priv().caps(),
-                                                  dstSrcRect.size(),
+                                                  targetInfo.dimensions(),
                                                   targetInfo.colorType(),
                                                   Mipmapped::kNo,
                                                   target->textureInfo().isProtected(),
@@ -493,9 +494,18 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     // Copy of destination, if needed.
     sk_sp<TextureProxy> dst;
+    SkIPoint dstOffset;
+    if (!draws->dstCopyBounds().isEmptyNegativeOrNaN()) {
+        SkIRect dstCopyPixelBounds = draws->dstCopyBounds().makeRoundOut().asSkIRect();
+        dstOffset = dstCopyPixelBounds.topLeft();
+        dst = add_copy_target_task(
+                recorder, target, targetInfo.makeDimensions(dstCopyPixelBounds.size()), dstOffset);
+        SkASSERT(dst);
+    }
 
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount());
+
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         // If we have two different descriptors, such that the uniforms from the PaintParams can be
         // bound independently of those used by the rest of the RenderStep, then we can upload now
@@ -504,16 +514,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const UniformDataBlock* shadingUniforms = nullptr;
         const TextureDataBlock* paintTextures = nullptr;
         if (draw.fPaintParams.has_value()) {
-            TextureProxy* curDst = nullptr;
-            if (draw.fPaintParams->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
-                // TODO(b/274811856) Only copy a subset of the render target that we need for draws
-                // needing a dst copy, and pass in uniforms to offset the dst sample coords.
-                if (!dst) {
-                    dst = add_copy_target_task(recorder, target, targetInfo);
-                    SkASSERT(dst);
-                }
-                curDst = dst.get();
-            }
+            sk_sp<TextureProxy> curDst =
+                    draw.fPaintParams->dstReadRequirement() == DstReadRequirement::kTextureCopy
+                            ? dst
+                            : nullptr;
             std::tie(shaderID, shadingUniforms, paintTextures) =
                     ExtractPaintData(recorder,
                                      &gatherer,
@@ -521,7 +525,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                      shadingUniformLayout,
                                      draw.fDrawParams.transform(),
                                      draw.fPaintParams.value(),
-                                     curDst ? sk_ref_sp(curDst) : nullptr,
+                                     curDst,
+                                     dstOffset,
                                      targetInfo.colorInfo());
         } // else depth-only
 

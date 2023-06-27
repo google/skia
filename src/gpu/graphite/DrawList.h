@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/geom/Geometry.h"
+#include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
 #include <limits>
@@ -79,6 +80,9 @@ public:
     int drawCount() const { return fDraws.count(); }
     int renderStepCount() const { return fRenderStepCount; }
 
+    // Bounds for a dst copy required by this DrawList.
+    const Rect& dstCopyBounds() const { return fDstCopyBounds; }
+
 private:
     friend class DrawPass;
 
@@ -103,6 +107,8 @@ private:
 
     // Running total of RenderSteps for all draws, assuming nothing is culled
     int fRenderStepCount;
+
+    Rect fDstCopyBounds = Rect::InfiniteInverted();
 };
 
 } // namespace skgpu::graphite

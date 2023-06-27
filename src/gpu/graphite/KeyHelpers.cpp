@@ -78,15 +78,16 @@ void SolidColorShaderBlock::BeginBlock(const KeyContext& keyContext,
 namespace {
 
 void add_dst_read_sample_uniform_data(const ShaderCodeDictionary* dict,
-                                       PipelineDataGatherer* gatherer,
-                                       sk_sp<TextureProxy> dstTexture) {
+                                      PipelineDataGatherer* gatherer,
+                                      sk_sp<TextureProxy> dstTexture,
+                                      SkIPoint dstOffset) {
     static const SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
     gatherer->add(SkSamplingOptions(), kTileModes, dstTexture);
 
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDstReadSample)
 
-    SkV4 coords{0.0f,
-                0.0f,
+    SkV4 coords{static_cast<float>(dstOffset.x()),
+                static_cast<float>(dstOffset.y()),
                 1.0f / dstTexture->dimensions().width(),
                 1.0f / dstTexture->dimensions().height()};
     gatherer->write(coords);
@@ -97,9 +98,11 @@ void add_dst_read_sample_uniform_data(const ShaderCodeDictionary* dict,
 void DstReadSampleBlock::BeginBlock(const KeyContext& keyContext,
                                     PaintParamsKeyBuilder* builder,
                                     PipelineDataGatherer* gatherer,
-                                    sk_sp<TextureProxy> dstTexture) {
+                                    sk_sp<TextureProxy> dstTexture,
+                                    SkIPoint dstOffset) {
     if (gatherer) {
-        add_dst_read_sample_uniform_data(keyContext.dict(), gatherer, std::move(dstTexture));
+        add_dst_read_sample_uniform_data(
+                keyContext.dict(), gatherer, std::move(dstTexture), dstOffset);
     }
     builder->beginBlock(BuiltInCodeSnippetID::kDstReadSample);
 }

@@ -62,7 +62,8 @@ struct DstReadSampleBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
-                           sk_sp<TextureProxy> dst);
+                           sk_sp<TextureProxy> dst,
+                           SkIPoint dstOffset);
 };
 
 struct DstReadFetchBlock {

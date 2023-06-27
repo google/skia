@@ -34,12 +34,14 @@ ExtractPaintData(Recorder* recorder,
                  const SkM44& local2Dev,
                  const PaintParams& p,
                  sk_sp<TextureProxy> dstTexture,
+                 SkIPoint dstOffset,
                  const SkColorInfo& targetColorInfo) {
     SkDEBUGCODE(builder->checkReset());
 
     gatherer->resetWithNewLayout(layout);
 
-    KeyContext keyContext(recorder, local2Dev, targetColorInfo, p.color(), std::move(dstTexture));
+    KeyContext keyContext(
+            recorder, local2Dev, targetColorInfo, p.color(), std::move(dstTexture), dstOffset);
     p.toKey(keyContext, builder, gatherer);
 
     UniquePaintParamsID paintID = recorder->priv().shaderCodeDictionary()->findOrCreate(builder);

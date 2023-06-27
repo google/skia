@@ -642,8 +642,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                                  SkColorSpace::MakeSRGB());
 
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
-    KeyContext precompileKeyContext(
-            recorder->priv().caps(), dict, rtDict.get(), ci, /* dstTexture= */ nullptr);
+    KeyContext precompileKeyContext(recorder->priv().caps(),
+                                    dict,
+                                    rtDict.get(),
+                                    ci,
+                                    /* dstTexture= */ nullptr,
+                                    /* dstOffset= */ {0, 0});
 
     sk_sp<TextureProxy> fakeDstTexture = TextureProxy::Make(recorder->priv().caps(),
                                                             SkISize::Make(1, 1),
@@ -652,6 +656,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                                                             skgpu::Protected::kNo,
                                                             skgpu::Renderable::kYes,
                                                             skgpu::Budgeted::kNo);
+    constexpr SkIPoint fakeDstOffset = SkIPoint::Make(0, 0);
 
     SkFont font(ToolUtils::create_portable_typeface(), 16);
     const char text[] = "hambur";
@@ -723,7 +728,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                                             std::move(primitiveBlender),
                                             dstReadReq,
                                             /* skipColorXform= */ false),
-                                curDst, ci);
+                                curDst, fakeDstOffset, ci);
 
                         std::vector<UniquePaintParamsID> precompileIDs;
                         paintOptions.priv().buildCombinations(precompileKeyContext,
