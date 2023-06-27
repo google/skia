@@ -9,6 +9,7 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.2
 	github.com/stretchr/testify v1.7.0
+	github.com/trietmn/go-wiki v1.0.1 // indirect
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
 	go.skia.org/infra v0.0.0-20230923140522-2888f630bd2e
 	google.golang.org/api v0.74.0
@@ -24,6 +25,7 @@ require (
 	cloud.google.com/go/logging v1.1.1 // indirect
 	cloud.google.com/go/secretmanager v1.4.0 // indirect
 	github.com/aclements/go-moremath v0.0.0-20190830160640-d16893ddf098 // indirect
+	github.com/anaskhan96/soup v1.2.5 // indirect
 	github.com/bazelbuild/remote-apis v0.0.0-20201209220655-9e72daff42c9 // indirect
 	github.com/bazelbuild/remote-apis-sdks v0.0.0-20201120151053-8f976b9bf4fc // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -66,11 +68,11 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/zeebo/bencode v1.0.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
 	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect

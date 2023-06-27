@@ -1,0 +1,82 @@
+{{ define "styles" }}
+
+html { overflow-y: scroll; }
+
+table { width: 100%; border-collapse:collapse; }
+
+tr, th { border: 2px solid white; background-color: gray; font-size: 18px; }
+
+tr, td { border: 2px solid white; font-size: 16px; }
+
+tbody tr { display: none; margin:0; padding:0; }
+
+td { padding: 0px; }
+td div { font-size: 0px; }
+div span { font-size: 16px; }
+
+div.invisible { display: none; }
+
+span.span_whitespace { background-color: blue; opacity: 0.75; }
+span.span_grapheme { background-color: yellow; opacity: 0.75; }
+
+span.span_softBreak {border-left: 2px solid red; }
+span.span_hardBreak { border-left: 2px solid coral; }
+span.span_word { border-left: 2px solid darkturquoise; }
+span.span_control { border-left: 2px solid green; }
+
+input[type='button'] {
+  border: 0;
+  background-color: lightsteelblue;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  display: block;
+  box-shadow: none;
+  margin:0;
+  padding:0;
+  font-size: 16px;
+}
+
+input[type='button'].grapheme { background-color: palegoldenrod; color: black; }
+input[type='button'].softBreak { background-color: lightpink; color: black; }
+input[type='button'].hardBreak { background-color: peachpuff; color: black; }
+input[type='button'].word { background-color: lightcyan; color: black; }
+input[type='button'].control { background-color: palegreen; color: green; }
+input[type='button'].whitespace { background-color: lavender; color: purple; }
+input[type='button'].inactive { opacity: 0.25; }
+input[type='button'].disabled { color: gray; background-color: lightgray; text-decoration: line-through; }
+
+selected { background-color: yellow; }
+
+td.results1 { color: black; }
+td.results2 { color: darkgray; }
+td.results { font-style: italic; text-align: right; }
+
+span.underlined { text-decoration: underline; }
+span.regular { foreground-color: gray; }
+
+tr.l1, tr.open { display: table-row; }
+
+tr.l1 { background: #bbb; }
+tr.l2 { background: #ccc; }
+tr.l3 { background: #ddd; }
+tr.l4 { background: #eee; }
+tr.l5 { background: #fff; }
+
+tr td:first-of-type {
+  position: relative;
+  padding-left: 0.2em;
+}
+
+tr td a {
+  color: inherit;
+  text-decoration: inherit;
+  position: absolute;
+  left: 0.25em;
+}
+
+tr td:first-of-type { padding-left: 1em; }
+
+td.one_line { display: flex; flex-direction: row; }
+
+{{ end }}

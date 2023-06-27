@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="UTF-8">
+      <title>Comparison Table (accuracy, performance and disk memory)</title>
+      <style>{{ template "styles" }}</style>
+  </head>
+  <body>
+    <table id="comparison">
+        <thead>
+        <tr><th style="width: 24%">Language</th><th style="width: 8%">Memory</th><th style="width: 8%">Disk</th><th style="width: 8%">Performance (ms)</th><th colspan="6"style=" width: 52%">Accuracy</th></tr>
+            <tr><th/><th/><th/><th/><th>Graphemes</th><th>SoftBreaks</th><th>HardBreaks</th><th>Whitespaces</th><th>Words</th><th>Controls</th></tr>
+        </thead>
+        <tbody>
+        {{ template "rows" .Rows }}
+        </tbody>
+    </table>
+    <script type="text/javascript">{{ template "scripts" }}</script>
+  </body>
+</html>

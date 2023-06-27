@@ -1,0 +1,230 @@
+{{ define "formattedText" }}
+    <div class="grapheme invisible missing">
+    {{ range $text := .FormattedMissingGraphemes }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+    {{ end }}
+    </div>
+    <div class="grapheme invisible extra">
+        {{ range $text := .FormattedExtraGraphemes }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+        {{ end }}
+    </div>
+
+    <div class="softBreak invisible missing">
+    {{ range $text := .FormattedMissingSoftBreaks }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+    {{ end }}
+    </div>
+    <div class="softBreak invisible extra">
+        {{ range $text := .FormattedExtraSoftBreaks }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+        {{ end }}
+    </div>
+
+    <div class="hardBreak invisible missing">
+    {{ range $text := .FormattedMissingHardBreaks }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+    {{ end }}
+    </div>
+    <div class="hardBreak invisible extra">
+        {{ range $text := .FormattedExtraHardBreaks }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+        {{ end }}
+    </div>
+
+    <div class="word invisible missing">
+    {{ range $text := .FormattedMissingWords }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+    {{ end }}
+    </div>
+    <div class="word invisible extra">
+        {{ range $text := .FormattedExtraWords }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+        {{ end }}
+    </div>
+
+    <div class="whitespace invisible missing">
+    {{ range $text := .FormattedMissingWhitespaces }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+    {{ end }}
+    </div>
+    <div class="whitespace invisible extra">
+        {{ range $text := .FormattedExtraWhitespaces }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+        {{ end }}
+    </div>
+
+    <div class="control invisible missing">
+    {{ range $text := .FormattedMissingControls }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+    {{ end }}
+    </div>
+    <div class="control invisible extra">
+        {{ range $text := .FormattedExtraControls }}
+        <span class="{{ .Classes }} {{ .Indexes.Type }}">{{ .Text }}</span>
+        {{ end }}
+    </div>
+
+{{ end }}
+{{ define "rows" }}
+    {{ range $child := . }}
+        {{ if $child.IsImplementation }}
+            <tr class="{{ .Level }}" id="{{ .Id }}">
+                {{ if .HasChildren }}
+                <td><a href="#{{ .Id }}">+</a>{{ .Name }}</td>
+                {{/*
+                <td>{{ printf "%.6f" .Delta.Memory }}</td>
+                <td>{{ printf "%.6f" .Delta.Disk }}</td>
+                */}}
+                <td></td>
+                <td></td>
+                <td>{{ .Delta.Performance.Percents }}</td>
+                <td>{{ .Delta.Graphemes.Divide }}</td>
+                <td>{{ .Delta.SoftBreaks.Divide }}</td>
+                <td>{{ .Delta.HardBreaks.Divide }}</td>
+                <td>{{ .Delta.Whitespaces.Divide }}</td>
+                <td>{{ .Delta.Words.Divide }}</td>
+                <td>{{ .Delta.Controls.Divide }}</td>
+                {{ else }}
+                <td>{{ .Name }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                {{ end }}
+            </tr>
+        {{ else if $child.IsFile }}
+            {{ if $child.HasNoDifferences }}
+            {{ else }}
+            <tr class="{{ .Level }} {{ .ParentId }}">
+                <td> {{ .Name }} </td>
+                <td colspan="3"></td>
+
+                {{ if .HasNoGraphemes }}
+                <td>{{ .Delta.Graphemes.Divide }}</td>
+                {{ else }}
+                <td class="one_line">
+                    {{ if .HasMissingGraphemes }}
+                    <input type="button" class="grapheme inactive" id='grapheme_missing{{ .Num }}' onClick="showDiff('{{ .Num }}', 'grapheme', 'missing')" value="-{{ .MissingGraphemeNum }}"/>
+                    {{ end }}
+                    {{ if .HasExtraGraphemes }}
+                    <input type="button" class="grapheme inactive" id='grapheme_extra{{ .Num }}' onClick="showDiff('{{ .Num }}', 'grapheme', 'extra')" value="+{{ .ExtraGraphemeNum }}"/>
+                    {{ end }}
+                </td>
+                {{ end }}
+
+                {{ if .HasNoSoftBreaks }}
+                <td>{{ .Delta.SoftBreaks.Divide }}</td>
+                {{ else }}
+                <td class="one_line">
+                    {{ if .HasMissingSoftBreaks }}
+                    <input type="button" class="softBreak inactive" id='softBreak_missing{{ .Num }}' onClick="showDiff('{{ .Num }}', 'softBreak', 'missing')" value="-{{ .MissingSoftBreakNum }}"/>
+                    {{ end }}
+                    {{ if .HasExtraSoftBreaks }}
+                    <input type="button" class="softBreak inactive" id='softBreak_extra{{ .Num }}' onClick="showDiff('{{ .Num }}', 'softBreak', 'extra')" value="+{{ .ExtraSoftBreakNum }}"/>
+                    {{ end }}
+                </td>
+                {{ end }}
+
+                {{ if .HasNoHardBreaks }}
+                <td>{{ .Delta.HardBreaks.Divide }}</td>
+                {{ else }}
+                <td class="one_line">
+                    {{ if .HasMissingHardBreaks }}
+                    <input type="button" class="hardBreak inactive" id='hardBreak_missing{{ .Num }}' onClick="showDiff('{{ .Num }}', 'hardBreak', 'missing')" value="+{{ .MissingHardBreakNum }}"/>
+                    {{ end }}
+                    {{ if .HasExtraHardBreaks }}
+                    <input type="button" class="hardBreak inactive" id='hardBreak_extra{{ .Num }}' onClick="showDiff('{{ .Num }}', 'hardBreak', 'extra')" value="-{{ .ExtraHardBreakNum }}"/>
+                    {{ end }}
+                </td>
+                {{ end }}
+
+                {{ if .HasNoWhitespaces }}
+                <td>{{ .Delta.Whitespaces.Divide }}</td>
+                {{ else }}
+                <td class="one_line">
+                    {{ if .HasMissingWhitespaces }}
+                    <input type="button" class="whitespace inactive" id='whitespace_missing{{ .Num }}' onClick="showDiff('{{ .Num }}', 'whitespace', 'missing')" value="-{{ .MissingWhitespaceNum }}"/>
+                    {{ end }}
+                    {{ if .HasExtraWhitespaces }}
+                    <input type="button" class="whitespace inactive" id='whitespace_extra{{ .Num }}' onClick="showDiff('{{ .Num }}', 'whitespace')" value="+{{ .ExtraWhitespaceNum }}"/>
+                    {{ end }}
+                </td>
+                {{ end }}
+
+                {{ if .HasNoWords }}
+                <td>{{ .Delta.Words.Divide }}</td>
+                {{ else }}
+                <td class="one_line">
+                    {{ if .HasMissingWords }}
+                    <input type="button" class="word inactive" id='word_missing{{ .Num }}' onClick="showDiff('{{ .Num }}', 'word', 'missing')" value="-{{ .MissingWordNum }}"/>
+                    {{ end }}
+                    {{ if .HasExtraWords }}
+                    <input type="button" class="word inactive" id='word_extra{{ .Num }}' onClick="showDiff('{{ .Num }}', 'word', 'extra')" value="+{{ .ExtraWordNum }}"/>
+                    {{ end }}
+                </td>
+                {{ end }}
+
+                {{ if .HasNoControls }}
+                <td>{{ .Delta.Controls.Divide }}</td>
+                {{ else }}
+                <td class="one_line">
+                    {{ if .HasMissingControls }}
+                    <input type="button" class="control inactive" id='control_missing{{ .Num }}' onClick="showDiff('{{ .Num }}', 'control', 'missing')" value="-{{ .MissingControlNum }}"/>
+                    {{ end }}
+                    {{ if .HasExtraControls }}
+                    <input type="button" class="control inactive" id='control_extra{{ .Num }}' onClick="showDiff('{{ .Num }}', 'control', 'extra')" value="+{{ .ExtraControlNum }}"/>
+                    {{ end }}
+                </td>
+                {{ end }}
+            </tr>
+            <tr class="{{ .Level }} {{ .ParentId }}" id="{{ .Id }}">
+                <td class="results results1">{{ .Implementation }} results</td>
+                <td colspan="9" class="results1">
+                    {{ template "formattedText" . }}
+                </td>
+            </tr>
+            <tr class="{{ .Level }} {{ .ParentId }}" id="{{ .Id }}a">
+                <td class="results results2">Chrome results</td>
+                <td colspan="9" class="results2">
+                    <div>
+                        <span>{{ .Text }}</span>
+                    </div>
+                </td>
+            </tr>
+            {{ end }}
+        {{ else }}
+            <tr class="{{ .Level }} {{ .ParentId }}" id="{{ .Id }}">
+                {{ if .HasChildren }}
+                <td><a href="#{{ .Id }}">+</a> {{ .Name }} </td>
+                <td></td>
+                <td></td>
+                <td>{{ .Delta.Performance.Percents }}</td>
+                <td>{{ .Delta.Graphemes.Divide }}</td>
+                <td>{{ .Delta.SoftBreaks.Divide }}</td>
+                <td>{{ .Delta.HardBreaks.Divide }}</td>
+                <td>{{ .Delta.Whitespaces.Divide }}</td>
+                <td>{{ .Delta.Words.Divide }}</td>
+                <td>{{ .Delta.Controls.Divide }}</td>
+                {{ else }}
+                <td>{{ .Name }} </td>
+                <td></td>
+                <td></td>
+                <td>{{ .Delta.Performance.Percents }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                {{ end }}
+            </tr>
+        {{ end}}
+        {{ template "rows" $child.Children }}
+    {{ end }}
+{{ end }}

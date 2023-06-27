@@ -1,0 +1,74 @@
+{{ define "scripts" }}
+
+currentId = '';
+currentType = '';
+currentChunk = '';
+
+function switchSign(element) {
+  if (!element) return false;
+  if (element.tagName !== "A") return false;
+  if (!element.hasAttribute('href')) return false;
+  if (element.innerHTML[0] == '+') {
+      element.innerHTML = '-' + element.innerHTML.substring(1);
+      return true;
+  } else {
+      element.innerHTML = '+' + element.innerHTML.substring(1);
+      return true;
+  }
+}
+
+function recurse(id) {
+  var children = document.getElementsByClassName(id);
+  for (let i = 0; i < children.length; i++) {
+    children[i].classList.toggle("open");
+    if (switchSign(children[i])) {
+      recursive(children[i].getAttribute('href').substring(1));
+    }
+  }
+}
+
+document.getElementById("comparison").addEventListener("click", function (e) {
+  if (!e) return;
+  e.preventDefault();
+  if (switchSign(e.target)) {
+      recurse(e.target.getAttribute('href').substring(1));
+  }
+});
+
+function hideDiff() {
+  if (currentId == '') {
+    return;
+  }
+
+  let spans = document.querySelectorAll(`#id_${currentId} > td > div > span.${currentType}`);
+  [].forEach.call(spans, function(span) { span.classList.remove(`span_${currentType}`); });
+
+  let inactives = document.querySelectorAll(`#${currentType}_${currentChunk}${currentId}`);
+  [].forEach.call(inactives, function(inactive) { inactive.classList.add('inactive'); });
+
+  let invisibles = document.querySelectorAll(`#id_${currentId} > td > div.${currentType}`);
+  [].forEach.call(invisibles, function(invisible) { invisible.classList.add('invisible'); });
+
+  currentId = '';
+  currentType = '';
+  currentChunk = '';
+}
+
+function showDiff(id, type, chunkType) {
+  hideDiff();
+
+  let spans = document.querySelectorAll(`#id_${id} > td > div > span.${type}`);
+  [].forEach.call(spans, function(span) { span.classList.add(`span_${type}`); });
+
+  let inactives = document.querySelectorAll(`#${type}_${chunkType}${id}`);
+  [].forEach.call(inactives, function(inactive) { inactive.classList.remove('inactive'); });
+
+  let invisibles = document.querySelectorAll(`#id_${id} > td > div.${type}`);
+  [].forEach.call(invisibles, function(invisible) { invisible.classList.remove('invisible'); });
+
+  currentId = id;
+  currentType = type;
+  currentChunk = chunkType;
+}
+
+{{ end }}
