@@ -84,6 +84,13 @@ public:
                                      const SkPaint&,
                                      SkCanvas::SrcRectConstraint);
 
+    static void DrawImageRect_Graphite(SkCanvas*,
+                                       const SkImage*,
+                                       const SkRect& src,
+                                       const SkRect& dst,
+                                       const SkSamplingOptions&,
+                                       const SkPaint*,
+                                       SkCanvas::SrcRectConstraint);
 };
 
 } // namespace skgpu

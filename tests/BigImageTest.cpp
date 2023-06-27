@@ -431,7 +431,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Ganesh,
 
 #endif // SK_GANESH
 
-#if 0 // disabled until Graphite tiled image support lands
 #if defined(SK_GRAPHITE)
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Graphite,
@@ -444,4 +443,3 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Graphite,
 }
 
 #endif // SK_GRAPHITE
-#endif

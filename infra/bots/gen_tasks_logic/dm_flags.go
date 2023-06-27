@@ -345,6 +345,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 			if b.extraConfig("Metal") {
 				configs = []string{"grmtl"}
+				if b.gpu("IntelIrisPlus") {
+					// We get some 27/255 RGB diffs on the 45 degree rotation case on this device (skbug.com/14408)
+					skip(ALL, "test", ALL, "BigImageTest_Graphite")
+				}
 			}
 			if b.extraConfig("Dawn") {
 				configs = []string{"grdawn"}
@@ -360,36 +364,43 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
 				skip(ALL, "test", ALL, "MakeColorSpace_Test")
 				skip(ALL, "test", ALL, "PaintParamsKeyTest")
+
+				if b.matchOs("Win10") {
+					// The Dawn Win10 job OOMs (skbug.com/14410)
+					skip(ALL, "test", ALL, "BigImageTest_Graphite")
+				}
 			}
 			if b.extraConfig("Vulkan") {
 				configs = []string{"grvk"}
-                                // Couldn't readback
-                                skip(ALL, "gm", ALL, "aaxfermodes")
-                                // Test failures
-                                skip(ALL, "test", ALL, "DeviceTestVertexTransparency")
-                                skip(ALL, "test", ALL, "GraphitePromiseImageMultipleImgUses")
-                                skip(ALL, "test", ALL, "GraphitePromiseImageRecorderLoss")
-                                skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
-                                skip(ALL, "test", ALL, "GraphiteTextureProxyTest")
-                                skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageMultipleImgUses")
-                                skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageRecorderLoss")
-                                skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Testing")
-                                skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Default")
-                                skip(ALL, "test", ALL, "MakeColorSpace_Test")
-                                skip(ALL, "test", ALL, "ImageProviderTest")
-                                skip(ALL, "test", ALL, "ImageShaderTest")
-                                skip(ALL, "test", ALL, "MutableImagesTest")
-                                skip(ALL, "test", ALL, "MultisampleRetainTest")
-                                skip(ALL, "test", ALL, "NonVolatileGraphitePromiseImageTest")
-                                skip(ALL, "test", ALL, "NonVolatileGraphiteYUVAPromiseImageTest")
-                                skip(ALL, "test", ALL, "PaintParamsKeyTest")
-                                skip(ALL, "test", ALL, "RecordingOrderTest_Graphite")
-                                skip(ALL, "test", ALL, "RecordingSurfacesTestClear")
-                                skip(ALL, "test", ALL, "ShaderTestNestedBlendsGraphite")
-                                skip(ALL, "test", ALL, "SkRuntimeEffectSimple_Graphite")
-                                skip(ALL, "test", ALL, "SkSLMatrixScalarNoOpFolding_GPU")
-                                skip(ALL, "test", ALL, "VolatileGraphiteYUVAPromiseImageTest")
-                                skip(ALL, "test", ALL, "VolatileGraphitePromiseImageTest")
+				// Couldn't readback
+				skip(ALL, "gm", ALL, "aaxfermodes")
+				// Could not instantiate texture proxy for UploadTask!
+				skip(ALL, "test", ALL, "BigImageTest_Graphite")
+				// Test failures
+				skip(ALL, "test", ALL, "DeviceTestVertexTransparency")
+				skip(ALL, "test", ALL, "GraphitePromiseImageMultipleImgUses")
+				skip(ALL, "test", ALL, "GraphitePromiseImageRecorderLoss")
+				skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
+				skip(ALL, "test", ALL, "GraphiteTextureProxyTest")
+				skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageMultipleImgUses")
+				skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageRecorderLoss")
+				skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Testing")
+				skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Default")
+				skip(ALL, "test", ALL, "MakeColorSpace_Test")
+				skip(ALL, "test", ALL, "ImageProviderTest")
+				skip(ALL, "test", ALL, "ImageShaderTest")
+				skip(ALL, "test", ALL, "MutableImagesTest")
+				skip(ALL, "test", ALL, "MultisampleRetainTest")
+				skip(ALL, "test", ALL, "NonVolatileGraphitePromiseImageTest")
+				skip(ALL, "test", ALL, "NonVolatileGraphiteYUVAPromiseImageTest")
+				skip(ALL, "test", ALL, "PaintParamsKeyTest")
+				skip(ALL, "test", ALL, "RecordingOrderTest_Graphite")
+				skip(ALL, "test", ALL, "RecordingSurfacesTestClear")
+				skip(ALL, "test", ALL, "ShaderTestNestedBlendsGraphite")
+				skip(ALL, "test", ALL, "SkRuntimeEffectSimple_Graphite")
+				skip(ALL, "test", ALL, "SkSLMatrixScalarNoOpFolding_GPU")
+				skip(ALL, "test", ALL, "VolatileGraphiteYUVAPromiseImageTest")
+				skip(ALL, "test", ALL, "VolatileGraphitePromiseImageTest")
 			}
 		}
 
