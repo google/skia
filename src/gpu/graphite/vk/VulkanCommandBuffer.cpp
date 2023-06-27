@@ -598,7 +598,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
             fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
         descriptors.push_back(kPaintUniformDescriptor);
     }
-    VulkanDescriptorSet* set = fResourceProvider->findOrCreateDescriptorSet(
+    sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
             SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});
 
     if (!set) {
@@ -646,6 +646,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
                                           set->descriptorSet(),
                                           /*dynamicOffsetCount=*/0,
                                           /*dynamicOffsets=*/nullptr));
+        this->trackResource(std::move(set));
     }
 }
 
@@ -732,7 +733,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     for (int i = 0; i < command.fNumTexSamplers; i++) {
         descriptors.push_back({DescriptorType::kCombinedTextureSampler, 1, i});
     }
-    VulkanDescriptorSet* set = fResourceProvider->findOrCreateDescriptorSet(
+    sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
             SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});
 
     if (!set) {
@@ -779,6 +780,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
         // through drawpass commands.
         fTextureSamplerDescSetToBind = *set->descriptorSet();
         fBindTextureSamplers = true;
+        this->trackResource(std::move(set));
     }
 }
 
