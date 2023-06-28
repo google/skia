@@ -12,7 +12,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     loop {
       {
         x.x = x.x - 0.25;
-        if (x.x <= 0.0) {
+        if x.x <= 0.0 {
           break;
         }
       }
@@ -23,7 +23,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     loop {
       {
         x.z = x.z - 0.25;
-        if (x.w == 1.0) {
+        if x.w == 1.0 {
           continue;
         }
         x.y = 0.0;

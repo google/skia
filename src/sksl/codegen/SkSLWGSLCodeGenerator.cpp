@@ -1146,9 +1146,9 @@ void WGSLCodeGenerator::writeIfStatement(const IfStatement& s) {
     ++fConditionalScopeDepth;
 
     std::string testExpr = this->assembleExpression(*s.test(), Precedence::kExpression);
-    this->write("if (");
+    this->write("if ");
     this->write(testExpr);
-    this->writeLine(") {");
+    this->writeLine(" {");
     fIndentation++;
     this->writeStatement(*s.ifTrue());
     this->finishLine();
@@ -1638,6 +1638,27 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
 
     Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
+
+    // WGSL always requires parentheses for some operators which are deemed to be ambiguous.
+    // (8.19. Operator Precedence and Associativity)
+    switch (op.kind()) {
+        case OperatorKind::LOGICALOR:
+        case OperatorKind::LOGICALAND:
+        case OperatorKind::BITWISEOR:
+        case OperatorKind::BITWISEAND:
+        case OperatorKind::BITWISEXOR:
+        case OperatorKind::SHL:
+        case OperatorKind::SHR:
+        case OperatorKind::LT:
+        case OperatorKind::GT:
+        case OperatorKind::LTEQ:
+        case OperatorKind::GTEQ:
+            precedence = Precedence::kParentheses;
+            break;
+
+        default:
+            break;
+    }
 
     if (needParens) {
         expr.push_back('(');
@@ -2458,7 +2479,7 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
             std::string suffix = '[' + std::to_string(index) + ']';
             expr += this->assembleEqualityExpression(vecType, leftName + suffix,
                                                      vecType, rightName + suffix,
-                                                     op, Precedence::kLogicalAnd);
+                                                     op, Precedence::kParentheses);
             separator = combiner;
         }
         return expr + ')';
@@ -2473,7 +2494,7 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
             std::string suffix = '[' + std::to_string(index) + ']';
             expr += this->assembleEqualityExpression(indexedType, leftName + suffix,
                                                      indexedType, rightName + suffix,
-                                                     op, Precedence::kLogicalAnd);
+                                                     op, Precedence::kParentheses);
             separator = combiner;
         }
         return expr + ')';
@@ -2490,7 +2511,7 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
             expr += this->assembleEqualityExpression(
                             *field.fType, leftName + '.' + std::string(field.fName),
                             *field.fType, rightName + '.' + std::string(field.fName),
-                            op, Precedence::kLogicalAnd);
+                            op, Precedence::kParentheses);
             separator = combiner;
         }
         return expr + ')';
@@ -2510,13 +2531,13 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
 
     // Compare scalars via `x == y`.
     SkASSERT(right.isScalar());
-    if (Precedence::kEquality >= parentPrecedence) {
+    if (parentPrecedence < Precedence::kSequence) {
         expr = '(';
     }
     expr += leftName;
     expr += operator_name(op);
     expr += rightName;
-    if (Precedence::kEquality >= parentPrecedence) {
+    if (parentPrecedence < Precedence::kSequence) {
         expr += ')';
     }
     return expr;
@@ -2530,8 +2551,8 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Expression& left
     if (left.type().isScalar() || left.type().isVector()) {
         // WGSL supports scalar and vector comparisons natively. We know the expressions will only
         // be emitted once, so there isn't a benefit to creating a let-declaration.
-        leftName = this->assembleExpression(left, Precedence::kAssignment);
-        rightName = this->assembleExpression(right, Precedence::kAssignment);
+        leftName = this->assembleExpression(left, Precedence::kParentheses);
+        rightName = this->assembleExpression(right, Precedence::kParentheses);
     } else {
         leftName = this->writeNontrivialScratchLet(left, Precedence::kAssignment);
         rightName = this->writeNontrivialScratchLet(right, Precedence::kAssignment);

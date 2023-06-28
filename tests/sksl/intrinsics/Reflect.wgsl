@@ -25,7 +25,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp3 = reflect(_globalUniforms.I.xy, _globalUniforms.N.xy);
     let _skTemp4 = reflect(_globalUniforms.I.xyz, _globalUniforms.N.xyz);
     let _skTemp5 = reflect(_globalUniforms.I, _globalUniforms.N);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((_skTemp2 == expectedX && all(_skTemp3 == expectedXY)) && all(_skTemp4 == expectedXYZ)) && all(_skTemp5 == expectedXYZW)) && -49.0 == expectedX) && all(vec2<f32>(-169.0, 202.0) == expectedXY)) && all(vec3<f32>(-379.0, 454.0, -529.0) == expectedXYZ)) && all(vec4<f32>(-699.0, 838.0, -977.0, 1116.0) == expectedXYZW)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((_skTemp2 == expectedX) && all(_skTemp3 == expectedXY)) && all(_skTemp4 == expectedXYZ)) && all(_skTemp5 == expectedXYZW)) && (-49.0 == expectedX)) && all(vec2<f32>(-169.0, 202.0) == expectedXY)) && all(vec3<f32>(-379.0, 454.0, -529.0) == expectedXYZ)) && all(vec4<f32>(-699.0, 838.0, -977.0, 1116.0) == expectedXYZW)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

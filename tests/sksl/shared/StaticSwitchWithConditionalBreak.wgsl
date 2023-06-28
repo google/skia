@@ -16,7 +16,7 @@ fn main(_stageOut: ptr<function, FSOut>) {
         var _skTemp0: bool = false;
         if 0 == 0 {
           value = 0.0;
-          if (_globalUniforms.unknownInput == 2.0) {
+          if _globalUniforms.unknownInput == 2.0 {
             break;
           }
           // fallthrough

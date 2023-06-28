@@ -10,7 +10,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn main(_stageOut: ptr<function, FSOut>) {
   {
-    if (_globalUniforms.unknownInput > 5.0) {
+    if _globalUniforms.unknownInput > 5.0 {
       {
         (*_stageOut).sk_FragColor = vec4<f32>(0.75);
       }
@@ -42,10 +42,10 @@ fn main(_stageOut: ptr<function, FSOut>) {
       var i: i32 = 0;
       loop {
         {
-          if (i % 2 == 1) {
+          if (i % 2) == 1 {
             break;
           } else {
-            if (i > 100) {
+            if i > 100 {
               return ;
             } else {
               continue;

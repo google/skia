@@ -16,7 +16,7 @@ fn inout_params_are_distinct_bhh(_skParam0: ptr<function, f32>, _skParam1: ptr<f
   {
     (*x) = 1.0;
     (*y) = 2.0;
-    return (*x) == 1.0 && (*y) == 2.0;
+    return ((*x) == 1.0) && ((*y) == 2.0);
   }
 }
 fn main(_skParam0: vec2<f32>) -> vec4<f32> {

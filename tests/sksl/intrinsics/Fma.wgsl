@@ -42,7 +42,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var five: f32 = f32(_globalUniforms.testArray[4]);
     let _skTemp0 = fma(one, two, three);
     let _skTemp1 = fma(f32(three), four, five);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp0 == 5.0 && _skTemp1 == 17.0));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((_skTemp0 == 5.0) && (_skTemp1 == 17.0)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

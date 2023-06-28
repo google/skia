@@ -34,7 +34,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var _skTemp3: f32 = testArray[_skTemp2];
     out_param_func1_vh(&_skTemp3);
     testArray[_skTemp2] = _skTemp3;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(testArray[0] == 1.0 && testArray[1] == 1.0));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((testArray[0] == 1.0) && (testArray[1] == 1.0)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

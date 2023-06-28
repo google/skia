@@ -31,16 +31,16 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var ok: vec4<bool>;
     let _skTemp0 = frexp(value.x, _0_exp.x);
     result.x = _skTemp0;
-    ok.x = result.x == 0.75 && _0_exp.x == 3;
+    ok.x = (result.x == 0.75) && (_0_exp.x == 3);
     let _skTemp1 = frexp(value.xy, _0_exp.xy);
     result = vec4<f32>((_skTemp1), result.zw).xyzw;
-    ok.y = result.y == 0.75 && _0_exp.y == 3;
+    ok.y = (result.y == 0.75) && (_0_exp.y == 3);
     let _skTemp2 = frexp(value.xyz, _0_exp.xyz);
     result = vec4<f32>((_skTemp2), result.w).xyzw;
-    ok.z = result.z == 0.75 && _0_exp.z == 3;
+    ok.z = (result.z == 0.75) && (_0_exp.z == 3);
     let _skTemp3 = frexp(value, _0_exp);
     result = _skTemp3;
-    ok.w = result.w == 0.75 && _0_exp.w == 3;
+    ok.w = (result.w == 0.75) && (_0_exp.w == 3);
     let _skTemp4 = all(ok);
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp4));
   }

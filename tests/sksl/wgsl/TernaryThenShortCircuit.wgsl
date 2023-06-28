@@ -62,11 +62,11 @@ fn TrueFalse_b() -> bool {
       var _skTemp4: i32 = y;
       let _skTemp5 = Increment_ii(&_skTemp4);
       y = _skTemp4;
-      _skTemp0 = _skTemp5 == 3;
+      _skTemp0 = (_skTemp5 == 3);
     }
-    if (_skTemp0) {
+    if _skTemp0 {
       {
-        return x == 1 && y == 1;
+        return (x == 1) && (y == 1);
       }
     } else {
       {
@@ -95,11 +95,11 @@ fn FalseTrue_b() -> bool {
       var _skTemp10: i32 = y;
       let _skTemp11 = Increment_ii(&_skTemp10);
       y = _skTemp10;
-      _skTemp6 = _skTemp11 == 2;
+      _skTemp6 = (_skTemp11 == 2);
     }
-    if (_skTemp6) {
+    if _skTemp6 {
       {
-        return x == 1 && y == 2;
+        return (x == 1) && (y == 2);
       }
     } else {
       {
@@ -128,15 +128,15 @@ fn FalseFalse_b() -> bool {
       var _skTemp16: i32 = y;
       let _skTemp17 = Increment_ii(&_skTemp16);
       y = _skTemp16;
-      _skTemp12 = _skTemp17 == 3;
+      _skTemp12 = (_skTemp17 == 3);
     }
-    if (_skTemp12) {
+    if _skTemp12 {
       {
         return false;
       }
     } else {
       {
-        return x == 1 && y == 2;
+        return (x == 1) && (y == 2);
       }
     }
   }
@@ -155,11 +155,11 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
       var _skTemp20: i32 = _2_y;
       let _skTemp21 = Increment_ii(&_skTemp20);
       _2_y = _skTemp20;
-      _skTemp18 = _skTemp21 == 2;
+      _skTemp18 = (_skTemp21 == 2);
     }
-    if (_skTemp18) {
+    if _skTemp18 {
       {
-        _0_TrueTrue = _2_y == 1;
+        _0_TrueTrue = (_2_y == 1);
       }
     } else {
       {

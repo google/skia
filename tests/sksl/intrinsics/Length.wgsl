@@ -29,7 +29,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp9 = abs(3.0 - expected.y);
     let _skTemp10 = abs(5.0 - expected.z);
     let _skTemp11 = abs(13.0 - expected.w);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((_skTemp1 < allowedDelta && _skTemp3 < allowedDelta) && _skTemp5 < allowedDelta) && _skTemp7 < allowedDelta) && _skTemp8 < allowedDelta) && _skTemp9 < allowedDelta) && _skTemp10 < allowedDelta) && _skTemp11 < allowedDelta));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((_skTemp1 < allowedDelta) && (_skTemp3 < allowedDelta)) && (_skTemp5 < allowedDelta)) && (_skTemp7 < allowedDelta)) && (_skTemp8 < allowedDelta)) && (_skTemp9 < allowedDelta)) && (_skTemp10 < allowedDelta)) && (_skTemp11 < allowedDelta)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

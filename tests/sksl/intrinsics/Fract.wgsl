@@ -19,7 +19,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp1 = fract(_globalUniforms.testInputs.xy);
     let _skTemp2 = fract(_globalUniforms.testInputs.xyz);
     let _skTemp3 = fract(_globalUniforms.testInputs);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((_skTemp0 == 0.75 && all(_skTemp1 == vec2<f32>(0.75, 0.0))) && all(_skTemp2 == vec3<f32>(0.75, 0.0, 0.75))) && all(_skTemp3 == expected)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((_skTemp0 == 0.75) && all(_skTemp1 == vec2<f32>(0.75, 0.0))) && all(_skTemp2 == vec3<f32>(0.75, 0.0, 0.75))) && all(_skTemp3 == expected)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

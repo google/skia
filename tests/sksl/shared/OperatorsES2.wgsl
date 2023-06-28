@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: :23:21 error: mixing '>' and '==' requires parenthesis
-    var b: bool = x > 4.0 == x < 2.0 || 2.0 >= _globalUniforms.unknownInput && y <= x;
-                    ^^^^^^^^
-
-
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,
@@ -27,7 +20,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     x = (x - x) + ((y * x) * x) * (y - x);
     y = (x / y) / x;
     z = ((z / 2) * 3 + 4) - 2;
-    var b: bool = x > 4.0 == x < 2.0 || 2.0 >= _globalUniforms.unknownInput && y <= x;
+    var b: bool = ((x > 4.0) == (x < 2.0)) || ((2.0 >= _globalUniforms.unknownInput) && (y <= x));
     var c: bool = _globalUniforms.unknownInput > 2.0;
     var d: bool = b != c;
     var e: bool = b && c;
@@ -41,7 +34,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     y = 6.0;
     z = z - 1;
     z = 6;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((x == 6.0 && y == 6.0) && z == 6));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((x == 6.0) && (y == 6.0)) && (z == 6)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
@@ -49,5 +42,3 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
-
-1 error

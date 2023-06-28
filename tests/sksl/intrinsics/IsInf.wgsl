@@ -37,7 +37,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp11 = any(_skTemp10);
     let _skTemp12 = isinf(finiteValue);
     let _skTemp13 = any(_skTemp12);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((_skTemp0 && _skTemp2) && _skTemp4) && _skTemp6) && !_skTemp7) && !_skTemp9) && !_skTemp11) && !_skTemp13));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((_skTemp0 && _skTemp2) && _skTemp4) && _skTemp6) && (!_skTemp7)) && (!_skTemp9)) && (!_skTemp11)) && (!_skTemp13)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

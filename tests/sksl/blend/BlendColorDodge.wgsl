@@ -22,14 +22,14 @@ fn color_dodge_component_Qhh2h2(_skParam0: vec2<f32>, _skParam1: vec2<f32>) -> f
   let s = _skParam0;
   let d = _skParam1;
   {
-    if (d.x == 0.0) {
+    if d.x == 0.0 {
       {
         return s.x * (1.0 - d.y);
       }
     } else {
       {
         var delta: f32 = s.y - s.x;
-        if (delta == 0.0) {
+        if delta == 0.0 {
           {
             return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
           }

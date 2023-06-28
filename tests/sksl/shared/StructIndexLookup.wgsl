@@ -42,7 +42,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
             loop {
               {
                 expected = expected + vec3<f32>(1.0, 10.0, 100.0);
-                if (any(data.outer[i].inner[j].values != expected)) {
+                if any(data.outer[i].inner[j].values != expected) {
                   {
                     return _globalUniforms.colorRed;
                   }
@@ -51,7 +51,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
                   var k: i32 = 0;
                   loop {
                     {
-                      if (data.outer[i].inner[j].values[k] != expected[k]) {
+                      if data.outer[i].inner[j].values[k] != expected[k] {
                         {
                           return _globalUniforms.colorRed;
                         }

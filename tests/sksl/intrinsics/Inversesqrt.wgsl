@@ -31,7 +31,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp5 = inverseSqrt(vec2<f32>(-1.0, -4.0));
     let _skTemp6 = inverseSqrt(vec3<f32>(-1.0, -4.0, -16.0));
     let _skTemp7 = inverseSqrt(negativeVal);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((((((_skTemp0 == _globalUniforms.expected.x && all(_skTemp1 == _globalUniforms.expected.xy)) && all(_skTemp2 == _globalUniforms.expected.xyz)) && all(_skTemp3 == _globalUniforms.expected)) && 1.0 == _globalUniforms.expected.x) && all(vec2<f32>(1.0, 0.5) == _globalUniforms.expected.xy)) && all(vec3<f32>(1.0, 0.5, 0.25) == _globalUniforms.expected.xyz)) && all(vec4<f32>(1.0, 0.5, 0.25, 0.125) == _globalUniforms.expected)) && _skTemp4 == _globalUniforms.expected.x) && all(_skTemp5 == _globalUniforms.expected.xy)) && all(_skTemp6 == _globalUniforms.expected.xyz)) && all(_skTemp7 == _globalUniforms.expected)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((_skTemp0 == _globalUniforms.expected.x) && all(_skTemp1 == _globalUniforms.expected.xy)) && all(_skTemp2 == _globalUniforms.expected.xyz)) && all(_skTemp3 == _globalUniforms.expected)) && (1.0 == _globalUniforms.expected.x)) && all(vec2<f32>(1.0, 0.5) == _globalUniforms.expected.xy)) && all(vec3<f32>(1.0, 0.5, 0.25) == _globalUniforms.expected.xyz)) && all(vec4<f32>(1.0, 0.5, 0.25, 0.125) == _globalUniforms.expected)) && (_skTemp4 == _globalUniforms.expected.x)) && all(_skTemp5 == _globalUniforms.expected.xy)) && all(_skTemp6 == _globalUniforms.expected.xyz)) && all(_skTemp7 == _globalUniforms.expected)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

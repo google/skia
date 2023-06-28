@@ -33,7 +33,7 @@ fn test3x3_b() -> bool {
               }
             }
           }
-          if (any(vec != expected)) {
+          if any(vec != expected) {
             {
               return false;
             }
@@ -70,7 +70,7 @@ fn test4x4_b() -> bool {
               }
             }
           }
-          if (any(vec != expected)) {
+          if any(vec != expected) {
             {
               return false;
             }

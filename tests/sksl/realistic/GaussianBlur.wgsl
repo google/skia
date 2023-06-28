@@ -27,7 +27,7 @@ fn MatrixEffect_Stage1_c0_c0_h4h4f2(_skParam0: vec4<f32>, _skParam1: vec2<f32>) 
     var _4_textureColor: vec4<f32> = _skTemp0;
     let _skTemp1 = floor(_1_inCoord.x + 0.001);
     var _5_snappedX: f32 = _skTemp1 + 0.5;
-    if (_5_snappedX < usubset_Stage1_c0_c0_c0.x || _5_snappedX > usubset_Stage1_c0_c0_c0.z) {
+    if (_5_snappedX < usubset_Stage1_c0_c0_c0.x) || (_5_snappedX > usubset_Stage1_c0_c0_c0.z) {
       {
         _4_textureColor = uborder_Stage1_c0_c0_c0;
       }

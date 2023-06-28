@@ -25,7 +25,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp5 = step(_globalUniforms.testInputs.xy, vec2<f32>(0.0, 1.0));
     let _skTemp6 = step(_globalUniforms.testInputs.xyz, vec3<f32>(0.0, 1.0, 0.0));
     let _skTemp7 = step(_globalUniforms.testInputs, constGreen);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((((((((((_skTemp0 == expectedA.x && all(_skTemp1 == expectedA.xy)) && all(_skTemp2 == expectedA.xyz)) && all(_skTemp3 == expectedA)) && 0.0 == expectedA.x) && all(vec2<f32>(0.0) == expectedA.xy)) && all(vec3<f32>(0.0, 0.0, 1.0) == expectedA.xyz)) && all(vec4<f32>(0.0, 0.0, 1.0, 1.0) == expectedA)) && _skTemp4 == expectedB.x) && all(_skTemp5 == expectedB.xy)) && all(_skTemp6 == expectedB.xyz)) && all(_skTemp7 == expectedB)) && 1.0 == expectedB.x) && all(vec2<f32>(1.0) == expectedB.xy)) && all(vec3<f32>(1.0, 1.0, 0.0) == expectedB.xyz)) && all(vec4<f32>(1.0, 1.0, 0.0, 0.0) == expectedB)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((((((_skTemp0 == expectedA.x) && all(_skTemp1 == expectedA.xy)) && all(_skTemp2 == expectedA.xyz)) && all(_skTemp3 == expectedA)) && (0.0 == expectedA.x)) && all(vec2<f32>(0.0) == expectedA.xy)) && all(vec3<f32>(0.0, 0.0, 1.0) == expectedA.xyz)) && all(vec4<f32>(0.0, 0.0, 1.0, 1.0) == expectedA)) && (_skTemp4 == expectedB.x)) && all(_skTemp5 == expectedB.xy)) && all(_skTemp6 == expectedB.xyz)) && all(_skTemp7 == expectedB)) && (1.0 == expectedB.x)) && all(vec2<f32>(1.0) == expectedB.xy)) && all(vec3<f32>(1.0, 1.0, 0.0) == expectedB.xyz)) && all(vec4<f32>(1.0, 1.0, 0.0, 0.0) == expectedB)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

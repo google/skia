@@ -25,7 +25,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var b1: bool = bool(f);
     var b2: bool = bool(i);
     var b3: bool = b;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((f32(f1) + f32(f2)) + f32(f3)) + f32(i1)) + f32(i2)) + f32(i3)) + f32(b1)) + f32(b2)) + f32(b3) == 9.0));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((f32(f1) + f32(f2)) + f32(f3)) + f32(i1)) + f32(i2)) + f32(i3)) + f32(b1)) + f32(b2)) + f32(b3)) == 9.0)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

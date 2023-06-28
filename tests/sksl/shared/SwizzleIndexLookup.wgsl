@@ -24,7 +24,7 @@ fn test3x3_b() -> bool {
             var r: i32 = 0;
             loop {
               {
-                if (vec.zyx[r] != expected[r]) {
+                if vec.zyx[r] != expected[r] {
                   {
                     return false;
                   }
@@ -59,7 +59,7 @@ fn test4x4_b() -> bool {
             var r: i32 = 0;
             loop {
               {
-                if (vec.wzyx[r] != expected[r]) {
+                if vec.wzyx[r] != expected[r] {
                   {
                     return false;
                   }

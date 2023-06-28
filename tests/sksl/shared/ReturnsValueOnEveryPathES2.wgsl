@@ -25,7 +25,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn return_on_both_sides_b() -> bool {
   {
-    if (_globalUniforms.unknownInput == 1.0) {
+    if _globalUniforms.unknownInput == 1.0 {
       return true;
     } else {
       return true;
@@ -72,7 +72,7 @@ fn for_with_double_sided_conditional_return_b() -> bool {
       var x: i32 = 0;
       loop {
         {
-          if (_globalUniforms.unknownInput == 1.0) {
+          if _globalUniforms.unknownInput == 1.0 {
             return true;
           } else {
             return true;
@@ -89,16 +89,16 @@ fn for_with_double_sided_conditional_return_b() -> bool {
 }
 fn if_else_chain_b() -> bool {
   {
-    if (_globalUniforms.unknownInput == 1.0) {
+    if _globalUniforms.unknownInput == 1.0 {
       return true;
     } else {
-      if (_globalUniforms.unknownInput == 2.0) {
+      if _globalUniforms.unknownInput == 2.0 {
         return false;
       } else {
-        if (_globalUniforms.unknownInput == 3.0) {
+        if _globalUniforms.unknownInput == 3.0 {
           return true;
         } else {
-          if (_globalUniforms.unknownInput == 4.0) {
+          if _globalUniforms.unknownInput == 4.0 {
             return false;
           } else {
             return true;

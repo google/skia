@@ -203,7 +203,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     }
     if _skTemp16 {
       let _skTemp31 = returns_half_h();
-      _skTemp15 = x8 == _skTemp31;
+      _skTemp15 = (x8 == _skTemp31);
     } else {
       _skTemp15 = false;
     }
@@ -248,7 +248,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     }
     if _skTemp9 {
       let _skTemp41 = returns_bool_b();
-      _skTemp8 = x15 == _skTemp41;
+      _skTemp8 = (x15 == _skTemp41);
     } else {
       _skTemp8 = false;
     }
@@ -272,7 +272,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     }
     if _skTemp5 {
       let _skTemp45 = returns_int_i();
-      _skTemp4 = x19 == _skTemp45;
+      _skTemp4 = (x19 == _skTemp45);
     } else {
       _skTemp4 = false;
     }

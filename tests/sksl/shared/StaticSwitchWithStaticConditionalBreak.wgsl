@@ -12,7 +12,7 @@ fn main(_stageOut: ptr<function, FSOut>) {
         var _skTemp0: bool = false;
         if 0 == 0 {
           x = 0.0;
-          if (x < 1.0) {
+          if x < 1.0 {
             break;
           }
           // fallthrough

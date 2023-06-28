@@ -34,7 +34,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp7 = mat2x4<f32>(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
     var l: mat4x2<f32> = mat4x2<f32>(_skTemp7[0][0], _skTemp7[0][1], _skTemp7[1][0], _skTemp7[1][1], 0.0, 0.0, 0.0, 0.0);
     result = result + l[0].x;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(result == 6.0));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((result == 6.0)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

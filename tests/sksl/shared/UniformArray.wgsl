@@ -39,7 +39,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
       var index: i32 = 0;
       loop {
         {
-          if (_globalUniforms.testArray[index] != f32(index + 1)) {
+          if _globalUniforms.testArray[index] != f32(index + 1) {
             {
               return _globalUniforms.colorRed;
             }

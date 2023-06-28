@@ -27,7 +27,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp8 = radians(_globalUniforms.testInputs);
     let _skTemp9 = abs(_skTemp8 - expected);
     let _skTemp10 = all(_skTemp9 < allowedDelta);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((_skTemp1 < 0.0005 && _skTemp4) && _skTemp7) && _skTemp10));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((_skTemp1 < 0.0005) && _skTemp4) && _skTemp7) && _skTemp10));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

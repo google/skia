@@ -58,7 +58,7 @@ fn test_bifffff22(_skParam0: i32, _skParam1: f32, _skParam2: f32, _skParam3: f32
       }
       case default {}
     }
-    return ((m2[0].x == expected[0].x && m2[0].y == expected[0].y) && m2[1].x == expected[1].x) && m2[1].y == expected[1].y;
+    return (((m2[0].x == expected[0].x) && (m2[0].y == expected[0].y)) && (m2[1].x == expected[1].x)) && (m2[1].y == expected[1].y);
   }
 }
 fn divisionTest_b() -> bool {
@@ -94,7 +94,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var _skTemp8: bool;
     var _skTemp9: bool;
     var _skTemp10: bool;
-    if ((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y {
+    if (((_2_m2[0].x == _0_expected[0].x) && (_2_m2[0].y == _0_expected[0].y)) && (_2_m2[1].x == _0_expected[1].x)) && (_2_m2[1].y == _0_expected[1].y) {
       let _skTemp11 = test_bifffff22(minus, f1, f2, f3, f4, mat2x2<f32>(f1 - 1.0, f2 - 1.0, f3 - 1.0, f4 - 1.0));
       _skTemp10 = _skTemp11;
     } else {

@@ -26,7 +26,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp1 = h2;
     let _skTemp2 = array<i32, 2>(1, 2);
     let _skTemp3 = h2;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((i2[0] == _skTemp0[0] && i2[1] == _skTemp0[1]) && (f2[0] == _skTemp1[0] && f2[1] == _skTemp1[1])) && (i2[0] == _skTemp2[0] && i2[1] == _skTemp2[1])) && (_skTemp3[0] == cf2[0] && _skTemp3[1] == cf2[1])));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((i2[0] == _skTemp0[0]) && (i2[1] == _skTemp0[1])) && ((f2[0] == _skTemp1[0]) && (f2[1] == _skTemp1[1]))) && ((i2[0] == _skTemp2[0]) && (i2[1] == _skTemp2[1]))) && ((_skTemp3[0] == cf2[0]) && (_skTemp3[1] == cf2[1]))));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

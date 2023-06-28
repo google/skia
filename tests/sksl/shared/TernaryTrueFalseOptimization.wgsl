@@ -14,12 +14,12 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var ok: bool = true;
-    ok = ok && _globalUniforms.colorGreen.y == 1.0;
-    ok = ok && _globalUniforms.colorGreen.x != 1.0;
+    ok = ok && (_globalUniforms.colorGreen.y == 1.0);
+    ok = ok && (_globalUniforms.colorGreen.x != 1.0);
     ok = ok && all(_globalUniforms.colorGreen.yx == _globalUniforms.colorRed.xy);
     ok = ok && all(_globalUniforms.colorGreen.yx == _globalUniforms.colorRed.xy);
-    ok = ok && (all(_globalUniforms.colorGreen.yx == _globalUniforms.colorRed.xy) || _globalUniforms.colorGreen.w != _globalUniforms.colorRed.w);
-    ok = ok && (any(_globalUniforms.colorGreen.yx != _globalUniforms.colorRed.xy) && _globalUniforms.colorGreen.w == _globalUniforms.colorRed.w);
+    ok = ok && (all(_globalUniforms.colorGreen.yx == _globalUniforms.colorRed.xy) || (_globalUniforms.colorGreen.w != _globalUniforms.colorRed.w));
+    ok = ok && (any(_globalUniforms.colorGreen.yx != _globalUniforms.colorRed.xy) && (_globalUniforms.colorGreen.w == _globalUniforms.colorRed.w));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }
 }

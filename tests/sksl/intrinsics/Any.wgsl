@@ -18,7 +18,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp0 = any(inputVal.xy);
     let _skTemp1 = any(inputVal.xyz);
     let _skTemp2 = any(inputVal);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((_skTemp0 == expected.x && _skTemp1 == expected.y) && _skTemp2 == expected.z) && false == expected.x) && expected.y) && expected.z));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((_skTemp0 == expected.x) && (_skTemp1 == expected.y)) && (_skTemp2 == expected.z)) && (false == expected.x)) && expected.y) && expected.z));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

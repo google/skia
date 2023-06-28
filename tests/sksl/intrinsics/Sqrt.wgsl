@@ -38,7 +38,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp9 = sqrt(inputVal);
     let _skTemp10 = abs(_skTemp9 - expected);
     let _skTemp11 = all(_skTemp10 < allowedDelta);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((_skTemp2 < 0.05 && _skTemp5) && _skTemp8) && _skTemp11));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((_skTemp2 < 0.05) && _skTemp5) && _skTemp8) && _skTemp11));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

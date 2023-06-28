@@ -61,7 +61,7 @@ fn test_if_return_b() -> bool {
   {
     loop {
       {
-        if (_globalUniforms.colorGreen.y > 0.0) {
+        if _globalUniforms.colorGreen.y > 0.0 {
           {
             return true;
           }
@@ -83,7 +83,7 @@ fn test_if_break_b() -> bool {
   {
     loop {
       {
-        if (_globalUniforms.colorGreen.y > 0.0) {
+        if _globalUniforms.colorGreen.y > 0.0 {
           {
             break;
           }
@@ -104,7 +104,7 @@ fn test_else_b() -> bool {
   {
     loop {
       {
-        if (_globalUniforms.colorGreen.y == 0.0) {
+        if _globalUniforms.colorGreen.y == 0.0 {
           {
             return false;
           }

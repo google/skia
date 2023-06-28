@@ -15,7 +15,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   {
     var x: f32 = 0.5;
     var y: f32 = x * 2.0;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(y == 1.0));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((y == 1.0)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

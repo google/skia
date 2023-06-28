@@ -28,7 +28,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp0 = h;
     let _skTemp1 = s3;
     let _skTemp2 = h2x2;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((f[0] == _skTemp0[0] && f[1] == _skTemp0[1] && f[2] == _skTemp0[2] && f[3] == _skTemp0[3]) && (all(i3[0] == _skTemp1[0]) && all(i3[1] == _skTemp1[1]) && all(i3[2] == _skTemp1[2]))) && ((all(f2x2[0][0] == _skTemp2[0][0]) && all(f2x2[0][1] == _skTemp2[0][1])) && (all(f2x2[1][0] == _skTemp2[1][0]) && all(f2x2[1][1] == _skTemp2[1][1])))));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((f[0] == _skTemp0[0]) && (f[1] == _skTemp0[1]) && (f[2] == _skTemp0[2]) && (f[3] == _skTemp0[3])) && (all(i3[0] == _skTemp1[0]) && all(i3[1] == _skTemp1[1]) && all(i3[2] == _skTemp1[2]))) && ((all(f2x2[0][0] == _skTemp2[0][0]) && all(f2x2[0][1] == _skTemp2[0][1])) && (all(f2x2[1][0] == _skTemp2[1][0]) && all(f2x2[1][1] == _skTemp2[1][1])))));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

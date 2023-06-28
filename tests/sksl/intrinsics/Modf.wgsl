@@ -33,7 +33,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var fraction: vec4<f32>;
     let _skTemp0 = modf(value.x, whole.x);
     fraction.x = _skTemp0;
-    ok.x = whole.x == 2.0 && fraction.x == 0.5;
+    ok.x = (whole.x == 2.0) && (fraction.x == 0.5);
     let _skTemp1 = modf(value.xy, whole.xy);
     fraction = vec4<f32>((_skTemp1), fraction.zw).xyzw;
     ok.y = all(whole.xy == vec2<f32>(2.0, -2.0)) && all(fraction.xy == vec2<f32>(0.5, -0.5));

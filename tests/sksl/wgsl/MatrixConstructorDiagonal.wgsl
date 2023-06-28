@@ -14,8 +14,8 @@ struct _GlobalUniforms {
 fn main() -> vec4<f32> {
   {
     var ok: bool = true;
-    ok = ok && all(mat2x2<f32>(2.0, 0.0, 0.0, 2.0) * vec2<f32>(_globalUniforms.f) == vec2<f32>(2.0 * _globalUniforms.f));
-    ok = ok && all(mat4x4<f32>(2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0) * vec4<f32>(_globalUniforms.h) == vec4<f32>(2.0 * _globalUniforms.h));
+    ok = ok && all((mat2x2<f32>(2.0, 0.0, 0.0, 2.0) * vec2<f32>(_globalUniforms.f)) == vec2<f32>(2.0 * _globalUniforms.f));
+    ok = ok && all((mat4x4<f32>(2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0) * vec4<f32>(_globalUniforms.h)) == vec4<f32>(2.0 * _globalUniforms.h));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }
 }

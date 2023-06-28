@@ -177,7 +177,7 @@ fn switch_with_if_that_returns_b() -> bool {
       case 1, default {
         var _skTemp8: bool = false;
         if _skTemp7 == 1 {
-          if (_globalUniforms.unknownInput == 123.0) {
+          if _globalUniforms.unknownInput == 123.0 {
             return false;
           } else {
             return true;
@@ -196,7 +196,7 @@ fn switch_with_one_sided_if_then_fallthrough_b() -> bool {
       case 1, default {
         var _skTemp10: bool = false;
         if _skTemp9 == 1 {
-          if (_globalUniforms.unknownInput == 123.0) {
+          if _globalUniforms.unknownInput == 123.0 {
             return false;
           }
           // fallthrough

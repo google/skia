@@ -16,7 +16,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var val: u32 = u32(_globalUniforms.colorGreen.x);
     var mask: vec2<u32> = vec2<u32>(val, ~val);
     var imask: vec2<i32> = vec2<i32>(~mask);
-    mask = ~mask & vec2<u32>(~imask);
+    mask = (~mask) & vec2<u32>(~imask);
     ok = ok && all(mask == vec2<u32>(0u));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }

@@ -84,7 +84,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
       _skTemp8 = b;
     }
     var c: bool = _skTemp8;
-    return select((select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(x == 8.0 && y == 17.0))), _globalUniforms.colorRed, vec4<bool>(c));
+    return select((select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((x == 8.0) && (y == 17.0)))), _globalUniforms.colorRed, vec4<bool>(c));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

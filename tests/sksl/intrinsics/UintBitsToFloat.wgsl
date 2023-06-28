@@ -27,7 +27,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp1 = uintBitsToFloat(expectedB.xy);
     let _skTemp2 = uintBitsToFloat(expectedB.xyz);
     let _skTemp3 = uintBitsToFloat(expectedB);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((inputVal.x == _skTemp0 && all(inputVal.xy == _skTemp1)) && all(inputVal.xyz == _skTemp2)) && all(inputVal == _skTemp3)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((inputVal.x == _skTemp0) && all(inputVal.xy == _skTemp1)) && all(inputVal.xyz == _skTemp2)) && all(inputVal == _skTemp3)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

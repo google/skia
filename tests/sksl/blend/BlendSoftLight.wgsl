@@ -22,12 +22,12 @@ fn soft_light_component_Qhh2h2(_skParam0: vec2<f32>, _skParam1: vec2<f32>) -> f3
   let s = _skParam0;
   let d = _skParam1;
   {
-    if (2.0 * s.x <= s.y) {
+    if (2.0 * s.x) <= s.y {
       {
         return (((d.x * d.x) * (s.y - 2.0 * s.x)) / (d.y + sk_PrivkGuardedDivideEpsilon) + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
       }
     } else {
-      if (4.0 * d.x <= d.y) {
+      if (4.0 * d.x) <= d.y {
         {
           var DSqd: f32 = d.x * d.x;
           var DCub: f32 = DSqd * d.x;
@@ -50,7 +50,7 @@ fn main(_stageOut: ptr<function, FSOut>) {
     let _skTemp1 = soft_light_component_Qhh2h2(_globalUniforms.src.xw, _globalUniforms.dst.xw);
     let _skTemp2 = soft_light_component_Qhh2h2(_globalUniforms.src.yw, _globalUniforms.dst.yw);
     let _skTemp3 = soft_light_component_Qhh2h2(_globalUniforms.src.zw, _globalUniforms.dst.zw);
-    (*_stageOut).sk_FragColor = select(vec4<f32>(_skTemp1, _skTemp2, _skTemp3, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w), _globalUniforms.src, vec4<bool>(_globalUniforms.dst.w == 0.0));
+    (*_stageOut).sk_FragColor = select(vec4<f32>(_skTemp1, _skTemp2, _skTemp3, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w), _globalUniforms.src, vec4<bool>((_globalUniforms.dst.w == 0.0)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

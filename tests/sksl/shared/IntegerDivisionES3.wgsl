@@ -36,7 +36,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
                         break;
                       }
                     }
-                    if (x / y != _1_result) {
+                    if (x / y) != _1_result {
                       {
                         return vec4<f32>(1.0, f32(f32(x) * 0.003921569), f32(f32(y) * 0.003921569), 1.0);
                       }

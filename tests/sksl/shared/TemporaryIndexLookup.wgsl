@@ -30,7 +30,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
               {
                 expected = expected + 1.0;
                 let _skTemp0 = GetTestMatrix_f33();
-                if (_skTemp0[i][j] != expected) {
+                if _skTemp0[i][j] != expected {
                   {
                     return _globalUniforms.colorRed;
                   }

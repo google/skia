@@ -30,14 +30,14 @@ struct _GlobalUniforms {
 fn main() -> vec4<f32> {
   {
     var ok: bool = true;
-    ok = ok && _globalUniforms.f1 == _globalUniforms.f2;
-    ok = ok && _globalUniforms.h1 == _globalUniforms.h2;
-    ok = ok && _globalUniforms.f1 == f32(_globalUniforms.h2);
-    ok = ok && f32(_globalUniforms.h1) == _globalUniforms.f2;
-    ok = ok && _globalUniforms.f1 != _globalUniforms.f3;
-    ok = ok && _globalUniforms.h1 != _globalUniforms.h3;
-    ok = ok && _globalUniforms.f1 != f32(_globalUniforms.h3);
-    ok = ok && f32(_globalUniforms.h1) != _globalUniforms.f3;
+    ok = ok && (_globalUniforms.f1 == _globalUniforms.f2);
+    ok = ok && (_globalUniforms.h1 == _globalUniforms.h2);
+    ok = ok && (_globalUniforms.f1 == f32(_globalUniforms.h2));
+    ok = ok && (f32(_globalUniforms.h1) == _globalUniforms.f2);
+    ok = ok && (_globalUniforms.f1 != _globalUniforms.f3);
+    ok = ok && (_globalUniforms.h1 != _globalUniforms.h3);
+    ok = ok && (_globalUniforms.f1 != f32(_globalUniforms.h3));
+    ok = ok && (f32(_globalUniforms.h1) != _globalUniforms.f3);
     ok = ok && all(_globalUniforms.v1 == _globalUniforms.v2);
     ok = ok && all(_globalUniforms.hv1 == _globalUniforms.hv2);
     ok = ok && all(_globalUniforms.v1 == vec2<f32>(_globalUniforms.hv2));

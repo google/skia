@@ -26,7 +26,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp1 = roundEven(_globalUniforms.testInputs.xy);
     let _skTemp2 = roundEven(_globalUniforms.testInputs.xyz);
     let _skTemp3 = roundEven(_globalUniforms.testInputs);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((f32(_skTemp0) == -1.0 && all(vec2<f32>(_skTemp1) == vec2<f32>(-1.0, 0.0))) && all(vec3<f32>(_skTemp2) == vec3<f32>(-1.0, 0.0, 1.0))) && all(vec4<f32>(_skTemp3) == expectedA)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((f32(_skTemp0) == -1.0) && all(vec2<f32>(_skTemp1) == vec2<f32>(-1.0, 0.0))) && all(vec3<f32>(_skTemp2) == vec3<f32>(-1.0, 0.0, 1.0))) && all(vec4<f32>(_skTemp3) == expectedA)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

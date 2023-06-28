@@ -32,7 +32,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp7 = sign(_skTemp6);
     let _skTemp8 = dFdy(coords);
     let _skTemp9 = sign(_skTemp8);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((_skTemp0 == expected.x && all(_skTemp1 == expected.xy)) && all(_skTemp2 == expected.xyz)) && all(_skTemp3 == expected)) && all(_skTemp5 == vec2<f32>(0.0))) && all(_skTemp7 == vec2<f32>(1.0))) && all(_skTemp9 == vec2<f32>(0.0, 1.0))));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((_skTemp0 == expected.x) && all(_skTemp1 == expected.xy)) && all(_skTemp2 == expected.xyz)) && all(_skTemp3 == expected)) && all(_skTemp5 == vec2<f32>(0.0))) && all(_skTemp7 == vec2<f32>(1.0))) && all(_skTemp9 == vec2<f32>(0.0, 1.0))));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

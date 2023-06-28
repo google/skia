@@ -100,22 +100,22 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp53 = mat2x2<f32>(_2_one, _1_zero, _1_zero, _2_one);
     let _skTemp54 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
     _0_ok = _0_ok && (all(_skTemp53[0] == _skTemp54[0]) && all(_skTemp53[1] == _skTemp54[1]));
-    _0_ok = _0_ok && all(vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one) == vec4<f32>(1.0, 2.0, 3.0, 4.0));
-    _0_ok = _0_ok && all(vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one) == vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])));
-    _0_ok = _0_ok && all(vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_1_zero) == vec4<f32>(0.0));
+    _0_ok = _0_ok && all((vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one)) == vec4<f32>(1.0, 2.0, 3.0, 4.0));
+    _0_ok = _0_ok && all((vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one)) == vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])));
+    _0_ok = _0_ok && all((vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_1_zero)) == vec4<f32>(0.0));
     var _5_m: mat3x3<f32> = mat3x3<f32>(_2_one, _3_two, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, _4_nine);
     _0_ok = _0_ok && all(_5_m[0] == vec3<f32>(1.0, 2.0, 3.0));
     _0_ok = _0_ok && all(_5_m[1] == vec3<f32>(4.0, 5.0, 6.0));
     _0_ok = _0_ok && all(_5_m[2] == vec3<f32>(7.0, 8.0, 9.0));
-    _0_ok = _0_ok && _5_m[0].x == 1.0;
-    _0_ok = _0_ok && _5_m[0].y == 2.0;
-    _0_ok = _0_ok && _5_m[0].z == 3.0;
-    _0_ok = _0_ok && _5_m[1].x == 4.0;
-    _0_ok = _0_ok && _5_m[1].y == 5.0;
-    _0_ok = _0_ok && _5_m[1].z == 6.0;
-    _0_ok = _0_ok && _5_m[2].x == 7.0;
-    _0_ok = _0_ok && _5_m[2].y == 8.0;
-    _0_ok = _0_ok && _5_m[2].z == 9.0;
+    _0_ok = _0_ok && (_5_m[0].x == 1.0);
+    _0_ok = _0_ok && (_5_m[0].y == 2.0);
+    _0_ok = _0_ok && (_5_m[0].z == 3.0);
+    _0_ok = _0_ok && (_5_m[1].x == 4.0);
+    _0_ok = _0_ok && (_5_m[1].y == 5.0);
+    _0_ok = _0_ok && (_5_m[1].z == 6.0);
+    _0_ok = _0_ok && (_5_m[2].x == 7.0);
+    _0_ok = _0_ok && (_5_m[2].y == 8.0);
+    _0_ok = _0_ok && (_5_m[2].z == 9.0);
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_0_ok));
   }
 }

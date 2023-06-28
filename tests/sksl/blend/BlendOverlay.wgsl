@@ -13,7 +13,7 @@ fn blend_overlay_component_Qhh2h2(_skParam0: vec2<f32>, _skParam1: vec2<f32>) ->
   let s = _skParam0;
   let d = _skParam1;
   {
-    return select(s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x), (2.0 * s.x) * d.x, 2.0 * d.x <= d.y);
+    return select(s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x), (2.0 * s.x) * d.x, (2.0 * d.x) <= d.y);
   }
 }
 fn main(_stageOut: ptr<function, FSOut>) {

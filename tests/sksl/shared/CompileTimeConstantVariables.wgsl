@@ -28,27 +28,27 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     const kLocalFloatConstant: f32 = 3.14;
     let kLocalFloatConstantAlias: f32 = kLocalFloatConstant;
     var integerInput: i32 = i32(_globalUniforms.colorGreen.y);
-    if (integerInput == kConstant) {
+    if integerInput == kConstant {
       {
         return vec4<f32>(2.14);
       }
     } else {
-      if (integerInput == kOtherConstant) {
+      if integerInput == kOtherConstant {
         {
           return _globalUniforms.colorGreen;
         }
       } else {
-        if (integerInput == kAnotherConstant) {
+        if integerInput == kAnotherConstant {
           {
             return kConstVec;
           }
         } else {
-          if (kLocalFloatConstantAlias < f32(_globalUniforms.colorGreen.x) * kLocalFloatConstant) {
+          if kLocalFloatConstantAlias < (f32(_globalUniforms.colorGreen.x) * kLocalFloatConstant) {
             {
               return vec4<f32>(3.14);
             }
           } else {
-            if (kFloatConstantAlias >= f32(_globalUniforms.colorGreen.x) * kFloatConstantAlias) {
+            if kFloatConstantAlias >= (f32(_globalUniforms.colorGreen.x) * kFloatConstantAlias) {
               {
                 return vec4<f32>(0.0);
               }

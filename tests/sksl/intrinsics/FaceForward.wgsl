@@ -22,7 +22,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp1 = faceForward(_globalUniforms.N.xy, _globalUniforms.I.xy, _globalUniforms.NRef.xy);
     let _skTemp2 = faceForward(_globalUniforms.N.xyz, _globalUniforms.I.xyz, _globalUniforms.NRef.xyz);
     let _skTemp3 = faceForward(_globalUniforms.N, _globalUniforms.I, _globalUniforms.NRef);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((_skTemp0 == expectedNeg.x && all(_skTemp1 == expectedNeg.xy)) && all(_skTemp2 == expectedPos.xyz)) && all(_skTemp3 == expectedPos)) && -1.0 == expectedNeg.x) && all(vec2<f32>(-1.0, -2.0) == expectedNeg.xy)) && all(vec3<f32>(1.0, 2.0, 3.0) == expectedPos.xyz)) && all(vec4<f32>(1.0, 2.0, 3.0, 4.0) == expectedPos)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((_skTemp0 == expectedNeg.x) && all(_skTemp1 == expectedNeg.xy)) && all(_skTemp2 == expectedPos.xyz)) && all(_skTemp3 == expectedPos)) && (-1.0 == expectedNeg.x)) && all(vec2<f32>(-1.0, -2.0) == expectedNeg.xy)) && all(vec3<f32>(1.0, 2.0, 3.0) == expectedPos.xyz)) && all(vec4<f32>(1.0, 2.0, 3.0, 4.0) == expectedPos)));
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

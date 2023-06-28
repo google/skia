@@ -280,9 +280,9 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     out_bool_vb(&_skTemp40);
     b3.z = _skTemp40;
     var ok: bool = true;
-    ok = ok && 1.0 == (((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x;
-    ok = ok && 1.0 == (((((f * f2.x) * f3.x) * f4.x) * f2x2[0].x) * f3x3[0].x) * f4x4[0].x;
-    ok = ok && 1 == ((i * i2.x) * i3.x) * i4.x;
+    ok = ok && (1.0 == ((((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x));
+    ok = ok && (1.0 == ((((((f * f2.x) * f3.x) * f4.x) * f2x2[0].x) * f3x3[0].x) * f4x4[0].x));
+    ok = ok && (1 == (((i * i2.x) * i3.x) * i4.x));
     ok = ok && (((b && b2.x) && b3.x) && b4.x);
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }
