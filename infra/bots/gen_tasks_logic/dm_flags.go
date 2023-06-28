@@ -324,15 +324,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// Failed to make lazy image.
 			skip(ALL, "gm", ALL, "image_subset")
 
-			// Graphite doesn't do auto-image-tiling so these GMs should
-			// remain disabled
-			skip(ALL, "gm", ALL, "verylarge_picture_image")
-			skip(ALL, "gm", ALL, "verylargebitmap")
-			skip(ALL, "gm", ALL, "path_huge_aa")
-			skip(ALL, "gm", ALL, "fast_constraint_red_is_allowed")
-			skip(ALL, "gm", ALL, "strict_constraint_batch_no_red_allowed")
-			skip(ALL, "gm", ALL, "strict_constraint_no_red_allowed")
-
 			// Could not readback from surface.
 			skip(ALL, "gm", ALL, "hugebitmapshader")
 			skip(ALL, "gm", ALL, "async_rescale_and_read_no_bleed")
@@ -1323,6 +1314,17 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	match := []string{}
+
+	if b.extraConfig("Graphite") {
+		// Graphite doesn't do auto-image-tiling so these GMs should remain disabled
+		match = append(match, "~^verylarge_picture_image$")
+		match = append(match, "~^verylargebitmap$")
+		match = append(match, "~^path_huge_aa$")
+		match = append(match, "~^fast_constraint_red_is_allowed$")
+		match = append(match, "~^strict_constraint_batch_no_red_allowed$")
+		match = append(match, "~^strict_constraint_no_red_allowed$")
+	}
+
 	if b.extraConfig("Valgrind") { // skia:3021
 		match = append(match, "~Threaded")
 	}
