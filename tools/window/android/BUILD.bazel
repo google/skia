@@ -9,6 +9,7 @@ skia_filegroup(
     # TODO: break up into seperate targets
     srcs = [
         "GLWindowContext_android.cpp",
+        "RasterWindowContext_android.cpp",
         "VulkanWindowContext_android.cpp",
         "WindowContextFactory_android.h",
     ],

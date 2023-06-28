@@ -11,10 +11,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTDArray.h"
-#include "tools/sk_app/DisplayParams.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
+#include "tools/window/DisplayParams.h"
 
 #include <functional>
 
@@ -28,9 +28,13 @@ namespace skgpu::graphite {
 class Context;
 }
 
-namespace sk_app {
+using skwindow::DisplayParams;
 
+namespace skwindow {
 class WindowContext;
+}
+
+namespace sk_app {
 
 class Window {
 public:
@@ -163,7 +167,7 @@ protected:
     DisplayParams          fRequestedDisplayParams;
     bool                   fIsActive = true;
 
-    std::unique_ptr<WindowContext> fWindowContext;
+    std::unique_ptr<skwindow::WindowContext> fWindowContext;
 
     virtual void onInval() = 0;
 

@@ -22,7 +22,6 @@
 #include "include/core/SkTime.h"
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkTDArray.h"
-#include "tools/sk_app/DisplayParams.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 

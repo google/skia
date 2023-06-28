@@ -1,4 +1,5 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_objc_library")
+load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
 
 licenses(["notice"])
 
@@ -6,19 +7,35 @@ exports_files_legacy()
 
 skia_cc_library(
     name = "window",
+    testonly = True,
     srcs = [
-        # TODO: split up gpu backends into buffett style BUILD
-        "DisplayParams.h",
-        "GLWindowContext.cpp",
-        "GLWindowContext.h",
-        "VulkanWindowContext.cpp",
-        "VulkanWindowContext.h",
+        "RasterWindowContext.h",
         "WindowContext.cpp",
-        "WindowContext.h",
-    ] + select({
+    ] + select_multi({
+        "//src/gpu:dawn_backend": [
+            "DawnWindowContext.h",
+            "DawnWindowContext.cpp",
+        ],
+        "//src/gpu:gl_backend": [
+            "GLWindowContext.cpp",
+            "GLWindowContext.h",
+        ],
+        "//src/gpu:vulkan_backend": [
+            "VulkanWindowContext.h",
+            "VulkanWindowContext.cpp",
+        ],
+    }) + select({
         "@platforms//os:android": ["//tools/window/android:srcs"],
         "//conditions:default": [],
+    }) +  select({
+        "@platforms//os:linux": ["//tools/window/unix:srcs"],
+        "//conditions:default": [],
+        # TODO(kjlubick) add Windows/Mac support
     }),
+    hdrs = [
+        "DisplayParams.h",
+        "WindowContext.h",
+    ],
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",

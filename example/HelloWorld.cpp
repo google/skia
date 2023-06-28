@@ -20,11 +20,12 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
-#include "tools/sk_app/DisplayParams.h"
+#include "tools/window/DisplayParams.h"
 
 #include <string.h>
 
 using namespace sk_app;
+using skwindow::DisplayParams;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new HelloWorld(argc, argv, platformData);

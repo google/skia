@@ -12,12 +12,12 @@
 #include <windowsx.h>
 
 #include "src/base/SkUTF.h"
-#include "tools/sk_app/WindowContext.h"
-#include "tools/sk_app/win/WindowContextFactory_win.h"
+#include "tools/window/WindowContext.h"
+#include "tools/window/win/WindowContextFactory_win.h"
 #include "tools/skui/ModifierKey.h"
 
 #ifdef SK_VULKAN
-#include "tools/sk_app/VulkanWindowContext.h"
+#include "tools/window/VulkanWindowContext.h"
 #endif
 
 namespace sk_app {
@@ -354,41 +354,35 @@ bool Window_win::attach(BackendType attachType) {
     switch (attachType) {
 #ifdef SK_GL
         case kNativeGL_BackendType:
-            fWindowContext = window_context_factory::MakeGLForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGLForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #if SK_ANGLE
         case kANGLE_BackendType:
-            fWindowContext =
-                    window_context_factory::MakeANGLEForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeANGLEForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #ifdef SK_DAWN
         case kDawn_BackendType:
-            fWindowContext =
-                    window_context_factory::MakeDawnD3D12ForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeDawnD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
 #if defined(SK_GRAPHITE)
         case kGraphiteDawn_BackendType:
-            fWindowContext = window_context_factory::MakeGraphiteDawnD3D12ForWin(
-                    fHWnd, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGraphiteDawnD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #endif
         case kRaster_BackendType:
-            fWindowContext =
-                    window_context_factory::MakeRasterForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeRasterForWin(fHWnd, fRequestedDisplayParams);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext =
-                    window_context_factory::MakeVulkanForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeVulkanForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #ifdef SK_DIRECT3D
         case kDirect3D_BackendType:
-            fWindowContext =
-                window_context_factory::MakeD3D12ForWin(fHWnd, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
     }

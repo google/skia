@@ -20,12 +20,12 @@
 #include "tools/gpu/MemoryCache.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/CommandSet.h"
-#include "tools/sk_app/DisplayParams.h"
 #include "tools/sk_app/Window.h"
 #include "tools/viewer/AnimTimer.h"
 #include "tools/viewer/ImGuiLayer.h"
 #include "tools/viewer/StatsLayer.h"
 #include "tools/viewer/TouchGesture.h"
+#include "tools/window/DisplayParams.h"
 
 #include <cstdint>
 #include <atomic>
@@ -262,7 +262,7 @@ private:
 
     // fDisplay contains default values (fWindow.fRequestedDisplayParams contains the overrides),
     // fDisplayOverrides controls if overrides are applied.
-    sk_app::DisplayParams fDisplay;
+    skwindow::DisplayParams fDisplay;
     DisplayFields fDisplayOverrides;
 
     struct CachedShader {

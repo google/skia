@@ -10,25 +10,8 @@ skia_cc_library(
     testonly = True,
     srcs = [
         "Window.cpp",
-        "WindowContext.cpp",
-        "RasterWindowContext.h",
         "CommandSet.cpp",
-    ] + select_multi(
-        {
-            "//src/gpu:dawn_backend": [
-                "DawnWindowContext.h",
-                "DawnWindowContext.cpp",
-            ],
-            "//src/gpu:gl_backend": [
-                "GLWindowContext.cpp",
-                "GLWindowContext.h",
-            ],
-            "//src/gpu:vulkan_backend": [
-                "VulkanWindowContext.h",
-                "VulkanWindowContext.cpp",
-            ],
-        },
-    ) + select({
+    ] + select({
         "@platforms//os:linux": ["//tools/sk_app/unix:srcs"],
         "//conditions:default": [],
         # TODO(kjlubick) add Windows/Mac support
@@ -36,15 +19,14 @@ skia_cc_library(
     hdrs = [
         "Application.h",
         "CommandSet.h",
-        "DisplayParams.h",
         "Window.h",
-        "WindowContext.h",
     ],
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
         "//tools/skui",
         "//tools/timer",
+        "//tools/window",
     ] + select({
         "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
         "//conditions:default": [],

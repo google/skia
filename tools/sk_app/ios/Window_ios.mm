@@ -5,8 +5,8 @@
 * found in the LICENSE file.
 */
 
-#include "tools/sk_app/ios/WindowContextFactory_ios.h"
 #include "tools/sk_app/ios/Window_ios.h"
+#include "tools/window/ios/WindowContextFactory_ios.h"
 
 #if __has_feature(objc_arc)
 #error "File should not be compiled with ARC."
@@ -80,21 +80,21 @@ void Window_ios::closeWindow() {
 bool Window_ios::attach(BackendType attachType) {
     this->initWindow();
 
-    window_context_factory::IOSWindowInfo info;
+    skwindow::IOSWindowInfo info;
     info.fWindow = this;
     info.fViewController = fWindow.rootViewController;
     switch (attachType) {
 #ifdef SK_METAL
         case kMetal_BackendType:
-            fWindowContext = MakeMetalForIOS(info, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeMetalForIOS(info, fRequestedDisplayParams);
             break;
 #endif
 #ifdef SK_GL
         case kNativeGL_BackendType:
-            fWindowContext = MakeGLForIOS(info, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGLForIOS(info, fRequestedDisplayParams);
             break;
         case kRaster_BackendType:
-            fWindowContext = MakeRasterForIOS(info, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeRasterForIOS(info, fRequestedDisplayParams);
             break;
 #endif
         default:
