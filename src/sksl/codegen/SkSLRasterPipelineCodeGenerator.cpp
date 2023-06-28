@@ -3408,13 +3408,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             return true;
         }
         case IntrinsicKind::k_step_IntrinsicKind: {
-            // Compute step as `float(lessThan(edge, x))`. We convert from boolean 0/~0 to floating
-            // point zero/one by using a bitwise-and against the bit-pattern of 1.0.
+            // Compute step as `float(lessThanEqual(edge, x))`. We convert from boolean 0/~0 to
+            // floating point zero/one by using a bitwise-and against the bit-pattern of 1.0.
             SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
             if (!this->pushVectorizedExpression(arg0, arg1.type()) || !this->pushExpression(arg1)) {
                 return unsupported();
             }
-            if (!this->binaryOp(arg1.type(), kLessThanOps)) {
+            if (!this->binaryOp(arg1.type(), kLessThanEqualOps)) {
                 return unsupported();
             }
             Literal pos1Literal{Position{}, 1.0, &arg1.type().componentType()};
