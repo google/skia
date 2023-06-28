@@ -307,12 +307,6 @@ VelloClipReduceStep::VelloClipReduceStep() : VelloStep(
                 /*type=*/ResourceType::kStorageBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ClipInput,
             },
             {

@@ -176,7 +176,7 @@ def git_repos_from_deps(ws = "@"):
     new_git_repository(
         name = "vello",
         build_file = ws + "//bazel/external/vello:BUILD.bazel",
-        commit = "ef2630ad9c647b90863cb0915701d54725733968",
+        commit = "12e764d58d613c7a5c7d1caede782c42a1e94cab",
         remote = "https://skia.googlesource.com/external/github.com/linebender/vello.git",
     )
 
