@@ -189,10 +189,21 @@ void Builder::appendInstruction(BuilderOp op, std::initializer_list<Slot> slots,
     int slotB = (iter != slots.end()) ? *iter++ : -1;
     SkASSERT(iter == slots.end());
 
-    fInstructions.push_back({op, slotA, slotB, immA, immB, immC, immD});
+    fInstructions.push_back({op, slotA, slotB, immA, immB, immC, immD, fCurrentStackID});
 }
 
 Instruction* Builder::lastInstruction(int fromBack) {
+    if (fInstructions.size() <= fromBack) {
+        return nullptr;
+    }
+    Instruction* inst = &fInstructions.fromBack(fromBack);
+    if (inst->fStackID != fCurrentStackID) {
+        return nullptr;
+    }
+    return inst;
+}
+
+Instruction* Builder::lastInstructionOnAnyStack(int fromBack) {
     if (fInstructions.size() <= fromBack) {
         return nullptr;
     }
@@ -424,7 +435,7 @@ void Builder::label(int labelID) {
 
     // If the previous instruction was a branch to this label, it's a no-op; jumping to the very
     // next instruction is effectively meaningless.
-    while (const Instruction* lastInstruction = this->lastInstruction()) {
+    while (const Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
         switch (lastInstruction->fOp) {
             case BuilderOp::jump:
             case BuilderOp::branch_if_all_lanes_active:
@@ -447,7 +458,7 @@ void Builder::label(int labelID) {
 
 void Builder::jump(int labelID) {
     SkASSERT(labelID >= 0 && labelID < fNumLabels);
-    if (const Instruction* lastInstruction = this->lastInstruction()) {
+    if (const Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
         if (lastInstruction->fOp == BuilderOp::jump) {
             // The previous instruction was also `jump`, so this branch could never possibly occur.
             return;
@@ -463,7 +474,7 @@ void Builder::branch_if_any_lanes_active(int labelID) {
     }
 
     SkASSERT(labelID >= 0 && labelID < fNumLabels);
-    if (const Instruction* lastInstruction = this->lastInstruction()) {
+    if (const Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
         if (lastInstruction->fOp == BuilderOp::branch_if_any_lanes_active ||
             lastInstruction->fOp == BuilderOp::jump) {
             // The previous instruction was `jump` or `branch_if_any_lanes_active`, so this branch
@@ -481,7 +492,7 @@ void Builder::branch_if_all_lanes_active(int labelID) {
     }
 
     SkASSERT(labelID >= 0 && labelID < fNumLabels);
-    if (const Instruction* lastInstruction = this->lastInstruction()) {
+    if (const Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
         if (lastInstruction->fOp == BuilderOp::branch_if_all_lanes_active ||
             lastInstruction->fOp == BuilderOp::jump) {
             // The previous instruction was `jump` or `branch_if_all_lanes_active`, so this branch
@@ -498,7 +509,7 @@ void Builder::branch_if_no_lanes_active(int labelID) {
     }
 
     SkASSERT(labelID >= 0 && labelID < fNumLabels);
-    if (const Instruction* lastInstruction = this->lastInstruction()) {
+    if (const Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
         if (lastInstruction->fOp == BuilderOp::branch_if_no_lanes_active ||
             lastInstruction->fOp == BuilderOp::jump) {
             // The previous instruction was `jump` or `branch_if_no_lanes_active`, so this branch
@@ -511,7 +522,7 @@ void Builder::branch_if_no_lanes_active(int labelID) {
 
 void Builder::branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID) {
     SkASSERT(labelID >= 0 && labelID < fNumLabels);
-    if (const Instruction* lastInstruction = this->lastInstruction()) {
+    if (const Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
         if (lastInstruction->fOp == BuilderOp::jump ||
             (lastInstruction->fOp == BuilderOp::branch_if_no_active_lanes_on_stack_top_equal &&
              lastInstruction->fImmB == value)) {
@@ -997,7 +1008,7 @@ void Builder::pop_return_mask() {
 
     // This instruction is going to overwrite the return mask. If the previous instruction was
     // masking off the return mask, that's wasted work and it can be eliminated.
-    if (Instruction* lastInstruction = this->lastInstruction()) {
+    if (Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
         if (lastInstruction->fOp == BuilderOp::mask_off_return_mask) {
             fInstructions.pop_back();
         }
@@ -1325,9 +1336,7 @@ Program::StackDepths Program::tempStackMaxDepths() const {
     // Count the number of separate temp stacks that the program uses.
     int numStacks = 1;
     for (const Instruction& inst : fInstructions) {
-        if (inst.fOp == BuilderOp::set_current_stack) {
-            numStacks = std::max(numStacks, inst.fImmA + 1);
-        }
+        numStacks = std::max(numStacks, inst.fStackID + 1);
     }
 
     // Walk the program and calculate how deep each stack can potentially get.
@@ -1335,23 +1344,18 @@ Program::StackDepths Program::tempStackMaxDepths() const {
     largest.push_back_n(numStacks, 0);
     current.push_back_n(numStacks, 0);
 
-    int curIdx = 0;
     for (const Instruction& inst : fInstructions) {
-        if (inst.fOp == BuilderOp::set_current_stack) {
-            curIdx = inst.fImmA;
-            SkASSERTF(curIdx >= 0 && curIdx < numStacks,
-                      "instruction references nonexistent stack %d", curIdx);
-        }
-        current[curIdx] += stack_usage(inst);
-        largest[curIdx] = std::max(current[curIdx], largest[curIdx]);
+        int stackID = inst.fStackID;
+        current[stackID] += stack_usage(inst);
+        largest[stackID] = std::max(current[stackID], largest[stackID]);
         // If we assert here, the generated program has popped off the top of the stack.
-        SkASSERTF(current[curIdx] >= 0, "unbalanced temp stack push/pop on stack %d", curIdx);
+        SkASSERTF(current[stackID] >= 0, "unbalanced temp stack push/pop on stack %d", stackID);
     }
 
     // Ensure that when the program is complete, our stacks are fully balanced.
-    for (int stackIdx = 0; stackIdx < numStacks; ++stackIdx) {
+    for (int stackID = 0; stackID < numStacks; ++stackID) {
         // If we assert here, the generated program has pushed more data than it has popped.
-        SkASSERTF(current[stackIdx] == 0, "unbalanced temp stack push/pop on stack %d", stackIdx);
+        SkASSERTF(current[stackID] == 0, "unbalanced temp stack push/pop on stack %d", stackID);
     }
 
     return largest;
@@ -1715,7 +1719,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
     SkASSERT(fNumUniformSlots == SkToInt(uniforms.size()));
 
     const int N = SkOpts::raster_pipeline_highp_stride;
-    int currentStack = 0;
     int mostRecentRewind = 0;
 
     // Assemble a map holding the current stack-top for each temporary stack. Position each temp
@@ -1762,7 +1765,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
             ctx->traceHook = fTraceHook.get();
             return ctx;
         };
-        float*& tempStackPtr = tempStackMap[currentStack];
+        float*& tempStackPtr = tempStackMap[inst.fStackID];
 
         switch (inst.fOp) {
             case BuilderOp::label:
@@ -2254,10 +2257,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
             case BuilderOp::pad_stack:
             case BuilderOp::discard_stack:
-                break;
-
-            case BuilderOp::set_current_stack:
-                currentStack = inst.fImmA;
                 break;
 
             case BuilderOp::invoke_shader:

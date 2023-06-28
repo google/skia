@@ -120,7 +120,6 @@ enum class BuilderOp {
     push_device_xy01,
     pop_src_rgba,
     pop_dst_rgba,
-    set_current_stack,
     trace_var_indirect,
     branch_if_no_active_lanes_on_stack_top_equal,
     unsupported
@@ -138,6 +137,7 @@ struct Instruction {
     int       fImmB = 0;
     int       fImmC = 0;
     int       fImmD = 0;
+    int       fStackID = 0;
 };
 
 class Callbacks {
@@ -361,8 +361,8 @@ public:
         this->appendInstruction(BuilderOp::load_dst, {slots.index});
     }
 
-    void set_current_stack(int stackIdx) {
-        this->appendInstruction(BuilderOp::set_current_stack, {}, stackIdx);
+    void set_current_stack(int stackID) {
+        fCurrentStackID = stackID;
     }
 
     // Inserts a label into the instruction stream.
@@ -737,12 +737,14 @@ private:
     void appendInstruction(BuilderOp op, std::initializer_list<Slot> slots,
                            int a = 0, int b = 0, int c = 0, int d = 0);
     Instruction* lastInstruction(int fromBack = 0);
+    Instruction* lastInstructionOnAnyStack(int fromBack = 0);
     void simplifyPopSlotsUnmasked(SlotRange* dst);
     bool simplifyImmediateUnmaskedOp();
 
     skia_private::TArray<Instruction> fInstructions;
     int fNumLabels = 0;
     int fExecutionMaskWritesEnabled = 0;
+    int fCurrentStackID = 0;
 };
 
 }  // namespace RP
