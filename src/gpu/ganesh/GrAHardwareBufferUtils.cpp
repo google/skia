@@ -601,12 +601,15 @@ GrBackendTexture MakeBackendTexture(GrDirectContext* dContext,
     if (!dContext || dContext->abandoned()) {
         return GrBackendTexture();
     }
-    bool createProtectedImage = isProtectedContent && can_import_protected_content(dContext);
+
+    if (isProtectedContent && !can_import_protected_content(dContext)) {
+        return GrBackendTexture();
+    }
 
     if (GrBackendApi::kOpenGL == dContext->backend()) {
 #ifdef SK_GL
         return make_gl_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
-                                       updateProc, imageCtx, createProtectedImage, backendFormat,
+                                       updateProc, imageCtx, isProtectedContent, backendFormat,
                                        isRenderable);
 #else
         return GrBackendTexture();
@@ -615,7 +618,7 @@ GrBackendTexture MakeBackendTexture(GrDirectContext* dContext,
         SkASSERT(GrBackendApi::kVulkan == dContext->backend());
 #ifdef SK_VULKAN
         return make_vk_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
-                                       updateProc, imageCtx, createProtectedImage, backendFormat,
+                                       updateProc, imageCtx, isProtectedContent, backendFormat,
                                        isRenderable, fromAndroidWindow);
 #else
         return GrBackendTexture();
