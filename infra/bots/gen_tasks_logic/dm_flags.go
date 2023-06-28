@@ -1019,9 +1019,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 	if b.matchOs("Mac") && b.cpu() {
 		// skia:6992
-		skip("pic-8888", "gm", ALL, "encode-platform")
+		skip("pic-8888",       "gm", ALL, "encode-platform")
 		skip("serialize-8888", "gm", ALL, "encode-platform")
 	}
+
+	// skia:14411 -- images are visibly identical, not interested in diagnosing non-determinism here
+	skip("pic-8888",       "gm", ALL, "perlinnoise_layered")
+	skip("serialize-8888", "gm", ALL, "perlinnoise_layered")
 
 	// skia:4769
 	skip("pic-8888", "gm", ALL, "drawfilter")
