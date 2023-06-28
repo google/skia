@@ -13,8 +13,6 @@
 
 class SkUnicodeHardCodedCharProperties : public SkUnicode {
 public:
-    ~SkUnicodeHardCodedCharProperties() override;
-
     bool isControl(SkUnichar utf8) override;
     bool isWhitespace(SkUnichar utf8) override;
     bool isSpace(SkUnichar utf8) override;
