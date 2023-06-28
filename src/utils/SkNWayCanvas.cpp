@@ -404,9 +404,11 @@ void SkNWayCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
     }
 }
 
+#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
 void SkNWayCanvas::onFlush() {
     Iter iter(fList);
     while (iter.next()) {
         iter->flush();
     }
 }
+#endif

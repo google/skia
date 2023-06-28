@@ -65,8 +65,10 @@ public:
 
     // Forwarded to the wrapped canvas.
     SkISize getBaseLayerSize() const override { return proxy()->getBaseLayerSize(); }
+    GrRecordingContext* recordingContext() const override { return proxy()->recordingContext(); }
+#if !defined(SK_LEGACY_GPU_GETTERS_CONST)
     GrRecordingContext* recordingContext() override { return proxy()->recordingContext(); }
-
+#endif
 protected:
     /**
      *  Called with the paint that will be used to draw the specified type.

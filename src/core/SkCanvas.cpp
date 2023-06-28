@@ -67,11 +67,6 @@
 #include <tuple>
 #include <utility>
 
-#if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
-#endif
-
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
@@ -348,6 +343,12 @@ SkCanvas::~SkCanvas() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
+#if defined(SK_GANESH)
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#endif
+
 void SkCanvas::flush() {
     this->onFlush();
 }
@@ -361,6 +362,7 @@ void SkCanvas::onFlush() {
     }
 #endif
 }
+#endif
 
 SkSurface* SkCanvas::getSurface() const {
     return fSurfaceBase;

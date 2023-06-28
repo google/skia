@@ -22,7 +22,6 @@ REG_FIDDLE(Surface_WrapPixels_WithReleaseProc, 256, 256, true, 0) {
         SkPMColor pmWhite = colorPtr[0];
         SkPaint paint;
         canvas->drawPoint(1, 1, paint);
-        canvas->flush();  // ensure that point was drawn
         for (int y = 0; y < info.height(); ++y) {
             for (int x = 0; x < info.width(); ++x) {
                 SkDebugf("%c", *colorPtr++ == pmWhite ? '-' : 'x');

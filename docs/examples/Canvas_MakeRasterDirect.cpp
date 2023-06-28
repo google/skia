@@ -13,11 +13,9 @@ void draw(SkCanvas* ) {
     // function goes out of scope.
     std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);
     canvas->clear(SK_ColorWHITE);  // white is Unpremultiplied, in ARGB order
-    canvas->flush();  // ensure that pixels are cleared
     SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black
     canvas->drawPoint(1, 1, paint);  // draw in the center
-    canvas->flush();  // ensure that point was drawn
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             SkDebugf("%c", *pixels++ == pmWhite ? '-' : 'x');

@@ -338,9 +338,11 @@ void SkRecorder::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int count,
             this->copy(preViewMatrices, totalMatrixCount), sampling, constraint);
 }
 
+#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
 void SkRecorder::onFlush() {
     this->append<SkRecords::Flush>();
 }
+#endif
 
 void SkRecorder::willSave() {
     this->append<SkRecords::Save>();

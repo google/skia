@@ -755,6 +755,7 @@ DEF_TEST(Picture_UpdatedCull_2, r) {
     REPORTER_ASSERT(r, pic->cullRect() == SkRectPriv::MakeLargest());
 }
 
+#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
 DEF_TEST(Picture_RecordsFlush, r) {
     SkPictureRecorder recorder;
 
@@ -776,6 +777,7 @@ DEF_TEST(Picture_RecordsFlush, r) {
     auto back = SkPicture::MakeFromData(skp->data(), skp->size());
     REPORTER_ASSERT(r, back->approximateOpCount() == pic->approximateOpCount());
 }
+#endif
 
 DEF_TEST(Placeholder, r) {
     SkRect cull = { 0,0, 10,20 };

@@ -14,7 +14,6 @@ void draw(SkCanvas* ) {
         SkPMColor pmWhite = colorPtr[0];
         SkPaint paint;
         canvas->drawPoint(1, 1, paint);
-        canvas->flush();  // ensure that point was drawn
         for (int y = 0; y < info.height(); ++y) {
             for (int x = 0; x < info.width(); ++x) {
                 SkDebugf("%c", colorPtr[x] == pmWhite ? '-' : 'x');

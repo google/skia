@@ -89,7 +89,9 @@ public:
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
 
+#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
     void onFlush() override;
+#endif
 
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;

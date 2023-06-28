@@ -14,7 +14,6 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
     offscreen.drawCircle(50, 50, 39, paint);
-    offscreen.flush();
     bitmap.extractAlpha(&alpha);
     paint.setColor(SK_ColorRED);
     canvas->drawImage(bitmap.asImage(), 0, 0, SkSamplingOptions(), &paint);

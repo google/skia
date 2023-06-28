@@ -1006,7 +1006,11 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
         fuzz->nextRange(&drawCommand, 0, 62);
         switch (drawCommand) {
             case 0:
-                canvas->flush();
+#if defined(SK_GANESH)
+                if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
+                    dContext->flushAndSubmit();
+                }
+#endif
                 break;
             case 1:
                 canvas->save();
