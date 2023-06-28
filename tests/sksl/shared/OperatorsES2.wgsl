@@ -4,10 +4,6 @@ error: :23:21 error: mixing '>' and '==' requires parenthesis
     var b: bool = x > 4.0 == x < 2.0 || 2.0 >= _globalUniforms.unknownInput && y <= x;
                     ^^^^^^^^
 
-:25:22 error: unable to parse right side of ^ expression
-    var d: bool = b ^^ c;
-                     ^
-
 
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
@@ -33,7 +29,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     z = ((z / 2) * 3 + 4) - 2;
     var b: bool = x > 4.0 == x < 2.0 || 2.0 >= _globalUniforms.unknownInput && y <= x;
     var c: bool = _globalUniforms.unknownInput > 2.0;
-    var d: bool = b ^^ c;
+    var d: bool = b != c;
     var e: bool = b && c;
     var f: bool = b || c;
     x = x + 12.0;

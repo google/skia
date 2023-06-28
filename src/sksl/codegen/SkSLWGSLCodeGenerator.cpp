@@ -91,6 +91,13 @@ enum class PtrAddressSpace {
     kStorage,
 };
 
+const char* operator_name(Operator op) {
+    switch (op.kind()) {
+        case Operator::Kind::LOGICALXOR:  return " != ";
+        default:                          return op.operatorName();
+    }
+}
+
 std::string_view pipeline_struct_prefix(ProgramKind kind) {
     if (ProgramConfig::IsVertex(kind)) {
         return "VS";
@@ -1637,7 +1644,7 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
     }
 
     expr += this->assembleExpression(left, precedence);
-    expr += op.operatorName();
+    expr += operator_name(op);
     expr += this->assembleExpression(right, precedence);
 
     if (needParens) {
@@ -1736,7 +1743,7 @@ std::string WGSLCodeGenerator::assembleUnaryOpIntrinsic(Operator op,
         expr.push_back('(');
     }
 
-    expr += op.operatorName();
+    expr += operator_name(op);
     expr += this->assembleExpression(*call.arguments()[0], Precedence::kPrefix);
 
     if (needParens) {
@@ -1760,7 +1767,7 @@ std::string WGSLCodeGenerator::assembleBinaryOpIntrinsic(Operator op,
     }
 
     expr += this->assembleExpression(*call.arguments()[0], precedence);
-    expr += op.operatorName();
+    expr += operator_name(op);
     expr += this->assembleExpression(*call.arguments()[1], precedence);
 
     if (needParens) {
@@ -2496,7 +2503,7 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
 
         expr += isEqual ? "all(" : "any(";
         expr += leftName;
-        expr += op.operatorName();
+        expr += operator_name(op);
         expr += rightName;
         return expr + ')';
     }
@@ -2507,7 +2514,7 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
         expr = '(';
     }
     expr += leftName;
-    expr += op.operatorName();
+    expr += operator_name(op);
     expr += rightName;
     if (Precedence::kEquality >= parentPrecedence) {
         expr += ')';
