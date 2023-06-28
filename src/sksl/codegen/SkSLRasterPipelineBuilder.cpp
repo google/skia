@@ -341,12 +341,12 @@ bool Builder::simplifyImmediateUnmaskedOp() {
     return false;
 }
 
-void Builder::discard_stack(int32_t count) {
+void Builder::discard_stack(int32_t count, int stackID) {
     // If we pushed something onto the stack and then immediately discarded part of it, we can
     // shrink or eliminate the push.
     while (count > 0) {
-        Instruction* lastInstruction = this->lastInstruction();
-        if (!lastInstruction) {
+        Instruction* lastInstruction = this->lastInstructionOnAnyStack();
+        if (!lastInstruction || lastInstruction->fStackID != stackID) {
             break;
         }
 
@@ -1015,6 +1015,22 @@ void Builder::pop_return_mask() {
     }
 
     this->appendInstruction(BuilderOp::pop_return_mask, {});
+}
+
+void Builder::merge_condition_mask() {
+    SkASSERT(this->executionMaskWritesAreEnabled());
+
+    // This instruction is going to overwrite the condition mask. If the previous instruction was
+    // loading the condition mask, that's wasted work and it can be eliminated.
+    if (Instruction* lastInstruction = this->lastInstructionOnAnyStack()) {
+        if (lastInstruction->fOp == BuilderOp::pop_condition_mask) {
+            int stackID = lastInstruction->fStackID;
+            fInstructions.pop_back();
+            this->discard_stack(/*count=*/1, stackID);
+        }
+    }
+
+    this->appendInstruction(BuilderOp::merge_condition_mask, {});
 }
 
 void Builder::zero_slots_unmasked(SlotRange dst) {

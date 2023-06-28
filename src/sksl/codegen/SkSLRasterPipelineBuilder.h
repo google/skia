@@ -514,7 +514,11 @@ public:
     void inverse_matrix(int32_t n);
 
     // Shrinks the temp stack, discarding values on top.
-    void discard_stack(int32_t count);
+    void discard_stack(int32_t count, int stackID);
+
+    void discard_stack(int32_t count) {
+        this->discard_stack(count, fCurrentStackID);
+    }
 
     // Grows the temp stack, leaving any preexisting values in place.
     void pad_stack(int32_t count);
@@ -602,10 +606,7 @@ public:
         this->appendInstruction(BuilderOp::pop_condition_mask, {});
     }
 
-    void merge_condition_mask() {
-        SkASSERT(this->executionMaskWritesAreEnabled());
-        this->appendInstruction(BuilderOp::merge_condition_mask, {});
-    }
+    void merge_condition_mask();
 
     void merge_inv_condition_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
