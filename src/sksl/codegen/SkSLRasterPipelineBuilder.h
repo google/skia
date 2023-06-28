@@ -131,15 +131,6 @@ static_assert((int)ProgramOp::label == (int)BuilderOp::label);
 
 // Represents a single raster-pipeline SkSL instruction.
 struct Instruction {
-    Instruction(BuilderOp op, std::initializer_list<Slot> slots,
-                int a = 0, int b = 0, int c = 0, int d = 0)
-            : fOp(op), fImmA(a), fImmB(b), fImmC(c), fImmD(d) {
-        auto iter = slots.begin();
-        if (iter != slots.end()) { fSlotA = *iter++; }
-        if (iter != slots.end()) { fSlotB = *iter++; }
-        SkASSERT(iter == slots.end());
-    }
-
     BuilderOp fOp;
     Slot      fSlotA = NA;
     Slot      fSlotB = NA;
@@ -337,41 +328,41 @@ public:
 
     /** Assemble a program from the Raster Pipeline instructions below. */
     void init_lane_masks() {
-        fInstructions.push_back({BuilderOp::init_lane_masks, {}});
+        this->appendInstruction(BuilderOp::init_lane_masks, {});
     }
 
     void store_src_rg(SlotRange slots) {
         SkASSERT(slots.count == 2);
-        fInstructions.push_back({BuilderOp::store_src_rg, {slots.index}});
+        this->appendInstruction(BuilderOp::store_src_rg, {slots.index});
     }
 
     void store_src(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({BuilderOp::store_src, {slots.index}});
+        this->appendInstruction(BuilderOp::store_src, {slots.index});
     }
 
     void store_dst(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({BuilderOp::store_dst, {slots.index}});
+        this->appendInstruction(BuilderOp::store_dst, {slots.index});
     }
 
     void store_device_xy01(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({BuilderOp::store_device_xy01, {slots.index}});
+        this->appendInstruction(BuilderOp::store_device_xy01, {slots.index});
     }
 
     void load_src(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({BuilderOp::load_src, {slots.index}});
+        this->appendInstruction(BuilderOp::load_src, {slots.index});
     }
 
     void load_dst(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({BuilderOp::load_dst, {slots.index}});
+        this->appendInstruction(BuilderOp::load_dst, {slots.index});
     }
 
     void set_current_stack(int stackIdx) {
-        fInstructions.push_back({BuilderOp::set_current_stack, {}, stackIdx});
+        this->appendInstruction(BuilderOp::set_current_stack, {}, stackIdx);
     }
 
     // Inserts a label into the instruction stream.
@@ -413,7 +404,7 @@ public:
     // Initializes the Raster Pipeline slot with a constant value when the program is first created.
     // Does not add any instructions to the program.
     void store_immutable_value_i(Slot slot, int32_t val) {
-        fInstructions.push_back({BuilderOp::store_immutable_value, {slot}, val});
+        this->appendInstruction(BuilderOp::store_immutable_value, {slot}, val);
     }
 
     // Translates into copy_uniforms (from uniforms into value-slots) in Raster Pipeline.
@@ -551,19 +542,19 @@ public:
 
     // Compares the stack top with the passed-in value; if it matches, enables the loop mask.
     void case_op(int value) {
-        fInstructions.push_back({BuilderOp::case_op, {}, value});
+        this->appendInstruction(BuilderOp::case_op, {}, value);
     }
 
     // Performs a `continue` in a loop.
     void continue_op(int continueMaskStackID) {
-        fInstructions.push_back({BuilderOp::continue_op, {}, continueMaskStackID});
+        this->appendInstruction(BuilderOp::continue_op, {}, continueMaskStackID);
     }
 
     void select(int slots) {
         // Overlays the top two entries on the stack, making one hybrid entry. The execution mask
         // is used to select which lanes are preserved.
         SkASSERT(slots > 0);
-        fInstructions.push_back({BuilderOp::select, {}, slots});
+        this->appendInstruction(BuilderOp::select, {}, slots);
     }
 
     // The opposite of push_slots; copies values from the temp stack into value slots, then
@@ -572,7 +563,7 @@ public:
 
     void copy_slots_masked(SlotRange dst, SlotRange src) {
         SkASSERT(dst.count == src.count);
-        fInstructions.push_back({BuilderOp::copy_slot_masked, {dst.index, src.index}, dst.count});
+        this->appendInstruction(BuilderOp::copy_slot_masked, {dst.index, src.index}, dst.count);
     }
 
     void copy_slots_unmasked(SlotRange dst, SlotRange src);
@@ -603,105 +594,105 @@ public:
 
     void push_condition_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::push_condition_mask, {}});
+        this->appendInstruction(BuilderOp::push_condition_mask, {});
     }
 
     void pop_condition_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::pop_condition_mask, {}});
+        this->appendInstruction(BuilderOp::pop_condition_mask, {});
     }
 
     void merge_condition_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::merge_condition_mask, {}});
+        this->appendInstruction(BuilderOp::merge_condition_mask, {});
     }
 
     void merge_inv_condition_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::merge_inv_condition_mask, {}});
+        this->appendInstruction(BuilderOp::merge_inv_condition_mask, {});
     }
 
     void push_loop_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::push_loop_mask, {}});
+        this->appendInstruction(BuilderOp::push_loop_mask, {});
     }
 
     void pop_loop_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::pop_loop_mask, {}});
+        this->appendInstruction(BuilderOp::pop_loop_mask, {});
     }
 
     // Exchanges src.rgba with the four values at the top of the stack.
     void exchange_src();
 
     void push_src_rgba() {
-        fInstructions.push_back({BuilderOp::push_src_rgba, {}});
+        this->appendInstruction(BuilderOp::push_src_rgba, {});
     }
 
     void push_dst_rgba() {
-        fInstructions.push_back({BuilderOp::push_dst_rgba, {}});
+        this->appendInstruction(BuilderOp::push_dst_rgba, {});
     }
 
     void push_device_xy01() {
-        fInstructions.push_back({BuilderOp::push_device_xy01, {}});
+        this->appendInstruction(BuilderOp::push_device_xy01, {});
     }
 
     void pop_src_rgba();
 
     void pop_dst_rgba() {
-        fInstructions.push_back({BuilderOp::pop_dst_rgba, {}});
+        this->appendInstruction(BuilderOp::pop_dst_rgba, {});
     }
 
     void mask_off_loop_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::mask_off_loop_mask, {}});
+        this->appendInstruction(BuilderOp::mask_off_loop_mask, {});
     }
 
     void reenable_loop_mask(SlotRange src) {
         SkASSERT(this->executionMaskWritesAreEnabled());
         SkASSERT(src.count == 1);
-        fInstructions.push_back({BuilderOp::reenable_loop_mask, {src.index}});
+        this->appendInstruction(BuilderOp::reenable_loop_mask, {src.index});
     }
 
     void pop_and_reenable_loop_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::pop_and_reenable_loop_mask, {}});
+        this->appendInstruction(BuilderOp::pop_and_reenable_loop_mask, {});
     }
 
     void merge_loop_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::merge_loop_mask, {}});
+        this->appendInstruction(BuilderOp::merge_loop_mask, {});
     }
 
     void push_return_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::push_return_mask, {}});
+        this->appendInstruction(BuilderOp::push_return_mask, {});
     }
 
     void pop_return_mask();
 
     void mask_off_return_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
-        fInstructions.push_back({BuilderOp::mask_off_return_mask, {}});
+        this->appendInstruction(BuilderOp::mask_off_return_mask, {});
     }
 
     void invoke_shader(int childIdx) {
-        fInstructions.push_back({BuilderOp::invoke_shader, {}, childIdx});
+        this->appendInstruction(BuilderOp::invoke_shader, {}, childIdx);
     }
 
     void invoke_color_filter(int childIdx) {
-        fInstructions.push_back({BuilderOp::invoke_color_filter, {}, childIdx});
+        this->appendInstruction(BuilderOp::invoke_color_filter, {}, childIdx);
     }
 
     void invoke_blender(int childIdx) {
-        fInstructions.push_back({BuilderOp::invoke_blender, {}, childIdx});
+        this->appendInstruction(BuilderOp::invoke_blender, {}, childIdx);
     }
 
     void invoke_to_linear_srgb() {
         // The intrinsics accept a three-component value; add a fourth padding element (which
         // will be ignored) since our RP ops deal in RGBA colors.
         this->pad_stack(1);
-        fInstructions.push_back({BuilderOp::invoke_to_linear_srgb, {}});
+        this->appendInstruction(BuilderOp::invoke_to_linear_srgb, {});
         this->discard_stack(1);
     }
 
@@ -709,18 +700,18 @@ public:
         // The intrinsics accept a three-component value; add a fourth padding element (which
         // will be ignored) since our RP ops deal in RGBA colors.
         this->pad_stack(1);
-        fInstructions.push_back({BuilderOp::invoke_from_linear_srgb, {}});
+        this->appendInstruction(BuilderOp::invoke_from_linear_srgb, {});
         this->discard_stack(1);
     }
 
     // Writes the current line number to the debug trace.
     void trace_line(int traceMaskStackID, int line) {
-        fInstructions.push_back({BuilderOp::trace_line, {}, traceMaskStackID, line});
+        this->appendInstruction(BuilderOp::trace_line, {}, traceMaskStackID, line);
     }
 
     // Writes a variable update to the debug trace.
     void trace_var(int traceMaskStackID, SlotRange r) {
-        fInstructions.push_back({BuilderOp::trace_var, {r.index}, traceMaskStackID, r.count});
+        this->appendInstruction(BuilderOp::trace_var, {r.index}, traceMaskStackID, r.count);
     }
 
     // Writes a variable update (via indirection) to the debug trace.
@@ -729,20 +720,23 @@ public:
 
     // Writes a function-entrance to the debug trace.
     void trace_enter(int traceMaskStackID, int funcID) {
-        fInstructions.push_back({BuilderOp::trace_enter, {}, traceMaskStackID, funcID});
+        this->appendInstruction(BuilderOp::trace_enter, {}, traceMaskStackID, funcID);
     }
 
     // Writes a function-exit to the debug trace.
     void trace_exit(int traceMaskStackID, int funcID) {
-        fInstructions.push_back({BuilderOp::trace_exit, {}, traceMaskStackID, funcID});
+        this->appendInstruction(BuilderOp::trace_exit, {}, traceMaskStackID, funcID);
     }
 
     // Writes a scope-level change to the debug trace.
     void trace_scope(int traceMaskStackID, int delta) {
-        fInstructions.push_back({BuilderOp::trace_scope, {}, traceMaskStackID, delta});
+        this->appendInstruction(BuilderOp::trace_scope, {}, traceMaskStackID, delta);
     }
 
 private:
+    void appendInstruction(BuilderOp op, std::initializer_list<Slot> slots,
+                           int a = 0, int b = 0, int c = 0, int d = 0);
+    Instruction* lastInstruction(int fromBack = 0);
     void simplifyPopSlotsUnmasked(SlotRange* dst);
     bool simplifyImmediateUnmaskedOp();
 
