@@ -96,7 +96,6 @@
 #include <memory>
 #include <optional>
 #include <utility>
-#include <vector>
 
 class SkBitmap;
 enum class SkTileMode;
@@ -221,13 +220,12 @@ static std::unique_ptr<GrFragmentProcessor> make_blender_fp(
             rtb->uniforms(),
             fpArgs.fDstColorInfo->colorSpace());
     SkASSERT(uniforms);
-    auto children = rtb->children();
     auto [success, fp] = make_effect_fp(rtb->effect(),
                                         "runtime_blender",
                                         std::move(uniforms),
                                         std::move(srcFP),
                                         std::move(dstFP),
-                                        SkSpan(children),
+                                        rtb->children(),
                                         fpArgs);
 
     return success ? std::move(fp) : nullptr;
@@ -413,13 +411,12 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
     SkASSERT(uniforms);
 
     GrFPArgs childArgs(context, &colorInfo, props);
-    auto children = filter->children();
     return make_effect_fp(filter->effect(),
                           "runtime_color_filter",
                           std::move(uniforms),
                           std::move(inputFP),
                           /*destColorFP=*/nullptr,
-                          SkSpan(children),
+                          filter->children(),
                           childArgs);
 }
 
@@ -777,7 +774,6 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkRuntimeShader
             args.fDstColorInfo->colorSpace());
     SkASSERT(uniforms);
 
-    auto children = shader->children();
     bool success;
     std::unique_ptr<GrFragmentProcessor> fp;
     std::tie(success, fp) = make_effect_fp(shader->effect(),
@@ -785,7 +781,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkRuntimeShader
                                            std::move(uniforms),
                                            /*inputFP=*/nullptr,
                                            /*destColorFP=*/nullptr,
-                                           SkSpan(children),
+                                           shader->children(),
                                            args);
     if (!success) {
         return nullptr;

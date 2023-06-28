@@ -25,7 +25,7 @@ class SkRuntimeBlender : public SkBlenderBase {
 public:
     SkRuntimeBlender(sk_sp<SkRuntimeEffect> effect,
                      sk_sp<const SkData> uniforms,
-                     SkSpan<SkRuntimeEffect::ChildPtr> children)
+                     SkSpan<const SkRuntimeEffect::ChildPtr> children)
             : fEffect(std::move(effect))
             , fUniforms(std::move(uniforms))
             , fChildren(children.begin(), children.end()) {}
@@ -48,7 +48,8 @@ public:
 
     sk_sp<SkRuntimeEffect> effect() const { return fEffect; }
     sk_sp<const SkData> uniforms() const { return fUniforms; }
-    std::vector<SkRuntimeEffect::ChildPtr> children() const { return fChildren; }
+    SkSpan<const SkRuntimeEffect::ChildPtr> children() const { return fChildren; }
+
 private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<const SkData> fUniforms;

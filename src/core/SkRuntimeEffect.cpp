@@ -372,7 +372,7 @@ static ChildType child_type(const SkSL::Type& type) {
 }
 
 static bool verify_child_effects(const std::vector<SkRuntimeEffect::Child>& reflected,
-                                 SkSpan<SkRuntimeEffect::ChildPtr> effectPtrs) {
+                                 SkSpan<const SkRuntimeEffect::ChildPtr> effectPtrs) {
     // Verify that the number of passed-in child-effect pointers matches the SkSL code.
     if (reflected.size() != effectPtrs.size()) {
         return false;
@@ -429,7 +429,7 @@ bool SkRuntimeEffectPriv::ReadChildEffects(SkReadBuffer& buffer,
 }
 
 void SkRuntimeEffectPriv::WriteChildEffects(
-        SkWriteBuffer& buffer, const std::vector<SkRuntimeEffect::ChildPtr>& children) {
+        SkWriteBuffer& buffer, SkSpan<const SkRuntimeEffect::ChildPtr> children) {
     buffer.write32(children.size());
     for (const auto& child : children) {
         buffer.writeFlattenable(child.flattenable());
@@ -831,10 +831,11 @@ void SkRuntimeEffectPriv::AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPt
 }
 #endif
 
-sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(const SkRuntimeEffect* effect,
-                                                        UniformsCallback uniformsCallback,
-                                                        SkSpan<SkRuntimeEffect::ChildPtr> children,
-                                                        const SkMatrix* localMatrix) {
+sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(
+        const SkRuntimeEffect* effect,
+        UniformsCallback uniformsCallback,
+        SkSpan<const SkRuntimeEffect::ChildPtr> children,
+        const SkMatrix* localMatrix) {
     if (!effect->allowShader()) {
         return nullptr;
     }
@@ -863,7 +864,7 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
 }
 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
-                                            SkSpan<ChildPtr> children,
+                                            SkSpan<const ChildPtr> children,
                                             const SkMatrix* localMatrix) const {
     if (!this->allowShader()) {
         return nullptr;
@@ -895,7 +896,7 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<const SkData> unifor
 }
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<const SkData> uniforms,
-                                                      SkSpan<ChildPtr> children) const {
+                                                      SkSpan<const ChildPtr> children) const {
     if (!this->allowColorFilter()) {
         return nullptr;
     }
@@ -916,7 +917,7 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<const SkData> unifor
 }
 
 sk_sp<SkBlender> SkRuntimeEffect::makeBlender(sk_sp<const SkData> uniforms,
-                                              SkSpan<ChildPtr> children) const {
+                                              SkSpan<const ChildPtr> children) const {
     if (!this->allowBlender()) {
         return nullptr;
     }
@@ -993,29 +994,29 @@ void SkRuntimeEffect::RegisterFlattenables() {
 }
 
 SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
-        : INHERITED(std::move(effect)) {}
+        : SkRuntimeEffectBuilder(std::move(effect)) {}
 
 SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
 
-sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix) {
+sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix) const {
     return this->effect()->makeShader(this->uniforms(), this->children(), localMatrix);
 }
 
 SkRuntimeBlendBuilder::SkRuntimeBlendBuilder(sk_sp<SkRuntimeEffect> effect)
-        : INHERITED(std::move(effect)) {}
+        : SkRuntimeEffectBuilder(std::move(effect)) {}
 
 SkRuntimeBlendBuilder::~SkRuntimeBlendBuilder() = default;
 
-sk_sp<SkBlender> SkRuntimeBlendBuilder::makeBlender() {
+sk_sp<SkBlender> SkRuntimeBlendBuilder::makeBlender() const {
     return this->effect()->makeBlender(this->uniforms(), this->children());
 }
 
 SkRuntimeColorFilterBuilder::SkRuntimeColorFilterBuilder(sk_sp<SkRuntimeEffect> effect)
-        : INHERITED(std::move(effect)) {}
+        : SkRuntimeEffectBuilder(std::move(effect)) {}
 
 SkRuntimeColorFilterBuilder::~SkRuntimeColorFilterBuilder() = default;
 
-sk_sp<SkColorFilter> SkRuntimeColorFilterBuilder::makeColorFilter() {
+sk_sp<SkColorFilter> SkRuntimeColorFilterBuilder::makeColorFilter() const {
     return this->effect()->makeColorFilter(this->uniforms(), this->children());
 }
 

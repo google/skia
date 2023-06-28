@@ -38,12 +38,12 @@ public:
     SkRuntimeShader(sk_sp<SkRuntimeEffect> effect,
                     sk_sp<SkSL::DebugTracePriv> debugTrace,
                     sk_sp<const SkData> uniforms,
-                    SkSpan<SkRuntimeEffect::ChildPtr> children);
+                    SkSpan<const SkRuntimeEffect::ChildPtr> children);
 
     SkRuntimeShader(sk_sp<SkRuntimeEffect> effect,
                     sk_sp<SkSL::DebugTracePriv> debugTrace,
                     UniformsCallback uniformsCallback,
-                    SkSpan<SkRuntimeEffect::ChildPtr> children);
+                    SkSpan<const SkRuntimeEffect::ChildPtr> children);
 
     SkRuntimeEffect::TracedShader makeTracedClone(const SkIPoint& coord);
 
@@ -64,7 +64,7 @@ public:
     SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }
 
     sk_sp<SkRuntimeEffect> effect() const { return fEffect; }
-    std::vector<SkRuntimeEffect::ChildPtr> children() const { return fChildren; }
+    SkSpan<const SkRuntimeEffect::ChildPtr> children() const { return fChildren; }
 
     sk_sp<const SkData> uniformData(const SkColorSpace* dstCS) const;
 

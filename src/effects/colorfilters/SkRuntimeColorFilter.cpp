@@ -45,7 +45,7 @@
 
 SkRuntimeColorFilter::SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect,
                                            sk_sp<const SkData> uniforms,
-                                           SkSpan<SkRuntimeEffect::ChildPtr> children)
+                                           SkSpan<const SkRuntimeEffect::ChildPtr> children)
         : fEffect(std::move(effect))
         , fUniforms(std::move(uniforms))
         , fChildren(children.begin(), children.end()) {}

@@ -20,7 +20,6 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <vector>
 
 #ifdef SK_ENABLE_SKSL
 #include "include/sksl/SkSLVersion.h"
@@ -73,7 +72,7 @@ public:
     using UniformsCallback = std::function<sk_sp<const SkData>(const UniformsCallbackContext&)>;
     static sk_sp<SkShader> MakeDeferredShader(const SkRuntimeEffect* effect,
                                               UniformsCallback uniformsCallback,
-                                              SkSpan<SkRuntimeEffect::ChildPtr> children,
+                                              SkSpan<const SkRuntimeEffect::ChildPtr> children,
                                               const SkMatrix* localMatrix = nullptr);
 
     // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
@@ -129,8 +128,8 @@ public:
     static bool ReadChildEffects(SkReadBuffer& buffer,
                                  const SkRuntimeEffect* effect,
                                  skia_private::TArray<SkRuntimeEffect::ChildPtr>* children);
-    static void WriteChildEffects(SkWriteBuffer &buffer,
-                                  const std::vector<SkRuntimeEffect::ChildPtr> &children);
+    static void WriteChildEffects(SkWriteBuffer& buffer,
+                                  SkSpan<const SkRuntimeEffect::ChildPtr> children);
 
 #if defined(SK_GRAPHITE)
 static void AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPtr> children,

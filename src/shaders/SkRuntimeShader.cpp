@@ -44,7 +44,7 @@ struct SkIPoint;
 SkRuntimeShader::SkRuntimeShader(sk_sp<SkRuntimeEffect> effect,
                                  sk_sp<SkSL::DebugTracePriv> debugTrace,
                                  sk_sp<const SkData> uniforms,
-                                 SkSpan<SkRuntimeEffect::ChildPtr> children)
+                                 SkSpan<const SkRuntimeEffect::ChildPtr> children)
         : fEffect(std::move(effect))
         , fDebugTrace(std::move(debugTrace))
         , fUniformData(std::move(uniforms))
@@ -53,7 +53,7 @@ SkRuntimeShader::SkRuntimeShader(sk_sp<SkRuntimeEffect> effect,
 SkRuntimeShader::SkRuntimeShader(sk_sp<SkRuntimeEffect> effect,
                                  sk_sp<SkSL::DebugTracePriv> debugTrace,
                                  UniformsCallback uniformsCallback,
-                                 SkSpan<SkRuntimeEffect::ChildPtr> children)
+                                 SkSpan<const SkRuntimeEffect::ChildPtr> children)
         : fEffect(std::move(effect))
         , fDebugTrace(std::move(debugTrace))
         , fUniformsCallback(std::move(uniformsCallback))
