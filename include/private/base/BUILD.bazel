@@ -30,7 +30,6 @@ IWYU_HDRS = [
     "SkMutex.h",
     "SkNoncopyable.h",
     "SkOnce.h",
-    "SkPathEnums.h",
     "SkPoint_impl.h",
     "SkSafe32.h",
     "SkSpan_impl.h",

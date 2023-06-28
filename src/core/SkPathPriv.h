@@ -19,7 +19,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkDebug.h"
-#include "include/private/base/SkPathEnums.h"
+#include "src/core/SkPathEnums.h"
 
 #include <cstdint>
 #include <iterator>

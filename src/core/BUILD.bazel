@@ -213,6 +213,7 @@ CORE_FILES = [
     "SkPathBuilder.cpp",
     "SkPathEffect.cpp",
     "SkPathEffectBase.h",
+    "SkPathEnums.h",
     "SkPathMakers.h",
     "SkPathMeasure.cpp",
     "SkPathMeasurePriv.h",

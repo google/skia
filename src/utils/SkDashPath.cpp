@@ -18,8 +18,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkPathEnums.h"
 #include "include/private/base/SkTo.h"
+#include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 
