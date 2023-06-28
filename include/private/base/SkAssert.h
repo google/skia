@@ -43,7 +43,7 @@
     } while (false)
 #endif
 
-// SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.
+// SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as standalone assertion expressions, e.g.
 //    uint32_t foo(int x) {
 //        SkASSERT(x > 4);
 //        return x - 4;
@@ -53,8 +53,15 @@
 //        return SkASSERT(x > 4),
 //               x - 4;
 //    }
+#if defined(__clang__)
 #define SkASSERT_RELEASE(cond) \
-        static_cast<void>( (cond) ? (void)0 : []{ SK_ABORT("assert(%s)", #cond); }() )
+    static_cast<void>( __builtin_expect(static_cast<bool>(cond), 1) \
+        ? static_cast<void>(0) \
+        : []{ SK_ABORT("check(%s)", #cond); }() )
+#else
+#define SkASSERT_RELEASE(cond) \
+    static_cast<void>( (cond) ? static_cast<void>(0) : []{ SK_ABORT("check(%s)", #cond); }() )
+#endif
 
 #if defined(SK_DEBUG)
     #define SkASSERT(cond) SkASSERT_RELEASE(cond)
