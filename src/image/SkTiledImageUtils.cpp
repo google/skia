@@ -20,7 +20,7 @@ void DrawImageRect(SkCanvas* canvas,
                    const SkSamplingOptions& sampling,
                    const SkPaint* paint,
                    SkCanvas::SrcRectConstraint constraint) {
-    if (!image) {
+    if (!image || !canvas) {
         return;
     }
 

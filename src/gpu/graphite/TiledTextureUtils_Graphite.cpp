@@ -157,6 +157,10 @@ void TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
                                                const SkSamplingOptions& origSampling,
                                                const SkPaint* paint,
                                                SkCanvas::SrcRectConstraint constraint) {
+    if (canvas->isClipEmpty()) {
+        return;
+    }
+
     if (!image->isTextureBacked()) {
         SkRect src;
         SkRect dst;
@@ -182,10 +186,7 @@ void TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
             sampling = SkSamplingOptions(sampling.filter);
         }
 
-        SkIRect clipRect = SkCanvasPriv::DeviceClipBounds(canvas);
-        if (clipRect.isEmpty()) {
-            return;
-        }
+        SkIRect clipRect = device->devClipBounds();
 
         int tileFilterPad;
         if (sampling.useCubic) {

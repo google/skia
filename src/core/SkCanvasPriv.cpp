@@ -18,7 +18,6 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/core/SkDevice.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/core/SkWriter32.h"
@@ -136,16 +135,6 @@ bool SkCanvasPriv::ImageToColorFilter(SkPaint* paint) {
     paint->setColorFilter(std::move(imgCF));
     paint->setImageFilter(nullptr);
     return true;
-}
-
-
-SkIRect SkCanvasPriv::DeviceClipBounds(SkCanvas* canvas) {
-    const SkBaseDevice* dev = canvas->topDevice();
-    if (dev->onGetClipType() == SkBaseDevice::ClipType::kEmpty) {
-        return SkIRect::MakeEmpty();
-    } else {
-        return dev->devClipBounds();
-    }
 }
 
 #if GRAPHITE_TEST_UTILS
