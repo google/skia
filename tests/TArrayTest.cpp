@@ -413,3 +413,10 @@ DEF_TEST(TArray, reporter) {
     test_skstarray_compatibility<STArray<3, double>, STArray<4, double>>(reporter);
     test_skstarray_compatibility<STArray<2, short>, STArray<1, short>>(reporter);
 }
+
+DEF_TEST(TArray_BoundsCheck, reporter) {
+#if 0  // The v[0] fails
+    TArray<int> v;
+    v[0];
+#endif
+}

@@ -54,6 +54,10 @@ void sk_abort_no_print() {
 #endif
 }
 
+void sk_print_index_out_of_bounds(size_t i, size_t size) {
+    SK_ABORT("Index (%zu) out of bounds for size %zu.\n", i, size);
+}
+
 void sk_out_of_memory(void) {
     SkDEBUGFAIL("sk_out_of_memory");
 #if defined(SK_BUILD_FOR_AFL_FUZZ)

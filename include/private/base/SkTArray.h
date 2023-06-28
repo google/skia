@@ -12,6 +12,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkAttributes.h"
 #include "include/private/base/SkContainers.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkSpan_impl.h"
@@ -277,7 +278,7 @@ public:
      * Removes the last element. Not safe to call when size() == 0.
      */
     void pop_back() {
-        SkASSERT(fSize > 0);
+        this->checkNotEmpty();
         --fSize;
         fData[fSize].~T();
     }
@@ -386,15 +387,11 @@ public:
      * Get the i^th element.
      */
     T& operator[] (int i) {
-        SkASSERT(i < this->size());
-        SkASSERT(i >= 0);
-        return fData[i];
+        return fData[this->checkIndex(i)];
     }
 
     const T& operator[] (int i) const {
-        SkASSERT(i < this->size());
-        SkASSERT(i >= 0);
-        return fData[i];
+        return fData[this->checkIndex(i)];
     }
 
     T& at(int i) { return (*this)[i]; }
@@ -403,30 +400,26 @@ public:
     /**
      * equivalent to operator[](0)
      */
-    T& front() { SkASSERT(fSize > 0); return fData[0];}
+    T& front() { this->checkNotEmpty(); return fData[0]; }
 
-    const T& front() const { SkASSERT(fSize > 0); return fData[0];}
+    const T& front() const { this->checkNotEmpty(); return fData[0]; }
 
     /**
      * equivalent to operator[](size() - 1)
      */
-    T& back() { SkASSERT(fSize); return fData[fSize - 1];}
+    T& back() { this->checkNotEmpty(); return fData[fSize - 1]; }
 
-    const T& back() const { SkASSERT(fSize > 0); return fData[fSize - 1];}
+    const T& back() const { this->checkNotEmpty(); return fData[fSize - 1]; }
 
     /**
      * equivalent to operator[](size()-1-i)
      */
     T& fromBack(int i) {
-        SkASSERT(i >= 0);
-        SkASSERT(i < this->size());
-        return fData[fSize - i - 1];
+        return (*this)[fSize - i - 1];
     }
 
     const T& fromBack(int i) const {
-        SkASSERT(i >= 0);
-        SkASSERT(i < this->size());
-        return fData[fSize - i - 1];
+        return (*this)[fSize - i - 1];
     }
 
     bool operator==(const TArray<T, MEM_MOVE>& right) const {
@@ -517,6 +510,25 @@ private:
     SK_CLANG_NO_SANITIZE("cfi")
     static T* TCast(void* buffer) {
         return (T*)buffer;
+    }
+
+    void checkNotEmpty() const {
+        if (this->empty()) SK_UNLIKELY {
+            SkUNREACHABLE;
+        }
+    }
+
+    int checkIndex(int i) const {
+        if (0 <= i && i < fSize) SK_LIKELY {
+            return i;
+        } else SK_UNLIKELY {
+
+#if defined(SK_DEBUG)
+        sk_print_index_out_of_bounds(SkToSizeT(i), SkToSizeT(fSize));
+#else
+        SkUNREACHABLE;
+#endif
+        }
     }
 
     size_t bytes(int n) const {
