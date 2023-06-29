@@ -38,6 +38,7 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -54,6 +55,7 @@ using namespace skia_private;
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #endif
@@ -411,12 +413,12 @@ public:
                                      /*cache=*/nullptr};
 #if defined(SK_GANESH)
         if (fDirectContext) {
-            return skif::Context::MakeGanesh(fDirectContext, kTopLeft_GrSurfaceOrigin, ctxInfo);
+            return skif::MakeGaneshContext(fDirectContext, kTopLeft_GrSurfaceOrigin, ctxInfo);
         } else
 #endif
 #if defined(SK_GRAPHITE)
         if (fRecorder) {
-            return skif::Context::MakeGraphite(fRecorder, ctxInfo);
+            return skif::MakeGraphiteContext(fRecorder, ctxInfo);
         } else
 #endif
         {

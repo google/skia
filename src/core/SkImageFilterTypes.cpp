@@ -7,10 +7,18 @@
 
 #include "src/core/SkImageFilterTypes.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkPicture.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
@@ -21,6 +29,8 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #endif
+
+#include <algorithm>
 
 namespace skif {
 
@@ -268,8 +278,22 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+Context Context::MakeRaster(const ContextInfo& info) {
+    // TODO (skbug:14286): Remove this forcing to 8888. Many legacy image filters only support
+    // N32 on CPU, but once they are implemented in terms of draws and SkSL they will support
+    // all color types, like the GPU backends.
+    ContextInfo n32 = info;
+    n32.fColorType = kN32_SkColorType;
+    auto makeSurfaceCallback = [](const SkImageInfo& imageInfo,
+                                  const SkSurfaceProps* props) {
+        return SkSpecialSurface::MakeRaster(imageInfo, *props);
+    };
+    return Context(n32, nullptr, makeSurfaceCallback);
+}
+
 sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                              const SkSurfaceProps* props) const {
+    SkASSERT(fMakeSurfaceDelegate);
     if (!props) {
         props = &fInfo.fSurfaceProps;
     }
@@ -278,24 +302,7 @@ sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                               fInfo.fColorType,
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(fInfo.fColorSpace));
-
-#if defined(SK_GANESH)
-    if (fGaneshContext) {
-        // FIXME: Context should also store a surface origin that matches the source origin
-        return SkSpecialSurface::MakeRenderTarget(fGaneshContext,
-                                                  imageInfo,
-                                                  *props,
-                                                  fGaneshOrigin);
-    } else
-#endif
-#if defined(SK_GRAPHITE)
-    if (fGraphiteRecorder) {
-        return SkSpecialSurface::MakeGraphite(fGraphiteRecorder, imageInfo, *props);
-    } else
-#endif
-    {
-        return SkSpecialSurface::MakeRaster(imageInfo, *props);
-    }
+    return fMakeSurfaceDelegate(imageInfo, props);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

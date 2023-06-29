@@ -1400,7 +1400,7 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
 }
 
 skif::Context Device::createContext(const skif::ContextInfo& ctxInfo) const {
-    return skif::Context::MakeGraphite(fRecorder, ctxInfo);
+    return skif::MakeGraphiteContext(fRecorder, ctxInfo);
 }
 
 TextureProxy* Device::target() { return fDC->target(); }
