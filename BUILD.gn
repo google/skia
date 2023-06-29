@@ -2011,7 +2011,7 @@ if (skia_enable_tools) {
       }
       if (skia_use_metal) {
         sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.h" ]
-        sources += [ "tools/graphite/mtl/MtlTestContext.mm" ]
+        sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.mm" ]
       }
       if (skia_use_vulkan) {
         sources += [ "tools/graphite/vk/VulkanTestContext.cpp" ]
