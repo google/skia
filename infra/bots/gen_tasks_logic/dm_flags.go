@@ -1017,6 +1017,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	// skia:14411 -- images are visibly identical, not interested in diagnosing non-determinism here
 	skip("pic-8888",       "gm", ALL, "perlinnoise_layered")
 	skip("serialize-8888", "gm", ALL, "perlinnoise_layered")
+	if b.gpu("IntelIrisXe") && !b.extraConfig("Vulkan") {
+		skip(ALL, "gm", ALL, "perlinnoise_layered")  // skia:14411
+	}
 
 	// skia:4769
 	skip("pic-8888", "gm", ALL, "drawfilter")
