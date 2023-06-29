@@ -19,7 +19,7 @@ class SkWriteBuffer;
  * of `SkColorFilters::Table`, and provides a way to share the table data between client code and
  * the returned SkColorFilter. Once created, an SkColorTable is immutable.
 */
-class SkColorTable : public SkRefCnt {
+class SK_API SkColorTable : public SkRefCnt {
 public:
     // Creates a new SkColorTable with 'table' used for all four channels. The table is copied into
     // the SkColorTable.
