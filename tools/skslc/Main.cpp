@@ -678,11 +678,11 @@ static ResultCode process_command(SkSpan<std::string> args) {
                         void defineFunction(const char* decl,
                                             const char* body,
                                             bool /*isMain*/) override {
-                            fOutput += std::string(decl) + "{" + body + "}";
+                            fOutput += std::string(decl) + '{' + body + '}';
                         }
 
                         void declareFunction(const char* decl) override {
-                            fOutput += std::string(decl) + ";";
+                            fOutput += decl;
                         }
 
                         void defineStruct(const char* definition) override {
@@ -694,25 +694,25 @@ static ResultCode process_command(SkSpan<std::string> args) {
                         }
 
                         std::string sampleShader(int index, std::string coords) override {
-                            return "child_" + std::to_string(index) + ".eval(" + coords + ")";
+                            return "child_" + std::to_string(index) + ".eval(" + coords + ')';
                         }
 
                         std::string sampleColorFilter(int index, std::string color) override {
-                            return "child_" + std::to_string(index) + ".eval(" + color + ")";
+                            return "child_" + std::to_string(index) + ".eval(" + color + ')';
                         }
 
                         std::string sampleBlender(int index,
                                                   std::string src,
                                                   std::string dst) override {
-                            return "child_" + std::to_string(index) + ".eval(" + src + ", " +
-                                   dst + ")";
+                            return "child_" + std::to_string(index) +
+                                   ".eval(" + src + ", " + dst + ')';
                         }
 
                         std::string toLinearSrgb(std::string color) override {
-                            return "toLinearSrgb(" + color + ")";
+                            return "toLinearSrgb(" + color + ')';
                         }
                         std::string fromLinearSrgb(std::string color) override {
-                            return "fromLinearSrgb(" + color + ")";
+                            return "fromLinearSrgb(" + color + ')';
                         }
 
                         std::string fOutput;

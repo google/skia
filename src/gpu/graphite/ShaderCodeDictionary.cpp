@@ -1015,8 +1015,7 @@ public:
     }
 
     void declareFunction(const char* decl) override {
-        // TODO(skbug.com/14387) - The pipeline generator does not include semicolons for functions
-        *fPreamble += std::string(decl) + ";";
+        *fPreamble += std::string(decl);
     }
 
     void defineStruct(const char* definition) override {

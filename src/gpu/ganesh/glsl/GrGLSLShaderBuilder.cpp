@@ -87,7 +87,7 @@ void GrGLSLShaderBuilder::emitFunctionPrototype(SkSLType returnType,
 }
 
 void GrGLSLShaderBuilder::emitFunctionPrototype(const char* declaration) {
-    this->functions().appendf("%s;\n", declaration);
+    this->functions().appendf("%s\n", declaration);
 }
 
 static inline void append_texture_swizzle(SkString* out, skgpu::Swizzle swizzle) {
