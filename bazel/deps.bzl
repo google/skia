@@ -122,7 +122,7 @@ def git_repos_from_deps(ws = "@"):
     new_git_repository(
         name = "libwebp",
         build_file = ws + "//bazel/external/libwebp:BUILD.bazel",
-        commit = "fd7b5d48464475408d32d2611bdb6947d4246b97",
+        commit = "fd7bb21c0cb56e8a82e9bfa376164b842f433f3b",
         remote = "https://chromium.googlesource.com/webm/libwebp.git",
     )
 
