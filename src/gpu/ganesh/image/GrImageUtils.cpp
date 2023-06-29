@@ -30,15 +30,11 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/base/SkMutex.h"
-#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTextureGenerator.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCachedData.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
@@ -65,14 +61,12 @@
 #include "src/image/SkImage_Picture.h"
 #include "src/image/SkImage_Raster.h"
 
-#include <functional>
 #include <string_view>
 #include <utility>
 
 class SkMatrix;
-class SkSurfaceProps;
-enum class SkTileMode;
 enum SkColorType : int;
+enum class SkTileMode;
 
 namespace skgpu::ganesh {
 
@@ -723,26 +717,3 @@ SkYUVAPixmapInfo::SupportedDataTypes SupportedTextureFormats(const GrImageContex
 }
 
 }  // namespace skgpu::ganesh
-
-namespace skif {
-Context MakeGaneshContext(GrRecordingContext* context,
-                          GrSurfaceOrigin origin,
-                          const ContextInfo& info) {
-    SkASSERT(context);
-    SkASSERT(!info.fSource.image() ||
-             SkToBool(context) == info.fSource.image()->isTextureBacked());
-
-    auto makeSurfaceFunctor = [context, origin](const SkImageInfo& imageInfo,
-                                                const SkSurfaceProps* props) {
-        return SkSpecialSurface::MakeRenderTarget(context,
-                                                  imageInfo,
-                                                  *props,
-                                                  origin);
-    };
-
-    return Context(info, context, makeSurfaceFunctor);
-}
-
-}  // namespace skgpu::ganesh
-
-

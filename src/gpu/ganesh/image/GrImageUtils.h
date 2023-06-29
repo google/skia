@@ -130,13 +130,4 @@ GrSurfaceProxyView FindOrMakeCachedMipmappedView(GrRecordingContext*,
 SkYUVAPixmapInfo::SupportedDataTypes SupportedTextureFormats(const GrImageContext&);
 
 }  // namespace skgpu::ganesh
-
-namespace skif {
-class Context;
-struct ContextInfo;
-Context MakeGaneshContext(GrRecordingContext* context,
-                          GrSurfaceOrigin origin,
-                          const ContextInfo& info);
-}  // namespace skif
-
 #endif

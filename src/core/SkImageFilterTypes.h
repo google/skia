@@ -13,36 +13,24 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkSize.h"
-#include "include/core/SkSpan.h"
-#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTo.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/core/SkSpecialImage.h"
 
-#include <cstdint>
-#include <functional>
 #include <optional>
-#include <utility>
 
-class FilterResultImageResolver;  // for testing
 class GrRecordingContext;
-class SkCanvas;
+enum GrSurfaceOrigin : int;
 class SkImage;
 class SkImageFilter;
 class SkImageFilterCache;
 class SkPicture;
-class SkShader;
 class SkSpecialSurface;
-enum GrSurfaceOrigin : int;
-enum SkColorType : int;
-struct SkImageInfo;
+class SkSurfaceProps;
+
+class FilterResultImageResolver; // for testing
 
 namespace skgpu::graphite { class Recorder; }
 
@@ -931,7 +919,30 @@ struct ContextInfo {
 class Context {
     static constexpr GrSurfaceOrigin kUnusedOrigin = (GrSurfaceOrigin) 0;
 public:
-    static Context MakeRaster(const ContextInfo& info);
+    static Context MakeRaster(const ContextInfo& info) {
+        // TODO (skbug:14286): Remove this forcing to 8888. Many legacy image filters only support
+        // N32 on CPU, but once they are implemented in terms of draws and SkSL they will support
+        // all color types, like the GPU backends.
+        ContextInfo n32 = info;
+        n32.fColorType = kN32_SkColorType;
+        return Context(n32, nullptr, kUnusedOrigin, nullptr);
+    }
+
+#if defined(SK_GANESH)
+    static Context MakeGanesh(GrRecordingContext* context,
+                              GrSurfaceOrigin origin,
+                              const ContextInfo& info) {
+        return Context(info, context, origin, nullptr);
+    }
+#endif
+
+#if defined(SK_GRAPHITE)
+    static Context MakeGraphite(skgpu::graphite::Recorder* recorder, const ContextInfo& info) {
+        return Context(info, nullptr, kUnusedOrigin, recorder);
+    }
+#endif
+
+    Context() = default; // unitialized to support assignment in branches for MakeX() above
 
     // The mapping that defines the transformation from local parameter space of the filters to the
     // layer space where the image filters are evaluated, as well as the remaining transformation
@@ -957,7 +968,9 @@ public:
     // The output device's color type, which can be used for intermediate images to be
     // compatible with the eventual target of the filtered result.
     SkColorType colorType() const { return fInfo.fColorType; }
-
+#if defined(SK_GANESH)
+    GrColorType grColorType() const { return SkColorTypeToGrColorType(fInfo.fColorType); }
+#endif
     // The output device's color space, so intermediate images can match, and so filtering can
     // be performed in the destination color space.
     SkColorSpace* colorSpace() const { return fInfo.fColorSpace; }
@@ -989,19 +1002,19 @@ public:
     Context withNewMapping(const Mapping& mapping) const {
         ContextInfo info = fInfo;
         info.fMapping = mapping;
-        return Context(info, fGaneshContext, fMakeSurfaceDelegate);
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
     // Create a new context that matches this context, but with an overridden desired output rect.
     Context withNewDesiredOutput(const LayerSpace<SkIRect>& desiredOutput) const {
         ContextInfo info = fInfo;
         info.fDesiredOutput = desiredOutput;
-        return Context(info, fGaneshContext, fMakeSurfaceDelegate);
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
     // Create a new context that matches this context, but with an overridden color space.
     Context withNewColorSpace(SkColorSpace* cs) const {
         ContextInfo info = fInfo;
         info.fColorSpace = cs;
-        return Context(info, fGaneshContext, fMakeSurfaceDelegate);
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
 
 #if defined(SK_USE_LEGACY_COMPOSE_IMAGEFILTER)
@@ -1013,7 +1026,7 @@ public:
         info.fMapping.applyOrigin(origin);
         info.fDesiredOutput.offset(-origin);
         info.fSource = FilterResult(std::move(source));
-        return Context(info, fGaneshContext, fMakeSurfaceDelegate);
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
 #else
     // Create a new context that matches this context, but with an overridden source.
@@ -1025,28 +1038,35 @@ public:
 #endif
 
 private:
-    using MakeSurfaceDelegate = std::function<sk_sp<SkSpecialSurface>(const SkImageInfo& info,
-                                                                      const SkSurfaceProps* props)>;
     Context(const ContextInfo& info,
             GrRecordingContext* ganeshContext,
-            MakeSurfaceDelegate msd)
+            GrSurfaceOrigin ganeshOrigin,
+            skgpu::graphite::Recorder* graphiteRecorder)
             : fInfo(info)
             , fGaneshContext(ganeshContext)
-            , fMakeSurfaceDelegate(msd) {
-        SkASSERT(fMakeSurfaceDelegate);
+            , fGaneshOrigin(ganeshOrigin)
+            , fGraphiteRecorder(graphiteRecorder) {
+#if defined(SK_GANESH)
+        SkASSERT(!fInfo.fSource.image() ||
+                 SkToBool(ganeshContext) == fInfo.fSource.image()->isTextureBacked());
+#else
+        SkASSERT(!SkToBool(ganeshContext));
+#endif
+
+#if defined(SK_GRAPHITE)
+        SkASSERT(!fInfo.fSource.image() ||
+                 SkToBool(graphiteRecorder) == fInfo.fSource.image()->isGraphiteBacked());
+#else
+        SkASSERT(!SkToBool(graphiteRecorder));
+#endif
     }
 
     ContextInfo fInfo;
 
-    // This will be null for CPU image filtering.
+    // Both will be null for CPU image filtering, or one will be non-null to select the GPU backend.
     GrRecordingContext* fGaneshContext;
-    MakeSurfaceDelegate fMakeSurfaceDelegate;
-
-    friend Context MakeGaneshContext(GrRecordingContext* context,
-                                     GrSurfaceOrigin origin,
-                                     const ContextInfo& info);
-    friend Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
-                                       const ContextInfo& info);
+    GrSurfaceOrigin fGaneshOrigin;
+    skgpu::graphite::Recorder* fGraphiteRecorder;
 };
 
 } // end namespace skif

@@ -9,9 +9,7 @@
 
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/image/SkImage_Base.h"
@@ -113,21 +111,3 @@ std::tuple<skgpu::graphite::TextureProxyView, SkColorType> AsView(Recorder* reco
 }
 
 } // namespace skgpu::graphite
-
-namespace skif {
-
-Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
-                            const ContextInfo& info) {
-    SkASSERT(recorder);
-    SkASSERT(!info.fSource.image() ||
-             SkToBool(recorder) == info.fSource.image()->isGraphiteBacked());
-
-    auto makeSurfaceFunctor = [recorder](const SkImageInfo& imageInfo,
-                                         const SkSurfaceProps* props) {
-        return SkSpecialSurface::MakeGraphite(recorder, imageInfo, *props);
-    };
-
-    return Context(info, nullptr, makeSurfaceFunctor);
-}
-}  // namespace skif
-
