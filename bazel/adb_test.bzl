@@ -1,13 +1,13 @@
 """This module defines the adb_test rule."""
 
 load("@local_config_platform//:constraints.bzl", "HOST_CONSTRAINTS")
-load("//bazel:remove_indentation.bzl", "remove_indentation")
+load(":remove_indentation.bzl", "remove_indentation")
 
 def _adb_test_runner_transition_impl(settings, attr):  # buildifier: disable=unused-variable
-    platform = settings["//tests/adb_test_runner:adb_platform"]
+    platform = settings["//bazel/adb_test_runner:adb_platform"]
 
     # If no platform was specified via --adb_platform, use the host platform. This allows us to
-    # "bazel test" a skia_android_unit_test on a developer workstation without passing said flag to
+    # "bazel test" an adb_test target on a developer workstation without passing said flag to
     # Bazel.
     if platform == "":
         # The HOST_CONSTRAINTS list should always be of the form [cpu, os], e.g.:
@@ -52,7 +52,7 @@ def _adb_test_runner_transition_impl(settings, attr):  # buildifier: disable=unu
 # running the compiled artifact on a Raspberry Pi in a subsequent CI task.
 adb_test_runner_transition = transition(
     implementation = _adb_test_runner_transition_impl,
-    inputs = ["//tests/adb_test_runner:adb_platform"],
+    inputs = ["//bazel/adb_test_runner:adb_platform"],
     outputs = ["//command_line_option:platforms"],
 )
 
@@ -143,7 +143,7 @@ adb_test = rule(
             mandatory = True,
         ),
         "_adb_test_runner": attr.label(
-            default = Label("//tests/adb_test_runner"),
+            default = Label("//bazel/adb_test_runner"),
             allow_single_file = True,
             executable = True,
             cfg = adb_test_runner_transition,

@@ -1,24 +1,24 @@
-"""This module defines the skia_test_wrapper_with_cmdline_flags rule."""
+"""This module defines the binary_wrapper_script_with_cmdline_flags rule."""
 
-load("//bazel:remove_indentation.bzl", "remove_indentation")
+load(":remove_indentation.bzl", "remove_indentation")
 
 # https://bazel.build/rules/lib/builtins/ctx
-def _skia_test_wrapper_with_cmdline_flags_impl(ctx):
-    test_args = ([
+def _binary_wrapper_script_with_cmdline_flags_impl(ctx):
+    args = ([
         "--resourcePath",
         "$(dirname $(realpath $(rootpath %s)))" % ctx.attr._arbitrary_file_in_resources_dir.label,
     ] if ctx.attr.requires_resources_dir else []) + ctx.attr.extra_args
 
     template = remove_indentation("""
         #!/bin/sh
-        $(rootpath {test_binary}) {test_args}
+        $(rootpath {binary}) {args}
     """)
 
     template = ctx.expand_location(template.format(
-        test_binary = ctx.attr.test_binary.label,
-        test_args = " ".join(test_args),
+        binary = ctx.attr.binary.label,
+        args = " ".join(args),
     ), targets = [
-        ctx.attr.test_binary,
+        ctx.attr.binary,
         ctx.attr._arbitrary_file_in_resources_dir,
     ])
 
@@ -29,22 +29,26 @@ def _skia_test_wrapper_with_cmdline_flags_impl(ctx):
     runfiles = ctx.runfiles(
         files = ctx.files._resources_dir if ctx.attr.requires_resources_dir else [],
     )
-    runfiles = runfiles.merge(ctx.attr.test_binary[DefaultInfo].default_runfiles)
+    runfiles = runfiles.merge(ctx.attr.binary[DefaultInfo].default_runfiles)
 
     return [DefaultInfo(
         executable = output_file,
         runfiles = runfiles,
     )]
 
-skia_test_wrapper_with_cmdline_flags = rule(
-    doc = """Produces a script that invokes a Skia C++ test with a fixed set of command-line flags.
+binary_wrapper_script_with_cmdline_flags = rule(
+    doc = """Produces a script that invokes a C++ binary with a fixed set of command-line flags.
+
+    This rule is intended to wrap C++ unit tests and GMs and therefore has convenience attributes
+    specific to said binaries, such as requires_resources_dir.
 
     The reason why we use a custom rule rather than a genrule is that we wish to select() the
     extra_args attribute based e.g. on the device under test and various build settings.
     """,
-    implementation = _skia_test_wrapper_with_cmdline_flags_impl,
+    implementation = _binary_wrapper_script_with_cmdline_flags_impl,
     attrs = {
-        "test_binary": attr.label(
+        "binary": attr.label(
+            doc = "Binary to wrap.",
             mandatory = True,
             executable = True,
             allow_single_file = True,

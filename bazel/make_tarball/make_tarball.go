@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// This program is used to create a tarball containing a precompiled Android test. This tarball
-// can be passed to the adb_test rule to run the test on an Android device via adb.
+// This program can be used to create a tarball from Bazel-built artifacts given their execpaths
+// and rootpaths.
 //
 // Design notes: Currently, building Go with Bazel on Mac can be slow. The problem is compounded
 // by the fact that we roll the Skia Infra repo into Skia via a go.mod update, which busts Bazel's
-// repository cache and causes Bazel to re-download a larg number of Go modules. To mitigate
+// repository cache and causes Bazel to re-download a large number of Go modules. To mitigate
 // slowness on Mac, this program does not use any external dependencies. This by itself does not
 // necessarily make the build faster on Macs, but it unblocks the following potential optimization.
 // We could build this binary using a separate, minimalistic go.mod file that does not include the

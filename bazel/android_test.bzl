@@ -1,11 +1,11 @@
-"""This module defines the skia_android_unit_test macro."""
+"""This module defines the android_test macro."""
 
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
-load(":adb_test.bzl", "adb_test")
-load(":skia_test_wrapper_with_cmdline_flags.bzl", "skia_test_wrapper_with_cmdline_flags")
+load("//bazel:adb_test.bzl", "adb_test")
+load("//bazel:binary_wrapper_script_with_cmdline_flags.bzl", "binary_wrapper_script_with_cmdline_flags")
 
-def skia_android_unit_test(
+def android_test(
         name,
         srcs,
         deps = [],
@@ -13,10 +13,13 @@ def skia_android_unit_test(
         extra_args = [],
         requires_condition = "//:always_true",
         requires_resources_dir = False):
-    """Defines a Skia Android unit test.
+    """Defines an Android test.
 
-    This macro compiles one or more C++ unit tests into a single Android binary and produces a
-    script that runs the test on an attached Android device via `adb`.
+    Note: This macro is not intended to be used directly in BUILD files. Instead, please use the
+    android_unit_test macro. TODO(lovisolo): Add android_gm_test to this list once it lands.
+
+    This macro compiles one or more C++ tests into a single Android binary and produces a script
+    that runs the test on an attached Android device via `adb`.
 
     This macro requires a device-specific Android platform such as //bazel/platform:pixel_5. This is
     used to decide what device-specific set-up steps to apply, such as setting CPU/GPU frequencies.
@@ -29,7 +32,7 @@ def skia_android_unit_test(
 
     - It produces a <name>.tar.gz archive containing the Android binary, a minimal launcher script
       that invokes the binary on the device under test with any necessary command-line arguments,
-      and any static resources needed by the test, such as fonts and images under //resources.
+      and any static resources needed by the C++ tests, such as fonts and images under //resources.
     - It produces a <name> test runner script that extracts the tarball into the device via `adb`,
       sets up the device, runs the test, cleans up and pipes through the test's exit code.
 
@@ -88,9 +91,9 @@ def skia_android_unit_test(
 
     test_runner = "%s_runner" % name
 
-    skia_test_wrapper_with_cmdline_flags(
+    binary_wrapper_script_with_cmdline_flags(
         name = test_runner,
-        test_binary = test_binary,
+        binary = test_binary,
         extra_args = extra_args,
         requires_resources_dir = requires_resources_dir,
         testonly = True,  # Needed to gain access to test-only files.
@@ -113,7 +116,7 @@ def skia_android_unit_test(
         srcs = archive_srcs,
         outs = ["%s.tar.gz" % name],
         cmd = """
-            $(location //tests/make_adb_test_tarball) \
+            $(location //bazel/make_tarball) \
                 --execpaths "{execpaths}" \
                 --rootpaths "{rootpaths}" \
                 --output-file $@
@@ -125,7 +128,7 @@ def skia_android_unit_test(
         # Tools are always built for the exec platform
         # (https://bazel.build/reference/be/general#genrule.tools), e.g. Linux on x86_64 when
         # running on a gLinux workstation or on a Linux GCE machine.
-        tools = ["//tests/make_adb_test_tarball"],
+        tools = ["//bazel/make_tarball"],
     )
 
     adb_test(
@@ -142,7 +145,7 @@ def skia_android_unit_test(
         )),
         tags = ["no-remote"],  # Incompatible with RBE because it requires an Android device.
         target_compatible_with = select({
-            "//bazel/devices:has_android_device": [],
+            "//bazel/devices:has_android_device": [],  # Compatible with everything.
             "//conditions:default": ["@platforms//:incompatible"],
         }),
     )
