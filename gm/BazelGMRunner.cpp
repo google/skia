@@ -19,10 +19,10 @@
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkMD5.h"
 #include "src/utils/SkJSONWriter.h"
+#include "src/utils/SkOSPath.h"
 #include "tools/HashAndEncode.h"
 
 #include <ctime>
-#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -170,15 +170,16 @@ int main(int argc, char** argv) {
         }
         SkDebugf("[%s] Result: %s\n", now().c_str(), resultAsStr.c_str());
         if (!msg.isEmpty()) {
-            SkDebugf("[%s] Message: \"%s\"\\n", now().c_str(), msg.c_str());
+            SkDebugf("[%s] Message: \"%s\"\n", now().c_str(), msg.c_str());
         }
 
         // Maybe save PNG and JSON file with MD5 hash to disk.
         if (result == skiagm::DrawResult::kOk) {
-            std::filesystem::path outputDir =
+            std::string name = std::string(gm->getName());
+            std::string outputDir =
                     FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
-            std::filesystem::path pngPath = outputDir / (std::string(gm->getName()) + ".png");
-            std::filesystem::path jsonPath = outputDir / (std::string(gm->getName()) + ".json");
+            SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
+            SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
 
             SkBitmap bitmap;
             bitmap.allocPixelsFlags(canvas->imageInfo(), SkBitmap::kZeroPixels_AllocFlag);

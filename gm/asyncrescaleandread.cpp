@@ -42,7 +42,7 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
     auto context = static_cast<AsyncContext*>(c);
     context->fResult = std::move(result);
     context->fCalled = true;
-};
+}
 
 // Draws the image to a surface, does a asyncRescaleAndReadPixels of the image, and then sticks
 // the result in a raster image.

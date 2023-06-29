@@ -11,7 +11,10 @@ load("//bazel:skia_rules.bzl", "skia_filegroup")
 # [2] https://bazel.build/reference/be/general#genrule.cmd
 exports_files(
     ["README"],
-    visibility = ["//tests:__pkg__"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tests:__pkg__",
+    ],
 )
 
 skia_filegroup(
@@ -505,5 +508,8 @@ skia_filegroup(
         "text/vai.txt",
         "//resources/sksl",
     ],
-    visibility = ["//tests:__pkg__"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tests:__pkg__",
+    ],
 )
