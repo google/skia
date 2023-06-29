@@ -106,7 +106,7 @@ static sk_sp<SkImage> do_read_and_scale_yuv(Src* src,
             return nullptr;
         }
 
-        graphiteContext->asyncRescaleAndReadPixelsYUV420(src, yuvCS, /*dstColorSpace=*/nullptr,
+        graphiteContext->asyncRescaleAndReadPixelsYUV420(src, yuvCS, SkColorSpace::MakeSRGB(),
                                                          srcRect, size, rescaleGamma, rescaleMode,
                                                          async_callback, &asyncContext);
         graphiteContext->submit();

@@ -25,6 +25,7 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/CopyTask.h"
+#include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
@@ -291,8 +292,39 @@ void Context::asyncRescaleAndReadPixelsYUV420(const SkImage* image,
                                            callbackContext);
     }
 
-    // TODO: fill in rescaling code, then call asyncReadPixelsYUV420 on result
-    callback(callbackContext, nullptr);
+    // Make Device from Recorder
+    auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
+    TextureProxyView proxyView = graphiteImage->textureProxyView();
+    sk_sp<Device> device = Device::Make(recorder.get(),
+                                        proxyView.refProxy(),
+                                        image->dimensions(),
+                                        srcImageInfo.colorInfo(),
+                                        SkSurfaceProps{},
+                                        false);
+    if (!device) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
+    SkImageInfo dstImageInfo = SkImageInfo::Make(dstSize,
+                                                 kRGBA_8888_SkColorType,
+                                                 srcImageInfo.colorInfo().alphaType(),
+                                                 dstColorSpace);
+    sk_sp<SkImage> scaledImage = device->rescale(srcRect,
+                                                 dstImageInfo,
+                                                 rescaleGamma,
+                                                 rescaleMode);
+    if (!scaledImage) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
+    this->asyncReadPixelsYUV420(recorder.get(),
+                                scaledImage.get(),
+                                yuvColorSpace,
+                                SkIRect::MakeSize(dstSize),
+                                callback,
+                                callbackContext);
 }
 
 void Context::asyncRescaleAndReadPixelsYUV420(const SkSurface* surface,
