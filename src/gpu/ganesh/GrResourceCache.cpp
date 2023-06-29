@@ -933,4 +933,19 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) {
     fTimestamp = newTimestamp;
 }
 
+void GrResourceCache::visitSurfaces(
+        const std::function<void(const GrSurface*, bool purgeable)>& func) const {
+
+    for (int i = 0; i < fNonpurgeableResources.size(); ++i) {
+        if (const GrSurface* surf = fNonpurgeableResources[i]->asSurface()) {
+            func(surf, /* purgeable= */ false);
+        }
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        if (const GrSurface* surf = fPurgeableQueue.at(i)->asSurface()) {
+            func(surf, /* purgeable= */ true);
+        }
+    }
+}
+
 #endif // GR_TEST_UTILS

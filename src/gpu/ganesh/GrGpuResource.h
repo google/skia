@@ -19,6 +19,10 @@ class GrGpu;
 class GrResourceCache;
 class SkTraceMemoryDump;
 
+#if GR_TEST_UTILS
+class GrSurface;
+#endif
+
 /**
  * Base class for GrGpuResource. Provides the hooks for resources to interact with the cache.
  * Separated out as a base class to isolate the ref-cnting behavior and provide friendship without
@@ -221,6 +225,10 @@ public:
     virtual const char* getResourceType() const = 0;
 
     static uint32_t CreateUniqueID();
+
+#if GR_TEST_UTILS
+    virtual const GrSurface* asSurface() const { return nullptr; }
+#endif
 
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
