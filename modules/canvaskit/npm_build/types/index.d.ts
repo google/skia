@@ -2692,6 +2692,18 @@ export interface SkPicture extends EmbindObject<"SkPicture"> {
                localMatrix?: InputMatrix, tileRect?: InputRect): Shader;
 
     /**
+     * Return the bounding area for the Picture.
+     * @param outputArray - if provided, the bounding box will be copied into this array instead of
+     *                      allocating a new one.
+     */
+    cullRect(outputArray?: Rect): Rect;
+
+    /**
+     * Returns the approximate byte size. Does not include large objects.
+     */
+    approximateBytesUsed() : number;
+
+    /**
      * Returns the serialized format of this SkPicture. The format may change at anytime and
      * no promises are made for backwards or forward compatibility.
      */
@@ -2703,8 +2715,11 @@ export interface PictureRecorder extends EmbindObject<"PictureRecorder"> {
      * Returns a canvas on which to draw. When done drawing, call finishRecordingAsPicture()
      *
      * @param bounds - a rect to cull the results.
+     * @param computeBounds - Optional boolean (default false) which tells the
+     *                        recorder to compute a more accurate bounds for the
+     *                        cullRect of the picture.
      */
-    beginRecording(bounds: InputRect): Canvas;
+    beginRecording(bounds: InputRect, computeBounds?: boolean): Canvas;
 
     /**
      * Returns the captured draw commands as a picture and invalidates the canvas returned earlier.

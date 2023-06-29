@@ -961,9 +961,26 @@ CanvasKit.onRuntimeInitialized = function() {
     return this._makeShader(tmx, tmy, mode, mPtr, rPtr);
   };
 
-  CanvasKit.PictureRecorder.prototype.beginRecording = function(bounds) {
+  // Clients can pass in a Float32Array with length 4 to this and the results
+  // will be copied into that array. Otherwise, a new TypedArray will be allocated
+  // and returned.
+  CanvasKit.Picture.prototype.cullRect = function (optionalOutputArray) {
+    this._cullRect(_scratchFourFloatsAPtr);
+    var ta = _scratchFourFloatsA['toTypedArray']();
+    if (optionalOutputArray) {
+      optionalOutputArray.set(ta);
+      return optionalOutputArray;
+    }
+    return ta.slice();
+  };
+
+  // `bounds` is a required argument and is the initial cullRect for the picture.
+  // `computeBounds` is an optional boolean argument (default false) which, if
+  // true, will cause the recorded picture to compute a more accurate cullRect
+  // when it is created.
+  CanvasKit.PictureRecorder.prototype.beginRecording = function (bounds, computeBounds) {
     var bPtr = copyRectToWasm(bounds);
-    return this._beginRecording(bPtr);
+    return this._beginRecording(bPtr, !!computeBounds);
   };
 
   CanvasKit.Surface.prototype.getCanvas = function() {

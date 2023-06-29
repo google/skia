@@ -700,6 +700,8 @@ function pictureTests(CK: CanvasKit) {
     const canvas = recorder.beginRecording(CK.LTRBRect(0, 0, 100, 100));  // $ExpectType Canvas
     const pic = recorder.finishRecordingAsPicture(); // $ExpectType SkPicture
     const bytes = pic.serialize(); // $ExpectType Uint8Array | null
+    const cullRect = pic.cullRect(); // $ExpectType Float32Array
+    const approxBytesUsed = pic.approximateBytesUsed(); // $ExpectType number
     const pic2 = CK.MakePicture(bytes!);
     const shader1 = pic2!.makeShader(CK.TileMode.Clamp, CK.TileMode.Decal, CK.FilterMode.Nearest);
     const shader2 = pic2!.makeShader(CK.TileMode.Clamp, CK.TileMode.Decal, CK.FilterMode.Nearest,

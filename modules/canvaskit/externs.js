@@ -676,10 +676,13 @@ var CanvasKit = {
 
   Picture: {
     serialize: function() {},
+    approximateByteSize: function() {},
     prototype: {
       makeShader: function() {},
+      cullRect: function () {},
     },
     _makeShader: function() {},
+    _cullRect: function () {},
   },
 
   PictureRecorder: {

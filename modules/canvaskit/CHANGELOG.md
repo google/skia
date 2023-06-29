@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `Picture.cullRect` which gives approximate bounds of the draw commands in the
+  picture.
+- `Picture.approximateBytesUsed` which returns an approximation of the bytes
+  used to store this picture. This size does not include large objects like
+  images.
  - `FontMgr.matchFamilyStyle` finds the closest matching typeface to the specified familyName and style.
 
 ### Fixed
@@ -15,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `MakeSWCanvasSurface` now allows passing an `OffscreenCanvas` element.
+- `Picture.beginRecording` takes an optional `computeBounds` boolean argument
+   which, when true, will cause the resulting recorded picture to compute a
+   more accurate `cullRect` when it is created.
 
 ## [0.38.2] - 2023-06-09
 

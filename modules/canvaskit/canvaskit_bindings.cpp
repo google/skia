@@ -8,6 +8,7 @@
 #include "include/android/SkAnimatedImage.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
@@ -1889,12 +1890,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
         ;
 
+    static SkRTreeFactory bbhFactory;
     class_<SkPictureRecorder>("PictureRecorder")
         .constructor<>()
         .function("_beginRecording", optional_override([](SkPictureRecorder& self,
-                                                          WASMPointerF32 fPtr) -> SkCanvas* {
+                                                          WASMPointerF32 fPtr,
+                                                          bool computeBounds) -> SkCanvas* {
             SkRect* bounds = reinterpret_cast<SkRect*>(fPtr);
-            return self.beginRecording(*bounds, nullptr);
+            return self.beginRecording(*bounds, computeBounds ? &bbhFactory : nullptr);
         }), allow_raw_pointers())
         .function("finishRecordingAsPicture", optional_override([](SkPictureRecorder& self)
                                                                    -> sk_sp<SkPicture> {
@@ -1910,6 +1913,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkRect* tileRect = reinterpret_cast<SkRect*>(rPtr);
             return self.makeShader(tmx, tmy, mode, &localMatrix, tileRect);
         }), allow_raw_pointers())
+        .function("_cullRect", optional_override([](SkPicture& self,
+                                                     WASMPointerF32 fPtr)->void {
+            SkRect* output = reinterpret_cast<SkRect*>(fPtr);
+            output[0] = self.cullRect();
+        }))
+        .function("approximateBytesUsed", &SkPicture::approximateBytesUsed)
 #ifdef CK_SERIALIZE_SKP
         // The serialized format of an SkPicture (informally called an "skp"), is not something
         // that clients should ever rely on.  The format may change at anytime and no promises
