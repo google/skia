@@ -24,6 +24,7 @@
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkSampler.h"
 
+#include <string_view>
 #include <utility>
 
 #if !defined(SK_DISABLE_LEGACY_INIT_DECODERS)
@@ -123,6 +124,15 @@ void Register(Decoder d) {
         }
     }
     decoders->push_back(d);
+}
+
+bool HasDecoder(std::string_view id) {
+    for (const SkCodecs::Decoder& decoder : get_decoders()) {
+        if (decoder.id == id) {
+            return true;
+        }
+    }
+    return false;
 }
 
 }  // namespace SkCodecs

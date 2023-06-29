@@ -15,6 +15,8 @@
 #include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkColorPalette.h"
 
+#include <string_view>
+
 #ifdef SK_PRINT_CODEC_MESSAGES
     #define SkCodecPrintf SkDebugf
 #else
@@ -251,6 +253,10 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
             return &SkPackARGB_as_BGRA;
         }
     }
+}
+
+namespace SkCodecs {
+bool HasDecoder(std::string_view id);
 }
 
 #endif // SkCodecPriv_DEFINED

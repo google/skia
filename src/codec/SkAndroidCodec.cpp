@@ -18,13 +18,9 @@
 #include "include/private/SkGainmapInfo.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "modules/skcms/skcms.h"
+#include "src/codec/SkAndroidCodecAdapter.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkSampledCodec.h"
-
-#if defined(SK_CODEC_DECODES_WEBP) || defined(SK_CODEC_DECODES_RAW) || \
-        defined(SK_HAS_WUFFS_LIBRARY) || defined(SK_CODEC_DECODES_AVIF)
-#include "src/codec/SkAndroidCodecAdapter.h"
-#endif
 
 #include <algorithm>
 #include <cstdint>
@@ -221,40 +217,37 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
         return nullptr;
     }
 
-    switch ((SkEncodedImageFormat)codec->getEncodedFormat()) {
+    const SkEncodedImageFormat format = codec->getEncodedFormat();
+    if (format == SkEncodedImageFormat::kAVIF) {
+        if (SkCodecs::HasDecoder("avif")) {
+            // If a dedicated AVIF decoder has been registered, SkAvifCodec can
+            // handle scaling internally.
+            return std::make_unique<SkAndroidCodecAdapter>(codec.release());
+        }
+        // This will fallback to SkHeifCodec, which needs sampling.
+        return std::make_unique<SkSampledCodec>(codec.release());
+    }
+
+    switch (format) {
         case SkEncodedImageFormat::kPNG:
         case SkEncodedImageFormat::kICO:
         case SkEncodedImageFormat::kJPEG:
-#ifndef SK_HAS_WUFFS_LIBRARY
-        case SkEncodedImageFormat::kGIF:
-#endif
         case SkEncodedImageFormat::kBMP:
         case SkEncodedImageFormat::kWBMP:
         case SkEncodedImageFormat::kHEIF:
-#ifndef SK_CODEC_DECODES_AVIF
-        case SkEncodedImageFormat::kAVIF:
-#endif
             return std::make_unique<SkSampledCodec>(codec.release());
-#ifdef SK_HAS_WUFFS_LIBRARY
         case SkEncodedImageFormat::kGIF:
-#endif
-#ifdef SK_CODEC_DECODES_WEBP
         case SkEncodedImageFormat::kWEBP:
-#endif
-#ifdef SK_CODEC_DECODES_RAW
         case SkEncodedImageFormat::kDNG:
-#endif
-#ifdef SK_CODEC_DECODES_AVIF
-        case SkEncodedImageFormat::kAVIF:
-#endif
-#if defined(SK_CODEC_DECODES_WEBP) || defined(SK_CODEC_DECODES_RAW) || \
-        defined(SK_HAS_WUFFS_LIBRARY) || defined(SK_CODEC_DECODES_AVIF)
             return std::make_unique<SkAndroidCodecAdapter>(codec.release());
-#endif
-
-        default:
+        case SkEncodedImageFormat::kAVIF: // Handled above
+        case SkEncodedImageFormat::kPKM:
+        case SkEncodedImageFormat::kKTX:
+        case SkEncodedImageFormat::kASTC:
+        case SkEncodedImageFormat::kJPEGXL:
             return nullptr;
     }
+    SkUNREACHABLE;
 }
 
 std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromData(sk_sp<SkData> data,
