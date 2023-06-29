@@ -20,7 +20,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <initializer_list>
 #include <memory>
 
 class SkArenaAlloc;
@@ -735,7 +734,12 @@ public:
     }
 
 private:
-    void appendInstruction(BuilderOp op, std::initializer_list<Slot> slots,
+    struct SlotList {
+        SlotList(Slot a = NA, Slot b = NA) : fSlotA(a), fSlotB(b) {}
+        Slot fSlotA = NA;
+        Slot fSlotB = NA;
+    };
+    void appendInstruction(BuilderOp op, SlotList slots,
                            int a = 0, int b = 0, int c = 0, int d = 0);
     Instruction* lastInstruction(int fromBack = 0);
     Instruction* lastInstructionOnAnyStack(int fromBack = 0);

@@ -182,14 +182,10 @@ static BuilderOp convert_n_way_op_to_immediate(BuilderOp op, int slots, int32_t*
     return op;
 }
 
-void Builder::appendInstruction(BuilderOp op, std::initializer_list<Slot> slots,
+void Builder::appendInstruction(BuilderOp op, SlotList slots,
                                 int immA, int immB, int immC, int immD) {
-    auto iter = slots.begin();
-    int slotA = (iter != slots.end()) ? *iter++ : -1;
-    int slotB = (iter != slots.end()) ? *iter++ : -1;
-    SkASSERT(iter == slots.end());
-
-    fInstructions.push_back({op, slotA, slotB, immA, immB, immC, immD, fCurrentStackID});
+    fInstructions.push_back({op, slots.fSlotA, slots.fSlotB,
+                             immA, immB, immC, immD, fCurrentStackID});
 }
 
 Instruction* Builder::lastInstruction(int fromBack) {
