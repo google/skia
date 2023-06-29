@@ -685,10 +685,7 @@ int main(int argc, char** argv) {
                     hash.write(blob->data(), blob->size());
                 }
 
-                SkMD5::Digest digest = hash.finish();
-                for (int j = 0; j < 16; j++) {
-                    md5.appendf("%02x", digest.data[j]);
-                }
+                md5 = hash.finish().toLowercaseHexString();
             }
 
             if (!FLAGS_writePath.isEmpty()) {

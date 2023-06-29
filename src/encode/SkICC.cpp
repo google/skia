@@ -10,13 +10,13 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkEndian.h"
-#include "src/base/SkUtils.h"
 #include "src/core/SkMD5.h"
 #include "src/encode/SkICCPriv.h"
 
@@ -264,13 +264,7 @@ static std::string get_desc_string(const skcms_TransferFunction& fn,
     md5.write(&toXYZD50, sizeof(toXYZD50));
     md5.write(&fn, sizeof(fn));
     SkMD5::Digest digest = md5.finish();
-    std::string md5_hexstring(2 * sizeof(SkMD5::Digest), ' ');
-    for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
-        uint8_t byte = digest.data[i];
-        md5_hexstring[2 * i + 0] = SkHexadecimalDigits::gUpper[byte >> 4];
-        md5_hexstring[2 * i + 1] = SkHexadecimalDigits::gUpper[byte & 0xF];
-    }
-    return "Google/Skia/" + md5_hexstring;
+    return std::string("Google/Skia/") + digest.toHexString().c_str();
 }
 
 static sk_sp<SkData> write_text_tag(const char* text) {

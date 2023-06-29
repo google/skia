@@ -2590,9 +2590,7 @@ void Viewer::drawImGui() {
                         SkMD5 hash;
                         hash.write(key->bytes(), key->size());
                         SkMD5::Digest digest = hash.finish();
-                        for (int i = 0; i < 16; ++i) {
-                            entry.fKeyString.appendf("%02x", digest.data[i]);
-                        }
+                        entry.fKeyString = digest.toLowercaseHexString();
                         entry.fKeyDescription = description;
 
                         SkReadBuffer reader(data->data(), data->size());

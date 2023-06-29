@@ -70,10 +70,7 @@ static std::string write_png_and_json_files(std::string name,
     SkMD5 hash;
     hashAndEncode.feedHash(&hash);
     SkMD5::Digest digest = hash.finish();
-    SkString md5;
-    for (int i = 0; i < 16; i++) {
-        md5.appendf("%02x", digest.data[i]);
-    }
+    SkString md5 = digest.toLowercaseHexString();
 
     // Write PNG file.
     SkFILEWStream pngFile(pngPath);

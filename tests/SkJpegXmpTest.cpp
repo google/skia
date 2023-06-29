@@ -51,17 +51,8 @@ static std::string uint32_to_string(uint32_t v) {
     return std::string(c, 4);
 }
 
-static std::string digest_to_hex_string(const SkMD5::Digest& digest) {
-    std::stringstream ss;
-    for (int i = 0; i < 16; ++i) {
-        ss << std::uppercase << std::setfill('0') << std::setw(2) << std::right << std::hex
-           << (int)digest.data[i];
-    }
-    return ss.str();
-}
-
 static std::string standard_xmp_with_header(const SkMD5::Digest& digest, const std::string& data) {
-    const std::string guid = digest_to_hex_string(digest);
+    const std::string guid = digest.toHexString().c_str();
     const std::string dataWithGuid = std::regex_replace(data, std::regex("\\$GUID"), guid);
     return std::string("http://ns.adobe.com/xap/1.0/") + '\0' + dataWithGuid;
 }
@@ -70,7 +61,7 @@ static std::string extended_xmp_with_header(const SkMD5::Digest& digest,
                                             uint32_t size,
                                             uint32_t offset,
                                             const std::string& data) {
-    return std::string("http://ns.adobe.com/xmp/extension/") + '\0' + digest_to_hex_string(digest) +
+    return std::string("http://ns.adobe.com/xmp/extension/") + '\0' + digest.toHexString().c_str() +
            uint32_to_string(size) + uint32_to_string(offset) + data;
 }
 

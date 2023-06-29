@@ -87,10 +87,7 @@ void MemoryCache::writeShadersToDisk(const char* path, GrBackendApi api) {
 #endif
         hash.write(it->first.fKey->bytes(), bytesToHash);
         SkMD5::Digest digest = hash.finish();
-        SkString md5;
-        for (int i = 0; i < 16; ++i) {
-            md5.appendf("%02x", digest.data[i]);
-        }
+        SkString md5 = digest.toLowercaseHexString();
 
         SkSL::Program::Interface interfacesIgnored[kGrShaderTypeCount];
         std::string shaders[kGrShaderTypeCount];
