@@ -1017,9 +1017,8 @@ public:
         return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
 
-    // Create a new context that matches this context, but with an overridden source.
-    // TODO: Have this take just a FilterResult when no origin manipulation is required.
-    Context withNewSource(sk_sp<SkSpecialImage> source, LayerSpace<SkIPoint> origin) const {
+#if defined(SK_USE_LEGACY_COMPOSE_IMAGEFILTER)
+   Context withNewSource(sk_sp<SkSpecialImage> source, LayerSpace<SkIPoint> origin) const {
         // TODO: Some legacy image filter implementations assume that the source FilterResult's
         // origin/transform is at (0,0). To accommodate that, we push the typical origin transform
         // into the param-to-layer matrix and adjust the desired output.
@@ -1029,6 +1028,14 @@ public:
         info.fSource = FilterResult(std::move(source));
         return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
     }
+#else
+    // Create a new context that matches this context, but with an overridden source.
+    Context withNewSource(const FilterResult& source) const {
+        ContextInfo info = fInfo;
+        info.fSource = source;
+        return Context(info, fGaneshContext, fGaneshOrigin, fGraphiteRecorder);
+    }
+#endif
 
 private:
     Context(const ContextInfo& info,
