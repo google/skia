@@ -77,6 +77,7 @@ public:
     // This will probably end up being a public function to change the current budget size, but for
     // now just making this a testing only function.
     void setMaxBudget(size_t bytes);
+    size_t getMaxBudget() const { return fMaxBytes; }
 
     size_t currentBudgetedBytes() const { return fBudgetedBytes; }
 
