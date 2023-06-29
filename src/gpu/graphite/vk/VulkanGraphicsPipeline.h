@@ -14,6 +14,7 @@
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 
 namespace SkSL {
     class Compiler;
@@ -33,6 +34,19 @@ public:
     inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
     inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
     inline static constexpr unsigned int kNumUniformBuffers = 3;
+
+    inline static const DescriptorData kIntrinsicUniformDescriptor  =
+            {DescriptorType::kUniformBuffer,
+             /*count=*/1,
+             VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex};
+    inline static const DescriptorData kRenderStepUniformDescriptor =
+            {DescriptorType::kUniformBuffer,
+             /*count=*/1,
+             VulkanGraphicsPipeline::kRenderStepUniformBufferIndex};
+    inline static const DescriptorData kPaintUniformDescriptor      =
+            {DescriptorType::kUniformBuffer,
+             /*count=*/1,
+             VulkanGraphicsPipeline::kPaintUniformBufferIndex};
 
     // For now, rigidly assign all uniform buffer descriptors to be in one descriptor set in binding
     // 0 and all texture/samplers to be in binding 1.
@@ -57,18 +71,20 @@ public:
         return fPipelineLayout;
     }
 
-    // TODO: Implement. For now, simply return whatever bool value enables us to run more dm tests.
-    bool hasStepUniforms() const { return false; }
-    bool hasFragment() const { return true; }
+    bool hasFragment() const { return fHasFragment; }
+    bool hasStepUniforms() const { return fHasStepUniforms; }
 
 private:
-    VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext
-                           /* TODO: fill out argument list */)
-        : GraphicsPipeline(sharedContext) { }
+    VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                           VkPipelineLayout,
+                           bool hasFragment,
+                           bool hasStepUniforms);
 
     void freeGpuData() override;
 
     VkPipelineLayout  fPipelineLayout = VK_NULL_HANDLE;
+    bool fHasFragment = false;
+    bool fHasStepUniforms = false;
 };
 
 } // namespace skgpu::graphite

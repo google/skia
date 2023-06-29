@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/vk/VulkanDescriptorPool.h"
 
 #include "include/private/base/SkTArray.h"
-#include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
 namespace skgpu::graphite {
@@ -41,7 +40,7 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext
         VkDescriptorPoolSize& poolSize = poolSizes.push_back();
         memset(&poolSize, 0, sizeof(VkDescriptorPoolSize));
         // Map each DescriptorSetType to the appropriate backend VkDescriptorType
-        poolSize.type = VulkanDescriptorSet::DsTypeEnumToVkDs(requestedDescCounts[i].type);
+        poolSize.type = DsTypeEnumToVkDs(requestedDescCounts[i].type);
         // Create a pool large enough to accommodate the maximum possible number of descriptor sets
         poolSize.descriptorCount = requestedDescCounts[i].count * kMaxNumSets;
     }

@@ -37,24 +37,6 @@ sk_sp<VulkanDescriptorSet> VulkanDescriptorSet::Make(const VulkanSharedContext* 
     return sk_sp<VulkanDescriptorSet>(new VulkanDescriptorSet(ctxt, descSet, pool));
 }
 
-VkDescriptorType VulkanDescriptorSet::DsTypeEnumToVkDs(DescriptorType type) {
-    switch (type) {
-        case DescriptorType::kUniformBuffer:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case DescriptorType::kTextureSampler:
-            return VK_DESCRIPTOR_TYPE_SAMPLER;
-        case DescriptorType::kTexture:
-            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-        case DescriptorType::kCombinedTextureSampler:
-            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        case DescriptorType::kStorageBuffer:
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        case DescriptorType::kInputAttachment:
-            return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-    }
-    SkUNREACHABLE;
-}
-
 VulkanDescriptorSet::VulkanDescriptorSet(const VulkanSharedContext* ctxt,
                                          VkDescriptorSet set,
                                          sk_sp<VulkanDescriptorPool> pool)

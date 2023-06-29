@@ -19,7 +19,6 @@
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
-#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -437,6 +436,92 @@ static void setup_shader_stage_info(VkShaderStageFlagBits stage,
     shaderStageInfo->pSpecializationInfo = nullptr;
 }
 
+static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedContext,
+                                  bool hasStepUniforms,
+                                  bool hasFragment,
+                                  int numTextureSamplers) {
+    // Determine descriptor set layouts based upon the number of uniform buffers & texture/samplers.
+    skia_private::STArray<2, VkDescriptorSetLayout> setLayouts;
+    skia_private::STArray<VulkanGraphicsPipeline::kNumUniformBuffers, DescriptorData>
+            uniformDescriptors;
+    uniformDescriptors.push_back(VulkanGraphicsPipeline::kIntrinsicUniformDescriptor);
+    if (hasStepUniforms) {
+        uniformDescriptors.push_back(VulkanGraphicsPipeline::kRenderStepUniformDescriptor);
+    }
+    if (hasFragment) {
+        uniformDescriptors.push_back(VulkanGraphicsPipeline::kPaintUniformDescriptor);
+    }
+    VkDescriptorSetLayout uniformSetLayout;
+    DescriptorDataToVkDescSetLayout(sharedContext, uniformDescriptors, &uniformSetLayout);
+    if (uniformSetLayout != VK_NULL_HANDLE) {
+        setLayouts.push_back(uniformSetLayout);
+    } else {
+        SkDebugf("Failed to create uniform descriptor set layout; pipeline creation will fail.\n");
+        return VK_NULL_HANDLE;
+    }
+
+    VkDescriptorSetLayout textureSamplerSetLayout;
+    if (numTextureSamplers > 0) {
+        skia_private::TArray<DescriptorData> textureSamplerDescs(numTextureSamplers);
+
+        for (int i = 0; i < numTextureSamplers; i++) {
+            textureSamplerDescs.push_back({DescriptorType::kCombinedTextureSampler, 1, i});
+        }
+        DescriptorDataToVkDescSetLayout(
+                sharedContext, textureSamplerDescs, &textureSamplerSetLayout);
+        if (textureSamplerSetLayout != VK_NULL_HANDLE) {
+            setLayouts.push_back(textureSamplerSetLayout);
+        } else {
+            SKGPU_LOG_W("Failed to create texture/sampler descriptor set layout!\n");
+            SkDebugf("Texture/sampler descriptors will not be able to bind.\n");
+        }
+    }
+
+    VkPipelineLayoutCreateInfo layoutCreateInfo;
+    memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.pNext = nullptr;
+    layoutCreateInfo.flags = 0;
+    layoutCreateInfo.setLayoutCount = setLayouts.size();
+    layoutCreateInfo.pSetLayouts = setLayouts.begin();
+    // TODO: Add support for push constants.
+    layoutCreateInfo.pushConstantRangeCount = 0;
+    layoutCreateInfo.pPushConstantRanges = nullptr;
+
+    VkResult result;
+    VkPipelineLayout layout;
+    VULKAN_CALL_RESULT(sharedContext->interface(),
+                       result,
+                       CreatePipelineLayout(sharedContext->device(),
+                                            &layoutCreateInfo,
+                                            /*const VkAllocationCallbacks*=*/nullptr,
+                                            &layout));
+    // Whether the pipeline layout creation was successful or not, clean up the prerequisite
+    // DescriptorSetLayout(s) that are no longer needed.
+    for (int i = 0; i < setLayouts.size(); i++) {
+        if (setLayouts[i] != VK_NULL_HANDLE) {
+            VULKAN_CALL(sharedContext->interface(),
+            DestroyDescriptorSetLayout(sharedContext->device(),
+                                       setLayouts[i],
+                                       nullptr));
+        }
+    }
+    return result == VK_SUCCESS ? layout : VK_NULL_HANDLE;
+}
+
+static void destroy_shader_modules(const VulkanSharedContext* sharedContext,
+                                   VkShaderModule vsModule,
+                                   VkShaderModule fsModule) {
+    if (vsModule != VK_NULL_HANDLE) {
+        VULKAN_CALL(sharedContext->interface(),
+                    DestroyShaderModule(sharedContext->device(), vsModule, nullptr));
+    }
+    if (fsModule != VK_NULL_HANDLE) {
+        VULKAN_CALL(sharedContext->interface(),
+                    DestroyShaderModule(sharedContext->device(), fsModule, nullptr));
+    }
+}
+
 sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         const VulkanSharedContext* sharedContext,
         SkSL::Compiler* compiler,
@@ -452,6 +537,12 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
             sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
     bool useShadingSsboIndex =
             sharedContext->caps()->storageBufferPreferred() && step->performsShading();
+
+    if (step->vertexAttributes().size() + step->instanceAttributes().size() >
+        sharedContext->vulkanCaps().maxVertexAttributes()) {
+        SKGPU_LOG_W("Requested more than the supported number of vertex attributes");
+        return nullptr;
+    }
 
     const FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
                                               sharedContext->shaderCodeDictionary(),
@@ -499,24 +590,14 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 
     vsModule = createVulkanShaderModule(sharedContext, vsSPIRV, VK_SHADER_STAGE_VERTEX_BIT);
     if (!vsModule) {
+        // Clean up the other shader module before returning.
+        destroy_shader_modules(sharedContext, VK_NULL_HANDLE, fsModule);
         return nullptr;
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     skia_private::STArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     skia_private::STArray<16, VkVertexInputAttributeDescription> attributeDescs;
-    if (step->vertexAttributes().size() + step->instanceAttributes().size() >
-        sharedContext->vulkanCaps().maxVertexAttributes()) {
-        SKGPU_LOG_W("Requested more than the supported number of vertex attributes");
-        // Clean up shader modules before returning.
-        VULKAN_CALL(sharedContext->interface(),
-            DestroyShaderModule(sharedContext->device(), vsModule, nullptr));
-        if (fsModule != VK_NULL_HANDLE) {
-            VULKAN_CALL(sharedContext->interface(),
-                        DestroyShaderModule(sharedContext->device(), fsModule, nullptr));
-        }
-        return nullptr;
-    }
     setup_vertex_input_state(step->vertexAttributes(),
                              step->instanceAttributes(),
                              &vertexInputInfo,
@@ -545,29 +626,77 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     // TODO: Check for wire frame mode once that is an available context option within graphite.
     setup_raster_state(/*isWireframe=*/false, &rasterInfo);
 
-    VkPipelineShaderStageCreateInfo vertexShaderStageInfo;
+    VkPipelineShaderStageCreateInfo pipelineShaderStages[2];
     setup_shader_stage_info(VK_SHADER_STAGE_VERTEX_BIT,
                             vsModule,
-                            &vertexShaderStageInfo);
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo;
-    setup_shader_stage_info(VK_SHADER_STAGE_FRAGMENT_BIT,
-                            fsModule,
-                            &fragShaderStageInfo);
-
-    // TODO: Set up other helpers and structs to populate VkGraphicsPipelineCreateInfo.
-
-    // After creating the pipeline object, we can clean up the VkShaderModule(s).
-    VULKAN_CALL(sharedContext->interface(),
-                DestroyShaderModule(sharedContext->device(), vsModule, nullptr));
-    if (fsModule != VK_NULL_HANDLE) {
-        VULKAN_CALL(sharedContext->interface(),
-                    DestroyShaderModule(sharedContext->device(), fsModule, nullptr));
+                            &pipelineShaderStages[0]);
+    if (hasFragment) {
+        setup_shader_stage_info(VK_SHADER_STAGE_FRAGMENT_BIT,
+                                fsModule,
+                                &pipelineShaderStages[1]);
     }
 
-    return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(sharedContext));
+    VkPipelineLayout pipelineLayout = setup_pipeline_layout(sharedContext,
+                                                            !step->uniforms().empty(),
+                                                            hasFragment,
+                                                            fsSkSLInfo.fNumTexturesAndSamplers);
+    if (pipelineLayout == VK_NULL_HANDLE) {
+        destroy_shader_modules(sharedContext, vsModule, fsModule);
+        return nullptr;
+    }
+
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo;
+    memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.pNext = nullptr;
+    pipelineCreateInfo.flags = 0;
+    pipelineCreateInfo.stageCount = hasFragment ? 2 : 1;
+    pipelineCreateInfo.pStages = &pipelineShaderStages[0];
+    pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
+    pipelineCreateInfo.pTessellationState = nullptr;
+    pipelineCreateInfo.pViewportState = &viewportInfo;
+    pipelineCreateInfo.pRasterizationState = &rasterInfo;
+    pipelineCreateInfo.pMultisampleState = &multisampleInfo;
+    pipelineCreateInfo.pDepthStencilState = &depthStencilInfo;
+    pipelineCreateInfo.pColorBlendState = &colorBlendInfo;
+    pipelineCreateInfo.pDynamicState = VK_NULL_HANDLE; // TODO: Create & reference dynamicInfo.
+    pipelineCreateInfo.layout = pipelineLayout;
+    // TODO - Determine/get VkRenderPass.
+    pipelineCreateInfo.renderPass = VK_NULL_HANDLE;
+    // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
+    // TODO: However, if we need to load a resolve into msaa attachment for discardable msaa then
+    // the main subpass will be 1.
+    pipelineCreateInfo.subpass = 0;
+    pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineCreateInfo.basePipelineIndex = -1;
+
+    // TODO: Create pipeline.
+
+    // After creating the pipeline object, we can clean up the VkShaderModule(s).
+    destroy_shader_modules(sharedContext, vsModule, fsModule);
+    return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(sharedContext,
+                                                                    pipelineLayout,
+                                                                    hasFragment,
+                                                                    !step->uniforms().empty()));
 }
 
+VulkanGraphicsPipeline::VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                                               VkPipelineLayout pipelineLayout,
+                                               bool hasFragment,
+                                               bool hasStepUniforms)
+    : GraphicsPipeline(sharedContext)
+    , fPipelineLayout(pipelineLayout)
+    , fHasFragment(hasFragment)
+    , fHasStepUniforms(hasStepUniforms) { }
+
 void VulkanGraphicsPipeline::freeGpuData() {
+    auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
+    // TODO: Destroy pipeline.
+    if (fPipelineLayout != VK_NULL_HANDLE) {
+        VULKAN_CALL(sharedCtxt->interface(),
+                    DestroyPipelineLayout(sharedCtxt->device(), fPipelineLayout, nullptr));
+    }
 }
 
 } // namespace skgpu::graphite

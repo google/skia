@@ -67,4 +67,61 @@ VkShaderModule createVulkanShaderModule(const VulkanSharedContext* context,
     return shaderModule;
 }
 
+void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
+                                     const SkSpan<DescriptorData>& requestedDescriptors,
+                                     VkDescriptorSetLayout* outLayout) {
+    skia_private::STArray<kDescriptorTypeCount, VkDescriptorSetLayoutBinding> bindingLayouts;
+    for (size_t i = 0; i < requestedDescriptors.size(); i++) {
+        if (requestedDescriptors[i].count != 0) {
+            VkDescriptorSetLayoutBinding& layoutBinding = bindingLayouts.push_back();
+            memset(&layoutBinding, 0, sizeof(VkDescriptorSetLayoutBinding));
+            layoutBinding.binding = requestedDescriptors[i].bindingIndex;
+            layoutBinding.descriptorType = DsTypeEnumToVkDs(requestedDescriptors[i].type);
+            layoutBinding.descriptorCount = requestedDescriptors[i].count;
+            // TODO: Obtain layout binding stage flags from visibility (vertex or shader)
+            layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+            // TODO: Optionally set immutableSamplers here.
+            layoutBinding.pImmutableSamplers = nullptr;
+        }
+    }
+
+    VkDescriptorSetLayoutCreateInfo layoutCreateInfo;
+    memset(&layoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.pNext = nullptr;
+    layoutCreateInfo.flags = 0;
+    layoutCreateInfo.bindingCount = bindingLayouts.size();
+    layoutCreateInfo.pBindings = &bindingLayouts.front();
+
+    VkResult result;
+    VULKAN_CALL_RESULT(ctxt->interface(),
+                       result,
+                       CreateDescriptorSetLayout(ctxt->device(),
+                                                 &layoutCreateInfo,
+                                                 nullptr,
+                                                 outLayout));
+    if (result != VK_SUCCESS) {
+        SkDebugf("Failed to create VkDescriptorSetLayout\n");
+        outLayout = VK_NULL_HANDLE;
+    }
+}
+
+VkDescriptorType DsTypeEnumToVkDs(DescriptorType type) {
+    switch (type) {
+        case DescriptorType::kUniformBuffer:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        case DescriptorType::kTextureSampler:
+            return VK_DESCRIPTOR_TYPE_SAMPLER;
+        case DescriptorType::kTexture:
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+        case DescriptorType::kCombinedTextureSampler:
+            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        case DescriptorType::kStorageBuffer:
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        case DescriptorType::kInputAttachment:
+            return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+    }
+    SkUNREACHABLE;
+}
+
 } // namespace skgpu::graphite

@@ -571,32 +571,20 @@ void VulkanCommandBuffer::syncDescriptorSets() {
 
 void VulkanCommandBuffer::bindUniformBuffers() {
     fBindUniformBuffers = false;
-    static const DescriptorData kIntrinsicUniformDescriptor  =
-            {DescriptorType::kUniformBuffer,
-             /*count=*/1,
-             VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex};
-    static const DescriptorData kRenderStepUniformDescriptor =
-            {DescriptorType::kUniformBuffer,
-             /*count=*/1,
-             VulkanGraphicsPipeline::kRenderStepUniformBufferIndex};
-    static const DescriptorData kPaintUniformDescriptor      =
-            {DescriptorType::kUniformBuffer,
-             /*count=*/1,
-             VulkanGraphicsPipeline::kPaintUniformBufferIndex};
 
     // We always bind at least one uniform buffer descriptor for intrinsic uniforms, but can bind
     // up to three (one for render step uniforms, one for paint uniforms).
     fUniformBuffersToBind[VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex] =
             {fIntrinsicUniformBuffer.get(), /*size_t offset=*/0};
     STArray<VulkanGraphicsPipeline::kNumUniformBuffers, DescriptorData> descriptors;
-    descriptors.push_back(kIntrinsicUniformDescriptor);
+    descriptors.push_back(VulkanGraphicsPipeline::kIntrinsicUniformDescriptor);
     if (fActiveGraphicsPipeline->hasStepUniforms() &&
             fUniformBuffersToBind[VulkanGraphicsPipeline::kRenderStepUniformBufferIndex].fBuffer) {
-        descriptors.push_back(kRenderStepUniformDescriptor);
+        descriptors.push_back(VulkanGraphicsPipeline::kRenderStepUniformDescriptor);
     }
     if (fActiveGraphicsPipeline->hasFragment() &&
             fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
-        descriptors.push_back(kPaintUniformDescriptor);
+        descriptors.push_back(VulkanGraphicsPipeline::kPaintUniformDescriptor);
     }
     sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
             SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});
