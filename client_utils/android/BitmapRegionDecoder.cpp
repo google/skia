@@ -79,10 +79,6 @@ bool BitmapRegionDecoder::decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator
     }
     SkISize scaledSize = fCodec->getSampledSubsetDimensions(sampleSize, subset);
 
-    if (fCodec->getInfo().colorType() == kGray_8_SkColorType) {
-        dstColorType = kGray_8_SkColorType;
-    }
-
     // Create the image info for the decode
     SkAlphaType dstAlphaType = fCodec->computeOutputAlphaType(requireUnpremul);
     SkImageInfo decodeInfo =
