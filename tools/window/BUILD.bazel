@@ -1,5 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_objc_library")
-load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_library")
 
 licenses(["notice"])
 
@@ -27,7 +26,7 @@ skia_cc_library(
     }) + select({
         "@platforms//os:android": ["//tools/window/android:srcs"],
         "//conditions:default": [],
-    }) +  select({
+    }) + select({
         "@platforms//os:linux": ["//tools/window/unix:srcs"],
         "//conditions:default": [],
         # TODO(kjlubick) add Windows/Mac support
