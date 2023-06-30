@@ -144,6 +144,18 @@ void draw_tiled_bitmap_ganesh(skgpu::ganesh::Device* device,
                                constraint);
 }
 
+size_t get_cache_size(SkBaseDevice* device) {
+    if (auto dContext = GrAsDirectContext(device->recordingContext())) {
+        // NOTE: if the context is not a direct context, it doesn't have access to the resource
+        // cache, and theoretically, the resource cache's limits could be being changed on
+        // another thread, so even having access to just the limit wouldn't be a reliable
+        // test during recording here.
+        return dContext->getResourceCacheLimit();
+    }
+
+    return 0;
+}
+
 } // anonymous namespace
 
 namespace skgpu {
@@ -199,14 +211,8 @@ void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
             maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
         }
 #endif
-        size_t cacheSize = 0;
-        if (auto dContext = rContext->asDirectContext(); dContext) {
-            // NOTE: if the context is not a direct context, it doesn't have access to the resource
-            // cache, and theoretically, the resource cache's limits could be being changed on
-            // another thread, so even having access to just the limit wouldn't be a reliable
-            // test during recording here.
-            cacheSize = dContext->getResourceCacheLimit();
-        }
+        size_t cacheSize = get_cache_size(device);
+
         int tileSize;
         SkIRect clippedSubset;
         if (ShouldTileImage(clipRect,
