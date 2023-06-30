@@ -146,18 +146,6 @@ void draw_tiled_bitmap_graphite(SkCanvas* canvas,
                                             constraint);
 }
 
-size_t get_cache_size(SkBaseDevice* device) {
-    if (auto recorder = device->recorder()) {
-        // For Graphite this is a pretty loose heuristic. The Recorder-local cache size (relative
-        // to the large image's size) is used as a proxy for how conservative we should be when
-        // allocating tiles. Since the tiles will actually be owned by the client (via an
-        // ImageProvider) they won't actually add any memory pressure directly to Graphite.
-        return recorder->priv().resourceCache()->getMaxBudget();
-    }
-
-    return 0;
-}
-
 } // anonymous namespace
 
 namespace skgpu {
@@ -217,8 +205,10 @@ void TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
             maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
         }
 #endif
-
-        size_t cacheSize = get_cache_size(device);
+        // TODO: enable the cacheSize-based tiling heuristic for Graphite. In this heuristic,
+        // if the texture would take up more than 50% of the cache but we really only need
+        // less than half of it, then split it into tiles.
+        size_t cacheSize = 0;
 
         int tileSize;
         SkIRect clippedSubset;
