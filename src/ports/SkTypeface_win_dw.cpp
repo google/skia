@@ -77,12 +77,16 @@ HRESULT DWriteFontTypeface::initializePalette() {
             SkTo<UINT32>(paletteOverride.index) < dwPaletteEntryCount)
         {
             fPalette[paletteOverride.index] = paletteOverride.color;
-            fDWPalette[paletteOverride.index] = DWRITE_COLOR_F{
-                {(FLOAT)SkColorGetR(paletteOverride.color)},
-                {(FLOAT)SkColorGetG(paletteOverride.color)},
-                {(FLOAT)SkColorGetB(paletteOverride.color)},
-                {(FLOAT)SkColorGetA(paletteOverride.color)},
-            };
+
+            // Avoid brace initialization as DWRITE_COLOR_F can be defined as four floats
+            // (dxgitype.h, d3d9types.h) or four unions of two floats (dwrite_2.h, d3dtypes.h).
+            // The type changed in Direct3D 10, but the change does not appear to be documented.
+            const SkColor4f skColor = SkColor4f::FromColor(paletteOverride.color);
+            DWRITE_COLOR_F& dwColor = fDWPalette[paletteOverride.index];
+            dwColor.r = skColor.fR;
+            dwColor.g = skColor.fG;
+            dwColor.b = skColor.fB;
+            dwColor.a = skColor.fA;
         }
     }
     fPaletteEntryCount = dwPaletteEntryCount;
