@@ -86,6 +86,7 @@ void GrGpuResource::dumpMemoryStatisticsPriv(SkTraceMemoryDump* traceMemoryDump,
 
     traceMemoryDump->dumpNumericValue(resourceName.c_str(), "size", "bytes", size);
     traceMemoryDump->dumpStringValue(resourceName.c_str(), "type", type);
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "label", this->getLabel().c_str());
     traceMemoryDump->dumpStringValue(resourceName.c_str(), "category", tag);
     if (this->isPurgeable()) {
         traceMemoryDump->dumpNumericValue(resourceName.c_str(), "purgeable_size", "bytes", size);
