@@ -62,7 +62,8 @@ public:
                                               SkSL::Compiler* compiler,
                                               const RuntimeEffectDictionary*,
                                               const GraphicsPipelineDesc&,
-                                              const RenderPassDesc&);
+                                              const RenderPassDesc&,
+                                              VkPipelineCache);
 
     ~VulkanGraphicsPipeline() override {}
 
@@ -71,18 +72,25 @@ public:
         return fPipelineLayout;
     }
 
+    VkPipeline pipeline() const {
+        SkASSERT(fPipeline != VK_NULL_HANDLE);
+        return fPipeline;
+    }
+
     bool hasFragment() const { return fHasFragment; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
 
 private:
     VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                            VkPipelineLayout,
+                           VkPipeline,
                            bool hasFragment,
                            bool hasStepUniforms);
 
     void freeGpuData() override;
 
-    VkPipelineLayout  fPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout fPipelineLayout = VK_NULL_HANDLE;
+    VkPipeline fPipeline = VK_NULL_HANDLE;
     bool fHasFragment = false;
     bool fHasStepUniforms = false;
 };

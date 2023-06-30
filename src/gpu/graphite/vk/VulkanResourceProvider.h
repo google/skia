@@ -45,8 +45,10 @@ private:
     void onDeleteBackendTexture(BackendTexture&) override {}
 
     sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
+    VkPipelineCache pipelineCache();
 
     friend class VulkanCommandBuffer;
+    VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 };
 
 } // namespace skgpu::graphite

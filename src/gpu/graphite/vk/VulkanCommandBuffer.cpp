@@ -533,6 +533,10 @@ void VulkanCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsP
     // So long as 2 pipelines have the same pipeline layout, descriptor sets do not need to be
     // re-bound. If the layouts differ, we should set fBindUniformBuffers to true.
     fActiveGraphicsPipeline = static_cast<const VulkanGraphicsPipeline*>(graphicsPipeline);
+    SkASSERT(fActiveRenderPass);
+    VULKAN_CALL(fSharedContext->interface(), CmdBindPipeline(fPrimaryCommandBuffer,
+                                                             VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                             fActiveGraphicsPipeline->pipeline()));
 }
 
 void VulkanCommandBuffer::setBlendConstants(float* blendConstants) {

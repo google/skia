@@ -60,7 +60,14 @@ VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
                                                uint32_t recorderID)
         : ResourceProvider(sharedContext, singleOwner, recorderID) {}
 
-VulkanResourceProvider::~VulkanResourceProvider() {}
+VulkanResourceProvider::~VulkanResourceProvider() {
+    if (fPipelineCache != VK_NULL_HANDLE) {
+        VULKAN_CALL(this->vulkanSharedContext()->interface(),
+                    DestroyPipelineCache(this->vulkanSharedContext()->device(),
+                                         fPipelineCache,
+                                         nullptr));
+    }
+}
 
 const VulkanSharedContext* VulkanResourceProvider::vulkanSharedContext() {
     return static_cast<const VulkanSharedContext*>(fSharedContext);
@@ -79,7 +86,8 @@ sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
                                         &skslCompiler,
                                         runtimeDict,
                                         pipelineDesc,
-                                        renderPassDesc);
+                                        renderPassDesc,
+                                        this->pipelineCache());
 }
 
 sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
@@ -149,5 +157,28 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
     auto descSet = fResourceCache->findAndRefResource(descSetKeys[0], skgpu::Budgeted::kNo);
     return descSet ? sk_sp<VulkanDescriptorSet>(static_cast<VulkanDescriptorSet*>(descSet))
                    : nullptr;
+}
+
+VkPipelineCache VulkanResourceProvider::pipelineCache() {
+    if (fPipelineCache == VK_NULL_HANDLE) {
+        VkPipelineCacheCreateInfo createInfo;
+        memset(&createInfo, 0, sizeof(VkPipelineCacheCreateInfo));
+        createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+        createInfo.pNext = nullptr;
+        createInfo.flags = 0;
+        createInfo.initialDataSize = 0;
+        createInfo.pInitialData = nullptr;
+        VkResult result;
+        VULKAN_CALL_RESULT(this->vulkanSharedContext()->interface(),
+                           result,
+                           CreatePipelineCache(this->vulkanSharedContext()->device(),
+                                               &createInfo,
+                                               nullptr,
+                                               &fPipelineCache));
+        if (VK_SUCCESS != result) {
+            fPipelineCache = VK_NULL_HANDLE;
+        }
+    }
+    return fPipelineCache;
 }
 } // namespace skgpu::graphite

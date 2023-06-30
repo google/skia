@@ -80,6 +80,8 @@ public:
         return fMaxVertexAttributes;
     }
 
+    uint64_t getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const;
+
 private:
     enum VkVendor {
         kAMD_VkVendor             = 4098,
