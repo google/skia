@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanTexture.h"
+#include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
 
@@ -73,8 +74,9 @@ sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
+    SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
     return VulkanGraphicsPipeline::Make(this->vulkanSharedContext(),
-                                        this->skslCompiler(),
+                                        &skslCompiler,
                                         runtimeDict,
                                         pipelineDesc,
                                         renderPassDesc);

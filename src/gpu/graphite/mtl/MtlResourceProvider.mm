@@ -30,6 +30,7 @@
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
 #include "src/gpu/mtl/MtlUtilsPriv.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 #import <Metal/Metal.h>
@@ -110,7 +111,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
 
     settings.fForceNoRTFlip = true;
 
-    auto skslCompiler = this->skslCompiler();
+    SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
     ShaderErrorHandler* errorHandler = fSharedContext->caps()->shaderErrorHandler();
 
     const RenderStep* step =
@@ -129,7 +130,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     const std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
-    if (!SkSLToMSL(skslCompiler,
+    if (!SkSLToMSL(&skslCompiler,
                    fsSkSL,
                    SkSL::ProgramKind::kGraphiteFragment,
                    settings,
@@ -139,7 +140,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
         return nullptr;
     }
 
-    if (!SkSLToMSL(skslCompiler,
+    if (!SkSLToMSL(&skslCompiler,
                    GetSkSLVS(fSharedContext->caps()->resourceBindingRequirements(),
                              step,
                              useShadingSsboIndex,
@@ -189,11 +190,11 @@ sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
         SkSL::Program::Interface interface;
         SkSL::ProgramSettings settings;
 
-        auto skslCompiler = this->skslCompiler();
+        SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
         auto computeSkSL = pipelineDesc.computeStep()->computeSkSL(
                 fSharedContext->caps()->resourceBindingRequirements(),
                 /*nextBindingIndex=*/0);
-        if (!SkSLToMSL(skslCompiler,
+        if (!SkSLToMSL(&skslCompiler,
                        computeSkSL,
                        SkSL::ProgramKind::kCompute,
                        settings,

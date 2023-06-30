@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
+#include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
 
@@ -188,8 +189,9 @@ sk_sp<GraphicsPipeline> DawnResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
+    SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
     return DawnGraphicsPipeline::Make(this->dawnSharedContext(),
-                                      this->skslCompiler(),
+                                      &skslCompiler,
                                       runtimeDict,
                                       pipelineDesc,
                                       renderPassDesc);

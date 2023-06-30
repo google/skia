@@ -31,8 +31,7 @@ ResourceProvider::ResourceProvider(SharedContext* sharedContext,
                                    SingleOwner* singleOwner,
                                    uint32_t recorderID)
         : fSharedContext(sharedContext)
-        , fResourceCache(ResourceCache::Make(singleOwner, recorderID))
-        , fCompiler(std::make_unique<SkSL::Compiler>(fSharedContext->caps()->shaderCaps())) {}
+        , fResourceCache(ResourceCache::Make(singleOwner, recorderID)) {}
 
 ResourceProvider::~ResourceProvider() {
     fResourceCache->shutdown();
