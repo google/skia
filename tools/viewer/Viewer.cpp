@@ -29,6 +29,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/graphite/Context.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
@@ -46,6 +47,8 @@
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobPriv.h"
+#include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/GlobalCache.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLString.h"
 #include "src/text/GlyphRun.h"
@@ -1994,7 +1997,7 @@ void Viewer::drawImGui() {
         DisplayParams params = fWindow->getRequestedDisplayParams();
         bool displayParamsChanged = false; // heavy-weight, might recreate entire context
         bool uiParamsChanged = false;      // light weight, just triggers window invalidation
-        auto ctx = fWindow->directContext();
+        GrDirectContext* ctx = fWindow->directContext();
 
         if (ImGui::Begin("Tools", &fShowImGuiDebugWindow,
                          ImGuiWindowFlags_AlwaysVerticalScrollbar)) {
@@ -2034,17 +2037,17 @@ void Viewer::drawImGui() {
                     });
                 }
 
-                bool* wire = &params.fGrContextOptions.fWireframeMode;
-                if (ctx && ImGui::Checkbox("Wireframe Mode", wire)) {
-                    displayParamsChanged = true;
-                }
-
-                bool* reducedShaders = &params.fGrContextOptions.fReducedShaderVariations;
-                if (ctx && ImGui::Checkbox("Reduced shaders", reducedShaders)) {
-                    displayParamsChanged = true;
-                }
-
                 if (ctx) {
+                    bool* wire = &params.fGrContextOptions.fWireframeMode;
+                    if (ImGui::Checkbox("Wireframe Mode", wire)) {
+                        displayParamsChanged = true;
+                    }
+
+                    bool* reducedShaders = &params.fGrContextOptions.fReducedShaderVariations;
+                    if (ImGui::Checkbox("Reduced shaders", reducedShaders)) {
+                        displayParamsChanged = true;
+                    }
+
                     // Determine the context's max sample count for MSAA radio buttons.
                     int sampleCount = fWindow->sampleCount();
                     int maxMSAA = (fBackendType != sk_app::Window::kRaster_BackendType) ?
@@ -2583,24 +2586,33 @@ void Viewer::drawImGui() {
                 // caches on one frame, then set a flag to poll the cache on the next frame.
                 static bool gLoadPending = false;
                 if (gLoadPending) {
-                    auto collectShaders = [this](sk_sp<const SkData> key, sk_sp<SkData> data,
-                                                 const SkString& description, int hitCount) {
-                        CachedShader& entry(fCachedShaders.push_back());
-                        entry.fKey = key;
-                        SkMD5 hash;
-                        hash.write(key->bytes(), key->size());
-                        SkMD5::Digest digest = hash.finish();
-                        entry.fKeyString = digest.toLowercaseHexString();
-                        entry.fKeyDescription = description;
-
-                        SkReadBuffer reader(data->data(), data->size());
-                        entry.fShaderType = GrPersistentCacheUtils::GetType(&reader);
-                        GrPersistentCacheUtils::UnpackCachedShaders(&reader, entry.fShader,
-                                                                    entry.fInterfaces,
-                                                                    kGrShaderTypeCount);
-                    };
                     fCachedShaders.clear();
-                    fPersistentCache.foreach(collectShaders);
+
+                    if (ctx) {
+                        fPersistentCache.foreach([this](sk_sp<const SkData> key,
+                                                        sk_sp<SkData> data,
+                                                        const SkString& description,
+                                                        int hitCount) {
+                            CachedShader& entry(fCachedShaders.push_back());
+                            entry.fKey = key;
+                            SkMD5 hash;
+                            hash.write(key->bytes(), key->size());
+                            entry.fKeyString = hash.finish().toHexString();
+                            entry.fKeyDescription = description;
+
+                            SkReadBuffer reader(data->data(), data->size());
+                            entry.fShaderType = GrPersistentCacheUtils::GetType(&reader);
+                            GrPersistentCacheUtils::UnpackCachedShaders(&reader, entry.fShader,
+                                                                        entry.fInterfaces,
+                                                                        kGrShaderTypeCount);
+                        });
+                    }
+#if defined(SK_GRAPHITE)
+                    if (skgpu::graphite::Context* gctx = fWindow->graphiteContext()) {
+                        // TODO(skia:14418): populate fCachedShaders with recently-used shaders
+                    }
+#endif
+
                     gLoadPending = false;
 
 #if defined(SK_VULKAN)
@@ -2621,10 +2633,14 @@ void Viewer::drawImGui() {
 
                 // Defer actually doing the View/Apply logic so that we can trigger an Apply when we
                 // start or finish hovering on a tree node in the list below:
-                bool doView      = ImGui::Button("View"); ImGui::SameLine();
-                bool doApply     = ImGui::Button("Apply Changes"); ImGui::SameLine();
-                bool doDump      = ImGui::Button("Dump SkSL to resources/sksl/");
-
+                bool doView  = ImGui::Button("View"); ImGui::SameLine();
+                bool doApply = false;
+                bool doDump  = false;
+                if (ctx) {
+                    // TODO(skia:14418): we only have Ganesh implementations of Apply/Dump
+                    doApply  = ImGui::Button("Apply Changes"); ImGui::SameLine();
+                    doDump   = ImGui::Button("Dump SkSL to resources/sksl/");
+                }
                 int newOptLevel = fOptLevel;
                 ImGui::RadioButton("SkSL", &newOptLevel, kShaderOptLevel_Source);
                 ImGui::SameLine();
@@ -2707,7 +2723,14 @@ void Viewer::drawImGui() {
 
                 if (doView || sDoDeferredView) {
                     fPersistentCache.reset();
-                    ctx->priv().getGpu()->resetShaderCacheForTesting();
+                    if (ctx) {
+                        ctx->priv().getGpu()->resetShaderCacheForTesting();
+                    }
+#if defined(SK_GRAPHITE)
+                    if (skgpu::graphite::Context* gctx = fWindow->graphiteContext()) {
+                        gctx->priv().globalCache()->deleteResources();
+                    }
+#endif
                     gLoadPending = true;
                     sDoDeferredView = false;
                 }
