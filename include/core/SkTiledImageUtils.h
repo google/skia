@@ -17,6 +17,13 @@
 #include "include/private/base/SkAPI.h"
 class SkPaint;
 
+/** \namespace SkTiledImageUtils
+    SkTiledImageUtils' DrawImage/DrawImageRect methods are intended to be direct replacements
+    for their SkCanvas equivalents. The SkTiledImageUtils calls will break SkBitmap-backed
+    SkImages into smaller tiles and draw them if the original image is too large to be
+    uploaded to the GPU. If the original image doesn't need tiling or is already gpu-backed
+    the DrawImage/DrawImageRect calls will fall through to the matching SkCanvas call.
+*/
 namespace SkTiledImageUtils {
 
 SK_API void DrawImageRect(SkCanvas* canvas,
