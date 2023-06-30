@@ -145,7 +145,25 @@ void ComputePathAtlas::onAddShape(const Shape& shape,
     if (styleType == SkStrokeRec::kStroke_Style ||
         styleType == SkStrokeRec::kHairline_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
-        fScene.solidStroke(devicePath, SkColors::kRed, style.getWidth(), atlasTransform);
+        // We need to special-case hairline strokes and strokes with sub-pixel width as Vello
+        // draws these with aliasing and the results are barely visible. Draw the stroke with a
+        // device-space width of 1 pixel and scale down the alpha by the true width to approximate
+        // the sampled area.
+        float width = style.getWidth();
+        float deviceWidth = width * atlasTransform.maxScaleFactor();
+        if (style.isHairlineStyle() || deviceWidth <= 1.0) {
+            // Both strokes get 1/2 weight scaled by the theoretical area (1 for hairlines,
+            // `deviceWidth` otherwise).
+            SkColor4f color = SkColors::kRed;
+            color.fR *= style.isHairlineStyle() ? 1.0 : deviceWidth;
+
+            // Transform the stroke's width to its local coordinate space since it'll get drawn with
+            // `atlasTransform`.
+            float transformedWidth = 1.0f / atlasTransform.maxScaleFactor();
+            fScene.solidStroke(devicePath, color, transformedWidth, atlasTransform);
+        } else {
+            fScene.solidStroke(devicePath, SkColors::kRed, style.getWidth(), atlasTransform);
+        }
     }
     if (styleType == SkStrokeRec::kFill_Style || styleType == SkStrokeRec::kStrokeAndFill_Style) {
         fScene.solidFill(devicePath, SkColors::kRed, shape.fillType(), atlasTransform);
