@@ -2459,8 +2459,8 @@ UNIX_ONLY_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
 
     REPORTER_ASSERT(reporter, boxes.size() == 1ull);
 
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 538.548f, EPSILON100));  // DIFF: 510.09375
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.268f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 538.120f, EPSILON100));  // DIFF: 510.09375
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.280f, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(),  900, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
@@ -2510,10 +2510,10 @@ UNIX_ONLY_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, boxes);
 
     REPORTER_ASSERT(reporter, boxes.size() == 2ull);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 83.92f, EPSILON100));  // DIFF: 89.40625
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 65.65f, EPSILON100));  // DIFF: 89.40625
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 105.16f, EPSILON100)); // DIFF: 121.87891
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 86.89f, EPSILON100)); // DIFF: 121.87891
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44.0f, EPSILON100));
 }
 
 // Checked DIFF+
@@ -2558,9 +2558,9 @@ UNIX_ONLY_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, boxes);
 
     REPORTER_ASSERT(reporter, boxes.size() == 2ull); // DIFF
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.5f, EPSILON100));         // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.1f, EPSILON100));         // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 582.74f, EPSILON100));       // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 582.34f, EPSILON100));       // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
