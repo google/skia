@@ -66,6 +66,22 @@ public:
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);
 
+    void asyncRescaleAndReadPixels(const SkImage* image,
+                                   const SkImageInfo& dstImageInfo,
+                                   const SkIRect& srcRect,
+                                   SkImage::RescaleGamma rescaleGamma,
+                                   SkImage::RescaleMode rescaleMode,
+                                   SkImage::ReadPixelsCallback callback,
+                                   SkImage::ReadPixelsContext context);
+
+    void asyncRescaleAndReadPixels(const SkSurface* surface,
+                                   const SkImageInfo& dstImageInfo,
+                                   const SkIRect& srcRect,
+                                   SkImage::RescaleGamma rescaleGamma,
+                                   SkImage::RescaleMode rescaleMode,
+                                   SkImage::ReadPixelsCallback callback,
+                                   SkImage::ReadPixelsContext context);
+
     void asyncRescaleAndReadPixelsYUV420(const SkImage*,
                                          SkYUVColorSpace yuvColorSpace,
                                          sk_sp<SkColorSpace> dstColorSpace,
