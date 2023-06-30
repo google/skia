@@ -30,4 +30,11 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder*,
 
 } // namespace skgpu::graphite
 
+namespace skif {
+class Context;
+struct ContextInfo;
+Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
+                            const ContextInfo& info);
+}  // namespace skif
+
 #endif // skgpu_graphite_ImageUtils_DEFINED
