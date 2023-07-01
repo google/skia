@@ -83,6 +83,8 @@ public:
     // Bounds for a dst copy required by this DrawList.
     const Rect& dstCopyBounds() const { return fDstCopyBounds; }
 
+    SkDEBUGCODE(bool hasAtlasDraws() const { return fAtlasShapeDrawCount > 0; })
+
 private:
     friend class DrawPass;
 
@@ -107,6 +109,11 @@ private:
 
     // Running total of RenderSteps for all draws, assuming nothing is culled
     int fRenderStepCount;
+
+#if defined(SK_DEBUG)
+    // The number of AtlasShape draws that have been recorded. Used in debugging.
+    int fAtlasShapeDrawCount = 0;
+#endif
 
     Rect fDstCopyBounds = Rect::InfiniteInverted();
 };

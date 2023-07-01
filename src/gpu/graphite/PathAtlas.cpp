@@ -9,7 +9,9 @@
 
 #include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -22,6 +24,13 @@
 #endif
 
 namespace skgpu::graphite {
+namespace {
+
+// TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
+// TODO: This is the maximum target dimension that vello can handle today
+constexpr uint32_t kComputeAtlasDim = 4096;
+
+}  // namespace
 
 PathAtlas::PathAtlas(uint32_t width, uint32_t height) : fRectanizer(width, height) {}
 
@@ -37,18 +46,14 @@ bool PathAtlas::addShape(Recorder* recorder,
     SkASSERT(!maskBounds.isEmptyNegativeOrNaN());
 
     if (!fTexture) {
-        // TODO(chromium:1856): Dawn does not support the "storage binding" usage for the R8Unorm
-        // texture format. This means that we will have to use RGBA8 until Dawn provides an optional
-        // feature.
-        fTexture = TextureProxy::MakeStorage(
-                recorder->priv().caps(),
-                SkISize::Make(int32_t(this->width()), int32_t(this->height())),
-                kAlpha_8_SkColorType,
-                skgpu::Budgeted::kYes);
+        fTexture = recorder->priv().atlasProvider()->getAtlasTexture(
+                recorder, this->width(), this->height());
         if (!fTexture) {
+            SKGPU_LOG_E("Failed to instantiate an atlas texture");
             return false;
         }
     }
+
     // Add a 2 pixel-wide border around the shape bounds when allocating the atlas slot. The outer
     // border acts as a buffer between atlas entries and the pixels contain 0. The inner border is
     // included in the mask and provides additional coverage pixels for analytic AA.
@@ -72,18 +77,11 @@ void PathAtlas::reset() {
     this->onReset();
 }
 
-#ifdef SK_ENABLE_VELLO_SHADERS
-namespace {
-
-// TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
-// TODO: This is the maximum target dimension that vello can handle today
-constexpr uint32_t kComputeAtlasDim = 4096;
-
-}  // namespace
-
 ComputePathAtlas::ComputePathAtlas() : PathAtlas(kComputeAtlasDim, kComputeAtlasDim) {}
 
-std::unique_ptr<DispatchGroup> ComputePathAtlas::recordDispatches(Recorder* recorder) const {
+#ifdef SK_ENABLE_VELLO_SHADERS
+
+std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder* recorder) const {
     if (!this->texture()) {
         return nullptr;
     }
@@ -96,12 +94,12 @@ std::unique_ptr<DispatchGroup> ComputePathAtlas::recordDispatches(Recorder* reco
             recorder);
 }
 
-void ComputePathAtlas::onAddShape(const Shape& shape,
-                                  const Transform& localToDevice,
-                                  const Rect& atlasBounds,
-                                  float deviceOffsetX,
-                                  float deviceOffsetY,
-                                  const SkStrokeRec& style) {
+void VelloComputePathAtlas::onAddShape(const Shape& shape,
+                                       const Transform& localToDevice,
+                                       const Rect& atlasBounds,
+                                       float deviceOffsetX,
+                                       float deviceOffsetY,
+                                       const SkStrokeRec& style) {
     // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
     // appropriately transformed in that case.
     SkASSERT(localToDevice.type() != Transform::Type::kProjection);

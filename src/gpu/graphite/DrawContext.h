@@ -30,8 +30,10 @@ class Recorder;
 class Transform;
 
 class Caps;
+class ComputePathAtlas;
 class DispatchGroup;
 class DrawPass;
+class PathAtlas;
 class Task;
 class TextAtlasManager;
 class TextureProxy;
@@ -80,8 +82,14 @@ public:
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
 
-    // Record ComputePathAtlas dispatches and clear the atlas contents for new post-flush work.
-    void recordPathAtlasDispatches(Recorder*);
+    // Returns the transient path atlas that accummulates coverage masks for atlas draws recorded to
+    // this SDC. The atlas gets created lazily upon request. Returns nullptr if atlas draws are not
+    // supported.
+    //
+    // TODO: Should this be explicit about how the atlas gets drawn (i.e. GPU compute vs CPU)?
+    // Currently this is assumed to use GPU compute atlas. Maybe the PathAtlas class should report
+    // its rendering algorithm to aid the renderer selection in `chooseRenderer`?
+    PathAtlas* getOrCreatePathAtlas(Recorder*);
 
     // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or
@@ -132,6 +140,9 @@ public:
 private:
     DrawContext(sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
 
+    // If a compute atlas was initialized, schedule its accummulated paths to be rendered.
+    void snapPathAtlasDispatches(Recorder*);
+
     sk_sp<TextureProxy> fTarget;
     SkImageInfo fImageInfo;
     const SkSurfaceProps fSurfaceProps;
@@ -143,6 +154,19 @@ private:
     LoadOp fPendingLoadOp = LoadOp::kLoad;
     StoreOp fPendingStoreOp = StoreOp::kStore;
     std::array<float, 4> fPendingClearColor = { 0, 0, 0, 0 };
+
+    // Accummulates atlas coverage masks that are required by one or more entries in
+    // `fPendingDraws`. When pending draws are snapped into a new DrawPass, a compute dispatch group
+    // gets recorded which schedules the accummulated masks to get drawn into an atlas texture. The
+    // accummulated masks are then cleared which frees up the atlas for future draws.
+    //
+    // TODO: Currently every PathAtlas contains to a single texture. If multiple snapped draw
+    // passes resulted in multiple ComputePathAtlas dispatch groups, the later dispatches would
+    // overwrite the atlas texture since all compute tasks are scheduled before render tasks. This
+    // is currently not an issue since there is only one DrawPass per flush but we may want to
+    // either support one atlas texture per DrawPass or record the dispatches once per
+    // RenderPassTask rather than DrawPass.
+    std::unique_ptr<ComputePathAtlas> fComputePathAtlas;
 
     // Stores previously snapped DrawPasses of this DC, or inlined child DCs whose content
     // couldn't have been copied directly to fPendingDraws. While each DrawPass is immutable, the

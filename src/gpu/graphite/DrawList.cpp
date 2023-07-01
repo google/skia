@@ -40,6 +40,12 @@ void DrawList::recordDraw(const Renderer* renderer,
                       geometry, clip, ordering, paint, stroke});
     fRenderStepCount += renderer->numRenderSteps();
 
+#if defined(SK_DEBUG)
+    if (geometry.isAtlasShape()) {
+        fAtlasShapeDrawCount++;
+    }
+#endif
+
     if (paint && paint->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
         fDstCopyBounds.join(clip.drawBounds());
     }
