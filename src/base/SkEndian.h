@@ -115,13 +115,15 @@ static inline void SkEndianSwap64s(uint64_t array[], int count) {
     }
 }
 
+// Static casts are used here for otherwise no-op macros to make sure they return the same type as
+// SkEndianSwap* functions.
 #ifdef SK_CPU_LENDIAN
     #define SkEndian_SwapBE16(n)    SkEndianSwap16(n)
     #define SkEndian_SwapBE32(n)    SkEndianSwap32(n)
     #define SkEndian_SwapBE64(n)    SkEndianSwap64(n)
-    #define SkEndian_SwapLE16(n)    (n)
-    #define SkEndian_SwapLE32(n)    (n)
-    #define SkEndian_SwapLE64(n)    (n)
+    #define SkEndian_SwapLE16(n)    static_cast<uint16_t>(n)
+    #define SkEndian_SwapLE32(n)    static_cast<uint32_t>(n)
+    #define SkEndian_SwapLE64(n)    static_cast<uint64_t>(n)
 
     #define SkTEndian_SwapBE16(n)    SkTEndianSwap16<n>::value
     #define SkTEndian_SwapBE32(n)    SkTEndianSwap32<n>::value
@@ -130,9 +132,9 @@ static inline void SkEndianSwap64s(uint64_t array[], int count) {
     #define SkTEndian_SwapLE32(n)    (n)
     #define SkTEndian_SwapLE64(n)    (n)
 #else   // SK_CPU_BENDIAN
-    #define SkEndian_SwapBE16(n)    (n)
-    #define SkEndian_SwapBE32(n)    (n)
-    #define SkEndian_SwapBE64(n)    (n)
+    #define SkEndian_SwapBE16(n)    static_cast<uint16_t>(n)
+    #define SkEndian_SwapBE32(n)    static_cast<uint32_t>(n)
+    #define SkEndian_SwapBE64(n)    static_cast<uint64_t>(n)
     #define SkEndian_SwapLE16(n)    SkEndianSwap16(n)
     #define SkEndian_SwapLE32(n)    SkEndianSwap32(n)
     #define SkEndian_SwapLE64(n)    SkEndianSwap64(n)
