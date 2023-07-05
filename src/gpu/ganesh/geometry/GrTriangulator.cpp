@@ -293,10 +293,14 @@ void GrTriangulator::EdgeList::insert(Edge* edge, Edge* prev, Edge* next) {
     list_insert<Edge, &Edge::fLeft, &Edge::fRight>(edge, prev, next, &fHead, &fTail);
 }
 
-void GrTriangulator::EdgeList::remove(Edge* edge) {
+bool GrTriangulator::EdgeList::remove(Edge* edge) {
     TESS_LOG("removing edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
-    SkASSERT(this->contains(edge));
+    // SkASSERT(this->contains(edge));
+    if (!this->contains(edge)) {
+        return false;
+    }
     list_remove<Edge, &Edge::fLeft, &Edge::fRight>(edge, &fHead, &fTail);
+    return true;
 }
 
 void GrTriangulator::MonotonePoly::addEdge(Edge* edge) {
@@ -1379,7 +1383,9 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
         validate_edge_list(&activeEdges, c);
 #endif
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
-            activeEdges.remove(e);
+            if (!activeEdges.remove(e)) {
+                return SimplifyResult::kFailed;
+            }
         }
         Edge* leftEdge = leftEnclosingEdge;
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
