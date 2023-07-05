@@ -254,8 +254,6 @@ public:
     int countUniqueKeysWithTag(const char* tag) const;
 
     void changeTimestamp(uint32_t newTimestamp);
-
-    void visitSurfaces(const std::function<void(const GrSurface*, bool purgeable)>&) const;
 #endif
 
     // Enumerates all cached resources and dumps their details to traceMemoryDump.

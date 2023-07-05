@@ -14,10 +14,6 @@
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/Resource.h"
 
-#if GRAPHITE_TEST_UTILS
-#include "src/gpu/graphite/Texture.h"
-#endif
-
 namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
@@ -655,20 +651,6 @@ Resource* ResourceCache::topOfPurgeableQueue() {
         return nullptr;
     }
     return fPurgeableQueue.peek();
-}
-
-void ResourceCache::visitTextures(
-        const std::function<void(const Texture*, bool purgeable)>& func) const {
-    for (int i = 0; i < fNonpurgeableResources.size(); ++i) {
-        if (const Texture* tex = fNonpurgeableResources[i]->asTexture()) {
-            func(tex, /* purgeable= */ false);
-        }
-    }
-    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
-        if (const Texture* tex = fPurgeableQueue.at(i)->asTexture()) {
-            func(tex, /* purgeable= */ true);
-        }
-    }
 }
 
 #endif // GRAPHITE_TEST_UTILS
