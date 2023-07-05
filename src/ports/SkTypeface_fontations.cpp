@@ -79,6 +79,41 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
     return probeTypeface->hasValidBridgeFontRef() ? probeTypeface : nullptr;
 }
 
+void SkPathWrapper::move_to(float x, float y) { path_.moveTo(x, y); }
+
+void SkPathWrapper::line_to(float x, float y) { path_.lineTo(x, y); }
+
+void SkPathWrapper::quad_to(float cx0, float cy0, float x, float y) {
+    path_.quadTo(cx0, cy0, x, y);
+}
+void SkPathWrapper::curve_to(float cx0, float cy0, float cx1, float cy1, float x, float y) {
+    path_.cubicTo(cx0, cy0, cx1, cy1, x, y);
+}
+
+void SkPathWrapper::close() { path_.close(); }
+
+SkPath SkPathWrapper::into_inner() && { return std::move(path_); }
+
+
+SkAxisWrapper::SkAxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount)
+        : fAxisArray(axisArray), fAxisCount(axisCount) {}
+
+bool SkAxisWrapper::populate_axis(
+        size_t i, uint32_t axisTag, float min, float def, float max, bool hidden) {
+    if (i >= fAxisCount) {
+        return false;
+    }
+    SkFontParameters::Variation::Axis& axis = fAxisArray[i];
+    axis.tag = axisTag;
+    axis.min = min;
+    axis.def = def;
+    axis.max = max;
+    axis.setHidden(hidden);
+    return true;
+}
+
+size_t SkAxisWrapper::size() const { return fAxisCount; }
+
 int SkTypeface_Fontations::onGetUPEM() const {
     return fontations_ffi::units_per_em_or_zero(*fBridgeFontRef);
 }
@@ -188,7 +223,7 @@ protected:
                     SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix)) {
             return false;
         }
-        fontations_ffi::SkPathWrapper pathWrapper;
+        SkPathWrapper pathWrapper;
 
         if (!fontations_ffi::get_path(fBridgeFontRef,
                                       glyph.getGlyphID(),
@@ -287,6 +322,6 @@ int SkTypeface_Fontations::onGetVariationDesignPosition(
 
 int SkTypeface_Fontations::onGetVariationDesignParameters(
         SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
-    fontations_ffi::SkAxisWrapper axisWrapper(parameters, parameterCount);
+    SkAxisWrapper axisWrapper(parameters, parameterCount);
     return fontations_ffi::populate_axes(*fBridgeFontRef, axisWrapper);
 }

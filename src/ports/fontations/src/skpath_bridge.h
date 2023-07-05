@@ -3,41 +3,35 @@
 #ifndef SkPathBridge_DEFINED
 #define SkPathBridge_DEFINED
 
-#include <memory>
-#include "include/core/SkFontParameters.h"
-#include "include/core/SkPath.h"
+#include <cstddef>
+#include <cstdint>
 
 namespace fontations_ffi {
-class SkPathWrapper {
-public:
-    SkPathWrapper();
-    void move_to(float x, float y);
-    void line_to(float x, float y);
-    void quad_to(float cx0, float cy0, float x, float y);
-    void curve_to(float cx0, float cy0, float cx1, float cy1, float x, float y);
-    void close();
-    void dump();
-    SkPath into_inner() &&;
 
-private:
-    SkPath path_;
+/** C++ pure virtual interface type, exposed to Rust side to be able to write
+ * from Skrifa path output functions to an SkPath type to capture and convert a
+ * glyph path. */
+class PathWrapper {
+public:
+    virtual ~PathWrapper() = default;
+    virtual void move_to(float x, float y) = 0;
+    virtual void line_to(float x, float y) = 0;
+    virtual void quad_to(float cx0, float cy0, float x, float y) = 0;
+    virtual void curve_to(float cx0, float cy0, float cx1, float cy1, float x, float y) = 0;
+    virtual void close() = 0;
 };
 
-/** C++ type opaque to Rust side to be able to write out variation design
- * parameters to the caller-side allocated SkFontParameters::Variation::Axis. A
- * direct cast between a shared C++/Rust struct and a Skia side struct is not
- * possible because the hidden-axis flag is private on
- * SkFontParameters::Variation::Axis.  */
-class SkAxisWrapper {
+/** C++ pure virtual interface type, exposed to Rust side to be able to write
+ * out variation design parameters to the caller-side allocated
+ * SkFontParameters::Variation::Axis. A direct cast or mapping between a shared
+ * C++/Rust struct and a Skia side struct is not possible because the
+ * hidden-axis flag is private on SkFontParameters::Variation::Axis.  */
+class AxisWrapper {
 public:
-    SkAxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount);
-    SkAxisWrapper() = delete;
-    bool populate_axis(size_t i, uint32_t axisTag, float min, float def, float max, bool hidden);
-    size_t size() const;
-
-private:
-    SkFontParameters::Variation::Axis* fAxisArray;
-    size_t fAxisCount;
+    virtual ~AxisWrapper() = default;
+    virtual bool populate_axis(
+            size_t i, uint32_t axisTag, float min, float def, float max, bool hidden) = 0;
+    virtual size_t size() const = 0;
 };
 
 }  // namespace fontations_ffi

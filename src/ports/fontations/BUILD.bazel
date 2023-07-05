@@ -37,16 +37,8 @@ skia_cc_library(
 )
 
 skia_filegroup(
-    name = "fontations_c_side",
-    srcs = [
-        "src/skpath_bridge.cpp",
-    ],
-)
-
-skia_filegroup(
     name = "srcs",
     srcs = [
-        ":fontations_c_side",
         ":fontations_ffi/filegroup",
     ],
     visibility = ["//src/ports:__pkg__"],
