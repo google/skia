@@ -161,6 +161,8 @@ enum Tags {
     kHasImage_Tag  = 2,   // Contains an SkImage or SkBitmap.
     kHasText_Tag   = 4,   // Contains text.
     kHasPaint_Tag  = 8,   // May have an SkPaint field, at least optionally.
+    kMultiDraw_Tag = 16,  // Drawing operations that render multiple independent primitives.
+                          //   These draws are capable of blending with themselves.
 
     kDrawWithPaint_Tag = kDraw_Tag | kHasPaint_Tag,
 };
@@ -291,7 +293,7 @@ RECORD(DrawPicture, kDraw_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkPicture> picture;
         TypedMatrix matrix)
-RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
+RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
         SkPaint paint;
         SkCanvas::PointMode mode;
         unsigned count;
@@ -318,7 +320,7 @@ RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         PODArray<SkColor> colors;
         PODArray<SkPoint> texCoords;
         SkBlendMode bmode)
-RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag|kMultiDraw_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> atlas;
         PODArray<SkRSXform> xforms;
@@ -328,12 +330,12 @@ RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         SkBlendMode mode;
         SkSamplingOptions sampling;
         Optional<SkRect> cull)
-RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
+RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
         SkPaint paint;
         sk_sp<SkVertices> vertices;
         SkBlendMode bmode)
 #ifdef SK_ENABLE_SKSL
-RECORD(DrawMesh, kDraw_Tag|kHasPaint_Tag,
+RECORD(DrawMesh, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
        SkPaint paint;
        SkMesh mesh;
        sk_sp<SkBlender> blender)
@@ -353,7 +355,7 @@ RECORD(DrawEdgeAAQuad, kDraw_Tag,
        SkCanvas::QuadAAFlags aa;
        SkColor4f color;
        SkBlendMode mode)
-RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag|kMultiDraw_Tag,
        Optional<SkPaint> paint;
        skia_private::AutoTArray<SkCanvas::ImageSetEntry> set;
        int count;

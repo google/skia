@@ -153,7 +153,10 @@ static bool effectively_srcover(const SkPaint* paint) {
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
 // draw, and no-op the SaveLayer and Restore.
 struct SaveLayerDrawRestoreNooper {
-    typedef Pattern<Is<SaveLayer>, IsDraw, Is<Restore>> Match;
+    // Note that we use IsSingleDraw here, to avoid matching drawAtlas, drawVertices, etc...
+    // Those operations (can) draw multiple, overlapping primitives that blend with each other.
+    // Applying this operation to them changes their behavior. (skbug.com/14554)
+    typedef Pattern<Is<SaveLayer>, IsSingleDraw, Is<Restore>> Match;
 
     bool onMatch(SkRecord* record, Match* match, int begin, int end) {
         if (match->first<SaveLayer>()->backdrop) {
