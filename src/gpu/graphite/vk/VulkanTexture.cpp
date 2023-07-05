@@ -189,7 +189,7 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
                                                 VkAccessFlags dstAccessMask,
                                                 VkPipelineStageFlags dstStageMask,
                                                 bool byRegion,
-                                                uint32_t newQueueFamilyIndex) {
+                                                uint32_t newQueueFamilyIndex) const {
 
     SkASSERT(newLayout == this->currentLayout() ||
              (VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
@@ -370,7 +370,7 @@ VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout) {
     return flags;
 }
 
-const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage) {
+const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage) const {
     for (int i = 0; i < fImageViews.size(); ++i) {
         if (fImageViews[i]->usage() == usage) {
             return fImageViews[i].get();
