@@ -815,6 +815,8 @@ TINT_SRCS = [
     "src/tint/ast/transform/expand_compound_assignment.h",
     "src/tint/ast/transform/first_index_offset.cc",
     "src/tint/ast/transform/first_index_offset.h",
+    "src/tint/ast/transform/fold_trivial_lets.cc",
+    "src/tint/ast/transform/fold_trivial_lets.h",
     "src/tint/ast/transform/for_loop_to_loop.cc",
     "src/tint/ast/transform/for_loop_to_loop.h",
     "src/tint/ast/transform/localize_struct_array_assignment.cc",
