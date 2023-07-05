@@ -383,6 +383,9 @@ static sk_sp<SkImage> add_mipmaps(sk_sp<SkImage> img, sk_sp<SkData> data,
         return img;
     }
     sk_sp<SkImage> raster = img->makeRasterImage();
+    if (!raster) {
+        return img;
+    }
     sk_sp<SkImage> rasterWithMips = builder.attachTo(raster);
     SkASSERT(rasterWithMips); // attachTo should never return null
     return rasterWithMips;
