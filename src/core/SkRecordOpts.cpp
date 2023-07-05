@@ -44,43 +44,6 @@ static bool apply(Pass* pass, SkRecord* record) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void multiple_set_matrices(SkRecord* record) {
-    struct {
-        typedef Pattern<Is<SetMatrix>,
-                        Greedy<Is<NoOp>>,
-                        Is<SetMatrix> >
-            Match;
-
-        bool onMatch(SkRecord* record, Match* pattern, int begin, int end) {
-            record->replace<NoOp>(begin);  // first SetMatrix
-            return true;
-        }
-    } pass;
-    while (apply(&pass, record));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if 0   // experimental, but needs knowledge of previous matrix to operate correctly
-static void apply_matrix_to_draw_params(SkRecord* record) {
-    struct {
-        typedef Pattern<Is<SetMatrix>,
-                        Greedy<Is<NoOp>>,
-                        Is<SetMatrix> >
-            Pattern;
-
-        bool onMatch(SkRecord* record, Pattern* pattern, int begin, int end) {
-            record->replace<NoOp>(begin);  // first SetMatrix
-            return true;
-        }
-    } pass;
-    // No need to loop, as we never "open up" opportunities for more of this type of optimization.
-    apply(&pass, record);
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.
 struct SaveOnlyDrawsRestoreNooper {
     typedef Pattern<Is<Save>,
@@ -301,18 +264,6 @@ void SkRecordOptimize(SkRecord* record) {
     // Turn off this optimization completely for Android framework
     // because it makes the following Android CTS test fail:
     // android.uirendering.cts.testclasses.LayerTests#testSaveLayerClippedWithAlpha
-#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    SkRecordNoopSaveLayerDrawRestores(record);
-#endif
-    SkRecordMergeSvgOpacityAndFilterLayers(record);
-
-    record->defrag();
-}
-
-void SkRecordOptimize2(SkRecord* record) {
-    multiple_set_matrices(record);
-    SkRecordNoopSaveRestores(record);
-    // See why we turn this off in SkRecordOptimize above.
 #ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     SkRecordNoopSaveLayerDrawRestores(record);
 #endif
