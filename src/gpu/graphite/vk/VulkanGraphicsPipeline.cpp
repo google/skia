@@ -703,10 +703,6 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkResult result;
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "CreateGraphicsPipeline");
-#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-        // skia:8712
-        __lsan::ScopedDisabler lsanDisabler;
-#endif
         VULKAN_CALL_RESULT(sharedContext->interface(),
                            result,
                            CreateGraphicsPipelines(sharedContext->device(),
