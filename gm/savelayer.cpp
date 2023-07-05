@@ -20,6 +20,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -31,6 +32,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
@@ -169,5 +171,91 @@ DEF_SIMPLE_GM(savelayer_f16, canvas, 900, 300) {
             canvas->drawOval(r, paint);
         }
         canvas->restore();
+    }
+}
+
+static void draw_atlas(SkCanvas* canvas, SkImage* image) {
+    SkRSXform xforms[] = {{1, 0, 0, 0}, {1, 0, 50, 50}};
+    SkRect tex[] = {{0, 0, 100, 100}, {0, 0, 100, 100}};
+    SkColor colors[] = {0xffffffff, 0xffffffff};
+    SkPaint paint;
+
+    canvas->drawAtlas(image,
+                      xforms,
+                      tex,
+                      colors,
+                      2,
+                      SkBlendMode::kSrcIn,
+                      SkFilterMode::kNearest,
+                      nullptr,
+                      &paint);
+}
+
+static void draw_vertices(SkCanvas* canvas, SkImage* image) {
+    SkPoint pts[] = {{0, 0}, {0, 100}, {100, 100}, {100, 0}, {100, 100}, {0, 100}};
+    sk_sp<SkVertices> verts =
+            SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 6, pts, nullptr, nullptr);
+
+    SkPaint paint;
+    paint.setShader(image->makeShader(SkFilterMode::kNearest));
+
+    canvas->drawVertices(verts, SkBlendMode::kSrc, paint);
+}
+
+static void draw_points(SkCanvas* canvas, SkImage* image) {
+    SkPoint pts[] = {{50, 50}, {75, 75}};
+    SkPaint paint;
+    paint.setShader(image->makeShader(SkFilterMode::kNearest));
+    paint.setStrokeWidth(100);
+    paint.setStrokeCap(SkPaint::kSquare_Cap);
+
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, pts, paint);
+}
+
+static void draw_image_set(SkCanvas* canvas, SkImage* image) {
+    SkRect r = SkRect::MakeWH(100, 100);
+    SkCanvas::ImageSetEntry entries[] = {
+            SkCanvas::ImageSetEntry(sk_ref_sp(image), r, r, 1.0f, SkCanvas::kNone_QuadAAFlags),
+            SkCanvas::ImageSetEntry(
+                    sk_ref_sp(image), r, r.makeOffset(50, 50), 1.0f, SkCanvas::kNone_QuadAAFlags),
+    };
+
+    SkPaint paint;
+    canvas->experimental_DrawEdgeAAImageSet(
+            entries, 2, nullptr, nullptr, SkFilterMode::kNearest, &paint);
+}
+
+/*
+  Picture optimization looks for single drawing operations inside a saveLayer with alpha. It tries
+  to push the alpha into the drawing operation itself. That's only valid if the draw logically
+  touches each pixel once. A handful of draws do not behave like that. They instead act like
+  repeated, independent draws. This GM tests this with several operations.
+  */
+DEF_SIMPLE_GM(skbug_14554, canvas, 310, 630) {
+    sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_128.png");
+    SkPictureRecorder rec;
+
+    using DrawProc = void(*)(SkCanvas*, SkImage*);
+
+    for (DrawProc proc : {draw_atlas, draw_vertices, draw_points, draw_image_set}) {
+        canvas->save();
+        for (bool injectExtraOp : {false, true}) {
+            auto c = rec.beginRecording(SkRect::MakeWH(150, 150));
+            c->saveLayerAlphaf(nullptr, 0.6f);
+            proc(c, image.get());
+            // For the second draw of each test-case, we inject an extra (useless) operation, which
+            // inhibits the optimization and produces the correct result.
+            if (injectExtraOp) {
+                c->translate(1, 0);
+            }
+            c->restore();
+
+            auto pic = rec.finishRecordingAsPicture();
+
+            canvas->drawPicture(pic);
+            canvas->translate(160, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, 160);
     }
 }
