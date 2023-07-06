@@ -114,6 +114,7 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(GrDirectContext* dContext,
         SkColorType colorType =
                 GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
+        // Will call deleteImageProc if SkSurface creation fails.
         sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(dContext,
                                                                   backendTexture,
                                                                   origin,
@@ -123,11 +124,6 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(GrDirectContext* dContext,
                                                                   surfaceProps,
                                                                   deleteImageProc,
                                                                   deleteImageCtx);
-
-        if (!surface) {
-            SkASSERT(deleteImageProc);
-            deleteImageProc(deleteImageCtx);
-        }
 
         return surface;
     } else {
