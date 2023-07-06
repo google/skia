@@ -194,6 +194,19 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
         return;
     }
 
+    // Add draw commands to queue before starting the transfer
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    InsertRecordingInfo recordingInfo;
+    recordingInfo.fRecording = recording.get();
+    if (!this->insertRecording(recordingInfo)) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
     SkASSERT(scaledImage->imageInfo() == dstImageInfo);
 
     auto scaledGraphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(scaledImage.get());

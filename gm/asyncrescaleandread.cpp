@@ -25,6 +25,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #endif
 
@@ -49,20 +50,47 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
 template <typename Src>
 static sk_sp<SkImage> do_read_and_scale(Src* src,
                                         GrDirectContext* direct,
+                                        skgpu::graphite::Recorder* recorder,
                                         const SkIRect& srcRect,
                                         const SkImageInfo& ii,
                                         SkImage::RescaleGamma rescaleGamma,
                                         SkImage::RescaleMode rescaleMode) {
     auto* asyncContext = new AsyncContext();
-    src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, rescaleMode, async_callback,
-                                   asyncContext);
-    if (direct) {
-        direct->submit();
-    }
-    while (!asyncContext->fCalled) {
-        // Only GPU should actually be asynchronous.
-        SkASSERT(direct);
-        direct->checkAsyncWorkCompletion();
+    if (recorder) {
+#if defined(SK_GRAPHITE)
+        skgpu::graphite::Context* graphiteContext = recorder->priv().context();
+        if (!graphiteContext) {
+            return nullptr;
+        }
+        // We need to flush the existing drawing commands before we try to read
+        std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+        if (!recording) {
+            return nullptr;
+        }
+        skgpu::graphite::InsertRecordingInfo recordingInfo;
+        recordingInfo.fRecording = recording.get();
+        if (!graphiteContext->insertRecording(recordingInfo)) {
+            return nullptr;
+        }
+
+        graphiteContext->asyncRescaleAndReadPixels(src, ii, srcRect, rescaleGamma, rescaleMode,
+                                                   async_callback, asyncContext);
+        graphiteContext->submit();
+        while (!asyncContext->fCalled) {
+            graphiteContext->checkAsyncWorkCompletion();
+        }
+#endif
+    } else {
+        src->asyncRescaleAndReadPixels(ii, srcRect, rescaleGamma, rescaleMode, async_callback,
+                                       asyncContext);
+        if (direct) {
+            direct->submit();
+        }
+        while (!asyncContext->fCalled) {
+            // Only GPU should actually be asynchronous.
+            SkASSERT(direct);
+            direct->checkAsyncWorkCompletion();
+        }
     }
     if (!asyncContext->fResult) {
         return nullptr;
@@ -192,7 +220,7 @@ static skiagm::DrawResult do_rescale_grid(SkCanvas* canvas,
                 int nextCS = static_cast<int>(yuvColorSpace + 1) % (kLastEnum_SkYUVColorSpace + 1);
                 yuvColorSpace = static_cast<SkYUVColorSpace>(nextCS);
             } else {
-                result = do_read_and_scale(src, direct, srcRect, ii, gamma, mode);
+                result = do_read_and_scale(src, direct, recorder, srcRect, ii, gamma, mode);
                 if (!result) {
                     errorMsg->printf("async read call failed.");
                     return skiagm::DrawResult::kFail;
@@ -253,6 +281,14 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
         surface->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
         return do_rescale_grid(canvas, surface.get(), dContext, recorder, srcRect, newSize,
                                doYUV420, errorMsg);
+#if defined(SK_GRAPHITE)
+    } else if (recorder) {
+        image = SkImages::TextureFromImage(recorder, image);
+        if (!image) {
+            *errorMsg = "Could not create image.";
+            return skiagm::DrawResult::kFail;
+        }
+#endif
     } else if (dContext) {
         image = SkImages::TextureFromImage(dContext, image);
         if (!image) {
