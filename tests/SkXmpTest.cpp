@@ -5,9 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
-#if defined(SK_XML)
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
@@ -244,5 +241,3 @@ DEF_TEST(SkXmp_xmpContainerTypedNodeRdfEquivalent, r) {
     REPORTER_ASSERT(r, xmp->getContainerGainmapLocation(&offset, &size));
     REPORTER_ASSERT(r, size == 49035);
 }
-
-#endif  // SK_XML
