@@ -476,22 +476,32 @@ sk_sp<SkImage> Device::rescale(SkIRect srcIRect,
 
     // Within a rescaling pass tempInput is read from and tempOutput is written to.
     // At the end of the pass tempOutput's texture is wrapped and assigned to tempInput.
-    sk_sp<SkImage> tempInput;
+    sk_sp<SkImage> tempInput(new Image(kNeedNewImageUniqueID,
+                                       deviceView,
+                                       this->imageInfo().colorInfo()));
     sk_sp<SkSurface> tempOutput;
 
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
+
     if (rescaleGamma == RescaleGamma::kLinear && this->imageInfo().colorSpace() &&
         !this->imageInfo().colorSpace()->gammaIsLinear()) {
-        // TODO: handle linear gamma
-        // For now just make image from Device
-        tempInput.reset(new Image(kNeedNewImageUniqueID,
-                                  deviceView,
-                                  this->imageInfo().colorInfo()));
-    } else {
-        tempInput.reset(new Image(kNeedNewImageUniqueID,
-                                  deviceView,
-                                  this->imageInfo().colorInfo()));
+        // Draw the src image into a new surface with linear gamma, and make that the new tempInput
+        sk_sp<SkColorSpace> linearGamma = this->imageInfo().colorSpace()->makeLinearGamma();
+        SkImageInfo gammaDstInfo = SkImageInfo::Make(srcIRect.size(),
+                                                     tempInput->imageInfo().colorType(),
+                                                     tempInput->imageInfo().alphaType(),
+                                                     std::move(linearGamma));
+        tempOutput = this->makeSurface(gammaDstInfo, SkSurfaceProps{});
+        SkCanvas* gammaDst = tempOutput->getCanvas();
+        SkRect gammaDstRect = SkRect::Make(srcIRect.size());
+
+        SkPaint paint;
+        gammaDst->drawImageRect(tempInput, srcRect, gammaDstRect,
+                                SkSamplingOptions(SkFilterMode::kNearest), &paint,
+                                SkCanvas::kStrict_SrcRectConstraint);
+        tempInput = SkSurfaces::AsImage(tempOutput);
+        srcRect = gammaDstRect;
     }
 
     do {
