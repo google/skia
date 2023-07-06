@@ -54,18 +54,6 @@ public:
     bool insertRecording(const InsertRecordingInfo&);
     bool submit(SyncToCpu = SyncToCpu::kNo);
 
-    void asyncReadPixels(const SkImage* image,
-                         const SkColorInfo& dstColorInfo,
-                         const SkIRect& srcRect,
-                         SkImage::ReadPixelsCallback callback,
-                         SkImage::ReadPixelsContext context);
-
-    void asyncReadPixels(const SkSurface* surface,
-                         const SkColorInfo& dstColorInfo,
-                         const SkIRect& srcRect,
-                         SkImage::ReadPixelsCallback callback,
-                         SkImage::ReadPixelsContext context);
-
     void asyncRescaleAndReadPixels(const SkImage* image,
                                    const SkImageInfo& dstImageInfo,
                                    const SkIRect& srcRect,

@@ -539,8 +539,13 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
             return Result::kExcusedFailure;
         }
 
-        context->asyncReadPixels(image.get(), pixels.info().colorInfo(), rect,
-                                 async_callback, &asyncContext);
+        context->asyncRescaleAndReadPixels(image.get(),
+                                           pixels.info(),
+                                           rect,
+                                           SkImage::RescaleGamma::kSrc,
+                                           SkImage::RescaleMode::kRepeatedLinear,
+                                           async_callback,
+                                           &asyncContext);
         if (!asyncContext.fCalled) {
             context->submit();
         }
@@ -608,8 +613,13 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
         AsyncContext asyncContext;
         auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
 
-        context->asyncReadPixels(surface.get(), pixels.info().colorInfo(), rect,
-                                 async_callback, &asyncContext);
+        context->asyncRescaleAndReadPixels(surface.get(),
+                                           pixels.info(),
+                                           rect,
+                                           SkImage::RescaleGamma::kSrc,
+                                           SkImage::RescaleMode::kRepeatedLinear,
+                                           async_callback,
+                                           &asyncContext);
         if (!asyncContext.fCalled) {
             context->submit();
         }

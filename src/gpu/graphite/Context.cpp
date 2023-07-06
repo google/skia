@@ -136,51 +136,6 @@ bool Context::submit(SyncToCpu syncToCpu) {
     return success;
 }
 
-void Context::asyncReadPixels(const SkImage* image,
-                              const SkColorInfo& dstColorInfo,
-                              const SkIRect& srcRect,
-                              SkImage::ReadPixelsCallback callback,
-                              SkImage::ReadPixelsContext callbackContext) {
-    if (!as_IB(image)->isGraphiteBacked()) {
-        callback(callbackContext, nullptr);
-        return;
-    }
-    // TODO(b/238756380): YUVA read not supported right now
-    if (as_IB(image)->isYUVA()) {
-        callback(callbackContext, nullptr);
-        return;
-    }
-    auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
-    TextureProxyView proxyView = graphiteImage->textureProxyView();
-
-    this->asyncReadPixels(proxyView.proxy(),
-                          image->imageInfo(),
-                          dstColorInfo,
-                          srcRect,
-                          callback,
-                          callbackContext);
-}
-
-void Context::asyncReadPixels(const SkSurface* surface,
-                              const SkColorInfo& dstColorInfo,
-                              const SkIRect& srcRect,
-                              SkImage::ReadPixelsCallback callback,
-                              SkImage::ReadPixelsContext callbackContext) {
-    if (!static_cast<const SkSurface_Base*>(surface)->isGraphiteBacked()) {
-        callback(callbackContext, nullptr);
-        return;
-    }
-    auto graphiteSurface = reinterpret_cast<const skgpu::graphite::Surface*>(surface);
-    TextureProxyView proxyView = graphiteSurface->readSurfaceView();
-
-    this->asyncReadPixels(proxyView.proxy(),
-                          surface->imageInfo(),
-                          dstColorInfo,
-                          srcRect,
-                          callback,
-                          callbackContext);
-}
-
 void Context::asyncRescaleAndReadPixels(const SkImage* image,
                                         const SkImageInfo& dstImageInfo,
                                         const SkIRect& srcRect,
@@ -189,6 +144,11 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
                                         SkImage::ReadPixelsCallback callback,
                                         SkImage::ReadPixelsContext callbackContext) {
     if (!image || !as_IB(image)->isGraphiteBacked()) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    // TODO(b/238756380): YUVA read not supported right now
+    if (as_IB(image)->isYUVA()) {
         callback(callbackContext, nullptr);
         return;
     }
@@ -201,8 +161,14 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
 
     if (srcRect.size() == dstImageInfo.bounds().size()) {
         // No need for rescale
-        return this->asyncReadPixels(
-                image, dstImageInfo.colorInfo(), srcRect, callback, callbackContext);
+        auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
+        TextureProxyView proxyView = graphiteImage->textureProxyView();
+        return this->asyncReadPixels(proxyView.proxy(),
+                                     image->imageInfo(),
+                                     dstImageInfo.colorInfo(),
+                                     srcRect,
+                                     callback,
+                                     callbackContext);
     }
 
     // Make a recorder to record drawing commands into
