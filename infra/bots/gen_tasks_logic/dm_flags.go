@@ -329,6 +329,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "gm", ALL, "async_rescale_and_read_no_bleed")
 			skip(ALL, "gm", ALL, "async_rescale_and_read_text_up")
 			skip(ALL, "gm", ALL, "async_rescale_and_read_dog_down")
+			skip(ALL, "gm", ALL, "async_rescale_and_read_dog_up")
 			skip(ALL, "gm", ALL, "async_rescale_and_read_rose")
 
 			if b.extraConfig("Metal") {
