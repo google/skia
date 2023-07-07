@@ -98,6 +98,6 @@ static constexpr int kFixedFunctionBlendModeIDOffset =
 
 static_assert(BuiltInCodeSnippetID::kLast == BuiltInCodeSnippetID::kFixedFunctionScreenBlendMode);
 
-}  // namespace skgpu::graphite
+} // skgpu::graphite
 
 #endif // skgpu_graphite_BuiltInCodeSnippetID_DEFINED
