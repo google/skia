@@ -139,7 +139,7 @@ void sk_fclose(FILE* f) {
 }
 
 bool sk_isdir(const char *path) {
-    struct stat status;
+    struct stat status = {};
     if (0 != stat(path, &status)) {
 #ifdef SK_BUILD_FOR_IOS
         // check the bundle directory if not in default path
