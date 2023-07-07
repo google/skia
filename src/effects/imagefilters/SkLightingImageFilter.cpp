@@ -499,6 +499,10 @@ sk_sp<SkFlattenable> SkLightingImageFilter::CreateProc(SkReadBuffer& buffer) {
     material.fK = buffer.readScalar();
     material.fShininess = buffer.readScalar();
 
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
+
     return make_lighting(light, material, common.getInput(0), common.cropRect());
 }
 
