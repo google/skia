@@ -177,10 +177,11 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
     // Make Device from Recorder
     auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
     TextureProxyView proxyView = graphiteImage->textureProxyView();
+    SkColorInfo colorInfo = srcImageInfo.colorInfo().makeAlphaType(kPremul_SkAlphaType);
     sk_sp<Device> device = Device::Make(recorder.get(),
                                         proxyView.refProxy(),
                                         image->dimensions(),
-                                        srcImageInfo.colorInfo(),
+                                        colorInfo,
                                         SkSurfaceProps{},
                                         false);
     if (!device) {
