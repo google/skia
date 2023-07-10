@@ -56,12 +56,14 @@ public:
     TextPropertyValue getTextSlot(SlotID) const;
 
     struct SlotInfo {
-        SlotID slotID;
-        int type;
+        TArray<SlotID> fColorSlotIDs;
+        TArray<SlotID> fScalarSlotIDs;
+        TArray<SlotID> fImageSlotIDs;
+        TArray<SlotID> fTextSlotIDs;
     };
 
     // Helper function to get all slot IDs and their value types
-    const TArray<SlotInfo>& getSlotInfo() const { return fSlotInfos; }
+    SlotInfo getSlotInfo() const;
 
 private:
 
@@ -71,9 +73,6 @@ private:
     void trackScalarValue(SlotID, SkScalar*, sk_sp<sksg::Node>);
     void trackScalarValue(SlotID, SkScalar*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
     void trackTextValue(SlotID, sk_sp<skottie::internal::TextAdapter>);
-
-    TArray<SlotInfo> fSlotInfos;
-
 
     // ValuePair tracks a pointer to a value to change, and a means to invalidate the render tree.
     // For the latter, we can take either a node in the scene graph that directly the scene graph,

@@ -15,6 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/include/SlotManager.h"
 #include "modules/skresources/include/SkResources.h"
 
 #include <memory>
@@ -162,6 +163,11 @@ public:
         sk_sp<Animation> make(const char* data, size_t length);
         sk_sp<Animation> makeFromFile(const char path[]);
 
+        /**
+         * Get handle for SlotManager after animation is built.
+         */
+        const sk_sp<SlotManager>& getSlotManager() const {return fSlotManager;}
+
     private:
         const uint32_t          fFlags;
 
@@ -172,6 +178,7 @@ public:
         sk_sp<MarkerObserver  >   fMarkerObserver;
         sk_sp<PrecompInterceptor> fPrecompInterceptor;
         sk_sp<ExpressionManager>  fExpressionManager;
+        sk_sp<SlotManager>        fSlotManager;
         Stats                     fStats;
     };
 

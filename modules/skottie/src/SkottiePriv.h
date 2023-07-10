@@ -72,6 +72,7 @@ public:
     struct AnimationInfo {
         sk_sp<sksg::RenderNode> fSceneRoot;
         AnimatorScope           fAnimators;
+        sk_sp<SlotManager>      fSlotManager;
     };
 
     AnimationInfo parse(const skjson::ObjectValue&);

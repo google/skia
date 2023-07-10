@@ -43,7 +43,7 @@ private:
     void renderUI();
 
     class TransformTracker;
-    class SlotManagerWrapper;
+    class SlotManagerInterface;
 
     const SkString                     fPath;
 
@@ -51,7 +51,7 @@ private:
     skottie::Animation::Builder::Stats fAnimationStats;
     sksg::InvalidationController       fInvalController;
     sk_sp<TransformTracker>            fTransformTracker;
-    std::unique_ptr<SlotManagerWrapper>fSlotManagerWrapper;
+    std::unique_ptr<SlotManagerInterface>fSlotManagerInterface;
     sk_sp<SkottieTextEditor>           fTextEditor;
     std::vector<float>                 fFrameTimes;
     SkSize                             fWinSize              = SkSize::MakeEmpty();

@@ -126,52 +126,6 @@ private:
     const SkString                             fPrefix;
 };
 
-enum SlotType {
-    // properties
-    kColor   = 1,
-    kOpacity = 4,
-    // assets
-    kImage   = 50,
-    // text
-    kText    = 99,
-};
-
-/**
- * Helper class to wrap a Skottie focused implementation of ResourceProvider and PropertyObserver
- * to help manage 'slots' (properties and assets intended by the author to be swapped).
- */
-class SlotManager final : public SkRefCnt {
-
-public:
-    SlotManager(const SkString, sk_sp<skresources::ResourceProvider> = nullptr,
-                sk_sp<skottie::PropertyObserver> = nullptr);
-
-    void setColorSlot(std::string, SkColor);
-    void setOpacitySlot(std::string, SkScalar);
-    void setTextStringSlot(std::string, SkString);
-    void setImageSlot(std::string, sk_sp<skresources::ImageAsset>);
-    void setImageSlot(std::string, const char[], const char[], const char[]);
-
-    struct SlotInfo {
-        std::string slotID;
-        int type;
-    };
-
-    const std::vector<SlotInfo>&         getSlotInfo() const { return fSlotInfos; }
-    sk_sp<skresources::ResourceProvider> getResourceProvider() const;
-    sk_sp<skottie::PropertyObserver>     getPropertyObserver() const;
-
-private:
-    class SlottableResourceProvider;
-    class SlottablePropertyObserver;
-
-    std::vector<SlotInfo>            fSlotInfos;
-    sk_sp<SlottableResourceProvider> fResourceProvider;
-    sk_sp<SlottablePropertyObserver> fPropertyObserver;
-
-    void parseSlotIDsFromFileName(SkString path);
-};
-
 } // namespace skottie_utils
 
 #endif // SkottieUtils_DEFINED

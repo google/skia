@@ -167,7 +167,7 @@ AnimationBuilder::AnimationInfo AnimationBuilder::parse(const skjson::ObjectValu
     fRevalidator->setRoot(root);
     fRevalidator->revalidate();
 
-    return { std::move(root), std::move(animators) };
+    return { std::move(root), std::move(animators), std::move(fSlotManager)};
 }
 
 void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
@@ -423,6 +423,8 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fExpressionManager),
                                        &fStats, size, duration, fps, fFlags);
     auto ainfo = builder.parse(json);
+
+    fSlotManager = ainfo.fSlotManager;
 
     const auto t2 = std::chrono::steady_clock::now();
     fStats.fSceneParseTimeMS = std::chrono::duration<float, std::milli>{t2-t1}.count();
