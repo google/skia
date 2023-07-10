@@ -15,6 +15,7 @@
 #include "src/core/SkPointPriv.h"
 
 #include <algorithm>
+#include <tuple>
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
@@ -643,11 +644,15 @@ Edge* GrTriangulator::makeEdge(Vertex* prev, Vertex* next, EdgeType type,
     return this->allocateEdge(top, bottom, winding, type);
 }
 
-void EdgeList::insert(Edge* edge, Edge* prev) {
+bool EdgeList::insert(Edge* edge, Edge* prev) {
     TESS_LOG("inserting edge %g -> %g\n", edge->fTop->fID, edge->fBottom->fID);
-    SkASSERT(!this->contains(edge));
+    // SkASSERT(!this->contains(edge));  // Leave this here for debugging.
+    if (this->contains(edge)) {
+        return false;
+    }
     Edge* next = prev ? prev->fRight : fHead;
     this->insert(edge, prev, next);
+    return true;
 }
 
 void GrTriangulator::FindEnclosingEdges(const Vertex& v,
@@ -742,7 +747,9 @@ static bool rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, const C
         }
         Edge* leftEdge = v->fLeftEnclosingEdge;
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
-            activeEdges->insert(e, leftEdge);
+            if (!activeEdges->insert(e, leftEdge)) {
+                return false;
+            }
             leftEdge = e;
             Vertex* top = e->fTop;
             if (c.sweep_lt(top->fPoint, dst->fPoint) &&
@@ -756,10 +763,10 @@ static bool rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, const C
     return true;
 }
 
-static void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** current,
+static bool rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** current,
                                 const Comparator& c) {
     if (!activeEdges || !current) {
-        return;
+        return true;
     }
     Vertex* top = edge->fTop;
     Vertex* bottom = edge->fBottom;
@@ -767,35 +774,52 @@ static void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** curr
         Vertex* leftTop = edge->fLeft->fTop;
         Vertex* leftBottom = edge->fLeft->fBottom;
         if (c.sweep_lt(leftTop->fPoint, top->fPoint) && !edge->fLeft->isLeftOf(*top)) {
-            rewind(activeEdges, current, leftTop, c);
+            if (!rewind(activeEdges, current, leftTop, c)) {
+                return false;
+            }
         } else if (c.sweep_lt(top->fPoint, leftTop->fPoint) && !edge->isRightOf(*leftTop)) {
-            rewind(activeEdges, current, top, c);
+            if (!rewind(activeEdges, current, top, c)) {
+                return false;
+            }
         } else if (c.sweep_lt(bottom->fPoint, leftBottom->fPoint) &&
                    !edge->fLeft->isLeftOf(*bottom)) {
-            rewind(activeEdges, current, leftTop, c);
+            if (!rewind(activeEdges, current, leftTop, c)) {
+                return false;
+            }
         } else if (c.sweep_lt(leftBottom->fPoint, bottom->fPoint) &&
                    !edge->isRightOf(*leftBottom)) {
-            rewind(activeEdges, current, top, c);
+            if (!rewind(activeEdges, current, top, c)) {
+                return false;
+            }
         }
     }
     if (edge->fRight) {
         Vertex* rightTop = edge->fRight->fTop;
         Vertex* rightBottom = edge->fRight->fBottom;
         if (c.sweep_lt(rightTop->fPoint, top->fPoint) && !edge->fRight->isRightOf(*top)) {
-            rewind(activeEdges, current, rightTop, c);
+            if (!rewind(activeEdges, current, rightTop, c)) {
+                return false;
+            }
         } else if (c.sweep_lt(top->fPoint, rightTop->fPoint) && !edge->isLeftOf(*rightTop)) {
-            rewind(activeEdges, current, top, c);
+            if (!rewind(activeEdges, current, top, c)) {
+                return false;
+            }
         } else if (c.sweep_lt(bottom->fPoint, rightBottom->fPoint) &&
                    !edge->fRight->isRightOf(*bottom)) {
-            rewind(activeEdges, current, rightTop, c);
+            if (!rewind(activeEdges, current, rightTop, c)) {
+                return false;
+            }
         } else if (c.sweep_lt(rightBottom->fPoint, bottom->fPoint) &&
                    !edge->isLeftOf(*rightBottom)) {
-            rewind(activeEdges, current, top, c);
+            if (!rewind(activeEdges, current, top, c)) {
+                return false;
+            }
         }
     }
+    return true;
 }
 
-void GrTriangulator::setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
+bool GrTriangulator::setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
                             const Comparator& c) const {
     remove_edge_below(edge);
     if (fCollectBreadcrumbTriangles) {
@@ -805,11 +829,13 @@ void GrTriangulator::setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex
     edge->fTop = v;
     edge->recompute();
     edge->insertBelow(v, c);
-    rewind_if_necessary(edge, activeEdges, current, c);
-    this->mergeCollinearEdges(edge, activeEdges, current, c);
+    if (!rewind_if_necessary(edge, activeEdges, current, c)) {
+        return false;
+    }
+    return this->mergeCollinearEdges(edge, activeEdges, current, c);
 }
 
-void GrTriangulator::setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
+bool GrTriangulator::setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
                                const Comparator& c) const {
     remove_edge_above(edge);
     if (fCollectBreadcrumbTriangles) {
@@ -819,8 +845,10 @@ void GrTriangulator::setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Ver
     edge->fBottom = v;
     edge->recompute();
     edge->insertAbove(v, c);
-    rewind_if_necessary(edge, activeEdges, current, c);
-    this->mergeCollinearEdges(edge, activeEdges, current, c);
+    if (!rewind_if_necessary(edge, activeEdges, current, c)) {
+        return false;
+    }
+    return this->mergeCollinearEdges(edge, activeEdges, current, c);
 }
 
 bool GrTriangulator::mergeEdgesAbove(Edge* edge, Edge* other, EdgeList* activeEdges,
@@ -840,13 +868,17 @@ bool GrTriangulator::mergeEdgesAbove(Edge* edge, Edge* other, EdgeList* activeEd
             return false;
         }
         other->fWinding += edge->fWinding;
-        this->setBottom(edge, other->fTop, activeEdges, current, c);
+        if (!this->setBottom(edge, other->fTop, activeEdges, current, c)) {
+            return false;
+        }
     } else {
         if (!rewind(activeEdges, current, other->fTop, c)) {
             return false;
         }
         edge->fWinding += other->fWinding;
-        this->setBottom(other, edge->fTop, activeEdges, current, c);
+        if (!this->setBottom(other, edge->fTop, activeEdges, current, c)) {
+            return false;
+        }
     }
     return true;
 }
@@ -868,13 +900,17 @@ bool GrTriangulator::mergeEdgesBelow(Edge* edge, Edge* other, EdgeList* activeEd
             return false;
         }
         edge->fWinding += other->fWinding;
-        this->setTop(other, edge->fBottom, activeEdges, current, c);
+        if (!this->setTop(other, edge->fBottom, activeEdges, current, c)) {
+            return false;
+        }
     } else {
         if (!rewind(activeEdges, current, edge->fTop, c)) {
             return false;
         }
         other->fWinding += edge->fWinding;
-        this->setTop(edge, other->fBottom, activeEdges, current, c);
+        if (!this->setTop(edge, other->fBottom, activeEdges, current, c)) {
+            return false;
+        }
     }
     return true;
 }
@@ -944,20 +980,26 @@ GrTriangulator::BoolFail GrTriangulator::splitEdge(
         top = v;
         bottom = edge->fTop;
         winding *= -1;
-        this->setTop(edge, v, activeEdges, current, c);
+        if (!this->setTop(edge, v, activeEdges, current, c)) {
+            return BoolFail::kFail;
+        }
     } else if (c.sweep_lt(edge->fBottom->fPoint, v->fPoint)) {
         // Actually "p0 < p1 < v": update 'edge' to be p0->v and add p1->v. We flip the winding on
         // the new edge so that it winds as if it were v->p1.
         top = edge->fBottom;
         bottom = v;
         winding *= -1;
-        this->setBottom(edge, v, activeEdges, current, c);
+        if (!this->setBottom(edge, v, activeEdges, current, c)) {
+            return BoolFail::kFail;
+        }
     } else {
         // The ideal case, "p0 < v < p1": update 'edge' to be p0->v and add v->p1. Original winding
         // is valid for both edges.
         top = v;
         bottom = edge->fBottom;
-        this->setBottom(edge, v, activeEdges, current, c);
+        if (!this->setBottom(edge, v, activeEdges, current, c)) {
+            return BoolFail::kFail;
+        }
     }
     Edge* newEdge = this->allocateEdge(top, bottom, winding, edge->fType);
     newEdge->insertBelow(top, c);
@@ -1040,10 +1082,10 @@ void GrTriangulator::mergeVertices(Vertex* src, Vertex* dst, VertexList* mesh,
         src->fPartner->fPartner = dst;
     }
     while (Edge* edge = src->fFirstEdgeAbove) {
-        this->setBottom(edge, dst, nullptr, nullptr, c);
+        std::ignore = this->setBottom(edge, dst, nullptr, nullptr, c);
     }
     while (Edge* edge = src->fFirstEdgeBelow) {
-        this->setTop(edge, dst, nullptr, nullptr, c);
+        std::ignore = this->setTop(edge, dst, nullptr, nullptr, c);
     }
     mesh->remove(src);
     dst->fSynthetic = true;

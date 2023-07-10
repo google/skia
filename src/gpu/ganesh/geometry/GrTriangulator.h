@@ -159,10 +159,10 @@ protected:
     MonotonePoly* allocateMonotonePoly(Edge* edge, Side side, int winding);
     Edge* allocateEdge(Vertex* top, Vertex* bottom, int winding, EdgeType type);
     Edge* makeEdge(Vertex* prev, Vertex* next, EdgeType type, const Comparator&);
-    void setTop(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
-                const Comparator&) const;
-    void setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
-                   const Comparator&) const;
+    SK_WARN_UNUSED_RESULT bool setTop(
+        Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, const Comparator&) const;
+    SK_WARN_UNUSED_RESULT bool setBottom(
+        Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, const Comparator&) const;
     SK_WARN_UNUSED_RESULT bool mergeEdgesAbove(
         Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current, const Comparator&) const;
     SK_WARN_UNUSED_RESULT bool mergeEdgesBelow(
@@ -458,7 +458,7 @@ struct GrTriangulator::EdgeList {
     Edge* fHead;
     Edge* fTail;
     void insert(Edge* edge, Edge* prev, Edge* next);
-    void insert(Edge* edge, Edge* prev);
+    bool insert(Edge* edge, Edge* prev);
     void append(Edge* e) { insert(e, fTail, nullptr); }
     bool remove(Edge* edge);
     void removeAll() {
