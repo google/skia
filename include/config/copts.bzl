@@ -150,7 +150,6 @@ WARNINGS = [
     "-Wdeprecated-this-capture",
     "-Wdeprecated-volatile",
     "-Wdeprecated-writable-strings",
-    "-Wc++98-compat-extra-semi",
     # A catch-all for when the version of clang we are using does not have the prior options
     "-Wno-unknown-warning-option",
 ] + select({
