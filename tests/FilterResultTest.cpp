@@ -958,11 +958,14 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
 
 // ----------------------------------------------------------------------------
 
+// TODO(skbug.com/14607) - Run FilterResultTests on Dawn and ANGLE backends, too
+
 #if defined(SK_GANESH)
 #define DEF_GANESH_TEST_SUITE(name) \
-    DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS( \
-            FilterResult_##name##_ganesh, \
-            r, ctxInfo, CtsEnforcement::kApiLevel_T) { \
+    DEF_GANESH_TEST_FOR_CONTEXTS( \
+            FilterResult_ganesh_##name, \
+            sk_gpu_test::GrContextFactory::IsNativeBackend, \
+            r, ctxInfo, nullptr, CtsEnforcement::kApiLevel_T) { \
         TestRunner runner(r, ctxInfo.directContext()); \
         test_suite_##name(runner); \
     }
@@ -972,7 +975,10 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
 
 #if defined(SK_GRAPHITE)
 #define DEF_GRAPHITE_TEST_SUITE(name) \
-    DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(FilterResult_##name##_graphite, r, context) { \
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS( \
+            FilterResult_graphite_##name, \
+            sk_gpu_test::GrContextFactory::IsNativeBackend, \
+            r, context) { \
         using namespace skgpu::graphite; \
         auto recorder = context->makeRecorder(); \
         TestRunner runner(r, recorder.get()); \
@@ -991,13 +997,12 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
 #define DEF_GRAPHITE_TEST_SUITE(name) // do nothing
 #endif
 
-// Assumes 'name' refers to a static function of type TestSuite.
 #define DEF_TEST_SUITE(name, runner) \
     static void test_suite_##name(TestRunner&); \
     /* TODO(b/274901800): Uncomment to enable Graphite test execution. */ \
     /* DEF_GRAPHITE_TEST_SUITE(name) */ \
     DEF_GANESH_TEST_SUITE(name) \
-    DEF_TEST(FilterResult_##name##_raster, reporter) { \
+    DEF_TEST(FilterResult_raster_##name, reporter) { \
         TestRunner runner(reporter); \
         test_suite_##name(runner); \
     } \

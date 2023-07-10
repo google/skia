@@ -80,6 +80,21 @@ public:
         }
     }
 
+    static bool IsNativeBackend(ContextType type) {
+        switch (type) {
+            case kDirect3D_ContextType:
+            case kGL_ContextType:
+            case kGLES_ContextType:
+            case kMetal_ContextType:
+            case kVulkan_ContextType:
+                return true;
+            default:
+                // Mock doesn't use the GPU, and Dawn and ANGLE add a layer between Skia and the
+                // native GPU backend.
+                return false;
+        }
+    }
+
     static GrBackendApi ContextTypeBackend(ContextType type) {
         switch (type) {
             case kVulkan_ContextType:
