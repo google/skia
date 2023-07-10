@@ -190,6 +190,6 @@ private:
     PaintParamsKey fKey;
 };
 
-} // skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_PaintParamsKey_DEFINED
