@@ -6,6 +6,8 @@
  */
 
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+
 #if defined(SK_BUILD_FOR_ANDROID)
 
 #include <stdio.h>
@@ -36,4 +38,4 @@ void SkDebugf(const char format[], ...) {
     va_end(args1);
 }
 
-#endif//defined(SK_BUILD_FOR_ANDROID)
+#endif  // defined(SK_BUILD_FOR_ANDROID)
