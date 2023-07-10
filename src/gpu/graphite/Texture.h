@@ -33,6 +33,10 @@ public:
 
     void setReleaseCallback(sk_sp<RefCntedCallback>);
 
+#if GRAPHITE_TEST_UTILS
+    const Texture* asTexture() const override { return this; }
+#endif
+
 protected:
     Texture(const SharedContext*,
             SkISize dimensions,

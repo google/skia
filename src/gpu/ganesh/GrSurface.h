@@ -100,6 +100,10 @@ public:
         sk_sp<GrDirectContext> fDirectContext;
     };
 
+#if GR_TEST_UTILS
+    const GrSurface* asSurface() const override { return this; }
+#endif
+
 protected:
     void setGLRTFBOIDIs0() {
         SkASSERT(!this->requiresManualMSAAResolve());
