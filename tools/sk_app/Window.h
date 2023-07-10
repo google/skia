@@ -74,6 +74,9 @@ public:
 #endif
 #ifdef SK_VULKAN
         kVulkan_BackendType,
+#if defined(SK_GRAPHITE)
+        kGraphiteVulkan_BackendType,
+#endif
 #endif
 #ifdef SK_METAL
         kMetal_BackendType,

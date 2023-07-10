@@ -411,6 +411,12 @@ bool Window_unix::attach(BackendType attachType) {
             fWindowContext = skwindow::MakeVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
+#if defined(SK_VULKAN) && defined(SK_GRAPHITE)
+        case kGraphiteVulkan_BackendType:
+            // TODO: Implement Xlib WindowContext support for Graphite
+            fWindowContext = nullptr;
+            break;
+#endif
 #ifdef SK_GL
         case kNativeGL_BackendType:
             fWindowContext = skwindow::MakeGLForXlib(winInfo, fRequestedDisplayParams);

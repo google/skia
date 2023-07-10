@@ -379,6 +379,11 @@ bool Window_win::attach(BackendType attachType) {
         case kVulkan_BackendType:
             fWindowContext = skwindow::MakeVulkanForWin(fHWnd, fRequestedDisplayParams);
             break;
+#if defined(SK_GRAPHITE)
+        case kGraphiteVulkan_BackendType:
+            fWindowContext = skwindow::MakeGraphiteVulkanForWin(fHWnd, fRequestedDisplayParams);
+            break;
+#endif
 #endif
 #ifdef SK_DIRECT3D
         case kDirect3D_BackendType:

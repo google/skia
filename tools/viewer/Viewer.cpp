@@ -250,6 +250,9 @@ const char* get_backend_string(sk_app::Window::BackendType type) {
 #endif
 #ifdef SK_VULKAN
         case sk_app::Window::kVulkan_BackendType: return "Vulkan";
+#if defined(SK_GRAPHITE)
+        case sk_app::Window::kGraphiteVulkan_BackendType: return "Vulkan (Graphite)";
+#endif
 #endif
 #ifdef SK_METAL
         case sk_app::Window::kMetal_BackendType: return "Metal";
@@ -281,6 +284,11 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
     if (0 == strcmp(str, "vk")) {
         return sk_app::Window::kVulkan_BackendType;
     } else
+#if defined(SK_GRAPHITE)
+        if (0 == strcmp(str, "grvk")) {
+            return sk_app::Window::kGraphiteVulkan_BackendType;
+        } else
+#endif
 #endif
 #if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
     if (0 == strcmp(str, "angle")) {
@@ -2021,6 +2029,11 @@ void Viewer::drawImGui() {
 #if defined(SK_VULKAN) && !defined(SK_BUILD_FOR_MAC)
                 ImGui::SameLine();
                 ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);
+#if defined(SK_GRAPHITE)
+                ImGui::SameLine();
+                ImGui::RadioButton("Vulkan (Graphite)", &newBackend,
+                                   sk_app::Window::kGraphiteVulkan_BackendType);
+#endif
 #endif
 #if defined(SK_METAL)
                 ImGui::SameLine();

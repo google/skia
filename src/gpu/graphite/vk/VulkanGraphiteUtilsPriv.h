@@ -51,6 +51,8 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
                                      const SkSpan<DescriptorData>&,
                                      VkDescriptorSetLayout*);
 
+bool vkFormatIsSupported(VkFormat);
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_VulkanGraphiteUtilsPriv_DEFINED
