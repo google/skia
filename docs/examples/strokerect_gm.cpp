@@ -56,9 +56,10 @@ void draw(SkCanvas* canvas) {
                 paint.setStrokeWidth(3);
                 paint.setStrokeJoin(SkPaint::kMiter_Join);
                 int n = fillPath.countPoints();
-                AutoTArray<SkPoint> points(n);
-                fillPath.getPoints(points.get(), n);
-                canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
+                SkPoint* points = new SkPoint[n];
+                fillPath.getPoints(points, n);
+                canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points, paint);
+                delete[] points;
             }
         }
     }

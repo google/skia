@@ -3,11 +3,10 @@
 #include "tools/fiddle/examples.h"
 // HASH=3f5aeb870104187643197354a7f1d27a
 REG_FIDDLE(Surface_MakeRasterDirect, 256, 256, true, 0) {
-void draw(SkCanvas* ) {
+void draw(SkCanvas*) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);
     const size_t size = info.computeMinByteSize();
-    AutoTMalloc<SkPMColor> storage(size);
-    SkPMColor* pixels = storage.get();
+    SkPMColor* pixels = new SkPMColor[size];
     sk_sp<SkSurface> surface(SkSurfaces::WrapPixels(info, pixels, info.minRowBytes()));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
@@ -20,5 +19,6 @@ void draw(SkCanvas* ) {
         }
         SkDebugf("\n");
     }
+    delete[] pixels;
 }
 }  // END FIDDLE

@@ -3,12 +3,11 @@
 #include "tools/fiddle/examples.h"
 // HASH=525285073aae7e53eb8f454a398f880c
 REG_FIDDLE(Canvas_MakeRasterDirect, 256, 256, true, 0) {
-void draw(SkCanvas* ) {
+void draw(SkCanvas*) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, Premultiplied
     const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
     const size_t size = info.computeMinByteSize();  // bytes used by all rows
-    AutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
-    SkPMColor* pixels = storage.get();  // get pointer to allocated storage
+    SkPMColor* pixels = new SkPMColor[size]; // allocate storage for pixels
     // create a SkCanvas backed by a raster device, and delete it when the
     // function goes out of scope.
     std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);
@@ -22,5 +21,6 @@ void draw(SkCanvas* ) {
         }
         SkDebugf("\n");
     }
+    delete[] pixels;
 }
 }  // END FIDDLE

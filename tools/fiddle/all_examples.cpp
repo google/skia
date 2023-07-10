@@ -1,7 +1,5 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-namespace skia_private {}
-using namespace skia_private;
 #include "docs/examples/50_percent_gray.cpp"
 #include "docs/examples/50_percent_srgb.cpp"
 #include "docs/examples/Alpha_Constants_a.cpp"
@@ -342,8 +340,6 @@ using namespace skia_private;
 #include "docs/examples/ImageInfo_bytesPerPixel.cpp"
 #include "docs/examples/ImageInfo_colorSpace.cpp"
 #include "docs/examples/ImageInfo_colorType.cpp"
-#include "docs/examples/ImageInfo_computeByteSize.cpp"
-#include "docs/examples/ImageInfo_computeMinByteSize.cpp"
 #include "docs/examples/ImageInfo_computeOffset.cpp"
 #include "docs/examples/ImageInfo_dimensions.cpp"
 #include "docs/examples/ImageInfo_empty_constructor.cpp"
