@@ -202,7 +202,7 @@ private:
 
     std::string fName;
 };
-SK_MAKE_BITMASK_OPS(RenderStep::Flags);
+SK_MAKE_BITMASK_OPS(RenderStep::Flags)
 
 class Renderer {
     using StepFlags = RenderStep::Flags;

@@ -22,7 +22,7 @@ enum class DepthStencilFlags : int {
     kStencil = 0b010,
     kDepthStencil = kDepth | kStencil,
 };
-SK_MAKE_BITMASK_OPS(DepthStencilFlags);
+SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 
 /**
  * What a GPU buffer will be used for

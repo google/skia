@@ -284,7 +284,7 @@ private:
     // workgroup size declaration to avoid any validation failures.
     WorkgroupSize fLocalDispatchSize;
 };
-SK_MAKE_BITMASK_OPS(ComputeStep::Flags);
+SK_MAKE_BITMASK_OPS(ComputeStep::Flags)
 
 }  // namespace skgpu::graphite
 

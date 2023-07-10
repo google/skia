@@ -62,7 +62,7 @@ enum class SnippetRequirementFlags : uint32_t {
     kBlenderDstColor = 0x4,  // The "dst" argument for a blender
     kSurfaceColor = 0x8,
 };
-SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
+SK_MAKE_BITMASK_OPS(SnippetRequirementFlags)
 
 class ShaderInfo;
 class ShaderNode;
