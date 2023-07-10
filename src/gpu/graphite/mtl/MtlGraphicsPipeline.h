@@ -47,7 +47,8 @@ public:
                                            sk_cfp<id<MTLDepthStencilState>>,
                                            uint32_t stencilRefValue,
                                            const BlendInfo& blendInfo,
-                                           const RenderPassDesc&);
+                                           const RenderPassDesc&,
+                                           Shaders* pipelineShaders);
 
     ~MtlGraphicsPipeline() override {}
 
@@ -57,13 +58,10 @@ public:
 
 private:
     MtlGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                        Shaders* pipelineShaders,
                         sk_cfp<id<MTLRenderPipelineState>> pso,
                         sk_cfp<id<MTLDepthStencilState>> dss,
-                        uint32_t refValue)
-        : GraphicsPipeline(sharedContext)
-        , fPipelineState(std::move(pso))
-        , fDepthStencilState(dss)
-        , fStencilReferenceValue(refValue) {}
+                        uint32_t refValue);
 
     void freeGpuData() override;
 

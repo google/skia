@@ -256,22 +256,22 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     // Some steps just render depth buffer but not color buffer, so the fragment
     // shader is null.
-    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
-                                              sharedContext->shaderCodeDictionary(),
-                                              runtimeDict,
-                                              step,
-                                              pipelineDesc.paintParamsID(),
-                                              useShadingSsboIndex,
-                                              renderPassDesc.fWriteSwizzle);
-    const std::string& fsSKSL = fsSkSLInfo.fSkSL;
+    FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
+                                        sharedContext->shaderCodeDictionary(),
+                                        runtimeDict,
+                                        step,
+                                        pipelineDesc.paintParamsID(),
+                                        useShadingSsboIndex,
+                                        renderPassDesc.fWriteSwizzle);
+    std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
     const int numTexturesAndSamplers = fsSkSLInfo.fNumTexturesAndSamplers;
 
-    bool hasFragment = !fsSKSL.empty();
+    bool hasFragment = !fsSkSL.empty();
     if (hasFragment) {
         if (!SkSLToSPIRV(compiler,
-                         fsSKSL,
+                         fsSkSL,
                          SkSL::ProgramKind::kGraphiteFragment,
                          settings,
                          &fsSPIRV,
@@ -287,11 +287,12 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         }
     }
 
+    std::string vsSkSL = GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
+                                   step,
+                                   useShadingSsboIndex,
+                                   localCoordsNeeded);
     if (!SkSLToSPIRV(compiler,
-                     GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
-                               step,
-                               useShadingSsboIndex,
-                               localCoordsNeeded),
+                     vsSkSL,
                      SkSL::ProgramKind::kGraphiteVertex,
                      settings,
                      &vsSPIRV,
@@ -530,14 +531,41 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         return {};
     }
 
+#if GRAPHITE_TEST_UTILS
+    GraphicsPipeline::Shaders pipelineShaders = {
+        std::move(vsSkSL),
+        std::move(fsSkSL),
+        "SPIR-V disassembly not available",
+        "SPIR-V disassembly not available",
+    };
+    GraphicsPipeline::Shaders* pipelineShadersPtr = &pipelineShaders;
+#else
+    GraphicsPipeline::Shaders* pipelineShadersPtr = nullptr;
+#endif
+
     return sk_sp<DawnGraphicsPipeline>(
             new DawnGraphicsPipeline(sharedContext,
+                                     pipelineShadersPtr,
                                      std::move(pipeline),
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
                                      !step->uniforms().empty(),
                                      hasFragment));
 }
+
+DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                                           Shaders* pipelineShaders,
+                                           wgpu::RenderPipeline renderPipeline,
+                                           PrimitiveType primitiveType,
+                                           uint32_t refValue,
+                                           bool hasStepUniforms,
+                                           bool hasFragment)
+        : GraphicsPipeline(sharedContext, pipelineShaders)
+        , fRenderPipeline(std::move(renderPipeline))
+        , fPrimitiveType(primitiveType)
+        , fStencilReferenceValue(refValue)
+        , fHasStepUniforms(hasStepUniforms)
+        , fHasFragment(hasFragment) {}
 
 void DawnGraphicsPipeline::freeGpuData() {
     fRenderPipeline = nullptr;

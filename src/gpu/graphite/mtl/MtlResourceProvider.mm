@@ -92,7 +92,8 @@ sk_sp<MtlGraphicsPipeline> MtlResourceProvider::findOrCreateLoadMSAAPipeline(
                                              std::move(ignoreDS),
                                              /*stencilRefValue=*/0,
                                              noBlend,
-                                             renderPassDesc);
+                                             renderPassDesc,
+                                             /*pipelineShaders=*/nullptr);
         if (pipeline) {
             fLoadMSAAPipelines.set(renderPassKey, pipeline);
         }
@@ -120,14 +121,14 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     bool useShadingSsboIndex =
             fSharedContext->caps()->storageBufferPreferred() && step->performsShading();
 
-    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(fSharedContext->caps(),
-                                              fSharedContext->shaderCodeDictionary(),
-                                              runtimeDict,
-                                              step,
-                                              pipelineDesc.paintParamsID(),
-                                              useShadingSsboIndex,
-                                              renderPassDesc.fWriteSwizzle);
-    const std::string& fsSkSL = fsSkSLInfo.fSkSL;
+    FragSkSLInfo fsSkSLInfo = GetSkSLFS(fSharedContext->caps(),
+                                        fSharedContext->shaderCodeDictionary(),
+                                        runtimeDict,
+                                        step,
+                                        pipelineDesc.paintParamsID(),
+                                        useShadingSsboIndex,
+                                        renderPassDesc.fWriteSwizzle);
+    std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
     if (!SkSLToMSL(&skslCompiler,
@@ -140,11 +141,12 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
         return nullptr;
     }
 
+    std::string vsSkSL = GetSkSLVS(fSharedContext->caps()->resourceBindingRequirements(),
+                                   step,
+                                   useShadingSsboIndex,
+                                   localCoordsNeeded);
     if (!SkSLToMSL(&skslCompiler,
-                   GetSkSLVS(fSharedContext->caps()->resourceBindingRequirements(),
-                             step,
-                             useShadingSsboIndex,
-                             localCoordsNeeded),
+                   vsSkSL,
                    SkSL::ProgramKind::kGraphiteVertex,
                    settings,
                    &vsMSL,
@@ -159,6 +161,17 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     sk_cfp<id<MTLDepthStencilState>> dss =
             this->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
 
+#if GRAPHITE_TEST_UTILS
+    GraphicsPipeline::Shaders pipelineShaders = {
+        std::move(vsSkSL),
+        std::move(fsSkSL),
+        std::move(vsMSL),
+        std::move(fsMSL),
+    };
+    GraphicsPipeline::Shaders* pipelineShadersPtr = &pipelineShaders;
+#else
+    GraphicsPipeline::Shaders* pipelineShadersPtr = nullptr;
+#endif
     return MtlGraphicsPipeline::Make(this->mtlSharedContext(),
                                      step->name(),
                                      {vsLibrary.get(), "vertexMain"},
@@ -168,7 +181,8 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
                                      std::move(dss),
                                      step->depthStencilSettings().fStencilReferenceValue,
                                      blendInfo,
-                                     renderPassDesc);
+                                     renderPassDesc,
+                                     pipelineShadersPtr);
 }
 
 sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(

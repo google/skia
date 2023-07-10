@@ -261,7 +261,8 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
                                                      sk_cfp<id<MTLDepthStencilState>> dss,
                                                      uint32_t stencilRefValue,
                                                      const BlendInfo& blendInfo,
-                                                     const RenderPassDesc& renderPassDesc) {
+                                                     const RenderPassDesc& renderPassDesc,
+                                                     Shaders* pipelineShaders) {
     id<MTLLibrary> vsLibrary = std::get<0>(vertexMain);
     id<MTLLibrary> fsLibrary = std::get<0>(fragmentMain);
     if (!vsLibrary || !fsLibrary) {
@@ -313,10 +314,21 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
     }
 
     return sk_sp<MtlGraphicsPipeline>(new MtlGraphicsPipeline(sharedContext,
+                                                              pipelineShaders,
                                                               std::move(pso),
                                                               std::move(dss),
                                                               stencilRefValue));
 }
+
+MtlGraphicsPipeline::MtlGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                                         Shaders* pipelineShaders,
+                                         sk_cfp<id<MTLRenderPipelineState>> pso,
+                                         sk_cfp<id<MTLDepthStencilState>> dss,
+                                         uint32_t refValue)
+        : GraphicsPipeline(sharedContext, pipelineShaders)
+        , fPipelineState(std::move(pso))
+        , fDepthStencilState(dss)
+        , fStencilReferenceValue(refValue) {}
 
 void MtlGraphicsPipeline::freeGpuData() {
     fPipelineState.reset();

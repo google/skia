@@ -559,14 +559,14 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         return nullptr;
     }
 
-    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
-                                              sharedContext->shaderCodeDictionary(),
-                                              runtimeDict,
-                                              step,
-                                              pipelineDesc.paintParamsID(),
-                                              useShadingSsboIndex,
-                                              renderPassDesc.fWriteSwizzle);
-    const std::string& fsSkSL = fsSkSLInfo.fSkSL;
+    FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
+                                        sharedContext->shaderCodeDictionary(),
+                                        runtimeDict,
+                                        step,
+                                        pipelineDesc.paintParamsID(),
+                                        useShadingSsboIndex,
+                                        renderPassDesc.fWriteSwizzle);
+    std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
 
     bool hasFragment = !fsSkSL.empty();
@@ -590,11 +590,12 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         }
     }
 
+    std::string vsSkSL = GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
+                                   step,
+                                   useShadingSsboIndex,
+                                   localCoordsNeeded);
     if (!SkSLToSPIRV(compiler,
-                     GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
-                               step,
-                               useShadingSsboIndex,
-                               localCoordsNeeded),
+                     vsSkSL,
                      SkSL::ProgramKind::kGraphiteVertex,
                      settings,
                      &vsSPIRV,
@@ -719,7 +720,21 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 
     // After creating the pipeline object, we can clean up the VkShaderModule(s).
     destroy_shader_modules(sharedContext, vsModule, fsModule);
+
+#if GRAPHITE_TEST_UTILS
+    GraphicsPipeline::Shaders pipelineShaders = {
+        std::move(vsSkSL),
+        std::move(fsSkSL),
+        "SPIR-V disassembly not available",
+        "SPIR-V disassembly not available",
+    };
+    GraphicsPipeline::Shaders* pipelineShadersPtr = &pipelineShaders;
+#else
+    GraphicsPipeline::Shaders* pipelineShadersPtr = nullptr;
+#endif
+
     return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(sharedContext,
+                                                                    pipelineShadersPtr,
                                                                     pipelineLayout,
                                                                     vkPipeline,
                                                                     hasFragment,
@@ -727,15 +742,16 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                                               Shaders* pipelineShaders,
                                                VkPipelineLayout pipelineLayout,
                                                VkPipeline pipeline,
                                                bool hasFragment,
                                                bool hasStepUniforms)
-    : GraphicsPipeline(sharedContext)
-    , fPipelineLayout(pipelineLayout)
-    , fPipeline(pipeline)
-    , fHasFragment(hasFragment)
-    , fHasStepUniforms(hasStepUniforms) { }
+        : GraphicsPipeline(sharedContext, pipelineShaders)
+        , fPipelineLayout(pipelineLayout)
+        , fPipeline(pipeline)
+        , fHasFragment(hasFragment)
+        , fHasStepUniforms(hasStepUniforms) {}
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());

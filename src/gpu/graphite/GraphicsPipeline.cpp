@@ -6,13 +6,24 @@
  */
 
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/utils/SkShaderUtils.h"
 
 namespace skgpu::graphite {
 
-GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext)
-        : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0) {}
-
-GraphicsPipeline::~GraphicsPipeline() {
+GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext, Shaders* pipelineShaders)
+        : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0) {
+#if GRAPHITE_TEST_UTILS
+    if (pipelineShaders) {
+        fPipelineShaders.fSkSLVertexShader =
+                SkShaderUtils::PrettyPrint(pipelineShaders->fSkSLVertexShader);
+        fPipelineShaders.fSkSLFragmentShader =
+                SkShaderUtils::PrettyPrint(pipelineShaders->fSkSLFragmentShader);
+        fPipelineShaders.fNativeVertexShader = std::move(pipelineShaders->fNativeVertexShader);
+        fPipelineShaders.fNativeFragmentShader = std::move(pipelineShaders->fNativeFragmentShader);
+    }
+#endif
 }
 
-} // namespace skgpu::graphite
+GraphicsPipeline::~GraphicsPipeline() = default;
+
+}  // namespace skgpu::graphite

@@ -82,6 +82,7 @@ public:
 
 private:
     VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                           Shaders* pipelineShaders,
                            VkPipelineLayout,
                            VkPipeline,
                            bool hasFragment,
