@@ -269,9 +269,9 @@ enum GrShaderType {
     kVertex_GrShaderType,
     kFragment_GrShaderType,
 
-    kLastkFragment_GrShaderType = kFragment_GrShaderType
+    kLast_GrShaderType = kFragment_GrShaderType
 };
-static const int kGrShaderTypeCount = kLastkFragment_GrShaderType + 1;
+static const int kGrShaderTypeCount = kLast_GrShaderType + 1;
 
 enum GrShaderFlags {
     kNone_GrShaderFlags          = 0,

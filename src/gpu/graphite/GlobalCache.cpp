@@ -67,6 +67,15 @@ void GlobalCache::resetGraphicsPipelines() {
 
     fGraphicsPipelineCache.reset();
 }
+
+void GlobalCache::forEachGraphicsPipeline(
+        const std::function<void(const UniqueKey&, const GraphicsPipeline*)>& fn) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    fGraphicsPipelineCache.foreach([&](const UniqueKey* k, const sk_sp<GraphicsPipeline>* v) {
+        fn(*k, v->get());
+    });
+}
 #endif // GRAPHITE_TEST_UTILS
 
 sk_sp<ComputePipeline> GlobalCache::findComputePipeline(const UniqueKey& key) {
