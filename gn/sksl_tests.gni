@@ -685,6 +685,7 @@ sksl_shared_tests = [
   "shared/VectorScalarMath.sksl",
   "shared/VectorToMatrixCast.sksl",
   "shared/VertexID.vert",
+  "shared/VertexIDInFunction.vert",
   "shared/WhileLoopControlFlow.sksl",
 ]
 

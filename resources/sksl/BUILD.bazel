@@ -1000,6 +1000,7 @@ skia_filegroup(
         "shared/VectorScalarMath.sksl",
         "shared/VectorToMatrixCast.sksl",
         "shared/VertexID.vert",
+        "shared/VertexIDInFunction.vert",
         "shared/WhileLoopControlFlow.sksl",
     ],
 )
