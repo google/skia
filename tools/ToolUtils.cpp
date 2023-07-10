@@ -34,6 +34,7 @@
 #include <cstring>
 
 #if defined(SK_GRAPHITE)
+#include "include/core/SkTiledImageUtils.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/ImageProvider.h"
 
@@ -703,14 +704,14 @@ public:
             // since it can be used in that case.
             // TODO: we could get fancy and, if ever a mipmapped key eclipsed a non-mipmapped
             // key, we could remove the hidden non-mipmapped key/image from the cache.
-            uint64_t mipMappedKey = ((uint64_t)image->uniqueID() << 32) | 0x1;
+            ImageKey mipMappedKey(image, /* mipmapped= */ true);
             auto result = fCache.find(mipMappedKey);
             if (result != fCache.end()) {
                 return result->second;
             }
         }
 
-        uint64_t key = ((uint64_t)image->uniqueID() << 32) | (requiredProps.fMipmapped ? 0x1 : 0x0);
+        ImageKey key(image, requiredProps.fMipmapped);
 
         auto result = fCache.find(key);
         if (result != fCache.end()) {
@@ -729,7 +730,39 @@ public:
     }
 
 private:
-    std::unordered_map<uint64_t, sk_sp<SkImage>> fCache;
+    class ImageKey {
+    public:
+        ImageKey(const SkImage* image, bool mipmapped) {
+            uint32_t flags = mipmapped ? 0x1 : 0x0;
+            SkTiledImageUtils::GetImageKeyValues(image, &fValues[1]);
+            fValues[kNumValues-1] = flags;
+            fValues[0] = SkChecksum::Hash32(&fValues[1], (kNumValues-1) * sizeof(uint32_t));
+        }
+
+        uint32_t hash() const { return fValues[0]; }
+
+        bool operator==(const ImageKey& other) const {
+            for (int i = 0; i < kNumValues; ++i) {
+                if (fValues[i] != other.fValues[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        bool operator!=(const ImageKey& other) const { return !(*this == other); }
+
+    private:
+        static const int kNumValues = SkTiledImageUtils::kNumImageKeyValues + 2;
+
+        uint32_t fValues[kNumValues];
+    };
+
+    struct ImageHash {
+        size_t operator()(const ImageKey& key) const { return key.hash(); }
+    };
+
+    std::unordered_map<ImageKey, sk_sp<SkImage>, ImageHash> fCache;
 };
 
 skgpu::graphite::RecorderOptions CreateTestingRecorderOptions() {

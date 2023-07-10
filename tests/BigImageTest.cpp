@@ -439,7 +439,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Graphite,
     std::unique_ptr<skgpu::graphite::Recorder> recorder =
             context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
 
-    run_test(nullptr, recorder.get(), reporter);
+    run_test(/* dContext= */ nullptr, recorder.get(), reporter);
 }
 
 #endif // SK_GRAPHITE

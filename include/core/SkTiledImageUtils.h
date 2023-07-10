@@ -15,6 +15,9 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAPI.h"
+
+#include <cstdint>
+
 class SkPaint;
 
 /** \namespace SkTiledImageUtils
@@ -98,6 +101,20 @@ inline void DrawImage(SkCanvas* canvas,
                               SkCanvas::kFast_SrcRectConstraint) {
     DrawImage(canvas, image.get(), x, y, sampling, paint, constraint);
 }
+
+static constexpr int kNumImageKeyValues = 5;
+
+/** Retrieves a set of values that can be used as part of a cache key for the provided image.
+
+    Unfortunately, SkImage::uniqueID isn't sufficient as an SkImage cache key. In particular,
+    SkBitmap-backed SkImages can share a single SkBitmap and refer to different subsets of it.
+    In this situation the optimal key is based on the SkBitmap's generation ID and the subset
+    rectangle.
+
+    @param image     The image for which key values are desired
+    @param keyValues The resulting key values
+*/
+SK_API void GetImageKeyValues(const SkImage* image, uint32_t keyValues[kNumImageKeyValues]);
 
 }  // namespace SkTiledImageUtils
 
