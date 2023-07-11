@@ -2025,6 +2025,16 @@ void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration&
         this->write("_fragCoord");
         separator = ", ";
     }
+    if (requirements & kVertexID_Requirement) {
+        this->write(separator);
+        this->write("sk_VertexID");
+        separator = ", ";
+    }
+    if (requirements & kInstanceID_Requirement) {
+        this->write(separator);
+        this->write("sk_InstanceID");
+        separator = ", ";
+    }
     if (requirements & kThreadgroups_Requirement) {
         this->write(separator);
         this->write("_threadgroups");
@@ -2058,6 +2068,16 @@ void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaratio
     if (requirements & kFragCoord_Requirement) {
         this->write(separator);
         this->write("float4 _fragCoord");
+        separator = ", ";
+    }
+    if (requirements & kVertexID_Requirement) {
+        this->write(separator);
+        this->write("uint sk_VertexID");
+        separator = ", ";
+    }
+    if (requirements & kInstanceID_Requirement) {
+        this->write(separator);
+        this->write("uint sk_InstanceID");
         separator = ", ";
     }
     if (requirements & kThreadgroups_Requirement) {
@@ -3160,6 +3180,10 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
 
                     if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                         fRequirements |= kGlobals_Requirement | kFragCoord_Requirement;
+                    } else if (var.modifiers().fLayout.fBuiltin == SK_VERTEXID_BUILTIN) {
+                        fRequirements |= kVertexID_Requirement;
+                    } else if (var.modifiers().fLayout.fBuiltin == SK_INSTANCEID_BUILTIN) {
+                        fRequirements |= kInstanceID_Requirement;
                     } else if (var.storage() == Variable::Storage::kGlobal) {
                         if (is_input(var)) {
                             fRequirements |= kInputs_Requirement;

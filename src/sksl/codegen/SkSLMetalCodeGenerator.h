@@ -88,7 +88,9 @@ protected:
     inline static constexpr Requirements kUniforms_Requirement     = 1 << 2;
     inline static constexpr Requirements kGlobals_Requirement      = 1 << 3;
     inline static constexpr Requirements kFragCoord_Requirement    = 1 << 4;
-    inline static constexpr Requirements kThreadgroups_Requirement = 1 << 5;
+    inline static constexpr Requirements kVertexID_Requirement     = 1 << 5;
+    inline static constexpr Requirements kInstanceID_Requirement   = 1 << 6;
+    inline static constexpr Requirements kThreadgroups_Requirement = 1 << 7;
 
     class GlobalStructVisitor;
     void visitGlobalStruct(GlobalStructVisitor* visitor);

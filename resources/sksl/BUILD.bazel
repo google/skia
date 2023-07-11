@@ -885,6 +885,7 @@ skia_filegroup(
         "shared/InoutParameters.sksl",
         "shared/InoutParamsAreDistinct.sksl",
         "shared/InstanceID.vert",
+        "shared/InstanceIDInFunction.vert",
         "shared/IntegerDivisionES3.sksl",
         "shared/InterfaceBlockBuffer.sksl",
         "shared/InterfaceBlockMultipleAnonymous.sksl",
