@@ -201,12 +201,9 @@ static inline float sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(float 
     return sk_ieee_float_divide(n,d);
 }
 
-static inline float sk_fmaf(float f, float m, float a) {
-#if defined(FP_FAST_FMA)
-    return std::fmaf(f,m,a);
-#else
-    return f*m+a;
-#endif
+// Return a*b + c.
+static inline float sk_fmaf(float a, float b, float c) {
+    return std::fma(a, b, c);
 }
 
 // Returns true iff the provided number is within a small epsilon of 0.
