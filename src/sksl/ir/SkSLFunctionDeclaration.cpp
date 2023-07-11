@@ -73,6 +73,7 @@ static bool check_return_type(const Context& context, Position pos, const Type& 
 
 static bool check_parameters(const Context& context,
                              TArray<std::unique_ptr<Variable>>& parameters,
+                             const Modifiers& modifiers,
                              bool isMain) {
     auto typeIsValidForColor = [&](const Type& type) {
         return type.matches(*context.fTypes.fHalf4) || type.matches(*context.fTypes.fFloat4);
@@ -107,6 +108,16 @@ static bool check_parameters(const Context& context,
 
         Modifiers m = param->modifiers();
         bool modifiersChanged = false;
+
+        // Pure functions should not change any state, and should be safe to eliminate if their
+        // result is not used; this is incompatible with out-parameters, so we forbid it here.
+        // (We don't exhaustively guard against pure functions changing global state in other ways,
+        // though, since they aren't allowed in user code.)
+        if ((modifiers.fFlags & Modifiers::kPure_Flag) && (m.fFlags & Modifiers::kOut_Flag)) {
+            context.fErrors->error(param->modifiersPosition(),
+                                   "pure functions cannot have out parameters");
+            return false;
+        }
 
         // The `in` modifier on function parameters is implicit, so we can replace `in float x` with
         // `float x`. This prevents any ambiguity when matching a function by its param types.
@@ -480,7 +491,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     FunctionDeclaration* decl = nullptr;
     if (!check_modifiers(context, modifiersPosition, *modifiers) ||
         !check_return_type(context, returnTypePos, *returnType) ||
-        !check_parameters(context, parameters, isMain) ||
+        !check_parameters(context, parameters, *modifiers, isMain) ||
         (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||
         !find_existing_declaration(context, pos, modifiers, name, parameters,
                                    returnTypePos, returnType, &decl)) {

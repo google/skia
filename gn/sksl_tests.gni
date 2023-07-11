@@ -115,7 +115,7 @@ sksl_error_tests = [
   "errors/InvalidBackendBindingFlagsSPIRV.sksl",
   "errors/InvalidBackendBindingFlagsWGSL.sksl",
   "errors/InvalidExtensionDirective.sksl",
-  "errors/InvalidOutParams.rts",
+  "errors/InvalidOutParams.sksl",
   "errors/InvalidToken.rts",
   "errors/InvalidUnary.rts",
   "errors/InvalidUniformTypes.sksl",
