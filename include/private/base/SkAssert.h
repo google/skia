@@ -13,12 +13,17 @@
 
 #include <cstddef>
 
-#if defined(__clang__)
-#define SK_LIKELY [[likely]]
-#define SK_UNLIKELY [[unlikely]]
+#if defined(__clang__) && defined(__has_attribute)
+    #if __has_attribute(likely)
+        #define SK_LIKELY [[likely]]
+        #define SK_UNLIKELY [[unlikely]]
+    #else
+        #define SK_LIKELY
+        #define SK_UNLIKELY
+    #endif
 #else
-#define SK_LIKELY
-#define SK_UNLIKELY
+    #define SK_LIKELY
+    #define SK_UNLIKELY
 #endif
 
 /** Called internally if we hit an unrecoverable error.
