@@ -11,6 +11,8 @@
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
+#include <cfloat>
+
 namespace skgpu::graphite {
 
 namespace {
