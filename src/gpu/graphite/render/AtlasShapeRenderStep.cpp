@@ -47,10 +47,10 @@ std::string AtlasShapeRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = atlas_shape_vertex_fn("
-                                         "atlasSizeInv, float2(sk_VertexID >> 1, sk_VertexID & 1), "
-                                         "drawBounds, deviceOrigin, float2(uvOrigin), "
-                                         "float2(maskSize), depth, float3x3(mat0, mat1, mat2), "
-                                         "maskBounds, textureCoords, stepLocalCoords);\n";
+                    "float2(sk_VertexID >> 1, sk_VertexID & 1), atlasSizeInv, "
+                    "drawBounds, deviceOrigin, float2(uvOrigin), "
+                    "float2(maskSize), depth, float3x3(mat0, mat1, mat2), "
+                    "maskBounds, textureCoords, stepLocalCoords);\n";
 }
 
 std::string AtlasShapeRenderStep::texturesAndSamplersSkSL(
