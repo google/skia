@@ -97,7 +97,3 @@ bool SkUnicode::hasControlFlag(SkUnicode::CodeUnitFlags flags) {
 bool SkUnicode::hasPartOfWhiteSpaceBreakFlag(SkUnicode::CodeUnitFlags flags) {
     return (flags & SkUnicode::kPartOfWhiteSpaceBreak) == SkUnicode::kPartOfWhiteSpaceBreak;
 }
-
-bool SkUnicode::isEmoji(SkUnichar codePoint) {
-    return false;
-}
