@@ -17,7 +17,7 @@ def main(basedir, cmd):
 
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT,
-                            encoding='utf-8')
+                            encoding='ISO-8859-1')
     for line in iter(proc.stdout.readline, ''):
         sys.stdout.write(line)
         logs.append(line)
