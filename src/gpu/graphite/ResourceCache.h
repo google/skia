@@ -72,6 +72,8 @@ public:
     // the return queue). Also no new Resources can be retrieved from the ResourceCache.
     void shutdown();
 
+    size_t getMaxBudget() const { return fMaxBytes; }
+
 #if GRAPHITE_TEST_UTILS
     void forceProcessReturnedResources() { this->processReturnedResources(); }
 

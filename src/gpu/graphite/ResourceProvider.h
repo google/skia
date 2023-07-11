@@ -77,6 +77,8 @@ public:
 
     ProxyCache* proxyCache() { return fResourceCache->proxyCache(); }
 
+    size_t getResourceCacheLimit() const { return fResourceCache->getMaxBudget(); }
+
 #if GRAPHITE_TEST_UTILS
     ResourceCache* resourceCache() { return fResourceCache.get(); }
     const SharedContext* sharedContext() { return fSharedContext; }

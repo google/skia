@@ -358,6 +358,10 @@ sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,
     return recorder->priv().proxyCache()->findOrCreateCachedProxy(recorder, bitmap, mipmapped);
 }
 
+size_t RecorderPriv::getResourceCacheLimit() const {
+    return fRecorder->fResourceProvider->getResourceCacheLimit();
+}
+
 #if GRAPHITE_TEST_UTILS
 // used by the Context that created this Recorder to set a back pointer
 void RecorderPriv::setContext(Context* context) {
