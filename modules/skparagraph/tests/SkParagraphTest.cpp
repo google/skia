@@ -5425,12 +5425,15 @@ UNIX_ONLY_TEST(SkParagraph_FontResolutions, reporter) {
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
 
     if (!fontCollection->addFontFromFile("abc/abc.ttf", "abc")) {
+        ERRORF(reporter, "abc/abc.ttf not found");
         return;
     }
     if (!fontCollection->addFontFromFile("abc/abc+grave.ttf", "abc+grave")) {
+        ERRORF(reporter, "abc/abc+grave.ttf not found");
         return;
     }
     if (!fontCollection->addFontFromFile("abc/abc+agrave.ttf", "abc+agrave")) {
+        ERRORF(reporter, "abc/abc+agrave.ttf not found");
         return;
     }
 
