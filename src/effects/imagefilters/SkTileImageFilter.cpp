@@ -27,6 +27,7 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <utility>
 
@@ -69,13 +70,8 @@ sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
     if (!SkIsValidRect(src) || !SkIsValidRect(dst)) {
         return nullptr;
     }
-    if (src.width() == dst.width() && src.height() == dst.height()) {
-        SkRect ir = dst;
-        if (!ir.intersect(src)) {
-            return input;
-        }
-        return SkImageFilters::Offset(dst.x() - src.x(),  dst.y() - src.y(),
-                                      std::move(input), &ir);
+    if (src.contains(dst)) {
+        return SkMakeCropImageFilter(dst, std::move(input));
     }
     return sk_sp<SkImageFilter>(new SkTileImageFilter(src, dst, std::move(input)));
 }
