@@ -31,9 +31,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/codec:decode_bmp_srcs",
 			},
 		},
+		{Var: "skia_codec_xmp",
+			Rules: []string{
+				"//src/codec:xmp_srcs",
+			},
+		},
 		{Var: "skia_codec_jpeg_xmp",
 			Rules: []string{
-				"//src/codec:jpeg_xmp",
+				"//src/codec:jpeg_xmp_hdrs",
+				"//src/codec:jpeg_xmp_srcs",
 			},
 		},
 	}},
