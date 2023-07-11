@@ -174,8 +174,8 @@ public:
     uint32_t newGenerationID();
 
 private:
-    std::unique_ptr<SkCanvas>   fCachedCanvas;
-    sk_sp<SkImage>              fCachedImage;
+    std::unique_ptr<SkCanvas> fCachedCanvas = nullptr;
+    sk_sp<SkImage>            fCachedImage  = nullptr;
 
     // Returns false if drawing should not take place (allocation failure).
     bool SK_WARN_UNUSED_RESULT aboutToDraw(ContentChangeMode mode);
