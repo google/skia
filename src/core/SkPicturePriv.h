@@ -132,6 +132,7 @@ public:
         kCombineBlendArithmeticFilters      = 98,
         kRemoveLegacyMagnifierFilter        = 99,
         kDropShadowImageFilterComposition   = 100,
+        kCropImageFilterSupportsTiling      = 101,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -156,7 +157,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kDropShadowImageFilterComposition
+        kCurrent_Version = kCropImageFilterSupportsTiling
     };
 };
 

@@ -125,7 +125,7 @@ sk_sp<SkImage> make_image(SkCanvas* canvas, const SkRect* contentBounds) {
     const float h = kExampleBounds.height();
 
     const auto srcII = SkImageInfo::Make(SkISize::Make(SkScalarCeilToInt(w), SkScalarCeilToInt(h)),
-                                         kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                                         kN32_SkColorType, kPremul_SkAlphaType);
     auto surf = SkSurfaces::Raster(srcII);
 
     surf->getCanvas()->drawColor(SK_ColorDKGRAY);
@@ -230,11 +230,9 @@ void draw_example_tile(
     // Build filter, clip, save layer, draw, restore - the interesting part is in the tile modes
     // and how the various bounds intersect each other.
     {
-        SkASSERT(inputMode == SkTileMode::kDecal);
-        sk_sp<SkImageFilter> filter = SkMakeCropImageFilter(contentBounds, /*inputMode,*/ nullptr);
+        sk_sp<SkImageFilter> filter = SkMakeCropImageFilter(contentBounds, inputMode, nullptr);
         filter = SkImageFilters::Blur(4.f, 4.f, std::move(filter));
-        SkASSERT(outputMode == SkTileMode::kDecal);
-        filter = SkMakeCropImageFilter(cropRect, /*outputMode,*/ std::move(filter));
+        filter = SkMakeCropImageFilter(cropRect, outputMode, std::move(filter));
         SkPaint layerPaint;
         layerPaint.setImageFilter(std::move(filter));
 
@@ -380,24 +378,23 @@ private:
 };
 
 DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kDecal); )
-// TODO: Requires SkMakeCropImageFilter to accept an SkTileMode.
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kClamp); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kRepeat); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kMirror); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kClamp); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kRepeat); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kDecal, SkTileMode::kMirror); )
 
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kDecal); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kClamp); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kRepeat); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kMirror); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kDecal); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kClamp); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kRepeat); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kClamp, SkTileMode::kMirror); )
 
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kDecal); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kClamp); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kRepeat); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kMirror); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kDecal); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kClamp); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kRepeat); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kRepeat, SkTileMode::kMirror); )
 
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kDecal); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kClamp); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kRepeat); )
-// DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kMirror); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kDecal); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kClamp); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kRepeat); )
+DEF_GM( return new CropImageFilterGM(SkTileMode::kMirror, SkTileMode::kMirror); )
 
 }  // namespace skiagm

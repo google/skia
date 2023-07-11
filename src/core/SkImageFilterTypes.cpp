@@ -693,7 +693,6 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
                 auto edge = SkRectPriv::ClosestDisjointEdge(SkIRect(crop),
                                                             SkIRect(ctx.desiredOutput()));
                 fittedCrop = LayerSpace<SkIRect>(edge);
-
             }
         }
     }
