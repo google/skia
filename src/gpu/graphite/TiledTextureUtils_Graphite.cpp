@@ -162,7 +162,7 @@ size_t get_cache_size(SkBaseDevice* device) {
 
 namespace skgpu {
 
-void TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
+bool TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
                                                const SkImage* image,
                                                const SkRect& srcRect,
                                                const SkRect& dstRect,
@@ -170,7 +170,7 @@ void TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
                                                const SkPaint* paint,
                                                SkCanvas::SrcRectConstraint constraint) {
     if (canvas->isClipEmpty()) {
-        return;
+        return true;
     }
 
     if (!image->isTextureBacked()) {
@@ -181,7 +181,7 @@ void TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
                                                 srcRect, dstRect, /* dstClip= */ nullptr,
                                                 &src, &dst, &srcToDst);
         if (mode == ImageDrawMode::kSkip) {
-            return;
+            return true;
         }
 
         SkASSERT(mode != ImageDrawMode::kDecal); // only happens if there is a 'dstClip'
@@ -244,17 +244,12 @@ void TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
                                            SkCanvas::kAll_QuadAAFlags,
                                            constraint,
                                            sampling);
-                return;
+                return true;
             }
         }
     }
 
-    canvas->drawImageRect(image,
-                          srcRect,
-                          dstRect,
-                          origSampling,
-                          paint,
-                          constraint);
+    return false;
 }
 
 } // namespace skgpu

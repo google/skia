@@ -483,7 +483,6 @@ private:
     friend class SkDrawBase;
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
-    friend class skgpu::TiledTextureUtils; // for drawEdgeAAImage
 
     void simplifyGlyphRunRSXFormAndRedraw(SkCanvas*,
                                           const sktext::GlyphRunList&,

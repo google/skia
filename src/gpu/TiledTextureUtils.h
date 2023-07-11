@@ -63,7 +63,7 @@ public:
     static void ClampedOutsetWithOffset(SkIRect* iRect, int outset, SkPoint* offset,
                                         const SkIRect& clamp);
 
-    static void DrawImageRect_Ganesh(skgpu::ganesh::Device*,
+    static bool DrawImageRect_Ganesh(skgpu::ganesh::Device*,
                                      const SkImage*,
                                      const SkRect& srcRect,
                                      const SkRect& dstRect,
@@ -72,7 +72,7 @@ public:
                                      const SkPaint&,
                                      SkCanvas::SrcRectConstraint);
 
-    static void DrawImageRect_Graphite(SkCanvas*,
+    static bool DrawImageRect_Graphite(SkCanvas*,
                                        const SkImage*,
                                        const SkRect& src,
                                        const SkRect& dst,

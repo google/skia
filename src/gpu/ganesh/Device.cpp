@@ -952,14 +952,28 @@ void Device::drawImageRect(const SkImage* image,
                            const SkPaint& paint,
                            SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
+
     GrAA aa = fSurfaceDrawContext->chooseAA(paint);
     SkCanvas::QuadAAFlags aaFlags = (aa == GrAA::kYes) ? SkCanvas::kAll_QuadAAFlags
                                                        : SkCanvas::kNone_QuadAAFlags;
-    TiledTextureUtils::DrawImageRect_Ganesh(this,
-                                            image,
-                                            src ? *src
-                                                : SkRect::MakeIWH(image->width(), image->height()),
-                                            dst, aaFlags, sampling, paint, constraint);
+
+    SkRect srcRect = src ? *src
+                         : SkRect::MakeIWH(image->width(), image->height());
+
+    if (TiledTextureUtils::DrawImageRect_Ganesh(this, image, srcRect, dst, aaFlags, sampling, paint,
+                                                constraint)) {
+        return;
+    }
+
+    this->drawImageQuadDirect(image,
+                              srcRect,
+                              dst,
+                              /* dstClip= */ nullptr,
+                              aaFlags,
+                              /* preViewMatrix= */ nullptr,
+                              sampling,
+                              paint,
+                              constraint);
 }
 
 void Device::drawViewLattice(GrSurfaceProxyView view,

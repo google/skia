@@ -160,7 +160,7 @@ size_t get_cache_size(SkBaseDevice* device) {
 
 namespace skgpu {
 
-void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
+bool TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
                                              const SkImage* image,
                                              const SkRect& srcRect,
                                              const SkRect& dstRect,
@@ -168,32 +168,32 @@ void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
                                              const SkSamplingOptions& origSampling,
                                              const SkPaint& paint,
                                              SkCanvas::SrcRectConstraint constraint) {
-    SkRect src;
-    SkRect dst;
-    SkMatrix srcToDst;
-    ImageDrawMode mode = OptimizeSampleArea(SkISize::Make(image->width(), image->height()),
-                                            srcRect, dstRect, /* dstClip= */ nullptr,
-                                            &src, &dst, &srcToDst);
-    if (mode == ImageDrawMode::kSkip) {
-        return;
-    }
-
-    SkASSERT(mode != ImageDrawMode::kDecal); // only happens if there is a 'dstClip'
-
-    if (src.contains(image->bounds())) {
-        constraint = SkCanvas::kFast_SrcRectConstraint;
-    }
-
-    const SkMatrix& localToDevice = device->localToDevice();
-
-    SkSamplingOptions sampling = origSampling;
-    if (sampling.mipmap != SkMipmapMode::kNone && CanDisableMipmap(localToDevice, srcToDst)) {
-        sampling = SkSamplingOptions(sampling.filter);
-    }
-    const GrClip* clip = device->clip();
-    SkIRect clipRect = clip ? clip->getConservativeBounds() : device->bounds();
-
     if (!image->isTextureBacked()) {
+        SkRect src;
+        SkRect dst;
+        SkMatrix srcToDst;
+        ImageDrawMode mode = OptimizeSampleArea(SkISize::Make(image->width(), image->height()),
+                                                srcRect, dstRect, /* dstClip= */ nullptr,
+                                                &src, &dst, &srcToDst);
+        if (mode == ImageDrawMode::kSkip) {
+            return true;
+        }
+
+        SkASSERT(mode != ImageDrawMode::kDecal); // only happens if there is a 'dstClip'
+
+        if (src.contains(image->bounds())) {
+            constraint = SkCanvas::kFast_SrcRectConstraint;
+        }
+
+        const SkMatrix& localToDevice = device->localToDevice();
+
+        SkSamplingOptions sampling = origSampling;
+        if (sampling.mipmap != SkMipmapMode::kNone && CanDisableMipmap(localToDevice, srcToDst)) {
+            sampling = SkSamplingOptions(sampling.filter);
+        }
+        const GrClip* clip = device->clip();
+        SkIRect clipRect = clip ? clip->getConservativeBounds() : device->bounds();
+
         int tileFilterPad;
         if (sampling.useCubic) {
             tileFilterPad = kBicubicFilterTexelPad;
@@ -237,22 +237,12 @@ void TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
                                          aaFlags,
                                          constraint,
                                          sampling);
-                return;
+                return true;
             }
         }
     }
 
-    device->drawEdgeAAImage(image,
-                            src,
-                            dst,
-                            /* dstClip= */ nullptr,
-                            aaFlags,
-                            localToDevice,
-                            sampling,
-                            paint,
-                            constraint,
-                            srcToDst,
-                            SkTileMode::kClamp);
+    return false;
 }
 
 } // namespace skgpu
