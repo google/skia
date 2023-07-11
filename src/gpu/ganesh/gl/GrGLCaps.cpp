@@ -4490,6 +4490,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fAvoidReorderingRenderTasks = true;
     }
 
+    // skbug.com/14411. Don't reorder on newer Intel GPUs; this can cause strange z-fighting when
+    // rendering some complex shaders.
+    if (ctxInfo.renderer() >= GrGLRenderer::kIntelIceLake &&
+        (ctxInfo.vendor() == GrGLVendor::kIntel || ctxInfo.angleVendor() == GrGLVendor::kIntel)) {
+        fAvoidReorderingRenderTasks = true;
+    }
+
     // http://crbug.com/1197152
     // http://b/187364475
     // We could limit this < 1.13 on ChromeOS but we don't really have a good way to detect
