@@ -1723,7 +1723,7 @@ func (b *jobBuilder) dm() {
 		if b.matchOs("Android") && b.extraConfig("ASAN") {
 			b.asset("android_ndk_linux")
 		}
-		if b.extraConfig("NativeFonts") {
+		if b.extraConfig("NativeFonts") && !b.matchOs("Android") {
 			b.needsFontsForParagraphTests()
 		}
 		b.commonTestPerfAssets()

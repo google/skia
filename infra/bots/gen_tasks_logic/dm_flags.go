@@ -1536,8 +1536,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.extraConfig("NativeFonts") {
 		args = append(args, "--nativeFonts")
-		args = append(args, "--paragraph_fonts", "extra_fonts")
-		args = append(args, "--norun_paragraph_tests_needing_system_fonts")
+		if !b.matchOs("Android") {
+			args = append(args, "--paragraph_fonts", "extra_fonts")
+			args = append(args, "--norun_paragraph_tests_needing_system_fonts")
+		}
 	} else {
 	    args = append(args, "--nonativeFonts")
 	}
