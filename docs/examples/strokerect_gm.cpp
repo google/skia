@@ -1,6 +1,7 @@
 // Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+#include <cfloat>
 
 REG_FIDDLE(strokerect_gm, 1400, 740, false, 0) {
 void draw(SkCanvas* canvas) {
