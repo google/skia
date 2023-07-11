@@ -23,3 +23,8 @@ skia_opts = {
   hsw_sources = hsw
   skx_sources = skx
 }
+
+# Temporary empty list, to be replaced with a real list (containing SkXmp.cpp) in codec.gni,
+# once Chromium's GN file references this variable.
+# skbug.com/14600
+skia_codec_xmp = []
