@@ -2,6 +2,7 @@
 #ifndef Paragraph_DEFINED
 #define Paragraph_DEFINED
 
+#include "include/core/SkPath.h"
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
@@ -96,6 +97,50 @@ public:
     // lineNumber begins at 0. If info is null, this signals the end of that line.
     using Visitor = std::function<void(int lineNumber, const VisitorInfo*)>;
     virtual void visit(const Visitor&) = 0;
+
+    struct ExtendedVisitorInfo {
+        const SkFont&   font;
+        SkPoint         origin;
+        SkSize          advance;
+        int             count;
+        const uint16_t* glyphs;     // count values
+        SkPoint*        positions;  // count values
+        const SkRect*   bounds;     // count values
+        const uint32_t* utf8Starts; // count+1 values
+        unsigned        flags;
+    };
+    using ExtendedVisitor = std::function<void(int lineNumber, const ExtendedVisitorInfo*)>;
+    virtual void extendedVisit(const ExtendedVisitor&) = 0;
+
+    /* Returns path for a given line
+     *
+     * @param lineNumber  a line number
+     * @param dest        a resulting path
+     * @return            a number glyphs that could not be converted to path
+     */
+    virtual int getPath(int lineNumber, SkPath* dest) = 0;
+
+    /* Returns path for a text blob
+     *
+     * @param textBlob    a text blob
+     * @return            a path
+     */
+    static SkPath GetPath(SkTextBlob* textBlob);
+
+    /* Checks if a given text blob contains
+     * glyph with emoji
+     *
+     * @param textBlob    a text blob
+     * @return            true if there is such a glyph
+     */
+    virtual bool containsEmoji(SkTextBlob* textBlob) = 0;
+
+    /* Checks if a given text blob contains colored font or bitmap
+     *
+     * @param textBlob    a text blob
+     * @return            true if there is such a glyph
+     */
+    virtual bool containsColorFontOrBitmap(SkTextBlob* textBlob) = 0;
 
     // Editing API
     virtual int getLineNumberAt(TextIndex codeUnitIndex) const = 0;
