@@ -44,47 +44,13 @@ AtlasShapeRenderStep::AtlasShapeRenderStep()
                       {"textureCoords", SkSLType::kFloat2}}) {}
 
 std::string AtlasShapeRenderStep::vertexSkSL() const {
-    // An atlas shape is an axis-aligned rectangle tessellated as a triangle strip.
-    //
-    // The bounds coordinates that we use here have already been transformed to device space and
-    // match the desired vertex coordinates of the draw (taking clipping into account), so a
-    // localToDevice transform is always the identity matrix.
-    //
-    // AtlasShape is always defined based on a regular Shape geometry and we can derive the local
-    // coordinates from the bounds by simply applying the inverse of the shape's localToDevice
-    // transform.
-    return R"(
-        float3x3 deviceToLocal = float3x3(mat0, mat1, mat2);
-        float2 quadCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));
-
-        // Vertex coordinates.
-        float2 maskDims = float2(maskSize);
-        float2 drawCoords =
-                drawBounds.xy + quadCoords * max(drawBounds.zw - drawBounds.xy, maskDims);
-
-        // Local coordinates used for shading.
-        float3 localCoords = deviceToLocal * drawCoords.xy1;
-        stepLocalCoords = localCoords.xy / localCoords.z;
-
-        // Adjust the `maskBounds` to span the full atlas entry with a 2-pixel outset (-1 since the
-        // clamp we apply in the fragment shader is inclusive). `textureCoords` get set with a 1
-        // pixel inset and its dimensions should exactly match the draw coords.
-        //
-        // For an inverse fill, `textureCoords` will get clamped to `maskBounds` and the edge pixels
-        // will always land on a 0-coverage border pixel.
-        float2 uvPos  = float2(uvOrigin);
-        if (maskDims.x > 0 && maskDims.y > 0) {
-            maskBounds    = float4(uvPos, uvPos + maskDims + float2(1)) * atlasSizeInv.xyxy;
-            textureCoords = (uvPos + float2(1) + drawCoords - deviceOrigin) * atlasSizeInv;
-        } else {
-            // The mask is clipped out so send the texture coordinates to 0. This pixel should
-            // always be empty.
-            maskBounds = float4(0);
-            textureCoords = float2(0);
-        }
-
-        float4 devPosition = float4(drawCoords.xy, depth, 1);
-    )";
+    // Returns the body of a vertex function, which must define a float4 devPosition variable and
+    // must write to an already-defined float2 stepLocalCoords variable.
+    return "float4 devPosition = atlas_shape_vertex_fn("
+                                         "atlasSizeInv, float2(sk_VertexID >> 1, sk_VertexID & 1), "
+                                         "drawBounds, deviceOrigin, float2(uvOrigin), "
+                                         "float2(maskSize), depth, float3x3(mat0, mat1, mat2), "
+                                         "maskBounds, textureCoords, stepLocalCoords);\n";
 }
 
 std::string AtlasShapeRenderStep::texturesAndSamplersSkSL(
@@ -94,7 +60,7 @@ std::string AtlasShapeRenderStep::texturesAndSamplersSkSL(
 
 const char* AtlasShapeRenderStep::fragmentCoverageSkSL() const {
     return R"(
-        half c = sample(pathAtlas, clamp(textureCoords, maskBounds.xy, maskBounds.zw)).r;
+        half c = sample(pathAtlas, clamp(textureCoords, maskBounds.LT, maskBounds.RB)).r;
         outputCoverage = half4(isInverted == 1 ? (1 - c) : c);
     )";
 }

@@ -182,4 +182,13 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 ".y=0.;}if(centerWeight!=0.){perPixelControl.x=1.;}else{perPixelControl.x=float"
 "(bidirectionalCoverage?-1.:0.);}if(strokedLine){jacobian=float4(float2x2(dy"
 ".x,-dy.y,-dx.x,dx.y)*float2x2(jacobian));}stepLocalCoords=localPos;return float4"
-"(devPos.xy,devPos.z*depth,devPos.z);}";
+"(devPos.xy,devPos.z*depth,devPos.z);}$pure float4 atlas_shape_vertex_fn(float2"
+" quadCoords,float2 atlasSizeInv,float4 drawBounds,float2 deviceOrigin,float2"
+" uvPos,float2 maskDims,float depth,float3x3 deviceToLocal,out float4 maskBounds"
+",out float2 textureCoords,out float2 stepLocalCoords){float2 drawCoords=drawBounds"
+".xy+quadCoords*max(drawBounds.zw-drawBounds.xy,maskDims);float3 localCoords"
+"=deviceToLocal*float3(drawCoords,1.);stepLocalCoords=localCoords.xy/localCoords"
+".z;if(all(greaterThan(maskDims,float2(0.)))){maskBounds=float4(uvPos,(uvPos"
+"+maskDims)+float2(1.))*atlasSizeInv.xyxy;textureCoords=(((uvPos+float2(1.))"
+"+drawCoords)-deviceOrigin)*atlasSizeInv;}else{maskBounds=float4(0.);textureCoords"
+"=float2(0.);}return float4(drawCoords,depth,1.);}";

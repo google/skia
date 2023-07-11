@@ -94,4 +94,8 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 "(V);W=-Y*perp(W);}}S.xy+=S.z*normalize(V+W);if(y){l-=S.z;}else{p.y=-S.z;}}else"
 " if(!y){p.y=0.;}if(d!=0.){p.x=1.;}else{p.x=float(x?-1.:0.);}if(C){k=float4("
 "float2x2(H.x,-H.y,-G.x,G.y)*float2x2(k));}q=P;return float4(S.xy,S.z*i,S.z)"
-";}";
+";}$pure float4 atlas_shape_vertex_fn(float2 a,float2 b,float4 c,float2 d,float2"
+" e,float2 f,float g,float3x3 h,out float4 i,out float2 j,out float2 k){float2"
+" l=c.xy+a*max(c.zw-c.xy,f);float3 m=h*float3(l,1.);k=m.xy/m.z;if(all(greaterThan"
+"(f,float2(0.)))){i=float4(e,(e+f)+float2(1.))*b.xyxy;j=(((e+float2(1.))+l)-"
+"d)*b;}else{i=float4(0.);j=float2(0.);}return float4(l,g,1.);}";
