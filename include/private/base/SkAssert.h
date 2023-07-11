@@ -32,8 +32,6 @@
 */
 [[noreturn]] SK_API extern void sk_abort_no_print(void);
 
-[[noreturn]] SK_API extern void sk_print_index_out_of_bounds(size_t i, size_t size);
-
 #if defined(SK_BUILD_FOR_GOOGLE3)
     void SkDebugfForDumpStackTrace(const char* data, void* unused);
     namespace base {
@@ -112,5 +110,9 @@
 #    define SkUNREACHABLE __builtin_trap()
 #  endif
 #endif
+
+[[noreturn]] SK_API inline void sk_print_index_out_of_bounds(size_t i, size_t size) {
+    SK_ABORT("Index (%zu) out of bounds for size %zu.\n", i, size);
+}
 
 #endif
