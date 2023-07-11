@@ -646,9 +646,9 @@ $pure float4 analytic_rrect_vertex_fn(// Vertex Attributes
     // the +X/+Y normalized vertex template for each corner.
     float4 dx = xs - xs.wxyz;
     float4 dy = ys - ys.wxyz;
-    float4 edgeLen = sqrt(dx*dx + dy*dy);
+    float4 edgeSquaredLen = dx*dx + dy*dy;
 
-    float4 edgeMask = sign(edgeLen); // 0 for zero-length edge, 1 for non-zero edge.
+    float4 edgeMask = sign(edgeSquaredLen); // 0 for zero-length edge, 1 for non-zero edge.
     float4 edgeBias = float4(0.0); // adjustment to edge distance for butt cap correction
     float2 strokeRadius = float2(strokeParams.x);
     if (any(equal(edgeMask, float4(0.0)))) {
@@ -657,7 +657,7 @@ $pure float4 analytic_rrect_vertex_fn(// Vertex Attributes
             // A point so use the canonical basis
             dx = float4( 0.0, 1.0, 0.0, -1.0);
             dy = float4(-1.0, 0.0, 1.0,  0.0);
-            edgeLen = float4(1.0);
+            edgeSquaredLen = float4(1.0);
         } else {
             // Triangles (3 non-zero edges) copy the adjacent edge. Otherwise it's a line so
             // replace empty edges with the left-hand normal vector of the adjacent edge.
@@ -667,7 +667,7 @@ $pure float4 analytic_rrect_vertex_fn(// Vertex Attributes
 
             dx = mix(edgeX, dx, edgeMask);
             dy = mix(edgeY, dy, edgeMask);
-            edgeLen = mix(edgeLen.yzwx, edgeLen, edgeMask);
+            edgeSquaredLen = mix(edgeSquaredLen.yzwx, edgeSquaredLen, edgeMask);
             edgeAA = mix(edgeAA.yzwx, edgeAA, edgeMask);
 
             if (!triangle && joinScale == kBevelScale) {
@@ -682,8 +682,9 @@ $pure float4 analytic_rrect_vertex_fn(// Vertex Attributes
         }
     }
 
-    dx /= edgeLen;
-    dy /= edgeLen;
+    float4 inverseEdgeLen = inversesqrt(edgeSquaredLen);
+    dx *= inverseEdgeLen;
+    dy *= inverseEdgeLen;
 
     // Calculate local coordinate for the vertex (relative to xAxis and yAxis at first).
     float2 xAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
