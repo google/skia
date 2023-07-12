@@ -17,9 +17,8 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
 
-#include <cfloat>
-#include <climits>
-#include <cstring>
+#include <limits.h>
+#include <string.h>
 
 
 using namespace SkPlainTextEditor;

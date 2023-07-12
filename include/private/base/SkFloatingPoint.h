@@ -12,14 +12,14 @@
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkMath.h"
 
+#include <cfloat>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <limits>
 
-inline constexpr float SK_FloatSqrt2 = 1.41421356f;
-inline constexpr float SK_FloatPI    = 3.14159265f;
-inline constexpr double SK_DoublePI  = 3.14159265358979323846264338327950288;
+constexpr float SK_FloatSqrt2 = 1.41421356f;
+constexpr float SK_FloatPI    = 3.14159265f;
+constexpr double SK_DoublePI  = 3.14159265358979323846264338327950288;
 
 static inline float sk_float_sqrt(float x) { return std::sqrt(x); }
 static inline float sk_float_sin(float x) { return std::sin(x); }
@@ -80,15 +80,14 @@ static inline bool sk_float_isinf(float x) {
 static inline bool sk_float_isnan(float x) {
     return !(x == x);
 }
-#define sk_double_isnan(a)          sk_float_isnan(a)
+
 #define sk_double_isnan(a)          sk_float_isnan(a)
 
-inline constexpr int SK_MaxS32FitsInFloat = 2147483520;
-inline constexpr int SK_MinS32FitsInFloat = -SK_MaxS32FitsInFloat;
+#define SK_MaxS32FitsInFloat    2147483520
+#define SK_MinS32FitsInFloat    -SK_MaxS32FitsInFloat
 
-// 0x7fffff8000000000
-inline constexpr int64_t SK_MaxS64FitsInFloat = SK_MaxS64 >> (63-24) << (63-24);
-inline constexpr int64_t SK_MinS64FitsInFloat = -SK_MaxS64FitsInFloat;
+#define SK_MaxS64FitsInFloat    (SK_MaxS64 >> (63-24) << (63-24))   // 0x7fffff8000000000
+#define SK_MinS64FitsInFloat    -SK_MaxS64FitsInFloat
 
 /**
  *  Return the closest int for the given float. Returns SK_MaxS32FitsInFloat for NaN.
@@ -140,11 +139,11 @@ static inline float sk_double_to_float(double x) {
     return static_cast<float>(x);
 }
 
-inline constexpr float SK_FloatNaN = std::numeric_limits<float>::quiet_NaN();
-inline constexpr float SK_FloatInfinity = std::numeric_limits<float>::infinity();
-inline constexpr float SK_FloatNegativeInfinity = -SK_FloatInfinity;
+#define SK_FloatNaN                 std::numeric_limits<float>::quiet_NaN()
+#define SK_FloatInfinity            (+std::numeric_limits<float>::infinity())
+#define SK_FloatNegativeInfinity    (-std::numeric_limits<float>::infinity())
 
-inline constexpr double SK_DoubleNaN = std::numeric_limits<double>::quiet_NaN();
+#define SK_DoubleNaN                std::numeric_limits<double>::quiet_NaN()
 
 // Calculate the midpoint between a and b. Similar to std::midpoint in c++20.
 static constexpr float sk_float_midpoint(float a, float b) {
@@ -175,8 +174,14 @@ static inline int sk_float_nextlog2(float x) {
     return exp & ~(exp >> 31);  // Return 0 for negative or denormalized floats, and exponents < 0.
 }
 
-// The number of significant digits to print.
-inline constexpr int SK_FLT_DECIMAL_DIG = std::numeric_limits<float>::max_digits10;
+// This is the number of significant digits we can print in a string such that when we read that
+// string back we get the floating point number we expect.  The minimum value C requires is 6, but
+// most compilers support 9
+#ifdef FLT_DECIMAL_DIG
+#define SK_FLT_DECIMAL_DIG FLT_DECIMAL_DIG
+#else
+#define SK_FLT_DECIMAL_DIG 9
+#endif
 
 // IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not
 // so we have a helper that suppresses the possible undefined-behavior warnings.
