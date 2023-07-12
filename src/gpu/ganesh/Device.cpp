@@ -957,16 +957,9 @@ void Device::drawImageRect(const SkImage* image,
     SkCanvas::QuadAAFlags aaFlags = (aa == GrAA::kYes) ? SkCanvas::kAll_QuadAAFlags
                                                        : SkCanvas::kNone_QuadAAFlags;
 
-    SkRect srcRect = src ? *src
-                         : SkRect::MakeIWH(image->width(), image->height());
-
-    if (TiledTextureUtils::DrawImageRect_Ganesh(this, image, srcRect, dst, aaFlags, sampling, paint,
-                                                constraint)) {
-        return;
-    }
-
     this->drawImageQuadDirect(image,
-                              srcRect,
+                              src ? *src
+                                  : SkRect::MakeIWH(image->width(), image->height()),
                               dst,
                               /* dstClip= */ nullptr,
                               aaFlags,
@@ -975,6 +968,28 @@ void Device::drawImageRect(const SkImage* image,
                               paint,
                               constraint);
 }
+
+bool Device::drawAsTiledImageRect(SkCanvas* canvas,
+                                  const SkImage* image,
+                                  const SkRect* src,
+                                  const SkRect& dst,
+                                  const SkSamplingOptions& sampling,
+                                  const SkPaint& paint,
+                                  SkCanvas::SrcRectConstraint constraint) {
+    ASSERT_SINGLE_OWNER
+
+    GrAA aa = fSurfaceDrawContext->chooseAA(paint);
+    SkCanvas::QuadAAFlags aaFlags = (aa == GrAA::kYes) ? SkCanvas::kAll_QuadAAFlags
+                                                       : SkCanvas::kNone_QuadAAFlags;
+
+    return TiledTextureUtils::DrawImageRect_Ganesh(canvas, this,
+                                                   image,
+                                                   src ? *src
+                                                       : SkRect::MakeIWH(image->width(),
+                                                                         image->height()),
+                                                   dst, aaFlags, sampling, paint, constraint);
+}
+
 
 void Device::drawViewLattice(GrSurfaceProxyView view,
                              const GrColorInfo& info,

@@ -160,7 +160,8 @@ size_t get_cache_size(SkBaseDevice* device) {
 
 namespace skgpu {
 
-bool TiledTextureUtils::DrawImageRect_Ganesh(skgpu::ganesh::Device* device,
+bool TiledTextureUtils::DrawImageRect_Ganesh(SkCanvas*,
+                                             skgpu::ganesh::Device* device,
                                              const SkImage* image,
                                              const SkRect& srcRect,
                                              const SkRect& dstRect,

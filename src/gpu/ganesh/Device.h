@@ -196,6 +196,13 @@ public:
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
+    bool drawAsTiledImageRect(SkCanvas*,
+                              const SkImage*,
+                              const SkRect* src,
+                              const SkRect& dst,
+                              const SkSamplingOptions&,
+                              const SkPaint&,
+                              SkCanvas::SrcRectConstraint) override;
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override;
 
