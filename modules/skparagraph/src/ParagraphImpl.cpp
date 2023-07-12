@@ -21,10 +21,8 @@
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
-
+#include <math.h>
 #include <algorithm>
-#include <cfloat>
-#include <cmath>
 #include <utility>
 
 using namespace skia_private;

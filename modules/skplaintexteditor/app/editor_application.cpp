@@ -16,7 +16,6 @@
 
 #include "third_party/icu/SkLoadICU.h"
 
-#include <cfloat>
 #include <fstream>
 #include <memory>
 
