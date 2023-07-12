@@ -115,4 +115,8 @@
     SK_ABORT("Index (%zu) out of bounds for size %zu.\n", i, size);
 }
 
+[[noreturn]] SK_API inline void sk_print_length_too_big(size_t i, size_t size) {
+    SK_ABORT("Length (%zu) is too big for size %zu.\n", i, size);
+}
+
 #endif
