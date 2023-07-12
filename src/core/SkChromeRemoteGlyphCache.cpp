@@ -1212,6 +1212,7 @@ bool SkStrikeClientImpl::translateTypefaceID(SkAutoDescriptor* toChange) const {
         // findEntry returns a const void*, remove the const in order to update in place.
         void* ptr = const_cast<void *>(descriptor.findEntry(kRec_SkDescriptorTag, &size));
         SkScalerContextRec rec;
+        if (!ptr || size != sizeof(rec)) { return false; }
         std::memcpy((void*)&rec, ptr, size);
         // Get the local typeface from remote typefaceID.
         auto* tfPtr = fServerTypefaceIdToTypeface.find(rec.fTypefaceID);
