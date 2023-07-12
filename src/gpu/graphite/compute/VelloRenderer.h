@@ -43,7 +43,7 @@ public:
 
     void solidStroke(const SkPath&,
                      const SkColor4f&,
-                     float width,
+                     const SkStrokeRec&,
                      const Transform& transform);
 
     void pushClipLayer(const SkPath& shape, const Transform& transform);

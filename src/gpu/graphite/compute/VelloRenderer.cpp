@@ -174,14 +174,26 @@ void VelloScene::solidFill(const SkPath& shape,
 
 void VelloScene::solidStroke(const SkPath& shape,
                              const SkColor4f& fillColor,
-                             float width,
+                             const SkStrokeRec& style,
                              const Transform& t) {
-    // Vello currently only supports round stroke styles
-    PathIter iter(shape, t);
-    fEncoding->stroke({width},
-                      to_vello_affine(t),
-                      {vello_cpp::BrushKind::Solid, {to_vello_color(fillColor)}},
-                      iter);
+    // TODO(b/285423263): Vello currently only supports round stroke styles. Draw unsupported
+    // stroke styles by expanding the stroke and encoding it as a fill, until the GPU pipelines
+    // support them.
+    if (style.getCap() == SkPaint::kRound_Cap && style.getJoin() == SkPaint::kRound_Join) {
+        PathIter iter(shape, t);
+        fEncoding->stroke({style.getWidth()},
+                          to_vello_affine(t),
+                          {vello_cpp::BrushKind::Solid, {to_vello_color(fillColor)}},
+                          iter);
+    } else {
+        SkPath p;
+        style.applyToPath(&p, shape);
+        PathIter iter(p, t);
+        fEncoding->fill(vello_cpp::Fill::NonZero,
+                        to_vello_affine(t),
+                        {vello_cpp::BrushKind::Solid, {to_vello_color(fillColor)}},
+                        iter);
+    }
 }
 
 void VelloScene::pushClipLayer(const SkPath& shape, const Transform& t) {

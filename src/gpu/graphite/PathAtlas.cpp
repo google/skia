@@ -68,7 +68,6 @@ bool PathAtlas::addShape(Recorder* recorder,
 
     *out = Rect::XYWH(skvx::float2(pos.x(), pos.y()), size);
     this->onAddShape(shape, localToDevice, *out, maskBounds.x(), maskBounds.y(), style);
-
     return true;
 }
 
@@ -158,9 +157,11 @@ void VelloComputePathAtlas::onAddShape(const Shape& shape,
             // Transform the stroke's width to its local coordinate space since it'll get drawn with
             // `atlasTransform`.
             float transformedWidth = 1.0f / atlasTransform.maxScaleFactor();
-            fScene.solidStroke(devicePath, color, transformedWidth, atlasTransform);
+            SkStrokeRec adjustedStyle(style);
+            adjustedStyle.setStrokeStyle(transformedWidth);
+            fScene.solidStroke(devicePath, color, adjustedStyle, atlasTransform);
         } else {
-            fScene.solidStroke(devicePath, SkColors::kRed, style.getWidth(), atlasTransform);
+            fScene.solidStroke(devicePath, SkColors::kRed, style, atlasTransform);
         }
     }
     if (styleType == SkStrokeRec::kFill_Style || styleType == SkStrokeRec::kStrokeAndFill_Style) {
