@@ -160,22 +160,6 @@ bool sk_floats_are_unit(const float array[], size_t count);
 static inline float sk_float_rsqrt_portable(float x) { return 1.0f / sk_float_sqrt(x); }
 static inline float sk_float_rsqrt         (float x) { return 1.0f / sk_float_sqrt(x); }
 
-// Returns the log2 of the provided value, were that value to be rounded up to the next power of 2.
-// Returns 0 if value <= 0:
-// Never returns a negative number, even if value is NaN.
-//
-//     sk_float_nextlog2((-inf..1]) -> 0
-//     sk_float_nextlog2((1..2]) -> 1
-//     sk_float_nextlog2((2..4]) -> 2
-//     sk_float_nextlog2((4..8]) -> 3
-//     ...
-static inline int sk_float_nextlog2(float x) {
-    uint32_t bits = (uint32_t)SkFloat2Bits(x);
-    bits += (1u << 23) - 1u;  // Increment the exponent for non-powers-of-2.
-    int exp = ((int32_t)bits >> 23) - 127;
-    return exp & ~(exp >> 31);  // Return 0 for negative or denormalized floats, and exponents < 0.
-}
-
 // The number of significant digits to print.
 inline constexpr int SK_FLT_DECIMAL_DIG = std::numeric_limits<float>::max_digits10;
 
