@@ -34,7 +34,8 @@ void DrawImageRect(SkCanvas* canvas,
 
 #if defined(SK_GRAPHITE)
     if (canvas->recorder()) {
-        if (skgpu::TiledTextureUtils::DrawImageRect_Graphite(canvas, image, src, dst, sampling,
+        if (skgpu::TiledTextureUtils::DrawImageRect_Graphite(canvas, image, src, dst,
+                                                             SkCanvas::kAll_QuadAAFlags, sampling,
                                                              paint, constraint)) {
             return;
         }

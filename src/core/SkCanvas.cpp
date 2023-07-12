@@ -2147,15 +2147,13 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
         } // else fall through to regular drawing path
     }
 
+    if (this->topDevice()->drawAsTiledImageRect(this, image, nullptr, dst, sampling,
+                                                realPaint, kFast_SrcRectConstraint)) {
+        return;
+    }
+
     auto layer = this->aboutToDraw(this, realPaint, &dst);
     if (layer) {
-        // TODO: move this above the aboutToDraw call once Ganesh performs tiled image draws at the
-        // SkCanvas level
-        if (this->topDevice()->drawAsTiledImageRect(this, image, nullptr, dst, sampling,
-                                                    layer->paint(), kFast_SrcRectConstraint)) {
-            return;
-        }
-
         this->topDevice()->drawImageRect(image, nullptr, dst, sampling,
                                          layer->paint(), kFast_SrcRectConstraint);
     }
@@ -2185,17 +2183,15 @@ void SkCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const S
         return;
     }
 
+    if (this->topDevice()->drawAsTiledImageRect(this, image, &src, dst, realSampling,
+                                                realPaint, constraint)) {
+        return;
+    }
+
     auto layer = this->aboutToDraw(this, realPaint, &dst, CheckForOverwrite::kYes,
                                    image->isOpaque() ? kOpaque_ShaderOverrideOpacity
                                                      : kNotOpaque_ShaderOverrideOpacity);
     if (layer) {
-        // TODO: move this above the aboutToDraw call once Ganesh performs tiled image draws at the
-        // SkCanvas level
-        if (this->topDevice()->drawAsTiledImageRect(this, image, &src, dst, realSampling,
-                                                    layer->paint(), constraint)) {
-            return;
-        }
-
         this->topDevice()->drawImageRect(image, &src, dst, realSampling, layer->paint(),
                                          constraint);
     }

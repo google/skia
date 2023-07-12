@@ -13,6 +13,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSamplingPriv.h"
@@ -26,13 +27,13 @@ extern std::atomic<int>  gNumTilesDrawn;
 
 namespace {
 
-void draw_tiled_bitmap_ganesh(skgpu::ganesh::Device* device,
+void draw_tiled_bitmap_ganesh(SkCanvas* canvas,
                               const SkBitmap& bitmap,
                               int tileSize,
                               const SkMatrix& srcToDst,
                               const SkRect& srcRect,
                               const SkIRect& clippedSrcIRect,
-                              const SkPaint& paint,
+                              const SkPaint* paint,
                               SkCanvas::QuadAAFlags origAAFlags,
                               SkCanvas::SrcRectConstraint constraint,
                               SkSamplingOptions sampling) {
@@ -135,13 +136,13 @@ void draw_tiled_bitmap_ganesh(skgpu::ganesh::Device* device,
         }
     }
 
-    device->drawEdgeAAImageSet(imgSet.data(),
-                               imgSet.size(),
-                               /* dstClips= */ nullptr,
-                               /* preViewMatrices= */ nullptr,
-                               sampling,
-                               paint,
-                               constraint);
+    canvas->experimental_DrawEdgeAAImageSet(imgSet.data(),
+                                            imgSet.size(),
+                                            /* dstClips= */ nullptr,
+                                            /* preViewMatrices= */ nullptr,
+                                            sampling,
+                                            paint,
+                                            constraint);
 }
 
 size_t get_cache_size(SkBaseDevice* device) {
@@ -156,19 +157,31 @@ size_t get_cache_size(SkBaseDevice* device) {
     return 0;
 }
 
+int get_max_texture_size(SkCanvas* canvas) {
+    if (GrRecordingContext* rContext = canvas->recordingContext()) {
+        return rContext->maxTextureSize();
+    }
+
+    static const int kFallbackMaxTextureSize = 1 << 22;
+    return kFallbackMaxTextureSize;                       // we should never get here
+}
+
 } // anonymous namespace
 
 namespace skgpu {
 
-bool TiledTextureUtils::DrawImageRect_Ganesh(SkCanvas*,
-                                             skgpu::ganesh::Device* device,
+bool TiledTextureUtils::DrawImageRect_Ganesh(SkCanvas* canvas,
                                              const SkImage* image,
                                              const SkRect& srcRect,
                                              const SkRect& dstRect,
                                              SkCanvas::QuadAAFlags aaFlags,
                                              const SkSamplingOptions& origSampling,
-                                             const SkPaint& paint,
+                                             const SkPaint* paint,
                                              SkCanvas::SrcRectConstraint constraint) {
+    if (canvas->isClipEmpty()) {
+        return true;
+    }
+
     if (!image->isTextureBacked()) {
         SkRect src;
         SkRect dst;
@@ -186,14 +199,15 @@ bool TiledTextureUtils::DrawImageRect_Ganesh(SkCanvas*,
             constraint = SkCanvas::kFast_SrcRectConstraint;
         }
 
+        SkBaseDevice* device = SkCanvasPriv::TopDevice(canvas);
         const SkMatrix& localToDevice = device->localToDevice();
 
         SkSamplingOptions sampling = origSampling;
         if (sampling.mipmap != SkMipmapMode::kNone && CanDisableMipmap(localToDevice, srcToDst)) {
             sampling = SkSamplingOptions(sampling.filter);
         }
-        const GrClip* clip = device->clip();
-        SkIRect clipRect = clip ? clip->getConservativeBounds() : device->bounds();
+
+        SkIRect clipRect = device->devClipBounds();
 
         int tileFilterPad;
         if (sampling.useCubic) {
@@ -205,8 +219,7 @@ bool TiledTextureUtils::DrawImageRect_Ganesh(SkCanvas*,
             tileFilterPad = 0;
         }
 
-        GrRecordingContext* rContext = device->recordingContext();
-        int maxTileSize = rContext->maxTextureSize() - 2*tileFilterPad;
+        int maxTileSize = get_max_texture_size(canvas) - 2*tileFilterPad;
 #if GR_TEST_UTILS
         if (gOverrideMaxTextureSize) {
             maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
@@ -228,7 +241,7 @@ bool TiledTextureUtils::DrawImageRect_Ganesh(SkCanvas*,
             // Extract pixels on the CPU, since we have to split into separate textures before
             // sending to the GPU if tiling.
             if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
-                draw_tiled_bitmap_ganesh(device,
+                draw_tiled_bitmap_ganesh(canvas,
                                          bm,
                                          tileSize,
                                          srcToDst,

@@ -158,6 +158,15 @@ size_t get_cache_size(SkBaseDevice* device) {
     return 0;
 }
 
+int get_max_texture_size(SkCanvas* canvas) {
+    if (auto recorder = canvas->recorder()) {
+        return recorder->priv().caps()->maxTextureSize();
+    }
+
+    static const int kFallbackMaxTextureSize = 1 << 22;
+    return kFallbackMaxTextureSize;                       // we should never get here
+}
+
 } // anonymous namespace
 
 namespace skgpu {
@@ -166,6 +175,7 @@ bool TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
                                                const SkImage* image,
                                                const SkRect& srcRect,
                                                const SkRect& dstRect,
+                                               SkCanvas::QuadAAFlags aaFlags,
                                                const SkSamplingOptions& origSampling,
                                                const SkPaint* paint,
                                                SkCanvas::SrcRectConstraint constraint) {
@@ -210,8 +220,7 @@ bool TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
             tileFilterPad = 0;
         }
 
-        auto caps = canvas->recorder()->priv().caps();
-        int maxTileSize = caps->maxTextureSize() - 2*tileFilterPad;
+        int maxTileSize = get_max_texture_size(canvas) - 2*tileFilterPad;
 #if GR_TEST_UTILS
         if (gOverrideMaxTextureSize) {
             maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
@@ -241,7 +250,7 @@ bool TiledTextureUtils::DrawImageRect_Graphite(SkCanvas* canvas,
                                            src,
                                            clippedSubset,
                                            paint,
-                                           SkCanvas::kAll_QuadAAFlags,
+                                           aaFlags,
                                            constraint,
                                            sampling);
                 return true;
