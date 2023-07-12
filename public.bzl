@@ -1041,7 +1041,6 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/SurfaceFillContext.cpp",
     "src/gpu/ganesh/SurfaceFillContext.h",
     "src/gpu/ganesh/TestFormatColorTypeCombination.h",
-    "src/gpu/ganesh/TiledTextureUtils_Ganesh.cpp",
     "src/gpu/ganesh/effects/GrAtlasedShaderHelpers.h",
     "src/gpu/ganesh/effects/GrBezierEffect.cpp",
     "src/gpu/ganesh/effects/GrBezierEffect.h",

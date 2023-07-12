@@ -260,7 +260,6 @@ CORE_FILES = [
     "SurfaceFillContext.cpp",
     "SurfaceFillContext.h",
     "TestFormatColorTypeCombination.h",
-    "TiledTextureUtils_Ganesh.cpp",
 ]
 
 split_srcs_and_hdrs(

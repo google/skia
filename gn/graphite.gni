@@ -151,7 +151,6 @@ skia_graphite_sources = [
   "$_src/TextureProxyView.h",
   "$_src/TextureUtils.cpp",
   "$_src/TextureUtils.h",
-  "$_src/TiledTextureUtils_Graphite.cpp",
   "$_src/Uniform.h",
   "$_src/UniformManager.cpp",
   "$_src/UniformManager.h",
