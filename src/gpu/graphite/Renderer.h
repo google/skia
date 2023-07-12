@@ -32,8 +32,10 @@ namespace skgpu::graphite {
 class DrawWriter;
 class DrawParams;
 class PipelineDataGatherer;
+class Rect;
 class ResourceProvider;
 class TextureDataBlock;
+class Transform;
 
 struct ResourceBindingRequirements;
 
@@ -103,6 +105,12 @@ public:
     // is true. When implemented, the returned SkSL fragment should write its color into a
     // 'half4 primitiveColor' variable (defined in the calling code).
     virtual const char* fragmentColorSkSL() const { return R"()"; }
+
+    // Returns the effective local-space outset the RenderStep applies to geometry transformed by
+    // `localToDevice` contained in the local `bounds`.
+    virtual float boundsOutset(const Transform& localToDevice, const Rect& bounds) const {
+        return 0.0f;
+    }
 
     uint32_t uniqueID() const { return fUniqueID; }
 
@@ -228,6 +236,10 @@ public:
     bool emitsPrimitiveColor() const { return fStepFlags & StepFlags::kEmitsPrimitiveColor; }
 
     SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
+
+    // Returns the effective local-space outset the Renderer applies to geometry transformed by
+    // `localToDevice` contained in the local `bounds`.
+    float boundsOutset(const Transform& localToDevice, const Rect& bounds) const;
 
 private:
     friend class RendererProvider; // for ctors

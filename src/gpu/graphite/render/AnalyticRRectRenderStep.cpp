@@ -537,6 +537,11 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
                                                        "perPixelControl);";
 }
 
+float AnalyticRRectRenderStep::boundsOutset(const Transform& localToDevice,
+                                            const Rect& bounds) const {
+    return local_aa_radius(localToDevice, bounds);
+}
+
 void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
                                            const DrawParams& params,
                                            int ssboIndex) const {

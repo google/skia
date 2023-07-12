@@ -16,6 +16,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawParams.h"
+#include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 
@@ -1086,6 +1087,7 @@ void ClipStack::clipShape(const Transform& localToDevice,
 Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       const Geometry& geometry,
                                       const SkStrokeRec& style,
+                                      const Renderer& renderer,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
             Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty()};
@@ -1116,59 +1118,69 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         return kClippedOut;
     }
 
+    // Inverse-filled shapes always fill the entire device (restricted to the clip).
     // Query the invertedness of the shape before any of the `setRect` calls below, which can
     // modify it.
-    const bool isInverted = styledShape->inverted();
+    bool infiniteBounds = styledShape->inverted();
 
     // Discard fills and strokes that cannot produce any coverage: an empty fill, or a
     // zero-length stroke that has butt caps. Otherwise the stroke style applies to a vertical
     // or horizontal line (making it non-empty), or it's a zero-length path segment that
     // must produce round or square caps (making it non-empty):
     //     https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes
-    if (!isInverted && (styledShape->isLine() || any(origSize == 0.f))) {
+    if (!infiniteBounds && (styledShape->isLine() || any(origSize == 0.f))) {
         if (style.isFillStyle() || (style.getCap() == SkPaint::kButt_Cap && all(origSize == 0.f))) {
             return kClippedOut;
         }
     }
 
-    Rect transformedShapeBounds;  // defined in device space
+    Rect transformedShapeBounds;
     bool shapeInDeviceSpace = false;
 
-    // Regular filled shapes and strokes get larger based on style and transform
-    transformedShapeBounds = styledShape->bounds();
-    if (!style.isHairlineStyle()) {
-        float localStyleOutset = style.getInflationRadius();
-        transformedShapeBounds.outset(localStyleOutset);
+    // Some renderers make the drawn area larger than the geometry.
+    float rendererOutset = renderer.boundsOutset(localToDevice, styledShape->bounds());
+    if (!SkScalarIsFinite(rendererOutset)) {
+        infiniteBounds = true;
+    } else {
+        // Will be in device space once style/AA outsets and the localToDevice transform are
+        // applied.
+        transformedShapeBounds = styledShape->bounds();
 
-        if (!style.isFillStyle()) {
-            // While this loses any shape type, the bounds remain local so hopefully tests are
-            // fairly accurate.
-            styledShape.writable()->setRect(transformedShapeBounds);
+        // Regular filled shapes and strokes get larger based on style and transform
+        if (!style.isHairlineStyle() || rendererOutset != 0.0f) {
+            float localStyleOutset = style.getInflationRadius() + rendererOutset;
+            transformedShapeBounds.outset(localStyleOutset);
+
+            if (!style.isFillStyle() || rendererOutset != 0.0f) {
+                // While this loses any shape type, the bounds remain local so hopefully tests are
+                // fairly accurate.
+                styledShape.writable()->setRect(transformedShapeBounds);
+            }
         }
+
+        transformedShapeBounds = localToDevice.mapRect(transformedShapeBounds);
+
+        // Hairlines get an extra pixel *after* transforming to device space, unless the renderer
+        // has already defined an outset
+        if (style.isHairlineStyle() && rendererOutset == 0.0f) {
+            transformedShapeBounds.outset(0.5f);
+            // and the associated transform must be kIdentity since the bounds have been mapped by
+            // localToDevice already.
+            styledShape.writable()->setRect(transformedShapeBounds);
+            shapeInDeviceSpace = true;
+        }
+
+        // Restrict bounds to the device limits.
+        transformedShapeBounds.intersect(deviceBounds);
     }
-
-    transformedShapeBounds = localToDevice.mapRect(transformedShapeBounds);
-
-    // Hairlines get an extra pixel *after* transforming to device space
-    if (style.isHairlineStyle()) {
-        transformedShapeBounds.outset(0.5f);
-        // and the associated transform must be kIdentity since the bounds have been mapped by
-        // localToDevice already.
-        styledShape.writable()->setRect(transformedShapeBounds);
-        shapeInDeviceSpace = true;
-    }
-
-    // Restrict bounds to the device limits.
-    transformedShapeBounds.intersect(deviceBounds);
 
     Rect drawBounds;  // defined in device space
-    if (isInverted) {
-        // Inverse-filled shapes always fill the entire device (restricted to the clip).
+    if (infiniteBounds) {
         drawBounds = deviceBounds;
         styledShape.writable()->setRect(drawBounds);
         shapeInDeviceSpace = true;
+
     } else {
-        // TODO: b/273924867 incorporate any outset required for analytic AA, too.
         drawBounds = transformedShapeBounds;
     }
 
