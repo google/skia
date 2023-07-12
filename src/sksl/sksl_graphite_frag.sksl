@@ -610,7 +610,7 @@ $pure float2 $conical_grad_layout(float2 point0Param,
 
         // Apply mapping from [Cf, C1] to unit x, and apply the precalculations from steps 3 and 4,
         // all in the same transformation.
-        float2 Cf = point0Param * (1 - f) + point1Param * f;
+        float2 Cf = mix(point0Param, point1Param, f);
         float3x3 transform = $map_to_unit_x(Cf, point1Param);
 
         float scaleX = abs(1 - f);

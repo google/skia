@@ -168,7 +168,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "=pt.x+sqrt(t);return float2(t,1.);}else{float f=radius0Param/(radius0Param-"
 "radius1Param);bool isSwapped=abs(f-1.)<SK_ScalarNearlyZero;if(isSwapped){float2"
 " tmpPt=point0Param;point0Param=point1Param;point1Param=tmpPt;f=0.;}float2 Cf"
-"=point0Param*(1.-f)+point1Param*f;float3x3 transform=$map_to_unit_x(Cf,point1Param"
+"=mix(point0Param,point1Param,f);float3x3 transform=$map_to_unit_x(Cf,point1Param"
 ");float scaleX=abs(1.-f);float scaleY=scaleX;float r1=abs(radius1Param-radius0Param"
 ")/dCenter;bool isFocalOnCircle=abs(r1-1.)<SK_ScalarNearlyZero;if(isFocalOnCircle"
 "){scaleX*=.5;scaleY*=.5;}else{scaleX*=r1/(r1*r1-1.);scaleY/=sqrt(abs(r1*r1-"
