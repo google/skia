@@ -37,6 +37,11 @@ public:
 
     bool setNewCommandBufferResources() override;
 
+    void addWaitSemaphores(size_t numWaitSemaphores,
+                           const BackendSemaphore* waitSemaphores) override;
+    void addSignalSemaphores(size_t numSignalSemaphores,
+                             const BackendSemaphore* signalSemaphores) override;
+
     bool isFinished() {
         return (*fCommandBuffer).status == MTLCommandBufferStatusCompleted ||
                (*fCommandBuffer).status == MTLCommandBufferStatusError;

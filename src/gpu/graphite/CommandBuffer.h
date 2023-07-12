@@ -54,6 +54,11 @@ public:
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
     void callFinishedProcs(bool success);
 
+    virtual void addWaitSemaphores(size_t numWaitSemaphores,
+                                   const BackendSemaphore* waitSemaphores) {}
+    virtual void addSignalSemaphores(size_t numWaitSemaphores,
+                                     const BackendSemaphore* signalSemaphores) {}
+
     bool addRenderPass(const RenderPassDesc&,
                        sk_sp<Texture> colorTexture,
                        sk_sp<Texture> resolveTexture,

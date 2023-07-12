@@ -13,7 +13,9 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "tools/gpu/GrContextFactory.h"
+#if defined(SK_GRAPHITE)
 #include "tools/graphite/ContextFactory.h"
+#endif
 
 class SkBitmap;
 class SkCanvas;
