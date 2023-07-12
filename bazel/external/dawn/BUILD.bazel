@@ -31,6 +31,7 @@ genrule(
     name = "generate_webgpu_cpp",
     srcs = [
         "generator/templates/api_cpp.h",
+        "generator/templates/api_cpp_chained_struct.h",
         "generator/templates/api_cpp_print.h",
         "generator/templates/BSD_LICENSE",
         "dawn.json",
@@ -38,6 +39,7 @@ genrule(
     ],
     outs = [
         "include/dawn/webgpu_cpp.h",
+        "include/dawn/webgpu_cpp_chained_struct.h",
         "include/dawn/webgpu_cpp_print.h",
     ],
     cmd = "$(location :dawn_json_generator) " +
@@ -248,9 +250,10 @@ DAWN_HDRS = [
 
 DAWN_SRCS = [
     # Generated files
+    "include/dawn/dawn_proc_table.h",
     "include/dawn/webgpu.h",
     "include/dawn/webgpu_cpp.h",
-    "include/dawn/dawn_proc_table.h",
+    "include/dawn/webgpu_cpp_chained_struct.h",
     # From dawn/src/dawn/native/BUILD.gn:sources
     "src/dawn/native/DawnNative.cpp",
     "src/dawn/native/Adapter.cpp",
@@ -272,8 +275,12 @@ DAWN_SRCS = [
     "src/dawn/native/BindingInfo.h",
     "src/dawn/native/BlitBufferToDepthStencil.cpp",
     "src/dawn/native/BlitBufferToDepthStencil.h",
+    "src/dawn/native/BlitColorToColorWithDraw.cpp",
+    "src/dawn/native/BlitColorToColorWithDraw.h",
     "src/dawn/native/BlitDepthToDepth.cpp",
     "src/dawn/native/BlitDepthToDepth.h",
+    "src/dawn/native/BlitTextureToBuffer.cpp",
+    "src/dawn/native/BlitTextureToBuffer.h",
     "src/dawn/native/Blob.cpp",
     "src/dawn/native/Blob.h",
     "src/dawn/native/BlobCache.cpp",
@@ -293,6 +300,7 @@ DAWN_SRCS = [
     "src/dawn/native/CachedObject.h",
     "src/dawn/native/CallbackTaskManager.cpp",
     "src/dawn/native/CallbackTaskManager.h",
+    "src/dawn/native/ChainUtils.h",
     "src/dawn/native/CommandAllocator.cpp",
     "src/dawn/native/CommandAllocator.h",
     "src/dawn/native/CommandBuffer.cpp",
@@ -457,6 +465,7 @@ DAWN_SRCS = [
     "src/dawn/common/ConcurrentCache.h",
     "src/dawn/common/Constants.h",
     "src/dawn/common/CoreFoundationRef.h",
+    "src/dawn/common/ContentLessObjectCache.h",
     "src/dawn/common/DynamicLib.cpp",
     "src/dawn/common/DynamicLib.h",
     "src/dawn/common/GPUInfo.cpp",
@@ -479,6 +488,7 @@ DAWN_SRCS = [
     "src/dawn/common/RefBase.h",
     "src/dawn/common/RefCounted.cpp",
     "src/dawn/common/RefCounted.h",
+    "src/dawn/common/Ref.h",
     "src/dawn/common/Result.cpp",
     "src/dawn/common/Result.h",
     "src/dawn/common/SerialMap.h",
@@ -637,6 +647,7 @@ cc_library(
         "include/dawn/webgpu.h",
         "include/dawn/EnumClassBitmasks.h",
         "include/dawn/webgpu_cpp.h",
+        "include/dawn/webgpu_cpp_chained_struct.h",
         "src/dawn/webgpu_cpp.cpp",
     ],
     includes = [
@@ -1077,6 +1088,8 @@ TINT_SRCS = [
     "src/tint/builtin/texel_format.h",
 
     # From dawn/src/tint/BUILD.gn:libtint_sem_src
+    "src/tint/sem/accessor_expression.cc",
+    "src/tint/sem/accessor_expression.h",
     "src/tint/sem/array_count.cc",
     "src/tint/sem/array_count.h",
     "src/tint/sem/behavior.cc",
