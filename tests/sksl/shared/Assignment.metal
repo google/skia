@@ -19,78 +19,6 @@ struct Globals {
     half4 globalVar;
     S globalStruct;
 };
-void assignToFunctionParameter_vif(int x, thread float& y);
-void _skOutParamHelper0_assignToFunctionParameter_vif(int _var0, thread float3x3& f3x3) {
-    float _var1 = f3x3[0].x;
-    assignToFunctionParameter_vif(_var0, _var1);
-    f3x3[0].x = _var1;
-}
-void keepAlive_vf(thread float& f);
-void _skOutParamHelper1_keepAlive_vf(thread array<float4, 1>& af4) {
-    float _var0 = af4[0].x;
-    keepAlive_vf(_var0);
-    af4[0].x = _var0;
-}
-void keepAlive_vh(thread half& h);
-void _skOutParamHelper2_keepAlive_vh(thread array<half3x3, 1>& ah3x3) {
-    half _var0 = ah3x3[0][0].x;
-    keepAlive_vh(_var0);
-    ah3x3[0][0].x = _var0;
-}
-void keepAlive_vi(thread int& i);
-void _skOutParamHelper3_keepAlive_vi(thread int& i) {
-    int _var0 = i;
-    keepAlive_vi(_var0);
-    i = _var0;
-}
-void keepAlive_vi(thread int& i);
-void _skOutParamHelper4_keepAlive_vi(thread int4& i4) {
-    int _var0 = i4.y;
-    keepAlive_vi(_var0);
-    i4.y = _var0;
-}
-void keepAlive_vi(thread int& i);
-void _skOutParamHelper5_keepAlive_vi(thread array<int, 1>& ai) {
-    int _var0 = ai[0];
-    keepAlive_vi(_var0);
-    ai[0] = _var0;
-}
-void keepAlive_vi(thread int& i);
-void _skOutParamHelper6_keepAlive_vi(thread array<int4, 1>& ai4) {
-    int _var0 = ai4[0].x;
-    keepAlive_vi(_var0);
-    ai4[0].x = _var0;
-}
-void keepAlive_vh(thread half& h);
-void _skOutParamHelper7_keepAlive_vh(thread half4& x) {
-    half _var0 = x.y;
-    keepAlive_vh(_var0);
-    x.y = _var0;
-}
-void keepAlive_vf(thread float& f);
-void _skOutParamHelper8_keepAlive_vf(thread S& s) {
-    float _var0 = s.f;
-    keepAlive_vf(_var0);
-    s.f = _var0;
-}
-void keepAlive_vh(thread half& h);
-void _skOutParamHelper9_keepAlive_vh(thread half& l) {
-    half _var0 = l;
-    keepAlive_vh(_var0);
-    l = _var0;
-}
-void keepAlive_vf(thread float& f);
-void _skOutParamHelper10_keepAlive_vf(thread float3x3& f3x3) {
-    float _var0 = f3x3[0].x;
-    keepAlive_vf(_var0);
-    f3x3[0].x = _var0;
-}
-void keepAlive_vf(thread float& f);
-void _skOutParamHelper11_keepAlive_vf(thread float& repeat) {
-    float _var0 = repeat;
-    keepAlive_vf(_var0);
-    repeat = _var0;
-}
 void keepAlive_vh(thread half& h) {
 }
 void keepAlive_vf(thread float& f) {
@@ -106,6 +34,18 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_globals;
     Outputs _out;
     (void)_out;
+    float _skTemp0;
+    float _skTemp1;
+    half _skTemp2;
+    int _skTemp3;
+    int _skTemp4;
+    int _skTemp5;
+    int _skTemp6;
+    half _skTemp7;
+    float _skTemp8;
+    half _skTemp9;
+    float _skTemp10;
+    float _skTemp11;
     int i = 0;
     int4 i4 = int4(1, 2, 3, 4);
     float3x3 f3x3 = float3x3(float3(1.0, 2.0, 3.0), float3(4.0, 5.0, 6.0), float3(7.0, 8.0, 9.0));
@@ -128,7 +68,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     s.ah4[2].yw = half2(5.0h);
     _globals.globalVar = half4(0.0h);
     _globals.globalStruct.f = 0.0;
-    _skOutParamHelper0_assignToFunctionParameter_vif(0, f3x3);
+    ((assignToFunctionParameter_vif(0, (_skTemp0 = f3x3[0].x))), (f3x3[0].x = _skTemp0));
     half l;
     l = 0.0h;
     ai[0] += ai4[0].x;
@@ -138,17 +78,17 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     s.ah4[0] = half4(2.0h);
     float repeat;
     repeat = (repeat = 1.0);
-    _skOutParamHelper1_keepAlive_vf(af4);
-    _skOutParamHelper2_keepAlive_vh(ah3x3);
-    _skOutParamHelper3_keepAlive_vi(i);
-    _skOutParamHelper4_keepAlive_vi(i4);
-    _skOutParamHelper5_keepAlive_vi(ai);
-    _skOutParamHelper6_keepAlive_vi(ai4);
-    _skOutParamHelper7_keepAlive_vh(x);
-    _skOutParamHelper8_keepAlive_vf(s);
-    _skOutParamHelper9_keepAlive_vh(l);
-    _skOutParamHelper10_keepAlive_vf(f3x3);
-    _skOutParamHelper11_keepAlive_vf(repeat);
+    ((keepAlive_vf((_skTemp1 = af4[0].x))), (af4[0].x = _skTemp1));
+    ((keepAlive_vh((_skTemp2 = ah3x3[0][0].x))), (ah3x3[0][0].x = _skTemp2));
+    ((keepAlive_vi((_skTemp3 = i))), (i = _skTemp3));
+    ((keepAlive_vi((_skTemp4 = i4.y))), (i4.y = _skTemp4));
+    ((keepAlive_vi((_skTemp5 = ai[0]))), (ai[0] = _skTemp5));
+    ((keepAlive_vi((_skTemp6 = ai4[0].x))), (ai4[0].x = _skTemp6));
+    ((keepAlive_vh((_skTemp7 = x.y))), (x.y = _skTemp7));
+    ((keepAlive_vf((_skTemp8 = s.f))), (s.f = _skTemp8));
+    ((keepAlive_vh((_skTemp9 = l))), (l = _skTemp9));
+    ((keepAlive_vf((_skTemp10 = f3x3[0].x))), (f3x3[0].x = _skTemp10));
+    ((keepAlive_vf((_skTemp11 = repeat))), (repeat = _skTemp11));
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 }

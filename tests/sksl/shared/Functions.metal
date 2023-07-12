@@ -10,12 +10,6 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-void bar_vf(thread float& x);
-void _skOutParamHelper0_bar_vf(thread float& x) {
-    float _var0 = x;
-    bar_vf(_var0);
-    x = _var0;
-}
 float foo_ff2(const float2 v) {
     return v.x * v.y;
 }
@@ -28,8 +22,9 @@ void bar_vf(thread float& x) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    float _skTemp0;
     float x = 10.0;
-    _skOutParamHelper0_bar_vf(x);
+    ((bar_vf((_skTemp0 = x))), (x = _skTemp0));
     _out.sk_FragColor = x == 200.0 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

@@ -10,7 +10,6 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
@@ -177,10 +176,6 @@ protected:
 
     void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
-    std::string getOutParamHelper(const FunctionCall& c,
-                                  const ExpressionArray& arguments,
-                                  const skia_private::TArray<VariableReference*>& outVars);
-
     std::string getInversePolyfill(const ExpressionArray& arguments);
 
     std::string getBitcastIntrinsic(const Type& outType);
@@ -317,7 +312,6 @@ protected:
     std::string fRTFlipName;
     const FunctionDeclaration* fCurrentFunction = nullptr;
     int fSwizzleHelperCount = 0;
-    bool fIgnoreVariableReferenceModifiers = false;
     static constexpr char kTextureSuffix[] = "_Tex";
     static constexpr char kSamplerSuffix[] = "_Smplr";
 

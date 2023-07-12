@@ -9,6 +9,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkScopeExit.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -268,143 +269,6 @@ static bool is_readonly(const InterfaceBlock& block) {
     return block.var()->modifiers().fFlags & Modifiers::kReadOnly_Flag;
 }
 
-std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
-                                                  const ExpressionArray& arguments,
-                                                  const TArray<VariableReference*>& outVars) {
-    // It's possible for out-param function arguments to contain an out-param function call
-    // expression. Emit the function into a temporary stream to prevent the nested helper from
-    // clobbering the current helper as we recursively evaluate argument expressions.
-    StringStream tmpStream;
-    AutoOutputStream outputToExtraFunctions(this, &tmpStream, &fIndentation);
-
-    const FunctionDeclaration& function = call.function();
-
-    std::string name = "_skOutParamHelper" + std::to_string(fSwizzleHelperCount++) +
-                       "_" + function.mangledName();
-    const char* separator = "";
-
-    // Emit a prototype for the function we'll be calling through to in our helper.
-    if (!function.isBuiltin()) {
-        this->writeFunctionDeclaration(function);
-        this->writeLine(";");
-    }
-
-    // Synthesize a helper function that takes the same inputs as `function`, except in places where
-    // `outVars` is non-null; in those places, we take the type of the VariableReference.
-    //
-    // float _skOutParamHelper0_originalFuncName(float _var0, float _var1, float& outParam) {
-    this->writeType(call.type());
-    this->write(" ");
-    this->write(name);
-    this->write("(");
-    this->writeFunctionRequirementParams(function, separator);
-
-    SkASSERT(outVars.size() == arguments.size());
-    SkASSERT(SkToSizeT(outVars.size()) == function.parameters().size());
-
-    // We need to detect cases where the caller passes the same variable as an out-param more than
-    // once, and avoid reusing the variable name. (In those cases we can actually just ignore the
-    // redundant input parameter entirely, and not give it any name.)
-    THashSet<const Variable*> writtenVars;
-
-    for (int index = 0; index < arguments.size(); ++index) {
-        this->write(separator);
-        separator = ", ";
-
-        const Variable* param = function.parameters()[index];
-        this->writeModifiers(param->modifiers());
-
-        const Type* type = outVars[index] ? &outVars[index]->type() : &arguments[index]->type();
-        this->writeType(*type);
-
-        if (pass_by_reference(param->type(), param->modifiers())) {
-            this->write("&");
-        }
-        if (outVars[index]) {
-            const Variable* var = outVars[index]->variable();
-            if (!writtenVars.contains(var)) {
-                writtenVars.add(var);
-
-                this->write(" ");
-                fIgnoreVariableReferenceModifiers = true;
-                this->writeVariableReference(*outVars[index]);
-                fIgnoreVariableReferenceModifiers = false;
-            }
-        } else {
-            this->write(" _var");
-            this->write(std::to_string(index));
-        }
-    }
-    this->writeLine(") {");
-
-    ++fIndentation;
-    for (int index = 0; index < outVars.size(); ++index) {
-        if (!outVars[index]) {
-            continue;
-        }
-        // float3 _var2[ = outParam.zyx];
-        this->writeType(arguments[index]->type());
-        this->write(" _var");
-        this->write(std::to_string(index));
-
-        const Variable* param = function.parameters()[index];
-        if (param->modifiers().fFlags & Modifiers::kIn_Flag) {
-            this->write(" = ");
-            fIgnoreVariableReferenceModifiers = true;
-            this->writeExpression(*arguments[index], Precedence::kAssignment);
-            fIgnoreVariableReferenceModifiers = false;
-        }
-
-        this->writeLine(";");
-    }
-
-    // [int _skResult = ] myFunction(inputs, outputs, _globals, _var0, _var1, _var2, _var3);
-    bool hasResult = (call.type().name() != "void");
-    if (hasResult) {
-        this->writeType(call.type());
-        this->write(" _skResult = ");
-    }
-
-    this->writeName(function.mangledName());
-    this->write("(");
-    separator = "";
-    this->writeFunctionRequirementArgs(function, separator);
-
-    for (int index = 0; index < arguments.size(); ++index) {
-        this->write(separator);
-        separator = ", ";
-
-        this->write("_var");
-        this->write(std::to_string(index));
-    }
-    this->writeLine(");");
-
-    for (int index = 0; index < outVars.size(); ++index) {
-        if (!outVars[index]) {
-            continue;
-        }
-        // outParam.zyx = _var2;
-        fIgnoreVariableReferenceModifiers = true;
-        this->writeExpression(*arguments[index], Precedence::kAssignment);
-        fIgnoreVariableReferenceModifiers = false;
-        this->write(" = _var");
-        this->write(std::to_string(index));
-        this->writeLine(";");
-    }
-
-    if (hasResult) {
-        this->writeLine("return _skResult;");
-    }
-
-    --fIndentation;
-    this->writeLine("}");
-
-    // Write the function out to `fExtraFunctions`.
-    write_stringstream(tmpStream, fExtraFunctions);
-
-    return name;
-}
-
 std::string MetalCodeGenerator::getBitcastIntrinsic(const Type& outType) {
     return "as_type<" +  outType.displayName() + ">";
 }
@@ -419,55 +283,129 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
     }
 
-    // Determine whether or not we need to emulate GLSL's out-param semantics for Metal using a
-    // helper function. (Specifically, out-parameters in GLSL are only written back to the original
-    // variable at the end of the function call; also, swizzles are supported, whereas Metal doesn't
-    // allow a swizzle to be passed to a `floatN&`.)
+    // Look for out parameters. SkSL guarantees GLSL's out-param semantics, and we need to emulate
+    // it if an out-param is encountered. (Specifically, out-parameters in GLSL are only written
+    // back to the original variable at the end of the function call; also, swizzles are supported,
+    // whereas Metal doesn't allow a swizzle to be passed to a `floatN&`.)
     const ExpressionArray& arguments = c.arguments();
     SkSpan<Variable* const> parameters = function.parameters();
     SkASSERT(SkToSizeT(arguments.size()) == parameters.size());
 
     bool foundOutParam = false;
-    STArray<16, VariableReference*> outVars;
-    outVars.push_back_n(arguments.size(), (VariableReference*)nullptr);
+    STArray<16, std::string> scratchVarName;
+    scratchVarName.push_back_n(arguments.size(), std::string());
 
     for (int index = 0; index < arguments.size(); ++index) {
         // If this is an out parameter...
         if (parameters[index]->modifiers().fFlags & Modifiers::kOut_Flag) {
-            // Find the expression's inner variable being written to.
-            Analysis::AssignmentInfo info;
             // Assignability was verified at IRGeneration time, so this should always succeed.
-            SkAssertResult(Analysis::IsAssignable(*arguments[index], &info));
-            outVars[index] = info.fAssignedVar;
+            [[maybe_unused]] Analysis::AssignmentInfo info;
+            SkASSERT(Analysis::IsAssignable(*arguments[index], &info));
+
+            scratchVarName[index] = this->getTempVariable(arguments[index]->type());
+
+            // TODO(skia:14130): if the out-parameter variable is an array, its array-index can be
+            // an arbitrarily complex expression in ES3, and it may also have side effects. We need
+            // to detect this case, evaluate the index-expression only once, and store the result
+            // into a temp variable. (Also, this must be properly sequenced with the rest of the
+            // expression handling.)
+
             foundOutParam = true;
         }
     }
 
     if (foundOutParam) {
         // Out parameters need to be written back to at the end of the function. To do this, we
-        // synthesize a helper function which evaluates the out-param expression into a temporary
-        // variable, calls the original function, then writes the temp var back into the out param
-        // using the original out-param expression. (This lets us support things like swizzles and
-        // array indices.)
-        this->write(getOutParamHelper(c, arguments, outVars));
-    } else {
+        // generate a comma-separated sequence expression that copies the out-param expressions into
+        // our temporary variables, calls the original function--storing its result into a scratch
+        // variable--and then writes the temp variables back into the original out params using the
+        // original out-param expressions. This would look something like:
+        //
+        // ((_skResult = func((_skTemp = myOutParam.x), 123)), (myOutParam.x = _skTemp), _skResult)
+        //       ^                     ^                                     ^                ^
+        //   return value       passes copy of argument    copies back into argument    return value
+        //
+        // While these expressions are complex, they allow us to maintain the proper sequencing that
+        // is necessary for out-parameters, as well as allowing us to support things like swizzles
+        // and array indices which Metal references cannot natively handle.
+
+        this->write("((");
+
+        // ((_skResult =
+        std::string scratchResultName;
+        if (!function.returnType().isVoid()) {
+            scratchResultName = this->getTempVariable(c.type());
+            this->write(scratchResultName);
+            this->write(" = ");
+        }
+
+        // ((_skResult = func(
         this->write(function.mangledName());
-    }
+        this->write("(");
 
-    this->write("(");
-    const char* separator = "";
-    this->writeFunctionRequirementArgs(function, separator);
-    for (int i = 0; i < arguments.size(); ++i) {
-        this->write(separator);
-        separator = ", ";
+        // ((_skResult = func((_skTemp = myOutParam.x), 123
+        const char* separator = "";
+        this->writeFunctionRequirementArgs(function, separator);
 
-        if (outVars[i]) {
-            this->writeExpression(*outVars[i], Precedence::kSequence);
-        } else {
+        for (int i = 0; i < arguments.size(); ++i) {
+            this->write(separator);
+            separator = ", ";
+            if (parameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+                SkASSERT(!scratchVarName[i].empty());
+                if (parameters[i]->modifiers().fFlags & Modifiers::kIn_Flag) {
+                    // `inout` parameters initialize the scratch variable with the passed-in
+                    // argument's value.
+                    this->write("(");
+                    this->write(scratchVarName[i]);
+                    this->write(" = ");
+                    this->writeExpression(*arguments[i], Precedence::kAssignment);
+                    this->write(")");
+                } else {
+                    // `out` parameters pass a reference to the uninitialized scratch variable.
+                    this->write(scratchVarName[i]);
+                }
+            } else {
+                // Regular parameters are passed as-is.
+                this->writeExpression(*arguments[i], Precedence::kSequence);
+            }
+        }
+
+        // ((_skResult = func((_skTemp = myOutParam.x), 123))
+        this->write("))");
+
+        // ((_skResult = func((_skTemp = myOutParam.x), 123)), (myOutParam.x = _skTemp)
+        for (int i = 0; i < arguments.size(); ++i) {
+            if (!scratchVarName[i].empty()) {
+                this->write(", (");
+                this->writeExpression(*arguments[i], Precedence::kAssignment);
+                this->write(" = ");
+                this->write(scratchVarName[i]);
+                this->write(")");
+            }
+        }
+
+        // ((_skResult = func((_skTemp = myOutParam.x), 123)), (myOutParam.x = _skTemp), _skResult
+        if (!scratchResultName.empty()) {
+            this->write(", ");
+            this->write(scratchResultName);
+        }
+
+        // ((_skResult = func((_skTemp = myOutParam.x), 123)), (myOutParam.x = _skTemp), _skResult)
+        this->write(")");
+    } else {
+        // Emit the function call as-is, only prepending the required arguments.
+        this->write(function.mangledName());
+        this->write("(");
+        const char* separator = "";
+        this->writeFunctionRequirementArgs(function, separator);
+        for (int i = 0; i < arguments.size(); ++i) {
+            SkASSERT(scratchVarName[i].empty());
+            this->write(separator);
+            separator = ", ";
             this->writeExpression(*arguments[i], Precedence::kSequence);
         }
+        this->write(")");
     }
-    this->write(")");
 }
 
 static constexpr char kInverse2x2[] = R"(
@@ -1494,14 +1432,6 @@ static bool is_in_globals(const Variable& var) {
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    // When assembling out-param helper functions, we copy variables into local clones with matching
-    // names. We never want to prepend "_in." or "_globals." when writing these variables since
-    // we're actually targeting the clones.
-    if (fIgnoreVariableReferenceModifiers) {
-        this->writeName(ref.variable()->mangledName());
-        return;
-    }
-
     switch (ref.variable()->modifiers().fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("_out.sk_FragColor");

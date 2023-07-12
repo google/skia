@@ -10,15 +10,6 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-bool out_params_are_distinct_bhh(thread half& x, thread half& y);
-bool _skOutParamHelper0_out_params_are_distinct_bhh(thread half& x, thread half&) {
-    half _var0;
-    half _var1;
-    bool _skResult = out_params_are_distinct_bhh(_var0, _var1);
-    x = _var0;
-    x = _var1;
-    return _skResult;
-}
 bool out_params_are_distinct_bhh(thread half& x, thread half& y) {
     x = 1.0h;
     y = 2.0h;
@@ -27,7 +18,10 @@ bool out_params_are_distinct_bhh(thread half& x, thread half& y) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
+    half _skTemp0;
+    half _skTemp1;
+    bool _skTemp2;
     half x = 0.0h;
-    _out.sk_FragColor =     _skOutParamHelper0_out_params_are_distinct_bhh(x, x) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((_skTemp2 = out_params_are_distinct_bhh(_skTemp0, _skTemp1)), (x = _skTemp0), (x = _skTemp1), _skTemp2) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
