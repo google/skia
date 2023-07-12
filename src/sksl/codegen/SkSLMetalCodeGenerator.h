@@ -16,6 +16,7 @@
 
 #include <cstdint>
 #include <initializer_list>
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -252,6 +253,8 @@ protected:
 
     void writeIndexExpression(const IndexExpression& expr);
 
+    void writeIndexInnerExpression(const Expression& expr);
+
     void writePrefixExpression(const PrefixExpression& p, Precedence parentPrecedence);
 
     void writePostfixExpression(const PostfixExpression& p, Precedence parentPrecedence);
@@ -314,6 +317,15 @@ protected:
     int fSwizzleHelperCount = 0;
     static constexpr char kTextureSuffix[] = "_Tex";
     static constexpr char kSamplerSuffix[] = "_Smplr";
+
+    // If we might use an index expression more than once, we need to capture the result in a
+    // temporary variable to avoid double-evaluation. This should generally only occur when emitting
+    // a function call, since we need to polyfill GLSL-style out-parameter support. (skia:14130)
+    // The map holds <index-expression, temp-variable name>.
+    using IndexSubstitutionMap = skia_private::THashMap<const Expression*, std::string>;
+
+    // When this is null (usually), index-substitution does not need to be performed.
+    std::unique_ptr<IndexSubstitutionMap> fIndexSubstitutionMap;
 
     // Workaround/polyfill flags
     bool fWrittenInverse2 = false, fWrittenInverse3 = false, fWrittenInverse4 = false;

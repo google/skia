@@ -74,6 +74,7 @@
 #include <functional>
 #include <limits>
 #include <memory>
+#include <utility>
 #include <vector>
 
 using namespace skia_private;
@@ -303,13 +304,6 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             SkASSERT(Analysis::IsAssignable(*arguments[index], &info));
 
             scratchVarName[index] = this->getTempVariable(arguments[index]->type());
-
-            // TODO(skia:14130): if the out-parameter variable is an array, its array-index can be
-            // an arbitrarily complex expression in ES3, and it may also have side effects. We need
-            // to detect this case, evaluate the index-expression only once, and store the result
-            // into a temp variable. (Also, this must be properly sequenced with the rest of the
-            // expression handling.)
-
             foundOutParam = true;
         }
     }
@@ -328,6 +322,10 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         // While these expressions are complex, they allow us to maintain the proper sequencing that
         // is necessary for out-parameters, as well as allowing us to support things like swizzles
         // and array indices which Metal references cannot natively handle.
+
+        // Enable index-expression substitution.
+        auto oldIndexSubstitutionMap = std::make_unique<IndexSubstitutionMap>();
+        fIndexSubstitutionMap.swap(oldIndexSubstitutionMap);
 
         this->write("((");
 
@@ -392,6 +390,9 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         // ((_skResult = func((_skTemp = myOutParam.x), 123)), (myOutParam.x = _skTemp), _skResult)
         this->write(")");
+
+        // We no longer need index-expression substitution (unless it was enabled previously!).
+        fIndexSubstitutionMap.swap(oldIndexSubstitutionMap);
     } else {
         // Emit the function call as-is, only prepending the required arguments.
         this->write(function.mangledName());
@@ -1487,6 +1488,30 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
     }
 }
 
+void MetalCodeGenerator::writeIndexInnerExpression(const Expression& expr) {
+    if (fIndexSubstitutionMap) {
+        // If this expression already exists in the index-substitution map, use the substitute.
+        if (const std::string* existing = fIndexSubstitutionMap->find(&expr)) {
+            this->write(*existing);
+            return;
+        }
+
+        // If this expression is non-trivial, we will need to create a scratch variable and store
+        // its value there. Fortunately, `array[_skTemp = func()]` is a valid expression.
+        if (!Analysis::IsTrivialExpression(expr)) {
+            std::string scratchVar = this->getTempVariable(expr.type());
+            this->write(scratchVar);
+            this->write(" = ");
+            this->writeExpression(expr, Precedence::kAssignment);
+            fIndexSubstitutionMap->set(&expr, std::move(scratchVar));
+            return;
+        }
+    }
+
+    // We don't require index-substitution; just emit the expression normally.
+    this->writeExpression(expr, Precedence::kExpression);
+}
+
 void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
     // Metal does not seem to handle assignment into `vec.zyx[i]` properly--it compiles, but the
     // results are wrong. We rewrite the expression as `vec[uint3(2,1,0)[i]]` instead. (Filed with
@@ -1502,7 +1527,7 @@ void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
                 this->write(std::to_string(component));
             }
             this->write(")[");
-            this->writeExpression(*expr.index(), Precedence::kExpression);
+            this->writeIndexInnerExpression(*expr.index());
             this->write("]]");
             return;
         }
@@ -1510,7 +1535,7 @@ void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 
     this->writeExpression(*expr.base(), Precedence::kPostfix);
     this->write("[");
-    this->writeExpression(*expr.index(), Precedence::kExpression);
+    this->writeIndexInnerExpression(*expr.index());
     this->write("]");
 }
 
