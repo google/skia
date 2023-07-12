@@ -64,7 +64,7 @@ void skottie::SlotManager::setImageSlot(SlotID slotID, sk_sp<skresources::ImageA
     }
 }
 
-void skottie::SlotManager::setScalarSlot(SlotID slotID, SkScalar s) {
+void skottie::SlotManager::setScalarSlot(SlotID slotID, ScalarValue s) {
     const auto valueGroup = fScalarMap.find(slotID);
     if (valueGroup) {
         for (auto& sPair : *valueGroup) {
@@ -99,7 +99,7 @@ sk_sp<const skresources::ImageAsset> skottie::SlotManager::getImageSlot(SlotID s
     return imageGroup && !imageGroup->empty() ? imageGroup->at(0)->getImageAsset() : nullptr;
 }
 
-SkScalar skottie::SlotManager::getScalarSlot(SlotID slotID) const {
+skottie::ScalarValue skottie::SlotManager::getScalarSlot(SlotID slotID) const {
     const auto valueGroup = fScalarMap.find(slotID);
     return valueGroup && !valueGroup->empty() ? *(valueGroup->at(0).value) : -1;
 }
@@ -124,12 +124,7 @@ sk_sp<skresources::ImageAsset> skottie::SlotManager::trackImageValue(SlotID slot
     return std::move(proxy);
 }
 
-void skottie::SlotManager::trackScalarValue(SlotID slotID, SkScalar* scalarValue,
-                                            sk_sp<sksg::Node> node) {
-    fScalarMap[slotID].push_back({scalarValue, std::move(node), nullptr});
-}
-
-void skottie::SlotManager::trackScalarValue(SlotID slotID, SkScalar* scalarValue,
+void skottie::SlotManager::trackScalarValue(SlotID slotID, ScalarValue* scalarValue,
                                             sk_sp<internal::AnimatablePropertyContainer> adapter) {
     fScalarMap[slotID].push_back({scalarValue, nullptr, adapter});
 }

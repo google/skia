@@ -92,7 +92,6 @@ public:
     }
 
 private:
-    friend class skottie::internal::AnimationBuilder;
     void onSync() override {
         this->node()->setOpacity(fOpacity * 0.01f);
     }
@@ -112,7 +111,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValu
     if (adapter->isStatic()) {
         adapter->seek(0);
     }
-    auto dispatched = this->dispatchOpacityProperty(adapter->node(), jobject["o"], adapter);
+    auto dispatched = this->dispatchOpacityProperty(adapter->node());
     if (adapter->isStatic()) {
         if (!dispatched && adapter->node()->getOpacity() >= 1) {
             // No obeservable effects - we can discard.
@@ -234,18 +233,8 @@ bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c,
     return dispatched;
 }
 
-bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o,
-                                               const skjson::ObjectValue* jopacity,
-                                               const sk_sp<OpacityAdapter> adapter) const {
+bool AnimationBuilder::dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>& o) const {
     bool dispatched = false;
-
-    if (jopacity) {
-        if (const skjson::StringValue* slotID = (*jopacity)["sid"]) {
-            fSlotManager->trackScalarValue(SkString(slotID->begin()), &(adapter->fOpacity),
-                                            adapter);
-            dispatched = true;
-        }
-    }
 
     if (fPropertyObserver) {
         fPropertyObserver->onOpacityProperty(fPropertyObserverContext,

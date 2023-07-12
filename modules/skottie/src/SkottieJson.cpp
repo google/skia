@@ -128,4 +128,13 @@ bool Parse<VectorValue>(const Value& v, VectorValue* vec) {
     return true;
 }
 
+const skjson::StringValue* ParseSlotID(const skjson::ObjectValue* jobj) {
+    if (jobj) {
+        if (const skjson::StringValue* sid = (*jobj)["sid"]) {
+            return sid;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace skottie

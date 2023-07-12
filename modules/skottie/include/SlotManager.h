@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include "src/core/SkTHash.h"
 
 namespace skjson {
@@ -47,12 +48,12 @@ public:
 
     void setColorSlot(SlotID, SkColor);
     void setImageSlot(SlotID, sk_sp<skresources::ImageAsset>);
-    void setScalarSlot(SlotID, SkScalar);
+    void setScalarSlot(SlotID, ScalarValue);
     void setTextSlot(SlotID, TextPropertyValue&);
 
     SkColor getColorSlot(SlotID) const;
     sk_sp<const skresources::ImageAsset> getImageSlot(SlotID) const;
-    SkScalar getScalarSlot(SlotID) const;
+    ScalarValue getScalarSlot(SlotID) const;
     TextPropertyValue getTextSlot(SlotID) const;
 
     struct SlotInfo {
@@ -70,8 +71,7 @@ private:
     // pass value to the SlotManager for manipulation and node for invalidation
     void trackColorValue(SlotID, SkColor*, sk_sp<sksg::Node>);
     sk_sp<skresources::ImageAsset> trackImageValue(SlotID, sk_sp<skresources::ImageAsset>);
-    void trackScalarValue(SlotID, SkScalar*, sk_sp<sksg::Node>);
-    void trackScalarValue(SlotID, SkScalar*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
+    void trackScalarValue(SlotID, ScalarValue*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
     void trackTextValue(SlotID, sk_sp<skottie::internal::TextAdapter>);
 
     // ValuePair tracks a pointer to a value to change, and a means to invalidate the render tree.
@@ -100,13 +100,14 @@ private:
     using SlotMap = THashMap<SlotID, TArray<T>>;
 
     SlotMap<ValuePair<SkColor*>>                       fColorMap;
-    SlotMap<ValuePair<SkScalar*>>                      fScalarMap;
+    SlotMap<ValuePair<ScalarValue*>>                   fScalarMap;
     SlotMap<sk_sp<ImageAssetProxy>>                    fImageMap;
     SlotMap<sk_sp<skottie::internal::TextAdapter>>     fTextMap;
 
     const sk_sp<skottie::internal::SceneGraphRevalidator> fRevalidator;
 
     friend class skottie::internal::AnimationBuilder;
+    friend class skottie::internal::AnimatablePropertyContainer;
 };
 
 } // namespace skottie
