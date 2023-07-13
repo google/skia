@@ -25,7 +25,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     half _skTemp2;
     int _skTemp3;
     array<half, 2> testArray;
-    ((out_param_func1_vh(_uniforms, (_skTemp0 = testArray[_skTemp1 = ((_skTemp3 = out_param_func2_ih(_uniforms, _skTemp2)), (testArray[0] = _skTemp2), _skTemp3)]))), (testArray[_skTemp1] = _skTemp0));
+(_skTemp1 = ((_skTemp3 = out_param_func2_ih(_uniforms, _skTemp2)), (testArray[0] = _skTemp2), _skTemp3),     ((out_param_func1_vh(_uniforms, (_skTemp0 = testArray[_skTemp1]))), (testArray[_skTemp1] = _skTemp0)));
     _out.sk_FragColor = testArray[0] == 1.0h && testArray[1] == 1.0h ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
