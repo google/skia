@@ -834,6 +834,7 @@ sksl_rte_tests = [
   "realistic/BlueNeurons.rts",
   "realistic/HSLColorFilter.rtcf",
   "realistic/HighContrastFilter.rtcf",
+  "realistic/RippleShader.rts",
   "runtime/AllowNarrowingConversions.rts",
   "runtime/ArrayIndexing.rts",
   "runtime/ArrayNarrowingConversions.rts",
