@@ -12,7 +12,6 @@
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkMath.h"
 
-#include <cfloat>  // IWYU pragma: keep
 #include <cmath>
 #include <cstdint>
 #include <cstring>
