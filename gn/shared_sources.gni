@@ -23,3 +23,6 @@ skia_opts = {
   hsw_sources = hsw
   skx_sources = skx
 }
+
+# TODO(kjlubick) fill this in and remove the temp list
+skia_needs_sksl_sources = []
