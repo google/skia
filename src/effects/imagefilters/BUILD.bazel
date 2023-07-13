@@ -23,7 +23,6 @@ IMAGEFILTERS_FILES = [
     "SkPictureImageFilter.cpp",
     "SkRuntimeImageFilter.cpp",
     "SkShaderImageFilter.cpp",
-    "SkTileImageFilter.cpp",
 ]
 
 split_srcs_and_hdrs(

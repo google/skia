@@ -375,6 +375,12 @@ private:
     virtual bool onAffectsTransparentBlack() const { return false; }
 
     /**
+     * Return true if `affectsTransparentBlack()` should only be based on
+     * `onAffectsTransparentBlack()` and ignore the transparency behavior of child input filters.
+     */
+    virtual bool ignoreInputsAffectsTransparentBlack() const { return false; }
+
+    /**
      *  This is the virtual which should be overridden by the derived class to perform image
      *  filtering. Subclasses are responsible for recursing to their input filters, although the
      *  filterInput() function is provided to handle all necessary details of this.
@@ -488,7 +494,6 @@ void SkRegisterPictureImageFilterFlattenable();
 void SkRegisterRuntimeImageFilterFlattenable();
 #endif
 void SkRegisterShaderImageFilterFlattenable();
-void SkRegisterTileImageFilterFlattenable();
 
 // TODO(michaelludwig): These filters no longer have dedicated implementations, so their
 // SkFlattenable create procs only need to remain to support old SkPictures.

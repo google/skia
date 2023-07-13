@@ -141,7 +141,6 @@
         SkRegisterRuntimeImageFilterFlattenable();
 #endif
         SkRegisterShaderImageFilterFlattenable();
-        SkRegisterTileImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
 
         SkRegisterLegacyDropShadowImageFilterFlattenable();
