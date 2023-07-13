@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 
+#include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/DescriptorTypes.h"
 #include "src/gpu/graphite/Log.h"
@@ -151,6 +152,36 @@ void VulkanCommandBuffer::end() {
     fActive = false;
 }
 
+void VulkanCommandBuffer::addWaitSemaphores(size_t numWaitSemaphores,
+                                            const BackendSemaphore* waitSemaphores) {
+    if (!waitSemaphores) {
+        SkASSERT(numWaitSemaphores == 0);
+        return;
+    }
+
+    for (size_t i = 0; i < numWaitSemaphores; ++i) {
+        auto& semaphore = waitSemaphores[i];
+        if (semaphore.isValid() && semaphore.backend() == BackendApi::kVulkan) {
+            fWaitSemaphores.push_back(semaphore.getVkSemaphore());
+        }
+    }
+}
+
+void VulkanCommandBuffer::addSignalSemaphores(size_t numSignalSemaphores,
+                                              const BackendSemaphore* signalSemaphores) {
+    if (!signalSemaphores) {
+        SkASSERT(numSignalSemaphores == 0);
+        return;
+    }
+
+    for (size_t i = 0; i < numSignalSemaphores; ++i) {
+        auto& semaphore = signalSemaphores[i];
+        if (semaphore.isValid() && semaphore.backend() == BackendApi::kVulkan) {
+            fSignalSemaphores.push_back(semaphore.getVkSemaphore());
+        }
+    }
+}
+
 static bool submit_to_queue(const VulkanInterface* interface,
                             VkQueue queue,
                             VkFence fence,
@@ -215,18 +246,25 @@ bool VulkanCommandBuffer::submit(VkQueue queue) {
     }
 
     SkASSERT(fSubmitFence != VK_NULL_HANDLE);
+    int waitCount = fWaitSemaphores.size();
+    TArray<VkPipelineStageFlags> vkWaitStages(waitCount);
+    for (int i = 0; i < waitCount; ++i) {
+        vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    }
 
     bool submitted = submit_to_queue(interface,
                                      queue,
                                      fSubmitFence,
-                                     /*waitCount=*/0,
-                                     /*waitSemaphores=*/nullptr,
-                                     /*waitStages=*/nullptr,
+                                     waitCount,
+                                     fWaitSemaphores.data(),
+                                     vkWaitStages.data(),
                                      /*commandBufferCount*/1,
                                      &fPrimaryCommandBuffer,
-                                     /*signalCount=*/0,
-                                     /*signalSemaphores=*/nullptr,
+                                     fSignalSemaphores.size(),
+                                     fSignalSemaphores.data(),
                                      fSharedContext->isProtected());
+    fWaitSemaphores.clear();
+    fSignalSemaphores.clear();
     if (!submitted) {
         // Destroy the fence or else we will try to wait forever for it to finish.
         VULKAN_CALL(interface, DestroyFence(device, fSubmitFence, nullptr));

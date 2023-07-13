@@ -60,6 +60,11 @@ private:
     void begin();
     void end();
 
+    void addWaitSemaphores(size_t numWaitSemaphores,
+                           const BackendSemaphore* waitSemaphores) override;
+    void addSignalSemaphores(size_t numWaitSemaphores,
+                             const BackendSemaphore* signalSemaphores) override;
+
     bool onAddRenderPass(const RenderPassDesc&,
                         const Texture* colorTexture,
                         const Texture* resolveTexture,
@@ -168,6 +173,10 @@ private:
     const VulkanGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
 
     VkFence fSubmitFence = VK_NULL_HANDLE;
+
+    // Current semaphores
+    skia_private::STArray<1, VkSemaphore> fWaitSemaphores;
+    skia_private::STArray<1, VkSemaphore> fSignalSemaphores;
 
     // Tracking of memory barriers so that we can submit them all in a batch together.
     skia_private::STArray<1, VkBufferMemoryBarrier> fBufferBarriers;
