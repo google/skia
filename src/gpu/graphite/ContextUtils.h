@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/PipelineDataCache.h"
 
 #include <optional>
+#include <tuple>
 
 class SkColorInfo;
 class SkM44;

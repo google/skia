@@ -11,6 +11,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GpuTypes.h"
 
+#include <tuple>
+#include <utility>
+
 enum SkColorType : int;
 class SkImage;
 struct SkSamplingOptions;

@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include <array>
+#include <tuple>
 #include <vector>
 
 namespace skgpu::graphite {

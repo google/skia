@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/TextureProxyView.h"
 
 #include <functional>
+#include <tuple>
 
 class SkBitmap;
 enum SkColorType : int;
