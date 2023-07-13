@@ -44,13 +44,10 @@ skia_cc_library(
     ],
     deps = [
         ":gm",
-        "//gm/surface_factory",
+        "//gm/surface_manager",
         "//tools:hash_and_encode",
         "//tools/timer",  # Required by animatedimageblurs.cpp.
-    ] + select({
-        "//src/gpu:has_gpu_backend": ["//tools/gpu:utils"],
-        "//conditions:default": [],
-    }),
+    ],
 )
 
 CPU_GMS = [
@@ -480,25 +477,48 @@ CPU_GMS = [
     # "yuvtorgbsubset.cpp",
 ]
 
-# buildifier: disable=unused-variable
 GPU_GMS = [
     # TODO(lovisolo): Incomplete list. Some commented out files in CPU_GMS probably belong here.
-    "aarecteffect.cpp",
+    # "aarecteffect.cpp",  # ./include/core/SkRefCnt.h:41: fatal error: "assert(this->getRefCnt() == 1)"
     "anisotropic.cpp",
     # "asyncrescaleandread.cpp",  # ./include/core/SkRefCnt.h:41: fatal error: "assert(this->getRefCnt() == 1)"
-    "attributes.cpp",
+    # "attributes.cpp",  # ./include/core/SkRefCnt.h:41: fatal error: "assert(this->getRefCnt() == 1)"
+    # "beziereffects.cpp",  # ./include/core/SkRefCnt.h:41: fatal error: "assert(this->getRefCnt() == 1)"
+    # "clockwise.cpp",  # ./include/core/SkRefCnt.h:41: fatal error: "assert(this->getRefCnt() == 1)"
 ]
 
 # Sample invocation:
 #
-#     $ bazel run --config=linux_rbe //gm:cpu_test
+#     $ bazel run --config=linux_rbe //gm:cpu_8888_test
 #
 # Then inspect the PNG and JSON files produced by the GMs:
 #
-#     $ unzip -l bazel-testlogs/gm/cpu_test/test.outputs/outputs.zip
+#     $ unzip -l bazel-testlogs/gm/cpu_8888_test/test.outputs/outputs.zip
 cc_test_with_flags(
-    name = "cpu_test",
+    name = "cpu_8888_test",
     srcs = ["BazelGMRunner.cpp"] + CPU_GMS,
+    args = [
+        "--config",
+        "8888",
+    ],
+    data = ["//resources"],
+    set_flags = {
+        "enable_sksl": ["True"],
+        "include_decoder": [
+            "gif_decode_codec",
+            "webp_decode_codec",
+        ],
+    },
+    deps = [":tests_base"],
+)
+
+cc_test_with_flags(
+    name = "gpu_gles_test",
+    srcs = ["BazelGMRunner.cpp"] + GPU_GMS,
+    args = [
+        "--config",
+        "gles",
+    ],
     data = ["//resources"],
     set_flags = {
         "enable_sksl": ["True"],
@@ -537,3 +557,20 @@ cc_test_with_flags(
         "565",
     ]
 ]
+
+# Does not work because BazelGMRunner.cpp can only create CPU-backed SkCanvases at this time
+# (the test passes but the GMs will be skipped).
+android_gm_test(
+    name = "gpu_gles_android_test",
+    srcs = GPU_GMS,
+    config = "gles",
+    flags = {
+        "include_decoder": [
+            "png_decode_codec",
+            "webp_decode_codec",
+        ],
+    },
+    requires_condition = "//src/gpu:gl_backend",
+    requires_resources_dir = True,
+    deps = [":tests_base"],
+)

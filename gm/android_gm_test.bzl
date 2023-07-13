@@ -7,6 +7,7 @@ load("//bazel:android_test.bzl", "android_test")
 _KNOWN_CONFIGS = [
     "8888",
     "565",
+    "gles",
 ]
 
 def android_gm_test(config, extra_args = [], **kwargs):

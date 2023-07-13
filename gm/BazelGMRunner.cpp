@@ -9,7 +9,7 @@
  */
 
 #include "gm/gm.h"
-#include "gm/surface_factory/SurfaceFactory.h"
+#include "gm/surface_manager/SurfaceManager.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -56,7 +56,7 @@ static DEFINE_string(surfaceConfig,
                      "",
                      "Name of the Surface configuration to use (e.g. \"8888\"). This determines "
                      "how we construct the SkSurface from which we get the SkCanvas that GMs will "
-                     "draw on. See file //gm/surface_factory/SurfaceFactory.h for details.");
+                     "draw on. See file //gm/surface_manager/SurfaceManager.h for details.");
 
 // Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files. Returns an
 // empty string on success, or an error message in the case of failures.
@@ -102,6 +102,19 @@ static std::string now() {
     std::ostringstream oss;
     oss << std::put_time(now, "%Y-%m-%d %H:%M:%S UTC");
     return oss.str();
+}
+
+static std::string draw_result_to_string(skiagm::DrawResult result) {
+    switch (result) {
+        case skiagm::DrawResult::kOk:
+            return "Ok";
+        case skiagm::DrawResult::kFail:
+            return "Fail";
+        case skiagm::DrawResult::kSkip:
+            return "Skip";
+        default:
+            return "Unknown";
+    }
 }
 
 int main(int argc, char** argv) {
@@ -161,38 +174,45 @@ int main(int argc, char** argv) {
     int numImagesWritten = 0;
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(f());
-        SkDebugf("[%s] Drawing GM: %s\n", now().c_str(), gm->getName());
+        SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName());
 
         // Create surface and canvas.
-        sk_sp<SkSurface> surface =
-                make_surface(config, gm->getISize().width(), gm->getISize().height());
-        if (surface == nullptr) {
+        std::unique_ptr<SurfaceManager> surface_manager =
+                SurfaceManager::FromConfig(config, gm->getISize().width(), gm->getISize().height());
+        if (surface_manager == nullptr) {
             SK_ABORT("unknown --surfaceConfig flag value: %s", config.c_str());
         }
-        SkCanvas* canvas = surface->getCanvas();
+        SkCanvas* canvas = surface_manager->getSurface()->getCanvas();
 
-        // Draw GM into canvas.
+        // Set up GPU.
+        SkDebugf("[%s]     Setting up GPU...\n", now().c_str());
         SkString msg;
-        skiagm::DrawResult result = gm->draw(canvas, &msg);
+        skiagm::DrawResult result = gm->gpuSetup(canvas, &msg);
+
+        // Draw GM into canvas if GPU setup was successful.
+        if (result == skiagm::DrawResult::kOk) {
+            SkDebugf("[%s]     Drawing GM...\n", now().c_str());
+            result = gm->draw(canvas, &msg);
+        }
+
+        // Flush surface if the GM was successful.
+        if (result == skiagm::DrawResult::kOk) {
+            SkDebugf("[%s]     Flushing surface...\n", now().c_str());
+            surface_manager->flush();
+        }
+
+        // Keep track of failures. We will exit with a non-zero code if there are any.
+        if (result == skiagm::DrawResult::kFail) {
+            failures = true;
+        }
 
         // Report GM result and optional message.
-        std::string resultAsStr;
-        if (result == skiagm::DrawResult::kOk) {
-            resultAsStr = "OK";
-        } else if (result == skiagm::DrawResult::kFail) {
-            resultAsStr = "Fail";
-            failures = true;
-        } else if (result == skiagm::DrawResult::kSkip) {
-            resultAsStr = "Skip.";
-        } else {
-            resultAsStr = "Unknown.";
-        }
-        SkDebugf("[%s] Result: %s\n", now().c_str(), resultAsStr.c_str());
+        SkDebugf("[%s]     Result: %s\n", now().c_str(), draw_result_to_string(result).c_str());
         if (!msg.isEmpty()) {
-            SkDebugf("[%s] Message: \"%s\"\n", now().c_str(), msg.c_str());
+            SkDebugf("[%s]     Message: \"%s\"\n", now().c_str(), msg.c_str());
         }
 
-        // Maybe save PNG and JSON file with MD5 hash to disk.
+        // Save PNG and JSON file with MD5 hash to disk if the GM was successful.
         if (result == skiagm::DrawResult::kOk) {
             std::string name = std::string(gm->getName());
             SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
@@ -200,7 +220,7 @@ int main(int argc, char** argv) {
 
             SkBitmap bitmap;
             bitmap.allocPixelsFlags(canvas->imageInfo(), SkBitmap::kZeroPixels_AllocFlag);
-            surface->readPixels(bitmap, 0, 0);
+            surface_manager->getSurface()->readPixels(bitmap, 0, 0);
 
             std::string pngAndJSONResult = write_png_and_json_files(
                     gm->getName(), config, bitmap, pngPath.c_str(), jsonPath.c_str());
@@ -209,8 +229,8 @@ int main(int argc, char** argv) {
                 failures = true;
             } else {
                 numImagesWritten++;
-                SkDebugf("[%s] PNG file written to: %s\n", now().c_str(), pngPath.c_str());
-                SkDebugf("[%s] JSON file written to: %s\n", now().c_str(), jsonPath.c_str());
+                SkDebugf("[%s]     PNG file written to: %s\n", now().c_str(), pngPath.c_str());
+                SkDebugf("[%s]     JSON file written to: %s\n", now().c_str(), jsonPath.c_str());
             }
         }
     }
