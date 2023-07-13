@@ -17,11 +17,16 @@ import("../third_party.gni")
 
 if (skia_enable_vello_shaders) {
   bazel_args = []
-  if (is_mac && target_cpu == "arm64") {
-    # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
-    # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
-    # right thing but may not be the right build configuration in the long run.
-    bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+  if (is_mac) {
+    if (host_cpu == "arm64") {
+      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+    }
+    if (target_cpu == "arm64") {
+      bazel_args += [
+        "--platforms=//bazel/platform:mac_arm64_hermetic",
+        "--cc_output_directory_tag=mac_arm64",
+      ]
+    }
   }
   if (!is_debug) {
     bazel_args += [ "--compilation_mode=opt" ]

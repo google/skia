@@ -68,6 +68,23 @@ toolchain(
     toolchain_type = "@rules_cc//cc:toolchain_type",
 )
 
+# Cross compilation toolchain for an Intel Mac host and Apple silicon target
+toolchain(
+    name = "clang_host_mac_x64_target_mac_arm64_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:macos",
+        "@platforms//cpu:x86_64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:macos",
+        "@platforms//cpu:arm64",
+        "//bazel/platform:use_hermetic_toolchain",
+    ],
+    toolchain = ":mac_target_arm64",
+    # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
+    toolchain_type = "@rules_cc//cc:toolchain_type",
+)
+
 # Based on:
 # https://skia.googlesource.com/skcms/+/ba39d81f9797aa973bdf01aa6b0363b280352fba/toolchain/BUILD.bazel#28
 toolchain(
@@ -178,6 +195,11 @@ provide_mac_toolchain_config(
     name = "mac_toolchain_config",
 )
 
+provide_mac_toolchain_config(
+    name = "mac_arm64_toolchain_config",
+    cpu = "arm64",
+)
+
 # https://bazel.build/reference/be/c-cpp#cc_toolchain
 cc_toolchain(
     name = "linux_amd64_host",
@@ -207,6 +229,20 @@ cc_toolchain(
     strip_files = ":not_implemented",
     supports_param_files = False,
     toolchain_config = ":mac_toolchain_config",
+)
+
+cc_toolchain(
+    name = "mac_target_arm64",
+    all_files = ":all_mac_files",  # Apparently also used to compile objc code
+    ar_files = ":archive_mac_files",
+    compiler_files = ":compile_mac_files",
+    dwp_files = ":not_implemented",
+    linker_files = ":link_mac_files",
+    module_map = "@clang_mac//:generated_module_map",
+    objcopy_files = ":not_implemented",
+    strip_files = ":not_implemented",
+    supports_param_files = False,
+    toolchain_config = ":mac_arm64_toolchain_config",
 )
 
 filegroup(

@@ -255,6 +255,7 @@ rust_register_toolchains(
         # The rust rules validate a toolchain by sha256 hash, as listed in https://github.com/bazelbuild/rules_rust/blob/dab425760656c449d3a0f73c490be92c240b6ef2/rust/known_shas.bzl
         "1.68.2",
     ],
+    extra_target_triples = ["aarch64-apple-darwin"],
 )
 
 # https://bazelbuild.github.io/rules_rust/crate_universe.html
