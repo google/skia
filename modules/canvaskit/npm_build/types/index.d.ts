@@ -3068,7 +3068,7 @@ export interface TonalColorsOutput {
     spot: Color;
 }
 
-export interface TypefaceFontProvider extends EmbindObject<"TypefaceFontProvider"> {
+export interface TypefaceFontProvider extends FontMgr {
     /**
      * Registers a given typeface with the given family name (ignoring whatever name the
      * typface has for itself).

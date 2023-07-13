@@ -420,6 +420,7 @@ var CanvasKit = {
     FromData: function() {},
     countFamilies: function() {},
     getFamilyName: function() {},
+    matchFamilyStyle: function() {},
 
     // private API
     _makeTypefaceFromData: function() {},
