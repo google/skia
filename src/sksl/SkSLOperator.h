@@ -96,11 +96,14 @@ public:
     // Returns the operator name without any surrounding whitespace.
     std::string_view tightOperatorName() const;
 
-    // Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
+    // Returns true if op is `=` or any compound-assignment operator (`+=`, `-=`, etc.)
     bool isAssignment() const;
 
-    // Given a compound assignment operator, returns the non-assignment version of the operator
-    // (e.g. '+=' becomes '+')
+    // Returns true if op is any compound-assignment operator (`+=`, `-=`, etc.) but false for `=`
+    bool isCompoundAssignment() const;
+
+    // Given a compound-assignment operator, returns the non-assignment version of the operator
+    // (e.g. `+=` becomes `+`)
     Operator removeAssignment() const;
 
     /**
