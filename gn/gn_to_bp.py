@@ -783,8 +783,7 @@ with open('Android.bp', 'w') as Android_bp:
 
     'x86_srcs':      bpfmt(16, strip_headers(defs['ssse3'] +
                                              defs['avx'  ] +
-                                             defs['hsw'  ] +
-                                             defs['skx'  ])),
+                                             defs['hsw'  ])),
 
     'gm_includes'       : bpfmt(8, gm_includes),
     'gm_srcs'           : bpfmt(8, gm_srcs),

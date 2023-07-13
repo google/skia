@@ -78,15 +78,6 @@ skia_cc_library(
     ],
 )
 
-skia_cc_library(
-    name = "skx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#AVX-512
-    srcs = ["SkOpts_skx.cpp"],
-    copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
-    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
-    textual_hdrs = OPTS_HDRS,
-    deps = ["@skia_user_config//:user_config"],
-)
-
 skia_cc_deps(
     name = "deps",
     visibility = [
@@ -97,7 +88,6 @@ skia_cc_deps(
         ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
             ":avx",
             ":hsw",
-            ":skx",
             ":ssse3",
         ],
         # We have no architecture specific optimizations for ARM64 right now

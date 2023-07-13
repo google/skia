@@ -9,4 +9,3 @@ _src = get_path_info("../src", "abspath")
 ssse3 = [ "$_src/opts/SkOpts_ssse3.cpp" ]
 avx = [ "$_src/opts/SkOpts_avx.cpp" ]
 hsw = [ "$_src/opts/SkOpts_hsw.cpp" ]
-skx = [ "$_src/opts/SkOpts_skx.cpp" ]
