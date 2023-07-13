@@ -28,35 +28,27 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     _array[_skTemp3].w = 2.0;
     let _skTemp4 = Z_i();
     let _skTemp5 = _skTemp4;
+    _array[_skTemp5].y = _array[_skTemp5].y * 4.0;
     let _skTemp6 = Z_i();
     let _skTemp7 = _skTemp6;
-    _array[_skTemp5].y = _array[_skTemp7].y * 4.0;
+    _array[_skTemp7] = vec4<f32>((_array[_skTemp7].yzw * mat3x3<f32>(0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5)), _array[_skTemp7].x).wxyz;
     let _skTemp8 = Z_i();
     let _skTemp9 = _skTemp8;
+    _array[_skTemp9] = (_array[_skTemp9].zywx + vec4<f32>(0.25, 0.0, 0.0, 0.75)).wyxz;
     let _skTemp10 = Z_i();
     let _skTemp11 = _skTemp10;
-    _array[_skTemp9] = vec4<f32>((_array[_skTemp11].yzw * mat3x3<f32>(0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5)), _array[_skTemp9].x).wxyz;
-    let _skTemp12 = Z_i();
-    let _skTemp13 = _skTemp12;
-    let _skTemp14 = Z_i();
-    let _skTemp15 = _skTemp14;
-    _array[_skTemp13] = (_array[_skTemp15].zywx + vec4<f32>(0.25, 0.0, 0.0, 0.75)).wyxz;
-    let _skTemp16 = Z_i();
-    let _skTemp17 = _skTemp16;
-    let _skTemp18 = Z_i();
-    let _skTemp19 = _skTemp18;
-    var _skTemp20: f32;
-    let _skTemp21 = Z_i();
-    let _skTemp22 = _skTemp21;
-    if _array[_skTemp22].w <= 1.0 {
-      let _skTemp23 = Z_i();
-      let _skTemp24 = _skTemp23;
-      _skTemp20 = _array[_skTemp24].z;
+    var _skTemp12: f32;
+    let _skTemp13 = Z_i();
+    let _skTemp14 = _skTemp13;
+    if _array[_skTemp14].w <= 1.0 {
+      let _skTemp15 = Z_i();
+      let _skTemp16 = _skTemp15;
+      _skTemp12 = _array[_skTemp16].z;
     } else {
-      let _skTemp25 = Z_i();
-      _skTemp20 = f32(_skTemp25);
+      let _skTemp17 = Z_i();
+      _skTemp12 = f32(_skTemp17);
     }
-    _array[_skTemp17].x = _array[_skTemp19].x + _skTemp20;
+    _array[_skTemp11].x = _array[_skTemp11].x + _skTemp12;
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((gAccessCount == 8) && all(_array[0] == vec4<f32>(1.0, 1.0, 0.25, 1.0))));
   }
 }

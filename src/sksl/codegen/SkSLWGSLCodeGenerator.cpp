@@ -443,12 +443,6 @@ class WGSLCodeGenerator::LValue {
 public:
     virtual ~LValue() = default;
 
-    // Returns a pointer to the lvalue, if possible. If the lvalue cannot be directly referenced
-    // by a pointer (e.g. vector swizzles), returns "".
-    virtual std::string getPointer() {
-        return "";
-    }
-
     // Returns a WGSL expression that loads from the lvalue with no side effects.
     // (e.g. `array[index].field`)
     virtual std::string load() = 0;
@@ -463,10 +457,6 @@ public:
     // `name` must be a WGSL expression with no side-effects, which we can safely take the address
     // of. (e.g. `array[index].field` would be valid, but `array[Func()]` or `vector.x` are not.)
     PointerLValue(std::string name) : fName(std::move(name)) {}
-
-    std::string getPointer() override {
-        return std::string("&(") + fName + std::string(")");
-    }
 
     std::string load() override {
         return fName;
@@ -485,10 +475,6 @@ public:
     // `name` must be a WGSL expression with no side-effects that points to a single component of a
     // WGSL vector.
     VectorComponentLValue(std::string name) : fName(std::move(name)) {}
-
-    std::string getPointer() override {
-        return "";
-    }
 
     std::string load() override {
         return fName;
@@ -552,10 +538,6 @@ public:
                 fReintegrationSwizzle[index] = originalValueComponentIndex++;
             }
         }
-    }
-
-    std::string getPointer() override {
-        return "";
     }
 
     std::string load() override {
@@ -1621,8 +1603,11 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
             result = this->assembleExpression(right, Precedence::kAssignment);
         } else {
             // Evaluate the right-hand side of compound-assignment (`a += b` --> `a + b`).
-            result = this->assembleBinaryExpression(left, op.removeAssignment(), right, resultType,
-                                                    Precedence::kAssignment);
+            op = op.removeAssignment();
+
+            result += lvalue->load();
+            result += operator_name(op);
+            result += this->assembleExpression(right, op.getBinaryPrecedence());
         }
 
         // Emit the assignment statement (`a = a + b`).
