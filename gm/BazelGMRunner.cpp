@@ -9,6 +9,7 @@
  */
 
 #include "gm/gm.h"
+#include "gm/surface_factory/SurfaceFactory.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -16,6 +17,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkMD5.h"
 #include "src/utils/SkJSONWriter.h"
@@ -30,7 +32,6 @@
 
 struct tm;
 
-// TODO(lovisolo): Add flag --config.
 // TODO(lovisolo): Add flag --skip.
 // TODO(lovisolo): Add flag --omitDigestIfHashInFile (provides the known hashes file).
 
@@ -49,18 +50,18 @@ static DEFINE_string(outputDir,
                      "(e.g. \"bazel test //path/to:test\") as it defaults to "
                      "$TEST_UNDECLARED_OUTPUTS_DIR.");
 
-// Simulates a RasterSink[1] with 8888 color type and sRGB color space.
-//
-// [1]
-// https://skia.googlesource.com/skia/+/4a8198df9c6b0529be35c7070151efd5968bb9b6/dm/DMSrcSink.h#539
-static sk_sp<SkSurface> make_surface(int width, int height) {
-    return SkSurfaces::Raster(
-            SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType, SkColorSpace::MakeSRGB()));
-}
+// We named this flag --surfaceConfig rather than --config to avoid confusion with the --config
+// Bazel flag.
+static DEFINE_string(surfaceConfig,
+                     "",
+                     "Name of the Surface configuration to use (e.g. \"8888\"). This determines "
+                     "how we construct the SkSurface from which we get the SkCanvas that GMs will "
+                     "draw on. See file //gm/surface_factory/SurfaceFactory.h for details.");
 
 // Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files. Returns an
 // empty string on success, or an error message in the case of failures.
 static std::string write_png_and_json_files(std::string name,
+                                            std::string config,
                                             SkBitmap& bitmap,
                                             const char* pngPath,
                                             const char* jsonPath) {
@@ -88,7 +89,7 @@ static std::string write_png_and_json_files(std::string name,
     jsonWriter.beginObject();  // Root object.
     jsonWriter.appendString("name", name);
     jsonWriter.appendString("md5", md5);
-    // TODO(lovisolo): Add config name (requires defining the --config flag first).
+    jsonWriter.appendString("config", config);
     jsonWriter.endObject();
 
     return "";
@@ -141,15 +142,33 @@ int main(int argc, char** argv) {
         SkDebugf("Flag --outputDir takes one single value, got %d.\n", FLAGS_outputDir.size());
         return 1;
     }
+    if (FLAGS_surfaceConfig.isEmpty()) {
+        SkDebugf("Flag --surfaceConfig cannot be empty.\n");
+        return 1;
+    }
+    if (FLAGS_surfaceConfig.size() > 1) {
+        SkDebugf("Flag --surfaceConfig takes one single value, got %d.\n",
+                 FLAGS_surfaceConfig.size());
+        return 1;
+    }
+
+    std::string outputDir =
+            FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
+    std::string config(FLAGS_surfaceConfig[0]);
 
     // Iterate over all registered GMs.
     bool failures = false;
+    int numImagesWritten = 0;
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(f());
         SkDebugf("[%s] Drawing GM: %s\n", now().c_str(), gm->getName());
 
         // Create surface and canvas.
-        sk_sp<SkSurface> surface = make_surface(gm->getISize().width(), gm->getISize().height());
+        sk_sp<SkSurface> surface =
+                make_surface(config, gm->getISize().width(), gm->getISize().height());
+        if (surface == nullptr) {
+            SK_ABORT("unknown --surfaceConfig flag value: %s", config.c_str());
+        }
         SkCanvas* canvas = surface->getCanvas();
 
         // Draw GM into canvas.
@@ -176,8 +195,6 @@ int main(int argc, char** argv) {
         // Maybe save PNG and JSON file with MD5 hash to disk.
         if (result == skiagm::DrawResult::kOk) {
             std::string name = std::string(gm->getName());
-            std::string outputDir =
-                    FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
             SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
             SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
 
@@ -186,11 +203,12 @@ int main(int argc, char** argv) {
             surface->readPixels(bitmap, 0, 0);
 
             std::string pngAndJSONResult = write_png_and_json_files(
-                    gm->getName(), bitmap, pngPath.c_str(), jsonPath.c_str());
+                    gm->getName(), config, bitmap, pngPath.c_str(), jsonPath.c_str());
             if (pngAndJSONResult != "") {
                 SkDebugf("[%s] %s\n", now().c_str(), pngAndJSONResult.c_str());
                 failures = true;
             } else {
+                numImagesWritten++;
                 SkDebugf("[%s] PNG file written to: %s\n", now().c_str(), pngPath.c_str());
                 SkDebugf("[%s] JSON file written to: %s\n", now().c_str(), jsonPath.c_str());
             }
@@ -199,10 +217,7 @@ int main(int argc, char** argv) {
 
     // TODO(lovisolo): If running under Bazel, print command to display output files.
 
-    if (failures) {
-        SkDebugf("FAIL\n");
-        return 1;
-    }
-    SkDebugf("PASS\n");
-    return 0;
+    SkDebugf(failures ? "FAIL\n" : "PASS\n");
+    SkDebugf("%d images written to %s.\n", numImagesWritten, outputDir.c_str());
+    return failures ? 1 : 0;
 }

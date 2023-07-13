@@ -1,0 +1,18 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "surface_factory",
+    testonly = True,
+    srcs = select({
+        "//src/gpu:gl_backend": ["GaneshGLSurfaceFactory.cpp"],
+        "//src/gpu:vulkan_backend": ["GaneshVulkanSurfaceFactory.cpp"],
+        "//conditions:default": ["RasterSurfaceFactory.cpp"],
+    }),
+    hdrs = ["SurfaceFactory.h"],
+    visibility = ["//gm:__pkg__"],
+    deps = ["//:skia_internal"],
+)
