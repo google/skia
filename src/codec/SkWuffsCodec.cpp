@@ -119,6 +119,21 @@ static SkCodecAnimation::DisposalMethod wuffs_disposal_to_skia_disposal(
     }
 }
 
+static bool wuffs_status_means_incomplete_input(const char* status) {
+    if (status == wuffs_base__suspension__short_read) {
+        return true;
+    }
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT >= 3390
+    // Commit count 3390 is Wuffs v0.3.1, which added "truncated input" errors
+    // to fix https://github.com/google/wuffs/issues/96
+    if ((status == wuffs_lzw__error__truncated_input) ||
+        (status == wuffs_gif__error__truncated_input)) {
+        return true;
+    }
+#endif
+    return false;
+}
+
 static SkAlphaType to_alpha_type(bool opaque) {
     return opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
 }
@@ -143,7 +158,7 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
         status = decoder->decode_image_config(imgcfg, b);
         if (status.repr == nullptr) {
             break;
-        } else if (status.repr != wuffs_base__suspension__short_read) {
+        } else if (!wuffs_status_means_incomplete_input(status.repr)) {
             SkCodecPrintf("decode_image_config: %s", status.message());
             return SkCodec::kErrorInInput;
         } else if (!fill_buffer(b, s)) {
@@ -438,7 +453,7 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     }
 
     const char* status = this->decodeFrameConfig();
-    if (status == wuffs_base__suspension__short_read) {
+    if (wuffs_status_means_incomplete_input(status)) {
         return SkCodec::kIncompleteInput;
     } else if (status != nullptr) {
         SkCodecPrintf("decodeFrameConfig: %s", status);
@@ -602,7 +617,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
 SkCodec::Result SkWuffsCodec::onIncrementalDecodeOnePass() {
     const char* status = this->decodeFrame();
     if (status != nullptr) {
-        if (status == wuffs_base__suspension__short_read) {
+        if (wuffs_status_means_incomplete_input(status)) {
             return SkCodec::kIncompleteInput;
         } else {
             SkCodecPrintf("decodeFrame: %s", status);
@@ -627,7 +642,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         alphaType = to_alpha_type(f->reportedAlpha() == SkEncodedInfo::kOpaque_Alpha);
     }
     if (status != nullptr) {
-        if (status == wuffs_base__suspension__short_read) {
+        if (wuffs_status_means_incomplete_input(status)) {
             result = SkCodec::kIncompleteInput;
         } else {
             SkCodecPrintf("decodeFrame: %s", status);
