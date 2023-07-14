@@ -477,7 +477,7 @@ GraphiteVulkanWindowContext::BackbufferInfo* GraphiteVulkanWindowContext::getAva
 }
 
 sk_sp<SkSurface> GraphiteVulkanWindowContext::getBackbufferSurface() {
-    BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
+    [[maybe_unused]] BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
     SkASSERT(backbuffer);
 
     // TODO: Create wait semaphore and acquire next swapchain surface
