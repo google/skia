@@ -113,6 +113,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrImageContext.cpp"
   "src/gpu/ganesh/GrImageUtils.cpp"
   "src/gpu/ganesh/GrMemoryPool.cpp"
+  "src/gpu/ganesh/GrMeshBuffers.cpp"
   "src/gpu/ganesh/GrProcessor.cpp"
   "src/gpu/ganesh/GrPromiseImageTexture.cpp"
   "src/gpu/ganesh/GrRecordingContext.cpp"

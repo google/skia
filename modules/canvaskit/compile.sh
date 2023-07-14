@@ -241,6 +241,7 @@ echo "Compiling"
   skia_use_wuffs=true \
   skia_use_zlib=true \
   skia_enable_ganesh=${ENABLE_GANESH} \
+  skia_enable_sksl=${ENABLE_RT_SHADER} \
   skia_build_for_debugger=${DEBUGGER_ENABLED} \
   skia_enable_sksl_tracing=${ENABLE_SKSL_TRACE} \
   \
