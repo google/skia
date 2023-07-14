@@ -247,8 +247,7 @@ Java_org_skia_skottie_SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
     SkAutoCanvasRestore acr(canvas, true);
     SkRect bounds = SkRect::MakeWH(width, height);
     skottieAnimation->mAnimation->render(canvas, &bounds);
-
-    canvas->flush();
+    dContext->flushAndSubmit();
     return true;
 }
 
