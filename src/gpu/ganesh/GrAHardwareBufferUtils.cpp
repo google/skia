@@ -350,7 +350,7 @@ static GrBackendTexture make_vk_backend_texture(
     if (!backendFormat.asVkFormat(&format)) {
         SkDebugf("asVkFormat failed (valid: %d, backend: %u)",
                  backendFormat.isValid(),
-                 backendFormat.backend());
+                 (unsigned)backendFormat.backend());
         return GrBackendTexture();
     }
 
