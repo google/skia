@@ -1011,15 +1011,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 	if b.matchOs("Mac") && b.cpu() {
 		// skia:6992
-		skip("pic-8888",       "gm", ALL, "encode-platform")
+		skip("pic-8888", "gm", ALL, "encode-platform")
 		skip("serialize-8888", "gm", ALL, "encode-platform")
 	}
 
 	// skia:14411 -- images are visibly identical, not interested in diagnosing non-determinism here
-	skip("pic-8888",       "gm", ALL, "perlinnoise_layered")
+	skip("pic-8888", "gm", ALL, "perlinnoise_layered")
 	skip("serialize-8888", "gm", ALL, "perlinnoise_layered")
 	if b.gpu("IntelIrisXe") && !b.extraConfig("Vulkan") {
-		skip(ALL, "gm", ALL, "perlinnoise_layered")  // skia:14411
+		skip(ALL, "gm", ALL, "perlinnoise_layered") // skia:14411
 	}
 
 	// skia:4769
@@ -1131,11 +1131,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLStructFieldFolding_GPU") // skia:13393
 	}
 
-	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") {        // disable broken tests on Adreno 5/6xx Vulkan
-		skip(ALL, "tests", ALL, "SkSLInoutParameters_GPU")          // skia:12869
-		skip(ALL, "tests", ALL, "SkSLOutParams_GPU")                // skia:11919
-		skip(ALL, "tests", ALL, "SkSLOutParamsDoubleSwizzle_GPU")   // skia:11919
-		skip(ALL, "tests", ALL, "SkSLOutParamsNoInline_GPU")        // skia:11919
+	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx Vulkan
+		skip(ALL, "tests", ALL, "SkSLInoutParameters_GPU")        // skia:12869
+		skip(ALL, "tests", ALL, "SkSLOutParams_GPU")              // skia:11919
+		skip(ALL, "tests", ALL, "SkSLOutParamsDoubleSwizzle_GPU") // skia:11919
+		skip(ALL, "tests", ALL, "SkSLOutParamsNoInline_GPU")      // skia:11919
 		skip(ALL, "tests", ALL, "SkSLOutParamsFunctionCallInArgument")
 	}
 
@@ -1256,6 +1256,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU") // skia:14177
 	}
 
+	if b.matchOs("Win") && (b.matchGpu("Intel") || b.extraConfig("ANGLE")) {
+		skip(ALL, "tests", ALL, "SkSLSwizzleAsLValueES3_GPU") // https://anglebug.com/8260
+	}
+
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
 		skip(ALL, "gm", ALL, "blurcircles2") // skia:13342
 		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_GPU")
@@ -1295,7 +1299,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")
 	}
 
-	if (b.gpu("RadeonR9M470X") && b.extraConfig("ANGLE")) {
+	if b.gpu("RadeonR9M470X") && b.extraConfig("ANGLE") {
 		// skbug:14293 - ANGLE D3D9 ES2 has flaky texture sampling that leads to fuzzy diff errors
 		skip(ALL, "tests", ALL, "FilterResult")
 		// skbug:13815 - Flaky failures on ANGLE D3D9 ES2
@@ -1541,7 +1545,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--norun_paragraph_tests_needing_system_fonts")
 		}
 	} else {
-	    args = append(args, "--nonativeFonts")
+		args = append(args, "--nonativeFonts")
 	}
 
 	if b.extraConfig("GDI") {
