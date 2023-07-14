@@ -18,7 +18,6 @@ SHADER_FILES = [
     "SkCoordClampShader.h",
     "SkEmptyShader.cpp",
     "SkEmptyShader.h",
-    "SkGainmapShader.cpp",
     "SkImageShader.cpp",
     "SkImageShader.h",
     "SkLocalMatrixShader.cpp",
@@ -58,7 +57,10 @@ bool_flag(
 
 skia_filegroup(
     name = "sksl_srcs",
-    srcs = ["SkRuntimeShader.cpp"],
+    srcs = [
+        "SkGainmapShader.cpp",
+        "SkRuntimeShader.cpp",
+    ],
 )
 
 skia_filegroup(

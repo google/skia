@@ -22,6 +22,3 @@ skia_opts = {
   avx_sources = avx
   hsw_sources = hsw
 }
-
-# TODO(kjlubick) fill this in and remove the temp list
-skia_needs_sksl_sources = []

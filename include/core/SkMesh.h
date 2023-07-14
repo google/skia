@@ -8,23 +8,23 @@
 #ifndef SkMesh_DEFINED
 #define SkMesh_DEFINED
 
-#include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_SKSL
-#include "include/core/SkAlphaType.h"
+#include "include/core/SkData.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
 class GrDirectContext;
 class SkColorSpace;
-class SkData;
+enum SkAlphaType : int;
 
 namespace SkSL { struct Program; }
 
@@ -417,7 +417,5 @@ private:
 };
 
 struct SkMesh::Result { SkMesh mesh; SkString error; };
-
-#endif  // SK_ENABLE_SKSL
 
 #endif
