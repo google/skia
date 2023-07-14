@@ -44,17 +44,11 @@ private:
     SK_FLATTENABLE_HOOKS(SkCropImageFilter)
     static sk_sp<SkFlattenable> LegacyTileCreateProc(SkReadBuffer&);
 
-#if defined(SK_USE_LEGACY_TILE_IMAGEFILTER)
-    friend class SkTileImageFilter; // for LegacyTileCreateProc
-#endif
-
     bool onAffectsTransparentBlack() const override { return fTileMode != SkTileMode::kDecal; }
 
-#if !defined(SK_USE_LEGACY_TILE_IMAGEFILTER)
     // Disable recursing in affectsTransparentBlack() if we hit a Crop.
     // TODO(skbug.com/14611): Automatically infer this from the output bounds being finite.
     bool ignoreInputsAffectsTransparentBlack() const override { return true; }
-#endif
 
     skif::FilterResult onFilterImage(const skif::Context& context) const override;
 
@@ -105,7 +99,6 @@ sk_sp<SkImageFilter> SkMakeCropImageFilter(const SkRect& rect,
     return sk_sp<SkImageFilter>(new SkCropImageFilter(rect, tileMode, std::move(input)));
 }
 
-#if !defined(SK_USE_LEGACY_TILE_IMAGEFILTER)
 sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
                                           const SkRect& dst,
                                           sk_sp<SkImageFilter> input) {
@@ -115,7 +108,6 @@ sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
     filter = SkMakeCropImageFilter(dst, SkTileMode::kDecal, std::move(filter));
     return filter;
 }
-#endif
 
 void SkRegisterCropImageFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkCropImageFilter);
@@ -263,168 +255,3 @@ SkRect SkCropImageFilter::computeFastBounds(const SkRect& bounds) const {
     }
     return fTileMode == SkTileMode::kDecal ? inputBounds : SkRectPriv::MakeLargeS32();
 }
-
-#if defined(SK_USE_LEGACY_TILE_IMAGEFILTER)
-
-#include "include/core/SkBlendMode.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
-#include "include/core/SkMatrix.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkPoint.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkSamplingOptions.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkTypes.h"
-#include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
-
-namespace {
-
-class SkTileImageFilter final : public SkImageFilter_Base {
-public:
-    SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, sk_sp<SkImageFilter> input)
-            : INHERITED(&input, 1, nullptr)
-            , fSrcRect(srcRect)
-            , fDstRect(dstRect) {}
-
-    SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                           MapDirection, const SkIRect* inputRect) const override;
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
-                               MapDirection, const SkIRect* inputRect) const override;
-    SkRect computeFastBounds(const SkRect& src) const override;
-
-protected:
-    void flatten(SkWriteBuffer& buffer) const override;
-
-    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const override;
-
-private:
-    const char* getTypeName() const override { return "SkTileImageFilter"; }
-    Factory getFactory() const override { return SkCropImageFilter::LegacyTileCreateProc; }
-
-    SkRect fSrcRect;
-    SkRect fDstRect;
-
-    using INHERITED = SkImageFilter_Base;
-};
-
-} // end namespace
-
-
-sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
-                                          const SkRect& dst,
-                                          sk_sp<SkImageFilter> input) {
-    if (!SkIsValidRect(src) || !SkIsValidRect(dst)) {
-        return nullptr;
-    }
-    if (src.contains(dst)) {
-        return SkMakeCropImageFilter(dst, std::move(input));
-    }
-    return sk_sp<SkImageFilter>(new SkTileImageFilter(src, dst, std::move(input)));
-}
-
-void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writeRect(fSrcRect);
-    buffer.writeRect(fDstRect);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(const skif::Context& ctx,
-                                                       SkIPoint* offset) const {
-    SkIPoint inputOffset = SkIPoint::Make(0, 0);
-    sk_sp<SkSpecialImage> input(this->filterInput(0, ctx, &inputOffset));
-    if (!input) {
-        return nullptr;
-    }
-
-    SkRect dstRect;
-    ctx.ctm().mapRect(&dstRect, fDstRect);
-    if (!dstRect.intersect(SkRect::Make(ctx.clipBounds()))) {
-        return nullptr;
-    }
-
-    const SkIRect dstIRect = skif::RoundOut(dstRect);
-    if (!fSrcRect.width() || !fSrcRect.height() || !dstIRect.width() || !dstIRect.height()) {
-        return nullptr;
-    }
-
-    SkRect srcRect;
-    ctx.ctm().mapRect(&srcRect, fSrcRect);
-    SkIRect srcIRect = skif::RoundOut(srcRect);
-    srcIRect.offset(-inputOffset);
-    const SkIRect inputBounds = SkIRect::MakeWH(input->width(), input->height());
-
-    if (!SkIRect::Intersects(srcIRect, inputBounds)) {
-        return nullptr;
-    }
-
-    sk_sp<SkSpecialImage> subset;
-    if (inputBounds.contains(srcIRect)) {
-        subset = input->makeSubset(srcIRect);
-    } else {
-        // The input image doesn't fully cover srcIRect so using it directly would not tile
-        // appropriately. Instead draw to a srcIRect sized surface so that any padded transparency
-        // is present for the correct tiling.
-        sk_sp<SkSpecialSurface> surf = ctx.makeSurface(srcIRect.size());
-        if (!surf) {
-            return nullptr;
-        }
-
-        SkCanvas* canvas = surf->getCanvas();
-        SkASSERT(canvas);
-        canvas->clear(SK_ColorTRANSPARENT); // GPU surfaces are uninitialized
-
-        SkPaint paint;
-        paint.setBlendMode(SkBlendMode::kSrc);
-
-        input->draw(canvas,
-                    SkIntToScalar(inputOffset.x()), SkIntToScalar(inputOffset.y()),
-                    SkSamplingOptions(), &paint);
-
-        subset = surf->makeImageSnapshot();
-    }
-    if (!subset) {
-        return nullptr;
-    }
-    SkASSERT(subset->width() == srcIRect.width());
-    SkASSERT(subset->height() == srcIRect.height());
-
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(dstIRect.size()));
-    if (!surf) {
-        return nullptr;
-    }
-
-    SkCanvas* canvas = surf->getCanvas();
-    SkASSERT(canvas);
-
-    SkPaint paint;
-    paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setShader(subset->asShader(SkTileMode::kRepeat, SkSamplingOptions(), SkMatrix::I()));
-    canvas->translate(-dstRect.fLeft, -dstRect.fTop);
-    canvas->drawRect(dstRect, paint);
-    offset->fX = dstIRect.fLeft;
-    offset->fY = dstIRect.fTop;
-    return surf->makeImageSnapshot();
-}
-
-SkIRect SkTileImageFilter::onFilterNodeBounds(
-        const SkIRect& src, const SkMatrix& ctm, MapDirection dir, const SkIRect* inputRect) const {
-    SkRect rect = kReverse_MapDirection == dir ? fSrcRect : fDstRect;
-    ctm.mapRect(&rect);
-    return rect.roundOut();
-}
-
-SkIRect SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&,
-                                          MapDirection, const SkIRect* inputRect) const {
-    // Don't recurse into inputs.
-    return src;
-}
-
-SkRect SkTileImageFilter::computeFastBounds(const SkRect& src) const {
-    return fDstRect;
-}
-
-#endif // SK_USE_LEGACY_TILE_IMAGEFILTER

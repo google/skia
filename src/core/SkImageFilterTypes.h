@@ -1011,25 +1011,12 @@ public:
         return Context(info, fGaneshContext, fMakeSurfaceDelegate, fMakeImageDelegate);
     }
 
-#if defined(SK_USE_LEGACY_COMPOSE_IMAGEFILTER)
-   Context withNewSource(sk_sp<SkSpecialImage> source, LayerSpace<SkIPoint> origin) const {
-        // TODO: Some legacy image filter implementations assume that the source FilterResult's
-        // origin/transform is at (0,0). To accommodate that, we push the typical origin transform
-        // into the param-to-layer matrix and adjust the desired output.
-        ContextInfo info = fInfo;
-        info.fMapping.applyOrigin(origin);
-        info.fDesiredOutput.offset(-origin);
-        info.fSource = FilterResult(std::move(source));
-        return Context(info, fGaneshContext, fMakeSurfaceDelegate, fMakeImageDelegate);
-    }
-#else
     // Create a new context that matches this context, but with an overridden source.
     Context withNewSource(const FilterResult& source) const {
         ContextInfo info = fInfo;
         info.fSource = source;
         return Context(info, fGaneshContext, fMakeSurfaceDelegate, fMakeImageDelegate);
     }
-#endif
 
 private:
     using MakeSurfaceDelegate = std::function<sk_sp<SkSpecialSurface>(const SkImageInfo& info,
