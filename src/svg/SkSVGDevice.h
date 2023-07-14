@@ -69,9 +69,7 @@ protected:
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
-#ifdef SK_ENABLE_SKSL
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
-#endif
 private:
     SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
     ~SkSVGDevice() override;
