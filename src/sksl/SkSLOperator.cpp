@@ -126,10 +126,6 @@ bool Operator::isAssignment() const {
     }
 }
 
-bool Operator::isCompoundAssignment() const {
-    return this->isAssignment() && this->kind() != Kind::EQ;
-}
-
 Operator Operator::removeAssignment() const {
     switch (this->kind()) {
         case Kind::PLUSEQ:       return Kind::PLUS;

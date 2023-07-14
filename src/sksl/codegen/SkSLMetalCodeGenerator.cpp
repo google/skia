@@ -1873,34 +1873,25 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write("(");
     }
 
-    // Some expressions need to be rewritten from `lhs *= rhs` to `lhs = lhs * rhs`, e.g.:
-    //     float4 x = float4(1);
-    //     x.xy *= float2x2(...);
-    // will report the error "non-const reference cannot bind to vector element."
-    if (op.isCompoundAssignment() && left.kind() == Expression::Kind::kSwizzle) {
-        // We need to do the rewrite. This could be dangerous if the lhs contains an index
-        // expression with a side effect (such as `array[Func()]`), so we enable index-substitution
-        // here for the LHS; any index-expression with side effects will be evaluated into a scratch
-        // variable.
-        this->writeWithIndexSubstitution([&] {
-            this->writeExpression(left, precedence);
-            this->write(" = ");
-            this->writeExpression(left, Precedence::kAssignment);
-            this->write(operator_name(op.removeAssignment()));
+    this->writeBinaryExpressionElement(left, op, right, precedence);
 
-            // We never want to create index-expression substitutes on the RHS of the expression;
-            // the RHS is only emitted one time.
-            fIndexSubstitutionData->fCreateSubstitutes = false;
-
-            this->writeBinaryExpressionElement(right, op, left,
-                                               op.removeAssignment().getBinaryPrecedence());
-        });
+    if (op.kind() != Operator::Kind::EQ && op.isAssignment() &&
+        left.kind() == Expression::Kind::kSwizzle && !Analysis::HasSideEffects(left)) {
+        // This doesn't compile in Metal:
+        // float4 x = float4(1);
+        // x.xy *= float2x2(...);
+        // with the error message "non-const reference cannot bind to vector element",
+        // but switching it to x.xy = x.xy * float2x2(...) fixes it. We perform this tranformation
+        // as long as the LHS has no side effects, and hope for the best otherwise.
+        this->write(" = ");
+        this->writeExpression(left, Precedence::kAssignment);
+        this->write(operator_name(op.removeAssignment()));
+        precedence = op.removeAssignment().getBinaryPrecedence();
     } else {
-        // We don't need any rewrite; emit the binary expression as-is.
-        this->writeBinaryExpressionElement(left, op, right, precedence);
         this->write(operator_name(op));
-        this->writeBinaryExpressionElement(right, op, left, precedence);
     }
+
+    this->writeBinaryExpressionElement(right, op, left, precedence);
 
     if (needParens) {
         this->write(")");
