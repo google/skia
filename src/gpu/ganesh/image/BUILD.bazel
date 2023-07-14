@@ -19,6 +19,8 @@ IMAGE_FILES = [
     "SkImage_LazyTexture.h",
     "SkImage_RasterPinnable.cpp",
     "SkImage_RasterPinnable.h",
+    "SkSpecialImage_Ganesh.cpp",
+    "SkSpecialImage_Ganesh.h",
 ]
 
 split_srcs_and_hdrs(

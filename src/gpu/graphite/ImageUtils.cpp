@@ -126,8 +126,14 @@ Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
                                          const SkSurfaceProps* props) {
         return SkSpecialSurface::MakeGraphite(recorder, imageInfo, *props);
     };
+    auto makeImageCallback = [](const SkIRect& subset,
+                                sk_sp<SkImage> image,
+                                const SkSurfaceProps& props) {
+        // This just makes a raster image, but it could maybe call MakeFromGraphite
+        return SkSpecialImages::MakeFromRaster(subset, image, props);
+    };
 
-    return Context(info, nullptr, makeSurfaceFunctor);
+    return Context(info, nullptr, makeSurfaceFunctor, makeImageCallback);
 }
 }  // namespace skif
 

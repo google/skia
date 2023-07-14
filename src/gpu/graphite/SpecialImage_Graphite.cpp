@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/graphite/SpecialImage_Graphite.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "src/core/SkSpecialImage.h"
@@ -69,12 +71,12 @@ public:
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
-        return SkSpecialImage::MakeGraphite(fRecorder,
-                                            subset,
-                                            this->uniqueID(),
-                                            fTextureProxyView,
-                                            this->colorInfo(),
-                                            this->props());
+        return SkSpecialImages::MakeGraphite(fRecorder,
+                                             subset,
+                                             this->uniqueID(),
+                                             fTextureProxyView,
+                                             this->colorInfo(),
+                                             this->props());
     }
 
     sk_sp<SkImage> onAsImage(const SkIRect* subset) const override {
@@ -110,12 +112,13 @@ private:
 
 } // namespace skgpu::graphite
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeGraphite(skgpu::graphite::Recorder* recorder,
-                                                   const SkIRect& subset,
-                                                   uint32_t uniqueID,
-                                                   skgpu::graphite::TextureProxyView view,
-                                                   const SkColorInfo& colorInfo,
-                                                   const SkSurfaceProps& props) {
+namespace SkSpecialImages {
+sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder* recorder,
+                                   const SkIRect& subset,
+                                   uint32_t uniqueID,
+                                   skgpu::graphite::TextureProxyView view,
+                                   const SkColorInfo& colorInfo,
+                                   const SkSurfaceProps& props) {
     if (!recorder || !view) {
         return nullptr;
     }
@@ -124,3 +127,4 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeGraphite(skgpu::graphite::Recorder* re
     return sk_make_sp<skgpu::graphite::SkSpecialImage_Graphite>(recorder, subset, uniqueID,
                                                                 std::move(view), colorInfo, props);
 }
+}  // namespace SkSpecialImages

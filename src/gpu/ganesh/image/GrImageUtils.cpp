@@ -60,6 +60,7 @@
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/gpu/ganesh/image/SkImage_RasterPinnable.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Lazy.h"
 #include "src/image/SkImage_Picture.h"
@@ -740,7 +741,13 @@ Context MakeGaneshContext(GrRecordingContext* context,
                                                   origin);
     };
 
-    return Context(info, context, makeSurfaceFunctor);
+    auto makeImageFunctor = [context](const SkIRect& subset,
+                                      sk_sp<SkImage> image,
+                                      const SkSurfaceProps& props) {
+        return SkSpecialImages::MakeFromTextureImage(context, subset, image, props);
+    };
+
+    return Context(info, context, makeSurfaceFunctor, makeImageFunctor);
 }
 
 }  // namespace skgpu::ganesh

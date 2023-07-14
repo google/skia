@@ -51,6 +51,7 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
 
 #include <functional>
@@ -308,7 +309,7 @@ sk_sp<SkImage> SkImage_GaneshBase::makeWithFilter(GrRecordingContext* rContext,
     if (!myContext || !myContext->priv().matches(rContext)) {
         return nullptr;
     }
-    auto srcSpecialImage = SkSpecialImage::MakeFromImage(
+    auto srcSpecialImage = SkSpecialImages::MakeFromTextureImage(
             rContext, subset, sk_ref_sp(const_cast<SkImage_GaneshBase*>(this)), SkSurfaceProps());
     if (!srcSpecialImage) {
         return nullptr;

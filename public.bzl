@@ -1140,6 +1140,8 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/image/SkImage_LazyTexture.h",
     "src/gpu/ganesh/image/SkImage_RasterPinnable.cpp",
     "src/gpu/ganesh/image/SkImage_RasterPinnable.h",
+    "src/gpu/ganesh/image/SkSpecialImage_Ganesh.cpp",
+    "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h",
     "src/gpu/ganesh/mock/GrMockAttachment.h",
     "src/gpu/ganesh/mock/GrMockBuffer.h",
     "src/gpu/ganesh/mock/GrMockCaps.cpp",

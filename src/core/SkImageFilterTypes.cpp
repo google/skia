@@ -340,7 +340,12 @@ Context Context::MakeRaster(const ContextInfo& info) {
                                   const SkSurfaceProps* props) {
         return SkSpecialSurface::MakeRaster(imageInfo, *props);
     };
-    return Context(n32, nullptr, makeSurfaceCallback);
+    auto makeImageCallback = [](const SkIRect& subset,
+                                sk_sp<SkImage> image,
+                                const SkSurfaceProps& props) {
+        return SkSpecialImages::MakeFromRaster(subset, image, props);
+    };
+    return Context(n32, nullptr, makeSurfaceCallback, makeImageCallback);
 }
 
 sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
@@ -355,6 +360,11 @@ sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(fInfo.fColorSpace));
     return fMakeSurfaceDelegate(imageInfo, props);
+}
+
+sk_sp<SkSpecialImage> Context::makeImage(const SkIRect& subset, sk_sp<SkImage> image) const {
+    SkASSERT(fMakeImageDelegate);
+    return fMakeImageDelegate(subset, image, fInfo.fSurfaceProps);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1165,8 +1175,7 @@ FilterResult FilterResult::MakeFromImage(const Context& ctx,
     SkIRect srcSubset = RoundOut(srcRect);
     if (SkRect::Make(srcSubset) == srcRect) {
         // Construct an SkSpecialImage from the subset directly instead of drawing.
-        auto specialImage = SkSpecialImage::MakeFromImage(
-                ctx.getContext(), srcSubset, std::move(image), ctx.surfaceProps());
+        sk_sp<SkSpecialImage> specialImage = ctx.makeImage(srcSubset, std::move(image));
 
         // Treat the srcRect's top left as "layer" space since we are folding the src->dst transform
         // and the param->layer transform into a single transform step.

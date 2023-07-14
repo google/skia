@@ -91,6 +91,7 @@ supported_files_or_dirs=(
   "src/core/SkRect.cpp"
   "src/core/SkRuntime"
   "src/core/SkScalar.cpp"
+  "src/core/SkSpecialImage.cpp"
   "src/core/SkStream.cpp"
   "src/core/SkStrike"
   "src/core/SkString.cpp"

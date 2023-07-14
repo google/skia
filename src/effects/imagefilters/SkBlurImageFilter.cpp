@@ -41,6 +41,7 @@
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #endif // defined(SK_GANESH)
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
@@ -795,9 +796,8 @@ sk_sp<SkSpecialImage> copy_image_with_bounds(const skif::Context& ctx,
         sk_bzero(dst.getAddr32(0, y), dstWBytes);
     }
 
-    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
-                                                          dstBounds.height()),
-                                          dst, ctx.surfaceProps());
+    return SkSpecialImages::MakeFromRaster(
+            SkIRect::MakeWH(dstBounds.width(), dstBounds.height()), dst, ctx.surfaceProps());
 }
 
 // TODO: Implement CPU backend for different fTileMode.
@@ -926,9 +926,8 @@ sk_sp<SkSpecialImage> cpu_blur(const skif::Context& ctx,
         }
     }
 
-    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(),
-                                                          dstBounds.height()),
-                                          dst, ctx.surfaceProps());
+    return SkSpecialImages::MakeFromRaster(
+            SkIRect::MakeWH(dstBounds.width(), dstBounds.height()), dst, ctx.surfaceProps());
 }
 }  // namespace
 
@@ -1025,12 +1024,12 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(const skif::Context& ctx,
         return nullptr;
     }
 
-    return SkSpecialImage::MakeDeferredFromGpu(context,
-                                               SkIRect::MakeSize(dstBounds.size()),
-                                               kNeedNewImageUniqueID_SpecialImage,
-                                               sdc->readSurfaceView(),
-                                               sdc->colorInfo(),
-                                               ctx.surfaceProps());
+    return SkSpecialImages::MakeDeferredFromGpu(context,
+                                                SkIRect::MakeSize(dstBounds.size()),
+                                                kNeedNewImageUniqueID_SpecialImage,
+                                                sdc->readSurfaceView(),
+                                                sdc->colorInfo(),
+                                                ctx.surfaceProps());
 }
 #endif
 

@@ -602,19 +602,20 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
     }
 }
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
-    return SkSpecialImage::MakeFromRaster(bitmap.bounds(), bitmap, this->surfaceProps());
+    return SkSpecialImages::MakeFromRaster(bitmap.bounds(), bitmap, this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkImage* image) {
-    return SkSpecialImage::MakeFromImage(nullptr, SkIRect::MakeWH(image->width(), image->height()),
-                                         image->makeNonTextureImage(), this->surfaceProps());
+    return SkSpecialImages::MakeFromRaster(SkIRect::MakeWH(image->width(), image->height()),
+                                           image->makeNonTextureImage(),
+                                           this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial(const SkIRect& bounds, bool forceCopy) {
     if (forceCopy) {
-        return SkSpecialImage::CopyFromRaster(bounds, fBitmap, this->surfaceProps());
+        return SkSpecialImages::CopyFromRaster(bounds, fBitmap, this->surfaceProps());
     } else {
-        return SkSpecialImage::MakeFromRaster(bounds, fBitmap, this->surfaceProps());
+        return SkSpecialImages::MakeFromRaster(bounds, fBitmap, this->surfaceProps());
     }
 }
 

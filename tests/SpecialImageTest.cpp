@@ -27,6 +27,7 @@
 #include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -129,15 +130,14 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 DEF_TEST(SpecialImage_Raster, reporter) {
     SkBitmap bm = create_bm();
 
-    sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromRaster(
-                                                            SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            bm, SkSurfaceProps()));
+    sk_sp<SkSpecialImage> fullSImage(SkSpecialImages::MakeFromRaster(
+            SkIRect::MakeWH(kFullSize, kFullSize), bm, SkSurfaceProps()));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromRaster(subset, bm,
-                                                                      SkSurfaceProps()));
+        sk_sp<SkSpecialImage> subSImg1(
+                SkSpecialImages::MakeFromRaster(subset, bm, SkSurfaceProps()));
         test_image(subSImg1, reporter, nullptr, false);
     }
 
@@ -152,17 +152,14 @@ static void test_specialimage_image(skiatest::Reporter* reporter) {
 
     sk_sp<SkImage> fullImage(bm.asImage());
 
-    sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage(
-                                                            nullptr,
-                                                            SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            fullImage,
-                                                            SkSurfaceProps()));
+    sk_sp<SkSpecialImage> fullSImage(SkSpecialImages::MakeFromRaster(
+            SkIRect::MakeWH(kFullSize, kFullSize), fullImage, SkSurfaceProps()));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(nullptr, subset, fullImage,
-                                                                     SkSurfaceProps()));
+        sk_sp<SkSpecialImage> subSImg1(
+                SkSpecialImages::MakeFromRaster(subset, fullImage, SkSurfaceProps()));
         test_image(subSImg1, reporter, nullptr, false);
     }
 
@@ -188,23 +185,23 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu,
     }
 
     sk_sp<SkSpecialImage> fullSImg =
-            SkSpecialImage::MakeDeferredFromGpu(context,
-                                                SkIRect::MakeWH(kFullSize, kFullSize),
-                                                kNeedNewImageUniqueID_SpecialImage,
-                                                view,
-                                                { ct, kPremul_SkAlphaType, nullptr },
-                                                SkSurfaceProps());
+            SkSpecialImages::MakeDeferredFromGpu(context,
+                                                 SkIRect::MakeWH(kFullSize, kFullSize),
+                                                 kNeedNewImageUniqueID_SpecialImage,
+                                                 view,
+                                                 {ct, kPremul_SkAlphaType, nullptr},
+                                                 SkSurfaceProps());
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1 = SkSpecialImage::MakeDeferredFromGpu(
-                context,
-                subset,
-                kNeedNewImageUniqueID_SpecialImage,
-                std::move(view),
-                { ct, kPremul_SkAlphaType, nullptr },
-                SkSurfaceProps());
+        sk_sp<SkSpecialImage> subSImg1 =
+                SkSpecialImages::MakeDeferredFromGpu(context,
+                                                     subset,
+                                                     kNeedNewImageUniqueID_SpecialImage,
+                                                     std::move(view),
+                                                     {ct, kPremul_SkAlphaType, nullptr},
+                                                     SkSurfaceProps());
         test_image(subSImg1, reporter, context, true);
     }
 

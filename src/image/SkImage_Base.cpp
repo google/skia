@@ -129,8 +129,8 @@ sk_sp<SkImage> SkImage_Base::makeWithFilter(GrRecordingContext*,
         return nullptr;
     }
 
-    auto srcSpecialImage = SkSpecialImage::MakeFromImage(
-            nullptr, subset, sk_ref_sp(const_cast<SkImage_Base*>(this)), SkSurfaceProps());
+    auto srcSpecialImage = SkSpecialImages::MakeFromRaster(
+            subset, sk_ref_sp(const_cast<SkImage_Base*>(this)), SkSurfaceProps());
     if (!srcSpecialImage) {
         return nullptr;
     }

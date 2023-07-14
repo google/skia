@@ -95,6 +95,7 @@
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/gpu/SlugImpl.h"
 #include "src/text/gpu/SubRunContainer.h"
@@ -826,14 +827,14 @@ sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap& bitmap) {
 
     // GrMakeCachedBitmapProxyView creates a tight copy of 'bitmap' so we don't have to subset
     // the special image
-    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
-                                               rect,
-                                               bitmap.getGenerationID(),
-                                               std::move(view),
-                                               { SkColorTypeToGrColorType(bitmap.colorType()),
+    return SkSpecialImages::MakeDeferredFromGpu(fContext.get(),
+                                                rect,
+                                                bitmap.getGenerationID(),
+                                                std::move(view),
+                                                {SkColorTypeToGrColorType(bitmap.colorType()),
                                                  kPremul_SkAlphaType,
-                                                 bitmap.refColorSpace() },
-                                               this->surfaceProps());
+                                                 bitmap.refColorSpace()},
+                                                this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage* image) {
@@ -844,13 +845,13 @@ sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage* image) {
         auto [view, ct] = skgpu::ganesh::AsView(this->recordingContext(), image, GrMipmapped::kNo);
         SkASSERT(view);
 
-        return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
-                                                   SkIRect::MakeWH(image->width(), image->height()),
-                                                   image->uniqueID(),
-                                                   std::move(view),
-                                                   { ct, kPremul_SkAlphaType,
-                                                     image->refColorSpace() },
-                                                   this->surfaceProps());
+        return SkSpecialImages::MakeDeferredFromGpu(
+                fContext.get(),
+                SkIRect::MakeWH(image->width(), image->height()),
+                image->uniqueID(),
+                std::move(view),
+                {ct, kPremul_SkAlphaType, image->refColorSpace()},
+                this->surfaceProps());
     } else if (image->peekPixels(&pm)) {
         SkBitmap bm;
 
@@ -896,12 +897,12 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
         finalSubset = SkIRect::MakeSize(view.dimensions());
     }
 
-    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
-                                               finalSubset,
-                                               kNeedNewImageUniqueID_SpecialImage,
-                                               std::move(view),
-                                               GrColorInfo(this->imageInfo().colorInfo()),
-                                               this->surfaceProps());
+    return SkSpecialImages::MakeDeferredFromGpu(fContext.get(),
+                                                finalSubset,
+                                                kNeedNewImageUniqueID_SpecialImage,
+                                                std::move(view),
+                                                GrColorInfo(this->imageInfo().colorInfo()),
+                                                this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> Device::snapSpecialScaled(const SkIRect& subset, const SkISize& dstDims) {
@@ -928,12 +929,12 @@ sk_sp<SkSpecialImage> Device::snapSpecialScaled(const SkIRect& subset, const SkI
         return nullptr;
     }
 
-    return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
-                                               SkIRect::MakeSize(dstDims),
-                                               kNeedNewImageUniqueID_SpecialImage,
-                                               scaledContext->readSurfaceView(),
-                                               GrColorInfo(this->imageInfo().colorInfo()),
-                                               this->surfaceProps());
+    return SkSpecialImages::MakeDeferredFromGpu(fContext.get(),
+                                                SkIRect::MakeSize(dstDims),
+                                                kNeedNewImageUniqueID_SpecialImage,
+                                                scaledContext->readSurfaceView(),
+                                                GrColorInfo(this->imageInfo().colorInfo()),
+                                                this->surfaceProps());
 }
 
 void Device::drawDevice(SkBaseDevice* device,

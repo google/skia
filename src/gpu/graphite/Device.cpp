@@ -29,6 +29,7 @@
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
+#include "src/gpu/graphite/SpecialImage_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
@@ -1496,12 +1497,12 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
         finalSubset = SkIRect::MakeWH(view.width(), view.height());
     }
 
-    return SkSpecialImage::MakeGraphite(fRecorder,
-                                        finalSubset,
-                                        kNeedNewImageUniqueID_SpecialImage,
-                                        std::move(view),
-                                        this->imageInfo().colorInfo(),
-                                        this->surfaceProps());
+    return SkSpecialImages::MakeGraphite(fRecorder,
+                                         finalSubset,
+                                         kNeedNewImageUniqueID_SpecialImage,
+                                         std::move(view),
+                                         this->imageInfo().colorInfo(),
+                                         this->surfaceProps());
 }
 
 skif::Context Device::createContext(const skif::ContextInfo& ctxInfo) const {

@@ -493,8 +493,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(const skif::
     this->filterBorderPixels(inputBM, &dst, dstContentOffset, right, srcBounds);
     this->filterBorderPixels(inputBM, &dst, dstContentOffset, bottom, srcBounds);
 
-    return SkSpecialImage::MakeFromRaster(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
-                                          dst, ctx.surfaceProps());
+    return SkSpecialImages::MakeFromRaster(
+            SkIRect::MakeWH(dstBounds.width(), dstBounds.height()), dst, ctx.surfaceProps());
 }
 
 SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(

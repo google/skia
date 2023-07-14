@@ -9,35 +9,38 @@
 #define SkSpecialImage_DEFINED
 
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/core/SkNextID.h"
+#include "include/private/base/SkTo.h"
 
 #if defined(SK_GANESH)
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
 
-class GrColorInfo;
+#include <cstddef>
+#include <cstdint>
+
 class GrRecordingContext;
-class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
+class SkColorSpace;
 class SkImage;
-struct SkImageInfo;
 class SkMatrix;
 class SkPaint;
-class SkPixmap;
 class SkShader;
-class SkSpecialSurface;
-class SkSurface;
+enum SkAlphaType : int;
+enum SkColorType : int;
 enum class SkTileMode;
 
+#if defined(SK_GRAPHITE)
 namespace skgpu::graphite {
-class Recorder;
 class TextureProxyView;
 }
+#endif
 
 enum {
     kNeedNewImageUniqueID_SpecialImage = 0
@@ -87,34 +90,6 @@ public:
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y) const {
         this->draw(canvas, x, y, SkSamplingOptions(), nullptr);
     }
-
-    static sk_sp<SkSpecialImage> MakeFromImage(GrRecordingContext*,
-                                               const SkIRect& subset,
-                                               sk_sp<SkImage>,
-                                               const SkSurfaceProps&);
-    static sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
-                                                const SkBitmap&,
-                                                const SkSurfaceProps&);
-    static sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
-                                                const SkBitmap&,
-                                                const SkSurfaceProps&);
-#if defined(SK_GANESH)
-    static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
-                                                     const SkIRect& subset,
-                                                     uint32_t uniqueID,
-                                                     GrSurfaceProxyView,
-                                                     const GrColorInfo&,
-                                                     const SkSurfaceProps&);
-#endif
-
-#if defined(SK_GRAPHITE)
-    static sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder*,
-                                              const SkIRect& subset,
-                                              uint32_t uniqueID,
-                                              skgpu::graphite::TextureProxyView,
-                                              const SkColorInfo&,
-                                              const SkSurfaceProps&);
-#endif
 
     /**
      * Extract a subset of this special image and return it as a special image.
@@ -218,15 +193,22 @@ protected:
                                        const SkSamplingOptions&,
                                        const SkMatrix&) const = 0;
 
-#ifdef SK_DEBUG
-    static bool RectFits(const SkIRect& rect, int width, int height);
-#endif
-
 private:
     const SkIRect        fSubset;
     const uint32_t       fUniqueID;
     const SkColorInfo    fColorInfo;
     const SkSurfaceProps fProps;
 };
+
+namespace SkSpecialImages {
+sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset, sk_sp<SkImage>, const SkSurfaceProps&);
+sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset, const SkBitmap&, const SkSurfaceProps&);
+sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset, const SkBitmap&, const SkSurfaceProps&);
+
+#ifdef SK_DEBUG
+bool RectFits(const SkIRect& rect, int width, int height);
+#endif
+
+}  // namespace SkSpecialImages
 
 #endif // SkSpecialImage_DEFINED

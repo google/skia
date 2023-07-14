@@ -54,6 +54,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -587,9 +588,8 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
     sk_sp<SkImageFilter> negativeFilter(SkImageFilters::Blur(-kBlurSigma, kBlurSigma, nullptr));
 
     sk_sp<SkImage> gradient = make_gradient_circle(kWidth, kHeight).asImage();
-    sk_sp<SkSpecialImage> imgSrc(
-            SkSpecialImage::MakeFromImage(dContext, SkIRect::MakeWH(kWidth, kHeight), gradient,
-                                          SkSurfaceProps()));
+    auto imgSrc = SkSpecialImages::MakeFromTextureImage(
+            dContext, SkIRect::MakeWH(kWidth, kHeight), gradient, SkSurfaceProps());
 
     SkIPoint offset;
     skif::Context ctx = make_context(32, 32, imgSrc.get());
@@ -681,9 +681,8 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     canvas.drawRect(SkRect::MakeXYWH(kWidth / 4, kHeight / 4, kWidth / 2, kHeight / 2),
                     paint);
     sk_sp<SkImage> image = bitmap.asImage();
-    sk_sp<SkSpecialImage> imgSrc(
-            SkSpecialImage::MakeFromImage(dContext, SkIRect::MakeWH(kWidth, kHeight), image,
-                                          SkSurfaceProps()));
+    auto imgSrc = SkSpecialImages::MakeFromTextureImage(
+            dContext, SkIRect::MakeWH(kWidth, kHeight), image, SkSurfaceProps());
 
     SkIPoint offset;
     skif::Context ctx = make_context(32, 32, imgSrc.get());
