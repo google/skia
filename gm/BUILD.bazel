@@ -71,6 +71,7 @@ CPU_GMS = [
     "arcofzorro.cpp",
     "arcto.cpp",
     "arithmode.cpp",
+    "rippleshadergm.cpp",
 
     # TODO(lovisolo): Are these CPU-only, GPU-only or something else? Try them and add them to the
     #                 corresponding list.

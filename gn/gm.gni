@@ -316,6 +316,7 @@ gm_sources = [
   "$_gm/recordopts.cpp",
   "$_gm/repeated_bitmap.cpp",
   "$_gm/resizeimagefilter.cpp",
+  "$_gm/rippleshadergm.cpp",
   "$_gm/roundrects.cpp",
   "$_gm/rrect.cpp",
   "$_gm/rrectclipdrawpaint.cpp",
