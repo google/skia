@@ -1028,6 +1028,15 @@ bool VulkanCaps::onIsTexturable(const TextureInfo& texInfo) const {
     return info.isTexturable(vkInfo.fImageTiling);
 }
 
+
+bool VulkanCaps::isRenderable(const TextureInfo& texInfo) const {
+    VulkanTextureInfo vkInfo;
+    texInfo.getVulkanTextureInfo(&vkInfo);
+
+    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
+    return info.isRenderable(vkInfo.fImageTiling, texInfo.numSamples());
+}
+
 bool VulkanCaps::supportsWritePixels(const TextureInfo& texInfo) const {
     VulkanTextureInfo vkInfo;
     texInfo.getVulkanTextureInfo(&vkInfo);

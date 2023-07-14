@@ -96,6 +96,10 @@ void BackendTexture::setMutableState(const skgpu::MutableTextureState& newState)
     fMutableState->set(newState);
 }
 
+sk_sp<MutableTextureStateRef> BackendTexture::getMutableState() const {
+    return fMutableState;
+}
+
 #ifdef SK_DAWN
 BackendTexture::BackendTexture(WGPUTexture texture)
         : fDimensions{static_cast<int32_t>(wgpuTextureGetWidth(texture)),

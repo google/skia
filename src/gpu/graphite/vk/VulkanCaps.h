@@ -45,7 +45,7 @@ public:
 
     uint32_t channelMask(const TextureInfo&) const override;
 
-    bool isRenderable(const TextureInfo&) const override { return false; }
+    bool isRenderable(const TextureInfo&) const override;
     bool isStorage(const TextureInfo&) const override {
         // TODO: support storage textures
         return false;

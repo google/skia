@@ -9,6 +9,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
@@ -73,8 +74,13 @@ const VulkanSharedContext* VulkanResourceProvider::vulkanSharedContext() {
     return static_cast<const VulkanSharedContext*>(fSharedContext);
 }
 
-sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture&) {
-    return nullptr;
+sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture& texture) {
+    return VulkanTexture::MakeWrapped(this->vulkanSharedContext(),
+                                      texture.dimensions(),
+                                      texture.info(),
+                                      texture.getMutableState(),
+                                      texture.getVkImage(),
+                                      {});
 }
 
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(

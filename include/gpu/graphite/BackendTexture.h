@@ -111,7 +111,8 @@ public:
 #endif
 
 private:
-    sk_sp<MutableTextureStateRef> mutableState() const;
+    friend class VulkanResourceProvider;    // for getMutableState
+    sk_sp<MutableTextureStateRef> getMutableState() const;
 
     SkISize fDimensions;
     TextureInfo fInfo;

@@ -388,7 +388,6 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFla
         VULKAN_CALL_RESULT(fInterface, result,
                            CreateSemaphore(fDevice, &semaphoreInfo, nullptr,
                                            &fBackbuffers[i].fRenderSemaphore));
-        SkASSERT(result == VK_SUCCESS);
     }
     fCurrentBackbufferIndex = fImageCount;
 
@@ -478,9 +477,15 @@ GraphiteVulkanWindowContext::BackbufferInfo* GraphiteVulkanWindowContext::getAva
 }
 
 sk_sp<SkSurface> GraphiteVulkanWindowContext::getBackbufferSurface() {
-    // TODO: Acquire next swapchain surface, waiting on previous frame's semaphore
-    return nullptr;
+    BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
+    SkASSERT(backbuffer);
 
+    // TODO: Create wait semaphore and acquire next swapchain surface
+
+    // TODO: Wait on semaphore
+
+    // TODO: return surface
+    return nullptr;
 }
 
 void GraphiteVulkanWindowContext::onSwapBuffers() {
