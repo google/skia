@@ -208,7 +208,7 @@ private:
         // Assuming that this element does not clip out the draw, returns the painters order the
         // draw must sort after.
         CompressedPaintersOrder updateForDraw(const BoundsManager* boundsManager,
-                                              const Rect& outerBounds,
+                                              const Rect& drawBounds,
                                               PaintersDepth drawZ);
 
         // Record a depth-only draw to the given device, restricted to the portion of the clip that

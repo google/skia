@@ -25,12 +25,16 @@ constexpr SkScalar SH = SkIntToScalar(H);
 
 class StrokeRectsGM : public GM {
 public:
-    StrokeRectsGM() {}
+    StrokeRectsGM(bool rotated) : fRotated(rotated) {}
 
 protected:
 
     SkString onShortName() override {
-        return SkString("strokerects");
+        if (fRotated) {
+            return SkString("strokerects_rotated");
+        } else {
+            return SkString("strokerects");
+        }
     }
 
     SkISize onISize() override {
@@ -50,6 +54,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (fRotated) {
+            canvas->rotate(45.f, SW, SH);
+        }
+
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
 
@@ -76,11 +84,12 @@ protected:
     }
 
 private:
-    using INHERITED = GM;
+    bool fRotated;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new StrokeRectsGM; )
+DEF_GM( return new StrokeRectsGM(false); )
+DEF_GM( return new StrokeRectsGM(true); )
 
 }  // namespace skiagm

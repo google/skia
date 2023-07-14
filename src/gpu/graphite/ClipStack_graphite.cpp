@@ -544,10 +544,10 @@ ClipStack::RawElement::testForDraw(const TransformedShape& draw) const {
 }
 
 CompressedPaintersOrder ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
-                                                             const Rect& outerBounds,
+                                                             const Rect& drawBounds,
                                                              PaintersDepth drawZ) {
     SkASSERT(!this->isInvalid());
-    SkASSERT(!outerBounds.isEmptyNegativeOrNaN());
+    SkASSERT(!drawBounds.isEmptyNegativeOrNaN());
 
     if (!this->hasPendingDraw()) {
         // No usage yet so we need an order that we will use when drawing to just the depth
@@ -574,14 +574,14 @@ CompressedPaintersOrder ClipStack::RawElement::updateForDraw(const BoundsManager
         // logic, max Z tracking, and the depth test during rasterization are able to
         // resolve everything correctly even if clips have the same order value.
         // See go/clip-stack-order for a detailed analysis of why this works.
-        fOrder = boundsManager->getMostRecentDraw(outerBounds).next();
-        fUsageBounds = outerBounds;
+        fOrder = boundsManager->getMostRecentDraw(fOuterBounds).next();
+        fUsageBounds = drawBounds;
         fMaxZ = drawZ;
     } else {
         // Earlier draws have already used this element so we cannot change where the
         // depth-only draw will be sorted to, but we need to ensure we cover the new draw's
         // bounds and use a Z value that will clip out its pixels as appropriate.
-        fUsageBounds.join(outerBounds);
+        fUsageBounds.join(drawBounds);
         if (drawZ > fMaxZ) {
             fMaxZ = drawZ;
         }
@@ -1140,6 +1140,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // Some renderers make the drawn area larger than the geometry.
     float rendererOutset = renderer.boundsOutset(localToDevice, styledShape->bounds());
     if (!SkScalarIsFinite(rendererOutset)) {
+        transformedShapeBounds = deviceBounds;
         infiniteBounds = true;
     } else {
         // Will be in device space once style/AA outsets and the localToDevice transform are
@@ -1179,7 +1180,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         drawBounds = deviceBounds;
         styledShape.writable()->setRect(drawBounds);
         shapeInDeviceSpace = true;
-
     } else {
         drawBounds = transformedShapeBounds;
     }
