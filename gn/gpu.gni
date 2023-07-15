@@ -76,7 +76,6 @@ skia_gpu_public = [
   "$_include/gpu/ShaderErrorHandler.h",
   "$_include/gpu/ganesh/GrExternalTextureGenerator.h",
   "$_include/gpu/ganesh/SkImageGanesh.h",
-  "$_include/gpu/ganesh/SkMeshGanesh.h",
   "$_include/gpu/ganesh/SkSurfaceGanesh.h",
   "$_include/gpu/mock/GrMockTypes.h",
 ]
@@ -225,8 +224,6 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/GrManagedResource.h",
   "$_src/gpu/ganesh/GrMemoryPool.cpp",
   "$_src/gpu/ganesh/GrMemoryPool.h",
-  "$_src/gpu/ganesh/GrMeshBuffers.cpp",
-  "$_src/gpu/ganesh/GrMeshBuffers.h",
   "$_src/gpu/ganesh/GrMeshDrawTarget.cpp",
   "$_src/gpu/ganesh/GrMeshDrawTarget.h",
   "$_src/gpu/ganesh/GrNativeRect.h",
