@@ -21,6 +21,7 @@
 #include <functional>
 #include <memory>
 
+#ifdef SK_ENABLE_SKSL
 #include "include/sksl/SkSLVersion.h"
 
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
@@ -207,5 +208,7 @@ private:
     SkSpan<const SkSL::SampleUsage> fSampleUsages;
 };
 #endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
+#endif  // SK_ENABLE_SKSL
 
 #endif  // SkRuntimeEffectPriv_DEFINED

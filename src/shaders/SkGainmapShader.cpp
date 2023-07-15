@@ -23,6 +23,7 @@
 
 #include <cstdint>
 
+#ifdef SK_ENABLE_SKSL
 static constexpr char gGainmapSKSL[] =
         "uniform shader base;"
         "uniform shader gainmap;"
@@ -77,6 +78,7 @@ static sk_sp<SkRuntimeEffect> gainmap_apply_effect() {
 static bool all_channels_equal(const SkColor4f& c) {
     return c.fR == c.fG && c.fR == c.fB;
 }
+#endif  // SK_ENABLE_SKSL
 
 sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
                                       const SkRect& baseRect,
@@ -88,6 +90,7 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
                                       const SkRect& dstRect,
                                       float dstHdrRatio,
                                       sk_sp<SkColorSpace> dstColorSpace) {
+#ifdef SK_ENABLE_SKSL
     sk_sp<SkColorSpace> baseColorSpace =
             baseImage->colorSpace() ? baseImage->refColorSpace() : SkColorSpace::MakeSRGB();
 
@@ -183,4 +186,8 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
 
     // Return a shader that will apply the gainmap and then convert to the destination color space.
     return gainmapMathShader->makeWithColorFilter(colorXformGainmapToDst);
+#else
+    // This shader is currently only implemented using SkSL.
+    return nullptr;
+#endif
 }

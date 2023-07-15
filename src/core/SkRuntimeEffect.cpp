@@ -83,6 +83,8 @@ using namespace skia_private;
     #define SK_LENIENT_SKSL_DESERIALIZATION 0
 #endif
 
+#ifdef SK_ENABLE_SKSL
+
 using ChildType = SkRuntimeEffect::ChildType;
 
 static bool init_uniform_type(const SkSL::Context& ctx,
@@ -1017,3 +1019,5 @@ SkRuntimeColorFilterBuilder::~SkRuntimeColorFilterBuilder() = default;
 sk_sp<SkColorFilter> SkRuntimeColorFilterBuilder::makeColorFilter() const {
     return this->effect()->makeColorFilter(this->uniforms(), this->children());
 }
+
+#endif  // SK_ENABLE_SKSL

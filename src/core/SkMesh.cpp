@@ -7,15 +7,10 @@
 
 #include "include/core/SkMesh.h"
 
-#include "include/core/SkAlphaType.h"
+#ifdef SK_ENABLE_SKSL
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/private/SkSLSampleUsage.h"
-#include "include/private/base/SkAlign.h"
-#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMath.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkMeshPriv.h"
@@ -23,20 +18,16 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
-#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
-#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -44,22 +35,14 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrGpuBuffer.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
 #endif  // defined(SK_GANESH)
 
-#include <algorithm>
-#include <cstring>
 #include <locale>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 using namespace skia_private;
@@ -940,3 +923,5 @@ bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
     return true;
 }
 #endif  // defined(SK_GANESH)
+
+#endif  // SK_ENABLE_SKSL

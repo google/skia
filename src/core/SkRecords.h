@@ -16,6 +16,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkMesh.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
@@ -32,10 +33,6 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkDrawShadowInfo.h"
-
-#if defined(SK_ENABLE_SKSL)
-#include "include/core/SkMesh.h"
-#endif
 
 #include <cstdint>
 

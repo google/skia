@@ -72,7 +72,6 @@ supported_files_or_dirs=(
   "src/core/SkMaskFilter.cpp"
   "src/core/SkMatrix.cpp"
   "src/core/SkMD5.cpp"
-  "src/core/SkMesh.cpp"
   "src/core/SkMipmapAccessor.cpp"
   "src/core/SkMipmapBuilder.cpp"
   "src/core/SkPaint.cpp"

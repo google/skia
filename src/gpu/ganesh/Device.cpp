@@ -1088,9 +1088,7 @@ void Device::drawVertices(const SkVertices* vertices,
 void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::ganesh::Device", "drawMesh", fContext.get());
-    if (!mesh.isValid()) {
-        return;
-    }
+    SkASSERT(mesh.isValid());
 
     GrPaint grPaint;
     if (!init_vertices_paint(fContext.get(),

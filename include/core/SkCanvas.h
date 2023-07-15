@@ -1974,11 +1974,11 @@ public:
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
 
+#if defined(SK_ENABLE_SKSL)
     /**
         Experimental, under active development, and subject to change without notice.
 
-        Draws a mesh using a user-defined specification (see SkMeshSpecification). Requires
-        a GPU backend or SkSL to be compiled in.
+        Draws a mesh using a user-defined specification (see SkMeshSpecification).
 
         SkBlender is ignored if SkMesh's specification does not output fragment shader color.
         Otherwise, it combines
@@ -1995,6 +1995,7 @@ public:
         @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
     */
     void drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint);
+#endif
 
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
@@ -2248,7 +2249,9 @@ protected:
 
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
                                       const SkPaint& paint);
+#ifdef SK_ENABLE_SKSL
     virtual void onDrawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&);
+#endif
     virtual void onDrawAnnotation(const SkRect& rect, const char key[], SkData* value);
     virtual void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&);
 

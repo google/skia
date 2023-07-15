@@ -8,8 +8,10 @@
 #ifndef SkMeshPriv_DEFINED
 #define SkMeshPriv_DEFINED
 
-#include "include/core/SkData.h"
 #include "include/core/SkMesh.h"
+
+#ifdef SK_ENABLE_SKSL
+#include "include/core/SkData.h"
 #include "src/core/SkSLTypeShared.h"
 
 #if defined(SK_GANESH)
@@ -242,5 +244,7 @@ bool SkMeshPriv::GpuBuffer<Base, Type>::onUpdate(GrDirectContext* dc,
 }
 
 #endif  // defined(SK_GANESH)
+
+#endif  // SK_ENABLE_SKSL
 
 #endif

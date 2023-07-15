@@ -23,8 +23,6 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkTypeTraits.h"
-#include "include/sksl/SkSLDebugTrace.h"
-#include "include/sksl/SkSLVersion.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -35,6 +33,11 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+
+#ifdef SK_ENABLE_SKSL
+
+#include "include/sksl/SkSLDebugTrace.h"
+#include "include/sksl/SkSLVersion.h"
 
 struct SkIPoint;
 
@@ -513,5 +516,7 @@ public:
 
     sk_sp<SkBlender> makeBlender() const;
 };
+
+#endif  // SK_ENABLE_SKSL
 
 #endif  // SkRuntimeEffect_DEFINED

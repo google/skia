@@ -1478,7 +1478,6 @@ skia_component("skia") {
   if (skia_enable_sksl) {
     deps += [ ":minify_sksl" ]
     sources += skia_sksl_sources
-    sources += skia_needs_sksl_sources
     sources += skia_colorfilters_sksl_sources
 
     if (skia_enable_sksl_tracing) {
