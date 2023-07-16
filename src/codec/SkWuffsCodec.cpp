@@ -126,10 +126,34 @@ static bool wuffs_status_means_incomplete_input(const char* status) {
 #if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT >= 3390
     // Commit count 3390 is Wuffs v0.3.1, which added "truncated input" errors
     // to fix https://github.com/google/wuffs/issues/96
+#if 0
     if ((status == wuffs_lzw__error__truncated_input) ||
         (status == wuffs_gif__error__truncated_input)) {
         return true;
     }
+#else
+    // TODO: remove this workaround (and re-enable the "#if 0" code above)
+    // after https://skia-review.googlesource.com/c/skia/+/723597 "Roll
+    // third_party/wuffs to version 0.3.3" lands. The Mac and Linux commit
+    // queue is happy with 723597 but the Windows build-bots are not. They fail
+    // because, for some unknown reason only on Windows, upgrading
+    // third_party/wuffs picks up the wuffs_gif__error__truncated_input
+    // *declaration* (and the higher WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT
+    // value when "wuffs-v0.3.c" is included above 'as a .h file') but not its
+    // *definition* (when "wuffs-v0.3.c" is separately built 'as a .c file').
+    //
+    // The Windows build-bots fail at link time with "lld-link: error: undefined
+    // symbol: char const *const wuffs_lzw__error__truncated_input", even though
+    // they're perfectly happy with wuffs_base__suspension__short_read used
+    // earlier in this function, a "const char[]" declared and defined in
+    // exactly the same way as wuffs_lzw__error__truncated_input. Maybe it's a
+    // clean versus incremental build issue, but that's just a guess.
+    if (status && (status[0] == '#') &&
+        (!strcmp(status, "#lzw: truncated input") ||
+         !strcmp(status, "#gif: truncated input"))) {
+        return true;
+    }
+#endif
 #endif
     return false;
 }
