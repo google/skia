@@ -197,7 +197,7 @@ def git_repos_from_deps(ws = "@"):
     new_git_repository(
         name = "wuffs",
         build_file = ws + "//bazel/external/wuffs:BUILD.bazel",
-        commit = "a0041ac0310b3156b963e2f2bea09245f25ec073",
+        commit = "e3f919ccfe3ef542cfc983a82146070258fb57f8",
         remote = "https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c.git",
     )
 
