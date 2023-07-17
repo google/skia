@@ -12,7 +12,7 @@ require (
 	github.com/klauspost/compress v1.11.3 // indirect
 	github.com/stretchr/testify v1.7.0
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20230714003428-845e8105edb3
+	go.skia.org/infra v0.0.0-20230715202843-59a5e9ba0f61
 	google.golang.org/api v0.74.0
 	google.golang.org/protobuf v1.28.0
 )
