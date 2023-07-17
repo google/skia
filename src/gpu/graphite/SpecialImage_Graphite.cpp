@@ -35,6 +35,10 @@ public:
         return 0;
     }
 
+    bool isGraphiteBacked() const override { return true; }
+
+    TextureProxyView textureProxyView() const { return fTextureProxyView; }
+
     void onDraw(SkCanvas* canvas,
                 SkScalar x, SkScalar y,
                 const SkSamplingOptions& sampling,
@@ -49,17 +53,6 @@ public:
         canvas->drawImageRect(img, SkRect::Make(this->subset()), dst,
                               sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
-
-#if defined(SK_GANESH)
-    GrSurfaceProxyView onView(GrRecordingContext*) const override {
-        // To get here we would have to be requesting a Ganesh resource from a Graphite-backed
-        // special image. That should never happen.
-        SkASSERT(false);
-        return {};
-    }
-#endif
-
-    TextureProxyView onTextureProxyView() const override { return fTextureProxyView; }
 
     bool onGetROPixels(SkBitmap* dst) const override {
         // This should never be called: All GPU image filters are implemented entirely on the GPU,
@@ -127,4 +120,13 @@ sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder* recorder,
     return sk_make_sp<skgpu::graphite::SkSpecialImage_Graphite>(recorder, subset, uniqueID,
                                                                 std::move(view), colorInfo, props);
 }
+
+skgpu::graphite::TextureProxyView AsTextureProxyView(const SkSpecialImage* img) {
+    if (!img || !img->isGraphiteBacked()) {
+        return {};
+    }
+    auto grImg = static_cast<const skgpu::graphite::SkSpecialImage_Graphite*>(img);
+    return grImg->textureProxyView();
+}
+
 }  // namespace SkSpecialImages

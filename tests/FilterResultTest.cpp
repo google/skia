@@ -58,6 +58,7 @@ using namespace skia_private;
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/SpecialImage_Graphite.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #endif
 
@@ -633,7 +634,7 @@ private:
 #if defined(SK_GANESH)
         if (fDirectContext) {
             // Ganesh backed, just use the SkImage::readPixels API
-            SkASSERT(specialImage->isTextureBacked());
+            SkASSERT(specialImage->isGaneshBacked());
             sk_sp<SkImage> image = specialImage->asImage();
             SkAssertResult(image->readPixels(fDirectContext, bm.pixmap(), srcX, srcY));
         } else
@@ -642,7 +643,7 @@ private:
         if (fRecorder) {
             // Graphite backed, so use the private testing-only synchronous API
             SkASSERT(specialImage->isGraphiteBacked());
-            auto view = specialImage->textureProxyView();
+            auto view = SkSpecialImages::AsTextureProxyView(specialImage);
             auto proxyII = ii.makeWH(view.width(), view.height());
             SkAssertResult(fRecorder->priv().context()->priv().readPixels(
                     bm.pixmap(), view.proxy(), proxyII, srcX, srcY));

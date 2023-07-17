@@ -255,7 +255,7 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
     result = this->onFilterImage(context);
 
     if (context.gpuBacked()) {
-        SkASSERT(!result.image() || result.image()->isTextureBacked());
+        SkASSERT(!result.image() || result.image()->isGaneshBacked());
     }
 
     if (context.cache()) {
@@ -563,7 +563,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index,
     }
 
     skif::FilterResult result = as_IFB(input)->filterImage(inputCtx);
-    SkASSERT(!result.image() || ctx.gpuBacked() == result.image()->isTextureBacked());
+    SkASSERT(!result.image() || ctx.gpuBacked() == result.image()->isGaneshBacked());
 
     return result.imageAndOffset(inputCtx, offset);
 }

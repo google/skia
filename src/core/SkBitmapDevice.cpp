@@ -586,7 +586,8 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
                                  const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
     SkASSERT(!paint.getMaskFilter());
-    SkASSERT(!src->isTextureBacked());
+    SkASSERT(!src->isGaneshBacked());
+    SkASSERT(!src->isGraphiteBacked());
 
     SkBitmap resultBM;
     if (src->getROPixels(&resultBM)) {

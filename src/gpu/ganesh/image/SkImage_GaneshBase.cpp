@@ -333,7 +333,7 @@ sk_sp<SkImage> SkImage_GaneshBase::makeWithFilter(GrRecordingContext* rContext,
             /*fSurfaceProps=*/{},
             cache.get()};
 
-    auto view = srcSpecialImage->view(rContext);
+    auto view = SkSpecialImages::AsView(rContext, srcSpecialImage);
     skif::Context context = skif::MakeGaneshContext(rContext, view.origin(), ctxInfo);
 
     return this->filterSpecialImage(

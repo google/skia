@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"  // IWYU pragma: keep
 #include "include/core/SkImage.h"
@@ -26,15 +27,16 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkImageShader.h"
 
 #include <cstddef>
+#include <tuple>
 #include <utility>
 
-class SkBitmap;
 class SkPaint;
 class SkShader;
 class SkSurfaceProps;
@@ -63,6 +65,8 @@ public:
 
     size_t getSize() const override { return fView.proxy()->gpuMemorySize(); }
 
+    bool isGaneshBacked() const override { return true; }
+
     void onDraw(SkCanvas* canvas,
                 SkScalar x,
                 SkScalar y,
@@ -87,9 +91,9 @@ public:
                               SkCanvas::kStrict_SrcRectConstraint);
     }
 
-    GrRecordingContext* onGetContext() const override { return fContext; }
+    GrRecordingContext* getContext() const override { return fContext; }
 
-    GrSurfaceProxyView onView(GrRecordingContext* context) const override { return fView; }
+    GrSurfaceProxyView view(GrRecordingContext*) const { return fView; }
 
     bool onGetROPixels(SkBitmap* dst) const override {
         // This should never be called: All GPU image filters are implemented entirely on the GPU,
@@ -200,6 +204,21 @@ sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext* context,
             std::move(view),
             SkColorInfo(ct, colorInfo.alphaType(), colorInfo.refColorSpace()),
             props);
+}
+
+GrSurfaceProxyView AsView(GrRecordingContext* context, const SkSpecialImage* img) {
+    if (!context || !img) {
+        return {};
+    }
+    if (img->isGaneshBacked()) {
+        auto grImg = static_cast<const SkSpecialImage_Gpu*>(img);
+        return grImg->view(context);
+    }
+    SkASSERT(!img->isGraphiteBacked());
+    SkBitmap bm;
+    SkAssertResult(img->getROPixels(&bm));  // this should always succeed for raster images
+    return std::get<0>(GrMakeCachedBitmapProxyView(
+            context, bm, /*label=*/"SpecialImageRaster_AsView", GrMipmapped::kNo));
 }
 
 }  // namespace SkSpecialImages

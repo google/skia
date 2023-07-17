@@ -328,7 +328,7 @@ static skif::Context make_context(const SkIRect& out, const SkSpecialImage* src)
                                  src->getColorSpace(),
                                  src->props(),
                                  /*cache=*/nullptr};
-    if (src->isTextureBacked()) {
+    if (src->isGaneshBacked()) {
         return skif::MakeGaneshContext(src->getContext(), kTestSurfaceOrigin, ctxInfo);
     } else {
         return skif::Context::MakeRaster(ctxInfo);
@@ -1259,7 +1259,7 @@ static void test_big_kernel(skiatest::Reporter* reporter, GrRecordingContext* rC
     skif::Context ctx = make_context(100, 100, srcImg.get());
     sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, resultImg);
-    REPORTER_ASSERT(reporter, SkToBool(rContext) == resultImg->isTextureBacked());
+    REPORTER_ASSERT(reporter, SkToBool(rContext) == resultImg->isGaneshBacked());
     REPORTER_ASSERT(reporter, resultImg->width() == 100 && resultImg->height() == 100);
     REPORTER_ASSERT(reporter, offset.fX == 0 && offset.fY == 0);
 }

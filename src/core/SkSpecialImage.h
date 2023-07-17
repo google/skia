@@ -15,11 +15,6 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/base/SkTo.h"
-
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#endif
 
 #include <cstddef>
 #include <cstdint>
@@ -35,12 +30,6 @@ class SkShader;
 enum SkAlphaType : int;
 enum SkColorType : int;
 enum class SkTileMode;
-
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite {
-class TextureProxyView;
-}
-#endif
 
 enum {
     kNeedNewImageUniqueID_SpecialImage = 0
@@ -126,28 +115,13 @@ public:
     /**
      *  If the SpecialImage is backed by a gpu texture, return true.
      */
-    bool isTextureBacked() const { return SkToBool(this->onGetContext()); }
+    virtual bool isGaneshBacked() const { return false; }
+    virtual bool isGraphiteBacked() const { return false; }
 
     /**
      * Return the GrRecordingContext if the SkSpecialImage is GrTexture-backed
      */
-    GrRecordingContext* getContext() const { return this->onGetContext(); }
-
-#if defined(SK_GANESH)
-    /**
-     * Regardless of how the underlying backing data is stored, returns the contents as a
-     * GrSurfaceProxyView. The returned view's proxy represents the entire backing image, so texture
-     * coordinates must be mapped from the content rect (e.g. relative to 'subset()') to the proxy's
-     * space (offset by subset().topLeft()).
-     */
-    GrSurfaceProxyView view(GrRecordingContext* context) const { return this->onView(context); }
-#endif
-
-#if defined(SK_GRAPHITE)
-    bool isGraphiteBacked() const;
-
-    skgpu::graphite::TextureProxyView textureProxyView() const;
-#endif
+    virtual GrRecordingContext* getContext() const { return nullptr; }
 
     /**
      *  Regardless of the underlying backing store, return the contents as an SkBitmap.
@@ -170,16 +144,6 @@ protected:
                         const SkPaint*) const = 0;
 
     virtual bool onGetROPixels(SkBitmap*) const = 0;
-
-    virtual GrRecordingContext* onGetContext() const { return nullptr; }
-
-#if defined(SK_GANESH)
-    virtual GrSurfaceProxyView onView(GrRecordingContext*) const = 0;
-#endif
-
-#if defined(SK_GRAPHITE)
-    virtual skgpu::graphite::TextureProxyView onTextureProxyView() const;
-#endif
 
     // This subset is relative to the backing store's coordinate frame, it has already been mapped
     // from the content rect by the non-virtual makeSubset().

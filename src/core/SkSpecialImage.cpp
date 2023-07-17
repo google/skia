@@ -18,14 +18,6 @@
 #include "src/core/SkNextID.h"
 #include "src/image/SkImage_Base.h"
 
-#if defined(SK_GANESH)
-#include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrTypes.h"
-#include "src/gpu/ganesh/SkGr.h"
-#endif
-
-#include <tuple>
-
 // Currently, the raster imagefilters can only handle certain imageinfos. Call this to know if
 // a given info is supported.
 static bool valid_for_imagefilters(const SkImageInfo& info) {
@@ -67,29 +59,6 @@ sk_sp<SkShader> SkSpecialImage::asShader(const SkSamplingOptions& sampling,
     return this->asShader(SkTileMode::kClamp, sampling, lm);
 }
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/TextureProxyView.h"
-
-bool SkSpecialImage::isGraphiteBacked() const {
-    return SkToBool(this->textureProxyView());
-}
-
-skgpu::graphite::TextureProxyView SkSpecialImage::textureProxyView() const {
-    return this->onTextureProxyView();
-}
-
-skgpu::graphite::TextureProxyView SkSpecialImage::onTextureProxyView() const {
-    // To get here we would need to be trying to retrieve a Graphite-backed resource from
-    // either a raster or Ganesh-backed special image. That should never happen.
-    // TODO: re-enable this assert. Right now, since image filters can fallback to raster
-    // in Graphite, we can get here.
-    //SkASSERT(false);
-    return {};
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 class SkSpecialImage_Raster final : public SkSpecialImage {
 public:
     SkSpecialImage_Raster(const SkIRect& subset, const SkBitmap& bm, const SkSurfaceProps& props)
@@ -113,17 +82,6 @@ public:
     bool onGetROPixels(SkBitmap* bm) const override {
         return fBitmap.extractSubset(bm, this->subset());
     }
-
-#if defined(SK_GANESH)
-    GrSurfaceProxyView onView(GrRecordingContext* context) const override {
-        if (context) {
-            return std::get<0>(GrMakeCachedBitmapProxyView(
-                    context, fBitmap, /*label=*/"SpecialImageRaster_OnView", GrMipmapped::kNo));
-        }
-
-        return {};
-    }
-#endif
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         // No need to extract subset, onGetROPixels handles that when needed

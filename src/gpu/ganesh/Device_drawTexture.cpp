@@ -30,6 +30,7 @@
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
 
 using namespace skia_private;
@@ -370,7 +371,7 @@ void Device::drawSpecial(SkSpecialImage* special,
                          const SkSamplingOptions& origSampling,
                          const SkPaint& paint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
-    SkASSERT(special->isTextureBacked());
+    SkASSERT(special->isGaneshBacked());
 
     SkRect src = SkRect::Make(special->subset());
     SkRect dst = SkRect::MakeWH(special->width(), special->height());
@@ -381,7 +382,7 @@ void Device::drawSpecial(SkSpecialImage* special,
     SkCanvas::QuadAAFlags aaFlags = (aa == GrAA::kYes) ? SkCanvas::kAll_QuadAAFlags
                                                        : SkCanvas::kNone_QuadAAFlags;
 
-    GrSurfaceProxyView view = special->view(this->recordingContext());
+    GrSurfaceProxyView view = SkSpecialImages::AsView(this->recordingContext(), special);
     SkImage_Ganesh image(sk_ref_sp(special->getContext()),
                          special->uniqueID(),
                          std::move(view),

@@ -79,18 +79,19 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
     //--------------
     // Test that isTextureBacked reports the correct backing type
-    REPORTER_ASSERT(reporter, isGPUBacked == img->isTextureBacked());
+    REPORTER_ASSERT(reporter, isGPUBacked == img->isGaneshBacked());
+    REPORTER_ASSERT(reporter, !img->isGraphiteBacked());
 
     //--------------
     // Test view - as long as there is a context this should succeed
     if (rContext) {
-        GrSurfaceProxyView view = img->view(rContext);
+        GrSurfaceProxyView view = SkSpecialImages::AsView(rContext, img);
         REPORTER_ASSERT(reporter, view.asTextureProxy());
     }
 
     //--------------
     // Test getROPixels - this only works for raster-backed special images
-    if (!img->isTextureBacked()) {
+    if (!img->isGaneshBacked()) {
         SkBitmap bitmap;
         REPORTER_ASSERT(reporter, img->getROPixels(&bitmap));
         REPORTER_ASSERT(reporter, kSmallerSize == bitmap.width());

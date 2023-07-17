@@ -106,7 +106,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
 
     // Create a gpu-backed special image from a raster-backed SkBitmap
     sk_sp<SkSpecialImage> special = DeviceTestingAccess::MakeSpecial(device.get(), bm);
-    SkASSERT(special->isTextureBacked());
+    SkASSERT(special->isGaneshBacked());
     SkASSERT(kWidth == special->width());
     SkASSERT(kHeight == special->height());
     SkASSERT(bm.getGenerationID() == special->uniqueID());
@@ -115,7 +115,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
     // Create a gpu-backed special image from a raster-backed SkImage
     sk_sp<SkImage> image(bm.asImage());
     special = DeviceTestingAccess::MakeSpecial(device.get(), image.get());
-    SkASSERT(special->isTextureBacked());
+    SkASSERT(special->isGaneshBacked());
     SkASSERT(kWidth == special->width());
     SkASSERT(kHeight == special->height());
     // TODO: Hmmm, this is a bit unexpected
@@ -125,7 +125,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
     // Create a gpu-backed special image from a gpu-backed SkImage
     image = SkImages::TextureFromImage(dContext, image);
     special = DeviceTestingAccess::MakeSpecial(device.get(), image.get());
-    SkASSERT(special->isTextureBacked());
+    SkASSERT(special->isGaneshBacked());
     SkASSERT(kWidth == special->width());
     SkASSERT(kHeight == special->height());
     SkASSERT(image->uniqueID() == special->uniqueID());
@@ -133,7 +133,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
 
     // Snap the device as a gpu-backed special image
     special = DeviceTestingAccess::SnapSpecial(device.get());
-    SkASSERT(special->isTextureBacked());
+    SkASSERT(special->isGaneshBacked());
     SkASSERT(2*kWidth == special->width());
     SkASSERT(2*kHeight == special->height());
     SkASSERT(SkIRect::MakeWH(2*kWidth, 2*kHeight) == special->subset());

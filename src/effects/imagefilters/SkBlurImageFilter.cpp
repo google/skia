@@ -1001,7 +1001,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(const skif::Context& ctx,
 
     auto context = ctx.getContext();
 
-    GrSurfaceProxyView inputView = input->view(context);
+    GrSurfaceProxyView inputView = SkSpecialImages::AsView(context, input);
     if (!inputView.proxy()) {
         return nullptr;
     }

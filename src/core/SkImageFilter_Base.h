@@ -16,6 +16,11 @@
 
 #include "src/core/SkImageFilterTypes.h"
 
+#if defined(SK_GANESH)
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrTypes.h"
+#endif
+
 #include <optional>
 
 class GrFragmentProcessor;

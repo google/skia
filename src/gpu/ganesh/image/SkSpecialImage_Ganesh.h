@@ -10,11 +10,11 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 #include <cstdint>
 
 class GrRecordingContext;
-class GrSurfaceProxyView;
 class SkImage;
 class SkSpecialImage;
 class SkSurfaceProps;
@@ -33,6 +33,17 @@ sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
                                           GrSurfaceProxyView,
                                           const GrColorInfo&,
                                           const SkSurfaceProps&);
+
+/**
+ * Regardless of how the underlying backing data is stored, returns the contents as a
+ * GrSurfaceProxyView. The returned view's proxy represents the entire backing image, so texture
+ * coordinates must be mapped from the content rect (e.g. relative to 'subset()') to the proxy's
+ * space (offset by subset().topLeft()).
+ */
+GrSurfaceProxyView AsView(GrRecordingContext*, const SkSpecialImage*);
+inline GrSurfaceProxyView AsView(GrRecordingContext* rContext, sk_sp<const SkSpecialImage> img) {
+    return AsView(rContext, img.get());
+}
 
 }  // namespace SkSpecialImages
 
