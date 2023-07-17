@@ -165,31 +165,31 @@ class SkpDebugPlayer {
     // However, there's not a simple way to make the debugcanvases pull settings from a central
     // location so we set it on all of them at once.
     void setOverdrawVis(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setOverdrawViz(on);
       }
       fLayerManager->setOverdrawViz(on);
     }
     void setGpuOpBounds(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setDrawGpuOpBounds(on);
       }
       fLayerManager->setDrawGpuOpBounds(on);
     }
     void setClipVizColor(JSColor color) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setClipVizColor(SkColor(color));
       }
       fLayerManager->setClipVizColor(SkColor(color));
     }
     void setAndroidClipViz(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setAndroidClipViz(on);
       }
       // doesn't matter in layers
     }
     void setOriginVisible(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setOriginVisible(on);
       }
     }
