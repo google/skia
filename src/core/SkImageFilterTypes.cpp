@@ -131,33 +131,53 @@ std::optional<LayerSpace<SkMatrix>> periodic_axis_transform(
         return {};
     }
 
-    // Calculate normalized periodic coordinates of 'output' relative to the 'crop' being tiled.
-    const float invW = 1.f / crop.width();
-    const float invH = 1.f / crop.height();
-    SkRect normalizedTileCoords = SkRect::MakeLTRB((output.left()   - crop.left()) * invW,
-                                                   (output.top()    - crop.top())  * invH,
-                                                   (output.right()  - crop.left()) * invW,
-                                                   (output.bottom() - crop.top())  * invH);
+    // Lift crop dimensions into 64 bit so that we can combine with 'output' without worrying about
+    // overflowing 32 bits.
+    double cropL = (double) crop.left();
+    double cropT = (double) crop.top();
+    double cropWidth = crop.right() - cropL;
+    double cropHeight = crop.bottom() - cropT;
 
-    SkIRect period = RoundOut(normalizedTileCoords);
-    if (period.fRight - period.fLeft <= 1 && period.fBottom - period.fTop <= 1) {
+    // Calculate normalized periodic coordinates of 'output' relative to the 'crop' being tiled.
+    int periodL = sk_double_floor2int((output.left() - cropL) / cropWidth);
+    int periodT = sk_double_floor2int((output.top() - cropT) / cropHeight);
+    int periodR = sk_double_ceil2int((output.right() - cropL) / cropWidth);
+    int periodB = sk_double_ceil2int((output.bottom() - cropT) / cropHeight);
+
+    if (periodR - periodL <= 1 && periodB - periodT <= 1) {
         // The tiling pattern won't be visible, so we can draw the image without tiling and an
-        // adjusted transform.
-        SkMatrix periodicTransform = SkMatrix::Translate(-crop.left(), -crop.top());
+        // adjusted transform. We calculate the final translation in double to be exact and then
+        // verify that it can round-trip as a float.
+        float sx = 1.f;
+        float sy = 1.f;
+        double tx = -cropL;
+        double ty = -cropT;
+
         if (tileMode == SkTileMode::kMirror) {
             // Flip image when in odd periods on each axis.
-            if ((int) period.fLeft % 2 != 0) {
-                periodicTransform.postScale(-1.f, 1.f);
-                periodicTransform.postTranslate(crop.width(), 0.f);
+            if (periodL % 2 != 0) {
+                sx = -1.f;
+                tx = cropWidth - tx;
             }
-            if ((int) period.fTop % 2 != 0) {
-                periodicTransform.postScale(1.f, -1.f);
-                periodicTransform.postTranslate(0.f, crop.height());
+            if (periodT % 2 != 0) {
+                sy = -1.f;
+                ty = cropHeight - ty;
             }
         }
-        // Now translate by periods and make relative to crop's top left again
-        periodicTransform.postTranslate(period.fLeft * crop.width(), period.fTop * crop.height());
-        periodicTransform.postTranslate(crop.left(), crop.top());
+        // Now translate by periods and make relative to crop's top left again. Given 32-bit inputs,
+        // the period * dimension shouldn't overflow 64-bits.
+        tx += periodL * cropWidth + cropL;
+        ty += periodT * cropHeight + cropT;
+
+        // Representing the periodic tiling as a float SkMatrix would lose the pixel precision
+        // required to represent it, so don't apply this optimization.
+        if (sk_double_saturate2int(tx) != (float) tx ||
+            sk_double_saturate2int(ty) != (float) ty) {
+            return {};
+        }
+
+        SkMatrix periodicTransform;
+        periodicTransform.setScaleTranslate(sx, sy, (float) tx, (float) ty);
         return LayerSpace<SkMatrix>(periodicTransform);
     } else {
         // Both low and high edges of the crop would be visible in 'output', or a mirrored
