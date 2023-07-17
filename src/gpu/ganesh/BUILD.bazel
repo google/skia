@@ -121,6 +121,8 @@ CORE_FILES = [
     "GrImageInfo.h",
     "GrManagedResource.cpp",
     "GrManagedResource.h",
+    "GrMeshBuffers.cpp",
+    "GrMeshBuffers.h",
     "GrMeshDrawTarget.cpp",
     "GrMeshDrawTarget.h",
     "GrNativeRect.h",

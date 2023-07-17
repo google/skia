@@ -16,6 +16,7 @@
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrMeshBuffers.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h"
@@ -35,6 +36,19 @@ GrPrimitiveType primitive_type(SkMesh::Mode mode) {
     switch (mode) {
         case SkMesh::Mode::kTriangles:     return GrPrimitiveType::kTriangles;
         case SkMesh::Mode::kTriangleStrip: return GrPrimitiveType::kTriangleStrip;
+    }
+    SkUNREACHABLE;
+}
+
+using MeshAttributeType = SkMeshSpecification::Attribute::Type;
+
+GrVertexAttribType attrib_type(MeshAttributeType type) {
+    switch (type) {
+        case MeshAttributeType::kFloat:        return kFloat_GrVertexAttribType;
+        case MeshAttributeType::kFloat2:       return kFloat2_GrVertexAttribType;
+        case MeshAttributeType::kFloat3:       return kFloat3_GrVertexAttribType;
+        case MeshAttributeType::kFloat4:       return kFloat4_GrVertexAttribType;
+        case MeshAttributeType::kUByte4_unorm: return kUByte4_norm_GrVertexAttribType;
     }
     SkUNREACHABLE;
 }
@@ -425,11 +439,10 @@ private:
             , fNeedsLocalCoords(needsLocalCoords) {
         fColor = color.value_or(SK_PMColor4fILLEGAL);
         for (const auto& srcAttr : fSpec->attributes()) {
-            fAttributes.emplace_back(
-                    srcAttr.name.c_str(),
-                    SkMeshSpecificationPriv::AttrTypeAsVertexAttribType(srcAttr.type),
-                    SkMeshSpecificationPriv::AttrTypeAsSLType(srcAttr.type),
-                    srcAttr.offset);
+            fAttributes.emplace_back(srcAttr.name.c_str(),
+                                     attrib_type(srcAttr.type),
+                                     SkMeshSpecificationPriv::AttrTypeAsSLType(srcAttr.type),
+                                     srcAttr.offset);
         }
         this->setVertexAttributes(fAttributes.data(), fAttributes.size(), fSpec->stride());
     }
@@ -532,14 +545,31 @@ private:
             if (this->isFromVertices()) {
                 return {};
             }
-            return {fMeshData.vb->asGpuBuffer(), fMeshData.voffset};
+            SkASSERT(fMeshData.vb);
+            if (!fMeshData.vb->isGaneshBacked()) {
+                // This is a signal to upload the vertices which weren't already uploaded
+                // to the GPU (e.g. SkPicture containing a mesh).
+                return {nullptr, 0};
+            }
+            if (auto buf = static_cast<const SkMeshPriv::GaneshVertexBuffer*>(fMeshData.vb.get())) {
+                return {buf->asGpuBuffer(), fMeshData.voffset};
+            }
+            return {};
         }
 
         std::tuple<sk_sp<const GrGpuBuffer>, size_t> gpuIB() const {
             if (this->isFromVertices() || !fMeshData.ib) {
                 return {};
             }
-            return {fMeshData.ib->asGpuBuffer(), fMeshData.ioffset};
+            if (!fMeshData.ib->isGaneshBacked()) {
+                // This is a signal to upload the indices which weren't already uploaded
+                // to the GPU (e.g. SkPicture containing a mesh).
+                return {nullptr, 0};
+            }
+            if (auto buf = static_cast<const SkMeshPriv::GaneshIndexBuffer*>(fMeshData.ib.get())) {
+                return {buf->asGpuBuffer(), fMeshData.ioffset};
+            }
+            return {};
         }
 
         void writeVertices(skgpu::VertexWriter& writer,
@@ -617,6 +647,7 @@ private:
 
 MeshOp::Mesh::Mesh(const SkMesh& mesh) {
     new (&fMeshData) MeshData();
+    SkASSERT(mesh.vertexBuffer());
     fMeshData.vb = sk_ref_sp(static_cast<SkMeshPriv::VB*>(mesh.vertexBuffer()));
     if (mesh.indexBuffer()) {
         fMeshData.ib = sk_ref_sp(static_cast<SkMeshPriv::IB*>(mesh.indexBuffer()));

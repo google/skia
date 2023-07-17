@@ -94,6 +94,7 @@ generate_cpp_files_for_headers(
         "include/gpu/MutableTextureState.h",
         "include/gpu/ganesh/GrExternalTextureGenerator.h",
         "include/gpu/ganesh/SkImageGanesh.h",
+        "include/gpu/ganesh/SkMeshGanesh.h",
         "include/gpu/ganesh/SkSurfaceGanesh.h",
         "include/private/SkIDChangeListener.h",
         "include/private/SkWeakRefCnt.h",

@@ -16,6 +16,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkMeshGanesh.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMeshPriv.h"
@@ -121,9 +122,9 @@ protected:
             return DrawResult::kOk;
         }
 
-        fColorVB        = SkMesh::CopyVertexBuffer(dc, fColorVB);
-        fColorIndexedVB = SkMesh::CopyVertexBuffer(dc, fColorIndexedVB);
-        fIB[1]          = SkMesh::CopyIndexBuffer (dc, fIB[0]);
+        fColorVB        = SkMeshes::CopyVertexBuffer(dc, fColorVB);
+        fColorIndexedVB = SkMeshes::CopyVertexBuffer(dc, fColorIndexedVB);
+        fIB[1]          = SkMeshes::CopyIndexBuffer (dc, fIB[0]);
         if (!fColorVB || !fColorIndexedVB || !fIB[1]) {
             return DrawResult::kFail;
         }
@@ -174,26 +175,26 @@ protected:
                     auto ib = (i%4 == 0) ? fIB[0] : fIB[1];
                     if (colors) {
                         result = SkMesh::MakeIndexed(fSpecWithColor,
-                                                   SkMesh::Mode::kTriangles,
-                                                   fColorIndexedVB,
-                                                   /*vertexCount=*/6,
-                                                   kColorIndexedOffset,
-                                                   std::move(ib),
-                                                   /*indexCount=*/6,
-                                                   kIndexOffset,
-                                                   /*uniforms=*/nullptr,
-                                                   kRect);
+                                                     SkMesh::Mode::kTriangles,
+                                                     fColorIndexedVB,
+                                                     /*vertexCount=*/6,
+                                                     kColorIndexedOffset,
+                                                     std::move(ib),
+                                                     /*indexCount=*/6,
+                                                     kIndexOffset,
+                                                     /*uniforms=*/nullptr,
+                                                     kRect);
                     } else {
                         result = SkMesh::MakeIndexed(fSpecWithNoColor,
-                                                   SkMesh::Mode::kTriangles,
-                                                   fNoColorIndexedVB,
-                                                   /*vertexCount=*/6,
-                                                   /*vertexOffset=*/0,
-                                                   std::move(ib),
-                                                   /*indexCount=*/6,
-                                                   kIndexOffset,
-                                                   /*uniforms=*/nullptr,
-                                                   kRect);
+                                                     SkMesh::Mode::kTriangles,
+                                                     fNoColorIndexedVB,
+                                                     /*vertexCount=*/6,
+                                                     /*vertexOffset=*/0,
+                                                     std::move(ib),
+                                                     /*indexCount=*/6,
+                                                     kIndexOffset,
+                                                     /*uniforms=*/nullptr,
+                                                     kRect);
                     }
                 }
                 if (!result.mesh.isValid()) {
@@ -220,9 +221,7 @@ protected:
 private:
     void ensureBuffers() {
         if (!fColorVB) {
-            fColorVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
-                                                kColorQuad,
-                                                sizeof(kColorQuad));
+            fColorVB = SkMeshes::MakeVertexBuffer(kColorQuad, sizeof(kColorQuad));
         }
 
         if (!fNoColorVB) {
@@ -231,9 +230,7 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kNoColorOffset),
                         kNoColorQuad,
                         sizeof(kNoColorQuad));
-            fNoColorVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
-                                                  data->data(),
-                                                  data->size());
+            fNoColorVB = SkMeshes::MakeVertexBuffer(data->data(), data->size());
         }
 
         if (!fColorIndexedVB) {
@@ -242,15 +239,12 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kColorIndexedOffset),
                         kColorIndexedQuad,
                         sizeof(kColorIndexedQuad));
-            fColorIndexedVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
-                                                       data->data(),
-                                                       data->size());
+            fColorIndexedVB = SkMeshes::MakeVertexBuffer(data->data(), data->size());
         }
 
         if (!fNoColorIndexedVB) {
-            fNoColorIndexedVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,
-                                                         kNoColorIndexedQuad,
-                                                         sizeof(kNoColorIndexedQuad));
+            fNoColorIndexedVB =
+                    SkMeshes::MakeVertexBuffer(kNoColorIndexedQuad, sizeof(kNoColorIndexedQuad));
         }
 
         if (!fIB[0]) {
@@ -259,9 +253,7 @@ private:
             std::memcpy(SkTAddOffset<void>(data->writable_data(), kIndexOffset),
                         kIndices,
                         sizeof(kIndices));
-            fIB[0] = SkMesh::MakeIndexBuffer(/*GrDirectContext*=*/nullptr,
-                                             data->data(),
-                                             data->size());
+            fIB[0] = SkMeshes::MakeIndexBuffer(data->data(), data->size());
         }
 
         if (!fIB[1]) {
@@ -408,7 +400,7 @@ protected:
         SkColor colors[] = {SK_ColorWHITE,    SK_ColorTRANSPARENT};
         fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
 
-        fVB = SkMesh::MakeVertexBuffer(nullptr, kQuad, sizeof(kQuad));
+        fVB = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
     }
 
     SkString onShortName() override { return SkString("custommesh_cs"); }
@@ -486,6 +478,25 @@ private:
     sk_sp<SkShader> fShader;
 };
 
+// helpers for cases when ctx could be nullptr
+static sk_sp<SkMesh::VertexBuffer> make_vertex_buffer(GrDirectContext* ctx,
+                                                      const void* data,
+                                                      size_t size) {
+    if (ctx) {
+        return SkMeshes::MakeVertexBuffer(ctx, data, size);
+    }
+    return SkMeshes::MakeVertexBuffer(data, size);
+}
+
+static sk_sp<SkMesh::IndexBuffer> make_index_buffer(GrDirectContext* ctx,
+                                                    const void* data,
+                                                    size_t size) {
+    if (ctx) {
+        return SkMeshes::MakeIndexBuffer(ctx, data, size);
+    }
+    return SkMeshes::MakeIndexBuffer(data, size);
+}
+
 DEF_GM(return new MeshColorSpaceGM;)
 
 class MeshUniformsGM : public skiagm::GM {
@@ -547,7 +558,7 @@ protected:
                                                2,
                                                SkTileMode::kMirror);
 
-        fVB = SkMesh::MakeVertexBuffer(nullptr, kQuad, sizeof(kQuad));
+        fVB = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
     }
 
     SkString onShortName() override { return SkString("custommesh_uniforms"); }
@@ -733,8 +744,8 @@ protected:
             // > kVBRects.
             static constexpr int kUpdatesRects = 3;
 
-            auto vb =
-                    SkMesh::MakeVertexBuffer(ctx, /*data=*/nullptr, kVBRects*6*sizeof(Vertex));
+            auto vb = make_vertex_buffer(ctx, /*data=*/nullptr, kVBRects * 6 * sizeof(Vertex));
+            SkASSERT(vb);
 
             SkRect bounds;
             for (int i = 0; i < kUpdatesRects; ++i) {
@@ -790,8 +801,8 @@ protected:
             static constexpr int kNumIBUpdates = 3;
 
             // Make the vertex buffer large enough to hold all the rects and populate.
-            vb = SkMesh::MakeVertexBuffer(
-                    ctx, /*data=*/nullptr, kNumIBUpdates*4*sizeof(Vertex));
+            vb = make_vertex_buffer(ctx, /*data=*/nullptr, kNumIBUpdates * 4 * sizeof(Vertex));
+            SkASSERT(vb);
             for (int i = 0; i < kNumIBUpdates; ++i) {
                 SkPoint p[4];
                 auto rect = r.makeOffset(100*i, 0);
@@ -810,9 +821,9 @@ protected:
                         vb->update(ctx, vertices, i*4*sizeof(Vertex), 4*sizeof(Vertex)));
             }
 
-            auto ib =
-                    SkMesh::MakeIndexBuffer(ctx, /*data=*/nullptr, kIBRects*6*sizeof(uint16_t));
-
+            auto ib = make_index_buffer(
+                    ctx, /*data=*/nullptr, kIBRects * 6 * sizeof(uint16_t));
+            SkASSERT(ib);
             for (int i = 0; i < kNumIBUpdates; ++i) {
                 uint16_t indices[6] = {SkToU16(0 + 4*i),
                                        SkToU16(3 + 4*i),
@@ -945,7 +956,8 @@ protected:
                 const auto& spec = fSpec[i];
 
                 size_t posOffset = spec->findAttribute("pos")->offset;
-                auto vb = SkMesh::MakeVertexBuffer(ctx, nullptr, spec->stride()*std::size(kTri));
+                auto vb = make_vertex_buffer(ctx, nullptr, spec->stride() * std::size(kTri));
+                SkASSERT(vb);
                 for (size_t j = 0; j < std::size(kTri); ++j) {
                     SkAssertResult(vb->update(ctx,
                                               &kTri[j],
@@ -958,7 +970,9 @@ protected:
                 // The second time we upload 1,2 to beginning of the buffer to form 1,2,0.
                 size_t indexUploadOffset = i == 0 ? 4 : 0;
                 size_t indexMeshOffset   = i == 0 ? 2 : 0;
-                auto ib = SkMesh::MakeIndexBuffer(ctx, nullptr, sizeof(uint16_t)*4);
+
+                auto ib = make_index_buffer(ctx, nullptr, sizeof(uint16_t) * 4);
+                SkASSERT(ib);
                 SkAssertResult(ib->update(ctx, kTiIndices, indexUploadOffset, sizeof(kTiIndices)));
 
                 SkRect bounds;
@@ -1054,8 +1068,8 @@ protected:
         }
         fSpec = std::move(spec);
 
-        fVB = SkMesh::MakeVertexBuffer(nullptr, kQuad, sizeof(kQuad));
-        fIB = SkMesh::MakeIndexBuffer(nullptr, kIndices, sizeof(kIndices));
+        fVB = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
+        fIB = SkMeshes::MakeIndexBuffer(kIndices, sizeof(kIndices));
 
         SkRandom random;
         SkColor4f colors[6];
@@ -1088,8 +1102,8 @@ protected:
         for (bool picture : {false, true}) {
             canvas->save();
             for (bool gpu : {false, true}) {
-                auto vb = gpu ? SkMesh::CopyVertexBuffer(dc, fVB) : fVB;
-                auto ib = gpu ? SkMesh::CopyIndexBuffer (dc, fIB) : fIB;
+                auto vb = gpu ? SkMeshes::CopyVertexBuffer(dc, fVB) : fVB;
+                auto ib = gpu ? SkMeshes::CopyIndexBuffer (dc, fIB) : fIB;
 
                 float offset[2] = {8, 8};
                 for (size_t i = 0; i < 4; ++i) {

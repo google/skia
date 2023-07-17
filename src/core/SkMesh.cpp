@@ -43,20 +43,7 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrDrawingManager.h"
-#include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrGpuBuffer.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
-#include "src/gpu/ganesh/GrStagingBufferManager.h"
-#endif  // defined(SK_GANESH)
-
 #include <algorithm>
-#include <cstring>
 #include <locale>
 #include <string>
 #include <tuple>
@@ -670,52 +657,6 @@ SkMesh::SkMesh(SkMesh&&)      = default;
 SkMesh& SkMesh::operator=(const SkMesh&) = default;
 SkMesh& SkMesh::operator=(SkMesh&&)      = default;
 
-sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, const void* data, size_t size) {
-    if (!dc) {
-        return SkMeshPriv::CpuIndexBuffer::Make(data, size);
-    }
-#if defined(SK_GANESH)
-    return SkMeshPriv::GpuIndexBuffer::Make(dc, data, size);
-#else
-    return nullptr;
-#endif
-}
-
-sk_sp<IndexBuffer> SkMesh::CopyIndexBuffer(GrDirectContext* dc, sk_sp<IndexBuffer> src) {
-    if (!src) {
-        return nullptr;
-    }
-    auto* ib = static_cast<SkMeshPriv::IB*>(src.get());
-    const void* data = ib->peek();
-    if (!data) {
-        return nullptr;
-    }
-    return MakeIndexBuffer(dc, data, ib->size());
-}
-
-sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, const void* data, size_t size) {
-    if (!dc) {
-        return SkMeshPriv::CpuVertexBuffer::Make(data, size);
-    }
-#if defined(SK_GANESH)
-    return SkMeshPriv::GpuVertexBuffer::Make(dc, data, size);
-#else
-    return nullptr;
-#endif
-}
-
-sk_sp<VertexBuffer> SkMesh::CopyVertexBuffer(GrDirectContext* dc, sk_sp<VertexBuffer> src) {
-    if (!src) {
-        return nullptr;
-    }
-    auto* vb = static_cast<SkMeshPriv::VB*>(src.get());
-    const void* data = vb->peek();
-    if (!data) {
-        return nullptr;
-    }
-    return MakeVertexBuffer(dc, data, vb->size());
-}
-
 SkMesh::Result SkMesh::Make(sk_sp<SkMeshSpecification> spec,
                             Mode mode,
                             sk_sp<VertexBuffer> vb,
@@ -887,56 +828,65 @@ bool SkMesh::VertexBuffer::update(GrDirectContext* dc,
     return check_update(data, offset, size, this->size()) && this->onUpdate(dc, data, offset, size);
 }
 
-#if defined(SK_GANESH)
-bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
-                                 sk_sp<GrGpuBuffer> buffer,
-                                 const void* data,
-                                 size_t offset,
-                                 size_t size) {
-    if (!dc || dc != buffer->getContext()) {
-        return false;
-    }
-    SkASSERT(!dc->abandoned()); // If dc is abandoned then buffer->getContext() should be null.
-
-    if (!dc->priv().caps()->transferFromBufferToBufferSupport()) {
-        auto ownedData = SkData::MakeWithCopy(data, size);
-        dc->priv().drawingManager()->newBufferUpdateTask(std::move(ownedData),
-                                                         std::move(buffer),
-                                                         offset);
-        return true;
-    }
-
-    sk_sp<GrGpuBuffer> tempBuffer;
-    size_t tempOffset = 0;
-    if (auto* sbm = dc->priv().getGpu()->stagingBufferManager()) {
-        auto alignment = dc->priv().caps()->transferFromBufferToBufferAlignment();
-        auto [sliceBuffer, sliceOffset, ptr] = sbm->allocateStagingBufferSlice(size, alignment);
-        if (sliceBuffer) {
-            std::memcpy(ptr, data, size);
-            tempBuffer.reset(SkRef(sliceBuffer));
-            tempOffset = sliceOffset;
-        }
-    }
-
-    if (!tempBuffer) {
-        tempBuffer = dc->priv().resourceProvider()->createBuffer(size,
-                                                                 GrGpuBufferType::kXferCpuToGpu,
-                                                                 kDynamic_GrAccessPattern,
-                                                                 GrResourceProvider::ZeroInit::kNo);
-        if (!tempBuffer) {
-            return false;
-        }
-        if (!tempBuffer->updateData(data, 0, size, /*preserve=*/false)) {
-            return false;
-        }
-    }
-
-    dc->priv().drawingManager()->newBufferTransferTask(std::move(tempBuffer),
-                                                       tempOffset,
-                                                       std::move(buffer),
-                                                       offset,
-                                                       size);
-
-    return true;
+namespace SkMeshes {
+sk_sp<IndexBuffer> MakeIndexBuffer(const void* data, size_t size) {
+    return SkMeshPriv::CpuIndexBuffer::Make(data, size);
 }
-#endif  // defined(SK_GANESH)
+
+sk_sp<IndexBuffer> CopyIndexBuffer(sk_sp<IndexBuffer> src) {
+    if (!src) {
+        return nullptr;
+    }
+    auto* ib = static_cast<SkMeshPriv::IB*>(src.get());
+    const void* data = ib->peek();
+    if (!data) {
+        return nullptr;
+    }
+    return MakeIndexBuffer(data, ib->size());
+}
+
+sk_sp<VertexBuffer> MakeVertexBuffer(const void* data, size_t size) {
+    return SkMeshPriv::CpuVertexBuffer::Make(data, size);
+}
+
+sk_sp<VertexBuffer> CopyVertexBuffer(sk_sp<VertexBuffer> src) {
+    if (!src) {
+        return nullptr;
+    }
+    auto* vb = static_cast<SkMeshPriv::VB*>(src.get());
+    const void* data = vb->peek();
+    if (!data) {
+        return nullptr;
+    }
+    return MakeVertexBuffer(data, vb->size());
+}
+}  // namespace SkMeshes
+
+#if !defined(SK_DISABLE_LEGACY_MESH_FUNCTIONS) && defined(SK_GANESH)
+#include "include/gpu/ganesh/SkMeshGanesh.h"
+
+sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* ctx, const void* data, size_t size) {
+    if (ctx) {
+        return SkMeshes::MakeIndexBuffer(ctx, data, size);
+    }
+    return SkMeshes::MakeIndexBuffer(data, size);
+}
+sk_sp<IndexBuffer> SkMesh::CopyIndexBuffer(GrDirectContext* ctx, sk_sp<IndexBuffer> src) {
+    if (ctx) {
+        return SkMeshes::CopyIndexBuffer(ctx, src);
+    }
+    return SkMeshes::CopyIndexBuffer(src);
+}
+sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* ctx, const void* data, size_t size) {
+    if (ctx) {
+        return SkMeshes::MakeVertexBuffer(ctx, data, size);
+    }
+    return SkMeshes::MakeVertexBuffer(data, size);
+}
+sk_sp<VertexBuffer> SkMesh::CopyVertexBuffer(GrDirectContext* ctx, sk_sp<VertexBuffer> src) {
+    if (ctx) {
+        return SkMeshes::CopyVertexBuffer(ctx, src);
+    }
+    return SkMeshes::CopyVertexBuffer(src);
+}
+#endif
