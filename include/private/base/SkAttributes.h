@@ -17,14 +17,6 @@
 #  define SK_ATTRIBUTE(attr)
 #endif
 
-#if !defined(SK_UNUSED)
-#  if !defined(__clang__) && defined(_MSC_VER)
-#    define SK_UNUSED __pragma(warning(suppress:4189))
-#  else
-#    define SK_UNUSED SK_ATTRIBUTE(unused)
-#  endif
-#endif
-
 #if !defined(SK_WARN_UNUSED_RESULT)
     #define SK_WARN_UNUSED_RESULT SK_ATTRIBUTE(warn_unused_result)
 #endif

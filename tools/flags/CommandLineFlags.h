@@ -192,57 +192,57 @@ private:
 #define TO_STRING2(s) #s
 #define TO_STRING(s) TO_STRING2(s)
 
-#define DEFINE_bool(name, defaultValue, helpString)                   \
-    bool                  FLAGS_##name;                               \
-    SK_UNUSED static bool unused_##name = SkFlagInfo::CreateBoolFlag( \
+#define DEFINE_bool(name, defaultValue, helpString)                          \
+    bool FLAGS_##name;                                                       \
+    [[maybe_unused]] static bool unused_##name = SkFlagInfo::CreateBoolFlag( \
             TO_STRING(name), nullptr, &FLAGS_##name, defaultValue, helpString)
 
 // bool 2 allows specifying a short name. No check is done to ensure that shortName
 // is actually shorter than name.
-#define DEFINE_bool2(name, shortName, defaultValue, helpString)       \
-    bool                  FLAGS_##name;                               \
-    SK_UNUSED static bool unused_##name = SkFlagInfo::CreateBoolFlag( \
+#define DEFINE_bool2(name, shortName, defaultValue, helpString)              \
+    bool FLAGS_##name;                                                       \
+    [[maybe_unused]] static bool unused_##name = SkFlagInfo::CreateBoolFlag( \
             TO_STRING(name), TO_STRING(shortName), &FLAGS_##name, defaultValue, helpString)
 
 #define DECLARE_bool(name) extern bool FLAGS_##name;
 
-#define DEFINE_string(name, defaultValue, helpString)                           \
-    CommandLineFlags::StringArray FLAGS_##name;                                 \
-    SK_UNUSED static bool         unused_##name = SkFlagInfo::CreateStringFlag( \
+#define DEFINE_string(name, defaultValue, helpString)                          \
+    CommandLineFlags::StringArray FLAGS_##name;                                \
+    [[maybe_unused]] static bool unused_##name = SkFlagInfo::CreateStringFlag( \
             TO_STRING(name), nullptr, &FLAGS_##name, defaultValue, helpString, nullptr)
 #define DEFINE_extended_string(name, defaultValue, helpString, extendedHelpString) \
     CommandLineFlags::StringArray FLAGS_##name;                                    \
-    SK_UNUSED static bool         unused_##name = SkFlagInfo::CreateStringFlag(    \
+    [[maybe_unused]] static bool unused_##name = SkFlagInfo::CreateStringFlag(     \
             TO_STRING(name), nullptr, &FLAGS_##name, defaultValue, helpString, extendedHelpString)
 
 // string2 allows specifying a short name. There is an assert that shortName
 // is only 1 character.
-#define DEFINE_string2(name, shortName, defaultValue, helpString)                                    \
-    CommandLineFlags::StringArray FLAGS_##name;                                                      \
-    SK_UNUSED static bool         unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),      \
-                                                                       TO_STRING(shortName), \
-                                                                       &FLAGS_##name,        \
-                                                                       defaultValue,         \
-                                                                       helpString,           \
-                                                                       nullptr)
+#define DEFINE_string2(name, shortName, defaultValue, helpString)                                  \
+    CommandLineFlags::StringArray FLAGS_##name;                                                    \
+    [[maybe_unused]] static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),     \
+                                                                              TO_STRING(shortName),\
+                                                                              &FLAGS_##name,       \
+                                                                              defaultValue,        \
+                                                                              helpString,          \
+                                                                              nullptr)
 
 #define DECLARE_string(name) extern CommandLineFlags::StringArray FLAGS_##name;
 
 #define DEFINE_int(name, defaultValue, helpString) \
-    int               FLAGS_##name;                \
-    SK_UNUSED static bool unused_##name =          \
+    int FLAGS_##name;                              \
+    [[maybe_unused]] static bool unused_##name =   \
             SkFlagInfo::CreateIntFlag(TO_STRING(name), &FLAGS_##name, defaultValue, helpString)
 
-#define DEFINE_int_2(name, shortName, defaultValue, helpString)      \
-    int               FLAGS_##name;                                  \
-    SK_UNUSED static bool unused_##name = SkFlagInfo::CreateIntFlag( \
+#define DEFINE_int_2(name, shortName, defaultValue, helpString)             \
+    int FLAGS_##name;                                                       \
+    [[maybe_unused]] static bool unused_##name = SkFlagInfo::CreateIntFlag( \
             TO_STRING(name), TO_STRING(shortName), &FLAGS_##name, defaultValue, helpString)
 
 #define DECLARE_int(name) extern int FLAGS_##name;
 
 #define DEFINE_double(name, defaultValue, helpString) \
-    double                FLAGS_##name;               \
-    SK_UNUSED static bool unused_##name =             \
+    double FLAGS_##name;                              \
+    [[maybe_unused]] static bool unused_##name =      \
             SkFlagInfo::CreateDoubleFlag(TO_STRING(name), &FLAGS_##name, defaultValue, helpString)
 
 #define DECLARE_double(name) extern double FLAGS_##name;
