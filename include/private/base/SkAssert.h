@@ -12,6 +12,7 @@
 #include "include/private/base/SkDebug.h" // IWYU pragma: keep
 
 #include <cstddef>
+#include <type_traits>  // IWYU pragma: keep IWYU doesn't understand if constexpr().
 
 #if defined(__clang__) && defined(__has_attribute)
     #if __has_attribute(likely)
@@ -115,8 +116,58 @@
     SK_ABORT("Index (%zu) out of bounds for size %zu.\n", i, size);
 }
 
+template <typename T> SK_API inline T sk_collection_check_bounds(T i, T size) {
+    if constexpr (std::is_signed_v<T>) {
+        if (0 <= i && i < size) SK_LIKELY {
+            return i;
+        }
+    } else {
+        if (i < size)  SK_LIKELY {
+            return i;
+        }
+    }
+
+    SK_UNLIKELY {
+        #if defined(SK_DEBUG)
+            sk_print_index_out_of_bounds(static_cast<size_t>(i), static_cast<size_t>(size));
+        #else
+            SkUNREACHABLE;
+        #endif
+    }
+}
+
 [[noreturn]] SK_API inline void sk_print_length_too_big(size_t i, size_t size) {
     SK_ABORT("Length (%zu) is too big for size %zu.\n", i, size);
 }
 
-#endif
+template <typename T> SK_API inline T sk_collection_check_length(T i, T size) {
+    if constexpr (std::is_signed_v<T>) {
+        if (0 <= i && i <= size) SK_LIKELY {
+            return i;
+        }
+    } else {
+        if (i <= size)  SK_LIKELY {
+            return i;
+        }
+    }
+
+    SK_UNLIKELY {
+        #if defined(SK_DEBUG)
+            sk_print_length_too_big(static_cast<size_t>(i), static_cast<size_t>(size));
+        #else
+            SkUNREACHABLE;
+        #endif
+    }
+}
+
+SK_API inline void sk_collection_not_empty(bool empty) {
+    if (empty) SK_UNLIKELY {
+    #if defined(SK_DEBUG)
+        SK_ABORT("Collection is empty.\n");
+    #else
+        SkUNREACHABLE;
+    #endif
+    }
+}
+
+#endif  // SkAssert_DEFINED

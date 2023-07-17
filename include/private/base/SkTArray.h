@@ -278,7 +278,7 @@ public:
      * Removes the last element. Not safe to call when size() == 0.
      */
     void pop_back() {
-        this->checkNotEmpty();
+        sk_collection_not_empty(this->empty());
         --fSize;
         fData[fSize].~T();
     }
@@ -387,11 +387,11 @@ public:
      * Get the i^th element.
      */
     T& operator[] (int i) {
-        return fData[this->checkIndex(i)];
+        return fData[sk_collection_check_bounds(i, this->size())];
     }
 
     const T& operator[] (int i) const {
-        return fData[this->checkIndex(i)];
+        return fData[sk_collection_check_bounds(i, this->size())];
     }
 
     T& at(int i) { return (*this)[i]; }
@@ -400,16 +400,28 @@ public:
     /**
      * equivalent to operator[](0)
      */
-    T& front() { this->checkNotEmpty(); return fData[0]; }
+    T& front() {
+        sk_collection_not_empty(this->empty());
+        return fData[0];
+    }
 
-    const T& front() const { this->checkNotEmpty(); return fData[0]; }
+    const T& front() const {
+        sk_collection_not_empty(this->empty());
+        return fData[0];
+    }
 
     /**
      * equivalent to operator[](size() - 1)
      */
-    T& back() { this->checkNotEmpty(); return fData[fSize - 1]; }
+    T& back() {
+        sk_collection_not_empty(this->empty());
+        return fData[fSize - 1];
+    }
 
-    const T& back() const { this->checkNotEmpty(); return fData[fSize - 1]; }
+    const T& back() const {
+        sk_collection_not_empty(this->empty());
+        return fData[fSize - 1];
+    }
 
     /**
      * equivalent to operator[](size()-1-i)
@@ -510,25 +522,6 @@ private:
     SK_CLANG_NO_SANITIZE("cfi")
     static T* TCast(void* buffer) {
         return (T*)buffer;
-    }
-
-    void checkNotEmpty() const {
-        if (this->empty()) SK_UNLIKELY {
-            SkUNREACHABLE;
-        }
-    }
-
-    int checkIndex(int i) const {
-        if (0 <= i && i < fSize) SK_LIKELY {
-            return i;
-        } else SK_UNLIKELY {
-
-#if defined(SK_DEBUG)
-        sk_print_index_out_of_bounds(SkToSizeT(i), SkToSizeT(fSize));
-#else
-        SkUNREACHABLE;
-#endif
-        }
     }
 
     size_t bytes(int n) const {
