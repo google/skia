@@ -11,7 +11,6 @@
 #include "include/core/SkBlender.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
-#include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
@@ -20,9 +19,13 @@
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
+
+#if defined(SK_ENABLE_SKSL)
+#include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkRuntimeEffectPriv.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "src/gpu/Blend.h"

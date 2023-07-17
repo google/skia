@@ -17,7 +17,6 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMaskFilter.h"
-#include "include/core/SkMesh.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPicture.h"
@@ -1717,16 +1716,13 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     this->onDrawVerticesObject(vertices, mode, paint);
 }
 
-#ifdef SK_ENABLE_SKSL
 void SkCanvas::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    RETURN_ON_FALSE(mesh.isValid());
     if (!blender) {
         blender = SkBlender::Mode(SkBlendMode::kModulate);
     }
     this->onDrawMesh(mesh, std::move(blender), paint);
 }
-#endif
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2401,20 +2397,13 @@ void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmod
     }
 }
 
-#ifdef SK_ENABLE_SKSL
 void SkCanvas::onDrawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint) {
     SkPaint simplePaint = clean_paint_for_drawVertices(paint);
-
-    if (this->internalQuickReject(mesh.bounds(), simplePaint)) {
-        return;
-    }
-
     auto layer = this->aboutToDraw(this, simplePaint, nullptr);
     if (layer) {
         this->topDevice()->drawMesh(mesh, std::move(blender), paint);
     }
 }
-#endif
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                          const SkPoint texCoords[4], SkBlendMode bmode,

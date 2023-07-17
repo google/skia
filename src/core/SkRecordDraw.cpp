@@ -12,7 +12,6 @@
 #include "include/core/SkBlender.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkMesh.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -35,6 +34,10 @@
 #include "src/core/SkRecords.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/utils/SkPatchUtils.h"
+
+#if defined(SK_ENABLE_SKSL)
+#include "include/core/SkMesh.h"
+#endif
 
 #include <algorithm>
 #include <optional>

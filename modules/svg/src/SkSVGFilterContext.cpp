@@ -4,12 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "modules/svg/include/SkSVGFilterContext.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkImageFilters.h"
-#include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGTypes.h"

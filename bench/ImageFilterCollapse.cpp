@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"

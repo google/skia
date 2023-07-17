@@ -8,22 +8,33 @@
 #ifndef SkImageFilters_DEFINED
 #define SkImageFilters_DEFINED
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkRuntimeEffect.h"
+
+// TODO(kjlubick) remove after cl/548357677 lands
+#include "include/core/SkData.h"  // IWYU pragma: keep
 
 #include <cstddef>
+#include <string_view>
+#include <utility>
 
 class SkBlender;
 class SkColorFilter;
-class SkPaint;
-class SkRegion;
+class SkMatrix;
+class SkRuntimeShaderBuilder;
+enum class SkBlendMode;
+struct SkIPoint;
+struct SkISize;
+struct SkPoint3;
+struct SkSamplingOptions;
 
 namespace skif {
   static constexpr SkRect kNoCropRect = {SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
@@ -311,7 +322,6 @@ public:
         return Picture(std::move(pic), target);
     }
 
-#ifdef SK_ENABLE_SKSL
     /**
      *  Create a filter that fills the output with the per-pixel evaluation of the SkShader produced
      *  by the SkRuntimeShaderBuilder. The shader is defined in the image filter's local coordinate
@@ -319,6 +329,8 @@ public:
      *
      *  This variant assumes that the runtime shader samples 'childShaderName' with the same input
      *  coordinate passed to to shader.
+     *
+     *  This requires a GPU backend or SkSL to be compiled in.
      *
      *  @param builder         The builder used to produce the runtime shader, that will in turn
      *                         fill the result image
@@ -343,6 +355,8 @@ public:
      *
      * This allows Skia to provide sampleable values for the image filter without worrying about
      * boundary conditions.
+     *
+     * This requires a GPU backend or SkSL to be compiled in.
     */
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
                                               SkScalar sampleRadius,
@@ -353,6 +367,8 @@ public:
      *  Create a filter that fills the output with the per-pixel evaluation of the SkShader produced
      *  by the SkRuntimeShaderBuilder. The shader is defined in the image filter's local coordinate
      *  system, so it will automatically be affected by SkCanvas' transform.
+     *
+     *  This requires a GPU backend or SkSL to be compiled in.
      *
      *  @param builder          The builder used to produce the runtime shader, that will in turn
      *                          fill the result image
@@ -378,13 +394,14 @@ public:
      * inform Skia that the runtime shader guarantees that all dynamic children (defined in
      * childShaderNames) will be evaluated with coordinates at most 'maxSampleRadius' away from the
      * coordinate provided to the runtime shader itself.
+     *
+     *  This requires a GPU backend or SkSL to be compiled in.
      */
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
                                               SkScalar maxSampleRadius,
                                               std::string_view childShaderNames[],
                                               const sk_sp<SkImageFilter> inputs[],
                                               int inputCount);
-#endif  // SK_ENABLE_SKSL
 
     enum class Dither : bool {
         kNo = false,
