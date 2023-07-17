@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :14:20 error: unresolved call target 'bitCount'
+error: :15:20 error: unresolved call target 'bitCount'
     let _skTemp0 = bitCount(_globalUniforms.a);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
 };

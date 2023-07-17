@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :22:20 error: no matching call to modf(f32, f32)
+error: :23:20 error: no matching call to modf(f32, f32)
 
 2 candidate functions:
   modf(T) -> __modf_result_T  where: T is abstract-float, f32 or f16
@@ -10,6 +10,7 @@ error: :22:20 error: no matching call to modf(f32, f32)
                    ^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

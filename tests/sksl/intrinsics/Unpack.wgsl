@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :13:20 error: unresolved call target 'unpackHalf2x16'
+error: :14:20 error: unresolved call target 'unpackHalf2x16'
     let _skTemp0 = unpackHalf2x16(_globalUniforms.a);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
 };

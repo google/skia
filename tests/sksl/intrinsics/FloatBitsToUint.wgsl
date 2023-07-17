@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :19:20 error: unresolved call target 'floatBitsToUint'
+error: :20:20 error: unresolved call target 'floatBitsToUint'
     let _skTemp0 = floatBitsToUint(inputVal.x);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

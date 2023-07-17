@@ -1,3 +1,4 @@
+diagnostic(off, derivative_uniformity);
 struct VSOut {
   @builtin(position) sk_Position: vec4<f32>,
 };

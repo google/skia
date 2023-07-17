@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :8:24 error: unresolved type 'texture2D'
+error: :9:24 error: unresolved type 'texture2D'
 var<private> aTexture: texture2D;
                        ^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @location(1) c: vec2<f32>,

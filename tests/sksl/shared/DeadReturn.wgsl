@@ -1,11 +1,12 @@
 /*
 
-:46:3 warning: code is unreachable
+:47:3 warning: code is unreachable
   return bool();
   ^^^^^^
 
 */
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

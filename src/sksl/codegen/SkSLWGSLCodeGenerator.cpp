@@ -592,6 +592,7 @@ bool WGSLCodeGenerator::generateCode() {
         AutoOutputStream outputToHeader(this, &header, &fIndentation);
         // TODO(skia:13092): Implement the following:
         // - global uniform/storage resource declarations, including interface blocks.
+        this->writeLine("diagnostic(off, derivative_uniformity);");
         this->writeStageInputStruct();
         this->writeStageOutputStruct();
         this->writeNonBlockUniformsForTests();

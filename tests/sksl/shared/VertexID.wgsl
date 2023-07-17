@@ -1,3 +1,4 @@
+diagnostic(off, derivative_uniformity);
 struct VSIn {
   @builtin(vertex_index) sk_VertexID: u32,
 };

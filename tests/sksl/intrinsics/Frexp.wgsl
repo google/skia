@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :20:20 error: no matching call to frexp(f32, i32)
+error: :21:20 error: no matching call to frexp(f32, i32)
 
 2 candidate functions:
   frexp(T) -> __frexp_result_T  where: T is abstract-float, f32 or f16
@@ -10,6 +10,7 @@ error: :20:20 error: no matching call to frexp(f32, i32)
                    ^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

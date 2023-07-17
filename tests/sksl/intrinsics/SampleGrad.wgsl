@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :8:17 error: unresolved type 'sampler2D'
+error: :9:17 error: unresolved type 'sampler2D'
 var<private> t: sampler2D;
                 ^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

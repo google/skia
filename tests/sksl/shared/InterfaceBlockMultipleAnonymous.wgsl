@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :9:53 error: unresolved identifier 'x'
+error: :10:53 error: unresolved identifier 'x'
     (*_stageOut).sk_FragColor = vec4<f32>(vec2<f32>(x), vec2<f32>(y));
                                                     ^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
 };

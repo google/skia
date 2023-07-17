@@ -1,3 +1,4 @@
+diagnostic(off, derivative_uniformity);
 struct VSIn {
   @builtin(instance_index) sk_InstanceID: u32,
 };

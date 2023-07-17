@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :10:42 error: unresolved identifier 'vertices'
+error: :11:42 error: unresolved identifier 'vertices'
     (*_stageOut).sk_Position = vec4<f32>(vertices[i32(_stageIn.sk_VertexID)], 1.0, 1.0);
                                          ^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct VSIn {
   @builtin(vertex_index) sk_VertexID: u32,
 };

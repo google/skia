@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :23:20 error: inverseSqrt must be called with a value > 0
+error: :24:20 error: inverseSqrt must be called with a value > 0
     let _skTemp4 = inverseSqrt(-1.0);
                    ^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :29:17 error: no matching overload for operator + (mat2x2<f32>, abstract-float)
+error: :30:17 error: no matching overload for operator + (mat2x2<f32>, abstract-float)
 
 5 candidate operators:
   operator + (T, T) -> T  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
@@ -13,6 +13,7 @@ error: :29:17 error: no matching overload for operator + (mat2x2<f32>, abstract-
                 ^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

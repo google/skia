@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :7:22 error: unresolved type 'sampler2D'
+error: :8:22 error: unresolved type 'sampler2D'
 var<private> test2D: sampler2D;
                      ^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
 };

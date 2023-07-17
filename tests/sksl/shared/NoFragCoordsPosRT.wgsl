@@ -1,3 +1,4 @@
+diagnostic(off, derivative_uniformity);
 struct VSIn {
   @location(0) pos: vec4<f32>,
 };

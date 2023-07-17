@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :8:40 error: unresolved type 'sampler2D'
+error: :9:40 error: unresolved type 'sampler2D'
 var<private> uTextureSampler_0_Stage1: sampler2D;
                                        ^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @location(0) vLocalCoord_Stage0: vec2<f32>,

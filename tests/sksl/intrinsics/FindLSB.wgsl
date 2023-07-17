@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :14:20 error: unresolved call target 'findLSB'
+error: :15:20 error: unresolved call target 'findLSB'
     let _skTemp0 = findLSB(_globalUniforms.a);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
 };

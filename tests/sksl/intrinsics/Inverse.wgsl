@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :22:20 error: unresolved call target 'inverse'
+error: :23:20 error: unresolved call target 'inverse'
     let _skTemp3 = inverse(mat3x3<f32>(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0));
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,

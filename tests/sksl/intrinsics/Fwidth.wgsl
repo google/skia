@@ -1,10 +1,11 @@
 ### Compilation failed:
 
-error: :18:20 error: unresolved call target 'dFdx'
+error: :19:20 error: unresolved call target 'dFdx'
     let _skTemp0 = dFdx(_globalUniforms.testInputs.x);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,
