@@ -45,6 +45,7 @@ public:
     }
 
     static sk_sp<TextureProxy> MakePromiseImageLazyProxy(
+            const Caps*,
             SkISize dimensions,
             TextureInfo,
             Volatile,

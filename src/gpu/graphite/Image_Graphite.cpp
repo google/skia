@@ -109,6 +109,7 @@ using SkImages::GraphitePromiseImageFulfillProc;
 using SkImages::GraphitePromiseTextureReleaseProc;
 
 sk_sp<TextureProxy> Image::MakePromiseImageLazyProxy(
+        const Caps* caps,
         SkISize dimensions,
         TextureInfo textureInfo,
         Volatile isVolatile,
@@ -175,7 +176,8 @@ sk_sp<TextureProxy> Image::MakePromiseImageLazyProxy(
 
     } callback(fulfillProc, std::move(releaseHelper), textureReleaseProc);
 
-    return TextureProxy::MakeLazy(dimensions,
+    return TextureProxy::MakeLazy(caps,
+                                  dimensions,
                                   textureInfo,
                                   skgpu::Budgeted::kNo,  // This is destined for a user's SkImage
                                   isVolatile,

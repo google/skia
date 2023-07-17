@@ -87,7 +87,8 @@ sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
     }
     texture->setReleaseCallback(std::move(releaseHelper));
 
-    sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
+    sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
+    SkASSERT(proxy);
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(ct, backendTex.info());
     TextureProxyView view(std::move(proxy), swizzle);
@@ -126,7 +127,8 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
         return nullptr;
     }
 
-    sk_sp<TextureProxy> proxy = Image::MakePromiseImageLazyProxy(dimensions,
+    sk_sp<TextureProxy> proxy = Image::MakePromiseImageLazyProxy(caps,
+                                                                 dimensions,
                                                                  textureInfo,
                                                                  isVolatile,
                                                                  fulfillProc,
@@ -180,7 +182,8 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder
     // Make a lazy proxy for each plane
     sk_sp<TextureProxy> proxies[4];
     for (int p = 0; p < numPlanes; ++p) {
-        proxies[p] = Image_YUVA::MakePromiseImageLazyProxy(planeDimensions[p],
+        proxies[p] = Image_YUVA::MakePromiseImageLazyProxy(recorder->priv().caps(),
+                                                           planeDimensions[p],
                                                            backendTextureInfo.planeTextureInfo(p),
                                                            isVolatile,
                                                            fulfillProc,
@@ -399,7 +402,8 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
         }
         texture->setReleaseCallback(releaseHelper);
 
-        sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
+        sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
+        SkASSERT(proxy);
         textureProxyViews[plane] = TextureProxyView(std::move(proxy));
     }
     YUVATextureProxies yuvaProxies(recorder,
