@@ -10,6 +10,7 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/RectanizerSkyline.h"
+#include "src/gpu/graphite/geom/AtlasShape.h"
 
 #ifdef SK_ENABLE_VELLO_SHADERS
 #include "src/gpu/graphite/compute/VelloRenderer.h"
@@ -52,10 +53,10 @@ public:
      *
      * `shape` will be drawn after applying the linear components (scale, rotation, skew) of the
      * provided `localToDevice` transform. This is done by  translating the shape by the inverse of
-     * the `maskBounds` offset. For an unclipped shape this amounts to translating it back to its
-     * origin. For a clipped shape, this ensures that the visible portions of the mask are centered
-     * in the atlas slot while invisible portions that would lie outside the atlas slot are clipped
-     * out.
+     * the rounded out `transformedShapeBounds` offset. For an unclipped shape this amounts to
+     * translating it back to its origin while preserving any sub-pixel translation. For a clipped
+     * shape, this ensures that the visible portions of the mask are centered in the atlas slot
+     * while invisible portions that would lie outside the atlas slot get clipped out.
      *
      * `addShape()` schedules the shape to be drawn but when and how the rendering happens is
      * specified by the subclass implementation.
@@ -67,11 +68,11 @@ public:
      * the atlas.
      */
     bool addShape(Recorder*,
-                  const Rect& maskBounds,
+                  const Rect& transformedShapeBounds,
                   const Shape& shape,
                   const Transform& localToDevice,
                   const SkStrokeRec& style,
-                  Rect* outAtlasBounds);
+                  AtlasShape::MaskInfo* outMaskInfo);
 
     // Clear all scheduled atlas draws and free up atlas allocations. After this call the atlas can
     // be considered cleared and available for new shape insertions. However this method does not
@@ -89,8 +90,7 @@ protected:
     virtual void onAddShape(const Shape&,
                             const Transform& transform,
                             const Rect& atlasBounds,
-                            float deviceOffsetX,
-                            float deviceOffsetY,
+                            skvx::int2 deviceOffset,
                             const SkStrokeRec&) = 0;
     virtual void onReset() = 0;
 
@@ -138,8 +138,8 @@ public:
     std::unique_ptr<DispatchGroup> recordDispatches(Recorder*) const override;
 
 private:
-    void onAddShape(const Shape&, const Transform&, const Rect&,
-                    float, float, const SkStrokeRec&) override;
+    void onAddShape(
+            const Shape&, const Transform&, const Rect&, skvx::int2, const SkStrokeRec&) override;
     void onReset() override {
         fScene.reset();
         fOccuppiedWidth = fOccuppiedHeight = 0;

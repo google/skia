@@ -37,13 +37,13 @@ PathAtlas::PathAtlas(uint32_t width, uint32_t height) : fRectanizer(width, heigh
 PathAtlas::~PathAtlas() = default;
 
 bool PathAtlas::addShape(Recorder* recorder,
-                         const Rect& maskBounds,
+                         const Rect& transformedShapeBounds,
                          const Shape& shape,
                          const Transform& localToDevice,
                          const SkStrokeRec& style,
-                         Rect* out) {
+                         AtlasShape::MaskInfo* out) {
     SkASSERT(out);
-    SkASSERT(!maskBounds.isEmptyNegativeOrNaN());
+    SkASSERT(!transformedShapeBounds.isEmptyNegativeOrNaN());
 
     if (!fTexture) {
         fTexture = recorder->priv().atlasProvider()->getAtlasTexture(
@@ -54,20 +54,31 @@ bool PathAtlas::addShape(Recorder* recorder,
         }
     }
 
-    // Add a 2 pixel-wide border around the shape bounds when allocating the atlas slot. The outer
-    // border acts as a buffer between atlas entries and the pixels contain 0. The inner border is
-    // included in the mask and provides additional coverage pixels for analytic AA.
-    // TODO(b/273924867) Should the inner outset get applied in drawGeometry/applyClipToDraw  and
+    // Draw the shape with a one pixel outset for AA. Round out to cancel but contain and fractional
+    // offset, so that it is present in the translation when deriving the atlas-space transform.
+    // TODO(b/273924867) Should the inner outset get applied in drawGeometry/applyClipToDraw and
     // included implicitly?
-    Rect bounds = maskBounds.makeOutset(2);
-    skvx::float2 size = bounds.size();
+    Rect maskBounds = transformedShapeBounds.makeRoundOut().outset(1);
+
+    // Add an additional one pixel outset as buffer between atlas slots. This prevents sampling from
+    // neighboring atlas slots; the AtlasShape renderer also uses the outset to sample zero coverage
+    // on inverse fill pixels that fall outside the mask bounds.
+    skvx::float2 maskSize = maskBounds.size();
+    skvx::float2 atlasSize = maskSize + 2;
     SkIPoint16 pos;
-    if (!fRectanizer.addRect(size.x(), size.y(), &pos)) {
+    if (!fRectanizer.addRect(atlasSize.x(), atlasSize.y(), &pos)) {
         return false;
     }
 
-    *out = Rect::XYWH(skvx::float2(pos.x(), pos.y()), size);
-    this->onAddShape(shape, localToDevice, *out, maskBounds.x(), maskBounds.y(), style);
+    out->fDeviceOrigin = skvx::int2((int)maskBounds.x(), (int)maskBounds.y());
+    out->fAtlasOrigin = skvx::half2(pos.x(), pos.y());
+    out->fMaskSize = skvx::half2((uint16_t)maskSize.x(), (uint16_t)maskSize.y());
+
+    this->onAddShape(shape,
+                     localToDevice,
+                     Rect::XYWH(skvx::float2(pos.x(), pos.y()), atlasSize),
+                     out->fDeviceOrigin,
+                     style);
     return true;
 }
 
@@ -96,8 +107,7 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
 void VelloComputePathAtlas::onAddShape(const Shape& shape,
                                        const Transform& localToDevice,
                                        const Rect& atlasBounds,
-                                       float deviceOffsetX,
-                                       float deviceOffsetY,
+                                       skvx::int2 deviceOffset,
                                        const SkStrokeRec& style) {
     // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
     // appropriately transformed in that case.
@@ -128,11 +138,12 @@ void VelloComputePathAtlas::onAddShape(const Shape& shape,
     fScene.pushClipLayer(clipRect, Transform::Identity());
 
     // The atlas transform of the shape is the linear-components (scale, rotation, skew) of
-    // `localToDevice` translated by the top-left offset of `atlasBounds`, accounting for the 2
+    // `localToDevice` translated by the top-left offset of `atlasBounds`, accounting for the 1
     // pixel-wide border we added earlier, so that the shape is correctly centered.
     SkM44 atlasMatrix = localToDevice.matrix();
-    atlasMatrix.postTranslate(atlasBounds.x() + 2 - deviceOffsetX,
-                              atlasBounds.y() + 2 - deviceOffsetY);
+    atlasMatrix.postTranslate(atlasBounds.x() + 1 - deviceOffset.x(),
+                              atlasBounds.y() + 1 - deviceOffset.y());
+
     Transform atlasTransform(atlasMatrix);
     SkPath devicePath = shape.asPath();
 

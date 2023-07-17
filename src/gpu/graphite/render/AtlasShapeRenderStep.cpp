@@ -26,7 +26,7 @@ AtlasShapeRenderStep::AtlasShapeRenderStep()
                      /*vertexAttrs=*/{},
                      /*instanceAttrs=*/
                      {{"drawBounds"  , VertexAttribType::kFloat4 , SkSLType::kFloat4},  // ltrb
-                      {"deviceOrigin", VertexAttribType::kFloat2 , SkSLType::kFloat2},
+                      {"deviceOrigin", VertexAttribType::kInt2, SkSLType::kInt2},
                       {"uvOrigin"    , VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"maskSize"    , VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"depth"     , VertexAttribType::kFloat, SkSLType::kFloat},
@@ -48,7 +48,7 @@ std::string AtlasShapeRenderStep::vertexSkSL() const {
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = atlas_shape_vertex_fn("
                     "float2(sk_VertexID >> 1, sk_VertexID & 1), atlasSizeInv, "
-                    "drawBounds, deviceOrigin, float2(uvOrigin), "
+                    "drawBounds, float2(deviceOrigin), float2(uvOrigin), "
                     "float2(maskSize), depth, float3x3(mat0, mat1, mat2), "
                     "maskBounds, textureCoords, stepLocalCoords);\n";
 }
@@ -73,27 +73,28 @@ void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
     // A quad is a 4-vertex instance. The coordinates are derived from the vertex IDs.
     DrawWriter::Instances instances(*dw, {}, {}, 4);
 
-    skvx::float2 maskSize, deviceOrigin, uvOrigin;
+    skvx::half2 maskSize, uvOrigin;
+    skvx::int2 deviceOrigin;
     if (params.clip().transformedShapeBounds().isEmptyNegativeOrNaN()) {
         // If the mask shape is clipped out then this must be an inverse fill. There is no mask to
         // sample but we still need to paint the fill region that excludes the mask shape. Signal
         // this by setting the mask size to 0.
         SkASSERT(atlasShape.inverted());
-        maskSize = deviceOrigin = uvOrigin = 0;
+        maskSize = uvOrigin = 0;
+        deviceOrigin = 0;
     } else {
-        // Adjust the mask size and device origin for the 1-pixel atlas border for AA. `uvOrigin` is
-        // positioned to include the additional 1-pixel border between atlas entries (which
-        // corresponds to their clip bounds and should contain 0).
-        maskSize     = atlasShape.maskSize() + 2;
-        deviceOrigin = atlasShape.deviceOrigin() - 1;
+        // `maskSize` and `deviceOrigin` correspond to the mask bounds (transformed shape bounds
+        // expanded by a 1-pixel border for AA). `uvOrigin` is positioned to include the additional
+        // 1-pixel border between atlas entries (which corresponds to their clip bounds and should
+        // contain 0).
+        maskSize     = atlasShape.maskSize();
+        deviceOrigin = atlasShape.deviceOrigin();
         uvOrigin     = atlasShape.atlasOrigin();
     }
 
     const SkM44& m = atlasShape.deviceToLocal();
-    instances.append(1) << params.clip().drawBounds().ltrb()                 // drawBounds
-                        << deviceOrigin                                      // deviceOrigin
-                        << uint16_t(uvOrigin.x()) << uint16_t(uvOrigin.y())  // uvOrigin
-                        << uint16_t(maskSize.x()) << uint16_t(maskSize.y())  // maskSize
+    instances.append(1) << params.clip().drawBounds().ltrb()     // drawBounds
+                        << deviceOrigin << uvOrigin << maskSize
                         << params.order().depthAsFloat() << ssboIndex
                         << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)   // mat0
                         << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)   // mat1

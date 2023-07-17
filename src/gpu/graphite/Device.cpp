@@ -1104,7 +1104,8 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // If an atlas path renderer was chosen we need to insert the shape into the atlas and schedule
     // it to be drawn.
-    Rect atlasBounds;  // Only used if `pathAtlas != nullptr`.
+    AtlasShape::MaskInfo atlasMaskInfo;  // only used if `pathAtlas != nullptr`
+
     // It is possible for the transformed shape bounds to be fully clipped out while the draw still
     // produces coverage due to an inverse fill. In this case, don't render any mask;
     // AtlasShapeRenderStep will automatically handle the simple fill.
@@ -1114,7 +1115,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                                                    geometry.shape(),
                                                    localToDevice,
                                                    style,
-                                                   &atlasBounds);
+                                                   &atlasMaskInfo);
 
         // If there was no space in the atlas and we haven't flushed already, then flush pending
         // work to clear up space in the atlas. If we had already flushed once (which would have
@@ -1128,7 +1129,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                                                   geometry.shape(),
                                                   localToDevice,
                                                   style,
-                                                  &atlasBounds);
+                                                  &atlasMaskInfo);
         }
 
         if (!foundAtlasSpace) {
@@ -1198,12 +1199,8 @@ void Device::drawGeometry(const Transform& localToDevice,
     // and record a single AtlashShape draw.
     if (pathAtlas != nullptr) {
         // Record the draw as a fill since stroking is handled by the atlas render.
-        Geometry atlasShape(AtlasShape(geometry.shape(),
-                                       pathAtlas,
-                                       localToDevice.inverse(),
-                                       clip.transformedShapeBounds().topLeft(),
-                                       atlasBounds.topLeft(),
-                                       clip.transformedShapeBounds().size()));
+        Geometry atlasShape(
+                AtlasShape(geometry.shape(), pathAtlas, localToDevice.inverse(), atlasMaskInfo));
         fDC->recordDraw(
                 renderer, Transform::Identity(), atlasShape, clip, order, &shading, nullptr);
     } else {
