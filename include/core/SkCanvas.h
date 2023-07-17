@@ -2293,8 +2293,8 @@ private:
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
     // returns false if the copy failed
-    bool SK_WARN_UNUSED_RESULT predrawNotify(bool willOverwritesEntireSurface = false);
-    bool SK_WARN_UNUSED_RESULT predrawNotify(const SkRect*, const SkPaint*, ShaderOverrideOpacity);
+    [[nodiscard]] bool predrawNotify(bool willOverwritesEntireSurface = false);
+    [[nodiscard]] bool predrawNotify(const SkRect*, const SkPaint*, ShaderOverrideOpacity);
 
     enum class CheckForOverwrite : bool {
         kNo = false,

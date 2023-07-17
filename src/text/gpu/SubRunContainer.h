@@ -11,7 +11,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkAttributes.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
 #include <cstddef>
@@ -225,15 +224,14 @@ public:
     enum SubRunCreationBehavior {kAddSubRuns, kStrikeCalculationsOnly};
     // The returned SubRunContainerOwner will never be null. If subRunCreation ==
     // kStrikeCalculationsOnly, then the returned container will be empty.
-    static SK_WARN_UNUSED_RESULT SubRunContainerOwner MakeInAlloc(
-            const GlyphRunList& glyphRunList,
-            const SkMatrix& positionMatrix,
-            const SkPaint& runPaint,
-            SkStrikeDeviceInfo strikeDeviceInfo,
-            StrikeForGPUCacheInterface* strikeCache,
-            sktext::gpu::SubRunAllocator* alloc,
-            SubRunCreationBehavior creationBehavior,
-            const char* tag);
+    [[nodiscard]] static SubRunContainerOwner MakeInAlloc(const GlyphRunList& glyphRunList,
+                                                          const SkMatrix& positionMatrix,
+                                                          const SkPaint& runPaint,
+                                                          SkStrikeDeviceInfo strikeDeviceInfo,
+                                                          StrikeForGPUCacheInterface* strikeCache,
+                                                          sktext::gpu::SubRunAllocator* alloc,
+                                                          SubRunCreationBehavior creationBehavior,
+                                                          const char* tag);
 
     static size_t EstimateAllocSize(const GlyphRunList& glyphRunList);
 

@@ -821,7 +821,7 @@ protected:
      *  This is called by getPixels(), getYUV8Planes(), startIncrementalDecode() and
      *  startScanlineDecode(). Subclasses may call if they need to rewind at another time.
      */
-    bool SK_WARN_UNUSED_RESULT rewindIfNeeded();
+    [[nodiscard]] bool rewindIfNeeded();
 
     /**
      *  Called by rewindIfNeeded, if the stream needed to be rewound.

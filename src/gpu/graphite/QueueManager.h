@@ -30,15 +30,15 @@ public:
     virtual ~QueueManager();
 
     // Adds the commands from the passed in Recording to the current CommandBuffer
-    bool SK_WARN_UNUSED_RESULT addRecording(const InsertRecordingInfo&, Context*);
+    [[nodiscard]] bool addRecording(const InsertRecordingInfo&, Context*);
 
     // Adds the commands from the passed in Task to the current CommandBuffer
-    bool SK_WARN_UNUSED_RESULT addTask(Task*, Context*);
+    [[nodiscard]] bool addTask(Task*, Context*);
 
     // Adds a proc that will be called when the current CommandBuffer is submitted and finishes
-    bool SK_WARN_UNUSED_RESULT addFinishInfo(const InsertFinishInfo&, ResourceProvider*);
+    [[nodiscard]] bool addFinishInfo(const InsertFinishInfo&, ResourceProvider*);
 
-    bool SK_WARN_UNUSED_RESULT submitToGpu();
+    [[nodiscard]] bool submitToGpu();
     void checkForFinishedWork(SyncToCpu);
 
 #if GRAPHITE_TEST_UTILS

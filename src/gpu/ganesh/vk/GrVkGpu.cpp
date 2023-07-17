@@ -2679,7 +2679,7 @@ void GrVkGpu::submit(GrOpsRenderPass* renderPass) {
     fCachedOpsRenderPass->reset();
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
+[[nodiscard]] GrFence GrVkGpu::insertFence() {
     VkFenceCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(VkFenceCreateInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -2714,7 +2714,7 @@ void GrVkGpu::deleteFence(GrFence fence) {
     VK_CALL(DestroyFence(this->device(), (VkFence)fence, nullptr));
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore(bool isOwned) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrVkGpu::makeSemaphore(bool isOwned) {
     return GrVkSemaphore::Make(this, isOwned);
 }
 

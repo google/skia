@@ -28,11 +28,11 @@ public:
     GrThreadSafePipelineBuilder* pipelineBuilder() override;
     sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder() override;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
+    [[nodiscard]] GrFence insertFence() override { return 0; }
     bool waitFence(GrFence) override { return true; }
     void deleteFence(GrFence) override {}
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
+    [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override {
         return nullptr;
     }
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& /* semaphore */,

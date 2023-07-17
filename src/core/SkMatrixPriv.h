@@ -51,8 +51,7 @@ public:
      *  Attempt to map the rect through the inverse of the matrix. If it is not invertible,
      *  then this returns false and dst is unchanged.
      */
-    static bool SK_WARN_UNUSED_RESULT InverseMapRect(const SkMatrix& mx,
-                                                     SkRect* dst, const SkRect& src) {
+    [[nodiscard]] static bool InverseMapRect(const SkMatrix& mx, SkRect* dst, const SkRect& src) {
         if (mx.isScaleTranslate()) {
             // A scale-translate matrix with a 0 scale factor is not invertible.
             if (mx.getScaleX() == 0.f || mx.getScaleY() == 0.f) {

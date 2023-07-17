@@ -99,11 +99,11 @@ public:
                                    int numBarriers,
                                    D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    [[nodiscard]] GrFence insertFence() override;
     bool waitFence(GrFence) override;
     void deleteFence(GrFence) override {}
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                                       GrSemaphoreWrapType,
                                                       GrWrapOwnership) override;

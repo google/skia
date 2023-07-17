@@ -42,7 +42,7 @@ struct SK_API SkIRect {
 
         @return  bounds (0, 0, 0, 0)
     */
-    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeEmpty() {
+    [[nodiscard]] static constexpr SkIRect MakeEmpty() {
         return SkIRect{0, 0, 0, 0};
     }
 
@@ -53,7 +53,7 @@ struct SK_API SkIRect {
         @param h  height of constructed SkIRect
         @return   bounds (0, 0, w, h)
     */
-    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeWH(int32_t w, int32_t h) {
+    [[nodiscard]] static constexpr SkIRect MakeWH(int32_t w, int32_t h) {
         return SkIRect{0, 0, w, h};
     }
 
@@ -63,7 +63,7 @@ struct SK_API SkIRect {
         @param size  values for SkIRect width and height
         @return      bounds (0, 0, size.width(), size.height())
     */
-    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeSize(const SkISize& size) {
+    [[nodiscard]] static constexpr SkIRect MakeSize(const SkISize& size) {
         return SkIRect{0, 0, size.fWidth, size.fHeight};
     }
 
@@ -75,7 +75,7 @@ struct SK_API SkIRect {
         @param size  values for SkIRect width and height
         @return      bounds at pt with width and height of size
     */
-    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakePtSize(SkIPoint pt, SkISize size) {
+    [[nodiscard]] static constexpr SkIRect MakePtSize(SkIPoint pt, SkISize size) {
         return MakeXYWH(pt.x(), pt.y(), size.width(), size.height());
     }
 
@@ -88,8 +88,7 @@ struct SK_API SkIRect {
         @param b  integer stored in fBottom
         @return   bounds (l, t, r, b)
     */
-    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeLTRB(int32_t l, int32_t t,
-                                                            int32_t r, int32_t b) {
+    [[nodiscard]] static constexpr SkIRect MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b) {
         return SkIRect{l, t, r, b};
     }
 
@@ -102,8 +101,7 @@ struct SK_API SkIRect {
         @param h  added to y and stored in fBottom
         @return   bounds at (x, y) with width w and height h
     */
-    static constexpr SkIRect SK_WARN_UNUSED_RESULT MakeXYWH(int32_t x, int32_t y,
-                                                            int32_t w, int32_t h) {
+    [[nodiscard]] static constexpr SkIRect MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h) {
         return { x, y, Sk32_sat_add(x, w), Sk32_sat_add(y, h) };
     }
 
@@ -525,7 +523,7 @@ struct SK_API SkIRect {
         @param b  SkIRect to intersect
         @return   true if a and b have area in common
     */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& a, const SkIRect& b);
+    [[nodiscard]] bool intersect(const SkIRect& a, const SkIRect& b);
 
     /** Returns true if a intersects b.
         Returns false if either a or b is empty, or do not intersect.
@@ -594,7 +592,7 @@ struct SK_API SkRect {
 
         @return  bounds (0, 0, 0, 0)
     */
-    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty() {
+    [[nodiscard]] static constexpr SkRect MakeEmpty() {
         return SkRect{0, 0, 0, 0};
     }
 
@@ -608,7 +606,7 @@ struct SK_API SkRect {
         @param h  float height of constructed SkRect
         @return   bounds (0, 0, w, h)
     */
-    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeWH(float w, float h) {
+    [[nodiscard]] static constexpr SkRect MakeWH(float w, float h) {
         return SkRect{0, 0, w, h};
     }
 
@@ -622,7 +620,7 @@ struct SK_API SkRect {
         @param h  integer height of constructed SkRect
         @return   bounds (0, 0, w, h)
     */
-    static SkRect SK_WARN_UNUSED_RESULT MakeIWH(int w, int h) {
+    [[nodiscard]] static SkRect MakeIWH(int w, int h) {
         return {0, 0, static_cast<float>(w), static_cast<float>(h)};
     }
 
@@ -632,7 +630,7 @@ struct SK_API SkRect {
         @param size  float values for SkRect width and height
         @return      bounds (0, 0, size.width(), size.height())
     */
-    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeSize(const SkSize& size) {
+    [[nodiscard]] static constexpr SkRect MakeSize(const SkSize& size) {
         return SkRect{0, 0, size.fWidth, size.fHeight};
     }
 
@@ -645,7 +643,7 @@ struct SK_API SkRect {
         @param b  float stored in fBottom
         @return   bounds (l, t, r, b)
     */
-    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeLTRB(float l, float t, float r, float b) {
+    [[nodiscard]] static constexpr SkRect MakeLTRB(float l, float t, float r, float b) {
         return SkRect {l, t, r, b};
     }
 
@@ -658,7 +656,7 @@ struct SK_API SkRect {
         @param h  added to y and stored in fBottom
         @return   bounds at (x, y) with width w and height h
     */
-    static constexpr SkRect SK_WARN_UNUSED_RESULT MakeXYWH(float x, float y, float w, float h) {
+    [[nodiscard]] static constexpr SkRect MakeXYWH(float x, float y, float w, float h) {
         return SkRect {x, y, x + w, y + h};
     }
 
@@ -679,7 +677,7 @@ struct SK_API SkRect {
         @param irect  integer unsorted bounds
         @return       irect members converted to float
     */
-    static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect) {
+    [[nodiscard]] static SkRect Make(const SkIRect& irect) {
         return {
             static_cast<float>(irect.fLeft), static_cast<float>(irect.fTop),
             static_cast<float>(irect.fRight), static_cast<float>(irect.fBottom)
@@ -1110,7 +1108,7 @@ struct SK_API SkRect {
         @param b  SkRect to intersect
         @return   true if a and b have area in common
     */
-    bool SK_WARN_UNUSED_RESULT intersect(const SkRect& a, const SkRect& b);
+    [[nodiscard]] bool intersect(const SkRect& a, const SkRect& b);
 
 
 private:

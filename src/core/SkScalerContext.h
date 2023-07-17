@@ -395,7 +395,7 @@ protected:
      *  Does not apply subpixel positioning to the path.
      *  @return false if this glyph does not have any path.
      */
-    virtual bool SK_WARN_UNUSED_RESULT generatePath(const SkGlyph&, SkPath*) = 0;
+    [[nodiscard]] virtual bool generatePath(const SkGlyph&, SkPath*) = 0;
 
     /** Returns the drawable for the glyph (if any).
      *

@@ -4203,7 +4203,7 @@ void GrGLGpu::submit(GrOpsRenderPass* renderPass) {
     fCachedOpsRenderPass->reset();
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {
+[[nodiscard]] GrFence GrGLGpu::insertFence() {
     if (!this->caps()->fenceSyncSupport()) {
         return 0;
     }
@@ -4259,7 +4259,7 @@ void GrGLGpu::deleteFence(GrFence fence) {
     }
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrGLGpu::makeSemaphore(bool isOwned) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrGLGpu::makeSemaphore(bool isOwned) {
     SkASSERT(this->caps()->semaphoreSupport());
     return GrGLSemaphore::Make(this, isOwned);
 }

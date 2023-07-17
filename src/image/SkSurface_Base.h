@@ -140,7 +140,7 @@ public:
      *
      *  Returns false if the backing cannot be un-shared.
      */
-    virtual bool SK_WARN_UNUSED_RESULT onCopyOnWrite(ContentChangeMode) = 0;
+    [[nodiscard]] virtual bool onCopyOnWrite(ContentChangeMode) = 0;
 
     /**
      *  Signal the surface to remind its backing store that it's mutable again.
@@ -178,7 +178,7 @@ private:
     sk_sp<SkImage>            fCachedImage  = nullptr;
 
     // Returns false if drawing should not take place (allocation failure).
-    bool SK_WARN_UNUSED_RESULT aboutToDraw(ContentChangeMode mode);
+    [[nodiscard]] bool aboutToDraw(ContentChangeMode mode);
 
     // Returns true if there is an outstanding image-snapshot, indicating that a call to aboutToDraw
     // would trigger a copy-on-write.

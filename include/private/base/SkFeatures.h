@@ -36,9 +36,6 @@
     #if !defined(SK_RESTRICT)
         #define SK_RESTRICT __restrict
     #endif
-    #if !defined(SK_WARN_UNUSED_RESULT)
-        #define SK_WARN_UNUSED_RESULT
-    #endif
 #endif
 
 #if !defined(SK_RESTRICT)

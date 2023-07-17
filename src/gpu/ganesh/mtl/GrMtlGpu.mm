@@ -1582,7 +1582,7 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface,
     return true;
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
+[[nodiscard]] GrFence GrMtlGpu::insertFence() {
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
     // We create a semaphore and signal it within the current
     // command buffer's completion handler.
@@ -1610,7 +1610,7 @@ void GrMtlGpu::deleteFence(GrFence fence) {
     CFRelease(cfFence);
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool /*isOwned*/) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrMtlGpu::makeSemaphore(bool /*isOwned*/) {
     SkASSERT(this->caps()->semaphoreSupport());
     return GrMtlSemaphore::Make(this);
 }

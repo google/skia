@@ -13,7 +13,6 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
-#include "include/private/base/SkAttributes.h"
 
 #include <cstddef>
 
@@ -43,8 +42,7 @@ class PipelineDataGatherer;
 
 class SkColorFilterBase : public SkColorFilter {
 public:
-    SK_WARN_UNUSED_RESULT
-    virtual bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
+    [[nodiscard]] virtual bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
 
     /** Returns the flags for this filter. Override in subclasses to return custom flags.
     */

@@ -44,12 +44,11 @@ public:
      */
     virtual std::optional<SkBlendMode> asBlendMode() const { return {}; }
 
-    SK_WARN_UNUSED_RESULT bool appendStages(const SkStageRec& rec) const {
+    [[nodiscard]] bool appendStages(const SkStageRec& rec) const {
         return this->onAppendStages(rec);
     }
 
-    SK_WARN_UNUSED_RESULT
-    virtual bool onAppendStages(const SkStageRec& rec) const = 0;
+    [[nodiscard]] virtual bool onAppendStages(const SkStageRec& rec) const = 0;
 
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 

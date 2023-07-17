@@ -876,7 +876,7 @@ void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
     static_cast<GrDawnOpsRenderPass*>(renderPass)->submit();
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {
+[[nodiscard]] GrFence GrDawnGpu::insertFence() {
     return reinterpret_cast<GrFence>(this->createFence());
 }
 
@@ -888,7 +888,7 @@ void GrDawnGpu::deleteFence(GrFence fence) {
     this->destroyFence(reinterpret_cast<GrDawnAsyncWait*>(fence));
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool isOwned) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrDawnGpu::makeSemaphore(bool isOwned) {
     SkDEBUGFAIL("unimplemented");
     return nullptr;
 }

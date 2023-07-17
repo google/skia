@@ -90,7 +90,7 @@ protected:
         kFail
     };
 
-    SimplifyResult SK_WARN_UNUSED_RESULT simplify(VertexList* mesh, const Comparator&);
+    [[nodiscard]] SimplifyResult simplify(VertexList* mesh, const Comparator&);
 
     // 5) Tessellate the simplified mesh into monotone polygons:
     virtual std::tuple<Poly*, bool> tessellate(const VertexList& vertices, const Comparator&);
@@ -159,13 +159,13 @@ protected:
     MonotonePoly* allocateMonotonePoly(Edge* edge, Side side, int winding);
     Edge* allocateEdge(Vertex* top, Vertex* bottom, int winding, EdgeType type);
     Edge* makeEdge(Vertex* prev, Vertex* next, EdgeType type, const Comparator&);
-    SK_WARN_UNUSED_RESULT bool setTop(
+    [[nodiscard]] bool setTop(
         Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, const Comparator&) const;
-    SK_WARN_UNUSED_RESULT bool setBottom(
+    [[nodiscard]] bool setBottom(
         Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, const Comparator&) const;
-    SK_WARN_UNUSED_RESULT bool mergeEdgesAbove(
+    [[nodiscard]] bool mergeEdgesAbove(
         Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current, const Comparator&) const;
-    SK_WARN_UNUSED_RESULT bool mergeEdgesBelow(
+    [[nodiscard]] bool mergeEdgesBelow(
         Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current, const Comparator&) const;
     Edge* makeConnectingEdge(Vertex* prev, Vertex* next, EdgeType, const Comparator&,
                              int windingScale = 1);

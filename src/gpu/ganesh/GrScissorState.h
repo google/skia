@@ -31,7 +31,7 @@ public:
         return this->intersect(rect);
     }
 
-    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& rect) {
+    [[nodiscard]] bool intersect(const SkIRect& rect) {
         if (!fRect.intersect(rect)) {
             fRect.setEmpty();
             return false;

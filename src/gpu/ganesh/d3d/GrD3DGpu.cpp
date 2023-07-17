@@ -1758,7 +1758,7 @@ bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
     }
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrD3DGpu::makeSemaphore(bool) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrD3DGpu::makeSemaphore(bool) {
     return GrD3DSemaphore::Make(this);
 }
 std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
@@ -1786,7 +1786,7 @@ void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
     fQueue->Wait(d3dSem->fence(), d3dSem->value());
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
+[[nodiscard]] GrFence GrD3DGpu::insertFence() {
     GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
     return fCurrentFenceValue;
 }

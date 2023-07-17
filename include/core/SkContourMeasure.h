@@ -23,8 +23,7 @@ public:
     /** Pins distance to 0 <= distance <= length(), and then computes the corresponding
      *  position and tangent.
      */
-    bool SK_WARN_UNUSED_RESULT getPosTan(SkScalar distance, SkPoint* position,
-                                         SkVector* tangent) const;
+    [[nodiscard]] bool getPosTan(SkScalar distance, SkPoint* position, SkVector* tangent) const;
 
     enum MatrixFlags {
         kGetPosition_MatrixFlag     = 0x01,
@@ -37,8 +36,8 @@ public:
      Returns false if there is no path, or a zero-length path was specified, in which case
      matrix is unchanged.
      */
-    bool SK_WARN_UNUSED_RESULT getMatrix(SkScalar distance, SkMatrix* matrix,
-                                         MatrixFlags flags = kGetPosAndTan_MatrixFlag) const;
+    [[nodiscard]] bool getMatrix(SkScalar distance, SkMatrix* matrix,
+                                 MatrixFlags flags = kGetPosAndTan_MatrixFlag) const;
 
     /** Given a start and stop distance, return in dst the intervening segment(s).
      If the segment is zero-length, return false, else return true.
@@ -46,8 +45,8 @@ public:
      then return false (and leave dst untouched).
      Begin the segment with a moveTo if startWithMoveTo is true
      */
-    bool SK_WARN_UNUSED_RESULT getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
-                                          bool startWithMoveTo) const;
+    [[nodiscard]] bool getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
+                                  bool startWithMoveTo) const;
 
     /** Return true if the contour is closed()
      */

@@ -48,9 +48,8 @@
 
 class SkBlitter;
 
-static bool SK_WARN_UNUSED_RESULT
-texture_to_matrix(const VertState& state, const SkPoint verts[], const SkPoint texs[],
-                  SkMatrix* matrix) {
+[[nodiscard]] static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
+                                            const SkPoint texs[], SkMatrix* matrix) {
     SkPoint src[3], dst[3];
 
     src[0] = texs[state.f0];

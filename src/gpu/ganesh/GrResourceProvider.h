@@ -350,7 +350,7 @@ public:
      */
     void assignUniqueKeyToResource(const skgpu::UniqueKey&, GrGpuResource*);
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
+    [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned = true);
 
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                                       GrSemaphoreWrapType,

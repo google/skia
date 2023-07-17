@@ -832,8 +832,7 @@ sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensi
     return nullptr;
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(
-        bool isOwned) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrResourceProvider::makeSemaphore(bool isOwned) {
     return this->isAbandoned() ? nullptr : fGpu->makeSemaphore(isOwned);
 }
 

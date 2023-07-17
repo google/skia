@@ -128,7 +128,7 @@ private:
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
                             bool needsCMYKToRGB);
-    bool SK_WARN_UNUSED_RESULT allocateStorage(const SkImageInfo& dstInfo);
+    [[nodiscard]] bool allocateStorage(const SkImageInfo& dstInfo);
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, const Options&);
 
     /*

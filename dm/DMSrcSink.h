@@ -94,7 +94,7 @@ struct SinkFlags {
 
 struct Src {
     virtual ~Src() {}
-    virtual Result SK_WARN_UNUSED_RESULT draw(SkCanvas* canvas) const = 0;
+    [[nodiscard]] virtual Result draw(SkCanvas* canvas) const = 0;
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
     virtual void modifyGrContextOptions(GrContextOptions*) const  {}
@@ -102,7 +102,7 @@ struct Src {
     virtual bool veto(SinkFlags) const { return false; }
 
     virtual int pageCount() const { return 1; }
-    virtual Result SK_WARN_UNUSED_RESULT draw([[maybe_unused]] int page, SkCanvas* canvas) const {
+    [[nodiscard]] virtual Result draw([[maybe_unused]] int page, SkCanvas* canvas) const {
         return this->draw(canvas);
     }
     virtual SkISize size([[maybe_unused]] int page) const { return this->size(); }
@@ -118,8 +118,7 @@ struct Src {
 struct Sink {
     virtual ~Sink() {}
     // You may write to either the bitmap or stream.  If you write to log, we'll print that out.
-    virtual Result SK_WARN_UNUSED_RESULT draw(const Src&, SkBitmap*, SkWStream*, SkString* log)
-        const = 0;
+    [[nodiscard]] virtual Result draw(const Src&, SkBitmap*, SkWStream*, SkString* log) const = 0;
 
     // Override the color space of this Sink, after creation
     virtual void setColorSpace(sk_sp<SkColorSpace>) {}

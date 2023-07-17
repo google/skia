@@ -33,25 +33,25 @@ namespace skgpu {
 struct IRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
 
-    static IRect16 SK_WARN_UNUSED_RESULT MakeEmpty() {
+    [[nodiscard]] static IRect16 MakeEmpty() {
         IRect16 r;
         r.setEmpty();
         return r;
     }
 
-    static IRect16 SK_WARN_UNUSED_RESULT MakeWH(int16_t w, int16_t h) {
+    [[nodiscard]] static IRect16 MakeWH(int16_t w, int16_t h) {
         IRect16 r;
         r.set(0, 0, w, h);
         return r;
     }
 
-    static IRect16 SK_WARN_UNUSED_RESULT MakeXYWH(int16_t x, int16_t y, int16_t w, int16_t h) {
+    [[nodiscard]] static IRect16 MakeXYWH(int16_t x, int16_t y, int16_t w, int16_t h) {
         IRect16 r;
         r.set(x, y, x + w, y + h);
         return r;
     }
 
-    static IRect16 SK_WARN_UNUSED_RESULT Make(const SkIRect& ir) {
+    [[nodiscard]] static IRect16 Make(const SkIRect& ir) {
         IRect16 r;
         r.set(ir);
         return r;

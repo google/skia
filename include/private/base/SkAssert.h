@@ -94,7 +94,7 @@
     #define SkDEBUGFAILF(fmt, ...)
 
     // unlike SkASSERT, this macro executes its condition in the non-debug build.
-    // The if is present so that this can be used with functions marked SK_WARN_UNUSED_RESULT.
+    // The if is present so that this can be used with functions marked [[nodiscard]].
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
 
