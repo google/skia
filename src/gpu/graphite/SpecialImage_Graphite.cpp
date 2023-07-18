@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
+#include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/shaders/SkImageShader.h"
@@ -19,14 +20,12 @@ namespace skgpu::graphite {
 
 class SkSpecialImage_Graphite final : public SkSpecialImage {
 public:
-    SkSpecialImage_Graphite(Recorder* recorder,
-                            const SkIRect& subset,
+    SkSpecialImage_Graphite(const SkIRect& subset,
                             uint32_t uniqueID,
                             TextureProxyView view,
                             const SkColorInfo& colorInfo,
                             const SkSurfaceProps& props)
             : SkSpecialImage(subset, uniqueID, colorInfo, props)
-            , fRecorder(recorder)
             , fTextureProxyView(std::move(view)) {
     }
 
@@ -64,8 +63,7 @@ public:
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
-        return SkSpecialImages::MakeGraphite(fRecorder,
-                                             subset,
+        return SkSpecialImages::MakeGraphite(subset,
                                              this->uniqueID(),
                                              fTextureProxyView,
                                              this->colorInfo(),
@@ -99,25 +97,50 @@ public:
     }
 
 private:
-    Recorder*        fRecorder;
     TextureProxyView fTextureProxyView;
 };
 
 } // namespace skgpu::graphite
 
 namespace SkSpecialImages {
+
 sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder* recorder,
                                    const SkIRect& subset,
+                                   sk_sp<SkImage> image,
+                                   const SkSurfaceProps& props) {
+    if (!recorder || !image || subset.isEmpty()) {
+        return nullptr;
+    }
+
+    SkASSERT(image->bounds().contains(subset));
+
+    // This will work even if the image is a raster-backed image and the Recorder's
+    // client ImageProvider does a valid upload.
+    if (!as_IB(image)->isGraphiteBacked()) {
+        auto [graphiteImage, _] =
+                skgpu::graphite::GetGraphiteBacked(recorder, image.get(), {});
+        if (!graphiteImage) {
+            return nullptr;
+        }
+
+        image = graphiteImage;
+    }
+    auto [view, ct] = skgpu::graphite::AsView(recorder, image.get(), skgpu::Mipmapped::kNo);
+    return MakeGraphite(subset, image->uniqueID(), std::move(view),
+                        {ct, image->alphaType(), image->refColorSpace()}, props);
+}
+
+sk_sp<SkSpecialImage> MakeGraphite(const SkIRect& subset,
                                    uint32_t uniqueID,
                                    skgpu::graphite::TextureProxyView view,
                                    const SkColorInfo& colorInfo,
                                    const SkSurfaceProps& props) {
-    if (!recorder || !view) {
+    if (!view) {
         return nullptr;
     }
 
-    SkASSERT(RectFits(subset, view.width(), view.height()));
-    return sk_make_sp<skgpu::graphite::SkSpecialImage_Graphite>(recorder, subset, uniqueID,
+    SkASSERT(SkIRect::MakeSize(view.dimensions()).contains(subset));
+    return sk_make_sp<skgpu::graphite::SkSpecialImage_Graphite>(subset, uniqueID,
                                                                 std::move(view), colorInfo, props);
 }
 

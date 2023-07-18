@@ -167,12 +167,11 @@ sk_sp<SkSpecialImage> MakeFromTextureImage(GrRecordingContext* rContext,
                                            const SkIRect& subset,
                                            sk_sp<SkImage> image,
                                            const SkSurfaceProps& props) {
-    SkASSERT(RectFits(subset, image->width(), image->height()));
-    if (!rContext) {
-        // We will not be able to read the pixels of a GPU-backed image without rContext.
-        SkASSERT(!image->isTextureBacked());
-        return MakeFromRaster(subset, image, props);
+    if (!rContext || !image || subset.isEmpty()) {
+        return nullptr;
     }
+
+    SkASSERT(image->bounds().contains(subset));
 
     // This will work even if the image is a raster-backed image.
     auto [view, ct] = skgpu::ganesh::AsView(rContext, image, GrMipmapped::kNo);
@@ -194,9 +193,9 @@ sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext* context,
         return nullptr;
     }
 
-    SkColorType ct = GrColorTypeToSkColorType(colorInfo.colorType());
+    SkASSERT(view.proxy()->backingStoreBoundsIRect().contains(subset));
 
-    SkASSERT(RectFits(subset, view.proxy()->width(), view.proxy()->height()));
+    SkColorType ct = GrColorTypeToSkColorType(colorInfo.colorType());
     return sk_make_sp<SkSpecialImage_Gpu>(
             context,
             subset,

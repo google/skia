@@ -165,13 +165,10 @@ private:
 };
 
 namespace SkSpecialImages {
+
 sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset, sk_sp<SkImage>, const SkSurfaceProps&);
 sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset, const SkBitmap&, const SkSurfaceProps&);
 sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset, const SkBitmap&, const SkSurfaceProps&);
-
-#ifdef SK_DEBUG
-bool RectFits(const SkIRect& rect, int width, int height);
-#endif
 
 }  // namespace SkSpecialImages
 

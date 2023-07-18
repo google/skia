@@ -1494,8 +1494,7 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
         finalSubset = SkIRect::MakeWH(view.width(), view.height());
     }
 
-    return SkSpecialImages::MakeGraphite(fRecorder,
-                                         finalSubset,
+    return SkSpecialImages::MakeGraphite(finalSubset,
                                          kNeedNewImageUniqueID_SpecialImage,
                                          std::move(view),
                                          this->imageInfo().colorInfo(),

@@ -15,6 +15,8 @@
 #include <cstdint>
 
 class SkColorInfo;
+class SkImage;
+class SkSpecialImage;
 class SkSurfaceProps;
 struct SkIRect;
 
@@ -27,6 +29,10 @@ namespace SkSpecialImages {
 
 sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder*,
                                    const SkIRect& subset,
+                                   sk_sp<SkImage>,
+                                   const SkSurfaceProps&);
+
+sk_sp<SkSpecialImage> MakeGraphite(const SkIRect& subset,
                                    uint32_t uniqueID,
                                    skgpu::graphite::TextureProxyView,
                                    const SkColorInfo&,

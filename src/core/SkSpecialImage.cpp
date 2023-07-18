@@ -123,7 +123,7 @@ namespace SkSpecialImages {
 sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
                                      const SkBitmap& bm,
                                      const SkSurfaceProps& props) {
-    SkASSERT(RectFits(subset, bm.width(), bm.height()));
+    SkASSERT(bm.bounds().contains(subset));
 
     if (!bm.pixelRef()) {
         return nullptr;
@@ -146,7 +146,7 @@ sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
 sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
                                      const SkBitmap& bm,
                                      const SkSurfaceProps& props) {
-    SkASSERT(RectFits(subset, bm.width(), bm.height()));
+    SkASSERT(bm.bounds().contains(subset));
 
     if (!bm.pixelRef()) {
         return nullptr;
@@ -175,9 +175,13 @@ sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
 sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
                                      sk_sp<SkImage> image,
                                      const SkSurfaceProps& props) {
-    SkASSERT(RectFits(subset, image->width(), image->height()));
+    if (!image || subset.isEmpty()) {
+        return nullptr;
+    }
+
+    SkASSERT(image->bounds().contains(subset));
     // This assert currently fails when using Graphite because Graphite makes raster images.
-    // TODO(michaelludwig) re-enable this assert after skif::MakeGraphiteContext is updated.
+    // TODO(michaelludwig) re-enable this assert after SkImage::makeWithFilter is implemented.
     //SkASSERT(!image->isTextureBacked());
     SkASSERT(!as_IB(image)->isGaneshBacked());
 
@@ -188,18 +192,5 @@ sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
     }
     return nullptr;
 }
-
-#ifdef SK_DEBUG
-bool RectFits(const SkIRect& rect, int width, int height) {
-    if (0 == width && 0 == height) {
-        SkASSERT(0 == rect.fLeft && 0 == rect.fRight && 0 == rect.fTop && 0 == rect.fBottom);
-        return true;
-    }
-
-    return rect.fLeft >= 0 && rect.fLeft < width && rect.fLeft < rect.fRight && rect.fRight >= 0 &&
-           rect.fRight <= width && rect.fTop >= 0 && rect.fTop < height &&
-           rect.fTop < rect.fBottom && rect.fBottom >= 0 && rect.fBottom <= height;
-}
-#endif
 
 }  // namespace SkSpecialImages
