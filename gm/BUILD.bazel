@@ -71,7 +71,6 @@ CPU_GMS = [
     "arcofzorro.cpp",
     "arcto.cpp",
     "arithmode.cpp",
-    "rippleshadergm.cpp",
 
     # TODO(lovisolo): Are these CPU-only, GPU-only or something else? Try them and add them to the
     #                 corresponding list.
@@ -378,6 +377,7 @@ CPU_GMS = [
     # "rectangletexture.cpp",
     # "repeated_bitmap.cpp",
     # "resizeimagefilter.cpp",
+    # "rippleshadergm.cpp",
     # "roundrects.cpp",
     # "rrectclipdrawpaint.cpp",
     # "rrect.cpp",
@@ -499,7 +499,7 @@ cc_test_with_flags(
     name = "cpu_8888_test",
     srcs = ["BazelGMRunner.cpp"] + CPU_GMS,
     args = [
-        "--config",
+        "--surfaceConfig",
         "8888",
     ],
     data = ["//resources"],
@@ -517,7 +517,7 @@ cc_test_with_flags(
     name = "gpu_gles_test",
     srcs = ["BazelGMRunner.cpp"] + GPU_GMS,
     args = [
-        "--config",
+        "--surfaceConfig",
         "gles",
     ],
     data = ["//resources"],
@@ -559,8 +559,6 @@ cc_test_with_flags(
     ]
 ]
 
-# Does not work because BazelGMRunner.cpp can only create CPU-backed SkCanvases at this time
-# (the test passes but the GMs will be skipped).
 android_gm_test(
     name = "gpu_gles_android_test",
     srcs = GPU_GMS,

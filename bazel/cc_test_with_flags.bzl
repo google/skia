@@ -58,7 +58,7 @@ transition_test = rule(
     test = True,
 )
 
-def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwargs):
+def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, args = [], **kwargs):
     """Builds a cc_test as if set_flags were set on the CLI.
 
     Args:
@@ -70,6 +70,7 @@ def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, linkopts = D
             It has a sensible list of defaults.
         linkopts: a list of strings or select statements that control the linker flags.
             It has a sensible list of defaults.
+        args: A list of strings with any command-line arguments to pass to the binary.
         **kwargs: Any flags that a cc_binary normally takes.
     """
     cc_test_name = name + "_native_test"
@@ -77,6 +78,7 @@ def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, linkopts = D
         name = name,
         actual_test = ":%s" % cc_test_name,
         set_flags = set_flags,
+        args = args,
         testonly = True,
     )
     tags = kwargs.get("tags", [])
