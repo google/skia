@@ -353,7 +353,7 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
         this->getDrawCommandAt(i)->toJSON(writer, urlDataManager);
 
 #if defined(SK_GANESH)
-        if (at) {
+        if (at && at->isEnabled()) {
             writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL);
             at->toJson(writer, i);
         }
