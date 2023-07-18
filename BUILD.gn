@@ -2020,8 +2020,8 @@ if (skia_enable_tools) {
         sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.mm" ]
       }
       if (skia_use_vulkan) {
-        sources += [ "tools/graphite/vk/VulkanTestContext.cpp" ]
-        sources += [ "tools/graphite/vk/VulkanTestContext.h" ]
+        sources += [ "tools/graphite/vk/GraphiteVulkanTestContext.cpp" ]
+        sources += [ "tools/graphite/vk/GraphiteVulkanTestContext.h" ]
       }
     }
 

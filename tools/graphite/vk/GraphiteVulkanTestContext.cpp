@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/graphite/vk/VulkanTestContext.h"
+#include "tools/graphite/vk/GraphiteVulkanTestContext.h"
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"

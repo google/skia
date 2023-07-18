@@ -16,7 +16,7 @@
 #include "tools/graphite/mtl/GraphiteMtlTestContext.h"
 #endif
 #ifdef SK_VULKAN
-#include "tools/graphite/vk/VulkanTestContext.h"
+#include "tools/graphite/vk/GraphiteVulkanTestContext.h"
 #endif
 
 namespace skiatest::graphite {
