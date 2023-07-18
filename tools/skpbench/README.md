@@ -60,37 +60,6 @@ Output appears in the following format
 `accum` is the time taken to draw all frames, divided by the number of frames.
 `metric` specifies that the unit is ms (milliseconds per frame)
 
-## MSKP corpus
-
-A manually collected corpus of MSKPs from around 30 top apps (using skia via HWUI) and of about 20
-actions in RenderEngine exists in a google cloud storage folder managed by skia/infra/bots/assets/mskp/upload.py
-
-To download the fileset, first determine the highest current version of the fileset
-
-```
-gsutil ls gs://skia-assets/assets/mskp/
-```
-
-Download the latest version.
-
-```
-gsutil cp gs://skia-assets/assets/mskp/5.zip ~/Downloads
-```
-
-Unzip the archive and adb push it to the device.
-
-To upload a new version of the corpus, use the steps above to download and unzip the last version, change the
-content however you need, then Use the upload tool, passing the directory of the altered archive (not a zip file).
-Note that you must provide it as an absolute path.
-
-```
-python upload.py --target_dir=/home/nifong/scratch/new_mskps
-```
-
-The upload script should print a version number.
-Finally, submit something like https://skia-review.googlesource.com/c/skia/+/304376
-to point jobs at the new version.
-
 ## Production
 
 skpbench is run as a tryjob from gerrit, where it uploads the results to perf.skia.org.
