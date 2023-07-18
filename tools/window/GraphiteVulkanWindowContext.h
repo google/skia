@@ -107,6 +107,7 @@ private:
     sk_sp<SkSurface>*      fSurfaces;       // surfaces client renders to (may not be based on rts)
     BackbufferInfo*        fBackbuffers;
     uint32_t               fCurrentBackbufferIndex;
+    VkSemaphore            fWaitSemaphore = VK_NULL_HANDLE;
 };
 
 }   // namespace sk_app

@@ -8,9 +8,11 @@
 #include "tools/window/GraphiteVulkanWindowContext.h"
 
 #include "include/core/SkSurface.h"
+#include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
+#include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
@@ -426,14 +428,19 @@ void GraphiteVulkanWindowContext::destroyContext() {
         fQueueWaitIdle(fPresentQueue);
         fDeviceWaitIdle(fDevice);
 
+        if (fWaitSemaphore != VK_NULL_HANDLE) {
+            VULKAN_CALL(fInterface, DestroySemaphore(fDevice, fWaitSemaphore, nullptr));
+            fWaitSemaphore = VK_NULL_HANDLE;
+        }
+
         this->destroyBuffers();
 
-        if (VK_NULL_HANDLE != fSwapchain) {
+        if (fSwapchain != VK_NULL_HANDLE) {
             fDestroySwapchainKHR(fDevice, fSwapchain, nullptr);
             fSwapchain = VK_NULL_HANDLE;
         }
 
-        if (VK_NULL_HANDLE != fSurface) {
+        if (fSurface != VK_NULL_HANDLE) {
             fDestroySurfaceKHR(fInstance, fSurface, nullptr);
             fSurface = VK_NULL_HANDLE;
         }
@@ -445,7 +452,7 @@ void GraphiteVulkanWindowContext::destroyContext() {
     }
     fInterface.reset();
 
-    if (VK_NULL_HANDLE != fDevice) {
+    if (fDevice != VK_NULL_HANDLE) {
         fDestroyDevice(fDevice, nullptr);
         fDevice = VK_NULL_HANDLE;
     }
@@ -458,7 +465,7 @@ void GraphiteVulkanWindowContext::destroyContext() {
 
     fPhysicalDevice = VK_NULL_HANDLE;
 
-    if (VK_NULL_HANDLE != fInstance) {
+    if (fInstance != VK_NULL_HANDLE) {
         fDestroyInstance(fInstance, nullptr);
         fInstance = VK_NULL_HANDLE;
     }
@@ -477,19 +484,97 @@ GraphiteVulkanWindowContext::BackbufferInfo* GraphiteVulkanWindowContext::getAva
 }
 
 sk_sp<SkSurface> GraphiteVulkanWindowContext::getBackbufferSurface() {
-    [[maybe_unused]] BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
+    BackbufferInfo* backbuffer = this->getAvailableBackbuffer();
     SkASSERT(backbuffer);
 
-    // TODO: Create wait semaphore and acquire next swapchain surface
+    // semaphores should be in unsignaled state
+    VkSemaphoreCreateInfo semaphoreInfo;
+    memset(&semaphoreInfo, 0, sizeof(VkSemaphoreCreateInfo));
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = nullptr;
+    semaphoreInfo.flags = 0;
+    VkResult result;
+    VULKAN_CALL_RESULT(fInterface, result,
+                       CreateSemaphore(fDevice, &semaphoreInfo, nullptr, &fWaitSemaphore));
 
-    // TODO: Wait on semaphore
+    // acquire the image
+    VkResult res = fAcquireNextImageKHR(fDevice, fSwapchain, UINT64_MAX,
+                                        fWaitSemaphore, VK_NULL_HANDLE,
+                                        &backbuffer->fImageIndex);
+    if (VK_ERROR_SURFACE_LOST_KHR == res) {
+        // TODO: Recreate fSurface using fCreateVkSurfaceFn, and then rebuild the swapchain
+        VULKAN_CALL(fInterface, DestroySemaphore(fDevice, fWaitSemaphore, nullptr));
+        return nullptr;
+    }
+    if (VK_ERROR_OUT_OF_DATE_KHR == res) {
+        // tear swapchain down and try again
+        if (!this->createSwapchain(-1, -1, fDisplayParams)) {
+            VULKAN_CALL(fInterface, DestroySemaphore(fDevice, fWaitSemaphore, nullptr));
+            return nullptr;
+        }
+        backbuffer = this->getAvailableBackbuffer();
 
-    // TODO: return surface
-    return nullptr;
+        // acquire the image
+        res = fAcquireNextImageKHR(fDevice, fSwapchain, UINT64_MAX,
+                                   fWaitSemaphore, VK_NULL_HANDLE,
+                                   &backbuffer->fImageIndex);
+
+        if (VK_SUCCESS != res) {
+            VULKAN_CALL(fInterface, DestroySemaphore(fDevice, fWaitSemaphore, nullptr));
+            return nullptr;
+        }
+    }
+
+    SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
+
+    return sk_ref_sp(surface);
 }
 
 void GraphiteVulkanWindowContext::onSwapBuffers() {
-    // TODO: Change renderTarget layout to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR and present
+    if (!fGraphiteContext) {
+        return;
+    }
+    SkASSERT(fGraphiteRecorder);
+
+    BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
+
+    // TODO: set up layout transition for backbuffer surface
+
+    std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
+    if (recording) {
+        skgpu::graphite::InsertRecordingInfo info;
+        info.fRecording = recording.get();
+        SkASSERT(fWaitSemaphore != VK_NULL_HANDLE);
+        skgpu::graphite::BackendSemaphore beWaitSemaphore(fWaitSemaphore);
+        info.fNumWaitSemaphores = 1;
+        info.fWaitSemaphores = &beWaitSemaphore;
+        skgpu::graphite::BackendSemaphore beSignalSemaphore(backbuffer->fRenderSemaphore);
+        info.fNumSignalSemaphores = 1;
+        info.fSignalSemaphores = &beSignalSemaphore;
+
+        // Insert finishedProc to delete waitSemaphore when done
+        struct FinishContext {
+            sk_sp<const skgpu::VulkanInterface> interface;
+            VkDevice device;
+            VkSemaphore waitSemaphore;
+        };
+        auto* finishContext = new FinishContext{fInterface, fDevice, fWaitSemaphore};
+        skgpu::graphite::GpuFinishedProc finishCallback = [](skgpu::graphite::GpuFinishedContext c,
+                                                                 skgpu::CallbackResult status) {
+            // regardless of the status we need to destroy the semaphore
+            const auto* context = reinterpret_cast<const FinishContext*>(c);
+            VULKAN_CALL(context->interface,
+                        DestroySemaphore(context->device, context->waitSemaphore, nullptr));
+        };
+        info.fFinishedContext = finishContext;
+        info.fFinishedProc = finishCallback;
+
+        fGraphiteContext->insertRecording(info);
+        fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
+        fWaitSemaphore = VK_NULL_HANDLE; // FinishCallback will destroy this
+    }
+
+    // TODO: Submit present operation to present queue
 }
 
 }   //namespace skwindow::internal

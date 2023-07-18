@@ -70,7 +70,9 @@ uint64_t BackendSemaphore::getMtlValue() const {
 
 #ifdef SK_VULKAN
 BackendSemaphore::BackendSemaphore(VkSemaphore semaphore)
-        : fVkSemaphore(semaphore) {}
+        : fVkSemaphore(semaphore)
+        , fIsValid(true)
+        , fBackend(BackendApi::kVulkan) {}
 
 VkSemaphore BackendSemaphore::getVkSemaphore() const {
     if (this->isValid() && this->backend() == BackendApi::kVulkan) {
