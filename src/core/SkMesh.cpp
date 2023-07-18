@@ -862,30 +862,48 @@ sk_sp<VertexBuffer> CopyVertexBuffer(sk_sp<VertexBuffer> src) {
 }
 }  // namespace SkMeshes
 
-#if !defined(SK_DISABLE_LEGACY_MESH_FUNCTIONS) && defined(SK_GANESH)
+#if !defined(SK_DISABLE_LEGACY_MESH_FUNCTIONS)
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/SkMeshGanesh.h"
+#endif
 
 sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* ctx, const void* data, size_t size) {
     if (ctx) {
+#if defined(SK_GANESH)
         return SkMeshes::MakeIndexBuffer(ctx, data, size);
+#else
+        return nullptr;
+#endif
     }
     return SkMeshes::MakeIndexBuffer(data, size);
 }
 sk_sp<IndexBuffer> SkMesh::CopyIndexBuffer(GrDirectContext* ctx, sk_sp<IndexBuffer> src) {
     if (ctx) {
+#if defined(SK_GANESH)
         return SkMeshes::CopyIndexBuffer(ctx, src);
+#else
+        return nullptr;
+#endif
     }
     return SkMeshes::CopyIndexBuffer(src);
 }
 sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* ctx, const void* data, size_t size) {
     if (ctx) {
+#if defined(SK_GANESH)
         return SkMeshes::MakeVertexBuffer(ctx, data, size);
+#else
+        return nullptr;
+#endif
     }
     return SkMeshes::MakeVertexBuffer(data, size);
 }
 sk_sp<VertexBuffer> SkMesh::CopyVertexBuffer(GrDirectContext* ctx, sk_sp<VertexBuffer> src) {
     if (ctx) {
+#if defined(SK_GANESH)
         return SkMeshes::CopyVertexBuffer(ctx, src);
+#else
+        return nullptr;
+#endif
     }
     return SkMeshes::CopyVertexBuffer(src);
 }
