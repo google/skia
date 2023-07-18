@@ -12,7 +12,6 @@
 #include "include/private/base/SkDebug.h" // IWYU pragma: keep
 
 #include <cstddef>
-#include <type_traits>  // IWYU pragma: keep IWYU doesn't understand if constexpr().
 
 #if defined(__clang__) && defined(__has_attribute)
     #if __has_attribute(likely)
@@ -117,14 +116,8 @@
 }
 
 template <typename T> SK_API inline T sk_collection_check_bounds(T i, T size) {
-    if constexpr (std::is_signed_v<T>) {
-        if (0 <= i && i < size) SK_LIKELY {
-            return i;
-        }
-    } else {
-        if (i < size)  SK_LIKELY {
-            return i;
-        }
+    if (0 <= i && i < size) SK_LIKELY {
+        return i;
     }
 
     SK_UNLIKELY {
@@ -141,14 +134,8 @@ template <typename T> SK_API inline T sk_collection_check_bounds(T i, T size) {
 }
 
 template <typename T> SK_API inline T sk_collection_check_length(T i, T size) {
-    if constexpr (std::is_signed_v<T>) {
-        if (0 <= i && i <= size) SK_LIKELY {
-            return i;
-        }
-    } else {
-        if (i <= size)  SK_LIKELY {
-            return i;
-        }
+    if (0 <= i && i <= size) SK_LIKELY {
+        return i;
     }
 
     SK_UNLIKELY {
@@ -162,11 +149,11 @@ template <typename T> SK_API inline T sk_collection_check_length(T i, T size) {
 
 SK_API inline void sk_collection_not_empty(bool empty) {
     if (empty) SK_UNLIKELY {
-    #if defined(SK_DEBUG)
-        SK_ABORT("Collection is empty.\n");
-    #else
-        SkUNREACHABLE;
-    #endif
+        #if defined(SK_DEBUG)
+            SK_ABORT("Collection is empty.\n");
+        #else
+            SkUNREACHABLE;
+        #endif
     }
 }
 
