@@ -1022,6 +1022,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "gm", ALL, "perlinnoise_layered") // skia:14411
 	}
 
+	if b.gpu("IntelIrisXe") && b.matchOs("Win") && b.extraConfig("Vulkan") {
+		skip(ALL, "tests", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler") // skia:14628
+	}
+
 	// skia:4769
 	skip("pic-8888", "gm", ALL, "drawfilter")
 
