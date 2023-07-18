@@ -97,7 +97,11 @@ class SkpDebugPlayer {
       } else {
         SkDebugf("Try reading as single-frame skp\n");
         // TODO(nifong): Rely on SkPicture's return errors once it provides some.
-        frames.push_back(loadSingleFrame(&stream));
+        std::unique_ptr<DebugCanvas> canvas = loadSingleFrame(&stream);
+        if (!canvas) {
+          return "Error loading single frame";
+        }
+        frames.push_back(std::move(canvas));
       }
       return "";
     }
