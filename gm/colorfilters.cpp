@@ -180,3 +180,12 @@ private:
 };
 
 DEF_GM(return new HSLColorFilterGM;)
+
+// Correct result is WHITE. Prior to the fixing skbug.com/14627, CPU backend would produce GRAY.
+DEF_SIMPLE_GM(skbug_14627, canvas, 100, 100) {
+    SkPaint p;
+    p.setShader(SkShaders::Color(SK_ColorWHITE));
+    p.setAlphaf(0.5f);
+    p.setColorFilter(SkColorFilters::SRGBToLinearGamma());
+    canvas->drawRect({0, 0, 100, 100}, p);
+}
