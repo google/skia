@@ -416,6 +416,16 @@ bool Compiler::optimize(Program& program) {
     return this->errorCount() == 0;
 }
 
+void Compiler::runInliner(Program& program) {
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+    AutoProgramConfig autoConfig(this->context(), program.fConfig.get());
+    AutoShaderCaps autoCaps(fContext, fCaps);
+    AutoModifiersPool autoPool(fContext, program.fModifiers.get());
+    Inliner inliner(fContext.get());
+    this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, program.fUsage.get());
+#endif
+}
+
 bool Compiler::runInliner(Inliner* inliner,
                           const std::vector<std::unique_ptr<ProgramElement>>& elements,
                           std::shared_ptr<SymbolTable> symbols,

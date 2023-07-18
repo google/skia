@@ -184,6 +184,9 @@ public:
 
     const Module* moduleForProgramKind(ProgramKind kind);
 
+    /** Run the inliner on a program which was compiled earlier (with inlining turned off). */
+    void runInliner(Program& program);
+
 private:
     class CompilerErrorReporter : public ErrorReporter {
     public:
