@@ -286,10 +286,16 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              Position pos,
-                                             Position rawMaskPos,
+                                             Position maskPos,
                                              std::unique_ptr<Expression> base,
                                              ComponentArray inComponents) {
-    Position maskPos = rawMaskPos.valid() ? rawMaskPos : pos;
+    if (inComponents.size() > 4) {
+        context.fErrors->error(Position::Range(maskPos.startOffset() + 4,
+                                               maskPos.endOffset()),
+                               "too many components in swizzle mask");
+        return nullptr;
+    }
+
     if (!validate_swizzle_domain(inComponents)) {
         context.fErrors->error(maskPos, "invalid swizzle mask '" + MaskString(inComponents) + "'");
         return nullptr;
@@ -300,15 +306,6 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     if (!baseType.isVector() && !baseType.isScalar()) {
         context.fErrors->error(pos, "cannot swizzle value of type '" +
                                     baseType.displayName() + "'");
-        return nullptr;
-    }
-
-    if (inComponents.size() > 4) {
-        Position errorPos = rawMaskPos.valid() ? Position::Range(maskPos.startOffset() + 4,
-                                                                 maskPos.endOffset())
-                                               : pos;
-        context.fErrors->error(errorPos, "too many components in swizzle mask '" +
-                                         MaskString(inComponents) + "'");
         return nullptr;
     }
 
