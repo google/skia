@@ -2589,6 +2589,9 @@ if (skia_enable_tools) {
       "tools/debugger/DrawCommand.cpp",
       "tools/debugger/JsonWriteBuffer.cpp",
     ]
+    if (skia_enable_graphite && skia_enable_precompile) {
+      sources += [ "fuzz/FuzzPrecompile.cpp" ]
+    }
     deps = [
       ":flags",
       ":gpu_tool_utils",
@@ -3248,6 +3251,19 @@ if (skia_enable_tools) {
           "modules/svg",
           "//third_party/libpng",
         ]
+      }
+    }
+
+    if (skia_enable_graphite && skia_enable_precompile) {
+      libfuzzer_app("api_precompile") {
+        include_dirs = []
+        sources = [
+          "fuzz/FuzzPrecompile.cpp",
+          "fuzz/oss_fuzz/FuzzPrecompile.cpp",
+          "tools/fonts/TestFontMgr.cpp",
+          "tools/fonts/TestTypeface.cpp",
+        ]
+        deps = []
       }
     }
 
