@@ -54,11 +54,9 @@ bool PathAtlas::addShape(Recorder* recorder,
         }
     }
 
-    // Draw the shape with a one pixel outset for AA. Round out to cancel but contain and fractional
-    // offset, so that it is present in the translation when deriving the atlas-space transform.
-    // TODO(b/273924867) Should the inner outset get applied in drawGeometry/applyClipToDraw and
-    // included implicitly?
-    Rect maskBounds = transformedShapeBounds.makeRoundOut().outset(1);
+    // Round out the shape bounds to preserve any fractional offset so that it is present in the
+    // translation that we use when deriving the atlas-space transform later.
+    Rect maskBounds = transformedShapeBounds.makeRoundOut();
 
     // Add an additional one pixel outset as buffer between atlas slots. This prevents sampling from
     // neighboring atlas slots; the AtlasShape renderer also uses the outset to sample zero coverage

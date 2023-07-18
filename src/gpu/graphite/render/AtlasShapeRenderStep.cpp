@@ -65,6 +65,19 @@ const char* AtlasShapeRenderStep::fragmentCoverageSkSL() const {
     )";
 }
 
+float AtlasShapeRenderStep::boundsOutset(const Transform& localToDevice, const Rect&) const {
+    // Always incorporate a 1-pixel wide border to the (device space) mask for AA. AtlasShapes are
+    // expected to be in device space but only after the clip stack has been applied to the
+    // AtlasShape's originating geometry. Hence `localToDevice` is not guaranteed to be identity
+    // `boundsOutset` needs to return a local coordinate outset for the shape which will be applied
+    // to its local-coordinate bounds before it gets transformed to device space.
+    //
+    // TODO(b/238770428): This won't produce an accurate result if the transform has perspective as
+    // the scale is not uniform across the shape. Reconsider what to do here when this RenderStep
+    // supports perspective.
+    return 1.0 / localToDevice.maxScaleFactor();
+}
+
 void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
                                          const DrawParams& params,
                                          int ssboIndex) const {
