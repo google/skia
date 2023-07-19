@@ -470,6 +470,24 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
     }
 }
 
+static bool argument_needs_scratch_variable(const Expression* arg,
+                                            const Variable* param,
+                                            const ProgramUsage& usage) {
+    // If the parameter isn't written to within the inline function ...
+    const ProgramUsage::VariableCounts& paramUsage = usage.get(*param);
+    if (!paramUsage.fWrite) {
+        // ... and can be inlined trivially (e.g. a swizzle, or a constant array index),
+        // or any expression without side effects that is only accessed at most once...
+        if ((paramUsage.fRead > 1) ? Analysis::IsTrivialExpression(*arg)
+                                   : !Analysis::HasSideEffects(*arg)) {
+            // ... we don't need to copy it at all! We can just use the existing expression.
+            return false;
+        }
+    }
+    // We need a scratch variable.
+    return true;
+}
+
 Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
                                          std::shared_ptr<SymbolTable> symbolTable,
                                          const ProgramUsage& usage,
@@ -482,9 +500,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
     //
     // Since we can't insert statements into an expression, we run the inline function as extra
     // statements before the statement we're currently processing, relying on a lack of execution
-    // order guarantees. Since we can't use gotos (which are normally used to replace return
-    // statements), we wrap the whole function in a loop and use break statements to jump to the
-    // end.
+    // order guarantees.
     SkASSERT(fContext);
     SkASSERT(this->isSafeToInline(call.function().definition(), usage));
 
@@ -522,19 +538,11 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
     // them.
     VariableRewriteMap varMap;
     for (int i = 0; i < arguments.size(); ++i) {
-        // If the parameter isn't written to within the inline function ...
         const Expression* arg = arguments[i].get();
         const Variable* param = function.declaration().parameters()[i];
-        const ProgramUsage::VariableCounts& paramUsage = usage.get(*param);
-        if (!paramUsage.fWrite) {
-            // ... and can be inlined trivially (e.g. a swizzle, or a constant array index),
-            // or any expression without side effects that is only accessed at most once...
-            if ((paramUsage.fRead > 1) ? Analysis::IsTrivialExpression(*arg)
-                                       : !Analysis::HasSideEffects(*arg)) {
-                // ... we don't need to copy it at all! We can just use the existing expression.
-                varMap.set(param, arg->clone());
-                continue;
-            }
+        if (!argument_needs_scratch_variable(arg, param, usage)) {
+            varMap.set(param, arg->clone());
+            continue;
         }
         ScratchVariable var = Variable::MakeScratchVariable(*fContext,
                                                             fMangler,
@@ -895,16 +903,42 @@ static const FunctionDeclaration& candidate_func(const InlineCandidate& candidat
     return (*candidate.fCandidateExpr)->as<FunctionCall>().function();
 }
 
-bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate,
-                                    const ProgramUsage& usage,
-                                    InlinabilityCache* cache) {
-    const FunctionDeclaration& funcDecl = candidate_func(candidate);
+bool Inliner::functionCanBeInlined(const FunctionDeclaration& funcDecl,
+                                   const ProgramUsage& usage,
+                                   InlinabilityCache* cache) {
     if (const bool* cachedInlinability = cache->find(&funcDecl)) {
         return *cachedInlinability;
     }
     bool inlinability = this->isSafeToInline(funcDecl.definition(), usage);
     cache->set(&funcDecl, inlinability);
     return inlinability;
+}
+
+bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate,
+                                    const ProgramUsage& usage,
+                                    InlinabilityCache* cache) {
+    // Check the cache to see if this function is safe to inline.
+    const FunctionDeclaration& funcDecl = candidate_func(candidate);
+    if (!this->functionCanBeInlined(funcDecl, usage, cache)) {
+        return false;
+    }
+
+    // Even if the function is safe, the arguments we are passing may not be. In particular, we
+    // can't make copies of opaque values, so we need to reject inline candidates that would need to
+    // do this. Every call has different arguments, so this part is not cacheable. (skia:13824)
+    const FunctionCall& call = candidate.fCandidateExpr->get()->as<FunctionCall>();
+    const ExpressionArray& arguments = call.arguments();
+    for (int i = 0; i < arguments.size(); ++i) {
+        const Expression* arg = arguments[i].get();
+        if (arg->type().isOpaque()) {
+            const Variable* param = funcDecl.parameters()[i];
+            if (argument_needs_scratch_variable(arg, param, usage)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 int Inliner::getFunctionSize(const FunctionDeclaration& funcDecl, FunctionSizeCache* cache) {

@@ -84,6 +84,10 @@ private:
                                const ProgramUsage& usage,
                                InlinabilityCache* cache);
 
+    bool functionCanBeInlined(const FunctionDeclaration& funcDecl,
+                              const ProgramUsage& usage,
+                              InlinabilityCache* cache);
+
     using FunctionSizeCache = skia_private::THashMap<const FunctionDeclaration*, int>;
     int getFunctionSize(const FunctionDeclaration& fnDecl, FunctionSizeCache* cache);
 

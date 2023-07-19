@@ -1,0 +1,19 @@
+layout(binding=0) uniform sampler uSampler;
+layout(binding=1) uniform texture2D uTexture;
+
+half4 simpleSample(float2 p, sampler2D s) {
+    // This call is allowed to inline because no scratch variables are needed; each argument is
+    // only used once.
+    return sample(s, p);
+}
+
+half4 squaredSample(float2 p, sampler2D s) {
+    // This call is not allowed to inline because `s` is used twice, so it would require a scratch
+    // argument, but we cannot create opaque variables. (skia:13824)
+    return sample(s, p) * sample(s, p);
+}
+
+half4 main(float2 p) {
+    return simpleSample(p, makeSampler2D(uTexture, uSampler)) *
+           squaredSample(p, makeSampler2D(uTexture, uSampler));
+}
