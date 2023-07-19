@@ -148,7 +148,13 @@ static std::unique_ptr<Expression> simplify_matrix_multiplication(const Context&
             for (int dotIdx = 0; dotIdx < leftColumns; ++dotIdx) {
                 val += leftVals[dotIdx][r] * rightVals[c][dotIdx];
             }
-            args[argIndex++] = val;
+
+            if (val >= -FLT_MAX && val <= FLT_MAX) {
+                args[argIndex++] = val;
+            } else {
+                // The value is outside the 32-bit float range, or is NaN; do not optimize.
+                return nullptr;
+            }
         }
     }
 

@@ -31,6 +31,9 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var hugeIvec: vec4<i32> = ((((((((((((((vec4<i32>(1073741824) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4;
     const u4: vec4<u32> = vec4<u32>(2u);
     var hugeUvec: vec4<u32> = (((((((((((((vec4<u32>(2147483648u) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4;
+    var hugeMxM: mat4x4<f32> = mat4x4<f32>(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20) * mat4x4<f32>(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20);
+    var hugeMxV: vec4<f32> = mat4x4<f32>(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20) * vec4<f32>(1e+20);
+    var hugeVxM: vec4<f32> = vec4<f32>(1e+20) * mat4x4<f32>(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20);
     let _skTemp0 = saturate(huge);
     let _skTemp1 = saturate(f32(hugeI));
     let _skTemp2 = saturate(f32(hugeU));
@@ -40,7 +43,10 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp6 = saturate(f32(hugeNS));
     let _skTemp7 = saturate(vec4<f32>(hugeIvec));
     let _skTemp8 = saturate(vec4<f32>(hugeUvec));
-    return ((((((((_globalUniforms.colorGreen * _skTemp0) * _skTemp1) * _skTemp2) * _skTemp3) * _skTemp4) * _skTemp5) * _skTemp6) * _skTemp7) * _skTemp8;
+    let _skTemp9 = saturate(vec4<f32>(hugeMxM[0]));
+    let _skTemp10 = saturate(vec4<f32>(hugeMxV));
+    let _skTemp11 = saturate(vec4<f32>(hugeVxM));
+    return (((((((((((_globalUniforms.colorGreen * _skTemp0) * _skTemp1) * _skTemp2) * _skTemp3) * _skTemp4) * _skTemp5) * _skTemp6) * _skTemp7) * _skTemp8) * _skTemp9) * _skTemp10) * _skTemp11;
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

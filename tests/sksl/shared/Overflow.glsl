@@ -13,5 +13,8 @@ vec4 main() {
     ivec4 hugeIvec = ((((((((((((((ivec4(1073741824) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4;
     const uvec4 u4 = uvec4(2u);
     uvec4 hugeUvec = (((((((((((((uvec4(2147483648u) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4;
-    return ((((((((colorGreen * clamp(huge, 0.0, 1.0)) * clamp(float(hugeI), 0.0, 1.0)) * clamp(float(hugeU), 0.0, 1.0)) * clamp(float(hugeS), 0.0, 1.0)) * clamp(float(hugeUS), 0.0, 1.0)) * clamp(float(hugeNI), 0.0, 1.0)) * clamp(float(hugeNS), 0.0, 1.0)) * clamp(vec4(hugeIvec), 0.0, 1.0)) * clamp(vec4(hugeUvec), 0.0, 1.0);
+    mat4 hugeMxM = mat4(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20) * mat4(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20);
+    vec4 hugeMxV = mat4(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20) * vec4(1e+20);
+    vec4 hugeVxM = vec4(1e+20) * mat4(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20);
+    return (((((((((((colorGreen * clamp(huge, 0.0, 1.0)) * clamp(float(hugeI), 0.0, 1.0)) * clamp(float(hugeU), 0.0, 1.0)) * clamp(float(hugeS), 0.0, 1.0)) * clamp(float(hugeUS), 0.0, 1.0)) * clamp(float(hugeNI), 0.0, 1.0)) * clamp(float(hugeNS), 0.0, 1.0)) * clamp(vec4(hugeIvec), 0.0, 1.0)) * clamp(vec4(hugeUvec), 0.0, 1.0)) * clamp(hugeMxM[0], 0.0, 1.0)) * clamp(hugeMxV, 0.0, 1.0)) * clamp(hugeVxM, 0.0, 1.0);
 }
