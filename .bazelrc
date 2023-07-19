@@ -105,8 +105,6 @@ build --flag_alias=ck_enable_skp_serialization=//modules/canvaskit:enable_skp_se
 build --flag_alias=ck_disable_skp_serialization=no//modules/canvaskit:enable_skp_serialization
 build --flag_alias=ck_enable_runtime_effect=//modules/canvaskit:enable_runtime_effect
 build --flag_alias=ck_disable_runtime_effect=no//modules/canvaskit:enable_runtime_effect
-build --flag_alias=ck_enable_debugger=//modules/canvaskit:enable_debugger
-build --flag_alias=ck_disable_debugger=no//modules/canvaskit:enable_debugger
 
 # =============================================================================
 # REMOTE BUILD EXECUTION

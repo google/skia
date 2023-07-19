@@ -87,15 +87,10 @@ build:ck_webgl2 --with_gl_standard=webgl_standard --gpu_backend=gl_backend \
 # CPU build needs legacy shader context otherwise SkPerlinNoiseShader does not render
 build:ck_cpu --enable_sksl --enable_legacy_shader_context
 
-# flags for using the CanvasKit debugger.
-build:ck_debugger --ck_enable_debugger
-
 build:ck_full_webgl2_release --config=canvaskit_full --config=ck_webgl2 --config=release
 build:ck_full_webgl2_debug --config=canvaskit_full --config=ck_webgl2 --config=debug
 build:ck_full_cpu_release --config=canvaskit_full --config=ck_cpu --config=release
 build:ck_full_cpu_debug --config=canvaskit_full --config=ck_cpu --config=debug
-build:ck_full_webgl2_debug_debugger --config=canvaskit_full --config=ck_webgl2 \
-                                    --config=debug --config=ck_debugger
 # TODO(kjlubick) We should be able to configure testing on Chrome or Firefox with this.
 build:ck_full_webgl2_release_chrome --config=ck_full_webgl2_release
 build:ck_full_cpu_release_chrome --config=ck_full_cpu_release

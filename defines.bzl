@@ -58,9 +58,6 @@ GENERAL_DEFINES = [
 }) + select({
     "//src/lazy:enable_discardable_memory_true": ["SK_USE_DISCARDABLE_SCALEDIMAGECACHE"],
     "//src/lazy:enable_discardable_memory_false": [],
-}) + select({
-    "//modules/canvaskit:enable_debugger_true": ["SK_BUILD_FOR_DEBUGGER"],
-    "//conditions:default": [],
 })
 
 GPU_DEFINES = select_multi({
