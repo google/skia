@@ -51,6 +51,7 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/image/SkImage_Base.h"
 
 #include <algorithm>
@@ -196,7 +197,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::asView(
                                         /*sample count*/ 1,
                                         mipmapped,
                                         GrProtected::kNo,
-                                        kTopLeft_GrSurfaceOrigin,
+                                        fYUVAProxies.textureOrigin(),
                                         skgpu::Budgeted::kYes);
     if (!sfc) {
         return {};
@@ -214,6 +215,11 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::asView(
     sfc->fillWithFP(std::move(fp));
 
     return {sfc->readSurfaceView(), sfc->colorInfo().colorType()};
+}
+
+skif::Context SkImage_GaneshYUVA::onCreateFilterContext(GrRecordingContext* rContext,
+                                                        const skif::ContextInfo& ctxInfo) const {
+    return skif::MakeGaneshContext(rContext, fYUVAProxies.textureOrigin(), ctxInfo);
 }
 
 std::unique_ptr<GrFragmentProcessor> SkImage_GaneshYUVA::asFragmentProcessor(

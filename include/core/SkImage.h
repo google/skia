@@ -797,12 +797,12 @@ public:
         @param offset      storage for returned SkImage translation
         @return            filtered SkImage, or nullptr
     */
-    virtual sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
-                                          const SkImageFilter* filter,
-                                          const SkIRect& subset,
-                                          const SkIRect& clipBounds,
-                                          SkIRect* outSubset,
-                                          SkIPoint* offset) const = 0;
+    sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
+                                  const SkImageFilter* filter,
+                                  const SkIRect& subset,
+                                  const SkIRect& clipBounds,
+                                  SkIRect* outSubset,
+                                  SkIPoint* offset) const;
 
     /** Deprecated.
      */

@@ -31,7 +31,6 @@ class GrTextureProxy;
 class SkBitmap;
 class SkColorSpace;
 class SkImage;
-class SkImageFilter;
 class SkMatrix;
 enum SkAlphaType : int;
 enum SkColorType : int;
@@ -40,7 +39,6 @@ enum class GrImageTexGenPolicy : int;
 enum class GrSemaphoresSubmitted : bool;
 enum class SkTileMode;
 struct GrFlushInfo;
-struct SkIPoint;
 struct SkIRect;
 struct SkISize;
 struct SkImageInfo;
@@ -60,12 +58,6 @@ public:
                                               SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetCS) const final;
     sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const final;
-    sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
-                                  const SkImageFilter* filter,
-                                  const SkIRect& subset,
-                                  const SkIRect& clipBounds,
-                                  SkIRect* outSubset,
-                                  SkIPoint* offset) const final;
 
     // From SkImage_Base.h
     GrImageContext* context() const final { return fContext.get(); }
@@ -120,8 +112,6 @@ public:
 protected:
     SkImage_GaneshBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);
 
-    sk_sp<GrImageContext> fContext;
-
     sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
                                 const SkIRect& subset,
                                 RequiredProperties) const final;
@@ -130,6 +120,8 @@ protected:
                                               SkColorType,
                                               sk_sp<SkColorSpace>,
                                               RequiredProperties) const final;
+
+    sk_sp<GrImageContext> fContext;
 };
 
 #endif
