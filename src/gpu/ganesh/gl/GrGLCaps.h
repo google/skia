@@ -486,6 +486,10 @@ public:
 
     bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
 
+    bool setMaxLevelForRegenerateMipMapLevels() const {
+        return fSetMaxLevelForRegenerateMipMapLevels;
+    }
+
     GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -618,6 +622,7 @@ private:
     bool fRebindColorAttachmentAfterCheckFramebufferStatus : 1;
     bool fFlushBeforeWritePixels : 1;
     bool fDisableScalingCopyAsDraws : 1;
+    bool fSetMaxLevelForRegenerateMipMapLevels : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;

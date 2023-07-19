@@ -67,6 +67,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRebindColorAttachmentAfterCheckFramebufferStatus = false;
     fFlushBeforeWritePixels = false;
     fDisableScalingCopyAsDraws = false;
+    fSetMaxLevelForRegenerateMipMapLevels = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -4611,6 +4612,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (ctxInfo.renderer() == GrGLRenderer::kMali4xx &&
         ctxInfo.driverVersion() >= GR_GL_DRIVER_VER(2, 1, 19900)) {
         fDisableScalingCopyAsDraws = true;
+    }
+    // skbug.com/14194
+    // Setting the max level is technically unnecessary and can affect validation for the
+    // framebuffer. However, by making it clear that a rendering feedback loop is not occurring,
+    // we avoid hitting a slow path on some drivers.
+    if (GR_IS_GR_GL(ctxInfo.standard()) &&
+        (ctxInfo.vendor() == GrGLVendor::kIntel || ctxInfo.angleVendor() == GrGLVendor::kIntel)) {
+        fSetMaxLevelForRegenerateMipMapLevels = true;
     }
 }
 

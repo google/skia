@@ -3752,20 +3752,19 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
                           invWidth, (width - 1) * invWidth, invHeight, (height - 1) * invHeight));
         GL_CALL(Uniform1i(fMipmapPrograms[progIdx].fTextureUniform, 0));
 
-        // Ensure the level we're rendering to is active before setting up the framebuffer
-        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAX_LEVEL, level));
+        // Set the base level so that we only sample from the previous mip.
+        SkASSERT(this->glCaps().mipmapLevelControlSupport());
+        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, level - 1));
+        // Setting the max level is technically unnecessary and can affect
+        // validation for the framebuffer. However, by making it clear that a
+        // rendering feedback loop is not occurring, we avoid hitting a slow
+        // path on some drivers.
+        if (this->glCaps().setMaxLevelForRegenerateMipMapLevels()) {
+            GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAX_LEVEL, level - 1));
+        }
 
         GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0, GR_GL_TEXTURE_2D,
                                      glTex->textureID(), level));
-
-        // Set the base level and max level so that we only sample from the
-        // previous mip. Setting the max level is technically unnecessary, but
-        // we do it as a performance optimization. By making it clear that a
-        // rendering feedback loop is not occurring, we avoid hitting a slow
-        // path on some drivers.
-        SkASSERT(this->glCaps().mipmapLevelControlSupport());
-        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_BASE_LEVEL, level - 1));
-        GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_MAX_LEVEL, level - 1));
 
         width = std::max(1, width / 2);
         height = std::max(1, height / 2);
