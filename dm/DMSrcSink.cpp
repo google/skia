@@ -1656,41 +1656,6 @@ Result GPURemoteSlugSink::draw(
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-GPUThreadTestingSink::GPUThreadTestingSink(const SkCommandLineConfigGpu* config,
-                                           const GrContextOptions& grCtxOptions)
-        : INHERITED(config, grCtxOptions)
-        , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads)) {
-    SkASSERT(fExecutor);
-}
-
-Result GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream,
-                                 SkString* log) const {
-    // Draw twice, once with worker threads, and once without. Verify that we get the same result.
-    // Also, force us to only use the software path renderer, so we really stress-test the threaded
-    // version of that code.
-    GrContextOptions contextOptions = this->baseContextOptions();
-    contextOptions.fGpuPathRenderers = GpuPathRenderers::kNone;
-    contextOptions.fExecutor = fExecutor.get();
-
-    Result result = this->onDraw(src, dst, wStream, log, contextOptions);
-    if (!result.isOk() || !dst) {
-        return result;
-    }
-
-    SkBitmap reference;
-    SkString refLog;
-    SkDynamicMemoryWStream refStream;
-    contextOptions.fExecutor = nullptr;
-    Result refResult = this->onDraw(src, &reference, &refStream, &refLog, contextOptions);
-    if (!refResult.isOk()) {
-        return refResult;
-    }
-
-    return compare_bitmaps(reference, *dst);
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 GPUPersistentCacheTestingSink::GPUPersistentCacheTestingSink(const SkCommandLineConfigGpu* config,
                                                              const GrContextOptions& grCtxOptions)
     : INHERITED(config, grCtxOptions)

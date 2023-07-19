@@ -65,7 +65,6 @@ public:
                            SkColorType               colorType,
                            SkAlphaType               alphaType,
                            bool                      useStencilBuffers,
-                           bool                      testThreading,
                            int                       testPersistentCache,
                            bool                      testPrecompile,
                            bool                      useDDLSink,
@@ -82,7 +81,6 @@ public:
     int           getSamples() const { return fSamples; }
     SkColorType   getColorType() const { return fColorType; }
     SkAlphaType   getAlphaType() const { return fAlphaType; }
-    bool          getTestThreading() const { return fTestThreading; }
     int           getTestPersistentCache() const { return fTestPersistentCache; }
     bool          getTestPrecompile() const { return fTestPrecompile; }
     bool          getUseDDLSink() const { return fUseDDLSink; }
@@ -99,7 +97,6 @@ private:
     int                 fSamples;
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;
-    bool                fTestThreading;
     int                 fTestPersistentCache;
     bool                fTestPrecompile;
     bool                fUseDDLSink;

@@ -438,23 +438,6 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
-class GPUThreadTestingSink : public GPUSink {
-public:
-    GPUThreadTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
-
-    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-
-    const char* fileExtension() const override {
-        // Suppress writing out results from this config - we just want to do our matching test
-        return nullptr;
-    }
-
-private:
-    std::unique_ptr<SkExecutor> fExecutor;
-
-    using INHERITED = GPUSink;
-};
-
 class GPUPersistentCacheTestingSink : public GPUSink {
 public:
     GPUPersistentCacheTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);

@@ -73,7 +73,6 @@ static const struct {
     { "glslug",                "gpu", "api=gl,slug=true" },
     { "glserializeslug",       "gpu", "api=gl,serializeSlug=true" },
     { "glremoteslug",          "gpu", "api=gl,remoteSlug=true" },
-    { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
     { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=1" },
     { "gltestglslcache",       "gpu", "api=gl,testPersistentCache=2" },
     { "gltestprecompile",      "gpu", "api=gl,testPrecompile=true" },
@@ -219,7 +218,6 @@ static const char configExtendedHelp[] =
         "\t    Use multisampling with N samples.\n"
         "\tstencils\ttype: bool\tdefault: true.\n"
         "\t    Allow the use of stencil buffers.\n"
-        "\ttestThreading\ttype: bool\tdefault: false.\n"
         "\t    Run with and without worker threads, check that results match.\n"
         "\ttestPersistentCache\ttype: int\tdefault: 0.\n"
         "\t    1: Run using a pre-warmed binary GrContextOptions::fPersistentCache.\n"
@@ -580,7 +578,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&         tag,
                                                SkColorType             colorType,
                                                SkAlphaType             alphaType,
                                                bool                    useStencilBuffers,
-                                               bool                    testThreading,
                                                int                     testPersistentCache,
                                                bool                    testPrecompile,
                                                bool                    useDDLSink,
@@ -596,7 +593,6 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&         tag,
         , fSamples(samples)
         , fColorType(colorType)
         , fAlphaType(alphaType)
-        , fTestThreading(testThreading)
         , fTestPersistentCache(testPersistentCache)
         , fTestPrecompile(testPrecompile)
         , fUseDDLSink(useDDLSink)
@@ -627,7 +623,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&         ta
     SkColorType                         colorType           = kRGBA_8888_SkColorType;
     SkAlphaType                         alphaType           = kPremul_SkAlphaType;
     bool                                useStencils         = true;
-    bool                                testThreading       = false;
     int                                 testPersistentCache = 0;
     bool                                testPrecompile      = false;
     bool                                useDDLs             = false;
@@ -651,7 +646,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&         ta
             extendedOptions.get_option_bool("dmsaa", &useDMSAA) &&
             extendedOptions.get_option_gpu_color("color", &colorType, &alphaType) &&
             extendedOptions.get_option_bool("stencils", &useStencils) &&
-            extendedOptions.get_option_bool("testThreading", &testThreading) &&
             extendedOptions.get_option_int("testPersistentCache", &testPersistentCache) &&
             extendedOptions.get_option_bool("testPrecompile", &testPrecompile) &&
             extendedOptions.get_option_bool("useDDLSink", &useDDLs) &&
@@ -661,8 +655,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&         ta
             extendedOptions.get_option_bool("reducedShaders", &reducedShaders) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
-    // testing threading and the persistent cache are mutually exclusive.
-    if (!validOptions || (testThreading && (testPersistentCache != 0))) {
+    if (!validOptions) {
         return nullptr;
     }
 
@@ -683,7 +676,6 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&         ta
                                       colorType,
                                       alphaType,
                                       useStencils,
-                                      testThreading,
                                       testPersistentCache,
                                       testPrecompile,
                                       useDDLs,
