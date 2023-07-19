@@ -88,7 +88,7 @@ def git_repos_from_deps(ws = "@"):
         name = "libavif",
         build_file = ws + "//bazel/external/libavif:BUILD.bazel",
         commit = "f49462dc93784bf34148715eee36ab6697ca0b35",
-        remote = "https://github.com/AOMediaCodec/libavif.git",
+        remote = "https://skia.googlesource.com/external/github.com/AOMediaCodec/libavif.git",
     )
 
     new_git_repository(
