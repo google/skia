@@ -48,17 +48,20 @@ public:
 
     void setColorSlot(SlotID, SkColor);
     void setImageSlot(SlotID, sk_sp<skresources::ImageAsset>);
-    void setScalarSlot(SlotID, ScalarValue);
+    void setScalarSlot(SlotID, float);
+    void setVec2Slot(SlotID, SkV2);
     void setTextSlot(SlotID, TextPropertyValue&);
 
     SkColor getColorSlot(SlotID) const;
     sk_sp<const skresources::ImageAsset> getImageSlot(SlotID) const;
-    ScalarValue getScalarSlot(SlotID) const;
+    float getScalarSlot(SlotID) const;
+    SkV2 getVec2Slot(SlotID) const;
     TextPropertyValue getTextSlot(SlotID) const;
 
     struct SlotInfo {
         TArray<SlotID> fColorSlotIDs;
         TArray<SlotID> fScalarSlotIDs;
+        TArray<SlotID> fVec2SlotIDs;
         TArray<SlotID> fImageSlotIDs;
         TArray<SlotID> fTextSlotIDs;
     };
@@ -72,6 +75,7 @@ private:
     void trackColorValue(SlotID, ColorValue*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
     sk_sp<skresources::ImageAsset> trackImageValue(SlotID, sk_sp<skresources::ImageAsset>);
     void trackScalarValue(SlotID, ScalarValue*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
+    void trackVec2Value(SlotID, Vec2Value*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
     void trackTextValue(SlotID, sk_sp<skottie::internal::TextAdapter>);
 
     // ValuePair tracks a pointer to a value to change, and a means to invalidate the render tree.
@@ -90,10 +94,11 @@ private:
     template <typename T>
     using SlotMap = THashMap<SlotID, TArray<T>>;
 
-    SlotMap<ValuePair<ColorValue*>>                    fColorMap;
-    SlotMap<ValuePair<ScalarValue*>>                   fScalarMap;
-    SlotMap<sk_sp<ImageAssetProxy>>                    fImageMap;
-    SlotMap<sk_sp<skottie::internal::TextAdapter>>     fTextMap;
+    SlotMap<ValuePair<ColorValue*>>                fColorMap;
+    SlotMap<ValuePair<ScalarValue*>>               fScalarMap;
+    SlotMap<ValuePair<Vec2Value*>>                 fVec2Map;
+    SlotMap<sk_sp<ImageAssetProxy>>                fImageMap;
+    SlotMap<sk_sp<skottie::internal::TextAdapter>> fTextMap;
 
     const sk_sp<skottie::internal::SceneGraphRevalidator> fRevalidator;
 

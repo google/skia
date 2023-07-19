@@ -272,6 +272,14 @@ public:
                 ImGui::InputFloat("Scalar", &(oSlot.second));
                 ImGui::PopID();
             }
+            ImGui::Text("Vec2 Slots");
+            for (size_t i = 0; i < fVec2Slots.size(); i++) {
+                auto& vSlot = fVec2Slots.at(i);
+                ImGui::PushID(i);
+                ImGui::Text("%s", vSlot.first.c_str());
+                ImGui::InputFloat2("x, y", &(vSlot.second.x));
+                ImGui::PopID();
+            }
             ImGui::Text("Text Slots");
             for (size_t i = 0; i < fTextStringSlots.size(); i++) {
                 auto& tSlot = fTextStringSlots.at(i);
@@ -312,6 +320,9 @@ public:
         for(const auto& s : fScalarSlots) {
             fSlotManager->setScalarSlot(s.first, s.second);
         }
+        for(const auto& s : fVec2Slots) {
+            fSlotManager->setVec2Slot(s.first, {s.second.x, s.second.y});
+        }
         for(const auto& s : fTextStringSlots) {
             auto t = fSlotManager->getTextSlot(s.first);
             t.fText = SkString(s.second.data());
@@ -341,6 +352,9 @@ public:
             for (const auto &sid : slotInfos.fScalarSlotIDs) {
                 addScalarSlot(sid);
             }
+            for (const auto &sid : slotInfos.fVec2SlotIDs) {
+                addVec2Slot(sid);
+            }
             for (const auto &sid : slotInfos.fImageSlotIDs) {
                 addImageSlot(sid);
             }
@@ -369,6 +383,10 @@ private:
         fScalarSlots.push_back(std::make_pair(slotID, fSlotManager->getScalarSlot(slotID)));
     }
 
+    void addVec2Slot(SkString slotID) {
+        fVec2Slots.push_back(std::make_pair(slotID, fSlotManager->getVec2Slot(slotID)));
+    }
+
     void addTextSlot(SkString slotID) {
         std::array<char, kBufferLen> textSource = {'\0'};
         SkString s = fSlotManager->getTextSlot(slotID).fText;
@@ -382,6 +400,7 @@ private:
 
     std::vector<std::pair<SkString, std::array<float, 4>>> fColorSlots;
     std::vector<std::pair<SkString, float>>                fScalarSlots;
+    std::vector<std::pair<SkString, SkV2>>                 fVec2Slots;
     std::vector<std::pair<SkString, GuiTextBuffer>>        fTextStringSlots;
     std::vector<std::pair<SkString, std::string>>          fImageSlots;
 
