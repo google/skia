@@ -1,3 +1,5 @@
+190 instructions
+
 store_device_xy01              $12..15 = DeviceCoords.xy01
 splat_2_constants              $14..15 = 0x3F000000 (0.5)
 cmpeq_2_floats                 $12..13 = equal($12..13, $14..15)

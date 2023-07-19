@@ -1,3 +1,5 @@
+303 instructions
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 store_condition_mask           $12 = CondMask

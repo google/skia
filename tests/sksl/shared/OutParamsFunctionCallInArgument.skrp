@@ -1,3 +1,5 @@
+22 instructions
+
 store_src_rg                   c = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              testArray[0], testArray[1] = 0

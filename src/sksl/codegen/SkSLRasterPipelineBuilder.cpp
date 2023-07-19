@@ -2351,7 +2351,7 @@ class Program::Dumper {
 public:
     Dumper(const Program& p) : fProgram(p) {}
 
-    void dump(SkWStream* out);
+    void dump(SkWStream* out, bool writeInstructionCount);
 
     // Finds the labels in the program, and keeps track of their offsets.
     void buildLabelToStageMap() {
@@ -2764,7 +2764,9 @@ private:
     SkSpan<float> fUniforms;
 };
 
-void Program::Dumper::dump(SkWStream* out) {
+void Program::Dumper::dump(SkWStream* out, bool writeInstructionCount) {
+    using POp = ProgramOp;
+
     // Allocate memory for the slot and uniform data, even though the program won't ever be
     // executed. The program requires pointer ranges for managing its data, and ASAN will report
     // errors if those pointers are pointing at unallocated memory.
@@ -2779,6 +2781,39 @@ void Program::Dumper::dump(SkWStream* out) {
     // Assemble lookup tables for program labels and slot names.
     this->buildLabelToStageMap();
     this->buildUniqueSlotNameList();
+
+    // Emit the program's instruction count.
+    if (writeInstructionCount) {
+        int invocationCount = 0, instructionCount = 0;
+        for (const Stage& stage : fStages) {
+            switch (stage.op) {
+                case POp::label:
+                    // consumes zero instructions
+                    break;
+
+                case POp::invoke_shader:
+                case POp::invoke_color_filter:
+                case POp::invoke_blender:
+                case POp::invoke_to_linear_srgb:
+                case POp::invoke_from_linear_srgb:
+                    ++invocationCount;
+                    break;
+
+                default:
+                    ++instructionCount;
+                    break;
+            }
+        }
+
+        out->writeText(std::to_string(instructionCount).c_str());
+        out->writeText(" instructions");
+        if (invocationCount > 0) {
+            out->writeText(", ");
+            out->writeText(std::to_string(invocationCount).c_str());
+            out->writeText(" invocations");
+        }
+        out->writeText("\n\n");
+    }
 
     // Emit all of the program's immutable data.
     const char* header = "[immutable slots]\n";
@@ -2803,7 +2838,6 @@ void Program::Dumper::dump(SkWStream* out) {
         const Stage& stage = fStages[index];
 
         std::string opArg1, opArg2, opArg3, opSwizzle;
-        using POp = ProgramOp;
         switch (stage.op) {
             case POp::label:
             case POp::invoke_shader:
@@ -3661,8 +3695,8 @@ void Program::Dumper::dump(SkWStream* out) {
     }
 }
 
-void Program::dump(SkWStream* out) const {
-    Dumper(*this).dump(out);
+void Program::dump(SkWStream* out, bool writeInstructionCount) const {
+    Dumper(*this).dump(out, writeInstructionCount);
 }
 
 }  // namespace SkSL::RP

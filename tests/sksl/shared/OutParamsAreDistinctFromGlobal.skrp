@@ -1,3 +1,5 @@
+15 instructions
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  x = 0x3F800000 (1.0)

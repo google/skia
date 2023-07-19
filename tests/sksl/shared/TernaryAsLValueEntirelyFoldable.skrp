@@ -1,3 +1,5 @@
+9 instructions
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              r, g = 0

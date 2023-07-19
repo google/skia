@@ -1,3 +1,5 @@
+10 instructions, 5 invocations
+
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_2_slots_unmasked          $0..1 = xy

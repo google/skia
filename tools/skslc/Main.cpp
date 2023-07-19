@@ -657,7 +657,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
                         compiler.errorReporter().error({}, "code is not supported");
                         return false;
                     }
-                    rasterProg->dump(as_SkWStream(out).get());
+                    rasterProg->dump(as_SkWStream(out).get(), /*writeInstructionCount=*/true);
                     return true;
                 });
 #endif

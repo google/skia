@@ -1,3 +1,5 @@
+133 instructions
+
 store_src_rg                   c = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  ok = 0xFFFFFFFF

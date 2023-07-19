@@ -1,3 +1,5 @@
+184 instructions
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_uniform                   $0 = unknownInput

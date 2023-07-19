@@ -1,3 +1,5 @@
+52 instructions
+
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 splat_2_constants              _0_sum, _1_i = 0

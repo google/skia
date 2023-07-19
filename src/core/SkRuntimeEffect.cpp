@@ -225,7 +225,7 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
             if (fRPProgram) {
                 SkDebugf("-----\n\n");
                 SkDebugfStream stream;
-                fRPProgram->dump(&stream);
+                fRPProgram->dump(&stream, /*writeInstructionCount=*/true);
                 SkDebugf("\n-----\n\n");
             } else {
                 SkDebugf("----- RP unsupported -----\n\n");

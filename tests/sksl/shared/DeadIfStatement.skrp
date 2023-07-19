@@ -1,3 +1,5 @@
+6 instructions
+
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_4_uniforms                $0..3 = colorGreen

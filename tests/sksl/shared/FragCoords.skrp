@@ -1,3 +1,5 @@
+7 instructions
+
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 store_device_xy01              sk_FragCoord = DeviceCoords.xy01

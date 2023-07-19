@@ -166,7 +166,7 @@ public:
                       Callbacks* callbacks,
                       SkSpan<const float> uniforms) const;
 
-    void dump(SkWStream* out) const;
+    void dump(SkWStream* out, bool writeInstructionCount = false) const;
 
     int numUniforms() const { return fNumUniformSlots; }
 
