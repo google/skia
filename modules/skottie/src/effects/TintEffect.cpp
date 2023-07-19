@@ -61,7 +61,7 @@ private:
                                            fColorNode1;
     const sk_sp<sksg::GradientColorFilter> fFilterNode;
 
-    VectorValue fMapBlackTo,
+    ColorValue  fMapBlackTo,
                 fMapWhiteTo;
     ScalarValue fAmount = 0;
 };

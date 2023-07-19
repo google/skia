@@ -72,7 +72,7 @@ private:
     const sk_sp<sksg::DropShadowImageFilter> fDropShadow;
     const sk_sp<sksg::RenderNode>            fImageFilterEffect;
 
-    VectorValue fColor     = { 0, 0, 0, 1 };
+    ColorValue  fColor     = { 0, 0, 0, 1 };
     ScalarValue fOpacity   = 255,
                 fDirection = 0,
                 fDistance  = 0,

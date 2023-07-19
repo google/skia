@@ -184,8 +184,7 @@ public:
         const PropertyObserver::NodeType fNodeType;
     };
 
-    bool dispatchColorProperty(const sk_sp<sksg::Color>&,
-                               const skjson::ObjectValue* jcolor = nullptr) const;
+    bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
     bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
     bool dispatchTextProperty(const sk_sp<TextAdapter>&,
                               const skjson::ObjectValue* jtext) const;

@@ -98,7 +98,7 @@ class CCTonerAdapter final : public DiscardableAdapterBase<CCTonerAdapter,
         const std::vector<sk_sp<sksg::Color>> fColorNodes;
 
         ScalarValue fTone = 0;
-        VectorValue fHighlights,
+        ColorValue  fHighlights,
                     fBrights,
                     fMidtones,
                     fDarktones,

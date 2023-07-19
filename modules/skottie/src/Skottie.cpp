@@ -210,17 +210,8 @@ void AnimationBuilder::dispatchMarkers(const skjson::ArrayValue* jmarkers) const
     }
 }
 
-bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c,
-                                             const skjson::ObjectValue* jcolor) const {
+bool AnimationBuilder::dispatchColorProperty(const sk_sp<sksg::Color>& c) const {
     bool dispatched = false;
-
-    if (jcolor) {
-        if (const skjson::StringValue* slotID = (*jcolor)["sid"]) {
-            fSlotManager->trackColorValue(SkString(slotID->begin()), &(c->fColor), c);
-            dispatched = true;
-        }
-    }
-
     if (fPropertyObserver) {
         const char * node_name = fPropertyObserverContext;
         fPropertyObserver->onColorProperty(node_name,

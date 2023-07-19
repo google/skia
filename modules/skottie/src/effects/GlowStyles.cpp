@@ -130,7 +130,7 @@ private:
 
     const Type fType;
 
-    VectorValue fColor;
+    ColorValue  fColor;
     ScalarValue fOpacity  = 100, // percentage
                 fSize     =   0,
                 fChoke    =   0,

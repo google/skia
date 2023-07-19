@@ -44,11 +44,13 @@ fRevalidator(revalidator) {}
 skottie::SlotManager::~SlotManager() = default;
 
 void skottie::SlotManager::setColorSlot(SlotID slotID, SkColor c) {
+    auto c4f = SkColor4f::FromColor(c);
+    ColorValue v{c4f.fR, c4f.fG, c4f.fB, c4f.fA};
     const auto valueGroup = fColorMap.find(slotID);
     if (valueGroup) {
         for (auto& cPair : *valueGroup) {
-            *(cPair.value) = c;
-            cPair.node->invalidate();
+            *(cPair.value) = v;
+            cPair.adapter->onSync();
         }
         fRevalidator->revalidate();
     }
@@ -69,11 +71,7 @@ void skottie::SlotManager::setScalarSlot(SlotID slotID, ScalarValue s) {
     if (valueGroup) {
         for (auto& sPair : *valueGroup) {
             *(sPair.value) = s;
-            if (sPair.node) {
-                sPair.node->invalidate();
-            } else if (sPair.adapter) {
-                sPair.adapter->onSync();
-            }
+            sPair.adapter->onSync();
         }
         fRevalidator->revalidate();
     }
@@ -111,9 +109,9 @@ skottie::TextPropertyValue skottie::SlotManager::getTextSlot(SlotID slotID) cons
            TextPropertyValue();
 }
 
-void skottie::SlotManager::trackColorValue(SlotID slotID, SkColor* colorValue,
-                                           sk_sp<sksg::Node> node) {
-    fColorMap[slotID].push_back({colorValue, std::move(node), nullptr});
+void skottie::SlotManager::trackColorValue(SlotID slotID, ColorValue* colorValue,
+                                           sk_sp<internal::AnimatablePropertyContainer> adapter) {
+    fColorMap[slotID].push_back({colorValue, std::move(adapter)});
 }
 
 sk_sp<skresources::ImageAsset> skottie::SlotManager::trackImageValue(SlotID slotID,
@@ -126,7 +124,7 @@ sk_sp<skresources::ImageAsset> skottie::SlotManager::trackImageValue(SlotID slot
 
 void skottie::SlotManager::trackScalarValue(SlotID slotID, ScalarValue* scalarValue,
                                             sk_sp<internal::AnimatablePropertyContainer> adapter) {
-    fScalarMap[slotID].push_back({scalarValue, nullptr, adapter});
+    fScalarMap[slotID].push_back({scalarValue, adapter});
 }
 
 void skottie::SlotManager::trackTextValue(SlotID slotID, sk_sp<internal::TextAdapter> adapter) {

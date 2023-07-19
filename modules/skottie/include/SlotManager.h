@@ -69,7 +69,7 @@ public:
 private:
 
     // pass value to the SlotManager for manipulation and node for invalidation
-    void trackColorValue(SlotID, SkColor*, sk_sp<sksg::Node>);
+    void trackColorValue(SlotID, ColorValue*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
     sk_sp<skresources::ImageAsset> trackImageValue(SlotID, sk_sp<skresources::ImageAsset>);
     void trackScalarValue(SlotID, ScalarValue*, sk_sp<skottie::internal::AnimatablePropertyContainer>);
     void trackTextValue(SlotID, sk_sp<skottie::internal::TextAdapter>);
@@ -83,23 +83,14 @@ private:
     struct ValuePair
     {
         T value;
-        sk_sp<sksg::Node> node;
         sk_sp<skottie::internal::AnimatablePropertyContainer> adapter;
-
-        ValuePair(T _value, sk_sp<sksg::Node> _node,
-                  sk_sp<skottie::internal::AnimatablePropertyContainer> _adapter) {
-            value = std::move(_value);
-            node = std::move(_node);
-            adapter = _adapter;
-            SkASSERT(!node != !adapter);
-        }
     };
 
     class ImageAssetProxy;
     template <typename T>
     using SlotMap = THashMap<SlotID, TArray<T>>;
 
-    SlotMap<ValuePair<SkColor*>>                       fColorMap;
+    SlotMap<ValuePair<ColorValue*>>                    fColorMap;
     SlotMap<ValuePair<ScalarValue*>>                   fScalarMap;
     SlotMap<sk_sp<ImageAssetProxy>>                    fImageMap;
     SlotMap<sk_sp<skottie::internal::TextAdapter>>     fTextMap;

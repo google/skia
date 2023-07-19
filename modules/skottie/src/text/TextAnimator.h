@@ -32,8 +32,8 @@ public:
     // Direct mapping of AE properties.
     struct AnimatedProps {
         VectorValue position,
-                    scale          = { 100, 100, 100 },
-                    fill_color,
+                    scale          = { 100, 100, 100 };
+        ColorValue  fill_color,
                     stroke_color;
         // unlike pos/scale which are animated vectors, rotation is separated in each dimension.
         SkV3        rotation       = { 0, 0, 0 };

@@ -161,8 +161,8 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
             return false;
         }
 
-        VectorValue color_vec;
-        if (!skottie::Parse(*jcolor, &color_vec)) {
+        ColorValue color_vec;
+        if (!skottie::Parse(*jcolor, static_cast<VectorValue*>(&color_vec))) {
             return false;
         }
 

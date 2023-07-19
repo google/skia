@@ -404,7 +404,7 @@ private:
                 fRotOrder = 1,
                 fRender   = 1;
 
-    VectorValue fLightColor;
+    ColorValue  fLightColor;
     ScalarValue fLightIntensity =   0,
                 fLightHeight    =   0,
                 fLightDirection =   0,
