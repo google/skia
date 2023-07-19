@@ -5,6 +5,7 @@ load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skia")
 download_toolchains_for_skia("clang_linux_amd64", "clang_mac", "ndk_linux_amd64")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//bazel:gcs_mirror.bzl", "gcs_mirror_url")
 
 # See https://github.com/emscripten-core/emsdk/tree/85d27a4a2a60d591613a305b14ae438c2bb3ce11/bazel#setup-instructions
 http_archive(
@@ -481,4 +482,39 @@ exports_files(
     # From https://chrome-infra-packages.appspot.com/p/gn/gn/mac-amd64/+/git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41
     sha256 = "ed96f7d2f49b83b016e4bdbed432e4734a5a133accb025d7c07685e01489ba93",
     tag = "git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
+)
+
+
+##################################
+# Docker rules and dependencies. #
+##################################
+
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "27d53c1d646fc9537a70427ad7b034734d08a9c38924cc6357cc973fed300820",
+    strip_prefix = "rules_docker-0.24.0",
+    urls = gcs_mirror_url(
+        sha256 = "27d53c1d646fc9537a70427ad7b034734d08a9c38924cc6357cc973fed300820",
+        url = "https://github.com/bazelbuild/rules_docker/releases/download/v0.24.0/rules_docker-v0.24.0.tar.gz",
+    ),
+)
+
+load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
+
+container_repositories()
+
+# This is required by the toolchain_container rule.
+load(
+    "@io_bazel_rules_docker//repositories:go_repositories.bzl",
+    container_go_deps = "go_deps",
+)
+
+container_go_deps()
+
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_pull",
 )
