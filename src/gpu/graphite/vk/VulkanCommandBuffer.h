@@ -203,6 +203,8 @@ private:
     VkBuffer fBoundIndirectBuffer = VK_NULL_HANDLE;
     size_t fBoundIndexBufferOffset = 0;
     size_t fBoundIndirectBufferOffset = 0;
+
+    float fCachedBlendConstant[4];
 };
 
 } // namespace skgpu::graphite

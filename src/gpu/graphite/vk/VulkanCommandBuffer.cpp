@@ -122,6 +122,9 @@ void VulkanCommandBuffer::onResetCommandBuffer() {
     fBindUniformBuffers = true;
     fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
     fUniformBuffersToBind.fill({nullptr, 0});
+    for (int i = 0; i < 4; ++i) {
+        fCachedBlendConstant[i] = -1.0;
+    }
 }
 
 bool VulkanCommandBuffer::setNewCommandBufferResources() {
@@ -615,7 +618,12 @@ void VulkanCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsP
 }
 
 void VulkanCommandBuffer::setBlendConstants(float* blendConstants) {
-    // TODO: Implement
+    SkASSERT(fActive);
+    if (0 != memcmp(blendConstants, fCachedBlendConstant, 4 * sizeof(float))) {
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetBlendConstants(fPrimaryCommandBuffer, blendConstants));
+        memcpy(fCachedBlendConstant, blendConstants, 4 * sizeof(float));
+    }
 }
 
 void VulkanCommandBuffer::recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot slot) {
