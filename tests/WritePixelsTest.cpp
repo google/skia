@@ -94,8 +94,7 @@ static uint32_t pack_color_type(SkColorType ct, U8CPU a, U8CPU r, U8CPU g, U8CPU
     uint32_t r32;
     uint8_t* result = reinterpret_cast<uint8_t*>(&r32);
     switch (ct) {
-        case kBGRA_8888_SkColorType:  // fallthrough
-        case kBGR_888x_SkColorType:
+        case kBGRA_8888_SkColorType:
             result[0] = b;
             result[1] = g;
             result[2] = r;
@@ -182,8 +181,7 @@ static SkPMColor convert_to_PMColor(SkColorType ct, SkAlphaType at, uint32_t col
         case kRGB_888x_SkColorType:
             color = SkSwizzle_RGBA_to_PMColor(color);
             break;
-        case kBGRA_8888_SkColorType: // fallthrough
-        case kBGR_888x_SkColorType:
+        case kBGRA_8888_SkColorType:
             color = SkSwizzle_BGRA_to_PMColor(color);
             break;
         default:
@@ -407,7 +405,6 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
         SkColorType fColorType;
         SkAlphaType fAlphaType;
     } gSrcConfigs[] = {
-            {kBGR_888x_SkColorType, kOpaque_SkAlphaType},
             {kRGBA_8888_SkColorType, kPremul_SkAlphaType},
             {kRGBA_8888_SkColorType, kUnpremul_SkAlphaType},
             {kRGB_888x_SkColorType, kOpaque_SkAlphaType},

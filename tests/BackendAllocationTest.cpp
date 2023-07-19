@@ -614,7 +614,6 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
         { kRGBA_8888_SkColorType,         SkColors::kBlue          },
         { kSRGBA_8888_SkColorType,        { 0.25f, 0.5f, 0.75f, 1.0f}},
         { kRGB_888x_SkColorType,          SkColors::kCyan          },
-        { kBGR_888x_SkColorType,          SkColors::kCyan          },
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
         { kBGRA_8888_SkColorType,         { 1, 0, 0, 1.0f }        },
         // TODO: readback is busted for *10A2 when alpha = 0.5f (perhaps premul vs. unpremul)
@@ -667,9 +666,8 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
                 }
 
                 if (GrRenderable::kYes == renderable) {
-                    if (kRGB_888x_SkColorType == combo.fColorType ||
-                        kBGR_888x_SkColorType == combo.fColorType) {
-                        // Ganesh can't perform the blends correctly when rendering these formats
+                    if (kRGB_888x_SkColorType == combo.fColorType) {
+                        // Ganesh can't perform the blends correctly when rendering this format
                         continue;
                     }
                 }

@@ -34,7 +34,6 @@ static sk_sp<SkImage> make_image(SkColorType colorType, SkAlphaType alphaType) {
             break;
         case kRGB_565_SkColorType:
         case kRGB_888x_SkColorType:
-        case kBGR_888x_SkColorType:
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
             if (alphaType != kOpaque_SkAlphaType) {
@@ -106,7 +105,6 @@ protected:
             case Variant::kOpaque:
                 if (colorType != kRGB_565_SkColorType     &&
                     colorType != kRGB_888x_SkColorType    &&
-                    colorType != kBGR_888x_SkColorType    &&
                     colorType != kRGB_101010x_SkColorType &&
                     colorType != kBGR_101010x_SkColorType)
                 {

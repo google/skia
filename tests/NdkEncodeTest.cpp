@@ -196,7 +196,6 @@ DEF_TEST(NdkEncode_unsupportedColorTypes, r) {
         kARGB_4444_SkColorType,
         kRGB_888x_SkColorType,
         kBGRA_8888_SkColorType,
-        kBGR_888x_SkColorType,
         kRGBA_1010102_SkColorType,
         kBGRA_1010102_SkColorType,
         kRGB_101010x_SkColorType,

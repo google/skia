@@ -84,7 +84,6 @@ static const TestCase gTests[] = {
     { kRGBA_8888_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
     { kRGB_888x_SkColorType,           kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true },
     { kBGRA_8888_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
-    { kBGR_888x_SkColorType,           kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  false},
     { kRGBA_1010102_SkColorType,       kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
     { kRGB_101010x_SkColorType,        kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true },
     { kGray_8_SkColorType,             kOpaque_SkAlphaType, kGray_SkColorChannelFlag,  true },

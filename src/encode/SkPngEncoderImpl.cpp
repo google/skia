@@ -151,7 +151,6 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
             fPngBytesPerPixel = srcInfo.isOpaque() ? 3 : 4;
             break;
         case kRGB_888x_SkColorType:
-        case kBGR_888x_SkColorType:
             sigBit.red = 8;
             sigBit.green = 8;
             sigBit.blue = 8;
@@ -294,8 +293,6 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
             return transform_scanline_565;
         case kRGB_888x_SkColorType:
             return transform_scanline_RGBX;
-        case kBGR_888x_SkColorType:
-            return transform_scanline_BGRX;
         case kARGB_4444_SkColorType:
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:

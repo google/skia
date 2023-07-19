@@ -91,12 +91,10 @@ static SkPMColor convert_to_pmcolor(SkColorType ct, SkAlphaType at, const uint32
     const uint8_t* c = reinterpret_cast<const uint8_t*>(addr);
     U8CPU a,r,g,b;
     switch (ct) {
-        case kBGR_888x_SkColorType:  // fallthrough
         case kBGRA_8888_SkColorType:
             b = static_cast<U8CPU>(c[0]);
             g = static_cast<U8CPU>(c[1]);
             r = static_cast<U8CPU>(c[2]);
-            // We set this even for kBGR_888x because our caller will validate that it is 0xff.
             a = static_cast<U8CPU>(c[3]);
             break;
         case kRGB_888x_SkColorType:  // fallthrough
@@ -294,7 +292,6 @@ static const struct {
         {kRGB_888x_SkColorType, kOpaque_SkAlphaType},
         {kBGRA_8888_SkColorType, kPremul_SkAlphaType},
         {kBGRA_8888_SkColorType, kUnpremul_SkAlphaType},
-        {kBGR_888x_SkColorType, kOpaque_SkAlphaType},
         {kAlpha_8_SkColorType, kPremul_SkAlphaType},
 };
 const SkIRect gReadPixelsTestRects[] = {
