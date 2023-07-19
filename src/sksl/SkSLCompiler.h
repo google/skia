@@ -149,6 +149,8 @@ public:
 
     bool toWGSL(Program& program, OutputStream& out);
 
+    bool toWGSL(Program& program, std::string* out);
+
     void handleError(std::string_view msg, Position pos);
 
     std::string errorText(bool showCount = true);

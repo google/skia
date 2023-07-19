@@ -266,6 +266,7 @@ tests_sources = [
   "$_tests/SkSLSPIRVTestbed.cpp",
   "$_tests/SkSLTest.cpp",
   "$_tests/SkSLTypeTest.cpp",
+  "$_tests/SkSLWGSLTestbed.cpp",
   "$_tests/SkSharedMutexTest.cpp",
   "$_tests/SkSpanTest.cpp",
   "$_tests/SkStrikeCacheTest.cpp",
