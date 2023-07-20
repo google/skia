@@ -25,7 +25,7 @@ skia_cc_library(
     ],
     hdrs = ["gm.h"],
     visibility = [
-        "//gm:__pkg__",
+        "//gm:__subpackages__",
         "//tools/viewer:__pkg__",
     ],
     deps = [
@@ -45,6 +45,7 @@ skia_cc_library(
     deps = [
         ":gm",
         "//gm/surface_manager",
+        "//gm/vias",
         "//tools:hash_and_encode",
         "//tools/timer",  # Required by animatedimageblurs.cpp.
     ],
@@ -513,6 +514,36 @@ cc_test_with_flags(
     deps = [":tests_base"],
 )
 
+# Currently fails the "arithmode_blender" GM with "Deserialized and reference bitmap pixels do not
+# match". Other GMs fail as well, and some others pass.
+#
+# TODO(lovisolo): Define flag --skip and skip the "arithmode_blender" GM.
+# TODO(lovisolo): Consider adding a gm_test macro that keeps the "--via" command-line argument and
+#                 the "via" flag in sync.
+cc_test_with_flags(
+    name = "cpu_8888_via_picture_serialization_test",
+    srcs = ["BazelGMRunner.cpp"] + CPU_GMS,
+    args = [
+        "--surfaceConfig",
+        "8888",
+        "--via",
+        "picture_serialization",
+    ],
+    data = ["//resources"],
+    set_flags = {
+        "enable_sksl": ["True"],
+        "include_decoder": [
+            "gif_decode_codec",
+            "webp_decode_codec",
+        ],
+        "include_encoder": [
+            "png_encode_codec",  # Required by the "picture_serialization" via.
+        ],
+        "via": ["picture_serialization"],
+    },
+    deps = [":tests_base"],
+)
+
 cc_test_with_flags(
     name = "gpu_gles_test",
     srcs = ["BazelGMRunner.cpp"] + GPU_GMS,
@@ -571,5 +602,27 @@ android_gm_test(
     },
     requires_condition = "//src/gpu:gl_backend",
     requires_resources_dir = True,
+    deps = [":tests_base"],
+)
+
+# Currently fails the "anisomips" GM with "Deserialized and reference bitmap pixels do not match".
+# Other GMs do pass.
+# TODO(lovisolo): Define flag --skip and skip the "anisomips" GM.
+android_gm_test(
+    name = "gpu_gles_via_picture_serialization_android_test",
+    srcs = GPU_GMS,
+    config = "gles",
+    flags = {
+        "include_decoder": [
+            "png_decode_codec",
+            "webp_decode_codec",
+        ],
+        "include_encoder": [
+            "png_encode_codec",  # Required by the "picture_serialization" via.
+        ],
+    },
+    requires_condition = "//src/gpu:gl_backend",
+    requires_resources_dir = True,
+    via = "picture_serialization",
     deps = [":tests_base"],
 )

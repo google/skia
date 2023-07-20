@@ -423,6 +423,7 @@ func GenTasks(cfg *Config) {
 			"skia/third_party",
 			"skia/tools",
 			// needed for tests
+			"skia/gm", // Needed to run GMs with Bazel.
 			"skia/gn", // some Python scripts still live here
 			"skia/resources",
 			"skia/package.json",

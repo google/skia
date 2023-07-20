@@ -10,6 +10,7 @@
 
 #include "gm/gm.h"
 #include "gm/surface_manager/SurfaceManager.h"
+#include "gm/vias/Draw.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -17,6 +18,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkMD5.h"
@@ -57,6 +59,10 @@ static DEFINE_string(surfaceConfig,
                      "Name of the Surface configuration to use (e.g. \"8888\"). This determines "
                      "how we construct the SkSurface from which we get the SkCanvas that GMs will "
                      "draw on. See file //gm/surface_manager/SurfaceManager.h for details.");
+
+static DEFINE_string(via,
+                     "direct",  // Equivalent to running DM without a via.
+                     "Name of the \"via\" to use (e.g. \"picture_serialization\"). Optional.");
 
 // Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files. Returns an
 // empty string on success, or an error message in the case of failures.
@@ -164,6 +170,10 @@ int main(int argc, char** argv) {
                  FLAGS_surfaceConfig.size());
         return 1;
     }
+    if (FLAGS_via.size() > 1) {
+        SkDebugf("Flag --via takes at most one value, got %d.\n", FLAGS_via.size());
+        return 1;
+    }
 
     std::string outputDir =
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
@@ -182,17 +192,22 @@ int main(int argc, char** argv) {
         if (surface_manager == nullptr) {
             SK_ABORT("unknown --surfaceConfig flag value: %s", config.c_str());
         }
-        SkCanvas* canvas = surface_manager->getSurface()->getCanvas();
 
         // Set up GPU.
         SkDebugf("[%s]     Setting up GPU...\n", now().c_str());
         SkString msg;
-        skiagm::DrawResult result = gm->gpuSetup(canvas, &msg);
+        skiagm::DrawResult result = gm->gpuSetup(surface_manager->getSurface()->getCanvas(), &msg);
 
         // Draw GM into canvas if GPU setup was successful.
+        SkBitmap bitmap;
         if (result == skiagm::DrawResult::kOk) {
-            SkDebugf("[%s]     Drawing GM...\n", now().c_str());
-            result = gm->draw(canvas, &msg);
+            GMOutput output;
+            std::string viaName = FLAGS_via.size() == 0 ? "" : (FLAGS_via[0]);
+            SkDebugf("[%s]     Drawing GM via \"%s\"...\n", now().c_str(), viaName.c_str());
+            output = draw(gm.get(), surface_manager->getSurface().get(), viaName);
+            result = output.result;
+            msg = SkString(output.msg.c_str());
+            bitmap = output.bitmap;
         }
 
         // Flush surface if the GM was successful.
@@ -217,10 +232,6 @@ int main(int argc, char** argv) {
             std::string name = std::string(gm->getName());
             SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
             SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
-
-            SkBitmap bitmap;
-            bitmap.allocPixelsFlags(canvas->imageInfo(), SkBitmap::kZeroPixels_AllocFlag);
-            surface_manager->getSurface()->readPixels(bitmap, 0, 0);
 
             std::string pngAndJSONResult = write_png_and_json_files(
                     gm->getName(), config, bitmap, pngPath.c_str(), jsonPath.c_str());

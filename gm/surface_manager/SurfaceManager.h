@@ -20,7 +20,7 @@ public:
     // we weren't able to construct the surface for any reason.
     static std::unique_ptr<SurfaceManager> FromConfig(std::string config, int width, int height);
 
-    // Returns a surface created from the given config.
+    // Returns the surface created from the given config. All calls return the same surface.
     virtual sk_sp<SkSurface> getSurface() = 0;
 
     // Flushes the surface. This method should be called after the GM is done drawing. This ensures
