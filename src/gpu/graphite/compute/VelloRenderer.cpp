@@ -286,16 +286,20 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     }
 
     // TODO(b/285189802): The default sizes for the bump buffers (~97MB) exceed Graphite's resource
-    // budget if multiple passes are necessary per frame (250MB, see ResouceCache.h). We shrink
-    // them by half here as a crude reduction which seems to be enough for a 4k x 4k atlas render
-    // even in dense situations (e.g. paris-30k). We need to come up with a better approach
-    // to accurately predict the sizes for these buffers based on the scene encoding and our
-    // resource budget.
+    // budget if multiple passes are necessary per frame (250MB, see ResouceCache.h). We apply a
+    // crude size reduction here which seems to be enough for a 4k x 4k atlas render for the GMs
+    // that we have tested. The numbers below are able to render GM_longpathdash with CPU-side
+    // stroke expansion.
+    //
+    // We need to come up with a better approach to accurately predict the sizes for these buffers
+    // based on the scene encoding and our resource budget. It should be possible to build a
+    // conservative estimate using the total number of path verbs, some heuristic based on the verb
+    // and the path's transform, and the total number of tiles.
     //
     // The following numbers amount to ~48MB
     const size_t bin_data_size = bufferSizes.bin_data / 2;
     const size_t tiles_size = bufferSizes.tiles / 2;
-    const size_t segments_size = bufferSizes.segments / 2;
+    const size_t segments_size = bufferSizes.segments * 2 / 3;
     const size_t ptcl_size = bufferSizes.ptcl / 2;
 
     // See the comments in VelloComputeSteps.h for an explanation of the logic here.
