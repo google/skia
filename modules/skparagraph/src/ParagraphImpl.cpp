@@ -1151,6 +1151,9 @@ void ParagraphImpl::visit(const Visitor& visitor) {
     for (auto& line : fLines) {
         line.ensureTextBlobCachePopulated();
         for (auto& rec : line.fTextBlobCache) {
+            if (rec.fBlob == nullptr) {
+                continue;
+            }
             SkTextBlob::Iter iter(*rec.fBlob);
             SkTextBlob::Iter::ExperimentalRun run;
 

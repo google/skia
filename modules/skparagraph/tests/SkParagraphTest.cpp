@@ -7683,3 +7683,31 @@ UNIX_ONLY_TEST(SkParagraph_SingleDummyPlaceholder, reporter) {
                         });
     }
 }
+
+UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
+    sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    fontCollection->enableFontFallback();
+
+    const char* text = "A text ending with line separator.\u2028";
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.addText(text, len);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(SK_ScalarMax);
+
+    int visitedCount = 0;
+    paragraph->visit([&visitedCount, reporter](int lineNumber, const Paragraph::VisitorInfo* info) {
+        visitedCount++;
+        if (lineNumber == 1) {
+            // Visitor for second line created from line separator should only be called for 'end of line'.
+            // 'end of line' is denoted by 'info' being nullptr.
+            REPORTER_ASSERT(reporter, info == nullptr);
+        }
+    });
+    REPORTER_ASSERT(reporter, visitedCount == 3);
+}
