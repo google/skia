@@ -34,13 +34,8 @@ public:
     SkMaskFilterBase::Type type() const override { return SkMaskFilterBase::Type::kSDF; }
     void computeFastBounds(const SkRect&, SkRect*) const override;
 
-protected:
-
 private:
     SK_FLATTENABLE_HOOKS(SDFMaskFilterImpl)
-
-    using INHERITED = SkMaskFilter;
-    friend void register_sdf_maskfilter_createproc();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,8 +93,6 @@ void SDFMaskFilterImpl::computeFastBounds(const SkRect& src,
 sk_sp<SkFlattenable> SDFMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     return SDFMaskFilter::Make();
 }
-
-void register_sdf_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(SDFMaskFilterImpl); }
 
 ///////////////////////////////////////////////////////////////////////////////
 

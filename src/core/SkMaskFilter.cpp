@@ -28,10 +28,6 @@
 #include <algorithm>
 #include <cstdint>
 
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-#include "src/text/gpu/SDFMaskFilter.h"
-#endif
-
 class SkRRect;
 struct SkDeserialProcs;
 
@@ -327,9 +323,6 @@ SkRect SkMaskFilter::approximateFilteredBounds(const SkRect& src) const {
 
 void SkMaskFilter::RegisterFlattenables() {
     sk_register_blur_maskfilter_createproc();
-#if (defined(SK_GANESH) || defined(SK_GRAPHITE)) && !defined(SK_DISABLE_SDF_TEXT)
-    sktext::gpu::register_sdf_maskfilter_createproc();
-#endif
 }
 
 sk_sp<SkMaskFilter> SkMaskFilter::Deserialize(const void* data, size_t size,

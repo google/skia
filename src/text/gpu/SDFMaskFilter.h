@@ -26,8 +26,6 @@ public:
     static sk_sp<SkMaskFilter> Make();
 };
 
-extern void register_sdf_maskfilter_createproc();
-
 }  // namespace sktext::gpu
 
 #endif // !defined(SK_DISABLE_SDF_TEXT)
