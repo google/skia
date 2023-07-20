@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -15,6 +16,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
@@ -181,4 +183,20 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
 
     // At one time, this would trigger a use-after-free / crash, when converting the paint to FPs:
     surface->getCanvas()->drawPaint(paint);
+}
+
+DEF_TEST(ColorFilter_OpaqueShaderPaintAlpha, r) {
+    // skbug.com/14627: Prior to the fix, CPU backend would produce gray, not white. (It told the
+    // color filter that the shader output was opaque, ignoring the effect of paint alpha).
+    SkPaint paint;
+    paint.setShader(SkShaders::Color(SK_ColorWHITE));
+    paint.setAlphaf(0.5f);
+    paint.setColorFilter(SkColorFilters::SRGBToLinearGamma());
+
+    SkBitmap bmp;
+    bmp.allocN32Pixels(1, 1);
+    SkCanvas canvas(bmp);
+    canvas.drawColor(SK_ColorWHITE);
+    canvas.drawPaint(paint);
+    REPORTER_ASSERT(r, bmp.getColor(0, 0) == SK_ColorWHITE);
 }
