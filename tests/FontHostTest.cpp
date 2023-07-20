@@ -208,8 +208,7 @@ static void test_tables(skiatest::Reporter* reporter) {
 }
 
 /*
- * Verifies that the advance values returned by generateAdvance and
- * generateMetrics match.
+ * Verifies that the advance values returned by various methods match.
  */
 static void test_advances(skiatest::Reporter* reporter) {
     static const char* const faces[] = {
@@ -263,15 +262,10 @@ static void test_advances(skiatest::Reporter* reporter) {
 
                 SkRect bounds;
 
-                // For no hinting and light hinting this should take the
-                // optimized generateAdvance path.
                 SkScalar width1 = font.measureText(txt, textLen, SkTextEncoding::kUTF8);
 
                 // Requesting the bounds forces a generateMetrics call.
                 SkScalar width2 = font.measureText(txt, textLen, SkTextEncoding::kUTF8, &bounds);
-
-                // SkDebugf("Font: %s, generateAdvance: %f, generateMetrics: %f\n",
-                //    faces[i], SkScalarToFloat(width1), SkScalarToFloat(width2));
 
                 REPORTER_ASSERT(reporter, width1 == width2);
             }

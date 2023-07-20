@@ -260,19 +260,16 @@ protected:
         return static_cast<TestTypeface*>(this->getTypeface());
     }
 
-    bool generateAdvance(SkGlyph* glyph) override {
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
+        glyph->zeroMetrics();
+
         this->getTestTypeface()->getAdvance(glyph);
 
         const SkVector advance =
                 fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX), SkFloatToScalar(glyph->fAdvanceY));
         glyph->fAdvanceX = SkScalarToFloat(advance.fX);
         glyph->fAdvanceY = SkScalarToFloat(advance.fY);
-        return true;
-    }
 
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
-        glyph->zeroMetrics();
-        this->generateAdvance(glyph);
         // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
     }
 

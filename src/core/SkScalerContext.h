@@ -363,11 +363,6 @@ public:
 protected:
     SkScalerContextRec fRec;
 
-    /** Generates the contents of glyph.fAdvanceX and glyph.fAdvanceY if it can do so quickly.
-     *  Returns true if it could, false otherwise.
-     */
-    virtual bool generateAdvance(SkGlyph* glyph) = 0;
-
     /** Generates the contents of glyph.fWidth, fHeight, fTop, fLeft,
      *  as well as fAdvanceX and fAdvanceY if not already set.
      *  The fMaskFormat will already be set to a requested format but may be changed.

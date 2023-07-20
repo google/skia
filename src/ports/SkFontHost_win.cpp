@@ -572,7 +572,6 @@ public:
     bool isValid() const;
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(const SkGlyph& glyph, SkPath* path) override;
@@ -804,10 +803,6 @@ SkScalerContext_GDI::~SkScalerContext_GDI() {
 
 bool SkScalerContext_GDI::isValid() const {
     return fDDC && fFont;
-}
-
-bool SkScalerContext_GDI::generateAdvance(SkGlyph* glyph) {
-    return false;
 }
 
 void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {

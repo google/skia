@@ -44,7 +44,6 @@ public:
     SkScalerContext_Mac(sk_sp<SkTypeface_Mac>, const SkScalerContextEffects&, const SkDescriptor*);
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(const SkGlyph& glyph, SkPath* path) override;

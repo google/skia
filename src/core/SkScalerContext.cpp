@@ -1254,10 +1254,6 @@ std::unique_ptr<SkScalerContext> SkScalerContext::MakeEmpty(
                 : SkScalerContext(std::move(typeface), effects, desc) {}
 
     protected:
-        bool generateAdvance(SkGlyph* glyph) override {
-            glyph->zeroMetrics();
-            return true;
-        }
         void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
             glyph->fMaskFormat = fRec.fMaskFormat;
             glyph->zeroMetrics();

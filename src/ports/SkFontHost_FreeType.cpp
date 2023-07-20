@@ -444,7 +444,6 @@ public:
     }
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(const SkGlyph& glyph, SkPath* path) override;
@@ -1072,38 +1071,6 @@ FT_Error SkScalerContext_FreeType::setupSize() {
     }
     FT_Set_Transform(fFace, &fMatrix22, nullptr);
     return 0;
-}
-
-bool SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
-   /* unhinted and light hinted text have linearly scaled advances
-    * which are very cheap to compute with some font formats...
-    */
-    if (!fDoLinearMetrics) {
-        return false;
-    }
-
-    SkAutoMutexExclusive  ac(f_t_mutex());
-
-    if (this->setupSize()) {
-        glyph->zeroMetrics();
-        return true;
-    }
-
-    FT_Error    error;
-    FT_Fixed    advance;
-
-    error = FT_Get_Advance( fFace, glyph->getGlyphID(),
-                            fLoadGlyphFlags | FT_ADVANCE_FLAG_FAST_ONLY,
-                            &advance );
-
-    if (error != 0) {
-        return false;
-    }
-
-    const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
-    glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
-    glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
-    return true;
 }
 
 bool SkScalerContext_FreeType::getBoundsOfCurrentOutlineGlyph(FT_GlyphSlot glyph, SkRect* bounds) {

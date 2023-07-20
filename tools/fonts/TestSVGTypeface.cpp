@@ -189,14 +189,13 @@ protected:
         return static_cast<TestSVGTypeface*>(this->getTypeface());
     }
 
-    bool generateAdvance(SkGlyph* glyph) override {
+    void setAdvance(SkGlyph* glyph) {
         this->getTestSVGTypeface()->getAdvance(glyph);
 
         const SkVector advance =
                 fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX), SkFloatToScalar(glyph->fAdvanceY));
         glyph->fAdvanceX = SkScalarToFloat(advance.fX);
         glyph->fAdvanceY = SkScalarToFloat(advance.fY);
-        return true;
     }
 
     void generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) override {
@@ -206,7 +205,7 @@ protected:
         glyph->zeroMetrics();
         glyph->fMaskFormat = SkMask::kARGB32_Format;
         glyph->setPath(alloc, nullptr, false);
-        this->generateAdvance(glyph);
+        this->setAdvance(glyph);
 
         TestSVGTypeface::Glyph& glyphData = this->getTestSVGTypeface()->fGlyphs[glyphID];
 

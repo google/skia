@@ -159,7 +159,10 @@ public:
     }
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override {
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
+        glyph->fMaskFormat = fRec.fMaskFormat;
+        glyph->zeroMetrics();
+
         SkVector scale;
         SkMatrix remainingMatrix;
         if (!glyph ||
@@ -174,13 +177,7 @@ protected:
         const SkVector advance = remainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
         glyph->fAdvanceX = SkScalarToFloat(advance.fX);
         glyph->fAdvanceY = SkScalarToFloat(advance.fY);
-        return true;
-    }
 
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
-        glyph->fMaskFormat = fRec.fMaskFormat;
-        glyph->zeroMetrics();
-        this->generateAdvance(glyph);
         // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
     }
 

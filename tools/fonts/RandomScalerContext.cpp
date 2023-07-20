@@ -26,7 +26,6 @@ public:
                         bool fFakeIt);
 
 protected:
-    bool     generateAdvance(SkGlyph*) override;
     void     generateMetrics(SkGlyph*, SkArenaAlloc*) override;
     void     generateImage(const SkGlyph&) override;
     bool     generatePath(const SkGlyph&, SkPath*) override;
@@ -53,8 +52,6 @@ RandomScalerContext::RandomScalerContext(sk_sp<SkRandomTypeface>       face,
         , fFakeIt(fakeIt) {
     fProxy->forceGenerateImageFromPath();
 }
-
-bool RandomScalerContext::generateAdvance(SkGlyph* glyph) { return fProxy->generateAdvance(glyph); }
 
 void RandomScalerContext::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     // Here we will change the mask format of the glyph

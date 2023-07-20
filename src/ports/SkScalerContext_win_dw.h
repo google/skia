@@ -32,7 +32,6 @@ public:
     ~SkScalerContext_DW() override;
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(const SkGlyph&, SkPath*) override;
@@ -40,6 +39,8 @@ protected:
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
+    bool setAdvance(SkGlyph* glyph);
+
     struct ScalerContextBits {
         using value_type = decltype(SkGlyph::fScalerContextBits);
         static const constexpr value_type NONE   = 0;

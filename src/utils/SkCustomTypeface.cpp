@@ -253,20 +253,16 @@ public:
     }
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override {
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) override {
+        glyph->zeroMetrics();
+
         const SkUserTypeface* tf = this->userTF();
         auto advance = fMatrix.mapXY(tf->fGlyphRecs[glyph->getGlyphID()].fAdvance, 0);
 
         glyph->fAdvanceX = advance.fX;
         glyph->fAdvanceY = advance.fY;
-        return true;
-    }
 
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) override {
-        glyph->zeroMetrics();
-        this->generateAdvance(glyph);
-
-        const auto& rec = this->userTF()->fGlyphRecs[glyph->getGlyphID()];
+        const auto& rec = tf->fGlyphRecs[glyph->getGlyphID()];
         if (rec.isDrawable()) {
             glyph->fMaskFormat = SkMask::kARGB32_Format;
 

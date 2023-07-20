@@ -1455,7 +1455,7 @@ bool SkScalerContext_DW::drawColorV1Image(const SkGlyph&, SkCanvas&) { return fa
 
 #endif  // DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
 
-bool SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
+bool SkScalerContext_DW::setAdvance(SkGlyph* glyph) {
     glyph->fAdvanceX = 0;
     glyph->fAdvanceY = 0;
     uint16_t glyphId = glyph->getGlyphID();
@@ -1780,7 +1780,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     glyph->fTop = 0;
     glyph->fScalerContextBits = ScalerContextBits::NONE;
 
-    if (!this->generateAdvance(glyph)) {
+    if (!this->setAdvance(glyph)) {
         return;
     }
 

@@ -23,10 +23,6 @@ SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
         : SkScalerContext{std::move(tf), effects, desc}
         , fDiscardableManager{std::move(manager)} {}
 
-bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {
-    return false;
-}
-
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph, SkArenaAlloc*) {
     TRACE_EVENT1("skia", "generateMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {

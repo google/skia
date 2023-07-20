@@ -293,10 +293,6 @@ CGRGBPixel* SkScalerContext_Mac::Offscreen::getCG(const SkScalerContext_Mac& con
     return image;
 }
 
-bool SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
-    return false;
-}
-
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     glyph->fMaskFormat = fRec.fMaskFormat;
 
