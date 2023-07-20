@@ -908,7 +908,7 @@ bool MtlCaps::onIsTexturable(const TextureInfo& info) const {
 
 bool MtlCaps::isTexturable(MTLPixelFormat format) const {
     const FormatInfo& formatInfo = this->getFormatInfo(format);
-    return SkToBool(FormatInfo::kTexturable_Flag && formatInfo.fFlags);
+    return SkToBool(FormatInfo::kTexturable_Flag & formatInfo.fFlags);
 }
 
 bool MtlCaps::isRenderable(const TextureInfo& info) const {
