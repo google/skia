@@ -19,6 +19,7 @@
 
 namespace skgpu {
 class RefCntedCallback;
+class MutableTextureState;
 }
 
 namespace skgpu::graphite {
@@ -58,6 +59,8 @@ public:
                                    const BackendSemaphore* waitSemaphores) {}
     virtual void addSignalSemaphores(size_t numWaitSemaphores,
                                      const BackendSemaphore* signalSemaphores) {}
+    virtual void prepareSurfaceForStateUpdate(SkSurface* targetSurface,
+                                              const MutableTextureState* newState) {}
 
     bool addRenderPass(const RenderPassDesc&,
                        sk_sp<Texture> colorTexture,

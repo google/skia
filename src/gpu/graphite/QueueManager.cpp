@@ -126,6 +126,10 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         return false;
     }
     fCurrentCommandBuffer->addSignalSemaphores(info.fNumSignalSemaphores, info.fSignalSemaphores);
+    if (info.fTargetTextureState) {
+        fCurrentCommandBuffer->prepareSurfaceForStateUpdate(info.fTargetSurface,
+                                                            info.fTargetTextureState);
+    }
 
     if (callback) {
         fCurrentCommandBuffer->addFinishedProc(std::move(callback));

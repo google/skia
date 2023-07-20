@@ -16,6 +16,10 @@
 
 class SkSurface;
 
+namespace skgpu {
+class MutableTextureState;
+}
+
 namespace skgpu::graphite {
 
 class BackendSemaphore;
@@ -57,6 +61,7 @@ struct InsertRecordingInfo {
 
     SkSurface* fTargetSurface = nullptr;
     SkIVector fTargetTranslation = {0, 0};
+    MutableTextureState* fTargetTextureState = nullptr;
 
     size_t fNumWaitSemaphores = 0;
     BackendSemaphore* fWaitSemaphores = nullptr;

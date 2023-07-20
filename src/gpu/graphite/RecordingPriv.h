@@ -33,7 +33,7 @@ public:
     bool hasTasks() const;
 #endif
 
-    bool addCommands(Context*, CommandBuffer*, Surface* replaySurface, SkIVector replayTranslation);
+    bool addCommands(Context*, CommandBuffer*, Surface* targetSurface, SkIVector targetTranslation);
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
 

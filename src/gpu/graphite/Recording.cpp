@@ -120,20 +120,20 @@ bool RecordingPriv::hasTasks() const { return fRecording->fGraph->hasTasks(); }
 
 bool RecordingPriv::addCommands(Context* context,
                                 CommandBuffer* commandBuffer,
-                                Surface* replaySurface,
-                                SkIVector replayTranslation) {
+                                Surface* targetSurface,
+                                SkIVector targetTranslation) {
     AutoDeinstantiateTextureProxy autoDeinstantiateTargetProxy(
             fRecording->fTargetProxyData ? fRecording->fTargetProxyData->lazyProxy() : nullptr);
 
     const Texture* replayTarget = nullptr;
-    SkASSERT(SkToBool(fRecording->fTargetProxyData) == SkToBool(replaySurface));
     ResourceProvider* resourceProvider = context->priv().resourceProvider();
+    SkASSERT(!SkToBool(fRecording->fTargetProxyData) || SkToBool(targetSurface));
     if (fRecording->fTargetProxyData) {
-        if (!replaySurface) {
+        if (!targetSurface) {
             SKGPU_LOG_E("No surface provided to instantiate target texture proxy.");
             return false;
         }
-        TextureProxy* surfaceTexture = replaySurface->backingTextureProxy();
+        TextureProxy* surfaceTexture = targetSurface->backingTextureProxy();
         if (!surfaceTexture->instantiate(resourceProvider)) {
             SKGPU_LOG_E("Could not instantiate target texture proxy.");
             return false;
@@ -150,7 +150,7 @@ bool RecordingPriv::addCommands(Context* context,
         commandBuffer->trackResource(fRecording->fExtraResourceRefs[i]);
     }
     if (!fRecording->fGraph->addCommands(
-                context, commandBuffer, {replayTarget, replayTranslation})) {
+                context, commandBuffer, {replayTarget, targetTranslation})) {
         return false;
     }
     for (int i = 0; i < fRecording->fFinishedProcs.size(); ++i) {

@@ -64,6 +64,8 @@ private:
                            const BackendSemaphore* waitSemaphores) override;
     void addSignalSemaphores(size_t numWaitSemaphores,
                              const BackendSemaphore* signalSemaphores) override;
+    void prepareSurfaceForStateUpdate(SkSurface* targetSurface,
+                                      const MutableTextureState* newState) override;
 
     bool onAddRenderPass(const RenderPassDesc&,
                         const Texture* colorTexture,

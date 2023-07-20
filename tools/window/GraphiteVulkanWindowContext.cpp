@@ -8,6 +8,7 @@
 #include "tools/window/GraphiteVulkanWindowContext.h"
 
 #include "include/core/SkSurface.h"
+#include "include/gpu/MutableTextureState.h"
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
@@ -15,6 +16,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "include/gpu/vk/VulkanExtensions.h"
@@ -538,12 +540,17 @@ void GraphiteVulkanWindowContext::onSwapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
 
-    // TODO: set up layout transition for backbuffer surface
-
     std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
     if (recording) {
         skgpu::graphite::InsertRecordingInfo info;
         info.fRecording = recording.get();
+
+        // set up surface for layout transition
+        info.fTargetSurface = fSurfaces[backbuffer->fImageIndex].get();
+        skgpu::MutableTextureState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                fPresentQueueIndex);
+        info.fTargetTextureState = &presentState;
+
         SkASSERT(fWaitSemaphore != VK_NULL_HANDLE);
         skgpu::graphite::BackendSemaphore beWaitSemaphore(fWaitSemaphore);
         info.fNumWaitSemaphores = 1;
@@ -574,7 +581,20 @@ void GraphiteVulkanWindowContext::onSwapBuffers() {
         fWaitSemaphore = VK_NULL_HANDLE; // FinishCallback will destroy this
     }
 
-    // TODO: Submit present operation to present queue
+    // Submit present operation to present queue
+    const VkPresentInfoKHR presentInfo =
+    {
+        VK_STRUCTURE_TYPE_PRESENT_INFO_KHR, // sType
+        nullptr, // pNext
+        1, // waitSemaphoreCount
+        &backbuffer->fRenderSemaphore, // pWaitSemaphores
+        1, // swapchainCount
+        &fSwapchain, // pSwapchains
+        &backbuffer->fImageIndex, // pImageIndices
+        nullptr // pResults
+    };
+
+    fQueuePresentKHR(fPresentQueue, &presentInfo);
 }
 
 }   //namespace skwindow::internal
