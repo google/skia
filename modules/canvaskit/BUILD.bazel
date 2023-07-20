@@ -171,6 +171,12 @@ CK_LINKOPTS = BASE_LINKOPTS + [
     ],
     ":enable_runtime_effect_false": [],
 }) + select({
+    "//bazel/common_config_settings:build_for_debugger_true": [
+        "--pre-js",
+        "modules/canvaskit/debugger.js",
+    ],
+    "//bazel/common_config_settings:build_for_debugger_false": [],
+}) + select({
     ":include_matrix_js_true": [
         "--pre-js",
         "modules/canvaskit/matrix.js",
@@ -226,7 +232,10 @@ JS_INTERFACE_FILES = [
     "htmlcanvas/preamble.js",
     "htmlcanvas/radialgradient.js",
     "htmlcanvas/util.js",
-]
+] + select({
+    "//bazel/common_config_settings:build_for_debugger_true": ["debugger.js"],
+    "//bazel/common_config_settings:build_for_debugger_false": [],
+})
 
 CK_SRCS = [
     "canvaskit_bindings.cpp",
@@ -243,6 +252,9 @@ CK_SRCS = [
 }) + select({
     ":enable_skottie_true": ["skottie_bindings.cpp"],
     ":enable_skottie_false": [],
+}) + select({
+    "//bazel/common_config_settings:build_for_debugger_true": ["debugger_bindings.cpp"],
+    "//bazel/common_config_settings:build_for_debugger_false": [],
 })
 
 CK_COPTS = [
@@ -273,6 +285,11 @@ cc_binary(
             "//modules/skottie:utils",
         ],
         ":enable_skottie_false": [],
+    }) + select({
+        "//bazel/common_config_settings:build_for_debugger_true": [
+            "//tools/debugger",
+        ],
+        "//bazel/common_config_settings:build_for_debugger_false": [],
     }),
 )
 
@@ -281,6 +298,7 @@ wasm_cc_binary(
     # Whatever is before the dot will be the name of the output js and wasm, aka "the stem".
     # https://github.com/emscripten-core/emsdk/blob/82ad00499a42abde16b363239d2bc83bf5d863ab/bazel/emscripten_toolchain/wasm_cc_binary.bzl#L91
     cc_target = ":canvaskit.build",
+    visibility = ["//infra/debugger-app:__pkg__"],
 )
 
 bool_flag(
@@ -346,4 +364,12 @@ karma_test(
         ":canvaskit/canvaskit.wasm",
         "//modules/canvaskit/tests/assets:test_assets",
     ],
+)
+
+genrule(
+    name = "make version file",
+    srcs = ["make_version.sh"],
+    outs = ["version.js"],
+    cmd = "$< $@",
+    visibility = ["//infra:__subpackages__"],
 )

@@ -228,6 +228,11 @@ bool_flag(
     default = False,
 )
 
+bool_flag(
+    name = "build_for_debugger",
+    default = False,
+)
+
 # These are some helpers to mean "either the fontmgr was enabled or its factory was"
 
 selects.config_setting_group(
