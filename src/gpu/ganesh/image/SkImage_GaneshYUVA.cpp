@@ -318,7 +318,7 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
                                       bool limitToMaxTextureSize,
                                       sk_sp<SkColorSpace> imageColorSpace) {
     if (!context) {
-        return nullptr;  // until we impl this for raster backend
+        return nullptr;
     }
 
     if (!pixmaps.isValid()) {
