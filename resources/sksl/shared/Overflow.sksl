@@ -1,10 +1,11 @@
 uniform half4 colorGreen;
 
 half4 main(float2 coords) {
-    half huge = 899999999.9 * 999999999.9 * 999999999.9 * 999999999.9 *
-                999999999.9 * 999999999.9 * 999999999.9 * 999999999.9 *
-                999999999.9 * 999999999.9 * 999999999.9 * 999999999.9 *
-                999999999.9 * 999999999.9;
+    const half h = 999999999.9;
+    half hugeH = h * h * h * h * h * h * h * h * h * h * h * h * h * h * h;
+
+    const float f = 999999999.9;
+    float hugeF = f * f * f * f * f * f * f * f * f * f * f * f * f * f * f;
 
     int hugeI = 16384
                 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2
@@ -58,10 +59,10 @@ half4 main(float2 coords) {
                               1e20, 1e20, 1e20, 1e20,
                               1e20, 1e20, 1e20, 1e20);
 
-    return colorGreen * saturate(huge) * saturate(half(hugeI)) * saturate(half(hugeU)) *
-                                         saturate(half(hugeS)) * saturate(half(hugeUS)) *
-                                         saturate(half(hugeNI)) * saturate(half(hugeNS)) *
-                                         saturate(half4(hugeIvec)) * saturate(half4(hugeUvec)) *
-                                         saturate(half4(hugeMxM[0])) * saturate(half4(hugeMxV)) *
-                                         saturate(half4(hugeVxM));
+    return colorGreen * saturate(hugeH) * saturate(half(hugeF)) * saturate(half(hugeI)) *
+                        saturate(half(hugeU)) * saturate(half(hugeS)) * saturate(half(hugeUS)) *
+                        saturate(half(hugeNI)) * saturate(half(hugeNS)) *
+                        saturate(half4(hugeIvec)) * saturate(half4(hugeUvec)) *
+                        saturate(half4(hugeMxM[0])) * saturate(half4(hugeMxV)) *
+                        saturate(half4(hugeVxM));
 }

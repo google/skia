@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLIntrinsicList.h"
@@ -1650,7 +1651,18 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
         expr.push_back('(');
     }
 
-    expr += this->assembleExpression(left, precedence);
+    if (ConstantFolder::GetConstantValueOrNull(left) &&
+        ConstantFolder::GetConstantValueOrNull(right)) {
+        // If we are emitting `constant + constant`, this generally indicates that the values could
+        // not be constant-folded. This happens when the values overflow or become nan. WGSL will
+        // refuse to compile such expressions, as WGSL 1.0 has no infinity/nan support. However, the
+        // WGSL compile-time check can be dodged by putting one side into a let-variable. This
+        // technically gives us an indeterminate result, but the vast majority of backends will just
+        // calculate an infinity or nan here, as we would expect. (skia:14385)
+        expr += this->writeScratchLet(this->assembleExpression(left, precedence));
+    } else {
+        expr += this->assembleExpression(left, precedence);
+    }
     expr += operator_name(op);
     expr += this->assembleExpression(right, precedence);
 
