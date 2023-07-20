@@ -81,6 +81,9 @@ static float logf_(float x) {
 }
 
 static float exp2f_(float x) {
+    if (x > 128.0f) {
+        return INFINITY_;
+    }
     float fract = x - floorf_(x);
 
     float fbits = (1.0f * (1<<23)) * (x + 121.274057500f
@@ -2158,7 +2161,7 @@ static bool fit_nonlinear(const skcms_Curve* curve, int L, int N, skcms_Transfer
         tf->e =   tf->c*tf->d + tf->f
           - powf_(tf->a*tf->d + tf->b, tf->g);
 
-        return true;
+        return isfinitef_(tf->e);
     };
 
     if (!fixup_tf()) {
