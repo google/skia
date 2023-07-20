@@ -285,7 +285,15 @@ public:
                 auto& tSlot = fTextStringSlots.at(i);
                 ImGui::PushID(i);
                 ImGui::Text("%s", tSlot.first.c_str());
-                ImGui::InputText("Text", tSlot.second.data(), tSlot.second.size());
+                ImGui::InputText("Text", tSlot.second.source.data(), tSlot.second.source.size());
+                if (ImGui::BeginCombo("Font", tSlot.second.font.data())) {
+                    for (const auto& typeface : fTypefaceList) {
+                        if (ImGui::Selectable(typeface, false)) {
+                            tSlot.second.font = typeface;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
                 ImGui::PopID();
             }
 
@@ -315,7 +323,7 @@ public:
     void pushSlots() {
         for(const auto& s : fColorSlots) {
             fSlotManager->setColorSlot(s.first, SkColor4f{s.second[0], s.second[1],
-                                                       s.second[2], s.second[3]}.toSkColor());
+                                                          s.second[2], s.second[3]}.toSkColor());
         }
         for(const auto& s : fScalarSlots) {
             fSlotManager->setScalarSlot(s.first, s.second);
@@ -325,7 +333,9 @@ public:
         }
         for(const auto& s : fTextStringSlots) {
             auto t = fSlotManager->getTextSlot(s.first);
-            t.fText = SkString(s.second.data());
+            t.fText = SkString(s.second.source.data());
+            t.fTypeface = SkFontMgr::RefDefault()->matchFamilyStyle(s.second.font.c_str(),
+                                                                    SkFontStyle());
             fSlotManager->setTextSlot(s.first, t);
         }
         for(const auto& s : fImageSlots) {
@@ -334,15 +344,8 @@ public:
         }
     }
 
-    void prepareImageAssetList(const char* dirname) {
-        fResList.clear();
-        SkOSFile::Iter iter(dirname, ".png");
-        for (SkString file; iter.next(&file); ) {
-            fResList.push_back(file);
-        }
-    }
-
     void initializeSlotManagerUI() {
+        prepareImageAssetList(GetResourcePath("skottie/images").c_str());
         // only initialize if slots are unpopulated
         if (fColorSlots.empty() && fScalarSlots.empty() && fTextStringSlots.empty()) {
             auto slotInfos = fSlotManager->getSlotInfo();
@@ -370,6 +373,10 @@ private:
     sk_sp<skottie::SlotManager> fSlotManager;
     const sk_sp<skresources::ResourceProvider> fResourceProvider;
     std::vector<SkString> fResList;
+    static constexpr std::array<const char*, 4> fTypefaceList = {"Arial",
+                                                                 "Courier New",
+                                                                 "Roboto-Regular",
+                                                                 "Georgia"};
 
     using GuiTextBuffer = std::array<char, kBufferLen>;
 
@@ -391,17 +398,31 @@ private:
         std::array<char, kBufferLen> textSource = {'\0'};
         SkString s = fSlotManager->getTextSlot(slotID).fText;
         std::copy(s.data(), s.data() + s.size(), textSource.data());
-        fTextStringSlots.push_back(std::make_pair(slotID, textSource));
+        TextSlotData data = {textSource, fTypefaceList[0]};
+        fTextStringSlots.push_back(std::make_pair(slotID, data));
     }
 
     void addImageSlot(SkString slotID) {
         fImageSlots.push_back(std::make_pair(slotID, fResList[0].data()));
     }
 
+    void prepareImageAssetList(const char* dirname) {
+        fResList.clear();
+        SkOSFile::Iter iter(dirname, ".png");
+        for (SkString file; iter.next(&file); ) {
+            fResList.push_back(file);
+        }
+    }
+
+    struct TextSlotData {
+        GuiTextBuffer source;
+        std::string   font;
+    };
+
     std::vector<std::pair<SkString, std::array<float, 4>>> fColorSlots;
     std::vector<std::pair<SkString, float>>                fScalarSlots;
     std::vector<std::pair<SkString, SkV2>>                 fVec2Slots;
-    std::vector<std::pair<SkString, GuiTextBuffer>>        fTextStringSlots;
+    std::vector<std::pair<SkString, TextSlotData>>         fTextStringSlots;
     std::vector<std::pair<SkString, std::string>>          fImageSlots;
 
 };
@@ -515,7 +536,6 @@ void SkottieSlide::init() {
         fSlotManagerInterface = std::make_unique<SlotManagerInterface>(builder.getSlotManager(), resource_provider);
     }
 
-    fSlotManagerInterface->prepareImageAssetList(GetResourcePath("skottie/images").c_str());
     fSlotManagerInterface->initializeSlotManagerUI();
 
     if (fAnimation) {
