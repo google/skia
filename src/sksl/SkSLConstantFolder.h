@@ -45,10 +45,10 @@ public:
     static const Expression* GetConstantValueForVariable(const Expression& value);
 
     /**
-     * If the expression is a const variable with a known compile-time-constant value, returns that
-     * value. If not, returns null.
+     * If the expression can be replaced by a compile-time-constant value, returns that value.
+     * If not, returns null.
      */
-    static const Expression* GetConstantValueOrNullForVariable(const Expression& value);
+    static const Expression* GetConstantValueOrNull(const Expression& value);
 
     /** Returns true if the expression contains `value` in every slot. */
     static bool IsConstantSplat(const Expression& expr, double value);

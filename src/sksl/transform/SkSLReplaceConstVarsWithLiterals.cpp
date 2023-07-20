@@ -43,8 +43,7 @@ void Transform::ReplaceConstVarsWithLiterals(Module& module, ProgramUsage* usage
                 // ... and it's a candidate for size reduction...
                 if (fCandidates.contains(var.variable())) {
                     // ... get its constant value...
-                    if (const Expression* value =
-                                ConstantFolder::GetConstantValueOrNullForVariable(var)) {
+                    if (const Expression* value = ConstantFolder::GetConstantValueOrNull(var)) {
                         // ... and replace it with that value.
                         fUsage->remove(expr.get());
                         expr = value->clone();

@@ -437,40 +437,35 @@ static bool error_on_divide_by_zero(const Context& context, Position pos, Operat
     }
 }
 
-const Expression* ConstantFolder::GetConstantValueOrNullForVariable(const Expression& inExpr) {
-    for (const Expression* expr = &inExpr;;) {
-        if (!expr->is<VariableReference>()) {
-            break;
-        }
+const Expression* ConstantFolder::GetConstantValueOrNull(const Expression& inExpr) {
+    const Expression* expr = &inExpr;
+    while (expr->is<VariableReference>()) {
         const VariableReference& varRef = expr->as<VariableReference>();
         if (varRef.refKind() != VariableRefKind::kRead) {
-            break;
+            return nullptr;
         }
         const Variable& var = *varRef.variable();
         if (!(var.modifiers().fFlags & Modifiers::kConst_Flag)) {
-            break;
+            return nullptr;
         }
         expr = var.initialValue();
         if (!expr) {
-            // Function parameters can be const but won't have an initial value.
-            break;
-        }
-        if (Analysis::IsCompileTimeConstant(*expr)) {
-            return expr;
+            // Generally, const variables must have initial values. However, function parameters are
+            // an exception; they can be const but won't have an initial value.
+            return nullptr;
         }
     }
-    // We didn't find a compile-time constant at the end.
-    return nullptr;
+    return Analysis::IsCompileTimeConstant(*expr) ? expr : nullptr;
 }
 
 const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& inExpr) {
-    const Expression* expr = GetConstantValueOrNullForVariable(inExpr);
+    const Expression* expr = GetConstantValueOrNull(inExpr);
     return expr ? expr : &inExpr;
 }
 
 std::unique_ptr<Expression> ConstantFolder::MakeConstantValueForVariable(
         Position pos, std::unique_ptr<Expression> inExpr) {
-    const Expression* expr = GetConstantValueOrNullForVariable(*inExpr);
+    const Expression* expr = GetConstantValueOrNull(*inExpr);
     return expr ? expr->clone(pos) : std::move(inExpr);
 }
 

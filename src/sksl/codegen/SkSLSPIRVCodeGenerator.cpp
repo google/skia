@@ -2647,7 +2647,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         }
         default: {
             // Constant-propagate variables that have a known compile-time value.
-            if (const Expression* expr = ConstantFolder::GetConstantValueOrNullForVariable(ref)) {
+            if (const Expression* expr = ConstantFolder::GetConstantValueOrNull(ref)) {
                 return this->writeExpression(*expr, out);
             }
 
@@ -3659,7 +3659,7 @@ bool SPIRVCodeGenerator::isDead(const Variable& var) const {
 static bool is_vardecl_compile_time_constant(const VarDeclaration& varDecl) {
     return varDecl.var()->modifiers().fFlags & Modifiers::kConst_Flag &&
            (varDecl.var()->type().isScalar() || varDecl.var()->type().isVector()) &&
-           (ConstantFolder::GetConstantValueOrNullForVariable(*varDecl.value()) ||
+           (ConstantFolder::GetConstantValueOrNull(*varDecl.value()) ||
             Analysis::IsCompileTimeConstant(*varDecl.value()));
 }
 

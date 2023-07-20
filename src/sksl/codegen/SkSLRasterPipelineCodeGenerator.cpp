@@ -3864,7 +3864,7 @@ bool Generator::pushVariableReference(const VariableReference& var) {
     // If we are pushing a constant-value variable, push the value directly; literal values are more
     // amenable to optimization.
     if (var.type().isScalar() || var.type().isVector()) {
-        if (const Expression* expr = ConstantFolder::GetConstantValueOrNullForVariable(var)) {
+        if (const Expression* expr = ConstantFolder::GetConstantValueOrNull(var)) {
             return this->pushExpression(*expr);
         }
         if (fImmutableVariables.contains(var.variable())) {
