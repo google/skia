@@ -212,4 +212,12 @@ namespace sktests {
     uint32_t pack_mirror(SkFixed f, unsigned max, size_t width);
 }
 
+namespace SkOpts {
+    // SkBitmapProcState optimized Shader, Sample, or Matrix procs.
+    extern void (*S32_alpha_D32_filter_DX)(const SkBitmapProcState&,
+                                           const uint32_t* xy, int count, SkPMColor*);
+
+    void Init_BitmapProcState();
+}  // namespace SkOpts
+
 #endif

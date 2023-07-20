@@ -382,6 +382,9 @@ BASE_SRCS_ALL = [
     "src/core/SkBitmapDevice.cpp",
     "src/core/SkBitmapDevice.h",
     "src/core/SkBitmapProcState.h",  # needed for src/opts/SkBitmapProcState_opts.h
+    "src/core/SkBitmapProcState_opts.cpp",
+    "src/core/SkBitmapProcState_opts_hsw.cpp",
+    "src/core/SkBitmapProcState_opts_ssse3.cpp",
     "src/core/SkBlendMode.cpp",
     "src/core/SkBlendModeBlender.cpp",
     "src/core/SkBlendModeBlender.h",
@@ -1286,6 +1289,8 @@ BASE_SRCS_ALL = [
     "src/opts/SkBitmapProcState_opts.h",
     "src/opts/SkBlitMask_opts.h",
     "src/opts/SkBlitRow_opts.h",
+    "src/opts/SkOpts_RestoreTarget.h",
+    "src/opts/SkOpts_SetTarget.h",
     "src/opts/SkRasterPipeline_opts.h",
     "src/opts/SkSwizzler_opts.h",
     "src/opts/SkUtils_opts.h",

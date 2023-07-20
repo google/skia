@@ -56,11 +56,15 @@
  * be called as CPU instruction sets are typically super sets of older instruction sets
  */
 
-struct SkBitmapProcState;
 struct SkRasterPipelineStage;
 namespace SkSL {
 class TraceHook;
 }
+
+#define SK_OPTS_TARGET_DEFAULT 0x00
+#define SK_OPTS_TARGET_SSSE3   0x01
+#define SK_OPTS_TARGET_AVX     0x02
+#define SK_OPTS_TARGET_HSW     0x04
 
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
@@ -95,10 +99,6 @@ namespace SkOpts {
     extern void (*rect_memset16)(uint16_t[], uint16_t, int, size_t, int);
     extern void (*rect_memset32)(uint32_t[], uint32_t, int, size_t, int);
     extern void (*rect_memset64)(uint64_t[], uint64_t, int, size_t, int);
-
-    // SkBitmapProcState optimized Shader, Sample, or Matrix procs.
-    extern void (*S32_alpha_D32_filter_DX)(const SkBitmapProcState&,
-                                           const uint32_t* xy, int count, SkPMColor*);
 
     // We can't necessarily express the type of SkRasterPipeline stage functions here,
     // so we just use this void(*)(void) as a stand-in.

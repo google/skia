@@ -10,7 +10,6 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #define SK_OPTS_NS ssse3
-#include "src/opts/SkBitmapProcState_opts.h"
 #include "src/opts/SkBlitMask_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 
@@ -28,8 +27,6 @@ namespace SkOpts {
         grayA_to_rgbA         = ssse3::grayA_to_rgbA;
         inverted_CMYK_to_RGB1 = ssse3::inverted_CMYK_to_RGB1;
         inverted_CMYK_to_BGR1 = ssse3::inverted_CMYK_to_BGR1;
-
-        S32_alpha_D32_filter_DX  = ssse3::S32_alpha_D32_filter_DX;
     }
 }  // namespace SkOpts
 
