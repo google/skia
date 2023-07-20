@@ -435,7 +435,17 @@ int count_pipeline_inputs(const Program* program) {
 
 bool is_in_global_uniforms(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return var.modifiers().fFlags & Modifiers::kUniform_Flag && !var.type().isOpaque();
+    return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
+           !var.type().isOpaque() &&
+           !var.interfaceBlock();
+}
+
+bool is_in_anonymous_uniform_block(const Variable& var) {
+    SkASSERT(var.storage() == VariableStorage::kGlobal);
+    return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
+           !var.type().isOpaque() &&
+            var.interfaceBlock() &&
+            var.interfaceBlock()->instanceName().empty();
 }
 
 }  // namespace
@@ -596,6 +606,7 @@ bool WGSLCodeGenerator::generateCode() {
         this->writeLine("diagnostic(off, derivative_uniformity);");
         this->writeStageInputStruct();
         this->writeStageOutputStruct();
+        this->writeUniformsStruct();
         this->writeNonBlockUniformsForTests();
     }
     StringStream body;
@@ -1675,30 +1686,22 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
 
 std::string WGSLCodeGenerator::assembleFieldAccess(const FieldAccess& f) {
     std::string expr;
-
     const Field* field = &f.base()->type().fields()[f.fieldIndex()];
-    if (FieldAccess::OwnerKind::kDefault == f.ownerKind()) {
-        expr += this->assembleExpression(*f.base(), Precedence::kPostfix);
-        expr.push_back('.');
-    } else {
-        // We are accessing a field in an anonymous interface block. If the field refers to a
-        // pipeline IO parameter, then we access it via the synthesized IO structs. We make an
-        // explicit exception for `sk_PointSize` which we declare as a placeholder variable in
-        // global scope as it is not supported by WebGPU as a pipeline IO parameter (see comments
-        // in `writeStageOutputStruct`).
-        const Variable& v = *f.base()->as<VariableReference>().variable();
-        if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
-            expr += "_stageIn.";
-        } else if (v.modifiers().fFlags & Modifiers::kOut_Flag &&
-                   field->fModifiers.fLayout.fBuiltin != SK_POINTSIZE_BUILTIN) {
-            expr += "(*_stageOut).";
-        } else {
-            // TODO(skia:13092): Reference the variable using the base name used for its
-            // uniform/storage block global declaration.
-        }
+
+    switch (f.ownerKind()) {
+        case FieldAccess::OwnerKind::kDefault:
+            expr = this->assembleExpression(*f.base(), Precedence::kPostfix) + '.';
+            break;
+
+        case FieldAccess::OwnerKind::kAnonymousInterfaceBlock:
+            if (f.base()->is<VariableReference>() &&
+                field->fModifiers.fLayout.fBuiltin != SK_POINTSIZE_BUILTIN) {
+                expr = this->variablePrefix(*f.base()->as<VariableReference>().variable());
+            }
+            break;
     }
-    expr += field->fName;
-    return expr;
+
+    return expr + std::string(field->fName);
 }
 
 std::string WGSLCodeGenerator::assembleSimpleIntrinsic(std::string_view intrinsicName,
@@ -2273,39 +2276,48 @@ std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression
     return expr;
 }
 
-std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableReference& r) {
-    std::string expr;
-    const Variable& v = *r.variable();
-    bool needsDeref = false;
-
-    // When a variable is referenced in the context of a synthesized out-parameter helper argument,
-    // two special rules apply:
-    //     1. If it's accessed via a pipeline I/O or global uniforms struct, it should instead
-    //        be referenced by name (since it's actually referring to a function parameter).
-    //     2. Its type should be treated as a pointer and should be dereferenced as such.
+std::string_view WGSLCodeGenerator::variablePrefix(const Variable& v) {
     if (v.storage() == Variable::Storage::kGlobal) {
+        // If the field refers to a pipeline IO parameter, then we access it via the synthesized IO
+        // structs. We make an explicit exception for `sk_PointSize` which we declare as a
+        // placeholder variable in global scope as it is not supported by WebGPU as a pipeline IO
+        // parameter (see comments in `writeStageOutputStruct`).
         if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
-            expr += "_stageIn.";
-        } else if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
-            expr += "(*_stageOut).";
-        } else if (is_in_global_uniforms(v)) {
-            expr += "_globalUniforms.";
+            return "_stageIn.";
         }
-    } else if ((v.storage() == Variable::Storage::kParameter &&
-                v.modifiers().fFlags & Modifiers::kOut_Flag)) {
-        // This is an out-parameter and its type is a pointer, which we need to dereference.
-        // We wrap the dereference in parentheses in case the value is used in an access expression
-        // later.
-        needsDeref = true;
-        expr += "(*";
+        if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
+            return "(*_stageOut).";
+        }
+
+        // If the field refers to an anonymous-interface-block uniform, access it via the
+        // synthesized `_uniforms` global.
+        if (is_in_anonymous_uniform_block(v)) {
+            return "_uniforms.";
+        }
+
+        // If the field refers to an top-level uniform, access it via the synthesized
+        // `_globalUniforms` global. (Note that this should only occur in test code; Skia will
+        // always put uniforms in an interface block.)
+        if (is_in_global_uniforms(v)) {
+            return "_globalUniforms.";
+        }
     }
 
-    expr += this->assembleName(v.mangledName());
-    if (needsDeref) {
-        expr.push_back(')');
+    return "";
+}
+
+std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableReference& r) {
+    const Variable& v = *r.variable();
+
+    if ((v.storage() == Variable::Storage::kParameter &&
+         v.modifiers().fFlags & Modifiers::kOut_Flag)) {
+        // This is an out-parameter; it's pointer-typed, so we need to dereference it. We wrap the
+        // dereference in parentheses, in case the value is used in an access expression later.
+        return "(*" + this->assembleName(v.mangledName()) + ')';
     }
 
-    return expr;
+    return std::string(this->variablePrefix(v)) +
+           this->assembleName(v.mangledName());
 }
 
 std::string WGSLCodeGenerator::assembleVariableReference(const VariableReference& r) {
@@ -2761,6 +2773,67 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     // sk_PointSize when using the Dawn backend.
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) && requiresPointSizeBuiltin) {
         this->writeLine("/* unsupported */ var<private> sk_PointSize: f32;");
+    }
+}
+
+void WGSLCodeGenerator::writeUniformsStruct() {
+    std::string_view uniformsType;
+    std::string_view uniformsName;
+    for (const ProgramElement* e : fProgram.elements()) {
+        // Search for an interface block marked `uniform`.
+        if (!e->is<InterfaceBlock>()) {
+            continue;
+        }
+        const InterfaceBlock& ib = e->as<InterfaceBlock>();
+        if (!(ib.var()->modifiers().fFlags & Modifiers::kUniform_Flag)) {
+            continue;
+        }
+        // We should only find one; Skia never creates more than one interface block for its
+        // uniforms. (However, we might use multiple storage buffers.)
+        if (!uniformsType.empty()) {
+            fContext.fErrors->error(ib.fPosition,
+                                    "all uniforms should be contained within one interface block");
+            break;
+        }
+        // Find the struct type and fields used by this interface block.
+        const Type& ibType = ib.var()->type().componentType();
+        SkASSERT(ibType.isStruct());
+
+        SkSpan<const Field> ibFields = ibType.fields();
+        SkASSERT(!ibFields.empty());
+
+        // Create a struct to hold all of the uniforms from this InterfaceBlock.
+        uniformsType = ib.typeName();
+        if (uniformsType.empty()) {
+            uniformsType = "_UniformBuffer";
+        }
+        uniformsName = ib.instanceName();
+        if (uniformsName.empty()) {
+            uniformsName = "_uniforms";
+        }
+        this->write("struct ");
+        this->write(uniformsType);
+        this->writeLine(" {");
+
+        // TODO: We should validate offsets/layouts with SkSLMemoryLayout here. We can mimic the
+        // approach used in MetalCodeGenerator.
+        // TODO(skia:14370): array uniforms may need manual fixup for std140 padding. (Those
+        // uniforms will also need special handling when they are accessed, or passed to functions.)
+        for (const Field& field : ibFields) {
+            this->write("  ");
+            this->writeVariableDecl(*field.fType, field.fName, Delimiter::kComma);
+        }
+
+        this->writeLine("};");
+        this->write("@group(");
+        this->write(std::to_string(std::max(0, ib.var()->modifiers().fLayout.fSet)));
+        this->write(") @binding(");
+        this->write(std::to_string(std::max(0, ib.var()->modifiers().fLayout.fBinding)));
+        this->write(") var<uniform> ");
+        this->write(uniformsName);
+        this->write(" : ");
+        this->write(to_wgsl_type(ib.var()->type()));
+        this->writeLine(";");
     }
 }
 

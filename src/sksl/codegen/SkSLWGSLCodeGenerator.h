@@ -64,6 +64,7 @@ class Swizzle;
 class TernaryExpression;
 class Type;
 class VarDeclaration;
+class Variable;
 class VariableReference;
 
 /**
@@ -203,6 +204,7 @@ private:
     std::unique_ptr<LValue> makeLValue(const Expression& e);
 
     std::string variableReferenceNameForLValue(const VariableReference& r);
+    std::string_view variablePrefix(const Variable& v);
 
     // Writers for expressions. These return the final expression text as a string, and emit any
     // necessary setup code directly into the program as necessary. The returned expression may be
@@ -289,9 +291,10 @@ private:
                      Position parentPos,
                      const MemoryLayout* layout = nullptr);
 
-    // We bundle all varying pipeline stage inputs and outputs in a struct.
+    // We bundle uniforms, and all varying pipeline stage inputs and outputs, into separate structs.
     void writeStageInputStruct();
     void writeStageOutputStruct();
+    void writeUniformsStruct();
 
     // Writes all top-level non-opaque global uniform declarations (i.e. not part of an interface
     // block) into a single uniform block binding.
