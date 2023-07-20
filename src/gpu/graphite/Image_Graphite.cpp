@@ -33,6 +33,14 @@ Image::Image(uint32_t uniqueID,
 
 Image::~Image() {}
 
+size_t Image::textureSize() const {
+    if (!fTextureProxyView.proxy() || !fTextureProxyView.proxy()->texture()) {
+        return 0;
+    }
+
+    return fTextureProxyView.proxy()->texture()->gpuMemorySize();
+}
+
 sk_sp<SkImage> Image::onMakeSubset(Recorder* recorder,
                                    const SkIRect& subset,
                                    RequiredProperties requiredProps) const {
@@ -193,4 +201,3 @@ sk_sp<SkImage> SkImage::makeTextureImage(skgpu::graphite::Recorder* recorder,
     return SkImages::TextureFromImage(recorder, this, {mm});
 }
 #endif
-

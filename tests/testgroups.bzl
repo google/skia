@@ -310,6 +310,7 @@ GANESH_TESTS = [
     "TextureBindingsResetTest.cpp",
     "TextureOpTest.cpp",
     "TextureProxyTest.cpp",
+    "TextureSizeTest.cpp",
     "TextureStripAtlasManagerTest.cpp",
     "TopoSortTest.cpp",
     "TraceMemoryDumpTest.cpp",

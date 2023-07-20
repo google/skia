@@ -33,6 +33,8 @@ public:
 
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
 
+    size_t textureSize() const override;
+
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
     TextureProxyView textureProxyView() const { return fTextureProxyView; }
