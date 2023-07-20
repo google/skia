@@ -12,7 +12,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkGpuBlurUtils.h"
+#include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -32,7 +32,7 @@ static GrSurfaceProxyView blur(GrRecordingContext* ctx,
                                float sigmaX,
                                float sigmaY,
                                SkTileMode mode) {
-    auto resultSDC = SkGpuBlurUtils::GaussianBlur(ctx,
+    auto resultSDC = GrBlurUtils::GaussianBlur(ctx,
                                                   src,
                                                   GrColorType::kRGBA_8888,
                                                   kPremul_SkAlphaType,
@@ -78,7 +78,7 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* rContext,
         return sfc->readSurfaceView();
     };
 
-    SkIPoint outset = {SkGpuBlurUtils::SigmaRadius(sigmaX), SkGpuBlurUtils::SigmaRadius(sigmaY)};
+    SkIPoint outset = {GrBlurUtils::SigmaRadius(sigmaX), GrBlurUtils::SigmaRadius(sigmaY)};
     SkISize size = {dstB.width() + 2*outset.x(), dstB.height() + 2*outset.y()};
     src = tileInto(std::move(src), srcB, size, outset - dstB.topLeft(), mode);
     if (!src) {
@@ -88,23 +88,23 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* rContext,
 
     while (sigmaX || sigmaY) {
         float stepX = sigmaX;
-        if (stepX > SkGpuBlurUtils::kMaxSigma) {
-            stepX = SkGpuBlurUtils::kMaxSigma;
+        if (stepX > GrBlurUtils::kMaxSigma) {
+            stepX = GrBlurUtils::kMaxSigma;
             // A blur of sigma1 followed by a blur of sigma2 is equiv. to a single blur of
             // sqrt(sigma1^2 + sigma2^2).
-            sigmaX = sqrt(sigmaX*sigmaX - SkGpuBlurUtils::kMaxSigma*SkGpuBlurUtils::kMaxSigma);
+            sigmaX = sqrt(sigmaX*sigmaX - GrBlurUtils::kMaxSigma*GrBlurUtils::kMaxSigma);
         } else {
             sigmaX = 0.f;
         }
         float stepY = sigmaY;
-        if (stepY > SkGpuBlurUtils::kMaxSigma) {
-            stepY = SkGpuBlurUtils::kMaxSigma;
-            sigmaY = sqrt(sigmaY*sigmaY- SkGpuBlurUtils::kMaxSigma*SkGpuBlurUtils::kMaxSigma);
+        if (stepY > GrBlurUtils::kMaxSigma) {
+            stepY = GrBlurUtils::kMaxSigma;
+            sigmaY = sqrt(sigmaY*sigmaY- GrBlurUtils::kMaxSigma*GrBlurUtils::kMaxSigma);
         } else {
             sigmaY = 0.f;
         }
         auto bounds = SkIRect::MakeSize(src.dimensions());
-        auto sdc = SkGpuBlurUtils::GaussianBlur(rContext,
+        auto sdc = GrBlurUtils::GaussianBlur(rContext,
                                                 std::move(src),
                                                 GrColorType::kRGBA_8888,
                                                 kPremul_SkAlphaType,

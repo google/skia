@@ -151,8 +151,6 @@ CORE_FILES = [
     "SkGlyph.h",
     "SkGlyphRunPainter.cpp",
     "SkGlyphRunPainter.h",
-    "SkGpuBlurUtils.cpp",
-    "SkGpuBlurUtils.h",
     "SkGraphics.cpp",
     "SkIDChangeListener.cpp",
     "SkIPoint16.h",

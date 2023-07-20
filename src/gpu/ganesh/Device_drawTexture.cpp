@@ -361,7 +361,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
             shape = GrStyledShape(dst);
         }
 
-        GrBlurUtils::drawShapeWithMaskFilter(
+        GrBlurUtils::DrawShapeWithMaskFilter(
                 rContext, sdc, clip, shape, std::move(grPaint), localToDevice, mf);
     }
 }

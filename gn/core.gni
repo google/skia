@@ -374,8 +374,6 @@ skia_core_sources = [
   "$_src/core/SkGlyph.h",
   "$_src/core/SkGlyphRunPainter.cpp",
   "$_src/core/SkGlyphRunPainter.h",
-  "$_src/core/SkGpuBlurUtils.cpp",
-  "$_src/core/SkGpuBlurUtils.h",
   "$_src/core/SkGraphics.cpp",
   "$_src/core/SkIDChangeListener.cpp",
   "$_src/core/SkIPoint16.h",

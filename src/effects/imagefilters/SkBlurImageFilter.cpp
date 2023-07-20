@@ -38,7 +38,7 @@
 
 #if defined(SK_GANESH)
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkGpuBlurUtils.h"
+#include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
@@ -992,8 +992,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(const skif::Context& ctx,
                                                    SkIRect dstBounds,
                                                    SkIPoint inputOffset,
                                                    SkIPoint* offset) const {
-    if (SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma.x()) &&
-        SkGpuBlurUtils::IsEffectivelyZeroSigma(sigma.y())) {
+    if (GrBlurUtils::IsEffectivelyZeroSigma(sigma.x()) &&
+        GrBlurUtils::IsEffectivelyZeroSigma(sigma.y())) {
         offset->fX = inputBounds.x() + inputOffset.fX;
         offset->fY = inputBounds.y() + inputOffset.fY;
         return input->makeSubset(inputBounds);
@@ -1009,7 +1009,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(const skif::Context& ctx,
 
     dstBounds.offset(input->subset().topLeft());
     inputBounds.offset(input->subset().topLeft());
-    auto sdc = SkGpuBlurUtils::GaussianBlur(
+    auto sdc = GrBlurUtils::GaussianBlur(
             context,
             std::move(inputView),
             SkColorTypeToGrColorType(input->colorType()),
