@@ -12,28 +12,31 @@ error: 14: unsized arrays are not permitted here
 error: 12: interface blocks are not allowed in this kind of program
 layout(set=0, binding=1) buffer outputBuffer
                                 ^^^^^^^^^^^^
-error: 18: unknown identifier 'outputData'
+error: 17: 'in' is not permitted here
+layout(location=2) in flat int bufferIndex;
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 17: 'flat' is not permitted here
+layout(location=2) in flat int bufferIndex;
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 17: layout qualifier 'location' is not permitted here
+layout(location=2) in flat int bufferIndex;
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 20: unknown identifier 'outputData'
     outputData[offset] = inputData[offset];
     ^^^^^^^^^^
-error: 18: unknown identifier 'offset'
+error: 20: unknown identifier 'offset'
     outputData[offset] = inputData[offset];
                ^^^^^^
-error: 18: unknown identifier 'inputData'
+error: 20: unknown identifier 'inputData'
     outputData[offset] = inputData[offset];
                          ^^^^^^^^^
-error: 18: unknown identifier 'offset'
+error: 20: unknown identifier 'offset'
     outputData[offset] = inputData[offset];
                                    ^^^^^^
-error: 19: unknown identifier 'inputData'
-    return half4(inputData[offset].a * inputData[offset].b.x);
+error: 21: unknown identifier 'inputData'
+    return half4(inputData[bufferIndex].a * inputData[bufferIndex].b.x);
                  ^^^^^^^^^
-error: 19: unknown identifier 'offset'
-    return half4(inputData[offset].a * inputData[offset].b.x);
-                           ^^^^^^
-error: 19: unknown identifier 'inputData'
-    return half4(inputData[offset].a * inputData[offset].b.x);
-                                       ^^^^^^^^^
-error: 19: unknown identifier 'offset'
-    return half4(inputData[offset].a * inputData[offset].b.x);
-                                                 ^^^^^^
-12 errors
+error: 21: unknown identifier 'inputData'
+    return half4(inputData[bufferIndex].a * inputData[bufferIndex].b.x);
+                                            ^^^^^^^^^
+13 errors

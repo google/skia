@@ -329,7 +329,7 @@ std::string EmitVaryings(const RenderStep* step,
 
     if (emitShadingSsboIndexVarying) {
         SkSL::String::appendf(&result,
-                              "    layout(location=%d) %s int shadingSsboIndexVar;\n",
+                              "    layout(location=%d) %s flat int shadingSsboIndexVar;\n",
                               location++,
                               direction);
     }

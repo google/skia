@@ -6,6 +6,7 @@ struct SomeData {
     float2 b;
 };
 struct Inputs {
+    int bufferIndex  [[user(locn2)]];
 };
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
@@ -27,6 +28,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], const device storageBuffe
     Outputs _out;
     (void)_out;
     _globals._anonInterface1->outputData[_globals._anonInterface0->offset] = _globals._anonInterface0->inputData[_globals._anonInterface0->offset];
-    _out.sk_FragColor = half4(_globals._anonInterface0->inputData[_globals._anonInterface0->offset].a * _globals._anonInterface0->inputData[_globals._anonInterface0->offset].b.x);
+    _out.sk_FragColor = half4(_globals._anonInterface0->inputData[_in.bufferIndex].a * _globals._anonInterface0->inputData[_in.bufferIndex].b.x);
     return _out;
 }

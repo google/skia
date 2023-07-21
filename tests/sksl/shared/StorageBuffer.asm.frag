@@ -1,7 +1,7 @@
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
 OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_Clockwise %sk_FragColor
+OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_Clockwise %sk_FragColor %bufferIndex
 OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %SomeData "SomeData"
 OpMemberName %SomeData 0 "a"
@@ -13,6 +13,7 @@ OpName %outputBuffer "outputBuffer"
 OpMemberName %outputBuffer 0 "outputData"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %sk_FragColor "sk_FragColor"
+OpName %bufferIndex "bufferIndex"
 OpName %_entrypoint_v "_entrypoint_v"
 OpName %main "main"
 OpMemberDecorate %SomeData 0 Offset 0
@@ -33,7 +34,9 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %40 RelaxedPrecision
+OpDecorate %bufferIndex Location 2
+OpDecorate %bufferIndex Flat
+OpDecorate %42 RelaxedPrecision
 %uint = OpTypeInt 32 0
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
@@ -51,47 +54,47 @@ OpDecorate %40 RelaxedPrecision
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
-%void = OpTypeVoid
-%22 = OpTypeFunction %void
-%float_0 = OpConstant %float 0
-%25 = OpConstantComposite %v2float %float_0 %float_0
-%_ptr_Function_v2float = OpTypePointer Function %v2float
-%29 = OpTypeFunction %v4float %_ptr_Function_v2float
 %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+%bufferIndex = OpVariable %_ptr_Input_int Input
+%void = OpTypeVoid
+%25 = OpTypeFunction %void
+%float_0 = OpConstant %float 0
+%28 = OpConstantComposite %v2float %float_0 %float_0
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+%32 = OpTypeFunction %v4float %_ptr_Function_v2float
 %int_1 = OpConstant %int 1
 %int_0 = OpConstant %int 0
 %_ptr_Uniform_uint = OpTypePointer Uniform %uint
 %_ptr_Uniform_SomeData = OpTypePointer Uniform %SomeData
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
-%_entrypoint_v = OpFunction %void None %22
-%23 = OpLabel
-%26 = OpVariable %_ptr_Function_v2float Function
-OpStore %26 %25
-%28 = OpFunctionCall %v4float %main %26
-OpStore %sk_FragColor %28
+%_entrypoint_v = OpFunction %void None %25
+%26 = OpLabel
+%29 = OpVariable %_ptr_Function_v2float Function
+OpStore %29 %28
+%31 = OpFunctionCall %v4float %main %29
+OpStore %sk_FragColor %31
 OpReturn
 OpFunctionEnd
-%main = OpFunction %v4float None %29
-%30 = OpFunctionParameter %_ptr_Function_v2float
-%31 = OpLabel
-%35 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
-%37 = OpLoad %uint %35
-%38 = OpAccessChain %_ptr_Uniform_SomeData %3 %int_1 %37
-%40 = OpLoad %SomeData %38
-%41 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
-%42 = OpLoad %uint %41
-%43 = OpAccessChain %_ptr_Uniform_SomeData %12 %int_0 %42
-OpStore %43 %40
-%44 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
-%45 = OpLoad %uint %44
-%46 = OpAccessChain %_ptr_Uniform_v4float %3 %int_1 %45 %int_0
-%48 = OpLoad %v4float %46
-%49 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
-%50 = OpLoad %uint %49
+%main = OpFunction %v4float None %32
+%33 = OpFunctionParameter %_ptr_Function_v2float
+%34 = OpLabel
+%37 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
+%39 = OpLoad %uint %37
+%40 = OpAccessChain %_ptr_Uniform_SomeData %3 %int_1 %39
+%42 = OpLoad %SomeData %40
+%43 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
+%44 = OpLoad %uint %43
+%45 = OpAccessChain %_ptr_Uniform_SomeData %12 %int_0 %44
+OpStore %45 %42
+%46 = OpLoad %int %bufferIndex
+%47 = OpAccessChain %_ptr_Uniform_v4float %3 %int_1 %46 %int_0
+%49 = OpLoad %v4float %47
+%50 = OpLoad %int %bufferIndex
 %51 = OpAccessChain %_ptr_Uniform_v2float %3 %int_1 %50 %int_1
 %53 = OpLoad %v2float %51
 %54 = OpCompositeExtract %float %53 0
-%55 = OpVectorTimesScalar %v4float %48 %54
+%55 = OpVectorTimesScalar %v4float %49 %54
 OpReturnValue %55
 OpFunctionEnd
