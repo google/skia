@@ -27,6 +27,7 @@ string_flag_with_values(
         # The android_gm_test macro assumes that the below values and the --via flag values
         # accepted by BazelGMRunner.cpp are the same, so they should be kept in sync.
         "direct",
+        "picture",
         "picture_serialization",
     ],
 )
@@ -35,7 +36,7 @@ selects.config_setting_group(
     name = "needs_simple_vias",
     match_any = [
         ":direct",
-        # ":picture",  # TODO(lovisolo): Implement.
+        ":picture",
         ":picture_serialization",
     ],
 )
