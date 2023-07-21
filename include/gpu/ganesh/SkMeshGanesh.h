@@ -20,9 +20,9 @@ namespace SkMeshes {
 /**
  * Makes a GPU-backed index buffer to be used with SkMeshes.
  *
- * @param  GrDirectContext*  Must be non-null to indicate where the data should be uploaded. The
+ * @param  GrDirectContext*  If non-null, the data will be uploaded to the corresponding GPU and the
  *                           returned buffer will only be compatible with surfaces using the same
- *                           context.
+ *                           context. If null, the data will be uploaded to a CPU buffer.
  * @param  data              The data used to populate the buffer, or nullptr to create a zero-
  *                           initialized buffer.
  * @param  size              Both the size of the data in 'data' and the size of the resulting
@@ -38,9 +38,9 @@ SK_API sk_sp<SkMesh::IndexBuffer> CopyIndexBuffer(GrDirectContext*, sk_sp<SkMesh
 /**
  * Makes a GPU-backed vertex buffer to be used with SkMeshes.
  *
- * @param  GrDirectContext*  Must be non-null to indicate where the data should be uploaded. The
+ * @param  GrDirectContext*  If non-null, the data will be uploaded to the corresponding GPU and the
  *                           returned buffer will only be compatible with surfaces using the same
- *                           context.
+ *                           context. If null, the data will be uploaded to a CPU buffer.
  * @param  data              The data used to populate the buffer, or nullptr to create a zero-
  *                           initialized buffer.
  * @param  size              Both the size of the data in 'data' and the size of the resulting

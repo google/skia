@@ -104,7 +104,8 @@ bool GrMeshBuffer<Base, Type>::onUpdate(GrDirectContext* dc,
 namespace SkMeshes {
 sk_sp<SkMesh::IndexBuffer> MakeIndexBuffer(GrDirectContext* dc, const void* data, size_t size) {
     if (!dc) {
-        return nullptr;
+        // Fallback to a CPU buffer.
+        return MakeIndexBuffer(data, size);
     }
     return SkMeshPriv::GaneshIndexBuffer::Make(dc, data, size);
 }
@@ -126,7 +127,7 @@ sk_sp<SkMesh::IndexBuffer> CopyIndexBuffer(GrDirectContext* dc, sk_sp<SkMesh::In
 
 sk_sp<SkMesh::VertexBuffer> MakeVertexBuffer(GrDirectContext* dc, const void* data, size_t size) {
     if (!dc) {
-        return nullptr;
+        return MakeVertexBuffer(data, size);
     }
     return SkMeshPriv::GaneshVertexBuffer::Make(dc, data, size);
 }
