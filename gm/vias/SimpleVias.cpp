@@ -72,7 +72,6 @@ static std::string bitmap_to_base64_data_uri(const SkBitmap& bitmap) {
 
     std::string out;
     out.resize(len);
-    out.data();
     SkBase64::Encode(pngData->data(), pngData->size(), out.data());
     return "data:image/png;base64," + out;
 }
