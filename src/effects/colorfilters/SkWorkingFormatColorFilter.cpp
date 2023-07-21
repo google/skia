@@ -81,16 +81,26 @@ void SkWorkingFormatColorFilter::addToKey(const skgpu::graphite::KeyContext& key
     SkAlphaType workingAT;
     sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
 
-    ColorSpaceTransformBlock::ColorSpaceTransformData data1(
-            dstCS.get(), dstAT, workingCS.get(), workingAT);
-    ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data1);
-    builder->endBlock();
+    // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
+    // while appearing as one block to the parent node.
+    ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
+        // Inner compose
+        ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
+            // Innermost (inner of inner compose)
+            ColorSpaceTransformBlock::ColorSpaceTransformData data1(
+                    dstCS.get(), dstAT, workingCS.get(), workingAT);
+            ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data1);
+            builder->endBlock();
 
-    as_CFB(fChild)->addToKey(keyContext, builder, gatherer);
+            // Middle (outer of inner compose)
+            as_CFB(fChild)->addToKey(keyContext, builder, gatherer);
+        builder->endBlock();
 
-    ColorSpaceTransformBlock::ColorSpaceTransformData data2(
-            workingCS.get(), workingAT, dstCS.get(), dstAT);
-    ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data2);
+        // Outermost (outer of outer compose)
+        ColorSpaceTransformBlock::ColorSpaceTransformData data2(
+                workingCS.get(), workingAT, dstCS.get(), dstAT);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data2);
+        builder->endBlock();
     builder->endBlock();
 }
 #endif
