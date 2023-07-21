@@ -195,10 +195,6 @@ protected:
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     bool onPeekPixels(SkPixmap*) override { return false; }
 
-#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
-    void onFlush() override;
-#endif
-
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     bool onDoSaveBehind(const SkRect*) override;

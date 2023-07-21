@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/ToolUtils.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/mac/WindowContextFactory_mac.h"
@@ -158,7 +159,7 @@ void RasterWindowContext_mac::onSwapBuffers() {
         sk_sp<SkSurface> gpuSurface = GLWindowContext::getBackbufferSurface();
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
         gpuCanvas->drawImage(snapshot, 0, 0);
-        gpuCanvas->flush();
+        skgpu::ganesh::Flush(gpuSurface);
 
         [fGLContext flushBuffer];
     }

@@ -339,29 +339,6 @@ SkCanvas::~SkCanvas() {
     this->internalRestore();    // restore the last, since we're going away
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
-#if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
-#endif
-
-void SkCanvas::flush() {
-    this->onFlush();
-}
-
-void SkCanvas::onFlush() {
-#if defined(SK_GANESH)
-    auto dContext = GrAsDirectContext(this->recordingContext());
-
-    if (dContext) {
-        dContext->flushAndSubmit();
-    }
-#endif
-}
-#endif
-
 SkSurface* SkCanvas::getSurface() const {
     return fSurfaceBase;
 }
@@ -1619,16 +1596,6 @@ GrRecordingContext* SkCanvas::recordingContext() const {
 skgpu::graphite::Recorder* SkCanvas::recorder() const {
     return this->topDevice()->recorder();
 }
-
-#if !defined(SK_LEGACY_GPU_GETTERS_CONST)
-GrRecordingContext* SkCanvas::recordingContext() {
-    return this->topDevice()->recordingContext();
-}
-
-skgpu::graphite::Recorder* SkCanvas::recorder() {
-    return this->topDevice()->recorder();
-}
-#endif
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {

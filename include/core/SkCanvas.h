@@ -2543,26 +2543,6 @@ private:
     void validateClip() const;
 
     std::unique_ptr<sktext::GlyphRunBuilder> fScratchGlyphRunBuilder;
-
-#if !defined(SK_DISABLE_LEGACY_CANVAS_FLUSH)
-public:
-    /** Triggers the immediate execution of all pending draw operations.
-        If SkCanvas is associated with GPU surface, resolves all pending GPU operations.
-        If SkCanvas is associated with raster surface, has no effect; raster draw
-        operations are never deferred.
-
-        DEPRECATED: Replace usage with GrDirectContext::flush()
-    */
-    void flush();
-protected:
-    virtual void onFlush();
-#endif
-
-#if !defined(SK_LEGACY_GPU_GETTERS_CONST)
-public:
-    virtual GrRecordingContext* recordingContext();
-    virtual skgpu::graphite::Recorder* recorder();
-#endif
 };
 
 /** \class SkAutoCanvasRestore
