@@ -2,13 +2,22 @@ uniform half4 N, I, NRef;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 xy) {
+    // These cannot be evaluated at compile-time since the intermediate values would overflow.
+    float  huge  = faceforward(       1,         1e30,         1e30);
+    float2 huge2 = faceforward(float2(1), float2(1e30), float2(1e30));
+    float3 huge3 = faceforward(float3(1), float3(1e30), float3(1e30));
+    float4 huge4 = faceforward(float4(1), float4(1e30), float4(1e30));
+
+    // We don't care about the results; they're used here to prevent them from being optimized away.
+    half4 expectedPos = half4(huge.xxxx  + huge2.xxxx);
+    half4 expectedNeg = half4(huge3.xxxx + huge4.xxxx);
 
     const half4 constN    = half4(1, 2, 3, 4);
     const half4 constI    = half4(1, 1, -100, 1);
     const half4 constNRef = half4(1);
 
-    half4 expectedPos =  half4(1, 2, 3, 4);
-    half4 expectedNeg = -half4(1, 2, 3, 4);
+    expectedPos =  half4(1, 2, 3, 4);
+    expectedNeg = -half4(1, 2, 3, 4);
 
     return (faceforward(N.x,         I.x,         NRef.x        ) == expectedNeg.x    &&
             faceforward(N.xy,        I.xy,        NRef.xy       ) == expectedNeg.xy   &&

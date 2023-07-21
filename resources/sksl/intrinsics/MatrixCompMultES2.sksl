@@ -3,7 +3,17 @@ uniform float2x2 testMatrix2x2;
 uniform half3x3 testMatrix3x3;
 
 half4 main(float2 coords) {
-    half2x2 h22 = matrixCompMult(half2x2(5, 5, 5, 5), half2x2(0, 1, 2, 3));
+    // This multiplication does not overflow and can be evaluated at compile time.
+    const half2x2 smallM22 = half2x2(1000, 1000, 1000, 1000);
+    half2x2 h22 = matrixCompMult(smallM22, smallM22);
+
+    // This multiplication would overflow the maximum float value, so we don't evaluate it at
+    // compile time. We don't care what the result is, since ES2 doesn't guarantee infinities, but
+    // we should be able to compile it safely.
+    const half2x2 hugeM22 = half2x2(1e30, 1e30, 1e30, 1e30);
+    h22 = matrixCompMult(hugeM22, hugeM22);
+
+    h22 = matrixCompMult(half2x2(5, 5, 5, 5), half2x2(0, 1, 2, 3));
     const half4x4 h44 = matrixCompMult(half4x4(0.5), half4x4(1, 2, 3, 4,
                                                              5, 6, 7, 8,
                                                              9, 10,11,12,

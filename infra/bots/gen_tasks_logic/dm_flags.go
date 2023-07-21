@@ -271,6 +271,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("Dawn") && !b.extraConfig("Graphite") {
 			// tint:1045: Tint doesn't implement MatrixInverse yet.
 			skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")
+
+			// The SPIR-V reader emits bad code for a `matrixCompMult` that overflows. (tint:1989)
+			skip(ALL, "test", ALL, "SkSLIntrinsicMatrixCompMultES2_GPU")
+
 			configs = []string{"dawn"}
 		}
 

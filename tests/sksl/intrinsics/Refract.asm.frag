@@ -33,17 +33,19 @@ OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
 OpDecorate %result RelaxedPrecision
 OpDecorate %28 RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
-OpDecorate %39 RelaxedPrecision
-OpDecorate %42 RelaxedPrecision
+OpDecorate %31 RelaxedPrecision
+OpDecorate %32 RelaxedPrecision
+OpDecorate %37 RelaxedPrecision
+OpDecorate %40 RelaxedPrecision
+OpDecorate %43 RelaxedPrecision
 OpDecorate %46 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
-OpDecorate %51 RelaxedPrecision
+OpDecorate %50 RelaxedPrecision
+OpDecorate %53 RelaxedPrecision
 OpDecorate %55 RelaxedPrecision
-OpDecorate %56 RelaxedPrecision
 OpDecorate %59 RelaxedPrecision
 OpDecorate %60 RelaxedPrecision
+OpDecorate %63 RelaxedPrecision
+OpDecorate %64 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -62,6 +64,8 @@ OpDecorate %60 RelaxedPrecision
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %23 = OpTypeFunction %v4float %_ptr_Function_v2float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
+%float_6_00000015e_26 = OpConstant %float 6.00000015e+26
+%float_2 = OpConstant %float 2
 %_ptr_Uniform_float = OpTypePointer Uniform %float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
@@ -73,10 +77,10 @@ OpDecorate %60 RelaxedPrecision
 %int_4 = OpConstant %int 4
 %float_0_5 = OpConstant %float 0.5
 %float_n0_866025388 = OpConstant %float -0.866025388
-%54 = OpConstantComposite %v2float %float_0_5 %float_n0_866025388
+%58 = OpConstantComposite %v2float %float_0_5 %float_n0_866025388
 %v3float = OpTypeVector %float 3
-%58 = OpConstantComposite %v3float %float_0_5 %float_0 %float_n0_866025388
-%61 = OpConstantComposite %v4float %float_0_5 %float_0 %float_0 %float_n0_866025388
+%62 = OpConstantComposite %v3float %float_0_5 %float_0 %float_n0_866025388
+%65 = OpConstantComposite %v4float %float_0_5 %float_0 %float_0 %float_n0_866025388
 %_entrypoint_v = OpFunction %void None %15
 %16 = OpLabel
 %20 = OpVariable %_ptr_Function_v2float Function
@@ -89,29 +93,32 @@ OpFunctionEnd
 %24 = OpFunctionParameter %_ptr_Function_v2float
 %25 = OpLabel
 %result = OpVariable %_ptr_Function_v4float Function
-%29 = OpAccessChain %_ptr_Uniform_float %10 %int_0
-%33 = OpLoad %float %29
-%34 = OpAccessChain %_ptr_Uniform_float %10 %int_1
-%36 = OpLoad %float %34
-%37 = OpAccessChain %_ptr_Uniform_float %10 %int_2
-%39 = OpLoad %float %37
-%28 = OpExtInst %float %1 Refract %33 %36 %39
-%40 = OpAccessChain %_ptr_Function_float %result %int_0
-OpStore %40 %28
-%43 = OpAccessChain %_ptr_Uniform_v4float %10 %int_3
-%46 = OpLoad %v4float %43
-%47 = OpAccessChain %_ptr_Uniform_v4float %10 %int_4
-%49 = OpLoad %v4float %47
-%50 = OpAccessChain %_ptr_Uniform_float %10 %int_2
-%51 = OpLoad %float %50
-%42 = OpExtInst %v4float %1 Refract %46 %49 %51
-OpStore %result %42
-%55 = OpLoad %v4float %result
-%56 = OpVectorShuffle %v4float %55 %54 4 5 2 3
-OpStore %result %56
+%28 = OpExtInst %float %1 Refract %float_6_00000015e_26 %float_2 %float_2
+%31 = OpCompositeConstruct %v4float %28 %28 %28 %28
+OpStore %result %31
+%33 = OpAccessChain %_ptr_Uniform_float %10 %int_0
+%37 = OpLoad %float %33
+%38 = OpAccessChain %_ptr_Uniform_float %10 %int_1
+%40 = OpLoad %float %38
+%41 = OpAccessChain %_ptr_Uniform_float %10 %int_2
+%43 = OpLoad %float %41
+%32 = OpExtInst %float %1 Refract %37 %40 %43
+%44 = OpAccessChain %_ptr_Function_float %result %int_0
+OpStore %44 %32
+%47 = OpAccessChain %_ptr_Uniform_v4float %10 %int_3
+%50 = OpLoad %v4float %47
+%51 = OpAccessChain %_ptr_Uniform_v4float %10 %int_4
+%53 = OpLoad %v4float %51
+%54 = OpAccessChain %_ptr_Uniform_float %10 %int_2
+%55 = OpLoad %float %54
+%46 = OpExtInst %v4float %1 Refract %50 %53 %55
+OpStore %result %46
 %59 = OpLoad %v4float %result
-%60 = OpVectorShuffle %v4float %59 %58 4 5 6 3
+%60 = OpVectorShuffle %v4float %59 %58 4 5 2 3
 OpStore %result %60
-OpStore %result %61
-OpReturnValue %61
+%63 = OpLoad %v4float %result
+%64 = OpVectorShuffle %v4float %63 %62 4 5 6 3
+OpStore %result %64
+OpStore %result %65
+OpReturnValue %65
 OpFunctionEnd

@@ -3,9 +3,8 @@ uniform half4 d, e;
 
 half4 main(float2) {
     // Ensure that constant-evaluation is safe in the presence of very large values.
-    float overflow = refract(6e26, 2, 2);
+    half4 result = refract(6e26, 2, 2).xxxx;
 
-    half4 result;
     result.x = refract(a, b, c);
     result = refract(d, e, c);
 
