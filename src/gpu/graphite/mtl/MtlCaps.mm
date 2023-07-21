@@ -775,12 +775,15 @@ MTLStorageMode MtlCaps::getDefaultMSAAStorageMode(Discardable discardable) const
 
 TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                Discardable discardable) const {
+    if (fDefaultMSAASamples <= 1) {
+        return {};
+    }
     const MtlTextureSpec& singleSpec = singleSampledInfo.mtlTextureSpec();
 
     MTLTextureUsage usage = MTLTextureUsageRenderTarget;
 
     MtlTextureInfo info;
-    info.fSampleCount = this->defaultMSAASamples();
+    info.fSampleCount = fDefaultMSAASamples;
     info.fMipmapped = Mipmapped::kNo;
     info.fFormat = singleSpec.fFormat;
     info.fUsage = usage;

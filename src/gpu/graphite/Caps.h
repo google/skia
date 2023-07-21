@@ -206,9 +206,6 @@ protected:
     // the caps.
     void finishInitialization(const ContextOptions&);
 
-    // TODO: This value should be set by some context option. For now just making it 4.
-    uint32_t defaultMSAASamples() const { return 4; }
-
     // There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
     // options instead of the actual sample value.
     static inline uint32_t SamplesToKey(uint32_t numSamples) {
@@ -246,6 +243,7 @@ protected:
     };
 
     int fMaxTextureSize = 0;
+    int fDefaultMSAASamples = 4;
     size_t fRequiredUniformBufferAlignment = 0;
     size_t fRequiredStorageBufferAlignment = 0;
     size_t fRequiredTransferBufferAlignment = 0;

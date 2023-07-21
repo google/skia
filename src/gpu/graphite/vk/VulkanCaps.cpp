@@ -187,15 +187,19 @@ TextureInfo VulkanCaps::getDefaultSampledTextureInfo(SkColorType ct,
 
 TextureInfo VulkanCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                   Discardable discardable) const {
+    if (fDefaultMSAASamples <= 1) {
+        return {};
+    }
+
     const VkFormat singleSpecFormat = singleSampledInfo.vulkanTextureSpec().fFormat;
     const FormatInfo& formatInfo = this->getFormatInfo(singleSpecFormat);
     if ((singleSampledInfo.isProtected() == Protected::kYes && !this->protectedSupport()) ||
-        !formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, this->defaultMSAASamples())) {
+        !formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, fDefaultMSAASamples)) {
         return {};
     }
 
     VulkanTextureInfo info;
-    info.fSampleCount = this->defaultMSAASamples();
+    info.fSampleCount = fDefaultMSAASamples;
     info.fMipmapped = Mipmapped::kNo;
     info.fFlags = (singleSampledInfo.isProtected() == Protected::kYes) ?
         VK_IMAGE_CREATE_PROTECTED_BIT : 0;

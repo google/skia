@@ -175,20 +175,27 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
         // persistently associated with the framebuffer, in which case it's not discardable.
         desc.fColorAttachment.fTextureInfo = caps->getDefaultMSAATextureInfo(targetInfo,
                                                                              Discardable::kYes);
-        if (loadOp != LoadOp::kClear) {
-            desc.fColorAttachment.fLoadOp = LoadOp::kDiscard;
-        } else {
-            desc.fColorAttachment.fLoadOp = LoadOp::kClear;
-        }
-        desc.fColorAttachment.fStoreOp = StoreOp::kDiscard;
+        if (desc.fColorAttachment.fTextureInfo.isValid()) {
+            if (loadOp != LoadOp::kClear) {
+                desc.fColorAttachment.fLoadOp = LoadOp::kDiscard;
+            } else {
+                desc.fColorAttachment.fLoadOp = LoadOp::kClear;
+            }
+            desc.fColorAttachment.fStoreOp = StoreOp::kDiscard;
 
-        desc.fColorResolveAttachment.fTextureInfo = targetInfo;
-        if (loadOp != LoadOp::kLoad) {
-            desc.fColorResolveAttachment.fLoadOp = LoadOp::kDiscard;
+            desc.fColorResolveAttachment.fTextureInfo = targetInfo;
+            if (loadOp != LoadOp::kLoad) {
+                desc.fColorResolveAttachment.fLoadOp = LoadOp::kDiscard;
+            } else {
+                desc.fColorResolveAttachment.fLoadOp = LoadOp::kLoad;
+            }
+            desc.fColorResolveAttachment.fStoreOp = storeOp;
         } else {
-            desc.fColorResolveAttachment.fLoadOp = LoadOp::kLoad;
+            // fall back to single sampled
+            desc.fColorAttachment.fTextureInfo = targetInfo;
+            desc.fColorAttachment.fLoadOp = loadOp;
+            desc.fColorAttachment.fStoreOp = storeOp;
         }
-        desc.fColorResolveAttachment.fStoreOp = storeOp;
     } else {
         desc.fColorAttachment.fTextureInfo = targetInfo;
         desc.fColorAttachment.fLoadOp = loadOp;
