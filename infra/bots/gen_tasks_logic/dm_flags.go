@@ -269,9 +269,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		// Dawn bot *only* runs the dawn config
 		if b.extraConfig("Dawn") && !b.extraConfig("Graphite") {
-			// tint:1045: Tint doesn't implement MatrixInverse yet.
-			skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")
-
 			// The SPIR-V reader emits bad code for a `matrixCompMult` that overflows. (tint:1989)
 			skip(ALL, "test", ALL, "SkSLIntrinsicMatrixCompMultES2_GPU")
 
