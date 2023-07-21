@@ -110,6 +110,10 @@ var CanvasKit = {
     _size: function() {},
   },
 
+  Blender: {
+    Mode: function() {},
+  },
+
   GrDirectContext: {
     // public API (from webgl.js)
     prototype: {
@@ -211,6 +215,7 @@ var CanvasKit = {
   RuntimeEffect: {
     // public API (from JS bindings)
     Make: function() {},
+    MakeForBlender: function() {},
     getUniform: function() {},
     getUniformCount: function() {},
     getUniformFloatCount: function() {},
@@ -218,11 +223,14 @@ var CanvasKit = {
     prototype: {
       makeShader: function() {},
       makeShaderWithChildren: function() {},
+      makeBlender: function() {},
     },
     // private API (from C++ bindings)
     _Make: function() {},
+    _MakeForBlender: function() {},
     _makeShader: function() {},
     _makeShaderWithChildren: function() {},
+    _makeBlender: function() {},
   },
 
   ParagraphStyle: function() {},
@@ -534,6 +542,7 @@ var CanvasKit = {
     getStrokeWidth: function() {},
     setAntiAlias: function() {},
     setBlendMode: function() {},
+    setBlender: function() {},
     setColorInt: function() {},
     setDither: function() {},
     setImageFilter: function() {},

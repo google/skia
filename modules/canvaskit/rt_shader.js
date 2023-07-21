@@ -15,6 +15,20 @@ CanvasKit._extraInitializations.push(function() {
     return CanvasKit.RuntimeEffect._Make(sksl, callbackObj);
   };
 
+  // sksl is the blender code.
+  // errorCallback is a function that will be called with an error string if the
+  // effect cannot be made. If not provided, the error will be logged.
+  CanvasKit.RuntimeEffect.MakeForBlender = function(sksl, errorCallback) {
+    // The easiest way to pass a function into C++ code is to wrap it in an object and
+    // treat it as an emscripten::val on the other side.
+    var callbackObj = {
+      'onError': errorCallback || function(err) {
+        console.log('RuntimeEffect error', err);
+      },
+    };
+    return CanvasKit.RuntimeEffect._MakeForBlender(sksl, callbackObj);
+  };
+
   CanvasKit.RuntimeEffect.prototype.makeShader = function(floats, localMatrix) {
     // If the uniforms were set in a MallocObj, we don't want the shader to take ownership of
     // them (and free the memory when the shader is freed).
@@ -44,5 +58,13 @@ CanvasKit._extraInitializations.push(function() {
     // sending it over the wire.
     return this._makeShaderWithChildren(fptr, floats.length * 4, shouldOwnUniforms, childrenPointers,
                                         barePointers.length, localMatrixPtr);
+  }
+
+  CanvasKit.RuntimeEffect.prototype.makeBlender = function(floats) {
+    // If the uniforms were set in a MallocObj, we don't want the shader to take ownership of
+    // them (and free the memory when the blender is freed).
+    var shouldOwnUniforms = !floats['_ck'];
+    var fptr = copy1dArray(floats, 'HEAPF32');
+    return this._makeBlender(fptr, floats.length * 4, shouldOwnUniforms);
   }
 });
