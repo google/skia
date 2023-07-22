@@ -90,6 +90,26 @@ public:
                                          SkImage::ReadPixelsCallback callback,
                                          SkImage::ReadPixelsContext context);
 
+    void asyncRescaleAndReadPixelsYUVA420(const SkImage*,
+                                          SkYUVColorSpace yuvColorSpace,
+                                          sk_sp<SkColorSpace> dstColorSpace,
+                                          const SkIRect& srcRect,
+                                          const SkISize& dstSize,
+                                          SkImage::RescaleGamma rescaleGamma,
+                                          SkImage::RescaleMode rescaleMode,
+                                          SkImage::ReadPixelsCallback callback,
+                                          SkImage::ReadPixelsContext context);
+
+    void asyncRescaleAndReadPixelsYUVA420(const SkSurface*,
+                                          SkYUVColorSpace yuvColorSpace,
+                                          sk_sp<SkColorSpace> dstColorSpace,
+                                          const SkIRect& srcRect,
+                                          const SkISize& dstSize,
+                                          SkImage::RescaleGamma rescaleGamma,
+                                          SkImage::RescaleMode rescaleMode,
+                                          SkImage::ReadPixelsCallback callback,
+                                          SkImage::ReadPixelsContext context);
+
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.
      */
@@ -142,6 +162,17 @@ private:
     // require Context::Make() to return a nullptr.
     bool finishInitialization();
 
+    void asyncRescaleAndReadPixelsYUV420Impl(const SkImage*,
+                                             SkYUVColorSpace yuvColorSpace,
+                                             bool readAlpha,
+                                             sk_sp<SkColorSpace> dstColorSpace,
+                                             const SkIRect& srcRect,
+                                             const SkISize& dstSize,
+                                             SkImage::RescaleGamma rescaleGamma,
+                                             SkImage::RescaleMode rescaleMode,
+                                             SkImage::ReadPixelsCallback callback,
+                                             SkImage::ReadPixelsContext context);
+
     void asyncReadPixels(const TextureProxy* textureProxy,
                          const SkImageInfo& srcImageInfo,
                          const SkColorInfo& dstColorInfo,
@@ -152,6 +183,7 @@ private:
     void asyncReadPixelsYUV420(Recorder*,
                                const SkImage*,
                                SkYUVColorSpace yuvColorSpace,
+                               bool readAlpha,
                                const SkIRect& srcRect,
                                SkImage::ReadPixelsCallback callback,
                                SkImage::ReadPixelsContext context);

@@ -92,6 +92,7 @@ public:
     // GPU implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixelsYUV420.
     void asyncRescaleAndReadPixelsYUV420(GrDirectContext*,
                                          SkYUVColorSpace yuvColorSpace,
+                                         bool readAlpha,
                                          sk_sp<SkColorSpace> dstColorSpace,
                                          const SkIRect& srcRect,
                                          SkISize dstSize,

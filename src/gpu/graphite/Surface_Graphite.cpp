@@ -103,6 +103,7 @@ void Surface::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
 }
 
 void Surface::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                bool readAlpha,
                                                 sk_sp<SkColorSpace> dstColorSpace,
                                                 SkIRect srcRect,
                                                 SkISize dstSize,

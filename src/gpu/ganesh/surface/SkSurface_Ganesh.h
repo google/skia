@@ -66,6 +66,7 @@ public:
                                      ReadPixelsCallback callback,
                                      ReadPixelsContext context) override;
     void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                           bool readAlpha,
                                            sk_sp<SkColorSpace> dstColorSpace,
                                            SkIRect srcRect,
                                            SkISize dstSize,

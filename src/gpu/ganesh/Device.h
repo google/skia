@@ -125,6 +125,7 @@ public:
                                    ReadPixelsContext context);
 
     void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         bool readAlpha,
                                          sk_sp<SkColorSpace> dstColorSpace,
                                          const SkIRect& srcRect,
                                          SkISize dstSize,

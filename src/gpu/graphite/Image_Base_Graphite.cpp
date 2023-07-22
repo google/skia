@@ -36,6 +36,7 @@ void Image_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
 }
 
 void Image_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                   bool readAlpha,
                                                    sk_sp<SkColorSpace> dstColorSpace,
                                                    const SkIRect srcRect,
                                                    const SkISize dstSize,

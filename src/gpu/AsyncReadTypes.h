@@ -216,7 +216,7 @@ private:
         sk_sp<T> fMappedBuffer;
         size_t fRowBytes;
     };
-    skia_private::STArray<3, Plane> fPlanes;
+    skia_private::STArray<4, Plane> fPlanes;
     IDType fIntendedRecipient;
 };
 

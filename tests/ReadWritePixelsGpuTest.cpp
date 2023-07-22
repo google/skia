@@ -782,7 +782,12 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                  sequence == ShutdownSequence::kAbandon_DestroyContext_FreeResult)) {
                 continue;
             }
-            for (bool yuv : {false, true}) {
+            enum class ReadType {
+                kRGBA,
+                kYUV,
+                kYUVA
+            };
+            for (ReadType readType : {ReadType::kRGBA, ReadType::kYUV, ReadType::kYUVA}) {
                 sk_gpu_test::GrContextFactory factory(options);
                 auto direct = factory.get(type);
                 if (!direct) {
@@ -798,23 +803,40 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                     continue;
                 }
                 AsyncContext cbContext;
-                if (yuv) {
-                    surf->asyncRescaleAndReadPixelsYUV420(
-                            kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
-                            ii.dimensions(), SkImage::RescaleGamma::kSrc,
-                            SkImage::RescaleMode::kNearest, &async_callback, &cbContext);
-                } else {
-                    surf->asyncRescaleAndReadPixels(ii, ii.bounds(), SkImage::RescaleGamma::kSrc,
-                                                    SkImage::RescaleMode::kNearest, &async_callback,
-                                                    &cbContext);
+                switch (readType) {
+                    case ReadType::kRGBA:
+                        surf->asyncRescaleAndReadPixels(ii, ii.bounds(),
+                                                        SkImage::RescaleGamma::kSrc,
+                                                        SkImage::RescaleMode::kNearest,
+                                                        &async_callback, &cbContext);
+                        break;
+                    case ReadType::kYUV:
+                        surf->asyncRescaleAndReadPixelsYUV420(
+                                kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
+                                ii.dimensions(), SkImage::RescaleGamma::kSrc,
+                                SkImage::RescaleMode::kNearest, &async_callback, &cbContext);
+                        break;
+                    case ReadType::kYUVA:
+                        surf->asyncRescaleAndReadPixelsYUVA420(
+                                kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
+                                ii.dimensions(), SkImage::RescaleGamma::kSrc,
+                                SkImage::RescaleMode::kNearest, &async_callback, &cbContext);
+                        break;
                 }
+
                 direct->submit();
                 while (!cbContext.fCalled) {
                     direct->checkAsyncWorkCompletion();
                 }
                 if (!cbContext.fResult) {
-                    ERRORF(reporter, "Callback failed on %s. is YUV: %d",
-                           sk_gpu_test::GrContextFactory::ContextTypeName(type), yuv);
+                    const char* readTypeStr;
+                    switch (readType) {
+                        case ReadType::kRGBA: readTypeStr = "rgba"; break;
+                        case ReadType::kYUV:  readTypeStr = "yuv";  break;
+                        case ReadType::kYUVA: readTypeStr = "yuva"; break;
+                    }
+                    ERRORF(reporter, "Callback failed on %s. read type is: %s",
+                           sk_gpu_test::GrContextFactory::ContextTypeName(type), readTypeStr);
                     continue;
                 }
                 // For vulkan we need to release all refs to the GrDirectContext before trying to

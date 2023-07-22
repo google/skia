@@ -80,8 +80,8 @@ void SkSurface_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
 }
 
 void SkSurface_Base::onAsyncRescaleAndReadPixelsYUV420(
-        SkYUVColorSpace yuvColorSpace, sk_sp<SkColorSpace> dstColorSpace, SkIRect srcRect,
-        SkISize dstSize, RescaleGamma rescaleGamma, RescaleMode,
+        SkYUVColorSpace yuvColorSpace, bool readAlpha, sk_sp<SkColorSpace> dstColorSpace,
+        SkIRect srcRect, SkISize dstSize, RescaleGamma rescaleGamma, RescaleMode,
         ReadPixelsCallback callback, ReadPixelsContext context) {
     // TODO: Call non-YUV asyncRescaleAndReadPixels and then make our callback convert to YUV and
     // call client's callback.

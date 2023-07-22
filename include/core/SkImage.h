@@ -642,6 +642,20 @@ public:
                                          ReadPixelsCallback callback,
                                          ReadPixelsContext context) const;
 
+    /**
+     * Identical to asyncRescaleAndReadPixelsYUV420 but a fourth plane is returned in the
+     * AsyncReadResult passed to 'callback'. The fourth plane contains the alpha chanel at the
+     * same full resolution as the Y plane.
+     */
+    void asyncRescaleAndReadPixelsYUVA420(SkYUVColorSpace yuvColorSpace,
+                                          sk_sp<SkColorSpace> dstColorSpace,
+                                          const SkIRect& srcRect,
+                                          const SkISize& dstSize,
+                                          RescaleGamma rescaleGamma,
+                                          RescaleMode rescaleMode,
+                                          ReadPixelsCallback callback,
+                                          ReadPixelsContext context) const;
+
     /** Copies SkImage to dst, scaling pixels to fit dst.width() and dst.height(), and
         converting pixels to match dst.colorType() and dst.alphaType(). Returns true if
         pixels are copied. Returns false if dst.addr() is nullptr, or dst.rowBytes() is

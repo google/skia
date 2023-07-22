@@ -87,6 +87,31 @@ void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
         return;
     }
     as_IB(this)->onAsyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                                   /*readAlpha=*/false,
+                                                   std::move(dstColorSpace),
+                                                   srcRect,
+                                                   dstSize,
+                                                   rescaleGamma,
+                                                   rescaleMode,
+                                                   callback,
+                                                   context);
+}
+
+void SkImage::asyncRescaleAndReadPixelsYUVA420(SkYUVColorSpace yuvColorSpace,
+                                               sk_sp<SkColorSpace> dstColorSpace,
+                                               const SkIRect& srcRect,
+                                               const SkISize& dstSize,
+                                               RescaleGamma rescaleGamma,
+                                               RescaleMode rescaleMode,
+                                               ReadPixelsCallback callback,
+                                               ReadPixelsContext context) const {
+    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) || dstSize.isZero() ||
+        (dstSize.width() & 0b1) || (dstSize.height() & 0b1)) {
+        callback(context, nullptr);
+        return;
+    }
+    as_IB(this)->onAsyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                                   /*readAlpha=*/true,
                                                    std::move(dstColorSpace),
                                                    srcRect,
                                                    dstSize,

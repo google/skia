@@ -353,6 +353,7 @@ void SkImage_Ganesh::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
 }
 
 void SkImage_Ganesh::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                       bool readAlpha,
                                                        sk_sp<SkColorSpace> dstColorSpace,
                                                        SkIRect srcRect,
                                                        SkISize dstSize,
@@ -373,6 +374,7 @@ void SkImage_Ganesh::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorS
     }
     ctx->asyncRescaleAndReadPixelsYUV420(dContext,
                                          yuvColorSpace,
+                                         readAlpha,
                                          std::move(dstColorSpace),
                                          srcRect,
                                          dstSize,

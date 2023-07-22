@@ -555,6 +555,20 @@ public:
                                          ReadPixelsCallback callback,
                                          ReadPixelsContext context);
 
+    /**
+     * Identical to asyncRescaleAndReadPixelsYUV420 but a fourth plane is returned in the
+     * AsyncReadResult passed to 'callback'. The fourth plane contains the alpha chanel at the
+     * same full resolution as the Y plane.
+     */
+    void asyncRescaleAndReadPixelsYUVA420(SkYUVColorSpace yuvColorSpace,
+                                          sk_sp<SkColorSpace> dstColorSpace,
+                                          const SkIRect& srcRect,
+                                          const SkISize& dstSize,
+                                          RescaleGamma rescaleGamma,
+                                          RescaleMode rescaleMode,
+                                          ReadPixelsCallback callback,
+                                          ReadPixelsContext context);
+
     /** Copies SkRect of pixels from the src SkPixmap to the SkSurface.
 
         Source SkRect corners are (0, 0) and (src.width(), src.height()).

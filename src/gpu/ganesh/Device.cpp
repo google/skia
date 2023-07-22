@@ -1321,6 +1321,7 @@ void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
 }
 
 void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                             bool readAlpha,
                                              sk_sp<SkColorSpace> dstColorSpace,
                                              const SkIRect& srcRect,
                                              SkISize dstSize,
@@ -1336,6 +1337,7 @@ void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
     }
     sdc->asyncRescaleAndReadPixelsYUV420(dContext,
                                          yuvColorSpace,
+                                         readAlpha,
                                          std::move(dstColorSpace),
                                          srcRect,
                                          dstSize,
