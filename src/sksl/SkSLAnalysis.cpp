@@ -250,7 +250,7 @@ public:
                     return fieldAccess ? fieldAccess->description(OperatorPrecedence::kExpression)
                                        : std::string(var->name());
                 };
-                if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag)) {
+                if (var->modifiers().isConst() || var->modifiers().isUniform()) {
                     fErrors->error(expr.fPosition,
                                    "cannot modify immutable variable '" + fieldName() + "'");
                 } else if (var->storage() == Variable::Storage::kGlobal &&

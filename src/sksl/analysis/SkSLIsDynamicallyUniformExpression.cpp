@@ -46,21 +46,20 @@ bool Analysis::IsDynamicallyUniformExpression(const Expression& expr) {
                 case Expression::Kind::kVariableReference: {
                     // Verify that variable references are const or uniform.
                     const Variable* var = expr.as<VariableReference>().variable();
-                    if (!var || !(var->modifiers().fFlags & (Modifiers::Flag::kConst_Flag |
-                                                             Modifiers::Flag::kUniform_Flag))) {
-                        fIsDynamicallyUniform = false;
-                        return true;
+                    if (var && (var->modifiers().isConst() || var->modifiers().isUniform())) {
+                        break;
                     }
-                    break;
+                    fIsDynamicallyUniform = false;
+                    return true;
                 }
                 case Expression::Kind::kFunctionCall: {
                     // Verify that function calls are pure.
                     const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
-                    if (!(decl.modifiers().fFlags & Modifiers::Flag::kPure_Flag)) {
-                        fIsDynamicallyUniform = false;
-                        return true;
+                    if (decl.modifiers().isPure()) {
+                        break;
                     }
-                    break;
+                    fIsDynamicallyUniform = false;
+                    return true;
                 }
                 case Expression::Kind::kLiteral:
                     // Literals are compile-time constants.

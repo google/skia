@@ -435,14 +435,14 @@ int count_pipeline_inputs(const Program* program) {
 
 bool is_in_global_uniforms(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
+    return  var.modifiers().isUniform() &&
            !var.type().isOpaque() &&
            !var.interfaceBlock();
 }
 
 bool is_in_anonymous_uniform_block(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
+    return  var.modifiers().isUniform() &&
            !var.type().isOpaque() &&
             var.interfaceBlock() &&
             var.interfaceBlock()->instanceName().empty();
@@ -1372,7 +1372,7 @@ void WGSLCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
             varDecl.value() ? this->assembleExpression(*varDecl.value(), Precedence::kAssignment)
                             : std::string();
 
-    if (varDecl.var()->modifiers().fFlags & Modifiers::kConst_Flag) {
+    if (varDecl.var()->modifiers().isConst()) {
         // Use `const` at global scope, or if the value is a compile-time constant.
         SkASSERTF(varDecl.value(), "a constant variable must specify a value");
         this->write((!fAtFunctionScope || Analysis::IsCompileTimeConstant(*varDecl.value()))
@@ -2674,7 +2674,7 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
         initializer += this->assembleExpression(*d.varDeclaration().value(),
                                                 Precedence::kAssignment);
     }
-    this->write((var.modifiers().fFlags & Modifiers::kConst_Flag) ? "const " : "var<private> ");
+    this->write(var.modifiers().isConst() ? "const " : "var<private> ");
     this->write(this->assembleName(var.mangledName()));
     this->write(": " + to_wgsl_type(var.type()));
     this->write(initializer);
@@ -2834,7 +2834,7 @@ void WGSLCodeGenerator::writeUniformsStruct() {
             continue;
         }
         const InterfaceBlock& ib = e->as<InterfaceBlock>();
-        if (!(ib.var()->modifiers().fFlags & Modifiers::kUniform_Flag)) {
+        if (!ib.var()->modifiers().isUniform()) {
             continue;
         }
         // We should only find one; Skia never creates more than one interface block for its

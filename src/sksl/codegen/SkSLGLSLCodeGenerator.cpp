@@ -1205,10 +1205,10 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
         this->write("noperspective ");
     }
 
-    if (modifiers.fFlags & Modifiers::kConst_Flag) {
+    if (modifiers.isConst()) {
         this->write("const ");
     }
-    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+    if (modifiers.isUniform()) {
         this->write("uniform ");
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
@@ -1230,13 +1230,13 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
         }
     }
 
-    if (modifiers.fFlags & Modifiers::kReadOnly_Flag) {
+    if (modifiers.isReadOnly()) {
         this->write("readonly ");
     }
-    if (modifiers.fFlags & Modifiers::kWriteOnly_Flag) {
+    if (modifiers.isWriteOnly()) {
         this->write("writeonly ");
     }
-    if (modifiers.fFlags & Modifiers::kBuffer_Flag) {
+    if (modifiers.isBuffer()) {
         this->write("buffer ");
     }
 }

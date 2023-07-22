@@ -2216,7 +2216,7 @@ static SpvStorageClass_ get_storage_class_for_global_variable(
         SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
         return SpvStorageClassOutput;
     }
-    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+    if (modifiers.isUniform()) {
         if (modifiers.fLayout.fFlags & Layout::kPushConstant_Flag) {
             return SpvStorageClassPushConstant;
         }
@@ -2227,7 +2227,7 @@ static SpvStorageClass_ get_storage_class_for_global_variable(
         }
         return SpvStorageClassUniform;
     }
-    if (modifiers.fFlags & Modifiers::kBuffer_Flag) {
+    if (modifiers.isBuffer()) {
         // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
         // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"
         // storage class and the "BufferBlock" decoration) is deprecated. Since we target SPIR-V
@@ -3612,7 +3612,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         // 1.0, we have to use the deprecated approach which is well supported in Vulkan and
         // addresses SkSL use cases (notably SkSL currently doesn't support pointer features that
         // would benefit from SPV_KHR_variable_pointers capabilities).
-        bool isStorageBuffer = intfModifiers.fFlags & Modifiers::kBuffer_Flag;
+        bool isStorageBuffer = intfModifiers.isBuffer();
         this->writeInstruction(SpvOpDecorate,
                                typeId,
                                isStorageBuffer ? SpvDecorationBufferBlock : SpvDecorationBlock,
@@ -3657,7 +3657,7 @@ bool SPIRVCodeGenerator::isDead(const Variable& var) const {
 // This is why we always emit an OpVariable for all non-scalar and non-vector types in case they get
 // accessed via a dynamic index.
 static bool is_vardecl_compile_time_constant(const VarDeclaration& varDecl) {
-    return varDecl.var()->modifiers().fFlags & Modifiers::kConst_Flag &&
+    return varDecl.var()->modifiers().isConst() &&
            (varDecl.var()->type().isScalar() || varDecl.var()->type().isVector()) &&
            (ConstantFolder::GetConstantValueOrNull(*varDecl.value()) ||
             Analysis::IsCompileTimeConstant(*varDecl.value()));

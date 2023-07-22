@@ -445,7 +445,7 @@ const Expression* ConstantFolder::GetConstantValueOrNull(const Expression& inExp
             return nullptr;
         }
         const Variable& var = *varRef.variable();
-        if (!(var.modifiers().fFlags & Modifiers::kConst_Flag)) {
+        if (!var.modifiers().isConst()) {
             return nullptr;
         }
         expr = var.initialValue();

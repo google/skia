@@ -68,7 +68,7 @@ void Transform::ReplaceConstVarsWithLiterals(Module& module, ProgramUsage* usage
         if (!count.fVarExists || count.fWrite != 1) {
             continue;
         }
-        if (!(var->modifiers().fFlags & Modifiers::kConst_Flag)) {
+        if (!var->modifiers().isConst()) {
             continue;
         }
         if (!var->initialValue()) {

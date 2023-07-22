@@ -421,7 +421,7 @@ static void test_raster_pipeline(skiatest::Reporter* r,
                 return;
             }
             // 'uniform' variables
-            if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
+            if (var.modifiers().isUniform()) {
                 uniforms.push_back(SkRuntimeEffectPriv::VarAsUniform(var, ctx, &offset));
             }
         }

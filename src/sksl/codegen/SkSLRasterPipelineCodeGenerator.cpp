@@ -453,7 +453,7 @@ public:
     }
 
     static bool IsUniform(const Variable& var) {
-       return var.modifiers().fFlags & Modifiers::kUniform_Flag;
+       return var.modifiers().isUniform();
     }
 
     static bool IsOutParameter(const Variable& var) {

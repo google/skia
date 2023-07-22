@@ -262,12 +262,12 @@ static bool needs_address_space(const Type& type, const Modifiers& modifiers) {
 
 // returns true if the InterfaceBlock has the `buffer` modifier
 static bool is_buffer(const InterfaceBlock& block) {
-    return block.var()->modifiers().fFlags & Modifiers::kBuffer_Flag;
+    return block.var()->modifiers().isBuffer();
 }
 
 // returns true if the InterfaceBlock has the `readonly` modifier
 static bool is_readonly(const InterfaceBlock& block) {
-    return block.var()->modifiers().fFlags & Modifiers::kReadOnly_Flag;
+    return block.var()->modifiers().isReadOnly();
 }
 
 std::string MetalCodeGenerator::getBitcastIntrinsic(const Type& outType) {
@@ -1440,20 +1440,20 @@ static bool is_output(const Variable& var) {
 // true if the var is part of the Uniforms struct
 static bool is_uniforms(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return var.modifiers().fFlags & Modifiers::kUniform_Flag &&
+    return var.modifiers().isUniform() &&
            var.type().typeKind() != Type::TypeKind::kSampler;
 }
 
 // true if the var is part of the Threadgroups struct
 static bool is_threadgroup(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return var.modifiers().fFlags & Modifiers::kWorkgroup_Flag;
+    return var.modifiers().isWorkgroup();
 }
 
 // true if the var is part of the Globals struct
 static bool is_in_globals(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return !(var.modifiers().fFlags & Modifiers::kConst_Flag);
+    return !var.modifiers().isConst();
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
@@ -2363,7 +2363,7 @@ void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers) {
     } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
         this->write("thread ");
     }
-    if (modifiers.fFlags & Modifiers::kConst_Flag) {
+    if (modifiers.isConst()) {
         this->write("const ");
     }
 }
@@ -2723,7 +2723,7 @@ void MetalCodeGenerator::writeUniformStruct() {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = *decls.varDeclaration().var();
-            if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
+            if (var.modifiers().isUniform() &&
                 var.type().typeKind() != Type::TypeKind::kSampler &&
                 var.type().typeKind() != Type::TypeKind::kTexture) {
                 int uniformSet = this->getUniformSet(var.modifiers());
@@ -2911,7 +2911,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
                 visitor->visitNonconstantVariable(var, decl.value().get());
             } else {
                 // Visit a constant-expression variable.
-                SkASSERT(var.modifiers().fFlags & Modifiers::kConst_Flag);
+                SkASSERT(var.modifiers().isConst());
                 visitor->visitConstantVariable(decl);
             }
         }
@@ -3048,9 +3048,9 @@ void MetalCodeGenerator::visitThreadgroupStruct(ThreadgroupStructVisitor* visito
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
         const VarDeclaration& decl = global.varDeclaration();
         const Variable& var = *decl.var();
-        if (var.modifiers().fFlags & Modifiers::kWorkgroup_Flag) {
+        if (var.modifiers().isWorkgroup()) {
             SkASSERT(!decl.value());
-            SkASSERT(!(var.modifiers().fFlags & Modifiers::kConst_Flag));
+            SkASSERT(!var.modifiers().isConst());
             visitor->visitNonconstantVariable(var);
         }
     }

@@ -71,6 +71,14 @@ struct Modifiers {
         return fLayout.description() + DescribeFlags(fFlags) + " ";
     }
 
+    bool isConst() const     { return fFlags & kConst_Flag; }
+    bool isUniform() const   { return fFlags & kUniform_Flag; }
+    bool isReadOnly() const  { return fFlags & kReadOnly_Flag; }
+    bool isWriteOnly() const { return fFlags & kWriteOnly_Flag; }
+    bool isBuffer() const    { return fFlags & kBuffer_Flag; }
+    bool isWorkgroup() const { return fFlags & kWorkgroup_Flag; }
+    bool isPure() const      { return fFlags & kPure_Flag; }
+
     static std::string DescribeFlags(int flags) {
         // SkSL extensions
         std::string result;

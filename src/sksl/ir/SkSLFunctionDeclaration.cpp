@@ -113,7 +113,7 @@ static bool check_parameters(const Context& context,
         // result is not used; this is incompatible with out-parameters, so we forbid it here.
         // (We don't exhaustively guard against pure functions changing global state in other ways,
         // though, since they aren't allowed in user code.)
-        if ((modifiers.fFlags & Modifiers::kPure_Flag) && (m.fFlags & Modifiers::kOut_Flag)) {
+        if (modifiers.isPure() && (m.fFlags & Modifiers::kOut_Flag)) {
             context.fErrors->error(param->modifiersPosition(),
                                    "pure functions cannot have out parameters");
             return false;

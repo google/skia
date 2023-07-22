@@ -88,7 +88,7 @@ gather_uniforms_and_check_for_main(const SkSL::Program& program,
             const SkSL::GlobalVarDeclaration& global = elem->as<SkSL::GlobalVarDeclaration>();
             const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
             const SkSL::Variable& var = *varDecl.var();
-            if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
+            if (var.modifiers().isUniform()) {
                 auto iter = find_uniform(*uniforms, var.name());
                 const auto& context = *program.fContext;
                 if (iter == uniforms->end()) {

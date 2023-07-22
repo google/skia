@@ -421,7 +421,7 @@ void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclar
 
     if (var.isBuiltin() || var.type().isOpaque()) {
         // Don't re-declare these. (eg, sk_FragCoord, or fragmentProcessor children)
-    } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
+    } else if (var.modifiers().isUniform()) {
         std::string uniformName = fCallbacks->declareUniform(&decl);
         fVariableNames.set(&var, std::move(uniformName));
     } else {
@@ -650,7 +650,7 @@ void PipelineStageCodeGenerator::writePostfixExpression(const PostfixExpression&
 
 std::string PipelineStageCodeGenerator::modifierString(const Modifiers& modifiers) {
     std::string result;
-    if (modifiers.fFlags & Modifiers::kConst_Flag) {
+    if (modifiers.isConst()) {
         result.append("const ");
     }
 

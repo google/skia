@@ -23,7 +23,7 @@ const Modifiers* Transform::AddConstToVarModifiers(const Context& context,
                                                    const ProgramUsage* usage) {
     // If the variable is already marked as `const`, keep our existing modifiers.
     const Modifiers* modifiers = &var.modifiers();
-    if (modifiers->fFlags & Modifiers::kConst_Flag) {
+    if (modifiers->isConst()) {
         return modifiers;
     }
     // If the variable doesn't have a compile-time-constant initial value, we can't `const` it.
