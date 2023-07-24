@@ -11,6 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "src/base/SkBitmaskEnum.h"
 #include "tests/Test.h"
 
 #include <vector>

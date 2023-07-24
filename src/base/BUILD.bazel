@@ -7,12 +7,16 @@ load(
 
 licenses(["notice"])
 
-exports_files_legacy()
+exports_files_legacy(
+    label_list = ["SkBitmaskEnum.h"],
+    visibility = ["//tools/skui:__pkg__"],
+)
 
 # Headers with no corresponding .cpp files
 IWYU_HDRS = [
     "SkASAN.h",
     "SkArenaAllocList.h",
+    "SkBitmaskEnum.h",
     "SkEndian.h",
     "SkLeanWindows.h",
     "SkMSAN.h",

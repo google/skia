@@ -5,13 +5,13 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkBitmaskEnum.h" // IWYU pragma: keep
 #include "include/private/base/SkTArray.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/ParagraphPainter.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
+#include "src/base/SkBitmaskEnum.h"
 
 #include <stddef.h>
 #include <functional>

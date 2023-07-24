@@ -7,8 +7,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
-#include "include/private/SkBitmaskEnum.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkBitmaskEnum.h"
 
 namespace skia {
 namespace text {

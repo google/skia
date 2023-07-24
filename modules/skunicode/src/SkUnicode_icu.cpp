@@ -7,7 +7,6 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkBitmaskEnum.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkOnce.h"
@@ -17,6 +16,7 @@
 #include "modules/skunicode/include/SkUnicode.h"
 #include "modules/skunicode/src/SkUnicode_icu.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
+#include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkTHash.h"
 #include <unicode/umachine.h>

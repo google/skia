@@ -7,13 +7,13 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkBitmaskEnum.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
 #include "modules/skunicode/src/SkUnicode_client.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
+#include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkUTF.h"
 
 #include <algorithm>
