@@ -968,7 +968,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::onFilterImage(const skif::Context& ctx,
     if (ctx.gpuBacked()) {
         // Ensure the input is in the destination's gamut. This saves us from having to do the
         // xform during the filter itself.
-        input = ImageToColorSpace(ctx, input.get());
+        input = SkSpecialImages::ImageToColorSpace(ctx, input.get());
         result = this->gpuFilter(ctx, sigma, input, inputBounds, dstBounds, inputOffset,
                                  &resultOffset);
     } else

@@ -9,6 +9,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
@@ -34,15 +35,23 @@
 #include <cstring>
 #include <memory>
 #include <utility>
+
 class SkMatrix;
+class SkSurfaceProps;
 
 #if defined(SK_GANESH)
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #endif
@@ -353,6 +362,44 @@ void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src,
     }
 }
 
+#if defined(SK_GANESH)
+static sk_sp<SkSpecialImage> draw_with_fp(GrRecordingContext* rContext,
+                                          std::unique_ptr<GrFragmentProcessor> fp,
+                                          const SkIRect& bounds,
+                                          SkColorType colorType,
+                                          const SkColorSpace* colorSpace,
+                                          const SkSurfaceProps& surfaceProps,
+                                          GrSurfaceOrigin surfaceOrigin,
+                                          GrProtected isProtected) {
+    GrImageInfo info(SkColorTypeToGrColorType(colorType),
+                     kPremul_SkAlphaType,
+                     sk_ref_sp(colorSpace),
+                     bounds.size());
+
+    auto sfc = rContext->priv().makeSFC(info,
+                                        "ImageFilterBase_DrawWithFP",
+                                        SkBackingFit::kApprox,
+                                        1,
+                                        GrMipmapped::kNo,
+                                        isProtected,
+                                        surfaceOrigin);
+    if (!sfc) {
+        return nullptr;
+    }
+
+    SkIRect dstIRect = SkIRect::MakeWH(bounds.width(), bounds.height());
+    SkRect srcRect = SkRect::Make(bounds);
+    sfc->fillRectToRectWithFP(srcRect, dstIRect, std::move(fp));
+
+    return SkSpecialImages::MakeDeferredFromGpu(rContext,
+                                                dstIRect,
+                                                kNeedNewImageUniqueID_SpecialImage,
+                                                sfc->readSurfaceView(),
+                                                sfc->colorInfo(),
+                                                surfaceProps);
+}
+#endif
+
 sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(const skif::Context& ctx,
                                                                     SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
@@ -390,7 +437,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(const skif::
         // called pad_image to account for our dilation of bounds, so the result will already be
         // moved to the destination color space. If a filter DAG avoids that, then we use this
         // fall-back, which saves us from having to do the xform during the filter itself.
-        input = ImageToColorSpace(ctx, input.get());
+        input = SkSpecialImages::ImageToColorSpace(ctx, input.get());
 
         GrSurfaceProxyView inputView = SkSpecialImages::AsView(context, input);
         SkASSERT(inputView.asTextureProxy());
@@ -427,8 +474,8 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(const skif::
         // Must also map the dstBounds since it is used as the src rect in DrawWithFP when
         // evaluating the FP, and the dst rect just uses the size of dstBounds.
         dstBounds.offset(input->subset().x(), input->subset().y());
-        return DrawWithFP(context, std::move(fp), dstBounds, ctx.colorType(), ctx.colorSpace(),
-                          ctx.surfaceProps(), origin, isProtected);
+        return draw_with_fp(context, std::move(fp), dstBounds, ctx.colorType(), ctx.colorSpace(),
+                            ctx.surfaceProps(), origin, isProtected);
     }
 #endif
 

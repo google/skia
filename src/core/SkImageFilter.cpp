@@ -20,17 +20,7 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
-#if defined(SK_GANESH)
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/SkBackingFit.h"
-#include "src/gpu/ganesh/GrColorSpaceXform.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/SurfaceFillContext.h"
-#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
-#endif
+
 #include <atomic>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -581,71 +571,7 @@ skif::Context SkImageFilter_Base::mapContext(const skif::Context& ctx) const {
     return ctx.withNewDesiredOutput(skif::LayerSpace<SkIRect>(requiredInput));
 }
 
-#if defined(SK_GANESH)
-sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* rContext,
-                                                     std::unique_ptr<GrFragmentProcessor> fp,
-                                                     const SkIRect& bounds,
-                                                     SkColorType colorType,
-                                                     const SkColorSpace* colorSpace,
-                                                     const SkSurfaceProps& surfaceProps,
-                                                     GrSurfaceOrigin surfaceOrigin,
-                                                     GrProtected isProtected) {
-    GrImageInfo info(SkColorTypeToGrColorType(colorType),
-                     kPremul_SkAlphaType,
-                     sk_ref_sp(colorSpace),
-                     bounds.size());
 
-    auto sfc = rContext->priv().makeSFC(info,
-                                        "ImageFilterBase_DrawWithFP",
-                                        SkBackingFit::kApprox,
-                                        1,
-                                        GrMipmapped::kNo,
-                                        isProtected,
-                                        surfaceOrigin);
-    if (!sfc) {
-        return nullptr;
-    }
-
-    SkIRect dstIRect = SkIRect::MakeWH(bounds.width(), bounds.height());
-    SkRect srcRect = SkRect::Make(bounds);
-    sfc->fillRectToRectWithFP(srcRect, dstIRect, std::move(fp));
-
-    return SkSpecialImages::MakeDeferredFromGpu(rContext,
-                                                dstIRect,
-                                                kNeedNewImageUniqueID_SpecialImage,
-                                                sfc->readSurfaceView(),
-                                                sfc->colorInfo(),
-                                                surfaceProps);
-}
-
-sk_sp<SkSpecialImage> SkImageFilter_Base::ImageToColorSpace(const skif::Context& ctx,
-                                                            SkSpecialImage* src) {
-    // There are several conditions that determine if we actually need to convert the source to the
-    // destination's color space. Rather than duplicate that logic here, just try to make an xform
-    // object. If that produces something, then both are tagged, and the source is in a different
-    // gamut than the dest. There is some overhead to making the xform, but those are cached, and
-    // if we get one back, that means we're about to use it during the conversion anyway.
-    auto colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(),  src->alphaType(),
-                                                   ctx.colorSpace(), kPremul_SkAlphaType);
-
-    if (!colorSpaceXform) {
-        // No xform needed, just return the original image
-        return sk_ref_sp(src);
-    }
-
-    sk_sp<SkSpecialSurface> surf = ctx.makeSurface(src->dimensions());
-    if (!surf) {
-        return sk_ref_sp(src);
-    }
-
-    SkCanvas* canvas = surf->getCanvas();
-    SkASSERT(canvas);
-    SkPaint p;
-    p.setBlendMode(SkBlendMode::kSrc);
-    src->draw(canvas, 0, 0, SkSamplingOptions(), &p);
-    return surf->makeImageSnapshot();
-}
-#endif
 
 // In repeat mode, when we are going to sample off one edge of the srcBounds we require the
 // opposite side be preserved.
