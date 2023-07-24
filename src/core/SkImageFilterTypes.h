@@ -365,7 +365,7 @@ public:
     static LayerSpace<SkIRect> Empty() { return LayerSpace<SkIRect>(SkIRect::MakeEmpty()); }
 
     // Parrot the SkIRect API while preserving coord space
-    bool isEmpty() const { return fData.isEmpty(); }
+    bool isEmpty() const { return fData.isEmpty64(); }
     bool contains(const LayerSpace<SkIRect>& r) const { return fData.contains(r.fData); }
 
     int32_t left() const { return fData.fLeft; }
