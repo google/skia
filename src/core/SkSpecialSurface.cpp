@@ -7,16 +7,20 @@
 
 #include "src/core/SkSpecialSurface.h"
 
-#include <memory>
-
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPixelRef.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSurfacePriv.h"
+
+#include <memory>
+#include <utility>
 
 SkSpecialSurface::SkSpecialSurface(sk_sp<SkBaseDevice> device, const SkIRect& subset)
         : fSubset(subset) {
@@ -46,8 +50,9 @@ sk_sp<SkSpecialImage> SkSpecialSurface::makeImageSnapshot() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
-                                                     const SkSurfaceProps& props) {
+namespace SkSpecialSurfaces {
+sk_sp<SkSpecialSurface> MakeRaster(const SkImageInfo& info,
+                                   const SkSurfaceProps& props) {
     if (!SkSurfaceValidateRasterInfo(info)) {
         return nullptr;
     }
@@ -71,68 +76,4 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
     return sk_make_sp<SkSpecialSurface>(std::move(device), subset);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-#if defined(SK_GANESH)
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/SkBackingFit.h"
-#include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* rContext,
-                                                           const SkImageInfo& ii,
-                                                           const SkSurfaceProps& props,
-                                                           GrSurfaceOrigin surfaceOrigin) {
-    if (!rContext) {
-        return nullptr;
-    }
-
-    auto device = rContext->priv().createDevice(skgpu::Budgeted::kYes,
-                                                ii,
-                                                SkBackingFit::kApprox,
-                                                1,
-                                                GrMipmapped::kNo,
-                                                GrProtected::kNo,
-                                                surfaceOrigin,
-                                                {props.flags(), kUnknown_SkPixelGeometry},
-                                                skgpu::ganesh::Device::InitContents::kUninit);
-    if (!device) {
-        return nullptr;
-    }
-
-    const SkIRect subset = SkIRect::MakeSize(ii.dimensions());
-
-    return sk_make_sp<SkSpecialSurface>(std::move(device), subset);
-}
-
-#endif // defined(SK_GANESH)
-
-///////////////////////////////////////////////////////////////////////////////
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/Device.h"
-
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeGraphite(skgpu::graphite::Recorder* recorder,
-                                                       const SkImageInfo& ii,
-                                                       const SkSurfaceProps& props) {
-    using namespace skgpu::graphite;
-
-    if (!recorder) {
-        return nullptr;
-    }
-
-    sk_sp<Device> device = Device::Make(recorder,
-                                        ii,
-                                        skgpu::Budgeted::kYes,
-                                        skgpu::Mipmapped::kNo,
-                                        {props.flags(), kUnknown_SkPixelGeometry},
-                                        /* addInitialClear= */ false);
-    if (!device) {
-        return nullptr;
-    }
-
-    const SkIRect subset = SkIRect::MakeSize(ii.dimensions());
-
-    return sk_make_sp<SkSpecialSurface>(std::move(device), subset);
-}
-
-#endif // SK_GRAPHITE
+}  // namespace SkSpecialSurfaces

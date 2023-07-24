@@ -66,6 +66,7 @@ using namespace skia_private;
 #if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 struct GrContextOptions;
 #endif
 
@@ -416,17 +417,17 @@ public:
                                              kPremul_SkAlphaType);
 #if defined(SK_GANESH)
         if (fDirectContext) {
-            return SkSpecialSurface::MakeRenderTarget(fDirectContext, info, {},
+            return SkSpecialSurfaces::MakeRenderTarget(fDirectContext, info, {},
                                                       kTopLeft_GrSurfaceOrigin);
         } else
 #endif
 #if defined(SK_GRAPHITE)
         if (fRecorder) {
-            return SkSpecialSurface::MakeGraphite(fRecorder, info, {});
+            return SkSpecialSurfaces::MakeGraphite(fRecorder, info, {});
         } else
 #endif
         {
-            return SkSpecialSurface::MakeRaster(info, {});
+            return SkSpecialSurfaces::MakeRaster(info, {});
         }
     }
 

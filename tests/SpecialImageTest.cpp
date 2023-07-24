@@ -105,8 +105,8 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(img->getColorSpace()));
     sk_sp<SkSpecialSurface> surf = isGPUBacked
-            ? SkSpecialSurface::MakeRenderTarget(rContext, imageInfo, {}, kTopLeft_GrSurfaceOrigin)
-            : SkSpecialSurface::MakeRaster(imageInfo, {});
+            ? SkSpecialSurfaces::MakeRenderTarget(rContext, imageInfo, {}, kTopLeft_GrSurfaceOrigin)
+            : SkSpecialSurfaces::MakeRaster(imageInfo, {});
 
     SkCanvas* canvas = surf->getCanvas();
 

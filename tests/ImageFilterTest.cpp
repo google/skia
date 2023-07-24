@@ -403,10 +403,10 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrRecordingContext* 
                                              kPremul_SkAlphaType);
 
     if (rContext) {
-        return SkSpecialSurface::MakeRenderTarget(rContext, ii, SkSurfaceProps(),
+        return SkSpecialSurfaces::MakeRenderTarget(rContext, ii, SkSurfaceProps(),
                                                   kTestSurfaceOrigin);
     } else {
-        return SkSpecialSurface::MakeRaster(ii, SkSurfaceProps());
+        return SkSpecialSurfaces::MakeRaster(ii, SkSurfaceProps());
     }
 }
 

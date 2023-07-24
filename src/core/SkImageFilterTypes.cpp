@@ -358,7 +358,7 @@ Context Context::MakeRaster(const ContextInfo& info) {
     n32.fColorType = kN32_SkColorType;
     auto makeSurfaceCallback = [](const SkImageInfo& imageInfo,
                                   const SkSurfaceProps* props) {
-        return SkSpecialSurface::MakeRaster(imageInfo, *props);
+        return SkSpecialSurfaces::MakeRaster(imageInfo, *props);
     };
     auto makeImageCallback = [](const SkIRect& subset,
                                 sk_sp<SkImage> image,

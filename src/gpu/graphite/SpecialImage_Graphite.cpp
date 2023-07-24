@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
+#include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
@@ -153,3 +154,29 @@ skgpu::graphite::TextureProxyView AsTextureProxyView(const SkSpecialImage* img) 
 }
 
 }  // namespace SkSpecialImages
+
+namespace SkSpecialSurfaces {
+sk_sp<SkSpecialSurface> MakeGraphite(skgpu::graphite::Recorder* recorder,
+                                     const SkImageInfo& ii,
+                                     const SkSurfaceProps& props) {
+    using namespace skgpu::graphite;
+
+    if (!recorder) {
+        return nullptr;
+    }
+
+    sk_sp<Device> device = Device::Make(recorder,
+                                        ii,
+                                        skgpu::Budgeted::kYes,
+                                        skgpu::Mipmapped::kNo,
+                                        {props.flags(), kUnknown_SkPixelGeometry},
+                                        /* addInitialClear= */ false);
+    if (!device) {
+        return nullptr;
+    }
+
+    const SkIRect subset = SkIRect::MakeSize(ii.dimensions());
+
+    return sk_make_sp<SkSpecialSurface>(std::move(device), subset);
+}
+}  // namespace SkSpecialSurfaces

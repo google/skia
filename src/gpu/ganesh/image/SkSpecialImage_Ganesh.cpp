@@ -19,6 +19,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
@@ -30,6 +31,8 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/Device.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
@@ -45,7 +48,6 @@
 #include <utility>
 
 class SkShader;
-class SkSurfaceProps;
 enum SkColorType : int;
 enum class SkTileMode;
 
@@ -254,3 +256,31 @@ sk_sp<SkSpecialImage> ImageToColorSpace(const skif::Context& ctx,
 }
 
 }  // namespace SkSpecialImages
+
+namespace SkSpecialSurfaces {
+sk_sp<SkSpecialSurface> MakeRenderTarget(GrRecordingContext* rContext,
+                                         const SkImageInfo& ii,
+                                         const SkSurfaceProps& props,
+                                         GrSurfaceOrigin surfaceOrigin) {
+    if (!rContext) {
+        return nullptr;
+    }
+
+    auto device = rContext->priv().createDevice(skgpu::Budgeted::kYes,
+                                                ii,
+                                                SkBackingFit::kApprox,
+                                                1,
+                                                GrMipmapped::kNo,
+                                                GrProtected::kNo,
+                                                surfaceOrigin,
+                                                {props.flags(), kUnknown_SkPixelGeometry},
+                                                skgpu::ganesh::Device::InitContents::kUninit);
+    if (!device) {
+        return nullptr;
+    }
+
+    const SkIRect subset = SkIRect::MakeSize(ii.dimensions());
+
+    return sk_make_sp<SkSpecialSurface>(std::move(device), subset);
+}
+}  // namespace SkSpecialSurfaces

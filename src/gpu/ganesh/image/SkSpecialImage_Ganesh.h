@@ -17,8 +17,11 @@
 class GrRecordingContext;
 class SkImage;
 class SkSpecialImage;
+class SkSpecialSurface;
 class SkSurfaceProps;
 struct SkIRect;
+enum GrSurfaceOrigin : int;
+struct SkImageInfo;
 
 namespace skif { class Context; }
 
@@ -54,5 +57,12 @@ inline GrSurfaceProxyView AsView(GrRecordingContext* rContext, sk_sp<const SkSpe
 sk_sp<SkSpecialImage> ImageToColorSpace(const skif::Context&, SkSpecialImage*);
 
 }  // namespace SkSpecialImages
+
+namespace SkSpecialSurfaces {
+sk_sp<SkSpecialSurface> MakeRenderTarget(GrRecordingContext*,
+                                         const SkImageInfo&,
+                                         const SkSurfaceProps&,
+                                         GrSurfaceOrigin);
+}
 
 #endif

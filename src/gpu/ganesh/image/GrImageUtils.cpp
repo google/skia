@@ -37,7 +37,7 @@
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
+#include "src/core/SkSpecialSurface.h"  // IWYU pragma: keep
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
@@ -733,10 +733,10 @@ Context MakeGaneshContext(GrRecordingContext* context,
 
     auto makeSurfaceFunctor = [context, origin](const SkImageInfo& imageInfo,
                                                 const SkSurfaceProps* props) {
-        return SkSpecialSurface::MakeRenderTarget(context,
-                                                  imageInfo,
-                                                  *props,
-                                                  origin);
+        return SkSpecialSurfaces::MakeRenderTarget(context,
+                                                   imageInfo,
+                                                   *props,
+                                                   origin);
     };
 
     auto makeImageFunctor = [context](const SkIRect& subset,

@@ -9,26 +9,15 @@
 #define SkSpecialSurface_DEFINED
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 
-#if defined(SK_GANESH)
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#endif
+#include <memory>
 
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite {
-    class Recorder;
-}
-#endif
-
-class GrBackendFormat;
-class GrRecordingContext;
 class SkBaseDevice;
-class SkBitmap;
-class SkCanvas;
 class SkSpecialImage;
+struct SkImageInfo;
 
 /**
  * SkSpecialSurface is a restricted form of SkSurface solely for internal use. It differs
@@ -66,36 +55,21 @@ public:
     */
     sk_sp<SkSpecialImage> makeImageSnapshot();
 
-#if defined(SK_GANESH)
-    /**
-     *  Allocate a new GPU-backed SkSpecialSurface. If the requested surface cannot
-     *  be created, nullptr will be returned.
-     */
-    static sk_sp<SkSpecialSurface> MakeRenderTarget(GrRecordingContext*,
-                                                    const SkImageInfo&,
-                                                    const SkSurfaceProps&,
-                                                    GrSurfaceOrigin);
-#endif
-
-#if defined(SK_GRAPHITE)
-    static sk_sp<SkSpecialSurface> MakeGraphite(skgpu::graphite::Recorder*,
-                                                const SkImageInfo&,
-                                                const SkSurfaceProps&);
-#endif
-
-    /**
-     *  Return a new CPU-backed surface, with the memory for the pixels automatically
-     *  allocated.
-     *
-     *  If the requested surface cannot be created, or the request is not a
-     *  supported configuration, nullptr will be returned.
-     */
-    static sk_sp<SkSpecialSurface> MakeRaster(const SkImageInfo&,
-                                              const SkSurfaceProps&);
-
 private:
     std::unique_ptr<SkCanvas> fCanvas;
     const SkIRect             fSubset;
 };
+
+namespace SkSpecialSurfaces {
+/**
+ *  Return a new CPU-backed surface, with the memory for the pixels automatically
+ *  allocated.
+ *
+ *  If the requested surface cannot be created, or the request is not a
+ *  supported configuration, nullptr will be returned.
+ */
+sk_sp<SkSpecialSurface> MakeRaster(const SkImageInfo&,
+                                   const SkSurfaceProps&);
+}
 
 #endif

@@ -124,7 +124,7 @@ Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
 
     auto makeSurfaceFunctor = [recorder](const SkImageInfo& imageInfo,
                                          const SkSurfaceProps* props) {
-        return SkSpecialSurface::MakeGraphite(recorder, imageInfo, *props);
+        return SkSpecialSurfaces::MakeGraphite(recorder, imageInfo, *props);
     };
     auto makeImageCallback = [recorder](const SkIRect& subset,
                                 sk_sp<SkImage> image,
