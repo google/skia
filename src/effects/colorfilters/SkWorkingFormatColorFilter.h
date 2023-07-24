@@ -33,12 +33,6 @@ public:
         return SkColorFilterBase::Type::kWorkingFormat;
     }
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
-#endif
-
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& origColor,

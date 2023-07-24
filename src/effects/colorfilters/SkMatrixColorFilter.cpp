@@ -23,11 +23,6 @@
 #include <array>
 #include <cstring>
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif  // SK_GRAPHITE
-
 static bool is_alpha_unchanged(const float matrix[20]) {
     const float* srcA = matrix + 15;
 
@@ -91,19 +86,6 @@ bool SkMatrixColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaqu
     }
     return true;
 }
-
-#if defined(SK_GRAPHITE)
-void SkMatrixColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(fMatrix, fDomain == Domain::kHSLA);
-
-    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, &matrixCFData);
-    builder->endBlock();
-}
-#endif  // SK_GRAPHITE
 
 ///////////////////////////////////////////////////////////////////////////////
 

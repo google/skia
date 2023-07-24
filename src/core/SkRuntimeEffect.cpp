@@ -819,7 +819,7 @@ void SkRuntimeEffectPriv::AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPt
         if (type == ChildType::kShader) {
             as_SB(child.shader())->addToKey(keyContext, builder, gatherer);
         } else if (type == ChildType::kColorFilter) {
-            as_CFB(child.colorFilter())->addToKey(keyContext, builder, gatherer);
+            AddToKey(keyContext, builder, gatherer, child.colorFilter());
         } else if (type == ChildType::kBlender) {
             AddToKey(keyContext, builder, gatherer, child.blender());
         } else {

@@ -137,9 +137,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
                 keyContext, builder, gatherer, SkBlendMode::kDstIn, {0, 0, 0, fColor.fA});
     }
 
-    if (fColorFilter) {
-        as_CFB(fColorFilter)->addToKey(keyContext, builder, gatherer);
-    }
+    AddToKey(keyContext, builder, gatherer, fColorFilter.get());
 
 #ifndef SK_IGNORE_GPU_DITHER
     SkColorType ct = keyContext.dstColorInfo().colorType();

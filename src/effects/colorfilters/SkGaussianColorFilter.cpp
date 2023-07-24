@@ -17,16 +17,6 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-
-namespace skgpu::graphite {
-class PipelineDataGatherer;
-}
-#endif
-
 SkGaussianColorFilter::SkGaussianColorFilter() : SkColorFilterBase() {}
 
 bool SkGaussianColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
@@ -37,19 +27,6 @@ bool SkGaussianColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpa
 sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
     return SkColorFilterPriv::MakeGaussian();
 }
-
-#if defined(SK_GRAPHITE)
-
-void SkGaussianColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                     skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                     skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    GaussianColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
-    builder->endBlock();
-}
-
-#endif
 
 sk_sp<SkColorFilter> SkColorFilterPriv::MakeGaussian() {
     return sk_sp<SkColorFilter>(new SkGaussianColorFilter);

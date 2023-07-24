@@ -24,12 +24,6 @@
 #include <cstdint>
 #include <utility>
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 SkColorSpaceXformColorFilter::SkColorSpaceXformColorFilter(sk_sp<SkColorSpace> src,
                                                            sk_sp<SkColorSpace> dst)
         : fSrc(std::move(src))
@@ -39,20 +33,6 @@ SkColorSpaceXformColorFilter::SkColorSpaceXformColorFilter(sk_sp<SkColorSpace> s
                   kUnpremul_SkAlphaType,
                   fDst.get(),
                   kUnpremul_SkAlphaType) {}
-
-#if defined(SK_GRAPHITE)
-void SkColorSpaceXformColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                            skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                            skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
-    ColorSpaceTransformBlock::ColorSpaceTransformData data(
-            fSrc.get(), alphaType, fDst.get(), alphaType);
-    ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data);
-    builder->endBlock();
-}
-#endif
 
 bool SkColorSpaceXformColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     if (!shaderIsOpaque) {

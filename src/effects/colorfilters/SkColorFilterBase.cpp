@@ -18,12 +18,6 @@
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <cstddef>
 
 enum class SkBlendMode;
@@ -56,15 +50,3 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     SkDEBUGFAIL("onFilterColor4f unimplemented for this filter");
     return SkPMColor4f{0,0,0,0};
 }
-
-#if defined(SK_GRAPHITE)
-void SkColorFilterBase::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                 skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    // Return the input color as-is.
-    PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
-    builder->endBlock();
-}
-#endif

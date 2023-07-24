@@ -16,12 +16,6 @@ class SkWriteBuffer;
 enum class SkBlendMode;
 struct SkStageRec;
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 class SkBlendModeColorFilter final : public SkColorFilterBase {
 public:
     SkBlendModeColorFilter(const SkColor4f& color, SkBlendMode mode);
@@ -30,11 +24,6 @@ public:
 
     bool onIsAlphaUnchanged() const override;
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
     SkColorFilterBase::Type type() const override { return SkColorFilterBase::Type::kBlendMode; }
 
     SkColor4f color() const { return fColor; }

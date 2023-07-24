@@ -37,37 +37,12 @@
 #error This only be compiled if SKSL is enabled. See _none.cpp for the non-SKSL version.
 #endif
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 SkRuntimeColorFilter::SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect,
                                            sk_sp<const SkData> uniforms,
                                            SkSpan<const SkRuntimeEffect::ChildPtr> children)
         : fEffect(std::move(effect))
         , fUniforms(std::move(uniforms))
         , fChildren(children.begin(), children.end()) {}
-
-#if defined(SK_GRAPHITE)
-void SkRuntimeColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
-            fEffect->uniforms(), fUniforms, keyContext.dstColorInfo().colorSpace());
-    SkASSERT(uniforms);
-
-    RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, std::move(uniforms)});
-
-    SkRuntimeEffectPriv::AddChildrenToKey(
-            fChildren, fEffect->children(), keyContext, builder, gatherer);
-
-    builder->endBlock();
-}
-#endif
 
 bool SkRuntimeColorFilter::appendStages(const SkStageRec& rec, bool) const {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE

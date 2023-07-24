@@ -25,12 +25,6 @@
 
 #include <utility>
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 SkWorkingFormatColorFilter::SkWorkingFormatColorFilter(sk_sp<SkColorFilter> child,
                                                        const skcms_TransferFunction* tf,
                                                        const skcms_Matrix3x3* gamut,
@@ -65,45 +59,6 @@ sk_sp<SkColorSpace> SkWorkingFormatColorFilter::workingFormat(const sk_sp<SkColo
     *at = fUseDstAT ? kPremul_SkAlphaType : fAT;
     return SkColorSpace::MakeRGB(tf, gamut);
 }
-
-#if defined(SK_GRAPHITE)
-void SkWorkingFormatColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                          skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                          skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    const SkAlphaType dstAT = keyContext.dstColorInfo().alphaType();
-    sk_sp<SkColorSpace> dstCS = keyContext.dstColorInfo().refColorSpace();
-    if (!dstCS) {
-        dstCS = SkColorSpace::MakeSRGB();
-    }
-
-    SkAlphaType workingAT;
-    sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
-
-    // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
-    // while appearing as one block to the parent node.
-    ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
-        // Inner compose
-        ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
-            // Innermost (inner of inner compose)
-            ColorSpaceTransformBlock::ColorSpaceTransformData data1(
-                    dstCS.get(), dstAT, workingCS.get(), workingAT);
-            ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data1);
-            builder->endBlock();
-
-            // Middle (outer of inner compose)
-            as_CFB(fChild)->addToKey(keyContext, builder, gatherer);
-        builder->endBlock();
-
-        // Outermost (outer of outer compose)
-        ColorSpaceTransformBlock::ColorSpaceTransformData data2(
-                workingCS.get(), workingAT, dstCS.get(), dstAT);
-        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data2);
-        builder->endBlock();
-    builder->endBlock();
-}
-#endif
 
 bool SkWorkingFormatColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     sk_sp<SkColorSpace> dstCS = sk_ref_sp(rec.fDstCS);

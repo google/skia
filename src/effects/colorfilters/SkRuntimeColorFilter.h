@@ -28,12 +28,6 @@ public:
                          sk_sp<const SkData> uniforms,
                          SkSpan<const SkRuntimeEffect::ChildPtr> children);
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
-#endif
-
     bool appendStages(const SkStageRec& rec, bool) const override;
 
     bool onIsAlphaUnchanged() const override;

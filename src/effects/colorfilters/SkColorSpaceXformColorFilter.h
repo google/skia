@@ -21,12 +21,6 @@ class SkColorSpaceXformColorFilter final : public SkColorFilterBase {
 public:
     SkColorSpaceXformColorFilter(sk_sp<SkColorSpace> src, sk_sp<SkColorSpace> dst);
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
-#endif
-
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
     SkColorFilterBase::Type type() const override {

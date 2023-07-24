@@ -15,12 +15,6 @@
 #include <utility>
 struct SkStageRec;
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 SkComposeColorFilter::SkComposeColorFilter(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner)
         : fOuter(as_CFB_sp(std::move(outer))), fInner(as_CFB_sp(std::move(inner))) {}
 
@@ -36,21 +30,6 @@ bool SkComposeColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaq
     }
     return fInner->appendStages(rec, shaderIsOpaque) && fOuter->appendStages(rec, innerIsOpaque);
 }
-
-#if defined(SK_GRAPHITE)
-void SkComposeColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
-
-    as_CFB(fInner)->addToKey(keyContext, builder, gatherer);
-    as_CFB(fOuter)->addToKey(keyContext, builder, gatherer);
-
-    builder->endBlock();
-}
-#endif  // SK_GRAPHITE
 
 void SkComposeColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fOuter.get());

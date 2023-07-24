@@ -81,7 +81,7 @@ void SkColorFilterShader::addToKey(const skgpu::graphite::KeyContext& keyContext
     ColorFilterShaderBlock::BeginBlock(keyContext, builder, gatherer);
 
     as_SB(fShader)->addToKey(keyContext, builder, gatherer);
-    as_CFB(fFilter)->addToKey(keyContext, builder, gatherer);
+    AddToKey(keyContext, builder, gatherer, fFilter.get());
 
     builder->endBlock();
 }

@@ -22,19 +22,6 @@
 #include <cstdint>
 #include <utility>
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/Image_Graphite.h"
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-
-namespace skgpu::graphite {
-class PipelineDataGatherer;
-}
-#endif
-
 bool SkTableColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     SkRasterPipeline* p = rec.fPipeline;
     if (!shaderIsOpaque) {
@@ -62,32 +49,6 @@ void SkTableColorFilter::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkFlattenable> SkTableColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkColorFilters::Table(SkColorTable::Deserialize(buffer));
 }
-
-#if defined(SK_GRAPHITE)
-
-void SkTableColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                  skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(),
-                                                                this->bitmap());
-    if (!proxy) {
-        SKGPU_LOG_W("Couldn't create TableColorFilter's table");
-
-        // Return the input color as-is.
-        PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
-        builder->endBlock();
-        return;
-    }
-
-    TableColorFilterBlock::TableColorFilterData data(std::move(proxy));
-
-    TableColorFilterBlock::BeginBlock(keyContext, builder, gatherer, data);
-    builder->endBlock();
-}
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -15,16 +15,6 @@ class SkReadBuffer;
 class SkWriteBuffer;
 struct SkStageRec;
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-
-namespace skgpu::graphite {
-class PipelineDataGatherer;
-}
-#endif
-
 /**
  * Remaps the input color's alpha to a Gaussian ramp and then outputs premul white using the
  * remapped alpha.
@@ -36,12 +26,6 @@ public:
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
     SkColorFilterBase::Type type() const override { return SkColorFilterBase::Type::kGaussian; }
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
 
 protected:
     void flatten(SkWriteBuffer&) const override {}

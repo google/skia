@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/KeyHelpers.h"
 
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkBlendModeBlender.h"
@@ -15,6 +16,15 @@
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkRuntimeBlender.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/effects/colorfilters/SkBlendModeColorFilter.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
+#include "src/effects/colorfilters/SkColorSpaceXformColorFilter.h"
+#include "src/effects/colorfilters/SkComposeColorFilter.h"
+#include "src/effects/colorfilters/SkGaussianColorFilter.h"
+#include "src/effects/colorfilters/SkMatrixColorFilter.h"
+#include "src/effects/colorfilters/SkRuntimeColorFilter.h"
+#include "src/effects/colorfilters/SkTableColorFilter.h"
+#include "src/effects/colorfilters/SkWorkingFormatColorFilter.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/DitherUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -1010,6 +1020,176 @@ void AddToKey(const KeyContext& keyContext,
                    static_cast<const Sk##type##Blender*>(blender)); \
         return;
         SK_ALL_BLENDERS(M)
+#undef M
+    }
+    SkUNREACHABLE;
+}
+
+static SkPMColor4f map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
+    SkPMColor4f color = {c.fR, c.fG, c.fB, c.fA};
+    SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType, dst, kPremul_SkAlphaType).apply(color.vec());
+    return color;
+}
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkBlendModeColorFilter* filter) {
+    SkASSERT(filter);
+
+    SkPMColor4f color =
+            map_color(filter->color(), sk_srgb_singleton(), keyContext.dstColorInfo().colorSpace());
+    AddColorBlendBlock(keyContext, builder, gatherer, filter->mode(), color);
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkColorSpaceXformColorFilter* filter) {
+    SkASSERT(filter);
+
+    constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
+    ColorSpaceTransformBlock::ColorSpaceTransformData data(
+            filter->src().get(), alphaType, filter->src().get(), alphaType);
+    ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data);
+    builder->endBlock();
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkComposeColorFilter* filter) {
+    SkASSERT(filter);
+
+    ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
+
+    AddToKey(keyContext, builder, gatherer, filter->inner().get());
+    AddToKey(keyContext, builder, gatherer, filter->outer().get());
+
+    builder->endBlock();
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkGaussianColorFilter*) {
+    GaussianColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
+    builder->endBlock();
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkMatrixColorFilter* filter) {
+    SkASSERT(filter);
+
+    bool inHSLA = filter->domain() == SkMatrixColorFilter::Domain::kHSLA;
+    MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(filter->matrix(), inHSLA);
+
+    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, &matrixCFData);
+    builder->endBlock();
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkRuntimeColorFilter* filter) {
+    SkASSERT(filter);
+
+    sk_sp<SkRuntimeEffect> effect = filter->effect();
+    sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
+            effect->uniforms(), filter->uniforms(), keyContext.dstColorInfo().colorSpace());
+    SkASSERT(uniforms);
+
+    RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {effect, std::move(uniforms)});
+
+    SkRuntimeEffectPriv::AddChildrenToKey(
+            filter->children(), effect->children(), keyContext, builder, gatherer);
+
+    builder->endBlock();
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkTableColorFilter* filter) {
+    SkASSERT(filter);
+
+    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(),
+                                                                filter->bitmap());
+    if (!proxy) {
+        SKGPU_LOG_W("Couldn't create TableColorFilter's table");
+
+        // Return the input color as-is.
+        PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
+        builder->endBlock();
+        return;
+    }
+
+    TableColorFilterBlock::TableColorFilterData data(std::move(proxy));
+
+    TableColorFilterBlock::BeginBlock(keyContext, builder, gatherer, data);
+    builder->endBlock();
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkWorkingFormatColorFilter* filter) {
+    SkASSERT(filter);
+
+    const SkAlphaType dstAT = keyContext.dstColorInfo().alphaType();
+    sk_sp<SkColorSpace> dstCS = keyContext.dstColorInfo().refColorSpace();
+    if (!dstCS) {
+        dstCS = SkColorSpace::MakeSRGB();
+    }
+
+    SkAlphaType workingAT;
+    sk_sp<SkColorSpace> workingCS = filter->workingFormat(dstCS, &workingAT);
+
+    // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
+    // while appearing as one block to the parent node.
+    ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
+        // Inner compose
+        ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
+            // Innermost (inner of inner compose)
+            ColorSpaceTransformBlock::ColorSpaceTransformData data1(
+                    dstCS.get(), dstAT, workingCS.get(), workingAT);
+            ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data1);
+            builder->endBlock();
+
+            // Middle (outer of inner compose)
+            AddToKey(keyContext, builder, gatherer, filter->child().get());
+        builder->endBlock();
+
+        // Outermost (outer of outer compose)
+        ColorSpaceTransformBlock::ColorSpaceTransformData data2(
+                workingCS.get(), workingAT, dstCS.get(), dstAT);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data2);
+        builder->endBlock();
+    builder->endBlock();
+}
+
+void AddToKey(const KeyContext& keyContext,
+              PaintParamsKeyBuilder* builder,
+              PipelineDataGatherer* gatherer,
+              const SkColorFilter* filter) {
+    if (!filter) {
+        return;
+    }
+    switch (as_CFB(filter)->type()) {
+    case SkColorFilterBase::Type::kNoop:
+        // Return the input color as-is.
+        PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
+        builder->endBlock();
+        return;
+#define M(type)                                                        \
+    case SkColorFilterBase::Type::k##type:                             \
+        add_to_key(keyContext,                                         \
+                   builder,                                            \
+                   gatherer,                                           \
+                   static_cast<const Sk##type##ColorFilter*>(filter)); \
+        return;
+        SK_ALL_COLOR_FILTERS(M)
 #undef M
     }
     SkUNREACHABLE;

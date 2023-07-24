@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/SkShaderBase.h"
 
+class SkColorFilter;
 class SkData;
 class SkRuntimeEffect;
 
@@ -420,6 +421,20 @@ void AddToKey(const KeyContext&,
               PaintParamsKeyBuilder*,
               PipelineDataGatherer*,
               const SkBlender*);
+
+/**
+ *  Add implementation details, for the specified backend, of this SkColorFilter to the
+ *  provided key.
+ *
+ *  @param keyContext backend context for key creation
+ *  @param builder    builder for creating the key for this SkShader
+ *  @param gatherer   if non-null, storage for this colorFilter's data
+ *  @param filter     This function is a no-op if filter is null.
+ */
+void AddToKey(const KeyContext& keyContext,
+              PaintParamsKeyBuilder* builder,
+              PipelineDataGatherer* gatherer,
+              const SkColorFilter* filter);
 
 } // namespace skgpu::graphite
 

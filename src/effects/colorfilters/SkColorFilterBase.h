@@ -22,14 +22,6 @@ enum class SkBlendMode;
 struct SkDeserialProcs;
 struct SkStageRec;
 
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite {
-class KeyContext;
-class PaintParamsKeyBuilder;
-class PipelineDataGatherer;
-}
-#endif
-
 #define SK_ALL_COLOR_FILTERS(M) \
     M(BlendMode)                \
     M(ColorSpaceXform)          \
@@ -81,20 +73,6 @@ public:
     }
 
     virtual SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const;
-
-#if defined(SK_GRAPHITE)
-    /**
-        Add implementation details, for the specified backend, of this SkColorFilter to the
-        provided key.
-
-        @param keyContext backend context for key creation
-        @param builder    builder for creating the key for this SkShader
-        @param gatherer   if non-null, storage for this colorFilter's data
-    */
-    virtual void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                          skgpu::graphite::PaintParamsKeyBuilder* builder,
-                          skgpu::graphite::PipelineDataGatherer* gatherer) const;
-#endif
 
 protected:
     SkColorFilterBase() {}

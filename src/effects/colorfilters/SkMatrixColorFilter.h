@@ -17,11 +17,6 @@ class SkReadBuffer;
 class SkWriteBuffer;
 struct SkStageRec;
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif  // SK_GRAPHITE
-
 class SkMatrixColorFilter final : public SkColorFilterBase {
 public:
     enum class Domain : uint8_t { kRGBA, kHSLA };
@@ -33,12 +28,6 @@ public:
     bool onIsAlphaUnchanged() const override { return fAlphaIsUnchanged; }
 
     SkColorFilterBase::Type type() const override { return SkColorFilterBase::Type::kMatrix; }
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
 
     Domain domain() const { return fDomain; }
     const float* matrix() const { return fMatrix; }

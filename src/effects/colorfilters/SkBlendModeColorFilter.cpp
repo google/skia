@@ -25,12 +25,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 template <SkAlphaType kDstAT = kPremul_SkAlphaType>
 static SkRGBA4f<kDstAT> map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
     SkRGBA4f<kDstAT> color = {c.fR, c.fG, c.fB, c.fA};
@@ -89,19 +83,6 @@ bool SkBlendModeColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOp
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }
-
-#if defined(SK_GRAPHITE)
-void SkBlendModeColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                      skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                      skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    SkPMColor4f color =
-            map_color(fColor, sk_srgb_singleton(), keyContext.dstColorInfo().colorSpace());
-    AddColorBlendBlock(keyContext, builder, gatherer, fMode, color);
-}
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
