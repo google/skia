@@ -54,7 +54,9 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
     fRequiredTransferBufferAlignment = 4;
 
     fResourceBindingReqs.fUniformBufferLayout = Layout::kStd140;
-    fResourceBindingReqs.fStorageBufferLayout = Layout::kStd430;
+    // TODO(skia:14639): We cannot use std430 layout for SSBOs until SkSL gracefully handles
+    // implicit array stride.
+    fResourceBindingReqs.fStorageBufferLayout = Layout::kStd140;
     fResourceBindingReqs.fSeparateTextureAndSamplerBinding = false;
     fResourceBindingReqs.fDistinctIndexRanges = false;
 
