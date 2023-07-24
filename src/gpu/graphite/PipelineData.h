@@ -115,10 +115,10 @@ public:
     void write(float f) { fUniformManager.write(f); }
     void write(int i) { fUniformManager.write(i); }
 
-
     void write(SkSLType t, const void* data) { fUniformManager.write(t, data); }
     void write(const Uniform& u, const uint8_t* data) { fUniformManager.write(u, data); }
 
+    void writeArray(SkSLType t, const void* data, int n) { fUniformManager.writeArray(t, data, n); }
     void writeArray(SkSpan<const SkColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const SkPMColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }

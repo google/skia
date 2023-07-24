@@ -602,7 +602,7 @@ static constexpr int kEightStopGradient = 8;
 
 static constexpr Uniform kLinearGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
-        { "offsets",     SkSLType::kFloat,  kFourStopGradient },
+        { "offsets",     SkSLType::kFloat4 },
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
         { "tilemode",    SkSLType::kInt },
@@ -611,7 +611,7 @@ static constexpr Uniform kLinearGradientUniforms4[] = {
 };
 static constexpr Uniform kLinearGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
-        { "offsets",     SkSLType::kFloat,  kEightStopGradient },
+        { "offsets",     SkSLType::kFloat4, 2 },
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
         { "tilemode",    SkSLType::kInt },
@@ -633,7 +633,7 @@ static constexpr TextureAndSampler kTextureGradientTexturesAndSamplers[] = {
 
 static constexpr Uniform kRadialGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
-        { "offsets",     SkSLType::kFloat,  kFourStopGradient },
+        { "offsets",     SkSLType::kFloat4 },
         { "center",      SkSLType::kFloat2 },
         { "radius",      SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
@@ -642,7 +642,7 @@ static constexpr Uniform kRadialGradientUniforms4[] = {
 };
 static constexpr Uniform kRadialGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
-        { "offsets",     SkSLType::kFloat,  kEightStopGradient },
+        { "offsets",     SkSLType::kFloat4, 2 },
         { "center",      SkSLType::kFloat2 },
         { "radius",      SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
@@ -660,7 +660,7 @@ static constexpr Uniform kRadialGradientUniformsTexture[] = {
 
 static constexpr Uniform kSweepGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
-        { "offsets",     SkSLType::kFloat,  kFourStopGradient },
+        { "offsets",     SkSLType::kFloat4 },
         { "center",      SkSLType::kFloat2 },
         { "bias",        SkSLType::kFloat },
         { "scale",       SkSLType::kFloat },
@@ -670,7 +670,7 @@ static constexpr Uniform kSweepGradientUniforms4[] = {
 };
 static constexpr Uniform kSweepGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
-        { "offsets",     SkSLType::kFloat,  kEightStopGradient },
+        { "offsets",     SkSLType::kFloat4, 2 },
         { "center",      SkSLType::kFloat2 },
         { "bias",        SkSLType::kFloat },
         { "scale",       SkSLType::kFloat },
@@ -690,7 +690,7 @@ static constexpr Uniform kSweepGradientUniformsTexture[] = {
 
 static constexpr Uniform kConicalGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
-        { "offsets",     SkSLType::kFloat,  kFourStopGradient },
+        { "offsets",     SkSLType::kFloat4 },
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
         { "radius0",     SkSLType::kFloat },
@@ -701,7 +701,7 @@ static constexpr Uniform kConicalGradientUniforms4[] = {
 };
 static constexpr Uniform kConicalGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
-        { "offsets",     SkSLType::kFloat,  kEightStopGradient },
+        { "offsets",     SkSLType::kFloat4, 2 },
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
         { "radius0",     SkSLType::kFloat },

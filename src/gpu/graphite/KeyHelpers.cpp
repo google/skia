@@ -125,10 +125,20 @@ void add_gradient_preamble(const GradientShaderBlocks::GradientData& gradData,
     constexpr int kInternalStopLimit = GradientShaderBlocks::GradientData::kNumInternalStorageStops;
 
     if (gradData.fNumStops <= kInternalStopLimit) {
-        int stops = gradData.fNumStops <= 4 ? 4 : 8;
-
-        gatherer->writeArray({gradData.fColors, stops});
-        gatherer->writeArray({gradData.fOffsets, stops});
+        if (gradData.fNumStops <= 4) {
+            // Round up to 4 stops.
+            gatherer->writeArray({gradData.fColors, 4});
+            // The offsets are packed into a single float4 to save space.
+            gatherer->write(SkSLType::kFloat4, &gradData.fOffsets);
+        } else if (gradData.fNumStops <= 8) {
+            // Round up to 8 stops.
+            gatherer->writeArray({gradData.fColors, 8});
+            // The offsets are packed into a float4 array to save space.
+            gatherer->writeArray(SkSLType::kFloat4, &gradData.fOffsets, 2);
+        } else {
+            // Did kNumInternalStorageStops change?
+            SkUNREACHABLE;
+        }
     }
 }
 
