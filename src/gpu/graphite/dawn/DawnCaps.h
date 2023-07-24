@@ -43,7 +43,6 @@ public:
                             ResourceType,
                             Shareable,
                             GraphiteResourceKey*) const override;
-    size_t bytesPerPixel(const TextureInfo&) const override;
     uint64_t getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const;
 
 private:

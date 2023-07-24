@@ -33,6 +33,9 @@ sk_sp<SkImage> MakeFromBitmap(Recorder*,
                               sk_sp<SkMipmap>,
                               skgpu::Budgeted,
                               SkImage::RequiredProperties);
+
+size_t ComputeSize(SkISize dimensions, const TextureInfo&);
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureUtils_DEFINED

@@ -39,6 +39,8 @@ public:
     bool isFullyLazy() const;
     bool isVolatile() const;
 
+    size_t uninstantiatedGpuMemorySize() const;
+
     bool instantiate(ResourceProvider*);
     /*
      * We currently only instantiate lazy proxies at insertion-time. Snap-time 'instantiate'

@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureUtils.h"
 
 namespace skgpu::graphite {
 
@@ -66,6 +67,9 @@ bool TextureProxy::isVolatile() const {
     return fVolatile == Volatile::kYes;
 }
 
+size_t TextureProxy::uninstantiatedGpuMemorySize() const {
+    return ComputeSize(fDimensions, fInfo);
+}
 
 bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
     SkASSERT(!this->isLazy());

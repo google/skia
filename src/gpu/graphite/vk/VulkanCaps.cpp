@@ -272,11 +272,6 @@ uint32_t VulkanCaps::channelMask(const TextureInfo& textureInfo) const {
     return skgpu::VkFormatChannels(textureInfo.vulkanTextureSpec().fFormat);
 }
 
-size_t VulkanCaps::bytesPerPixel(const TextureInfo& info) const {
-    const VkFormat format = info.vulkanTextureSpec().fFormat;
-    return VkFormatBytesPerBlock(format);
-}
-
 void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                                  VkPhysicalDevice physDev,
                                  const VkPhysicalDeviceProperties& properties) {
@@ -1222,4 +1217,3 @@ uint64_t VulkanCaps::getRenderPassDescKey(const RenderPassDesc& renderPassDesc) 
 }
 
 } // namespace skgpu::graphite
-

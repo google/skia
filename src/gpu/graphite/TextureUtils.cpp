@@ -147,4 +147,22 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
                                               colorInfo.makeColorType(ct));
 }
 
+
+// TODO: Make this computed size more generic to handle compressed textures
+size_t ComputeSize(SkISize dimensions,
+                   const TextureInfo& info) {
+    // TODO: Should we make sure the backends return zero here if the TextureInfo is for a
+    // memoryless texture?
+    size_t bytesPerPixel = info.bytesPerPixel();
+
+    size_t colorSize = (size_t)dimensions.width() * dimensions.height() * bytesPerPixel;
+
+    size_t finalSize = colorSize * info.numSamples();
+
+    if (info.mipmapped() == Mipmapped::kYes) {
+        finalSize += colorSize/3;
+    }
+    return finalSize;
+}
+
 } // namespace skgpu::graphite

@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 namespace skgpu::graphite {
 
@@ -96,6 +97,10 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
     }
 
     return compiledLibrary;
+}
+
+size_t MtlFormatBytesPerBlock(MtlPixelFormat format) {
+    return skgpu::MtlFormatBytesPerBlock((MTLPixelFormat) format);
 }
 
 } // namespace skgpu::graphite

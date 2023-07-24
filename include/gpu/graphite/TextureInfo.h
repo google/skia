@@ -23,6 +23,8 @@
 #include "include/private/gpu/graphite/VulkanGraphiteTypesPriv.h"
 #endif
 
+struct SkISize;
+
 namespace skgpu::graphite {
 
 class SK_API TextureInfo {
@@ -104,6 +106,10 @@ public:
     SkString toString() const;
 
 private:
+    friend size_t ComputeSize(SkISize dimensions, const TextureInfo&);  // for bytesPerPixel
+
+    size_t bytesPerPixel() const;
+
 #ifdef SK_DAWN
     friend class DawnCaps;
     friend class DawnCommandBuffer;

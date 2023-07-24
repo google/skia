@@ -34,8 +34,12 @@ Image::Image(uint32_t uniqueID,
 Image::~Image() {}
 
 size_t Image::textureSize() const {
-    if (!fTextureProxyView.proxy() || !fTextureProxyView.proxy()->texture()) {
+    if (!fTextureProxyView.proxy()) {
         return 0;
+    }
+
+    if (!fTextureProxyView.proxy()->texture()) {
+        return fTextureProxyView.proxy()->uninstantiatedGpuMemorySize();
     }
 
     return fTextureProxyView.proxy()->texture()->gpuMemorySize();

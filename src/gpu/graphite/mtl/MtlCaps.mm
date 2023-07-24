@@ -1065,8 +1065,4 @@ void MtlCaps::buildKeyForTexture(SkISize dimensions,
 
 }
 
-size_t MtlCaps::bytesPerPixel(const TextureInfo& info) const {
-    return MtlFormatBytesPerBlock((MTLPixelFormat)info.mtlTextureSpec().fFormat);
-}
-
 } // namespace skgpu::graphite

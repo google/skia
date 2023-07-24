@@ -10,6 +10,8 @@
 
 #include "include/gpu/vk/VulkanTypes.h"
 
+#include "include/core/SkColor.h"
+
 namespace skgpu {
 
 static constexpr uint32_t VkFormatChannels(VkFormat vkFormat) {

@@ -22,40 +22,51 @@
 #endif
 
 #if defined(SK_GANESH)
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+struct GrContextOptions;
 #endif
 
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
 
-class GrDirectContext;
-struct GrContextOptions;
-
 namespace {
 
-void run_test(skiatest::Reporter* reporter,
-              std::function<sk_sp<SkImage>(SkImage*)> convert2gpu) {
+void run_test(skiatest::Reporter* reporter, bool testMipmaps,
+              std::function<sk_sp<SkImage>(SkImage*, skgpu::Mipmapped)> convert2gpu) {
 
-    for (auto ct : { kRGBA_8888_SkColorType, kRGBA_8888_SkColorType }) {
-        SkImageInfo ii = SkImageInfo::Make(16, 16, ct, kPremul_SkAlphaType);
+    for (auto mm : { skgpu::Mipmapped::kYes, skgpu::Mipmapped::kNo }) {
+        if (!testMipmaps && mm == skgpu::Mipmapped::kYes) {
+            continue;
+        }
 
-        SkBitmap src;
-        src.allocPixels(ii);
-        src.eraseColor(SK_ColorWHITE);
+        for (auto ct : { kRGBA_8888_SkColorType, kAlpha_8_SkColorType }) {
+            SkImageInfo ii = SkImageInfo::Make(9, 9, ct, kPremul_SkAlphaType);
 
-        sk_sp<SkImage> raster = src.asImage();
+            SkBitmap src;
+            src.allocPixels(ii);
+            src.eraseColor(SK_ColorWHITE);
 
-        sk_sp<SkImage> gpu = convert2gpu(raster.get());
+            sk_sp<SkImage> raster = src.asImage();
 
-        int bytesPerPixel = SkColorTypeBytesPerPixel(ct);
+            sk_sp<SkImage> gpu = convert2gpu(raster.get(), mm);
 
-        size_t expectedSize = bytesPerPixel * gpu->width() * gpu->height();
+            int bytesPerPixel = SkColorTypeBytesPerPixel(ct);
 
-        size_t actualSize = gpu->textureSize();
+            size_t expectedSize = bytesPerPixel * gpu->width() * gpu->height();
+            if (mm == skgpu::Mipmapped::kYes) {
+                expectedSize += expectedSize/3;
+            }
 
-        REPORTER_ASSERT(reporter, actualSize == expectedSize,
-                        "Expected: %zu  Actual: %zu", expectedSize, actualSize);
+            size_t actualSize = gpu->textureSize();
+
+            REPORTER_ASSERT(reporter, actualSize == expectedSize,
+                            "Expected: %zu  Actual: %zu", expectedSize, actualSize);
+        }
     }
 }
 
@@ -69,11 +80,12 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Ganesh,
                                  CtsEnforcement::kNextRelease) {
     auto dContext = ctxInfo.directContext();
 
-    run_test(reporter,
-             [&](SkImage* src) -> sk_sp<SkImage> {
-                 return SkImages::TextureFromImage(dContext, src);
-             });
+    bool testMipmaps = dContext->priv().caps()->mipmapSupport();
 
+    run_test(reporter, testMipmaps,
+             [&](SkImage* src, skgpu::Mipmapped mipmapped) -> sk_sp<SkImage> {
+                 return SkImages::TextureFromImage(dContext, src, mipmapped);
+             });
 }
 
 #endif // SK_GANESH
@@ -85,13 +97,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Graphite, reporter, context) {
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    run_test(reporter,
-             [&](SkImage* src) -> sk_sp<SkImage> {
-                 sk_sp<SkImage> tmp = SkImages::TextureFromImage(recorder.get(), src, {});
-                 std::unique_ptr<Recording> recording = recorder->snap();
-                 context->insertRecording({ recording.get() });
-                 context->submit(SyncToCpu::kYes);
-                 return tmp;
+    run_test(reporter, /* testMipmaps= */ true,
+             [&](SkImage* src, skgpu::Mipmapped mipmapped) -> sk_sp<SkImage> {
+                 return SkImages::TextureFromImage(recorder.get(), src,
+                                                   { mipmapped == skgpu::Mipmapped::kYes });
              });
 }
 
