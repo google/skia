@@ -9,9 +9,11 @@
 
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkBlendModeBlender.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDebugUtils.h"
+#include "src/core/SkRuntimeBlender.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/DitherUtils.h"
@@ -853,7 +855,7 @@ void AddDstBlendBlock(const KeyContext& keyContext,
     DstColorBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
     // blender -- shader based blending
-    as_BB(blender)->addToKey(keyContext, builder, gatherer);
+    AddToKey(keyContext, builder, gatherer, blender);
 
     builder->endBlock();  // BlendShaderBlock
 }
@@ -871,7 +873,7 @@ void AddPrimitiveBlendBlock(const KeyContext& keyContext,
     PrimitiveColorBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
     // blender -- shader based blending
-    as_BB(blender)->addToKey(keyContext, builder, gatherer);
+    AddToKey(keyContext, builder, gatherer, blender);
 
     builder->endBlock();  // BlendShaderBlock
 }
@@ -951,6 +953,66 @@ void RuntimeEffectBlock::BeginBlock(const KeyContext& keyContext,
     }
 
     builder->beginBlock(codeSnippetID);
+}
+
+// ==================================================================
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkBlendModeBlender* blender) {
+    SkASSERT(blender);
+    SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(blender->mode());
+    if (!coeffs.empty()) {
+        CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, coeffs);
+        builder->endBlock();
+    } else {
+        BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, blender->mode());
+        builder->endBlock();
+    }
+}
+
+static void add_to_key(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkRuntimeBlender* blender) {
+    SkASSERT(blender);
+    sk_sp<SkRuntimeEffect> effect = blender->effect();
+    SkASSERT(effect);
+    sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
+            effect->uniforms(),
+            blender->uniforms(),
+            keyContext.dstColorInfo().colorSpace());
+    SkASSERT(uniforms);
+
+    RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
+                                   { effect, std::move(uniforms) });
+
+    SkRuntimeEffectPriv::AddChildrenToKey(blender->children(), effect->children(), keyContext,
+                                          builder, gatherer);
+
+    builder->endBlock();
+}
+
+void AddToKey(const KeyContext& keyContext,
+              PaintParamsKeyBuilder* builder,
+              PipelineDataGatherer* gatherer,
+              const SkBlender* blender) {
+    if (!blender) {
+        return;
+    }
+    switch (as_BB(blender)->type()) {
+#define M(type)                                                    \
+    case SkBlenderBase::BlenderType::k##type:                      \
+        add_to_key(keyContext,                                     \
+                   builder,                                        \
+                   gatherer,                                       \
+                   static_cast<const Sk##type##Blender*>(blender)); \
+        return;
+        SK_ALL_BLENDERS(M)
+#undef M
+    }
+    SkUNREACHABLE;
 }
 
 } // namespace skgpu::graphite

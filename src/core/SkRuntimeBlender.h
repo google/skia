@@ -36,12 +36,6 @@ public:
 
     bool onAppendStages(const SkStageRec& rec) const override;
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
-#endif
-
     void flatten(SkWriteBuffer& buffer) const override;
 
     SK_FLATTENABLE_HOOKS(SkRuntimeBlender)

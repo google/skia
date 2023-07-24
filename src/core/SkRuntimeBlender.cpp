@@ -97,24 +97,3 @@ void SkRuntimeBlender::flatten(SkWriteBuffer& buffer) const {
     SkRuntimeEffectPriv::WriteChildEffects(buffer, fChildren);
 }
 
-#if defined(SK_GRAPHITE)
-void SkRuntimeBlender::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
-            fEffect->uniforms(),
-            fUniforms,
-            keyContext.dstColorInfo().colorSpace());
-    SkASSERT(uniforms);
-
-    RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
-                                   { fEffect, std::move(uniforms) });
-
-    SkRuntimeEffectPriv::AddChildrenToKey(fChildren, fEffect->children(), keyContext, builder,
-                                          gatherer);
-
-    builder->endBlock();
-}
-#endif

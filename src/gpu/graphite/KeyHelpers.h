@@ -416,6 +416,11 @@ struct RuntimeEffectBlock {
                            const ShaderData&);
 };
 
+void AddToKey(const KeyContext&,
+              PaintParamsKeyBuilder*,
+              PipelineDataGatherer*,
+              const SkBlender*);
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_KeyHelpers_DEFINED

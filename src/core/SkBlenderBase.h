@@ -52,12 +52,6 @@ public:
 
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 
-#if defined(SK_GRAPHITE)
-    virtual void addToKey(const skgpu::graphite::KeyContext&,
-                          skgpu::graphite::PaintParamsKeyBuilder*,
-                          skgpu::graphite::PipelineDataGatherer*) const = 0;
-#endif
-
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
     SkFlattenable::Type getFlattenableType() const override { return GetFlattenableType(); }
 
