@@ -10,8 +10,8 @@
 
 #include "include/core/SkImage.h"
 #include "include/gpu/GpuTypes.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/ClipStack_graphite.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Rect.h"

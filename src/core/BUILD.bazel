@@ -125,7 +125,6 @@ CORE_FILES = [
     "SkEdgeClipper.cpp",
     "SkEdgeClipper.h",
     "SkEffectPriv.h",
-    "SkEnumBitMask.h",
     "SkEnumerate.h",
     "SkExecutor.cpp",
     "SkFDot6.h",

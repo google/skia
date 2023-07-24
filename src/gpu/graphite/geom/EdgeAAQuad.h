@@ -9,8 +9,8 @@
 #define skgpu_graphite_geom_EdgeAAQuad_DEFINED
 
 #include "include/core/SkRect.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkVx.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 namespace skgpu::graphite {

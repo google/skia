@@ -10,7 +10,7 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkEnumBitMask.h"
+#include "src/base/SkEnumBitMask.h"
 
 namespace skgpu::graphite {
 

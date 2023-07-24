@@ -8,7 +8,7 @@
 #ifndef SkEnumBitMask_DEFINED
 #define SkEnumBitMask_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAttributes.h"
 
 /**
  * Wraps an enum that is used for flags, and enables masking with type safety. Example:
@@ -84,4 +84,4 @@ private:
     friend constexpr SkEnumBitMask<E> operator^(E, E); \
     friend constexpr SkEnumBitMask<E> operator~(E);
 
-#endif // SkEnumBitMask_DEFINED
+#endif  // SkEnumBitMask_DEFINED
