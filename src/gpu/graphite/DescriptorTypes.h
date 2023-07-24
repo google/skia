@@ -15,6 +15,7 @@ namespace skgpu::graphite {
 */
 enum class DescriptorType : uint8_t {
     kUniformBuffer = 0,
+    kInlineUniform,
     kTextureSampler,
     kTexture,
     kCombinedTextureSampler,

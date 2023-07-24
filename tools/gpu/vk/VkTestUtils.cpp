@@ -447,6 +447,18 @@ static bool setup_features(skgpu::VulkanGetProc getProc, VkInstance inst, VkPhys
         tailPNext = &dynamicRenderingFeature->pNext;
     }
 
+    VkPhysicalDeviceInlineUniformBlockFeaturesEXT* inlineUniformFeature = nullptr;
+    if (extensions->hasExtension(VK_EXT_INLINE_UNIFORM_BLOCK_EXTENSION_NAME, 1)) {
+        inlineUniformFeature = (VkPhysicalDeviceInlineUniformBlockFeaturesEXT*)sk_malloc_throw(
+            sizeof(VkPhysicalDeviceInlineUniformBlockFeaturesEXT));
+        inlineUniformFeature->sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES_EXT;
+        inlineUniformFeature->pNext = nullptr;
+        inlineUniformFeature->inlineUniformBlock = VK_TRUE;
+        *tailPNext = inlineUniformFeature;
+        tailPNext = &inlineUniformFeature->pNext;
+    }
+
     if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2, inst, VK_NULL_HANDLE);
         grVkGetPhysicalDeviceFeatures2(physDev, features);

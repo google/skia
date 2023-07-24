@@ -372,6 +372,7 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                /*firstViewport=*/0,
                                /*viewportCount=*/1,
                                &vkViewport));
+    fCurrentViewport = viewport;
 
     for (const auto& drawPass : drawPasses) {
         this->addDrawPass(drawPass.get());
@@ -693,12 +694,33 @@ void VulkanCommandBuffer::bindUniformBuffers() {
                 VkWriteDescriptorSet& writeInfo = writeDescriptorSets.push_back();
                 memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
                 writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                writeInfo.pNext = nullptr;
+                // Perform special setup for intrinsic uniform when appropriate.
+                if (descriptors.at(i).type == DescriptorType::kInlineUniform) {
+                    // Vulkan's framebuffer space has (0, 0) at the top left. This agrees with
+                    // Skia's device coords. However, in NDC (-1, -1) is the bottom left. So we flip
+                    // the origin here (assuming all surfaces we have are TopLeft origin).
+                    const float x = fCurrentViewport.x() - fReplayTranslation.x();
+                    const float y = fCurrentViewport.y() - fReplayTranslation.y();
+                    float invTwoW = 2.f / fCurrentViewport.width();
+                    float invTwoH = 2.f / fCurrentViewport.height();
+                    float rtAdjust[4] = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
+
+                    VkWriteDescriptorSetInlineUniformBlockEXT writeInlineUniform;
+                    writeInlineUniform.sType =
+                            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT;
+                    writeInlineUniform.pNext = nullptr;
+                    writeInlineUniform.dataSize = fIntrinsicUniformBuffer->size();
+                    writeInlineUniform.pData = &rtAdjust;
+
+                    writeInfo.pNext =  &writeInlineUniform;
+                } else {
+                    writeInfo.pNext =  nullptr;
+                }
                 writeInfo.dstSet = *set->descriptorSet();
                 writeInfo.dstBinding = i;
                 writeInfo.dstArrayElement = 0;
-                writeInfo.descriptorCount = 1;
-                writeInfo.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                writeInfo.descriptorCount = descriptors.at(i).count;
+                writeInfo.descriptorType = DsTypeEnumToVkDs(descriptors.at(i).type);
                 writeInfo.pImageInfo = nullptr;
                 writeInfo.pBufferInfo = &bufferInfo;
                 writeInfo.pTexelBufferView = nullptr;

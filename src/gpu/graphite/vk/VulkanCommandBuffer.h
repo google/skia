@@ -195,6 +195,9 @@ private:
     std::array<BindBufferInfo, VulkanGraphicsPipeline::kNumUniformBuffers> fUniformBuffersToBind
             = {{{nullptr, 0}}};
     VkDescriptorSet fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
+    // Store the current viewport so we can calculate rtAdjust when it is time to populate / bind
+    // the intrinsic uniform buffer.
+    SkRect fCurrentViewport;
 
     VkBuffer fBoundInputBuffers[VulkanGraphicsPipeline::kNumInputBuffers];
     size_t fBoundInputBufferOffsets[VulkanGraphicsPipeline::kNumInputBuffers];
