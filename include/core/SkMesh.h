@@ -293,13 +293,6 @@ public:
     SkMesh& operator=(const SkMesh&);
     SkMesh& operator=(SkMesh&&);
 
-#if !defined(SK_DISABLE_LEGACY_MESH_FUNCTIONS)
-    static sk_sp<IndexBuffer> MakeIndexBuffer(GrDirectContext*, const void*, size_t);
-    static sk_sp<IndexBuffer> CopyIndexBuffer(GrDirectContext*, sk_sp<IndexBuffer>);
-    static sk_sp<VertexBuffer> MakeVertexBuffer(GrDirectContext*, const void*, size_t);
-    static sk_sp<VertexBuffer> CopyVertexBuffer(GrDirectContext*, sk_sp<VertexBuffer>);
-#endif
-
     enum class Mode { kTriangles, kTriangleStrip };
 
     struct Result;
