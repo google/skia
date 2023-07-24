@@ -333,10 +333,10 @@ public:
         }
         for(const auto& s : fTextStringSlots) {
             auto t = fSlotManager->getTextSlot(s.first);
-            t.fText = SkString(s.second.source.data());
-            t.fTypeface = SkFontMgr::RefDefault()->matchFamilyStyle(s.second.font.c_str(),
-                                                                    SkFontStyle());
-            fSlotManager->setTextSlot(s.first, t);
+            t->fText = SkString(s.second.source.data());
+            t->fTypeface = SkFontMgr::RefDefault()->matchFamilyStyle(s.second.font.c_str(),
+                                                                     SkFontStyle());
+            fSlotManager->setTextSlot(s.first, *t);
         }
         for(const auto& s : fImageSlots) {
             auto image = fResourceProvider->loadImageAsset("images/", s.second.c_str(), nullptr);
@@ -381,22 +381,22 @@ private:
     using GuiTextBuffer = std::array<char, kBufferLen>;
 
     void addColorSlot(SkString slotID) {
-        SkColor c = fSlotManager->getColorSlot(slotID);
-        SkColor4f color4f = SkColor4f::FromColor(c);
+        auto c = fSlotManager->getColorSlot(slotID);
+        SkColor4f color4f = SkColor4f::FromColor(*c);
         fColorSlots.push_back(std::make_pair(slotID, color4f.array()));
     }
 
     void addScalarSlot(SkString slotID) {
-        fScalarSlots.push_back(std::make_pair(slotID, fSlotManager->getScalarSlot(slotID)));
+        fScalarSlots.push_back(std::make_pair(slotID, *fSlotManager->getScalarSlot(slotID)));
     }
 
     void addVec2Slot(SkString slotID) {
-        fVec2Slots.push_back(std::make_pair(slotID, fSlotManager->getVec2Slot(slotID)));
+        fVec2Slots.push_back(std::make_pair(slotID, *fSlotManager->getVec2Slot(slotID)));
     }
 
     void addTextSlot(SkString slotID) {
         std::array<char, kBufferLen> textSource = {'\0'};
-        SkString s = fSlotManager->getTextSlot(slotID).fText;
+        SkString s = fSlotManager->getTextSlot(slotID)->fText;
         std::copy(s.data(), s.data() + s.size(), textSource.data());
         TextSlotData data = {textSource, fTypefaceList[0]};
         fTextStringSlots.push_back(std::make_pair(slotID, data));

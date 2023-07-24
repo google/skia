@@ -14,6 +14,8 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "src/core/SkTHash.h"
 
+#include <optional>
+
 namespace skjson {
 class ObjectValue;
 }
@@ -52,11 +54,11 @@ public:
     void setVec2Slot(SlotID, SkV2);
     void setTextSlot(SlotID, TextPropertyValue&);
 
-    SkColor getColorSlot(SlotID) const;
+    std::optional<SkColor>               getColorSlot(SlotID) const;
     sk_sp<const skresources::ImageAsset> getImageSlot(SlotID) const;
-    float getScalarSlot(SlotID) const;
-    SkV2 getVec2Slot(SlotID) const;
-    TextPropertyValue getTextSlot(SlotID) const;
+    std::optional<float>                 getScalarSlot(SlotID) const;
+    std::optional<SkV2>                  getVec2Slot(SlotID) const;
+    std::optional<TextPropertyValue>     getTextSlot(SlotID) const;
 
     struct SlotInfo {
         TArray<SlotID> fColorSlotIDs;

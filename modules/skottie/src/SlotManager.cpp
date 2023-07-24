@@ -98,9 +98,10 @@ void skottie::SlotManager::setTextSlot(SlotID slotID, TextPropertyValue& t) {
     }
 }
 
-SkColor skottie::SlotManager::getColorSlot(SlotID slotID) const {
+std::optional<SkColor> skottie::SlotManager::getColorSlot(SlotID slotID) const {
     const auto valueGroup = fColorMap.find(slotID);
-    return valueGroup && !valueGroup->empty() ? *(valueGroup->at(0).value) : SK_ColorBLACK;
+    return valueGroup && !valueGroup->empty() ? std::optional<SkColor>(*(valueGroup->at(0).value))
+                                              : std::nullopt;
 }
 
 sk_sp<const skresources::ImageAsset> skottie::SlotManager::getImageSlot(SlotID slotID) const {
@@ -108,22 +109,23 @@ sk_sp<const skresources::ImageAsset> skottie::SlotManager::getImageSlot(SlotID s
     return imageGroup && !imageGroup->empty() ? imageGroup->at(0)->getImageAsset() : nullptr;
 }
 
-float skottie::SlotManager::getScalarSlot(SlotID slotID) const {
+std::optional<float> skottie::SlotManager::getScalarSlot(SlotID slotID) const {
     const auto valueGroup = fScalarMap.find(slotID);
-    return valueGroup && !valueGroup->empty() ? *(valueGroup->at(0).value) : -1;
+    return valueGroup && !valueGroup->empty() ? std::optional<float>(*(valueGroup->at(0).value))
+                                              : std::nullopt;
 }
 
-SkV2 skottie::SlotManager::getVec2Slot(SlotID slotID) const {
+std::optional<SkV2> skottie::SlotManager::getVec2Slot(SlotID slotID) const {
     const auto valueGroup = fVec2Map.find(slotID);
-    Vec2Value defVal = {-1, -1};
-    return valueGroup && !valueGroup->empty() ? *(valueGroup->at(0).value) : defVal;
+    return valueGroup && !valueGroup->empty() ? std::optional<SkV2>(*(valueGroup->at(0).value))
+                                              : std::nullopt;
 }
 
-skottie::TextPropertyValue skottie::SlotManager::getTextSlot(SlotID slotID) const {
+std::optional<skottie::TextPropertyValue> skottie::SlotManager::getTextSlot(SlotID slotID) const {
     const auto adapterGroup = fTextMap.find(slotID);
     return adapterGroup && !adapterGroup->empty() ?
-           adapterGroup->at(0)->getText() :
-           TextPropertyValue();
+           std::optional<TextPropertyValue>(adapterGroup->at(0)->getText()) :
+           std::nullopt;
 }
 
 void skottie::SlotManager::trackColorValue(SlotID slotID, ColorValue* colorValue,
