@@ -96,6 +96,9 @@ public:
             return false;
         }
 
+        // Returns the storage class of the lvalue.
+        virtual SpvStorageClass storageClass() const = 0;
+
         virtual SpvId load(OutputStream& out) = 0;
 
         virtual void store(SpvId value, OutputStream& out) = 0;
@@ -136,6 +139,9 @@ private:
         kTexture_SpecialIntrinsic,
         kTextureGrad_SpecialIntrinsic,
         kTextureLod_SpecialIntrinsic,
+        kAtomicAdd_SpecialIntrinsic,
+        kAtomicLoad_SpecialIntrinsic,
+        kAtomicStore_SpecialIntrinsic,
     };
 
     enum class Precision {
@@ -236,6 +242,10 @@ private:
     skia_private::TArray<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
+    SpvId writeAtomicIntrinsic(const FunctionCall& c,
+                               SpecialIntrinsic kind,
+                               SpvId resultId,
+                               OutputStream& out);
 
     SpvId writeScalarToMatrixSplat(const Type& matrixType, SpvId scalarId, OutputStream& out);
 

@@ -298,6 +298,10 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
                              SpvOpSGreaterThanEqual,
                              SpvOpUGreaterThanEqual,
                              SpvOpUndef};
+
+        case k_atomicAdd_IntrinsicKind:   return SPECIAL(AtomicAdd);
+        case k_atomicLoad_IntrinsicKind:  return SPECIAL(AtomicLoad);
+        case k_atomicStore_IntrinsicKind: return SPECIAL(AtomicStore);
         default:
             return Intrinsic{kInvalid_IntrinsicOpcodeKind, 0, 0, 0, 0};
     }
@@ -1142,10 +1146,15 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                                 SpvImageFormatUnknown},
                                           fConstantBuffer);
         }
-        case Type::TypeKind::kAtomic:
-            // TODO(b/262428625): Implement atomics
-            fContext.fErrors->error(type->fPosition, "atomics are not yet supported");
-            return NA;
+        case Type::TypeKind::kAtomic: {
+            // SkSL currently only supports the atomicUint type.
+            SkASSERT(type->matches(*fContext.fTypes.fAtomicUInt));
+            // SPIR-V doesn't have atomic types. Rather, it allows atomic operations on primitive
+            // types. The SPIR-V type of an SkSL atomic is simply the underlying type.
+            return this->writeInstruction(SpvOpTypeInt,
+                                          Words{Word::Result(), Word::Number(32), Word::Number(0)},
+                                          fConstantBuffer);
+        }
         default: {
             SkDEBUGFAILF("invalid type: %s", type->description().c_str());
             return NA;
@@ -1648,8 +1657,92 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             result = this->writeComponentwiseMatrixBinary(callType, lhs, rhs, SpvOpFMul, out);
             break;
         }
+        case kAtomicAdd_SpecialIntrinsic:
+        case kAtomicLoad_SpecialIntrinsic:
+        case kAtomicStore_SpecialIntrinsic:
+            result = this->writeAtomicIntrinsic(c, kind, result, out);
+            break;
     }
     return result;
+}
+
+SpvId SPIRVCodeGenerator::writeAtomicIntrinsic(const FunctionCall& c,
+                                               SpecialIntrinsic kind,
+                                               SpvId resultId,
+                                               OutputStream& out) {
+    const ExpressionArray& arguments = c.arguments();
+    SkASSERT(!arguments.empty());
+
+    std::unique_ptr<LValue> atomicPtr = this->getLValue(*arguments[0], out);
+    SpvId atomicPtrId = atomicPtr->getPointer();
+    if (atomicPtrId == NA) {
+        SkDEBUGFAILF("atomic intrinsic expected a pointer argument: %s",
+                     arguments[0]->description().c_str());
+        return NA;
+    }
+
+    SpvId memoryScopeId = NA;
+    {
+        // In SkSL, the atomicUint type can only be declared as a workgroup variable or SSBO block
+        // member. The two memory scopes that these map to are "workgroup" and "device",
+        // respectively.
+        SpvScope memoryScope;
+        switch (atomicPtr->storageClass()) {
+            case SpvStorageClassUniform:
+                // We encode storage buffers in the uniform address space (with the BufferBlock
+                // decorator).
+                memoryScope = SpvScopeDevice;
+                break;
+            case SpvStorageClassWorkgroup:
+                memoryScope = SpvScopeWorkgroup;
+                break;
+            default:
+                SkDEBUGFAILF("atomic argument has invalid storage class: %d",
+                             atomicPtr->storageClass());
+                return NA;
+        }
+        memoryScopeId = this->writeOpConstant(*fContext.fTypes.fUInt, (int32_t)memoryScope);
+    }
+
+    SpvId relaxedMemoryOrderId =
+            this->writeOpConstant(*fContext.fTypes.fUInt, (int32_t)SpvMemorySemanticsMaskNone);
+
+    switch (kind) {
+        case kAtomicAdd_SpecialIntrinsic:
+            SkASSERT(arguments.size() == 2);
+            this->writeInstruction(SpvOpAtomicIAdd,
+                                   this->getType(c.type()),
+                                   resultId,
+                                   atomicPtrId,
+                                   memoryScopeId,
+                                   relaxedMemoryOrderId,
+                                   this->writeExpression(*arguments[1], out),
+                                   out);
+            break;
+        case kAtomicLoad_SpecialIntrinsic:
+            SkASSERT(arguments.size() == 1);
+            this->writeInstruction(SpvOpAtomicLoad,
+                                   this->getType(c.type()),
+                                   resultId,
+                                   atomicPtrId,
+                                   memoryScopeId,
+                                   relaxedMemoryOrderId,
+                                   out);
+            break;
+        case kAtomicStore_SpecialIntrinsic:
+            SkASSERT(arguments.size() == 2);
+            this->writeInstruction(SpvOpAtomicStore,
+                                   atomicPtrId,
+                                   memoryScopeId,
+                                   relaxedMemoryOrderId,
+                                   this->writeExpression(*arguments[1], out),
+                                   out);
+            break;
+        default:
+            SkUNREACHABLE;
+    }
+
+    return resultId;
 }
 
 SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const FunctionCall& call,
@@ -2240,6 +2333,9 @@ static SpvStorageClass_ get_storage_class_for_global_variable(
         // would benefit from SPV_KHR_variable_pointers capabilities).
         return SpvStorageClassUniform;
     }
+    if (modifiers.isWorkgroup()) {
+        return SpvStorageClassWorkgroup;
+    }
     return fallbackStorageClass;
 }
 
@@ -2310,6 +2406,10 @@ public:
         return fIsMemoryObject;
     }
 
+    SpvStorageClass storageClass() const override {
+        return fStorageClass;
+    }
+
     SpvId load(OutputStream& out) override {
         return fGen.writeOpLoad(fType, fPrecision, fPointer, out);
     }
@@ -2359,6 +2459,10 @@ public:
         fComponents = updatedSwizzle;
         fSwizzleType = &newType;
         return true;
+    }
+
+    SpvStorageClass storageClass() const override {
+        return fStorageClass;
     }
 
     SpvId load(OutputStream& out) override {
