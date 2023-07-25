@@ -507,7 +507,9 @@ static bool validate_spirv(ErrorReporter& reporter, std::string_view program) {
 #if defined(SKSL_STANDALONE)
         // Convert the string-stream to a SPIR-V disassembly.
         std::string disassembly;
-        if (tools.Disassemble(programData, programSize, &disassembly)) {
+        uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
+        options |= SPV_BINARY_TO_TEXT_OPTION_INDENT;
+        if (tools.Disassemble(programData, programSize, &disassembly, options)) {
             errors.append(disassembly);
         }
         reporter.error(Position(), errors);
