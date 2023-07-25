@@ -59,7 +59,6 @@
 
 #include <algorithm>
 #include <atomic>
-#include <functional>
 #include <memory>
 #include <new>
 #include <optional>
@@ -559,23 +558,21 @@ static skif::ParameterSpace<SkPoint> compute_decomposition_center(
 // Null filters are permitted and act as the identity. The returned mapping will be compatible with
 // the image filter.
 //
-// Returns an empty rect if the layer wouldn't draw anything after filtering.
-static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and_bounds(
+// An empty optional is returned if the layer mapping and bounds couldn't be determined, in which
+// case the layer should be skipped. An instantiated optional can have an empty layer bounds rect
+// if the image filter doesn't require an input image to produce a valid output.
+static std::optional<std::pair<skif::Mapping, skif::LayerSpace<SkIRect>>>
+get_layer_mapping_and_bounds(
         const SkImageFilter* filter,
         const SkMatrix& localToDst,
         const skif::DeviceSpace<SkIRect>& targetOutput,
         const skif::ParameterSpace<SkRect>* contentBounds = nullptr,
         bool mustCoverDst = true,
         SkScalar scaleFactor = 1.0f) {
-    auto failedMapping = []() {
-        return std::make_pair<skif::Mapping, skif::LayerSpace<SkIRect>>(
-                {}, skif::LayerSpace<SkIRect>::Empty());
-    };
-
     SkMatrix dstToLocal;
     if (!localToDst.isFinite() ||
         !localToDst.invert(&dstToLocal)) {
-        return failedMapping();
+        return {};
     }
 
     skif::ParameterSpace<SkPoint> center =
@@ -590,13 +587,13 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
     // transforms with perspective and skew from triggering excessive buffer allocations.
     skif::Mapping mapping;
     if (!mapping.decomposeCTM(localToDst, filter, center)) {
-        return failedMapping();
+        return {};
     }
     // Push scale factor into layer matrix and device matrix (net no change, but the layer will have
     // its resolution adjusted in comparison to the final device).
     if (scaleFactor != 1.0f &&
         !mapping.adjustLayerSpace(SkMatrix::Scale(scaleFactor, scaleFactor))) {
-        return failedMapping();
+        return {};
     }
 
     // Perspective and skew could exceed this since mapping.deviceToLayer(targetOutput) is
@@ -628,7 +625,7 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
             // extent (i.e., they implement the CSS filter-effects 'filter region' feature).
             skif::LayerSpace<SkIRect> knownBounds = mapping.paramToLayer(*contentBounds).roundOut();
             if (!layerBounds.intersect(knownBounds)) {
-                return failedMapping();
+                return {};
             }
         }
     }
@@ -641,13 +638,13 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
                                                    SkRect::Make(SkIRect(newLayerBounds)),
                                                    SkMatrix::kFill_ScaleToFit);
         if (!mapping.adjustLayerSpace(adjust)) {
-            return failedMapping();
+            return {};
         } else {
             layerBounds = newLayerBounds;
         }
     }
 
-    return {mapping, layerBounds};
+    return std::make_pair(mapping, layerBounds);
 }
 
 // Ideally image filters operate in the dst color type, but if there is insufficient alpha bits
@@ -724,32 +721,35 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
     } else {
         // Compute the image filter mapping by decomposing the local->device matrix of dst and
         // re-determining the required input.
-        std::tie(mapping, requiredInput) = get_layer_mapping_and_bounds(
+        auto mappingAndBounds = get_layer_mapping_and_bounds(
                 filter, dst->localToDevice(), skif::DeviceSpace<SkIRect>(dst->devClipBounds()),
                 nullptr, true, SkTPin(scaleFactor, 0.f, 1.f));
-        if (requiredInput.isEmpty()) {
+        if (!mappingAndBounds) {
             return;
         }
 
-        // The above mapping transforms from local to dst's device space, where the layer space
-        // represents the intermediate buffer. Now we need to determine the transform from src to
-        // intermediate to prepare the input to the filter.
-        if (!localToSrc.invert(&srcToIntermediate)) {
-            return;
-        }
-        srcToIntermediate.postConcat(mapping.layerMatrix());
-        if (can_layer_be_drawn_as_sprite(srcToIntermediate, srcDims)) {
-            // src differs from intermediate by just an integer translation, so it can be applied
-            // automatically when taking a subset of src if we update the mapping.
-            skif::LayerSpace<SkIPoint> srcOrigin({(int) srcToIntermediate.getTranslateX(),
-                                                  (int) srcToIntermediate.getTranslateY()});
-            mapping.applyOrigin(srcOrigin);
-            requiredInput.offset(-srcOrigin);
-        } else {
-            // The contents of 'src' will be drawn to an intermediate buffer using srcToIntermediate
-            // and that buffer will be the input to the image filter.
-            needsIntermediateImage = true;
-        }
+        std::tie(mapping, requiredInput) = *mappingAndBounds;
+        if (!requiredInput.isEmpty()) {
+            // The above mapping transforms from local to dst's device space, where the layer space
+            // represents the intermediate buffer. Now we need to determine the transform from src
+            // to intermediate to prepare the input to the filter.
+            if (!localToSrc.invert(&srcToIntermediate)) {
+                return;
+            }
+            srcToIntermediate.postConcat(mapping.layerMatrix());
+            if (can_layer_be_drawn_as_sprite(srcToIntermediate, srcDims)) {
+                // src differs from intermediate by just an integer translation, so it can be
+                // applied automatically when taking a subset of src if we update the mapping.
+                skif::LayerSpace<SkIPoint> srcOrigin({(int) srcToIntermediate.getTranslateX(),
+                                                    (int) srcToIntermediate.getTranslateY()});
+                mapping.applyOrigin(srcOrigin);
+                requiredInput.offset(-srcOrigin);
+            } else {
+                // The contents of 'src' will be drawn to an intermediate buffer using
+                // srcToIntermediate and that buffer will be the input to the image filter.
+                needsIntermediateImage = true;
+            }
+        } // Else no input is needed which can happen from a backdrop filter that doesn't use src
     }
 
     sk_sp<SkSpecialImage> filterInput;
@@ -831,14 +831,15 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
         }
     }
 
-    if (filterInput) {
+    if (filterInput || requiredInput.isEmpty()) {
         const bool useNN = can_layer_be_drawn_as_sprite(mapping.layerToDevice(),
-                                                        filterInput->subset().size());
+                                                        dst->devClipBounds().size());
         SkSamplingOptions sampling{useNN ? SkFilterMode::kNearest : SkFilterMode::kLinear};
         if (filter) {
             dst->drawFilteredImage(mapping, filterInput.get(), filterColorType, filter,
                                    sampling, paint);
         } else {
+            SkASSERT(filterInput); // A null filter input only makes sense if there was a filter
             dst->drawSpecial(filterInput.get(), mapping.layerToDevice(), sampling, paint);
         }
     }
@@ -940,7 +941,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkBaseDevice* priorDevice = this->topDevice();
     skif::Mapping newLayerMapping;
     skif::LayerSpace<SkIRect> layerBounds;
-    std::tie(newLayerMapping, layerBounds) = get_layer_mapping_and_bounds(
+    auto mappingAndBounds = get_layer_mapping_and_bounds(
             filter, priorDevice->localToDevice(),
             skif::DeviceSpace<SkIRect>(priorDevice->devClipBounds()),
             skif::ParameterSpace<SkRect>::Optional(rec.fBounds),
@@ -953,6 +954,13 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         AutoUpdateQRBounds aqr(this);
         this->topDevice()->clipRect(SkRect::MakeEmpty(), SkClipOp::kIntersect, /* aa */ false);
     };
+
+    if (!mappingAndBounds) {
+        abortLayer();
+        return;
+    }
+
+    std::tie(newLayerMapping, layerBounds) = *mappingAndBounds;
 
     if (layerBounds.isEmpty()) {
         // The image filter graph does not require any input, so we don't need to actually render
