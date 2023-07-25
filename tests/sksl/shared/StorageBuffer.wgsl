@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: :17:20 error: unresolved identifier 'offset'
-    let _skTemp0 = offset;
-                   ^^^^^^
-
-
 diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
@@ -14,6 +7,15 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
+struct storageBuffer {
+  offset: u32,
+  inputData: array<SomeData>,
+};
+@group(0) @binding(0) var<storage, read> _storage0 : storageBuffer;
+struct outputBuffer {
+  outputData: array<SomeData>,
+};
+@group(0) @binding(1) var<storage, read_write> _storage1 : outputBuffer;
 struct SomeData {
   a: vec4<f32>,
   b: vec2<f32>,
@@ -21,10 +23,10 @@ struct SomeData {
 fn main(_stageIn: FSIn, _skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
-    let _skTemp0 = offset;
-    let _skTemp1 = offset;
-    outputData[_skTemp0] = inputData[_skTemp1];
-    return vec4<f32>(inputData[_stageIn.bufferIndex].a * inputData[_stageIn.bufferIndex].b.x);
+    let _skTemp2 = _storage0.offset;
+    let _skTemp3 = _storage0.offset;
+    _storage1.outputData[_skTemp2] = _storage0.inputData[_skTemp3];
+    return vec4<f32>(_storage0.inputData[_stageIn.bufferIndex].a * _storage0.inputData[_stageIn.bufferIndex].b.x);
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
@@ -32,5 +34,3 @@ fn main(_stageIn: FSIn, _skParam0: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = main(_stageIn, _stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
-
-1 error

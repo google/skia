@@ -440,14 +440,6 @@ bool is_in_global_uniforms(const Variable& var) {
            !var.interfaceBlock();
 }
 
-bool is_in_anonymous_uniform_block(const Variable& var) {
-    SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return  var.modifiers().isUniform() &&
-           !var.type().isOpaque() &&
-            var.interfaceBlock() &&
-            var.interfaceBlock()->instanceName().empty();
-}
-
 }  // namespace
 
 class WGSLCodeGenerator::LValue {
@@ -606,7 +598,7 @@ bool WGSLCodeGenerator::generateCode() {
         this->writeLine("diagnostic(off, derivative_uniformity);");
         this->writeStageInputStruct();
         this->writeStageOutputStruct();
-        this->writeUniformsStruct();
+        this->writeUniformsAndBuffers();
         this->writeNonBlockUniformsForTests();
     }
     StringStream body;
@@ -2325,7 +2317,7 @@ std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression
     return expr;
 }
 
-std::string_view WGSLCodeGenerator::variablePrefix(const Variable& v) {
+std::string WGSLCodeGenerator::variablePrefix(const Variable& v) {
     if (v.storage() == Variable::Storage::kGlobal) {
         // If the field refers to a pipeline IO parameter, then we access it via the synthesized IO
         // structs. We make an explicit exception for `sk_PointSize` which we declare as a
@@ -2338,10 +2330,12 @@ std::string_view WGSLCodeGenerator::variablePrefix(const Variable& v) {
             return "(*_stageOut).";
         }
 
-        // If the field refers to an anonymous-interface-block uniform, access it via the
-        // synthesized `_uniforms` global.
-        if (is_in_anonymous_uniform_block(v)) {
-            return "_uniforms.";
+        // If the field refers to an anonymous-interface-block structure, access it via the
+        // synthesized `_uniform0` or `_storage1` global.
+        if (const InterfaceBlock* ib = v.interfaceBlock()) {
+            if (const std::string* ibName = fInterfaceBlockNameMap.find(&ib->var()->type())) {
+                return *ibName + '.';
+            }
         }
 
         // If the field refers to an top-level uniform, access it via the synthesized
@@ -2365,8 +2359,7 @@ std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableRefe
         return "(*" + this->assembleName(v.mangledName()) + ')';
     }
 
-    return std::string(this->variablePrefix(v)) +
-           this->assembleName(v.mangledName());
+    return this->variablePrefix(v) + this->assembleName(v.mangledName());
 }
 
 std::string WGSLCodeGenerator::assembleVariableReference(const VariableReference& r) {
@@ -2825,44 +2818,53 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     }
 }
 
-void WGSLCodeGenerator::writeUniformsStruct() {
-    std::string_view uniformsType;
-    std::string_view uniformsName;
+void WGSLCodeGenerator::writeUniformsAndBuffers() {
     for (const ProgramElement* e : fProgram.elements()) {
-        // Search for an interface block marked `uniform`.
+        // Iterate through the interface blocks.
         if (!e->is<InterfaceBlock>()) {
             continue;
         }
         const InterfaceBlock& ib = e->as<InterfaceBlock>();
-        if (!ib.var()->modifiers().isUniform()) {
+
+        // Determine if this interface block holds uniforms, buffers, or something else (skip it).
+        std::string_view addressSpace;
+        std::string_view accessMode;
+        if (ib.var()->modifiers().isUniform()) {
+            addressSpace = "uniform";
+        } else if (ib.var()->modifiers().isBuffer()) {
+            addressSpace = "storage";
+            if (ib.var()->modifiers().isReadOnly()) {
+                accessMode = ", read";
+            } else if (ib.var()->modifiers().isWriteOnly()) {
+                accessMode = ", write";
+            } else {
+                accessMode = ", read_write";
+            }
+        } else {
             continue;
         }
-        // We should only find one; Skia never creates more than one interface block for its
-        // uniforms. (However, we might use multiple storage buffers.)
-        if (!uniformsType.empty()) {
-            fContext.fErrors->error(ib.fPosition,
-                                    "all uniforms should be contained within one interface block");
-            break;
+
+        // Create a struct to hold all of the fields from this InterfaceBlock.
+        SkASSERT(!ib.typeName().empty());
+        this->write("struct ");
+        this->write(ib.typeName());
+        this->writeLine(" {");
+
+        // If we have an anonymous interface block, assign a name like `_uniform0` or `_storage1`.
+        std::string instanceName;
+        if (ib.instanceName().empty()) {
+            instanceName = "_" + std::string(addressSpace) + std::to_string(fScratchCount++);
+            fInterfaceBlockNameMap[&ib.var()->type()] = instanceName;
+        } else {
+            instanceName = std::string(ib.instanceName());
         }
+
         // Find the struct type and fields used by this interface block.
         const Type& ibType = ib.var()->type().componentType();
         SkASSERT(ibType.isStruct());
 
         SkSpan<const Field> ibFields = ibType.fields();
         SkASSERT(!ibFields.empty());
-
-        // Create a struct to hold all of the uniforms from this InterfaceBlock.
-        uniformsType = ib.typeName();
-        if (uniformsType.empty()) {
-            uniformsType = "_UniformBuffer";
-        }
-        uniformsName = ib.instanceName();
-        if (uniformsName.empty()) {
-            uniformsName = "_uniforms";
-        }
-        this->write("struct ");
-        this->write(uniformsType);
-        this->writeLine(" {");
 
         // TODO: We should validate offsets/layouts with SkSLMemoryLayout here. We can mimic the
         // approach used in MetalCodeGenerator.
@@ -2878,8 +2880,11 @@ void WGSLCodeGenerator::writeUniformsStruct() {
         this->write(std::to_string(std::max(0, ib.var()->modifiers().fLayout.fSet)));
         this->write(") @binding(");
         this->write(std::to_string(std::max(0, ib.var()->modifiers().fLayout.fBinding)));
-        this->write(") var<uniform> ");
-        this->write(uniformsName);
+        this->write(") var<");
+        this->write(addressSpace);
+        this->write(accessMode);
+        this->write("> ");
+        this->write(instanceName);
         this->write(" : ");
         this->write(to_wgsl_type(ib.var()->type()));
         this->writeLine(";");

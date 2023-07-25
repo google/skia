@@ -204,7 +204,7 @@ private:
     std::unique_ptr<LValue> makeLValue(const Expression& e);
 
     std::string variableReferenceNameForLValue(const VariableReference& r);
-    std::string_view variablePrefix(const Variable& v);
+    std::string variablePrefix(const Variable& v);
 
     // Writers for expressions. These return the final expression text as a string, and emit any
     // necessary setup code directly into the program as necessary. The returned expression may be
@@ -295,7 +295,7 @@ private:
     // We bundle uniforms, and all varying pipeline stage inputs and outputs, into separate structs.
     void writeStageInputStruct();
     void writeStageOutputStruct();
-    void writeUniformsStruct();
+    void writeUniformsAndBuffers();
 
     // Writes all top-level non-opaque global uniform declarations (i.e. not part of an interface
     // block) into a single uniform block binding.
@@ -316,6 +316,9 @@ private:
     // written.
     std::string functionDependencyArgs(const FunctionDeclaration&);
     bool writeFunctionDependencyParams(const FunctionDeclaration&);
+
+    // We assign unique names to anonymous interface blocks based on the type.
+    skia_private::THashMap<const Type*, std::string> fInterfaceBlockNameMap;
 
     // Stores the disallowed identifier names.
     skia_private::THashSet<std::string_view> fReservedWords;

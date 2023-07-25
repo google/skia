@@ -15,7 +15,7 @@ struct testBlock {
 ^^^^^^
 
 :14:36 note: 'testBlock' used in address space 'uniform' here
-@group(0) @binding(0) var<uniform> _uniforms : testBlock;
+@group(0) @binding(0) var<uniform> _uniform0 : testBlock;
                                    ^^^^^^^^^
 
 
@@ -32,10 +32,10 @@ struct testBlock {
   y: array<f32, 2>,
   z: mat3x3<f32>,
 };
-@group(0) @binding(0) var<uniform> _uniforms : testBlock;
+@group(0) @binding(0) var<uniform> _uniform0 : testBlock;
 fn main(_stageOut: ptr<function, FSOut>) {
   {
-    (*_stageOut).sk_FragColor = vec4<f32>(_uniforms.x, _uniforms.y[0], _uniforms.y[1], 0.0);
+    (*_stageOut).sk_FragColor = vec4<f32>(_uniform0.x, _uniform0.y[0], _uniform0.y[1], 0.0);
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
