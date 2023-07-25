@@ -142,6 +142,8 @@ private:
         kAtomicAdd_SpecialIntrinsic,
         kAtomicLoad_SpecialIntrinsic,
         kAtomicStore_SpecialIntrinsic,
+        kStorageBarrier_SpecialIntrinsic,
+        kWorkgroupBarrier_SpecialIntrinsic,
     };
 
     enum class Precision {

@@ -302,6 +302,9 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
         case k_atomicAdd_IntrinsicKind:   return SPECIAL(AtomicAdd);
         case k_atomicLoad_IntrinsicKind:  return SPECIAL(AtomicLoad);
         case k_atomicStore_IntrinsicKind: return SPECIAL(AtomicStore);
+
+        case k_storageBarrier_IntrinsicKind:   return SPECIAL(StorageBarrier);
+        case k_workgroupBarrier_IntrinsicKind: return SPECIAL(WorkgroupBarrier);
         default:
             return Intrinsic{kInvalid_IntrinsicOpcodeKind, 0, 0, 0, 0};
     }
@@ -1662,6 +1665,25 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kAtomicStore_SpecialIntrinsic:
             result = this->writeAtomicIntrinsic(c, kind, result, out);
             break;
+        case kStorageBarrier_SpecialIntrinsic:
+        case kWorkgroupBarrier_SpecialIntrinsic: {
+            // Both barrier types operate in the workgroup execution and memory scope and differ
+            // only in memory semantics. storageBarrier() is not a device-scope barrier.
+            SpvId scopeId =
+                    this->writeOpConstant(*fContext.fTypes.fUInt, (int32_t)SpvScopeWorkgroup);
+            int32_t memSemMask = (kind == kStorageBarrier_SpecialIntrinsic)
+                                         ? SpvMemorySemanticsAcquireReleaseMask |
+                                                   SpvMemorySemanticsUniformMemoryMask
+                                         : SpvMemorySemanticsAcquireReleaseMask |
+                                                   SpvMemorySemanticsWorkgroupMemoryMask;
+            SpvId memorySemanticsId = this->writeOpConstant(*fContext.fTypes.fUInt, memSemMask);
+            this->writeInstruction(SpvOpControlBarrier,
+                                   scopeId,  // execution scope
+                                   scopeId,  // memory scope
+                                   memorySemanticsId,
+                                   out);
+            break;
+        }
     }
     return result;
 }
