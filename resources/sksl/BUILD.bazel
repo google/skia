@@ -5,6 +5,7 @@ skia_filegroup(
     name = "sksl",
     srcs = [
         ":sksl_blend_tests",
+        ":sksl_compute_tests",
         ":sksl_error_tests",
         ":sksl_folding_tests",
         ":sksl_glsl_tests",
@@ -62,6 +63,7 @@ skia_filegroup(
     name = "sksl_metal_tests_sources",
     srcs = [
         ":sksl_blend_tests",
+        ":sksl_compute_tests",
         ":sksl_metal_tests",
         ":sksl_shared_tests",
     ],
@@ -157,6 +159,25 @@ skia_filegroup(
         "blend/BlendSrcOut.sksl",
         "blend/BlendSrcOver.sksl",
         "blend/BlendXor.sksl",
+    ],
+)
+
+skia_filegroup(
+    name = "sksl_compute_tests",
+    srcs = [
+        "compute/ArrayAdd.compute",
+        "compute/AtomicDeclarations.compute",
+        "compute/AtomicOperations.compute",
+        "compute/AtomicOperationsOverArrayAndStruct.compute",
+        "compute/Barrier.compute",
+        "compute/BuiltinStageInputs.compute",
+        "compute/Desaturate.compute",
+        "compute/DesaturateFunction.compute",
+        "compute/DesaturateReadWrite.compute",
+        "compute/MatrixMultiply.compute",
+        "compute/Raytrace.compute",
+        "compute/Uniforms.compute",
+        "compute/Workgroup.compute",
     ],
 )
 
@@ -270,6 +291,10 @@ skia_filegroup(
         "errors/InvalidBackendBindingFlagsMetal.sksl",
         "errors/InvalidBackendBindingFlagsSPIRV.sksl",
         "errors/InvalidBackendBindingFlagsWGSL.sksl",
+        "errors/InvalidInOutType.compute",
+        "errors/InvalidMainParameters.compute",
+        "errors/InvalidMainReturn.compute",
+        "errors/InvalidUnsizedArray.compute",
         "errors/InvalidExtensionDirective.sksl",
         "errors/InvalidOutParams.sksl",
         "errors/InvalidToken.rts",
@@ -565,24 +590,6 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_metal_tests",
     srcs = [
-        "compute/ArrayAdd.compute",
-        "compute/AtomicDeclarations.compute",
-        "compute/AtomicOperations.compute",
-        "compute/AtomicOperationsOverArrayAndStruct.compute",
-        "compute/Barrier.compute",
-        "compute/BuiltinStageInputs.compute",
-        "compute/Desaturate.compute",
-        "compute/DesaturateFunction.compute",
-        "compute/DesaturateReadWrite.compute",
-        "compute/MatrixMultiply.compute",
-        "compute/Raytrace.compute",
-        "compute/Uniforms.compute",
-        "compute/Workgroup.compute",
-        "errors/ArrayUnspecifiedDimensions.sksl",
-        "errors/InvalidInOutType.compute",
-        "errors/InvalidMainParameters.compute",
-        "errors/InvalidMainReturn.compute",
-        "errors/InvalidUnsizedArray.compute",
         "metal/CastHalf4ToMat2x2.sksl",
         "metal/CastMat2x2ToMat3x3.sksl",
         "metal/CastMat2x3ToMat4x4.sksl",

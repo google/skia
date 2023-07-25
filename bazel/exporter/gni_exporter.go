@@ -90,7 +90,7 @@ const skslTestsFooter = `sksl_glsl_tests_sources =
 sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 
 sksl_metal_tests_sources =
-    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
+    sksl_blend_tests + sksl_compute_tests + sksl_metal_tests + sksl_shared_tests
 
 sksl_hlsl_tests_sources = sksl_blend_tests + sksl_shared_tests
 
