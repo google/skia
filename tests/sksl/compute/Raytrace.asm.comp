@@ -1,0 +1,18 @@
+### Compilation failed:
+
+error: 8: unsupported intrinsic '$pure uint textureWidth($genTexture2D t)'
+    float x = (float(sk_GlobalInvocationID.x * 2 - textureWidth(dest)) / float(textureWidth(dest)));
+                                                   ^^^^^^^^^^^^^^^^^^
+error: 8: unsupported intrinsic '$pure uint textureWidth($genTexture2D t)'
+    float x = (float(sk_GlobalInvocationID.x * 2 - textureWidth(dest)) / float(textureWidth(dest)));
+                                                                               ^^^^^^^^^^^^^^^^^^
+error: 9: unsupported intrinsic '$pure uint textureHeight($genTexture2D t)'
+    float y = (float(sk_GlobalInvocationID.y * 2 - textureHeight(dest)) / float(textureHeight(dest)));
+                                                   ^^^^^^^^^^^^^^^^^^^
+error: 9: unsupported intrinsic '$pure uint textureHeight($genTexture2D t)'
+    float y = (float(sk_GlobalInvocationID.y * 2 - textureHeight(dest)) / float(textureHeight(dest)));
+                                                                                ^^^^^^^^^^^^^^^^^^^
+error: 25: unsupported intrinsic 'void textureWrite($writableTexture2D t, uint2 pos, half4 color)'
+    textureWrite(dest, sk_GlobalInvocationID.xy, pixel);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5 errors

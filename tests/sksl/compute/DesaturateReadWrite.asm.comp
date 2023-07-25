@@ -1,0 +1,15 @@
+### Compilation failed:
+
+error: 9: unsupported intrinsic '$pure uint textureWidth($genTexture2D t)'
+    if (sk_GlobalInvocationID.x < textureWidth(tex) && sk_GlobalInvocationID.y < textureHeight(tex)) {
+                                  ^^^^^^^^^^^^^^^^^
+error: 9: unsupported intrinsic '$pure uint textureHeight($genTexture2D t)'
+    if (sk_GlobalInvocationID.x < textureWidth(tex) && sk_GlobalInvocationID.y < textureHeight(tex)) {
+                                                                                 ^^^^^^^^^^^^^^^^^^
+error: 10: unsupported intrinsic '$pure half4 textureRead($readableTexture2D t, uint2 pos)'
+        textureWrite(tex, sk_GlobalInvocationID.xy, desaturate(textureRead(tex, sk_GlobalInvocationID.xy)));
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 10: unsupported intrinsic 'void textureWrite($writableTexture2D t, uint2 pos, half4 color)'
+        textureWrite(tex, sk_GlobalInvocationID.xy, desaturate(textureRead(tex, sk_GlobalInvocationID.xy)));
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+4 errors

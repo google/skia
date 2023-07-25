@@ -1,0 +1,18 @@
+### Compilation failed:
+
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: 25: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+    atomicAdd(wgAtomicArray[1], atomicLoad(wgAtomic));
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 26: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+    atomicAdd(wgAtomicArray[0], atomicLoad(wgAtomicArray[1]));
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 27: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+    atomicAdd(wgNestedStructWithAtomicMember.nestedStructWithAtomicMember.structMemberAtomic, 1);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+9 errors

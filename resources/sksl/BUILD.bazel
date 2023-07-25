@@ -98,6 +98,7 @@ skia_filegroup(
     name = "sksl_spirv_tests_sources",
     srcs = [
         ":sksl_blend_tests",
+        ":sksl_compute_tests",
         ":sksl_shared_tests",
         ":sksl_spirv_tests",
     ],

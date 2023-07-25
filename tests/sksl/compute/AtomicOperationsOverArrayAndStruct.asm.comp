@@ -1,0 +1,27 @@
+### Compilation failed:
+
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: 16: unsupported intrinsic 'void atomicStore(atomicUint a, uint value)'
+        atomicStore(localCounts[0], 0);
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 17: unsupported intrinsic 'void atomicStore(atomicUint a, uint value)'
+        atomicStore(localCounts[1], 0);
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 21: unsupported intrinsic 'void workgroupBarrier()'
+    workgroupBarrier();
+    ^^^^^^^^^^^^^^^^^^
+error: 25: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+    atomicAdd(localCounts[idx], 1);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 30: unsupported intrinsic 'void workgroupBarrier()'
+    workgroupBarrier();
+    ^^^^^^^^^^^^^^^^^^
+error: 34: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+        atomicAdd(globalCounts.firstHalfCount, atomicLoad(localCounts[0]));
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 35: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+        atomicAdd(globalCounts.secondHalfCount, atomicLoad(localCounts[1]));
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 errors

@@ -1,0 +1,20 @@
+### Compilation failed:
+
+error: atomics are not yet supported
+error: atomics are not yet supported
+error: 10: unsupported intrinsic 'void atomicStore(atomicUint a, uint value)'
+        atomicStore(localCounter, 0);
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 14: unsupported intrinsic 'void workgroupBarrier()'
+    workgroupBarrier();
+    ^^^^^^^^^^^^^^^^^^
+error: 17: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+    atomicAdd(localCounter, 1);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 22: unsupported intrinsic 'void workgroupBarrier()'
+    workgroupBarrier();
+    ^^^^^^^^^^^^^^^^^^
+error: 26: unsupported intrinsic 'uint atomicAdd(atomicUint a, uint value)'
+        atomicAdd(globalCounter, atomicLoad(localCounter));
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7 errors

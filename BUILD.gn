@@ -834,9 +834,11 @@ if (skia_compile_sksl_tests) {
         sources += [ src ]
 
         foreach(outExtension, invoker.outExtensions) {
-          # SPIR-V uses separate extensions for .vert shaders.
+          # SPIR-V uses separate extensions for .vert and .compute shaders.
           if (ext == "vert" && outExtension == ".asm.frag") {
             outExtension = ".asm.vert"
+          } else if (ext == "compute" && outExtension == ".asm.frag") {
+            outExtension = ".asm.comp"
           }
           outputs +=
               [ target_out_dir + "/" +

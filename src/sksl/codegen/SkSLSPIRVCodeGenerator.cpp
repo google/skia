@@ -1142,6 +1142,10 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                                 SpvImageFormatUnknown},
                                           fConstantBuffer);
         }
+        case Type::TypeKind::kAtomic:
+            // TODO(b/262428625): Implement atomics
+            fContext.fErrors->error(type->fPosition, "atomics are not yet supported");
+            return NA;
         default: {
             SkDEBUGFAILF("invalid type: %s", type->description().c_str());
             return NA;
@@ -4360,6 +4364,8 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         this->writeWord(SpvExecutionModelVertex, out);
     } else if (ProgramConfig::IsFragment(program.fConfig->fKind)) {
         this->writeWord(SpvExecutionModelFragment, out);
+    } else if (ProgramConfig::IsCompute(program.fConfig->fKind)) {
+        this->writeWord(SpvExecutionModelGLCompute, out);
     } else {
         SK_ABORT("cannot write this kind of program to SPIR-V\n");
     }
@@ -4373,6 +4379,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         this->writeInstruction(SpvOpExecutionMode,
                                fFunctionMap[main],
                                SpvExecutionModeOriginUpperLeft,
+                               out);
+    } else if (ProgramConfig::IsCompute(program.fConfig->fKind)) {
+        this->writeInstruction(SpvOpExecutionMode,
+                               fFunctionMap[main],
+                               SpvExecutionModeLocalSize,
+                               16, 16, 1, // TODO(b/240615224): Set these based on the SkSL source.
                                out);
     }
     for (const ProgramElement* e : program.elements()) {

@@ -41,6 +41,8 @@ def executeWorklist(input, worklist):
     os.remove(worklist.name)
 
 def extensionForSpirvAsm(ext):
+    if (ext == '.compute'):
+        return '.comp'
     return ext if (ext == '.frag' or ext == '.vert') else '.frag'
 
 if settings != "--settings" and settings != "--nosettings":
