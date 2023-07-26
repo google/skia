@@ -42,12 +42,6 @@ public:
     static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, SkFilterMode,
                                 const SkMatrix*, const SkRect*);
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
-
     SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, SkFilterMode, const SkRect*);
 
     ShaderType type() const override { return ShaderType::kPicture; }

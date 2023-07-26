@@ -12,12 +12,6 @@
 #include "include/core/SkScalar.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 class SkArenaAlloc;
 class SkMatrix;
 class SkRasterPipeline;
@@ -29,11 +23,9 @@ public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
     GradientType asGradient(GradientInfo* info, SkMatrix* matrix) const override;
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
+
+    const SkPoint& center() const { return fCenter; }
+    SkScalar radius() const { return fRadius; }
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;

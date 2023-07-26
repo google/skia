@@ -48,14 +48,6 @@ class Variable;
 struct Program;
 }
 
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite {
-class KeyContext;
-class PaintParamsKeyBuilder;
-class PipelineDataGatherer;
-}  // namespace skgpu::graphite
-#endif
-
 class SkRuntimeEffectPriv {
 public:
     struct UniformsCallbackContext {
@@ -129,14 +121,6 @@ public:
                                  skia_private::TArray<SkRuntimeEffect::ChildPtr>* children);
     static void WriteChildEffects(SkWriteBuffer& buffer,
                                   SkSpan<const SkRuntimeEffect::ChildPtr> children);
-
-#if defined(SK_GRAPHITE)
-static void AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPtr> children,
-                             SkSpan<const SkRuntimeEffect::Child> childInfo,
-                             const skgpu::graphite::KeyContext& keyContext,
-                             skgpu::graphite::PaintParamsKeyBuilder* builder,
-                             skgpu::graphite::PipelineDataGatherer* gatherer);
-#endif
 };
 
 // These internal APIs for creating runtime effects vary from the public API in two ways:

@@ -17,16 +17,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/TextureProxyView.h"
-#include "src/image/SkImage_Base.h"
-#endif  // SK_GRAPHITE
-
 namespace {
 
 // noiseValue is the color component's value (or color)
@@ -63,6 +53,10 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
     SkASSERT(numOctaves >= 0 && numOctaves <= kMaxOctaves);
     SkASSERT(fBaseFrequencyX >= 0);
     SkASSERT(fBaseFrequencyY >= 0);
+
+    // If kBlockSize changes then it must be changed in the SkSL noise_function
+    // implementation and the graphite backend
+    static_assert(SkPerlinNoiseShader::kBlockSize == 256);
 }
 
 sk_sp<SkFlattenable> SkPerlinNoiseShader::CreateProc(SkReadBuffer& buffer) {
@@ -249,85 +243,6 @@ void SkPerlinNoiseShader::PerlinNoiseShaderContext::shadeSpan(int x,
         point.fX += SK_Scalar1;
     }
 }
-
-#if defined(SK_GRAPHITE)
-
-// If either of these change then the corresponding change must also be made in the SkSL
-// perlin_noise_shader function.
-static_assert((int)SkPerlinNoiseShader::kFractalNoise_Type ==
-              (int)skgpu::graphite::PerlinNoiseShaderBlock::Type::kFractalNoise);
-static_assert((int)SkPerlinNoiseShader::kTurbulence_Type ==
-              (int)skgpu::graphite::PerlinNoiseShaderBlock::Type::kTurbulence);
-
-void SkPerlinNoiseShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    // If kBlockSize changes here then it must also be changed in the SkSL noise_function
-    // implementation.
-    static_assert(SkPerlinNoiseShader::kBlockSize == 256);
-
-    using namespace skgpu::graphite;
-
-    SkASSERT(fNumOctaves);
-
-    SkMatrix totalMatrix = keyContext.local2Dev().asM33();
-    if (keyContext.localMatrix()) {
-        totalMatrix.preConcat(*keyContext.localMatrix());
-    }
-
-    SkMatrix invTotal;
-    bool result = totalMatrix.invert(&invTotal);
-    if (!result) {
-        SKGPU_LOG_W("Couldn't invert totalMatrix for PerlinNoiseShader");
-
-        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
-        builder->endBlock();
-        return;
-    }
-
-    auto paintingData = this->getPaintingData(totalMatrix);
-    paintingData->generateBitmaps();
-
-    sk_sp<TextureProxy> perm = RecorderPriv::CreateCachedProxy(
-            keyContext.recorder(), paintingData->getPermutationsBitmap());
-
-    sk_sp<TextureProxy> noise =
-            RecorderPriv::CreateCachedProxy(keyContext.recorder(), paintingData->getNoiseBitmap());
-
-    if (!perm || !noise) {
-        SKGPU_LOG_W("Couldn't create tables for PerlinNoiseShader");
-
-        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
-        builder->endBlock();
-        return;
-    }
-
-    PerlinNoiseShaderBlock::PerlinNoiseData data(
-            static_cast<PerlinNoiseShaderBlock::Type>(fType),
-            paintingData->fBaseFrequency,
-            fNumOctaves,
-            {paintingData->fStitchDataInit.fWidth, paintingData->fStitchDataInit.fHeight});
-
-    data.fPermutationsProxy = std::move(perm);
-    data.fNoiseProxy = std::move(noise);
-
-    // This (1,1) translation is due to WebKit's 1 based coordinates for the noise
-    // (as opposed to 0 based, usually). Remember: this matrix (shader2World) is going to be
-    // inverted before being applied.
-    SkMatrix shader2Local =
-            SkMatrix::Translate(-1 + totalMatrix.getTranslateX(), -1 + totalMatrix.getTranslateY());
-    shader2Local.postConcat(invTotal);
-
-    LocalMatrixShaderBlock::LMShaderData lmShaderData(shader2Local);
-
-    KeyContextWithLocalMatrix newContext(keyContext, shader2Local);
-
-    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
-    PerlinNoiseShaderBlock::BeginBlock(newContext, builder, gatherer, &data);
-    builder->endBlock();
-    builder->endBlock();
-}
-#endif  // SK_GRAPHITE
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -63,12 +63,6 @@
 class SkColorSpace;
 struct SkIPoint;
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 // Set `skia_enable_sksl_in_raster_pipeline = true` in your GN args to use Raster Pipeline SkSL.
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
@@ -802,47 +796,6 @@ const SkRuntimeEffect::Child* SkRuntimeEffect::findChild(std::string_view name) 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined(SK_GRAPHITE)
-void SkRuntimeEffectPriv::AddChildrenToKey(SkSpan<const SkRuntimeEffect::ChildPtr> children,
-                                           SkSpan<const SkRuntimeEffect::Child> childInfo,
-                                           const skgpu::graphite::KeyContext& keyContext,
-                                           skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                           skgpu::graphite::PipelineDataGatherer* gatherer) {
-    using namespace skgpu::graphite;
-
-    SkASSERT(children.size() == childInfo.size());
-
-    for (size_t index = 0; index < children.size(); ++index) {
-        const SkRuntimeEffect::ChildPtr& child = children[index];
-        std::optional<ChildType> type = child.type();
-        if (type == ChildType::kShader) {
-            as_SB(child.shader())->addToKey(keyContext, builder, gatherer);
-        } else if (type == ChildType::kColorFilter) {
-            AddToKey(keyContext, builder, gatherer, child.colorFilter());
-        } else if (type == ChildType::kBlender) {
-            AddToKey(keyContext, builder, gatherer, child.blender());
-        } else {
-            // We don't have a child effect. Substitute in a no-op effect.
-            switch (childInfo[index].type) {
-                case ChildType::kShader:
-                case ChildType::kColorFilter:
-                    // A "passthrough" shader returns the input color as-is.
-                    PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
-                    builder->endBlock();
-                    break;
-
-                case ChildType::kBlender:
-                    // A "passthrough" blender performs `blend_src_over(src, dest)`.
-                    BlendModeBlenderBlock::BeginBlock(
-                            keyContext, builder, gatherer, SkBlendMode::kSrcOver);
-                    builder->endBlock();
-                    break;
-            }
-        }
-    }
-}
-#endif
 
 sk_sp<SkShader> SkRuntimeEffectPriv::MakeDeferredShader(
         const SkRuntimeEffect* effect,

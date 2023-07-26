@@ -20,12 +20,6 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <string>
 
 using namespace skia_private;

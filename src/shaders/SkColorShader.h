@@ -14,11 +14,6 @@
 #include "include/core/SkRefCnt.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 class SkReadBuffer;
 class SkWriteBuffer;
 struct SkStageRec;
@@ -40,12 +35,6 @@ public:
     bool isConstant() const override { return true; }
 
     ShaderType type() const override { return ShaderType::kColor; }
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
 
     SkColor color() const { return fColor; }
 
@@ -73,12 +62,6 @@ public:
     bool isConstant() const override { return true; }
 
     ShaderType type() const override { return ShaderType::kColor4; }
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
 
     sk_sp<SkColorSpace> colorSpace() const { return fColorSpace; }
     SkColor4f color() const { return fColor; }

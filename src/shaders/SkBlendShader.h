@@ -13,12 +13,6 @@
 #include "include/core/SkShader.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/Blend.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <utility>
 
 class SkReadBuffer;
@@ -32,12 +26,6 @@ public:
             : fDst(std::move(dst)), fSrc(std::move(src)), fMode(mode) {}
 
     ShaderType type() const override { return ShaderType::kBlend; }
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
 
     sk_sp<SkShader> dst() const { return fDst; }
     sk_sp<SkShader> src() const { return fSrc; }

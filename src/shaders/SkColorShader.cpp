@@ -22,11 +22,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <utility>
 
 SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
@@ -85,27 +80,6 @@ bool SkColor4Shader::appendStages(const SkStageRec& rec, const SkShaders::Matrix
     rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
     return true;
 }
-
-#if defined(SK_GRAPHITE)
-void SkColorShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                             skgpu::graphite::PaintParamsKeyBuilder* builder,
-                             skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                      SkColor4f::FromColor(fColor).premul());
-    builder->endBlock();
-}
-
-void SkColor4Shader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                              skgpu::graphite::PaintParamsKeyBuilder* builder,
-                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.premul());
-    builder->endBlock();
-}
-#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 

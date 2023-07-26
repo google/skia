@@ -8,6 +8,7 @@
 #ifndef SkGradientShaderPriv_DEFINED
 #define SkGradientShaderPriv_DEFINED
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
@@ -19,10 +20,6 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/shaders/SkShaderBase.h"
-
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#endif
 
 #include <cstddef>
 #include <cstdint>
@@ -81,6 +78,9 @@ public:
     }
 
     const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
+    int getColorCount() const { return fColorCount; }
+    const float* getPositions() const { return fPositions; }
+    const Interpolation& getInterpolation() const { return fInterpolation; }
 
     static bool ValidGradient(const SkColor4f colors[],
                               int count,
@@ -124,24 +124,6 @@ protected:
     const SkMatrix fPtsToUnit;
     SkTileMode fTileMode;
 
-#if defined(SK_GRAPHITE)
-    // When the number of stops exceeds Graphite's uniform-based limit the colors and offsets
-    // are stored in this bitmap. It is stored in the shader so it can be cached with a stable
-    // id and easily regenerated if purged.
-    mutable SkBitmap fColorsAndOffsetsBitmap;
-
-    void addToKeyCommon(const skgpu::graphite::KeyContext&,
-                        skgpu::graphite::PaintParamsKeyBuilder*,
-                        skgpu::graphite::PipelineDataGatherer*,
-                        GradientType,
-                        SkPoint point0,
-                        SkPoint point1,
-                        float radius0,
-                        float radius1,
-                        float bias,
-                        float scale) const;
-#endif
-
 public:
     static void AppendGradientFillStages(SkRasterPipeline* p,
                                          SkArenaAlloc* alloc,
@@ -178,7 +160,16 @@ public:
 
     SkTileMode getTileMode() const { return fTileMode; }
 
+    const SkBitmap& cachedBitmap() const { return fColorsAndOffsetsBitmap; }
+    void setCachedBitmap(SkBitmap b) const { fColorsAndOffsetsBitmap = b; }
+
 private:
+    // When the number of stops exceeds Graphite's uniform-based limit the colors and offsets
+    // are stored in this bitmap. It is stored in the shader so it can be cached with a stable
+    // id and easily regenerated if purged.
+    // TODO(b/293160919) remove this field when we can store bitmaps in the cache by id.
+    mutable SkBitmap fColorsAndOffsetsBitmap;
+
     // Reserve inline space for up to 4 stops.
     inline static constexpr size_t kInlineStopCount = 4;
     inline static constexpr size_t kInlineStorageSize =

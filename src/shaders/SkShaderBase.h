@@ -34,14 +34,6 @@ enum class SkTileMode;
 struct SkDeserialProcs;
 struct SkStageRec;
 
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite {
-class KeyContext;
-class PaintParamsKeyBuilder;
-class PipelineDataGatherer;
-}
-#endif
-
 namespace SkShaders {
 /**
  * This is used to accumulate matrices, starting with the CTM, when building up
@@ -387,20 +379,6 @@ public:
      *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
-
-#if defined(SK_GRAPHITE)
-    /**
-        Add implementation details, for the specified backend, of this SkShader to the
-        provided key.
-
-        @param keyContext backend context for key creation
-        @param builder    builder for creating the key for this SkShader
-        @param gatherer   if non-null, storage for this shader's data
-    */
-    virtual void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                          skgpu::graphite::PaintParamsKeyBuilder* builder,
-                          skgpu::graphite::PipelineDataGatherer* gatherer) const;
-#endif
 
     static SkMatrix ConcatLocalMatrices(const SkMatrix& parentLM, const SkMatrix& childLM) {
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)  // b/256873449

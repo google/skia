@@ -9,12 +9,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 class SkImage;
 enum class SkTileMode;
 struct SkStageRec;
@@ -27,24 +21,6 @@ SkShaderBase::GradientType SkLocalMatrixShader::asGradient(GradientInfo* info,
     }
     return type;
 }
-
-#if defined(SK_GRAPHITE)
-void SkLocalMatrixShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    LocalMatrixShaderBlock::LMShaderData lmShaderData(fLocalMatrix);
-
-    KeyContextWithLocalMatrix newContext(keyContext, fLocalMatrix);
-
-    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
-
-    as_SB(fWrappedShader)->addToKey(newContext, builder, gatherer);
-
-    builder->endBlock();
-}
-#endif
 
 sk_sp<SkFlattenable> SkLocalMatrixShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;

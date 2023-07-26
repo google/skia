@@ -27,12 +27,6 @@
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -75,27 +69,6 @@ SkRuntimeEffect::TracedShader SkRuntimeShader::makeTracedClone(const SkIPoint& c
 
     return SkRuntimeEffect::TracedShader{std::move(debugShader), std::move(debugTrace)};
 }
-
-#if defined(SK_GRAPHITE)
-void SkRuntimeShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                               skgpu::graphite::PaintParamsKeyBuilder* builder,
-                               skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    sk_sp<const SkData> uniforms = SkRuntimeEffectPriv::TransformUniforms(
-            fEffect->uniforms(),
-            this->uniformData(keyContext.dstColorInfo().colorSpace()),
-            keyContext.dstColorInfo().colorSpace());
-    SkASSERT(uniforms);
-
-    RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, std::move(uniforms)});
-
-    SkRuntimeEffectPriv::AddChildrenToKey(
-            fChildren, fEffect->children(), keyContext, builder, gatherer);
-
-    builder->endBlock();
-}
-#endif
 
 bool SkRuntimeShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE

@@ -18,11 +18,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif // SK_GRAPHITE
-
 #include <optional>
 
 sk_sp<SkFlattenable> SkCoordClampShader::CreateProc(SkReadBuffer& buffer) {
@@ -53,20 +48,6 @@ bool SkCoordClampShader::appendStages(const SkStageRec& rec,
     rec.fPipeline->append(SkRasterPipelineOp::clamp_x_and_y, clampCtx);
     return as_SB(fShader)->appendStages(rec, *childMRec);
 }
-
-#if defined(SK_GRAPHITE)
-void SkCoordClampShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                  skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    CoordClampShaderBlock::CoordClampData data(fSubset);
-
-    CoordClampShaderBlock::BeginBlock(keyContext, builder, gatherer, &data);
-        as_SB(fShader)->addToKey(keyContext, builder, gatherer);
-    builder->endBlock();
-}
-#endif // SK_GRAPHITE
 
 void SkRegisterCoordClampShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkCoordClampShader);

@@ -18,11 +18,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <utility>
 
 SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader,
@@ -68,22 +63,3 @@ bool SkColorFilterShader::appendStages(const SkStageRec& rec,
     }
     return true;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined(SK_GRAPHITE)
-
-void SkColorFilterShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    ColorFilterShaderBlock::BeginBlock(keyContext, builder, gatherer);
-
-    as_SB(fShader)->addToKey(keyContext, builder, gatherer);
-    AddToKey(keyContext, builder, gatherer, fFilter.get());
-
-    builder->endBlock();
-}
-
-#endif  // SK_ENABLE_SKSL

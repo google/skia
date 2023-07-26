@@ -7,6 +7,7 @@
 
 #include "include/gpu/graphite/Recorder.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
@@ -355,6 +356,7 @@ void RecorderPriv::flushTrackedDevices() {
 sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,
                                                     const SkBitmap& bitmap,
                                                     Mipmapped mipmapped) {
+    SkASSERT(!bitmap.isNull());
     return recorder->priv().proxyCache()->findOrCreateCachedProxy(recorder, bitmap, mipmapped);
 }
 

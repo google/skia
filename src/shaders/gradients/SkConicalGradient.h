@@ -13,12 +13,6 @@
 #include "include/core/SkScalar.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 class SkArenaAlloc;
 class SkMatrix;
 class SkRasterPipeline;
@@ -64,11 +58,6 @@ public:
                                   const SkMatrix* localMatrix);
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
     bool isOpaque() const override;
 
     SkScalar getCenterX1() const { return SkPoint::Distance(fCenter1, fCenter2); }

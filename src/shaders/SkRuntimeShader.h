@@ -17,12 +17,6 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <vector>
 
 class SkColorSpace;
@@ -50,12 +44,6 @@ public:
     bool isOpaque() const override { return fEffect->alwaysOpaque(); }
 
     ShaderType type() const override { return ShaderType::kRuntime; }
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
-#endif
 
     bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const override;
 

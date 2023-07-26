@@ -25,12 +25,6 @@ public:
 
     ShaderType type() const override { return ShaderType::kColorFilter; }
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
-
     sk_sp<SkShader> shader() const { return fShader; }
     sk_sp<SkColorFilterBase> filter() const { return fFilter; }
     float alpha() const { return fAlpha; }

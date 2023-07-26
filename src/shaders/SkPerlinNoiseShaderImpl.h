@@ -31,16 +31,6 @@ class SkArenaAlloc;
 class SkReadBuffer;
 class SkWriteBuffer;
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/TextureProxyView.h"
-#include "src/image/SkImage_Base.h"
-#endif  // SK_GRAPHITE
-
 class SkPerlinNoiseShader : public SkShaderBase {
 private:
     static constexpr int kBlockSize = 256;
@@ -298,12 +288,6 @@ public:
         SkMatrix fMatrix;
         PaintingData fPaintingData;
     };
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
 
     SkPerlinNoiseShader::Type noiseType() const { return fType; }
     int numOctaves() const { return fNumOctaves; }

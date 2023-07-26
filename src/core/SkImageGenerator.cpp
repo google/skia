@@ -18,10 +18,6 @@
 #include <optional>
 #include <utility>
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/Image_Graphite.h"
-#endif
-
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
     , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID)

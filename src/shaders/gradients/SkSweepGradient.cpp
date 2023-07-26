@@ -25,12 +25,6 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <cstdint>
 #include <tuple>
 #include <utility>
@@ -100,18 +94,6 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
     p->append(SkRasterPipelineOp::xy_to_unit_angle);
     p->append_matrix(alloc, SkMatrix::Scale(fTScale, 1) * SkMatrix::Translate(fTBias, 0));
 }
-
-#if defined(SK_GRAPHITE)
-void SkSweepGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                               skgpu::graphite::PaintParamsKeyBuilder* builder,
-                               skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    this->addToKeyCommon(keyContext, builder, gatherer,
-                         GradientType::kSweep,
-                         fCenter, { 0.0f, 0.0f },
-                         0.0, 0.0f,
-                         fTBias, fTScale);
-}
-#endif
 
 sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
                                             const SkColor4f colors[],

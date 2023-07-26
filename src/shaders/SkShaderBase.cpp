@@ -20,11 +20,6 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <cstring>
 
 class SkWriteBuffer;
@@ -139,18 +134,6 @@ bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace
 }
 
 sk_sp<SkShader> SkShaderBase::makeAsALocalMatrixShader(SkMatrix*) const { return nullptr; }
-
-#if defined(SK_GRAPHITE)
-// TODO: add implementations for derived classes
-void SkShaderBase::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                            skgpu::graphite::PaintParamsKeyBuilder* builder,
-                            skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
-    builder->endBlock();
-}
-#endif
 
 bool SkShaderBase::appendRootStages(const SkStageRec& rec, const SkMatrix& ctm) const {
     return this->appendStages(rec, SkShaders::MatrixRec(ctm));

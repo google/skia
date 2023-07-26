@@ -123,9 +123,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
         builder->endBlock();
     }
 
-    if (fShader) {
-        as_SB(fShader)->addToKey(keyContext, builder, gatherer);
-    }
+    AddToKey(keyContext, builder, gatherer, fShader.get());
 
     if (fPrimitiveBlender) {
         AddPrimitiveBlendBlock(keyContext, builder, gatherer, fPrimitiveBlender.get());

@@ -25,12 +25,6 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -248,23 +242,6 @@ void SkConicalGradient::appendGradientStages(SkArenaAlloc* alloc,
         postPipeline->append(SkRasterPipelineOp::apply_vector_mask, &ctx->fMask);
     }
 }
-
-#if defined(SK_GRAPHITE)
-void SkConicalGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                 skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    this->addToKeyCommon(keyContext,
-                         builder,
-                         gatherer,
-                         GradientType::kConical,
-                         fCenter1,
-                         fCenter2,
-                         fRadius1,
-                         fRadius2,
-                         0.0f,
-                         0.0f);
-}
-#endif
 
 // assumes colors is SkColor4f* and pos is SkScalar*
 #define EXPAND_1_COLOR(count)            \

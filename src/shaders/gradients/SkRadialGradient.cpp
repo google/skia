@@ -21,12 +21,6 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <cstdint>
 #include <utility>
 
@@ -89,18 +83,6 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
                                             SkRasterPipeline*) const {
     p->append(SkRasterPipelineOp::xy_to_radius);
 }
-
-#if defined(SK_GRAPHITE)
-void SkRadialGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    this->addToKeyCommon(keyContext, builder, gatherer,
-                         GradientType::kRadial,
-                         fCenter, { 0.0f, 0.0f },
-                         fRadius, 0.0f,
-                         0.0f, 0.0f);
-}
-#endif
 
 sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar radius,
                                              const SkColor4f colors[],

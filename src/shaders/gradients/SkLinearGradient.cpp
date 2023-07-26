@@ -20,12 +20,6 @@
 #include "src/shaders/SkLocalMatrixShader.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif
-
 #include <cstdint>
 #include <utility>
 
@@ -93,18 +87,6 @@ SkShaderBase::GradientType SkLinearGradient::asGradient(GradientInfo* info,
     }
     return GradientType::kLinear;
 }
-
-#if defined(SK_GRAPHITE)
-void SkLinearGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                                skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    this->addToKeyCommon(keyContext, builder, gatherer,
-                         GradientType::kLinear,
-                         fStart, fEnd,
-                         0.0f, 0.0f,
-                         0.0f, 0.0f);
-}
-#endif
 
 sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                                              const SkColor4f colors[],

@@ -43,12 +43,6 @@ public:
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
     ShaderType type() const override { return ShaderType::kLocalMatrix; }
 
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
-
     sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {
         if (localMatrix) {
             *localMatrix = fLocalMatrix;

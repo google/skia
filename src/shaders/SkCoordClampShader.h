@@ -14,11 +14,6 @@
 #include "include/core/SkShader.h"
 #include "src/shaders/SkShaderBase.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#endif  // SK_GRAPHITE
-
 #include <utility>
 
 class SkReadBuffer;
@@ -31,12 +26,6 @@ public:
             : fShader(std::move(shader)), fSubset(subset) {}
 
     ShaderType type() const override { return ShaderType::kCoordClamp; }
-
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
 
     sk_sp<SkShader> shader() const { return fShader; }
     SkRect subset() const { return fSubset; }
