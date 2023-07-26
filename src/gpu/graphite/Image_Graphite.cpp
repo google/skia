@@ -195,13 +195,3 @@ sk_sp<TextureProxy> Image::MakePromiseImageLazyProxy(
                                   isVolatile,
                                   std::move(callback));
 }
-
-#if !defined(SK_DISABLE_LEGACY_GRAPHITE_IMAGE_METHODS)
-#include "include/gpu/graphite/Image.h"
-
-sk_sp<SkImage> SkImage::makeTextureImage(skgpu::graphite::Recorder* recorder,
-                                         RequiredImageProperties props) const {
-    auto mm = props.fMipmapped == skgpu::Mipmapped::kYes;
-    return SkImages::TextureFromImage(recorder, this, {mm});
-}
-#endif

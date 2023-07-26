@@ -1091,7 +1091,7 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
 #endif
         {
             auto direct = GrAsDirectContext(canvas->recordingContext());
-            image = image->makeColorSpace(SkColorSpace::MakeSRGB(), direct);
+            image = image->makeColorSpace(direct, SkColorSpace::MakeSRGB());
         }
 
         canvas->drawImage(image, 0, 0);

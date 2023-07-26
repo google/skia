@@ -39,12 +39,6 @@ namespace skgpu::graphite {
 class Recorder;
 }
 
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FLUSH)
-enum class GrSemaphoresSubmitted : bool;
-struct GrFlushInfo;
-namespace skgpu { class MutableTextureState; }
-#endif
-
 namespace SkSurfaces {
 
 enum class BackendSurfaceAccess {
@@ -657,25 +651,6 @@ private:
     uint32_t             fGenerationID;
 
     using INHERITED = SkRefCnt;
-
-public:
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FLUSH) && defined(SK_GANESH)
-    using BackendSurfaceAccess = SkSurfaces::BackendSurfaceAccess;
-    GrSemaphoresSubmitted flush(BackendSurfaceAccess access, const GrFlushInfo& info);
-    GrSemaphoresSubmitted flush(const GrFlushInfo& info,
-                                const skgpu::MutableTextureState* newState = nullptr);
-    void resolveMSAA();
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_FLUSH)
-    void flushAndSubmit(bool syncCpu = false);
-    void flush();
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_SKSURFACE_AS_IMAGE) && defined(SK_GRAPHITE)
-    sk_sp<SkImage> asImage();
-#endif
-
 };
 
 #endif

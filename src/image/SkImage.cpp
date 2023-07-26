@@ -301,20 +301,6 @@ sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
     return this->withMipmaps(nullptr);
 }
 
-#if !defined(SK_DISABLE_LEGACY_IMAGE_COLORSPACE_METHODS)
-sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> target, GrDirectContext* direct) const {
-    return makeColorSpace(direct, target);
-}
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_IMAGE_COLORSPACE_METHODS)
-sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
-                                                   sk_sp<SkColorSpace> targetColorSpace,
-                                                   GrDirectContext* direct) const {
-    return makeColorTypeAndColorSpace(direct, targetColorType, targetColorSpace);
-}
-#endif
-
 sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext,
                                        const SkImageFilter* filter,
                                        const SkIRect& subset,
