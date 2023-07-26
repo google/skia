@@ -5810,20 +5810,38 @@ static void test_addPath_and_injected_moveTo(skiatest::Reporter* reporter) {
     };
 
     SkPath path1;
-    SkPath path2;
-
     path1.moveTo(230, 230); // Needed to show the bug: a moveTo before the addRect
+    path1.moveTo(20,30).lineTo(40,30).lineTo(40,50).lineTo(20,50);
+    SkPath path1c(path1);
+    path1c.close();
 
-    // add a rect, but the shape doesn't really matter
-    path1.moveTo(20,30).lineTo(40,30).lineTo(40,50).lineTo(20,50).close();
+    SkPath path2;
+    // If path2 contains zero points, the update calculation isn't tested.
+    path2.moveTo(144, 72);
+    path2.lineTo(146, 72);
+    SkPath path2c(path2);
+    path2c.close();
+    SkPath path3(path2);
+    SkPath path3c(path2c);
 
-    path2.addPath(path1);   // this must correctly update its "last-move-to" so that when
-                            // lineTo is called, it will inject the correct moveTo.
-
-    // at this point, path1 and path2 should be the same...
-
-    test_before_after_lineto(path1, {20,50}, {20,30});
+    // Test addPath, adding a path that ends with close.
+    // The start point of the last contour added,
+    // and the internal flag tracking whether it is closed,
+    // must be updated correctly.
+    path2.addPath(path1c);
+    path2c.addPath(path1c);
+    // At this point, path1c, path2, and path2c should end the same way.
+    test_before_after_lineto(path1c, {20,50}, {20,30});
     test_before_after_lineto(path2, {20,50}, {20,30});
+    test_before_after_lineto(path2c, {20,50}, {20,30});
+
+    // Test addPath, adding a path not ending in close.
+    path3.addPath(path1);
+    path3c.addPath(path1);
+    // At this point, path1, path3, and path3c should end the same way.
+    test_before_after_lineto(path1, {20,50}, {20,50});
+    test_before_after_lineto(path3, {20,50}, {20,50});
+    test_before_after_lineto(path3c, {20,50}, {20,50});
 }
 
 DEF_TEST(pathedger, r) {
@@ -5847,13 +5865,28 @@ DEF_TEST(pathedger, r) {
 }
 
 DEF_TEST(path_addpath_crbug_1153516, r) {
-    // When we add a path to another path, we need to sniff out in case the argument ended
-    // with a kClose, in which case we need to fiddle with our lastMoveIndex (as ::close() does)
+    // When we add a closed path to another path, verify
+    // that the result has the right value for last contour start point.
     SkPath p1, p2;
+    p2.lineTo(10,20);
     p1.addRect({143,226,200,241});
+    p2.addPath(p1);
+    p2.lineTo(262,513); // this should not assert
+    SkPoint rectangleStart = {143, 226};
+    SkPoint lineEnd = {262, 513};
+    SkPoint actualMoveTo = p2.getPoint(p2.countPoints() - 2);
+    REPORTER_ASSERT(r, actualMoveTo == rectangleStart );
+    SkPoint actualLineTo = p2.getPoint(p2.countPoints() - 1);
+    REPORTER_ASSERT(r, actualLineTo == lineEnd);
+
+    // Verify adding a closed path to itself
     p1.addPath(p1);
-    p1.lineTo(262,513); // this should not assert
-}
+    p1.lineTo(262,513);
+    actualMoveTo = p1.getPoint(p1.countPoints() - 2);
+    REPORTER_ASSERT(r, actualMoveTo == rectangleStart );
+    actualLineTo = p1.getPoint(p1.countPoints() - 1);
+    REPORTER_ASSERT(r, actualLineTo == lineEnd);
+ }
 
 DEF_TEST(path_convexity_scale_way_down, r) {
     SkPath path = SkPathBuilder().moveTo(0,0).lineTo(1, 0)
