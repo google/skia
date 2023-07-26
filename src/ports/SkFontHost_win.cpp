@@ -572,7 +572,7 @@ public:
     bool isValid() const;
 
 protected:
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
+    GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(const SkGlyph& glyph, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
@@ -805,56 +805,53 @@ bool SkScalerContext_GDI::isValid() const {
     return fDDC && fFont;
 }
 
-void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
+SkScalerContext::GlyphMetrics SkScalerContext_GDI::generateMetrics(const SkGlyph& glyph,
+                                                                   SkArenaAlloc*) {
     SkASSERT(fDDC);
 
-    glyph->fMaskFormat = fRec.fMaskFormat;
+    GlyphMetrics mx(glyph.maskFormat());
 
     if (fType == SkScalerContext_GDI::kBitmap_Type || fType == SkScalerContext_GDI::kLine_Type) {
         SIZE size;
-        WORD glyphs = glyph->getGlyphID();
+        WORD glyphs = glyph.getGlyphID();
+        int width, height;
         if (0 == GetTextExtentPointI(fDDC, &glyphs, 1, &size)) {
-            glyph->fWidth = SkToS16(fTM.tmMaxCharWidth);
-            glyph->fHeight = SkToS16(fTM.tmHeight);
+            width = fTM.tmMaxCharWidth;
+            height = fTM.tmHeight;
         } else {
-            glyph->fWidth = SkToS16(size.cx);
-            glyph->fHeight = SkToS16(size.cy);
+            width = size.cx;
+            height = size.cy;
         }
 
-        glyph->fTop = SkToS16(-fTM.tmAscent);
         // Bitmap FON cannot underhang, but vector FON may.
         // There appears no means of determining underhang of vector FON.
-        glyph->fLeft = SkToS16(0);
-        glyph->fAdvanceX = glyph->width();
-        glyph->fAdvanceY = 0;
+        int left = 0;
+        int top = -fTM.tmAscent;
+
+        mx.bounds = SkIRect::MakeXYWH(left, top, width, height);
+        mx.advance = SkVector{(float)width, 0};
 
         // Vector FON will transform nicely, but bitmap FON do not.
         if (fType == SkScalerContext_GDI::kLine_Type) {
-            SkRect bounds = SkRect::MakeXYWH(glyph->fLeft, glyph->fTop,
-                                             glyph->width(), glyph->height());
+            SkRect bounds = SkRect::MakeXYWH(left, top, width, height);
             SkMatrix m;
             m.setAll(SkFIXEDToScalar(fMat22.eM11), -SkFIXEDToScalar(fMat22.eM21), 0,
                      -SkFIXEDToScalar(fMat22.eM12), SkFIXEDToScalar(fMat22.eM22), 0,
                      0,  0, 1);
             m.mapRect(&bounds);
-            bounds.roundOut(&bounds);
-            glyph->fLeft = SkScalarTruncToInt(bounds.fLeft);
-            glyph->fTop = SkScalarTruncToInt(bounds.fTop);
-            glyph->fWidth = SkScalarTruncToInt(bounds.width());
-            glyph->fHeight = SkScalarTruncToInt(bounds.height());
+            bounds.roundOut(&mx.bounds);
         }
 
         // Apply matrix to advance.
-        glyph->fAdvanceY = -SkFIXEDToFloat(fMat22.eM12) * glyph->fAdvanceX;
-        glyph->fAdvanceX *= SkFIXEDToFloat(fMat22.eM11);
+        mx.advance.fY = -SkFIXEDToFloat(fMat22.eM12) * mx.advance.fX;
+        mx.advance.fX *= SkFIXEDToFloat(fMat22.eM11);
 
         // These do not have an outline path at all.
-        glyph->setPath(alloc, nullptr, false);
-
-        return;
+        mx.neverRequestPath = true;
+        return mx;
     }
 
-    UINT glyphId = glyph->getGlyphID();
+    UINT glyphId = glyph.getGlyphID();
 
     GLYPHMETRICS gm;
     sk_bzero(&gm, sizeof(gm));
@@ -864,8 +861,7 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
         LogFontTypeface::EnsureAccessible(this->getTypeface());
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fMat22);
         if (GDI_ERROR == status) {
-            glyph->zeroMetrics();
-            return;
+            return mx;
         }
     }
 
@@ -879,43 +875,34 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
         empty = (0 == bufferSize);
     }
 
-    glyph->fTop = SkToS16(-gm.gmptGlyphOrigin.y);
-    glyph->fLeft = SkToS16(gm.gmptGlyphOrigin.x);
-    if (empty) {
-        glyph->fWidth = 0;
-        glyph->fHeight = 0;
-    } else {
+
+    if (!empty) {
+        int y  = -gm.gmptGlyphOrigin.y;
+        int x =  gm.gmptGlyphOrigin.x;
         // Outset, since the image may bleed out of the black box.
         // For embedded bitmaps the black box should be exact.
         // For outlines we need to outset by 1 in all directions for bleed.
         // For ClearType we need to outset by 2 for bleed.
-        glyph->fWidth = gm.gmBlackBoxX + 4;
-        glyph->fHeight = gm.gmBlackBoxY + 4;
-        glyph->fTop -= 2;
-        glyph->fLeft -= 2;
+        mx.bounds = SkIRect::MakeXYWH(x, y, gm.gmBlackBoxX, gm.gmBlackBoxY).makeOutset(2, 2);
     }
     // TODO(benjaminwagner): What is the type of gm.gmCellInc[XY]?
-    glyph->fAdvanceX = (float)((int)gm.gmCellIncX);
-    glyph->fAdvanceY = (float)((int)gm.gmCellIncY);
+    mx.advance.fX = (float)((int)gm.gmCellIncX);
+    mx.advance.fY = (float)((int)gm.gmCellIncY);
 
     if ((fTM.tmPitchAndFamily & TMPF_VECTOR) && this->isLinearMetrics()) {
         sk_bzero(&gm, sizeof(gm));
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fHighResMat22);
         if (GDI_ERROR != status) {
-            SkPoint advance;
-            fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
-            glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-            glyph->fAdvanceY = SkScalarToFloat(advance.fY);
+            mx.advance = fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX),
+                                            SkIntToScalar(gm.gmCellIncY));
         }
     } else if (!isAxisAligned(this->fRec)) {
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fGsA);
         if (GDI_ERROR != status) {
-            SkPoint advance;
-            fG_inv.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
-            glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-            glyph->fAdvanceY = SkScalarToFloat(advance.fY);
+            mx.advance = fG_inv.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY));
         }
     }
+    return mx;
 }
 
 static const MAT2 gMat2Identity = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};

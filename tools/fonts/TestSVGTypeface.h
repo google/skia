@@ -52,7 +52,7 @@ struct SkSVGTestTypefaceGlyphData {
 class TestSVGTypeface : public SkTypeface {
 public:
     ~TestSVGTypeface() override;
-    void getAdvance(SkGlyph* glyph) const;
+    SkVector getAdvance(SkGlyphID) const;
     void getFontMetrics(SkFontMetrics* metrics) const;
 
     static sk_sp<TestSVGTypeface> Default();
