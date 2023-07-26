@@ -820,13 +820,13 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
         bool invertible = true;
         if (inv) {
             if (mask & kScale_Mask) {
-                SkScalar invX = fMat[kMScaleX];
-                SkScalar invY = fMat[kMScaleY];
-                if (0 == invX || 0 == invY) {
+                SkScalar invX = sk_ieee_float_divide(1.f, fMat[kMScaleX]);
+                SkScalar invY = sk_ieee_float_divide(1.f, fMat[kMScaleY]);
+                // Denormalized (non-zero) scale factors will overflow when inverted, in which case
+                // the inverse matrix would not be finite, so return false.
+                if (!SkScalarsAreFinite(invX, invY)) {
                     return false;
                 }
-                invX = SkScalarInvert(invX);
-                invY = SkScalarInvert(invY);
 
                 // Must be careful when writing to inv, since it may be the
                 // same memory as this.
