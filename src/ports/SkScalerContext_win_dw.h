@@ -32,14 +32,14 @@ public:
     ~SkScalerContext_DW() override;
 
 protected:
-    GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(const SkGlyph&, SkPath*) override;
     sk_sp<SkDrawable> generateDrawable(const SkGlyph&) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
-    bool setAdvance(const SkGlyph&, SkVector*);
+    bool setAdvance(SkGlyph* glyph);
 
     struct ScalerContextBits {
         using value_type = decltype(SkGlyph::fScalerContextBits);
@@ -74,27 +74,29 @@ private:
     }
 
     bool generateColorV1PaintBounds(SkMatrix*, SkRect*, IDWritePaintReader&, DWRITE_PAINT_ELEMENT const &);
-    bool generateColorV1Metrics(const SkGlyph&, SkIRect*);
+    bool generateColorV1Metrics(SkGlyph*);
     bool generateColorV1Image(const SkGlyph&);
     bool drawColorV1Paint(SkCanvas&, IDWritePaintReader&, DWRITE_PAINT_ELEMENT const &);
     bool drawColorV1Image(const SkGlyph&, SkCanvas&);
 
     bool getColorGlyphRun(const SkGlyph&, IDWriteColorGlyphRunEnumerator**);
-    bool generateColorMetrics(const SkGlyph&, SkIRect*);
+    bool generateColorMetrics(SkGlyph*);
     bool generateColorImage(const SkGlyph&);
     bool drawColorImage(const SkGlyph&, SkCanvas&);
 
-    bool generateSVGMetrics(const SkGlyph&, SkIRect*);
+    bool generateSVGMetrics(SkGlyph*);
     bool generateSVGImage(const SkGlyph&);
     bool drawSVGImage(const SkGlyph&, SkCanvas&);
 
-    bool generatePngMetrics(const SkGlyph&, SkIRect*);
+    bool generatePngMetrics(SkGlyph*);
     bool generatePngImage(const SkGlyph&);
     bool drawPngImage(const SkGlyph&, SkCanvas&);
 
-    bool generateDWMetrics(const SkGlyph&, DWRITE_RENDERING_MODE, DWRITE_TEXTURE_TYPE, SkIRect*);
+    bool generateDWMetrics(SkGlyph*, DWRITE_RENDERING_MODE, DWRITE_TEXTURE_TYPE);
     const void* getDWMaskBits(const SkGlyph&, DWRITE_RENDERING_MODE, DWRITE_TEXTURE_TYPE);
     bool generateDWImage(const SkGlyph&);
+
+    static void SetGlyphBounds(SkGlyph* glyph, const SkRect& bounds);
 
     SkTDArray<uint8_t> fBits;
     /** The total matrix without the text height scale. */

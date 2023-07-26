@@ -363,26 +363,11 @@ public:
 protected:
     SkScalerContextRec fRec;
 
-    struct GlyphMetrics {
-        SkVector       advance;
-        SkIRect        bounds;
-        SkMask::Format maskFormat;
-        uint16_t       extraBits;
-        bool           neverRequestPath;
-        bool           computeFromPath;
-
-        GlyphMetrics(SkMask::Format format)
-            : advance{0, 0}
-            , bounds{0, 0, 0, 0}
-            , maskFormat(format)
-            , extraBits(0)
-            , neverRequestPath(false)
-            , computeFromPath(false)
-        {}
-    };
-
-    virtual GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) = 0;
-
+    /** Generates the contents of glyph.fWidth, fHeight, fTop, fLeft,
+     *  as well as fAdvanceX and fAdvanceY if not already set.
+     *  The fMaskFormat will already be set to a requested format but may be changed.
+     */
+    virtual void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) = 0;
     static bool GenerateMetricsFromPath(
         SkGlyph* glyph, const SkPath& path, SkMask::Format format,
         bool verticalLCD, bool a8FromLCD, bool hairline);

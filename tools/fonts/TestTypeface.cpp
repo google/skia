@@ -127,11 +127,13 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
 TestTypeface::TestTypeface(sk_sp<SkTestFont> testFont, const SkFontStyle& style)
         : SkTypeface(style, false), fTestFont(std::move(testFont)) {}
 
-SkVector TestTypeface::getAdvance(SkGlyphID glyphID) const {
-    glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
+void TestTypeface::getAdvance(SkGlyph* glyph) {
+    SkGlyphID glyphID = glyph->getGlyphID();
+    glyphID           = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
 
     // TODO(benjaminwagner): Update users to use floats.
-    return {SkFixedToFloat(fTestFont->fWidths[glyphID]), 0};
+    glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyphID]);
+    glyph->fAdvanceY = 0;
 }
 
 void TestTypeface::getFontMetrics(SkFontMetrics* metrics) { *metrics = fTestFont->fMetrics; }
@@ -258,13 +260,15 @@ protected:
         return static_cast<TestTypeface*>(this->getTypeface());
     }
 
-    GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
-        GlyphMetrics mx(glyph.maskFormat());
+    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
+        glyph->zeroMetrics();
 
-        auto advance = this->getTestTypeface()->getAdvance(glyph.getGlyphID());
+        this->getTestTypeface()->getAdvance(glyph);
 
-        mx.advance = fMatrix.mapXY(advance.fX, advance.fY);
-        return mx;
+        const SkVector advance =
+                fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX), SkFloatToScalar(glyph->fAdvanceY));
+        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
+        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 
         // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
     }

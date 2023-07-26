@@ -78,7 +78,7 @@ public:
     };
     static const List& Typefaces();
 
-    SkVector getAdvance(SkGlyphID) const;
+    void getAdvance(SkGlyph* glyph);
     void getFontMetrics(SkFontMetrics* metrics);
     SkPath getPath(SkGlyphID glyph);
 
