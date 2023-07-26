@@ -1,15 +1,15 @@
 ### Compilation failed:
 
-error: :11:6 error: uniform storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
-  y: array<f32, 2>,
-     ^^^^^^^^^^^^^
+error: :11:16 error: uniform storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
+  @size(32) y: array<f32, 2>,
+               ^^^^^^^^^^^^^
 
 :8:1 note: see layout of struct:
-/*            align(16) size(64) */ struct testBlock {
+/*            align(16) size(96) */ struct testBlock {
 /* offset( 0) align( 4) size( 4) */   x : f32;
-/* offset( 4) align( 4) size( 4) */   w : i32;
-/* offset( 8) align( 4) size( 8) */   y : array<f32, 2>;
-/* offset(16) align(16) size(48) */   z : mat3x3<f32>;
+/* offset( 4) align( 4) size(12) */   w : i32;
+/* offset(16) align( 4) size(32) */   y : array<f32, 2>;
+/* offset(48) align(16) size(48) */   z : mat3x3<f32>;
 /*                               */ };
 struct testBlock {
 ^^^^^^
@@ -27,9 +27,9 @@ struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
 struct testBlock {
-  x: f32,
-  w: i32,
-  y: array<f32, 2>,
+  @size(4) x: f32,
+  @size(12) w: i32,
+  @size(32) y: array<f32, 2>,
   z: mat3x3<f32>,
 };
 @group(0) @binding(0) var<uniform> _uniform0 : testBlock;

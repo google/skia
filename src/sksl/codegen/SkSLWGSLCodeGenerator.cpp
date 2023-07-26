@@ -19,6 +19,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLIntrinsicList.h"
+#include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLPosition.h"
@@ -593,8 +594,6 @@ bool WGSLCodeGenerator::generateCode() {
     StringStream header;
     {
         AutoOutputStream outputToHeader(this, &header, &fIndentation);
-        // TODO(skia:13092): Implement the following:
-        // - global uniform/storage resource declarations, including interface blocks.
         this->writeLine("diagnostic(off, derivative_uniformity);");
         this->writeStageInputStruct();
         this->writeStageOutputStruct();
@@ -2677,21 +2676,44 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
 void WGSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     const Type& type = s.type();
     this->writeLine("struct " + type.displayName() + " {");
-    fIndentation++;
-    this->writeFields(SkSpan(type.fields()), type.fPosition);
-    fIndentation--;
+    this->writeFields(type.fields(), /*memoryLayout=*/nullptr);
     this->writeLine("};");
 }
 
-void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields,
-                                    Position parentPos,
-                                    const MemoryLayout*) {
-    // TODO(skia:13092): Check alignment against `layout` constraints, if present. A layout
-    // constraint will be specified for interface blocks and for structs that appear in a block.
-    for (const Field& field : fields) {
-        const Type* fieldType = field.fType;
-        this->writeVariableDecl(*fieldType, field.fName, Delimiter::kComma);
+void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields, const MemoryLayout* memoryLayout) {
+    fIndentation++;
+
+    // TODO(skia:14370): array uniforms may need manual fixup for std140 padding. (Those uniforms
+    // will also need special handling when they are accessed, or passed to functions.)
+    for (size_t index = 0; index < fields.size(); ++index) {
+        const Field& field = fields[index];
+        if (memoryLayout && !memoryLayout->isSupported(*field.fType)) {
+            // Reject types that aren't supported by the memory layout.
+            fContext.fErrors->error(field.fPosition, "type '" + std::string(field.fType->name()) +
+                                                     "' is not permitted here");
+            return;
+        }
+
+        // Prepend @size(n) to enforce the offsets from the SkSL layout. (This is effectively
+        // a gadget that we can use to insert padding between elements.)
+        if (index < fields.size() - 1) {
+            int thisFieldOffset = field.fModifiers.fLayout.fOffset;
+            int nextFieldOffset = fields[index + 1].fModifiers.fLayout.fOffset;
+            if (index == 0 && thisFieldOffset > 0) {
+                fContext.fErrors->error(field.fPosition, "field must have an offset of zero");
+                return;
+            }
+            if (thisFieldOffset >= 0 && nextFieldOffset > thisFieldOffset) {
+                this->write("@size(");
+                this->write(std::to_string(nextFieldOffset - thisFieldOffset));
+                this->write(") ");
+            }
+        }
+
+        this->writeVariableDecl(*field.fType, field.fName, Delimiter::kComma);
     }
+
+    fIndentation--;
 }
 
 void WGSLCodeGenerator::writeStageInputStruct() {
@@ -2866,15 +2888,8 @@ void WGSLCodeGenerator::writeUniformsAndBuffers() {
         SkSpan<const Field> ibFields = ibType.fields();
         SkASSERT(!ibFields.empty());
 
-        // TODO: We should validate offsets/layouts with SkSLMemoryLayout here. We can mimic the
-        // approach used in MetalCodeGenerator.
-        // TODO(skia:14370): array uniforms may need manual fixup for std140 padding. (Those
-        // uniforms will also need special handling when they are accessed, or passed to functions.)
-        for (const Field& field : ibFields) {
-            this->write("  ");
-            this->writeVariableDecl(*field.fType, field.fName, Delimiter::kComma);
-        }
-
+        MemoryLayout layout(MemoryLayout::Standard::k140);
+        this->writeFields(ibFields, &layout);
         this->writeLine("};");
         this->write("@group(");
         this->write(std::to_string(std::max(0, ib.var()->modifiers().fLayout.fSet)));

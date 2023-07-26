@@ -6,7 +6,7 @@ struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
 struct UniformBuffer {
-  m1: mat2x2<f32>,
+  @size(32) m1: mat2x2<f32>,
   m2: mat2x2<f32>,
 };
 @group(12) @binding(34) var<uniform> _uniform0 : UniformBuffer;

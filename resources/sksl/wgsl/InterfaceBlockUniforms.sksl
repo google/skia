@@ -1,6 +1,6 @@
 layout(set=12, binding=34) uniform UniformBuffer {
     layout(offset=0)  half2x2 m1;
-    layout(offset=16) half2x2 m2;
+    layout(offset=32) half2x2 m2;
 };
 
 void main() {

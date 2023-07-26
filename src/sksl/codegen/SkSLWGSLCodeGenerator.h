@@ -50,7 +50,6 @@ class Literal;
 class MemoryLayout;
 struct Modifiers;
 class OutputStream;
-class Position;
 class PostfixExpression;
 class PrefixExpression;
 struct Program;
@@ -288,9 +287,7 @@ private:
     // space layout constraints
     // (https://www.w3.org/TR/WGSL/#address-space-layout-constraints) if a `layout` is
     // provided. A struct that does not need to be host-shareable does not require a `layout`.
-    void writeFields(SkSpan<const Field> fields,
-                     Position parentPos,
-                     const MemoryLayout* layout = nullptr);
+    void writeFields(SkSpan<const Field> fields, const MemoryLayout* memoryLayout = nullptr);
 
     // We bundle uniforms, and all varying pipeline stage inputs and outputs, into separate structs.
     void writeStageInputStruct();

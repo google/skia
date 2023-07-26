@@ -14,12 +14,12 @@ struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
 struct uniformBuffer {
-  sk_RTAdjust: vec4<f32>,
-  uIncrement_Stage1_c0: vec2<f32>,
-  uKernel_Stage1_c0: array<vec4<f32>, 7>,
-  umatrix_Stage1_c0_c0: mat3x3<f32>,
-  uborder_Stage1_c0_c0_c0: vec4<f32>,
-  usubset_Stage1_c0_c0_c0: vec4<f32>,
+  @size(16) sk_RTAdjust: vec4<f32>,
+  @size(16) uIncrement_Stage1_c0: vec2<f32>,
+  @size(112) uKernel_Stage1_c0: array<vec4<f32>, 7>,
+  @size(48) umatrix_Stage1_c0_c0: mat3x3<f32>,
+  @size(16) uborder_Stage1_c0_c0_c0: vec4<f32>,
+  @size(16) usubset_Stage1_c0_c0_c0: vec4<f32>,
   unorm_Stage1_c0_c0_c0: vec4<f32>,
 };
 @group(0) @binding(0) var<uniform> _uniform0 : uniformBuffer;
