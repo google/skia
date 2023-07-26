@@ -1602,6 +1602,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkImageFilter>("ImageFilter")
         .smart_ptr<sk_sp<SkImageFilter>>("sk_sp<ImageFilter>")
+        .function("_getOutputBounds", optional_override([](const SkImageFilter& self, WASMPointerF32 bPtr, WASMPointerF32 mPtr, WASMPointerU32 oPtr)->void {
+          SkRect* rect = reinterpret_cast<SkRect*>(bPtr);
+          OptionalMatrix ctm(mPtr);
+          SkIRect* output = reinterpret_cast<SkIRect*>(oPtr);
+          output[0] = self.filterBounds(ctm.mapRect(*rect).roundOut(), ctm, SkImageFilter::kForward_MapDirection);
+        }))
         .class_function("MakeBlend", optional_override([](SkBlendMode mode, sk_sp<SkImageFilter> background,
                                                           sk_sp<SkImageFilter> foreground)->sk_sp<SkImageFilter> {
             return SkImageFilters::Blend(mode, background, foreground);

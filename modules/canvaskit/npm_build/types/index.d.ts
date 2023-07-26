@@ -2022,7 +2022,21 @@ export interface Image extends EmbindObject<"Image"> {
 /**
  * See ImageFilter.h for more on this class. The objects are opaque.
  */
-export type ImageFilter = EmbindObject<"ImageFilter">;
+export interface ImageFilter extends EmbindObject<"ImageFilter"> {
+    /**
+     * Returns an IRect that is the updated bounds of inputRect after this
+     * filter has been applied.
+     *
+     * @param drawBounds - The local (pre-transformed) bounding box of the
+     *        geometry being drawn _before_ the filter is applied.
+     * @param ctm - If provided, the current transform at the time the filter
+     *        would be used.
+     * @param outputRect - If provided, the result will be output to this array
+     *        rather than allocating a new one.
+     * @returns an IRect describing the updated bounds.
+     */
+    getOutputBounds(drawBounds: Rect, ctm?: InputMatrix, outputRect?: IRect): IRect;
+}
 
 export interface ImageInfo {
     alphaType: AlphaType;

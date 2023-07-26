@@ -873,6 +873,18 @@ CanvasKit.onRuntimeInitialized = function() {
     return ta.slice();
   };
 
+  CanvasKit.ImageFilter.prototype.getOutputBounds = function (drawBounds, ctm, optionalOutputArray) {
+    var bPtr = copyRectToWasm(drawBounds, _scratchFourFloatsAPtr);
+    var mPtr = copy3x3MatrixToWasm(ctm);
+    this._getOutputBounds(bPtr, mPtr, _scratchIRectPtr);
+    var ta = _scratchIRect['toTypedArray']();
+    if (optionalOutputArray) {
+      optionalOutputArray.set(ta);
+      return optionalOutputArray;
+    }
+    return ta.slice();
+  };
+
   CanvasKit.ImageFilter.MakeDropShadow = function(dx, dy, sx, sy, color, input) {
     var cPtr = copyColorToWasm(color, _scratchColorPtr);
     return CanvasKit.ImageFilter._MakeDropShadow(dx, dy, sx, sy, cPtr, input);

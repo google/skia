@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `ImageFilter.getOutputBounds` returns the adjusted bounds of a rect after
+   applying the `ImageFilter`.
 - `Picture.cullRect` which gives approximate bounds of the draw commands in the
   picture.
 - `Picture.approximateBytesUsed` which returns an approximation of the bytes

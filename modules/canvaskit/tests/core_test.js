@@ -735,6 +735,15 @@ describe('Core canvas behavior', () => {
         paint.delete();
     });
 
+    it('can compute ImageFilter filterBounds', () => {
+      const blurIF = CanvasKit.ImageFilter.MakeBlur(5, 10, CanvasKit.TileMode.Clamp, null);
+      const updatedBounds = blurIF.getOutputBounds(CanvasKit.LTRBRect(50, 50, 100, 100));
+      expect(updatedBounds[0]).toEqual(35);
+      expect(updatedBounds[1]).toEqual(20);
+      expect(updatedBounds[2]).toEqual(115);
+      expect(updatedBounds[3]).toEqual(130);
+    });
+
     gm('blur_filters', (canvas) => {
         const pathUL = starPath(CanvasKit, 100, 100, 80);
         const pathBR = starPath(CanvasKit, 400, 300, 80);
