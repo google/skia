@@ -159,26 +159,22 @@ public:
     }
 
 protected:
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
-        glyph->fMaskFormat = fRec.fMaskFormat;
-        glyph->zeroMetrics();
+    GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
+        GlyphMetrics mx(fRec.fMaskFormat);
 
         SkVector scale;
         SkMatrix remainingMatrix;
-        if (!glyph ||
-            !fRec.computeMatrices(
+        if (!fRec.computeMatrices(
                     SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix)) {
-            return false;
+            return mx;
         }
         float x_advance = 0.0f;
         x_advance = fontations_ffi::advance_width_or_zero(
-                fBridgeFontRef, scale.y(), fBridgeNormalizedCoords, glyph->getGlyphID());
+                fBridgeFontRef, scale.y(), fBridgeNormalizedCoords, glyph.getGlyphID());
         // TODO(drott): y-advance?
-        const SkVector advance = remainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
-        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
-
-        // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
+        mx.advance = remainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
+        mx.computeFromPath = true;
+        return mx;
     }
 
     void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }

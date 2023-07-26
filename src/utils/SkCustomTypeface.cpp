@@ -253,33 +253,25 @@ public:
     }
 
 protected:
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) override {
-        glyph->zeroMetrics();
+    GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
+        GlyphMetrics mx(glyph.maskFormat());
 
         const SkUserTypeface* tf = this->userTF();
-        auto advance = fMatrix.mapXY(tf->fGlyphRecs[glyph->getGlyphID()].fAdvance, 0);
+        mx.advance = fMatrix.mapXY(tf->fGlyphRecs[glyph.getGlyphID()].fAdvance, 0);
 
-        glyph->fAdvanceX = advance.fX;
-        glyph->fAdvanceY = advance.fY;
-
-        const auto& rec = tf->fGlyphRecs[glyph->getGlyphID()];
+        const auto& rec = tf->fGlyphRecs[glyph.getGlyphID()];
         if (rec.isDrawable()) {
-            glyph->fMaskFormat = SkMask::kARGB32_Format;
+            mx.maskFormat = SkMask::kARGB32_Format;
 
             SkRect bounds = fMatrix.mapRect(rec.fBounds);
-            bounds.offset(SkFixedToScalar(glyph->getSubXFixed()),
-                          SkFixedToScalar(glyph->getSubYFixed()));
-
-            SkIRect ibounds;
-            bounds.roundOut(&ibounds);
-            glyph->fLeft   = ibounds.fLeft;
-            glyph->fTop    = ibounds.fTop;
-            glyph->fWidth  = ibounds.width();
-            glyph->fHeight = ibounds.height();
+            bounds.offset(SkFixedToScalar(glyph.getSubXFixed()),
+                          SkFixedToScalar(glyph.getSubYFixed()));
+            bounds.roundOut(&mx.bounds);
 
             // These do not have an outline path.
-            glyph->setPath(alloc, nullptr, false);
+            mx.neverRequestPath = true;
         }
+        return mx;
     }
 
     void generateImage(const SkGlyph& glyph) override {

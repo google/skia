@@ -293,23 +293,21 @@ CGRGBPixel* SkScalerContext_Mac::Offscreen::getCG(const SkScalerContext_Mac& con
     return image;
 }
 
-void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
-    glyph->fMaskFormat = fRec.fMaskFormat;
+SkScalerContext::GlyphMetrics SkScalerContext_Mac::generateMetrics(const SkGlyph& glyph,
+                                                                   SkArenaAlloc*) {
+    GlyphMetrics mx(glyph.maskFormat());
 
-    if (((SkTypeface_Mac*)this->getTypeface())->fHasColorGlyphs) {
-        glyph->setPath(alloc, nullptr, false);
-    }
+    mx.neverRequestPath = ((SkTypeface_Mac*)this->getTypeface())->fHasColorGlyphs;
 
-    const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID();
-    glyph->zeroMetrics();
+    const CGGlyph cgGlyph = (CGGlyph)glyph.getGlyphID();
 
     // The following block produces cgAdvance in CG units (pixels, y up).
     CGSize cgAdvance;
     CTFontGetAdvancesForGlyphs(fCTFont.get(), kCTFontOrientationHorizontal,
                                &cgGlyph, &cgAdvance, 1);
     cgAdvance = CGSizeApplyAffineTransform(cgAdvance, fTransform);
-    glyph->fAdvanceX =  SkFloatFromCGFloat(cgAdvance.width);
-    glyph->fAdvanceY = -SkFloatFromCGFloat(cgAdvance.height);
+    mx.advance.fX =  SkFloatFromCGFloat(cgAdvance.width);
+    mx.advance.fY = -SkFloatFromCGFloat(cgAdvance.height);
 
     // The following produces skBounds in SkGlyph units (pixels, y down),
     // or returns early if skBounds would be empty.
@@ -335,12 +333,12 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
         if (0 == cgAdvance.width && 0 == cgAdvance.height) {
             SkUniqueCFRef<CGPathRef> path(CTFontCreatePathForGlyph(fCTFont.get(), cgGlyph,nullptr));
             if (!path || CGPathIsEmpty(path.get())) {
-                return;
+                return mx;
             }
         }
 
         if (SkCGRectIsEmpty(cgBounds)) {
-            return;
+            return mx;
         }
 
         // Convert cgBounds to SkGlyph units (pixels, y down).
@@ -351,27 +349,17 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     // Currently the bounds are based on being rendered at (0,0).
     // The top left must not move, since that is the base from which subpixel positioning is offset.
     if (fDoSubPosition) {
-        skBounds.fRight += SkFixedToFloat(glyph->getSubXFixed());
-        skBounds.fBottom += SkFixedToFloat(glyph->getSubYFixed());
+        skBounds.fRight += SkFixedToFloat(glyph.getSubXFixed());
+        skBounds.fBottom += SkFixedToFloat(glyph.getSubYFixed());
     }
 
-    // We're trying to pack left and top into int16_t,
-    // and width and height into uint16_t, after outsetting by 1.
-    if (!SkRect::MakeXYWH(-32767, -32767, 65535, 65535).contains(skBounds)) {
-        return;
-    }
-
-    SkIRect skIBounds;
-    skBounds.roundOut(&skIBounds);
+    skBounds.roundOut(&mx.bounds);
     // Expand the bounds by 1 pixel, to give CG room for anti-aliasing.
     // Note that this outset is to allow room for LCD smoothed glyphs. However, the correct outset
     // is not currently known, as CG dilates the outlines by some percentage.
     // Note that if this context is A8 and not back-forming from LCD, there is no need to outset.
-    skIBounds.outset(1, 1);
-    glyph->fLeft = SkToS16(skIBounds.fLeft);
-    glyph->fTop = SkToS16(skIBounds.fTop);
-    glyph->fWidth = SkToU16(skIBounds.width());
-    glyph->fHeight = SkToU16(skIBounds.height());
+    mx.bounds.outset(1, 1);
+    return mx;
 }
 
 static constexpr uint8_t sk_pow2_table(size_t i) {

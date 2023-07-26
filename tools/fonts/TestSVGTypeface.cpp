@@ -122,12 +122,9 @@ TestSVGTypeface::~TestSVGTypeface() {}
 TestSVGTypeface::Glyph::Glyph() : fOrigin{0, 0}, fAdvance(0) {}
 TestSVGTypeface::Glyph::~Glyph() {}
 
-void TestSVGTypeface::getAdvance(SkGlyph* glyph) const {
-    SkGlyphID glyphID = glyph->getGlyphID();
-    glyphID           = glyphID < fGlyphCount ? glyphID : 0;
-
-    glyph->fAdvanceX = fGlyphs[glyphID].fAdvance;
-    glyph->fAdvanceY = 0;
+SkVector TestSVGTypeface::getAdvance(SkGlyphID glyphID) const {
+    glyphID = glyphID < fGlyphCount ? glyphID : 0;
+    return {fGlyphs[glyphID].fAdvance, 0};
 }
 
 void TestSVGTypeface::getFontMetrics(SkFontMetrics* metrics) const { *metrics = fFontMetrics; }
@@ -189,23 +186,18 @@ protected:
         return static_cast<TestSVGTypeface*>(this->getTypeface());
     }
 
-    void setAdvance(SkGlyph* glyph) {
-        this->getTestSVGTypeface()->getAdvance(glyph);
-
-        const SkVector advance =
-                fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX), SkFloatToScalar(glyph->fAdvanceY));
-        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
+    SkVector computeAdvance(SkGlyphID glyphID) {
+        auto advance = this->getTestSVGTypeface()->getAdvance(glyphID);
+        return fMatrix.mapXY(advance.fX, advance.fY);
     }
 
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) override {
-        SkGlyphID glyphID = glyph->getGlyphID();
+    GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
+        SkGlyphID glyphID = glyph.getGlyphID();
         glyphID           = glyphID < this->getTestSVGTypeface()->fGlyphCount ? glyphID : 0;
 
-        glyph->zeroMetrics();
-        glyph->fMaskFormat = SkMask::kARGB32_Format;
-        glyph->setPath(alloc, nullptr, false);
-        this->setAdvance(glyph);
+        GlyphMetrics mx(SkMask::kARGB32_Format);
+        mx.neverRequestPath = true;
+        mx.advance = this->computeAdvance(glyph.getGlyphID());
 
         TestSVGTypeface::Glyph& glyphData = this->getTestSVGTypeface()->fGlyphs[glyphID];
 
@@ -215,16 +207,11 @@ protected:
                                             containerSize.fWidth,
                                             containerSize.fHeight);
         fMatrix.mapRect(&newBounds);
-        SkScalar dx = SkFixedToScalar(glyph->getSubXFixed());
-        SkScalar dy = SkFixedToScalar(glyph->getSubYFixed());
+        SkScalar dx = SkFixedToScalar(glyph.getSubXFixed());
+        SkScalar dy = SkFixedToScalar(glyph.getSubYFixed());
         newBounds.offset(dx, dy);
-
-        SkIRect ibounds;
-        newBounds.roundOut(&ibounds);
-        glyph->fLeft   = ibounds.fLeft;
-        glyph->fTop    = ibounds.fTop;
-        glyph->fWidth  = ibounds.width();
-        glyph->fHeight = ibounds.height();
+        newBounds.roundOut(&mx.bounds);
+        return mx;
     }
 
     void generateImage(const SkGlyph& glyph) override {
