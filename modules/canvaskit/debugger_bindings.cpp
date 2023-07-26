@@ -136,7 +136,9 @@ class SkpDebugPlayer {
       auto* canvas = surface->getCanvas();
       canvas->clear(SK_ColorTRANSPARENT);
       frames[fp]->draw(surface->getCanvas());
-      surface->getCanvas()->flush();
+#ifdef CK_ENABLE_WEBGL
+      skgpu::ganesh::Flush(surface);
+#endif
     }
 
     // Gets the bounds for the given frame

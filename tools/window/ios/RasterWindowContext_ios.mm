@@ -164,7 +164,9 @@ void RasterWindowContext_ios::onSwapBuffers() {
         sk_sp<SkSurface> gpuSurface = GLWindowContext::getBackbufferSurface();
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
         gpuCanvas->drawImage(snapshot, 0, 0);
-        gpuCanvas->flush();
+        auto dContext = GrAsDirectContext(gpuCanvas->recordingContext());
+        dContext->flushAndSubmit();
+
         glBindRenderbuffer(GL_RENDERBUFFER, fRenderbuffer);
         [fGLContext presentRenderbuffer:GL_RENDERBUFFER];
     }
