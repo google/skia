@@ -495,16 +495,10 @@ private:
         return this->adjustAndMap(dst, &op.paint);
     }
 
-#if defined(SK_GANESH)
     Bounds bounds(const DrawSlug& op) const {
         SkRect dst = op.slug->sourceBoundsWithOrigin();
         return this->adjustAndMap(dst, &op.slug->initialPaint());
     }
-#else
-    Bounds bounds(const DrawSlug& op) const {
-        return SkRect::MakeEmpty();
-    }
-#endif
 
     Bounds bounds(const DrawDrawable& op) const {
         return this->adjustAndMap(op.worstCaseBounds, nullptr);
