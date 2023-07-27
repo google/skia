@@ -114,9 +114,9 @@ public:
         // Searches for `out` parameters that are not written to. According to the GLSL spec,
         // the value of an out-param that's never assigned to is unspecified, so report it.
         for (const Variable* param : funcDecl.parameters()) {
-            const int paramInout = param->modifiers().fFlags & (Modifiers::Flag::kIn_Flag |
-                                                                Modifiers::Flag::kOut_Flag);
-            if (paramInout == Modifiers::Flag::kOut_Flag) {
+            const ModifierFlags paramInout = param->modifiers().fFlags & (ModifierFlag::kIn |
+                                                                          ModifierFlag::kOut);
+            if (paramInout == ModifierFlag::kOut) {
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
                     fContext.fErrors->error(param->fPosition,

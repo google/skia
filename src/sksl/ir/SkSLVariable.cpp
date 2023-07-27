@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
@@ -93,7 +94,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
                                             std::string_view name,
                                             Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
-        (modifiers.fFlags & Modifiers::kOut_Flag) &&
+        (modifiers.fFlags & ModifierFlag::kOut) &&
         ProgramConfig::IsFragment(context.fConfig->fKind) && name != Compiler::FRAGCOLOR_NAME) {
         context.fErrors->error(modifiersPos,
                                "out location=0, index=0 is reserved for sk_FragColor");
@@ -104,9 +105,9 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
     if (ProgramConfig::IsCompute(ThreadContext::Context().fConfig->fKind) &&
             modifiers.fLayout.fBuiltin == -1) {
         if (storage == Variable::Storage::kGlobal) {
-            if (modifiers.fFlags & Modifiers::kIn_Flag) {
+            if (modifiers.fFlags & ModifierFlag::kIn) {
                 context.fErrors->error(pos, "pipeline inputs not permitted in compute shaders");
-            } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+            } else if (modifiers.fFlags & ModifierFlag::kOut) {
                 context.fErrors->error(pos, "pipeline outputs not permitted in compute shaders");
             }
         }
@@ -170,7 +171,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
     }
 
     // Out-parameters aren't supported.
-    SkASSERT(!(modifiers.fFlags & Modifiers::kOut_Flag));
+    SkASSERT(!(modifiers.fFlags & ModifierFlag::kOut));
 
     // Provide our new variable with a unique name, and add it to our symbol table.
     const std::string* name =

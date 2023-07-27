@@ -8,6 +8,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -135,8 +136,7 @@ bool ProgramUsage::isDead(const Variable& v) const {
     const Modifiers& modifiers = v.modifiers();
     VariableCounts counts = this->get(v);
     if ((v.storage() != Variable::Storage::kLocal && counts.fRead) ||
-        (modifiers.fFlags &
-         (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag))) {
+        (modifiers.fFlags & (ModifierFlag::kIn | ModifierFlag::kOut | ModifierFlag::kUniform))) {
         return false;
     }
     // Consider the variable dead if it's never read and never written (besides the initial-value).

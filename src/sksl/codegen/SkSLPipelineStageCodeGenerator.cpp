@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -394,8 +395,8 @@ std::string PipelineStageCodeGenerator::functionDeclaration(const FunctionDeclar
     // on the function (e.g. `inline`) and its parameters (e.g. `inout`).
     std::string declString =
             String::printf("%s%s%s %s(",
-                           (decl.modifiers().fFlags & Modifiers::kInline_Flag) ? "inline " : "",
-                           (decl.modifiers().fFlags & Modifiers::kNoInline_Flag) ? "noinline " : "",
+                           (decl.modifiers().fFlags & ModifierFlag::kInline) ? "inline " : "",
+                           (decl.modifiers().fFlags & ModifierFlag::kNoInline) ? "noinline " : "",
                            this->typeName(decl.returnType()).c_str(),
                            this->functionName(decl).c_str());
     auto separator = SkSL::String::Separator();
@@ -654,11 +655,11 @@ std::string PipelineStageCodeGenerator::modifierString(const Modifiers& modifier
         result.append("const ");
     }
 
-    if ((modifiers.fFlags & Modifiers::kIn_Flag) && (modifiers.fFlags & Modifiers::kOut_Flag)) {
+    if ((modifiers.fFlags & ModifierFlag::kIn) && (modifiers.fFlags & ModifierFlag::kOut)) {
         result.append("inout ");
-    } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
+    } else if (modifiers.fFlags & ModifierFlag::kIn) {
         result.append("in ");
-    } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+    } else if (modifiers.fFlags & ModifierFlag::kOut) {
         result.append("out ");
     }
 

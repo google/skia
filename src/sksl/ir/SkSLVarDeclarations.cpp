@@ -9,6 +9,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -147,16 +148,16 @@ void VarDeclaration::ErrorCheck(const Context& context,
         context.fErrors->error(pos, "variables of type '" + baseType->displayName() +
                                     "' must be global");
     }
-    if ((modifiers.fFlags & Modifiers::kIn_Flag) && baseType->isMatrix()) {
+    if ((modifiers.fFlags & ModifierFlag::kIn) && baseType->isMatrix()) {
         context.fErrors->error(pos, "'in' variables may not have matrix type");
     }
-    if ((modifiers.fFlags & Modifiers::kIn_Flag) && type->isUnsizedArray()) {
+    if ((modifiers.fFlags & ModifierFlag::kIn) && type->isUnsizedArray()) {
         context.fErrors->error(pos, "'in' variables may not have unsized array type");
     }
-    if ((modifiers.fFlags & Modifiers::kOut_Flag) && type->isUnsizedArray()) {
+    if ((modifiers.fFlags & ModifierFlag::kOut) && type->isUnsizedArray()) {
         context.fErrors->error(pos, "'out' variables may not have unsized array type");
     }
-    if ((modifiers.fFlags & Modifiers::kIn_Flag) && (modifiers.isUniform())) {
+    if ((modifiers.fFlags & ModifierFlag::kIn) && (modifiers.isUniform())) {
         context.fErrors->error(pos, "'in uniform' variables not permitted");
     }
     if (modifiers.isReadOnly() && modifiers.isWriteOnly()) {
@@ -165,8 +166,8 @@ void VarDeclaration::ErrorCheck(const Context& context,
     if (modifiers.isUniform() && modifiers.isBuffer()) {
         context.fErrors->error(pos, "'uniform buffer' variables not permitted");
     }
-    if (modifiers.isWorkgroup() && (modifiers.fFlags & (Modifiers::kIn_Flag |
-                                                        Modifiers::kOut_Flag))) {
+    if (modifiers.isWorkgroup() && (modifiers.fFlags & (ModifierFlag::kIn |
+                                                        ModifierFlag::kOut))) {
         context.fErrors->error(pos, "in / out variables may not be declared workgroup");
     }
     if (modifiers.isUniform()) {
@@ -217,23 +218,23 @@ void VarDeclaration::ErrorCheck(const Context& context,
         }
     }
 
-    int permitted = Modifiers::kConst_Flag | Modifiers::kHighp_Flag | Modifiers::kMediump_Flag |
-                    Modifiers::kLowp_Flag;
+    ModifierFlags permitted = ModifierFlag::kConst | ModifierFlag::kHighp | ModifierFlag::kMediump |
+                              ModifierFlag::kLowp;
     if (storage == Variable::Storage::kGlobal) {
         // Uniforms are allowed in all programs
-        permitted |= Modifiers::kUniform_Flag;
+        permitted |= ModifierFlag::kUniform;
 
         // No other modifiers are allowed in runtime effects.
         if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
             if (baseType->isInterfaceBlock()) {
                 // Interface blocks allow `buffer`.
-                permitted |= Modifiers::kBuffer_Flag;
+                permitted |= ModifierFlag::kBuffer;
 
                 if (modifiers.isBuffer()) {
                     // Only storage blocks allow `readonly` and `writeonly`.
                     // (`readonly` and `writeonly` textures are converted to separate types via
                     // applyAccessQualifiers.)
-                    permitted |= Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag;
+                    permitted |= ModifierFlag::kReadOnly | ModifierFlag::kWriteOnly;
                 }
 
                 // It is an error for an unsized array to appear anywhere but the last member of a
@@ -252,16 +253,16 @@ void VarDeclaration::ErrorCheck(const Context& context,
 
             if (!baseType->isOpaque()) {
                 // Only non-opaque types allow `in` and `out`.
-                permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag;
+                permitted |= ModifierFlag::kIn | ModifierFlag::kOut;
             }
             if (ProgramConfig::IsCompute(context.fConfig->fKind)) {
                 // Only compute shaders allow `workgroup`.
                 if (!baseType->isOpaque() || baseType->isAtomic()) {
-                    permitted |= Modifiers::kWorkgroup_Flag;
+                    permitted |= ModifierFlag::kWorkgroup;
                 }
             } else {
                 // Only vertex/fragment shaders allow `flat` and `noperspective`.
-                permitted |= Modifiers::kFlat_Flag | Modifiers::kNoPerspective_Flag;
+                permitted |= ModifierFlag::kFlat | ModifierFlag::kNoPerspective;
             }
         }
     }
@@ -307,7 +308,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
 
     // The `push_constant` flag isn't allowed on in-variables, out-variables, bindings or sets.
     if ((modifiers.fLayout.fFlags & (Layout::kSet_Flag | Layout::kBinding_Flag)) ||
-        (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag))) {
+        (modifiers.fFlags & (ModifierFlag::kIn | ModifierFlag::kOut))) {
         permittedLayoutFlags &= ~Layout::kPushConstant_Flag;
     }
 
@@ -335,7 +336,7 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
                                                      "' cannot use initializer expressions");
             return false;
         }
-        if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
+        if (var.modifiers().fFlags & ModifierFlag::kIn) {
             context.fErrors->error(value->fPosition,
                                    "'in' variables cannot use initializer expressions");
             return false;
@@ -482,7 +483,7 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Make(const Context& context,
     // opaque type cannot use initializer expressions
     SkASSERT(!(value && var->type().isOpaque()));
     // 'in' variables cannot use initializer expressions
-    SkASSERT(!(value && (var->modifiers().fFlags & Modifiers::kIn_Flag)));
+    SkASSERT(!(value && (var->modifiers().fFlags & ModifierFlag::kIn)));
     // 'uniform' variables cannot use initializer expressions
     SkASSERT(!(value && var->modifiers().isUniform()));
     // in strict-ES2 mode, is-or-contains-array types cannot use initializer expressions

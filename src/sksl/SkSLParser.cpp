@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLVersion.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -70,28 +71,28 @@ namespace SkSL {
 
 static constexpr int kMaxParseDepth = 50;
 
-static int parse_modifier_token(Token::Kind token) {
+static ModifierFlags parse_modifier_token(Token::Kind token) {
     switch (token) {
-        case Token::Kind::TK_UNIFORM:        return Modifiers::kUniform_Flag;
-        case Token::Kind::TK_CONST:          return Modifiers::kConst_Flag;
-        case Token::Kind::TK_IN:             return Modifiers::kIn_Flag;
-        case Token::Kind::TK_OUT:            return Modifiers::kOut_Flag;
-        case Token::Kind::TK_INOUT:          return Modifiers::kIn_Flag | Modifiers::kOut_Flag;
-        case Token::Kind::TK_FLAT:           return Modifiers::kFlat_Flag;
-        case Token::Kind::TK_NOPERSPECTIVE:  return Modifiers::kNoPerspective_Flag;
-        case Token::Kind::TK_PURE:           return Modifiers::kPure_Flag;
-        case Token::Kind::TK_INLINE:         return Modifiers::kInline_Flag;
-        case Token::Kind::TK_NOINLINE:       return Modifiers::kNoInline_Flag;
-        case Token::Kind::TK_HIGHP:          return Modifiers::kHighp_Flag;
-        case Token::Kind::TK_MEDIUMP:        return Modifiers::kMediump_Flag;
-        case Token::Kind::TK_LOWP:           return Modifiers::kLowp_Flag;
-        case Token::Kind::TK_EXPORT:         return Modifiers::kExport_Flag;
-        case Token::Kind::TK_ES3:            return Modifiers::kES3_Flag;
-        case Token::Kind::TK_WORKGROUP:      return Modifiers::kWorkgroup_Flag;
-        case Token::Kind::TK_READONLY:       return Modifiers::kReadOnly_Flag;
-        case Token::Kind::TK_WRITEONLY:      return Modifiers::kWriteOnly_Flag;
-        case Token::Kind::TK_BUFFER:         return Modifiers::kBuffer_Flag;
-        default:                             return 0;
+        case Token::Kind::TK_UNIFORM:        return ModifierFlag::kUniform;
+        case Token::Kind::TK_CONST:          return ModifierFlag::kConst;
+        case Token::Kind::TK_IN:             return ModifierFlag::kIn;
+        case Token::Kind::TK_OUT:            return ModifierFlag::kOut;
+        case Token::Kind::TK_INOUT:          return ModifierFlag::kIn | ModifierFlag::kOut;
+        case Token::Kind::TK_FLAT:           return ModifierFlag::kFlat;
+        case Token::Kind::TK_NOPERSPECTIVE:  return ModifierFlag::kNoPerspective;
+        case Token::Kind::TK_PURE:           return ModifierFlag::kPure;
+        case Token::Kind::TK_INLINE:         return ModifierFlag::kInline;
+        case Token::Kind::TK_NOINLINE:       return ModifierFlag::kNoInline;
+        case Token::Kind::TK_HIGHP:          return ModifierFlag::kHighp;
+        case Token::Kind::TK_MEDIUMP:        return ModifierFlag::kMediump;
+        case Token::Kind::TK_LOWP:           return ModifierFlag::kLowp;
+        case Token::Kind::TK_EXPORT:         return ModifierFlag::kExport;
+        case Token::Kind::TK_ES3:            return ModifierFlag::kES3;
+        case Token::Kind::TK_WORKGROUP:      return ModifierFlag::kWorkgroup;
+        case Token::Kind::TK_READONLY:       return ModifierFlag::kReadOnly;
+        case Token::Kind::TK_WRITEONLY:      return ModifierFlag::kWriteOnly;
+        case Token::Kind::TK_BUFFER:         return ModifierFlag::kBuffer;
+        default:                             return ModifierFlag::kNone;
     }
 }
 
@@ -1137,14 +1138,14 @@ DSLModifiers Parser::modifiers() {
     if (!is_whitespace(raw.fKind)) {
         this->pushback(raw);
     }
-    int flags = 0;
+    ModifierFlags flags = ModifierFlag::kNone;
     for (;;) {
-        int tokenFlag = parse_modifier_token(peek().fKind);
-        if (!tokenFlag) {
+        ModifierFlags tokenFlag = parse_modifier_token(peek().fKind);
+        if (tokenFlag == ModifierFlag::kNone) {
             break;
         }
         Token modifier = this->nextToken();
-        if (int duplicateFlags = (tokenFlag & flags)) {
+        if (ModifierFlags duplicateFlags = (tokenFlag & flags)) {
             this->error(modifier, "'" + Modifiers::DescribeFlags(duplicateFlags) +
                                   "' appears more than once");
         }

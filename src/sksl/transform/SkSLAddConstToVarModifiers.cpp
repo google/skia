@@ -37,7 +37,7 @@ const Modifiers* Transform::AddConstToVarModifiers(const Context& context,
     }
     // Add `const` to our variable's modifiers, making it eligible for constant-folding.
     Modifiers constModifiers = *modifiers;
-    constModifiers.fFlags |= Modifiers::kConst_Flag;
+    constModifiers.fFlags |= ModifierFlag::kConst;
     return context.fModifiersPool->add(constModifiers);
 }
 

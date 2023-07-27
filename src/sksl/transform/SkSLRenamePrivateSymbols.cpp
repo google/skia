@@ -7,6 +7,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -48,7 +49,7 @@ static void strip_export_flag(Context& context,
         FunctionDeclaration* mutableDecl = &mutableSym->as<FunctionDeclaration>();
 
         Modifiers modifiers = mutableDecl->modifiers();
-        modifiers.fFlags &= ~Modifiers::kExport_Flag;
+        modifiers.fFlags &= ~ModifierFlag::kExport;
         mutableDecl->setModifiers(context.fModifiersPool->add(modifiers));
 
         mutableSym = mutableDecl->mutableNextOverload();
@@ -155,7 +156,7 @@ void Transform::RenamePrivateSymbols(Context& context,
             } else {
                 // We will only minify $private_functions, and only ones not marked as $export.
                 return skstd::starts_with(funcDecl.name(), '$') &&
-                       !(funcDecl.modifiers().fFlags & Modifiers::kExport_Flag);
+                       !(funcDecl.modifiers().fFlags & ModifierFlag::kExport);
             }
         }
 
@@ -234,7 +235,7 @@ void Transform::RenamePrivateSymbols(Context& context,
     for (std::unique_ptr<ProgramElement>& pe : module.fElements) {
         if (pe->is<FunctionDefinition>()) {
             const FunctionDeclaration* funcDecl = &pe->as<FunctionDefinition>().declaration();
-            if (funcDecl->modifiers().fFlags & Modifiers::kExport_Flag) {
+            if (funcDecl->modifiers().fFlags & ModifierFlag::kExport) {
                 strip_export_flag(context, funcDecl, module.fSymbols.get());
             }
         }

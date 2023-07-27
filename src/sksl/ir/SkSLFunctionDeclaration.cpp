@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -39,14 +40,15 @@ namespace SkSL {
 static bool check_modifiers(const Context& context,
                             Position pos,
                             const Modifiers& modifiers) {
-    const int permitted = Modifiers::kInline_Flag |
-                          Modifiers::kNoInline_Flag |
-                          (context.fConfig->fIsBuiltinCode ? (Modifiers::kES3_Flag |
-                                                              Modifiers::kPure_Flag |
-                                                              Modifiers::kExport_Flag) : 0);
+    const ModifierFlags permitted = ModifierFlag::kInline |
+                                    ModifierFlag::kNoInline |
+                                    (context.fConfig->fIsBuiltinCode ? ModifierFlag::kES3 |
+                                                                       ModifierFlag::kPure |
+                                                                       ModifierFlag::kExport
+                                                                     : ModifierFlag::kNone);
     modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/0);
-    if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
-        (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
+    if ((modifiers.fFlags & ModifierFlag::kInline) &&
+        (modifiers.fFlags & ModifierFlag::kNoInline)) {
         context.fErrors->error(pos, "functions cannot be both 'inline' and 'noinline'");
         return false;
     }
@@ -86,12 +88,12 @@ static bool check_parameters(const Context& context,
     // Check modifiers on each function parameter.
     for (auto& param : parameters) {
         const Type& type = param->type();
-        int permittedFlags = Modifiers::kConst_Flag | Modifiers::kIn_Flag;
+        ModifierFlags permittedFlags = ModifierFlag::kConst | ModifierFlag::kIn;
         if (!type.isOpaque()) {
-            permittedFlags |= Modifiers::kOut_Flag;
+            permittedFlags |= ModifierFlag::kOut;
         }
         if (type.typeKind() == Type::TypeKind::kTexture) {
-            permittedFlags |= Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag;
+            permittedFlags |= ModifierFlag::kReadOnly | ModifierFlag::kWriteOnly;
         }
         param->modifiers().checkPermitted(context,
                                           param->modifiersPosition(),
@@ -113,7 +115,7 @@ static bool check_parameters(const Context& context,
         // result is not used; this is incompatible with out-parameters, so we forbid it here.
         // (We don't exhaustively guard against pure functions changing global state in other ways,
         // though, since they aren't allowed in user code.)
-        if (modifiers.isPure() && (m.fFlags & Modifiers::kOut_Flag)) {
+        if (modifiers.isPure() && (m.fFlags & ModifierFlag::kOut)) {
             context.fErrors->error(param->modifiersPosition(),
                                    "pure functions cannot have out parameters");
             return false;
@@ -121,8 +123,8 @@ static bool check_parameters(const Context& context,
 
         // The `in` modifier on function parameters is implicit, so we can replace `in float x` with
         // `float x`. This prevents any ambiguity when matching a function by its param types.
-        if (Modifiers::kIn_Flag == (m.fFlags & (Modifiers::kOut_Flag | Modifiers::kIn_Flag))) {
-            m.fFlags &= ~(Modifiers::kOut_Flag | Modifiers::kIn_Flag);
+        if ((m.fFlags & (ModifierFlag::kOut | ModifierFlag::kIn)) == ModifierFlag::kIn) {
+            m.fFlags &= ~(ModifierFlag::kOut | ModifierFlag::kIn);
             modifiersChanged = true;
         }
 
@@ -192,17 +194,17 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
 
     auto paramIsConstInAttributes = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return typeIsValidForAttributes(p.type()) && p.modifiers().fFlags == Modifiers::kConst_Flag;
+        return typeIsValidForAttributes(p.type()) && p.modifiers().fFlags == ModifierFlag::kConst;
     };
 
     auto paramIsConstInVaryings = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == Modifiers::kConst_Flag;
+        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == ModifierFlag::kConst;
     };
 
     auto paramIsOutColor = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return typeIsValidForColor(p.type()) && p.modifiers().fFlags == Modifiers::kOut_Flag;
+        return typeIsValidForColor(p.type()) && p.modifiers().fFlags == ModifierFlag::kOut;
     };
 
     auto paramIsInputColor = [&](int n) { return paramIsBuiltinColor(n, SK_INPUT_COLOR_BUILTIN); };
@@ -481,8 +483,8 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     Modifiers updatedModifiers;
     if (context.fConfig->fSettings.fForceNoInline) {
         updatedModifiers = *modifiers;
-        updatedModifiers.fFlags &= ~Modifiers::kInline_Flag;
-        updatedModifiers.fFlags |= Modifiers::kNoInline_Flag;
+        updatedModifiers.fFlags &= ~ModifierFlag::kInline;
+        updatedModifiers.fFlags |= ModifierFlag::kNoInline;
         modifiers = &updatedModifiers;
     }
 
@@ -543,7 +545,7 @@ std::string FunctionDeclaration::mangledName() const {
 }
 
 std::string FunctionDeclaration::description() const {
-    int modifierFlags = this->modifiers().fFlags;
+    ModifierFlags modifierFlags = this->modifiers().fFlags;
     std::string result =
             (modifierFlags ? Modifiers::DescribeFlags(modifierFlags) + " " : std::string()) +
             this->returnType().displayName() + " " + std::string(this->name()) + "(";

@@ -17,31 +17,31 @@ namespace SkSL {
 
 bool Modifiers::checkPermitted(const Context& context,
                                Position pos,
-                               int permittedModifierFlags,
+                               ModifierFlags permittedModifierFlags,
                                int permittedLayoutFlags) const {
-    static constexpr struct { Modifiers::Flag flag; const char* name; } kModifierFlags[] = {
-        { Modifiers::kConst_Flag,          "const" },
-        { Modifiers::kIn_Flag,             "in" },
-        { Modifiers::kOut_Flag,            "out" },
-        { Modifiers::kUniform_Flag,        "uniform" },
-        { Modifiers::kFlat_Flag,           "flat" },
-        { Modifiers::kNoPerspective_Flag,  "noperspective" },
-        { Modifiers::kPure_Flag,           "$pure" },
-        { Modifiers::kInline_Flag,         "inline" },
-        { Modifiers::kNoInline_Flag,       "noinline" },
-        { Modifiers::kHighp_Flag,          "highp" },
-        { Modifiers::kMediump_Flag,        "mediump" },
-        { Modifiers::kLowp_Flag,           "lowp" },
-        { Modifiers::kExport_Flag,         "$export" },
-        { Modifiers::kES3_Flag,            "$es3" },
-        { Modifiers::kWorkgroup_Flag,      "workgroup" },
-        { Modifiers::kReadOnly_Flag,       "readonly" },
-        { Modifiers::kWriteOnly_Flag,      "writeonly" },
-        { Modifiers::kBuffer_Flag,         "buffer" },
+    static constexpr struct { ModifierFlag flag; const char* name; } kModifierFlags[] = {
+        { ModifierFlag::kConst,          "const" },
+        { ModifierFlag::kIn,             "in" },
+        { ModifierFlag::kOut,            "out" },
+        { ModifierFlag::kUniform,        "uniform" },
+        { ModifierFlag::kFlat,           "flat" },
+        { ModifierFlag::kNoPerspective,  "noperspective" },
+        { ModifierFlag::kPure,           "$pure" },
+        { ModifierFlag::kInline,         "inline" },
+        { ModifierFlag::kNoInline,       "noinline" },
+        { ModifierFlag::kHighp,          "highp" },
+        { ModifierFlag::kMediump,        "mediump" },
+        { ModifierFlag::kLowp,           "lowp" },
+        { ModifierFlag::kExport,         "$export" },
+        { ModifierFlag::kES3,            "$es3" },
+        { ModifierFlag::kWorkgroup,      "workgroup" },
+        { ModifierFlag::kReadOnly,       "readonly" },
+        { ModifierFlag::kWriteOnly,      "writeonly" },
+        { ModifierFlag::kBuffer,         "buffer" },
     };
 
     bool success = true;
-    int modifierFlags = fFlags;
+    ModifierFlags modifierFlags = fFlags;
     for (const auto& f : kModifierFlags) {
         if (modifierFlags & f.flag) {
             if (!(permittedModifierFlags & f.flag)) {
@@ -51,7 +51,7 @@ bool Modifiers::checkPermitted(const Context& context,
             modifierFlags &= ~f.flag;
         }
     }
-    SkASSERT(modifierFlags == 0);
+    SkASSERT(modifierFlags == ModifierFlag::kNone);
 
     int backendFlags = fLayout.fFlags & Layout::kAllBackendFlagsMask;
     if (SkPopCount(backendFlags) > 1) {

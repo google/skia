@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkChecksum.h"
 #include "src/sksl/GLSL.std.450.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -350,21 +351,14 @@ static T pick_by_type(const Type& type, T ifFloat, T ifInt, T ifUInt, T ifBool) 
 }
 
 static bool is_out(const Modifiers& m) {
-    return (m.fFlags & Modifiers::kOut_Flag) != 0;
+    return (m.fFlags & ModifierFlag::kOut) != 0;
 }
 
 static bool is_in(const Modifiers& m) {
-    switch (m.fFlags & (Modifiers::kOut_Flag | Modifiers::kIn_Flag)) {
-        case Modifiers::kOut_Flag:                       // out
-            return false;
-
-        case 0:                                          // implicit in
-        case Modifiers::kIn_Flag:                        // explicit in
-        case Modifiers::kOut_Flag | Modifiers::kIn_Flag: // inout
-            return true;
-
-        default: SkUNREACHABLE;
+    if (m.fFlags & ModifierFlag::kIn) {
+        return true;  // `in` and `inout` both count
     }
+    return !(m.fFlags & ModifierFlag::kOut);  // `out` does not count; no-flags-set is implicit `in`
 }
 
 static bool is_control_flow_op(SpvOp_ op) {
@@ -2327,11 +2321,11 @@ static SpvStorageClass_ get_storage_class_for_global_variable(
     SkASSERT(var.storage() == Variable::Storage::kGlobal);
 
     const Modifiers& modifiers = var.modifiers();
-    if (modifiers.fFlags & Modifiers::kIn_Flag) {
+    if (modifiers.fFlags & ModifierFlag::kIn) {
         SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
         return SpvStorageClassInput;
     }
-    if (modifiers.fFlags & Modifiers::kOut_Flag) {
+    if (modifiers.fFlags & ModifierFlag::kOut) {
         SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
         return SpvStorageClassOutput;
     }
@@ -3703,7 +3697,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                              /*set=*/-1,
                                              /*builtin=*/-1,
                                              /*inputAttachmentIndex=*/-1),
-                                      /*flags=*/0),
+                                      /*flags=*/ModifierFlag::kNone),
                             SKSL_RTFLIP_NAME,
                             fContext.fTypes.fFloat2.get());
         {
@@ -3773,7 +3767,7 @@ bool SPIRVCodeGenerator::isDead(const Variable& var) const {
     // It's not entirely clear what the rules are for eliding interface variables. Generally, it
     // causes problems to elide them, even when they're dead.
     return !(var.modifiers().fFlags &
-             (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag));
+             (ModifierFlag::kIn | ModifierFlag::kOut | ModifierFlag::kUniform));
 }
 
 // This function determines whether to skip an OpVariable (of pointer type) declaration for
@@ -3873,10 +3867,10 @@ SpvId SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind,
     this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
     this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
     this->writeLayout(layout, id, var.fPosition);
-    if (var.modifiers().fFlags & Modifiers::kFlat_Flag) {
+    if (var.modifiers().fFlags & ModifierFlag::kFlat) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationFlat, fDecorationBuffer);
     }
-    if (var.modifiers().fFlags & Modifiers::kNoPerspective_Flag) {
+    if (var.modifiers().fFlags & ModifierFlag::kNoPerspective) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationNoPerspective,
                                fDecorationBuffer);
     }
@@ -4230,7 +4224,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     // Declare an entrypoint function.
     EntrypointAdapter adapter;
     adapter.fLayout = {};
-    adapter.fModifiers = Modifiers{adapter.fLayout, Modifiers::kNo_Flag};
+    adapter.fModifiers = Modifiers{adapter.fLayout, ModifierFlag::kNone};
     adapter.entrypointDecl =
             std::make_unique<FunctionDeclaration>(Position(),
                                                   &adapter.fModifiers,
@@ -4261,7 +4255,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
         const Variable* var = topLevelUniform->var();
         fTopLevelUniformMap.set(var, (int)fields.size());
         Modifiers modifiers = var->modifiers();
-        modifiers.fFlags &= ~Modifiers::kUniform_Flag;
+        modifiers.fFlags &= ~ModifierFlag::kUniform;
         fields.emplace_back(var->fPosition, modifiers, var->name(), &var->type());
     }
     fUniformBuffer.fStruct = Type::MakeStructType(fContext,
@@ -4274,7 +4268,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     Layout layout;
     layout.fBinding = fProgram.fConfig->fSettings.fDefaultUniformBinding;
     layout.fSet     = fProgram.fConfig->fSettings.fDefaultUniformSet;
-    Modifiers modifiers{layout, Modifiers::kUniform_Flag};
+    Modifiers modifiers{layout, ModifierFlag::kUniform};
 
     fUniformBuffer.fInnerVariable = std::make_unique<ExtendedVariable>(
             /*pos=*/Position(),
@@ -4318,7 +4312,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                                          /*set=*/-1,
                                          /*builtin=*/-1,
                                          /*inputAttachmentIndex=*/-1),
-                                  /*flags=*/0),
+                                  /*flags=*/ModifierFlag::kNone),
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
     std::string_view name = "sksl_synthetic_uniforms";
@@ -4348,7 +4342,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                                    set,
                                    /*builtin=*/-1,
                                    /*inputAttachmentIndex=*/-1),
-                            Modifiers::kUniform_Flag);
+                            ModifierFlag::kUniform);
         modsPtr = fContext.fModifiersPool->add(modifiers);
     }
     ExtendedVariable* intfVar = fSynthetics.takeOwnershipOfSymbol(
@@ -4437,7 +4431,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             SpvId id = this->writeInterfaceBlock(intf);
 
             const Modifiers& modifiers = intf.var()->modifiers();
-            if ((modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
+            if ((modifiers.fFlags & (ModifierFlag::kIn | ModifierFlag::kOut)) &&
                 modifiers.fLayout.fBuiltin == -1 && !this->isDead(*intf.var())) {
                 interfaceVars.insert(id);
             }
@@ -4476,7 +4470,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     // Add global in/out variables to the list of interface variables.
     for (const auto& [var, spvId] : fVariableMap) {
         if (var->storage() == Variable::Storage::kGlobal &&
-            (var->modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
+            (var->modifiers().fFlags & (ModifierFlag::kIn | ModifierFlag::kOut)) &&
             !this->isDead(*var)) {
             interfaceVars.insert(spvId);
         }

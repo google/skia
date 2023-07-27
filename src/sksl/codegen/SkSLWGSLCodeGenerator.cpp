@@ -12,6 +12,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkBitmaskEnum.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -343,10 +344,10 @@ private:
             const VariableReference& v = e.as<VariableReference>();
             const Modifiers& modifiers = v.variable()->modifiers();
             if (v.variable()->storage() == Variable::Storage::kGlobal) {
-                if (modifiers.fFlags & Modifiers::kIn_Flag) {
+                if (modifiers.fFlags & ModifierFlag::kIn) {
                     fDeps |= Deps::kPipelineInputs;
                 }
-                if (modifiers.fFlags & Modifiers::kOut_Flag) {
+                if (modifiers.fFlags & ModifierFlag::kOut) {
                     fDeps |= Deps::kPipelineOutputs;
                 }
             }
@@ -421,12 +422,12 @@ int count_pipeline_inputs(const Program* program) {
     for (const ProgramElement* e : program->elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const Variable* v = e->as<GlobalVarDeclaration>().varDeclaration().var();
-            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
+            if (v->modifiers().fFlags & ModifierFlag::kIn) {
                 inputCount++;
             }
         } else if (e->is<InterfaceBlock>()) {
             const Variable* v = e->as<InterfaceBlock>().var();
-            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
+            if (v->modifiers().fFlags & ModifierFlag::kIn) {
                 inputCount++;
             }
         }
@@ -740,7 +741,7 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
             // Variables which are never written-to don't need dedicated storage and can use `let`.
             // Out-parameters are passed as pointers; the pointer itself is never modified, so it
             // doesn't need a dedicated variable and can use `let`.
-            this->write(((param.modifiers().fFlags & Modifiers::kOut_Flag) || counts.fWrite == 0)
+            this->write(((param.modifiers().fFlags & ModifierFlag::kOut) || counts.fWrite == 0)
                                 ? "let "
                                 : "var ");
             this->write(this->assembleName(param.mangledName()));
@@ -788,7 +789,7 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl
         this->write(": ");
 
         // Declare an "out" function parameter as a pointer.
-        if (param.modifiers().fFlags & Modifiers::kOut_Flag) {
+        if (param.modifiers().fFlags & ModifierFlag::kOut) {
             this->write(to_ptr_type(param.type()));
         } else {
             this->write(to_wgsl_type(param.type()));
@@ -2020,9 +2021,9 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
     substituteArgument.reserve_exact(args.size());
 
     for (int index = 0; index < args.size(); ++index) {
-        if (params[index]->modifiers().fFlags & Modifiers::kOut_Flag) {
+        if (params[index]->modifiers().fFlags & ModifierFlag::kOut) {
             std::unique_ptr<LValue> lvalue = this->makeLValue(*args[index]);
-            if (params[index]->modifiers().fFlags & Modifiers::kIn_Flag) {
+            if (params[index]->modifiers().fFlags & ModifierFlag::kIn) {
                 // Load the lvalue's contents into the substitute argument.
                 substituteArgument.push_back(this->writeScratchVar(args[index]->type(),
                                                                    lvalue->load()));
@@ -2322,10 +2323,10 @@ std::string WGSLCodeGenerator::variablePrefix(const Variable& v) {
         // structs. We make an explicit exception for `sk_PointSize` which we declare as a
         // placeholder variable in global scope as it is not supported by WebGPU as a pipeline IO
         // parameter (see comments in `writeStageOutputStruct`).
-        if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
+        if (v.modifiers().fFlags & ModifierFlag::kIn) {
             return "_stageIn.";
         }
-        if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
+        if (v.modifiers().fFlags & ModifierFlag::kOut) {
             return "(*_stageOut).";
         }
 
@@ -2352,7 +2353,7 @@ std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableRefe
     const Variable& v = *r.variable();
 
     if ((v.storage() == Variable::Storage::kParameter &&
-         v.modifiers().fFlags & Modifiers::kOut_Flag)) {
+         v.modifiers().fFlags & ModifierFlag::kOut)) {
         // This is an out-parameter; it's pointer-typed, so we need to dereference it. We wrap the
         // dereference in parentheses, in case the value is used in an access expression later.
         return "(*" + this->assembleName(v.mangledName()) + ')';
@@ -2649,7 +2650,7 @@ void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 
 void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d) {
     const Variable& var = *d.declaration()->as<VarDeclaration>().var();
-    if ((var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) ||
+    if ((var.modifiers().fFlags & (ModifierFlag::kIn | ModifierFlag::kOut)) ||
         is_in_global_uniforms(var)) {
         // Pipeline stage I/O parameters and top-level (non-block) uniforms are handled specially
         // in generateCode().
@@ -2738,7 +2739,7 @@ void WGSLCodeGenerator::writeStageInputStruct() {
         if (e->is<GlobalVarDeclaration>()) {
             const Variable* v = e->as<GlobalVarDeclaration>().declaration()
                                  ->as<VarDeclaration>().var();
-            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
+            if (v->modifiers().fFlags & ModifierFlag::kIn) {
                 this->writePipelineIODeclaration(v->modifiers(), v->type(), v->mangledName(),
                                                  Delimiter::kComma);
                 if (v->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
@@ -2752,7 +2753,7 @@ void WGSLCodeGenerator::writeStageInputStruct() {
             //
             // TODO(armansito): Is it legal to have an interface block without a storage qualifier
             // but with members that have individual storage qualifiers?
-            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
+            if (v->modifiers().fFlags & ModifierFlag::kIn) {
                 for (const auto& f : v->type().fields()) {
                     this->writePipelineIODeclaration(f.fModifiers, *f.fType, f.fName,
                                                      Delimiter::kComma);
@@ -2793,7 +2794,7 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
         if (e->is<GlobalVarDeclaration>()) {
             const Variable* v = e->as<GlobalVarDeclaration>().declaration()
                                  ->as<VarDeclaration>().var();
-            if (v->modifiers().fFlags & Modifiers::kOut_Flag) {
+            if (v->modifiers().fFlags & ModifierFlag::kOut) {
                 this->writePipelineIODeclaration(v->modifiers(), v->type(), v->mangledName(),
                                                  Delimiter::kComma);
             }
@@ -2804,7 +2805,7 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
             //
             // TODO(armansito): Is it legal to have an interface block without a storage qualifier
             // but with members that have individual storage qualifiers?
-            if (v->modifiers().fFlags & Modifiers::kOut_Flag) {
+            if (v->modifiers().fFlags & ModifierFlag::kOut) {
                 for (const auto& f : v->type().fields()) {
                     this->writePipelineIODeclaration(f.fModifiers, *f.fType, f.fName,
                                                      Delimiter::kComma);

@@ -12,6 +12,7 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -254,7 +255,7 @@ public:
                     fErrors->error(expr.fPosition,
                                    "cannot modify immutable variable '" + fieldName() + "'");
                 } else if (var->storage() == Variable::Storage::kGlobal &&
-                           (var->modifiers().fFlags & Modifiers::kIn_Flag)) {
+                           (var->modifiers().fFlags & ModifierFlag::kIn)) {
                     fErrors->error(expr.fPosition,
                                    "cannot modify pipeline input variable '" + fieldName() + "'");
                 } else {

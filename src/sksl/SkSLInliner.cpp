@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
@@ -605,7 +606,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
         return false;
     }
 
-    if (functionDef->declaration().modifiers().fFlags & Modifiers::kNoInline_Flag) {
+    if (functionDef->declaration().modifiers().fFlags & ModifierFlag::kNoInline) {
         // Refuse to inline functions decorated with `noinline`.
         return false;
     }
@@ -614,7 +615,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
         // We don't allow inlining functions with parameters that are written-to, if they...
         // - are `out` parameters (see skia:11326 for rationale.)
         // - are arrays or structures (introducing temporary copies is non-trivial)
-        if ((param->modifiers().fFlags & Modifiers::Flag::kOut_Flag) ||
+        if ((param->modifiers().fFlags & ModifierFlag::kOut) ||
             param->type().isArray() ||
             param->type().isStruct()) {
             ProgramUsage::VariableCounts counts = usage.get(*param);
@@ -996,7 +997,7 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
     candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
                         [&](const InlineCandidate& candidate) {
                             const FunctionDeclaration& fnDecl = candidate_func(candidate);
-                            if (fnDecl.modifiers().fFlags & Modifiers::kInline_Flag) {
+                            if (fnDecl.modifiers().fFlags & ModifierFlag::kInline) {
                                 // Functions marked `inline` ignore size limitations.
                                 return false;
                             }

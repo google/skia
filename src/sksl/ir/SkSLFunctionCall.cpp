@@ -12,6 +12,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -1025,7 +1026,7 @@ static CoercionCost call_cost(const Context& context,
                               const FunctionDeclaration& function,
                               const ExpressionArray& arguments) {
     if (context.fConfig->strictES2Mode() &&
-        (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
+        (function.modifiers().fFlags & ModifierFlag::kES3)) {
         return CoercionCost::Impossible();
     }
     if (function.parameters().size() != SkToSizeT(arguments.size())) {
@@ -1124,7 +1125,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                                                   const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
     // Reject ES3 function calls in strict ES2 mode.
-    if (context.fConfig->strictES2Mode() && (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
+    if (context.fConfig->strictES2Mode() && (function.modifiers().fFlags & ModifierFlag::kES3)) {
         context.fErrors->error(pos, "call to '" + function.description() + "' is not supported");
         return nullptr;
     }
@@ -1159,8 +1160,8 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         }
         // Update the refKind on out-parameters, and ensure that they are actually assignable.
         const Modifiers& paramModifiers = function.parameters()[i]->modifiers();
-        if (paramModifiers.fFlags & Modifiers::kOut_Flag) {
-            const VariableRefKind refKind = paramModifiers.fFlags & Modifiers::kIn_Flag
+        if (paramModifiers.fFlags & ModifierFlag::kOut) {
+            const VariableRefKind refKind = paramModifiers.fFlags & ModifierFlag::kIn
                                                     ? VariableReference::RefKind::kReadWrite
                                                     : VariableReference::RefKind::kPointer;
             if (!Analysis::UpdateVariableRefKind(arguments[i].get(), refKind, context.fErrors)) {

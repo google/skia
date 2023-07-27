@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkScopeExit.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -252,7 +253,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
 
 // returns true if we should pass by reference instead of by value
 static bool pass_by_reference(const Type& type, const Modifiers& modifiers) {
-    return (modifiers.fFlags & Modifiers::kOut_Flag) && !type.isUnsizedArray();
+    return (modifiers.fFlags & ModifierFlag::kOut) && !type.isUnsizedArray();
 }
 
 // returns true if we need to specify an address space modifier
@@ -323,7 +324,7 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
     for (int index = 0; index < arguments.size(); ++index) {
         // If this is an out parameter...
-        if (parameters[index]->modifiers().fFlags & Modifiers::kOut_Flag) {
+        if (parameters[index]->modifiers().fFlags & ModifierFlag::kOut) {
             // Assignability was verified at IRGeneration time, so this should always succeed.
             [[maybe_unused]] Analysis::AssignmentInfo info;
             SkASSERT(Analysis::IsAssignable(*arguments[index], &info));
@@ -372,9 +373,9 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             for (int i = 0; i < arguments.size(); ++i) {
                 this->write(separator);
                 separator = ", ";
-                if (parameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+                if (parameters[i]->modifiers().fFlags & ModifierFlag::kOut) {
                     SkASSERT(!scratchVarName[i].empty());
-                    if (parameters[i]->modifiers().fFlags & Modifiers::kIn_Flag) {
+                    if (parameters[i]->modifiers().fFlags & ModifierFlag::kIn) {
                         // `inout` parameters initialize the scratch variable with the passed-in
                         // argument's value.
                         this->write("(");
@@ -1422,7 +1423,7 @@ static bool is_compute_builtin(const Variable& var) {
 // true if the var is part of the Inputs struct
 static bool is_input(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return var.modifiers().fFlags & Modifiers::kIn_Flag &&
+    return var.modifiers().fFlags & ModifierFlag::kIn &&
            (var.modifiers().fLayout.fBuiltin == -1 || is_compute_builtin(var)) &&
            var.type().typeKind() != Type::TypeKind::kTexture;
 }
@@ -1431,8 +1432,8 @@ static bool is_input(const Variable& var) {
 static bool is_output(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
     // inout vars get written into the Inputs struct, so we exclude them from Outputs
-    return (var.modifiers().fFlags & Modifiers::kOut_Flag) &&
-            !(var.modifiers().fFlags & Modifiers::kIn_Flag) &&
+    return (var.modifiers().fFlags & ModifierFlag::kOut) &&
+            !(var.modifiers().fFlags & ModifierFlag::kIn) &&
               var.modifiers().fLayout.fBuiltin == -1 &&
             var.type().typeKind() != Type::TypeKind::kTexture;
 }
@@ -2358,9 +2359,9 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
 void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers) {
     if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
-            (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag))) {
+            (modifiers.fFlags & (ModifierFlag::kIn | ModifierFlag::kOut))) {
         this->write("device ");
-    } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+    } else if (modifiers.fFlags & ModifierFlag::kOut) {
         this->write("thread ");
     }
     if (modifiers.isConst()) {
@@ -2899,7 +2900,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
             visitor->visitTexture(var.type(), var.modifiers(), var.mangledName());
             continue;
         }
-        if (!(var.modifiers().fFlags & ~Modifiers::kConst_Flag) &&
+        if (!(var.modifiers().fFlags & ~ModifierFlag::kConst) &&
             var.modifiers().fLayout.fBuiltin == -1) {
             if (is_in_globals(var)) {
                 // Visit a regular global variable.

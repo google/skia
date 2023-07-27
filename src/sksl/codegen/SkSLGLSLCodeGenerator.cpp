@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -1129,7 +1130,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         this->write(separator());
         Modifiers modifiers = param->modifiers();
         if (this->caps().fRemoveConstFromFunctionParameters) {
-            modifiers.fFlags &= ~Modifiers::kConst_Flag;
+            modifiers.fFlags &= ~ModifierFlag::kConst;
         }
         this->writeModifiers(modifiers, false);
         std::vector<int> sizes;
@@ -1198,10 +1199,10 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     }
 
     // For GLSL 4.1 and below, qualifier-order matters! These are written out in Modifier-bit order.
-    if (modifiers.fFlags & Modifiers::kFlat_Flag) {
+    if (modifiers.fFlags & ModifierFlag::kFlat) {
         this->write("flat ");
     }
-    if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
+    if (modifiers.fFlags & ModifierFlag::kNoPerspective) {
         this->write("noperspective ");
     }
 
@@ -1211,17 +1212,17 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.isUniform()) {
         this->write("uniform ");
     }
-    if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
-        (modifiers.fFlags & Modifiers::kOut_Flag)) {
+    if ((modifiers.fFlags & ModifierFlag::kIn) &&
+        (modifiers.fFlags & ModifierFlag::kOut)) {
         this->write("inout ");
-    } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
+    } else if (modifiers.fFlags & ModifierFlag::kIn) {
         if (globalContext && this->caps().fGLSLGeneration < SkSL::GLSLGeneration::k130) {
             this->write(ProgramConfig::IsVertex(fProgram.fConfig->fKind) ? "attribute "
                                                                          : "varying ");
         } else {
             this->write("in ");
         }
-    } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+    } else if (modifiers.fFlags & ModifierFlag::kOut) {
         if (globalContext &&
             this->caps().fGLSLGeneration < SkSL::GLSLGeneration::k130) {
             this->write("varying ");
@@ -1736,14 +1737,14 @@ bool GLSLCodeGenerator::generateCode() {
     if (!this->caps().fCanUseFragCoord) {
         Layout layout;
         if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-            Modifiers modifiers(layout, Modifiers::kOut_Flag);
+            Modifiers modifiers(layout, ModifierFlag::kOut);
             this->writeModifiers(modifiers, true);
             if (this->usesPrecisionModifiers()) {
                 this->write("highp ");
             }
             this->write("vec4 sk_FragCoord_Workaround;\n");
         } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-            Modifiers modifiers(layout, Modifiers::kIn_Flag);
+            Modifiers modifiers(layout, ModifierFlag::kIn);
             this->writeModifiers(modifiers, true);
             if (this->usesPrecisionModifiers()) {
                 this->write("highp ");

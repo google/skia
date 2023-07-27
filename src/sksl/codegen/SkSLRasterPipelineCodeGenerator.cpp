@@ -14,6 +14,7 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkStringView.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkTHash.h"
@@ -457,13 +458,13 @@ public:
     }
 
     static bool IsOutParameter(const Variable& var) {
-        return (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) ==
-               Modifiers::kOut_Flag;
+        return (var.modifiers().fFlags & (ModifierFlag::kIn | ModifierFlag::kOut)) ==
+               ModifierFlag::kOut;
     }
 
     static bool IsInoutParameter(const Variable& var) {
-        return (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) ==
-               (Modifiers::kIn_Flag | Modifiers::kOut_Flag);
+        return (var.modifiers().fFlags & (ModifierFlag::kIn | ModifierFlag::kOut)) ==
+               (ModifierFlag::kIn | ModifierFlag::kOut);
     }
 
 private:
