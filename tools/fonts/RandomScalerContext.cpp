@@ -68,11 +68,10 @@ SkScalerContext::GlyphMetrics RandomScalerContext::generateMetrics(const SkGlyph
     auto glyph = fProxy->internalMakeGlyph(origGlyph.getPackedID(), format, alloc);
 
     GlyphMetrics mx(SkMask::kA8_Format);
-    mx.advance.fX = glyph.fAdvanceX;
-    mx.advance.fY = glyph.fAdvanceY;
-    mx.bounds = SkIRect::MakeXYWH(glyph.left(), glyph.top(), glyph.width(), glyph.height());
+    mx.advance = glyph.advanceVector();
+    mx.bounds = glyph.iRect();
     mx.maskFormat = glyph.maskFormat();
-    mx.extraBits = glyph.fScalerContextBits;
+    mx.extraBits = glyph.extraBits();
 
     if (fFakeIt || (glyph.getGlyphID() % 4) != 2) {
         mx.neverRequestPath = glyph.setPathHasBeenCalled() && !glyph.path();
@@ -94,9 +93,8 @@ SkScalerContext::GlyphMetrics RandomScalerContext::generateMetrics(const SkGlyph
 
     mx.neverRequestPath = true;
     mx.maskFormat = SkMask::kARGB32_Format;
-    mx.advance.fX = proxyGlyph->fAdvanceX;
-    mx.advance.fY = proxyGlyph->fAdvanceY;
-    mx.extraBits = proxyGlyph->fScalerContextBits;
+    mx.advance = proxyGlyph->advanceVector();
+    mx.extraBits = proxyGlyph->extraBits();
 
     SkRect         storage;
     const SkPaint& paint = this->getRandomTypeface()->paint();
@@ -109,7 +107,7 @@ SkScalerContext::GlyphMetrics RandomScalerContext::generateMetrics(const SkGlyph
 
 void RandomScalerContext::generateImage(const SkGlyph& glyph, void* imageBuffer) {
     if (fFakeIt) {
-        sk_bzero(glyph.fImage, glyph.imageSize());
+        sk_bzero(imageBuffer, glyph.imageSize());
         return;
     }
 

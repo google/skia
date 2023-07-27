@@ -558,17 +558,7 @@ private:
     // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
     // access to all the fields. Scalers are assumed to maintain all the SkGlyph invariants. The
     // consumer side has a tighter interface.
-    friend class RandomScalerContext;
     friend class SkScalerContext;
-    friend class SkScalerContextProxy;
-    friend class SkScalerContext_Empty;
-    friend class SkStrikeClientImpl;
-    friend class SkTestScalerContext;
-    friend class SkTestSVGScalerContext;
-    friend class SkUserScalerContext;
-    friend class SkFontationsScalerContext;
-    friend class TestSVGTypeface;
-    friend class TestTypeface;
     friend class SkGlyphTestPeer;
 
     inline static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;
