@@ -56,6 +56,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkVerticesPriv.h"
+#include "src/effects/colorfilters/SkColorSpaceXformColorFilter.h"
 #include "src/shaders/SkImageShader.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/gpu/GlyphVector.h"
@@ -448,6 +449,109 @@ bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
 #endif
     // We have no access to a context to do a read pixels here.
     return false;
+}
+
+sk_sp<SkImage> Device::rescale(SkIRect srcIRect,
+                               const SkImageInfo& dstInfo,
+                               SkImage::RescaleGamma rescaleGamma,
+                               SkImage::RescaleMode rescaleMode) {
+    // make a Surface matching dstInfo to rescale into
+    // TODO: use fallback colortype if necessary
+    sk_sp<SkSurface> dst = this->makeSurface(dstInfo, SkSurfaceProps{});
+    SkRect srcRect = SkRect::Make(srcIRect);
+    SkRect dstRect = SkRect::Make(dstInfo.dimensions());
+
+    // Get backing texture information for current Device.
+    // For now this needs to be texturable because we can't depend on copies to scale.
+    TextureProxyView deviceView = this->readSurfaceView();
+    if (!deviceView.proxy()) {
+        // TODO: if not texturable, copy to a texturable format
+        return nullptr;
+    }
+
+    SkISize finalSize = SkISize::Make(dstRect.width(), dstRect.height());
+    if (finalSize == srcIRect.size()) {
+        rescaleGamma = RescaleGamma::kSrc;
+        rescaleMode = RescaleMode::kNearest;
+    }
+
+    // Within a rescaling pass tempInput is read from and tempOutput is written to.
+    // At the end of the pass tempOutput's texture is wrapped and assigned to tempInput.
+    sk_sp<SkImage> tempInput(new Image(kNeedNewImageUniqueID,
+                                       deviceView,
+                                       this->imageInfo().colorInfo()));
+    sk_sp<SkSurface> tempOutput;
+
+    // Assume we should ignore the rescale linear request if the surface has no color space since
+    // it's unclear how we'd linearize from an unknown color space.
+
+    if (rescaleGamma == RescaleGamma::kLinear && this->imageInfo().colorSpace() &&
+        !this->imageInfo().colorSpace()->gammaIsLinear()) {
+        // Draw the src image into a new surface with linear gamma, and make that the new tempInput
+        sk_sp<SkColorSpace> linearGamma = this->imageInfo().colorSpace()->makeLinearGamma();
+        SkImageInfo gammaDstInfo = SkImageInfo::Make(srcIRect.size(),
+                                                     tempInput->imageInfo().colorType(),
+                                                     tempInput->imageInfo().alphaType(),
+                                                     std::move(linearGamma));
+        tempOutput = this->makeSurface(gammaDstInfo, SkSurfaceProps{});
+        SkCanvas* gammaDst = tempOutput->getCanvas();
+        SkRect gammaDstRect = SkRect::Make(srcIRect.size());
+
+        SkPaint paint;
+        gammaDst->drawImageRect(tempInput, srcRect, gammaDstRect,
+                                SkSamplingOptions(SkFilterMode::kNearest), &paint,
+                                SkCanvas::kStrict_SrcRectConstraint);
+        tempInput = SkSurfaces::AsImage(tempOutput);
+        srcRect = gammaDstRect;
+    }
+
+    do {
+        SkISize nextDims = finalSize;
+        if (rescaleMode != RescaleMode::kNearest && rescaleMode != RescaleMode::kLinear) {
+            if (srcRect.width() > finalSize.width()) {
+                nextDims.fWidth = std::max((srcRect.width() + 1)/2, (float)finalSize.width());
+            } else if (srcRect.width() < finalSize.width()) {
+                nextDims.fWidth = std::min(srcRect.width()*2, (float)finalSize.width());
+            }
+            if (srcRect.height() > finalSize.height()) {
+                nextDims.fHeight = std::max((srcRect.height() + 1)/2, (float)finalSize.height());
+            } else if (srcRect.height() < finalSize.height()) {
+                nextDims.fHeight = std::min(srcRect.height()*2, (float)finalSize.height());
+            }
+        }
+
+        SkCanvas* stepDst;
+        SkRect stepDstRect;
+        if (nextDims == finalSize) {
+            stepDst = dst->getCanvas();
+            stepDstRect = dstRect;
+        } else {
+            SkImageInfo nextInfo = tempInput->imageInfo().makeDimensions(nextDims);
+            tempOutput = this->makeSurface(nextInfo, SkSurfaceProps{});
+            if (!tempOutput) {
+                return nullptr;
+            }
+            stepDst = tempOutput->getCanvas();
+            stepDstRect = SkRect::Make(tempOutput->imageInfo().dimensions());
+        }
+
+        SkSamplingOptions samplingOptions;
+        if (rescaleMode == RescaleMode::kRepeatedCubic) {
+            samplingOptions = SkSamplingOptions(SkCubicResampler::CatmullRom());
+        } else {
+            samplingOptions = (rescaleMode == RescaleMode::kNearest) ?
+                               SkSamplingOptions(SkFilterMode::kNearest) :
+                               SkSamplingOptions(SkFilterMode::kLinear);
+        }
+        SkPaint paint;
+        stepDst->drawImageRect(tempInput, srcRect, stepDstRect, samplingOptions, &paint,
+                               SkCanvas::kStrict_SrcRectConstraint);
+
+        tempInput = SkSurfaces::AsImage(tempOutput);
+        srcRect = SkRect::Make(nextDims);
+    } while (srcRect.width() != finalSize.width() || srcRect.height() != finalSize.height());
+
+    return SkSurfaces::AsImage(dst);
 }
 
 bool Device::onWritePixels(const SkPixmap& src, int x, int y) {

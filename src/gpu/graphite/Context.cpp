@@ -25,6 +25,7 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/CopyTask.h"
+#include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
@@ -44,7 +45,6 @@
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/SynchronizeToCpuTask.h"
 #include "src/gpu/graphite/TextureProxyView.h"
-#include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UploadTask.h"
 
 namespace skgpu::graphite {
@@ -153,6 +153,7 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
         return;
     }
 
+    const SkImageInfo& srcImageInfo = image->imageInfo();
     if (!SkIRect::MakeSize(image->imageInfo().dimensions()).contains(srcRect)) {
         callback(callbackContext, nullptr);
         return;
@@ -173,12 +174,22 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
     // Make a recorder to record drawing commands into
     std::unique_ptr<Recorder> recorder = this->makeRecorder();
 
-    sk_sp<SkImage> scaledImage = RescaleImage(recorder.get(),
-                                              image,
-                                              srcRect,
-                                              dstImageInfo,
-                                              rescaleGamma,
-                                              rescaleMode);
+    // Make Device from Recorder
+    auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
+    TextureProxyView proxyView = graphiteImage->textureProxyView();
+    SkColorInfo colorInfo = srcImageInfo.colorInfo().makeAlphaType(kPremul_SkAlphaType);
+    sk_sp<Device> device = Device::Make(recorder.get(),
+                                        proxyView.refProxy(),
+                                        image->dimensions(),
+                                        colorInfo,
+                                        SkSurfaceProps{},
+                                        false);
+    if (!device) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
+    sk_sp<SkImage> scaledImage = device->rescale(srcRect, dstImageInfo, rescaleGamma, rescaleMode);
     if (!scaledImage) {
         callback(callbackContext, nullptr);
         return;
@@ -418,7 +429,7 @@ void Context::asyncRescaleAndReadPixelsYUV420Impl(const SkImage* image,
     }
 
     const SkImageInfo& srcImageInfo = image->imageInfo();
-    if (!SkIRect::MakeSize(srcImageInfo.dimensions()).contains(srcRect)) {
+    if (!SkIRect::MakeSize(image->imageInfo().dimensions()).contains(srcRect)) {
         callback(callbackContext, nullptr);
         return;
     }
@@ -439,16 +450,28 @@ void Context::asyncRescaleAndReadPixelsYUV420Impl(const SkImage* image,
                                            callbackContext);
     }
 
+    // Make Device from Recorder
+    auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
+    TextureProxyView proxyView = graphiteImage->textureProxyView();
+    sk_sp<Device> device = Device::Make(recorder.get(),
+                                        proxyView.refProxy(),
+                                        image->dimensions(),
+                                        srcImageInfo.colorInfo(),
+                                        SkSurfaceProps{},
+                                        false);
+    if (!device) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
     SkImageInfo dstImageInfo = SkImageInfo::Make(dstSize,
                                                  kRGBA_8888_SkColorType,
                                                  srcImageInfo.colorInfo().alphaType(),
                                                  dstColorSpace);
-    sk_sp<SkImage> scaledImage = RescaleImage(recorder.get(),
-                                              image,
-                                              srcRect,
-                                              dstImageInfo,
-                                              rescaleGamma,
-                                              rescaleMode);
+    sk_sp<SkImage> scaledImage = device->rescale(srcRect,
+                                                 dstImageInfo,
+                                                 rescaleGamma,
+                                                 rescaleMode);
     if (!scaledImage) {
         callback(callbackContext, nullptr);
         return;

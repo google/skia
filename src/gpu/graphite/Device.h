@@ -73,6 +73,11 @@ public:
 
     TextureProxyView createCopy(const SkIRect* subset, Mipmapped);
 
+    sk_sp<SkImage> rescale(SkIRect srcRect,
+                           const SkImageInfo& dstInfo,
+                           SkImage::RescaleGamma rescaleGamma,
+                           SkImage::RescaleMode);
+
     const Transform& localToDeviceTransform();
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
