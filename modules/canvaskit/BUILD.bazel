@@ -371,5 +371,8 @@ genrule(
     srcs = ["make_version.sh"],
     outs = ["version.js"],
     cmd = "$< $@",
+    # This script uses the Git executable, which is not on the remote builders.
+    # Forcing the execution to be local ensures it will be in the path.
+    local = True,
     visibility = ["//infra:__subpackages__"],
 )
