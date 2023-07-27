@@ -395,7 +395,7 @@ protected:
      *  Because glyph.imageSize() will determine the size of fImage,
      *  generateMetrics will be called before generateImage.
      */
-    virtual void generateImage(const SkGlyph& glyph) = 0;
+    virtual void generateImage(const SkGlyph& glyph, void* imageBuffer) = 0;
     static void GenerateImageFromPath(
         const SkMask& mask, const SkPath& path, const SkMaskGamma::PreBlend& maskPreBlend,
         bool doBGR, bool verticalLCD, bool a8FromLCD, bool hairline);

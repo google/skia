@@ -517,6 +517,8 @@ public:
     }
     bool imageTooLarge() const { return fWidth >= kMaxGlyphWidth; }
 
+    uint16_t extraBits() const { return fScalerContextBits; }
+
     // Make sure that the intercept information is on the glyph and return it, or return it if it
     // already exists.
     // * bounds - [0] - top of underline; [1] - bottom of underline.
@@ -560,11 +562,6 @@ private:
     friend class SkScalerContext;
     friend class SkScalerContextProxy;
     friend class SkScalerContext_Empty;
-    friend class SkScalerContext_FreeType;
-    friend class SkScalerContext_FreeType_Base;
-    friend class SkScalerContext_DW;
-    friend class SkScalerContext_GDI;
-    friend class SkScalerContext_Mac;
     friend class SkStrikeClientImpl;
     friend class SkTestScalerContext;
     friend class SkTestSVGScalerContext;

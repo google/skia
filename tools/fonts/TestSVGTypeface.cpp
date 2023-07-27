@@ -214,15 +214,14 @@ protected:
         return mx;
     }
 
-    void generateImage(const SkGlyph& glyph) override {
+    void generateImage(const SkGlyph& glyph, void* imageBuffer) override {
         SkGlyphID glyphID = glyph.getGlyphID();
         glyphID           = glyphID < this->getTestSVGTypeface()->fGlyphCount ? glyphID : 0;
 
         SkBitmap bm;
         // TODO: this should be SkImageInfo::MakeS32 when that passes all the tests.
-        bm.installPixels(SkImageInfo::MakeN32(glyph.fWidth, glyph.fHeight, kPremul_SkAlphaType),
-                         glyph.fImage,
-                         glyph.rowBytes());
+        bm.installPixels(SkImageInfo::MakeN32(glyph.width(), glyph.height(), kPremul_SkAlphaType),
+                         imageBuffer, glyph.rowBytes());
         bm.eraseColor(0);
 
         TestSVGTypeface::Glyph& glyphData = this->getTestSVGTypeface()->fGlyphs[glyphID];
@@ -231,7 +230,7 @@ protected:
         SkScalar dy = SkFixedToScalar(glyph.getSubYFixed());
 
         SkCanvas canvas(bm);
-        canvas.translate(-glyph.fLeft, -glyph.fTop);
+        canvas.translate(-glyph.left(), -glyph.top());
         canvas.translate(dx, dy);
         canvas.concat(fMatrix);
         canvas.translate(glyphData.fOrigin.fX, -glyphData.fOrigin.fY);

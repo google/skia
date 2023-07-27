@@ -1232,15 +1232,15 @@ bool SkScalerContext_DW::drawColorV1Image(const SkGlyph& glyph, SkCanvas& canvas
     return this->drawColorV1Paint(canvas, *paintReader, paintElement);
 }
 
-bool SkScalerContext_DW::generateColorV1Image(const SkGlyph& glyph) {
-    SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
+bool SkScalerContext_DW::generateColorV1Image(const SkGlyph& glyph, void* imageBuffer) {
+    SkASSERT(glyph.maskFormat() == SkMask::Format::kARGB32_Format);
 
     SkBitmap dstBitmap;
     // TODO: mark this as sRGB when the blits will be sRGB.
-    dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+    dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
                       kN32_SkColorType, kPremul_SkAlphaType),
                       glyph.rowBytes());
-    dstBitmap.setPixels(glyph.fImage);
+    dstBitmap.setPixels(imageBuffer);
 
     SkCanvas canvas(dstBitmap);
     if constexpr (kSkShowTextBlitCoverage) {
@@ -1248,7 +1248,7 @@ bool SkScalerContext_DW::generateColorV1Image(const SkGlyph& glyph) {
     } else {
         canvas.clear(SK_ColorTRANSPARENT);
     }
-    canvas.translate(-SkIntToScalar(glyph.fLeft), -SkIntToScalar(glyph.fTop));
+    canvas.translate(-SkIntToScalar(glyph.left()), -SkIntToScalar(glyph.top()));
 
     return this->drawColorV1Image(glyph, canvas);
 }
@@ -1450,7 +1450,7 @@ bool SkScalerContext_DW::generateColorV1Metrics(const SkGlyph& glyph, SkIRect* i
 #else  // DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
 
 bool SkScalerContext_DW::generateColorV1Metrics(const SkGlyph&, SkIRect*) { return false; }
-bool SkScalerContext_DW::generateColorV1Image(const SkGlyph&) { return false; }
+bool SkScalerContext_DW::generateColorV1Image(const SkGlyph&, void*) { return false; }
 bool SkScalerContext_DW::drawColorV1Image(const SkGlyph&, SkCanvas&) { return false; }
 
 #endif  // DWRITE_CORE || (defined(NTDDI_WIN11_ZN) && NTDDI_VERSION >= NTDDI_WIN11_ZN)
@@ -1894,10 +1894,11 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
 
 #include "include/private/SkColorData.h"
 
-void SkScalerContext_DW::BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph) {
+void SkScalerContext_DW::BilevelToBW(const uint8_t* SK_RESTRICT src,
+                                     const SkGlyph& glyph, void* imageBuffer) {
     const int width = glyph.width();
     const size_t dstRB = (width + 7) >> 3;
-    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
+    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(imageBuffer);
 
     int byteCount = width >> 3;
     int bitCount = width & 7;
@@ -1932,7 +1933,7 @@ void SkScalerContext_DW::BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGly
     }
 
     if constexpr (kSkShowTextBlitCoverage) {
-        dst = static_cast<uint8_t*>(glyph.fImage);
+        dst = static_cast<uint8_t*>(imageBuffer);
         for (unsigned y = 0; y < (unsigned)glyph.height(); y += 2) {
             for (unsigned x = (y & 0x2); x < (unsigned)glyph.width(); x+=4) {
                 uint8_t& b = dst[(dstRB * y) + (x >> 3)];
@@ -1944,11 +1945,11 @@ void SkScalerContext_DW::BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGly
 
 template<bool APPLY_PREBLEND>
 void SkScalerContext_DW::GrayscaleToA8(const uint8_t* SK_RESTRICT src,
-                                       const SkGlyph& glyph,
+                                       const SkGlyph& glyph, void* imageBuffer,
                                        const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.width();
-    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
+    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(imageBuffer);
 
     for (int y = 0; y < glyph.height(); y++) {
         for (int i = 0; i < width; i++) {
@@ -1964,11 +1965,11 @@ void SkScalerContext_DW::GrayscaleToA8(const uint8_t* SK_RESTRICT src,
 
 template<bool APPLY_PREBLEND>
 void SkScalerContext_DW::RGBToA8(const uint8_t* SK_RESTRICT src,
-                                 const SkGlyph& glyph,
+                                 const SkGlyph& glyph, void* imageBuffer,
                                  const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.width();
-    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(glyph.fImage);
+    uint8_t* SK_RESTRICT dst = static_cast<uint8_t*>(imageBuffer);
 
     for (int y = 0; y < glyph.height(); y++) {
         for (int i = 0; i < width; i++) {
@@ -1986,11 +1987,12 @@ void SkScalerContext_DW::RGBToA8(const uint8_t* SK_RESTRICT src,
 
 template<bool APPLY_PREBLEND, bool RGB>
 void SkScalerContext_DW::RGBToLcd16(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
+                                    void* imageBuffer,
                                     const uint8_t* tableR, const uint8_t* tableG,
                                     const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.width();
-    uint16_t* SK_RESTRICT dst = static_cast<uint16_t*>(glyph.fImage);
+    uint16_t* SK_RESTRICT dst = static_cast<uint16_t*>(imageBuffer);
 
     for (int y = 0; y < glyph.height(); y++) {
         for (int i = 0; i < width; i++) {
@@ -2102,9 +2104,9 @@ const void* SkScalerContext_DW::getDWMaskBits(const SkGlyph& glyph,
     return fBits.begin();
 }
 
-bool SkScalerContext_DW::generateDWImage(const SkGlyph& glyph) {
+bool SkScalerContext_DW::generateDWImage(const SkGlyph& glyph, void* imageBuffer) {
     //Create the mask.
-    ScalerContextBits::value_type format = glyph.fScalerContextBits;
+    ScalerContextBits::value_type format = glyph.extraBits();
     DWRITE_RENDERING_MODE renderingMode = fRenderingMode;
     DWRITE_TEXTURE_TYPE textureType = fTextureType;
     if (format == ScalerContextBits::DW_1) {
@@ -2113,43 +2115,47 @@ bool SkScalerContext_DW::generateDWImage(const SkGlyph& glyph) {
     }
     const void* bits = this->getDWMaskBits(glyph, renderingMode, textureType);
     if (!bits) {
-        sk_bzero(glyph.fImage, glyph.imageSize());
+        sk_bzero(imageBuffer, glyph.imageSize());
         return false;
     }
 
     //Copy the mask into the glyph.
     const uint8_t* src = (const uint8_t*)bits;
     if (DWRITE_RENDERING_MODE_ALIASED == renderingMode) {
-        SkASSERT(SkMask::kBW_Format == glyph.fMaskFormat);
+        SkASSERT(SkMask::kBW_Format == glyph.maskFormat());
         SkASSERT(DWRITE_TEXTURE_ALIASED_1x1 == textureType);
-        BilevelToBW(src, glyph);
+        BilevelToBW(src, glyph, imageBuffer);
     } else if (!isLCD(fRec)) {
         if (textureType == DWRITE_TEXTURE_ALIASED_1x1) {
             if (fPreBlend.isApplicable()) {
-                GrayscaleToA8<true>(src, glyph, fPreBlend.fG);
+                GrayscaleToA8<true>(src, glyph, imageBuffer, fPreBlend.fG);
             } else {
-                GrayscaleToA8<false>(src, glyph, fPreBlend.fG);
+                GrayscaleToA8<false>(src, glyph, imageBuffer, fPreBlend.fG);
             }
         } else {
             if (fPreBlend.isApplicable()) {
-                RGBToA8<true>(src, glyph, fPreBlend.fG);
+                RGBToA8<true>(src, glyph, imageBuffer, fPreBlend.fG);
             } else {
-                RGBToA8<false>(src, glyph, fPreBlend.fG);
+                RGBToA8<false>(src, glyph, imageBuffer, fPreBlend.fG);
             }
         }
     } else {
-        SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
+        SkASSERT(SkMask::kLCD16_Format == glyph.maskFormat());
         if (fPreBlend.isApplicable()) {
             if (fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag) {
-                RGBToLcd16<true, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<true, false>(src, glyph, imageBuffer,
+                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                RGBToLcd16<true, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<true, true>(src, glyph, imageBuffer,
+                                       fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         } else {
             if (fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag) {
-                RGBToLcd16<false, false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<false, false>(src, glyph, imageBuffer,
+                                         fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                RGBToLcd16<false, true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+                RGBToLcd16<false, true>(src, glyph, imageBuffer,
+                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         }
     }
@@ -2213,15 +2219,15 @@ bool SkScalerContext_DW::drawColorImage(const SkGlyph& glyph, SkCanvas& canvas) 
     return true;
 }
 
-bool SkScalerContext_DW::generateColorImage(const SkGlyph& glyph) {
-    SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
+bool SkScalerContext_DW::generateColorImage(const SkGlyph& glyph, void* imageBuffer) {
+    SkASSERT(glyph.maskFormat() == SkMask::Format::kARGB32_Format);
 
     SkBitmap dstBitmap;
     // TODO: mark this as sRGB when the blits will be sRGB.
-    dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+    dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
                                         kN32_SkColorType, kPremul_SkAlphaType),
                                         glyph.rowBytes());
-    dstBitmap.setPixels(glyph.fImage);
+    dstBitmap.setPixels(imageBuffer);
 
     SkCanvas canvas(dstBitmap);
     if constexpr (kSkShowTextBlitCoverage) {
@@ -2229,7 +2235,7 @@ bool SkScalerContext_DW::generateColorImage(const SkGlyph& glyph) {
     } else {
         canvas.clear(SK_ColorTRANSPARENT);
     }
-    canvas.translate(-SkIntToScalar(glyph.fLeft), -SkIntToScalar(glyph.fTop));
+    canvas.translate(-SkIntToScalar(glyph.left()), -SkIntToScalar(glyph.top()));
 
     return this->drawColorImage(glyph, canvas);
 }
@@ -2285,15 +2291,15 @@ bool SkScalerContext_DW::drawSVGImage(const SkGlyph& glyph, SkCanvas& canvas) {
                               fRec.fForegroundColor, SkSpan(palette, paletteEntryCount));
 }
 
-bool SkScalerContext_DW::generateSVGImage(const SkGlyph& glyph) {
-    SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
+bool SkScalerContext_DW::generateSVGImage(const SkGlyph& glyph, void* imageBuffer) {
+    SkASSERT(glyph.maskFormat() == SkMask::Format::kARGB32_Format);
 
     SkBitmap dstBitmap;
     // TODO: mark this as sRGB when the blits will be sRGB.
-    dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+    dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
                                         kN32_SkColorType, kPremul_SkAlphaType),
                       glyph.rowBytes());
-    dstBitmap.setPixels(glyph.fImage);
+    dstBitmap.setPixels(imageBuffer);
 
     SkCanvas canvas(dstBitmap);
     if constexpr (kSkShowTextBlitCoverage) {
@@ -2301,7 +2307,7 @@ bool SkScalerContext_DW::generateSVGImage(const SkGlyph& glyph) {
     } else {
         canvas.clear(SK_ColorTRANSPARENT);
     }
-    canvas.translate(-SkIntToScalar(glyph.fLeft), -SkIntToScalar(glyph.fTop));
+    canvas.translate(-SkIntToScalar(glyph.left()), -SkIntToScalar(glyph.top()));
 
     return this->drawSVGImage(glyph, canvas);
 }
@@ -2342,14 +2348,14 @@ bool SkScalerContext_DW::drawPngImage(const SkGlyph& glyph, SkCanvas& canvas) {
     return true;
 }
 
-bool SkScalerContext_DW::generatePngImage(const SkGlyph& glyph) {
-    SkASSERT(glyph.fMaskFormat == SkMask::Format::kARGB32_Format);
+bool SkScalerContext_DW::generatePngImage(const SkGlyph& glyph, void* imageBuffer) {
+    SkASSERT(glyph.maskFormat() == SkMask::Format::kARGB32_Format);
 
     SkBitmap dstBitmap;
     dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
                                         kN32_SkColorType, kPremul_SkAlphaType),
                       glyph.rowBytes());
-    dstBitmap.setPixels(glyph.fImage);
+    dstBitmap.setPixels(imageBuffer);
 
     SkCanvas canvas(dstBitmap);
     canvas.clear(SK_ColorTRANSPARENT);
@@ -2358,20 +2364,20 @@ bool SkScalerContext_DW::generatePngImage(const SkGlyph& glyph) {
     return this->drawPngImage(glyph, canvas);
 }
 
-void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
-    ScalerContextBits::value_type format = glyph.fScalerContextBits;
+void SkScalerContext_DW::generateImage(const SkGlyph& glyph, void* imageBuffer) {
+    ScalerContextBits::value_type format = glyph.extraBits();
     if (format == ScalerContextBits::DW ||
         format == ScalerContextBits::DW_1)
     {
-        this->generateDWImage(glyph);
+        this->generateDWImage(glyph, imageBuffer);
     } else if (format == ScalerContextBits::COLRv1) {
-        this->generateColorV1Image(glyph);
+        this->generateColorV1Image(glyph, imageBuffer);
     } else if (format == ScalerContextBits::COLR) {
-        this->generateColorImage(glyph);
+        this->generateColorImage(glyph, imageBuffer);
     } else if (format == ScalerContextBits::SVG) {
-        this->generateSVGImage(glyph);
+        this->generateSVGImage(glyph, imageBuffer);
     } else if (format == ScalerContextBits::PNG) {
-        this->generatePngImage(glyph);
+        this->generatePngImage(glyph, imageBuffer);
     } else if (format == ScalerContextBits::PATH) {
         const SkPath* devPath = glyph.path();
         SkASSERT_RELEASE(devPath);
@@ -2460,7 +2466,7 @@ sk_sp<SkDrawable> SkScalerContext_DW::generateDrawable(const SkGlyph& glyph) {
             fSelf->drawSVGImage(fGlyph, *canvas);
         }
     };
-    ScalerContextBits::value_type format = glyph.fScalerContextBits;
+    ScalerContextBits::value_type format = glyph.extraBits();
     if (format == ScalerContextBits::COLRv1) {
         return sk_sp<SkDrawable>(new COLRv1GlyphDrawable(this, glyph));
     }

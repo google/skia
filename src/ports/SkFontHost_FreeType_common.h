@@ -58,7 +58,7 @@ protected:
                          SkSpan<SkColor> palette, SkCanvas*);
     bool drawSVGGlyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
                       SkSpan<SkColor> palette, SkCanvas*);
-    void generateGlyphImage(FT_Face, const SkGlyph&, const SkMatrix& bitmapTransform);
+    void generateGlyphImage(FT_Face, const SkGlyph&, void*, const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face, SkPath*);
     bool generateFacePath(FT_Face, SkGlyphID, uint32_t loadGlyphFlags, SkPath*);
 

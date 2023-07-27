@@ -177,7 +177,9 @@ protected:
         return mx;
     }
 
-    void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }
+    void generateImage(const SkGlyph&, void*) override {
+        SK_ABORT("Should have generated from path.");
+    }
 
     bool generatePath(const SkGlyph& glyph, SkPath* path) override {
         SkVector scale;

@@ -573,7 +573,7 @@ public:
 
 protected:
     GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
-    void generateImage(const SkGlyph& glyph) override;
+    void generateImage(const SkGlyph&, void* imageBuffer) override;
     bool generatePath(const SkGlyph& glyph, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
@@ -582,10 +582,11 @@ private:
                           AutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
     template<bool APPLY_PREBLEND>
     static void RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                        const SkGlyph& glyph, const uint8_t* table8);
+                        const SkGlyph& glyph, void* imageBuffer, const uint8_t* table8);
 
     template<bool APPLY_PREBLEND>
     static void RGBToLcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+                           void* imageBuffer,
                            const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB);
 
     HDCOffscreen fOffscreen;
@@ -1049,12 +1050,12 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
 
 template<bool APPLY_PREBLEND>
 void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                                  const SkGlyph& glyph, const uint8_t* table8) {
+                                  const SkGlyph& glyph, void* imageBuffer, const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.width();
-    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
+    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)imageBuffer + (glyph.height() - 1) * dstRB);
 
-    for (int y = 0; y < glyph.fHeight; y++) {
+    for (int y = 0; y < glyph.height(); y++) {
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
             if constexpr (kSkShowTextBlitCoverage) {
@@ -1068,13 +1069,13 @@ void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
 
 template<bool APPLY_PREBLEND>
 void SkScalerContext_GDI::RGBToLcd16(
-        const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+        const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph, void* imageBuffer,
         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.width();
-    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
+    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)imageBuffer + (glyph.height() - 1) * dstRB);
 
-    for (int y = 0; y < glyph.fHeight; y++) {
+    for (int y = 0; y < glyph.height(); y++) {
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_lcd16<APPLY_PREBLEND>(src[i], tableR, tableG, tableB);
         }
@@ -1083,7 +1084,7 @@ void SkScalerContext_GDI::RGBToLcd16(
     }
 }
 
-void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
+void SkScalerContext_GDI::generateImage(const SkGlyph& glyph, void* imageBuffer) {
     SkASSERT(fDDC);
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
@@ -1095,7 +1096,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         LogFontTypeface::EnsureAccessible(this->getTypeface());
         bits = fOffscreen.draw(glyph, isBW, &srcRB);
         if (nullptr == bits) {
-            sk_bzero(glyph.fImage, glyph.imageSize());
+            sk_bzero(imageBuffer, glyph.imageSize());
             return;
         }
     }
@@ -1115,7 +1116,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         //Other code may also be applying the pre-blend, so we'd need another
         //one with this and one without.
         SkGdiRGB* addr = (SkGdiRGB*)bits;
-        for (int y = 0; y < glyph.fHeight; ++y) {
+        for (int y = 0; y < glyph.height(); ++y) {
             for (int x = 0; x < glyph.width(); ++x) {
                 int r = (addr[x] >> 16) & 0xFF;
                 int g = (addr[x] >>  8) & 0xFF;
@@ -1129,17 +1130,17 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
     size_t dstRB = glyph.rowBytes();
     if (isBW) {
         const uint8_t* src = (const uint8_t*)bits;
-        uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-        for (int y = 0; y < glyph.fHeight; y++) {
+        uint8_t* dst = (uint8_t*)((char*)imageBuffer + (glyph.height() - 1) * dstRB);
+        for (int y = 0; y < glyph.height(); y++) {
             memcpy(dst, src, dstRB);
             src += srcRB;
             dst -= dstRB;
         }
         if constexpr (kSkShowTextBlitCoverage) {
-            if (glyph.width() > 0 && glyph.fHeight > 0) {
+            if (glyph.width() > 0 && glyph.height() > 0) {
                 int bitCount = glyph.width() & 7;
-                uint8_t* first = (uint8_t*)glyph.fImage;
-                uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.height() * dstRB - 1);
+                uint8_t* first = (uint8_t*)imageBuffer;
+                uint8_t* last = first + glyph.height() * dstRB - 1;
                 *first |= 1 << 7;
                 *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
             }
@@ -1149,17 +1150,19 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         // ... until we have the caller tell us that explicitly
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
         if (fPreBlend.isApplicable()) {
-            RGBToA8<true>(src, srcRB, glyph, fPreBlend.fG);
+            RGBToA8<true>(src, srcRB, glyph, imageBuffer, fPreBlend.fG);
         } else {
-            RGBToA8<false>(src, srcRB, glyph, fPreBlend.fG);
+            RGBToA8<false>(src, srcRB, glyph, imageBuffer, fPreBlend.fG);
         }
     } else {    // LCD16
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
-        SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
+        SkASSERT(SkMask::kLCD16_Format == glyph.maskFormat());
         if (fPreBlend.isApplicable()) {
-            RGBToLcd16<true>(src, srcRB, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            RGBToLcd16<true>(src, srcRB, glyph, imageBuffer,
+                             fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         } else {
-            RGBToLcd16<false>(src, srcRB, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            RGBToLcd16<false>(src, srcRB, glyph, imageBuffer,
+                              fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         }
     }
 }

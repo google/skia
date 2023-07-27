@@ -37,7 +37,7 @@ SkScalerContext::GlyphMetrics SkScalerContextProxy::generateMetrics(const SkGlyp
     return {glyph.maskFormat()};
 }
 
-void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
+void SkScalerContextProxy::generateImage(const SkGlyph& glyph, void*) {
     TRACE_EVENT1("skia", "generateImage", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generateImage: %s\n", this->getRec().dump().c_str());
