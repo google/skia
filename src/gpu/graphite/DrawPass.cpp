@@ -407,10 +407,7 @@ sk_sp<TextureProxy> add_copy_target_task(Recorder* recorder,
     SkIRect dstSrcRect = SkIRect::MakePtSize(targetOffset, targetInfo.dimensions());
     sk_sp<TextureProxy> copy = TextureProxy::Make(recorder->priv().caps(),
                                                   targetInfo.dimensions(),
-                                                  targetInfo.colorType(),
-                                                  Mipmapped::kNo,
-                                                  target->textureInfo().isProtected(),
-                                                  Renderable::kNo,
+                                                  target->textureInfo(),
                                                   skgpu::Budgeted::kYes);
     if (!copy) {
         return nullptr;
