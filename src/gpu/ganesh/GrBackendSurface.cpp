@@ -772,16 +772,6 @@ bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
         *outInfo = fGLInfo.info();
         return true;
     }
-    else if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        // Hack! This allows some blink unit tests to work when using the Mock GrContext.
-        // Specifically, tests that rely on CanvasResourceProviderTextureGpuMemoryBuffer.
-        // If that code ever goes away (or ideally becomes backend-agnostic), this can go away.
-        *outInfo = GrGLTextureInfo{ GR_GL_TEXTURE_2D,
-                                    static_cast<GrGLuint>(fMockInfo.id()),
-                                    GR_GL_RGBA8,
-                                    GrProtected(fMockInfo.isProtected()) };
-        return true;
-    }
     return false;
 }
 
