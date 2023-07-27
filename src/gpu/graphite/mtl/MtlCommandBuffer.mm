@@ -181,10 +181,14 @@ bool MtlCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
                 if (const BindBufferInfo* buffer =
                             std::get_if<BindBufferInfo>(&binding.fResource)) {
                     this->bindBuffer(buffer->fBuffer, buffer->fOffset, binding.fIndex);
-                } else {
-                    const TextureIndex* texIdx = std::get_if<TextureIndex>(&binding.fResource);
+                } else if (const TextureIndex* texIdx =
+                                   std::get_if<TextureIndex>(&binding.fResource)) {
                     SkASSERT(texIdx);
-                    this->bindTexture(group->getTexture(*texIdx), binding.fIndex);
+                    this->bindTexture(group->getTexture(texIdx->fValue), binding.fIndex);
+                } else {
+                    const SamplerIndex* samplerIdx = std::get_if<SamplerIndex>(&binding.fResource);
+                    SkASSERT(samplerIdx);
+                    this->bindSampler(group->getSampler(samplerIdx->fValue), binding.fIndex);
                 }
             }
             SkASSERT(fActiveComputeCommandEncoder);
@@ -740,6 +744,14 @@ void MtlCommandBuffer::bindTexture(const Texture* texture, unsigned int index) {
     id<MTLTexture> mtlTexture =
             texture ? static_cast<const MtlTexture*>(texture)->mtlTexture() : nil;
     fActiveComputeCommandEncoder->setTexture(mtlTexture, index);
+}
+
+void MtlCommandBuffer::bindSampler(const Sampler* sampler, unsigned int index) {
+    SkASSERT(fActiveComputeCommandEncoder);
+
+    id<MTLSamplerState> mtlSamplerState =
+            sampler ? static_cast<const MtlSampler*>(sampler)->mtlSamplerState() : nil;
+    fActiveComputeCommandEncoder->setSamplerState(mtlSamplerState, index);
 }
 
 void MtlCommandBuffer::dispatchThreadgroups(const WorkgroupSize& globalSize,

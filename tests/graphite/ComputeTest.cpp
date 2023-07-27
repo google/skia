@@ -721,7 +721,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTexture, reporter, context) {
     class TestComputeStep : public ComputeStep {
     public:
         TestComputeStep() : ComputeStep(
-                /*name=*/"TestStorageTextures",
+                /*name=*/"TestStorageTexture",
                 /*localDispatchSize=*/{kDim, kDim, 1},
                 /*resources=*/{
                     {
@@ -811,7 +811,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTexture, reporter, context) {
 
 // Tests the readonly texture binding for a compute dispatch that random-access reads from a
 // CPU-populated texture and copies it to a storage texture.
-DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureReadAndWrite, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
@@ -821,7 +821,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
     class TestComputeStep : public ComputeStep {
     public:
         TestComputeStep() : ComputeStep(
-                /*name=*/"TestSampledTextures",
+                /*name=*/"TestStorageTextureReadAndWrite",
                 /*localDispatchSize=*/{kDim, kDim, 1},
                 /*resources=*/{
                     {
@@ -1102,6 +1102,171 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, 
                             x, y,
                             expected.fR, expected.fG, expected.fB, expected.fA,
                             color.fR, color.fG, color.fB, color.fA);
+        }
+    }
+}
+
+// Tests that a texture can be sampled by a compute step using a sampler.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // The first ComputeStep initializes a 16x16 texture with a checkerboard pattern of alternating
+    // red and black pixels. The second ComputeStep downsamples this texture into a 4x4 using
+    // bilinear filtering at pixel borders, intentionally averaging the values of each 4x4 tile in
+    // the source texture, and writes the result to the destination texture.
+    constexpr uint32_t kSrcDim = 16;
+    constexpr uint32_t kDstDim = 4;
+
+    class TestComputeStep1 : public ComputeStep {
+    public:
+        TestComputeStep1() : ComputeStep(
+                /*name=*/"Test_SampledTexture_Init",
+                /*localDispatchSize=*/{kSrcDim, kSrcDim, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                    }
+                }) {}
+        ~TestComputeStep1() override = default;
+
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(binding = 0) writeonly texture2D dest;
+
+                void main() {
+                    uint2 c = sk_LocalInvocationID.xy;
+                    uint checkerBoardColor = (c.x + (c.y % 2)) % 2;
+                    textureWrite(dest, c, half4(checkerBoardColor, 0, 0, 1));
+                }
+            )";
+        }
+
+        std::tuple<SkISize, SkColorType> calculateTextureParameters(
+                const DrawParams&, int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 0);
+            return {{kSrcDim, kSrcDim}, kRGBA_8888_SkColorType};
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step1;
+
+    class TestComputeStep2 : public ComputeStep {
+    public:
+        TestComputeStep2() : ComputeStep(
+                /*name=*/"Test_SampledTexture_Sample",
+                /*localDispatchSize=*/{kDstDim, kDstDim, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                    },
+                    {
+                        /*type=*/ResourceType::kSampler,
+                        /*flow=*/DataFlow::kPrivate,
+                        /*policy=*/ResourcePolicy::kNone,
+                    },
+                    {
+                        /*type=*/ResourceType::kStorageTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/1,
+                    }
+                }) {}
+        ~TestComputeStep2() override = default;
+
+        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+            return R"(
+                layout(binding = 0) sampler2D src;
+                layout(binding = 1) writeonly texture2D dest;
+
+                void main() {
+                    // Normalize the 4x4 invocation indices and sample the source texture using
+                    // that.
+                    uint2 dstCoord = sk_LocalInvocationID.xy;
+                    const float2 dstSizeInv = float2(0.25, 0.25);
+                    float2 unormCoord = float2(dstCoord) * dstSizeInv;
+
+                    // Use explicit LOD, as quad derivatives are not available to a compute shader.
+                    half4 color = sampleLod(src, unormCoord, 0);
+                    textureWrite(dest, dstCoord, color);
+                }
+            )";
+        }
+
+        std::tuple<SkISize, SkColorType> calculateTextureParameters(
+                const DrawParams&, int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 2);
+            return {{kDstDim, kDstDim}, kRGBA_8888_SkColorType};
+        }
+
+        SamplerDesc calculateSamplerParameters(const DrawParams&,
+                                               int index,
+                                               const ResourceDesc&) const override {
+            SkASSERT(index == 1);
+            // Use the repeat tile mode to sample an infinite checkerboard.
+            constexpr SkTileMode kTileModes[2] = {SkTileMode::kRepeat, SkTileMode::kRepeat};
+            return {SkFilterMode::kLinear, kTileModes};
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step2;
+
+    DispatchGroup::Builder builder(recorder.get());
+    builder.appendStep(&step1, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step2, fake_draw_params_for_testing(), 0);
+
+    sk_sp<TextureProxy> dst = builder.getSharedTextureResource(1);
+    if (!dst) {
+        ERRORF(reporter, "shared resource at slot 1 is missing");
+        return;
+    }
+
+    // Record the compute task
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    SkBitmap bitmap;
+    SkImageInfo imgInfo =
+            SkImageInfo::Make(kDstDim, kDstDim, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    bitmap.allocPixels(imgInfo);
+
+    SkPixmap pixels;
+    bool peekPixelsSuccess = bitmap.peekPixels(&pixels);
+    REPORTER_ASSERT(reporter, peekPixelsSuccess);
+
+    bool readPixelsSuccess = context->priv().readPixels(pixels, dst.get(), imgInfo, 0, 0);
+    REPORTER_ASSERT(reporter, readPixelsSuccess);
+
+    for (uint32_t x = 0; x < kDstDim; ++x) {
+        for (uint32_t y = 0; y < kDstDim; ++y) {
+            SkColor4f color = pixels.getColor4f(x, y);
+            REPORTER_ASSERT(reporter, color.fR > 0.49 && color.fR < 0.51,
+                            "At position {%u, %u}, "
+                            "expected red channel in range [0.49, 0.51], "
+                            "found {%.3f}",
+                            x, y, color.fR);
         }
     }
 }

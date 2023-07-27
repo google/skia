@@ -117,10 +117,14 @@ bool DawnCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
                 if (const BindBufferInfo* buffer =
                             std::get_if<BindBufferInfo>(&binding.fResource)) {
                     this->bindBuffer(buffer->fBuffer, buffer->fOffset, binding.fIndex);
-                } else {
-                    const TextureIndex* texIdx = std::get_if<TextureIndex>(&binding.fResource);
+                } else if (const TextureIndex* texIdx =
+                                   std::get_if<TextureIndex>(&binding.fResource)) {
                     SkASSERT(texIdx);
-                    this->bindTexture(group->getTexture(*texIdx), binding.fIndex);
+                    this->bindTexture(group->getTexture(texIdx->fValue), binding.fIndex);
+                } else {
+                    const SamplerIndex* samplerIdx = std::get_if<SamplerIndex>(&binding.fResource);
+                    SkASSERT(samplerIdx);
+                    this->bindSampler(group->getSampler(samplerIdx->fValue), binding.fIndex);
                 }
             }
             this->dispatchThreadgroups(dispatch.fParams.fGlobalDispatchSize,
@@ -734,6 +738,11 @@ void DawnCommandBuffer::bindBuffer(const Buffer* buffer, unsigned int offset, un
 }
 
 void DawnCommandBuffer::bindTexture(const Texture* texture, unsigned int index) {
+    // TODO: https://b.corp.google.com/issues/260341543
+    SkASSERT(false);
+}
+
+void DawnCommandBuffer::bindSampler(const Sampler* sampler, unsigned int index) {
     // TODO: https://b.corp.google.com/issues/260341543
     SkASSERT(false);
 }

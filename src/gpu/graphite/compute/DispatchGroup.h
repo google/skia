@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
 
@@ -26,9 +27,11 @@ class Recorder;
 class ResourceProvider;
 
 using BindingIndex = uint32_t;
-using TextureIndex = uint32_t;
-using DispatchResource = std::variant<BindBufferInfo, TextureIndex>;
-using DispatchResourceOptional = std::variant<std::monostate, BindBufferInfo, TextureIndex>;
+struct TextureIndex { uint32_t fValue; };
+struct SamplerIndex { uint32_t fValue; };
+using DispatchResource = std::variant<BindBufferInfo, TextureIndex, SamplerIndex>;
+using DispatchResourceOptional =
+        std::variant<std::monostate, BindBufferInfo, TextureIndex, SamplerIndex>;
 
 struct ResourceBinding {
     BindingIndex fIndex;
@@ -65,7 +68,8 @@ public:
     const skia_private::TArray<Dispatch>& dispatches() const { return fDispatchList; }
 
     const ComputePipeline* getPipeline(size_t index) const { return fPipelines[index].get(); }
-    const Texture* getTexture(TextureIndex index) const;
+    const Texture* getTexture(size_t index) const;
+    const Sampler* getSampler(size_t index) const;
 
     bool prepareResources(ResourceProvider*);
     void addResourceRefs(CommandBuffer*) const;
@@ -84,10 +88,12 @@ private:
     // Pipelines are referenced by index by each Dispatch in `fDispatchList`. They are stored as a
     // pipeline description until instantiated in `prepareResources()`.
     skia_private::TArray<ComputePipelineDesc> fPipelineDescs;
+    skia_private::TArray<SamplerDesc> fSamplerDescs;
 
     // Resources instantiated by `prepareResources()`
     skia_private::TArray<sk_sp<ComputePipeline>> fPipelines;
     skia_private::TArray<sk_sp<TextureProxy>> fTextures;
+    skia_private::TArray<sk_sp<Sampler>> fSamplers;
 };
 
 class DispatchGroup::Builder final {

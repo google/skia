@@ -91,6 +91,7 @@ public:
 
         kStorageTexture,
         kTexture,
+        kSampler,
     };
 
     enum class ResourcePolicy {
@@ -184,6 +185,12 @@ public:
     virtual std::tuple<SkISize, SkColorType> calculateTextureParameters(const DrawParams&,
                                                                         int resourceIndex,
                                                                         const ResourceDesc&) const;
+
+    // This method will be called for sampler entries in the ComputeStep's resource list to
+    // determine the sampling and tile mode options.
+    virtual SamplerDesc calculateSamplerParameters(const DrawParams&,
+                                                   int resourceIndex,
+                                                   const ResourceDesc&) const;
 
     // Return the global dispatch size (aka "workgroup count") for this step based on the draw
     // parameters. The default value is a workgroup count of (1, 1, 1)

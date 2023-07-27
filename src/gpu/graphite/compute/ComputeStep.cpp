@@ -110,8 +110,16 @@ size_t ComputeStep::calculateBufferSize(const DrawParams&, int, const ResourceDe
 
 std::tuple<SkISize, SkColorType> ComputeStep::calculateTextureParameters(
         const DrawParams&, int resourceIndex, const ResourceDesc&) const {
-    SK_ABORT("ComputeStep that initialize a texture must override calculateTextureParameters()");
+    SK_ABORT("ComputeSteps that initialize a texture must override calculateTextureParameters()");
     return {SkISize::MakeEmpty(), kUnknown_SkColorType};
+}
+
+SamplerDesc ComputeStep::calculateSamplerParameters(const DrawParams&,
+                                                    int resourceIndex,
+                                                    const ResourceDesc&) const {
+    SK_ABORT("ComputeSteps that initialize a sampler must override calculateSamplerParameters()");
+    constexpr SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
+    return {{}, kTileModes};
 }
 
 WorkgroupSize ComputeStep::calculateGlobalDispatchSize(const DrawParams&) const {
