@@ -8,9 +8,48 @@
 #ifndef SKSL_LAYOUT
 #define SKSL_LAYOUT
 
+#include "src/base/SkEnumBitMask.h"
+
 #include <string>
 
 namespace SkSL {
+
+enum class LayoutFlag : int {
+    kNone                       = 0,
+    kAll                        = ~0,
+
+    kOriginUpperLeft            = 1 <<  0,
+    kPushConstant               = 1 <<  1,
+    kBlendSupportAllEquations   = 1 <<  2,
+    kColor                      = 1 <<  3,
+
+    // These flags indicate if the qualifier appeared, regardless of the accompanying value.
+    kLocation                   = 1 <<  4,
+    kOffset                     = 1 <<  5,
+    kBinding                    = 1 <<  6,
+    kTexture                    = 1 <<  7,
+    kSampler                    = 1 <<  8,
+    kIndex                      = 1 <<  9,
+    kSet                        = 1 << 10,
+    kBuiltin                    = 1 << 11,
+    kInputAttachmentIndex       = 1 << 12,
+
+    // These flags indicate the backend type; only one at most can be set.
+    kSPIRV                      = 1 << 13,
+    kMetal                      = 1 << 14,
+    kGL                         = 1 << 15,
+    kWGSL                       = 1 << 16,
+
+    kAllBackends                = kSPIRV | kMetal | kGL | kWGSL,
+};
+
+}  // namespace SkSL
+
+SK_MAKE_BITMASK_OPS(SkSL::LayoutFlag);
+
+namespace SkSL {
+
+using LayoutFlags = SkEnumBitMask<SkSL::LayoutFlag>;
 
 /**
  * Represents a layout block appearing before a variable declaration, as in:
@@ -18,35 +57,8 @@ namespace SkSL {
  * layout (location = 0) int x;
  */
 struct Layout {
-    enum Flag {
-        kOriginUpperLeft_Flag            = 1 <<  0,
-        kPushConstant_Flag               = 1 <<  1,
-        kBlendSupportAllEquations_Flag   = 1 <<  2,
-        kColor_Flag                      = 1 <<  3,
-
-        // These flags indicate if the qualifier appeared, regardless of the accompanying value.
-        kLocation_Flag                   = 1 <<  4,
-        kOffset_Flag                     = 1 <<  5,
-        kBinding_Flag                    = 1 <<  6,
-        kTexture_Flag                    = 1 <<  7,
-        kSampler_Flag                    = 1 <<  8,
-        kIndex_Flag                      = 1 <<  9,
-        kSet_Flag                        = 1 << 10,
-        kBuiltin_Flag                    = 1 << 11,
-        kInputAttachmentIndex_Flag       = 1 << 12,
-
-        // These flags indicate the backend type; only one at most can be set.
-        kSPIRV_Flag                      = 1 << 13,
-        kMetal_Flag                      = 1 << 14,
-        kGL_Flag                         = 1 << 15,
-        kWGSL_Flag                       = 1 << 16,
-    };
-
-    static constexpr int kAllBackendFlagsMask =
-            Layout::kSPIRV_Flag | Layout::kMetal_Flag | Layout::kGL_Flag | Layout::kWGSL_Flag;
-
-    Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
-           int inputAttachmentIndex)
+    Layout(LayoutFlags flags, int location, int offset, int binding, int index, int set,
+           int builtin, int inputAttachmentIndex)
             : fFlags(flags)
             , fLocation(location)
             , fOffset(offset)
@@ -72,7 +84,7 @@ struct Layout {
         return !(*this == other);
     }
 
-    int fFlags = 0;
+    LayoutFlags fFlags = LayoutFlag::kNone;
     int fLocation = -1;
     int fOffset = -1;
     int fBinding = -1;

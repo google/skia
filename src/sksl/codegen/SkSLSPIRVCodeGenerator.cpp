@@ -2322,15 +2322,15 @@ static SpvStorageClass_ get_storage_class_for_global_variable(
 
     const Modifiers& modifiers = var.modifiers();
     if (modifiers.fFlags & ModifierFlag::kIn) {
-        SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
+        SkASSERT(!(modifiers.fLayout.fFlags & LayoutFlag::kPushConstant));
         return SpvStorageClassInput;
     }
     if (modifiers.fFlags & ModifierFlag::kOut) {
-        SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
+        SkASSERT(!(modifiers.fLayout.fFlags & LayoutFlag::kPushConstant));
         return SpvStorageClassOutput;
     }
     if (modifiers.isUniform()) {
-        if (modifiers.fLayout.fFlags & Layout::kPushConstant_Flag) {
+        if (modifiers.fLayout.fFlags & LayoutFlag::kPushConstant) {
             return SpvStorageClassPushConstant;
         }
         if (var.type().typeKind() == Type::TypeKind::kSampler ||
@@ -3601,7 +3601,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
 }
 
 void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, Position pos) {
-    bool isPushConstant = (layout.fFlags & Layout::kPushConstant_Flag);
+    bool isPushConstant = (layout.fFlags & LayoutFlag::kPushConstant);
     if (layout.fLocation >= 0) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationLocation, layout.fLocation,
                                fDecorationBuffer);
@@ -3665,7 +3665,7 @@ MemoryLayout SPIRVCodeGenerator::memoryLayoutForStorageClass(SpvStorageClass_ st
 }
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) const {
-    bool pushConstant = ((v.modifiers().fLayout.fFlags & Layout::kPushConstant_Flag) != 0);
+    bool pushConstant = (v.modifiers().fLayout.fFlags & LayoutFlag::kPushConstant);
     return pushConstant ? MemoryLayout(MemoryLayout::Standard::k430) : fDefaultLayout;
 }
 
@@ -3689,7 +3689,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         SkSpan<const Field> fieldSpan = type.fields();
         TArray<Field> fields(fieldSpan.data(), fieldSpan.size());
         fields.emplace_back(Position(),
-                            Modifiers(Layout(/*flags=*/0,
+                            Modifiers(Layout(LayoutFlag::kNone,
                                              /*location=*/-1,
                                              fProgram.fConfig->fSettings.fRTFlipOffset,
                                              /*binding=*/-1,
@@ -3697,7 +3697,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                              /*set=*/-1,
                                              /*builtin=*/-1,
                                              /*inputAttachmentIndex=*/-1),
-                                      /*flags=*/ModifierFlag::kNone),
+                                      ModifierFlag::kNone),
                             SKSL_RTFLIP_NAME,
                             fContext.fTypes.fFloat2.get());
         {
@@ -3791,8 +3791,9 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
                                                    const VarDeclaration& varDecl) {
     const Variable* var = varDecl.var();
     const bool inDawnMode = fProgram.fConfig->fSettings.fSPIRVDawnCompatMode;
-    const int backendFlags = var->modifiers().fLayout.fFlags & Layout::kAllBackendFlagsMask;
-    const int permittedBackendFlags = Layout::kSPIRV_Flag | (inDawnMode ? Layout::kWGSL_Flag : 0);
+    const LayoutFlags backendFlags = var->modifiers().fLayout.fFlags & LayoutFlag::kAllBackends;
+    const LayoutFlags permittedBackendFlags = LayoutFlag::kSPIRV | (inDawnMode ? LayoutFlag::kWGSL
+                                                                               : LayoutFlag::kNone);
     if (backendFlags & ~permittedBackendFlags) {
         fContext.fErrors->error(var->fPosition, "incompatible backend flag in SPIR-V codegen");
         return false;
@@ -3818,7 +3819,7 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
 
     if (var->type().typeKind() == Type::TypeKind::kSampler && inDawnMode) {
         if (var->modifiers().fLayout.fTexture == -1 || var->modifiers().fLayout.fSampler == -1 ||
-            !(var->modifiers().fLayout.fFlags & Layout::kWGSL_Flag)) {
+            !(var->modifiers().fLayout.fFlags & LayoutFlag::kWGSL)) {
             fContext.fErrors->error(var->fPosition,
                                     "SPIR-V dawn compatibility mode requires an explicit texture "
                                     "and sampler index");
@@ -4304,7 +4305,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
         fContext.fErrors->error(pos, "RTFlipOffset is negative");
     }
     fields.emplace_back(pos,
-                        Modifiers(Layout(/*flags=*/0,
+                        Modifiers(Layout(LayoutFlag::kNone,
                                          /*location=*/-1,
                                          fProgram.fConfig->fSettings.fRTFlipOffset,
                                          /*binding=*/-1,
@@ -4312,7 +4313,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                                          /*set=*/-1,
                                          /*builtin=*/-1,
                                          /*inputAttachmentIndex=*/-1),
-                                  /*flags=*/ModifierFlag::kNone),
+                                  ModifierFlag::kNone),
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
     std::string_view name = "sksl_synthetic_uniforms";
@@ -4330,7 +4331,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
             fContext.fErrors->error(pos, "layout(set=...) is required in SPIR-V");
         }
     }
-    int flags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
+    LayoutFlags flags = usePushConstants ? LayoutFlag::kPushConstant : LayoutFlag::kNone;
     const Modifiers* modsPtr;
     {
         AutoAttachPoolToThread attach(fProgram.fPool.get());

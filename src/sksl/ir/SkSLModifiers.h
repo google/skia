@@ -168,7 +168,7 @@ struct Modifiers {
     bool checkPermitted(const Context& context,
                         Position pos,
                         ModifierFlags permittedModifierFlags,
-                        int permittedLayoutFlags) const;
+                        LayoutFlags permittedLayoutFlags) const;
 
     Layout fLayout;
     ModifierFlags fFlags;
@@ -182,7 +182,7 @@ template <>
 struct hash<SkSL::Modifiers> {
     size_t operator()(const SkSL::Modifiers& key) const {
         return ((size_t) key.fFlags.value()) ^
-               ((size_t) key.fLayout.fFlags << 8) ^
+               ((size_t) key.fLayout.fFlags.value() << 8) ^
                ((size_t) key.fLayout.fBuiltin << 16);
     }
 };

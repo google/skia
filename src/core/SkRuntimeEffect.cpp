@@ -19,6 +19,7 @@
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkChecksum.h"
@@ -129,7 +130,7 @@ SkRuntimeEffect::Uniform SkRuntimeEffectPriv::VarAsUniform(const SkSL::Variable&
     }
 
     SkAssertResult(init_uniform_type(context, type, &uni));
-    if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kColor_Flag) {
+    if (var.modifiers().fLayout.fFlags & SkSL::LayoutFlag::kColor) {
         uni.flags |= Uniform::kColor_Flag;
     }
 

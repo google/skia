@@ -41,16 +41,16 @@ std::string Layout::description() const {
         result += separator() + "input_attachment_index = " +
                   std::to_string(fInputAttachmentIndex);
     }
-    if (fFlags & kOriginUpperLeft_Flag) {
+    if (fFlags & LayoutFlag::kOriginUpperLeft) {
         result += separator() + "origin_upper_left";
     }
-    if (fFlags & kBlendSupportAllEquations_Flag) {
+    if (fFlags & LayoutFlag::kBlendSupportAllEquations) {
         result += separator() + "blend_support_all_equations";
     }
-    if (fFlags & kPushConstant_Flag) {
+    if (fFlags & LayoutFlag::kPushConstant) {
         result += separator() + "push_constant";
     }
-    if (fFlags & kColor_Flag) {
+    if (fFlags & LayoutFlag::kColor) {
         result += separator() + "color";
     }
     if (result.size() > 0) {

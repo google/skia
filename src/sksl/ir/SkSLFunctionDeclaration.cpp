@@ -46,7 +46,7 @@ static bool check_modifiers(const Context& context,
                                                                        ModifierFlag::kPure |
                                                                        ModifierFlag::kExport
                                                                      : ModifierFlag::kNone);
-    modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/0);
+    modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/LayoutFlag::kNone);
     if ((modifiers.fFlags & ModifierFlag::kInline) &&
         (modifiers.fFlags & ModifierFlag::kNoInline)) {
         context.fErrors->error(pos, "functions cannot be both 'inline' and 'noinline'");
@@ -98,7 +98,7 @@ static bool check_parameters(const Context& context,
         param->modifiers().checkPermitted(context,
                                           param->modifiersPosition(),
                                           permittedFlags,
-                                          /*permittedLayoutFlags=*/0);
+                                          /*permittedLayoutFlags=*/LayoutFlag::kNone);
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.

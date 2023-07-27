@@ -760,11 +760,11 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
             context.fErrors->error(field.fPosition, "modifier '" + desc + "' is not permitted on " +
                                                     std::string(aStructOrIB) + " field");
         }
-        if (field.fModifiers.fLayout.fFlags & Layout::kBinding_Flag) {
+        if (field.fModifiers.fLayout.fFlags & LayoutFlag::kBinding) {
             context.fErrors->error(field.fPosition, "layout qualifier 'binding' is not permitted "
                                                     "on " + std::string(aStructOrIB) + " field");
         }
-        if (field.fModifiers.fLayout.fFlags & Layout::kSet_Flag) {
+        if (field.fModifiers.fLayout.fFlags & LayoutFlag::kSet) {
             context.fErrors->error(field.fPosition, "layout qualifier 'set' is not permitted on " +
                                                     std::string(aStructOrIB) + " field");
         }
