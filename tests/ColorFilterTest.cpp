@@ -162,7 +162,7 @@ struct FailureColorFilter final : public SkColorFilterBase {
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
                                  r,
                                  ctxInfo,
-                                 CtsEnforcement::kApiLevel_T) {
+                                 CtsEnforcement::kApiLevel_U) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8, 8);
     auto surface = SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
     SkPaint paint;
