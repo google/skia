@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
-#include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -315,7 +314,7 @@ const char* delimiter_to_str(WGSLCodeGenerator::Delimiter delimiter) {
 // synthesize arguments when writing out function definitions.
 class FunctionDependencyResolver : public ProgramVisitor {
 public:
-    using Deps = WGSLCodeGenerator::FunctionDependencies;
+    using Deps = WGSLFunctionDependencies;
     using DepsMap = WGSLCodeGenerator::ProgramRequirements::DepsMap;
 
     FunctionDependencyResolver(const Program* p,
@@ -324,7 +323,7 @@ public:
             : fProgram(p), fFunction(f), fDependencyMap(programDependencyMap) {}
 
     Deps resolve() {
-        fDeps = Deps::kNone;
+        fDeps = WGSLFunctionDependency::kNone;
         this->visit(*fProgram);
         return fDeps;
     }
@@ -345,10 +344,10 @@ private:
             const Modifiers& modifiers = v.variable()->modifiers();
             if (v.variable()->storage() == Variable::Storage::kGlobal) {
                 if (modifiers.fFlags & ModifierFlag::kIn) {
-                    fDeps |= Deps::kPipelineInputs;
+                    fDeps |= WGSLFunctionDependency::kPipelineInputs;
                 }
                 if (modifiers.fFlags & ModifierFlag::kOut) {
-                    fDeps |= Deps::kPipelineOutputs;
+                    fDeps |= WGSLFunctionDependency::kPipelineOutputs;
                 }
             }
         } else if (e.is<FunctionCall>()) {
@@ -386,7 +385,7 @@ private:
     const Program* const fProgram;
     const FunctionDeclaration* const fFunction;
     DepsMap* const fDependencyMap;
-    Deps fDeps = Deps::kNone;
+    Deps fDeps = WGSLFunctionDependency::kNone;
 
     using INHERITED = ProgramVisitor;
 };
@@ -864,13 +863,13 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     this->write(main.declaration().mangledName());
     this->write("(");
     auto separator = SkSL::String::Separator();
-    FunctionDependencies* deps = fRequirements.dependencies.find(&main.declaration());
+    WGSLFunctionDependencies* deps = fRequirements.dependencies.find(&main.declaration());
     if (deps) {
-        if ((*deps & FunctionDependencies::kPipelineInputs) != FunctionDependencies::kNone) {
+        if (*deps & WGSLFunctionDependency::kPipelineInputs) {
             this->write(separator());
             this->write("_stageIn");
         }
-        if ((*deps & FunctionDependencies::kPipelineOutputs) != FunctionDependencies::kNone) {
+        if (*deps & WGSLFunctionDependency::kPipelineOutputs) {
             this->write(separator());
             this->write("&_stageOut");
         }
@@ -2933,15 +2932,15 @@ void WGSLCodeGenerator::writeNonBlockUniformsForTests() {
 }
 
 std::string WGSLCodeGenerator::functionDependencyArgs(const FunctionDeclaration& f) {
-    FunctionDependencies* deps = fRequirements.dependencies.find(&f);
+    WGSLFunctionDependencies* deps = fRequirements.dependencies.find(&f);
     std::string args;
-    if (deps && *deps != FunctionDependencies::kNone) {
+    if (deps && *deps) {
         const char* separator = "";
-        if ((*deps & FunctionDependencies::kPipelineInputs) != FunctionDependencies::kNone) {
+        if (*deps & WGSLFunctionDependency::kPipelineInputs) {
             args += "_stageIn";
             separator = ", ";
         }
-        if ((*deps & FunctionDependencies::kPipelineOutputs) != FunctionDependencies::kNone) {
+        if (*deps & WGSLFunctionDependency::kPipelineOutputs) {
             args += separator;
             args += "_stageOut";
         }
@@ -2950,8 +2949,8 @@ std::string WGSLCodeGenerator::functionDependencyArgs(const FunctionDeclaration&
 }
 
 bool WGSLCodeGenerator::writeFunctionDependencyParams(const FunctionDeclaration& f) {
-    FunctionDependencies* deps = fRequirements.dependencies.find(&f);
-    if (!deps || *deps == FunctionDependencies::kNone) {
+    WGSLFunctionDependencies* deps = fRequirements.dependencies.find(&f);
+    if (!deps || !*deps) {
         return false;
     }
 
@@ -2960,13 +2959,13 @@ bool WGSLCodeGenerator::writeFunctionDependencyParams(const FunctionDeclaration&
         return false;
     }
     const char* separator = "";
-    if ((*deps & FunctionDependencies::kPipelineInputs) != FunctionDependencies::kNone) {
+    if (*deps & WGSLFunctionDependency::kPipelineInputs) {
         this->write("_stageIn: ");
         separator = ", ";
         this->write(structNamePrefix);
         this->write("In");
     }
-    if ((*deps & FunctionDependencies::kPipelineOutputs) != FunctionDependencies::kNone) {
+    if (*deps & WGSLFunctionDependency::kPipelineOutputs) {
         this->write(separator);
         this->write("_stageOut: ptr<function, ");
         this->write(structNamePrefix);

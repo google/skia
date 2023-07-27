@@ -10,6 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
@@ -20,10 +21,6 @@
 #include <string>
 #include <string_view>
 #include <utility>
-
-namespace sknonstd {
-template <typename T> struct is_bitmask_enum;
-}  // namespace sknonstd
 
 namespace SkSL {
 
@@ -66,6 +63,24 @@ class VarDeclaration;
 class Variable;
 class VariableReference;
 
+// Represents a function's dependencies that are not accessible in global scope. For instance,
+// pipeline stage input and output parameters must be passed in as an argument.
+//
+// This is a bitmask enum. (It would be inside `class WGSLCodeGenerator`, but this leads to build
+// errors in MSVC.)
+enum class WGSLFunctionDependency : uint8_t {
+    kNone = 0,
+    kPipelineInputs  = 1 << 0,
+    kPipelineOutputs = 1 << 1,
+};
+using WGSLFunctionDependencies = SkEnumBitMask<WGSLFunctionDependency>;
+
+}  // namespace SkSL
+
+SK_MAKE_BITMASK_OPS(SkSL::WGSLFunctionDependency)
+
+namespace SkSL {
+
 /**
  * Convert a Program into WGSL code.
  */
@@ -92,15 +107,6 @@ public:
         kNumWorkgroups,         // input
     };
 
-    // Represents a function's dependencies that are not accessible in global scope. For instance,
-    // pipeline stage input and output parameters must be passed in as an argument.
-    //
-    // This is a bitmask enum.
-    enum class FunctionDependencies : uint8_t {
-        kNone = 0,
-        kPipelineInputs = 1,
-        kPipelineOutputs = 2,
-    };
 
     // Variable declarations can be terminated by:
     //   - comma (","), e.g. in struct member declarations or function parameters
@@ -114,7 +120,8 @@ public:
     };
 
     struct ProgramRequirements {
-        using DepsMap = skia_private::THashMap<const FunctionDeclaration*, FunctionDependencies>;
+        using DepsMap = skia_private::THashMap<const FunctionDeclaration*,
+                                               WGSLFunctionDependencies>;
 
         ProgramRequirements() = default;
         ProgramRequirements(DepsMap dependencies, bool mainNeedsCoordsArgument)
@@ -334,10 +341,5 @@ private:
 };
 
 }  // namespace SkSL
-
-namespace sknonstd {
-template <>
-struct is_bitmask_enum<SkSL::WGSLCodeGenerator::FunctionDependencies> : std::true_type {};
-}  // namespace sknonstd
 
 #endif  // SKSL_WGSLCODEGENERATOR
