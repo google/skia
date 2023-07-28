@@ -13,6 +13,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
 #include <memory>
@@ -28,8 +29,6 @@ class Position;
 class Type;
 class Variable;
 
-struct Modifiers;
-
 /**
  * A function declaration (not a definition -- does not contain a body).
  */
@@ -38,7 +37,7 @@ public:
     inline static constexpr Kind kIRNodeKind = Kind::kFunctionDeclaration;
 
     FunctionDeclaration(Position pos,
-                        const Modifiers* modifiers,
+                        ModifierFlags modifierFlags,
                         std::string_view name,
                         skia_private::TArray<Variable*> parameters,
                         const Type* returnType,
@@ -55,12 +54,12 @@ public:
 
     void addParametersToSymbolTable(const Context& context);
 
-    const Modifiers& modifiers() const {
-        return *fModifiers;
+    ModifierFlags modifierFlags() const {
+        return fModifierFlags;
     }
 
-    void setModifiers(const Modifiers* m) {
-        fModifiers = m;
+    void setModifierFlags(ModifierFlags m) {
+        fModifierFlags = m;
     }
 
     const FunctionDefinition* definition() const {
@@ -138,7 +137,7 @@ public:
 private:
     const FunctionDefinition* fDefinition;
     FunctionDeclaration* fNextOverload = nullptr;
-    const Modifiers* fModifiers;
+    ModifierFlags fModifierFlags;
     skia_private::TArray<Variable*> fParameters;
     const Type* fReturnType;
     bool fBuiltin;

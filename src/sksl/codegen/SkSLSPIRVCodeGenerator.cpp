@@ -54,7 +54,9 @@
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -4226,11 +4228,9 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
                                        Block::Kind::kBracedScope, symbolTable);
     // Declare an entrypoint function.
     EntrypointAdapter adapter;
-    adapter.fLayout = {};
-    adapter.fModifiers = Modifiers{adapter.fLayout, ModifierFlag::kNone};
     adapter.entrypointDecl =
             std::make_unique<FunctionDeclaration>(Position(),
-                                                  &adapter.fModifiers,
+                                                  ModifierFlag::kNone,
                                                   "_entrypoint",
                                                   /*parameters=*/TArray<Variable*>{},
                                                   /*returnType=*/fContext.fTypes.fVoid.get(),

@@ -11,8 +11,6 @@
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -37,6 +35,7 @@
 
 namespace SkSL {
 
+class Context;
 class ProgramUsage;
 enum class ProgramKind : int8_t;
 
@@ -48,9 +47,9 @@ static void strip_export_flag(Context& context,
     while (mutableSym) {
         FunctionDeclaration* mutableDecl = &mutableSym->as<FunctionDeclaration>();
 
-        Modifiers modifiers = mutableDecl->modifiers();
-        modifiers.fFlags &= ~ModifierFlag::kExport;
-        mutableDecl->setModifiers(context.fModifiersPool->add(modifiers));
+        ModifierFlags flags = mutableDecl->modifierFlags();
+        flags &= ~ModifierFlag::kExport;
+        mutableDecl->setModifierFlags(flags);
 
         mutableSym = mutableDecl->mutableNextOverload();
     }
@@ -156,7 +155,7 @@ void Transform::RenamePrivateSymbols(Context& context,
             } else {
                 // We will only minify $private_functions, and only ones not marked as $export.
                 return skstd::starts_with(funcDecl.name(), '$') &&
-                       !(funcDecl.modifiers().fFlags & ModifierFlag::kExport);
+                       !funcDecl.modifierFlags().isExport();
             }
         }
 
@@ -235,7 +234,7 @@ void Transform::RenamePrivateSymbols(Context& context,
     for (std::unique_ptr<ProgramElement>& pe : module.fElements) {
         if (pe->is<FunctionDefinition>()) {
             const FunctionDeclaration* funcDecl = &pe->as<FunctionDefinition>().declaration();
-            if (funcDecl->modifiers().fFlags & ModifierFlag::kExport) {
+            if (funcDecl->modifierFlags().isExport()) {
                 strip_export_flag(context, funcDecl, module.fSymbols.get());
             }
         }

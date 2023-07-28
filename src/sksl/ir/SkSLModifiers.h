@@ -74,7 +74,11 @@ public:
     bool isWriteOnly() const { return SkToBool(*this & ModifierFlag::kWriteOnly); }
     bool isBuffer() const    { return SkToBool(*this & ModifierFlag::kBuffer); }
     bool isWorkgroup() const { return SkToBool(*this & ModifierFlag::kWorkgroup); }
+    bool isExport() const    { return SkToBool(*this & ModifierFlag::kExport); }
+    bool isES3() const       { return SkToBool(*this & ModifierFlag::kES3); }
     bool isPure() const      { return SkToBool(*this & ModifierFlag::kPure); }
+    bool isInline() const    { return SkToBool(*this & ModifierFlag::kInline); }
+    bool isNoInline() const  { return SkToBool(*this & ModifierFlag::kNoInline); }
 };
 
 /**

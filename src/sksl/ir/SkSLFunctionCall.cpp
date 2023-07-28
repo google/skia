@@ -1025,8 +1025,7 @@ std::string FunctionCall::description(OperatorPrecedence) const {
 static CoercionCost call_cost(const Context& context,
                               const FunctionDeclaration& function,
                               const ExpressionArray& arguments) {
-    if (context.fConfig->strictES2Mode() &&
-        (function.modifiers().fFlags & ModifierFlag::kES3)) {
+    if (context.fConfig->strictES2Mode() && function.modifierFlags().isES3()) {
         return CoercionCost::Impossible();
     }
     if (function.parameters().size() != SkToSizeT(arguments.size())) {
@@ -1125,7 +1124,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                                                   const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
     // Reject ES3 function calls in strict ES2 mode.
-    if (context.fConfig->strictES2Mode() && (function.modifiers().fFlags & ModifierFlag::kES3)) {
+    if (context.fConfig->strictES2Mode() && function.modifierFlags().isES3()) {
         context.fErrors->error(pos, "call to '" + function.description() + "' is not supported");
         return nullptr;
     }

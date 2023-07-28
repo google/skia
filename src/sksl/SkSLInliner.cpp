@@ -606,7 +606,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
         return false;
     }
 
-    if (functionDef->declaration().modifiers().fFlags & ModifierFlag::kNoInline) {
+    if (functionDef->declaration().modifierFlags().isNoInline()) {
         // Refuse to inline functions decorated with `noinline`.
         return false;
     }
@@ -997,7 +997,7 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
     candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
                         [&](const InlineCandidate& candidate) {
                             const FunctionDeclaration& fnDecl = candidate_func(candidate);
-                            if (fnDecl.modifiers().fFlags & ModifierFlag::kInline) {
+                            if (fnDecl.modifierFlags().isInline()) {
                                 // Functions marked `inline` ignore size limitations.
                                 return false;
                             }

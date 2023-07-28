@@ -18,8 +18,6 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLLayout.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -51,6 +49,7 @@ class ForStatement;
 class FunctionCall;
 class IfStatement;
 class IndexExpression;
+struct Layout;
 class Literal;
 class Operator;
 class OutputStream;
@@ -516,8 +515,6 @@ private:
     struct EntrypointAdapter {
         std::unique_ptr<FunctionDefinition> entrypointDef;
         std::unique_ptr<FunctionDeclaration> entrypointDecl;
-        Layout fLayout;
-        Modifiers fModifiers;
     };
 
     EntrypointAdapter writeEntrypointAdapter(const FunctionDeclaration& main);

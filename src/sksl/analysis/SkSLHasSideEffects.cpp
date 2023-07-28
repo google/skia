@@ -26,7 +26,7 @@ bool Analysis::HasSideEffects(const Expression& expr) {
             switch (expr.kind()) {
                 case Expression::Kind::kFunctionCall: {
                     const FunctionCall& call = expr.as<FunctionCall>();
-                    if (!call.function().modifiers().isPure()) {
+                    if (!call.function().modifierFlags().isPure()) {
                         return true;
                     }
                     break;

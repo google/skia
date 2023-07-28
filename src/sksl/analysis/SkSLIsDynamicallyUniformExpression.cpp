@@ -55,7 +55,7 @@ bool Analysis::IsDynamicallyUniformExpression(const Expression& expr) {
                 case Expression::Kind::kFunctionCall: {
                     // Verify that function calls are pure.
                     const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
-                    if (decl.modifiers().isPure()) {
+                    if (decl.modifierFlags().isPure()) {
                         break;
                     }
                     fIsDynamicallyUniform = false;

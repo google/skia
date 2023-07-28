@@ -395,8 +395,8 @@ std::string PipelineStageCodeGenerator::functionDeclaration(const FunctionDeclar
     // on the function (e.g. `inline`) and its parameters (e.g. `inout`).
     std::string declString =
             String::printf("%s%s%s %s(",
-                           (decl.modifiers().fFlags & ModifierFlag::kInline) ? "inline " : "",
-                           (decl.modifiers().fFlags & ModifierFlag::kNoInline) ? "noinline " : "",
+                           decl.modifierFlags().isInline() ? "inline " : "",
+                           decl.modifierFlags().isNoInline() ? "noinline " : "",
                            this->typeName(decl.returnType()).c_str(),
                            this->functionName(decl).c_str());
     auto separator = SkSL::String::Separator();

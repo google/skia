@@ -48,8 +48,7 @@ static bool check_modifiers(const Context& context,
                                                                      : ModifierFlag::kNone);
     modifiers.fFlags.checkPermittedFlags(context, pos, permitted);
     modifiers.fLayout.checkPermittedLayout(context, pos,/*permittedLayoutFlags=*/LayoutFlag::kNone);
-    if ((modifiers.fFlags & ModifierFlag::kInline) &&
-        (modifiers.fFlags & ModifierFlag::kNoInline)) {
+    if (modifiers.fFlags.isInline() && modifiers.fFlags.isNoInline()) {
         context.fErrors->error(pos, "functions cannot be both 'inline' and 'noinline'");
         return false;
     }
@@ -389,7 +388,7 @@ static bool parameters_match(SkSpan<const std::unique_ptr<Variable>> params,
  */
 static bool find_existing_declaration(const Context& context,
                                       Position pos,
-                                      const Modifiers* modifiers,
+                                      ModifierFlags modifierFlags,
                                       std::string_view name,
                                       TArray<std::unique_ptr<Variable>>& parameters,
                                       Position returnTypePos,
@@ -402,7 +401,7 @@ static bool find_existing_declaration(const Context& context,
             paramPtrs.push_back(param.get());
         }
         return FunctionDeclaration(pos,
-                                   modifiers,
+                                   modifierFlags,
                                    name,
                                    std::move(paramPtrs),
                                    returnType,
@@ -425,9 +424,8 @@ static bool find_existing_declaration(const Context& context,
                 continue;
             }
             if (!type_generically_matches(*returnType, other->returnType())) {
-                errors.error(returnTypePos,
-                             "functions '" + invalidDeclDescription() + "' and '" +
-                             other->description() + "' differ only in return type");
+                errors.error(returnTypePos, "functions '" + invalidDeclDescription() + "' and '" +
+                                            other->description() + "' differ only in return type");
                 return false;
             }
             for (int i = 0; i < parameters.size(); i++) {
@@ -438,7 +436,8 @@ static bool find_existing_declaration(const Context& context,
                     return false;
                 }
             }
-            if (*modifiers != other->modifiers() || other->definition() || other->isIntrinsic()) {
+            if (other->definition() || other->isIntrinsic() ||
+                modifierFlags != other->modifierFlags()) {
                 errors.error(pos, "duplicate definition of '" + invalidDeclDescription() + "'");
                 return false;
             }
@@ -454,14 +453,14 @@ static bool find_existing_declaration(const Context& context,
 }
 
 FunctionDeclaration::FunctionDeclaration(Position pos,
-                                         const Modifiers* modifiers,
+                                         ModifierFlags modifierFlags,
                                          std::string_view name,
                                          TArray<Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
         : INHERITED(pos, kIRNodeKind, name, /*type=*/nullptr)
         , fDefinition(nullptr)
-        , fModifiers(modifiers)
+        , fModifierFlags(modifierFlags)
         , fParameters(std::move(parameters))
         , fReturnType(returnType)
         , fBuiltin(builtin)
@@ -496,7 +495,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
         !check_return_type(context, returnTypePos, *returnType) ||
         !check_parameters(context, parameters, *modifiers, isMain) ||
         (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||
-        !find_existing_declaration(context, pos, modifiers, name, parameters,
+        !find_existing_declaration(context, pos, modifiers->fFlags, name, parameters,
                                    returnTypePos, returnType, &decl)) {
         return nullptr;
     }
@@ -510,7 +509,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     }
     return context.fSymbolTable->add(
             std::make_unique<FunctionDeclaration>(pos,
-                                                  context.fModifiersPool->add(*modifiers),
+                                                  modifiers->fFlags,
                                                   name,
                                                   std::move(finalParameters),
                                                   returnType,
@@ -546,8 +545,7 @@ std::string FunctionDeclaration::mangledName() const {
 }
 
 std::string FunctionDeclaration::description() const {
-    ModifierFlags modifierFlags = this->modifiers().fFlags;
-    std::string result = (modifierFlags ? modifierFlags.description() + " " : std::string()) +
+    std::string result = (fModifierFlags ? fModifierFlags.description() + " " : std::string()) +
                          this->returnType().displayName() + " " + std::string(this->name()) + "(";
     auto separator = SkSL::String::Separator();
     for (const Variable* p : this->parameters()) {
