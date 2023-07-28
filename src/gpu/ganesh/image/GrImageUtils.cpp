@@ -51,12 +51,14 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/gpu/ganesh/image/SkImage_RasterPinnable.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
@@ -745,7 +747,31 @@ Context MakeGaneshContext(GrRecordingContext* context,
         return SkSpecialImages::MakeFromTextureImage(context, subset, image, props);
     };
 
-    return Context(info, context, makeSurfaceFunctor, makeImageFunctor);
+    auto makeCachedBitmapFunctor = [context](const SkBitmap& data) -> sk_sp<SkImage> {
+        // This uses the thread safe cache (instead of GrMakeCachedBitmapProxyView) so that image
+        // filters can be evaluated on other threads with DDLs.
+        auto threadSafeCache = context->priv().threadSafeCache();
+
+        skgpu::UniqueKey key;
+        SkIRect subset = SkIRect::MakePtSize(data.pixelRefOrigin(), data.dimensions());
+        GrMakeKeyFromImageID(&key, data.getGenerationID(), subset);
+
+        auto view = threadSafeCache->find(key);
+        if (!view) {
+            view = std::get<0>(GrMakeUncachedBitmapProxyView(context, data));
+            if (!view) {
+                return nullptr;
+            }
+            threadSafeCache->add(key, view);
+        }
+
+        return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(context),
+                                          data.getGenerationID(),
+                                          std::move(view),
+                                          data.info().colorInfo());
+    };
+
+    return Context(info, context, makeSurfaceFunctor, makeImageFunctor, makeCachedBitmapFunctor);
 }
 
-}  // namespace skgpu::ganesh
+}  // namespace skif
