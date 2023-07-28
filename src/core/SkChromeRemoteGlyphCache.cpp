@@ -778,7 +778,7 @@ sk_sp<SkTypeface> SkStrikeClientImpl::addTypeface(const SkTypefaceProxyPrototype
     auto newTypeface = sk_make_sp<SkTypefaceProxy>(
             typefaceProto, fDiscardableHandleManager, fIsLogging);
     fServerTypefaceIdToTypeface.set(typefaceProto.serverTypefaceID(), newTypeface);
-    return std::move(newTypeface);
+    return newTypeface;
 }
 
 // SkStrikeClient ----------------------------------------------------------------------------------

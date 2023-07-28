@@ -84,7 +84,7 @@ std::unique_ptr<Statement> Transform::HoistSwitchVarDeclarationsAtTopLevel(
 
     // If no declarations were found, return the switch as-is.
     if (visitor.fVarDeclarations.empty()) {
-        return std::move(stmt);
+        return stmt;
     }
 
     // Move all of the var-declaration statements into a separate block.

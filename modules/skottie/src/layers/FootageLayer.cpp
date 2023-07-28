@@ -173,7 +173,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachFootageAsset(const skjson::Objec
 
     if (!image_transform) {
         // No resize needed.
-        return std::move(image_node);
+        return image_node;
     }
 
     return sksg::TransformEffect::Make(std::move(image_node), std::move(image_transform));

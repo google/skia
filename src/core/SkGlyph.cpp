@@ -111,7 +111,7 @@ std::optional<SkGlyph> SkGlyph::MakeFromBuffer(SkReadBuffer& buffer) {
     glyph.fTop = leftTop & 0xffffu;
     glyph.fMaskFormat = format;
     SkDEBUGCODE(glyph.fAdvancesBoundsFormatAndInitialPathDone = true;)
-    return std::move(glyph);
+    return glyph;
 }
 
 SkGlyph::SkGlyph(const SkGlyph&) = default;

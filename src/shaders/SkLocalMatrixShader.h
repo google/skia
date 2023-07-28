@@ -32,7 +32,7 @@ public:
     MakeWrapped(const SkMatrix* localMatrix, Args&&... args) {
         auto t = sk_make_sp<T>(std::forward<Args>(args)...);
         if (!localMatrix || localMatrix->isIdentity()) {
-            return std::move(t);
+            return t;
         }
         return sk_make_sp<SkLocalMatrixShader>(sk_sp<SkShader>(std::move(t)), *localMatrix);
     }

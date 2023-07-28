@@ -385,7 +385,7 @@ protected:
                                                         style, SkToBool(elegant),
                                                         lang.getTag(), character);
                         if (matchingTypeface) {
-                            return std::move(matchingTypeface);
+                            return matchingTypeface;
                         }
 
                         lang = lang.getParent();
@@ -396,7 +396,7 @@ protected:
                                                 style, SkToBool(elegant),
                                                 SkString(), character);
                 if (matchingTypeface) {
-                    return std::move(matchingTypeface);
+                    return matchingTypeface;
                 }
             }
         }

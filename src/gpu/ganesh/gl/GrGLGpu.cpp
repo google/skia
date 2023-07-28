@@ -741,7 +741,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         // Pessimistically assume this external texture may have been bound to a FBO.
         texture->baseLevelWasBoundToFBO();
     }
-    return std::move(texture);
+    return texture;
 }
 
 static bool check_compressed_backend_texture(const GrBackendTexture& backendTex,
@@ -789,10 +789,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
     GrMipmapStatus mipmapStatus = backendTex.hasMipmaps() ? GrMipmapStatus::kValid
                                                           : GrMipmapStatus::kNotAllocated;
 
-    auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
-                                            backendTex.getGLTextureParams(), cacheable,
-                                            kRead_GrIOType, backendTex.getLabel());
-    return std::move(texture);
+    return GrGLTexture::MakeWrapped(this, mipmapStatus, desc, backendTex.getGLTextureParams(),
+                                    cacheable, kRead_GrIOType, backendTex.getLabel());
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -835,7 +833,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
             this, sampleCnt, desc, backendTex.getGLTextureParams(), rtIDs, cacheable,
             mipmapStatus, backendTex.getLabel()));
     texRT->baseLevelWasBoundToFBO();
-    return std::move(texRT);
+    return texRT;
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
@@ -1563,7 +1561,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
                                    levelClearMask);
         }
     }
-    return std::move(tex);
+    return tex;
 }
 
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
@@ -1611,7 +1609,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
-    return std::move(tex);
+    return tex;
 }
 
 GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
@@ -1917,7 +1915,7 @@ sk_sp<GrAttachment> GrGLGpu::makeStencilAttachment(const GrBackendFormat& colorF
     if (stencil) {
         fStats.incStencilAttachmentCreates();
     }
-    return std::move(stencil);
+    return stencil;
 }
 
 sk_sp<GrAttachment> GrGLGpu::makeMSAAAttachment(SkISize dimensions, const GrBackendFormat& format,

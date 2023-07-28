@@ -138,7 +138,7 @@ sk_sp<skresources::ImageAsset> skottie::SlotManager::trackImageValue(SlotID slot
                                                                         imageAsset) {
     auto proxy = sk_make_sp<ImageAssetProxy>(std::move(imageAsset));
     fImageMap[slotID].push_back(proxy);
-    return std::move(proxy);
+    return proxy;
 }
 
 void skottie::SlotManager::trackScalarValue(SlotID slotID, ScalarValue* scalarValue,

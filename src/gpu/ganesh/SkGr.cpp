@@ -100,7 +100,7 @@ sk_sp<SkIDChangeListener> GrMakeUniqueKeyInvalidationListener(skgpu::UniqueKey* 
                                      nullptr);
     SkASSERT(!key->getCustomData());
     key->setCustomData(std::move(data));
-    return std::move(listener);
+    return listener;
 }
 
 sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
