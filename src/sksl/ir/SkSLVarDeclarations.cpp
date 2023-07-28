@@ -312,7 +312,8 @@ void VarDeclaration::ErrorCheck(const Context& context,
         permittedLayoutFlags &= ~LayoutFlag::kPushConstant;
     }
 
-    modifiers.checkPermitted(context, modifiersPosition, permitted, permittedLayoutFlags);
+    modifiers.checkPermittedFlags(context, modifiersPosition, permitted);
+    modifiers.fLayout.checkPermittedLayout(context, modifiersPosition, permittedLayoutFlags);
 }
 
 bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,

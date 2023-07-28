@@ -14,6 +14,9 @@
 
 namespace SkSL {
 
+class Context;
+class Position;
+
 enum class LayoutFlag : int {
     kNone                       = 0,
     kAll                        = ~0,
@@ -77,6 +80,14 @@ struct Layout {
     }
 
     std::string description() const;
+
+    /**
+     * Verifies that only permitted layout flags are included. Reports errors and returns false in
+     * the event of a violation.
+     */
+    bool checkPermittedLayout(const Context& context,
+                              Position pos,
+                              LayoutFlags permittedLayoutFlags) const;
 
     bool operator==(const Layout& other) const;
 

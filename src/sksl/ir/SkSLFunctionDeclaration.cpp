@@ -46,7 +46,8 @@ static bool check_modifiers(const Context& context,
                                                                        ModifierFlag::kPure |
                                                                        ModifierFlag::kExport
                                                                      : ModifierFlag::kNone);
-    modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/LayoutFlag::kNone);
+    modifiers.checkPermittedFlags(context, pos, permitted);
+    modifiers.fLayout.checkPermittedLayout(context, pos,/*permittedLayoutFlags=*/LayoutFlag::kNone);
     if ((modifiers.fFlags & ModifierFlag::kInline) &&
         (modifiers.fFlags & ModifierFlag::kNoInline)) {
         context.fErrors->error(pos, "functions cannot be both 'inline' and 'noinline'");
@@ -95,10 +96,9 @@ static bool check_parameters(const Context& context,
         if (type.typeKind() == Type::TypeKind::kTexture) {
             permittedFlags |= ModifierFlag::kReadOnly | ModifierFlag::kWriteOnly;
         }
-        param->modifiers().checkPermitted(context,
-                                          param->modifiersPosition(),
-                                          permittedFlags,
-                                          /*permittedLayoutFlags=*/LayoutFlag::kNone);
+        param->modifiers().checkPermittedFlags(context, param->modifiersPosition(), permittedFlags);
+        param->modifiers().fLayout.checkPermittedLayout(context, param->modifiersPosition(),
+                                                        /*permittedLayoutFlags=*/LayoutFlag::kNone);
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.

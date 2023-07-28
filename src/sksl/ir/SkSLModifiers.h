@@ -163,13 +163,12 @@ struct Modifiers {
     }
 
     /**
-     * Verifies that only permitted modifiers and layout flags are included. Reports errors and
-     * returns false in the event of a violation.
+     * Verifies that only permitted modifier flags are included. Reports errors and returns false in
+     * the event of a violation.
      */
-    bool checkPermitted(const Context& context,
-                        Position pos,
-                        ModifierFlags permittedModifierFlags,
-                        LayoutFlags permittedLayoutFlags) const;
+    bool checkPermittedFlags(const Context& context,
+                             Position pos,
+                             ModifierFlags permittedModifierFlags) const;
 
     Layout fLayout;
     ModifierFlags fFlags;
