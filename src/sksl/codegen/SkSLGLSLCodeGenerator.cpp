@@ -199,7 +199,7 @@ void GLSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     this->writeLine(" {");
     fIndentation++;
     for (const auto& f : type.fields()) {
-        this->writeModifiers(f.fModifiers, false);
+        this->writeModifiers(f.fLayout, f.fModifierFlags, /*globalContext=*/false);
         this->writeTypePrecision(*f.fType);
         const Type& baseType = f.fType->isArray() ? f.fType->componentType() : *f.fType;
         this->writeType(baseType);
@@ -935,8 +935,7 @@ void GLSLCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 }
 
 bool is_sk_position(const FieldAccess& f) {
-    return f.base()->type().fields()[f.fieldIndex()].fModifiers.fLayout.fBuiltin ==
-           SK_POSITION_BUILTIN;
+    return f.base()->type().fields()[f.fieldIndex()].fLayout.fBuiltin == SK_POSITION_BUILTIN;
 }
 
 void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
@@ -945,7 +944,7 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         this->write(".");
     }
     const Type& baseType = f.base()->type();
-    int builtin = baseType.fields()[f.fieldIndex()].fModifiers.fLayout.fBuiltin;
+    int builtin = baseType.fields()[f.fieldIndex()].fLayout.fBuiltin;
     if (builtin == SK_POSITION_BUILTIN) {
         this->writeIdentifier("gl_Position");
     } else if (builtin == SK_POINTSIZE_BUILTIN) {
@@ -1132,7 +1131,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         if (this->caps().fRemoveConstFromFunctionParameters) {
             modifiers.fFlags &= ~ModifierFlag::kConst;
         }
-        this->writeModifiers(modifiers, false);
+        this->writeModifiers(modifiers.fLayout, modifiers.fFlags, /*globalContext=*/false);
         std::vector<int> sizes;
         const Type* type = &param->type();
         if (type->isArray()) {
@@ -1191,53 +1190,52 @@ void GLSLCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
     this->writeLine(";");
 }
 
-void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
+void GLSLCodeGenerator::writeModifiers(const Layout& layout,
+                                       ModifierFlags flags,
                                        bool globalContext) {
-    std::string layout = modifiers.fLayout.description();
-    if (layout.size()) {
-        this->write(layout + " ");
+    std::string layoutDesc = layout.description();
+    if (!layoutDesc.empty()) {
+        this->write(layoutDesc + " ");
     }
 
     // For GLSL 4.1 and below, qualifier-order matters! These are written out in Modifier-bit order.
-    if (modifiers.fFlags & ModifierFlag::kFlat) {
+    if (flags & ModifierFlag::kFlat) {
         this->write("flat ");
     }
-    if (modifiers.fFlags & ModifierFlag::kNoPerspective) {
+    if (flags & ModifierFlag::kNoPerspective) {
         this->write("noperspective ");
     }
 
-    if (modifiers.isConst()) {
+    if (flags.isConst()) {
         this->write("const ");
     }
-    if (modifiers.isUniform()) {
+    if (flags.isUniform()) {
         this->write("uniform ");
     }
-    if ((modifiers.fFlags & ModifierFlag::kIn) &&
-        (modifiers.fFlags & ModifierFlag::kOut)) {
+    if ((flags & ModifierFlag::kIn) && (flags & ModifierFlag::kOut)) {
         this->write("inout ");
-    } else if (modifiers.fFlags & ModifierFlag::kIn) {
+    } else if (flags & ModifierFlag::kIn) {
         if (globalContext && this->caps().fGLSLGeneration < SkSL::GLSLGeneration::k130) {
             this->write(ProgramConfig::IsVertex(fProgram.fConfig->fKind) ? "attribute "
                                                                          : "varying ");
         } else {
             this->write("in ");
         }
-    } else if (modifiers.fFlags & ModifierFlag::kOut) {
-        if (globalContext &&
-            this->caps().fGLSLGeneration < SkSL::GLSLGeneration::k130) {
+    } else if (flags & ModifierFlag::kOut) {
+        if (globalContext && this->caps().fGLSLGeneration < SkSL::GLSLGeneration::k130) {
             this->write("varying ");
         } else {
             this->write("out ");
         }
     }
 
-    if (modifiers.isReadOnly()) {
+    if (flags.isReadOnly()) {
         this->write("readonly ");
     }
-    if (modifiers.isWriteOnly()) {
+    if (flags.isWriteOnly()) {
         this->write("writeonly ");
     }
-    if (modifiers.isBuffer()) {
+    if (flags.isBuffer()) {
         this->write("buffer ");
     }
 }
@@ -1247,12 +1245,14 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         return;
     }
     const Type* structType = &intf.var()->type().componentType();
-    this->writeModifiers(intf.var()->modifiers(), true);
+    this->writeModifiers(intf.var()->modifiers().fLayout,
+                         intf.var()->modifiers().fFlags,
+                         /*globalContext=*/true);
     this->writeType(*structType);
     this->writeLine(" {");
     fIndentation++;
     for (const auto& f : structType->fields()) {
-        this->writeModifiers(f.fModifiers, false);
+        this->writeModifiers(f.fLayout, f.fModifierFlags, /*globalContext=*/false);
         this->writeTypePrecision(*f.fType);
         this->writeType(*f.fType);
         this->write(" ");
@@ -1313,7 +1313,7 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool global) {
-    this->writeModifiers(var.var()->modifiers(), global);
+    this->writeModifiers(var.var()->modifiers().fLayout, var.var()->modifiers().fFlags, global);
     this->writeTypePrecision(var.baseType());
     this->writeType(var.baseType());
     this->write(" ");
@@ -1679,7 +1679,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             break;
         case ProgramElement::Kind::kModifiers: {
             const Modifiers& modifiers = e.as<ModifiersDeclaration>().modifiers();
-            this->writeModifiers(modifiers, true);
+            this->writeModifiers(modifiers.fLayout, modifiers.fFlags, /*globalContext=*/true);
             this->writeLine(";");
             break;
         }
@@ -1737,15 +1737,13 @@ bool GLSLCodeGenerator::generateCode() {
     if (!this->caps().fCanUseFragCoord) {
         Layout layout;
         if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-            Modifiers modifiers(layout, ModifierFlag::kOut);
-            this->writeModifiers(modifiers, true);
+            this->writeModifiers(layout, ModifierFlag::kOut, /*globalContext=*/true);
             if (this->usesPrecisionModifiers()) {
                 this->write("highp ");
             }
             this->write("vec4 sk_FragCoord_Workaround;\n");
         } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-            Modifiers modifiers(layout, ModifierFlag::kIn);
-            this->writeModifiers(modifiers, true);
+            this->writeModifiers(layout, ModifierFlag::kIn, /*globalContext=*/true);
             if (this->usesPrecisionModifiers()) {
                 this->write("highp ");
             }

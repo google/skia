@@ -9,6 +9,7 @@
 
 #include "include/private/base/SkSpan_impl.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -39,9 +40,11 @@ std::string StructDefinition::description() const {
     s += this->type().name();
     s += " { ";
     for (const auto& f : this->type().fields()) {
-        s += f.fModifiers.description();
+        s += f.fLayout.description();
+        s += f.fModifierFlags.description();
+        s += ' ';
         s += f.fType->description();
-        s += " ";
+        s += ' ';
         s += f.fName;
         s += "; ";
     }

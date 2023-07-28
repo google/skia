@@ -14,6 +14,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/spirv.h"
@@ -70,16 +71,18 @@ struct CoercionCost {
  * Represents a single field in a struct type.
  */
 struct Field {
-    Field(Position pos, Modifiers modifiers, std::string_view name, const Type* type)
+    Field(Position pos, Layout layout, ModifierFlags flags, std::string_view name, const Type* type)
             : fPosition(pos)
-            , fModifiers(modifiers)
+            , fLayout(layout)
+            , fModifierFlags(flags)
             , fName(name)
             , fType(type) {}
 
     std::string description() const;
 
     Position fPosition;
-    Modifiers fModifiers;
+    Layout fLayout;
+    ModifierFlags fModifierFlags;
     std::string_view fName;
     const Type* fType;
 };

@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 #include <cstdint>
 #include <string>
@@ -52,7 +53,6 @@ class Variable;
 class VariableReference;
 enum class OperatorPrecedence : uint8_t;
 struct Layout;
-struct Modifiers;
 struct Program;
 struct ShaderCaps;
 
@@ -99,7 +99,7 @@ protected:
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Modifiers& modifiers, bool globalContext);
+    void writeModifiers(const Layout& modifiers, ModifierFlags flags, bool globalContext);
 
     virtual void writeInputVars();
 

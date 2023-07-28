@@ -43,9 +43,9 @@ class GlobalVarDeclaration;
 class IfStatement;
 class IndexExpression;
 enum IntrinsicKind : int8_t;
+struct Layout;
 class Literal;
 class MemoryLayout;
-struct Modifiers;
 class OutputStream;
 class PostfixExpression;
 class PrefixExpression;
@@ -166,7 +166,7 @@ private:
     void writeVariableDecl(const Type& type, std::string_view name, Delimiter delimiter);
 
     // Helpers to declare a pipeline stage IO parameter declaration.
-    void writePipelineIODeclaration(Modifiers modifiers,
+    void writePipelineIODeclaration(const Layout& layout,
                                     const Type& type,
                                     std::string_view name,
                                     Delimiter delimiter);

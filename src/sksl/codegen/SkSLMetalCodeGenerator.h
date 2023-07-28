@@ -13,6 +13,7 @@
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 #include <cstdint>
 #include <functional>
@@ -64,7 +65,6 @@ class VariableReference;
 enum class OperatorPrecedence : uint8_t;
 enum IntrinsicKind : int8_t;
 struct Layout;
-struct Modifiers;
 struct Program;
 
 /**
@@ -160,7 +160,7 @@ protected:
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Modifiers& modifiers);
+    void writeModifiers(ModifierFlags flags);
 
     void writeVarInitializer(const Variable& var, const Expression& value);
 
