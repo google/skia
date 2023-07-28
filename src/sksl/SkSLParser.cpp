@@ -1146,8 +1146,7 @@ DSLModifiers Parser::modifiers() {
         }
         Token modifier = this->nextToken();
         if (ModifierFlags duplicateFlags = (tokenFlag & flags)) {
-            this->error(modifier, "'" + Modifiers::DescribeFlags(duplicateFlags) +
-                                  "' appears more than once");
+            this->error(modifier, "'" + duplicateFlags.description() + "' appears more than once");
         }
         flags |= tokenFlag;
         end = this->position(modifier).endOffset();

@@ -14,9 +14,78 @@
 
 namespace SkSL {
 
-bool Modifiers::checkPermittedFlags(const Context& context,
-                                    Position pos,
-                                    ModifierFlags permittedModifierFlags) const {
+std::string ModifierFlags::description() const {
+    // SkSL extensions
+    std::string result;
+    if (*this & ModifierFlag::kExport) {
+        result += "$export ";
+    }
+    if (*this & ModifierFlag::kES3) {
+        result += "$es3 ";
+    }
+    if (*this & ModifierFlag::kPure) {
+        result += "$pure ";
+    }
+    if (*this & ModifierFlag::kInline) {
+        result += "inline ";
+    }
+    if (*this & ModifierFlag::kNoInline) {
+        result += "noinline ";
+    }
+
+    // Real GLSL qualifiers (must be specified in order in GLSL 4.1 and below)
+    if (*this & ModifierFlag::kFlat) {
+        result += "flat ";
+    }
+    if (*this & ModifierFlag::kNoPerspective) {
+        result += "noperspective ";
+    }
+    if (*this & ModifierFlag::kConst) {
+        result += "const ";
+    }
+    if (*this & ModifierFlag::kUniform) {
+        result += "uniform ";
+    }
+    if ((*this & ModifierFlag::kIn) && (*this & ModifierFlag::kOut)) {
+        result += "inout ";
+    } else if (*this & ModifierFlag::kIn) {
+        result += "in ";
+    } else if (*this & ModifierFlag::kOut) {
+        result += "out ";
+    }
+    if (*this & ModifierFlag::kHighp) {
+        result += "highp ";
+    }
+    if (*this & ModifierFlag::kMediump) {
+        result += "mediump ";
+    }
+    if (*this & ModifierFlag::kLowp) {
+        result += "lowp ";
+    }
+    if (*this & ModifierFlag::kReadOnly) {
+        result += "readonly ";
+    }
+    if (*this & ModifierFlag::kWriteOnly) {
+        result += "writeonly ";
+    }
+    if (*this & ModifierFlag::kBuffer) {
+        result += "buffer ";
+    }
+
+    // We're using a non-GLSL name for this one; the GLSL equivalent is "shared"
+    if (*this & ModifierFlag::kWorkgroup) {
+        result += "workgroup ";
+    }
+
+    if (!result.empty()) {
+        result.pop_back();
+    }
+    return result;
+}
+
+bool ModifierFlags::checkPermittedFlags(const Context& context,
+                                        Position pos,
+                                        ModifierFlags permittedModifierFlags) const {
     static constexpr struct { ModifierFlag flag; const char* name; } kModifierFlags[] = {
         { ModifierFlag::kConst,          "const" },
         { ModifierFlag::kIn,             "in" },
@@ -39,7 +108,7 @@ bool Modifiers::checkPermittedFlags(const Context& context,
     };
 
     bool success = true;
-    ModifierFlags modifierFlags = fFlags;
+    ModifierFlags modifierFlags = *this;
     for (const auto& f : kModifierFlags) {
         if (modifierFlags & f.flag) {
             if (!(permittedModifierFlags & f.flag)) {

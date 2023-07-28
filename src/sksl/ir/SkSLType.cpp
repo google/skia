@@ -957,7 +957,7 @@ const Type* Type::applyAccessQualifiers(const Context& context,
     }
 
     context.fErrors->error(pos, "type '" + this->displayName() + "' does not support qualifier '" +
-                                Modifiers::DescribeFlags(accessQualifiers) + "'");
+                                accessQualifiers.description() + "'");
     return this;
 }
 

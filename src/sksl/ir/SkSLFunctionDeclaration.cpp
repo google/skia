@@ -46,7 +46,7 @@ static bool check_modifiers(const Context& context,
                                                                        ModifierFlag::kPure |
                                                                        ModifierFlag::kExport
                                                                      : ModifierFlag::kNone);
-    modifiers.checkPermittedFlags(context, pos, permitted);
+    modifiers.fFlags.checkPermittedFlags(context, pos, permitted);
     modifiers.fLayout.checkPermittedLayout(context, pos,/*permittedLayoutFlags=*/LayoutFlag::kNone);
     if ((modifiers.fFlags & ModifierFlag::kInline) &&
         (modifiers.fFlags & ModifierFlag::kNoInline)) {
@@ -96,7 +96,8 @@ static bool check_parameters(const Context& context,
         if (type.typeKind() == Type::TypeKind::kTexture) {
             permittedFlags |= ModifierFlag::kReadOnly | ModifierFlag::kWriteOnly;
         }
-        param->modifiers().checkPermittedFlags(context, param->modifiersPosition(), permittedFlags);
+        param->modifiers().fFlags.checkPermittedFlags(context, param->modifiersPosition(),
+                                                      permittedFlags);
         param->modifiers().fLayout.checkPermittedLayout(context, param->modifiersPosition(),
                                                         /*permittedLayoutFlags=*/LayoutFlag::kNone);
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
@@ -546,16 +547,15 @@ std::string FunctionDeclaration::mangledName() const {
 
 std::string FunctionDeclaration::description() const {
     ModifierFlags modifierFlags = this->modifiers().fFlags;
-    std::string result =
-            (modifierFlags ? Modifiers::DescribeFlags(modifierFlags) + " " : std::string()) +
-            this->returnType().displayName() + " " + std::string(this->name()) + "(";
+    std::string result = (modifierFlags ? modifierFlags.description() + " " : std::string()) +
+                         this->returnType().displayName() + " " + std::string(this->name()) + "(";
     auto separator = SkSL::String::Separator();
     for (const Variable* p : this->parameters()) {
         result += separator();
         // We can't just say `p->description()` here, because occasionally might have added layout
         // flags onto parameters (like `layout(builtin=10009)`) and don't want to reproduce that.
         if (p->modifiers().fFlags) {
-            result += Modifiers::DescribeFlags(p->modifiers().fFlags) + " ";
+            result += p->modifiers().fFlags.description() + " ";
         }
         result += p->type().displayName();
         result += " ";
