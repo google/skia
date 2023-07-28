@@ -852,6 +852,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		if !ok {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
 		}
+		if os == "Debian11" && b.extraConfig("Docker") {
+			d["os"] = DEFAULT_OS_LINUX_GCE
+		}
 		if os == "Win10" && b.parts["model"] == "Golo" {
 			// ChOps-owned machines have Windows 10 21h1.
 			d["os"] = "Windows-10-19043"

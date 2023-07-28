@@ -12,6 +12,12 @@ IMAGES = {
     'gcc-debian10-x86': (
         'gcr.io/skia-public/gcc-debian10-x86@sha256:'
         'e30b4616f842fa2fd89329abf3d8e81cf6c25e147640289f37692f18862515c8'),
+    'gcc-debian11': (
+        'gcr.io/skia-public/gcc-debian11@sha256:'
+        '7d722ac227234b36b77d24ab470fd4e3e8deec812eb1b1145ad7c3751d32fb83'),
+    'gcc-debian11-x86': (
+        'gcr.io/skia-public/gcc-debian11-x86@sha256:'
+        'eb30682887c4c74c95f769aacab8a1a170eb561536ded87f0914f88b7243ba23'),
 }
 
 
@@ -54,6 +60,17 @@ def compile_fn(api, checkout_root, out_dir):
       image_name = 'gcc-debian10'
     elif target_arch == 'x86':
       image_name = 'gcc-debian10-x86'
+  elif os == 'Debian11' and compiler == 'GCC' and not extra_tokens:
+    args['cc'] = 'gcc'
+    args['cxx'] = 'g++'
+    # Newer GCC includes tons and tons of debugging symbols. This seems to
+    # negatively affect our bots (potentially only in combination with other
+    # bugs in Swarming or recipe code). Use g1 to reduce it a bit.
+    args['extra_cflags'].append('-g1')
+    if target_arch == 'x86_64':
+      image_name = 'gcc-debian11'
+    elif target_arch == 'x86':
+      image_name = 'gcc-debian11-x86'
 
   if not image_name:
     raise Exception('Not implemented: ' + api.vars.builder_name)
