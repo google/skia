@@ -273,13 +273,20 @@ public:
     PrecompileImageShader() {}
 
 private:
+    int numIntrinsicCombinations() const override {
+        return 2; // cubic and non-cubic sampling
+    }
+
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
-        SkASSERT(desiredCombination == 0);
-
-        ImageShaderBlock::BeginBlock(keyContext, builder,
-                                     /* gatherer= */ nullptr, /* imgData= */ nullptr);
+        if (desiredCombination == 0) {
+            ImageShaderBlock::BeginBlock(keyContext, builder,
+                                        /* gatherer= */ nullptr, /* imgData= */ nullptr);
+        } else {
+            ImageShaderBlock::BeginCubicBlock(keyContext, builder,
+                                              /* gatherer= */ nullptr, /* imgData= */ nullptr);
+        }
         builder->endBlock();
     }
 };

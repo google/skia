@@ -171,10 +171,17 @@ struct ImageShaderBlock {
     };
 
     // The gatherer and imageData should be null or non-null together
+    // If imageData is not null, it's sampling options must have useCubic == false
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const ImageData*);
+
+    // If imageData is not null, it's sampling options must have useCubic == true
+    static void BeginCubicBlock(const KeyContext&,
+                                PaintParamsKeyBuilder*,
+                                PipelineDataGatherer*,
+                                const ImageData*);
 };
 
 struct YUVImageShaderBlock {

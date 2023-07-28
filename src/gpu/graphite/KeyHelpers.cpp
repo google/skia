@@ -454,6 +454,7 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps, PipelineDataG
 void add_image_uniform_data(const ShaderCodeDictionary* dict,
                             const ImageShaderBlock::ImageData& imgData,
                             PipelineDataGatherer* gatherer) {
+    SkASSERT(!imgData.fSampling.useCubic);
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kImageShader)
 
     gatherer->write(SkPoint::Make(imgData.fTextureProxy->dimensions().fWidth,
@@ -462,13 +463,25 @@ void add_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
     gatherer->write(SkTo<int>(imgData.fSampling.filter));
-    gatherer->write(imgData.fSampling.useCubic);
-    if (imgData.fSampling.useCubic) {
-        const SkCubicResampler& cubic = imgData.fSampling.cubic;
-        gatherer->writeHalf(SkImageShader::CubicResamplerMatrix(cubic.B, cubic.C));
-    } else {
-        gatherer->writeHalf(SkM44());
-    }
+    gatherer->write(SkTo<int>(imgData.fReadSwizzle));
+
+    add_color_space_uniforms(imgData.fSteps, gatherer);
+}
+
+
+void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
+                                  const ImageShaderBlock::ImageData& imgData,
+                                  PipelineDataGatherer* gatherer) {
+    SkASSERT(imgData.fSampling.useCubic);
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicImageShader)
+
+    gatherer->write(SkPoint::Make(imgData.fTextureProxy->dimensions().fWidth,
+                                  imgData.fTextureProxy->dimensions().fHeight));
+    gatherer->write(imgData.fSubset);
+    gatherer->write(SkTo<int>(imgData.fTileModes[0]));
+    gatherer->write(SkTo<int>(imgData.fTileModes[1]));
+    const SkCubicResampler& cubic = imgData.fSampling.cubic;
+    gatherer->writeHalf(SkImageShader::CubicResamplerMatrix(cubic.B, cubic.C));
     gatherer->write(SkTo<int>(imgData.fReadSwizzle));
 
     add_color_space_uniforms(imgData.fSteps, gatherer);
@@ -497,7 +510,7 @@ void ImageShaderBlock::BeginBlock(const KeyContext& keyContext,
     // TODO: allow through lazy proxies
     if (gatherer && !imgData->fTextureProxy) {
         // TODO: At some point the pre-compile path should also be creating a texture
-        // proxy (i.e., we can remove the 'pipelineData' in the above test).
+        // proxy (i.e., we can remove the 'gatherer' in the above test).
         SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
         return;
     }
@@ -512,6 +525,32 @@ void ImageShaderBlock::BeginBlock(const KeyContext& keyContext,
     }
 
     builder->beginBlock(BuiltInCodeSnippetID::kImageShader);
+}
+
+void ImageShaderBlock::BeginCubicBlock(const KeyContext& keyContext,
+                                       PaintParamsKeyBuilder* builder,
+                                       PipelineDataGatherer* gatherer,
+                                       const ImageData* imgData) {
+    SkASSERT(!gatherer == !imgData);
+
+    // TODO: allow through lazy proxies
+    if (gatherer && !imgData->fTextureProxy) {
+        // TODO: At some point the pre-compile path should also be creating a texture
+        // proxy (i.e., we can remove the 'gatherer' in the above test).
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
+        return;
+    }
+
+    auto dict = keyContext.dict();
+    if (gatherer) {
+        gatherer->add(imgData->fSampling,
+                      imgData->fTileModes,
+                      imgData->fTextureProxy);
+
+        add_cubic_image_uniform_data(dict, *imgData, gatherer);
+    }
+
+    builder->beginBlock(BuiltInCodeSnippetID::kCubicImageShader);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1491,7 +1530,11 @@ static void add_to_key(const KeyContext& keyContext,
             BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
 
                 // src
-                ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+                if (imgData.fSampling.useCubic) {
+                    ImageShaderBlock::BeginCubicBlock(keyContext, builder, gatherer, &imgData);
+                } else {
+                    ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+                }
                 builder->endBlock();
 
                 // dst
@@ -1507,7 +1550,11 @@ static void add_to_key(const KeyContext& keyContext,
         }
     }
 
-    ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+    if (imgData.fSampling.useCubic) {
+        ImageShaderBlock::BeginCubicBlock(keyContext, builder, gatherer, &imgData);
+    } else {
+        ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+    }
     builder->endBlock();
 }
 

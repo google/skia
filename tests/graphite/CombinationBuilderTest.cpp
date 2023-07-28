@@ -133,7 +133,7 @@ void big_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     // now, blend modes
     paintOptions.setBlendModes(evenMoreBlendModes);                             // c array
 
-    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 17);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 26);
 
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
@@ -143,7 +143,7 @@ void big_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
                                               precompileIDs.push_back(id);
                                           });
 
-    SkASSERT(precompileIDs.size() == 17);
+    SkASSERT(precompileIDs.size() == 26);
 }
 
 template <typename T>
