@@ -8,6 +8,7 @@
 #ifndef SKSL_MODIFIERS
 #define SKSL_MODIFIERS
 
+#include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/sksl/ir/SkSLLayout.h"
 
@@ -76,13 +77,13 @@ struct Modifiers {
         return fLayout.description() + DescribeFlags(fFlags) + " ";
     }
 
-    bool isConst() const     { return fFlags & ModifierFlag::kConst; }
-    bool isUniform() const   { return fFlags & ModifierFlag::kUniform; }
-    bool isReadOnly() const  { return fFlags & ModifierFlag::kReadOnly; }
-    bool isWriteOnly() const { return fFlags & ModifierFlag::kWriteOnly; }
-    bool isBuffer() const    { return fFlags & ModifierFlag::kBuffer; }
-    bool isWorkgroup() const { return fFlags & ModifierFlag::kWorkgroup; }
-    bool isPure() const      { return fFlags & ModifierFlag::kPure; }
+    bool isConst() const     { return SkToBool(fFlags & ModifierFlag::kConst); }
+    bool isUniform() const   { return SkToBool(fFlags & ModifierFlag::kUniform); }
+    bool isReadOnly() const  { return SkToBool(fFlags & ModifierFlag::kReadOnly); }
+    bool isWriteOnly() const { return SkToBool(fFlags & ModifierFlag::kWriteOnly); }
+    bool isBuffer() const    { return SkToBool(fFlags & ModifierFlag::kBuffer); }
+    bool isWorkgroup() const { return SkToBool(fFlags & ModifierFlag::kWorkgroup); }
+    bool isPure() const      { return SkToBool(fFlags & ModifierFlag::kPure); }
 
     static std::string DescribeFlags(ModifierFlags flags) {
         // SkSL extensions

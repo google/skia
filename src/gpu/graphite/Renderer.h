@@ -118,11 +118,11 @@ public:
     // and variant is a unique term describing instance's specific configuration.
     const char* name() const { return fName.c_str(); }
 
-    bool requiresMSAA()        const { return fFlags & Flags::kRequiresMSAA;        }
-    bool performsShading()     const { return fFlags & Flags::kPerformsShading;     }
-    bool hasTextures()         const { return fFlags & Flags::kHasTextures;         }
-    bool emitsCoverage()       const { return fFlags & Flags::kEmitsCoverage;       }
-    bool emitsPrimitiveColor() const { return fFlags & Flags::kEmitsPrimitiveColor; }
+    bool requiresMSAA()        const { return SkToBool(fFlags & Flags::kRequiresMSAA);        }
+    bool performsShading()     const { return SkToBool(fFlags & Flags::kPerformsShading);     }
+    bool hasTextures()         const { return SkToBool(fFlags & Flags::kHasTextures);         }
+    bool emitsCoverage()       const { return SkToBool(fFlags & Flags::kEmitsCoverage);       }
+    bool emitsPrimitiveColor() const { return SkToBool(fFlags & Flags::kEmitsPrimitiveColor); }
 
     PrimitiveType primitiveType()  const { return fPrimitiveType;  }
     size_t        vertexStride()   const { return fVertexStride;   }
@@ -231,9 +231,15 @@ public:
     DrawTypeFlags drawTypes()      const { return fDrawTypes; }
     int           numRenderSteps() const { return fStepCount;    }
 
-    bool requiresMSAA()        const { return fStepFlags & StepFlags::kRequiresMSAA;        }
-    bool emitsCoverage()       const { return fStepFlags & StepFlags::kEmitsCoverage;       }
-    bool emitsPrimitiveColor() const { return fStepFlags & StepFlags::kEmitsPrimitiveColor; }
+    bool requiresMSAA() const {
+        return SkToBool(fStepFlags & StepFlags::kRequiresMSAA);
+    }
+    bool emitsCoverage() const {
+        return SkToBool(fStepFlags & StepFlags::kEmitsCoverage);
+    }
+    bool emitsPrimitiveColor() const {
+        return SkToBool(fStepFlags & StepFlags::kEmitsPrimitiveColor);
+    }
 
     SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 

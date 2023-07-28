@@ -982,8 +982,7 @@ bool VulkanCaps::DepthStencilFormatInfo::isDepthStencilSupported(VkFormatFeature
 
 VkFormat VulkanCaps::getFormatFromDepthStencilFlags(const SkEnumBitMask<DepthStencilFlags>& flags)
         const {
-    int idx = static_cast<int>(flags);
-    return fDepthStencilFlagsToFormatTable[idx];
+    return fDepthStencilFlagsToFormatTable[flags.value()];
 }
 
 VulkanCaps::DepthStencilFormatInfo& VulkanCaps::getDepthStencilFormatInfo(VkFormat format) {

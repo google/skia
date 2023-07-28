@@ -102,13 +102,13 @@ struct ShaderSnippet {
         , fNumChildren(numChildren) {}
 
     bool needsLocalCoords() const {
-        return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
+        return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords);
     }
     bool needsPriorStageOutput() const {
-        return fSnippetRequirementFlags & SnippetRequirementFlags::kPriorStageOutput;
+        return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kPriorStageOutput);
     }
     bool needsBlenderDstColor() const {
-        return fSnippetRequirementFlags & SnippetRequirementFlags::kBlenderDstColor;
+        return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kBlenderDstColor);
     }
 
     const char* fName = nullptr;
@@ -177,10 +177,10 @@ public:
                const char* ssboIndex);
 
     bool needsLocalCoords() const {
-        return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
+        return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords);
     }
     bool needsSurfaceColor() const {
-        return fSnippetRequirementFlags & SnippetRequirementFlags::kSurfaceColor;
+        return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kSurfaceColor);
     }
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRuntimeEffectDictionary;

@@ -1246,7 +1246,7 @@ LayerSpace<SkIRect> FilterResult::Builder::outputBounds(
         SkEnumBitMask<ShaderFlags> flags,
         std::optional<LayerSpace<SkIRect>> explicitOutput) const {
     // Explicit bounds should only be provided if-and-only-if kExplicitOutputBounds flag is set.
-    SkASSERT(explicitOutput.has_value() == (flags & ShaderFlags::kExplicitOutputBounds));
+    SkASSERT(explicitOutput.has_value() == SkToBool(flags & ShaderFlags::kExplicitOutputBounds));
 
     LayerSpace<SkIRect> output = LayerSpace<SkIRect>::Empty();
     if (flags & ShaderFlags::kExplicitOutputBounds) {
@@ -1280,7 +1280,8 @@ FilterResult FilterResult::Builder::drawShader(sk_sp<SkShader> shader,
         return {};
     }
 
-    AutoSurface surface{fContext, outputBounds, flags & ShaderFlags::kSampleInParameterSpace};
+    AutoSurface surface{fContext, outputBounds,
+                        SkToBool(flags & ShaderFlags::kSampleInParameterSpace)};
     if (surface) {
         SkPaint paint;
         paint.setShader(std::move(shader));

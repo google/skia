@@ -92,7 +92,7 @@ enum class SkSLTestFlags : int {
 };
 
 static constexpr bool is_cpu(SkEnumBitMask<SkSLTestFlags> flags) {
-    return flags & SkSLTestFlags::CPU;
+    return SkToBool(flags & SkSLTestFlags::CPU);
 }
 
 static constexpr bool is_gpu(SkEnumBitMask<SkSLTestFlags> flags) {
@@ -301,7 +301,7 @@ static void test_gpu(skiatest::Reporter* r,
                      const char* testFile,
                      SkEnumBitMask<SkSLTestFlags> flags) {
     // If this is an ES3-only test on a GPU which doesn't support SkSL ES3, return immediately.
-    bool shouldRunGPU = (flags & SkSLTestFlags::GPU);
+    bool shouldRunGPU = SkToBool(flags & SkSLTestFlags::GPU);
     bool shouldRunGPU_ES3 =
             (flags & SkSLTestFlags::GPU_ES3) &&
             (ctx->priv().caps()->shaderCaps()->supportedSkSLVerion() >= SkSL::Version::k300);

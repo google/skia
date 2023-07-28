@@ -35,8 +35,8 @@ class SkEnumBitMask {
 public:
     SK_ALWAYS_INLINE constexpr SkEnumBitMask(E e) : SkEnumBitMask((int)e) {}
 
-    SK_ALWAYS_INLINE constexpr operator bool() const { return fValue; }
-    SK_ALWAYS_INLINE constexpr int value() const     { return fValue; }
+    SK_ALWAYS_INLINE constexpr explicit operator bool() const { return fValue; }
+    SK_ALWAYS_INLINE constexpr int value() const              { return fValue; }
 
     SK_ALWAYS_INLINE constexpr bool operator==(SkEnumBitMask m) const { return fValue == m.fValue; }
     SK_ALWAYS_INLINE constexpr bool operator!=(SkEnumBitMask m) const { return fValue != m.fValue; }

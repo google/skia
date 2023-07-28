@@ -108,7 +108,7 @@ bool Modifiers::checkPermitted(const Context& context,
             layoutFlags &= ~lf.flag;
         }
     }
-    SkASSERT(layoutFlags == 0);
+    SkASSERT(layoutFlags == LayoutFlag::kNone);
     return success;
 }
 

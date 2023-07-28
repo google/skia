@@ -12,6 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 
@@ -248,13 +249,13 @@ public:
     // other backends, this value will be baked into the pipeline.
     WorkgroupSize localDispatchSize() const { return fLocalDispatchSize; }
 
-    bool supportsNativeShader() const { return fFlags & Flags::kSupportsNativeShader; }
+    bool supportsNativeShader() const { return SkToBool(fFlags & Flags::kSupportsNativeShader); }
 
     // Data flow behavior queries:
-    bool outputsVertices() const { return fFlags & Flags::kOutputsVertexBuffer; }
-    bool outputsIndices() const { return fFlags & Flags::kOutputsIndexBuffer; }
-    bool outputsInstances() const { return fFlags & Flags::kOutputsInstanceBuffer; }
-    bool writesIndirectDraw() const { return fFlags & Flags::kOutputsIndirectDrawBuffer; }
+    bool outputsVertices() const { return SkToBool(fFlags & Flags::kOutputsVertexBuffer); }
+    bool outputsIndices() const { return SkToBool(fFlags & Flags::kOutputsIndexBuffer); }
+    bool outputsInstances() const { return SkToBool(fFlags & Flags::kOutputsInstanceBuffer); }
+    bool writesIndirectDraw() const { return SkToBool(fFlags & Flags::kOutputsIndirectDrawBuffer); }
 
 protected:
     enum class Flags : uint8_t {

@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkChecksum.h"
 #include "src/sksl/GLSL.std.450.h"
@@ -351,14 +352,15 @@ static T pick_by_type(const Type& type, T ifFloat, T ifInt, T ifUInt, T ifBool) 
 }
 
 static bool is_out(const Modifiers& m) {
-    return (m.fFlags & ModifierFlag::kOut) != 0;
+    return SkToBool(m.fFlags & ModifierFlag::kOut);
 }
 
 static bool is_in(const Modifiers& m) {
     if (m.fFlags & ModifierFlag::kIn) {
         return true;  // `in` and `inout` both count
     }
-    return !(m.fFlags & ModifierFlag::kOut);  // `out` does not count; no-flags-set is implicit `in`
+    // If neither in/out flag is set, the type is implicitly `in`.
+    return !SkToBool(m.fFlags & ModifierFlag::kOut);
 }
 
 static bool is_control_flow_op(SpvOp_ op) {
@@ -3601,7 +3603,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
 }
 
 void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, Position pos) {
-    bool isPushConstant = (layout.fFlags & LayoutFlag::kPushConstant);
+    bool isPushConstant = SkToBool(layout.fFlags & LayoutFlag::kPushConstant);
     if (layout.fLocation >= 0) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationLocation, layout.fLocation,
                                fDecorationBuffer);
@@ -3665,7 +3667,7 @@ MemoryLayout SPIRVCodeGenerator::memoryLayoutForStorageClass(SpvStorageClass_ st
 }
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) const {
-    bool pushConstant = (v.modifiers().fLayout.fFlags & LayoutFlag::kPushConstant);
+    bool pushConstant = SkToBool(v.modifiers().fLayout.fFlags & LayoutFlag::kPushConstant);
     return pushConstant ? MemoryLayout(MemoryLayout::Standard::k430) : fDefaultLayout;
 }
 

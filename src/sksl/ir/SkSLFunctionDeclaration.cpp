@@ -181,14 +181,14 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
     auto paramIsCoords = [&](int idx) {
         const Variable& p = *parameters[idx];
         return p.type().matches(*context.fTypes.fFloat2) &&
-               p.modifiers().fFlags == 0 &&
+               p.modifiers().fFlags == ModifierFlag::kNone &&
                p.modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     };
 
     auto paramIsBuiltinColor = [&](int idx, int builtinID) {
         const Variable& p = *parameters[idx];
         return typeIsValidForColor(p.type()) &&
-               p.modifiers().fFlags == 0 &&
+               p.modifiers().fFlags == ModifierFlag::kNone &&
                p.modifiers().fLayout.fBuiltin == builtinID;
     };
 
