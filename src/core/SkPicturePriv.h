@@ -111,8 +111,6 @@ public:
     // V98: Merged SkImageFilters::Blend and ::Arithmetic implementations
     // V99: Remove legacy Magnifier filter
     // V100: SkImageFilters::DropShadow does not have a dedicated implementation
-    // V101: Crop image filter supports all SkTileModes instead of just kDecal
-    // V102: Convolution image filter uses ::Crop to apply tile mode
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -135,7 +133,6 @@ public:
         kRemoveLegacyMagnifierFilter        = 99,
         kDropShadowImageFilterComposition   = 100,
         kCropImageFilterSupportsTiling      = 101,
-        kConvolutionImageFilterTilingUpdate = 102,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -160,7 +157,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kConvolutionImageFilterTilingUpdate
+        kCurrent_Version = kCropImageFilterSupportsTiling
     };
 };
 

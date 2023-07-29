@@ -34,7 +34,6 @@
 
 class FilterResultImageResolver;  // for testing
 class GrRecordingContext;
-class SkBitmap;
 class SkCanvas;
 class SkImage;
 class SkImageFilter;
@@ -993,64 +992,48 @@ public:
 
     sk_sp<SkSpecialImage> makeImage(const SkIRect& subset, sk_sp<SkImage> image) const;
 
-    sk_sp<SkImage> getCachedBitmap(const SkBitmap& data) const;
-
     // Create a new context that matches this context, but with an overridden layer space.
     Context withNewMapping(const Mapping& mapping) const {
         ContextInfo info = fInfo;
         info.fMapping = mapping;
-        return Context(info, *this);
+        return Context(info, fGaneshContext, fMakeSurfaceDelegate, fMakeImageDelegate);
     }
     // Create a new context that matches this context, but with an overridden desired output rect.
     Context withNewDesiredOutput(const LayerSpace<SkIRect>& desiredOutput) const {
         ContextInfo info = fInfo;
         info.fDesiredOutput = desiredOutput;
-        return Context(info, *this);
+        return Context(info, fGaneshContext, fMakeSurfaceDelegate, fMakeImageDelegate);
     }
     // Create a new context that matches this context, but with an overridden color space.
     Context withNewColorSpace(SkColorSpace* cs) const {
         ContextInfo info = fInfo;
         info.fColorSpace = cs;
-        return Context(info, *this);
+        return Context(info, fGaneshContext, fMakeSurfaceDelegate, fMakeImageDelegate);
     }
 
     // Create a new context that matches this context, but with an overridden source.
     Context withNewSource(const FilterResult& source) const {
         ContextInfo info = fInfo;
         info.fSource = source;
-        return Context(info, *this);
+        return Context(info, fGaneshContext, fMakeSurfaceDelegate, fMakeImageDelegate);
     }
 
 private:
     using MakeSurfaceDelegate = std::function<sk_sp<SkSpecialSurface>(const SkImageInfo& info,
                                                                       const SkSurfaceProps* props)>;
-
-    // For input images to be processed by image filters
     using MakeImageDelegate = std::function<sk_sp<SkSpecialImage>(
             const SkIRect& subset, sk_sp<SkImage> image, const SkSurfaceProps& props)>;
-    // For internal data to be accessed by filter implementations
-    using MakeCachedBitmapDelegate = std::function<sk_sp<SkImage>(const SkBitmap& data)>;
-
     Context(const ContextInfo& info,
             GrRecordingContext* ganeshContext,
             MakeSurfaceDelegate msd,
-            MakeImageDelegate mid,
-            MakeCachedBitmapDelegate mbd)
+            MakeImageDelegate mid)
             : fInfo(info)
             , fGaneshContext(ganeshContext)
             , fMakeSurfaceDelegate(msd)
-            , fMakeImageDelegate(mid)
-            , fMakeCachedBitmapDelegate(mbd) {
+            , fMakeImageDelegate(mid) {
         SkASSERT(fMakeSurfaceDelegate);
         SkASSERT(fMakeImageDelegate);
-        SkASSERT(fMakeCachedBitmapDelegate);
     }
-    Context(const ContextInfo& info, const Context& ctx)
-            : Context(info,
-                      ctx.fGaneshContext,
-                      ctx.fMakeSurfaceDelegate,
-                      ctx.fMakeImageDelegate,
-                      ctx.fMakeCachedBitmapDelegate) {}
 
     ContextInfo fInfo;
 
@@ -1058,7 +1041,6 @@ private:
     GrRecordingContext* fGaneshContext;
     MakeSurfaceDelegate fMakeSurfaceDelegate;
     MakeImageDelegate fMakeImageDelegate;
-    MakeCachedBitmapDelegate fMakeCachedBitmapDelegate;
 
     friend Context MakeGaneshContext(GrRecordingContext* context,
                                      GrSurfaceOrigin origin,

@@ -365,10 +365,7 @@ Context Context::MakeRaster(const ContextInfo& info) {
                                 const SkSurfaceProps& props) {
         return SkSpecialImages::MakeFromRaster(subset, image, props);
     };
-    auto makeCachedBitmapCallback = [](const SkBitmap& data) {
-        return SkImages::RasterFromBitmap(data);
-    };
-    return Context(n32, nullptr, makeSurfaceCallback, makeImageCallback, makeCachedBitmapCallback);
+    return Context(n32, nullptr, makeSurfaceCallback, makeImageCallback);
 }
 
 sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
@@ -388,11 +385,6 @@ sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
 sk_sp<SkSpecialImage> Context::makeImage(const SkIRect& subset, sk_sp<SkImage> image) const {
     SkASSERT(fMakeImageDelegate);
     return fMakeImageDelegate(subset, image, fInfo.fSurfaceProps);
-}
-
-sk_sp<SkImage> Context::getCachedBitmap(const SkBitmap& data) const {
-    SkASSERT(fMakeCachedBitmapDelegate);
-    return fMakeCachedBitmapDelegate(data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
