@@ -4229,7 +4229,8 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     // Declare an entrypoint function.
     EntrypointAdapter adapter;
     adapter.entrypointDecl =
-            std::make_unique<FunctionDeclaration>(Position(),
+            std::make_unique<FunctionDeclaration>(fContext,
+                                                  Position(),
                                                   ModifierFlag::kNone,
                                                   "_entrypoint",
                                                   /*parameters=*/TArray<Variable*>{},

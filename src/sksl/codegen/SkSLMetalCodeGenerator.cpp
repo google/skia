@@ -2242,7 +2242,11 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         this->writeFunctionRequirementParams(f, separator);
     }
     for (const Variable* param : f.parameters()) {
-        if (f.isMain() && param->modifiers().fLayout.fBuiltin != -1) {
+        // This is a workaround for our test files. They use the runtime effect signature, so main
+        // takes a coords parameter. We detect these at IR generation time, and we omit them from
+        // the declaration here, so the function is valid Metal. (Well, valid as long as the
+        // coordinates aren't actually referenced.)
+        if (f.isMain() && param == f.getMainCoordsParameter()) {
             continue;
         }
         this->write(separator);

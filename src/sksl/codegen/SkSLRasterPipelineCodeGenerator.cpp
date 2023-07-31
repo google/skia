@@ -3941,33 +3941,29 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
     }
 
     // Assign slots to the parameters of main; copy src and dst into those slots as appropriate.
+    const SkSL::Variable* mainCoordsParam = function.declaration().getMainCoordsParameter();
+    const SkSL::Variable* mainInputColorParam = function.declaration().getMainInputColorParameter();
+    const SkSL::Variable* mainDestColorParam = function.declaration().getMainDestColorParameter();
+
     for (const SkSL::Variable* param : function.declaration().parameters()) {
-        switch (param->modifiers().fLayout.fBuiltin) {
-            case SK_MAIN_COORDS_BUILTIN: {
-                // Coordinates are passed via RG.
-                SlotRange fragCoord = this->getVariableSlots(*param);
-                SkASSERT(fragCoord.count == 2);
-                fBuilder.store_src_rg(fragCoord);
-                break;
-            }
-            case SK_INPUT_COLOR_BUILTIN: {
-                // Input colors are passed via RGBA.
-                SlotRange srcColor = this->getVariableSlots(*param);
-                SkASSERT(srcColor.count == 4);
-                fBuilder.store_src(srcColor);
-                break;
-            }
-            case SK_DEST_COLOR_BUILTIN: {
-                // Dest colors are passed via dRGBA.
-                SlotRange destColor = this->getVariableSlots(*param);
-                SkASSERT(destColor.count == 4);
-                fBuilder.store_dst(destColor);
-                break;
-            }
-            default: {
-                SkDEBUGFAIL("Invalid parameter to main()");
-                return unsupported();
-            }
+        if (param == mainCoordsParam) {
+            // Coordinates are passed via RG.
+            SlotRange fragCoord = this->getVariableSlots(*param);
+            SkASSERT(fragCoord.count == 2);
+            fBuilder.store_src_rg(fragCoord);
+        } else if (param == mainInputColorParam) {
+            // Input colors are passed via RGBA.
+            SlotRange srcColor = this->getVariableSlots(*param);
+            SkASSERT(srcColor.count == 4);
+            fBuilder.store_src(srcColor);
+        } else if (param == mainDestColorParam) {
+            // Dest colors are passed via dRGBA.
+            SlotRange destColor = this->getVariableSlots(*param);
+            SkASSERT(destColor.count == 4);
+            fBuilder.store_dst(destColor);
+        } else {
+            SkDEBUGFAIL("Invalid parameter to main()");
+            return unsupported();
         }
     }
 

@@ -16,7 +16,7 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramKind.h"
@@ -38,7 +38,6 @@
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -152,8 +151,9 @@ private:
     THashMap<const FunctionDeclaration*, std::string> fFunctionNames;
     THashMap<const Type*, std::string>                fStructNames;
 
-    StringStream* fBuffer = nullptr;
-    bool          fCastReturnsToHalf = false;
+    StringStream*              fBuffer = nullptr;
+    bool                       fCastReturnsToHalf = false;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
 };
 
 
@@ -276,15 +276,16 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
     const Variable* var = ref.variable();
-    const Modifiers& modifiers = var->modifiers();
 
-    if (modifiers.fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
+    if (fCurrentFunction && var == fCurrentFunction->getMainCoordsParameter()) {
         this->write(fSampleCoords);
         return;
-    } else if (modifiers.fLayout.fBuiltin == SK_INPUT_COLOR_BUILTIN) {
+    }
+    if (fCurrentFunction && var == fCurrentFunction->getMainInputColorParameter()) {
         this->write(fInputColor);
         return;
-    } else if (modifiers.fLayout.fBuiltin == SK_DEST_COLOR_BUILTIN) {
+    }
+    if (fCurrentFunction && var == fCurrentFunction->getMainDestColorParameter()) {
         this->write(fDestColor);
         return;
     }
@@ -362,6 +363,9 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         return;
     }
 
+    SkASSERT(!fCurrentFunction);
+    fCurrentFunction = &f.declaration();
+
     AutoOutputBuffer body(this);
 
     // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
@@ -388,6 +392,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fCallbacks->defineFunction(this->functionDeclaration(decl).c_str(),
                                body.fBuffer.str().c_str(),
                                decl.isMain());
+
+    fCurrentFunction = nullptr;
 }
 
 std::string PipelineStageCodeGenerator::functionDeclaration(const FunctionDeclaration& decl) {

@@ -151,6 +151,16 @@ struct ProgramConfig {
                 kind == ProgramKind::kPrivateRuntimeShader);
     }
 
+    static bool IsRuntimeColorFilter(ProgramKind kind) {
+        return (kind == ProgramKind::kRuntimeColorFilter ||
+                kind == ProgramKind::kPrivateRuntimeColorFilter);
+    }
+
+    static bool IsRuntimeBlender(ProgramKind kind) {
+        return (kind == ProgramKind::kRuntimeBlender ||
+                kind == ProgramKind::kPrivateRuntimeBlender);
+    }
+
     static bool AllowsPrivateIdentifiers(ProgramKind kind) {
         return (kind != ProgramKind::kRuntimeColorFilter &&
                 kind != ProgramKind::kRuntimeShader &&

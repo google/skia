@@ -1121,9 +1121,10 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         const Variable* param = f.parameters()[index];
 
         // This is a workaround for our test files. They use the runtime effect signature, so main
-        // takes a coords parameter. The IR generator tags those with a builtin ID (sk_FragCoord),
-        // and we omit them from the declaration here, so the function is valid GLSL.
-        if (f.isMain() && param->modifiers().fLayout.fBuiltin != -1) {
+        // takes a coords parameter. We detect these at IR generation time, and we omit them from
+        // the declaration here, so the function is valid GLSL. (Well, valid as long as the
+        // coordinates aren't actually referenced.)
+        if (f.isMain() && param == f.getMainCoordsParameter()) {
             continue;
         }
         this->write(separator());

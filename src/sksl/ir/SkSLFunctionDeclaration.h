@@ -36,7 +36,8 @@ class FunctionDeclaration final : public Symbol {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kFunctionDeclaration;
 
-    FunctionDeclaration(Position pos,
+    FunctionDeclaration(const Context& context,
+                        Position pos,
                         ModifierFlags modifierFlags,
                         std::string_view name,
                         skia_private::TArray<Variable*> parameters,
@@ -115,6 +116,22 @@ public:
     bool matches(const FunctionDeclaration& f) const;
 
     /**
+     * If this function is main(), and it has the requested parameter, returns that parameter.
+     * For instance, only a runtime-blend program will have a dest-color parameter, in parameter 1;
+     * `getMainDestColorParameter` will return that parameter if this is a runtime-blend main()
+     * function. Otherwise, null is returned.
+     */
+    const Variable* getMainCoordsParameter() const {
+        return fHasMainCoordsParameter ? fParameters[0] : nullptr;
+    }
+    const Variable* getMainInputColorParameter() const {
+        return fHasMainInputColorParameter ? fParameters[0] : nullptr;
+    }
+    const Variable* getMainDestColorParameter() const {
+        return fHasMainDestColorParameter ? fParameters[1] : nullptr;
+    }
+
+    /**
      * Determine the effective types of this function's parameters and return value when called with
      * the given arguments. This is relevant for functions with generic parameter types, where this
      * will collapse the generic types down into specific concrete types.
@@ -137,12 +154,15 @@ public:
 private:
     const FunctionDefinition* fDefinition;
     FunctionDeclaration* fNextOverload = nullptr;
-    ModifierFlags fModifierFlags;
     skia_private::TArray<Variable*> fParameters;
-    const Type* fReturnType;
-    bool fBuiltin;
-    bool fIsMain;
+    const Type* fReturnType = nullptr;
+    ModifierFlags fModifierFlags;
     mutable IntrinsicKind fIntrinsicKind = kNotIntrinsic;
+    bool fBuiltin = false;
+    bool fIsMain = false;
+    bool fHasMainCoordsParameter = false;
+    bool fHasMainInputColorParameter = false;
+    bool fHasMainDestColorParameter = false;
 
     using INHERITED = Symbol;
 };

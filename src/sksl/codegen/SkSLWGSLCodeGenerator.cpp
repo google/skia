@@ -400,14 +400,7 @@ WGSLCodeGenerator::ProgramRequirements resolve_program_requirements(const Progra
         }
 
         const FunctionDeclaration& decl = e->as<FunctionDefinition>().declaration();
-        if (decl.isMain()) {
-            for (const Variable* v : decl.parameters()) {
-                if (v->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
-                    mainNeedsCoordsArgument = true;
-                    break;
-                }
-            }
-        }
+        mainNeedsCoordsArgument |= (decl.getMainCoordsParameter() != nullptr);
 
         FunctionDependencyResolver resolver(program, &decl, &dependencies);
         dependencies.set(&decl, resolver.resolve());
@@ -874,20 +867,16 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         }
     }
     // TODO(armansito): Handle arbitrary parameters.
-    if (main.declaration().parameters().size() != 0) {
-        const Variable* v = main.declaration().parameters()[0];
+    if (const Variable* v = main.declaration().getMainCoordsParameter()) {
         const Type& type = v->type();
-        if (v->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
-            if (!type.matches(*fContext.fTypes.fFloat2)) {
-                fContext.fErrors->error(
-                        main.fPosition,
-                        "main function has unsupported parameter: " + type.description());
-                return;
-            }
-
-            this->write(separator());
-            this->write("_stageIn.sk_FragCoord.xy");
+        if (!type.matches(*fContext.fTypes.fFloat2)) {
+            fContext.fErrors->error(main.fPosition, "main function has unsupported parameter: "
+                                                    + type.description());
+            return;
         }
+
+        this->write(separator());
+        this->write("_stageIn.sk_FragCoord.xy");
     }
     this->writeLine(");");
     this->writeLine("return _stageOut;");

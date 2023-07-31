@@ -515,13 +515,11 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
     if (!main) {
         RETURN_FAILURE("missing 'main' function");
     }
-    const auto& mainParams = main->parameters();
-    auto iter = std::find_if(mainParams.begin(), mainParams.end(), [](const SkSL::Variable* p) {
-        return p->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
-    });
+    const SkSL::Variable* coordsParam = main->getMainCoordsParameter();
+
     const SkSL::ProgramUsage::VariableCounts sampleCoordsUsage =
-            iter != mainParams.end() ? program->usage()->get(**iter)
-                                     : SkSL::ProgramUsage::VariableCounts{};
+            coordsParam ? program->usage()->get(*coordsParam)
+                        : SkSL::ProgramUsage::VariableCounts{};
 
     if (sampleCoordsUsage.fRead || sampleCoordsUsage.fWrite) {
         flags |= kUsesSampleCoords_Flag;
