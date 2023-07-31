@@ -9,10 +9,10 @@
 #define SkTHash_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTemplates.h"
 #include "src/core/SkChecksum.h"
 
 #include <initializer_list>
+#include <memory>
 #include <new>
 #include <utility>
 
@@ -40,7 +40,7 @@ public:
         if (this != &that) {
             fCount     = that.fCount;
             fCapacity  = that.fCapacity;
-            fSlots.reset(that.fCapacity);
+            fSlots.reset(new Slot[that.fCapacity]);
             for (int i = 0; i < fCapacity; i++) {
                 fSlots[i] = that.fSlots[i];
             }
@@ -147,8 +147,8 @@ public:
 
         fCount = 0;
         fCapacity = capacity;
-        AutoTArray<Slot> oldSlots = std::move(fSlots);
-        fSlots = AutoTArray<Slot>(capacity);
+        std::unique_ptr<Slot[]> oldSlots = std::move(fSlots);
+        fSlots.reset(new Slot[capacity]);
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];
@@ -413,7 +413,7 @@ private:
 
     int fCount    = 0,
         fCapacity = 0;
-    AutoTArray<Slot> fSlots;
+    std::unique_ptr<Slot[]> fSlots;
 };
 
 // Maps K->V.  A more user-friendly wrapper around THashTable, suitable for most use cases.

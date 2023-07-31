@@ -7,6 +7,7 @@
 
 #include "src/pdf/SkPDFMetadata.h"
 
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
 #include "src/base/SkUtils.h"
