@@ -24,7 +24,6 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicList.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
@@ -186,7 +185,6 @@ public:
             , fProgramSlots(debugTrace ? &debugTrace->fSlotInfo : nullptr)
             , fUniformSlots(debugTrace ? &debugTrace->fUniformInfo : nullptr)
             , fImmutableSlots(nullptr) {
-        fContext.fModifiersPool = &fModifiersPool;
         fContext.fConfig = fProgram.fConfig.get();
         fContext.fModule = fProgram.fContext->fModule;
     }
@@ -470,7 +468,6 @@ public:
 private:
     const SkSL::Program& fProgram;
     SkSL::Context fContext;
-    SkSL::ModifiersPool fModifiersPool;
     Builder fBuilder;
     DebugTracePriv* fDebugTrace = nullptr;
     bool fWriteTraceOps = false;

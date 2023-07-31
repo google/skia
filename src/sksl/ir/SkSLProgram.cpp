@@ -6,7 +6,6 @@
  */
 
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
@@ -26,14 +25,12 @@ Program::Program(std::unique_ptr<std::string> source,
                  std::shared_ptr<Context> context,
                  std::vector<std::unique_ptr<ProgramElement>> elements,
                  std::vector<const ProgramElement*> sharedElements,
-                 std::unique_ptr<ModifiersPool> modifiers,
                  std::shared_ptr<SymbolTable> symbols,
                  std::unique_ptr<Pool> pool,
                  Interface interface)
         : fSource(std::move(source))
         , fConfig(std::move(config))
         , fContext(context)
-        , fModifiers(std::move(modifiers))
         , fSymbols(symbols)
         , fPool(std::move(pool))
         , fOwnedElements(std::move(elements))
@@ -51,7 +48,6 @@ Program::~Program() {
     fOwnedElements.clear();
     fContext.reset();
     fSymbols.reset();
-    fModifiers.reset();
 }
 
 std::string Program::description() const {

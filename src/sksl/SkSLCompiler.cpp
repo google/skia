@@ -13,7 +13,6 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLInliner.h"
-#include "src/sksl/SkSLModifiersPool.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLParser.h"
@@ -118,21 +117,6 @@ public:
     const ShaderCaps* fOldCaps;
 };
 
-class AutoModifiersPool {
-public:
-    AutoModifiersPool(std::shared_ptr<Context>& context, ModifiersPool* modifiersPool)
-            : fContext(context.get()) {
-        SkASSERT(!fContext->fModifiersPool);
-        fContext->fModifiersPool = modifiersPool;
-    }
-
-    ~AutoModifiersPool() {
-        fContext->fModifiersPool = nullptr;
-    }
-
-    Context* fContext;
-};
-
 Compiler::Compiler(const ShaderCaps* caps) : fErrorReporter(this), fCaps(caps) {
     SkASSERT(caps);
 
@@ -204,7 +188,6 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
                                                 const char* moduleName,
                                                 std::string moduleSource,
                                                 const Module* parent,
-                                                ModifiersPool& modifiersPool,
                                                 bool shouldInline) {
     SkASSERT(parent);
     SkASSERT(!moduleSource.empty());
@@ -212,7 +195,6 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
 
     // Modules are shared and cannot rely on shader caps.
     AutoShaderCaps autoCaps(fContext, nullptr);
-    AutoModifiersPool autoPool(fContext, &modifiersPool);
 
     // Compile the module from source, using default program settings.
     ProgramSettings settings;
@@ -253,7 +235,6 @@ std::unique_ptr<SkSL::Program> Compiler::releaseProgram(std::unique_ptr<std::str
                                                   fContext,
                                                   std::move(instance.fProgramElements),
                                                   std::move(instance.fSharedElements),
-                                                  std::move(instance.fModifiersPool),
                                                   std::move(fContext->fSymbolTable),
                                                   std::move(instance.fPool),
                                                   instance.fInterface);
@@ -310,7 +291,6 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module) {
     config.fIsBuiltinCode = true;
     config.fKind = kind;
     AutoProgramConfig autoConfig(this->context(), &config);
-    AutoModifiersPool autoPool(fContext, &m.coreModifiers());
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
@@ -420,7 +400,6 @@ void Compiler::runInliner(Program& program) {
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
     AutoProgramConfig autoConfig(this->context(), program.fConfig.get());
     AutoShaderCaps autoCaps(fContext, fCaps);
-    AutoModifiersPool autoPool(fContext, program.fModifiers.get());
     Inliner inliner(fContext.get());
     this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, program.fUsage.get());
 #endif

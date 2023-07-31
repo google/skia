@@ -12,8 +12,6 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/sksl/ir/SkSLLayout.h"
 
-#include <cstddef>
-#include <memory>
 #include <string>
 
 namespace SkSL {
@@ -118,18 +116,5 @@ struct Modifiers {
 };
 
 } // namespace SkSL
-
-namespace std {
-
-template <>
-struct hash<SkSL::Modifiers> {
-    size_t operator()(const SkSL::Modifiers& key) const {
-        return ((size_t) key.fFlags.value()) ^
-               ((size_t) key.fLayout.fFlags.value() << 8) ^
-               ((size_t) key.fLayout.fBuiltin << 16);
-    }
-};
-
-} // namespace std
 
 #endif

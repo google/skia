@@ -44,7 +44,6 @@ namespace SkSL {
 
 class Expression;
 class Inliner;
-class ModifiersPool;
 class OutputStream;
 class ProgramUsage;
 class SymbolTable;
@@ -175,7 +174,6 @@ public:
                                           const char* moduleName,
                                           std::string moduleSource,
                                           const Module* parent,
-                                          ModifiersPool& modifiersPool,
                                           bool shouldInline);
 
     /** Optimize a module at minification time, before writing it out. */

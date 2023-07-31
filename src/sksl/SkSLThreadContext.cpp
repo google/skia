@@ -8,7 +8,6 @@
 #include "src/sksl/SkSLThreadContext.h"
 
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -25,7 +24,6 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler,
                              bool isModule)
         : fCompiler(compiler)
         , fOldConfig(fCompiler->fContext->fConfig)
-        , fOldModifiersPool(fCompiler->fContext->fModifiersPool)
         , fOldErrorReporter(*fCompiler->fContext->fErrors)
         , fSettings(settings) {
     if (!isModule) {
@@ -33,8 +31,6 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler,
             fPool = Pool::Create();
             fPool->attachToThread();
         }
-        fModifiersPool = std::make_unique<SkSL::ModifiersPool>();
-        fCompiler->fContext->fModifiersPool = fModifiersPool.get();
     }
 
     fConfig = std::make_unique<SkSL::ProgramConfig>();
@@ -58,7 +54,6 @@ ThreadContext::~ThreadContext() {
     }
     fCompiler->fContext->fErrors = &fOldErrorReporter;
     fCompiler->fContext->fConfig = fOldConfig;
-    fCompiler->fContext->fModifiersPool = fOldModifiersPool;
     if (fPool) {
         fPool->detachFromThread();
     }

@@ -113,13 +113,11 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
 
         const SkSL::Module* parent = modules.empty() ? SkSL::ModuleLoader::Get().rootModule()
                                                      : modules.front().get();
-        std::unique_ptr<SkSL::Module> m =
-                compiler.compileModule(kind,
-                                       modulePath->c_str(),
-                                       std::move(moduleSource),
-                                       parent,
-                                       SkSL::ModuleLoader::Get().coreModifiers(),
-                                       /*shouldInline=*/false);
+        std::unique_ptr<SkSL::Module> m = compiler.compileModule(kind,
+                                                                 modulePath->c_str(),
+                                                                 std::move(moduleSource),
+                                                                 parent,
+                                                                 /*shouldInline=*/false);
         if (!m) {
             return {};
         }

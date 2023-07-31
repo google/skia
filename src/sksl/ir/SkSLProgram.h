@@ -22,7 +22,6 @@ namespace SkSL {
 
 class Context;
 class FunctionDeclaration;
-class ModifiersPool;
 class Pool;
 class ProgramElement;
 class ProgramUsage;
@@ -64,7 +63,6 @@ struct Program {
             std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::vector<const ProgramElement*> sharedElements,
-            std::unique_ptr<ModifiersPool> modifiers,
             std::shared_ptr<SymbolTable> symbols,
             std::unique_ptr<Pool> pool,
             Interface);
@@ -152,7 +150,6 @@ struct Program {
     std::unique_ptr<ProgramConfig> fConfig;
     std::shared_ptr<Context> fContext;
     std::unique_ptr<ProgramUsage> fUsage;
-    std::unique_ptr<ModifiersPool> fModifiers;
     // it's important to keep fOwnedElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols
     std::shared_ptr<SymbolTable> fSymbols;

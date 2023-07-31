@@ -9,7 +9,6 @@
 #define SKSL_CODEGENERATOR
 
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -27,7 +26,6 @@ public:
                        fProgram.fContext->fCaps,
                        *fProgram.fContext->fErrors)
             , fOut(stream) {
-        fContext.fModifiersPool = &fModifiersPool;
         fContext.fConfig = fProgram.fConfig.get();
         fContext.fModule = fProgram.fContext->fModule;
         fContext.fSymbolTable = fProgram.fSymbols;
@@ -59,7 +57,6 @@ protected:
 
     const Program& fProgram;
     Context fContext;
-    ModifiersPool fModifiersPool;
     OutputStream* fOut;
 };
 
