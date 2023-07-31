@@ -14,7 +14,6 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLMangler.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -26,6 +25,8 @@
 #include <utility>
 
 namespace SkSL {
+
+static constexpr Layout kDefaultLayout;
 
 Variable::~Variable() {
     // Unhook this Variable from its associated VarDeclaration, since we're being deleted.
@@ -80,6 +81,10 @@ void Variable::setGlobalVarDeclaration(GlobalVarDeclaration* global) {
     fDeclaringElement = global;
 }
 
+const Layout& Variable::layout() const {
+    return kDefaultLayout;
+}
+
 std::string_view ExtendedVariable::mangledName() const {
     return fMangledName.empty() ? this->name() : fMangledName;
 }
@@ -122,21 +127,6 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
         }
     }
 
-    return Make(context, pos, modifiersPos, modifiers.fLayout, flags, type, name, storage);
-}
-
-std::unique_ptr<Variable> Variable::Make(const Context& context,
-                                         Position pos,
-                                         Position modifiersPos,
-                                         const Layout& layout,
-                                         ModifierFlags flags,
-                                         const Type* type,
-                                         std::string_view name,
-                                         Storage storage) {
-    // the `in` modifier on function parameters is implicit and should have been removed
-    SkASSERT(!(storage == Variable::Storage::kParameter &&
-               (flags & (ModifierFlag::kOut | ModifierFlag::kIn)) == ModifierFlag::kIn));
-
     // Invent a mangled name for the variable, if it needs one.
     std::string mangledName;
     if (skstd::starts_with(name, '$')) {
@@ -149,23 +139,41 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
         mangledName = Mangler{}.uniqueName(name, context.fSymbolTable.get());
     }
 
-    if (type->componentType().isInterfaceBlock() || !mangledName.empty()) {
-        return std::make_unique<ExtendedVariable>(
-                pos,
-                modifiersPos,
-                context.fModifiersPool->add(Modifiers{layout, flags}),
-                name,
-                type,
-                context.fConfig->fIsBuiltinCode,
-                storage,
-                std::move(mangledName));
+    return Make(pos, modifiersPos, modifiers.fLayout, flags, type, name, std::move(mangledName),
+                context.fConfig->fIsBuiltinCode, storage);
+}
+
+std::unique_ptr<Variable> Variable::Make(Position pos,
+                                         Position modifiersPosition,
+                                         const Layout& layout,
+                                         ModifierFlags flags,
+                                         const Type* type,
+                                         std::string_view name,
+                                         std::string mangledName,
+                                         bool builtin,
+                                         Variable::Storage storage) {
+    // the `in` modifier on function parameters is implicit and should have been removed
+    SkASSERT(!(storage == Variable::Storage::kParameter &&
+               (flags & (ModifierFlag::kOut | ModifierFlag::kIn)) == ModifierFlag::kIn));
+
+    if (type->componentType().isInterfaceBlock() || !mangledName.empty() ||
+        layout != kDefaultLayout) {
+        return std::make_unique<ExtendedVariable>(pos,
+                                                  modifiersPosition,
+                                                  layout,
+                                                  flags,
+                                                  name,
+                                                  type,
+                                                  builtin,
+                                                  storage,
+                                                  std::move(mangledName));
     } else {
         return std::make_unique<Variable>(pos,
-                                          modifiersPos,
-                                          context.fModifiersPool->add(Modifiers{layout, flags}),
+                                          modifiersPosition,
+                                          flags,
                                           name,
                                           type,
-                                          context.fConfig->fIsBuiltinCode,
+                                          builtin,
                                           storage);
     }
 }
@@ -196,7 +204,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
     ScratchVariable result;
     auto var = std::make_unique<Variable>(initialValue ? initialValue->fPosition : Position(),
                                           /*modifiersPosition=*/Position(),
-                                          context.fModifiersPool->add(Modifiers{}),
+                                          ModifierFlag::kNone,
                                           name->c_str(),
                                           type,
                                           symbolTable->isBuiltin(),

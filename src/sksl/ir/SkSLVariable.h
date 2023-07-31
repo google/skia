@@ -51,10 +51,10 @@ public:
 
     inline static constexpr Kind kIRNodeKind = Kind::kVariable;
 
-    Variable(Position pos, Position modifiersPosition, const Modifiers* modifiers,
+    Variable(Position pos, Position modifiersPosition, ModifierFlags modifierFlags,
              std::string_view name, const Type* type, bool builtin, Storage storage)
             : INHERITED(pos, kIRNodeKind, name, type)
-            , fModifiers(modifiers)
+            , fModifierFlags(modifierFlags)
             , fModifiersPosition(modifiersPosition)
             , fStorage(storage)
             , fBuiltin(builtin) {}
@@ -66,10 +66,10 @@ public:
                                              const Type* type, Position namePos,
                                              std::string_view name, Storage storage);
 
-    static std::unique_ptr<Variable> Make(const Context& context, Position pos,
-                                          Position modifiersPos, const Layout& layout,
-                                          ModifierFlags flags, const Type* type,
-                                          std::string_view name, Storage storage);
+    static std::unique_ptr<Variable> Make(Position pos, Position modifiersPosition,
+                                          const Layout& layout, ModifierFlags flags,
+                                          const Type* type, std::string_view name,
+                                          std::string mangledName, bool builtin, Storage storage);
 
     /**
      * Creates a local scratch variable and the associated VarDeclaration statement.
@@ -87,12 +87,10 @@ public:
                                                SymbolTable* symbolTable,
                                                std::unique_ptr<Expression> initialValue);
     ModifierFlags modifierFlags() const {
-        return fModifiers->fFlags;
+        return fModifierFlags;
     }
 
-    const Layout& layout() const {
-        return fModifiers->fLayout;
-    }
+    virtual const Layout& layout() const;
 
     Position modifiersPosition() const {
         return fModifiersPosition;
@@ -139,10 +137,8 @@ public:
     }
 
 private:
-    // When non-null, `fMangledName` is owned by the SymbolTable.
     IRNode* fDeclaringElement = nullptr;
-    // We don't store the position in the Modifiers object itself because they are pooled.
-    const Modifiers* fModifiers = nullptr;
+    ModifierFlags fModifierFlags;
     Position fModifiersPosition;
     VariableStorage fStorage;
     bool fBuiltin;
@@ -154,22 +150,28 @@ private:
  * ExtendedVariable is functionally equivalent to a regular Variable, but it also contains extra
  * fields that most variables don't need:
  * - The variable's associated InterfaceBlock
+ * - The variable's layout
  * - The variable's mangled name
  *
- * These fields can be null/empty.
+ * Some of these fields can be null/empty.
  */
 class ExtendedVariable final : public Variable {
 public:
-    ExtendedVariable(Position pos, Position modifiersPosition, const Modifiers* modifiers,
-                     std::string_view name, const Type* type, bool builtin, Storage storage,
-                     std::string mangledName)
-            : INHERITED(pos, modifiersPosition, modifiers, name, type, builtin, storage)
+    ExtendedVariable(Position pos, Position modifiersPosition, const Layout& layout,
+                     ModifierFlags flags, std::string_view name, const Type* type, bool builtin,
+                     Storage storage, std::string mangledName)
+            : INHERITED(pos, modifiersPosition, flags, name, type, builtin, storage)
+            , fLayout(layout)
             , fMangledName(std::move(mangledName)) {}
 
     ~ExtendedVariable() override;
 
     InterfaceBlock* interfaceBlock() const override {
         return fInterfaceBlockElement;
+    }
+
+    const Layout& layout() const override {
+        return fLayout;
     }
 
     void setInterfaceBlock(InterfaceBlock* elem) override {
@@ -186,6 +188,7 @@ public:
 
 private:
     InterfaceBlock* fInterfaceBlockElement = nullptr;
+    Layout fLayout;
     std::string fMangledName;
 
     using INHERITED = Variable;

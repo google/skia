@@ -16,7 +16,6 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
@@ -340,9 +339,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
         return nullptr;
     };
     auto variableModifiers = [&](const Variable& variable,
-                                 const Expression* initialValue) -> const Modifiers* {
-        ModifierFlags flags = Transform::AddConstToVarModifiers(variable, initialValue, &usage);
-        return fContext->fModifiersPool->add(Modifiers{variable.layout(), flags});
+                                 const Expression* initialValue) -> ModifierFlags {
+        return Transform::AddConstToVarModifiers(variable, initialValue, &usage);
     };
 
     ++fInlinedStatementCounter;
@@ -449,14 +447,15 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             // names are important.
             const std::string* name = symbolTableForStatement->takeOwnershipOfString(
                     fMangler.uniqueName(variable->name(), symbolTableForStatement));
-            auto clonedVar =
-                    std::make_unique<Variable>(pos,
-                                               variable->modifiersPosition(),
-                                               variableModifiers(*variable, initialValue.get()),
-                                               name->c_str(),
-                                               variable->type().clone(symbolTableForStatement),
-                                               isBuiltinCode,
-                                               variable->storage());
+            auto clonedVar = Variable::Make(pos,
+                                            variable->modifiersPosition(),
+                                            variable->layout(),
+                                            variableModifiers(*variable, initialValue.get()),
+                                            variable->type().clone(symbolTableForStatement),
+                                            name->c_str(),
+                                            /*mangledName=*/"",
+                                            isBuiltinCode,
+                                            variable->storage());
             varMap->set(variable, VariableReference::Make(pos, clonedVar.get()));
             std::unique_ptr<Statement> result =
                     VarDeclaration::Make(*fContext,

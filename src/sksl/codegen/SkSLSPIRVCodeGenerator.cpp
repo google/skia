@@ -21,7 +21,6 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLIntrinsicList.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLPool.h"
@@ -2691,15 +2690,17 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             static constexpr char DEVICE_COORDS_NAME[] = "$device_FragCoords";
             if (!fProgram.fSymbols->find(DEVICE_COORDS_NAME)) {
                 AutoAttachPoolToThread attach(fProgram.fPool.get());
-                Modifiers modifiers;
-                modifiers.fLayout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
-                auto coordsVar = std::make_unique<Variable>(/*pos=*/Position(),
-                                                            /*modifiersPosition=*/Position(),
-                                                            fContext.fModifiersPool->add(modifiers),
-                                                            DEVICE_COORDS_NAME,
-                                                            fContext.fTypes.fFloat4.get(),
-                                                            /*builtin=*/true,
-                                                            Variable::Storage::kGlobal);
+                Layout layout;
+                layout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
+                auto coordsVar = Variable::Make(/*pos=*/Position(),
+                                                /*modifiersPosition=*/Position(),
+                                                layout,
+                                                ModifierFlag::kNone,
+                                                fContext.fTypes.fFloat4.get(),
+                                                DEVICE_COORDS_NAME,
+                                                /*mangledName=*/"",
+                                                /*builtin=*/true,
+                                                Variable::Storage::kGlobal);
                 fSPIRVBonusVariables.add(coordsVar.get());
                 fProgram.fSymbols->add(std::move(coordsVar));
             }
@@ -2741,16 +2742,17 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             static constexpr char DEVICE_CLOCKWISE_NAME[] = "$device_Clockwise";
             if (!fProgram.fSymbols->find(DEVICE_CLOCKWISE_NAME)) {
                 AutoAttachPoolToThread attach(fProgram.fPool.get());
-                Modifiers modifiers;
-                modifiers.fLayout.fBuiltin = DEVICE_CLOCKWISE_BUILTIN;
-                auto clockwiseVar = std::make_unique<Variable>(
-                        /*pos=*/Position(),
-                        /*modifiersPosition=*/Position(),
-                        fContext.fModifiersPool->add(modifiers),
-                        DEVICE_CLOCKWISE_NAME,
-                        fContext.fTypes.fBool.get(),
-                        /*builtin=*/true,
-                        Variable::Storage::kGlobal);
+                Layout layout;
+                layout.fBuiltin = DEVICE_CLOCKWISE_BUILTIN;
+                auto clockwiseVar = Variable::Make(/*pos=*/Position(),
+                                                   /*modifiersPosition=*/Position(),
+                                                   layout,
+                                                   ModifierFlag::kNone,
+                                                   fContext.fTypes.fBool.get(),
+                                                   DEVICE_CLOCKWISE_NAME,
+                                                   /*mangledName=*/"",
+                                                   /*builtin=*/true,
+                                                   Variable::Storage::kGlobal);
                 fSPIRVBonusVariables.add(clockwiseVar.get());
                 fProgram.fSymbols->add(std::move(clockwiseVar));
             }
@@ -3713,17 +3715,16 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                          type.name(),
                                          std::move(fields),
                                          /*interfaceBlock=*/true));
-            const Modifiers* intfVarModifiers = fContext.fModifiersPool->add(
-                    Modifiers{intfVar.layout(), intfVar.modifierFlags()});
-            ExtendedVariable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
-                    std::make_unique<ExtendedVariable>(intfVar.fPosition,
-                                                       intfVar.modifiersPosition(),
-                                                       intfVarModifiers,
-                                                       intfVar.name(),
-                                                       rtFlipStructType,
-                                                       intfVar.isBuiltin(),
-                                                       intfVar.storage(),
-                                                       /*mangledName=*/""));
+            Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
+                    Variable::Make(intfVar.fPosition,
+                                   intfVar.modifiersPosition(),
+                                   intfVar.layout(),
+                                   intfVar.modifierFlags(),
+                                   rtFlipStructType,
+                                   intfVar.name(),
+                                   /*mangledName=*/"",
+                                   intfVar.isBuiltin(),
+                                   intfVar.storage()));
             fSPIRVBonusVariables.add(modifiedVar);
             InterfaceBlock modifiedCopy(intf.fPosition, modifiedVar, intf.typeOwner());
             result = this->writeInterfaceBlock(modifiedCopy, /*appendRTFlip=*/false);
@@ -4272,17 +4273,16 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     Layout layout;
     layout.fBinding = fProgram.fConfig->fSettings.fDefaultUniformBinding;
     layout.fSet     = fProgram.fConfig->fSettings.fDefaultUniformSet;
-    Modifiers modifiers{layout, ModifierFlag::kUniform};
 
-    fUniformBuffer.fInnerVariable = std::make_unique<ExtendedVariable>(
-            /*pos=*/Position(),
-            /*modifiersPosition=*/Position(),
-            fContext.fModifiersPool->add(modifiers),
-            kUniformBufferName,
-            fUniformBuffer.fStruct.get(),
-            /*builtin=*/false,
-            Variable::Storage::kGlobal,
-            /*mangledName=*/"");
+    fUniformBuffer.fInnerVariable = Variable::Make(/*pos=*/Position(),
+                                                   /*modifiersPosition=*/Position(),
+                                                   layout,
+                                                   ModifierFlag::kUniform,
+                                                   fUniformBuffer.fStruct.get(),
+                                                   kUniformBufferName,
+                                                   /*mangledName=*/"",
+                                                   /*builtin=*/false,
+                                                   Variable::Storage::kGlobal);
 
     // Create an interface block object for this global variable.
     fUniformBuffer.fInterfaceBlock =
@@ -4334,30 +4334,24 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
             fContext.fErrors->error(pos, "layout(set=...) is required in SPIR-V");
         }
     }
-    LayoutFlags flags = usePushConstants ? LayoutFlag::kPushConstant : LayoutFlag::kNone;
-    const Modifiers* modsPtr;
-    {
-        AutoAttachPoolToThread attach(fProgram.fPool.get());
-        Modifiers modifiers(Layout(flags,
-                                   /*location=*/-1,
-                                   /*offset=*/-1,
-                                   binding,
-                                   /*index=*/-1,
-                                   set,
-                                   /*builtin=*/-1,
-                                   /*inputAttachmentIndex=*/-1),
-                            ModifierFlag::kUniform);
-        modsPtr = fContext.fModifiersPool->add(modifiers);
-    }
-    ExtendedVariable* intfVar = fSynthetics.takeOwnershipOfSymbol(
-            std::make_unique<ExtendedVariable>(/*pos=*/Position(),
-                                               /*modifiersPosition=*/Position(),
-                                               modsPtr,
-                                               name,
-                                               intfStruct,
-                                               /*builtin=*/false,
-                                               Variable::Storage::kGlobal,
-                                               /*mangledName=*/""));
+    Layout layout(/*flags=*/usePushConstants ? LayoutFlag::kPushConstant : LayoutFlag::kNone,
+                  /*location=*/-1,
+                  /*offset=*/-1,
+                  binding,
+                  /*index=*/-1,
+                  set,
+                  /*builtin=*/-1,
+                  /*inputAttachmentIndex=*/-1);
+    Variable* intfVar =
+            fSynthetics.takeOwnershipOfSymbol(Variable::Make(/*pos=*/Position(),
+                                                             /*modifiersPosition=*/Position(),
+                                                             layout,
+                                                             ModifierFlag::kUniform,
+                                                             intfStruct,
+                                                             name,
+                                                             /*mangledName=*/"",
+                                                             /*builtin=*/false,
+                                                             Variable::Storage::kGlobal));
     fSPIRVBonusVariables.add(intfVar);
     {
         AutoAttachPoolToThread attach(fProgram.fPool.get());
@@ -4380,27 +4374,29 @@ std::tuple<const Variable*, const Variable*> SPIRVCodeGenerator::synthesizeTextu
     texLayout.fBinding = layout.fTexture;
     data->fTextureName = std::string(combinedSampler.name()) + "_texture";
 
-    auto texture = std::make_unique<Variable>(
-            /*pos=*/Position(),
-            /*modifierPosition=*/Position(),
-            fContext.fModifiersPool->add(Modifiers{texLayout, combinedSampler.modifierFlags()}),
-            data->fTextureName,
-            &combinedSampler.type().textureType(),
-            /*builtin=*/false,
-            Variable::Storage::kGlobal);
+    auto texture = Variable::Make(/*pos=*/Position(),
+                                  /*modifiersPosition=*/Position(),
+                                  texLayout,
+                                  combinedSampler.modifierFlags(),
+                                  &combinedSampler.type().textureType(),
+                                  data->fTextureName,
+                                  /*mangledName=*/"",
+                                  /*builtin=*/false,
+                                  Variable::Storage::kGlobal);
 
     Layout samplerLayout = layout;
     samplerLayout.fBinding = layout.fSampler;
     data->fSamplerName = std::string(combinedSampler.name()) + "_sampler";
 
-    auto sampler = std::make_unique<Variable>(
-            /*pos=*/Position(),
-            /*modifierPosition=*/Position(),
-            fContext.fModifiersPool->add(Modifiers{samplerLayout, combinedSampler.modifierFlags()}),
-            data->fSamplerName,
-            fContext.fTypes.fSampler.get(),
-            /*builtin=*/false,
-            Variable::Storage::kGlobal);
+    auto sampler = Variable::Make(/*pos=*/Position(),
+                                  /*modifiersPosition=*/Position(),
+                                  samplerLayout,
+                                  combinedSampler.modifierFlags(),
+                                  fContext.fTypes.fSampler.get(),
+                                  data->fSamplerName,
+                                  /*mangledName=*/"",
+                                  /*builtin=*/false,
+                                  Variable::Storage::kGlobal);
 
     const Variable* t = texture.get();
     const Variable* s = sampler.get();
