@@ -16,7 +16,6 @@
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
@@ -92,37 +91,52 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
                                             const Type* type,
                                             Position namePos,
                                             std::string_view name,
-                                            Variable::Storage storage) {
-    if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
-        (modifiers.fFlags & ModifierFlag::kOut) &&
-        ProgramConfig::IsFragment(context.fConfig->fKind) && name != Compiler::FRAGCOLOR_NAME) {
+                                            Storage storage) {
+    ModifierFlags flags = modifiers.fFlags;
+    if (modifiers.fLayout.fLocation == 0 &&
+        modifiers.fLayout.fIndex == 0 &&
+        (flags & ModifierFlag::kOut) &&
+        ProgramConfig::IsFragment(context.fConfig->fKind) &&
+        name != Compiler::FRAGCOLOR_NAME) {
         context.fErrors->error(modifiersPos,
                                "out location=0, index=0 is reserved for sk_FragColor");
     }
     if (type->isUnsizedArray() && storage != Variable::Storage::kInterfaceBlock) {
         context.fErrors->error(pos, "unsized arrays are not permitted here");
     }
-    if (ProgramConfig::IsCompute(ThreadContext::Context().fConfig->fKind) &&
-            modifiers.fLayout.fBuiltin == -1) {
+    if (ProgramConfig::IsCompute(context.fConfig->fKind) &&
+        modifiers.fLayout.fBuiltin == -1) {
         if (storage == Variable::Storage::kGlobal) {
-            if (modifiers.fFlags & ModifierFlag::kIn) {
+            if (flags & ModifierFlag::kIn) {
                 context.fErrors->error(pos, "pipeline inputs not permitted in compute shaders");
-            } else if (modifiers.fFlags & ModifierFlag::kOut) {
+            } else if (flags & ModifierFlag::kOut) {
                 context.fErrors->error(pos, "pipeline outputs not permitted in compute shaders");
             }
         }
     }
+    if (storage == Variable::Storage::kParameter) {
+        // The `in` modifier on function parameters is implicit, so we can replace `in float x` with
+        // `float x`. This prevents any ambiguity when matching a function by its param types.
+        if ((flags & (ModifierFlag::kOut | ModifierFlag::kIn)) == ModifierFlag::kIn) {
+            flags &= ~(ModifierFlag::kOut | ModifierFlag::kIn);
+        }
+    }
 
-    return Make(context, pos, modifiersPos, modifiers, type, name, storage);
+    return Make(context, pos, modifiersPos, modifiers.fLayout, flags, type, name, storage);
 }
 
 std::unique_ptr<Variable> Variable::Make(const Context& context,
                                          Position pos,
                                          Position modifiersPos,
-                                         const Modifiers& modifiers,
+                                         const Layout& layout,
+                                         ModifierFlags flags,
                                          const Type* type,
                                          std::string_view name,
-                                         Variable::Storage storage) {
+                                         Storage storage) {
+    // the `in` modifier on function parameters is implicit and should have been removed
+    SkASSERT(!(storage == Variable::Storage::kParameter &&
+               (flags & (ModifierFlag::kOut | ModifierFlag::kIn)) == ModifierFlag::kIn));
+
     // Invent a mangled name for the variable, if it needs one.
     std::string mangledName;
     if (skstd::starts_with(name, '$')) {
@@ -136,18 +150,19 @@ std::unique_ptr<Variable> Variable::Make(const Context& context,
     }
 
     if (type->componentType().isInterfaceBlock() || !mangledName.empty()) {
-        return std::make_unique<ExtendedVariable>(pos,
-                                                  modifiersPos,
-                                                  context.fModifiersPool->add(modifiers),
-                                                  name,
-                                                  type,
-                                                  context.fConfig->fIsBuiltinCode,
-                                                  storage,
-                                                  std::move(mangledName));
+        return std::make_unique<ExtendedVariable>(
+                pos,
+                modifiersPos,
+                context.fModifiersPool->add(Modifiers{layout, flags}),
+                name,
+                type,
+                context.fConfig->fIsBuiltinCode,
+                storage,
+                std::move(mangledName));
     } else {
         return std::make_unique<Variable>(pos,
                                           modifiersPos,
-                                          context.fModifiersPool->add(modifiers),
+                                          context.fModifiersPool->add(Modifiers{layout, flags}),
                                           name,
                                           type,
                                           context.fConfig->fIsBuiltinCode,
