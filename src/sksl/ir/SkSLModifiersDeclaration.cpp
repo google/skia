@@ -8,7 +8,6 @@
 #include "include/private/base/SkAssert.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 
@@ -20,7 +19,8 @@ enum class ProgramKind : int8_t;
 
 std::unique_ptr<ModifiersDeclaration> ModifiersDeclaration::Convert(const Context& context,
                                                                     Position pos,
-                                                                    const Modifiers& modifiers) {
+                                                                    const Layout& layout,
+                                                                    ModifierFlags flags) {
     SkSL::ProgramKind kind = context.fConfig->fKind;
     if (!ProgramConfig::IsFragment(kind) &&
         !ProgramConfig::IsVertex(kind)) {
@@ -28,17 +28,18 @@ std::unique_ptr<ModifiersDeclaration> ModifiersDeclaration::Convert(const Contex
         return nullptr;
     }
 
-    return ModifiersDeclaration::Make(context, pos, modifiers);
+    return ModifiersDeclaration::Make(context, pos, layout, flags);
 }
 
 std::unique_ptr<ModifiersDeclaration> ModifiersDeclaration::Make(const Context& context,
                                                                  Position pos,
-                                                                 const Modifiers& modifiers) {
+                                                                 const Layout& layout,
+                                                                 ModifierFlags flags) {
     [[maybe_unused]] SkSL::ProgramKind kind = context.fConfig->fKind;
     SkASSERT(ProgramConfig::IsFragment(kind) ||
              ProgramConfig::IsVertex(kind));
 
-    return std::make_unique<ModifiersDeclaration>(pos, context.fModifiersPool->add(modifiers));
+    return std::make_unique<ModifiersDeclaration>(pos, layout, flags);
 }
 
 }  // namespace SkSL

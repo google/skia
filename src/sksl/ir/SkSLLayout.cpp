@@ -16,7 +16,7 @@
 
 namespace SkSL {
 
-std::string Layout::description() const {
+std::string Layout::paddedDescription() const {
     std::string result;
     auto separator = SkSL::String::Separator();
     if (fLocation >= 0) {
@@ -60,9 +60,17 @@ std::string Layout::description() const {
         result += separator() + "color";
     }
     if (result.size() > 0) {
-        result = "layout (" + result + ")";
+        result = "layout (" + result + ") ";
     }
     return result;
+}
+
+std::string Layout::description() const {
+    std::string s = this->paddedDescription();
+    if (!s.empty()) {
+        s.pop_back();
+    }
+    return s;
 }
 
 bool Layout::checkPermittedLayout(const Context& context,

@@ -50,7 +50,6 @@
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -3123,10 +3122,10 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kGlobalVar:
             break;
         case ProgramElement::Kind::kInterfaceBlock:
-            // handled in writeInterfaceBlocks, do nothing
+            // Handled in writeInterfaceBlocks; do nothing.
             break;
         case ProgramElement::Kind::kStructDefinition:
-            // Handled in writeStructDefinitions. Do nothing.
+            // Handled in writeStructDefinitions; do nothing.
             break;
         case ProgramElement::Kind::kFunction:
             this->writeFunction(e.as<FunctionDefinition>());
@@ -3135,8 +3134,7 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunctionPrototype(e.as<FunctionPrototype>());
             break;
         case ProgramElement::Kind::kModifiers:
-            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers().fFlags);
-            this->writeLine(";");
+            // Not necessary in Metal; do nothing.
             break;
         default:
             SkDEBUGFAILF("unsupported program element: %s\n", e.description().c_str());

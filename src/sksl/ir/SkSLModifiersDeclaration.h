@@ -10,6 +10,7 @@
 
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 
@@ -29,32 +30,40 @@ class ModifiersDeclaration final : public ProgramElement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kModifiers;
 
-    ModifiersDeclaration(Position pos, const Modifiers* modifiers)
+    ModifiersDeclaration(Position pos, const Layout& layout, ModifierFlags flags)
             : INHERITED(pos, kIRNodeKind)
-            , fModifiers(modifiers) {}
+            , fLayout(layout)
+            , fFlags(flags) {}
 
     static std::unique_ptr<ModifiersDeclaration> Convert(const Context& context,
                                                          Position pos,
-                                                         const Modifiers& modifiers);
+                                                         const Layout& layout,
+                                                         ModifierFlags flags);
 
     static std::unique_ptr<ModifiersDeclaration> Make(const Context& context,
                                                       Position pos,
-                                                      const Modifiers& modifiers);
+                                                      const Layout& layout,
+                                                      ModifierFlags flags);
 
-    const Modifiers& modifiers() const {
-        return *fModifiers;
+    const Layout& layout() const {
+        return fLayout;
+    }
+
+    ModifierFlags modifierFlags() const {
+        return fFlags;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<ModifiersDeclaration>(fPosition, fModifiers);
+        return std::make_unique<ModifiersDeclaration>(fPosition, fLayout, fFlags);
     }
 
     std::string description() const override {
-        return this->modifiers().description() + ";";
+        return fLayout.paddedDescription() + fFlags.description() + ';';
     }
 
 private:
-    const Modifiers* fModifiers;
+    Layout fLayout;
+    ModifierFlags fFlags;
 
     using INHERITED = ProgramElement;
 };

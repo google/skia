@@ -1308,8 +1308,8 @@ SKSL_INT Type::convertArraySize(const Context& context,
 }
 
 std::string Field::description() const {
-    return fLayout.description() + fModifierFlags.description() + ' ' + fType->displayName() + ' ' +
-           std::string(fName) + ';';
+    return fLayout.paddedDescription() + fModifierFlags.paddedDescription() + fType->displayName() +
+           ' ' + std::string(fName) + ';';
 }
 
 }  // namespace SkSL

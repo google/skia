@@ -1193,10 +1193,7 @@ void GLSLCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
 void GLSLCodeGenerator::writeModifiers(const Layout& layout,
                                        ModifierFlags flags,
                                        bool globalContext) {
-    std::string layoutDesc = layout.description();
-    if (!layoutDesc.empty()) {
-        this->write(layoutDesc + " ");
-    }
+    this->write(layout.paddedDescription());
 
     // For GLSL 4.1 and below, qualifier-order matters! These are written out in Modifier-bit order.
     if (flags & ModifierFlag::kFlat) {
@@ -1678,8 +1675,8 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunctionPrototype(e.as<FunctionPrototype>());
             break;
         case ProgramElement::Kind::kModifiers: {
-            const Modifiers& modifiers = e.as<ModifiersDeclaration>().modifiers();
-            this->writeModifiers(modifiers.fLayout, modifiers.fFlags, /*globalContext=*/true);
+            const ModifiersDeclaration& d = e.as<ModifiersDeclaration>();
+            this->writeModifiers(d.layout(), d.modifierFlags(), /*globalContext=*/true);
             this->writeLine(";");
             break;
         }

@@ -527,9 +527,11 @@ void Parser::directive(bool allowVersion) {
 }
 
 bool Parser::modifiersDeclarationEnd(const dsl::DSLModifiers& mods) {
-    std::unique_ptr<ModifiersDeclaration> decl = ModifiersDeclaration::Convert(fCompiler.context(),
-                                                                               mods.fPosition,
-                                                                               mods.fModifiers);
+    std::unique_ptr<ModifiersDeclaration> decl =
+            ModifiersDeclaration::Convert(fCompiler.context(),
+                                          mods.fPosition,
+                                          mods.fModifiers.fLayout,
+                                          mods.fModifiers.fFlags);
     if (!decl) {
         return false;
     }

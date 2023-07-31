@@ -80,6 +80,7 @@ struct Layout {
     }
 
     std::string description() const;
+    std::string paddedDescription() const;
 
     /**
      * Verifies that only permitted layout flags are included. Reports errors and returns false in
