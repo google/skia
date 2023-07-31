@@ -2348,7 +2348,7 @@ UNIX_ONLY_TEST(SkParagraph_ChineseParagraph, reporter) {
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
     TestCanvas canvas("SkParagraph_ChineseParagraph.png");
     const char* text =
-            "左線読設重説切後碁給能上目秘使約。満毎冠行来昼本可必図将発確年。今属場育"
+            "     左線読設重説切後碁給能上目秘使約。満毎冠行来昼本可必図将発確年。今属場育"
             "図情闘陰野高備込制詩西校客。審対江置講今固残必託地集済決維駆年策。立得庭"
             "際輝求佐抗蒼提夜合逃表。注統天言件自謙雅載報紙喪。作画稿愛器灯女書利変探"
             "訃第金線朝開化建。子戦年帝励害表月幕株漠新期刊人秘。図的海力生禁挙保天戦"
