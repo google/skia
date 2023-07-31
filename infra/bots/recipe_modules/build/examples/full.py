@@ -27,10 +27,6 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Build-Debian10-GCC-x86-Debug-Docker',
-  'Build-Debian10-GCC-x86_64-Debug-Docker',
-  'Build-Debian10-GCC-x86_64-Release-NoGPU_Docker',
-  'Build-Debian10-GCC-x86_64-Release-Shared_Docker',
   'Build-Debian10-Clang-arm-Release-Android_API26',
   'Build-Debian10-Clang-arm-Release-Android_ASAN',
   'Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch',
