@@ -9,9 +9,11 @@
 #define SkAssert_DEFINED
 
 #include "include/private/base/SkAPI.h"
+#include "include/private/base/SkAttributes.h"
 #include "include/private/base/SkDebug.h" // IWYU pragma: keep
 
 #include <cstddef>
+#include <limits>
 
 #if defined(__clang__) && defined(__has_attribute)
     #if __has_attribute(likely)
@@ -155,6 +157,23 @@ SK_API inline void sk_collection_not_empty(bool empty) {
             SkUNREACHABLE;
         #endif
     }
+}
+
+[[noreturn]] SK_API inline void sk_print_size_too_big(size_t size, size_t maxSize) {
+    SK_ABORT("Size (%zu) can't be represented in bytes. Max size is %zu.\n", size, maxSize);
+}
+
+template <typename T>
+SK_ALWAYS_INLINE size_t check_size_bytes_too_big(size_t size) {
+    const size_t kMaxSize = std::numeric_limits<size_t>::max() / sizeof(T);
+    if (size > kMaxSize) {
+        #if defined(SK_DEBUG)
+            sk_print_size_too_big(size, kMaxSize);
+        #else
+            SkUNREACHABLE;
+        #endif
+    }
+    return size;
 }
 
 #endif  // SkAssert_DEFINED
