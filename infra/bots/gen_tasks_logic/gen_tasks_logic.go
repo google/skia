@@ -978,7 +978,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"IntelHD405":    "8086:22b1",
 					"IntelIris640":  "8086:5926",
 					"QuadroP400":    "10de:1cb3-510.60.02",
-					"RTX3060":       "10de:2489-470.141.03",
+					"RTX3060":       "10de:2489-470.182.03",
 					"IntelIrisXe":   "8086:9a49",
 					"RadeonVega6":   "1002:1636",
 				}[b.parts["cpu_or_gpu_value"]]
