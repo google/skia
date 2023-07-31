@@ -892,7 +892,7 @@ public:
                                      GrGpuFinishedProc finishedProc = nullptr,
                                      GrGpuFinishedContext finishedContext = nullptr);
 
-    void deleteBackendTexture(GrBackendTexture);
+    void deleteBackendTexture(const GrBackendTexture&);
 
     // This interface allows clients to pre-compile shaders and populate the runtime program cache.
     // The key and data blobs should be the ones passed to the PersistentCache, in SkSL format.
