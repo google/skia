@@ -127,8 +127,7 @@ public:
     T* get() const { return fData.get(); }
 
     T&  operator[](size_t index) const {
-        SkASSERT(index < fSize);
-        return fData[index];
+        return fData[sk_collection_check_bounds(index, fSize)];
     }
 
     const T* data() const { return fData.get(); }
@@ -245,8 +244,7 @@ public:
     /** Return the nth element in the array
      */
     T&  operator[](int index) const {
-        SkASSERT(index < fCount);
-        return fArray[index];
+        return fArray[sk_collection_check_bounds(index, fCount)];
     }
 
     /** Aliases matching other types, like std::vector. */
