@@ -112,7 +112,7 @@ SkRuntimeEffect::Uniform SkRuntimeEffectPriv::VarAsUniform(const SkSL::Variable&
                                                            const SkSL::Context& context,
                                                            size_t* offset) {
     using Uniform = SkRuntimeEffect::Uniform;
-    SkASSERT(var.modifiers().isUniform());
+    SkASSERT(var.modifierFlags().isUniform());
     Uniform uni;
     uni.name = var.name();
     uni.flags = 0;
@@ -130,7 +130,7 @@ SkRuntimeEffect::Uniform SkRuntimeEffectPriv::VarAsUniform(const SkSL::Variable&
     }
 
     SkAssertResult(init_uniform_type(context, type, &uni));
-    if (var.modifiers().fLayout.fFlags & SkSL::LayoutFlag::kColor) {
+    if (var.layout().fFlags & SkSL::LayoutFlag::kColor) {
         uni.flags |= Uniform::kColor_Flag;
     }
 
@@ -591,7 +591,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
                                                          : SkSL::SampleUsage::PassThrough());
             }
             // 'uniform' variables
-            else if (var.modifiers().isUniform()) {
+            else if (var.modifierFlags().isUniform()) {
                 uniforms.push_back(SkRuntimeEffectPriv::VarAsUniform(var, ctx, &offset));
             }
         }

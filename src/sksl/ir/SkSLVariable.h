@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbol.h"
@@ -28,7 +29,6 @@ class Context;
 class Expression;
 class GlobalVarDeclaration;
 class InterfaceBlock;
-struct Layout;
 class Mangler;
 class SymbolTable;
 class VarDeclaration;
@@ -83,11 +83,15 @@ public:
                                                Mangler& mangler,
                                                std::string_view baseName,
                                                const Type* type,
-                                               const Modifiers& modifiers,
+                                               ModifierFlags modifierFlags,
                                                SymbolTable* symbolTable,
                                                std::unique_ptr<Expression> initialValue);
-    const Modifiers& modifiers() const {
-        return *fModifiers;
+    ModifierFlags modifierFlags() const {
+        return fModifiers->fFlags;
+    }
+
+    const Layout& layout() const {
+        return fModifiers->fLayout;
     }
 
     Position modifiersPosition() const {
@@ -130,8 +134,8 @@ public:
     virtual std::string_view mangledName() const { return this->name(); }
 
     std::string description() const override {
-        return this->modifiers().description() + this->type().displayName() + " " +
-               std::string(this->name());
+        return this->layout().paddedDescription() + this->modifierFlags().paddedDescription() +
+               this->type().displayName() + " " + std::string(this->name());
     }
 
 private:

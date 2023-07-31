@@ -105,15 +105,6 @@ struct Modifiers {
         return fLayout.paddedDescription() + fFlags.paddedDescription();
     }
 
-    // TODO: remove these wrappers
-    bool isConst() const     { return fFlags.isConst(); }
-    bool isUniform() const   { return fFlags.isUniform(); }
-    bool isReadOnly() const  { return fFlags.isReadOnly(); }
-    bool isWriteOnly() const { return fFlags.isWriteOnly(); }
-    bool isBuffer() const    { return fFlags.isBuffer(); }
-    bool isWorkgroup() const { return fFlags.isWorkgroup(); }
-    bool isPure() const      { return fFlags.isPure(); }
-
     bool operator==(const Modifiers& other) const {
         return fLayout == other.fLayout && fFlags == other.fFlags;
     }

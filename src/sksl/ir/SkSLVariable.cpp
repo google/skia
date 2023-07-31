@@ -174,7 +174,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
                                                         Mangler& mangler,
                                                         std::string_view baseName,
                                                         const Type* type,
-                                                        const Modifiers& modifiers,
+                                                        ModifierFlags modifierFlags,
                                                         SymbolTable* symbolTable,
                                                         std::unique_ptr<Expression> initialValue) {
     // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
@@ -186,7 +186,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
     }
 
     // Out-parameters aren't supported.
-    SkASSERT(!(modifiers.fFlags & ModifierFlag::kOut));
+    SkASSERT(!(modifierFlags & ModifierFlag::kOut));
 
     // Provide our new variable with a unique name, and add it to our symbol table.
     const std::string* name =

@@ -99,7 +99,7 @@ protected:
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Layout& modifiers, ModifierFlags flags, bool globalContext);
+    void writeModifiers(const Layout& layout, ModifierFlags flags, bool globalContext);
 
     virtual void writeInputVars();
 

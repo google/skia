@@ -11,6 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -23,10 +24,9 @@
 namespace SkSL {
 
 class Context;
+struct Layout;
 class Position;
 class Type;
-
-struct Modifiers;
 
 /**
  * A single variable declaration statement. Multiple variables declared together are expanded to
@@ -60,8 +60,8 @@ public:
     // errors if needed. This method is implicitly called during Convert(), but is also explicitly
     // called while processing interface block fields.
     static void ErrorCheck(const Context& context, Position pos, Position modifiersPosition,
-                           const Modifiers& modifiers, const Type* type, const Type* baseType,
-                           Variable::Storage storage);
+                           const Layout& layout, ModifierFlags modifierFlags, const Type* type,
+                           const Type* baseType, Variable::Storage storage);
 
     // For use when no Variable yet exists. The newly-created variable will be added to the active
     // symbol table. Performs proper error checking and type coercion; reports errors via

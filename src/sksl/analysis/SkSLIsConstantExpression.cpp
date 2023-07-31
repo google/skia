@@ -54,8 +54,8 @@ public:
             // ... loop indices as defined in section 4. [constant-index-expression]
             case Expression::Kind::kVariableReference: {
                 const Variable* v = e.as<VariableReference>().variable();
-                if (v->modifiers().isConst() && (v->storage() == Variable::Storage::kGlobal ||
-                                                 v->storage() == Variable::Storage::kLocal)) {
+                if (v->modifierFlags().isConst() && (v->storage() == Variable::Storage::kGlobal ||
+                                                     v->storage() == Variable::Storage::kLocal)) {
                     return false;
                 }
                 return !fLoopIndices || !fLoopIndices->contains(v);

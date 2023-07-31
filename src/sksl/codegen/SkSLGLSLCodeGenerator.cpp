@@ -881,7 +881,7 @@ void GLSLCodeGenerator::writeFragCoord() {
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.variable()->modifiers().fLayout.fBuiltin) {
+    switch (ref.variable()->layout().fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             if (this->caps().mustDeclareFragmentShaderOutput()) {
                 this->writeIdentifier("sk_FragColor");
@@ -1128,11 +1128,11 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
             continue;
         }
         this->write(separator());
-        Modifiers modifiers = param->modifiers();
+        ModifierFlags flags = param->modifierFlags();
         if (this->caps().fRemoveConstFromFunctionParameters) {
-            modifiers.fFlags &= ~ModifierFlag::kConst;
+            flags &= ~ModifierFlag::kConst;
         }
-        this->writeModifiers(modifiers.fLayout, modifiers.fFlags, /*globalContext=*/false);
+        this->writeModifiers(param->layout(), flags, /*globalContext=*/false);
         std::vector<int> sizes;
         const Type* type = &param->type();
         if (type->isArray()) {
@@ -1243,9 +1243,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         return;
     }
     const Type* structType = &intf.var()->type().componentType();
-    this->writeModifiers(intf.var()->modifiers().fLayout,
-                         intf.var()->modifiers().fFlags,
-                         /*globalContext=*/true);
+    this->writeModifiers(intf.var()->layout(), intf.var()->modifierFlags(), /*globalContext=*/true);
     this->writeType(*structType);
     this->writeLine(" {");
     fIndentation++;
@@ -1311,7 +1309,7 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool global) {
-    this->writeModifiers(var.var()->modifiers().fLayout, var.var()->modifiers().fFlags, global);
+    this->writeModifiers(var.var()->layout(), var.var()->modifierFlags(), global);
     this->writeTypePrecision(var.baseType());
     this->writeType(var.baseType());
     this->write(" ");
@@ -1647,7 +1645,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             break;
         case ProgramElement::Kind::kGlobalVar: {
             const VarDeclaration& decl = e.as<GlobalVarDeclaration>().varDeclaration();
-            int builtin = decl.var()->modifiers().fLayout.fBuiltin;
+            int builtin = decl.var()->layout().fBuiltin;
             if (builtin == -1) {
                 // normal var
                 this->writeVarDeclaration(decl, true);

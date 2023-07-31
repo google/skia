@@ -46,7 +46,8 @@ bool Analysis::IsDynamicallyUniformExpression(const Expression& expr) {
                 case Expression::Kind::kVariableReference: {
                     // Verify that variable references are const or uniform.
                     const Variable* var = expr.as<VariableReference>().variable();
-                    if (var && (var->modifiers().isConst() || var->modifiers().isUniform())) {
+                    if (var && (var->modifierFlags().isConst() ||
+                                var->modifierFlags().isUniform())) {
                         break;
                     }
                     fIsDynamicallyUniform = false;

@@ -121,8 +121,9 @@ std::unique_ptr<Statement> VarDeclaration::clone() const {
 }
 
 std::string VarDeclaration::description() const {
-    std::string result = this->var()->modifiers().description() + this->baseType().description() +
-                         " " + std::string(this->var()->name());
+    std::string result = this->var()->layout().paddedDescription() +
+                         this->var()->modifierFlags().paddedDescription() +
+                         this->baseType().description() + ' ' + std::string(this->var()->name());
     if (this->arraySize() > 0) {
         String::appendf(&result, "[%d]", this->arraySize());
     }
@@ -136,7 +137,8 @@ std::string VarDeclaration::description() const {
 void VarDeclaration::ErrorCheck(const Context& context,
                                 Position pos,
                                 Position modifiersPosition,
-                                const Modifiers& modifiers,
+                                const Layout& layout,
+                                ModifierFlags modifierFlags,
                                 const Type* type,
                                 const Type* baseType,
                                 Variable::Storage storage) {
@@ -148,32 +150,32 @@ void VarDeclaration::ErrorCheck(const Context& context,
         context.fErrors->error(pos, "variables of type '" + baseType->displayName() +
                                     "' must be global");
     }
-    if ((modifiers.fFlags & ModifierFlag::kIn) && baseType->isMatrix()) {
+    if ((modifierFlags & ModifierFlag::kIn) && baseType->isMatrix()) {
         context.fErrors->error(pos, "'in' variables may not have matrix type");
     }
-    if ((modifiers.fFlags & ModifierFlag::kIn) && type->isUnsizedArray()) {
+    if ((modifierFlags & ModifierFlag::kIn) && type->isUnsizedArray()) {
         context.fErrors->error(pos, "'in' variables may not have unsized array type");
     }
-    if ((modifiers.fFlags & ModifierFlag::kOut) && type->isUnsizedArray()) {
+    if ((modifierFlags & ModifierFlag::kOut) && type->isUnsizedArray()) {
         context.fErrors->error(pos, "'out' variables may not have unsized array type");
     }
-    if ((modifiers.fFlags & ModifierFlag::kIn) && (modifiers.isUniform())) {
+    if ((modifierFlags & ModifierFlag::kIn) && modifierFlags.isUniform()) {
         context.fErrors->error(pos, "'in uniform' variables not permitted");
     }
-    if (modifiers.isReadOnly() && modifiers.isWriteOnly()) {
+    if (modifierFlags.isReadOnly() && modifierFlags.isWriteOnly()) {
         context.fErrors->error(pos, "'readonly' and 'writeonly' qualifiers cannot be combined");
     }
-    if (modifiers.isUniform() && modifiers.isBuffer()) {
+    if (modifierFlags.isUniform() && modifierFlags.isBuffer()) {
         context.fErrors->error(pos, "'uniform buffer' variables not permitted");
     }
-    if (modifiers.isWorkgroup() && (modifiers.fFlags & (ModifierFlag::kIn |
-                                                        ModifierFlag::kOut))) {
+    if (modifierFlags.isWorkgroup() && (modifierFlags & (ModifierFlag::kIn |
+                                                         ModifierFlag::kOut))) {
         context.fErrors->error(pos, "in / out variables may not be declared workgroup");
     }
-    if (modifiers.isUniform()) {
+    if (modifierFlags.isUniform()) {
         check_valid_uniform_type(pos, baseType, context);
     }
-    if (baseType->isEffectChild() && !modifiers.isUniform()) {
+    if (baseType->isEffectChild() && !modifierFlags.isUniform()) {
         context.fErrors->error(pos,
                 "variables of type '" + baseType->displayName() + "' must be uniform");
     }
@@ -193,19 +195,19 @@ void VarDeclaration::ErrorCheck(const Context& context,
         // storage. If this is the declaration for an interface block that contains an atomic
         // member, then it must have the `buffer` modifier and no `readonly` modifier.
         bool isBlockMember = (storage == Variable::Storage::kInterfaceBlock);
-        bool isWritableStorageBuffer = modifiers.isBuffer() && !modifiers.isReadOnly();
+        bool isWritableStorageBuffer = modifierFlags.isBuffer() && !modifierFlags.isReadOnly();
 
-        if (!modifiers.isWorkgroup() &&
+        if (!modifierFlags.isWorkgroup() &&
             !(baseType->isInterfaceBlock() ? isWritableStorageBuffer : isBlockMember)) {
             context.fErrors->error(pos, "atomics are only permitted in workgroup variables and "
                                         "writable storage blocks");
         }
     }
-    if (modifiers.fLayout.fFlags & LayoutFlag::kColor) {
+    if (layout.fFlags & LayoutFlag::kColor) {
         if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
             context.fErrors->error(pos, "'layout(color)' is only permitted in runtime effects");
         }
-        if (!modifiers.isUniform()) {
+        if (!modifierFlags.isUniform()) {
             context.fErrors->error(pos, "'layout(color)' is only permitted on 'uniform' variables");
         }
         auto validColorXformType = [](const Type& t) {
@@ -230,7 +232,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
                 // Interface blocks allow `buffer`.
                 permitted |= ModifierFlag::kBuffer;
 
-                if (modifiers.isBuffer()) {
+                if (modifierFlags.isBuffer()) {
                     // Only storage blocks allow `readonly` and `writeonly`.
                     // (`readonly` and `writeonly` textures are converted to separate types via
                     // applyAccessQualifiers.)
@@ -241,7 +243,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
                 // "buffer" block.
                 const auto& fields = baseType->fields();
                 const int illegalRangeEnd = SkToInt(fields.size()) -
-                                            (modifiers.isBuffer() ? 1 : 0);
+                                            (modifierFlags.isBuffer() ? 1 : 0);
                 for (int i = 0; i < illegalRangeEnd; ++i) {
                     if (fields[i].fType->isUnsizedArray()) {
                         context.fErrors->error(
@@ -293,7 +295,8 @@ void VarDeclaration::ErrorCheck(const Context& context,
                                baseType->typeKind() == Type::TypeKind::kSeparateSampler ||
                                baseType->typeKind() == Type::TypeKind::kTexture ||
                                baseType->isInterfaceBlock();
-    if (storage != Variable::Storage::kGlobal || (modifiers.isUniform() && !permitBindingAndSet)) {
+    if (storage != Variable::Storage::kGlobal || (modifierFlags.isUniform() &&
+                                                  !permitBindingAndSet)) {
         permittedLayoutFlags &= ~LayoutFlag::kBinding;
         permittedLayoutFlags &= ~LayoutFlag::kSet;
         permittedLayoutFlags &= ~LayoutFlag::kSPIRV;
@@ -307,13 +310,13 @@ void VarDeclaration::ErrorCheck(const Context& context,
     }
 
     // The `push_constant` flag isn't allowed on in-variables, out-variables, bindings or sets.
-    if ((modifiers.fLayout.fFlags & (LayoutFlag::kSet | LayoutFlag::kBinding)) ||
-        (modifiers.fFlags & (ModifierFlag::kIn | ModifierFlag::kOut))) {
+    if ((layout.fFlags & (LayoutFlag::kSet | LayoutFlag::kBinding)) ||
+        (modifierFlags & (ModifierFlag::kIn | ModifierFlag::kOut))) {
         permittedLayoutFlags &= ~LayoutFlag::kPushConstant;
     }
 
-    modifiers.fFlags.checkPermittedFlags(context, modifiersPosition, permitted);
-    modifiers.fLayout.checkPermittedLayout(context, modifiersPosition, permittedLayoutFlags);
+    modifierFlags.checkPermittedFlags(context, modifiersPosition, permitted);
+    layout.checkPermittedLayout(context, modifiersPosition, permittedLayoutFlags);
 }
 
 bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
@@ -329,20 +332,20 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
         return false;
     }
 
-    ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.modifiers(), &var.type(),
-               baseType, var.storage());
+    ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.layout(), var.modifierFlags(),
+               &var.type(), baseType, var.storage());
     if (value) {
         if (var.type().isOpaque()) {
             context.fErrors->error(value->fPosition, "opaque type '" + var.type().displayName() +
                                                      "' cannot use initializer expressions");
             return false;
         }
-        if (var.modifiers().fFlags & ModifierFlag::kIn) {
+        if (var.modifierFlags() & ModifierFlag::kIn) {
             context.fErrors->error(value->fPosition,
                                    "'in' variables cannot use initializer expressions");
             return false;
         }
-        if (var.modifiers().isUniform()) {
+        if (var.modifierFlags().isUniform()) {
             context.fErrors->error(value->fPosition,
                                    "'uniform' variables cannot use initializer expressions");
             return false;
@@ -362,7 +365,7 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
             return false;
         }
     }
-    if (var.modifiers().isConst()) {
+    if (var.modifierFlags().isConst()) {
         if (!value) {
             context.fErrors->error(var.fPosition, "'const' variables must be initialized");
             return false;
@@ -471,9 +474,9 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Make(const Context& context,
     // function parameters cannot have variable declarations
     SkASSERT(var->storage() != Variable::Storage::kParameter);
     // 'const' variables must be initialized
-    SkASSERT(!var->modifiers().isConst() || value);
+    SkASSERT(!var->modifierFlags().isConst() || value);
     // 'const' variable initializer must be a constant expression
-    SkASSERT(!var->modifiers().isConst() || Analysis::IsConstantExpression(*value));
+    SkASSERT(!var->modifierFlags().isConst() || Analysis::IsConstantExpression(*value));
     // global variable initializer must be a constant expression
     SkASSERT(!(value && var->storage() == Variable::Storage::kGlobal &&
                !Analysis::IsConstantExpression(*value)));
@@ -484,9 +487,9 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Make(const Context& context,
     // opaque type cannot use initializer expressions
     SkASSERT(!(value && var->type().isOpaque()));
     // 'in' variables cannot use initializer expressions
-    SkASSERT(!(value && (var->modifiers().fFlags & ModifierFlag::kIn)));
+    SkASSERT(!(value && (var->modifierFlags() & ModifierFlag::kIn)));
     // 'uniform' variables cannot use initializer expressions
-    SkASSERT(!(value && var->modifiers().isUniform()));
+    SkASSERT(!(value && var->modifierFlags().isUniform()));
     // in strict-ES2 mode, is-or-contains-array types cannot use initializer expressions
     SkASSERT(!(value && var->type().isOrContainsArray() && context.fConfig->strictES2Mode()));
 

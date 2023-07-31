@@ -258,11 +258,11 @@ public:
                     return fieldAccess ? fieldAccess->description(OperatorPrecedence::kExpression)
                                        : std::string(var->name());
                 };
-                if (var->modifiers().isConst() || var->modifiers().isUniform()) {
+                if (var->modifierFlags().isConst() || var->modifierFlags().isUniform()) {
                     fErrors->error(expr.fPosition,
                                    "cannot modify immutable variable '" + fieldName() + "'");
                 } else if (var->storage() == Variable::Storage::kGlobal &&
-                           (var->modifiers().fFlags & ModifierFlag::kIn)) {
+                           (var->modifierFlags() & ModifierFlag::kIn)) {
                     fErrors->error(expr.fPosition,
                                    "cannot modify pipeline input variable '" + fieldName() + "'");
                 } else {
@@ -336,7 +336,7 @@ SampleUsage Analysis::GetSampleUsage(const Program& program,
 bool Analysis::ReferencesBuiltin(const Program& program, int builtin) {
     SkASSERT(program.fUsage);
     for (const auto& [variable, counts] : program.fUsage->fVariableCounts) {
-        if (counts.fRead > 0 && variable->modifiers().fLayout.fBuiltin == builtin) {
+        if (counts.fRead > 0 && variable->layout().fBuiltin == builtin) {
             return true;
         }
     }

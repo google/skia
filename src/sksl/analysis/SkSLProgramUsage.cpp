@@ -133,10 +133,10 @@ ProgramUsage::VariableCounts ProgramUsage::get(const Variable& v) const {
 }
 
 bool ProgramUsage::isDead(const Variable& v) const {
-    const Modifiers& modifiers = v.modifiers();
+    ModifierFlags flags = v.modifierFlags();
     VariableCounts counts = this->get(v);
     if ((v.storage() != Variable::Storage::kLocal && counts.fRead) ||
-        (modifiers.fFlags & (ModifierFlag::kIn | ModifierFlag::kOut | ModifierFlag::kUniform))) {
+        (flags & (ModifierFlag::kIn | ModifierFlag::kOut | ModifierFlag::kUniform))) {
         return false;
     }
     // Consider the variable dead if it's never read and never written (besides the initial-value).

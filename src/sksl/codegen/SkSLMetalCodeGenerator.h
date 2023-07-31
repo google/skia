@@ -290,9 +290,9 @@ protected:
     // instances, not the types themselves)
     void writeComputeMainInputs();
 
-    int getUniformBinding(const Modifiers& m);
+    int getUniformBinding(const Layout& layout);
 
-    int getUniformSet(const Modifiers& m);
+    int getUniformSet(const Layout& layout);
 
     void writeWithIndexSubstitution(const std::function<void()>& fn);
 

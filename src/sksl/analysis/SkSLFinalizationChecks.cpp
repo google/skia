@@ -85,8 +85,8 @@ public:
 
     void checkBindUniqueness(const InterfaceBlock& block) {
         const Variable* var = block.var();
-        int32_t set = var->modifiers().fLayout.fSet;
-        int32_t binding = var->modifiers().fLayout.fBinding;
+        int32_t set = var->layout().fSet;
+        int32_t binding = var->layout().fBinding;
         if (binding != -1) {
             // TODO(skia:13664): This should map a `set` value of -1 to the default settings value
             // used by codegen backends to prevent duplicates that may arise from the effective
@@ -115,8 +115,8 @@ public:
         // Searches for `out` parameters that are not written to. According to the GLSL spec,
         // the value of an out-param that's never assigned to is unspecified, so report it.
         for (const Variable* param : funcDecl.parameters()) {
-            const ModifierFlags paramInout = param->modifiers().fFlags & (ModifierFlag::kIn |
-                                                                          ModifierFlag::kOut);
+            const ModifierFlags paramInout = param->modifierFlags() & (ModifierFlag::kIn |
+                                                                       ModifierFlag::kOut);
             if (paramInout == ModifierFlag::kOut) {
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
@@ -135,7 +135,7 @@ public:
                 const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
                 if (!decl.isBuiltin() && !decl.definition()) {
                     fContext.fErrors->error(expr.fPosition, "function '" + decl.description() +
-                            "' is not defined");
+                                                            "' is not defined");
                 }
                 break;
             }

@@ -454,16 +454,16 @@ public:
     }
 
     static bool IsUniform(const Variable& var) {
-       return var.modifiers().isUniform();
+       return var.modifierFlags().isUniform();
     }
 
     static bool IsOutParameter(const Variable& var) {
-        return (var.modifiers().fFlags & (ModifierFlag::kIn | ModifierFlag::kOut)) ==
+        return (var.modifierFlags() & (ModifierFlag::kIn | ModifierFlag::kOut)) ==
                ModifierFlag::kOut;
     }
 
     static bool IsInoutParameter(const Variable& var) {
-        return (var.modifiers().fFlags & (ModifierFlag::kIn | ModifierFlag::kOut)) ==
+        return (var.modifierFlags() & (ModifierFlag::kIn | ModifierFlag::kOut)) ==
                (ModifierFlag::kIn | ModifierFlag::kOut);
     }
 
@@ -1548,7 +1548,7 @@ bool Generator::writeGlobals() {
             SkASSERT(!var->type().isOpaque());
 
             // Builtin variables are system-defined, with special semantics.
-            if (int builtin = var->modifiers().fLayout.fBuiltin; builtin >= 0) {
+            if (int builtin = var->layout().fBuiltin; builtin >= 0) {
                 if (builtin == SK_FRAGCOORD_BUILTIN) {
                     fBuilder.store_device_xy01(this->getVariableSlots(*var));
                     continue;

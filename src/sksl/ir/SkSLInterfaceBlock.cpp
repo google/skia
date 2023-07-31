@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLFieldSymbol.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -89,7 +90,8 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
     VarDeclaration::ErrorCheck(context,
                                pos,
                                modifiersPos,
-                               modifiers,
+                               modifiers.fLayout,
+                               modifiers.fFlags,
                                type,
                                baseType,
                                VariableStorage::kGlobal);
@@ -151,7 +153,8 @@ std::unique_ptr<ProgramElement> InterfaceBlock::clone() const {
 }
 
 std::string InterfaceBlock::description() const {
-    std::string result = this->var()->modifiers().description() +
+    std::string result = this->var()->layout().description() +
+                         this->var()->modifierFlags().description() + ' ' +
                          std::string(this->typeName()) + " {\n";
     const Type* structType = &this->var()->type();
     if (structType->isArray()) {

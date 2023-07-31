@@ -83,10 +83,10 @@ static bool check_parameters(const Context& context,
         if (type.typeKind() == Type::TypeKind::kTexture) {
             permittedFlags |= ModifierFlag::kReadOnly | ModifierFlag::kWriteOnly;
         }
-        param->modifiers().fFlags.checkPermittedFlags(context, param->modifiersPosition(),
-                                                      permittedFlags);
-        param->modifiers().fLayout.checkPermittedLayout(context, param->modifiersPosition(),
-                                                        /*permittedLayoutFlags=*/LayoutFlag::kNone);
+        param->modifierFlags().checkPermittedFlags(context, param->modifiersPosition(),
+                                                   permittedFlags);
+        param->layout().checkPermittedLayout(context, param->modifiersPosition(),
+                                             /*permittedLayoutFlags=*/LayoutFlag::kNone);
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.
@@ -100,7 +100,7 @@ static bool check_parameters(const Context& context,
         // result is not used; this is incompatible with out-parameters, so we forbid it here.
         // (We don't exhaustively guard against pure functions changing global state in other ways,
         // though, since they aren't allowed in user code.)
-        if (modifiers.isPure() && (param->modifiers().fFlags & ModifierFlag::kOut)) {
+        if (modifiers.fFlags.isPure() && (param->modifierFlags() & ModifierFlag::kOut)) {
             context.fErrors->error(param->modifiersPosition(),
                                    "pure functions cannot have out parameters");
             return false;
@@ -133,27 +133,27 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
 
     auto paramIsCoords = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return type_is_valid_for_coords(p.type()) && p.modifiers().fFlags == ModifierFlag::kNone;
+        return type_is_valid_for_coords(p.type()) && p.modifierFlags() == ModifierFlag::kNone;
     };
 
     auto paramIsColor = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return type_is_valid_for_color(p.type()) && p.modifiers().fFlags == ModifierFlag::kNone;
+        return type_is_valid_for_color(p.type()) && p.modifierFlags() == ModifierFlag::kNone;
     };
 
     auto paramIsConstInAttributes = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return typeIsValidForAttributes(p.type()) && p.modifiers().fFlags == ModifierFlag::kConst;
+        return typeIsValidForAttributes(p.type()) && p.modifierFlags() == ModifierFlag::kConst;
     };
 
     auto paramIsConstInVaryings = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return typeIsValidForVaryings(p.type()) && p.modifiers().fFlags == ModifierFlag::kConst;
+        return typeIsValidForVaryings(p.type()) && p.modifierFlags() == ModifierFlag::kConst;
     };
 
     auto paramIsOutColor = [&](int idx) {
         const Variable& p = *parameters[idx];
-        return type_is_valid_for_color(p.type()) && p.modifiers().fFlags == ModifierFlag::kOut;
+        return type_is_valid_for_color(p.type()) && p.modifierFlags() == ModifierFlag::kOut;
     };
 
     switch (kind) {
@@ -374,7 +374,8 @@ static bool find_existing_declaration(const Context& context,
                 return false;
             }
             for (int i = 0; i < parameters.size(); i++) {
-                if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
+                if (parameters[i]->modifierFlags() != other->parameters()[i]->modifierFlags() ||
+                    parameters[i]->layout() != other->parameters()[i]->layout()) {
                     errors.error(parameters[i]->fPosition,
                                  "modifiers on parameter " + std::to_string(i + 1) +
                                  " differ between declaration and definition");
