@@ -1,23 +1,22 @@
+
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2023 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/vk/GrVkUtil.h"
-
 #include "tools/gpu/vk/VkTestUtils.h"
 
-#include "tools/window/VulkanWindowContext.h"
+#include "tools/window/GraphiteVulkanWindowContext.h"
 #include "tools/window/unix/WindowContextFactory_unix.h"
 
 #include <X11/Xlib-xcb.h>
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo& info,
-                                                 const DisplayParams& displayParams) {
+std::unique_ptr<WindowContext> MakeGraphiteVulkanForXlib(const XlibWindowInfo& info,
+                                                         const DisplayParams& displayParams) {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
         SkDebugf("Could not load vulkan library\n");
@@ -42,7 +41,7 @@ std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo& info,
         surfaceCreateInfo.window = info.fWindow;
 
         VkResult res = createXcbSurfaceKHR(instance, &surfaceCreateInfo, nullptr, &surface);
-        if (VK_SUCCESS != res) {
+        if (res != VK_SUCCESS) {
             return VK_NULL_HANDLE;
         }
 
@@ -66,13 +65,13 @@ std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo& info,
                                                                     queueFamilyIndex,
                                                                     XGetXCBConnection(display),
                                                                     visualID);
-        return (VK_FALSE != check);
+        return (check != VK_FALSE);
     };
     std::unique_ptr<WindowContext> ctx(
-            new internal::VulkanWindowContext(displayParams,
-                                              createVkSurface,
-                                              canPresent,
-                                              instProc));
+            new internal::GraphiteVulkanWindowContext(displayParams,
+                                                      createVkSurface,
+                                                      canPresent,
+                                                      instProc));
     if (!ctx->isValid()) {
         return nullptr;
     }

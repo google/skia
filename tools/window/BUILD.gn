@@ -106,6 +106,9 @@ skia_component("window") {
       sources += [ "android/VulkanWindowContext_android.cpp" ]
     } else if (is_linux) {
       sources += [ "unix/VulkanWindowContext_unix.cpp" ]
+      if (skia_enable_graphite) {
+        sources += [ "unix/GraphiteVulkanWindowContext_unix.cpp" ]
+      }
       libs += [ "X11-xcb" ]
     } else if (is_win) {
       sources += [ "win/VulkanWindowContext_win.cpp" ]

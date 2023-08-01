@@ -34,9 +34,17 @@ struct XlibWindowInfo {
     int          fHeight;
 };
 
+#ifdef SK_VULKAN
 std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
+#if defined(SK_GRAPHITE)
+std::unique_ptr<WindowContext> MakeGraphiteVulkanForXlib(const XlibWindowInfo&,
+                                                         const DisplayParams&);
+#endif
+#endif
 
+#ifdef SK_GL
 std::unique_ptr<WindowContext> MakeGLForXlib(const XlibWindowInfo&, const DisplayParams&);
+#endif
 
 #ifdef SK_DAWN
 std::unique_ptr<WindowContext> MakeDawnVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
