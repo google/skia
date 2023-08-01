@@ -27,7 +27,7 @@ public:
     bool hasNoBlur() const;
 
     // Given a src SkMask, generate dst SkMask returning the border width and height.
-    SkIPoint blur(const SkMask& src, SkMask* dst) const;
+    SkIPoint blur(const SkMask& src, SkMaskBuilder* dst) const;
 
 private:
     const double fSigmaW;

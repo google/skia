@@ -121,19 +121,15 @@ SkGlyph& SkGlyph::operator=(SkGlyph&&) = default;
 SkGlyph::~SkGlyph() = default;
 
 SkMask SkGlyph::mask() const {
-    SkMask mask;
-    mask.fImage = (uint8_t*)fImage;
-    mask.fBounds.setXYWH(fLeft, fTop, fWidth, fHeight);
-    mask.fRowBytes = this->rowBytes();
-    mask.fFormat = fMaskFormat;
-    return mask;
+    SkIRect bounds = SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);
+    return SkMask(static_cast<const uint8_t*>(fImage), bounds, this->rowBytes(), fMaskFormat);
 }
 
 SkMask SkGlyph::mask(SkPoint position) const {
     SkASSERT(SkScalarIsInt(position.x()) && SkScalarIsInt(position.y()));
-    SkMask answer = this->mask();
-    answer.fBounds.offset(SkScalarFloorToInt(position.x()), SkScalarFloorToInt(position.y()));
-    return answer;
+    SkIRect bounds = SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);
+    bounds.offset(SkScalarFloorToInt(position.x()), SkScalarFloorToInt(position.y()));
+    return SkMask(static_cast<const uint8_t*>(fImage), bounds, this->rowBytes(), fMaskFormat);
 }
 
 void SkGlyph::zeroMetrics() {

@@ -2381,7 +2381,8 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph, void* imageBuffer) 
     } else if (format == ScalerContextBits::PATH) {
         const SkPath* devPath = glyph.path();
         SkASSERT_RELEASE(devPath);
-        SkMask mask = glyph.mask();
+        SkMaskBuilder mask(static_cast<uint8_t*>(imageBuffer),
+                           glyph.iRect(), glyph.rowBytes(), glyph.maskFormat());
         SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
         const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
         const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);

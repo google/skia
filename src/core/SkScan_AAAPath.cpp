@@ -187,7 +187,7 @@ public:
     uint8_t* getRow(int y) {
         if (y != fY) {
             fY   = y;
-            fRow = fMask.fImage + (y - fMask.fBounds.fTop) * fMask.fRowBytes - fMask.fBounds.fLeft;
+            fRow = fMask.image() + (y - fMask.fBounds.fTop) * fMask.fRowBytes - fMask.fBounds.fLeft;
         }
         return fRow;
     }
@@ -198,7 +198,7 @@ private:
     static const int kMAX_STORAGE = 1024;
 
     SkBlitter* fRealBlitter;
-    SkMask     fMask;
+    SkMaskBuilder fMask;
     SkIRect    fClipRect;
     // we add 2 because we can write 1 extra byte at either end due to precision error
     uint32_t fStorage[(kMAX_STORAGE >> 2) + 2];
@@ -210,19 +210,14 @@ private:
 MaskAdditiveBlitter::MaskAdditiveBlitter(SkBlitter*     realBlitter,
                                          const SkIRect& ir,
                                          const SkIRect& clipBounds,
-                                         bool           isInverse) {
+                                         bool           isInverse)
+    : fRealBlitter(realBlitter)
+    , fMask((uint8_t*)fStorage + 1, ir, ir.width(), SkMask::kA8_Format)
+    , fRow(nullptr)
+    , fY(ir.fTop - 1)
+    {
     SkASSERT(CanHandleRect(ir));
     SkASSERT(!isInverse);
-
-    fRealBlitter = realBlitter;
-
-    fMask.fImage    = (uint8_t*)fStorage + 1;  // There's 1 extra byte at either end of fStorage
-    fMask.fBounds   = ir;
-    fMask.fRowBytes = ir.width();
-    fMask.fFormat   = SkMask::kA8_Format;
-
-    fY   = ir.fTop - 1;
-    fRow = nullptr;
 
     fClipRect = ir;
     if (!fClipRect.intersect(clipBounds)) {

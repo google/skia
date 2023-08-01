@@ -482,14 +482,16 @@ static ImageAndOffset to_image(SkGlyphID gid, SkBulkGlyphMetricsAndImages* small
             bm.setImmutable();
             return {bm.asImage(), {bounds.x(), bounds.y()}};
         case SkMask::kA8_Format:
-            bm.installPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()),
-                             mask.fImage, mask.fRowBytes);
-            return {SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode),
+            return {SkImages::RasterFromData(
+                        SkImageInfo::MakeA8(bounds.width(), bounds.height()),
+                        SkData::MakeWithCopy(mask.fImage, mask.computeTotalImageSize()),
+                        mask.fRowBytes),
                     {bounds.x(), bounds.y()}};
         case SkMask::kARGB32_Format:
-            bm.installPixels(SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()),
-                             mask.fImage, mask.fRowBytes);
-            return {SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode),
+            return {SkImages::RasterFromData(
+                        SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()),
+                        SkData::MakeWithCopy(mask.fImage, mask.computeTotalImageSize()),
+                        mask.fRowBytes),
                     {bounds.x(), bounds.y()}};
         case SkMask::k3D_Format:
         case SkMask::kLCD16_Format:

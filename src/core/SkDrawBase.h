@@ -87,7 +87,7 @@ public:
     */
     static bool DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
                            const SkMaskFilter*, const SkMatrix* filterMatrix,
-                           SkMask* mask, SkMask::CreateMode mode,
+                           SkMaskBuilder* dst, SkMaskBuilder::CreateMode mode,
                            SkStrokeRec::InitStyle style);
 
     enum RectType {

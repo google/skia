@@ -212,13 +212,13 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
                 for (size_t k = 0 ; k < std::size(styles) ; k++) {
                     SkBlurStyle style = styles[k];
 
-                    SkMask mask;
+                    SkMaskBuilder mask;
                     if (!SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(radius),
                                               &mask, r, style)) {
                         continue;
                     }
 
-                    SkAutoMaskFreeImage amfi(mask.fImage);
+                    SkAutoMaskFreeImage amfi(mask.image());
 
                     SkBitmap bm;
                     bm.installMaskPixels(mask);

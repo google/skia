@@ -29,7 +29,7 @@ public:
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
     SkMaskFilterBase::Type type() const override { return SkMaskFilterBase::Type::kShader; }
 
-    bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+    bool filterMask(SkMaskBuilder* dst, const SkMask& src, const SkMatrix&,
                     SkIPoint* margin) const override;
 
     void computeFastBounds(const SkRect& src, SkRect* dst) const override {

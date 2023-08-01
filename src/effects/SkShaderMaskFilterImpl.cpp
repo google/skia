@@ -46,8 +46,8 @@ static void rect_memcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
     }
 }
 
-bool SkShaderMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
-                            SkIPoint* margin) const {
+bool SkShaderMaskFilterImpl::filterMask(SkMaskBuilder* dst, const SkMask& src, const SkMatrix& ctm,
+                                        SkIPoint* margin) const {
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
@@ -55,12 +55,12 @@ bool SkShaderMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const Sk
     if (margin) {
         margin->set(0, 0);
     }
-    dst->fBounds   = src.fBounds;
-    dst->fRowBytes = src.fBounds.width();   // need alignment?
-    dst->fFormat   = SkMask::kA8_Format;
+    dst->bounds()   = src.fBounds;
+    dst->rowBytes() = src.fBounds.width();   // need alignment?
+    dst->format()   = SkMask::kA8_Format;
 
     if (src.fImage == nullptr) {
-        dst->fImage = nullptr;
+        dst->image() = nullptr;
         return true;
     }
     size_t size = dst->computeImageSize();
@@ -69,8 +69,8 @@ bool SkShaderMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const Sk
     }
 
     // Allocate and initialize dst image with a copy of the src image
-    dst->fImage = SkMask::AllocImage(size);
-    rect_memcpy(dst->fImage, dst->fRowBytes, src.fImage, src.fRowBytes,
+    dst->image() = SkMaskBuilder::AllocImage(size);
+    rect_memcpy(dst->image(), dst->fRowBytes, src.fImage, src.fRowBytes,
                 src.fBounds.width() * sizeof(uint8_t), src.fBounds.height());
 
     // Now we have a dst-mask, just need to setup a canvas and draw into it

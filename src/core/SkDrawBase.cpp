@@ -500,10 +500,8 @@ bool SkDrawBase::ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& c
     if (filter) {
         SkASSERT(filterMatrix);
 
-        SkMask srcM, dstM;
-
-        srcM.fBounds = *bounds;
-        srcM.fFormat = SkMask::kA8_Format;
+        SkMask srcM(nullptr, *bounds, 0, SkMask::kA8_Format);
+        SkMaskBuilder dstM;
         if (!as_MFB(filter)->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
             return false;
         }
@@ -559,13 +557,13 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
 
 bool SkDrawBase::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
                         const SkMaskFilter* filter, const SkMatrix* filterMatrix,
-                        SkMask* mask, SkMask::CreateMode mode,
+                        SkMaskBuilder* dst, SkMaskBuilder::CreateMode mode,
                         SkStrokeRec::InitStyle style) {
     if (devPath.isEmpty()) {
         return false;
     }
 
-    if (SkMask::kJustRenderImage_CreateMode != mode) {
+    if (SkMaskBuilder::kJustRenderImage_CreateMode != mode) {
         // By using infinite bounds for inverse fills, ComputeMaskBounds is able to clip it to
         // 'clipBounds' outset by whatever extra margin the mask filter requires.
         static const SkRect kInverseBounds = { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
@@ -573,23 +571,23 @@ bool SkDrawBase::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
         SkRect pathBounds = devPath.isInverseFillType() ? kInverseBounds
                                                         : devPath.getBounds();
         if (!ComputeMaskBounds(pathBounds, clipBounds, filter,
-                               filterMatrix, &mask->fBounds))
+                               filterMatrix, &dst->bounds()))
             return false;
     }
 
-    if (SkMask::kComputeBoundsAndRenderImage_CreateMode == mode) {
-        mask->fFormat = SkMask::kA8_Format;
-        mask->fRowBytes = mask->fBounds.width();
-        size_t size = mask->computeImageSize();
+    if (SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode == mode) {
+        dst->format() = SkMask::kA8_Format;
+        dst->rowBytes() = dst->fBounds.width();
+        size_t size = dst->computeImageSize();
         if (0 == size) {
             // we're too big to allocate the mask, abort
             return false;
         }
-        mask->fImage = SkMask::AllocImage(size, SkMask::kZeroInit_Alloc);
+        dst->image() = SkMaskBuilder::AllocImage(size, SkMaskBuilder::kZeroInit_Alloc);
     }
 
-    if (SkMask::kJustComputeBounds_CreateMode != mode) {
-        draw_into_mask(*mask, devPath, style);
+    if (SkMaskBuilder::kJustComputeBounds_CreateMode != mode) {
+        draw_into_mask(*dst, devPath, style);
     }
 
     return true;

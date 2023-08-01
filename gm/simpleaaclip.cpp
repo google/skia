@@ -28,12 +28,12 @@ namespace skiagm {
 
 static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
                       const SkPaint& paint) {
-    SkMask mask;
+    SkMaskBuilder mask;
     SkBitmap bm;
 
     clip.copyToMask(&mask);
 
-    SkAutoMaskFreeImage amfi(mask.fImage);
+    SkAutoMaskFreeImage amfi(mask.image());
 
     bm.installMaskPixels(mask);
 

@@ -181,14 +181,14 @@ DEF_TEST(BlurDrawing, reporter) {
 static void ground_truth_2d(int width, int height,
                             SkScalar sigma,
                             int* result, int resultCount) {
-    SkMask src, dst;
+    SkMaskBuilder src, dst;
 
-    src.fBounds.setWH(width, height);
-    src.fFormat = SkMask::kA8_Format;
-    src.fRowBytes = src.fBounds.width();
-    src.fImage = SkMask::AllocImage(src.computeTotalImageSize());
+    src.bounds().setWH(width, height);
+    src.format() = SkMask::kA8_Format;
+    src.rowBytes() = src.fBounds.width();
+    src.image() = SkMaskBuilder::AllocImage(src.computeTotalImageSize());
 
-    memset(src.fImage, 0xff, src.computeTotalImageSize());
+    memset(src.image(), 0xff, src.computeTotalImageSize());
 
     if (!SkBlurMask::BlurGroundTruth(sigma, &dst, src, kNormal_SkBlurStyle)) {
         return;
@@ -207,8 +207,8 @@ static void ground_truth_2d(int width, int height,
         result[i] = 0;
     }
 
-    SkMask::FreeImage(src.fImage);
-    SkMask::FreeImage(dst.fImage);
+    SkMaskBuilder::FreeImage(src.image());
+    SkMaskBuilder::FreeImage(dst.image());
 }
 
 // Implement a step function that is 255 between min and max; 0 elsewhere.
