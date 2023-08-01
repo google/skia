@@ -170,6 +170,7 @@ generate_cpp_files_for_headers(
         "src/encode/SkImageEncoderFns.h",
         "src/encode/SkImageEncoderPriv.h",
         "src/image/SkImageGeneratorPriv.h",
+        "src/text/TextBlobMailbox.h",
     ],
 )
 

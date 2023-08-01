@@ -136,11 +136,6 @@ void TextBlobRedrawCoordinator::freeAll() {
     fCurrentSize = 0;
 }
 
-void TextBlobRedrawCoordinator::PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
-    SkASSERT(blobID != SK_InvalidGenID);
-    SkMessageBus<PurgeBlobMessage, uint32_t>::Post(PurgeBlobMessage(blobID, cacheID));
-}
-
 void TextBlobRedrawCoordinator::purgeStaleBlobs() {
     SkAutoSpinlock lock{fSpinLock};
     this->internalPurgeStaleBlobs();
@@ -264,3 +259,11 @@ int TextBlobRedrawCoordinator::BlobIDCacheEntry::findBlobIndex(const TextBlob::K
 }
 
 }  // namespace sktext::gpu
+
+namespace sktext {
+void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
+    using PurgeBlobMessage = sktext::gpu::TextBlobRedrawCoordinator::PurgeBlobMessage;
+    SkASSERT(blobID != SK_InvalidGenID);
+    SkMessageBus<PurgeBlobMessage, uint32_t>::Post(PurgeBlobMessage(blobID, cacheID));
+}
+}

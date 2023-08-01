@@ -59,8 +59,6 @@ public:
         uint32_t fContextID;
     };
 
-    static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);
-
     void purgeStaleBlobs() SK_EXCLUDES(fSpinLock);
 
     size_t usedBytes() const SK_EXCLUDES(fSpinLock);
