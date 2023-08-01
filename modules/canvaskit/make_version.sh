@@ -13,9 +13,16 @@ then
   exit 1
 fi
 
+GIT="git"
+if test -f "/cipd/bin/git"; then
+  # The `cd` Docker image includes git at this location. If present use it.
+  # This image us used when building this target via Louhi.
+  GIT="/cipd/bin/git"
+fi
+
 SCRIPT_DIR=$(dirname $(realpath $0))
 VERSION_JS_PATH=$1
-GIT_REVISION=$(git -C ${SCRIPT_DIR} rev-parse HEAD)
+GIT_REVISION=$($GIT -C ${SCRIPT_DIR} rev-parse HEAD)
 OUTPUT_DIR=$(dirname ${VERSION_JS_PATH})
 
 mkdir -p $(dirname ${VERSION_JS_PATH})
