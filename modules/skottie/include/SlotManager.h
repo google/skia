@@ -48,11 +48,11 @@ public:
     SlotManager(sk_sp<skottie::internal::SceneGraphRevalidator>);
     ~SlotManager() override;
 
-    void setColorSlot(SlotID, SkColor);
-    void setImageSlot(SlotID, sk_sp<skresources::ImageAsset>);
-    void setScalarSlot(SlotID, float);
-    void setVec2Slot(SlotID, SkV2);
-    void setTextSlot(SlotID, TextPropertyValue&);
+    bool setColorSlot(SlotID, SkColor);
+    bool setImageSlot(SlotID, sk_sp<skresources::ImageAsset>);
+    bool setScalarSlot(SlotID, float);
+    bool setVec2Slot(SlotID, SkV2);
+    bool setTextSlot(SlotID, TextPropertyValue&);
 
     std::optional<SkColor>               getColorSlot(SlotID) const;
     sk_sp<const skresources::ImageAsset> getImageSlot(SlotID) const;

@@ -43,7 +43,7 @@ fRevalidator(revalidator) {}
 
 skottie::SlotManager::~SlotManager() = default;
 
-void skottie::SlotManager::setColorSlot(SlotID slotID, SkColor c) {
+bool skottie::SlotManager::setColorSlot(SlotID slotID, SkColor c) {
     auto c4f = SkColor4f::FromColor(c);
     ColorValue v{c4f.fR, c4f.fG, c4f.fB, c4f.fA};
     const auto valueGroup = fColorMap.find(slotID);
@@ -53,20 +53,24 @@ void skottie::SlotManager::setColorSlot(SlotID slotID, SkColor c) {
             cPair.adapter->onSync();
         }
         fRevalidator->revalidate();
+        return true;
     }
+    return false;
 }
 
-void skottie::SlotManager::setImageSlot(SlotID slotID, sk_sp<skresources::ImageAsset> i) {
+bool skottie::SlotManager::setImageSlot(SlotID slotID, sk_sp<skresources::ImageAsset> i) {
     const auto imageGroup = fImageMap.find(slotID);
     if (imageGroup) {
         for (auto& imageAsset : *imageGroup) {
             imageAsset->setImageAsset(i);
         }
         fRevalidator->revalidate();
+        return true;
     }
+    return false;
 }
 
-void skottie::SlotManager::setScalarSlot(SlotID slotID, float s) {
+bool skottie::SlotManager::setScalarSlot(SlotID slotID, float s) {
     const auto valueGroup = fScalarMap.find(slotID);
     if (valueGroup) {
         for (auto& sPair : *valueGroup) {
@@ -74,10 +78,12 @@ void skottie::SlotManager::setScalarSlot(SlotID slotID, float s) {
             sPair.adapter->onSync();
         }
         fRevalidator->revalidate();
+        return true;
     }
+    return false;
 }
 
-void skottie::SlotManager::setVec2Slot(SlotID slotID, SkV2 v) {
+bool skottie::SlotManager::setVec2Slot(SlotID slotID, SkV2 v) {
     const auto valueGroup = fVec2Map.find(slotID);
     if (valueGroup) {
         for (auto& vPair : *valueGroup) {
@@ -85,17 +91,21 @@ void skottie::SlotManager::setVec2Slot(SlotID slotID, SkV2 v) {
             vPair.adapter->onSync();
         }
         fRevalidator->revalidate();
+        return true;
     }
+    return false;
 }
 
-void skottie::SlotManager::setTextSlot(SlotID slotID, TextPropertyValue& t) {
+bool skottie::SlotManager::setTextSlot(SlotID slotID, TextPropertyValue& t) {
     const auto adapterGroup = fTextMap.find(slotID);
     if (adapterGroup) {
         for (auto& textAdapter : *adapterGroup) {
             textAdapter->setText(t);
         }
         fRevalidator->revalidate();
+        return true;
     }
+    return false;
 }
 
 std::optional<SkColor> skottie::SlotManager::getColorSlot(SlotID slotID) const {
