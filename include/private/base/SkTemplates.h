@@ -13,7 +13,6 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTLogic.h"
-#include "include/private/base/SkTo.h"
 
 #include <array>
 #include <cstddef>
@@ -99,70 +98,49 @@ namespace skia_private {
 template <typename T> class AutoTArray  {
 public:
     AutoTArray() {}
-    // Allocate size number of T elements
-    explicit AutoTArray(size_t size) {
-        fSize = check_size_bytes_too_big<T>(size);
-        fData.reset(size > 0 ? new T[size] : nullptr);
+    /** Allocate count number of T elements
+     */
+    explicit AutoTArray(int count) {
+        SkASSERT(count >= 0);
+        if (count) {
+            fArray.reset(new T[count]);
+        }
+        SkDEBUGCODE(fCount = count;)
     }
 
-    // TODO: remove when all uses are gone.
-    explicit AutoTArray(int size) : AutoTArray(SkToSizeT(size)) {}
-
-    AutoTArray(AutoTArray&& other) : fData(std::move(other.fData)) {
-        fSize = std::exchange(other.fSize, 0);
+    AutoTArray(AutoTArray&& other) : fArray(std::move(other.fArray)) {
+        SkDEBUGCODE(fCount = other.fCount; other.fCount = 0;)
     }
     AutoTArray& operator=(AutoTArray&& other) {
         if (this != &other) {
-            fData = std::move(other.fData);
-            fSize = std::exchange(other.fSize, 0);
+            fArray = std::move(other.fArray);
+            SkDEBUGCODE(fCount = other.fCount; other.fCount = 0;)
         }
         return *this;
     }
 
-    // Reallocates given a new count. Reallocation occurs even if new count equals old count.
-    void reset(size_t count = 0) {
-        *this = AutoTArray(count);
+    /** Reallocates given a new count. Reallocation occurs even if new count equals old count.
+     */
+    void reset(int count = 0) { *this = AutoTArray(count); }
+
+    /** Return the array of T elements. Will be NULL if count == 0
+     */
+    T* get() const { return fArray.get(); }
+
+    /** Return the nth element in the array
+     */
+    T&  operator[](int index) const {
+        SkASSERT((unsigned)index < (unsigned)fCount);
+        return fArray[index];
     }
 
-    T* get() const { return fData.get(); }
-
-    T&  operator[](size_t index) const {
-        SkASSERT(index < fSize);
-        return fData[index];
-    }
-
-    const T* data() const { return fData.get(); }
-    T* data() { return fData.get(); }
-
-    size_t size() const { return fSize; }
-    bool empty() const { return fSize == 0; }
-    size_t size_bytes() const { return sizeof(T) * fSize; }
-
-    T* begin() {
-        return fData;
-    }
-    const T* begin() const {
-        return fData;
-    }
-
-    // It's safe to use fItemArray + fSize because if fItemArray is nullptr then adding 0 is
-    // valid and returns nullptr. See [expr.add] in the C++ standard.
-    T* end() {
-        if (fData == nullptr) {
-            SkASSERT(fSize == 0);
-        }
-        return fData + fSize;
-    }
-    const T* end() const {
-        if (fData == nullptr) {
-            SkASSERT(fSize == 0);
-        }
-        return fData + fSize;
-    }
+    /** Aliases matching other types, like std::vector. */
+    const T* data() const { return fArray.get(); }
+    T* data() { return fArray.get(); }
 
 private:
-    std::unique_ptr<T[]> fData;
-    size_t fSize = 0;
+    std::unique_ptr<T[]> fArray;
+    SkDEBUGCODE(int fCount = 0;)
 };
 
 /** Wraps AutoTArray, with room for kCountRequested elements preallocated.
