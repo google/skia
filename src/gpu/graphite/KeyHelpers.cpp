@@ -1152,7 +1152,7 @@ static void add_to_key(const KeyContext& keyContext,
 
     constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
     ColorSpaceTransformBlock::ColorSpaceTransformData data(
-            filter->src().get(), alphaType, filter->src().get(), alphaType);
+            filter->src().get(), alphaType, filter->dst().get(), alphaType);
     ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data);
     builder->endBlock();
 }
