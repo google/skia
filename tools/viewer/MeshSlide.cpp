@@ -129,6 +129,21 @@ static constexpr struct VertexAnimator {
         },
     },
     {
+        "Twirlinator",
+        // Rotate vertices proportional to their distance to center.
+        [](const std::vector<SkPoint>& uvs, float t, std::vector<SkPoint>& out) {
+            static constexpr float kMaxRotate = SK_FloatPI*4;
+
+            for (size_t i = 0; i < uvs.size(); ++i) {
+                // remap to [-.5,.5]
+                const auto uv = (uvs[i] - SkPoint{0.5,0.5});
+                const auto angle = kMaxRotate * t * uv.length();
+
+                out[i] = SkMatrix::RotateRad(angle).mapPoint(uv) + SkPoint{0.5, 0.5};
+            }
+        },
+    },
+    {
         "Wigglynator",
         [](const std::vector<SkPoint>& uvs, float t, std::vector<SkPoint>& out) {
             const float radius = t*0.2f/(std::sqrt(uvs.size()) - 1);
@@ -320,10 +335,12 @@ private:
             const char* fLabel;
             size_t      fCount;
         } gSizeInfo[] = {
-            {   "4x4",   16 },
-            {   "8x8",   64 },
-            { "16x16",  256 },
-            { "32x32", 1024 },
+            {     "4x4",    16 },
+            {     "8x8",    64 },
+            {   "16x16",   256 },
+            {   "32x32",  1024 },
+            {   "64x64",  4096 },
+            { "128x128", 16384 },
         };
         ImGui::SliderInt("Mesh Size",
                          &fMeshSizeSelector,
