@@ -78,18 +78,6 @@ DSLType::DSLType(std::string_view name, Position overallPos, Modifiers* modifier
 DSLType::DSLType(const SkSL::Type* type, Position pos)
         : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowGenericTypes=*/true, pos)) {}
 
-DSLType DSLType::Invalid() {
-    return DSLType(ThreadContext::Context().fTypes.fInvalid.get(), Position());
-}
-
-DSLType DSLType::Poison() {
-    return DSLType(ThreadContext::Context().fTypes.fPoison.get(), Position());
-}
-
-DSLType DSLType::Void() {
-    return DSLType(ThreadContext::Context().fTypes.fVoid.get(), Position());
-}
-
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
 }
@@ -146,7 +134,7 @@ DSLType Array(const DSLType& base, int count, Position pos) {
     SkSL::Context& context = ThreadContext::Context();
     count = base.skslType().convertArraySize(context, pos, pos, count);
     if (!count) {
-        return DSLType::Poison();
+        return DSLType(context.fTypes.fPoison.get());
     }
     return DSLType(context.fSymbolTable->addArrayDimension(&base.skslType(), count), pos);
 }
@@ -154,7 +142,7 @@ DSLType Array(const DSLType& base, int count, Position pos) {
 DSLType UnsizedArray(const DSLType& base, Position pos) {
     SkSL::Context& context = ThreadContext::Context();
     if (!base.skslType().checkIfUsableInArray(context, pos)) {
-        return DSLType::Poison();
+        return DSLType(context.fTypes.fPoison.get());
     }
     return context.fSymbolTable->addArrayDimension(&base.skslType(), SkSL::Type::kUnsizedArray);
 }

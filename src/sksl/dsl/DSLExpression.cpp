@@ -40,9 +40,7 @@ bool DSLExpression::isValid() const {
 }
 
 DSLType DSLExpression::type() const {
-    if (!this->hasValue()) {
-        return DSLType::Void();
-    }
+    SkASSERT(this->hasValue());
     return &fExpression->type();
 }
 

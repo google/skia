@@ -13,6 +13,7 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -792,9 +793,9 @@ void Parser::globalVarDeclarationEnd(Position pos,
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 DSLStatement Parser::localVarDeclarationEnd(Position pos,
                                             const Modifiers& mods,
-                                            dsl::DSLType baseType,
+                                            const Type& baseType,
                                             Token name) {
-    DSLType type = baseType;
+    DSLType type = DSLType(&baseType);
     DSLExpression initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
         return {};
@@ -815,7 +816,7 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
             this->expect(Token::Kind::TK_SEMICOLON, "';'");
             break;
         }
-        type = baseType;
+        type = DSLType(&baseType);
         Token identifierName;
         if (!this->expectIdentifier(&identifierName)) {
             break;
@@ -862,7 +863,7 @@ DSLStatement Parser::varDeclarationsOrExpressionStatement() {
         VarDeclarationsPrefix prefix;
         if (this->varDeclarationsPrefix(&prefix)) {
             checkpoint.accept();
-            return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
+            return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, *prefix.fType,
                                                 prefix.fName);
         }
 
@@ -878,10 +879,11 @@ DSLStatement Parser::varDeclarationsOrExpressionStatement() {
 bool Parser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
     prefixData->fPosition = this->position(this->peek());
     prefixData->fModifiers = this->modifiers();
-    prefixData->fType = this->type(&prefixData->fModifiers);
-    if (!prefixData->fType.hasValue()) {
+    DSLType varType = this->type(&prefixData->fModifiers);
+    if (!varType.hasValue()) {
         return false;
     }
+    prefixData->fType = &varType.skslType();
     return this->expectIdentifier(&prefixData->fName);
 }
 
@@ -891,8 +893,8 @@ DSLStatement Parser::varDeclarations() {
     if (!this->varDeclarationsPrefix(&prefix)) {
         return {};
     }
-    return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
-            prefix.fName);
+    return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, *prefix.fType,
+                                        prefix.fName);
 }
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
@@ -1204,14 +1206,14 @@ DSLType Parser::type(Modifiers* modifiers) {
     }
     if (!this->symbolTable()->isType(this->text(type))) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
-        return DSLType::Invalid();
+        return DSLType(fCompiler.context().fTypes.fInvalid.get());
     }
     DSLType result(this->text(type), this->position(type), modifiers);
     if (result.isInterfaceBlock()) {
         // SkSL puts interface blocks into the symbol table, but they aren't general-purpose types;
         // you can't use them to declare a variable type or a function return type.
         this->error(type, "expected a type, found '" + std::string(this->text(type)) + "'");
-        return DSLType::Invalid();
+        return DSLType(fCompiler.context().fTypes.fInvalid.get());
     }
     Token bracket;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {

@@ -36,6 +36,7 @@ class SymbolTable;
 enum class ProgramKind : int8_t;
 struct Module;
 struct Program;
+class Type;
 class VarDeclaration;
 class Variable;
 
@@ -159,7 +160,7 @@ private:
     struct VarDeclarationsPrefix {
         Position fPosition;
         Modifiers fModifiers;
-        dsl::DSLType fType = dsl::DSLType::Void();
+        const Type* fType;
         Token fName;
     };
 
@@ -188,7 +189,7 @@ private:
                                  dsl::DSLType baseType, Token name);
 
     dsl::DSLStatement localVarDeclarationEnd(Position position, const Modifiers& mods,
-                                             dsl::DSLType baseType, Token name);
+                                             const Type& baseType, Token name);
 
     bool modifiersDeclarationEnd(const Modifiers& mods);
 
