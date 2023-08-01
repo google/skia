@@ -2895,21 +2895,23 @@ void WGSLCodeGenerator::writeUniformsAndBuffers() {
 }
 
 void WGSLCodeGenerator::writeNonBlockUniformsForTests() {
+    bool declaredUniformsStruct = false;
+
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = *decls.varDeclaration().var();
             if (is_in_global_uniforms(var)) {
-                if (!fDeclaredUniformsStruct) {
+                if (!declaredUniformsStruct) {
                     this->write("struct _GlobalUniforms {\n");
-                    fDeclaredUniformsStruct = true;
+                    declaredUniformsStruct = true;
                 }
                 this->write("  ");
                 this->writeVariableDecl(var.type(), var.mangledName(), Delimiter::kComma);
             }
         }
     }
-    if (fDeclaredUniformsStruct) {
+    if (declaredUniformsStruct) {
         int binding = fProgram.fConfig->fSettings.fDefaultUniformBinding;
         int set = fProgram.fConfig->fSettings.fDefaultUniformSet;
         this->write("};\n");

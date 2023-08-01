@@ -328,7 +328,6 @@ private:
     skia_private::THashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
     int fPipelineInputCount = 0;
-    bool fDeclaredUniformsStruct = false;
 
     // Output processing state.
     int fIndentation = 0;
