@@ -263,13 +263,13 @@ skif::FilterResult SkDisplacementMapImageFilter::onFilterImage(const skif::Conte
     builder.add(displacementOutput, /*sampleBounds=*/outputBounds);
     builder.add(colorOutput,
                 /*sampleBounds=*/requiredColorInput,
-                ShaderFlags::kNonLinearSampling,
+                ShaderFlags::kNonTrivialSampling,
                 kDisplacementSampling);
     return builder.eval(
             [&](SkSpan<sk_sp<SkShader>> inputs) {
                 return make_displacement_shader(inputs[kDisplacement], inputs[kColor],
                                                 scale, fXChannel, fYChannel);
-            }, ShaderFlags::kExplicitOutputBounds, outputBounds);
+            }, outputBounds);
 }
 
 skif::LayerSpace<SkIRect> SkDisplacementMapImageFilter::onGetInputLayerBounds(

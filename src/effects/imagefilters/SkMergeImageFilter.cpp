@@ -94,12 +94,11 @@ skif::LayerSpace<SkIRect> SkMergeImageFilter::onGetInputLayerBounds(
         return skif::LayerSpace<SkIRect>::Empty();
     } else {
         // Union of all child input bounds so that one source image can provide for all of them.
-        skif::LayerSpace<SkIRect> merged =
-                this->getChildInputLayerBounds(0, mapping, desiredOutput, contentBounds);
-        for (int i = 1; i < inputCount; ++i) {
-            merged.join(this->getChildInputLayerBounds(i, mapping, desiredOutput, contentBounds));
-        }
-        return merged;
+        return skif::LayerSpace<SkIRect>::Union(
+                inputCount,
+                [&](int i) {
+                    return this->getChildInputLayerBounds(i, mapping, desiredOutput, contentBounds);
+                });
     }
 }
 
@@ -111,12 +110,9 @@ skif::LayerSpace<SkIRect> SkMergeImageFilter::onGetOutputLayerBounds(
         return skif::LayerSpace<SkIRect>::Empty(); // Transparent black
     } else {
         // Merge is src-over of all child outputs, so covers their union but no more
-        skif::LayerSpace<SkIRect> merged =
-                this->getChildOutputLayerBounds(0, mapping, contentBounds);
-        for (int i = 1; i < inputCount; ++i) {
-            merged.join(this->getChildOutputLayerBounds(i, mapping, contentBounds));
-        }
-        return merged;
+        return skif::LayerSpace<SkIRect>::Union(
+                inputCount,
+                [&](int i) { return this->getChildOutputLayerBounds(i, mapping, contentBounds); });
     }
 }
 

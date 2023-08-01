@@ -385,6 +385,21 @@ public:
 
     static LayerSpace<SkIRect> Empty() { return LayerSpace<SkIRect>(SkIRect::MakeEmpty()); }
 
+    // Utility function to iterate a collection of items that can map to LayerSpace<SkIRect> bounds
+    // and returns the union of those bounding boxes. 'boundsFn' will be invoked with i = 0 to
+    // boundsCount-1.
+    template<typename BoundsFn>
+    static LayerSpace<SkIRect> Union(int boundsCount, BoundsFn boundsFn) {
+        if (boundsCount <= 0) {
+            return LayerSpace<SkIRect>::Empty();
+        }
+        LayerSpace<SkIRect> output = boundsFn(0);
+        for (int i = 1; i < boundsCount; ++i) {
+            output.join(boundsFn(i));
+        }
+        return output;
+    }
+
     // Parrot the SkIRect API while preserving coord space
     bool isEmpty() const { return fData.isEmpty64(); }
     bool contains(const LayerSpace<SkIRect>& r) const { return fData.contains(r.fData); }
@@ -759,14 +774,16 @@ public:
 
     enum class ShaderFlags : int {
         kNone = 0,
-        kSampleInParameterSpace = 1 << 0,
-        kForceResolveInputs     = 1 << 1,
-        kNonLinearSampling      = 1 << 2,
-        kOutputFillsInputUnion  = 1 << 3,
-        kExplicitOutputBounds   = 1 << 4
-        // TODO: Add options for input intersection, first input only, if needed. If it turns out
-        // union is only used for merge() and all other cases are fills-desired-output vs. explicit
-        // then maybe that flag goes away and eval() relies on optional.has_value().
+        // TODO: Replace with a relaxed flag that hints the image will be sampled many times so
+        // deferred expensive effects should trigger resolving to a new image (e.g. color filters
+        // or color space differences).
+        kForceResolveInputs = 1 << 0,
+        // Specifies that the shader performs non-trivial operations on its coordinates to determine
+        // how to sample any input FilterResults, so their sampling options should not be converted
+        // to nearest-neighbor even if they appeared pixel-aligned with the output surface.
+        kNonTrivialSampling = 1 << 1,
+        // TODO: Add option to convey that the output can carry input tiling forward to make a
+        // smaller backing surface somehow. May not be a flag and just args passed to eval().
     };
     SK_DECL_BITMASK_OPS_FRIENDS(ShaderFlags)
 
@@ -861,8 +878,6 @@ public:
 
     // Combine all added inputs by transforming them into equivalent SkShaders and invoking the
     // shader factory that binds them together into a single shader that fills the output surface.
-    // 'flags' and 'xtraSampling' control how the input FilterResults are converted to shaders, as
-    // well as defining the final output bounds.
     //
     // 'ShaderFn' should be an invokable type with the signature
     //     (SkSpan<sk_sp<SkShader>>)->sk_sp<SkShader>
@@ -870,22 +885,27 @@ public:
     // input FilterResult was fully transparent, its corresponding shader will be null. 'ShaderFn'
     // should return a null shader its output would be fully transparent.
     //
-    // By default, the returned FilterResult will fill the Context's desired image. The 'flags' can
-    // optionally restrict this to other common bounds (e.g. union of inputs), or specify that
-    // explicit bounds are provided. If ShaderFlags::kExplicitOutputBounds is present, then the
-    // bounds must be set in 'explicitOutput'. In all cases, the layer bounds of the FilterResult
-    // are restricted by the builder's context's desired output.
+    // By default, the returned FilterResult will fill the Context's desired image. If
+    // 'explicitOutput' has a value, it is intersected with the Context's desired output bounds to
+    // produce a possibly restricted output surface that the evaluated shader is rendered into.
+    //
+    // The shader created by `ShaderFn` will by default be invoked with coordinates in the layer
+    // space of the Context. If `evaluateInParameterSpace` is true, the drawing matrix will be
+    // adjusted so that the shader processes coordinates mapped back into parameter space (the
+    // underlying output is still in layer space). In this case, it's assumed that the shaders for
+    // the added FilterResult inputs will be evaluated with coordinates also in parameter space,
+    // so they will be adjusted to map back to layer space before sampling their underlying images.
     template <typename ShaderFn>
     FilterResult eval(ShaderFn shaderFn,
-                      SkEnumBitMask<ShaderFlags> flags,
-                      std::optional<LayerSpace<SkIRect>> explicitOutput = {}) {
-        auto outputBounds = this->outputBounds(flags, explicitOutput);
+                      std::optional<LayerSpace<SkIRect>> explicitOutput = {},
+                      bool evaluateInParameterSpace=false) {
+        auto outputBounds = this->outputBounds(explicitOutput);
         if (outputBounds.isEmpty()) {
             return {};
         }
 
-        auto inputShaders = this->createInputShaders(flags, outputBounds);
-        return this->drawShader(shaderFn(inputShaders), flags, outputBounds);
+        auto inputShaders = this->createInputShaders(outputBounds, evaluateInParameterSpace);
+        return this->drawShader(shaderFn(inputShaders), outputBounds, evaluateInParameterSpace);
     }
 
 private:
@@ -896,15 +916,14 @@ private:
         SkSamplingOptions fSampling;
     };
 
-    SkSpan<sk_sp<SkShader>> createInputShaders(SkEnumBitMask<ShaderFlags> flags,
-                                               const LayerSpace<SkIRect>& outputBounds);
+    SkSpan<sk_sp<SkShader>> createInputShaders(const LayerSpace<SkIRect>& outputBounds,
+                                               bool evaluateInParameterSpace);
 
-    LayerSpace<SkIRect> outputBounds(SkEnumBitMask<ShaderFlags> flags,
-                                     std::optional<LayerSpace<SkIRect>> explicitOutput) const;
+    LayerSpace<SkIRect> outputBounds(std::optional<LayerSpace<SkIRect>> explicitOutput) const;
 
     FilterResult drawShader(sk_sp<SkShader> shader,
-                            SkEnumBitMask<ShaderFlags> flags,
-                            const LayerSpace<SkIRect>& outputBounds) const;
+                            const LayerSpace<SkIRect>& outputBounds,
+                            bool evaluateInParameterSpace) const;
 
     const Context& fContext; // Must outlive the builder
     skia_private::STArray<1, SampledFilterResult> fInputs;

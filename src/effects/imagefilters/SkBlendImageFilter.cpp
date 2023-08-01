@@ -293,8 +293,6 @@ sk_sp<SkShader> SkBlendImageFilter::makeBlendShader(sk_sp<SkShader> bg, sk_sp<Sk
 }
 
 skif::FilterResult SkBlendImageFilter::onFilterImage(const skif::Context& ctx) const {
-    using ShaderFlags = skif::FilterResult::ShaderFlags;
-
     // We could just request 'desiredOutput' for the blend's required input size, since that's what
     // it is expected to fill. However, some blend modes restrict the output to something other
     // than the union of the foreground and background. To make this restriction available to both
@@ -313,7 +311,7 @@ skif::FilterResult SkBlendImageFilter::onFilterImage(const skif::Context& ctx) c
     return builder.eval(
             [&](SkSpan<sk_sp<SkShader>> inputs) -> sk_sp<SkShader> {
                 return this->makeBlendShader(inputs[kBackground], inputs[kForeground]);
-            }, ShaderFlags::kExplicitOutputBounds, requiredInput);
+            }, requiredInput);
 }
 
 skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetInputLayerBounds(

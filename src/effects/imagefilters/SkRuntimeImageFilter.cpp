@@ -246,7 +246,9 @@ skif::FilterResult SkRuntimeImageFilter::onFilterImage(const skif::Context& ctx)
         // Record the input context's desired output as the sample bounds for the child shaders
         // since the runtime shader can go up to max sample radius away from its desired output
         // (which is the default sample bounds if we didn't override it here).
-        builder.add(this->getChildOutput(i, inputCtx), inputCtx.desiredOutput());
+        builder.add(this->getChildOutput(i, inputCtx),
+                    inputCtx.desiredOutput(),
+                    ShaderFlags::kNonTrivialSampling);
     }
     return builder.eval([&](SkSpan<sk_sp<SkShader>> inputs) {
         // lock the mutation of the builder and creation of the shader so that the builder's state
@@ -265,7 +267,7 @@ skif::FilterResult SkRuntimeImageFilter::onFilterImage(const skif::Context& ctx)
         fRuntimeEffectLock.release();
 
         return shader;
-    }, ShaderFlags::kSampleInParameterSpace | ShaderFlags::kNonLinearSampling);
+    }, {}, /*evaluateInParameterSpace=*/true);
 }
 
 skif::LayerSpace<SkIRect> SkRuntimeImageFilter::onGetInputLayerBounds(
@@ -281,12 +283,11 @@ skif::LayerSpace<SkIRect> SkRuntimeImageFilter::onGetInputLayerBounds(
                 this->applyMaxSampleRadius(mapping, desiredOutput);
 
         // Union of all child input bounds so that one source image can provide for all of them.
-        skif::LayerSpace<SkIRect> merged =
-                this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
-        for (int i = 1; i < inputCount; ++i) {
-            merged.join(this->getChildInputLayerBounds(i, mapping, requiredInput, contentBounds));
-        }
-        return merged;
+        return skif::LayerSpace<SkIRect>::Union(
+                inputCount,
+                [&](int i) {
+                    return this->getChildInputLayerBounds(i, mapping, requiredInput, contentBounds);
+                });
     }
 }
 

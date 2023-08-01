@@ -1092,8 +1092,6 @@ sk_sp<SkShader> SkMatrixConvolutionImageFilter::createShader(const skif::Context
 
 skif::FilterResult SkMatrixConvolutionImageFilter::onFilterImage(
         const skif::Context& context) const {
-    using ShaderFlags = skif::FilterResult::ShaderFlags;
-
     skif::LayerSpace<SkIRect> requiredInput = this->boundsSampledByKernel(context.desiredOutput());
     skif::FilterResult childOutput =
             this->getChildOutput(0, context.withNewDesiredOutput(requiredInput));
@@ -1115,7 +1113,7 @@ skif::FilterResult SkMatrixConvolutionImageFilter::onFilterImage(
     builder.add(childOutput, this->boundsSampledByKernel(outputBounds));
     return builder.eval([&](SkSpan<sk_sp<SkShader>> inputs) {
         return this->createShader(context, inputs[0]);
-    }, ShaderFlags::kExplicitOutputBounds, outputBounds);
+    }, outputBounds);
 }
 
 skif::LayerSpace<SkIRect> SkMatrixConvolutionImageFilter::onGetInputLayerBounds(

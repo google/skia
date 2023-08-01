@@ -228,7 +228,7 @@ skif::FilterResult morphology_pass(const skif::Context& ctx, const skif::FilterR
         } // else the last iteration should output what was originally requested
 
         skif::FilterResult::Builder builder{stepCtx};
-        builder.add(childOutput, sampleBounds);
+        builder.add(childOutput, sampleBounds, ShaderFlags::kForceResolveInputs);
         childOutput = builder.eval(
                 [&](SkSpan<sk_sp<SkShader>> inputs) {
                     if (appliedRadius == 0) {
@@ -236,7 +236,7 @@ skif::FilterResult morphology_pass(const skif::Context& ctx, const skif::FilterR
                     } else {
                         return make_sparse_morphology(inputs[0], type, dir, stepRadius);
                     }
-                }, ShaderFlags::kForceResolveInputs);
+                });
 
         sampleBounds = stepCtx.desiredOutput();
         appliedRadius += stepRadius;

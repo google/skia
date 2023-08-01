@@ -601,8 +601,6 @@ void SkLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 skif::FilterResult SkLightingImageFilter::onFilterImage(const skif::Context& ctx) const {
-    using ShaderFlags = skif::FilterResult::ShaderFlags;
-
     auto mapZToLayer = [&ctx](skif::ParameterSpace<ZValue> z) {
         return skif::LayerSpace<ZValue>::Map(ctx.mapping(), z);
     };
@@ -674,7 +672,7 @@ skif::FilterResult SkLightingImageFilter::onFilterImage(const skif::Context& ctx
                                     surfaceDepth,
                                     fMaterial.fK,
                                     fMaterial.fShininess);
-    }, ShaderFlags::kNone);
+    });
 }
 
 skif::LayerSpace<SkIRect> SkLightingImageFilter::onGetInputLayerBounds(

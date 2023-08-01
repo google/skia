@@ -1086,10 +1086,7 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
     // FilterResult's layer bounds instead of the context's desired output, assuming that the layer
     // bounds reflect the bounds of the coords a parent shader will pass to eval().
     const bool currentXformIsInteger = is_nearly_integer_translation(fTransform);
-    const bool nextXformIsInteger =
-            !(flags & ShaderFlags::kNonLinearSampling) &&
-            (!(flags & ShaderFlags::kSampleInParameterSpace) ||
-               is_nearly_integer_translation(LayerSpace<SkMatrix>(ctx.mapping().layerMatrix())));
+    const bool nextXformIsInteger = !(flags & ShaderFlags::kNonTrivialSampling);
 
     SkSamplingOptions sampling = xtraSampling;
     const bool needsResolve =
@@ -1128,18 +1125,6 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
         if (shader && fColorFilter) {
             shader = shader->makeWithColorFilter(fColorFilter);
         }
-    }
-
-    if (shader && (flags & ShaderFlags::kSampleInParameterSpace)) {
-        // The FilterResult is meant to be sampled in layer space, but the shader this is feeding
-        // into is being sampled in parameter space. Add the inverse of the layerMatrix() (i.e.
-        // layer to parameter space) as a local matrix to convert from the parameter-space coords
-        // of the outer shader to the layer-space coords of the FilterResult).
-        SkMatrix layerToParam;
-        if (!ctx.mapping().layerMatrix().invert(&layerToParam)) {
-            return nullptr;
-        }
-        shader = shader->makeWithLocalMatrix(layerToParam);
     }
 
     return shader;
@@ -1237,59 +1222,62 @@ FilterResult::Builder::Builder(const Context& context) : fContext(context) {}
 FilterResult::Builder::~Builder() = default;
 
 SkSpan<sk_sp<SkShader>> FilterResult::Builder::createInputShaders(
-        SkEnumBitMask<ShaderFlags> flags,
-        const LayerSpace<SkIRect>& outputBounds) {
+        const LayerSpace<SkIRect>& outputBounds,
+        bool evaluateInParameterSpace) {
+    SkEnumBitMask<ShaderFlags> xtraFlags = ShaderFlags::kNone;
+    SkMatrix layerToParam;
+    if (evaluateInParameterSpace) {
+        // The FilterResult is meant to be sampled in layer space, but the shader this is feeding
+        // into is being sampled in parameter space. Add the inverse of the layerMatrix() (i.e.
+        // layer to parameter space) as a local matrix to convert from the parameter-space coords
+        // of the outer shader to the layer-space coords of the FilterResult).
+        SkAssertResult(fContext.mapping().layerMatrix().invert(&layerToParam));
+        // Automatically add nonTrivial sampling if the layer-to-parameter space mapping isn't
+        // also pixel aligned.
+        if (!is_nearly_integer_translation(LayerSpace<SkMatrix>(layerToParam))) {
+            xtraFlags |= ShaderFlags::kNonTrivialSampling;
+        }
+    }
+
     fInputShaders.reserve(fInputs.size());
     for (const SampledFilterResult& input : fInputs) {
         // Assume the input shader will be evaluated once per pixel in the output unless otherwise
         // specified when the FilterResult was added to the builder.
         auto sampleBounds = input.fSampleBounds ? *input.fSampleBounds : outputBounds;
-        fInputShaders.push_back(input.fImage.asShader(
-                fContext, input.fSampling, flags | input.fFlags, sampleBounds));
+        auto shader = input.fImage.asShader(fContext,
+                                            input.fSampling,
+                                            input.fFlags | xtraFlags,
+                                            sampleBounds);
+        if (evaluateInParameterSpace && shader) {
+            shader = shader->makeWithLocalMatrix(layerToParam);
+        }
+        fInputShaders.push_back(std::move(shader));
     }
     return SkSpan<sk_sp<SkShader>>(fInputShaders);
 }
 
 LayerSpace<SkIRect> FilterResult::Builder::outputBounds(
-        SkEnumBitMask<ShaderFlags> flags,
         std::optional<LayerSpace<SkIRect>> explicitOutput) const {
-    // Explicit bounds should only be provided if-and-only-if kExplicitOutputBounds flag is set.
-    SkASSERT(explicitOutput.has_value() == SkToBool(flags & ShaderFlags::kExplicitOutputBounds));
-
-    LayerSpace<SkIRect> output = LayerSpace<SkIRect>::Empty();
-    if (flags & ShaderFlags::kExplicitOutputBounds) {
-        output = *explicitOutput;
-    } else if (flags & ShaderFlags::kOutputFillsInputUnion) {
-        // The union of all inputs' layer bounds
-        if (fInputs.size() > 0) {
-            output = fInputs[0].fImage.layerBounds();
-            for (int i = 1; i < fInputs.size(); ++i) {
-                output.join(fInputs[i].fImage.layerBounds());
-            }
+    // Pessimistically assume output fills the full desired bounds
+    LayerSpace<SkIRect> output = fContext.desiredOutput();
+    if (explicitOutput.has_value()) {
+        // Intersect with the provided explicit bounds
+        if (!output.intersect(*explicitOutput)) {
+            return LayerSpace<SkIRect>::Empty();
         }
-    } else {
-        // Pessimistically assume output fills the full desired bounds
-        output = fContext.desiredOutput();
-    }
-
-    // Intersect against desired output now since a Builder never has to produce an image larger
-    // than its context's desired output.
-    if (!output.intersect(fContext.desiredOutput())) {
-        return LayerSpace<SkIRect>::Empty();
     }
     return output;
 }
 
 FilterResult FilterResult::Builder::drawShader(sk_sp<SkShader> shader,
-                                               SkEnumBitMask<ShaderFlags> flags,
-                                               const LayerSpace<SkIRect>& outputBounds) const {
+                                               const LayerSpace<SkIRect>& outputBounds,
+                                               bool evaluateInParameterSpace) const {
     SkASSERT(!outputBounds.isEmpty()); // Should have been rejected before we created shaders
     if (!shader) {
         return {};
     }
 
-    AutoSurface surface{fContext, outputBounds,
-                        SkToBool(flags & ShaderFlags::kSampleInParameterSpace)};
+    AutoSurface surface{fContext, outputBounds, evaluateInParameterSpace};
     if (surface) {
         SkPaint paint;
         paint.setShader(std::move(shader));
@@ -1308,8 +1296,11 @@ FilterResult FilterResult::Builder::merge() {
         return fInputs[0].fImage;
     }
 
-    const LayerSpace<SkIRect> outputBounds =
-            this->outputBounds(ShaderFlags::kOutputFillsInputUnion, std::nullopt);
+    const auto mergedBounds = LayerSpace<SkIRect>::Union(
+            (int) fInputs.size(),
+            [this](int i) { return fInputs[i].fImage.layerBounds(); });
+    const auto outputBounds = this->outputBounds(mergedBounds);
+
     AutoSurface surface{fContext, outputBounds, /*renderInParameterSpace=*/false};
     if (surface) {
         for (const SampledFilterResult& input : fInputs) {
