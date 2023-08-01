@@ -31,7 +31,6 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 
