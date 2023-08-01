@@ -1680,7 +1680,14 @@ std::string WGSLCodeGenerator::assembleFieldAccess(const FieldAccess& f) {
             break;
     }
 
-    return expr + std::string(field->fName);
+    expr += std::string(field->fName);
+
+    if (fMatrixPolyfillFields.contains(field)) {
+        expr = String::printf("_skMatrixUnpack%d%d(%s)",
+                              field->fType->columns(), field->fType->rows(), expr.c_str());
+    }
+
+    return expr;
 }
 
 static bool all_arguments_constant(const ExpressionArray& arguments) {
@@ -2698,7 +2705,16 @@ void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields, const MemoryLayo
             }
         }
 
-        this->writeVariableDecl(*field.fType, field.fName, Delimiter::kComma);
+        this->write(this->assembleName(field.fName));
+        this->write(": ");
+        if (fMatrixPolyfillFields.contains(&field)) {
+            this->write("_skMatrix");
+            this->write(std::to_string(field.fType->columns()));
+            this->write(std::to_string(field.fType->rows()));
+        } else {
+            this->write(to_wgsl_type(*field.fType));
+        }
+        this->writeLine(",");
     }
 
     fIndentation--;
@@ -2828,6 +2844,80 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     }
 }
 
+void WGSLCodeGenerator::writeUniformPolyfills(const Type& structType,
+                                              MemoryLayout::Standard nativeLayout) {
+    SkSL::MemoryLayout std140(MemoryLayout::Standard::k140);
+    SkSL::MemoryLayout native(nativeLayout);
+
+    for (const Field& field : structType.fields()) {
+        // Matrices will be represented as 16-byte aligned arrays in std140, and reconstituted into
+        // proper matrices as they are later accessed. We need to synthesize helpers for this.
+        if (field.fType->isMatrix()) {
+            // A polyfill is only necessary if the std140 layout (what Skia provides) actually
+            // differs from native layout (what WGSL expects). Otherwise the matrix is used as-is.
+            if (std140.stride(*field.fType) == native.stride(*field.fType)) {
+                continue;
+            }
+
+            // Add a polyfill for this matrix type.
+            fMatrixPolyfillFields.add(&field);
+
+            int c = field.fType->columns();
+            int r = field.fType->rows();
+            if (!fWrittenUniformRowPolyfill[r]) {
+                fWrittenUniformRowPolyfill[r] = true;
+
+                this->write("struct _skRow");
+                this->write(std::to_string(r));
+                this->writeLine(" {");
+                this->write("    @size(16) r : vec");
+                this->write(std::to_string(r));
+                this->write("<");
+                this->write(to_wgsl_type(field.fType->componentType()));
+                this->writeLine(">");
+                this->writeLine("};");
+            }
+
+            if (!fWrittenUniformMatrixPolyfill[c][r]) {
+                fWrittenUniformMatrixPolyfill[c][r] = true;
+
+                this->write("struct _skMatrix");
+                this->write(std::to_string(c));
+                this->write(std::to_string(r));
+                this->writeLine(" {");
+                this->write("    c : array<_skRow");
+                this->write(std::to_string(r));
+                this->write(", ");
+                this->write(std::to_string(c));
+                this->writeLine(">");
+                this->writeLine("};");
+
+                this->write("fn _skMatrixUnpack");
+                this->write(std::to_string(c));
+                this->write(std::to_string(r));
+                this->write("(m : _skMatrix");
+                this->write(std::to_string(c));
+                this->write(std::to_string(r));
+                this->write(") -> ");
+                this->write(to_wgsl_type(*field.fType));
+                this->writeLine(" {");
+                this->write("    return ");
+                this->write(to_wgsl_type(*field.fType));
+                this->write("(");
+                auto separator = String::Separator();
+                for (int column = 0; column < c; column++) {
+                    this->write(separator());
+                    this->write("m.c[");
+                    this->write(std::to_string(column));
+                    this->write("].r");
+                }
+                this->writeLine(");");
+                this->writeLine("}");
+            }
+        }
+    }
+}
+
 void WGSLCodeGenerator::writeUniformsAndBuffers() {
     for (const ProgramElement* e : fProgram.elements()) {
         // Iterate through the interface blocks.
@@ -2839,10 +2929,13 @@ void WGSLCodeGenerator::writeUniformsAndBuffers() {
         // Determine if this interface block holds uniforms, buffers, or something else (skip it).
         std::string_view addressSpace;
         std::string_view accessMode;
+        MemoryLayout::Standard nativeLayout;
         if (ib.var()->modifierFlags().isUniform()) {
             addressSpace = "uniform";
+            nativeLayout = MemoryLayout::Standard::kWGSLUniform;
         } else if (ib.var()->modifierFlags().isBuffer()) {
             addressSpace = "storage";
+            nativeLayout = MemoryLayout::Standard::kWGSLStorage;
             if (ib.var()->modifierFlags().isReadOnly()) {
                 accessMode = ", read";
             } else if (ib.var()->modifierFlags().isWriteOnly()) {
@@ -2853,6 +2946,8 @@ void WGSLCodeGenerator::writeUniformsAndBuffers() {
         } else {
             continue;
         }
+
+        this->writeUniformPolyfills(ib.var()->type().componentType(), nativeLayout);
 
         // Create a struct to hold all of the fields from this InterfaceBlock.
         SkASSERT(!ib.typeName().empty());

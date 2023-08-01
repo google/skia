@@ -1,0 +1,29 @@
+// Our buffers are in std140 layout, so the generated code will need to compensate.
+
+layout(set=0, binding=1) uniform UniformBuffer {
+    float2x2 u22;
+    float2x3 u23;
+    float2x4 u24;
+    float3x2 u32;
+    float3x3 u33;
+    float3x4 u34;
+    float4x2 u42;
+    float4x3 u43;
+    float4x4 u44;
+};
+
+layout(set=0, binding=2) buffer StorageBuffer {
+    float2x2 s22;
+    float2x3 s23;
+    float2x4 s24;
+    float3x2 s32;
+    float3x3 s33;
+    float3x4 s34;
+    float4x2 s42;
+    float4x3 s43;
+    float4x4 s44;
+};
+
+half4 main() {
+    return half4(0);
+}

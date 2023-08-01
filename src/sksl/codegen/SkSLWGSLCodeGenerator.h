@@ -12,6 +12,7 @@
 #include "include/private/SkSLDefines.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
@@ -45,7 +46,6 @@ class IndexExpression;
 enum IntrinsicKind : int8_t;
 struct Layout;
 class Literal;
-class MemoryLayout;
 class OutputStream;
 class PostfixExpression;
 class PrefixExpression;
@@ -300,6 +300,7 @@ private:
     void writeStageInputStruct();
     void writeStageOutputStruct();
     void writeUniformsAndBuffers();
+    void writeUniformPolyfills(const Type& structType, MemoryLayout::Standard nativeLayout);
 
     // Writes all top-level non-opaque global uniform declarations (i.e. not part of an interface
     // block) into a single uniform block binding.
@@ -328,6 +329,13 @@ private:
     skia_private::THashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
     int fPipelineInputCount = 0;
+
+    // These fields control uniform-matrix polyfill support. Because our uniform data is provided in
+    // std140 layout, matrices need to be represented as arrays of @size(16)-aligned vectors, and
+    // are unpacked as they are referenced.
+    skia_private::THashSet<const Field*> fMatrixPolyfillFields;
+    bool fWrittenUniformMatrixPolyfill[5][5] = {};  // m[column][row] for each matrix type
+    bool fWrittenUniformRowPolyfill[5] = {};        // for each matrix row-size
 
     // Output processing state.
     int fIndentation = 0;
