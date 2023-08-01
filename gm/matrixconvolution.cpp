@@ -22,6 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "src/effects/imagefilters/SkCropImageFilter.h"
 #include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #include "tools/ToolUtils.h"
 
@@ -69,21 +70,28 @@ protected:
         return SkISize::Make(500, 300);
     }
 
-    sk_sp<SkImageFilter> makeFilter(const SkIPoint &kernelOffset, SkTileMode tileMode,
-                                    bool convolveAlpha, const SkIRect *cropRect = nullptr) {
+    sk_sp<SkImageFilter> makeFilter(const SkIPoint &kernelOffset,
+                                    SkTileMode tileMode,
+                                    bool convolveAlpha) {
+        // Must provide a cropping geometry in order for 'tileMode' to be well defined.
+        SkIRect tileBoundary = fImage->bounds();
         switch (fKernelFixture) {
             case kBasic_KernelFixture: {
                 // All 1s except center value, which is -7 (sum of 1).
                 std::vector<SkScalar> kernel(9, SkIntToScalar(1));
                 kernel[4] = SkIntToScalar(-7);
-                return SkImageFilters::MatrixConvolution({3,3}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
+                return SkImageFilters::MatrixConvolution(
+                        {3,3}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100),
+                        kernelOffset, tileMode, convolveAlpha, nullptr, tileBoundary);
             }
             case kLarge_KernelFixture: {
                 static_assert(49 > GrMatrixConvolutionEffect::kMaxUniformSize);
                 // All 1s except center value, which is -47 (sum of 1).
                 std::vector<SkScalar> kernel(49, SkIntToScalar(1));
                 kernel[24] = SkIntToScalar(-47);
-                return SkImageFilters::MatrixConvolution({7,7}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
+                return SkImageFilters::MatrixConvolution(
+                        {7,7}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100),
+                        kernelOffset, tileMode, convolveAlpha, nullptr, tileBoundary);
             }
             default:
                 return nullptr;
@@ -94,17 +102,14 @@ protected:
               SkTileMode tileMode, bool convolveAlpha,
               const SkIRect* cropRect = nullptr) {
         SkPaint paint;
-        paint.setImageFilter(this->makeFilter(kernelOffset, tileMode, convolveAlpha, cropRect));
+        auto filter = this->makeFilter(kernelOffset, tileMode, convolveAlpha);
+        if (cropRect) {
+            filter = SkMakeCropImageFilter(SkRect::Make(*cropRect), std::move(filter));
+        }
+        paint.setImageFilter(std::move(filter));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-        const SkRect layerBounds = SkRect::Make(fImage->bounds());
-        canvas->clipRect(layerBounds);
-        // This GM is, in part, intended to display the wrapping behavior of the
-        // matrix image filter. The only (rational) way to achieve that for repeat mode
-        // is to create a tight layer.
-        canvas->saveLayer(layerBounds, &paint);
-            canvas->drawImage(fImage, 0, 0);
-        canvas->restore();
+        canvas->drawImage(fImage, 0, 0, {}, &paint);
         canvas->restore();
     }
 
@@ -115,11 +120,10 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
         SkIPoint kernelOffset = SkIPoint::Make(1, 0);
-        SkIRect rect = fImage->bounds();
         for (int x = 10; x < 310; x += 100) {
-            this->draw(canvas, x, 10, kernelOffset, SkTileMode::kClamp, true, &rect);
-            this->draw(canvas, x, 110, kernelOffset, SkTileMode::kDecal, true, &rect);
-            this->draw(canvas, x, 210, kernelOffset, SkTileMode::kRepeat, true, &rect);
+            this->draw(canvas, x, 10, kernelOffset, SkTileMode::kClamp, true);
+            this->draw(canvas, x, 110, kernelOffset, SkTileMode::kDecal, true);
+            this->draw(canvas, x, 210, kernelOffset, SkTileMode::kRepeat, true);
             kernelOffset.fY++;
         }
         kernelOffset.fY = 1;
@@ -128,9 +132,9 @@ protected:
         this->draw(canvas, 310, 110, kernelOffset, SkTileMode::kDecal, true, &smallRect);
         this->draw(canvas, 310, 210, kernelOffset, SkTileMode::kRepeat, true, &smallRect);
 
-        this->draw(canvas, 410, 10, kernelOffset, SkTileMode::kClamp, false, &rect);
-        this->draw(canvas, 410, 110, kernelOffset, SkTileMode::kDecal, false, &rect);
-        this->draw(canvas, 410, 210, kernelOffset, SkTileMode::kRepeat, false, &rect);
+        this->draw(canvas, 410, 10, kernelOffset, SkTileMode::kClamp, false);
+        this->draw(canvas, 410, 110, kernelOffset, SkTileMode::kDecal, false);
+        this->draw(canvas, 410, 210, kernelOffset, SkTileMode::kRepeat, false);
     }
 
 private:
