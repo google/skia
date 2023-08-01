@@ -22,6 +22,8 @@ skia_cc_library(
         "ManagedBackendTexture.h",
         "MemoryCache.cpp",
         "MemoryCache.h",
+        "ProtectedUtils.cpp",
+        "ProtectedUtils.h",
         "ProxyUtils.cpp",
         "ProxyUtils.h",
         "TestContext.cpp",
