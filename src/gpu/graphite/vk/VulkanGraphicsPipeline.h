@@ -81,7 +81,6 @@ public:
 
     bool hasFragment() const { return fHasFragment; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
-    int numTextureSamplers() const { return fNumTextureSamplers; }
 
 private:
     VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
@@ -89,8 +88,7 @@ private:
                            VkPipelineLayout,
                            VkPipeline,
                            bool hasFragment,
-                           bool hasStepUniforms,
-                           int numTextureSamplers);
+                           bool hasStepUniforms);
 
     void freeGpuData() override;
 
@@ -98,7 +96,6 @@ private:
     VkPipeline fPipeline = VK_NULL_HANDLE;
     bool fHasFragment = false;
     bool fHasStepUniforms = false;
-    int fNumTextureSamplers = 0;
 };
 
 } // namespace skgpu::graphite

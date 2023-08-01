@@ -18,7 +18,6 @@
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/TextureProxy.h"
 
 #include <memory>
 
@@ -36,6 +35,7 @@ class ResourceProvider;
 class RuntimeEffectDictionary;
 class Sampler;
 class TextureDataBlock;
+class TextureProxy;
 class Texture;
 enum class UniformSlot;
 
@@ -93,8 +93,6 @@ public:
     }
     const Texture* getTexture(size_t index) const;
     const Sampler* getSampler(size_t index) const;
-
-    skia_private::TArray<sk_sp<TextureProxy>> sampledTextures() const { return fSampledTextures; }
 
     void addResourceRefs(CommandBuffer*) const;
 
