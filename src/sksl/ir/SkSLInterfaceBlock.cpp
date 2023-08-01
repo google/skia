@@ -16,6 +16,7 @@
 #include "src/sksl/ir/SkSLFieldSymbol.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLayout.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -49,8 +50,7 @@ static std::optional<int> find_rt_adjust_index(SkSpan<const Field> fields) {
 
 std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
                                                         Position pos,
-                                                        const SkSL::Modifiers& modifiers,
-                                                        Position modifiersPos,
+                                                        const Modifiers& modifiers,
                                                         std::string_view typeName,
                                                         TArray<Field> fields,
                                                         std::string_view varName,
@@ -89,7 +89,7 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
     // Error-check the interface block as if it were being declared as a global variable.
     VarDeclaration::ErrorCheck(context,
                                pos,
-                               modifiersPos,
+                               modifiers.fPosition,
                                modifiers.fLayout,
                                modifiers.fFlags,
                                type,
@@ -99,8 +99,9 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
     // Create a global variable for the Interface Block.
     std::unique_ptr<SkSL::Variable> var = SkSL::Variable::Convert(context,
                                                                   pos,
-                                                                  modifiersPos,
-                                                                  modifiers,
+                                                                  modifiers.fPosition,
+                                                                  modifiers.fLayout,
+                                                                  modifiers.fFlags,
                                                                   type,
                                                                   pos,
                                                                   varName,

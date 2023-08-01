@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -25,6 +25,7 @@ namespace SkSL {
 
 class Context;
 struct Layout;
+struct Modifiers;
 class Position;
 class Type;
 
@@ -68,7 +69,6 @@ public:
     // ErrorReporter.
     static std::unique_ptr<VarDeclaration> Convert(const Context& context,
                                                    Position overallPos,
-                                                   Position modifiersPos,
                                                    const Modifiers& modifiers,
                                                    const Type& type,
                                                    Position namePos,

@@ -15,10 +15,10 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/dsl/DSLExpression.h"
-#include "src/sksl/dsl/DSLModifiers.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLLayout.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 #include <cstdint>
 #include <memory>
@@ -148,7 +148,7 @@ private:
     bool declaration();
 
     bool functionDeclarationEnd(Position start,
-                                dsl::DSLModifiers& modifiers,
+                                Modifiers& modifiers,
                                 dsl::DSLType returnType,
                                 const Token& name);
 
@@ -158,7 +158,7 @@ private:
 
     struct VarDeclarationsPrefix {
         Position fPosition;
-        dsl::DSLModifiers fModifiers;
+        Modifiers fModifiers;
         dsl::DSLType fType = dsl::DSLType::Void();
         Token fName;
     };
@@ -171,7 +171,7 @@ private:
 
     dsl::DSLType structDeclaration();
 
-    void structVarDeclaration(Position start, const dsl::DSLModifiers& modifiers);
+    void structVarDeclaration(Position start, const Modifiers& modifiers);
 
     bool allowUnsizedArrays() {
         return ProgramConfig::IsCompute(fKind) || ProgramConfig::IsFragment(fKind) ||
@@ -184,13 +184,13 @@ private:
 
     void addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl);
 
-    void globalVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
+    void globalVarDeclarationEnd(Position position, const Modifiers& mods,
                                  dsl::DSLType baseType, Token name);
 
-    dsl::DSLStatement localVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
+    dsl::DSLStatement localVarDeclarationEnd(Position position, const Modifiers& mods,
                                              dsl::DSLType baseType, Token name);
 
-    bool modifiersDeclarationEnd(const dsl::DSLModifiers& mods);
+    bool modifiersDeclarationEnd(const Modifiers& mods);
 
     bool parameter(std::unique_ptr<SkSL::Variable>* outParam);
 
@@ -200,13 +200,13 @@ private:
 
     SkSL::Layout layout();
 
-    dsl::DSLModifiers modifiers();
+    Modifiers modifiers();
 
     dsl::DSLStatement statement();
 
-    dsl::DSLType type(dsl::DSLModifiers* modifiers);
+    dsl::DSLType type(Modifiers* modifiers);
 
-    bool interfaceBlock(const dsl::DSLModifiers& mods);
+    bool interfaceBlock(const Modifiers& mods);
 
     dsl::DSLStatement ifStatement();
 

@@ -23,7 +23,7 @@
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLLayout.h"
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <algorithm>
@@ -854,20 +854,20 @@ CoercionCost Type::coercionCost(const Type& other) const {
 }
 
 const Type* Type::applyQualifiers(const Context& context,
-                                  Modifiers* modifiers,
+                                  ModifierFlags* modifierFlags,
                                   Position pos) const {
     const Type* type;
-    type = this->applyPrecisionQualifiers(context, modifiers, pos);
-    type = type->applyAccessQualifiers(context, modifiers, pos);
+    type = this->applyPrecisionQualifiers(context, modifierFlags, pos);
+    type = type->applyAccessQualifiers(context, modifierFlags, pos);
     return type;
 }
 
 const Type* Type::applyPrecisionQualifiers(const Context& context,
-                                           Modifiers* modifiers,
+                                           ModifierFlags* modifierFlags,
                                            Position pos) const {
-    ModifierFlags precisionQualifiers = modifiers->fFlags & (ModifierFlag::kHighp |
-                                                             ModifierFlag::kMediump |
-                                                             ModifierFlag::kLowp);
+    ModifierFlags precisionQualifiers = *modifierFlags & (ModifierFlag::kHighp |
+                                                          ModifierFlag::kMediump |
+                                                          ModifierFlag::kLowp);
     if (precisionQualifiers == ModifierFlag::kNone) {
         // No precision qualifiers here. Return the type as-is.
         return this;
@@ -886,9 +886,9 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
     }
 
     // We're going to return a whole new type, so the modifier bits can be cleared out.
-    modifiers->fFlags &= ~(ModifierFlag::kHighp |
-                           ModifierFlag::kMediump |
-                           ModifierFlag::kLowp);
+    *modifierFlags &= ~(ModifierFlag::kHighp |
+                        ModifierFlag::kMediump |
+                        ModifierFlag::kLowp);
 
     const Type& component = this->componentType();
     if (component.highPrecision()) {
@@ -932,18 +932,18 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
 }
 
 const Type* Type::applyAccessQualifiers(const Context& context,
-                                        Modifiers* modifiers,
+                                        ModifierFlags* modifierFlags,
                                         Position pos) const {
-    ModifierFlags accessQualifiers = modifiers->fFlags & (ModifierFlag::kReadOnly |
-                                                          ModifierFlag::kWriteOnly);
+    ModifierFlags accessQualifiers = *modifierFlags & (ModifierFlag::kReadOnly |
+                                                       ModifierFlag::kWriteOnly);
     if (!accessQualifiers) {
         // No access qualifiers here. Return the type as-is.
         return this;
     }
 
     // We're going to return a whole new type, so the modifier bits can be cleared out.
-    modifiers->fFlags &= ~(ModifierFlag::kReadOnly |
-                           ModifierFlag::kWriteOnly);
+    *modifierFlags &= ~(ModifierFlag::kReadOnly |
+                        ModifierFlag::kWriteOnly);
 
     if (this->matches(*context.fTypes.fReadWriteTexture2D)) {
         if (accessQualifiers == ModifierFlag::kReadOnly) {

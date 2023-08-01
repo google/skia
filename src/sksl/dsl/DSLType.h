@@ -26,8 +26,7 @@ public:
 
     DSLType(std::string_view name, Position pos = {});
 
-    DSLType(std::string_view name, Position overallPos,
-            SkSL::Modifiers* modifiers, Position modifiersPos);
+    DSLType(std::string_view name, Position overallPos, SkSL::Modifiers* modifiers);
 
     static DSLType Invalid();
     static DSLType Poison();

@@ -21,6 +21,7 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLLayout.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 #include "src/sksl/ir/SkSLType.h"
@@ -395,7 +396,6 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
 
 std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
                                                         Position overallPos,
-                                                        Position modifiersPos,
                                                         const Modifiers& modifiers,
                                                         const Type& type,
                                                         Position namePos,
@@ -407,8 +407,9 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
 
     std::unique_ptr<Variable> var = Variable::Convert(context,
                                                       overallPos,
-                                                      modifiersPos,
-                                                      modifiers,
+                                                      modifiers.fPosition,
+                                                      modifiers.fLayout,
+                                                      modifiers.fFlags,
                                                       &type,
                                                       namePos,
                                                       name,

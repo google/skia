@@ -13,7 +13,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/ir/SkSLIRNode.h"
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 
 #include <memory>
@@ -25,6 +25,7 @@ namespace SkSL {
 class Context;
 class ExpressionArray;
 class FunctionDefinition;
+struct Modifiers;
 class Position;
 class Type;
 class Variable;
@@ -46,8 +47,7 @@ public:
 
     static FunctionDeclaration* Convert(const Context& context,
                                         Position pos,
-                                        Position modifiersPos,
-                                        const Modifiers* modifiers,
+                                        const Modifiers& modifiers,
                                         std::string_view name,
                                         skia_private::TArray<std::unique_ptr<Variable>> parameters,
                                         Position returnTypePos,

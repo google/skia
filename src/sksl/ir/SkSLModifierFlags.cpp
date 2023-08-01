@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLContext.h"

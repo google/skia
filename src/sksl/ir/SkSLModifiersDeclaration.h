@@ -11,7 +11,7 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 
 #include <memory>
@@ -20,6 +20,7 @@
 namespace SkSL {
 
 class Context;
+struct Modifiers;
 
 /**
  * A declaration that consists only of modifiers, e.g.:
@@ -36,14 +37,10 @@ public:
             , fFlags(flags) {}
 
     static std::unique_ptr<ModifiersDeclaration> Convert(const Context& context,
-                                                         Position pos,
-                                                         const Layout& layout,
-                                                         ModifierFlags flags);
+                                                         const Modifiers& modifiers);
 
     static std::unique_ptr<ModifiersDeclaration> Make(const Context& context,
-                                                      Position pos,
-                                                      const Layout& layout,
-                                                      ModifierFlags flags);
+                                                      const Modifiers& modifiers);
 
     const Layout& layout() const {
         return fLayout;

@@ -12,7 +12,7 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -62,9 +62,10 @@ public:
     ~Variable() override;
 
     static std::unique_ptr<Variable> Convert(const Context& context, Position pos,
-                                             Position modifiersPos, const Modifiers& modifiers,
-                                             const Type* type, Position namePos,
-                                             std::string_view name, Storage storage);
+                                             Position modifiersPos, const Layout& layout,
+                                             ModifierFlags flags, const Type* type,
+                                             Position namePos, std::string_view name,
+                                             Storage storage);
 
     static std::unique_ptr<Variable> Make(Position pos, Position modifiersPosition,
                                           const Layout& layout, ModifierFlags flags,

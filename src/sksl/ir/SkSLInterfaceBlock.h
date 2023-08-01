@@ -61,8 +61,7 @@ public:
     // (if it is named) or each of the interface block fields (if it is anonymous).
     static std::unique_ptr<InterfaceBlock> Convert(const Context& context,
                                                    Position pos,
-                                                   const SkSL::Modifiers& modifiers,
-                                                   Position modifiersPos,
+                                                   const Modifiers& modifiers,
                                                    std::string_view typeName,
                                                    skia_private::TArray<Field> fields,
                                                    std::string_view varName,

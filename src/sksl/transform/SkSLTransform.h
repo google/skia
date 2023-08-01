@@ -17,7 +17,6 @@ namespace SkSL {
 class Context;
 class Expression;
 class IndexExpression;
-struct Modifiers;
 struct Module;
 struct Program;
 class ProgramElement;

@@ -9,7 +9,6 @@ skia_filegroup(
     srcs = [
         "DSLExpression.cpp",
         "DSLExpression.h",
-        "DSLModifiers.h",
         "DSLStatement.cpp",
         "DSLStatement.h",
         "DSLType.cpp",

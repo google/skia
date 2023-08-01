@@ -15,7 +15,7 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLLayout.h"
-#include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/spirv.h"
 
@@ -552,12 +552,15 @@ public:
     const Type& toCompound(const Context& context, int columns, int rows) const;
 
     /**
-     * Returns a type which honors the precision and access-level qualifiers set in Modifiers. e.g.:
+     * Returns a type which honors the precision and access-level qualifiers set in ModifierFlags.
+     * For example:
      *  - Modifier `mediump` + Type `float2`:     Type `half2`
      *  - Modifier `readonly` + Type `texture2D`: Type `readonlyTexture2D`
      * Generates an error if the qualifiers don't make sense (`highp bool`, `writeonly MyStruct`)
      */
-    const Type* applyQualifiers(const Context& context, Modifiers* modifiers, Position pos) const;
+    const Type* applyQualifiers(const Context& context,
+                                ModifierFlags* modifierFlags,
+                                Position pos) const;
 
     /**
      * Coerces the passed-in expression to this type. If the types are incompatible, reports an
@@ -599,11 +602,11 @@ protected:
     }
 
     const Type* applyPrecisionQualifiers(const Context& context,
-                                         Modifiers* modifiers,
+                                         ModifierFlags* modifierFlags,
                                          Position pos) const;
 
     const Type* applyAccessQualifiers(const Context& context,
-                                      Modifiers* modifiers,
+                                      ModifierFlags* modifierFlags,
                                       Position pos) const;
 
 private:

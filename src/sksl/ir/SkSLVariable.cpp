@@ -92,14 +92,14 @@ std::string_view ExtendedVariable::mangledName() const {
 std::unique_ptr<Variable> Variable::Convert(const Context& context,
                                             Position pos,
                                             Position modifiersPos,
-                                            const Modifiers& modifiers,
+                                            const Layout& layout,
+                                            ModifierFlags flags,
                                             const Type* type,
                                             Position namePos,
                                             std::string_view name,
                                             Storage storage) {
-    ModifierFlags flags = modifiers.fFlags;
-    if (modifiers.fLayout.fLocation == 0 &&
-        modifiers.fLayout.fIndex == 0 &&
+    if (layout.fLocation == 0 &&
+        layout.fIndex == 0 &&
         (flags & ModifierFlag::kOut) &&
         ProgramConfig::IsFragment(context.fConfig->fKind) &&
         name != Compiler::FRAGCOLOR_NAME) {
@@ -109,8 +109,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
     if (type->isUnsizedArray() && storage != Variable::Storage::kInterfaceBlock) {
         context.fErrors->error(pos, "unsized arrays are not permitted here");
     }
-    if (ProgramConfig::IsCompute(context.fConfig->fKind) &&
-        modifiers.fLayout.fBuiltin == -1) {
+    if (ProgramConfig::IsCompute(context.fConfig->fKind) && layout.fBuiltin == -1) {
         if (storage == Variable::Storage::kGlobal) {
             if (flags & ModifierFlag::kIn) {
                 context.fErrors->error(pos, "pipeline inputs not permitted in compute shaders");
@@ -139,7 +138,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
         mangledName = Mangler{}.uniqueName(name, context.fSymbolTable.get());
     }
 
-    return Make(pos, modifiersPos, modifiers.fLayout, flags, type, name, std::move(mangledName),
+    return Make(pos, modifiersPos, layout, flags, type, name, std::move(mangledName),
                 context.fConfig->fIsBuiltinCode, storage);
 }
 
