@@ -17,8 +17,6 @@
 
 namespace SkSL::dsl {
 
-class DSLExpression;
-
 class DSLStatement {
 public:
     DSLStatement() = default;
@@ -29,8 +27,6 @@ public:
 
     DSLStatement(const DSLStatement&) = delete;
     DSLStatement& operator=(const DSLStatement& other) = delete;
-
-    DSLStatement(DSLExpression expr);
 
     DSLStatement(std::unique_ptr<SkSL::Statement> stmt, Position pos);
     DSLStatement(std::unique_ptr<SkSL::Statement> stmt);

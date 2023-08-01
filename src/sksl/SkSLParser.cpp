@@ -27,6 +27,7 @@
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
@@ -1656,13 +1657,15 @@ std::optional<DSLStatement> Parser::block() {
 /* expression SEMICOLON */
 DSLStatement Parser::expressionStatement() {
     DSLExpression expr = this->expression();
-    if (expr.hasValue()) {
-        if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-            return {};
-        }
-        return DSLStatement(std::move(expr));
+    if (!expr.hasValue()) {
+        return {};
     }
-    return {};
+    if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
+        return {};
+    }
+    Position pos = expr.position();
+    return DSLStatement(SkSL::ExpressionStatement::Convert(fCompiler.context(), expr.release()),
+                        pos);
 }
 
 bool Parser::operatorRight(Parser::AutoDepth& depth,
