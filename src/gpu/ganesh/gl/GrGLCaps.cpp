@@ -67,7 +67,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRebindColorAttachmentAfterCheckFramebufferStatus = false;
     fFlushBeforeWritePixels = false;
     fDisableScalingCopyAsDraws = false;
-    fSetMaxLevelForRegenerateMipMapLevels = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -4580,12 +4579,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDisableScalingCopyAsDraws = true;
     }
     // skbug.com/14194
-    // Setting the max level is technically unnecessary and can affect validation for the
-    // framebuffer. However, by making it clear that a rendering feedback loop is not occurring,
-    // we avoid hitting a slow path on some drivers.
-    if (GR_IS_GR_GL(ctxInfo.standard()) &&
-        (ctxInfo.vendor() == GrGLVendor::kIntel || ctxInfo.angleVendor() == GrGLVendor::kIntel)) {
-        fSetMaxLevelForRegenerateMipMapLevels = true;
+    // Setting the max level is technically unnecessary, but on Intel drivers it makes it
+    // clear that a rendering feedback loop is not occurring, and avoids hitting a slow path.
+    // When running on ANGLE, however, this triggers the validator because we can only use
+    // levels between BASE_LEVEL and MAX_LEVEL for a framebuffer, and we're trying to use
+    // MAX_LEVEL+1. So instead we set up sync points between each mipmap level render.
+    if (ctxInfo.vendor() == GrGLVendor::kIntel  &&
+        ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown) {
+        fRegenerateMipmapType = RegenerateMipmapType::kBasePlusMaxLevel;
+    } else if (ctxInfo.angleVendor() == GrGLVendor::kIntel) {
+        fRegenerateMipmapType = RegenerateMipmapType::kBasePlusSync;
     }
 }
 
