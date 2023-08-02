@@ -1195,13 +1195,13 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     // Confirm all the below parts of the key can fit in a single uint32_t. The sum of the shift
     // amounts in the asserts must be less than or equal to 32. vkSpec.fFlags will go into its
     // own 32-bit block.
-    SkASSERT(samplesKey < (1u << 3));
-    SkASSERT(static_cast<uint32_t>(isMipped) < (1u << 1));
-    SkASSERT(static_cast<uint32_t>(isProtected) < (1u << 1));
-    SkASSERT(vkSpec.fImageTiling < (1u << 1));
-    SkASSERT(vkSpec.fImageUsageFlags < (1u << 5));
-    SkASSERT(vkSpec.fSharingMode < (1u << 1));
-    SkASSERT(vkSpec.fAspectMask < (1u << 11));
+    SkASSERT(samplesKey                         < (1u << 3));  // sample key is first 3 bits
+    SkASSERT(static_cast<uint32_t>(isMipped)    < (1u << 1));  // isMapped is 4th bit
+    SkASSERT(static_cast<uint32_t>(isProtected) < (1u << 1));  // isProtected is 5th bit
+    SkASSERT(vkSpec.fImageTiling                < (1u << 1));  // imageTiling is 6th bit
+    SkASSERT(vkSpec.fSharingMode                < (1u << 1));  // sharingMode is 7th bit
+    SkASSERT(vkSpec.fAspectMask                 < (1u << 11)); // aspectMask is bits 8 - 19
+    SkASSERT(vkSpec.fImageUsageFlags            < (1u << 12)); // imageUsageFlags are bits 20-32
 
     // We need two uint32_ts for dimensions, 1 for format, and 2 for the rest of the key.
     static int kNum32DataCnt = 2 + 1 + 2;
@@ -1212,13 +1212,13 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     builder[1] = dimensions.height();
     builder[2] = formatKey;
     builder[3] = (static_cast<uint32_t>(vkSpec.fFlags));
-    builder[4] = (samplesKey << 0) |
-                 (static_cast<uint32_t>(isMipped) << 3) |
-                 (static_cast<uint32_t>(isProtected) << 4) |
-                 (static_cast<uint32_t>(vkSpec.fImageTiling) << 5) |
-                 (static_cast<uint32_t>(vkSpec.fImageUsageFlags) << 10) |
-                 (static_cast<uint32_t>(vkSpec.fSharingMode) << 11) |
-                 (static_cast<uint32_t>(vkSpec.fAspectMask) << 12);
+    builder[4] = (samplesKey                                         << 0)  |
+                 (static_cast<uint32_t>(isMipped)                    << 3)  |
+                 (static_cast<uint32_t>(isProtected)                 << 4)  |
+                 (static_cast<uint32_t>(vkSpec.fImageTiling)         << 5)  |
+                 (static_cast<uint32_t>(vkSpec.fSharingMode)         << 6)  |
+                 (static_cast<uint32_t>(vkSpec.fAspectMask)          << 7)  |
+                 (static_cast<uint32_t>(vkSpec.fImageUsageFlags)     << 19);
 }
 
 uint64_t VulkanCaps::getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const {
