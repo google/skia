@@ -22,7 +22,7 @@ namespace dsl {
 
 class DSLType {
 public:
-    DSLType(const SkSL::Type* type, Position pos = {});
+    DSLType(const SkSL::Type* type);
 
     DSLType(std::string_view name, Position pos = {});
 

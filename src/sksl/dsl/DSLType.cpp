@@ -13,13 +13,12 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLTypeReference.h"
 
 #include <memory>
 #include <string>
@@ -28,37 +27,18 @@ using namespace skia_private;
 
 namespace SkSL::dsl {
 
-static const SkSL::Type* verify_type(const Context& context,
-                                     const SkSL::Type* type,
-                                     bool allowGenericTypes,
-                                     Position pos) {
-    if (!context.fConfig->fIsBuiltinCode && type) {
-        if (!allowGenericTypes && (type->isGeneric() || type->isLiteral())) {
-            context.fErrors->error(pos, "type '" + std::string(type->name()) + "' is generic");
-            return context.fTypes.fPoison.get();
-        }
-        if (!type->isAllowedInES2(context)) {
-            context.fErrors->error(pos, "type '" + std::string(type->name()) +"' is not supported");
-            return context.fTypes.fPoison.get();
-        }
-    }
-    return type;
-}
-
 static const SkSL::Type* find_type(const Context& context, std::string_view name, Position pos) {
     const Symbol* symbol = context.fSymbolTable->find(name);
     if (!symbol) {
-        context.fErrors->error(pos, String::printf("no symbol named '%.*s'",
-                                                   (int)name.length(), name.data()));
+        context.fErrors->error(pos, "no symbol named '" + std::string(name) + "'");
         return context.fTypes.fPoison.get();
     }
     if (!symbol->is<SkSL::Type>()) {
-        context.fErrors->error(pos, String::printf("symbol '%.*s' is not a type",
-                                                   (int)name.length(), name.data()));
+        context.fErrors->error(pos, "symbol '" + std::string(name) + "' is not a type");
         return context.fTypes.fPoison.get();
     }
     const SkSL::Type* type = &symbol->as<SkSL::Type>();
-    return verify_type(context, type, /*allowGenericTypes=*/false, pos);
+    return TypeReference::VerifyType(context, type, pos) ? type : context.fTypes.fPoison.get();
 }
 
 static const SkSL::Type* find_type(const Context& context,
@@ -75,8 +55,8 @@ DSLType::DSLType(std::string_view name, Position pos)
 DSLType::DSLType(std::string_view name, Position overallPos, Modifiers* modifiers)
         : fSkSLType(find_type(ThreadContext::Context(), name, overallPos, modifiers)) {}
 
-DSLType::DSLType(const SkSL::Type* type, Position pos)
-        : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowGenericTypes=*/true, pos)) {}
+DSLType::DSLType(const SkSL::Type* type)
+        : fSkSLType(type) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
@@ -136,7 +116,7 @@ DSLType Array(const DSLType& base, int count, Position pos) {
     if (!count) {
         return DSLType(context.fTypes.fPoison.get());
     }
-    return DSLType(context.fSymbolTable->addArrayDimension(&base.skslType(), count), pos);
+    return context.fSymbolTable->addArrayDimension(&base.skslType(), count);
 }
 
 DSLType UnsizedArray(const DSLType& base, Position pos) {
