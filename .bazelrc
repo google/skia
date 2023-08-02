@@ -33,7 +33,7 @@ build --extra_toolchains=//toolchain:linux_amd64_ndk_arm64_toolchain
 build --extra_toolchains=//toolchain:linux_amd64_ndk_arm32_toolchain
 
 # Hide DEBUG messages from Bazel.
-# Many of these are things related to the git checkouts that are not relevent to devs.
+# Many of these are things related to the git checkouts that are not relevant to devs.
 # https://bazel.build/reference/command-line-reference#flag--ui_event_filters
 build --ui_event_filters=-debug
 
