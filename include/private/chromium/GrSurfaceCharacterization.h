@@ -144,7 +144,7 @@ private:
             : fContextInfo(std::move(contextInfo))
             , fCacheMaxResourceBytes(cacheMaxResourceBytes)
             , fImageInfo(ii)
-            , fBackendFormat(backendFormat)
+            , fBackendFormat(std::move(backendFormat))
             , fOrigin(origin)
             , fSampleCnt(sampleCnt)
             , fIsTextureable(isTextureable)
@@ -182,7 +182,7 @@ private:
             fCacheMaxResourceBytes = cacheMaxResourceBytes;
 
             fImageInfo = ii;
-            fBackendFormat = backendFormat;
+            fBackendFormat = std::move(backendFormat);
             fOrigin = origin;
             fSampleCnt = sampleCnt;
             fIsTextureable = isTextureable;

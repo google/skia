@@ -17,6 +17,8 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
+class GrCaps;
+
 class GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }

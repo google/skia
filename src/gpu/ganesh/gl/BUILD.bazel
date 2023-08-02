@@ -21,6 +21,8 @@ CORE_FILES = [
     "GrGLContext.h",
     "GrGLDefines.h",
     "GrGLExtensions.cpp",
+    "GrGLBackendSurface.cpp",
+    "GrGLBackendSurfacePriv.h",
     "GrGLGLSL.cpp",
     "GrGLGLSL.h",
     "GrGLGpu.cpp",

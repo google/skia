@@ -9,18 +9,22 @@
 #define GrTypesPriv_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTypeTraits.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <type_traits>
 
-class GrBackendFormat;
-class GrCaps;
 class GrSurfaceProxy;
 
 /**

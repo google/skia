@@ -9,6 +9,7 @@
 
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
@@ -123,14 +124,14 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
         numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
     }
 
-    return GrBackendRenderTarget(
+    return GrBackendRenderTargets::MakeGL(
             this->width(), this->height(), this->numSamples(), numStencilBits, fbi);
 }
 
 GrBackendFormat GrGLRenderTarget::backendFormat() const {
     // We should never have a GrGLRenderTarget (even a textureable one with a target that is not
     // texture 2D.
-    return GrBackendFormat::MakeGL(GrGLFormatToEnum(fRTFormat), GR_GL_TEXTURE_2D);
+    return GrBackendFormats::MakeGL(GrGLFormatToEnum(fRTFormat), GR_GL_TEXTURE_2D);
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {

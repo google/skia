@@ -169,6 +169,8 @@ generate_cpp_files_for_headers(
         "src/encode/SkICCPriv.h",
         "src/encode/SkImageEncoderFns.h",
         "src/encode/SkImageEncoderPriv.h",
+        "src/gpu/ganesh/GrBackendSurfacePriv.h",
+        "src/gpu/ganesh/gl/GrGLBackendSurfacePriv.h",
         "src/image/SkImageGeneratorPriv.h",
         "src/text/TextBlobMailbox.h",
     ],

@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/gl/GrGLAttachment.h"
 
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 
 #define GL_CALL(X) GR_GL_CALL(gpu->glInterface(), X)
@@ -135,7 +136,7 @@ void GrGLAttachment::onAbandon() {
 }
 
 GrBackendFormat GrGLAttachment::backendFormat() const {
-    return GrBackendFormat::MakeGL(GrGLFormatToEnum(fFormat), GR_GL_TEXTURE_NONE);
+    return GrBackendFormats::MakeGL(GrGLFormatToEnum(fFormat), GR_GL_TEXTURE_NONE);
 }
 
 void GrGLAttachment::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,

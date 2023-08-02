@@ -8,7 +8,6 @@
 #include "include/core/SkTypes.h"
 
 #ifdef SK_GL
-
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -25,6 +24,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -79,7 +79,7 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrGLTextureInfo info;
-    REPORTER_ASSERT(reporter, backendTex.getGLTextureInfo(&info));
+    REPORTER_ASSERT(reporter, GrBackendTextures::GetGLTextureInfo(backendTex, &info));
 
     GrBackendTexture backendTexCopy = backendTex;
     REPORTER_ASSERT(reporter, backendTexCopy.isSameTexture(backendTex));
@@ -113,7 +113,7 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
     REPORTER_ASSERT(reporter, surf);
 
     // Test invalidating from the GL backend texture.
-    backendTex.glTextureParametersModified();
+    GrBackendTextures::GLTextureParametersModified(&backendTex);
     REPORTER_ASSERT(reporter, params_invalid(*parameters));
 
     REPORTER_ASSERT(reporter, surf);
@@ -122,7 +122,7 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
     REPORTER_ASSERT(reporter, params_valid(*parameters, caps));
 
     // Test invalidating from the copy.
-    backendTexCopy.glTextureParametersModified();
+    GrBackendTextures::GLTextureParametersModified(&backendTexCopy);
     REPORTER_ASSERT(reporter, params_invalid(*parameters));
 
     // Check that we can do things like assigning the backend texture to invalid one, assign an

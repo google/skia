@@ -87,6 +87,7 @@
 #ifdef CK_ENABLE_WEBGL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -216,7 +217,7 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int widt
 
     const auto colorSettings = ColorSettings(colorSpace);
     info.fFormat = colorSettings.pixFormat;
-    GrBackendRenderTarget target(width, height, sampleCnt, stencil, info);
+    auto target = GrBackendRenderTargets::MakeGL(width, height, sampleCnt, stencil, info);
     sk_sp<SkSurface> surface(SkSurfaces::WrapBackendRenderTarget(dContext.get(),
                                                                  target,
                                                                  kBottomLeft_GrSurfaceOrigin,
@@ -907,7 +908,10 @@ public:
     glInfo.fFormat = GR_GL_RGBA8;
     glInfo.fTarget = GR_GL_TEXTURE_2D;
 
-    GrBackendTexture backendTexture(fInfo.width(), fInfo.height(), mipmapped, glInfo);
+    auto backendTexture = GrBackendTextures::MakeGL(fInfo.width(),
+                                                    fInfo.height(),
+                                                    mipmapped,
+                                                    glInfo);
 
     // In order to bind the image source to the texture, makeTexture has changed which
     // texture is "in focus" for the WebGL context.
@@ -2243,7 +2247,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto releaseCtx = new TextureReleaseContext{webglHandle, texHandle};
             GrGLTextureInfo gti = {GR_GL_TEXTURE_2D, texHandle,
                                    GR_GL_RGBA8}; // TODO(kjlubick) look at ii for this
-            GrBackendTexture gbt(ii.width, ii.height, skgpu::Mipmapped::kNo, gti);
+            auto gbt = GrBackendTextures::MakeGL(ii.width, ii.height, skgpu::Mipmapped::kNo, gti);
             auto dContext = GrAsDirectContext(self.getCanvas()->recordingContext());
 
             return SkImages::BorrowTextureFrom(dContext,

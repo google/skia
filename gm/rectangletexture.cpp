@@ -30,6 +30,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -95,7 +96,7 @@ private:
     sk_sp<SkImage> createRectangleTextureImg(GrDirectContext* dContext, GrSurfaceOrigin origin,
                                              const SkBitmap content) {
         SkASSERT(content.colorType() == kRGBA_8888_SkColorType);
-        auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
+        auto format = GrBackendFormats::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         auto bet = dContext->createBackendTexture(content.width(),
                                                   content.height(),
                                                   format,

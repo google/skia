@@ -9,6 +9,7 @@
 #define GrGLGpu_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
@@ -291,12 +292,12 @@ private:
     int getCompatibleStencilIndex(GrGLFormat format);
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat& format) override {
-        int idx = this->getCompatibleStencilIndex(format.asGLFormat());
+        int idx = this->getCompatibleStencilIndex(GrBackendFormats::AsGLFormat(format));
         if (idx < 0) {
             return {};
         }
-        return GrBackendFormat::MakeGL(GrGLFormatToEnum(this->glCaps().stencilFormats()[idx]),
-                                       GR_GL_TEXTURE_NONE);
+        return GrBackendFormats::MakeGL(GrGLFormatToEnum(this->glCaps().stencilFormats()[idx]),
+                                        GR_GL_TEXTURE_NONE);
     }
 
     void onFBOChanged();

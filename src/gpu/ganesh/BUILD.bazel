@@ -33,6 +33,7 @@ CORE_FILES = [
     "GrAutoLocaleSetter.h",
     "GrBackendSemaphore.cpp",
     "GrBackendSurface.cpp",
+    "GrBackendSurfacePriv.h",
     "GrBackendTextureImageGenerator.cpp",
     "GrBackendTextureImageGenerator.h",
     "GrBackendUtils.cpp",

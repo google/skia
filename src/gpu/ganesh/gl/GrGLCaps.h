@@ -9,7 +9,7 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
-#include <functional>
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/core/SkChecksum.h"
@@ -18,6 +18,8 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/gl/GrGLAttachment.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
+
+#include <functional>
 
 class GrGLContextInfo;
 class GrGLRenderTarget;
@@ -139,12 +141,13 @@ public:
 
     int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat& format) const override {
-        return this->getRenderTargetSampleCount(requestedCount, format.asGLFormat());
+        return this->getRenderTargetSampleCount(requestedCount,
+                                                GrBackendFormats::AsGLFormat(format));
     }
     int getRenderTargetSampleCount(int requestedCount, GrGLFormat) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat& format) const override {
-        return this->maxRenderTargetSampleCount(format.asGLFormat());
+        return this->maxRenderTargetSampleCount(GrBackendFormats::AsGLFormat(format));
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 

@@ -10,7 +10,6 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/gpu/GrBackendSurface.h"
 #include "include/private/base/SkThreadAnnotations.h"
 #include "src/base/SkSpinlock.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -24,6 +23,8 @@
 #include <memory>
 #include <tuple>
 
+class GrBackendFormat;
+class GrBackendTexture;
 class GrDirectContext;
 class GrFragmentProcessor;
 class GrImageContext;
@@ -164,7 +165,7 @@ private:
         size_t gpuMemorySize() const SK_EXCLUDES(fLock);
         skgpu::Mipmapped mipmapped() const SK_EXCLUDES(fLock);
 #ifdef SK_DEBUG
-        GrBackendFormat backendFormat() SK_EXCLUDES(fLock);
+        const GrBackendFormat& backendFormat() SK_EXCLUDES(fLock);
 #endif
 
     private:

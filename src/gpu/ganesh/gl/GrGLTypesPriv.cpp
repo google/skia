@@ -59,14 +59,8 @@ void GrGLTextureParameters::set(const SamplerOverriddenState* samplerState,
 
 void GrGLBackendTextureInfo::assign(const GrGLBackendTextureInfo& that, bool thisIsValid) {
     fInfo = that.fInfo;
-    SkSafeRef(that.fParams);
-    if (thisIsValid) {
-        SkSafeUnref(fParams);
-    }
     fParams = that.fParams;
 }
-
-void GrGLBackendTextureInfo::cleanup() { SkSafeUnref(fParams); }
 
 GrGLSurfaceInfo GrGLTextureSpecToSurfaceInfo(const GrGLTextureSpec& glSpec,
                                              uint32_t sampleCount,

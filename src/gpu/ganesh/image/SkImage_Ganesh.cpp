@@ -134,7 +134,7 @@ inline GrMipmapped SkImage_Ganesh::ProxyChooser::mipmapped() const {
 }
 
 #ifdef SK_DEBUG
-inline GrBackendFormat SkImage_Ganesh::ProxyChooser::backendFormat() {
+inline const GrBackendFormat& SkImage_Ganesh::ProxyChooser::backendFormat() {
     SkAutoSpinlock hold(fLock);
     if (fVolatileProxy) {
         SkASSERT(fVolatileProxy->backendFormat() == fStableProxy->backendFormat());

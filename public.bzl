@@ -149,6 +149,7 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/ganesh/SkImageGanesh.h",
     "include/gpu/ganesh/SkMeshGanesh.h",
     "include/gpu/ganesh/SkSurfaceGanesh.h",
+    "include/gpu/ganesh/gl/GrGLBackendSurface.h",
     "include/gpu/ganesh/mtl/SkSurfaceMetal.h",
     "include/gpu/gl/egl/GrGLMakeEGLInterface.h",
     "include/gpu/gl/glx/GrGLMakeGLXInterface.h",
@@ -810,6 +811,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/GrAutoLocaleSetter.h",
     "src/gpu/ganesh/GrBackendSemaphore.cpp",
     "src/gpu/ganesh/GrBackendSurface.cpp",
+    "src/gpu/ganesh/GrBackendSurfacePriv.h",
     "src/gpu/ganesh/GrBackendTextureImageGenerator.cpp",
     "src/gpu/ganesh/GrBackendTextureImageGenerator.h",
     "src/gpu/ganesh/GrBackendUtils.cpp",
@@ -1881,10 +1883,6 @@ TEXTUAL_HDRS = [
 ]
 
 base_gl_srcs = [
-    "src/gpu/ganesh/gl/builders/GrGLProgramBuilder.cpp",
-    "src/gpu/ganesh/gl/builders/GrGLProgramBuilder.h",
-    "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.cpp",
-    "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h",
     "src/gpu/ganesh/gl/GrGLAssembleGLESInterfaceAutogen.cpp",
     "src/gpu/ganesh/gl/GrGLAssembleGLInterfaceAutogen.cpp",
     "src/gpu/ganesh/gl/GrGLAssembleHelpers.cpp",
@@ -1892,6 +1890,8 @@ base_gl_srcs = [
     "src/gpu/ganesh/gl/GrGLAssembleWebGLInterfaceAutogen.cpp",
     "src/gpu/ganesh/gl/GrGLAttachment.cpp",
     "src/gpu/ganesh/gl/GrGLAttachment.h",
+    "src/gpu/ganesh/gl/GrGLBackendSurface.cpp",
+    "src/gpu/ganesh/gl/GrGLBackendSurfacePriv.h",
     "src/gpu/ganesh/gl/GrGLBuffer.cpp",
     "src/gpu/ganesh/gl/GrGLBuffer.h",
     "src/gpu/ganesh/gl/GrGLCaps.cpp",
@@ -1909,9 +1909,9 @@ base_gl_srcs = [
     "src/gpu/ganesh/gl/GrGLOpsRenderPass.cpp",
     "src/gpu/ganesh/gl/GrGLOpsRenderPass.h",
     "src/gpu/ganesh/gl/GrGLProgram.cpp",
+    "src/gpu/ganesh/gl/GrGLProgram.h",
     "src/gpu/ganesh/gl/GrGLProgramDataManager.cpp",
     "src/gpu/ganesh/gl/GrGLProgramDataManager.h",
-    "src/gpu/ganesh/gl/GrGLProgram.h",
     "src/gpu/ganesh/gl/GrGLRenderTarget.cpp",
     "src/gpu/ganesh/gl/GrGLRenderTarget.h",
     "src/gpu/ganesh/gl/GrGLSemaphore.cpp",
@@ -1928,6 +1928,10 @@ base_gl_srcs = [
     "src/gpu/ganesh/gl/GrGLVaryingHandler.h",
     "src/gpu/ganesh/gl/GrGLVertexArray.cpp",
     "src/gpu/ganesh/gl/GrGLVertexArray.h",
+    "src/gpu/ganesh/gl/builders/GrGLProgramBuilder.cpp",
+    "src/gpu/ganesh/gl/builders/GrGLProgramBuilder.h",
+    "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.cpp",
+    "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h",
 ]
 
 GL_SRCS_UNIX = base_gl_srcs + [
