@@ -909,6 +909,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		"imagemakewithfilter_crop",
 		"imagemakewithfilter_crop_ref",
 		"imagemakewithfilter_ref",
+		"imagefilterstransformed",
 	}
 
 	// skia:5589

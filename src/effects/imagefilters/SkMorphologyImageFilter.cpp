@@ -228,7 +228,7 @@ skif::FilterResult morphology_pass(const skif::Context& ctx, const skif::FilterR
         } // else the last iteration should output what was originally requested
 
         skif::FilterResult::Builder builder{stepCtx};
-        builder.add(childOutput, sampleBounds, ShaderFlags::kForceResolveInputs);
+        builder.add(childOutput, sampleBounds, ShaderFlags::kSampledRepeatedly);
         childOutput = builder.eval(
                 [&](SkSpan<sk_sp<SkShader>> inputs) {
                     if (appliedRadius == 0) {

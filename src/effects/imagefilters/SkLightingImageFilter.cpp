@@ -601,6 +601,8 @@ void SkLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 skif::FilterResult SkLightingImageFilter::onFilterImage(const skif::Context& ctx) const {
+    using ShaderFlags = skif::FilterResult::ShaderFlags;
+
     auto mapZToLayer = [&ctx](skif::ParameterSpace<ZValue> z) {
         return skif::LayerSpace<ZValue>::Map(ctx.mapping(), z);
     };
@@ -648,7 +650,7 @@ skif::FilterResult SkLightingImageFilter::onFilterImage(const skif::Context& ctx
     }
 
     skif::FilterResult::Builder builder{ctx};
-    builder.add(childOutput, /*sampleBounds=*/clampRect);
+    builder.add(childOutput, /*sampleBounds=*/clampRect, ShaderFlags::kSampledRepeatedly);
     return builder.eval([&](SkSpan<sk_sp<SkShader>> input) {
         // TODO: Once shaders are deferred in FilterResult, it will likely make sense to have an
         // internal normal map filter that uses this shader, and then have the lighting effects as

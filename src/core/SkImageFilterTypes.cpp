@@ -1090,9 +1090,13 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
 
     SkSamplingOptions sampling = xtraSampling;
     const bool needsResolve =
-            flags & ShaderFlags::kForceResolveInputs ||
+            // Deferred calculations on the input would be repeated with each sample
+            (flags & ShaderFlags::kSampledRepeatedly &&
+             (fColorFilter || !SkColorSpace::Equals(fImage->getColorSpace(), ctx.colorSpace()))) ||
+            // The deferred sampling options can't be merged with the one requested
             !compatible_sampling(fSamplingOptions, currentXformIsInteger,
                                  &sampling, nextXformIsInteger) ||
+            // The deferred edge of the layer bounds is visible to sampling
             this->isCropped(LayerSpace<SkMatrix>(SkMatrix::I()), sampleBounds);
 
     // Downgrade to nearest-neighbor if the sequence of sampling doesn't do anything
