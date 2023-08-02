@@ -275,20 +275,20 @@ std::string EmitSamplerLayout(const ResourceBindingRequirements& bindingReqs, in
     // If fDistinctIndexRanges is false, then texture and sampler indices may clash with other
     // resource indices. Graphite assumes that they will be placed in descriptor set (Vulkan) and
     // bind group (Dawn) index 1.
+    const char* distinctIndexRange = bindingReqs.fDistinctIndexRanges ? "" : "set=1, ";
+
     if (bindingReqs.fSeparateTextureAndSamplerBinding) {
         int samplerIndex = (*binding)++;
         int textureIndex = (*binding)++;
-        SkSL::String::appendf(&result,
-                              "layout(wgsl, %ssampler=%d, texture=%d)",
-                              bindingReqs.fDistinctIndexRanges ? "" : "set=1, ",
-                              samplerIndex,
-                              textureIndex);
+        result = SkSL::String::printf("layout(wgsl, %ssampler=%d, texture=%d)",
+                                      distinctIndexRange,
+                                      samplerIndex,
+                                      textureIndex);
     } else {
-        SkSL::String::appendf(&result,
-                              "layout(%sbinding=%d)",
-                              bindingReqs.fDistinctIndexRanges ? "" : "set=1, ",
-                              *binding);
-        (*binding)++;
+        int samplerIndex = (*binding)++;
+        result = SkSL::String::printf("layout(%sbinding=%d)",
+                                      distinctIndexRange,
+                                      samplerIndex);
     }
     return result;
 }
