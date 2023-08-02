@@ -24,7 +24,6 @@ genrule(
         "//infra/bots/task_drivers/codesize",
         "//infra/bots/task_drivers/compile_wasm_gm_tests",
         "//infra/bots/task_drivers/cpu_tests",
-        "//infra/bots/task_drivers/fm_driver",
         "//infra/bots/task_drivers/g3_canary",
         "//infra/bots/task_drivers/perf_puppeteer_canvas",
         "//infra/bots/task_drivers/perf_puppeteer_render_skps",

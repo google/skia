@@ -703,7 +703,7 @@ var codesizeTaskNameRegexp = regexp.MustCompile("^CodeSize-[a-zA-Z0-9_]+-")
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *jobBuilder) deriveCompileTaskName() string {
-	if b.role("Test", "Perf", "FM") {
+	if b.role("Test", "Perf") {
 		task_os := b.parts["os"]
 		ec := []string{}
 		if val := b.parts["extra_config"]; val != "" {
@@ -1768,55 +1768,6 @@ func (b *jobBuilder) dm() {
 			b.dep(depName)
 		})
 	}
-}
-
-func (b *jobBuilder) fm() {
-	goos := "linux"
-	if strings.Contains(b.parts["os"], "Win") {
-		goos = "windows"
-	}
-	if strings.Contains(b.parts["os"], "Mac") {
-		goos = "darwin"
-	}
-
-	b.addTask(b.Name, func(b *taskBuilder) {
-		b.asset("skimage", "skp", "svg")
-		b.cas(CAS_TEST)
-		b.dep(b.buildTaskDrivers(goos, "amd64"), b.compile())
-		b.cmd("./fm_driver${EXECUTABLE_SUFFIX}",
-			"--local=false",
-			"--resources=skia/resources",
-			"--imgs=skimage",
-			"--skps=skp",
-			"--svgs=svg",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--bot", b.Name,
-			"--gold="+strconv.FormatBool(!b.matchExtraConfig("SAN")),
-			"--gold_hashes_url", b.cfg.GoldHashesURL,
-			"build/fm${EXECUTABLE_SUFFIX}")
-		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
-		b.swarmDimensions()
-		b.attempts(1)
-
-		if b.isLinux() && b.matchExtraConfig("SAN") {
-			b.asset("clang_linux")
-			// Sanitizers may want to run llvm-symbolizer for readable stack traces.
-			b.addToPATH("clang_linux/bin")
-
-			// Point sanitizer builds at our prebuilt libc++ for this sanitizer.
-			if b.extraConfig("MSAN") {
-				// We'd see false positives in std::basic_string<char> if this weren't set.
-				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/msan")
-			} else if b.extraConfig("TSAN") {
-				// Occasional false positives may crop up in the standard library without this.
-				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/tsan")
-			} else {
-				// The machines we run on may not have libstdc++ installed.
-				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/lib/x86_64-unknown-linux-gnu")
-			}
-		}
-	})
 }
 
 // canary generates a task that uses TaskDrivers to trigger canary manual rolls on autorollers.

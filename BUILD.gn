@@ -2337,28 +2337,6 @@ if (skia_enable_tools) {
         "modules/skcms",
       ]
     }
-    test_app("fm") {
-      sources = [
-        "dm/DMGpuTestProcs.cpp",  # blech
-        "tools/fm/fm.cpp",
-      ]
-      deps = [
-        ":common_flags_aa",
-        ":common_flags_fontmgr",
-        ":common_flags_gpu",
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":hash_and_encode",
-        ":skia",
-        ":tests",
-        ":tool_utils",
-        ":trace",
-        "modules/skottie",
-        "modules/skottie:utils",
-        "modules/svg",
-      ]
-    }
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
