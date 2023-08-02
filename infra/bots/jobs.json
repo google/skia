@@ -609,6 +609,7 @@
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-ColorSpaces"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast"},
+  {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE2"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE41"},
