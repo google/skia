@@ -16,7 +16,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLStatement.h"
-#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
@@ -150,7 +149,7 @@ private:
 
     bool functionDeclarationEnd(Position start,
                                 Modifiers& modifiers,
-                                dsl::DSLType returnType,
+                                const Type* returnType,
                                 const Token& name);
 
     bool prototypeFunction(SkSL::FunctionDeclaration* decl);
@@ -170,7 +169,7 @@ private:
 
     dsl::DSLStatement varDeclarations();
 
-    dsl::DSLType structDeclaration();
+    const Type* structDeclaration();
 
     void structVarDeclaration(Position start, const Modifiers& modifiers);
 
@@ -179,17 +178,21 @@ private:
                ProgramConfig::IsVertex(fKind);
     }
 
-    bool parseArrayDimensions(Position pos, dsl::DSLType* type);
+    const Type* arrayType(const Type* base, int count, Position pos);
+
+    const Type* unsizedArrayType(const Type* base, Position pos);
+
+    bool parseArrayDimensions(Position pos, const Type** type);
 
     bool parseInitializer(Position pos, dsl::DSLExpression* initializer);
 
     void addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl);
 
     void globalVarDeclarationEnd(Position position, const Modifiers& mods,
-                                 dsl::DSLType baseType, Token name);
+                                 const Type* baseType, Token name);
 
     dsl::DSLStatement localVarDeclarationEnd(Position position, const Modifiers& mods,
-                                             const Type& baseType, Token name);
+                                             const Type* baseType, Token name);
 
     bool modifiersDeclarationEnd(const Modifiers& mods);
 
@@ -205,7 +208,9 @@ private:
 
     dsl::DSLStatement statement();
 
-    dsl::DSLType type(Modifiers* modifiers);
+    const Type* findType(Position pos, Modifiers* modifiers, std::string_view name);
+
+    const Type* type(Modifiers* modifiers);
 
     bool interfaceBlock(const Modifiers& mods);
 
@@ -273,7 +278,7 @@ private:
 
     dsl::DSLExpression postfixExpression();
 
-    dsl::DSLExpression swizzle(Position pos, dsl::DSLExpression base,
+    dsl::DSLExpression swizzle(Position pos, std::unique_ptr<Expression> base,
                                std::string_view swizzleMask, Position maskPos);
 
     dsl::DSLExpression call(Position pos, dsl::DSLExpression base, ExpressionArray args);

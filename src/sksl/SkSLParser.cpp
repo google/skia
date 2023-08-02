@@ -53,9 +53,11 @@
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -562,8 +564,8 @@ bool Parser::declaration() {
         this->structVarDeclaration(this->position(start), modifiers);
         return true;
     }
-    DSLType type = this->type(&modifiers);
-    if (!type.hasValue()) {
+    const Type* type = this->type(&modifiers);
+    if (!type) {
         return false;
     }
     Token name;
@@ -581,7 +583,7 @@ bool Parser::declaration() {
 /* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
 bool Parser::functionDeclarationEnd(Position start,
                                     Modifiers& modifiers,
-                                    DSLType returnType,
+                                    const Type* returnType,
                                     const Token& name) {
     Token lookahead = this->peek();
     bool validParams = true;
@@ -616,7 +618,7 @@ bool Parser::functionDeclarationEnd(Position start,
                                                   this->text(name),
                                                   std::move(parameters),
                                                   start,
-                                                  &returnType.skslType());
+                                                  returnType);
     }
 
     if (this->checkNext(Token::Kind::TK_SEMICOLON)) {
@@ -703,12 +705,29 @@ bool Parser::arraySize(SKSL_INT* outResult) {
     return true;
 }
 
-bool Parser::parseArrayDimensions(Position pos, DSLType* type) {
+const Type* Parser::arrayType(const Type* base, int count, Position pos) {
+    const Context& context = fCompiler.context();
+    count = base->convertArraySize(context, pos, pos, count);
+    if (!count) {
+        return context.fTypes.fPoison.get();
+    }
+    return this->symbolTable()->addArrayDimension(base, count);
+}
+
+const Type* Parser::unsizedArrayType(const Type* base, Position pos) {
+    const Context& context = fCompiler.context();
+    if (!base->checkIfUsableInArray(context, pos)) {
+        return context.fTypes.fPoison.get();
+    }
+    return this->symbolTable()->addArrayDimension(base, SkSL::Type::kUnsizedArray);
+}
+
+bool Parser::parseArrayDimensions(Position pos, const Type** type) {
     Token next;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &next)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
             if (this->allowUnsizedArrays()) {
-                *type = UnsizedArray(*type, this->rangeFrom(pos));
+                *type = this->unsizedArrayType(*type, this->rangeFrom(pos));
             } else {
                 this->error(this->rangeFrom(pos), "unsized arrays are not permitted here");
             }
@@ -720,7 +739,7 @@ bool Parser::parseArrayDimensions(Position pos, DSLType* type) {
             if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
                 return false;
             }
-            *type = Array(*type, size, this->rangeFrom(pos));
+            *type = this->arrayType(*type, size, this->rangeFrom(pos));
         }
     }
     return true;
@@ -745,9 +764,9 @@ void Parser::addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl)
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 void Parser::globalVarDeclarationEnd(Position pos,
                                      const Modifiers& mods,
-                                     dsl::DSLType baseType,
+                                     const Type* baseType,
                                      Token name) {
-    DSLType type = baseType;
+    const Type* type = baseType;
     DSLExpression initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
         return;
@@ -758,7 +777,7 @@ void Parser::globalVarDeclarationEnd(Position pos,
     this->addGlobalVarDeclaration(VarDeclaration::Convert(fCompiler.context(),
                                                           this->rangeFrom(pos),
                                                           mods,
-                                                          type.skslType(),
+                                                          *type,
                                                           this->position(name),
                                                           this->text(name),
                                                           VariableStorage::kGlobal,
@@ -780,7 +799,7 @@ void Parser::globalVarDeclarationEnd(Position pos,
                 VarDeclaration::Convert(fCompiler.context(),
                                         this->rangeFrom(identifierName),
                                         mods,
-                                        type.skslType(),
+                                        *type,
                                         this->position(identifierName),
                                         this->text(identifierName),
                                         VariableStorage::kGlobal,
@@ -793,9 +812,9 @@ void Parser::globalVarDeclarationEnd(Position pos,
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 DSLStatement Parser::localVarDeclarationEnd(Position pos,
                                             const Modifiers& mods,
-                                            const Type& baseType,
+                                            const Type* baseType,
                                             Token name) {
-    DSLType type = DSLType(&baseType);
+    const Type* type = baseType;
     DSLExpression initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
         return {};
@@ -806,7 +825,7 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
     std::unique_ptr<Statement> result = VarDeclaration::Convert(fCompiler.context(),
                                                                 this->rangeFrom(pos),
                                                                 mods,
-                                                                type.skslType(),
+                                                                *type,
                                                                 this->position(name),
                                                                 this->text(name),
                                                                 VariableStorage::kLocal,
@@ -816,7 +835,7 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
             this->expect(Token::Kind::TK_SEMICOLON, "';'");
             break;
         }
-        type = DSLType(&baseType);
+        type = baseType;
         Token identifierName;
         if (!this->expectIdentifier(&identifierName)) {
             break;
@@ -832,7 +851,7 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
                 VarDeclaration::Convert(fCompiler.context(),
                                         this->rangeFrom(identifierName),
                                         mods,
-                                        type.skslType(),
+                                        *type,
                                         this->position(identifierName),
                                         this->text(identifierName),
                                         VariableStorage::kLocal,
@@ -863,7 +882,7 @@ DSLStatement Parser::varDeclarationsOrExpressionStatement() {
         VarDeclarationsPrefix prefix;
         if (this->varDeclarationsPrefix(&prefix)) {
             checkpoint.accept();
-            return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, *prefix.fType,
+            return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
                                                 prefix.fName);
         }
 
@@ -879,11 +898,10 @@ DSLStatement Parser::varDeclarationsOrExpressionStatement() {
 bool Parser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
     prefixData->fPosition = this->position(this->peek());
     prefixData->fModifiers = this->modifiers();
-    DSLType varType = this->type(&prefixData->fModifiers);
-    if (!varType.hasValue()) {
+    prefixData->fType = this->type(&prefixData->fModifiers);
+    if (!prefixData->fType) {
         return false;
     }
-    prefixData->fType = &varType.skslType();
     return this->expectIdentifier(&prefixData->fName);
 }
 
@@ -893,64 +911,64 @@ DSLStatement Parser::varDeclarations() {
     if (!this->varDeclarationsPrefix(&prefix)) {
         return {};
     }
-    return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, *prefix.fType,
+    return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
                                         prefix.fName);
 }
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
-DSLType Parser::structDeclaration() {
+const Type* Parser::structDeclaration() {
     AutoDepth depth(this);
     Position start = this->position(this->peek());
     if (!this->expect(Token::Kind::TK_STRUCT, "'struct'")) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     Token name;
     if (!this->expectIdentifier(&name)) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     if (!depth.increase()) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     TArray<SkSL::Field> fields;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token fieldStart = this->peek();
         Modifiers modifiers = this->modifiers();
-        DSLType type = this->type(&modifiers);
-        if (!type.hasValue()) {
-            return DSLType(nullptr);
+        const Type* type = this->type(&modifiers);
+        if (!type) {
+            return nullptr;
         }
 
         do {
-            DSLType actualType = type;
+            const Type* actualType = type;
             Token memberName;
             if (!this->expectIdentifier(&memberName)) {
-                return DSLType(nullptr);
+                return nullptr;
             }
 
             while (this->checkNext(Token::Kind::TK_LBRACKET)) {
                 SKSL_INT size;
                 if (!this->arraySize(&size)) {
-                    return DSLType(nullptr);
+                    return nullptr;
                 }
                 if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
-                    return DSLType(nullptr);
+                    return nullptr;
                 }
-                actualType = dsl::Array(actualType, size,
-                                        this->rangeFrom(this->position(fieldStart)));
+                actualType = this->arrayType(actualType, size,
+                                             this->rangeFrom(this->position(fieldStart)));
             }
 
             fields.push_back(SkSL::Field(this->rangeFrom(fieldStart),
                                          modifiers.fLayout,
                                          modifiers.fFlags,
                                          this->text(memberName),
-                                         &actualType.skslType()));
+                                         actualType));
         } while (this->checkNext(Token::Kind::TK_COMMA));
 
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-            return DSLType(nullptr);
+            return nullptr;
         }
     }
     std::unique_ptr<SkSL::StructDefinition> def = StructDefinition::Convert(fCompiler.context(),
@@ -958,18 +976,18 @@ DSLType Parser::structDeclaration() {
                                                                             this->text(name),
                                                                             std::move(fields));
     if (!def) {
-        return DSLType(nullptr);
+        return nullptr;
     }
 
-    DSLType result(&def->type());
+    const Type* result = &def->type();
     ThreadContext::ProgramElements().push_back(std::move(def));
     return result;
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
 void Parser::structVarDeclaration(Position start, const Modifiers& modifiers) {
-    DSLType type = this->structDeclaration();
-    if (!type.hasValue()) {
+    const Type* type = this->structDeclaration();
+    if (!type) {
         return;
     }
     Token name;
@@ -984,8 +1002,8 @@ void Parser::structVarDeclaration(Position start, const Modifiers& modifiers) {
 bool Parser::parameter(std::unique_ptr<SkSL::Variable>* outParam) {
     Position pos = this->position(this->peek());
     Modifiers modifiers = this->modifiers();
-    DSLType type = this->type(&modifiers);
-    if (!type.hasValue()) {
+    const Type* type = this->type(&modifiers);
+    if (!type) {
         return false;
     }
     Token name;
@@ -1005,7 +1023,7 @@ bool Parser::parameter(std::unique_ptr<SkSL::Variable>* outParam) {
                                         modifiers.fPosition,
                                         modifiers.fLayout,
                                         modifiers.fFlags,
-                                        &type.skslType(),
+                                        type,
                                         namePos,
                                         nameText,
                                         VariableStorage::kParameter);
@@ -1198,38 +1216,61 @@ DSLStatement Parser::statement() {
     }
 }
 
+const Type* Parser::findType(Position pos,
+                             Modifiers* modifiers,
+                             std::string_view name) {
+    const Context& context = fCompiler.context();
+    const Symbol* symbol = this->symbolTable()->find(name);
+    if (!symbol) {
+        this->error(pos, "no symbol named '" + std::string(name) + "'");
+        return context.fTypes.fPoison.get();
+    }
+    if (!symbol->is<Type>()) {
+        this->error(pos, "symbol '" + std::string(name) + "' is not a type");
+        return context.fTypes.fPoison.get();
+    }
+    const SkSL::Type* type = &symbol->as<Type>();
+    if (!context.fConfig->fIsBuiltinCode) {
+        if (!TypeReference::VerifyType(context, type, pos)) {
+            return context.fTypes.fPoison.get();
+        }
+    }
+    return modifiers ? type->applyQualifiers(context, &modifiers->fFlags, modifiers->fPosition)
+                     : type;
+}
+
 /* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
-DSLType Parser::type(Modifiers* modifiers) {
+const Type* Parser::type(Modifiers* modifiers) {
     Token type;
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     if (!this->symbolTable()->isType(this->text(type))) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
-        return DSLType(fCompiler.context().fTypes.fInvalid.get());
+        return fCompiler.context().fTypes.fInvalid.get();
     }
-    DSLType result(this->text(type), this->position(type), modifiers);
-    if (result.isInterfaceBlock()) {
+    const Type* result = this->findType(this->position(type), modifiers, this->text(type));
+    if (result->isInterfaceBlock()) {
         // SkSL puts interface blocks into the symbol table, but they aren't general-purpose types;
         // you can't use them to declare a variable type or a function return type.
         this->error(type, "expected a type, found '" + std::string(this->text(type)) + "'");
-        return DSLType(fCompiler.context().fTypes.fInvalid.get());
+        return fCompiler.context().fTypes.fInvalid.get();
     }
     Token bracket;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
             if (this->allowUnsizedArrays()) {
-                result = UnsizedArray(result, this->rangeFrom(type));
+                result = this->unsizedArrayType(result, this->rangeFrom(type));
             } else {
                 this->error(this->rangeFrom(bracket), "unsized arrays are not permitted here");
             }
         } else {
             SKSL_INT size;
             if (!this->arraySize(&size)) {
-                return DSLType(nullptr);
+                return nullptr;
             }
             this->expect(Token::Kind::TK_RBRACKET, "']'");
-            result = Array(result, size, this->rangeFrom(type));
+            result = this->arrayType(result, size, this->rangeFrom(type));
         }
     }
     return result;
@@ -1255,8 +1296,8 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Position fieldPos = this->position(this->peek());
         Modifiers fieldModifiers = this->modifiers();
-        DSLType type = this->type(&fieldModifiers);
-        if (!type.hasValue()) {
+        const Type* type = this->type(&fieldModifiers);
+        if (!type) {
             return false;
         }
         do {
@@ -1264,7 +1305,7 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
             if (!this->expectIdentifier(&fieldName)) {
                 return false;
             }
-            DSLType actualType = type;
+            const Type* actualType = type;
             if (this->checkNext(Token::Kind::TK_LBRACKET)) {
                 Token sizeToken = this->peek();
                 if (sizeToken.fKind != Token::Kind::TK_RBRACKET) {
@@ -1272,9 +1313,9 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
                     if (!this->arraySize(&size)) {
                         return false;
                     }
-                    actualType = Array(std::move(actualType), size, this->position(typeName));
+                    actualType = this->arrayType(actualType, size, this->position(typeName));
                 } else if (this->allowUnsizedArrays()) {
-                    actualType = UnsizedArray(std::move(actualType), this->position(typeName));
+                    actualType = this->unsizedArrayType(actualType, this->position(typeName));
                 } else {
                     this->error(sizeToken, "unsized arrays are not permitted here");
                 }
@@ -1288,7 +1329,7 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
                                          fieldModifiers.fLayout,
                                          fieldModifiers.fFlags,
                                          this->text(fieldName),
-                                         &actualType.skslType()));
+                                         actualType));
         } while (this->checkNext(Token::Kind::TK_COMMA));
     }
     std::string_view instanceName;
@@ -2035,17 +2076,17 @@ DSLExpression Parser::postfixExpression() {
 }
 
 DSLExpression Parser::swizzle(Position pos,
-                              DSLExpression base,
+                              std::unique_ptr<Expression> base,
                               std::string_view swizzleMask,
                               Position maskPos) {
     SkASSERT(swizzleMask.length() > 0);
-    if (!base.type().isVector() && !base.type().isScalar()) {
+    if (!base->type().isVector() && !base->type().isScalar()) {
         return DSLExpression(
-                FieldAccess::Convert(fCompiler.context(), pos, base.release(), swizzleMask),
+                FieldAccess::Convert(fCompiler.context(), pos, std::move(base), swizzleMask),
                 pos);
     }
     return DSLExpression(Swizzle::Convert(fCompiler.context(), pos, maskPos,
-                                          base.release(), swizzleMask), pos);
+                                          std::move(base), swizzleMask), pos);
 }
 
 dsl::DSLExpression Parser::call(Position pos, dsl::DSLExpression base, ExpressionArray args) {
@@ -2081,7 +2122,7 @@ DSLExpression Parser::suffix(DSLExpression base) {
             std::string_view text;
             if (this->identifier(&text)) {
                 Position pos = this->rangeFrom(base.position());
-                return this->swizzle(pos, std::move(base), text,
+                return this->swizzle(pos, base.release(), text,
                                      this->rangeFrom(this->position(next).after()));
             }
             [[fallthrough]];
@@ -2103,14 +2144,14 @@ DSLExpression Parser::suffix(DSLExpression base) {
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
                 pos = this->rangeFrom(base.position());
                 maskPos = this->rangeFrom(start);
-                return this->swizzle(pos, std::move(base), std::string(field) +
-                        std::string(this->text(id)), maskPos);
+                return this->swizzle(pos, base.release(),
+                                     std::string(field) + std::string(this->text(id)), maskPos);
             } else if (field.empty()) {
                 this->error(pos, "expected field name or swizzle mask after '.'");
                 return {{DSLExpression::Poison(pos)}};
             }
             this->pushback(id);
-            return this->swizzle(pos, std::move(base), field, maskPos);
+            return this->swizzle(pos, base.release(), field, maskPos);
         }
         case Token::Kind::TK_LPAREN: {
             ExpressionArray args;

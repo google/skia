@@ -19,8 +19,6 @@
 
 namespace SkSL::dsl {
 
-class DSLType;
-
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.
  */
@@ -39,8 +37,6 @@ public:
     explicit DSLExpression(std::unique_ptr<SkSL::Expression> expression, Position pos = {});
 
     static DSLExpression Poison(Position pos = {});
-
-    DSLType type() const;
 
     std::string description() const;
 

@@ -10,7 +10,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLPoison.h"
 
@@ -37,11 +36,6 @@ DSLExpression DSLExpression::Poison(Position pos) {
 
 bool DSLExpression::isValid() const {
     return this->hasValue() && !fExpression->is<SkSL::Poison>();
-}
-
-DSLType DSLExpression::type() const {
-    SkASSERT(this->hasValue());
-    return &fExpression->type();
 }
 
 std::string DSLExpression::description() const {

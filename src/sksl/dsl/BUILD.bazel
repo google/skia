@@ -11,8 +11,6 @@ skia_filegroup(
         "DSLExpression.h",
         "DSLStatement.cpp",
         "DSLStatement.h",
-        "DSLType.cpp",
-        "DSLType.h",
     ],
     visibility = ["//src/sksl:__pkg__"],
 )
