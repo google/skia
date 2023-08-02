@@ -179,9 +179,11 @@ int main(int argc, char** argv) {
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
     std::string config(FLAGS_surfaceConfig[0]);
 
+    int numSuccessfulGMs = 0;
+    int numFailedGMs = 0;
+    int numSkippedGMs = 0;
+
     // Iterate over all registered GMs.
-    bool failures = false;
-    int numImagesWritten = 0;
     for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(f());
         SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName());
@@ -210,15 +212,22 @@ int main(int argc, char** argv) {
             bitmap = output.bitmap;
         }
 
-        // Flush surface if the GM was successful.
-        if (result == skiagm::DrawResult::kOk) {
-            SkDebugf("[%s]     Flushing surface...\n", now().c_str());
-            surface_manager->flush();
-        }
-
-        // Keep track of failures. We will exit with a non-zero code if there are any.
-        if (result == skiagm::DrawResult::kFail) {
-            failures = true;
+        // Keep track of results. We will exit with a non-zero exit code in the case of failures.
+        switch (result) {
+            case skiagm::DrawResult::kOk:
+                // We don't increment numSuccessfulGMs just yet. We still need to successfully save
+                // its output bitmap to disk.
+                SkDebugf("[%s]     Flushing surface...\n", now().c_str());
+                surface_manager->flush();
+                break;
+            case skiagm::DrawResult::kFail:
+                numFailedGMs++;
+                break;
+            case skiagm::DrawResult::kSkip:
+                numSkippedGMs++;
+                break;
+            default:
+                SK_ABORT("Unknown skiagm::DrawResult: %s", draw_result_to_string(result).c_str());
         }
 
         // Report GM result and optional message.
@@ -237,9 +246,9 @@ int main(int argc, char** argv) {
                     gm->getName(), config, bitmap, pngPath.c_str(), jsonPath.c_str());
             if (pngAndJSONResult != "") {
                 SkDebugf("[%s] %s\n", now().c_str(), pngAndJSONResult.c_str());
-                failures = true;
+                numFailedGMs++;
             } else {
-                numImagesWritten++;
+                numSuccessfulGMs++;
                 SkDebugf("[%s]     PNG file written to: %s\n", now().c_str(), pngPath.c_str());
                 SkDebugf("[%s]     JSON file written to: %s\n", now().c_str(), jsonPath.c_str());
             }
@@ -248,7 +257,9 @@ int main(int argc, char** argv) {
 
     // TODO(lovisolo): If running under Bazel, print command to display output files.
 
-    SkDebugf(failures ? "FAIL\n" : "PASS\n");
-    SkDebugf("%d images written to %s.\n", numImagesWritten, outputDir.c_str());
-    return failures ? 1 : 0;
+    SkDebugf(numFailedGMs > 0 ? "FAIL\n" : "PASS\n");
+    SkDebugf("%d successful GMs (images written to %s).\n", numSuccessfulGMs, outputDir.c_str());
+    SkDebugf("%d failed GMs.\n", numFailedGMs);
+    SkDebugf("%d skipped GMs.\n", numSkippedGMs);
+    return numFailedGMs > 0 ? 1 : 0;
 }
