@@ -490,7 +490,7 @@ size_t DawnCaps::GetFormatIndex(wgpu::TextureFormat format) {
             return i;
         }
         if (kFormats[i] == wgpu::TextureFormat::Undefined) {
-            SkDEBUGFAILF("Not supported wgpu::TextureFormat: %d\n", format);
+            SkDEBUGFAILF("Unsupported wgpu::TextureFormat: %d\n", static_cast<int>(format));
             return i;
         }
     }
