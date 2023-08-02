@@ -67,20 +67,20 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
 
 DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, bool hasCoverage);
 
-std::string GetSkSLVS(const ResourceBindingRequirements&,
-                      const RenderStep* step,
-                      bool defineShadingSsboIndexVarying,
-                      bool defineLocalCoordsVarying);
+std::string BuildVertexSkSL(const ResourceBindingRequirements&,
+                            const RenderStep* step,
+                            bool defineShadingSsboIndexVarying,
+                            bool defineLocalCoordsVarying);
 
-FragSkSLInfo GetSkSLFS(const Caps* caps,
-                       const ShaderCodeDictionary*,
-                       const RuntimeEffectDictionary*,
-                       const RenderStep* renderStep,
-                       UniquePaintParamsID paintID,
-                       bool useStorageBuffers,
-                       skgpu::Swizzle writeSwizzle);
+FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
+                               const ShaderCodeDictionary*,
+                               const RuntimeEffectDictionary*,
+                               const RenderStep* renderStep,
+                               UniquePaintParamsID paintID,
+                               bool useStorageBuffers,
+                               skgpu::Swizzle writeSwizzle);
 
-std::string GetSkSLCS(const Caps*, const ComputeStep*);
+std::string BuildComputeSkSL(const Caps*, const ComputeStep*);
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,

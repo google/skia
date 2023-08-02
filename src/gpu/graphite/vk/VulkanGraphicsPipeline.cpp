@@ -559,13 +559,13 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         return nullptr;
     }
 
-    FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
-                                        sharedContext->shaderCodeDictionary(),
-                                        runtimeDict,
-                                        step,
-                                        pipelineDesc.paintParamsID(),
-                                        useShadingSsboIndex,
-                                        renderPassDesc.fWriteSwizzle);
+    FragSkSLInfo fsSkSLInfo = BuildFragmentSkSL(sharedContext->caps(),
+                                                sharedContext->shaderCodeDictionary(),
+                                                runtimeDict,
+                                                step,
+                                                pipelineDesc.paintParamsID(),
+                                                useShadingSsboIndex,
+                                                renderPassDesc.fWriteSwizzle);
     std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
 
@@ -590,10 +590,10 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         }
     }
 
-    std::string vsSkSL = GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
-                                   step,
-                                   useShadingSsboIndex,
-                                   localCoordsNeeded);
+    std::string vsSkSL = BuildVertexSkSL(sharedContext->caps()->resourceBindingRequirements(),
+                                         step,
+                                         useShadingSsboIndex,
+                                         localCoordsNeeded);
     if (!SkSLToSPIRV(compiler,
                      vsSkSL,
                      SkSL::ProgramKind::kGraphiteVertex,
