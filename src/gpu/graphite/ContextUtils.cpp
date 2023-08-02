@@ -21,6 +21,7 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/gpu/graphite/compute/ComputeStep.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -437,6 +438,16 @@ FragSkSLInfo GetSkSLFS(const Caps* caps,
     result.fRequiresLocalCoords = shaderInfo.needsLocalCoords();
 
     return result;
+}
+
+std::string GetSkSLCS(const Caps* caps, const ComputeStep* step) {
+    std::string sksl =
+            SkSL::String::printf("layout(local_size_x=%u, local_size_y=%u, local_size_z=%u) in;\n",
+                                 step->localDispatchSize().fWidth,
+                                 step->localDispatchSize().fHeight,
+                                 step->localDispatchSize().fDepth);
+    sksl += step->computeSkSL(caps->resourceBindingRequirements(), /*nextBindingIndex=*/0);
+    return sksl;
 }
 
 } // namespace skgpu::graphite

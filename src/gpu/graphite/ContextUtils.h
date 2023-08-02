@@ -25,6 +25,7 @@ class Swizzle;
 
 namespace skgpu::graphite {
 
+class ComputeStep;
 class DrawParams;
 enum class DstReadRequirement;
 class GraphicsPipelineDesc;
@@ -78,6 +79,8 @@ FragSkSLInfo GetSkSLFS(const Caps* caps,
                        UniquePaintParamsID paintID,
                        bool useStorageBuffers,
                        skgpu::Swizzle writeSwizzle);
+
+std::string GetSkSLCS(const Caps*, const ComputeStep*);
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,

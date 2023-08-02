@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
@@ -26,6 +27,7 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
+#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -59,6 +61,9 @@ public:
                 break;
             case ProgramElement::Kind::kFunction:
                 this->checkOutParamsAreAssigned(pe.as<FunctionDefinition>());
+                break;
+            case ProgramElement::Kind::kModifiers:
+                this->checkWorkgroupLocalSize(pe.as<ModifiersDeclaration>());
                 break;
             default:
                 break;
@@ -129,6 +134,30 @@ public:
         }
     }
 
+    void checkWorkgroupLocalSize(const ModifiersDeclaration& d) {
+        if (d.layout().fLocalSizeX >= 0) {
+            if (fLocalSizeX >= 0) {
+                fContext.fErrors->error(d.fPosition, "'local_size_x' was specified more than once");
+            } else {
+                fLocalSizeX = d.layout().fLocalSizeX;
+            }
+        }
+        if (d.layout().fLocalSizeY >= 0) {
+            if (fLocalSizeY >= 0) {
+                fContext.fErrors->error(d.fPosition, "'local_size_y' was specified more than once");
+            } else {
+                fLocalSizeY = d.layout().fLocalSizeY;
+            }
+        }
+        if (d.layout().fLocalSizeZ >= 0) {
+            if (fLocalSizeZ >= 0) {
+                fContext.fErrors->error(d.fPosition, "'local_size_z' was specified more than once");
+            } else {
+                fLocalSizeZ = d.layout().fLocalSizeZ;
+            }
+        }
+    }
+
     bool visitExpression(const Expression& expr) override {
         switch (expr.kind()) {
             case Expression::Kind::kFunctionCall: {
@@ -154,6 +183,10 @@ public:
         return INHERITED::visitExpression(expr);
     }
 
+    bool definesLocalSize() const {
+        return fLocalSizeX >= 0 || fLocalSizeY >= 0 || fLocalSizeZ >= 0;
+    }
+
 private:
     using INHERITED = ProgramVisitor;
     size_t fGlobalSlotsUsed = 0;
@@ -161,6 +194,12 @@ private:
     const ProgramUsage& fUsage;
     // we pack the set/binding pair into a single 64 bit int
     THashSet<uint64_t> fBindings;
+
+    // Compute programs must at least specify the X dimension of the local size. The other
+    // dimensions have a default value of "1".
+    int fLocalSizeX = -1;
+    int fLocalSizeY = -1;
+    int fLocalSizeZ = -1;
 };
 
 }  // namespace
@@ -170,6 +209,10 @@ void Analysis::DoFinalizationChecks(const Program& program) {
     FinalizationVisitor visitor{*program.fContext, *program.usage()};
     for (const std::unique_ptr<ProgramElement>& element : program.fOwnedElements) {
         visitor.visitProgramElement(*element);
+    }
+    if (ProgramConfig::IsCompute(program.fConfig->fKind) && !visitor.definesLocalSize()) {
+        program.fContext->fErrors->error(Position(),
+                                         "compute programs must specify a workgroup size");
     }
 }
 

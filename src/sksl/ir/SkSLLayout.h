@@ -44,6 +44,11 @@ enum class LayoutFlag : int {
     kWGSL                       = 1 << 16,
 
     kAllBackends                = kSPIRV | kMetal | kGL | kWGSL,
+
+    // The local invocation size of a compute program.
+    kLocalSizeX                 = 1 << 17,
+    kLocalSizeY                 = 1 << 18,
+    kLocalSizeZ                 = 1 << 19,
 };
 
 }  // namespace SkSL
@@ -110,6 +115,11 @@ struct Layout {
     // input_attachment_index comes from Vulkan/SPIR-V to connect a shader variable to the a
     // corresponding attachment on the subpass in which the shader is being used.
     int fInputAttachmentIndex = -1;
+
+    // The local invocation size dimensions of a compute program.
+    int fLocalSizeX = -1;
+    int fLocalSizeY = -1;
+    int fLocalSizeZ = -1;
 };
 
 }  // namespace SkSL

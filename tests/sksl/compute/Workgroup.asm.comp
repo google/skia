@@ -2,7 +2,7 @@
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
-               OpExecutionMode %main LocalSize 16 16 1
+               OpExecutionMode %main LocalSize 256 1 1
                OpName %inputs "inputs"
                OpMemberName %inputs 0 "in_data"
                OpName %outputs "outputs"
@@ -26,7 +26,7 @@
                OpDecorate %9 Binding 1
                OpDecorate %9 DescriptorSet 0
                OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
-               OpDecorate %_arr_float_int_1024 ArrayStride 16
+               OpDecorate %_arr_float_int_512 ArrayStride 16
       %float = OpTypeFloat 32
 %_runtimearr_float = OpTypeRuntimeArray %float
      %inputs = OpTypeStruct %_runtimearr_float
@@ -40,10 +40,10 @@
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
 %sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
         %int = OpTypeInt 32 1
-   %int_1024 = OpConstant %int 1024
-%_arr_float_int_1024 = OpTypeArray %float %int_1024
-%_ptr_Workgroup__arr_float_int_1024 = OpTypePointer Workgroup %_arr_float_int_1024
-%shared_data = OpVariable %_ptr_Workgroup__arr_float_int_1024 Workgroup
+    %int_512 = OpConstant %int 512
+%_arr_float_int_512 = OpTypeArray %float %int_512
+%_ptr_Workgroup__arr_float_int_512 = OpTypePointer Workgroup %_arr_float_int_512
+%shared_data = OpVariable %_ptr_Workgroup__arr_float_int_512 Workgroup
        %void = OpTypeVoid
 %_ptr_Function_uint = OpTypePointer Function %uint
 %_ptr_Function_float = OpTypePointer Function %float
@@ -56,7 +56,7 @@
      %uint_1 = OpConstant %uint 1
    %uint_264 = OpConstant %uint 264
      %uint_0 = OpConstant %uint 0
-    %uint_10 = OpConstant %uint 10
+     %uint_9 = OpConstant %uint 9
        %bool = OpTypeBool
   %store_vIf = OpFunction %void None %24
          %25 = OpFunctionParameter %_ptr_Function_uint
@@ -104,7 +104,7 @@
                OpBranch %63
          %63 = OpLabel
          %67 = OpLoad %uint %step
-         %69 = OpULessThan %bool %67 %uint_10
+         %69 = OpULessThan %bool %67 %uint_9
                OpBranchConditional %69 %64 %66
          %64 = OpLabel
          %71 = OpLoad %uint %step

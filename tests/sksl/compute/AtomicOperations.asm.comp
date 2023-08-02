@@ -2,7 +2,7 @@
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main" %sk_LocalInvocationID
-               OpExecutionMode %main LocalSize 16 16 1
+               OpExecutionMode %main LocalSize 64 1 1
                OpName %ssbo "ssbo"
                OpMemberName %ssbo 0 "globalCounter"
                OpName %sk_LocalInvocationID "sk_LocalInvocationID"

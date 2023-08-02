@@ -56,6 +56,7 @@
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
+#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -4488,6 +4489,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     StringStream body;
     // Assign SpvIds to functions.
     const FunctionDeclaration* main = nullptr;
+    // During the same iteration, collect the local size values to assign if this is a compute
+    // program. Dimensions that are not present get assigned a value of 1.
+    int localSizeX = 1, localSizeY = 1, localSizeZ = 1;
     for (const ProgramElement* e : program.elements()) {
         if (e->is<FunctionDefinition>()) {
             const FunctionDefinition& funcDef = e->as<FunctionDefinition>();
@@ -4496,8 +4500,21 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             if (funcDecl.isMain()) {
                 main = &funcDecl;
             }
+        } else if (ProgramConfig::IsCompute(program.fConfig->fKind) &&
+                   e->is<ModifiersDeclaration>()) {
+            const ModifiersDeclaration& modifiers = e->as<ModifiersDeclaration>();
+            if (modifiers.layout().fLocalSizeX >= 0) {
+                localSizeX = modifiers.layout().fLocalSizeX;
+            }
+            if (modifiers.layout().fLocalSizeY >= 0) {
+                localSizeY = modifiers.layout().fLocalSizeY;
+            }
+            if (modifiers.layout().fLocalSizeZ >= 0) {
+                localSizeZ = modifiers.layout().fLocalSizeZ;
+            }
         }
     }
+
     // Make sure we have a main() function.
     if (!main) {
         fContext.fErrors->error(Position(), "program does not contain a main() function");
@@ -4584,7 +4601,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         this->writeInstruction(SpvOpExecutionMode,
                                fFunctionMap[main],
                                SpvExecutionModeLocalSize,
-                               16, 16, 1, // TODO(b/240615224): Set these based on the SkSL source.
+                               localSizeX, localSizeY, localSizeZ,
                                out);
     }
     for (const ProgramElement* e : program.elements()) {

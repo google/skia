@@ -1,3 +1,5 @@
+layout(local_size_x = 64) in;
+
 struct S {
     atomicUint structMemberAtomic;          // valid
     atomicUint structMemberAtomicArray[2];  // valid

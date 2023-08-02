@@ -205,11 +205,9 @@ sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
         SkSL::ProgramSettings settings;
 
         SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
-        auto computeSkSL = pipelineDesc.computeStep()->computeSkSL(
-                fSharedContext->caps()->resourceBindingRequirements(),
-                /*nextBindingIndex=*/0);
+        std::string sksl = GetSkSLCS(fSharedContext->caps(), pipelineDesc.computeStep());
         if (!SkSLToMSL(&skslCompiler,
-                       computeSkSL,
+                       sksl,
                        SkSL::ProgramKind::kCompute,
                        settings,
                        &msl,

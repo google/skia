@@ -15,7 +15,7 @@ struct Globals {
     device outputs* _anonInterface1;
 };
 struct Threadgroups {
-    array<float, 1024> shared_data;
+    array<float, 512> shared_data;
 };
 void store_vIf(threadgroup Threadgroups& _threadgroups, uint i, float value) {
     _threadgroups.shared_data[i] = value;
@@ -33,7 +33,7 @@ kernel void computeMain(uint3 sk_GlobalInvocationID [[thread_position_in_grid]],
     _threadgroups.shared_data[id * 2u] = _globals._anonInterface0->in_data[id * 2u];
     _threadgroups.shared_data[id * 2u + 1u] = _globals._anonInterface0->in_data[id * 2u + 1u];
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    const uint steps = 10u;
+    const uint steps = 9u;
     for (uint _0_step = 0u;_0_step < steps; _0_step++) {
         mask = (1u << _0_step) - 1u;
         rd_id = ((id >> _0_step) << _0_step + 1u) + mask;

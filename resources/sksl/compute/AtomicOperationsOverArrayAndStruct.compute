@@ -1,4 +1,5 @@
-const uint WORKGROUP_SIZE = 1024;
+layout(local_size_x = 256) in;
+const uint WORKGROUP_SIZE = 256;
 
 struct GlobalCounts {
     atomicUint firstHalfCount;

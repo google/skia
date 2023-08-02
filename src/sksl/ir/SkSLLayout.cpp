@@ -59,6 +59,15 @@ std::string Layout::paddedDescription() const {
     if (fFlags & LayoutFlag::kColor) {
         result += separator() + "color";
     }
+    if (fLocalSizeX >= 0) {
+        result += separator() + "local_size_x = " + std::to_string(fLocalSizeX);
+    }
+    if (fLocalSizeY >= 0) {
+        result += separator() + "local_size_y = " + std::to_string(fLocalSizeY);
+    }
+    if (fLocalSizeZ >= 0) {
+        result += separator() + "local_size_z = " + std::to_string(fLocalSizeZ);
+    }
     if (result.size() > 0) {
         result = "layout (" + result + ") ";
     }
@@ -94,6 +103,9 @@ bool Layout::checkPermittedLayout(const Context& context,
         { LayoutFlag::kMetal,                    "metal"},
         { LayoutFlag::kGL,                       "gl"},
         { LayoutFlag::kWGSL,                     "wgsl"},
+        { LayoutFlag::kLocalSizeX,               "local_size_x"},
+        { LayoutFlag::kLocalSizeY,               "local_size_y"},
+        { LayoutFlag::kLocalSizeZ,               "local_size_z"},
     };
 
     bool success = true;

@@ -28,7 +28,7 @@ kernel void computeMain(uint3 sk_LocalInvocationID [[thread_position_in_threadgr
         atomic_store_explicit(&_threadgroups.localCounts[1], 0u, memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    uint idx = uint(_in.sk_LocalInvocationID.x < 512u ? 0 : 1);
+    uint idx = uint(_in.sk_LocalInvocationID.x < 128u ? 0 : 1);
     atomic_fetch_add_explicit(&_threadgroups.localCounts[idx], 1u, memory_order_relaxed);
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (_in.sk_LocalInvocationID.x == 0u) {

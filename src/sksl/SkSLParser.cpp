@@ -1081,6 +1081,9 @@ SkSL::Layout Parser::layout() {
             {"metal",                       SkSL::LayoutFlag::kMetal},
             {"gl",                          SkSL::LayoutFlag::kGL},
             {"wgsl",                        SkSL::LayoutFlag::kWGSL},
+            {"local_size_x",                SkSL::LayoutFlag::kLocalSizeX},
+            {"local_size_y",                SkSL::LayoutFlag::kLocalSizeY},
+            {"local_size_z",                SkSL::LayoutFlag::kLocalSizeZ},
     });
 
     Layout result;
@@ -1129,6 +1132,15 @@ SkSL::Layout Parser::layout() {
                         break;
                     case SkSL::LayoutFlag::kInputAttachmentIndex:
                         result.fInputAttachmentIndex = this->layoutInt();
+                        break;
+                    case SkSL::LayoutFlag::kLocalSizeX:
+                        result.fLocalSizeX = this->layoutInt();
+                        break;
+                    case SkSL::LayoutFlag::kLocalSizeY:
+                        result.fLocalSizeY = this->layoutInt();
+                        break;
+                    case SkSL::LayoutFlag::kLocalSizeZ:
+                        result.fLocalSizeZ = this->layoutInt();
                         break;
                     default:
                         break;

@@ -2,7 +2,7 @@
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main" %sk_LocalInvocationID
-               OpExecutionMode %main LocalSize 16 16 1
+               OpExecutionMode %main LocalSize 256 1 1
                OpName %GlobalCounts "GlobalCounts"
                OpMemberName %GlobalCounts 0 "firstHalfCount"
                OpMemberName %GlobalCounts 1 "secondHalfCount"
@@ -46,7 +46,7 @@
       %int_1 = OpConstant %int 1
    %uint_264 = OpConstant %uint 264
 %_ptr_Function_uint = OpTypePointer Function %uint
-   %uint_512 = OpConstant %uint 512
+   %uint_128 = OpConstant %uint 128
      %uint_1 = OpConstant %uint 1
 %_ptr_Uniform_uint = OpTypePointer Uniform %uint
        %main = OpFunction %void None %17
@@ -67,7 +67,7 @@
                OpControlBarrier %uint_2 %uint_2 %uint_264
          %38 = OpLoad %v3uint %sk_LocalInvocationID
          %39 = OpCompositeExtract %uint %38 0
-         %41 = OpULessThan %bool %39 %uint_512
+         %41 = OpULessThan %bool %39 %uint_128
          %42 = OpSelect %int %41 %int_0 %int_1
          %43 = OpBitcast %uint %42
                OpStore %idx %43
