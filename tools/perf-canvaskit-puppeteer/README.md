@@ -22,7 +22,7 @@ the code on multiple frames and gather data.
 
 To run the benchmarks, run `make perf_js`. By default, this will use the most recent release build
 of canvaskit done locally. If you want to only run one or a few, modify the
-`canvas_perf.js` file by changing the relevent `tests.push` to `onlytests.push` and then run
+`canvas_perf.js` file by changing the relevant `tests.push` to `onlytests.push` and then run
 `make perf_js`.
 
 On the CI, the results from these tests are uploaded to Perf. For example:
