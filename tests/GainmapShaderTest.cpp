@@ -122,7 +122,8 @@ DEF_TEST(GainmapShader_rects, r) {
                            2 * sizeof(SkColor4f));
     auto gainmapImage = SkImages::RasterFromPixmap(gainmapPixmap, nullptr, nullptr);
     const auto gainmapImageRect = SkRect::MakeXYWH(1.f, 0.f, 1.f, 2.f);
-    const SkGainmapInfo gainmapInfo = simple_gainmap_info(2.f);
+    SkGainmapInfo gainmapInfo = simple_gainmap_info(2.f);
+    gainmapInfo.fEpsilonHdr[0] = 0.1f;
 
     SkImageInfo canvasInfo = SkImageInfo::Make(
             4, 6, kRGBA_F32_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
@@ -147,18 +148,131 @@ DEF_TEST(GainmapShader_rects, r) {
     canvas.drawRect(canvasRect, paint);
 
     // Compute and compare the expected colors.
-    constexpr float k10G = 1.353256028586302f;   // This is linearToSRGB(2.0).
-    constexpr float k05G = 0.6858361015012847f;  // This is linearToSRGB(srgbToLinear(0.5)*2.0)
+    // This is linearToSRGB(srgbToLinear(1.0)*2.0) = linearToSRGB(2.0).
+    constexpr float k10G = 1.353256028586302f;
+    // This is linearToSRGB(srgbToLinear(0.5)*2.0)
+    constexpr float k05G = 0.6858361015012847f;
+    // The 'R' component also has a fEpsilonHdr set.
+    // This is linearToSRGB(srgbToLinear(1.0)*2.0-0.1) = linearToSRGB(1.9).
+    constexpr float kR10G = 1.3234778541409058f;
+    // This is linearToSRGB(srgbToLinear(0.5)-0.1)
+    // The gain map is 0.f (no gain), but there are still affectd by the offset.
+    constexpr float kR05G = 0.371934685412575f;
     SkColor4f expectedColors[4][2] = {
-            {{k10G, 1.0f, 1.0f, 1.0f}, {k10G, 1.0f, 0.5f, 1.0f}},
-            {{k10G, 0.5f, 1.0f, 1.0f}, {k10G, 0.5f, 0.5f, 1.0f}},
-            {{0.5f, k10G, k10G, 1.0f}, {0.5f, k10G, k05G, 1.0f}},
-            {{0.5f, k05G, k10G, 1.0f}, {0.5f, k05G, k05G, 1.0f}},
+            {{kR10G, 1.0f, 1.0f, 1.0f}, {kR10G, 1.0f, 0.5f, 1.0f}},
+            {{kR10G, 0.5f, 1.0f, 1.0f}, {kR10G, 0.5f, 0.5f, 1.0f}},
+            {{kR05G, k10G, k10G, 1.0f}, {kR05G, k10G, k05G, 1.0f}},
+            {{kR05G, k05G, k10G, 1.0f}, {kR05G, k05G, k05G, 1.0f}},
     };
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 2; ++x) {
-            auto color = canvasBitmap.getColor4f(x + 1, y + 1);
-            REPORTER_ASSERT(r, approx_equal(color, expectedColors[y][x]));
+            const auto color = canvasBitmap.getColor4f(x + 1, y + 1);
+            const auto& expected = expectedColors[y][x];
+            REPORTER_ASSERT(r,
+                            approx_equal(color, expected),
+                            "color (%.3f %.3f %.3f %.3f) does not match expected color (%.3f %.3f "
+                            "%.3f %.3f) at "
+                            "pixel (%d, %d)",
+                            color.fR,
+                            color.fG,
+                            color.fB,
+                            color.fA,
+                            expected.fR,
+                            expected.fG,
+                            expected.fB,
+                            expected.fA,
+                            x,
+                            y);
+        }
+    }
+}
+
+DEF_TEST(GainmapShader_baseImageIsHdr, r) {
+SkColor4f hdrColors[4][2] = {
+            {{1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.5f, 1.0f}},
+            {{1.0f, 0.5f, 1.0f, 1.0f}, {1.0f, 0.5f, 0.5f, 1.0f}},
+            {{0.5f, 1.0f, 1.0f, 1.0f}, {0.5f, 1.0f, 0.5f, 1.0f}},
+            {{0.5f, 0.5f, 1.0f, 1.0f}, {0.5f, 0.5f, 0.5f, 1.0f}},
+    };
+    SkPixmap hdrPixmap(SkImageInfo::Make(2, 4, kRGBA_F32_SkColorType, kOpaque_SkAlphaType),
+                       hdrColors,
+                       2 * sizeof(SkColor4f));
+    auto hdrImage = SkImages::RasterFromPixmap(hdrPixmap, nullptr, nullptr);
+    const auto hdrImageRect = SkRect::MakeXYWH(0.f, 0.f, 2.f, 4.f);
+
+    // The top pixel indicates to gain only red, and the bottom pixel indicates to gain everything
+    // except red.
+    SkColor4f gainmapColors[2][1] = {
+            {{1.0f, 0.0f, 0.0f, 1.f}},
+            {{0.0f, 1.0f, 1.0f, 1.f}},
+    };
+    SkPixmap gainmapPixmap(SkImageInfo::Make(1, 2, kRGBA_F32_SkColorType, kOpaque_SkAlphaType),
+                           gainmapColors,
+                           1 * sizeof(SkColor4f));
+    auto gainmapImage = SkImages::RasterFromPixmap(gainmapPixmap, nullptr, nullptr);
+    const auto gainmapImageRect = SkRect::MakeXYWH(0.f, 0.f, 1.f, 2.f);
+    SkGainmapInfo gainmapInfo = simple_gainmap_info(2.f);
+    gainmapInfo.fBaseImageType = SkGainmapInfo::BaseImageType::kHDR;
+    gainmapInfo.fEpsilonSdr[0] = 0.1f;
+
+    SkImageInfo canvasInfo = SkImageInfo::Make(
+            2, 4, kRGBA_F32_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
+    SkBitmap canvasBitmap;
+    canvasBitmap.allocPixels(canvasInfo);
+    canvasBitmap.eraseColor(SK_ColorTRANSPARENT);
+    const auto canvasRect = SkRect::MakeXYWH(0.f, 0.f, 2.f, 4.f);
+
+    sk_sp<SkShader> shader = SkGainmapShader::Make(hdrImage,
+                                                   hdrImageRect,
+                                                   SkSamplingOptions(),
+                                                   gainmapImage,
+                                                   gainmapImageRect,
+                                                   SkSamplingOptions(),
+                                                   gainmapInfo,
+                                                   canvasRect,
+                                                   gainmapInfo.fDisplayRatioSdr,
+                                                   canvasInfo.refColorSpace());
+    SkPaint paint;
+    paint.setShader(shader);
+    SkCanvas canvas(canvasBitmap);
+    canvas.drawRect(canvasRect, paint);
+
+    // Compute and compare the expected colors.
+    // This is linearToSRGB(srgbToLinear(1.0)*0.5) = linearToSRGB(0.5).
+    constexpr float k10G = 0.7353569830524495f;
+    // This is linearToSRGB(srgbToLinear(0.5)*0.5)
+    constexpr float k05G = 0.3607802138332792f;
+    // The 'R' component also has a fEpsilonSdr set.
+    // This is linearToSRGB(srgbToLinear(1.0)*0.5-0.1) = linearToSRGB(0.4).
+    constexpr float kR10G = 0.6651850846308363f;
+    // This is linearToSRGB(srgbToLinear(0.5)-0.1)
+    // The gain map is 0.f (no gain), but there are still affectd by the offset.
+    constexpr float kR05G = 0.371934685412575f;
+    SkColor4f expectedColors[4][2] = {
+            {{kR10G, 1.0f, 1.0f, 1.0f}, {kR10G, 1.0f, 0.5f, 1.0f}},
+            {{kR10G, 0.5f, 1.0f, 1.0f}, {kR10G, 0.5f, 0.5f, 1.0f}},
+            {{kR05G, k10G, k10G, 1.0f}, {kR05G, k10G, k05G, 1.0f}},
+            {{kR05G, k05G, k10G, 1.0f}, {kR05G, k05G, k05G, 1.0f}},
+    };
+    for (int y = 0; y < 4; ++y) {
+        for (int x = 0; x < 2; ++x) {
+            const auto color = canvasBitmap.getColor4f(x, y);
+            const auto& expected = expectedColors[y][x];
+            REPORTER_ASSERT(r,
+                            approx_equal(color, expected),
+                            "color (%.3f %.3f %.3f %.3f) does not match expected color (%.3f %.3f "
+                            "%.3f %.3f) at "
+                            "pixel (%d, %d)",
+                            color.fR,
+                            color.fG,
+                            color.fB,
+                            color.fA,
+                            expected.fR,
+                            expected.fG,
+                            expected.fB,
+                            expected.fA,
+                            x,
+                            y);
         }
     }
 }

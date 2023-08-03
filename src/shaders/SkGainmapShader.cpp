@@ -29,8 +29,8 @@ static constexpr char gGainmapSKSL[] =
         "uniform half4 logRatioMin;"
         "uniform half4 logRatioMax;"
         "uniform half4 gainmapGamma;"
-        "uniform half4 epsilonSdr;"
-        "uniform half4 epsilonHdr;"
+        "uniform half4 epsilonBase;"
+        "uniform half4 epsilonOther;"
         "uniform half W;"
         "uniform int gainmapIsAlpha;"
         "uniform int gainmapIsRed;"
@@ -53,7 +53,7 @@ static constexpr char gGainmapSKSL[] =
                 "} else {"
                     "L = mix(logRatioMin.r, logRatioMax.r, pow(G.r, gainmapGamma.r));"
                 "}"
-                "half3 H = (S.rgb + epsilonSdr.rgb) * exp(L * W) - epsilonHdr.rgb;"
+                "half3 H = (S.rgb + epsilonBase.rgb) * exp(L * W) - epsilonOther.rgb;"
                 "return half4(H.r, H.g, H.b, S.a);"
             "} else {"
                 "half3 L;"
@@ -62,7 +62,7 @@ static constexpr char gGainmapSKSL[] =
                 "} else {"
                     "L = mix(logRatioMin.rgb, logRatioMax.rgb, pow(G.rgb, gainmapGamma.rgb));"
                 "}"
-                "half3 H = (S.rgb + epsilonSdr.rgb) * exp(L * W) - epsilonHdr.rgb;"
+                "half3 H = (S.rgb + epsilonBase.rgb) * exp(L * W) - epsilonOther.rgb;"
                 "return half4(H.r, H.g, H.b, S.a);"
             "}"
         "}";
@@ -113,7 +113,8 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
         }
     }
 
-    if (gainmapInfo.fBaseImageType == SkGainmapInfo::BaseImageType::kHDR) {
+    const bool baseImageIsHdr = (gainmapInfo.fBaseImageType == SkGainmapInfo::BaseImageType::kHDR);
+    if (baseImageIsHdr) {
         W -= 1.f;
     }
 
@@ -165,13 +166,17 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
                                   (colorTypeFlags == kGray_SkColorChannelFlag ||
                                    colorTypeFlags == kAlpha_SkColorChannelFlag ||
                                    colorTypeFlags == kRed_SkColorChannelFlag);
+        const SkColor4f& epsilonBase =
+                baseImageIsHdr ? gainmapInfo.fEpsilonHdr : gainmapInfo.fEpsilonSdr;
+        const SkColor4f& epsilonOther =
+                baseImageIsHdr ? gainmapInfo.fEpsilonSdr : gainmapInfo.fEpsilonHdr;
         builder.child("base") = baseImageShader;
         builder.child("gainmap") = gainmapImageShader;
         builder.uniform("logRatioMin") = logRatioMin;
         builder.uniform("logRatioMax") = logRatioMax;
         builder.uniform("gainmapGamma") = gainmapInfo.fGainmapGamma;
-        builder.uniform("epsilonSdr") = gainmapInfo.fEpsilonSdr;
-        builder.uniform("epsilonHdr") = gainmapInfo.fEpsilonHdr;
+        builder.uniform("epsilonBase") = epsilonBase;
+        builder.uniform("epsilonOther") = epsilonOther;
         builder.uniform("noGamma") = noGamma;
         builder.uniform("singleChannel") = singleChannel;
         builder.uniform("gainmapIsAlpha") = gainmapIsAlpha;
