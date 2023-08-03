@@ -100,22 +100,11 @@ class DispatchGroup::Builder final {
 public:
     // Contains the resource handles assigned to the outputs of the most recently inserted
     // ComputeStep.
-    // TODO(b/259564970): Support TextureProxy slot entries.
     struct OutputTable {
-        // Draw buffers that can be forwarded to a DrawPass
-        BindBufferInfo fVertexBuffer;
-        BindBufferInfo fIndexBuffer;
-        BindBufferInfo fInstanceBuffer;
-        BindBufferInfo fIndirectDrawBuffer;
-
         // Contains the std::monostate variant if the slot is uninitialized
         DispatchResourceOptional fSharedSlots[kMaxComputeDataFlowSlots];
 
         OutputTable() = default;
-
-        bool hasDrawBuffers() const {
-            return fVertexBuffer || fIndexBuffer || fInstanceBuffer || fIndirectDrawBuffer;
-        }
 
         void reset() { *this = {}; }
     };
@@ -133,10 +122,7 @@ public:
     // If the global dispatch size (i.e. workgroup count) is known ahead of time it can be
     // optionally provided here while appending a step. If provided, the ComputeStep will not
     // receive a call to `calculateGlobalDispatchSize`.
-    bool appendStep(const ComputeStep*,
-                    const DrawParams&,
-                    int ssboIndex,
-                    std::optional<WorkgroupSize> globalSize = std::nullopt);
+    bool appendStep(const ComputeStep*, std::optional<WorkgroupSize> globalSize = std::nullopt);
 
     // Directly assign a buffer range to a shared slot. ComputeSteps that are appended after this
     // call will use this resouce if they reference the given `slot` index. Builder will not
@@ -169,19 +155,11 @@ public:
     sk_sp<TextureProxy> getSharedTextureResource(unsigned int slot) const;
 
 private:
-    // Allocate a buffer for one of the vertex|index|instance|indirect draw buffer slots.
-    BindBufferInfo allocateDrawBuffer(const ComputeStep* step,
-                                      const ComputeStep::ResourceDesc& resource,
-                                      int resourceIdx,
-                                      const DrawParams& params);
-
     // Allocate a resource that can be assigned to the shared or private data flow slots. Returns a
     // std::monostate if allocation fails.
     DispatchResourceOptional allocateResource(const ComputeStep* step,
                                               const ComputeStep::ResourceDesc& resource,
-                                              int ssboIdx,
-                                              int resourceIdx,
-                                              const DrawParams& params);
+                                              int resourceIdx);
 
     // The object under construction.
     std::unique_ptr<DispatchGroup> fObj;

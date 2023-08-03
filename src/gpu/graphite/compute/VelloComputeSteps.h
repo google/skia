@@ -183,8 +183,6 @@ public:
         return {VelloNativeShaderSource(S, format), "main_"};
     }
 
-    std::string computeSkSL(const ResourceBindingRequirements&, int) const override { return ""; }
-
 protected:
     explicit VelloStep(SkSpan<const ResourceDesc> resources)
             : ComputeStep(VelloStageName(S),

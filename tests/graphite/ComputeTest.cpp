@@ -17,7 +17,6 @@
 #include "src/gpu/graphite/ComputeTask.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SynchronizeToCpuTask.h"
@@ -29,11 +28,6 @@
 using namespace skgpu::graphite;
 
 namespace {
-
-static const Transform kTestTransform = Transform::Identity();
-static DrawParams fake_draw_params_for_testing() {
-    return DrawParams(kTestTransform, {}, {}, DrawOrder({}), nullptr);
-}
 
 void* map_bind_buffer(const BindBufferInfo& info) {
     SkASSERT(info.fBuffer);
@@ -78,7 +72,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SingleDispatchTest, reporter, contex
         ~TestComputeStep() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(set=0, binding=0) readonly buffer inputBlock
                 {
@@ -95,9 +89,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SingleDispatchTest, reporter, contex
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             if (index == 0) {
                 SkASSERT(r.fFlow == DataFlow::kPrivate);
                 return sizeof(float) * (kProblemSize + 1);
@@ -108,9 +100,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SingleDispatchTest, reporter, contex
             return sizeof(float) * kProblemSize;
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -129,13 +119,13 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SingleDispatchTest, reporter, contex
             }
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+    if (!builder.appendStep(&step)) {
         ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
         return;
     }
@@ -217,7 +207,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
         ~TestComputeStep1() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(set=0, binding=0) readonly buffer inputBlock
                 {
@@ -240,9 +230,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             if (index == 0) {
                 SkASSERT(r.fFlow == DataFlow::kPrivate);
                 return sizeof(float) * (kProblemSize + 1);
@@ -259,9 +247,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             return 2 * sizeof(float);
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -278,7 +264,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             }
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step1;
@@ -312,7 +298,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
         ~TestComputeStep2() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(set=0, binding=0) readonly buffer inputBlock
                 {
@@ -332,9 +318,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             if (index == 0) {
                 return sizeof(float) * kProblemSize;
             }
@@ -348,9 +332,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             return sizeof(float) * kProblemSize;
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -361,14 +343,14 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
             *static_cast<float*>(buffer) = kFactor2;
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step2;
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.appendStep(&step1, fake_draw_params_for_testing(), 0);
-    builder.appendStep(&step2, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step1);
+    builder.appendStep(&step2);
 
     // Slots 0, 1, and 2 should all contain shared buffers. Slot 1 contains the extra output buffer
     // from step 1 while slot 2 contains the result of the second multiplication pass from step 1.
@@ -472,7 +454,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_UniformBufferTest, reporter, context
         ~TestComputeStep() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(set=0, binding=0) uniform uniformBlock
                 {
@@ -492,9 +474,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_UniformBufferTest, reporter, context
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             if (index == 0) {
                 SkASSERT(r.fFlow == DataFlow::kPrivate);
                 return sizeof(float);
@@ -509,9 +489,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_UniformBufferTest, reporter, context
             return sizeof(float) * kProblemSize;
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -528,8 +506,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_UniformBufferTest, reporter, context
             }
         }
 
-        void prepareUniformBuffer(const DrawParams&,
-                                  int resourceIndex,
+        void prepareUniformBuffer(int resourceIndex,
                                   const ResourceDesc&,
                                   UniformManager* mgr) const override {
             SkASSERT(resourceIndex == 0);
@@ -540,13 +517,13 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_UniformBufferTest, reporter, context
             mgr->write(kFactor);
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+    if (!builder.appendStep(&step)) {
         ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
         return;
     }
@@ -620,7 +597,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ExternallyAssignedBuffer, reporter, 
         ~TestComputeStep() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(set=0, binding=0) readonly buffer inputBlock
                 {
@@ -637,17 +614,13 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ExternallyAssignedBuffer, reporter, 
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int resourceIndex,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int resourceIndex, const ResourceDesc& r) const override {
             SkASSERT(resourceIndex == 0);
             SkASSERT(r.fFlow == DataFlow::kPrivate);
             return sizeof(float) * (kProblemSize + 1);
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -674,7 +647,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ExternallyAssignedBuffer, reporter, 
     builder.assignSharedBuffer(outputInfo, 0);
 
     // Initialize the step with a pre-determined global size
-    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0, {WorkgroupSize(1, 1, 1)})) {
+    if (!builder.appendStep(&step, {WorkgroupSize(1, 1, 1)})) {
         ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
         return;
     }
@@ -733,7 +706,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTexture, reporter, context) {
                 }) {}
         ~TestComputeStep() override = default;
 
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(binding = 0) writeonly texture2D dest;
 
@@ -744,17 +717,17 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTexture, reporter, context) {
         }
 
         std::tuple<SkISize, SkColorType> calculateTextureParameters(
-                const DrawParams&, int index, const ResourceDesc& r) const override {
+                int index, const ResourceDesc& r) const override {
             return {{kDim, kDim}, kRGBA_8888_SkColorType};
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+    if (!builder.appendStep(&step)) {
         ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
         return;
     }
@@ -839,7 +812,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureReadAndWrite, reporter
                 }) {}
         ~TestComputeStep() override = default;
 
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(binding = 0) readonly texture2D src;
                 layout(binding = 1) writeonly texture2D dest;
@@ -852,12 +825,12 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureReadAndWrite, reporter
         }
 
         std::tuple<SkISize, SkColorType> calculateTextureParameters(
-                const DrawParams&, int index, const ResourceDesc& r) const override {
+                int index, const ResourceDesc& r) const override {
             SkASSERT(index == 1);
             return {{kDim, kDim}, kRGBA_8888_SkColorType};
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step;
@@ -906,7 +879,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureReadAndWrite, reporter
     // binding.
     builder.assignSharedTexture(std::move(srcProxy), 0);
 
-    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+    if (!builder.appendStep(&step)) {
         ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
         return;
     }
@@ -986,7 +959,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, 
                 }) {}
         ~TestComputeStep1() override = default;
 
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(binding = 0) writeonly texture2D dest;
 
@@ -997,12 +970,12 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, 
         }
 
         std::tuple<SkISize, SkColorType> calculateTextureParameters(
-                const DrawParams&, int index, const ResourceDesc& r) const override {
+                int index, const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             return {{kDim, kDim}, kRGBA_8888_SkColorType};
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step1;
@@ -1029,7 +1002,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, 
                 }) {}
         ~TestComputeStep2() override = default;
 
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(binding = 0) readonly texture2D src;
                 layout(binding = 1) writeonly texture2D dest;
@@ -1042,19 +1015,19 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_StorageTextureMultipleComputeSteps, 
         }
 
         std::tuple<SkISize, SkColorType> calculateTextureParameters(
-                const DrawParams&, int index, const ResourceDesc& r) const override {
+                int index, const ResourceDesc& r) const override {
             SkASSERT(index == 1);
             return {{kDim, kDim}, kRGBA_8888_SkColorType};
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step2;
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.appendStep(&step1, fake_draw_params_for_testing(), 0);
-    builder.appendStep(&step2, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step1);
+    builder.appendStep(&step2);
 
     sk_sp<TextureProxy> dst = builder.getSharedTextureResource(1);
     if (!dst) {
@@ -1132,7 +1105,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
                 }) {}
         ~TestComputeStep1() override = default;
 
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(binding = 0) writeonly texture2D dest;
 
@@ -1145,12 +1118,12 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
         }
 
         std::tuple<SkISize, SkColorType> calculateTextureParameters(
-                const DrawParams&, int index, const ResourceDesc& r) const override {
+                int index, const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             return {{kSrcDim, kSrcDim}, kRGBA_8888_SkColorType};
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step1;
@@ -1181,7 +1154,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
                 }) {}
         ~TestComputeStep2() override = default;
 
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(binding = 0) sampler2D src;
                 layout(binding = 1) writeonly texture2D dest;
@@ -1201,28 +1174,26 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
         }
 
         std::tuple<SkISize, SkColorType> calculateTextureParameters(
-                const DrawParams&, int index, const ResourceDesc& r) const override {
+                int index, const ResourceDesc& r) const override {
             SkASSERT(index == 2);
             return {{kDstDim, kDstDim}, kRGBA_8888_SkColorType};
         }
 
-        SamplerDesc calculateSamplerParameters(const DrawParams&,
-                                               int index,
-                                               const ResourceDesc&) const override {
+        SamplerDesc calculateSamplerParameters(int index, const ResourceDesc&) const override {
             SkASSERT(index == 1);
             // Use the repeat tile mode to sample an infinite checkerboard.
             constexpr SkTileMode kTileModes[2] = {SkTileMode::kRepeat, SkTileMode::kRepeat};
             return {SkFilterMode::kLinear, kTileModes};
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step2;
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.appendStep(&step1, fake_draw_params_for_testing(), 0);
-    builder.appendStep(&step2, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step1);
+    builder.appendStep(&step2);
 
     sk_sp<TextureProxy> dst = builder.getSharedTextureResource(1);
     if (!dst) {
@@ -1303,7 +1274,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsTest, reporter, cont
         //
         // This exercises atomic store/load/add and coherent reads and writes over memory in storage
         // and workgroup address spaces.
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(metal, binding = 0) buffer ssbo {
                     atomicUint globalCounter;
@@ -1336,22 +1307,18 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsTest, reporter, cont
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             SkASSERT(r.fSlot == 0);
             SkASSERT(r.fFlow == DataFlow::kShared);
             return sizeof(uint32_t);
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(kWorkgroupCount, 1, 1);
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -1361,7 +1328,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsTest, reporter, cont
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.appendStep(&step, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step);
 
     BindBufferInfo info = builder.getSharedBufferResource(0);
     if (!info) {
@@ -1433,7 +1400,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsOverArrayAndStructTe
         //
         // This exercises atomic store/load/add and coherent reads and writes over memory in storage
         // and workgroup address spaces.
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 const uint WORKGROUP_SIZE = 1024;
 
@@ -1476,22 +1443,18 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsOverArrayAndStructTe
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             SkASSERT(r.fSlot == 0);
             SkASSERT(r.fFlow == DataFlow::kShared);
             return 2 * sizeof(uint32_t);
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(kWorkgroupCount, 1, 1);
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -1503,7 +1466,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_AtomicOperationsOverArrayAndStructTe
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.appendStep(&step, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step);
 
     BindBufferInfo info = builder.getSharedBufferResource(0);
     if (!info) {
@@ -1579,7 +1542,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ClearedBuffer, reporter, context) {
                 }) {}
         ~TestComputeStep() override = default;
 
-        std::string computeSkSL(const ResourceBindingRequirements&, int) const override {
+        std::string computeSkSL() const override {
             return R"(
                 layout(set=0, binding=0) readonly buffer inputBlock
                 {
@@ -1595,15 +1558,11 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ClearedBuffer, reporter, context) {
             )";
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             return sizeof(uint32_t) * kProblemSize;
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -1611,13 +1570,13 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ClearedBuffer, reporter, context) {
             SkASSERT(resourceIndex == 1);
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(1, 1, 1);
         }
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    if (!builder.appendStep(&step, fake_draw_params_for_testing(), 0)) {
+    if (!builder.appendStep(&step)) {
         ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
         return;
     }
@@ -1718,22 +1677,18 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal, reporter, c
             return {kSource, "atomicCount"};
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             SkASSERT(r.fSlot == 0);
             SkASSERT(r.fFlow == DataFlow::kShared);
             return sizeof(uint32_t);
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(kWorkgroupCount, 1, 1);
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -1743,7 +1698,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal, reporter, c
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.appendStep(&step, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step);
 
     BindBufferInfo info = builder.getSharedBufferResource(0);
     if (!info) {
@@ -1848,22 +1803,18 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal, reporter, 
             return {kSource, "atomicCount"};
         }
 
-        size_t calculateBufferSize(const DrawParams&,
-                                   int index,
-                                   const ResourceDesc& r) const override {
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
             SkASSERT(index == 0);
             SkASSERT(r.fSlot == 0);
             SkASSERT(r.fFlow == DataFlow::kShared);
             return sizeof(uint32_t);
         }
 
-        WorkgroupSize calculateGlobalDispatchSize(const DrawParams&) const override {
+        WorkgroupSize calculateGlobalDispatchSize() const override {
             return WorkgroupSize(kWorkgroupCount, 1, 1);
         }
 
-        void prepareStorageBuffer(const DrawParams&,
-                                  int ssboIndex,
-                                  int resourceIndex,
+        void prepareStorageBuffer(int resourceIndex,
                                   const ResourceDesc& r,
                                   void* buffer,
                                   size_t bufferSize) const override {
@@ -1873,7 +1824,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal, reporter, 
     } step;
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.appendStep(&step, fake_draw_params_for_testing(), 0);
+    builder.appendStep(&step);
 
     BindBufferInfo info = builder.getSharedBufferResource(0);
     if (!info) {

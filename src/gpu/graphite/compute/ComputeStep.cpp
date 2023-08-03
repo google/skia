@@ -38,9 +38,7 @@ ComputeStep::ComputeStep(std::string_view name,
         , fLocalDispatchSize(localDispatchSize) {
 #ifdef SK_DEBUG
     std::unordered_set<int> slots;
-#endif
     for (const ResourceDesc& r : fResources) {
-#ifdef SK_DEBUG
         // Validate that slot assignments within a ComputeStep are unique.
         if (r.fFlow == DataFlow::kShared) {
             SkASSERT(r.fSlot > -1);
@@ -48,52 +46,20 @@ ComputeStep::ComputeStep(std::string_view name,
             auto [_, inserted] = slots.insert(r.fSlot);
             SkASSERT(inserted);
         }
-#endif  // SK_DEBUG
-        switch (r.fFlow) {
-            case DataFlow::kVertexOutput:
-                SkASSERT(r.fType == ResourceType::kStorageBuffer);
-                SkASSERTF(!(fFlags & Flags::kOutputsVertexBuffer),
-                          "a ComputeStep cannot produce more than one vertex buffer");
-                fFlags |= Flags::kOutputsVertexBuffer;
-                break;
-            case DataFlow::kIndexOutput:
-                SkASSERT(r.fType == ResourceType::kStorageBuffer);
-                SkASSERTF(!(fFlags & Flags::kOutputsIndexBuffer),
-                          "a ComputeStep cannot produce more than one index buffer");
-                fFlags |= Flags::kOutputsIndexBuffer;
-                break;
-            case DataFlow::kInstanceOutput:
-                SkASSERT(r.fType == ResourceType::kStorageBuffer);
-                SkASSERTF(!(fFlags & Flags::kOutputsInstanceBuffer),
-                          "a ComputeStep cannot produce more than one instance buffer");
-                fFlags |= Flags::kOutputsInstanceBuffer;
-                break;
-            case DataFlow::kIndirectDrawOutput:
-                // More than one indirect buffer output cannot be specified.
-                SkASSERTF(!(fFlags & Flags::kOutputsIndirectDrawBuffer),
-                          "a ComputeStep cannot produce more than indirect buffer");
-                fFlags |= Flags::kOutputsIndirectDrawBuffer;
-                break;
-            default:
-                break;
-        }
     }
+#endif  // SK_DEBUG
 }
 
-void ComputeStep::prepareStorageBuffer(
-        const DrawParams&, int, int, const ResourceDesc&, void*, size_t) const {
+void ComputeStep::prepareStorageBuffer(int, const ResourceDesc&, void*, size_t) const {
     SK_ABORT("ComputeSteps that initialize a mapped storage buffer must override "
              "prepareStorageBuffer()");
 }
 
-void ComputeStep::prepareUniformBuffer(const DrawParams&,
-                                       int,
-                                       const ResourceDesc&,
-                                       UniformManager*) const {
+void ComputeStep::prepareUniformBuffer(int, const ResourceDesc&, UniformManager*) const {
     SK_ABORT("ComputeSteps that initialize a uniform buffer must override prepareUniformBuffer()");
 }
 
-std::string ComputeStep::computeSkSL(const ResourceBindingRequirements&, int) const {
+std::string ComputeStep::computeSkSL() const {
     SK_ABORT("ComputeSteps must override computeSkSL() unless they support native shader source");
     return "";
 }
@@ -103,26 +69,24 @@ ComputeStep::NativeShaderSource ComputeStep::nativeShaderSource(NativeShaderForm
     return {};
 }
 
-size_t ComputeStep::calculateBufferSize(const DrawParams&, int, const ResourceDesc&) const {
+size_t ComputeStep::calculateBufferSize(int, const ResourceDesc&) const {
     SK_ABORT("ComputeSteps that initialize a storage buffer must override calculateBufferSize()");
     return 0u;
 }
 
 std::tuple<SkISize, SkColorType> ComputeStep::calculateTextureParameters(
-        const DrawParams&, int resourceIndex, const ResourceDesc&) const {
+        int, const ResourceDesc&) const {
     SK_ABORT("ComputeSteps that initialize a texture must override calculateTextureParameters()");
     return {SkISize::MakeEmpty(), kUnknown_SkColorType};
 }
 
-SamplerDesc ComputeStep::calculateSamplerParameters(const DrawParams&,
-                                                    int resourceIndex,
-                                                    const ResourceDesc&) const {
+SamplerDesc ComputeStep::calculateSamplerParameters(int resourceIndex, const ResourceDesc&) const {
     SK_ABORT("ComputeSteps that initialize a sampler must override calculateSamplerParameters()");
     constexpr SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
     return {{}, kTileModes};
 }
 
-WorkgroupSize ComputeStep::calculateGlobalDispatchSize(const DrawParams&) const {
+WorkgroupSize ComputeStep::calculateGlobalDispatchSize() const {
     SK_ABORT("ComputeSteps must override calculateGlobalDispatchSize() if it participates "
              "in resource creation");
     return WorkgroupSize();

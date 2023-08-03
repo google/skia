@@ -440,13 +440,13 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
     return result;
 }
 
-std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {
+std::string BuildComputeSkSL(const Caps*, const ComputeStep* step) {
     std::string sksl =
             SkSL::String::printf("layout(local_size_x=%u, local_size_y=%u, local_size_z=%u) in;\n",
                                  step->localDispatchSize().fWidth,
                                  step->localDispatchSize().fHeight,
                                  step->localDispatchSize().fDepth);
-    sksl += step->computeSkSL(caps->resourceBindingRequirements(), /*nextBindingIndex=*/0);
+    sksl += step->computeSkSL();
     return sksl;
 }
 

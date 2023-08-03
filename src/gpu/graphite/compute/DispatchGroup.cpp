@@ -91,10 +91,7 @@ Builder::Builder(Recorder* recorder) : fObj(new DispatchGroup()), fRecorder(reco
     SkASSERT(fRecorder);
 }
 
-bool Builder::appendStep(const ComputeStep* step,
-                         const DrawParams& params,
-                         int ssboIndex,
-                         std::optional<WorkgroupSize> globalSize) {
+bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> globalSize) {
     SkASSERT(fObj);
     SkASSERT(step);
 
@@ -133,18 +130,8 @@ bool Builder::appendStep(const ComputeStep* step,
 
         using DataFlow = ComputeStep::DataFlow;
         switch (r.fFlow) {
-            case DataFlow::kVertexOutput:
-            case DataFlow::kIndexOutput:
-            case DataFlow::kInstanceOutput:
-            case DataFlow::kIndirectDrawOutput: {
-                auto bufferInfo = this->allocateDrawBuffer(step, r, index, params);
-                if (bufferInfo) {
-                    maybeResource = bufferInfo;
-                }
-                break;
-            }
             case DataFlow::kPrivate:
-                maybeResource = this->allocateResource(step, r, ssboIndex, index, params);
+                maybeResource = this->allocateResource(step, r, index);
                 break;
             case DataFlow::kShared: {
                 // TODO: Support allocating a scratch texture
@@ -152,7 +139,7 @@ bool Builder::appendStep(const ComputeStep* step,
                 // Allocate a new buffer only if the shared slot is empty.
                 DispatchResourceOptional* slot = &fOutputTable.fSharedSlots[r.fSlot];
                 if (std::holds_alternative<std::monostate>(*slot)) {
-                    maybeResource = this->allocateResource(step, r, ssboIndex, index, params);
+                    maybeResource = this->allocateResource(step, r, index);
                     *slot = maybeResource;
                 } else {
                     SkDEBUGCODE(using Type = ComputeStep::ResourceType;)
@@ -197,7 +184,7 @@ bool Builder::appendStep(const ComputeStep* step,
 
     dispatch.fPipelineIndex = fObj->fPipelineDescs.size() - 1;
     dispatch.fParams.fGlobalDispatchSize =
-            globalSize ? *globalSize : step->calculateGlobalDispatchSize(params);
+            globalSize ? *globalSize : step->calculateGlobalDispatchSize();
     dispatch.fParams.fLocalDispatchSize = step->localDispatchSize();
 
     fObj->fDispatchList.push_back(std::move(dispatch));
@@ -249,56 +236,9 @@ sk_sp<TextureProxy> Builder::getSharedTextureResource(unsigned int slot) const {
     return fObj->fTextures[idx->fValue];
 }
 
-BindBufferInfo Builder::allocateDrawBuffer(const ComputeStep* step,
-                                           const ComputeStep::ResourceDesc& resource,
-                                           int resourceIdx,
-                                           const DrawParams& params) {
-    SkASSERT(step);
-    SkASSERT(resource.fType == ComputeStep::ResourceType::kStorageBuffer);
-
-    size_t bufferSize = step->calculateBufferSize(params, resourceIdx, resource);
-    SkASSERT(bufferSize);
-
-    DrawBufferManager* bufferMgr = fRecorder->priv().drawBufferManager();
-    BindBufferInfo* slot = nullptr;
-    BindBufferInfo info;
-    using DataFlow = ComputeStep::DataFlow;
-    switch (resource.fFlow) {
-        case DataFlow::kVertexOutput:
-            slot = &fOutputTable.fVertexBuffer;
-            info = bufferMgr->getVertexStorage(bufferSize);
-            break;
-        case DataFlow::kIndexOutput:
-            slot = &fOutputTable.fIndexBuffer;
-            info = bufferMgr->getIndexStorage(bufferSize);
-            break;
-        case DataFlow::kInstanceOutput:
-            slot = &fOutputTable.fInstanceBuffer;
-            info = bufferMgr->getVertexStorage(bufferSize);
-            break;
-        case DataFlow::kIndirectDrawOutput:
-            slot = &fOutputTable.fIndirectDrawBuffer;
-            info = bufferMgr->getIndirectStorage(bufferSize);
-            break;
-        default:
-            SkASSERT(false);
-            break;
-    }
-
-    // Multiple ComputeSteps in a sequence are currently not allowed to output the same type of
-    // geometry (this is enforced during ComputeStep construction).
-    SkASSERT(*slot);
-    if (info) {
-        *slot = info;
-    }
-    return info;
-}
-
 DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                                                    const ComputeStep::ResourceDesc& resource,
-                                                   int ssboIdx,
-                                                   int resourceIdx,
-                                                   const DrawParams& params) {
+                                                   int resourceIdx) {
     SkASSERT(step);
     using Type = ComputeStep::ResourceType;
     using ResourcePolicy = ComputeStep::ResourcePolicy;
@@ -307,13 +247,12 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
     DispatchResourceOptional result;
     switch (resource.fType) {
         case Type::kStorageBuffer: {
-            size_t bufferSize = step->calculateBufferSize(params, resourceIdx, resource);
+            size_t bufferSize = step->calculateBufferSize(resourceIdx, resource);
             SkASSERT(bufferSize);
             if (resource.fPolicy == ResourcePolicy::kMapped) {
                 auto [ptr, bufInfo] = bufferMgr->getStoragePointer(bufferSize);
                 if (ptr) {
-                    step->prepareStorageBuffer(
-                            params, ssboIdx, resourceIdx, resource, ptr, bufferSize);
+                    step->prepareStorageBuffer(resourceIdx, resource, ptr, bufferSize);
                     result = bufInfo;
                 }
             } else {
@@ -332,7 +271,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
 
             const auto& resourceReqs = fRecorder->priv().caps()->resourceBindingRequirements();
             UniformManager uboMgr(resourceReqs.fUniformBufferLayout);
-            step->prepareUniformBuffer(params, resourceIdx, resource, &uboMgr);
+            step->prepareUniformBuffer(resourceIdx, resource, &uboMgr);
 
             auto dataBlock = uboMgr.finishUniformDataBlock();
             SkASSERT(dataBlock.size());
@@ -345,8 +284,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             break;
         }
         case Type::kStorageTexture: {
-            auto [size, colorType] =
-                    step->calculateTextureParameters(params, resourceIdx, resource);
+            auto [size, colorType] = step->calculateTextureParameters(resourceIdx, resource);
             SkASSERT(!size.isEmpty());
             SkASSERT(colorType != kUnknown_SkColorType);
 
@@ -371,8 +309,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             SK_ABORT("a sampled texture must be externally assigned to a ComputeStep");
             break;
         case Type::kSampler: {
-            fObj->fSamplerDescs.push_back(
-                    step->calculateSamplerParameters(params, resourceIdx, resource));
+            fObj->fSamplerDescs.push_back(step->calculateSamplerParameters(resourceIdx, resource));
             result = SamplerIndex{fObj->fSamplerDescs.size() - 1u};
             break;
         }

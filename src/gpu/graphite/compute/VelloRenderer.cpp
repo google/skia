@@ -257,15 +257,6 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     auto dispatchInfo = config->workgroup_counts();
     auto bufferSizes = config->buffer_sizes();
 
-    // TODO(b/279955342): VelloComputeSteps do not perform any per-draw computation. Instead all
-    // buffer and global dispatch sizes get computed upfront from the scene encoding
-    // (in `prepare_render()` above).
-    //
-    // We should have an alternate appendStep() interface for ComputeSteps that implement per-draw
-    // logic for batched processing (e.g. geometry dispatches that offload CPU-side RenderStep
-    // logic). DispatchGroup::Builder can operate over pre-computed data without requiring a
-    // DrawParams parameter and we should remove the need for a `placeholder`.
-    DrawParams placeholder(Transform::Identity(), {}, {}, DrawOrder({}), nullptr);
     DispatchGroup::Builder builder(recorder);
 
     // In total there are 25 resources that are used across the full pipeline stages. The sizes of
@@ -312,7 +303,7 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     auto tagmonoid = bufMgr->getStorage(bufferSizes.path_monoids);
     builder.assignSharedBuffer(pathtagReduceOutput, kVelloSlot_PathtagReduceOutput);
     builder.assignSharedBuffer(tagmonoid, kVelloSlot_TagMonoid);
-    builder.appendStep(&fPathtagReduce, placeholder, 0, to_wg_size(dispatchInfo.path_reduce));
+    builder.appendStep(&fPathtagReduce, to_wg_size(dispatchInfo.path_reduce));
 
     // If the input is too large to be fully processed by a single workgroup then a second reduce
     // step and two scan steps are necessary. Otherwise one reduce+scan pair is sufficient.
@@ -323,25 +314,25 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
                                    kVelloSlot_LargePathtagReduceSecondPassOutput);
         builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.path_reduced_scan),
                                    kVelloSlot_LargePathtagScanFirstPassOutput);
-        builder.appendStep(&fPathtagReduce2, placeholder, 0, to_wg_size(dispatchInfo.path_reduce2));
-        builder.appendStep(&fPathtagScan1, placeholder, 0, to_wg_size(dispatchInfo.path_scan1));
-        builder.appendStep(&fPathtagScanLarge, placeholder, 0, to_wg_size(dispatchInfo.path_scan));
+        builder.appendStep(&fPathtagReduce2, to_wg_size(dispatchInfo.path_reduce2));
+        builder.appendStep(&fPathtagScan1, to_wg_size(dispatchInfo.path_scan1));
+        builder.appendStep(&fPathtagScanLarge, to_wg_size(dispatchInfo.path_scan));
     } else {
-        builder.appendStep(&fPathtagScanSmall, placeholder, 0, to_wg_size(dispatchInfo.path_scan));
+        builder.appendStep(&fPathtagScanSmall, to_wg_size(dispatchInfo.path_scan));
     }
 
     // bbox_clear
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.path_bboxes), kVelloSlot_PathBBoxes);
-    builder.appendStep(&fBboxClear, placeholder, 0, to_wg_size(dispatchInfo.bbox_clear));
+    builder.appendStep(&fBboxClear, to_wg_size(dispatchInfo.bbox_clear));
 
     // pathseg
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.cubics), kVelloSlot_Cubics);
-    builder.appendStep(&fPathseg, placeholder, 0, to_wg_size(dispatchInfo.path_seg));
+    builder.appendStep(&fPathseg, to_wg_size(dispatchInfo.path_seg));
 
     // draw_reduce
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.draw_reduced),
                                kVelloSlot_DrawReduceOutput);
-    builder.appendStep(&fDrawReduce, placeholder, 0, to_wg_size(dispatchInfo.draw_reduce));
+    builder.appendStep(&fDrawReduce, to_wg_size(dispatchInfo.draw_reduce));
 
     // draw_leaf
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.draw_monoids), kVelloSlot_DrawMonoid);
@@ -349,7 +340,7 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     // A clip input buffer must still get bound even if the encoding doesn't contain any clips
     builder.assignSharedBuffer(bufMgr->getStorage(std::max(1u, bufferSizes.clip_inps)),
                                kVelloSlot_ClipInput);
-    builder.appendStep(&fDrawLeaf, placeholder, 0, to_wg_size(dispatchInfo.draw_leaf));
+    builder.appendStep(&fDrawLeaf, to_wg_size(dispatchInfo.draw_leaf));
 
     // clip_reduce, clip_leaf
     // The clip bbox buffer is always an input to the binning stage, even when the encoding doesn't
@@ -366,10 +357,10 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
         builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.clip_els),
                                    kVelloSlot_ClipElement);
         if (doClipReduce) {
-            builder.appendStep(&fClipReduce, placeholder, 0, clipReduceWgCount);
+            builder.appendStep(&fClipReduce, clipReduceWgCount);
         }
         if (doClipLeaf) {
-            builder.appendStep(&fClipLeaf, placeholder, 0, clipLeafWgCount);
+            builder.appendStep(&fClipLeaf, clipLeafWgCount);
         }
     }
 
@@ -378,29 +369,29 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.bump_alloc, ClearBuffer::kYes),
                                kVelloSlot_BumpAlloc);
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.bin_headers), kVelloSlot_BinHeader);
-    builder.appendStep(&fBinning, placeholder, 0, to_wg_size(dispatchInfo.binning));
+    builder.appendStep(&fBinning, to_wg_size(dispatchInfo.binning));
 
     // tile_alloc
     builder.assignSharedBuffer(bufMgr->getStorage(bufferSizes.paths), kVelloSlot_Path);
     builder.assignSharedBuffer(bufMgr->getStorage(tiles_size), kVelloSlot_Tile);
-    builder.appendStep(&fTileAlloc, placeholder, 0, to_wg_size(dispatchInfo.tile_alloc));
+    builder.appendStep(&fTileAlloc, to_wg_size(dispatchInfo.tile_alloc));
 
     // path_coarse
     builder.assignSharedBuffer(bufMgr->getStorage(segments_size), kVelloSlot_Segments);
-    builder.appendStep(&fPathCoarseFull, placeholder, 0, to_wg_size(dispatchInfo.path_coarse));
+    builder.appendStep(&fPathCoarseFull, to_wg_size(dispatchInfo.path_coarse));
 
     // backdrop
-    builder.appendStep(&fBackdropDyn, placeholder, 0, to_wg_size(dispatchInfo.backdrop));
+    builder.appendStep(&fBackdropDyn, to_wg_size(dispatchInfo.backdrop));
 
     // coarse
     builder.assignSharedBuffer(bufMgr->getStorage(ptcl_size), kVelloSlot_PTCL);
-    builder.appendStep(&fCoarse, placeholder, 0, to_wg_size(dispatchInfo.coarse));
+    builder.appendStep(&fCoarse, to_wg_size(dispatchInfo.coarse));
 
     // fine
     builder.assignSharedTexture(fImageAtlas, kVelloSlot_ImageAtlas);
     builder.assignSharedTexture(fGradientImage, kVelloSlot_GradientImage);
     builder.assignSharedTexture(std::move(target), kVelloSlot_OutputImage);
-    builder.appendStep(&fFine, placeholder, 0, to_wg_size(dispatchInfo.fine));
+    builder.appendStep(&fFine, to_wg_size(dispatchInfo.fine));
 
     return builder.finalize();
 }
