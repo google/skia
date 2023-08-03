@@ -2097,7 +2097,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
             dstBounds.size(),
             SkSurfaceProps(),
             /*label=*/"SurfaceDrawContext_ConvolveGaussian2d",
-            1,
+            /* sampleCnt= */ 1,
             GrMipmapped::kNo,
             srcView.proxy()->isProtected(),
             srcView.origin());
@@ -2172,7 +2172,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian(
                                                     dstBounds.size(),
                                                     SkSurfaceProps(),
                                                     /*label=*/"SurfaceDrawContext_ConvolveGaussian",
-                                                    1,
+                                                    /* sampleCnt= */ 1,
                                                     GrMipmapped::kNo,
                                                     srcView.proxy()->isProtected(),
                                                     srcView.origin());
@@ -2347,7 +2347,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> reexpand(
                                                           dstSize,
                                                           SkSurfaceProps(),
                                                           /*label=*/"SurfaceDrawContext_Reexpand",
-                                                          1,
+                                                          /* sampleCnt= */ 1,
                                                           GrMipmapped::kNo,
                                                           srcView.proxy()->isProtected(),
                                                           srcView.origin());
@@ -2577,7 +2577,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
                                                         dstBounds.size(),
                                                         SkSurfaceProps(),
                                                         /*label=*/"SurfaceDrawContext_GaussianBlur",
-                                                        1,
+                                                        /* sampleCnt= */ 1,
                                                         GrMipmapped::kNo,
                                                         srcView.proxy()->isProtected(),
                                                         srcView.origin());
@@ -2684,7 +2684,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
             {rescaledSize.width() + 2 * padX, rescaledSize.height() + 2 * padY},
             SkSurfaceProps(),
             /*label=*/"RescaledSurfaceDrawContext",
-            1,
+            /* sampleCnt= */ 1,
             GrMipmapped::kNo,
             srcCtx->asSurfaceProxy()->isProtected(),
             srcCtx->origin());
@@ -2794,5 +2794,3 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
 }
 
 }  // namespace GrBlurUtils
-
-

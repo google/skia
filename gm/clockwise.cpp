@@ -281,7 +281,7 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
                                                                   {100, 200},
                                                                   SkSurfaceProps(),
                                                                   /*label=*/{},
-                                                                  1,
+                                                                  /* sampleCnt= */ 1,
                                                                   GrMipmapped::kNo,
                                                                   GrProtected::kNo,
                                                                   kTopLeft_GrSurfaceOrigin,
@@ -311,12 +311,7 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
                                                                   SkBackingFit::kExact,
                                                                   {100, 200},
                                                                   SkSurfaceProps(),
-                                                                  /*label=*/{},
-                                                                  1,
-                                                                  GrMipmapped::kNo,
-                                                                  GrProtected::kNo,
-                                                                  kBottomLeft_GrSurfaceOrigin,
-                                                                  skgpu::Budgeted::kYes)) {
+                                                                  /*label=*/{})) {
         topLeftSDC->clear(SK_PMColor4fTRANSPARENT);
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));

@@ -301,7 +301,10 @@ sk_sp<SkImage> SkImage_Ganesh::onMakeColorTypeAndColorSpace(SkColorType targetCT
     }
 
     auto sfc = dContext->priv().makeSFCWithFallback(GrImageInfo(info, this->dimensions()),
-                                                    SkBackingFit::kExact);
+                                                    SkBackingFit::kExact,
+                                                    /* sampleCount= */ 1,
+                                                    skgpu::Mipmapped::kNo,
+                                                    skgpu::Protected::kNo);
     if (!sfc) {
         return nullptr;
     }

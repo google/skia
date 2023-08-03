@@ -114,9 +114,9 @@ public:
             SkBackingFit,
             SkISize dimensions,
             const SkSurfaceProps&,
-            int sampleCnt = 1,
-            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
-            skgpu::Protected = skgpu::Protected::kNo,
+            int sampleCnt,
+            skgpu::Mipmapped,
+            skgpu::Protected,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             skgpu::Budgeted = skgpu::Budgeted::kYes);
 

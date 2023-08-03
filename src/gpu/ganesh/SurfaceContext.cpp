@@ -785,15 +785,23 @@ void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
     }
 
     auto yaInfo = SkImageInfo::MakeA8(dstSize);
-    auto yFC = dContext->priv().makeSFCWithFallback(yaInfo, SkBackingFit::kApprox);
+    auto yFC = dContext->priv().makeSFCWithFallback(yaInfo, SkBackingFit::kApprox,
+                                                    /* sampleCount= */ 1,
+                                                    skgpu::Mipmapped::kNo, skgpu::Protected::kNo);
     std::unique_ptr<SurfaceFillContext> aFC;
     if (readAlpha) {
-        aFC = dContext->priv().makeSFCWithFallback(yaInfo, SkBackingFit::kApprox);
+        aFC = dContext->priv().makeSFCWithFallback(yaInfo, SkBackingFit::kApprox,
+                                                   /* sampleCount= */ 1,
+                                                   skgpu::Mipmapped::kNo, skgpu::Protected::kNo);
     }
 
     auto uvInfo = yaInfo.makeWH(yaInfo.width()/2, yaInfo.height()/2);
-    auto uFC = dContext->priv().makeSFCWithFallback(uvInfo, SkBackingFit::kApprox);
-    auto vFC = dContext->priv().makeSFCWithFallback(uvInfo, SkBackingFit::kApprox);
+    auto uFC = dContext->priv().makeSFCWithFallback(uvInfo, SkBackingFit::kApprox,
+                                                    /* sampleCount= */ 1,
+                                                    skgpu::Mipmapped::kNo, skgpu::Protected::kNo);
+    auto vFC = dContext->priv().makeSFCWithFallback(uvInfo, SkBackingFit::kApprox,
+                                                    /* sampleCount= */ 1,
+                                                    skgpu::Mipmapped::kNo, skgpu::Protected::kNo);
 
     if (!yFC || !uFC || !vFC || (readAlpha && !aFC)) {
         callback(callbackContext, nullptr);
@@ -1067,7 +1075,7 @@ std::unique_ptr<SurfaceFillContext> SurfaceContext::rescale(const GrImageInfo& i
                                                             RescaleMode rescaleMode) {
     auto sfc = fContext->priv().makeSFCWithFallback(info,
                                                     SkBackingFit::kExact,
-                                                    1,
+                                                    /* sampleCount= */ 1,
                                                     GrMipmapped::kNo,
                                                     this->asSurfaceProxy()->isProtected(),
                                                     origin);
@@ -1150,7 +1158,7 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
                        srcRect.size());
         auto linearRTC = fContext->priv().makeSFCWithFallback(std::move(ii),
                                                               SkBackingFit::kApprox,
-                                                              1,
+                                                              /* sampleCount= */ 1,
                                                               GrMipmapped::kNo,
                                                               GrProtected::kNo,
                                                               dst->origin());
@@ -1196,7 +1204,11 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
             xform = GrColorSpaceXform::Make(input->colorInfo(), dst->colorInfo());
         } else {
             GrImageInfo nextInfo(input->colorInfo(), nextDims);
-            tempB = fContext->priv().makeSFCWithFallback(nextInfo, SkBackingFit::kApprox);
+
+            tempB = fContext->priv().makeSFCWithFallback(nextInfo, SkBackingFit::kApprox,
+                                                         /* sampleCount= */ 1,
+                                                         skgpu::Mipmapped::kNo,
+                                                         skgpu::Protected::kNo);
             if (!tempB) {
                 return false;
             }

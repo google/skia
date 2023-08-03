@@ -194,7 +194,7 @@ protected:
             surface = SkSurfaces::RenderTarget(rc,
                                                skgpu::Budgeted::kYes,
                                                ii,
-                                               1,
+                                               /* sampleCount= */ 1,
                                                kTopLeft_GrSurfaceOrigin,
                                                /*surfaceProps=*/nullptr,
                                                /*shouldCreateWithMips=*/true);
