@@ -64,10 +64,13 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
             GrGLFramebufferInfo fbInfo;
             fbInfo.fFBOID = buffer;
             fbInfo.fFormat = GR_GL_RGBA8;
-            fbInfo.fProtected = skgpu::Protected::kNo;
+            fbInfo.fProtected = skgpu::Protected(fDisplayParams.fCreateProtectedNativeBackend);
 
-            auto backendRT = GrBackendRenderTargets::MakeGL(
-                    fWidth, fHeight, fSampleCount, fStencilBits, fbInfo);
+            auto backendRT = GrBackendRenderTargets::MakeGL(fWidth,
+                                                            fHeight,
+                                                            fSampleCount,
+                                                            fStencilBits,
+                                                            fbInfo);
 
             fSurface = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
                                                            backendRT,

@@ -231,6 +231,7 @@ static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
 static DEFINE_bool(stats, false, "Display stats overlay on startup.");
 static DEFINE_bool(binaryarchive, false, "Enable MTLBinaryArchive use (if available).");
+static DEFINE_bool(createProtected, false, "Create a protected native backend (e.g., in EGL).");
 
 #ifndef SK_GL
 static_assert(false, "viewer requires GL backend for raster.")
@@ -458,6 +459,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                 displayParams.fSurfaceProps.flags() | SkSurfaceProps::kDynamicMSAA_Flag,
                 displayParams.fSurfaceProps.pixelGeometry());
     }
+    displayParams.fCreateProtectedNativeBackend = FLAGS_createProtected;
+
     fWindow->setRequestedDisplayParams(displayParams);
     fDisplay = fWindow->getRequestedDisplayParams();
     fRefresh = FLAGS_redraw;
