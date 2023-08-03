@@ -44,6 +44,10 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
     // just extra belt and suspenders to make sure there isn't unitialized values here.
     memset(&functions, 0, sizeof(VmaVulkanFunctions));
 
+    // We don't use dynamic function getting in the allocator so we set the getProc functions to
+    // null.
+    functions.vkGetInstanceProcAddr = nullptr;
+    functions.vkGetDeviceProcAddr = nullptr;
     SKGPU_COPY_FUNCTION(GetPhysicalDeviceProperties);
     SKGPU_COPY_FUNCTION(GetPhysicalDeviceMemoryProperties);
     SKGPU_COPY_FUNCTION(AllocateMemory);
@@ -277,10 +281,9 @@ VkResult VulkanAMDMemoryAllocator::invalidateMemory(const VulkanBackendMemory& m
 }
 
 std::pair<uint64_t, uint64_t> VulkanAMDMemoryAllocator::totalAllocatedAndUsedMemory() const {
-    VmaStats stats;
-    vmaCalculateStats(fAllocator, &stats);
-    return {stats.total.usedBytes + stats.total.unusedBytes,
-            stats.total.usedBytes};
+    VmaTotalStatistics stats;
+    vmaCalculateStatistics(fAllocator, &stats);
+    return {stats.total.statistics.blockBytes, stats.total.statistics.allocationBytes};
 }
 
 #endif // SK_USE_VMA

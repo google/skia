@@ -150,7 +150,7 @@ def git_repos_from_deps(ws = "@"):
     new_git_repository(
         name = "vulkanmemoryallocator",
         build_file = ws + "//bazel/external/vulkanmemoryallocator:BUILD.bazel",
-        commit = "e87036508bb156f9986ea959323de1869e328f58",
+        commit = "a6bfc237255a6bac1513f7c1ebde6d8aed6b5191",
         remote = "https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator",
     )
 
