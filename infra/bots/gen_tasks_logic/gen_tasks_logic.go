@@ -928,10 +928,11 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"MacMini7.1":     "x86-64-i5-4278U",
 					"NUC5i7RYH":      "x86-64-i7-5557U",
 					"NUC9i7QN":       "x86-64-i7-9750H",
+					"NUC11TZi5":      "x86-64-avx2",
 				},
 				"AVX512": {
-					"GCE":  "x86-64-Skylake_GCE",
-					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
+					"GCE":            "x86-64-Skylake_GCE",
+					"Golo":           "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
 				},
 				"Rome": {
 					"GCE": "x86-64-AMD_Rome_GCE",
