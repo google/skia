@@ -1077,6 +1077,7 @@ skia_filegroup(
         "wgsl/MainHasVoidReturn.sksl",
         "wgsl/MatrixConstructorDiagonal.sksl",
         "wgsl/OutParams.sksl",
+        "wgsl/Sample.sksl",
         "wgsl/TernaryThenShortCircuit.sksl",
         "wgsl/UniformMatrices.sksl",
         "wgsl/UserDefinedPipelineIO.sksl",

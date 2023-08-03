@@ -69,6 +69,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/spirv.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
@@ -85,6 +86,9 @@ namespace SkSL {
 enum class ProgramKind : int8_t;
 
 namespace {
+
+static constexpr char kSamplerSuffix[] = "\xCB\xA2";     // U+02E2 (ˢ) in UTF8
+static constexpr char kTextureSuffix[] = "\xE1\xB5\x97"; // U+1D57 (ᵗ) in UTF8
 
 // See https://www.w3.org/TR/WGSL/#memory-view-types
 enum class PtrAddressSpace {
@@ -1958,6 +1962,49 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_step_IntrinsicKind:
             return this->assembleVectorizedIntrinsic(call.function().name(), call);
 
+        case k_sample_IntrinsicKind: {
+            // Determine if a bias argument was passed in.
+            SkASSERT(arguments.size() == 2 || arguments.size() == 3);
+            bool callIncludesBias = (arguments.size() == 3);
+
+            // If coordinates were passed as a vec3, we need to emit `coords.xy / coords.z`.
+            SkASSERT(arguments[1]->type().isVector());
+            SkASSERT(arguments[1]->type().columns() == 2 || arguments[1]->type().columns() == 3);
+            std::string coords;
+            if (arguments[1]->type().columns() == 2) {
+                coords = this->assembleExpression(*arguments[1], Precedence::kSequence);
+            } else {
+                coords = this->writeScratchLet(*arguments[1], Precedence::kMultiplicative);
+                coords = coords + ".xy / " + coords + ".z";
+            }
+
+            if (fProgram.fConfig->fSettings.fSharpenTextures || callIncludesBias) {
+                std::string expr = "textureSampleBias(" +
+                                   this->assembleExpression(*arguments[0], Precedence::kSequence) +
+                                   kTextureSuffix + ", " +
+                                   this->assembleExpression(*arguments[0], Precedence::kSequence) +
+                                   kSamplerSuffix + ", " +
+                                   coords + ", ";
+                if (callIncludesBias) {
+                    expr += this->assembleExpression(*arguments[2], Precedence::kSequence) +
+                            " + ";
+                }
+                expr += skstd::to_string(fProgram.fConfig->fSettings.fSharpenTextures
+                                           ? kSharpenTexturesBias
+                                           : 0.0f);
+                return expr + ')';
+            }
+            return "textureSample(" +
+                   this->assembleExpression(*arguments[0], Precedence::kSequence) +
+                   kTextureSuffix + ", " +
+                   this->assembleExpression(*arguments[0], Precedence::kSequence) +
+                   kSamplerSuffix + ", " +
+                   coords + ')';
+        }
+        case k_sampleLod_IntrinsicKind:
+        case k_sampleGrad_IntrinsicKind:
+            return "/*" + std::string(call.function().name()) + " unimplemented */vec4<f32>(0)";
+
         case k_abs_IntrinsicKind:
         case k_acos_IntrinsicKind:
         case k_all_IntrinsicKind:
@@ -2650,7 +2697,8 @@ void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 }
 
 void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d) {
-    const Variable& var = *d.declaration()->as<VarDeclaration>().var();
+    const VarDeclaration& decl = d.varDeclaration();
+    const Variable& var = *decl.var();
     if ((var.modifierFlags() & (ModifierFlag::kIn | ModifierFlag::kOut)) ||
         is_in_global_uniforms(var)) {
         // Pipeline stage I/O parameters and top-level (non-block) uniforms are handled specially
@@ -2658,15 +2706,49 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
         return;
     }
 
+    const Type::TypeKind varKind = var.type().typeKind();
+    if (varKind == Type::TypeKind::kSampler) {
+        if (var.type().dimensions() != SpvDim2D) {
+            // Not yet implemented--Skia currently only uses 2D textures.
+            fContext.fErrors->error(decl.fPosition, "unsupported texture dimensions");
+            return;
+        }
+
+        // If the sampler binding was unassigned, provide a scratch value; this will make
+        // golden-output tests pass, but will not actually be usable for drawing.
+        int samplerLocation = var.layout().fSampler >= 0 ? var.layout().fSampler
+                                                         : 10000 + fScratchCount++;
+        this->write("@group(");
+        this->write(std::to_string(std::max(0, var.layout().fSet)));
+        this->write(") @binding(");
+        this->write(std::to_string(samplerLocation));
+        this->write(") var ");
+        this->write(this->assembleName(var.mangledName()));
+        this->write(kSamplerSuffix);
+        this->writeLine(": sampler;");
+
+        // If the texture binding was unassigned, provide a scratch value (for golden-output tests).
+        int textureLocation = var.layout().fTexture >= 0 ? var.layout().fTexture
+                                                         : 10000 + fScratchCount++;
+        this->write("@group(");
+        this->write(std::to_string(std::max(0, var.layout().fSet)));
+        this->write(") @binding(");
+        this->write(std::to_string(textureLocation));
+        this->write(") var ");
+        this->write(this->assembleName(var.mangledName()));
+        this->write(kTextureSuffix);
+        this->writeLine(": texture_2d<f32>;");
+        return;
+    }
+
     // TODO(skia:13092): Implement workgroup variable decoration
     std::string initializer;
-    if (d.varDeclaration().value()) {
+    if (decl.value()) {
         // We assume here that the initial-value expression will not emit any helper statements.
         // Initial-value expressions are required to pass IsConstantExpression, which limits the
         // blast radius to constructors, literals, and other constant values/variables.
         initializer += " = ";
-        initializer += this->assembleExpression(*d.varDeclaration().value(),
-                                                Precedence::kAssignment);
+        initializer += this->assembleExpression(*decl.value(), Precedence::kAssignment);
     }
     this->write(var.modifierFlags().isConst() ? "const " : "var<private> ");
     this->write(this->assembleName(var.mangledName()));
