@@ -14,7 +14,6 @@
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/dsl/DSLExpression.h"
 #include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
@@ -184,7 +183,7 @@ private:
 
     bool parseArrayDimensions(Position pos, const Type** type);
 
-    bool parseInitializer(Position pos, dsl::DSLExpression* initializer);
+    bool parseInitializer(Position pos, std::unique_ptr<Expression>* initializer);
 
     void addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl);
 
@@ -242,50 +241,60 @@ private:
 
     dsl::DSLStatement expressionStatement();
 
-    using BinaryParseFn = dsl::DSLExpression (Parser::*)();
-    [[nodiscard]] bool operatorRight(AutoDepth& depth, Operator::Kind op,
-                                     BinaryParseFn rightFn, dsl::DSLExpression& expr);
+    using BinaryParseFn = std::unique_ptr<Expression> (Parser::*)();
+    [[nodiscard]] bool operatorRight(AutoDepth& depth,
+                                     Operator::Kind op,
+                                     BinaryParseFn rightFn,
+                                     std::unique_ptr<Expression>& expr);
 
-    dsl::DSLExpression expression();
+    std::unique_ptr<Expression> poison(Position pos);
 
-    dsl::DSLExpression assignmentExpression();
+    std::unique_ptr<Expression> expressionOrPoison(Position pos, std::unique_ptr<Expression> expr);
 
-    dsl::DSLExpression ternaryExpression();
+    std::unique_ptr<Expression> expression();
 
-    dsl::DSLExpression logicalOrExpression();
+    std::unique_ptr<Expression> assignmentExpression();
 
-    dsl::DSLExpression logicalXorExpression();
+    std::unique_ptr<Expression> ternaryExpression();
 
-    dsl::DSLExpression logicalAndExpression();
+    std::unique_ptr<Expression> logicalOrExpression();
 
-    dsl::DSLExpression bitwiseOrExpression();
+    std::unique_ptr<Expression> logicalXorExpression();
 
-    dsl::DSLExpression bitwiseXorExpression();
+    std::unique_ptr<Expression> logicalAndExpression();
 
-    dsl::DSLExpression bitwiseAndExpression();
+    std::unique_ptr<Expression> bitwiseOrExpression();
 
-    dsl::DSLExpression equalityExpression();
+    std::unique_ptr<Expression> bitwiseXorExpression();
 
-    dsl::DSLExpression relationalExpression();
+    std::unique_ptr<Expression> bitwiseAndExpression();
 
-    dsl::DSLExpression shiftExpression();
+    std::unique_ptr<Expression> equalityExpression();
 
-    dsl::DSLExpression additiveExpression();
+    std::unique_ptr<Expression> relationalExpression();
 
-    dsl::DSLExpression multiplicativeExpression();
+    std::unique_ptr<Expression> shiftExpression();
 
-    dsl::DSLExpression unaryExpression();
+    std::unique_ptr<Expression> additiveExpression();
 
-    dsl::DSLExpression postfixExpression();
+    std::unique_ptr<Expression> multiplicativeExpression();
 
-    dsl::DSLExpression swizzle(Position pos, std::unique_ptr<Expression> base,
-                               std::string_view swizzleMask, Position maskPos);
+    std::unique_ptr<Expression> unaryExpression();
 
-    dsl::DSLExpression call(Position pos, dsl::DSLExpression base, ExpressionArray args);
+    std::unique_ptr<Expression> postfixExpression();
 
-    dsl::DSLExpression suffix(dsl::DSLExpression base);
+    std::unique_ptr<Expression> swizzle(Position pos,
+                                        std::unique_ptr<Expression> base,
+                                        std::string_view swizzleMask,
+                                        Position maskPos);
 
-    dsl::DSLExpression term();
+    std::unique_ptr<Expression> call(Position pos,
+                                     std::unique_ptr<Expression> base,
+                                     ExpressionArray args);
+
+    std::unique_ptr<Expression> suffix(std::unique_ptr<Expression> base);
+
+    std::unique_ptr<Expression> term();
 
     bool intLiteral(SKSL_INT* dest);
 
