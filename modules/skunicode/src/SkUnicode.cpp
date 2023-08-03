@@ -12,15 +12,14 @@
 using namespace skia_private;
 
 std::unique_ptr<SkUnicode> SkUnicode::Make() {
-    std::unique_ptr<SkUnicode> unicode;
 #ifdef SK_UNICODE_ICU_IMPLEMENTATION
-    unicode = SkUnicode::MakeIcuBasedUnicode();
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::MakeIcuBasedUnicode();
     if (unicode) {
         return unicode;
     }
 #endif
 #ifdef SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION
-    unicode = SkUnicode::MakeLibgraphemeBasedUnicode();
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::MakeLibgraphemeBasedUnicode();
     if (unicode) {
         return unicode;
     }
