@@ -17,8 +17,8 @@ var<private> t: sampler2D;
 fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
-    let _skTemp0 = dFdx(coords);
-    let _skTemp1 = dFdy(coords);
+    let _skTemp0 = dpdx(coords);
+    let _skTemp1 = dpdy(coords);
     let _skTemp2 = sampleGrad(t, coords, _skTemp0, _skTemp1);
     return _skTemp2;
   }

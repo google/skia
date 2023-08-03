@@ -1826,6 +1826,13 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             const char* name = (arguments.size() == 1) ? "atan" : "atan2";
             return this->assembleSimpleIntrinsic(name, call);
         }
+        case k_dFdx_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("dpdx", call);
+
+        case k_dFdy_IntrinsicKind:
+            // TODO(b/294274678): apply RTFlip here
+            return this->assembleSimpleIntrinsic("dpdy", call);
+
         case k_dot_IntrinsicKind: {
             if (arguments[0]->type().isScalar()) {
                 return this->assembleBinaryOpIntrinsic(OperatorKind::STAR, call, parentPrecedence);
@@ -2357,7 +2364,7 @@ std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableRefe
 }
 
 std::string WGSLCodeGenerator::assembleVariableReference(const VariableReference& r) {
-    // TODO(skia:13092): Correctly handle RTFlip for built-ins.
+    // TODO(b/294274678): Correctly handle RTFlip for built-ins.
     const Variable& v = *r.variable();
 
     // Insert a conversion expression if this is a built-in variable whose type differs from the

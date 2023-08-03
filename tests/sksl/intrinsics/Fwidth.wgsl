@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: :19:20 error: unresolved call target 'dFdx'
-    let _skTemp0 = dFdx(_globalUniforms.testInputs.x);
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
 diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
@@ -23,10 +16,10 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var expected: vec4<f32> = vec4<f32>(0.0);
-    let _skTemp0 = dFdx(_globalUniforms.testInputs.x);
-    let _skTemp1 = dFdx(_globalUniforms.testInputs.xy);
-    let _skTemp2 = dFdx(_globalUniforms.testInputs.xyz);
-    let _skTemp3 = dFdx(_globalUniforms.testInputs);
+    let _skTemp0 = dpdx(_globalUniforms.testInputs.x);
+    let _skTemp1 = dpdx(_globalUniforms.testInputs.xy);
+    let _skTemp2 = dpdx(_globalUniforms.testInputs.xyz);
+    let _skTemp3 = dpdx(_globalUniforms.testInputs);
     let _skTemp4 = fwidth(coords.xx);
     let _skTemp5 = sign(_skTemp4);
     let _skTemp6 = fwidth(vec2<f32>(coords.x, 1.0));
@@ -45,5 +38,3 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
-
-1 error
