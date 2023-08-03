@@ -301,7 +301,6 @@ skia_core_sources = [
   "$_src/core/SkCapabilities.cpp",
   "$_src/core/SkChecksum.cpp",
   "$_src/core/SkChecksum.h",
-  "$_src/core/SkChromeRemoteGlyphCache.cpp",
   "$_src/core/SkClipStack.cpp",
   "$_src/core/SkClipStack.h",
   "$_src/core/SkClipStackDevice.cpp",

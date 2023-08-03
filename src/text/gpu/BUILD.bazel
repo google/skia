@@ -17,6 +17,7 @@ GPU_FILES = [
     "Slug.cpp",
     "SlugImpl.cpp",
     "SlugImpl.h",
+    "SkChromeRemoteGlyphCache.cpp",
     "StrikeCache.cpp",
     "StrikeCache.h",
     "SubRunAllocator.cpp",

@@ -7,50 +7,54 @@
 
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
-#include "include/core/SkFont.h"
-#include "include/core/SkSpan.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
-#include "src/base/SkTLazy.h"
-#include "src/core/SkChecksum.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/chromium/Slug.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkDistanceFieldGen.h"
-#include "src/core/SkDraw.h"
-#include "src/core/SkEnumerate.h"
 #include "src/core/SkFontMetricsPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/StrikeForGPU.h"
-
-#include <algorithm>
-#include <bitset>
-#include <iterator>
-#include <memory>
-#include <new>
-#include <optional>
-#include <string>
-#include <tuple>
-#include <unordered_map>
-
-#if defined(SK_GANESH)
-#include "include/gpu/GrContextOptions.h"
-#include "include/private/chromium/Slug.h"
-#include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlob.h"
-#endif
+
+#include <atomic>
+#include <cstring>
+#include <memory>
+#include <optional>
+#include <unordered_map>
+#include <utility>
+
+class SkPaint;
 
 using namespace skia_private;
 using namespace sktext;
@@ -440,7 +444,6 @@ sk_sp<RemoteStrike> SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& str
 }
 
 // -- GlyphTrackingDevice --------------------------------------------------------------------------
-#if defined(SK_GANESH)
 class GlyphTrackingDevice final : public SkNoPixelsDevice {
 public:
     GlyphTrackingDevice(
@@ -505,7 +508,6 @@ private:
     SkStrikeServerImpl* const fStrikeServerImpl;
     const sktext::gpu::SDFTControl fSDFTControl;
 };
-#endif  // defined(SK_GANESH)
 
 // -- SkStrikeServer -------------------------------------------------------------------------------
 SkStrikeServer::SkStrikeServer(DiscardableHandleManager* dhm)
@@ -518,14 +520,24 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
                                                              sk_sp<SkColorSpace> colorSpace,
                                                              bool DFTSupport,
                                                              bool DFTPerspSupport) {
-#if defined(SK_GANESH)
-    GrContextOptions ctxOptions;
 #if !defined(SK_DISABLE_SDF_TEXT)
+    // These are copied from the defaults in GrContextOptions for historical reasons.
+    // TODO(herb, jvanverth) pipe in parameters that can be used for both Ganesh and Graphite
+    // backends instead of just using the defaults.
+    constexpr float kMinDistanceFieldFontSize = 18.f;
+
+#if defined(SK_BUILD_FOR_ANDROID)
+    constexpr float kGlyphsAsPathsFontSize = 384.f;
+#elif defined(SK_BUILD_FOR_MAC)
+    constexpr float kGlyphsAsPathsFontSize = 256.f;
+#else
+    constexpr float kGlyphsAsPathsFontSize = 324.f;
+#endif
     auto control = sktext::gpu::SDFTControl{DFTSupport,
                                             props.isUseDeviceIndependentFonts(),
                                             DFTPerspSupport,
-                                            ctxOptions.fMinDistanceFieldFontSize,
-                                            ctxOptions.fGlyphsAsPathsFontSize};
+                                            kMinDistanceFieldFontSize,
+                                            kGlyphsAsPathsFontSize};
 #else
     auto control = sktext::gpu::SDFTControl{};
 #endif
@@ -535,10 +547,6 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
             props, this->impl(),
             std::move(colorSpace),
             control));
-#else
-    sk_sp<SkBaseDevice> trackingDevice(new SkNoPixelsDevice(
-            SkIRect::MakeWH(width, height), props, std::move(colorSpace)));
-#endif
     return std::make_unique<SkCanvas>(std::move(trackingDevice));
 }
 
@@ -802,8 +810,6 @@ bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
     return fImpl->translateTypefaceID(descriptor);
 }
 
-#if defined(SK_GANESH)
 sk_sp<sktext::gpu::Slug> SkStrikeClient::deserializeSlugForTest(const void* data, size_t size) const {
     return sktext::gpu::Slug::Deserialize(data, size, this);
 }
-#endif  // defined(SK_GANESH)

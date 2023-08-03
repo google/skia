@@ -47,6 +47,7 @@ public:
     explicit SkStrikePromise(sk_sp<SkStrike>&& strike);
     explicit SkStrikePromise(const SkStrikeSpec& spec);
 
+    // This only works when the GPU code is compiled in.
     static std::optional<SkStrikePromise> MakeFromBuffer(SkReadBuffer& buffer,
                                                          const SkStrikeClient* client,
                                                          SkStrikeCache* strikeCache);
