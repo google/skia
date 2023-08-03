@@ -7,6 +7,7 @@ exports_files_legacy()
 skia_cc_library(
     name = "skunicode",
     srcs = [
+        "//modules/skunicode/src:icu_bidi_srcs",
         "//modules/skunicode/src:icu_srcs",
         "//modules/skunicode/src:srcs",
     ],

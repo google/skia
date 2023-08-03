@@ -27,20 +27,11 @@ skia_filegroup(
     visibility = ["//modules/skunicode:__pkg__"],
 )
 
-ICU_BIDI_SRCS = [
-    "SkUnicode_icu_bidi.cpp",
-    "SkUnicode_icu_bidi.h",
-]
-
 skia_filegroup(
     name = "icu_bidi_srcs",
     srcs = [
-        # Should leave this group empty for transition.
-        # However https://github.com/bazelbuild/bazel/issues/1431 allows empty filegroups
-        # but it almost always results in an error to use an empty filegroup.
-        "work_around_bazel_issues_1431.h",
-        # "SkUnicode_icu_bidi.cpp",
-        # "SkUnicode_icu_bidi.h",
+        "SkUnicode_icu_bidi.cpp",
+        "SkUnicode_icu_bidi.h",
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
@@ -52,7 +43,7 @@ skia_filegroup(
         "SkUnicode_icu.h",
         ":builtin_srcs",
         # TODO(kjlubick, bungeman): add support for SkUnicode_icu_runtime.cpp
-    ] + ICU_BIDI_SRCS,
+    ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
 
@@ -61,7 +52,7 @@ skia_filegroup(
     srcs = [
         "SkUnicode_client.cpp",
         "SkUnicode_client.h",
-    ] + ICU_BIDI_SRCS,
+    ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
 
@@ -69,6 +60,6 @@ skia_filegroup(
     name = "libgrapheme_srcs",
     srcs = [
         "SkUnicode_libgrapheme.cpp",
-    ] + ICU_BIDI_SRCS,
+    ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
