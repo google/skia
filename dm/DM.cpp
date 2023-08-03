@@ -932,7 +932,7 @@ void gather_file_srcs(const CommandLineFlags::StringArray& flags,
 }
 
 static bool gather_srcs() {
-    for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
+    for (const skiagm::GMFactory& f : skiagm::GMRegistry::Range()) {
         push_src("gm", "", new GMSrc(f));
     }
 

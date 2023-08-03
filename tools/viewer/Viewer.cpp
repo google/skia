@@ -949,7 +949,7 @@ void Viewer::initSlides() {
 
     // GMs
     int firstGM = fSlides.size();
-    for (skiagm::GMFactory gmFactory : skiagm::GMRegistry::Range()) {
+    for (const skiagm::GMFactory& gmFactory : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm = gmFactory();
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
             auto slide = sk_make_sp<GMSlide>(std::move(gm));

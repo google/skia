@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
     int numSkippedGMs = 0;
 
     // Iterate over all registered GMs.
-    for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
+    for (const skiagm::GMFactory& f : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(f());
         SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName());
 

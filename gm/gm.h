@@ -16,6 +16,7 @@
 #include "include/private/base/SkMacros.h"
 #include "tools/Registry.h"
 
+#include <functional>
 #include <memory>
 
 class GrRecordingContext;
@@ -219,7 +220,7 @@ namespace skiagm {
         DrawResult fGpuSetupResult = DrawResult::kOk;
     };
 
-    using GMFactory = std::unique_ptr<skiagm::GM> (*)();
+    using GMFactory = std::function<std::unique_ptr<skiagm::GM>()>;
     using GMRegistry = sk_tools::Registry<GMFactory>;
 
 #if defined(SK_GANESH)
