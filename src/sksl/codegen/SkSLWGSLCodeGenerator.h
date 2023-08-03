@@ -305,6 +305,11 @@ private:
     void writeUniformsAndBuffers();
     void writeUniformPolyfills(const Type& structType, MemoryLayout::Standard nativeLayout);
 
+    void writeTextureOrSampler(const Variable& var,
+                               int bindingLocation,
+                               std::string_view suffix,
+                               std::string_view wgslType);
+
     // Writes all top-level non-opaque global uniform declarations (i.e. not part of an interface
     // block) into a single uniform block binding.
     //

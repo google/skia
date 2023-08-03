@@ -2719,6 +2719,28 @@ void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     }
 }
 
+void WGSLCodeGenerator::writeTextureOrSampler(const Variable& var,
+                                              int bindingLocation,
+                                              std::string_view suffix,
+                                              std::string_view wgslType) {
+    if (var.type().dimensions() != SpvDim2D) {
+        // Skia currently only uses 2D textures.
+        fContext.fErrors->error(var.varDeclaration()->position(), "unsupported texture dimensions");
+        return;
+    }
+
+    this->write("@group(");
+    this->write(std::to_string(std::max(0, var.layout().fSet)));
+    this->write(") @binding(");
+    this->write(std::to_string(bindingLocation));
+    this->write(") var ");
+    this->write(this->assembleName(var.mangledName()));
+    this->write(suffix);
+    this->write(": ");
+    this->write(wgslType);
+    this->writeLine(";");
+}
+
 void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d) {
     const VarDeclaration& decl = d.varDeclaration();
     const Variable& var = *decl.var();
@@ -2731,36 +2753,25 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
 
     const Type::TypeKind varKind = var.type().typeKind();
     if (varKind == Type::TypeKind::kSampler) {
-        if (var.type().dimensions() != SpvDim2D) {
-            // Not yet implemented--Skia currently only uses 2D textures.
-            fContext.fErrors->error(decl.fPosition, "unsupported texture dimensions");
-            return;
-        }
-
         // If the sampler binding was unassigned, provide a scratch value; this will make
         // golden-output tests pass, but will not actually be usable for drawing.
         int samplerLocation = var.layout().fSampler >= 0 ? var.layout().fSampler
                                                          : 10000 + fScratchCount++;
-        this->write("@group(");
-        this->write(std::to_string(std::max(0, var.layout().fSet)));
-        this->write(") @binding(");
-        this->write(std::to_string(samplerLocation));
-        this->write(") var ");
-        this->write(this->assembleName(var.mangledName()));
-        this->write(kSamplerSuffix);
-        this->writeLine(": sampler;");
+        this->writeTextureOrSampler(var, samplerLocation, kSamplerSuffix, "sampler");
 
         // If the texture binding was unassigned, provide a scratch value (for golden-output tests).
         int textureLocation = var.layout().fTexture >= 0 ? var.layout().fTexture
                                                          : 10000 + fScratchCount++;
-        this->write("@group(");
-        this->write(std::to_string(std::max(0, var.layout().fSet)));
-        this->write(") @binding(");
-        this->write(std::to_string(textureLocation));
-        this->write(") var ");
-        this->write(this->assembleName(var.mangledName()));
-        this->write(kTextureSuffix);
-        this->writeLine(": texture_2d<f32>;");
+        this->writeTextureOrSampler(var, textureLocation, kTextureSuffix, "texture_2d<f32>");
+        return;
+    }
+
+    if (varKind == Type::TypeKind::kTexture) {
+        // If the texture binding was unassigned, provide a scratch value (for golden-output tests).
+        int textureLocation = var.layout().fTexture >= 0 ? var.layout().fTexture
+                                                         : 10000 + fScratchCount++;
+        // For a texture without an associated sampler, we don't apply a suffix.
+        this->writeTextureOrSampler(var, textureLocation, /*suffix=*/"", "texture_2d<f32>");
         return;
     }
 
