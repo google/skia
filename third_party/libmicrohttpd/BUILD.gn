@@ -26,6 +26,9 @@ third_party("libmicrohttpd") {
 
   defines = [ "DAUTH_SUPPORT=1" ]
   libs = []
+  if (is_clang) {
+    cflags = [ "-Wno-implicit-function-declaration" ]
+  }
 
   if (is_win) {
     sources += [ "../externals/microhttpd/src/platform/w32functions.c" ]
