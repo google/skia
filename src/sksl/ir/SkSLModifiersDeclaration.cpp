@@ -31,7 +31,7 @@ std::unique_ptr<ModifiersDeclaration> ModifiersDeclaration::Convert(const Contex
     }
 
     if ((modifiers.fLayout.fLocalSizeX >= 0 || modifiers.fLayout.fLocalSizeY >= 0 ||
-         modifiers.fLayout.fLocalSizeY >= 0)) {
+         modifiers.fLayout.fLocalSizeZ >= 0)) {
         if (!ProgramConfig::IsCompute(kind)) {
             context.fErrors->error(
                     modifiers.fPosition,

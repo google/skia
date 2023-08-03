@@ -42,4 +42,13 @@ layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) readonly;
 error: 14: local size layout qualifiers must be defined using an 'in' declaration
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) writeonly;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-14 errors
+error: 16: local size layout qualifiers must be defined using an 'in' declaration
+layout(local_size_x = 16) out;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 17: local size layout qualifiers must be defined using an 'in' declaration
+layout(local_size_y = 16) out;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 18: local size layout qualifiers must be defined using an 'in' declaration
+layout(local_size_z = 16) out;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 errors

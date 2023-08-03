@@ -13,7 +13,14 @@ layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) noperspective;
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) readonly;
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) writeonly;
 
+layout(local_size_x = 16) out;
+layout(local_size_y = 16) out;
+layout(local_size_z = 16) out;
+
 /*%%*
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
 local size layout qualifiers must be defined using an 'in' declaration
 local size layout qualifiers must be defined using an 'in' declaration
 local size layout qualifiers must be defined using an 'in' declaration
