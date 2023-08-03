@@ -2022,7 +2022,11 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                    this->assembleExpression(*arguments[2], Precedence::kSequence) + ')';
 
         case k_sampleGrad_IntrinsicKind:
-            return "/*" + std::string(call.function().name()) + " unimplemented */vec4<f32>(0)";
+            return this->assemblePartialSampleCall("textureSampleGrad",
+                                                   *arguments[0],
+                                                   *arguments[1]) + ", " +
+                   this->assembleExpression(*arguments[2], Precedence::kSequence) + ", " +
+                   this->assembleExpression(*arguments[3], Precedence::kSequence) + ')';
 
         case k_abs_IntrinsicKind:
         case k_acos_IntrinsicKind:

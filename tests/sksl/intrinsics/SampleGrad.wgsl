@@ -11,7 +11,9 @@ struct FSOut {
 fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
-    return /*sampleGrad unimplemented */vec4<f32>(0);
+    let _skTemp2 = dpdx(coords);
+    let _skTemp3 = dpdy(coords);
+    return textureSampleGrad(tᵗ, tˢ, coords, _skTemp2, _skTemp3);
   }
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
