@@ -42,14 +42,26 @@ Recording::~Recording() {
     this->priv().setFailureResultForFinishedProcs();
 }
 
-#if GRAPHITE_TEST_UTILS
-bool Recording::isTargetProxyInstantiated() const {
-    return fTargetProxyData->lazyProxy()->isInstantiated();
-}
-#endif
-
 std::size_t Recording::ProxyHash::operator()(const sk_sp<TextureProxy> &proxy) const {
     return SkGoodHash()(proxy.get());
+}
+
+Recording::LazyProxyData::LazyProxyData(const TextureInfo& textureInfo) {
+    fTargetProxy = TextureProxy::MakeFullyLazy(
+            textureInfo, skgpu::Budgeted::kNo, Volatile::kYes, [this](ResourceProvider*) {
+                SkASSERT(SkToBool(fTarget));
+                return std::move(fTarget);
+            });
+}
+
+TextureProxy* Recording::LazyProxyData::lazyProxy() { return fTargetProxy.get(); }
+
+sk_sp<TextureProxy> Recording::LazyProxyData::refLazyProxy() { return fTargetProxy; }
+
+bool Recording::LazyProxyData::lazyInstantiate(ResourceProvider* resourceProvider,
+                                               sk_sp<Texture> texture) {
+    fTarget = std::move(texture);
+    return fTargetProxy->lazyInstantiate(resourceProvider);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,18 +118,6 @@ void RecordingPriv::setFailureResultForFinishedProcs() {
     fRecording->fFinishedProcs.clear();
 }
 
-#if GRAPHITE_TEST_UTILS
-int RecordingPriv::numVolatilePromiseImages() const {
-    return fRecording->fVolatileLazyProxies.size();
-}
-
-int RecordingPriv::numNonVolatilePromiseImages() const {
-    return fRecording->fNonVolatileLazyProxies.size();
-}
-
-bool RecordingPriv::hasTasks() const { return fRecording->fGraph->hasTasks(); }
-#endif
-
 bool RecordingPriv::addCommands(Context* context,
                                 CommandBuffer* commandBuffer,
                                 Surface* targetSurface,
@@ -169,22 +169,22 @@ void RecordingPriv::addTask(sk_sp<Task> task) {
     fRecording->fGraph->prepend(std::move(task));
 }
 
-Recording::LazyProxyData::LazyProxyData(const TextureInfo& textureInfo) {
-    fTargetProxy = TextureProxy::MakeFullyLazy(
-            textureInfo, skgpu::Budgeted::kNo, Volatile::kYes, [this](ResourceProvider*) {
-                SkASSERT(SkToBool(fTarget));
-                return std::move(fTarget);
-            });
+////////////////////////////////////////////////////////////////////////////////
+// Utility methods for testing only
+bool RecordingPriv::isTargetProxyInstantiated() const {
+    return fRecording->fTargetProxyData->lazyProxy()->isInstantiated();
 }
 
-TextureProxy* Recording::LazyProxyData::lazyProxy() { return fTargetProxy.get(); }
+int RecordingPriv::numVolatilePromiseImages() const {
+    return fRecording->fVolatileLazyProxies.size();
+}
 
-sk_sp<TextureProxy> Recording::LazyProxyData::refLazyProxy() { return fTargetProxy; }
+int RecordingPriv::numNonVolatilePromiseImages() const {
+    return fRecording->fNonVolatileLazyProxies.size();
+}
 
-bool Recording::LazyProxyData::lazyInstantiate(ResourceProvider* resourceProvider,
-                                               sk_sp<Texture> texture) {
-    fTarget = std::move(texture);
-    return fTargetProxy->lazyInstantiate(resourceProvider);
+bool RecordingPriv::hasTasks() const {
+    return fRecording->fGraph->hasTasks();
 }
 
 } // namespace skgpu::graphite

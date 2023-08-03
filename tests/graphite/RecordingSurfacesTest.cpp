@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 
 namespace skgpu::graphite {
@@ -71,7 +72,7 @@ void run_test(skiatest::Reporter* reporter,
     }
 
     // Veryify expectations are met and recording is uninstantiated.
-    REPORTER_ASSERT(reporter, !recording->isTargetProxyInstantiated());
+    REPORTER_ASSERT(reporter, !recording->priv().isTargetProxyInstantiated());
     for (const Expectation& e : expectations) {
         SkColor4f color = pixmap.getColor4f(e.fX, e.fY);
 #ifdef SK_DEBUG
