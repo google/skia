@@ -14,7 +14,6 @@
 #include "src/opts/SkBlitRow_opts.h"
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
-#include "src/opts/SkUtils_opts.h"
 
 namespace SkOpts {
     void Init_hsw() {
