@@ -1549,8 +1549,6 @@ BASE_SRCS_ALL = [
     "src/sksl/codegen/SkSLRasterPipelineBuilder.h",
     "src/sksl/codegen/SkSLWGSLCodeGenerator.cpp",
     "src/sksl/codegen/SkSLWGSLCodeGenerator.h",
-    "src/sksl/dsl/DSLStatement.cpp",
-    "src/sksl/dsl/DSLStatement.h",
     "src/sksl/ir/SkSLBinaryExpression.cpp",
     "src/sksl/ir/SkSLBinaryExpression.h",
     "src/sksl/ir/SkSLBlock.cpp",

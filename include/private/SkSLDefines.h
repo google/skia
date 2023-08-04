@@ -44,9 +44,7 @@ static constexpr int kDefaultInlineThreshold = 50;
 // amounts of time or space.
 static constexpr int kVariableSlotLimit = 100000;
 
-// The SwizzleComponent namespace is used both by the SkSL::Swizzle expression, and the DSL swizzle.
-// This namespace is injected into SkSL::dsl so that `using namespace SkSL::dsl` enables DSL code
-// like `Swizzle(var, X, Y, ONE)` to compile without any extra qualifications.
+// The SwizzleComponent namespace is used by the SkSL::Swizzle expression.
 namespace SwizzleComponent {
 
 enum Type : int8_t {

@@ -70,7 +70,6 @@
 #include <vector>
 
 using namespace skia_private;
-using namespace SkSL::dsl;
 
 namespace SkSL {
 
@@ -646,14 +645,14 @@ bool Parser::defineFunction(SkSL::FunctionDeclaration* decl) {
 
     // Parse the function body.
     Token bodyStart = this->peek();
-    std::optional<DSLStatement> body = this->block();
+    std::unique_ptr<Statement> body = this->block();
 
     // If there was a problem with the declarations or body, don't actually create a definition.
     if (!decl || !body) {
         return false;
     }
 
-    std::unique_ptr<SkSL::Statement> block = body->release();
+    std::unique_ptr<SkSL::Statement> block = std::move(body);
     SkASSERT(block->is<Block>());
     Position pos = this->rangeFrom(bodyStart);
     block->fPosition = pos;
@@ -807,17 +806,17 @@ void Parser::globalVarDeclarationEnd(Position pos,
 
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
-DSLStatement Parser::localVarDeclarationEnd(Position pos,
-                                            const Modifiers& mods,
-                                            const Type* baseType,
-                                            Token name) {
+std::unique_ptr<Statement> Parser::localVarDeclarationEnd(Position pos,
+                                                          const Modifiers& mods,
+                                                          const Type* baseType,
+                                                          Token name) {
     const Type* type = baseType;
     std::unique_ptr<Expression> initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
-        return {};
+        return nullptr;
     }
     if (!this->parseInitializer(pos, &initializer)) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Statement> result = VarDeclaration::Convert(fCompiler.context(),
                                                                 this->rangeFrom(pos),
@@ -855,11 +854,12 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
 
         result = Block::MakeCompoundStatement(std::move(result), std::move(next));
     }
-    return DSLStatement(std::move(result), this->rangeFrom(pos));
+    pos = this->rangeFrom(pos);
+    return this->statementOrNop(pos, std::move(result));
 }
 
 /* (varDeclarations | expressionStatement) */
-DSLStatement Parser::varDeclarationsOrExpressionStatement() {
+std::unique_ptr<Statement> Parser::varDeclarationsOrExpressionStatement() {
     Token nextToken = this->peek();
     if (nextToken.fKind == Token::Kind::TK_CONST) {
         // Statements that begin with `const` might be variable declarations, but can't be legal
@@ -902,10 +902,10 @@ bool Parser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
 }
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
-DSLStatement Parser::varDeclarations() {
+std::unique_ptr<Statement> Parser::varDeclarations() {
     VarDeclarationsPrefix prefix;
     if (!this->varDeclarationsPrefix(&prefix)) {
-        return {};
+        return nullptr;
     }
     return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
                                         prefix.fName);
@@ -1179,12 +1179,22 @@ Modifiers Parser::modifiers() {
     return Modifiers{Position::Range(start, end), layout, flags};
 }
 
+std::unique_ptr<Statement> Parser::statementOrNop(Position pos, std::unique_ptr<Statement> stmt) {
+    if (!stmt) {
+        stmt = Nop::Make();
+    }
+    if (pos.valid() && !stmt->position().valid()) {
+        stmt->setPosition(pos);
+    }
+    return stmt;
+}
+
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
-DSLStatement Parser::statement() {
+std::unique_ptr<Statement> Parser::statement() {
     Token start = this->nextToken();
     AutoDepth depth(this);
     if (!depth.increase()) {
-        return {};
+        return nullptr;
     }
     this->pushback(start);
     switch (start.fKind) {
@@ -1206,13 +1216,11 @@ DSLStatement Parser::statement() {
             return this->continueStatement();
         case Token::Kind::TK_DISCARD:
             return this->discardStatement();
-        case Token::Kind::TK_LBRACE: {
-            std::optional<DSLStatement> result = this->block();
-            return result ? std::move(*result) : DSLStatement();
-        }
+        case Token::Kind::TK_LBRACE:
+            return this->block();
         case Token::Kind::TK_SEMICOLON:
             this->nextToken();
-            return DSLStatement(Nop::Make());
+            return Nop::Make();
         case Token::Kind::TK_HIGHP:
         case Token::Kind::TK_MEDIUMP:
         case Token::Kind::TK_LOWP:
@@ -1368,95 +1376,95 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
 }
 
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
-DSLStatement Parser::ifStatement() {
+std::unique_ptr<Statement> Parser::ifStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_IF, "'if'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Expression> test = this->expression();
     if (!test) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
-    DSLStatement ifTrue = this->statement();
-    if (!ifTrue.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> ifTrue = this->statement();
+    if (!ifTrue) {
+        return nullptr;
     }
-    DSLStatement ifFalse;
+    std::unique_ptr<Statement> ifFalse;
     if (this->checkNext(Token::Kind::TK_ELSE)) {
         ifFalse = this->statement();
-        if (!ifFalse.hasValue()) {
-            return {};
+        if (!ifFalse) {
+            return nullptr;
         }
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(IfStatement::Convert(fCompiler.context(),
-                                             pos,
-                                             std::move(test),
-                                             ifTrue.release(),
-                                             ifFalse.releaseIfPossible()), pos);
+    return this->statementOrNop(pos, IfStatement::Convert(fCompiler.context(),
+                                                          pos,
+                                                          std::move(test),
+                                                          std::move(ifTrue),
+                                                          std::move(ifFalse)));
 }
 
 /* DO statement WHILE LPAREN expression RPAREN SEMICOLON */
-DSLStatement Parser::doStatement() {
+std::unique_ptr<Statement> Parser::doStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_DO, "'do'", &start)) {
-        return {};
+        return nullptr;
     }
-    DSLStatement statement = this->statement();
-    if (!statement.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> statement = this->statement();
+    if (!statement) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_WHILE, "'while'")) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Expression> test = this->expression();
     if (!test) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(DoStatement::Convert(fCompiler.context(), pos,
-                                             statement.release(), std::move(test)), pos);
+    return this->statementOrNop(pos, DoStatement::Convert(fCompiler.context(), pos,
+                                                          std::move(statement), std::move(test)));
 }
 
 /* WHILE LPAREN expression RPAREN STATEMENT */
-DSLStatement Parser::whileStatement() {
+std::unique_ptr<Statement> Parser::whileStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_WHILE, "'while'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Expression> test = this->expression();
     if (!test) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
-    DSLStatement statement = this->statement();
-    if (!statement.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> statement = this->statement();
+    if (!statement) {
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(ForStatement::ConvertWhile(fCompiler.context(), pos,
-                                                   std::move(test),
-                                                   statement.release()), pos);
+    return this->statementOrNop(pos, ForStatement::ConvertWhile(fCompiler.context(), pos,
+                                                                std::move(test),
+                                                                std::move(statement)));
 }
 
 /* COLON statement* */
@@ -1470,11 +1478,11 @@ bool Parser::switchCaseBody(ExpressionArray* values,
     while (this->peek().fKind != Token::Kind::TK_RBRACE &&
            this->peek().fKind != Token::Kind::TK_CASE &&
            this->peek().fKind != Token::Kind::TK_DEFAULT) {
-        DSLStatement s = this->statement();
-        if (!s.hasValue()) {
+        std::unique_ptr<Statement> s = this->statement();
+        if (!s) {
             return false;
         }
-        statements.push_back(s.release());
+        statements.push_back(std::move(s));
     }
     values->push_back(std::move(caseValue));
     caseBlocks->push_back(SkSL::Block::Make(Position(), std::move(statements),
@@ -1496,47 +1504,47 @@ bool Parser::switchCase(ExpressionArray* values, StatementArray* caseBlocks) {
 }
 
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
-DSLStatement Parser::switchStatement() {
+std::unique_ptr<Statement> Parser::switchStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_SWITCH, "'switch'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Expression> value = this->expression();
     if (!value) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
-        return {};
+        return nullptr;
     }
 
     ExpressionArray values;
     StatementArray caseBlocks;
     while (this->peek().fKind == Token::Kind::TK_CASE) {
         if (!this->switchCase(&values, &caseBlocks)) {
-            return {};
+            return nullptr;
         }
     }
     // Requiring `default:` to be last (in defiance of C and GLSL) was a deliberate decision. Other
     // parts of the compiler are allowed to rely upon this assumption.
     if (this->checkNext(Token::Kind::TK_DEFAULT)) {
         if (!this->switchCaseBody(&values, &caseBlocks, /*value=*/nullptr)) {
-            return {};
+            return nullptr;
         }
     }
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
-        return {};
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(SwitchStatement::Convert(fCompiler.context(), pos,
-                                                 std::move(value),
-                                                 std::move(values),
-                                                 std::move(caseBlocks)), pos);
+    return this->statementOrNop(pos, SwitchStatement::Convert(fCompiler.context(), pos,
+                                                              std::move(value),
+                                                              std::move(values),
+                                                              std::move(caseBlocks)));
 }
 
 static Position range_of_at_least_one_char(int start, int end) {
@@ -1545,17 +1553,17 @@ static Position range_of_at_least_one_char(int start, int end) {
 
 /* FOR LPAREN (declaration | expression)? SEMICOLON expression? SEMICOLON expression? RPAREN
    STATEMENT */
-dsl::DSLStatement Parser::forStatement() {
+std::unique_ptr<Statement> Parser::forStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_FOR, "'for'", &start)) {
-        return {};
+        return nullptr;
     }
     Token lparen;
     if (!this->expect(Token::Kind::TK_LPAREN, "'('", &lparen)) {
-        return {};
+        return nullptr;
     }
     AutoSymbolTable symbols(this);
-    dsl::DSLStatement initializer;
+    std::unique_ptr<Statement> initializer;
     Token nextToken = this->peek();
     int firstSemicolonOffset;
     if (nextToken.fKind == Token::Kind::TK_SEMICOLON) {
@@ -1564,8 +1572,8 @@ dsl::DSLStatement Parser::forStatement() {
     } else {
         // The init-statement must be an expression or variable declaration.
         initializer = this->varDeclarationsOrExpressionStatement();
-        if (!initializer.hasValue()) {
-            return {};
+        if (!initializer) {
+            return nullptr;
         }
         firstSemicolonOffset = fLexer.getCheckpoint().fOffset - 1;
     }
@@ -1573,27 +1581,27 @@ dsl::DSLStatement Parser::forStatement() {
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
         test = this->expression();
         if (!test) {
-            return {};
+            return nullptr;
         }
     }
     Token secondSemicolon;
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'", &secondSemicolon)) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Expression> next;
     if (this->peek().fKind != Token::Kind::TK_RPAREN) {
         next = this->expression();
         if (!next) {
-            return {};
+            return nullptr;
         }
     }
     Token rparen;
     if (!this->expect(Token::Kind::TK_RPAREN, "')'", &rparen)) {
-        return {};
+        return nullptr;
     }
-    dsl::DSLStatement statement = this->statement();
-    if (!statement.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> statement = this->statement();
+    if (!statement) {
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
     ForLoopPositions loopPositions{
@@ -1601,28 +1609,28 @@ dsl::DSLStatement Parser::forStatement() {
             range_of_at_least_one_char(firstSemicolonOffset + 1, secondSemicolon.fOffset),
             range_of_at_least_one_char(secondSemicolon.fOffset + 1, rparen.fOffset),
     };
-    return DSLStatement(ForStatement::Convert(fCompiler.context(), pos, loopPositions,
-                                              initializer.releaseIfPossible(),
-                                              std::move(test),
-                                              std::move(next),
-                                              statement.release()), pos);
+    return this->statementOrNop(pos, ForStatement::Convert(fCompiler.context(), pos, loopPositions,
+                                                           std::move(initializer),
+                                                           std::move(test),
+                                                           std::move(next),
+                                                           std::move(statement)));
 }
 
 /* RETURN expression? SEMICOLON */
-DSLStatement Parser::returnStatement() {
+std::unique_ptr<Statement> Parser::returnStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_RETURN, "'return'", &start)) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Expression> expression;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
         expression = this->expression();
         if (!expression) {
-            return {};
+            return nullptr;
         }
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     // We do not check for errors, or coerce the value to the correct type, until the return
     // statement is actually added to a function. (This is done in FunctionDefinition::Convert.)
@@ -1630,51 +1638,51 @@ DSLStatement Parser::returnStatement() {
 }
 
 /* BREAK SEMICOLON */
-DSLStatement Parser::breakStatement() {
+std::unique_ptr<Statement> Parser::breakStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_BREAK, "'break'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     return SkSL::BreakStatement::Make(this->position(start));
 }
 
 /* CONTINUE SEMICOLON */
-DSLStatement Parser::continueStatement() {
+std::unique_ptr<Statement> Parser::continueStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_CONTINUE, "'continue'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     return SkSL::ContinueStatement::Make(this->position(start));
 }
 
 /* DISCARD SEMICOLON */
-DSLStatement Parser::discardStatement() {
+std::unique_ptr<Statement> Parser::discardStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_DISCARD, "'continue'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     Position pos = this->position(start);
-    return DSLStatement(SkSL::DiscardStatement::Convert(fCompiler.context(), pos), pos);
+    return this->statementOrNop(pos, SkSL::DiscardStatement::Convert(fCompiler.context(), pos));
 }
 
 /* LBRACE statement* RBRACE */
-std::optional<DSLStatement> Parser::block() {
+std::unique_ptr<Statement> Parser::block() {
     AutoDepth depth(this);
     Token start;
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'", &start)) {
-        return std::nullopt;
+        return nullptr;
     }
     if (!depth.increase()) {
-        return std::nullopt;
+        return nullptr;
     }
     AutoSymbolTable symbols(this);
     StatementArray statements;
@@ -1683,21 +1691,21 @@ std::optional<DSLStatement> Parser::block() {
             case Token::Kind::TK_RBRACE: {
                 this->nextToken();
                 Position pos = this->rangeFrom(start);
-                return DSLStatement(SkSL::Block::MakeBlock(pos, std::move(statements),
-                                                           Block::Kind::kBracedScope,
-                                                           this->symbolTable()), pos);
+                return SkSL::Block::MakeBlock(pos, std::move(statements),
+                                              Block::Kind::kBracedScope,
+                                              this->symbolTable());
             }
             case Token::Kind::TK_END_OF_FILE: {
                 this->error(this->peek(), "expected '}', but found end of file");
-                return std::nullopt;
+                return nullptr;
             }
             default: {
-                DSLStatement statement = this->statement();
+                std::unique_ptr<Statement> statement = this->statement();
                 if (fEncounteredFatalError) {
-                    return std::nullopt;
+                    return nullptr;
                 }
-                if (statement.hasValue()) {
-                    statements.push_back(statement.release());
+                if (statement) {
+                    statements.push_back(std::move(statement));
                 }
                 break;
             }
@@ -1706,17 +1714,17 @@ std::optional<DSLStatement> Parser::block() {
 }
 
 /* expression SEMICOLON */
-DSLStatement Parser::expressionStatement() {
+std::unique_ptr<Statement> Parser::expressionStatement() {
     std::unique_ptr<Expression> expr = this->expression();
     if (!expr) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     Position pos = expr->position();
-    return DSLStatement(SkSL::ExpressionStatement::Convert(fCompiler.context(), std::move(expr)),
-                        pos);
+    return this->statementOrNop(pos, SkSL::ExpressionStatement::Convert(fCompiler.context(),
+                                                                        std::move(expr)));
 }
 
 std::unique_ptr<Expression> Parser::poison(Position pos) {

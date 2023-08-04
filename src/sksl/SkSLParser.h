@@ -14,13 +14,11 @@
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/dsl/DSLStatement.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 
@@ -30,16 +28,17 @@ class Compiler;
 class ErrorReporter;
 class Expression;
 class FunctionDeclaration;
-class SymbolTable;
-enum class ProgramKind : int8_t;
 struct Module;
 struct Program;
+enum class ProgramKind : int8_t;
+class Statement;
+class SymbolTable;
 class Type;
 class VarDeclaration;
 class Variable;
 
 /**
- * Consumes .sksl text and invokes DSL functions to instantiate the program.
+ * Consumes .sksl text and converts it into an IR tree, encapsulated in a Program.
  */
 class Parser {
 public:
@@ -164,9 +163,9 @@ private:
 
     bool varDeclarationsPrefix(VarDeclarationsPrefix* prefixData);
 
-    dsl::DSLStatement varDeclarationsOrExpressionStatement();
+    std::unique_ptr<Statement> varDeclarationsOrExpressionStatement();
 
-    dsl::DSLStatement varDeclarations();
+    std::unique_ptr<Statement> varDeclarations();
 
     const Type* structDeclaration();
 
@@ -190,8 +189,10 @@ private:
     void globalVarDeclarationEnd(Position position, const Modifiers& mods,
                                  const Type* baseType, Token name);
 
-    dsl::DSLStatement localVarDeclarationEnd(Position position, const Modifiers& mods,
-                                             const Type* baseType, Token name);
+    std::unique_ptr<Statement> localVarDeclarationEnd(Position position,
+                                                      const Modifiers& mods,
+                                                      const Type* baseType,
+                                                      Token name);
 
     bool modifiersDeclarationEnd(const Modifiers& mods);
 
@@ -205,7 +206,9 @@ private:
 
     Modifiers modifiers();
 
-    dsl::DSLStatement statement();
+    std::unique_ptr<Statement> statementOrNop(Position pos, std::unique_ptr<Statement> stmt);
+
+    std::unique_ptr<Statement> statement();
 
     const Type* findType(Position pos, Modifiers* modifiers, std::string_view name);
 
@@ -213,13 +216,13 @@ private:
 
     bool interfaceBlock(const Modifiers& mods);
 
-    dsl::DSLStatement ifStatement();
+    std::unique_ptr<Statement> ifStatement();
 
-    dsl::DSLStatement doStatement();
+    std::unique_ptr<Statement> doStatement();
 
-    dsl::DSLStatement whileStatement();
+    std::unique_ptr<Statement> whileStatement();
 
-    dsl::DSLStatement forStatement();
+    std::unique_ptr<Statement> forStatement();
 
     bool switchCaseBody(ExpressionArray* values,
                         StatementArray* caseBlocks,
@@ -227,19 +230,19 @@ private:
 
     bool switchCase(ExpressionArray* values, StatementArray* caseBlocks);
 
-    dsl::DSLStatement switchStatement();
+    std::unique_ptr<Statement> switchStatement();
 
-    dsl::DSLStatement returnStatement();
+    std::unique_ptr<Statement> returnStatement();
 
-    dsl::DSLStatement breakStatement();
+    std::unique_ptr<Statement> breakStatement();
 
-    dsl::DSLStatement continueStatement();
+    std::unique_ptr<Statement> continueStatement();
 
-    dsl::DSLStatement discardStatement();
+    std::unique_ptr<Statement> discardStatement();
 
-    std::optional<dsl::DSLStatement> block();
+    std::unique_ptr<Statement> block();
 
-    dsl::DSLStatement expressionStatement();
+    std::unique_ptr<Statement> expressionStatement();
 
     using BinaryParseFn = std::unique_ptr<Expression> (Parser::*)();
     [[nodiscard]] bool operatorRight(AutoDepth& depth,

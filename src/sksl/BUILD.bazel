@@ -146,7 +146,6 @@ skia_filegroup(
         ":core_srcs",
         "//src/sksl/analysis:srcs",
         "//src/sksl/codegen:srcs",
-        "//src/sksl/dsl:srcs",
         "//src/sksl/ir:srcs",
         "//src/sksl/tracing:srcs",
         "//src/sksl/transform:srcs",

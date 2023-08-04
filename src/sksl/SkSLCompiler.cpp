@@ -412,13 +412,7 @@ bool Compiler::runInliner(Inliner* inliner,
     return true;
 #else
     // The program's SymbolTable was taken out of the context when the program was bundled, but
-    // the inliner relies (indirectly) on having a valid SymbolTable.
-    // In particular, inlining can turn a non-optimizable expression like `normalize(myVec)` into
-    // `normalize(vec2(7))`, which is now optimizable. The optimizer can use DSL to simplify this
-    // expression--e.g., in the case of normalize, using DSL's Length(). The DSL relies on
-    // convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol table to
-    // find the declaration of `length`. To allow this chain of events to succeed, we re-insert the
-    // program's symbol table temporarily.
+    // the inliner creates IR objects which may expect the context to hold a valid SymbolTable.
     SkASSERT(!fContext->fSymbolTable);
     fContext->fSymbolTable = symbols;
 
