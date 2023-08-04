@@ -16,6 +16,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "GrAHardwareBufferUtils.h",
         "SkCanvasAndroid.h",
         "SkImageAndroid.h",
         "SkSurfaceAndroid.h",

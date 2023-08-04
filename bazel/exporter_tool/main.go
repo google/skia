@@ -358,7 +358,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_gpu_vk_private",
 			Rules: []string{
-				"//include/gpu/vk:public_hdrs",
 				"//include/private/gpu/ganesh:vk_private_hdrs",
 				"//src/gpu/ganesh/vk:vk_hdrs",
 				"//src/gpu/ganesh/vk:vk_srcs",

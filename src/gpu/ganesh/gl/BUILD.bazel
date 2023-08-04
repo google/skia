@@ -6,6 +6,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 CORE_FILES = [
+    "AHardwareBufferGL.cpp",
     "GrGLAssembleGLESInterfaceAutogen.cpp",
     "GrGLAssembleGLInterfaceAutogen.cpp",
     "GrGLAssembleHelpers.cpp",

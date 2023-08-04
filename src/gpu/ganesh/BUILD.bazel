@@ -24,7 +24,6 @@ CORE_FILES = [
     "GrAHardwareBufferImageGenerator.cpp",
     "GrAHardwareBufferImageGenerator.h",
     "GrAHardwareBufferUtils.cpp",
-    "GrAHardwareBufferUtils_impl.h",
     "GrAppliedClip.h",
     "GrAttachment.cpp",
     "GrAttachment.h",
