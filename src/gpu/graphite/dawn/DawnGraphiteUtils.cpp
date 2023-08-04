@@ -89,11 +89,11 @@ wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlag
 }
 
 wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
-                                                const std::string& spirv,
-                                                ShaderErrorHandler* errorHandler) {
+                                                std::string_view spirv,
+                                                ShaderErrorHandler*) {
     wgpu::ShaderModuleSPIRVDescriptor spirvDesc;
     spirvDesc.codeSize = spirv.size() / 4;
-    spirvDesc.code = reinterpret_cast<const uint32_t*>(spirv.c_str());
+    spirvDesc.code = reinterpret_cast<const uint32_t*>(spirv.data());
 
     // Skia often generates shaders that select a texture/sampler conditionally based on an
     // attribute (specifically in the case of texture atlas indexing). We disable derivative
@@ -104,6 +104,18 @@ wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedC
     wgpu::ShaderModuleDescriptor desc;
     desc.nextInChain = &spirvDesc;
     spirvDesc.nextInChain = &dawnSpirvOptions;
+
+    return sharedContext->device().CreateShaderModule(&desc);
+}
+
+wgpu::ShaderModule DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
+                                               const std::string& wgsl,
+                                               ShaderErrorHandler*) {
+    wgpu::ShaderModuleWGSLDescriptor wgslDesc;
+    wgslDesc.code = wgsl.c_str();
+
+    wgpu::ShaderModuleDescriptor desc;
+    desc.nextInChain = &wgslDesc;
 
     return sharedContext->device().CreateShaderModule(&desc);
 }
