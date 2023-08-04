@@ -142,11 +142,11 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
                     maybeResource = this->allocateResource(step, r, index);
                     *slot = maybeResource;
                 } else {
-                    SkDEBUGCODE(using Type = ComputeStep::ResourceType;)
-                    SkASSERT((r.fType == Type::kStorageBuffer &&
-                              std::holds_alternative<BindBufferInfo>(*slot)) ||
-                             ((r.fType == Type::kTexture || r.fType == Type::kStorageTexture) &&
-                              std::holds_alternative<TextureIndex>(*slot)));
+                    SkDEBUGCODE(using Type = ComputeStep::ResourceType;) SkASSERT(
+                            (r.fType == Type::kStorageBuffer &&
+                             std::holds_alternative<BufferView>(*slot)) ||
+                            ((r.fType == Type::kTexture || r.fType == Type::kStorageTexture) &&
+                             std::holds_alternative<TextureIndex>(*slot)));
                     maybeResource = *slot;
                 }
                 break;
@@ -155,7 +155,7 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
 
         int bindingIndex = 0;
         DispatchResource dispatchResource;
-        if (const BindBufferInfo* buffer = std::get_if<BindBufferInfo>(&maybeResource)) {
+        if (const BufferView* buffer = std::get_if<BufferView>(&maybeResource)) {
             dispatchResource = *buffer;
             bindingIndex = bufferIndex++;
         } else if (const TextureIndex* texIdx = std::get_if<TextureIndex>(&maybeResource)) {
@@ -192,9 +192,10 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
     return true;
 }
 
-void Builder::assignSharedBuffer(BindBufferInfo buffer, unsigned int slot) {
+void Builder::assignSharedBuffer(BufferView buffer, unsigned int slot) {
     SkASSERT(fObj);
-    SkASSERT(buffer);
+    SkASSERT(buffer.fInfo);
+    SkASSERT(buffer.fSize);
 
     fOutputTable.fSharedSlots[slot] = buffer;
 }
@@ -217,9 +218,8 @@ BindBufferInfo Builder::getSharedBufferResource(unsigned int slot) const {
     SkASSERT(fObj);
 
     BindBufferInfo info;
-    if (const BindBufferInfo* slotValue =
-                std::get_if<BindBufferInfo>(&fOutputTable.fSharedSlots[slot])) {
-        info = *slotValue;
+    if (const BufferView* slotValue = std::get_if<BufferView>(&fOutputTable.fSharedSlots[slot])) {
+        info = slotValue->fInfo;
     }
     return info;
 }
@@ -253,7 +253,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                 auto [ptr, bufInfo] = bufferMgr->getStoragePointer(bufferSize);
                 if (ptr) {
                     step->prepareStorageBuffer(resourceIdx, resource, ptr, bufferSize);
-                    result = bufInfo;
+                    result = BufferView{bufInfo, bufferSize};
                 }
             } else {
                 auto bufInfo = bufferMgr->getStorage(bufferSize,
@@ -261,7 +261,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                                                              ? ClearBuffer::kYes
                                                              : ClearBuffer::kNo);
                 if (bufInfo) {
-                    result = bufInfo;
+                    result = BufferView{bufInfo, bufferSize};
                 }
             }
             break;
@@ -279,7 +279,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             auto [writer, bufInfo] = bufferMgr->getUniformWriter(dataBlock.size());
             if (bufInfo) {
                 writer.write(dataBlock.data(), dataBlock.size());
-                result = bufInfo;
+                result = BufferView{bufInfo, dataBlock.size()};
             }
             break;
         }

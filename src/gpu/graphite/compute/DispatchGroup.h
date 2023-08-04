@@ -29,9 +29,15 @@ class ResourceProvider;
 using BindingIndex = uint32_t;
 struct TextureIndex { uint32_t fValue; };
 struct SamplerIndex { uint32_t fValue; };
-using DispatchResource = std::variant<BindBufferInfo, TextureIndex, SamplerIndex>;
+
+struct BufferView {
+    BindBufferInfo fInfo;
+    size_t fSize;
+};
+
+using DispatchResource = std::variant<BufferView, TextureIndex, SamplerIndex>;
 using DispatchResourceOptional =
-        std::variant<std::monostate, BindBufferInfo, TextureIndex, SamplerIndex>;
+        std::variant<std::monostate, BufferView, TextureIndex, SamplerIndex>;
 
 struct ResourceBinding {
     BindingIndex fIndex;
@@ -132,7 +138,7 @@ public:
     // If the slot is already assigned a buffer, it will be overwritten. Calling this method does
     // not have any effect on previously appended ComputeSteps that were already bound that
     // resource.
-    void assignSharedBuffer(BindBufferInfo buffer, unsigned int slot);
+    void assignSharedBuffer(BufferView buffer, unsigned int slot);
 
     // Directly assign a texture to a shared slot. ComputeSteps that are appended after this call
     // will use this resource if they reference the given `slot` index. Builder will not allocate

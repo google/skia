@@ -178,9 +178,8 @@ bool MtlCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
         for (const auto& dispatch : group->dispatches()) {
             this->bindComputePipeline(group->getPipeline(dispatch.fPipelineIndex));
             for (const ResourceBinding& binding : dispatch.fBindings) {
-                if (const BindBufferInfo* buffer =
-                            std::get_if<BindBufferInfo>(&binding.fResource)) {
-                    this->bindBuffer(buffer->fBuffer, buffer->fOffset, binding.fIndex);
+                if (const BufferView* buffer = std::get_if<BufferView>(&binding.fResource)) {
+                    this->bindBuffer(buffer->fInfo.fBuffer, buffer->fInfo.fOffset, binding.fIndex);
                 } else if (const TextureIndex* texIdx =
                                    std::get_if<TextureIndex>(&binding.fResource)) {
                     SkASSERT(texIdx);

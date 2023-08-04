@@ -356,7 +356,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_DispatchGroupTest, reporter, context
     // from step 1 while slot 2 contains the result of the second multiplication pass from step 1.
     // Slot 0 is not mappable.
     REPORTER_ASSERT(reporter,
-                    std::holds_alternative<BindBufferInfo>(builder.outputTable().fSharedSlots[0]),
+                    std::holds_alternative<BufferView>(builder.outputTable().fSharedSlots[0]),
                     "shared resource at slot 0 is missing");
     BindBufferInfo outputInfo = builder.getSharedBufferResource(2);
     if (!outputInfo) {
@@ -644,7 +644,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_ExternallyAssignedBuffer, reporter, 
     REPORTER_ASSERT(reporter, outputInfo, "Failed to allocate output buffer");
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.assignSharedBuffer(outputInfo, 0);
+    builder.assignSharedBuffer({outputInfo, sizeof(float) * kProblemSize}, 0);
 
     // Initialize the step with a pre-determined global size
     if (!builder.appendStep(&step, {WorkgroupSize(1, 1, 1)})) {
