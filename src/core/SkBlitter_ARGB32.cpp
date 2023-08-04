@@ -19,6 +19,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkBlitMask.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"

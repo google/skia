@@ -13,7 +13,6 @@
 #define SK_OPTS_TARGET SK_OPTS_TARGET_DEFAULT
 #include "src/opts/SkOpts_SetTarget.h"
 
-#include "src/opts/SkBlitMask_opts.h"
 #include "src/opts/SkBlitRow_opts.h"
 #include "src/opts/SkRasterPipeline_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
@@ -26,8 +25,6 @@ namespace SkOpts {
     // If our global compile options are set high enough, these defaults might even be
     // CPU-specialized, e.g. a typical x86-64 machine might start with SSE2 defaults.
     // They'll still get a chance to be replaced with even better ones, e.g. using SSE4.1.
-    DEFINE_DEFAULT(blit_mask_d32_a8);
-
     DEFINE_DEFAULT(blit_row_color32);
     DEFINE_DEFAULT(blit_row_s32a_opaque);
 

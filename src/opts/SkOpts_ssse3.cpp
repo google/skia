@@ -10,13 +10,10 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #define SK_OPTS_NS ssse3
-#include "src/opts/SkBlitMask_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 
 namespace SkOpts {
     void Init_ssse3() {
-        blit_mask_d32_a8 = ssse3::blit_mask_d32_a8;
-
         RGBA_to_BGRA          = ssse3::RGBA_to_BGRA;
         RGBA_to_rgbA          = ssse3::RGBA_to_rgbA;
         RGBA_to_bgrA          = ssse3::RGBA_to_bgrA;
