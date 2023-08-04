@@ -16,8 +16,8 @@ struct uniformBuffer {
   unorm_Stage1_c0_c0_c0: vec4<f32>,
 };
 @group(0) @binding(0) var<uniform> _uniform0 : uniformBuffer;
-@group(0) @binding(10001) var uTextureSampler_0_Stage1ˢ: sampler;
-@group(0) @binding(10002) var uTextureSampler_0_Stage1ᵗ: texture_2d<f32>;
+@group(0) @binding(10001) var uTextureSampler_0_Stage1_Sampler: sampler;
+@group(0) @binding(10002) var uTextureSampler_0_Stage1_Texture: texture_2d<f32>;
 fn MatrixEffect_Stage1_c0_c0_h4h4f2(_skParam0: vec4<f32>, _skParam1: vec2<f32>) -> vec4<f32> {
   let _input = _skParam0;
   let _coords = _skParam1;
@@ -28,7 +28,7 @@ fn MatrixEffect_Stage1_c0_c0_h4h4f2(_skParam0: vec4<f32>, _skParam1: vec2<f32>) 
     _2_subsetCoord.x = _1_inCoord.x;
     _2_subsetCoord.y = _1_inCoord.y;
     var _3_clampedCoord: vec2<f32> = _2_subsetCoord;
-    var _4_textureColor: vec4<f32> = textureSample(uTextureSampler_0_Stage1ᵗ, uTextureSampler_0_Stage1ˢ, _3_clampedCoord * _uniform0.unorm_Stage1_c0_c0_c0.zw);
+    var _4_textureColor: vec4<f32> = textureSample(uTextureSampler_0_Stage1_Texture, uTextureSampler_0_Stage1_Sampler, _3_clampedCoord * _uniform0.unorm_Stage1_c0_c0_c0.zw);
     let _skTemp3 = floor(_1_inCoord.x + 0.001);
     var _5_snappedX: f32 = _skTemp3 + 0.5;
     if (_5_snappedX < _uniform0.usubset_Stage1_c0_c0_c0.x) || (_5_snappedX > _uniform0.usubset_Stage1_c0_c0_c0.z) {

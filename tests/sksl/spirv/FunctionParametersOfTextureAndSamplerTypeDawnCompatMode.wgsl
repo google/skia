@@ -7,22 +7,22 @@ struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
 @group(0) @binding(1) var aTexture: texture_2d<f32>;
-@group(0) @binding(3) var aSampledTextureˢ: sampler;
-@group(0) @binding(2) var aSampledTextureᵗ: texture_2d<f32>;
-fn helpers_helper_h4ZT(_stageIn: FSIn, sᵗ: texture_2d<f32>, sˢ: sampler, t: texture_2d<f32>) -> vec4<f32> {
+@group(0) @binding(3) var aSampledTexture_Sampler: sampler;
+@group(0) @binding(2) var aSampledTexture_Texture: texture_2d<f32>;
+fn helpers_helper_h4ZT(_stageIn: FSIn, s_Texture: texture_2d<f32>, s_Sampler: sampler, t: texture_2d<f32>) -> vec4<f32> {
   {
-    return textureSample(sᵗ, sˢ, _stageIn.c);
+    return textureSample(s_Texture, s_Sampler, _stageIn.c);
   }
 }
-fn helper_h4TZ(_stageIn: FSIn, t: texture_2d<f32>, sᵗ: texture_2d<f32>, sˢ: sampler) -> vec4<f32> {
+fn helper_h4TZ(_stageIn: FSIn, t: texture_2d<f32>, s_Texture: texture_2d<f32>, s_Sampler: sampler) -> vec4<f32> {
   {
-    let _skTemp0 = helpers_helper_h4ZT(_stageIn, sᵗ, sˢ, t);
+    let _skTemp0 = helpers_helper_h4ZT(_stageIn, s_Texture, s_Sampler, t);
     return _skTemp0;
   }
 }
 fn main(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp1 = helper_h4TZ(_stageIn, aTexture, aSampledTextureᵗ, aSampledTextureˢ);
+    let _skTemp1 = helper_h4TZ(_stageIn, aTexture, aSampledTexture_Texture, aSampledTexture_Sampler);
     (*_stageOut).sk_FragColor = _skTemp1;
   }
 }

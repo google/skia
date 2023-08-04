@@ -87,8 +87,8 @@ enum class ProgramKind : int8_t;
 
 namespace {
 
-static constexpr char kSamplerSuffix[] = "\xCB\xA2";     // U+02E2 (ˢ) in UTF8
-static constexpr char kTextureSuffix[] = "\xE1\xB5\x97"; // U+1D57 (ᵗ) in UTF8
+static constexpr char kSamplerSuffix[] = "_Sampler";
+static constexpr char kTextureSuffix[] = "_Texture";
 
 // See https://www.w3.org/TR/WGSL/#memory-view-types
 enum class PtrAddressSpace {
