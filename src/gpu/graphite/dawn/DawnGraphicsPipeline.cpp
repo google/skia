@@ -321,9 +321,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     }
 
     wgpu::RenderPipelineDescriptor descriptor;
-#if defined(SK_DEBUG)
     descriptor.label = step->name();
-#endif
 
     // Fragment state
     skgpu::BlendEquation equation = blendInfo.fEquation;

@@ -142,11 +142,24 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
                     maybeResource = this->allocateResource(step, r, index);
                     *slot = maybeResource;
                 } else {
-                    SkDEBUGCODE(using Type = ComputeStep::ResourceType;) SkASSERT(
-                            (r.fType == Type::kStorageBuffer &&
-                             std::holds_alternative<BufferView>(*slot)) ||
-                            ((r.fType == Type::kTexture || r.fType == Type::kStorageTexture) &&
-                             std::holds_alternative<TextureIndex>(*slot)));
+                    SkDEBUGCODE(using Type = ComputeStep::ResourceType;)
+                    SkASSERT(
+                        (r.fType == Type::kStorageBuffer &&
+                         std::holds_alternative<BufferView>(*slot)) ||
+                        ((r.fType == Type::kTexture || r.fType == Type::kStorageTexture) &&
+                         std::holds_alternative<TextureIndex>(*slot)));
+#ifdef SK_DEBUG
+                    // Ensure that the texture has the right format if it was assigned via
+                    // `assignSharedTexture()`.
+                    const TextureIndex* texIdx = std::get_if<TextureIndex>(slot);
+                    if (texIdx && r.fType == Type::kStorageTexture) {
+                        const TextureProxy* t = fObj->fTextures[texIdx->fValue].get();
+                        SkASSERT(t);
+                        auto [_, colorType] = step->calculateTextureParameters(index, r);
+                        SkASSERT(t->textureInfo().isCompatible(
+                                fRecorder->priv().caps()->getDefaultStorageTextureInfo(colorType)));
+                    }
+#endif  // SK_DEBUG
                     maybeResource = *slot;
                 }
                 break;

@@ -224,7 +224,6 @@ VELLO_COMPUTE_STEP(ClipReduce);
 VELLO_COMPUTE_STEP(Coarse);
 VELLO_COMPUTE_STEP(DrawLeaf);
 VELLO_COMPUTE_STEP(DrawReduce);
-VELLO_COMPUTE_STEP(Fine);
 VELLO_COMPUTE_STEP(PathCoarse);
 VELLO_COMPUTE_STEP(PathCoarseFull);
 VELLO_COMPUTE_STEP(Pathseg);
@@ -236,6 +235,14 @@ VELLO_COMPUTE_STEP(PathtagScanSmall);
 VELLO_COMPUTE_STEP(TileAlloc);
 
 #undef VELLO_COMPUTE_STEP
+
+class VelloFineStep final : public VelloStep<vello_cpp::ShaderStage::Fine> {
+public:
+    VelloFineStep();
+
+    // We need to return a texture format for the bound textures.
+    std::tuple<SkISize, SkColorType> calculateTextureParameters(int, const ResourceDesc&) const override;
+};
 
 }  // namespace skgpu::graphite
 

@@ -113,6 +113,7 @@ private:
 #ifdef SK_DAWN
     friend class DawnCaps;
     friend class DawnCommandBuffer;
+    friend class DawnComputePipeline;
     friend class DawnGraphicsPipeline;
     friend class DawnResourceProvider;
     friend class DawnTexture;

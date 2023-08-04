@@ -663,4 +663,8 @@ VelloFineStep::VelloFineStep() : VelloStep(
             },
         }) {}
 
+std::tuple<SkISize, SkColorType> VelloFineStep::calculateTextureParameters(int index, const ResourceDesc&) const {
+    return {{}, index == 4 ? kAlpha_8_SkColorType : kRGBA_8888_SkColorType};
+}
+
 }  // namespace skgpu::graphite
