@@ -2028,6 +2028,11 @@ void Viewer::drawImGui() {
 #if defined(SK_DAWN)
                 ImGui::SameLine();
                 ImGui::RadioButton("Dawn", &newBackend, sk_app::Window::kDawn_BackendType);
+#if defined(SK_GRAPHITE)
+                ImGui::SameLine();
+                ImGui::RadioButton("Dawn (Graphite)", &newBackend,
+                                   sk_app::Window::kGraphiteDawn_BackendType);
+#endif
 #endif
 #if defined(SK_VULKAN) && !defined(SK_BUILD_FOR_MAC)
                 ImGui::SameLine();
