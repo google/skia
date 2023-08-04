@@ -165,9 +165,6 @@ static void FuzzSkMeshSpecification(SkSpan<const uint8_t> data) {
                 Attribute& a = attributes.push_back();
                 a.type = (Attribute::Type)(extract<uint8_t>(data) %
                                            ((int)Attribute::Type::kLast + 1));
-                if (data.empty()) {
-                    continue;
-                }
                 a.offset = extract<uint16_t>(data) % (SkMeshSpecification::kMaxStride + 2);
                 while (uint8_t c = extract<char>(data)) {
                     if (!fuzzByteToASCII(c, &a.name)) {
