@@ -473,6 +473,10 @@ public:
         return fTypeKind == TypeKind::kGeneric;
     }
 
+    bool isSampler() const {
+        return fTypeKind == TypeKind::kSampler;
+    }
+
     bool isAtomic() const { return this->typeKind() == TypeKind::kAtomic; }
 
     virtual bool isScalar() const {
@@ -530,7 +534,7 @@ public:
     }
 
     bool hasPrecision() const {
-        return this->componentType().isNumber() || fTypeKind == TypeKind::kSampler;
+        return this->componentType().isNumber() || this->isSampler();
     }
 
     bool highPrecision() const {

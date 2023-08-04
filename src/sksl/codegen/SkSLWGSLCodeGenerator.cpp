@@ -171,6 +171,11 @@ std::string to_wgsl_type(const Type& type) {
             }
             return String::printf("array<%s, %d>", elementType.c_str(), type.columns());
         }
+        case Type::TypeKind::kTexture:
+            // TODO(b/40044498): we will need to support texture_storage_2d<f32> as well, once the
+            // details are ironed out.
+            return "texture_2d<f32>";
+
         default:
             break;
     }
@@ -731,11 +736,11 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     // create properly-named `let` aliases.
     for (size_t index = 0; index < decl.parameters().size(); ++index) {
         const Variable& param = *decl.parameters()[index];
-        if (!param.name().empty()) {
-            const ProgramUsage::VariableCounts counts = fProgram.fUsage->get(param);
+        if (!param.name().empty() && !param.type().isOpaque()) {
             // Variables which are never written-to don't need dedicated storage and can use `let`.
             // Out-parameters are passed as pointers; the pointer itself is never modified, so it
             // doesn't need a dedicated variable and can use `let`.
+            const ProgramUsage::VariableCounts counts = fProgram.fUsage->get(param);
             this->write(((param.modifierFlags() & ModifierFlag::kOut) || counts.fWrite == 0)
                                 ? "let "
                                 : "var ");
@@ -778,16 +783,37 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl
         separator();  // update the separator as parameters have been written
     }
     for (size_t index = 0; index < decl.parameters().size(); ++index) {
-        const Variable& param = *decl.parameters()[index];
         this->write(separator());
-        this->write("_skParam" + std::to_string(index));
-        this->write(": ");
 
-        // Declare an "out" function parameter as a pointer.
-        if (param.modifierFlags() & ModifierFlag::kOut) {
-            this->write(to_ptr_type(param.type()));
+        const Variable& param = *decl.parameters()[index];
+        if (param.type().isOpaque()) {
+            if (param.type().isSampler()) {
+                // Create parameters for both the texture and associated sampler.
+                this->write(param.name());
+                this->write(kTextureSuffix);
+                this->write(": texture_2d<f32>, ");
+                this->write(param.name());
+                this->write(kSamplerSuffix);
+                this->write(": sampler");
+            } else {
+                // Create a parameter for the opaque object.
+                this->write(param.name());
+                this->write(": ");
+                this->write(to_wgsl_type(param.type()));
+            }
         } else {
-            this->write(to_wgsl_type(param.type()));
+            // Create an unnamed parameter, which will later be assigned a `var` or `let` in the
+            // function body.
+            this->write("_skParam");
+            this->write(std::to_string(index));
+            this->write(": ");
+
+            // Declare an "out" function parameter as a pointer.
+            if (param.modifierFlags() & ModifierFlag::kOut) {
+                this->write(to_ptr_type(param.type()));
+            } else {
+                this->write(to_wgsl_type(param.type()));
+            }
         }
     }
     this->write(")");
@@ -2124,6 +2150,14 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
         if (!substituteArgument[index].empty()) {
             // We need to take the address of the variable and pass it down as a pointer.
             expr += '&' + substituteArgument[index];
+        } else if (args[index]->type().isSampler()) {
+            // If the argument is a sampler, we need to pass the texture _and_ its associated
+            // sampler. (Function parameter lists also convert sampler parameters into a matching
+            // texture/sampler parameter pair.)
+            expr += this->assembleExpression(*args[index], Precedence::kSequence) +
+                    kTextureSuffix + ", " +
+                    this->assembleExpression(*args[index], Precedence::kSequence) +
+                    kSamplerSuffix;
         } else {
             expr += this->assembleExpression(*args[index], Precedence::kSequence);
         }
@@ -2767,8 +2801,8 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
     }
 
     if (varKind == Type::TypeKind::kTexture) {
-        // If the texture binding was unassigned, provide a scratch value (for golden-output tests).
-        int textureLocation = var.layout().fTexture >= 0 ? var.layout().fTexture
+        // If a binding location was unassigned, provide a scratch value (for golden-output tests).
+        int textureLocation = var.layout().fBinding >= 0 ? var.layout().fBinding
                                                          : 10000 + fScratchCount++;
         // For a texture without an associated sampler, we don't apply a suffix.
         this->writeTextureOrSampler(var, textureLocation, /*suffix=*/"", "texture_2d<f32>");

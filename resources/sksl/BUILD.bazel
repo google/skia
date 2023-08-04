@@ -1058,6 +1058,8 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_wgsl_tests",
     srcs = [
+        "spirv/CombinedSamplerTypeDawnCompatMode.sksl",
+        "spirv/FunctionParametersOfTextureAndSamplerTypeDawnCompatMode.sksl",
         "wgsl/BuiltinFragmentStageIO.sksl",
         "wgsl/BuiltinVertexStageIO.vert",
         "wgsl/CastMat2x2ToMat3x3.sksl",
