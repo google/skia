@@ -25,13 +25,11 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     static SkOnce gOnce;
 
     gOnce([&]{
-        gInstance = std::make_unique<dawn::native::Instance>();
-
-        gInstance->DiscoverDefaultPhysicalDevices();
         DawnProcTable backendProcs = dawn::native::GetProcs();
         dawnProcSetProcs(&backendProcs);
 
-        std::vector<dawn::native::Adapter> adapters = gInstance->GetAdapters();
+        gInstance = std::make_unique<dawn::native::Instance>();
+        std::vector<dawn::native::Adapter> adapters = gInstance->EnumerateAdapters();
         SkASSERT(!adapters.empty());
         // Sort adapters by adapterType(DiscreteGPU, IntegratedGPU, CPU) and
         // backendType(WebGPU, D3D11, D3D12, Metal, Vulkan, OpenGL, OpenGLES).
