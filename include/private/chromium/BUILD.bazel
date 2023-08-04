@@ -14,7 +14,7 @@ skia_filegroup(
 
 # This group is mapped to //gn/gpu.gni:skia_gpu_chromium_public.
 skia_filegroup(
-    name = "gpu_private_hdrs",
+    name = "ganesh_private_hdrs",
     srcs = [
         "GrDeferredDisplayList.h",
         "GrDeferredDisplayListRecorder.h",
@@ -26,7 +26,7 @@ skia_filegroup(
 
 # This group is mapped to //gn/gpu.gni:skia_gpu_vk_chromium.
 skia_filegroup(
-    name = "vk_chromium_hdrs",
+    name = "vk_ganesh_hdrs",
     srcs = [
         "GrVkSecondaryCBDrawContext.h",
     ],
@@ -47,10 +47,10 @@ skia_filegroup(
         ":discardable_memory_hdrs",
         ":shared_private_hdrs",
     ] + select({
-        "//src/gpu:has_gpu_backend": [":gpu_private_hdrs"],
+        "//src/gpu:has_ganesh_backend": [":ganesh_private_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//src/gpu:vulkan_backend": [":vk_chromium_hdrs"],
+        "//src/gpu:vulkan_ganesh": [":vk_ganesh_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//include/private:__pkg__"],

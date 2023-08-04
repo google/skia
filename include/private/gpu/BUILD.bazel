@@ -10,7 +10,7 @@ skia_filegroup(
         "//include/private/gpu/ganesh:private_hdrs",
     ] + select_multi(
         {
-            "//src/gpu:vulkan_backend": ["//include/private/gpu/vk:private_hdrs"],
+            "//src/gpu:vulkan_ganesh": ["//include/private/gpu/vk:private_hdrs"],
         },
     ),  # TODO(kjlubick) add select for graphite
     visibility = ["//include/private:__pkg__"],

@@ -624,7 +624,7 @@ android_gm_test(
             "webp_decode_codec",
         ],
     },
-    requires_condition = "//src/gpu:gl_backend",
+    requires_condition = "//src/gpu:gl_ganesh",
     requires_resources_dir = True,
     deps = [":tests_base"],
 )
@@ -645,7 +645,7 @@ android_gm_test(
             "png_encode_codec",  # Required by the "picture_serialization" via.
         ],
     },
-    requires_condition = "//src/gpu:gl_backend",
+    requires_condition = "//src/gpu:gl_ganesh",
     requires_resources_dir = True,
     via = "picture_serialization",
     deps = [":tests_base"],
@@ -667,7 +667,7 @@ android_gm_test(
             "png_encode_codec",  # Required by the "picture" via.
         ],
     },
-    requires_condition = "//src/gpu:gl_backend",
+    requires_condition = "//src/gpu:gl_ganesh",
     requires_resources_dir = True,
     via = "picture",
     deps = [":tests_base"],

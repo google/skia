@@ -21,8 +21,8 @@ skia_filegroup(
 selects.config_setting_group(
     name = "dawn_or_vulkan",
     match_any = [
-        "//src/gpu:dawn_backend",
-        "//src/gpu:vulkan_backend",
+        "//src/gpu:dawn_ganesh",
+        "//src/gpu:vulkan_ganesh",
     ],
 )
 

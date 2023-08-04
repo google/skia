@@ -37,9 +37,9 @@ skia_filegroup(
         "//include/gpu/ganesh:public_hdrs",
     ] + select_multi(
         {
-            "//src/gpu:dawn_backend": ["//include/gpu/dawn:public_hdrs"],
-            "//src/gpu:vulkan_backend": ["//include/gpu/vk:public_hdrs"],
-            "//src/gpu:metal_backend": ["//include/gpu/mtl:public_hdrs"],
+            "//src/gpu:dawn_ganesh": ["//include/gpu/dawn:public_hdrs"],
+            "//src/gpu:vulkan_ganesh": ["//include/gpu/vk:public_hdrs"],
+            "//src/gpu:metal_ganesh": ["//include/gpu/mtl:public_hdrs"],
             # TODO(kjlubick) d3d backend
         },
     ),

@@ -76,7 +76,7 @@ CK_DEFINES = [
     ":enable_runtime_effect_true": ["CK_INCLUDE_RUNTIME_EFFECT=1"],
     ":enable_runtime_effect_false": [],
 }) + select({
-    "//src/gpu:gl_backend": ["CK_ENABLE_WEBGL"],
+    "//src/gpu:gl_ganesh": ["CK_ENABLE_WEBGL"],
     "//conditions:default": [],
 })
 
@@ -104,7 +104,7 @@ CK_LINKOPTS = BASE_LINKOPTS + [
     "--pre-js",
     "modules/canvaskit/pathops.js",
 ] + select({
-    "//src/gpu:gl_backend": [
+    "//src/gpu:gl_ganesh": [
         "--pre-js",
         "modules/canvaskit/cpu.js",
         "--pre-js",

@@ -11,15 +11,15 @@ skia_cc_library(
         "RasterWindowContext.h",
         "WindowContext.cpp",
     ] + select_multi({
-        "//src/gpu:dawn_backend": [
+        "//src/gpu:dawn_ganesh": [
             "DawnWindowContext.h",
             "DawnWindowContext.cpp",
         ],
-        "//src/gpu:gl_backend": [
+        "//src/gpu:gl_ganesh": [
             "GLWindowContext.cpp",
             "GLWindowContext.h",
         ],
-        "//src/gpu:vulkan_backend": [
+        "//src/gpu:vulkan_ganesh": [
             "VulkanWindowContext.h",
             "VulkanWindowContext.cpp",
         ],

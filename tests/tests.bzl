@@ -148,7 +148,7 @@ def skia_ganesh_tests(
             name = new_target,
             size = "small",
             srcs = select({
-                "//src/gpu:has_gpu_backend": [
+                "//src/gpu:has_ganesh_backend": [
                     "BazelTestRunner.cpp",
                     filename,
                 ],
@@ -157,7 +157,7 @@ def skia_ganesh_tests(
             }),
             deps = select({
                 # Only build and apply deps if we have a no-op test.
-                "//src/gpu:has_gpu_backend": [
+                "//src/gpu:has_ganesh_backend": [
                     harness,
                     "//:skia_internal",
                 ] + extra_deps,

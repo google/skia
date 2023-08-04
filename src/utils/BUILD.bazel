@@ -139,7 +139,7 @@ skia_filegroup(
         ":needs_json": [":json_srcs"],
         "//conditions:default": [],
     }) + select({
-        "//src/gpu:has_gpu_backend": [":gpu_srcs"],
+        "//src/gpu:has_ganesh_backend": [":gpu_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -158,7 +158,7 @@ skia_filegroup(
         ":needs_json": [":json_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//src/gpu:has_gpu_backend": [":gpu_hdrs"],
+        "//src/gpu:has_ganesh_backend": [":gpu_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],

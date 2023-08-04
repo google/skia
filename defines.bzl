@@ -64,20 +64,20 @@ GENERAL_DEFINES = [
 })
 
 GPU_DEFINES = select_multi({
-    "//src/gpu:gl_backend": [
+    "//src/gpu:gl_ganesh": [
         "SK_GL",
         "SK_GANESH",
     ],
-    "//src/gpu:vulkan_backend": [
+    "//src/gpu:vulkan_ganesh": [
         "SK_VULKAN",
         "SK_GANESH",
     ],
-    "//src/gpu:dawn_backend": [
+    "//src/gpu:dawn_ganesh": [
         "SK_DAWN",
         "SK_GANESH",
         "VK_USE_PLATFORM_XCB_KHR",  # TODO(kjlubick) support dawn's dawn_enable_vulkan etc
     ],
-    "//src/gpu:metal_backend": [
+    "//src/gpu:metal_ganesh": [
         "SK_METAL",
         "SK_GANESH",
     ],

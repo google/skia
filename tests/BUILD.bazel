@@ -23,7 +23,7 @@ skia_cc_library(
         "TestHarness.cpp",
         "//tools/flags",
     ] + select({
-        "//src/gpu:has_gpu_backend": ["TestUtils.cpp"],
+        "//src/gpu:has_ganesh_backend": ["TestUtils.cpp"],
         "//conditions:default": [],
     }),
     hdrs = [
@@ -36,7 +36,7 @@ skia_cc_library(
         "TestHarness.h",
         "//tools/fonts:test_empty_typeface",
     ] + select({
-        "//src/gpu:has_gpu_backend": ["TestUtils.h"],
+        "//src/gpu:has_ganesh_backend": ["TestUtils.h"],
         "//conditions:default": [],
     }),
     deps = [
@@ -44,7 +44,7 @@ skia_cc_library(
         "//tools:registry",
         "//tools:tool_utils",
     ] + select({
-        "//src/gpu:has_gpu_backend": ["//tools/gpu:utils"],
+        "//src/gpu:has_ganesh_backend": ["//tools/gpu:utils"],
         "//conditions:default": [],
     }) + select({
         "//src/sksl:needs_sksl": ["//tools:runtime_blend_utils"],
@@ -294,7 +294,7 @@ bool_flag(
 selects.config_setting_group(
     name = "skip_cpu_tests",
     match_all = [
-        "//src/gpu:has_gpu_backend",
+        "//src/gpu:has_ganesh_backend",
         ":force_cpu_tests_false",
     ],
 )
@@ -338,7 +338,7 @@ android_unit_test(
 android_unit_test(
     name = "android_ganesh_test",
     srcs = GANESH_TESTS,
-    requires_condition = "//src/gpu:has_gpu_backend",
+    requires_condition = "//src/gpu:has_ganesh_backend",
     requires_resources_dir = True,
     deps = [
         ":tests_base",

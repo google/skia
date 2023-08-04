@@ -10,14 +10,14 @@ skia_filegroup(
     srcs = [
         "RasterWindowContext_mac.mm",
         "WindowContextFactory_mac.h",
-        "Window_mac.mm",
         "Window_mac.h",
+        "Window_mac.mm",
         "main_mac.mm",
     ] + select({
         # TODO(kjlubick, jmbetancourt) Graphite backend
-        "//src/gpu:gl_backend": ["GLWindowContext_mac.mm"],
-        "//src/gpu:dawn_backend": ["DawnMTLWindowContext_mac.mm"],
-        "//src/gpu:metal_backend": ["MetalWindowContext_mac.mm"],
+        "//src/gpu:gl_ganesh": ["GLWindowContext_mac.mm"],
+        "//src/gpu:dawn_ganesh": ["DawnMTLWindowContext_mac.mm"],
+        "//src/gpu:metal_ganesh": ["MetalWindowContext_mac.mm"],
         "//conditions:default": [],
     }),
     visibility = ["//tools/sk_app:__pkg__"],

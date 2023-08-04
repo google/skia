@@ -20,7 +20,7 @@ skia_filegroup(
         "//src/sksl:needs_sksl": ["//include/sksl:public_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//src/gpu:has_gpu_backend": ["//include/gpu:public_hdrs"],
+        "//src/gpu:has_ganesh_backend": ["//include/gpu:public_hdrs"],
         "//conditions:default": [],
     }) + select({
         "//src/svg:enable_svg_canvas_true": ["//include/svg:public_hdrs"],
@@ -35,7 +35,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = ["//include/private:private_hdrs"] + select({
-        "//src/gpu:has_gpu_backend": ["//include/android:private_hdrs"],
+        "//src/gpu:has_ganesh_backend": ["//include/android:private_hdrs"],
         "//conditions:default": [],
     }),
     visibility = [
