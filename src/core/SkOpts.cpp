@@ -107,8 +107,11 @@ namespace SkOpts {
         #endif
 
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX
-            if (SkCpu::Supports(SkCpu::AVX)) { Init_avx();   }
-            if (SkCpu::Supports(SkCpu::HSW)) { Init_hsw();   }
+            if (SkCpu::Supports(SkCpu::AVX)) { Init_avx(); }
+        #endif
+
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
+            if (SkCpu::Supports(SkCpu::HSW)) { Init_hsw(); }
         #endif
 
         if (SkCpu::Supports(SkCpu::ERMS)) { Init_erms(); }
