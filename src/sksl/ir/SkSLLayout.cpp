@@ -159,7 +159,10 @@ bool Layout::operator==(const Layout& other) const {
            fIndex                == other.fIndex &&
            fSet                  == other.fSet &&
            fBuiltin              == other.fBuiltin &&
-           fInputAttachmentIndex == other.fInputAttachmentIndex;
+           fInputAttachmentIndex == other.fInputAttachmentIndex &&
+           fLocalSizeX           == other.fLocalSizeX &&
+           fLocalSizeY           == other.fLocalSizeY &&
+           fLocalSizeZ           == other.fLocalSizeZ;
 }
 
 }  // namespace SkSL
