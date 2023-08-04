@@ -151,11 +151,4 @@ public:
     static OpenTypeSVGDecoderFactory GetOpenTypeSVGDecoderFactory();
 };
 
-class SkAutoGraphics {
-public:
-    SkAutoGraphics() {
-        SkGraphics::Init();
-    }
-};
-
 #endif

@@ -1341,7 +1341,7 @@ int main(int argc, char** argv) {
     cd_Documents();
 #endif
     SetupCrashHandler();
-    SkAutoGraphics ag;
+    SkGraphics::Init();
 
     // Our benchmarks only currently decode .png or .jpg files
     SkCodecs::Register(SkPngDecoder::Decoder());
