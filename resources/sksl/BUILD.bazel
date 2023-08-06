@@ -547,6 +547,7 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_inliner_tests",
     srcs = [
+        "inliner/CommaExpressionsAllowInlining.sksl",
         "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl",
         "inliner/DoWhileTestCannotBeInlined.sksl",
         "inliner/ForBodyMustBeInlinedIntoAScope.sksl",
