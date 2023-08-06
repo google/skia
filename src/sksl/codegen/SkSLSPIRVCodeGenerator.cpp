@@ -1268,6 +1268,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeConstructorCompound(expr.as<ConstructorCompound>(), out);
         case Expression::Kind::kConstructorCompoundCast:
             return this->writeConstructorCompoundCast(expr.as<ConstructorCompoundCast>(), out);
+        case Expression::Kind::kEmpty:
+            return NA;
         case Expression::Kind::kFieldAccess:
             return this->writeFieldAccess(expr.as<FieldAccess>(), out);
         case Expression::Kind::kFunctionCall:

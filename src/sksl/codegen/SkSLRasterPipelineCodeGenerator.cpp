@@ -2149,6 +2149,9 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
         case Expression::Kind::kConstructorSplat:
             return this->pushConstructorSplat(e.as<ConstructorSplat>());
 
+        case Expression::Kind::kEmpty:
+            return true;
+
         case Expression::Kind::kFieldAccess:
             return this->pushFieldAccess(e.as<FieldAccess>());
 

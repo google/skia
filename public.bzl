@@ -1581,6 +1581,7 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLDiscardStatement.h",
     "src/sksl/ir/SkSLDoStatement.cpp",
     "src/sksl/ir/SkSLDoStatement.h",
+    "src/sksl/ir/SkSLEmptyExpression.h",
     "src/sksl/ir/SkSLExpression.cpp",
     "src/sksl/ir/SkSLExpression.h",
     "src/sksl/ir/SkSLExpressionStatement.cpp",

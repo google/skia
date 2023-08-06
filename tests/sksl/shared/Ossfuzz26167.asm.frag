@@ -11,7 +11,6 @@
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
        %void = OpTypeVoid
           %7 = OpTypeFunction %void
-      %false = OpConstantFalse %bool
        %main = OpFunction %void None %7
           %8 = OpLabel
                OpReturn

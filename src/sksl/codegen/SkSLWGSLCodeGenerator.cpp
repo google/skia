@@ -1471,6 +1471,9 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
             return this->assembleConstructorMatrixResize(e.as<ConstructorMatrixResize>(),
                                                          parentPrecedence);
 
+        case Expression::Kind::kEmpty:
+            return "false";
+
         case Expression::Kind::kFieldAccess:
             return this->assembleFieldAccess(e.as<FieldAccess>());
 

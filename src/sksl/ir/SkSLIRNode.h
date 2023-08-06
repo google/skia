@@ -71,6 +71,7 @@ enum class ExpressionKind {
     kConstructorScalarCast,
     kConstructorSplat,
     kConstructorStruct,
+    kEmpty,
     kFieldAccess,
     kFunctionReference,
     kFunctionCall,
