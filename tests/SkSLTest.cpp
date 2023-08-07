@@ -546,7 +546,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_U, TernaryFolding,                  "folding/
 SKSL_TEST(CPU | GPU,     kApiLevel_T, VectorScalarFolding,             "folding/VectorScalarFolding.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, VectorVectorFolding,             "folding/VectorVectorFolding.rts")
 
-SKSL_TEST(ES3 | GPU_ES3, kNextRelease,CommaExpressionsAllowInlining,                    "inliner/CommaExpressionsAllowInlining.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,CommaExpressionsAllowInlining,                    "inliner/CommaExpressionsAllowInlining.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      DoWhileBodyMustBeInlinedIntoAScope,               "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      DoWhileTestCannotBeInlined,                       "inliner/DoWhileTestCannotBeInlined.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, ForBodyMustBeInlinedIntoAScope,                   "inliner/ForBodyMustBeInlinedIntoAScope.sksl")
