@@ -96,7 +96,3 @@ SkGraphics::SetOpenTypeSVGDecoderFactory(OpenTypeSVGDecoderFactory svgDecoderFac
 SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory() {
     return gSVGDecoderFactory;
 }
-
-void SkGraphics::AllowJIT() {
-    // SkVM has been removed
-}
