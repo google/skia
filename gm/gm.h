@@ -63,6 +63,10 @@ struct ContextOptions;
     DEF_GM(return new skiagm::SimpleGM(BGCOLOR, NAME_STR, {W,H}, SK_MACRO_CONCAT(NAME,_GM));) \
     skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)(SkCanvas* CANVAS, SkString* ERR_MSG)
 
+// Declares a function that dynamically registers GMs (e.g. based on some command-line flag). See
+// the GMRegistererFnRegistry definition below for additional context.
+#define DEF_GM_REGISTERER_FN(FN) \
+    static skiagm::GMRegistererFnRegistry SK_MACRO_APPEND_COUNTER(REG_)(FN)
 
 #if defined(SK_GANESH)
 // A Simple GpuGM makes direct GPU calls. Its onDraw hook that includes GPU objects as params, and
@@ -222,6 +226,20 @@ namespace skiagm {
 
     using GMFactory = std::function<std::unique_ptr<skiagm::GM>()>;
     using GMRegistry = sk_tools::Registry<GMFactory>;
+
+    // Adds a GM to the GMRegistry.
+    void Register(skiagm::GM* gm);
+
+    // Registry of functions that dynamically register GMs. Useful for GMs that are unknown at
+    // compile time, such as those that are created from images in a directory.
+    //
+    // A GMRegistererFn may call skiagm::Register() zero or more times to register GMs as needed.
+    // It should return the empty string on success, or a human-friendly message in the case of
+    // errors.
+    //
+    // Only used by //gm/BazelGMRunner.cpp for now.
+    using GMRegistererFn = std::function<std::string()>;
+    using GMRegistererFnRegistry = sk_tools::Registry<GMRegistererFn>;
 
 #if defined(SK_GANESH)
     // A GpuGM replaces the onDraw method with one that also accepts GPU objects alongside the

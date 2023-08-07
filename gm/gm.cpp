@@ -264,3 +264,16 @@ void MarkGMBad(SkCanvas* canvas, SkScalar x, SkScalar y) {
                          -5,+5, paint);
     });
 }
+
+namespace skiagm {
+void Register(skiagm::GM* gm) {
+    // The skiagm::GMRegistry class is a subclass of sk_tools::Registry. Instances of
+    // sk_tools::Registry form a linked list (there is one such list for each subclass), where each
+    // instance holds a value and a pointer to the next sk_tools::Registry instance. The head of
+    // this linked list is stored in a global variable. The sk_tools::Registry constructor
+    // automatically pushes a new instance to the head of said linked list. Therefore, in order to
+    // register a value in the GM registry, it suffices to just instantiate skiagm::GMRegistry with
+    // the value we wish to register.
+    new skiagm::GMRegistry([=]() { return std::unique_ptr<skiagm::GM>(gm); });
+}
+}  // namespace skiagm
