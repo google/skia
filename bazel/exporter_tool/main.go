@@ -450,6 +450,20 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//modules/svg/src:srcs",
 			}},
 	}},
+    {GNI: "modules/bentleyottmann/bentleyottmann.gni", Vars: []exporter.GNIFileListExportDesc{
+        {Var: "bentleyottmann_public",
+            Rules: []string{
+                "//modules/bentleyottmann/include:hdrs",
+            }},
+        {Var: "bentleyottmann_sources",
+            Rules: []string{
+                "//modules/bentleyottmann/src:srcs",
+            }},
+        {Var: "bentleyottmann_tests",
+            Rules: []string{
+                "//modules/bentleyottmann/tests:tests",
+            }},
+    }},
 	{GNI: "modules/skparagraph/skparagraph.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skparagraph_public",
 			Rules: []string{

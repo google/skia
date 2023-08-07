@@ -1750,6 +1750,7 @@ skia_static_library("pathkit") {
 
 group("modules") {
   deps = [
+    "modules/bentleyottmann",
     "modules/skottie",
     "modules/skparagraph",
     "modules/skshaper",
@@ -2318,6 +2319,7 @@ if (skia_enable_tools) {
       ":test",
       ":tool_utils",
       "experimental/sktext:tests",
+      "modules/bentleyottmann:tests",
       "modules/skottie:tests",
       "modules/skparagraph:tests",
       "modules/sksg:tests",
