@@ -31,7 +31,7 @@ namespace SkOpts {
             if (SkCpu::Supports(SkCpu::SSSE3)) { Init_BitmapProcState_ssse3(); }
         #endif
 
-        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
             if (SkCpu::Supports(SkCpu::HSW)) { Init_BitmapProcState_hsw();   }
         #endif
     #endif
