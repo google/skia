@@ -151,10 +151,10 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(SkSL::ProgramKind k
     }
     *outInterface = program->fInterface;
 
-    if (skgpu::gPrintSKSL || skgpu::gPrintBackendSL) {
+    if (skgpu::gPrintSkSL || skgpu::gPrintBackendSL) {
         SkShaderUtils::PrintShaderBanner(kind);
-        if (skgpu::gPrintSKSL) {
-            SkDebugf("SKSL:\n");
+        if (skgpu::gPrintSkSL) {
+            SkDebugf("SkSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
         if (skgpu::gPrintBackendSL) {

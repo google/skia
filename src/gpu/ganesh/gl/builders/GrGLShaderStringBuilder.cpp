@@ -35,10 +35,10 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLGpu* gpu,
         return nullptr;
     }
 
-    if (skgpu::gPrintSKSL || skgpu::gPrintBackendSL) {
+    if (skgpu::gPrintSkSL || skgpu::gPrintBackendSL) {
         SkShaderUtils::PrintShaderBanner(programKind);
-        if (skgpu::gPrintSKSL) {
-            SkDebugf("SKSL:\n");
+        if (skgpu::gPrintSkSL) {
+            SkDebugf("SkSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
         if (skgpu::gPrintBackendSL) {
