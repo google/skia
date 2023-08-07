@@ -18,6 +18,7 @@
 #include "include/core/SkTime.h"
 #include "include/private/base/SkMath.h"
 #include "src/base/SkTSearch.h"
+#include "src/core/SkBitmapProcState.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkGeometry.h"
@@ -34,6 +35,7 @@ void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
     SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
+    SkOpts::Init_BitmapProcState();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
