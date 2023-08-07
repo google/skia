@@ -15,6 +15,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -22,10 +23,6 @@
 #include <memory>
 
 #include "include/sksl/SkSLVersion.h"
-
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
-#endif
 
 class SkArenaAlloc;
 class SkCapabilities;
@@ -163,7 +160,6 @@ inline SkRuntimeEffect* SkMakeRuntimeEffect(
     return result.effect.release();
 }
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 class RuntimeEffectRPCallbacks : public SkSL::RP::Callbacks {
 public:
     RuntimeEffectRPCallbacks(const SkStageRec& s,
@@ -190,6 +186,5 @@ private:
     SkSpan<const SkRuntimeEffect::ChildPtr> fChildren;
     SkSpan<const SkSL::SampleUsage> fSampleUsages;
 };
-#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
 #endif  // SkRuntimeEffectPriv_DEFINED

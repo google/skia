@@ -579,7 +579,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
         return ResultCode::kSuccess;
     };
 
-#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
     auto compileProgramAsRuntimeShader = [&](const auto& writeFn) -> ResultCode {
         if (kind == SkSL::ProgramKind::kVertex) {
             emitCompileError("Runtime shaders do not support vertex programs\n");
@@ -591,7 +590,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
         }
         return compileProgram(writeFn);
     };
-#endif
 
     if (skstd::ends_with(outputPath, ".spirv")) {
         return compileProgram(
@@ -644,7 +642,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toWGSL(program, out);
                 });
-#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
     } else if (skstd::ends_with(outputPath, ".skrp")) {
         settings.fMaxVersionAllowed = SkSL::Version::k300;
         return compileProgramAsRuntimeShader(
@@ -665,7 +662,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     rasterProg->dump(as_SkWStream(out).get(), /*writeInstructionCount=*/true);
                     return true;
                 });
-#endif
     } else if (skstd::ends_with(outputPath, ".stage")) {
         return compileProgram(
                 [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {

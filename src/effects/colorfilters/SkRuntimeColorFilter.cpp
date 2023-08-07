@@ -45,7 +45,6 @@ SkRuntimeColorFilter::SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect,
         , fChildren(children.begin(), children.end()) {}
 
 bool SkRuntimeColorFilter::appendStages(const SkStageRec& rec, bool) const {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
         // SkRP has support for many parts of #version 300 already, but for now, we restrict its
         // usage in runtime effects to just #version 100.
@@ -64,16 +63,11 @@ bool SkRuntimeColorFilter::appendStages(const SkStageRec& rec, bool) const {
         bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks, uniforms);
         return success;
     }
-#endif
     return false;
 }
 
 bool SkRuntimeColorFilter::onIsAlphaUnchanged() const {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     return fEffect->isAlphaUnchanged();
-#else
-    return false;
-#endif
 }
 
 void SkRuntimeColorFilter::flatten(SkWriteBuffer& buffer) const {

@@ -7,8 +7,6 @@
 
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
@@ -4020,5 +4018,3 @@ std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& prog
 }
 
 }  // namespace SkSL
-
-#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE

@@ -29,7 +29,7 @@
 #include <utility>
 #include <vector>
 
-#if defined(SKSL_ENABLE_TRACING) && defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+#if defined(SKSL_ENABLE_TRACING)
 
 using LineNumberMap = SkSL::SkSLDebugTracePlayer::LineNumberMap;
 
@@ -952,4 +952,4 @@ half4 main(float2 xy) {     // Line 8
     REPORTER_ASSERT(r, player.getCurrentLine() == 6);
 }
 
-#endif  // defined(SKSL_ENABLE_TRACING) && defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
+#endif  // defined(SKSL_ENABLE_TRACING)
