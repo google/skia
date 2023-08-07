@@ -14,6 +14,7 @@
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
 #include <cstdint>
@@ -253,6 +254,7 @@ private:
     std::string assemblePartialSampleCall(std::string_view functionName,
                                           const Expression& sampler,
                                           const Expression& coords);
+    std::string assembleInversePolyfill(const FunctionCall& call);
 
     // Constructor expressions
     std::string assembleAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
@@ -334,6 +336,9 @@ private:
     std::string functionDependencyArgs(const FunctionDeclaration&);
     bool writeFunctionDependencyParams(const FunctionDeclaration&);
 
+    // Code in the header appears before the main body of code.
+    StringStream fHeader;
+
     // We assign unique names to anonymous interface blocks based on the type.
     skia_private::THashMap<const Type*, std::string> fInterfaceBlockNameMap;
 
@@ -341,6 +346,12 @@ private:
     skia_private::THashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
     int fPipelineInputCount = 0;
+
+    // These fields track whether we have written the polyfill for `inverse()` for a given matrix
+    // type.
+    bool fWrittenInverse2 = false;
+    bool fWrittenInverse3 = false;
+    bool fWrittenInverse4 = false;
 
     // These fields control uniform-matrix polyfill support. Because our uniform data is provided in
     // std140 layout, matrices need to be represented as arrays of @size(16)-aligned vectors, and

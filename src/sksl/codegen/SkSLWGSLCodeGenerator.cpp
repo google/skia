@@ -593,9 +593,8 @@ bool WGSLCodeGenerator::generateCode() {
     // - All uniform and storage type resources are declared in global scope.
     this->preprocessProgram();
 
-    StringStream header;
     {
-        AutoOutputStream outputToHeader(this, &header, &fIndentation);
+        AutoOutputStream outputToHeader(this, &fHeader, &fIndentation);
         this->writeLine("diagnostic(off, derivative_uniformity);");
         this->writeStageInputStruct();
         this->writeStageOutputStruct();
@@ -610,7 +609,7 @@ bool WGSLCodeGenerator::generateCode() {
         }
     }
 
-    write_stringstream(header, *fOut);
+    write_stringstream(fHeader, *fOut);
     write_stringstream(body, *fOut);
     return fContext.fErrors->errorCount() == 0;
 }
@@ -1952,6 +1951,9 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_greaterThanEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::GTEQ, call, parentPrecedence);
 
+        case k_inverse_IntrinsicKind:
+            return this->assembleInversePolyfill(call);
+
         case k_inversesqrt_IntrinsicKind:
             return this->assembleSimpleIntrinsic("inverseSqrt", call);
 
@@ -2110,6 +2112,104 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_tan_IntrinsicKind:
         default:
             return this->assembleSimpleIntrinsic(call.function().name(), call);
+    }
+}
+
+static constexpr char kInverse2x2[] =
+     "fn mat2_inverse(m: mat2x2<f32>) -> mat2x2<f32> {"
+"\n"     "return mat2x2<f32>(m[1].y, -m[0].y, -m[1].x, m[0].x) * (1/determinant(m));"
+"\n" "}"
+"\n";
+
+static constexpr char kInverse3x3[] =
+     "fn mat3_inverse(m: mat3x3<f32>) -> mat3x3<f32> {"
+"\n"     "let a00 = m[0].x; let a01 = m[0].y; let a02 = m[0].z;"
+"\n"     "let a10 = m[1].x; let a11 = m[1].y; let a12 = m[1].z;"
+"\n"     "let a20 = m[2].x; let a21 = m[2].y; let a22 = m[2].z;"
+"\n"     "let b01 =  a22*a11 - a12*a21;"
+"\n"     "let b11 = -a22*a10 + a12*a20;"
+"\n"     "let b21 =  a21*a10 - a11*a20;"
+"\n"     "let det = a00*b01 + a01*b11 + a02*b21;"
+"\n"     "return mat3x3<f32>(b01, (-a22*a01 + a02*a21), ( a12*a01 - a02*a11),"
+"\n"                        "b11, ( a22*a00 - a02*a20), (-a12*a00 + a02*a10),"
+"\n"                        "b21, (-a21*a00 + a01*a20), ( a11*a00 - a01*a10)) * (1/det);"
+"\n" "}"
+"\n";
+
+static constexpr char kInverse4x4[] =
+     "fn mat4_inverse(m: mat4x4<f32>) -> mat4x4<f32>{"
+"\n"     "let a00 = m[0].x; let a01 = m[0].y; let a02 = m[0].z; let a03 = m[0].w;"
+"\n"     "let a10 = m[1].x; let a11 = m[1].y; let a12 = m[1].z; let a13 = m[1].w;"
+"\n"     "let a20 = m[2].x; let a21 = m[2].y; let a22 = m[2].z; let a23 = m[2].w;"
+"\n"     "let a30 = m[3].x; let a31 = m[3].y; let a32 = m[3].z; let a33 = m[3].w;"
+"\n"     "let b00 = a00*a11 - a01*a10;"
+"\n"     "let b01 = a00*a12 - a02*a10;"
+"\n"     "let b02 = a00*a13 - a03*a10;"
+"\n"     "let b03 = a01*a12 - a02*a11;"
+"\n"     "let b04 = a01*a13 - a03*a11;"
+"\n"     "let b05 = a02*a13 - a03*a12;"
+"\n"     "let b06 = a20*a31 - a21*a30;"
+"\n"     "let b07 = a20*a32 - a22*a30;"
+"\n"     "let b08 = a20*a33 - a23*a30;"
+"\n"     "let b09 = a21*a32 - a22*a31;"
+"\n"     "let b10 = a21*a33 - a23*a31;"
+"\n"     "let b11 = a22*a33 - a23*a32;"
+"\n"     "let det = b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06;"
+"\n"     "return mat4x4<f32>(a11*b11 - a12*b10 + a13*b09,"
+"\n"                        "a02*b10 - a01*b11 - a03*b09,"
+"\n"                        "a31*b05 - a32*b04 + a33*b03,"
+"\n"                        "a22*b04 - a21*b05 - a23*b03,"
+"\n"                        "a12*b08 - a10*b11 - a13*b07,"
+"\n"                        "a00*b11 - a02*b08 + a03*b07,"
+"\n"                        "a32*b02 - a30*b05 - a33*b01,"
+"\n"                        "a20*b05 - a22*b02 + a23*b01,"
+"\n"                        "a10*b10 - a11*b08 + a13*b06,"
+"\n"                        "a01*b08 - a00*b10 - a03*b06,"
+"\n"                        "a30*b04 - a31*b02 + a33*b00,"
+"\n"                        "a21*b02 - a20*b04 - a23*b00,"
+"\n"                        "a11*b07 - a10*b09 - a12*b06,"
+"\n"                        "a00*b09 - a01*b07 + a02*b06,"
+"\n"                        "a31*b01 - a30*b03 - a32*b00,"
+"\n"                        "a20*b03 - a21*b01 + a22*b00) * (1/det);"
+"\n" "}"
+"\n";
+
+std::string WGSLCodeGenerator::assembleInversePolyfill(const FunctionCall& call) {
+    const ExpressionArray& arguments = call.arguments();
+    const Type& type = arguments.front()->type();
+
+    // The `inverse` intrinsic should only accept a single-argument square matrix.
+    // Once we implement f16 support, these polyfills will need to be updated to support `hmat`;
+    // for the time being, all floats in WGSL are f32, so we don't need to worry about precision.
+    SkASSERT(arguments.size() == 1);
+    SkASSERT(type.isMatrix());
+    SkASSERT(type.rows() == type.columns());
+
+    switch (type.slotCount()) {
+        case 4:
+            if (!fWrittenInverse2) {
+                fWrittenInverse2 = true;
+                fHeader.writeText(kInverse2x2);
+            }
+            return this->assembleSimpleIntrinsic("mat2_inverse", call);
+
+        case 9:
+            if (!fWrittenInverse3) {
+                fWrittenInverse3 = true;
+                fHeader.writeText(kInverse3x3);
+            }
+            return this->assembleSimpleIntrinsic("mat3_inverse", call);
+
+        case 16:
+            if (!fWrittenInverse4) {
+                fWrittenInverse4 = true;
+                fHeader.writeText(kInverse4x4);
+            }
+            return this->assembleSimpleIntrinsic("mat4_inverse", call);
+
+        default:
+            // We only support square matrices.
+            SkUNREACHABLE;
     }
 }
 
