@@ -57,7 +57,7 @@ GM_LIB="$BUILD_DIR/libgm_wasm.a"
 GN_FONT="skia_enable_fontmgr_custom_directory=false "
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 # Generate the font's binary file (which is covered by .gitignore)
-python tools/embed_resources.py \
+python3 tools/embed_resources.py \
       --name SK_EMBEDDED_FONTS \
       --input $BASE_DIR/fonts/NotoMono-Regular.ttf \
       --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
