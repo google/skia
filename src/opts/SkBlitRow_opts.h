@@ -176,9 +176,9 @@ inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, 
     }
 }
 
-// Blend constant color over count src pixels, writing into dst.
+// Blend constant color over count dst pixels
 /*not static*/
-inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
+inline void blit_row_color32(SkPMColor* dst, int count, SkPMColor color) {
     constexpr int N = 4;  // 8, 16 also reasonable choices
     using U32 = skvx::Vec<  N, uint32_t>;
     using U16 = skvx::Vec<4*N, uint16_t>;
@@ -199,13 +199,13 @@ inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, Sk
     };
 
     while (count >= N) {
-        kernel(U32::Load(src)).store(dst);
-        src   += N;
+        kernel(U32::Load(dst)).store(dst);
         dst   += N;
         count -= N;
     }
     while (count --> 0) {
-        *dst++ = kernel(U32{*src++})[0];
+        *dst = kernel(U32{*dst})[0];
+        dst++;
     }
 }
 
