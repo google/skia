@@ -289,7 +289,6 @@ skia_filegroup(
         "errors/InvalidAssignmentPipelineInputs.sksl",
         "errors/InvalidAtomicDeclarations.compute",
         "errors/InvalidAtomicOperations.compute",
-        "errors/InvalidBackendBindingFlagsGL.sksl",
         "errors/InvalidBackendBindingFlagsMetal.sksl",
         "errors/InvalidBackendBindingFlagsSPIRV.sksl",
         "errors/InvalidBackendBindingFlagsWGSL.sksl",

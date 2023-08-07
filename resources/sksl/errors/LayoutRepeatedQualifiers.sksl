@@ -12,7 +12,7 @@ layout (
     input_attachment_index = 1,
     spirv,
     metal,
-    gl,
+    wgsl,
 
     origin_upper_left,
     push_constant,
@@ -27,7 +27,7 @@ layout (
     input_attachment_index = 2,
     spirv,
     metal,
-    gl
+    wgsl
 ) float x;
 
 /*%%*
@@ -44,7 +44,7 @@ layout qualifier 'builtin' appears more than once
 layout qualifier 'input_attachment_index' appears more than once
 layout qualifier 'spirv' appears more than once
 layout qualifier 'metal' appears more than once
-layout qualifier 'gl' appears more than once
+layout qualifier 'wgsl' appears more than once
 'layout(color)' is only permitted in runtime effects
 'layout(color)' is only permitted on 'uniform' variables
 'layout(color)' is not permitted on variables of type 'float'

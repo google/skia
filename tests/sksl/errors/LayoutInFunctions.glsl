@@ -42,7 +42,7 @@ layout (
 error: 1: layout qualifier 'metal' is not permitted here
 layout (
 ^^^^^^^^...
-error: 1: layout qualifier 'gl' is not permitted here
+error: 1: layout qualifier 'wgsl' is not permitted here
 layout (
 ^^^^^^^^...
 error: 19: only one backend qualifier can be used
@@ -87,7 +87,7 @@ layout (
 error: 19: layout qualifier 'metal' is not permitted here
 layout (
 ^^^^^^^^...
-error: 19: layout qualifier 'gl' is not permitted here
+error: 19: layout qualifier 'wgsl' is not permitted here
 layout (
 ^^^^^^^^...
 30 errors

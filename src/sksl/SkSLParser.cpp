@@ -1075,7 +1075,6 @@ SkSL::Layout Parser::layout() {
             {"color",                       SkSL::LayoutFlag::kColor},
             {"spirv",                       SkSL::LayoutFlag::kSPIRV},
             {"metal",                       SkSL::LayoutFlag::kMetal},
-            {"gl",                          SkSL::LayoutFlag::kGL},
             {"wgsl",                        SkSL::LayoutFlag::kWGSL},
             {"local_size_x",                SkSL::LayoutFlag::kLocalSizeX},
             {"local_size_y",                SkSL::LayoutFlag::kLocalSizeY},

@@ -39,9 +39,9 @@ error: 28: layout qualifier 'spirv' appears more than once
 error: 29: layout qualifier 'metal' appears more than once
     metal,
     ^^^^^
-error: 30: layout qualifier 'gl' appears more than once
-    gl
-    ^^
+error: 30: layout qualifier 'wgsl' appears more than once
+    wgsl
+    ^^^^
 error: 1: 'layout(color)' is only permitted in runtime effects
 layout (
 ^^^^^^^^...

@@ -12,7 +12,7 @@ layout (
     input_attachment_index = 1,
     spirv,
     metal,
-    gl)
+    wgsl)
 void on_return() {}
 
 void on_param(
@@ -30,7 +30,7 @@ layout (
     input_attachment_index = 1,
     spirv,
     metal,
-    gl) float x) {}
+    wgsl) float x) {}
 
 /*%%*
 only one backend qualifier can be used
@@ -47,7 +47,7 @@ layout qualifier 'builtin' is not permitted here
 layout qualifier 'input_attachment_index' is not permitted here
 layout qualifier 'spirv' is not permitted here
 layout qualifier 'metal' is not permitted here
-layout qualifier 'gl' is not permitted here
+layout qualifier 'wgsl' is not permitted here
 only one backend qualifier can be used
 layout qualifier 'origin_upper_left' is not permitted here
 layout qualifier 'push_constant' is not permitted here
@@ -62,5 +62,5 @@ layout qualifier 'builtin' is not permitted here
 layout qualifier 'input_attachment_index' is not permitted here
 layout qualifier 'spirv' is not permitted here
 layout qualifier 'metal' is not permitted here
-layout qualifier 'gl' is not permitted here
+layout qualifier 'wgsl' is not permitted here
 *%%*/
