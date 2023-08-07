@@ -396,6 +396,8 @@ BASE_SRCS_ALL = [
     "src/core/SkBlitMask_opts_ssse3.cpp",
     "src/core/SkBlitRow.h",
     "src/core/SkBlitRow_D32.cpp",
+    "src/core/SkBlitRow_opts.cpp",
+    "src/core/SkBlitRow_opts_hsw.cpp",
     "src/core/SkBlitter.cpp",
     "src/core/SkBlitter.h",
     "src/core/SkBlitter_A8.cpp",

@@ -20,6 +20,7 @@
 #include "src/base/SkTSearch.h"
 #include "src/core/SkBitmapProcState.h"
 #include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkGeometry.h"
@@ -38,6 +39,7 @@ void SkGraphics::Init() {
     SkOpts::Init();
     SkOpts::Init_BitmapProcState();
     SkOpts::Init_BlitMask();
+    SkOpts::Init_BlitRow();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

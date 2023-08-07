@@ -34,4 +34,12 @@ public:
     static void Color32(SkPMColor dst[], int count, SkPMColor color);
 };
 
+namespace SkOpts {
+    extern void (*blit_row_color32)(SkPMColor* dst, int count, SkPMColor color);
+    extern void (*blit_row_s32a_opaque)(SkPMColor* dst, const SkPMColor* src,
+                                        int count, U8CPU alpha);
+
+    void Init_BlitRow();
+}  // namespace SkOpts
+
 #endif

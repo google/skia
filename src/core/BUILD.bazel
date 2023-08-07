@@ -64,6 +64,8 @@ CORE_FILES = [
     "SkBlitMask_opts_ssse3.cpp",
     "SkBlitRow.h",
     "SkBlitRow_D32.cpp",
+    "SkBlitRow_opts.cpp",
+    "SkBlitRow_opts_hsw.cpp",
     "SkBlitter.cpp",
     "SkBlitter.h",
     "SkBlitter_A8.cpp",
