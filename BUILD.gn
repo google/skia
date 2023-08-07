@@ -1325,9 +1325,73 @@ optional("typeface_freetype") {
   ]
 }
 
+if (skia_use_fontations) {
+  action("fontations_rust_side") {
+    bazel_args = [ "--with_fontations" ]
+    if (is_mac && target_cpu == "arm64") {
+      # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
+      # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
+      # right thing but may not be the right build configuration in the long run.
+      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+    }
+    if (!is_debug) {
+      bazel_args += [ "--compilation_mode=opt" ]
+    }
+    script = "gn/bazel_build.py"
+    sources = [
+      "src/ports/fontations/BUILD.bazel",
+      "src/ports/fontations/src/ffi.rs",
+    ]
+    outputs = [ "$root_out_dir/libbridge_rust_side.a" ]
+    args =
+        [
+          "//src/ports/fontations:bridge_rust_side",
+          rebase_path("//bazel-bin/src/ports/fontations/libbridge_rust_side.a",
+                      root_build_dir),
+        ] + bazel_args
+  }
+
+  action("fontations_ffi") {
+    bazel_args = [ "--with_fontations" ]
+    if (is_mac && target_cpu == "arm64") {
+      # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
+      # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
+      # right thing but may not be the right build configuration in the long run.
+      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+    }
+    if (!is_debug) {
+      bazel_args += [ "--compilation_mode=opt" ]
+    }
+    script = "gn/bazel_build.py"
+    sources = [
+      "src/ports/fontations/BUILD.bazel",
+      "src/ports/fontations/src/ffi.rs",
+    ]
+    outputs = [ "$root_out_dir/libfontations_ffi.a" ]
+    args = [
+             "//src/ports/fontations:fontations_ffi",
+             rebase_path("//bazel-bin/src/ports/fontations/libfontations_ffi.a",
+                         root_build_dir),
+           ] + bazel_args
+  }
+}
+
 optional("typeface_fontations") {
   public_defines = [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
   enabled = skia_use_fontations
+  if (enabled) {
+    public_include_dirs = [ "bazel-bin/" ]
+  }
+
+  deps = [
+    ":fontations_ffi",
+    ":fontations_rust_side",
+  ]
+
+  libs = [
+    "$root_out_dir/libfontations_ffi.a",
+    "$root_out_dir/libbridge_rust_side.a",
+  ]
   sources = [
     "src/ports/SkTypeface_fontations.cpp",
     "src/ports/SkTypeface_fontations_priv.h",
@@ -1431,6 +1495,7 @@ skia_component("skia") {
     ":png_decode",
     ":raw",
     ":ssse3",
+    ":typeface_fontations",
     ":vello",
     ":webp_decode",
     ":wuffs",
@@ -1580,10 +1645,6 @@ skia_component("skia") {
   if (skia_enable_spirv_validation) {
     deps += [ "//third_party/externals/spirv-tools:spvtools_val" ]
     defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
-  }
-
-  if (skia_use_fontations) {
-    deps += [ ":typeface_fontations" ]
   }
 
   if (skia_include_multiframe_procs) {

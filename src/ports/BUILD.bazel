@@ -35,7 +35,6 @@ skia_filegroup(
     srcs = select({
         "//bazel/common_config_settings:use_fontations_true": [
             "SkTypeface_fontations.cpp",
-            "//src/ports/fontations:srcs",
         ],
         "//conditions:default": [],
     }),
