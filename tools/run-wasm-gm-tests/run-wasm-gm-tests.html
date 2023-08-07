@@ -244,6 +244,9 @@ array of the test names and what they drew.
     'SkSLPreserveSideEffects_GPU',
     'SkSLStructFieldNoFolding_GPU',
 
+    // This SkSL test generates GLSL which violates the WebGL2 spec (b/294893925)
+    'SkSLCommaExpressionsAllowInlining_GPU',
+
     // These tests use files on disk, which is not supported for WASM
     'Stream',
     'StreamBuffer',
