@@ -3068,8 +3068,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:Gxs/5yMelyhTJ8LKFGKoxlN6YYVgYzXmGYqo1UJM4q0=",
-        version = "v0.0.0-20230803184240-ed824b45206d",
+        sum = "h1:sRyRoEsnZ7GO6wAxTMSegCm8uVJUJEYjNO8ZTkDayew=",
+        version = "v0.0.0-20230804222825-0e52994bf1b6",
     )
     go_repository(
         name = "org_uber_go_atomic",
