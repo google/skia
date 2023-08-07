@@ -1,18 +1,3 @@
-### Compilation failed:
-
-error: :41:15 error: no matching overload for operator + (mat2x3<f32>, abstract-float)
-
-5 candidate operators:
-  operator + (T, T) -> T  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator + (vecN<T>, T) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator + (T, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator + (matNxM<T>, matNxM<T>) -> matNxM<T>  where: T is abstract-float, f32 or f16
-  operator + (vecN<T>, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-
-    m23 = m23 + 1.0;
-              ^
-
-
 diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
@@ -53,10 +38,10 @@ fn test_half_b() -> bool {
     var m33: mat3x3<f32> = m43 * m34;
     let _skTemp7 = mat3x3<f32>(35.0, 0.0, 0.0, 0.0, 35.0, 0.0, 0.0, 0.0, 35.0);
     ok = ok && (all(m33[0] == _skTemp7[0]) && all(m33[1] == _skTemp7[1]) && all(m33[2] == _skTemp7[2]));
-    m23 = m23 + 1.0;
+    m23 = m23 + mat2x3<f32>(1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
     let _skTemp8 = mat2x3<f32>(3.0, 1.0, 1.0, 1.0, 3.0, 1.0);
     ok = ok && (all(m23[0] == _skTemp8[0]) && all(m23[1] == _skTemp8[1]));
-    m32 = m32 - 2.0;
+    m32 = m32 - mat3x2<f32>(2.0, 2.0, 2.0, 2.0, 2.0, 2.0);
     let _skTemp9 = mat3x2<f32>(2.0, -2.0, -2.0, 2.0, -2.0, -2.0);
     ok = ok && (all(m32[0] == _skTemp9[0]) && all(m32[1] == _skTemp9[1]) && all(m32[2] == _skTemp9[2]));
     m24 = m24 * 0.25;
@@ -81,10 +66,10 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var _7_m22: mat2x2<f32> = _3_m32 * _1_m23;
     let _skTemp14 = mat2x2<f32>(8.0, 0.0, 0.0, 8.0);
     _0_ok = _0_ok && (all(_7_m22[0] == _skTemp14[0]) && all(_7_m22[1] == _skTemp14[1]));
-    _1_m23 = _1_m23 + 1.0;
+    _1_m23 = _1_m23 + mat2x3<f32>(1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
     let _skTemp15 = mat2x3<f32>(3.0, 1.0, 1.0, 1.0, 3.0, 1.0);
     _0_ok = _0_ok && (all(_1_m23[0] == _skTemp15[0]) && all(_1_m23[1] == _skTemp15[1]));
-    _3_m32 = _3_m32 - 2.0;
+    _3_m32 = _3_m32 - mat3x2<f32>(2.0, 2.0, 2.0, 2.0, 2.0, 2.0);
     let _skTemp16 = mat3x2<f32>(2.0, -2.0, -2.0, 2.0, -2.0, -2.0);
     _0_ok = _0_ok && (all(_3_m32[0] == _skTemp16[0]) && all(_3_m32[1] == _skTemp16[1]) && all(_3_m32[2] == _skTemp16[2]));
     _2_m24 = _2_m24 * 0.25;
@@ -111,5 +96,3 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
-
-1 error

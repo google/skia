@@ -222,6 +222,10 @@ private:
                                          const Expression& right,
                                          const Type& resultType,
                                          Precedence parentPrecedence);
+    std::string assembleBinaryExpressionElement(const Expression& expr,
+                                                Operator op,
+                                                const Expression& other,
+                                                Precedence parentPrecedence);
     std::string assembleFieldAccess(const FieldAccess& f);
     std::string assembleFunctionCall(const FunctionCall& call, Precedence parentPrecedence);
     std::string assembleIndexExpression(const IndexExpression& i);

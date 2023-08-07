@@ -1510,6 +1510,32 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
     }
 }
 
+std::string WGSLCodeGenerator::assembleBinaryExpressionElement(const Expression& expr,
+                                                               Operator op,
+                                                               const Expression& other,
+                                                               Precedence precedence) {
+    // SkSL supports `matrix op scalar` for any operator, but WGSL only supports multiplication.
+    // If we detect a matrix-op-scalar expression that isn't multiplication, we need to manually
+    // splat the scalar into a matrix.
+    bool needMatrixSplatOnScalar = other.type().isMatrix() && expr.type().isScalar() &&
+                                   op.isValidForMatrixOrVector() &&
+                                   op.removeAssignment().kind() != Operator::Kind::STAR;
+    if (needMatrixSplatOnScalar) {
+        std::string scalar = this->writeNontrivialScratchLet(expr, Precedence::kSequence);
+        std::string result = to_wgsl_type(other.type()) + '(';
+        auto separator = String::Separator();
+        int numSlots = other.type().slotCount();
+        for (int index = 0; index < numSlots; ++index) {
+            result += separator();
+            result += scalar;
+        }
+        return result + ')';
+    }
+
+    // For other expression types, we can emit them as-is.
+    return this->assembleExpression(expr, precedence);
+}
+
 std::string WGSLCodeGenerator::assembleBinaryExpression(const BinaryExpression& b,
                                                         Precedence parentPrecedence) {
     return this->assembleBinaryExpression(*b.left(), b.getOperator(), *b.right(), b.type(),
@@ -1625,14 +1651,16 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
         std::string result;
         if (op.kind() == OperatorKind::EQ) {
             // Evaluate the right-hand side of simple assignment (`a = b` --> `b`).
-            result = this->assembleExpression(right, Precedence::kAssignment);
+            result = this->assembleBinaryExpressionElement(right, op, left,
+                                                           Precedence::kAssignment);
         } else {
             // Evaluate the right-hand side of compound-assignment (`a += b` --> `a + b`).
             op = op.removeAssignment();
 
             result += lvalue->load();
             result += operator_name(op);
-            result += this->assembleExpression(right, op.getBinaryPrecedence());
+            result += this->assembleBinaryExpressionElement(right, op, left,
+                                                            op.getBinaryPrecedence());
         }
 
         // Emit the assignment statement (`a = a + b`).
@@ -1684,10 +1712,10 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
         // calculate an infinity or nan here, as we would expect. (skia:14385)
         expr += this->writeScratchLet(left, precedence);
     } else {
-        expr += this->assembleExpression(left, precedence);
+        expr += this->assembleBinaryExpressionElement(left, op, right, precedence);
     }
     expr += operator_name(op);
-    expr += this->assembleExpression(right, precedence);
+    expr += this->assembleBinaryExpressionElement(right, op, left, precedence);
 
     if (needParens) {
         expr.push_back(')');

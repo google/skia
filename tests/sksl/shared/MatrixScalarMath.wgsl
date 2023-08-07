@@ -1,18 +1,3 @@
-### Compilation failed:
-
-error: :30:17 error: no matching overload for operator + (mat2x2<f32>, abstract-float)
-
-5 candidate operators:
-  operator + (T, T) -> T  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator + (vecN<T>, T) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator + (T, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator + (matNxM<T>, matNxM<T>) -> matNxM<T>  where: T is abstract-float, f32 or f16
-  operator + (vecN<T>, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-
-        m2 = m2 + 1.0;
-                ^
-
-
 diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
@@ -42,11 +27,11 @@ fn test_bifffff22(_skParam0: i32, _skParam1: f32, _skParam2: f32, _skParam3: f32
     var m2: mat2x2<f32> = mat2x2<f32>(m11 * one, m12 * one, m21 * one, m22 * one);
     switch op {
       case 1 {
-        m2 = m2 + 1.0;
+        m2 = mat2x2<f32>(1.0, 1.0, 1.0, 1.0) + m2;
         break;
       }
       case 2 {
-        m2 = m2 - 1.0;
+        m2 = m2 - mat2x2<f32>(1.0, 1.0, 1.0, 1.0);
         break;
       }
       case 3 {
@@ -88,7 +73,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var _1_one: f32 = f32(_globalUniforms.colorRed.x);
     var _2_m2: mat2x2<f32> = mat2x2<f32>(f1 * _1_one, f2 * _1_one, f3 * _1_one, f4 * _1_one);
     {
-      _2_m2 = _2_m2 + 1.0;
+      _2_m2 = mat2x2<f32>(1.0, 1.0, 1.0, 1.0) + _2_m2;
     }
     var _skTemp6: vec4<f32>;
     var _skTemp7: bool;
@@ -132,5 +117,3 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
-
-1 error
