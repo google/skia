@@ -1214,6 +1214,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.matchOs("Mac") && b.extraConfig("ANGLE") {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_GPU") // https://anglebug.com/7525
+		skip(ALL, "tests", ALL, "SkSLMatrixScalarMath_GPU")        // https://anglebug.com/7525
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_GPU")       // Apple bug FB12055941
 	}
 
