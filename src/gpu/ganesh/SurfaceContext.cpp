@@ -1160,7 +1160,7 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
                                                               SkBackingFit::kApprox,
                                                               /* sampleCount= */ 1,
                                                               GrMipmapped::kNo,
-                                                              GrProtected::kNo,
+                                                              texView.proxy()->isProtected(),
                                                               dst->origin());
         if (!linearRTC) {
             return false;
@@ -1208,7 +1208,7 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
             tempB = fContext->priv().makeSFCWithFallback(nextInfo, SkBackingFit::kApprox,
                                                          /* sampleCount= */ 1,
                                                          skgpu::Mipmapped::kNo,
-                                                         skgpu::Protected::kNo);
+                                                         texView.proxy()->isProtected());
             if (!tempB) {
                 return false;
             }

@@ -1387,12 +1387,15 @@ sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& info, const SkSurfacePro
     ASSERT_SINGLE_OWNER
     // TODO: Change the signature of newSurface to take a budgeted parameter.
     static const skgpu::Budgeted kBudgeted = skgpu::Budgeted::kNo;
+    bool isProtected = this->targetProxy()->isProtected() == GrProtected::kYes;
     return SkSurfaces::RenderTarget(fContext.get(),
                                     kBudgeted,
                                     info,
                                     fSurfaceDrawContext->numSamples(),
                                     fSurfaceDrawContext->origin(),
-                                    &props);
+                                    &props,
+                                    /* shouldCreateWithMips= */ false,
+                                    isProtected);
 }
 
 SkImageFilterCache* Device::getImageFilterCache() {

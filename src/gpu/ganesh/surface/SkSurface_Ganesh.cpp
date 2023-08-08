@@ -132,8 +132,11 @@ sk_sp<SkSurface> SkSurface_Ganesh::onNewSurface(const SkImageInfo& info) {
     GrSurfaceOrigin origin = targetView.origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const skgpu::Budgeted kBudgeted = skgpu::Budgeted::kNo;
+
+    bool isProtected = targetView.asRenderTargetProxy()->isProtected() == GrProtected::kYes;
     return SkSurfaces::RenderTarget(
-            fDevice->recordingContext(), kBudgeted, info, sampleCount, origin, &this->props());
+            fDevice->recordingContext(), kBudgeted, info, sampleCount, origin, &this->props(),
+            /* shouldCreateWithMips= */ false, isProtected);
 }
 
 sk_sp<SkImage> SkSurface_Ganesh::onNewImageSnapshot(const SkIRect* subset) {
@@ -587,7 +590,8 @@ sk_sp<SkSurface> RenderTarget(GrRecordingContext* rContext,
                               int sampleCount,
                               GrSurfaceOrigin origin,
                               const SkSurfaceProps* props,
-                              bool shouldCreateWithMips) {
+                              bool shouldCreateWithMips,
+                              bool isProtected) {
     if (!rContext) {
         return nullptr;
     }
@@ -603,7 +607,7 @@ sk_sp<SkSurface> RenderTarget(GrRecordingContext* rContext,
                                                 SkBackingFit::kExact,
                                                 sampleCount,
                                                 mipmapped,
-                                                GrProtected::kNo,
+                                                GrProtected(isProtected),
                                                 origin,
                                                 SkSurfacePropsCopyOrDefault(props),
                                                 skgpu::ganesh::Device::InitContents::kClear);

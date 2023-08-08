@@ -67,7 +67,8 @@ SK_API sk_sp<SkSurface> RenderTarget(GrRecordingContext* context,
                                      int sampleCount,
                                      GrSurfaceOrigin surfaceOrigin,
                                      const SkSurfaceProps* surfaceProps,
-                                     bool shouldCreateWithMips = false);
+                                     bool shouldCreateWithMips = false,
+                                     bool isProtected = false);
 inline sk_sp<SkSurface> RenderTarget(GrRecordingContext* context,
                                      skgpu::Budgeted budgeted,
                                      const SkImageInfo& imageInfo,

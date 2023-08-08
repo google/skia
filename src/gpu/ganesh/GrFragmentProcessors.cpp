@@ -731,13 +731,15 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPictureShader
     } else {
         const int msaaSampleCount = 0;
         const bool createWithMips = false;
+        const bool kUnprotected = false;
         auto image = info.makeImage(SkSurfaces::RenderTarget(ctx,
                                                              skgpu::Budgeted::kYes,
                                                              info.imageInfo,
                                                              msaaSampleCount,
                                                              kTopLeft_GrSurfaceOrigin,
                                                              &info.props,
-                                                             createWithMips),
+                                                             createWithMips,
+                                                             kUnprotected),
                                     shader->picture().get());
         if (!image) {
             return nullptr;

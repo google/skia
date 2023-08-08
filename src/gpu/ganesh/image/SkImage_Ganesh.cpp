@@ -300,11 +300,13 @@ sk_sp<SkImage> SkImage_Ganesh::onMakeColorTypeAndColorSpace(SkColorType targetCT
         return nullptr;
     }
 
+    sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext);
+
     auto sfc = dContext->priv().makeSFCWithFallback(GrImageInfo(info, this->dimensions()),
                                                     SkBackingFit::kExact,
                                                     /* sampleCount= */ 1,
                                                     skgpu::Mipmapped::kNo,
-                                                    skgpu::Protected::kNo);
+                                                    proxy->isProtected());
     if (!sfc) {
         return nullptr;
     }
