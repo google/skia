@@ -173,7 +173,6 @@ CPU_ONLY_TESTS = [
     "SortTest.cpp",
     "SrcOverTest.cpp",
     "StreamTest.cpp",
-    "StrikeForGPUTest.cpp",
     "StringTest.cpp",
     "StrokeTest.cpp",
     "SwizzlerTest.cpp",
@@ -303,6 +302,7 @@ GANESH_TESTS = [
     "SpecialImageTest.cpp",
     "SpecialSurfaceTest.cpp",
     "SrcSrcOverBatchTest.cpp",
+    "StrikeForGPUTest.cpp",
     "SurfaceDrawContextTest.cpp",
     "SurfaceSemaphoreTest.cpp",
     # "SurfaceTest.cpp",  # TODO(b/277938020): Linux - Fails at a test assertion.
