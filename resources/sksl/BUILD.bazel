@@ -244,6 +244,7 @@ skia_filegroup(
         "errors/CallNonFunction.rts",
         "errors/CanExitWithoutReturningValue.sksl",
         "errors/CommasAsConstantExpressions.rts",
+        "errors/CommasWithArrays.sksl",
         "errors/ComparisonDimensional.rts",
         "errors/ConstructorArgumentCount.rts",
         "errors/ConstructorTypeMismatch.rts",

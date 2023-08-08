@@ -66,6 +66,7 @@ sksl_error_tests = [
   "errors/CallNonFunction.rts",
   "errors/CanExitWithoutReturningValue.sksl",
   "errors/CommasAsConstantExpressions.rts",
+  "errors/CommasWithArrays.sksl",
   "errors/ComparisonDimensional.rts",
   "errors/ConstructorArgumentCount.rts",
   "errors/ConstructorTypeMismatch.rts",

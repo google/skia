@@ -1,0 +1,24 @@
+struct S {
+    int array[2];
+};
+
+void fn() {
+    S myStruct;
+    int myArray[2];
+
+    myStruct, 123;
+    123, myStruct;
+    myArray, 123;
+    123, myArray;
+    myArray, myStruct;
+    myStruct, myArray;
+}
+
+/*%%*
+operator ',' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+operator ',' can not operate on arrays (or structs containing arrays)
+*%%*/

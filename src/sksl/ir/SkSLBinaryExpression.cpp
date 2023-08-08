@@ -108,17 +108,24 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
                                     "' are not permitted");
         return nullptr;
     }
-    if (context.fConfig->strictES2Mode()) {
-        if (!op.isAllowedInStrictES2Mode()) {
-            context.fErrors->error(pos, "operator '" + std::string(op.tightOperatorName()) +
-                                        "' is not allowed");
-            return nullptr;
-        }
-        if (leftType->isOrContainsArray()) {
-            // Most operators are already rejected on arrays, but GLSL ES 1.0 is very explicit that
-            // the *only* operator allowed on arrays is subscripting (and the rules against
-            // assignment, comparison, and even sequence apply to structs containing arrays as well)
-            context.fErrors->error(pos, "operator '" + std::string(op.tightOperatorName()) +
+    if (context.fConfig->strictES2Mode() && !op.isAllowedInStrictES2Mode()) {
+        context.fErrors->error(pos, "operator '" + std::string(op.tightOperatorName()) +
+                                    "' is not allowed");
+        return nullptr;
+    }
+    if (context.fConfig->strictES2Mode() || op.kind() == OperatorKind::COMMA) {
+        // Most operators are already rejected on arrays, but GLSL ES 1.0 is very explicit that the
+        // *only* operator allowed on arrays is subscripting (and the rules against assignment,
+        // comparison, and even sequence apply to structs containing arrays as well).
+        // WebGL2 also restricts the usage of the sequence operator with arrays (section 5.26,
+        // "Disallowed variants of GLSL ES 3.00 operators"). Since there is very little practical
+        // application for sequenced array expressions, we disallow it in SkSL.
+        const Expression* arrayExpr =  leftType->isOrContainsArray() ? left.get() :
+                                      rightType->isOrContainsArray() ? right.get() :
+                                                                       nullptr;
+        if (arrayExpr) {
+            context.fErrors->error(arrayExpr->position(),
+                                   "operator '" + std::string(op.tightOperatorName()) +
                                    "' can not operate on arrays (or structs containing arrays)");
             return nullptr;
         }
