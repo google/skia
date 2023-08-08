@@ -95,4 +95,15 @@ bool SkSLToMSL(SkSL::Compiler* compiler,
                            sksl, programKind, settings, msl, outInterface, errorHandler);
 }
 
+bool SkSLToHLSL(SkSL::Compiler* compiler,
+                const std::string& sksl,
+                SkSL::ProgramKind programKind,
+                const SkSL::ProgramSettings& settings,
+                std::string* hlsl,
+                SkSL::Program::Interface* outInterface,
+                ShaderErrorHandler* errorHandler) {
+    return sksl_to_backend(compiler, &SkSL::Compiler::toHLSL, "HLSL",
+                           sksl, programKind, settings, hlsl, outInterface, errorHandler);
+}
+
 } // namespace skgpu

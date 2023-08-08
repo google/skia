@@ -62,6 +62,14 @@ bool SkSLToMSL(SkSL::Compiler*,
                SkSL::Program::Interface* outInterface,
                ShaderErrorHandler* errorHandler);
 
+bool SkSLToHLSL(SkSL::Compiler*,
+               const std::string& sksl,
+               SkSL::ProgramKind kind,
+               const SkSL::ProgramSettings& settings,
+               std::string* hlsl,
+               SkSL::Program::Interface* outInterface,
+               ShaderErrorHandler* errorHandler);
+
 } // namespace skgpu
 
 #endif // skgpu_PipelineUtils_DEFINED
