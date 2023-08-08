@@ -391,6 +391,7 @@ BASE_SRCS_ALL = [
     "src/core/SkBlendModePriv.h",
     "src/core/SkBlenderBase.h",
     "src/core/SkBlitBWMaskTemplate.h",
+    "src/core/SkBlitMask.h",
     "src/core/SkBlitMask_opts.cpp",
     "src/core/SkBlitMask_opts_ssse3.cpp",
     "src/core/SkBlitRow.h",
