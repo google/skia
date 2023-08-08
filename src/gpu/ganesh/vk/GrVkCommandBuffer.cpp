@@ -148,7 +148,7 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfD
     SkASSERT(fIsActive);
 
     // Currently we never submit a pipeline barrier without at least one memory barrier.
-    if (fBufferBarriers.size() || fImageBarriers.size()) {
+    if (fBufferBarriers.size() > 0 || fImageBarriers.size() > 0) {
         // For images we can have barriers inside of render passes but they require us to add more
         // support in subpasses which need self dependencies to have barriers inside them. Also, we
         // can never have buffer barriers inside of a render pass. For now we will just assert that
@@ -156,6 +156,18 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfD
         SkASSERT(!fActiveRenderPass || forSelfDependency);
         SkASSERT(!this->isWrapped());
         SkASSERT(fSrcStageMask && fDstStageMask);
+
+        // TODO(https://crbug.com/1469231): The linked bug references a crash report from calling
+        // CmdPipelineBarrier. The checks below were added to ensure that we are passing in buffer
+        // counts >= 0, and in the case of >0, that the buffers are non-null. Evaluate whether this
+        // change leads to a reduction in crash instances. If not, the issue may lie within the
+        // driver itself and these checks can be removed.
+        if (fBufferBarriers.size() > 0 && fBufferBarriers.begin() == nullptr) {
+            fBufferBarriers.clear(); // Sets the size to 0
+        }
+        if (fImageBarriers.size() > 0 && fImageBarriers.begin() == nullptr) {
+            fImageBarriers.clear(); // Sets the size to 0
+        }
 
         VkDependencyFlags dependencyFlags = fBarriersByRegion ? VK_DEPENDENCY_BY_REGION_BIT : 0;
         GR_VK_CALL(gpu->vkInterface(), CmdPipelineBarrier(
