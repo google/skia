@@ -78,21 +78,22 @@ private:
 
 class GrGLBackendTextureInfo {
 public:
-    GrGLBackendTextureInfo(const GrGLTextureInfo& info, sk_sp<GrGLTextureParameters> params)
+    GrGLBackendTextureInfo(const GrGLTextureInfo& info, GrGLTextureParameters* params)
             : fInfo(info), fParams(params) {}
     GrGLBackendTextureInfo(const GrGLBackendTextureInfo&) = delete;
     GrGLBackendTextureInfo& operator=(const GrGLBackendTextureInfo&) = delete;
     const GrGLTextureInfo& info() const { return fInfo; }
-    GrGLTextureParameters* parameters() const { return fParams.get(); }
-    sk_sp<GrGLTextureParameters> refParameters() const { return fParams; }
+    GrGLTextureParameters* parameters() const { return fParams; }
+    sk_sp<GrGLTextureParameters> refParameters() const { return sk_ref_sp(fParams); }
 
+    void cleanup();
     void assign(const GrGLBackendTextureInfo&, bool thisIsValid);
 
     bool isProtected() const { return fInfo.isProtected(); }
 
 private:
     GrGLTextureInfo fInfo;
-    sk_sp<GrGLTextureParameters> fParams;  // not const because we might call invalidate() on it.
+    GrGLTextureParameters* fParams;
 };
 
 struct GrGLTextureSpec {

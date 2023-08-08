@@ -12,8 +12,12 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h" // IWYU pragma: keep
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrBackendSurfacePriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
+
+#ifdef SK_GL
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#endif
 
 #ifdef SK_VULKAN
 #include "include/private/gpu/vk/SkiaVulkan.h"
@@ -38,7 +42,22 @@ namespace wgpu { enum class TextureFormat : uint32_t; }
 SkTextureCompressionType GrBackendFormatToCompressionType(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL: {
-            return GrBackendSurfacePriv::GetBackendData(format)->compressionType();
+#ifdef SK_GL
+            GrGLFormat glFormat = format.asGLFormat();
+            switch (glFormat) {
+                case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+                case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
+                    return SkTextureCompressionType::kETC2_RGB8_UNORM;
+                case GrGLFormat::kCOMPRESSED_RGB8_BC1:
+                    return SkTextureCompressionType::kBC1_RGB8_UNORM;
+                case GrGLFormat::kCOMPRESSED_RGBA8_BC1:
+                    return SkTextureCompressionType::kBC1_RGBA8_UNORM;
+                default:
+                    return SkTextureCompressionType::kNone;
+            }
+#else
+            break;
+#endif
         }
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
@@ -92,7 +111,12 @@ SkTextureCompressionType GrBackendFormatToCompressionType(const GrBackendFormat&
 size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL: {
-            return GrBackendSurfacePriv::GetBackendData(format)->bytesPerBlock();
+#ifdef SK_GL
+            GrGLFormat glFormat = format.asGLFormat();
+            return GrGLFormatBytesPerBlock(glFormat);
+#else
+            break;
+#endif
         }
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
@@ -152,7 +176,12 @@ size_t GrBackendFormatBytesPerPixel(const GrBackendFormat& format) {
 int GrBackendFormatStencilBits(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL: {
-            return GrBackendSurfacePriv::GetBackendData(format)->stencilBits();
+#ifdef SK_GL
+            GrGLFormat glFormat = format.asGLFormat();
+            return GrGLFormatStencilBits(glFormat);
+#else
+            break;
+#endif
         }
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
