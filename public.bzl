@@ -250,6 +250,7 @@ BASE_SRCS_ALL = [
     "include/private/base/SkAPI.h",
     "include/private/base/SkAlign.h",
     "include/private/base/SkAlignedStorage.h",
+    "include/private/base/SkAnySubclass.h",
     "include/private/base/SkAssert.h",
     "include/private/base/SkAttributes.h",
     "include/private/base/SkCPUTypes.h",
