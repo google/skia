@@ -123,6 +123,20 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soun
       return this._setColor(key, cPtr);
     };
 
+    CanvasKit.ManagedAnimation.prototype.setColorSlot = function(key, color) {
+      var cPtr = copyColorToWasm(color);
+      return this._setColorSlot(key, cPtr);
+    };
+
+    CanvasKit.ManagedAnimation.prototype.getColorSlot = function(key) {
+      this._getColorSlot(key, _scratchColorPtr);
+      var fourFloats = copyColorFromWasm(_scratchColorPtr);
+      if (fourFloats[0] == -1) {
+        return null;
+      }
+      return fourFloats;
+    }
+
     CanvasKit.ManagedAnimation.prototype.setTransform = function(key, anchor, position, scale, rotation, skew, skew_axis) {
       let transformData = [anchor[0], anchor[1], position[0], position[1], scale[0], scale[1], rotation, skew, skew_axis];
       const tPtr = copy1dArray(transformData, 'HEAPF32', _scratch3x3MatrixPtr);

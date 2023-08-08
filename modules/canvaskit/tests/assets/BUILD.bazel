@@ -28,6 +28,7 @@ skia_filegroup(
         "mandrill_h1v1.jpg",
         "map-shield.json",
         "red_line.skp",
+        "skottie_basic_slots.json",
         "test.ttc",
         "test_glyphs-glyf_colr_1.ttf",
     ],

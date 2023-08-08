@@ -17,10 +17,10 @@
   "types": "./types/index.d.ts",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "dtslint": "4.2.1",
-    "typescript": "4.7.4",
     "@definitelytyped/header-parser": "0.0.121",
-    "@webgpu/types": "0.1.21"
+    "@webgpu/types": "0.1.21",
+    "dtslint": "4.2.1",
+    "typescript": "4.7.4"
   },
   "exports": {
     ".": {
