@@ -35,7 +35,10 @@ ICU_BIDI_SRCS = [
 skia_filegroup(
     name = "icu_bidi_srcs",
     srcs = [
-        # Leave this group empty for transition.
+        # Should leave this group empty for transition.
+        # However https://github.com/bazelbuild/bazel/issues/1431 allows empty filegroups
+        # but it almost always results in an error to use an empty filegroup.
+        "work_around_bazel_issues_1431.h",
         # "SkUnicode_icu_bidi.cpp",
         # "SkUnicode_icu_bidi.h",
     ],
