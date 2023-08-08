@@ -51,6 +51,17 @@ static bool sksl_to_backend(SkSL::Compiler* compiler,
     return true;
 }
 
+bool SkSLToGLSL(SkSL::Compiler* compiler,
+                const std::string& sksl,
+                SkSL::ProgramKind programKind,
+                const SkSL::ProgramSettings& settings,
+                std::string* glsl,
+                SkSL::Program::Interface* outInterface,
+                ShaderErrorHandler* errorHandler) {
+    return sksl_to_backend(compiler, &SkSL::Compiler::toGLSL, "GLSL",
+                           sksl, programKind, settings, glsl, outInterface, errorHandler);
+}
+
 bool SkSLToSPIRV(SkSL::Compiler* compiler,
                  const std::string& sksl,
                  SkSL::ProgramKind programKind,

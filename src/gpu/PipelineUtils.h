@@ -30,6 +30,14 @@ static const bool gPrintBackendSL = true;
 static const bool gPrintBackendSL = false;
 #endif
 
+bool SkSLToGLSL(SkSL::Compiler*,
+                const std::string& sksl,
+                SkSL::ProgramKind programKind,
+                const SkSL::ProgramSettings& settings,
+                std::string* glsl,
+                SkSL::Program::Interface*,
+                ShaderErrorHandler* errorHandler);
+
 bool SkSLToSPIRV(SkSL::Compiler*,
                  const std::string& sksl,
                  SkSL::ProgramKind,
