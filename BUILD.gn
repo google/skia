@@ -2431,7 +2431,7 @@ if (skia_enable_tools) {
       ]
     }
 
-    if (!skia_enable_optimize_size) {
+    if (!skia_enable_optimize_size && !skia_use_fontations) {
       # optional separate library to dlopen when running CanvasStateTests.
       skia_shared_library("canvas_state_lib") {
         sources = [

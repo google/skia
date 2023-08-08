@@ -237,6 +237,8 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_graphite'] = 'true'
   if 'Vello' in extra_tokens:
     args['skia_enable_vello_shaders'] = 'true'
+  if 'Fontations' in extra_tokens:
+    args['skia_use_fontations'] = 'true'
   if 'NoGpu' in extra_tokens:
     args['skia_enable_ganesh'] = 'false'
   if 'NoDEPS' in extra_tokens:

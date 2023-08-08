@@ -152,13 +152,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	threadLimit := -1
 	const MAIN_THREAD_ONLY = 0
 
-	// 32-bit desktop bots tend to run out of memory, because they have relatively
+	// 32-bit desktop machines tend to run out of memory, because they have relatively
 	// far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
 	if b.arch("x86") {
 		threadLimit = 4
 	}
 
-	// These bots run out of memory easily.
+	// These devices run out of memory easily.
 	if b.model("MotoG4", "Nexus7") {
 		threadLimit = MAIN_THREAD_ONLY
 	}
@@ -245,7 +245,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, glPrefix, glPrefix+"dft")
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
-				// Temporarily limit the bots we test dynamic MSAA on.
+				// Temporarily limit the machines we test dynamic MSAA on.
 				if b.gpu("QuadroP400", "MaliG77") || b.matchOs("Mac") {
 					configs = append(configs, fmt.Sprintf("%sdmsaa", glPrefix))
 				}
@@ -267,7 +267,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, "gles", "glesdft")
 		}
 
-		// Dawn bot *only* runs the dawn config
+		// Dawn task *only* runs the dawn config
 		if b.extraConfig("Dawn") && !b.extraConfig("Graphite") {
 			// The SPIR-V reader emits bad code for a `matrixCompMult` that overflows. (tint:1989)
 			skip(ALL, "test", ALL, "SkSLIntrinsicMatrixCompMultES2_GPU")
@@ -275,12 +275,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{"dawn"}
 		}
 
-		// The FailFlushTimeCallbacks bots only run the 'gl' config
+		// The FailFlushTimeCallbacks tasks only run the 'gl' config
 		if b.extraConfig("FailFlushTimeCallbacks") {
 			configs = []string{"gl"}
 		}
 
-		// Graphite bot *only* runs the gr*** configs
+		// Graphite task *only* runs the gr*** configs
 		if b.extraConfig("Graphite") {
 			args = append(args, "--nogpu") // disable non-Graphite tests
 
@@ -382,7 +382,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					// produces many test cases, that are multiplied by the number of configs (of
 					// which ANGLE has many variations). There is not a lot of value gained by
 					// running these if they are the source of long 'dm' time on Xe hardware given
-					// many other bots are executing them.
+					// many other tasks are executing them.
 					skip(ALL, "test", ALL, "FilterResult")
 				}
 			} else if b.matchOs("Mac") {
@@ -443,7 +443,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if !b.matchGpu("Intel") {
 				configs = append(configs, "vkmsaa4")
 			}
-			// Temporarily limit the bots we test dynamic MSAA on.
+			// Temporarily limit the machines we test dynamic MSAA on.
 			if b.gpu("QuadroP400", "MaliG77") && !b.extraConfig("TSAN") {
 				configs = append(configs, "vkdmsaa")
 			}
@@ -471,8 +471,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{"d3d"}
 		}
 
-		// Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
-		// on the GL bots.
+		// Test 1010102 on our Linux/NVIDIA tasks and the persistent cache config
+		// on the GL tasks.
 		if b.gpu("QuadroP400") && !b.extraConfig("PreAbandonGpuContext") && !b.extraConfig("TSAN") && b.isLinux() &&
 			!b.extraConfig("FailFlushTimeCallbacks") && !b.extraConfig("Graphite") {
 			if b.extraConfig("Vulkan") {
@@ -566,7 +566,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--gpuResourceCacheLimit", "16777216")
 		}
 
-		// Test rendering to wrapped dsts on a few bots
+		// Test rendering to wrapped dsts on a few tasks
 		if b.extraConfig("BonusConfigs") {
 			configs = []string{"glbetex", "glbert", "glreducedshaders", "glr8"}
 		}
@@ -709,9 +709,18 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("svg")
 	}
 
-	// Remove skps for all bots except for a select few. On bots that will run SKPs remove some of their other tests.
+	if b.matchExtraConfig("Fontations") {
+		// The only fontations code is exercised via gms and tests
+		removeFromArgs("image")
+		removeFromArgs("lottie")
+		removeFromArgs("colorImage")
+		removeFromArgs("svg")
+	}
+
+	// Remove skps for all tasks except for a select few. On tasks that will run SKPs remove some of
+	// their other tests.
 	if b.matchExtraConfig("DDL", "PDF") {
-		// The DDL and PDF bots just render the large skps and the gms
+		// The DDL and PDF tasks just render the large skps and the gms
 		removeFromArgs("tests")
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
@@ -729,12 +738,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
 	} else {
-		// No other bots render the .skps.
+		// No other tasks render the .skps.
 		removeFromArgs("skp")
 	}
 
 	if b.extraConfig("Lottie") {
-		// Only run the lotties on Lottie bots.
+		// Only run the lotties on Lottie tasks.
 		removeFromArgs("tests")
 		removeFromArgs("gm")
 		removeFromArgs("image")
@@ -1028,7 +1037,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	// skbug.com/4888
-	// Skip RAW images (and a few large PNGs) on GPU bots
+	// Skip RAW images (and a few large PNGs) on GPU tasks
 	// until we can resolve failures.
 	if b.gpu() {
 		skip(ALL, "image", ALL, "interlaced1.png")
@@ -1243,7 +1252,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.gpu("QuadroP400") && b.matchOs("Ubuntu") && b.matchModel("Golo") {
-		// Fails on Ubuntu18-Golo bots with QuadroP400 GPUs on Vulkan and OpenGL
+		// Fails on Ubuntu18-Golo machines with QuadroP400 GPUs on Vulkan and OpenGL
 		skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU") // skia:13035
 	}
 
@@ -1492,7 +1501,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		args = append(args, match...)
 	}
 
-	// These bots run out of memory running RAW codec tests. Do not run them in
+	// These devices run out of memory running RAW codec tests. Do not run them in
 	// parallel
 	// TODO(borenet): Previously this was `'Nexus5' in bot or 'Nexus9' in bot`
 	// which also matched 'Nexus5x'. I added That here to maintain the
@@ -1522,7 +1531,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		args = append(args, "--gdi")
 	}
 
-	// Let's make all bots produce verbose output by default.
+	// Let's make all tasks produce verbose output by default.
 	args = append(args, "--verbose")
 
 	// See skia:2789.
