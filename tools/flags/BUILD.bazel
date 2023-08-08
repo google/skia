@@ -12,6 +12,7 @@ skia_filegroup(
         "CommandLineFlags.h",
     ],
     visibility = [
+        "//gm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tests:__subpackages__",
         "//tools:__pkg__",
@@ -25,9 +26,13 @@ skia_filegroup(
     srcs = [
         "CommonFlags.h",
         "CommonFlagsFontMgr.cpp",
-        "CommonFlagsGpu.cpp",
-    ],
+        "CommonFlagsImages.cpp",
+    ] + select({
+        "//src/gpu:has_ganesh_backend": ["CommonFlagsGpu.cpp"],
+        "//conditions:default": [],
+    }),
     visibility = [
+        "//gm:__pkg__",
         "//tools:__subpackages__",
     ],
 )

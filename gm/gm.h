@@ -231,7 +231,8 @@ namespace skiagm {
     void Register(skiagm::GM* gm);
 
     // Registry of functions that dynamically register GMs. Useful for GMs that are unknown at
-    // compile time, such as those that are created from images in a directory.
+    // compile time, such as those that are created from images in a directory (see e.g.
+    // //gm/png_codec.cpp).
     //
     // A GMRegistererFn may call skiagm::Register() zero or more times to register GMs as needed.
     // It should return the empty string on success, or a human-friendly message in the case of

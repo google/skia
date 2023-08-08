@@ -27,12 +27,11 @@
 #include "tools/HashAndEncode.h"
 
 #include <ctime>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
-
-struct tm;
 
 // TODO(lovisolo): Add flag --skip.
 // TODO(lovisolo): Add flag --omitDigestIfHashInFile (provides the known hashes file).
@@ -119,7 +118,7 @@ static std::string draw_result_to_string(skiagm::DrawResult result) {
         case skiagm::DrawResult::kSkip:
             return "Skip";
         default:
-            return "Unknown";
+            SkUNREACHABLE;
     }
 }
 
@@ -136,7 +135,7 @@ void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outp
     std::unique_ptr<SurfaceManager> surface_manager =
             SurfaceManager::FromConfig(config, gm->getISize().width(), gm->getISize().height());
     if (surface_manager == nullptr) {
-        SK_ABORT("unknown --surfaceConfig flag value: %s", config.c_str());
+        SK_ABORT("Unknown --surfaceConfig flag value: %s.", config.c_str());
     }
 
     // Set up GPU.
@@ -171,7 +170,7 @@ void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outp
             gNumSkippedGMs++;
             break;
         default:
-            SK_ABORT("Unknown skiagm::DrawResult: %s", draw_result_to_string(result).c_str());
+            SkUNREACHABLE;
     }
 
     // Report GM result and optional message.
@@ -209,12 +208,11 @@ int main(int argc, char** argv) {
     if (argc < 2) {
         SkDebugf("GM runner invoked with no arguments.\n");
     } else {
-        std::ostringstream oss;
-        oss << "GM runner invoked with arguments:";
+        SkDebugf("GM runner invoked with arguments:");
         for (int i = 1; i < argc; i++) {
-            oss << " " << argv[i];
+            SkDebugf(" %s", argv[i]);
         }
-        SkDebugf("%s\n", oss.str().c_str());
+        SkDebugf("\n");
     }
 
     // When running under Bazel (e.g. "bazel test //path/to:test"), we'll store output files in
@@ -230,36 +228,31 @@ int main(int argc, char** argv) {
     // Parse and validate flags.
     CommandLineFlags::Parse(argc, argv);
     if (!isBazelTest && FLAGS_outputDir.isEmpty()) {
-        SkDebugf("Flag --outputDir cannot be empty.\n");
-        return 1;
+        SK_ABORT("Flag --outputDir cannot be empty.");
     }
     if (FLAGS_outputDir.size() > 1) {
-        SkDebugf("Flag --outputDir takes one single value, got %d.\n", FLAGS_outputDir.size());
-        return 1;
+        SK_ABORT("Flag --outputDir takes one single value, got %d.", FLAGS_outputDir.size());
     }
     if (FLAGS_surfaceConfig.isEmpty()) {
-        SkDebugf("Flag --surfaceConfig cannot be empty.\n");
-        return 1;
+        SK_ABORT("Flag --surfaceConfig cannot be empty.");
     }
     if (FLAGS_surfaceConfig.size() > 1) {
-        SkDebugf("Flag --surfaceConfig takes one single value, got %d.\n",
+        SK_ABORT("Flag --surfaceConfig takes one single value, got %d.",
                  FLAGS_surfaceConfig.size());
-        return 1;
     }
     if (FLAGS_via.size() > 1) {
-        SkDebugf("Flag --via takes at most one value, got %d.\n", FLAGS_via.size());
-        return 1;
+        SK_ABORT("Flag --via takes at most one value, got %d.", FLAGS_via.size());
     }
 
     std::string outputDir =
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
-    std::string config(FLAGS_surfaceConfig[0]);
+    std::string config = FLAGS_surfaceConfig[0];
 
     // Execute all GM registerer functions, then run all registered GMs.
     for (const skiagm::GMRegistererFn& f : skiagm::GMRegistererFnRegistry::Range()) {
         std::string errorMsg = f();
         if (errorMsg != "") {
-            SK_ABORT("error while gathering GMs: %s", errorMsg.c_str());
+            SK_ABORT("Error while gathering GMs: %s", errorMsg.c_str());
         }
     }
     for (const skiagm::GMFactory& f : skiagm::GMRegistry::Range()) {

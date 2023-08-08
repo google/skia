@@ -484,6 +484,14 @@ exports_files(
     tag = "git_revision:1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
 )
 
+cipd_install(
+    name = "skimage",
+    build_file = "//bazel/external/skimage:BUILD.bazel",
+    cipd_package = "skia/bots/skimage",
+    # From https://chrome-infra-packages.appspot.com/p/skia/bots/skimage/+/sRladEfUAXeYIBD3Pt3ke0Fd08vtYVLrg4IASKk5F6YC
+    sha256 = "b1195a7447d40177982010f73edde47b415dd3cbed6152eb83820048a93917a6",
+    tag = "version:47",
+)
 
 ##################################
 # Docker rules and dependencies. #

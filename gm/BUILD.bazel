@@ -1,6 +1,7 @@
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 load(":android_gm_test.bzl", "android_gm_test")
+load(":png_codec.bzl", "png_codec_tests")
 
 licenses(["notice"])
 
@@ -41,6 +42,8 @@ skia_cc_library(
     srcs = [
         "//src/utils:json_hdrs",
         "//src/utils:json_srcs",
+        "//tools/flags",
+        "//tools/flags:common_flags",
     ],
     deps = [
         ":gm",
@@ -585,6 +588,8 @@ cc_test_with_flags(
     },
     deps = [":tests_base"],
 )
+
+png_codec_tests(name = "png_codec_tests")
 
 [
     # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):
