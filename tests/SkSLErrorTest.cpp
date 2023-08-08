@@ -94,8 +94,9 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
     // In a size-optimized build, there are a handful of errors which report differently, or not at
     // all. Skip over those tests.
     static const auto* kTestsToSkip = new THashSet<std::string_view>{
-        // These are tests that have been deleted, but which may still show up (and fail) on bots,
+        // These are tests that have been deleted, but which may still show up (and fail) on tasks,
         // because the resources directory isn't properly cleaned up. (skbug.com/12987)
+        "sksl/errors/InvalidBackendBindingFlagsGL.sksl",
         "sksl/errors/InvalidThreadgroupRTS.rts",
         "sksl/errors/StaticIfTest.sksl",
         "sksl/errors/StaticSwitchConditionalBreak.sksl",
