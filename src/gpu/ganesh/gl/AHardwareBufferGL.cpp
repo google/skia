@@ -167,6 +167,7 @@ static GrBackendTexture make_gl_backend_texture(
     SkASSERT(backendFormat.isValid());
     textureInfo.fTarget = target;
     textureInfo.fFormat = GrBackendFormats::AsGLFormatEnum(backendFormat);
+    textureInfo.fProtected = skgpu::Protected(isProtectedContent);
 
     *deleteProc = delete_gl_texture;
     *updateProc = update_gl_texture;

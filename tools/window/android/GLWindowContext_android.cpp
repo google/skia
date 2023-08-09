@@ -113,7 +113,14 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
 //    SkDebugf("Vendor: %s", eglQueryString(fDisplay, EGL_VENDOR));
 //    SkDebugf("Extensions: %s", eglQueryString(fDisplay, EGL_EXTENSIONS));
 
-    fSurfaceAndroid = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, nullptr);
+    const EGLint surfaceAttribs[] = {
+        fDisplayParams.fCreateProtectedNativeBackend ? EGL_PROTECTED_CONTENT_EXT :EGL_NONE,
+        fDisplayParams.fCreateProtectedNativeBackend ? EGL_TRUE : EGL_NONE,
+        EGL_NONE
+    };
+
+    fSurfaceAndroid = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow,
+                                             surfaceAttribs);
     SkASSERT(EGL_NO_SURFACE != fSurfaceAndroid);
 
     SkAssertResult(eglMakeCurrent(fDisplay, fSurfaceAndroid, fSurfaceAndroid, fEGLContext));
