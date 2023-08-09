@@ -1055,6 +1055,7 @@ skia_filegroup(
         "spirv/WGSLLayoutInVulkanSPIRV.sksl",
         "spirv/WrongCombinedSamplerLayoutSPIRVDawnCompatMode.sksl",
         "workarounds/RewriteMatrixVectorMultiply.sksl",
+        "workarounds/VoidInSequenceExpressions.sksl",
     ],
 )
 
