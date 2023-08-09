@@ -762,3 +762,5 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, VectorConstructors,              "shared/V
 SKSL_TEST(CPU | GPU,     kApiLevel_T, VectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, VectorScalarMath,                "shared/VectorScalarMath.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      WhileLoopControlFlow,            "shared/WhileLoopControlFlow.sksl")
+
+SKSL_TEST(CPU | GPU,     kNextRelease,VoidInSequenceExpressions,       "workarounds/VoidInSequenceExpressions.sksl")

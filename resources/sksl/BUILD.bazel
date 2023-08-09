@@ -743,6 +743,8 @@ skia_filegroup(
         "workarounds/RewriteMatrixComparisons.sksl",
         "workarounds/RewriteMatrixVectorMultiply.sksl",
         "workarounds/TernaryShortCircuit.sksl",
+        "workarounds/VoidInSequenceExpressions.sksl",
+        "workarounds/VoidInSequenceExpressionsWithVoidMain.sksl",
     ],
 )
 

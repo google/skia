@@ -116,6 +116,15 @@ public:
         return sCaps;
     }
 
+    static const SkSL::ShaderCaps* CannotUseVoidInSequenceExpressions() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
+            caps->fCanUseVoidInSequenceExpressions = false;
+            return caps.release();
+        }();
+        return sCaps;
+    }
+
     static const SkSL::ShaderCaps* EmulateAbsIntFunction() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -346,6 +355,9 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " CannotUseMinAndAbsTogether")) {
                     *caps = Factory::CannotUseMinAndAbsTogether();
+                }
+                if (consume_suffix(&settingsText, " CannotUseVoidInSequenceExpressions")) {
+                    *caps = Factory::CannotUseVoidInSequenceExpressions();
                 }
                 if (consume_suffix(&settingsText, " Default")) {
                     *caps = Factory::Default();

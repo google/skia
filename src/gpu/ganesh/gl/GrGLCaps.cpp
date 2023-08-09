@@ -444,6 +444,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                 ctxInfo.glslGeneration() < SkSL::GLSLGeneration::k300es;  // introduced in GLSL ES3
     } else if (GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fRewriteSwitchStatements = version < GR_GL_VER(2, 0);  // introduced in WebGL 2
+        shaderCaps->fCanUseVoidInSequenceExpressions =
+                false;  // removed in WebGL 2, use workaround in all versions for safety
     }
 
     // Protect ourselves against tracking huge amounts of texture state.

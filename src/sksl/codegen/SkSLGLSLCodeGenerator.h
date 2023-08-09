@@ -181,6 +181,8 @@ protected:
 
     const ShaderCaps& caps() const { return *fContext.fCaps; }
 
+    bool shouldRewriteVoidTypedFunctions(const FunctionDeclaration* func) const;
+
     StringStream fExtensions;
     StringStream fGlobals;
     StringStream fExtraFunctions;
@@ -188,6 +190,8 @@ protected:
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
+
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     bool fFoundExternalSamplerDecl = false;

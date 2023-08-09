@@ -107,6 +107,7 @@ struct ShaderCaps {
     bool fBuiltinDeterminantSupport = true;
 
     // Used for specific driver bug work arounds
+    bool fCanUseVoidInSequenceExpressions = true;
     bool fCanUseMinAndAbsTogether = true;
     bool fCanUseFractForNegativeValues = true;
     bool fMustForceNegatedAtanParamToFloat = false;
