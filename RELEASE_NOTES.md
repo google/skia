@@ -2,6 +2,45 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 117
+-------------
+  * `SkGraphics::AllowJIT()` has been removed. It was previously deprecated (and did nothing).
+  * New methods are added to `SkImage`, `SkSurface`, and `skgpu::graphite::context` named
+    `asyncRescaleAndReadPixeksYUVA420`. These function identically to the existing
+    `asyncRescaleAndReadPixelsYUV420` methods but return a fourth plane containing alpha at full
+    resolution.
+  * `SkAutoGraphics` was removed. This was a helper struct that simply called `SkGraphics::Init`.
+    Any instance of `SkAutoGraphics` can be replaced with a call to `SkGraphics::Init`.
+  * `SkCanvas::flush()` has been removed. It can be replaced with:
+    ```
+        if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
+            dContext->flushAndSubmit();
+        }
+    ```
+
+    `SkCanvas::recordingContext()` and `SkCanvas::recorder()` are now const. They were implicitly const
+    but are now declared to be such.
+  * `SkCanvas::recordingContext()` and `SkCanvas::recorder()` are now const.
+    They were implicitly const but are now declared to be such.
+  * `SkMesh::MakeIndexBuffer`, `SkMesh::CopyIndexBuffer`, `SkMesh::MakeVertexBuffer`, and
+    `SkMesh::CopyVertexBuffer` have been moved to the `SkMeshes` namespace. Ganesh-specific versions
+    have been created in `include/gpu/ganesh/SkMeshGanesh.h`.
+  * SkPath now enforces an upper limit of 715 million path verbs.
+  * `SkRuntimeEffectBuilder::uniforms()`, `SkRuntimeEffectBuilder::children()`,
+    `SkRuntimeShaderBuilder::makeShader()`, `SkRuntimeColorFilterBuilder::makeColorFilter()`, and
+    `SkRuntimeBlendBuilder::makeBlender()` are now marked as const. No functional changes internally,
+    just making explicit what had been implicit.
+  * `SkRuntimeEffect::makeImage` and `SkRuntimeShaderBuilder::makeImage` have been removed.
+  * GL-specific calls have been removed from GrBackendSurface.h. Clients should use the
+    equivalents found in `include/gpu/ganesh/gl/GrGLBackendSurface.h`
+  * A new `SkTiledImageUtils` namespace (in `SkTiledImageUtils.h`) provides `DrawImage` and `DrawImageRect` methods that directly mirror `SkCanvas'` `drawImage` and `drawImageRect` calls.
+
+    The new entry points will breakup large `SkBitmap`-backed `SkImages` into tiles and draw them if they would be too large to upload to the gpu as one texture.
+
+    They will fall through to their `SkCanvas` correlates if tiling isn't needed or possible.
+
+* * *
+
 Milestone 116
 -------------
   * `SkPromiseImageTexture` has been removed from the public API, as well as
