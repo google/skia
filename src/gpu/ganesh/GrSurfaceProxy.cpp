@@ -501,6 +501,7 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 void GrSurfaceProxy::validateSurface(const GrSurface* surface) {
     SkASSERTF(surface->backendFormat() == fFormat, "%s != %s",
               surface->backendFormat().toStr().c_str(), fFormat.toStr().c_str());
+    SkASSERT(skgpu::Protected(surface->isProtected()) == this->isProtected());
 
     this->onValidateSurface(surface);
 }
