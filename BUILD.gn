@@ -1367,11 +1367,19 @@ if (skia_use_fontations) {
       "src/ports/fontations/BUILD.bazel",
       "src/ports/fontations/src/ffi.rs",
     ]
-    outputs = [ "$root_out_dir/libfontations_ffi.a" ]
+    outputs = [
+      "$root_out_dir/libfontations_ffi.a",
+      "$root_out_dir/src/ports/fontations/src/ffi.rs.h",
+    ]
     args = [
              "//src/ports/fontations:fontations_ffi",
              rebase_path("//bazel-bin/src/ports/fontations/libfontations_ffi.a",
                          root_build_dir),
+
+             # we want the header to not simply be copied into the output directory,
+             # but in the same path as the Bazel build uses.
+             rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.h",
+                         root_build_dir) + "=src/ports/fontations/src/ffi.rs.h",
            ] + bazel_args
   }
 }
@@ -1380,7 +1388,8 @@ optional("typeface_fontations") {
   public_defines = [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
   enabled = skia_use_fontations
   if (enabled) {
-    public_include_dirs = [ "bazel-bin/" ]
+    # this is where src/ports/fontations/src/ffi.rs.h was generated and exists.
+    public_include_dirs = [ "$root_out_dir" ]
   }
 
   deps = [
