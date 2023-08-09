@@ -1079,6 +1079,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLEmptyBlocksES3_GPU") // skia:13309
 	}
 
+	if b.extraConfig("Vulkan") &&
+		(b.model("Pixel2XL") || b.model("Pixel3") || b.model("Pixel4XL") || b.model("Pixel3a")) {
+		skip(ALL, "tests", ALL, "SkSLVoidInSequenceExpressions_GPU") // b/295217166
+	}
+
 	if b.matchGpu("Adreno[3456]") { // disable broken tests on Adreno 3/4/5/6xx
 		skip(ALL, "tests", ALL, "SkSLArrayCast_GPU")       // skia:12332
 		skip(ALL, "tests", ALL, "SkSLArrayComparison_GPU") // skia:12332
@@ -1177,7 +1182,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655|Xe)") {
 		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_GPU") // skia:12465
-		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu") // b/294080402
+		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu")   // b/294080402
 	}
 
 	if b.extraConfig("Dawn") {
