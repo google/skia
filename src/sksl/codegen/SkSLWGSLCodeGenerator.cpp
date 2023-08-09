@@ -3220,10 +3220,10 @@ void WGSLCodeGenerator::writeUniformsAndBuffers() {
         MemoryLayout::Standard nativeLayout;
         if (ib.var()->modifierFlags().isUniform()) {
             addressSpace = "uniform";
-            nativeLayout = MemoryLayout::Standard::kWGSLUniform;
+            nativeLayout = MemoryLayout::Standard::kWGSLUniform_Base;
         } else if (ib.var()->modifierFlags().isBuffer()) {
             addressSpace = "storage";
-            nativeLayout = MemoryLayout::Standard::kWGSLStorage;
+            nativeLayout = MemoryLayout::Standard::kWGSLStorage_Base;
             if (ib.var()->modifierFlags().isReadOnly()) {
                 accessMode = ", read";
             } else if (ib.var()->modifierFlags().isWriteOnly()) {
