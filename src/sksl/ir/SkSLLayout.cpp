@@ -28,6 +28,15 @@ std::string Layout::paddedDescription() const {
     if (fFlags & LayoutFlag::kWGSL) {
         result += separator() + "wgsl";
     }
+    if (fFlags & LayoutFlag::kRGBA8) {
+        result += separator() + "rgba8";
+    }
+    if (fFlags & LayoutFlag::kRGBA32F) {
+        result += separator() + "rgba32f";
+    }
+    if (fFlags & LayoutFlag::kR32F) {
+        result += separator() + "r32f";
+    }
     if (fLocation >= 0) {
         result += separator() + "location = " + std::to_string(fLocation);
     }
@@ -111,6 +120,9 @@ bool Layout::checkPermittedLayout(const Context& context,
         { LayoutFlag::kSPIRV,                    "spirv"},
         { LayoutFlag::kMetal,                    "metal"},
         { LayoutFlag::kWGSL,                     "wgsl"},
+        { LayoutFlag::kRGBA8,                    "rgba8"},
+        { LayoutFlag::kRGBA32F,                  "rgba32f"},
+        { LayoutFlag::kR32F,                     "r32f"},
         { LayoutFlag::kLocalSizeX,               "local_size_x"},
         { LayoutFlag::kLocalSizeY,               "local_size_y"},
         { LayoutFlag::kLocalSizeZ,               "local_size_z"},
@@ -122,6 +134,12 @@ bool Layout::checkPermittedLayout(const Context& context,
     LayoutFlags backendFlags = layoutFlags & LayoutFlag::kAllBackends;
     if (SkPopCount(backendFlags.value()) > 1) {
         context.fErrors->error(pos, "only one backend qualifier can be used");
+        success = false;
+    }
+
+    LayoutFlags pixelFormatFlags = layoutFlags & LayoutFlag::kAllPixelFormats;
+    if (SkPopCount(pixelFormatFlags.value()) > 1) {
+        context.fErrors->error(pos, "only one pixel format qualifier can be used");
         success = false;
     }
 

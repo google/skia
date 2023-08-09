@@ -44,10 +44,18 @@ enum class LayoutFlag : int {
 
     kAllBackends                = kSPIRV | kMetal | kWGSL,
 
+    // These flags indicate the pixel format; only one at most can be set.
+    // (https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Image_formats)
+    kRGBA8                      = 1 << 16,
+    kRGBA32F                    = 1 << 17,
+    kR32F                       = 1 << 18,
+
+    kAllPixelFormats            = kRGBA8 | kRGBA32F | kR32F,
+
     // The local invocation size of a compute program.
-    kLocalSizeX                 = 1 << 16,
-    kLocalSizeY                 = 1 << 17,
-    kLocalSizeZ                 = 1 << 18,
+    kLocalSizeX                 = 1 << 19,
+    kLocalSizeY                 = 1 << 20,
+    kLocalSizeZ                 = 1 << 21,
 };
 
 }  // namespace SkSL
