@@ -9,14 +9,9 @@
 
 #include "include/core/SkTextureCompressionType.h"
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/MutableTextureStateRef.h"
-
-#if defined(SK_GL)
-#include "src/gpu/ganesh/gl/GrGLDefines.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
-#endif
+#include "src/gpu/ganesh/GrBackendSurfacePriv.h"
 
 #ifdef SK_DAWN
 #include "include/gpu/dawn/GrDawnTypes.h"
@@ -36,6 +31,7 @@
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/ganesh/mtl/GrMtlCppUtil.h"
 #endif
+
 #ifdef SK_DIRECT3D
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/d3d/GrD3DResourceState.h"
@@ -47,6 +43,9 @@
 
 namespace skgpu { class MutableTextureState; }
 
+GrBackendFormat::GrBackendFormat() : fValid(false) {}
+GrBackendFormat::~GrBackendFormat() = default;
+
 GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
         : fBackend(that.fBackend)
         , fValid(that.fValid)
@@ -56,11 +55,10 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
     }
 
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            fGLFormat = that.fGLFormat;
-            break;
-#endif
+            fFormatData.reset();
+            that.fFormatData->copyTo(fFormatData);
+            break;  // fFormatData is sufficient
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             fVk = that.fVk;
@@ -96,44 +94,6 @@ GrBackendFormat& GrBackendFormat::operator=(const GrBackendFormat& that) {
     }
     return *this;
 }
-
-#ifdef SK_GL
-
-static GrTextureType gl_target_to_gr_target(GrGLenum target) {
-    switch (target) {
-        case GR_GL_TEXTURE_NONE:
-            return GrTextureType::kNone;
-        case GR_GL_TEXTURE_2D:
-            return  GrTextureType::k2D;
-        case GR_GL_TEXTURE_RECTANGLE:
-            return GrTextureType::kRectangle;
-        case GR_GL_TEXTURE_EXTERNAL:
-            return GrTextureType::kExternal;
-        default:
-            SkUNREACHABLE;
-    }
-}
-
-GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
-        : fBackend(GrBackendApi::kOpenGL)
-        , fValid(true)
-        , fGLFormat(format)
-        , fTextureType(gl_target_to_gr_target(target)) {}
-
-GrGLFormat GrBackendFormat::asGLFormat() const {
-    if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        return GrGLFormatFromGLEnum(fGLFormat);
-    }
-    return GrGLFormat::kUnknown;
-}
-
-GrGLenum GrBackendFormat::asGLFormatEnum() const {
-    if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        return fGLFormat;
-    }
-    return 0;
-}
-#endif
 
 #ifdef SK_VULKAN
 GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo,
@@ -240,10 +200,8 @@ uint32_t GrBackendFormat::channelMask() const {
         return 0;
     }
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return GrGLFormatChannels(GrGLFormatFromGLEnum(fGLFormat));
-#endif
+            return fFormatData->channelMask();
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             return skgpu::VkFormatChannels(fVk.fFormat);
@@ -273,10 +231,8 @@ GrColorFormatDesc GrBackendFormat::desc() const {
         return GrColorFormatDesc::MakeInvalid();
     }
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return GrGLFormatDesc(GrGLFormatFromGLEnum(fGLFormat));
-#endif
+            return fFormatData->desc();
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             return GrVkFormatDesc(fVk.fFormat);
@@ -378,10 +334,8 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     }
 
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return fGLFormat == that.fGLFormat;
-#endif
+            return fFormatData->equal(that.fFormatData.get());
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             return fVk.fFormat == that.fVk.fFormat &&
@@ -423,9 +377,7 @@ SkString GrBackendFormat::toStr() const {
 
     switch (fBackend) {
         case GrBackendApi::kOpenGL:
-#ifdef SK_GL
-            str.append(GrGLFormatToStr(fGLFormat));
-#endif
+            str.append(fFormatData->toString());
             break;
         case GrBackendApi::kVulkan:
 #ifdef SK_VULKAN
@@ -531,30 +483,6 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMutableState(std::move(mutableState)) {}
 #endif
 
-#ifdef SK_GL
-GrBackendTexture::GrBackendTexture(int width,
-                                   int height,
-                                   GrMipmapped mipmapped,
-                                   const GrGLTextureInfo glInfo,
-                                   sk_sp<GrGLTextureParameters> params,
-                                   std::string_view label)
-        : fIsValid(true)
-        , fWidth(width)
-        , fHeight(height)
-        , fLabel(label)
-        , fMipmapped(mipmapped)
-        , fBackend(GrBackendApi::kOpenGL)
-        , fTextureType(gl_target_to_gr_target(glInfo.fTarget))
-        , fGLInfo(glInfo, params.release()) {}
-
-sk_sp<GrGLTextureParameters> GrBackendTexture::getGLTextureParams() const {
-    if (fBackend != GrBackendApi::kOpenGL) {
-        return nullptr;
-    }
-    return fGLInfo.refParameters();
-}
-#endif
-
 #ifdef SK_METAL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -598,19 +526,6 @@ GrBackendTexture::GrBackendTexture(int width,
         , fD3DInfo(d3dInfo, state.release()) {}
 #endif
 
-#ifdef SK_GL
-GrBackendTexture::GrBackendTexture(int width,
-                                   int height,
-                                   GrMipmapped mipmapped,
-                                   const GrGLTextureInfo& glInfo,
-                                   std::string_view label)
-        : GrBackendTexture(
-                  width, height, mipmapped, glInfo, sk_make_sp<GrGLTextureParameters>(), label) {
-    // Make no assumptions about client's texture's parameters.
-    this->glTextureParametersModified();
-}
-#endif
-
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipmapped mipmapped,
@@ -630,11 +545,7 @@ GrBackendTexture::~GrBackendTexture() {
 }
 
 void GrBackendTexture::cleanup() {
-#ifdef SK_GL
-    if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        fGLInfo.cleanup();
-    }
-#endif
+    fTextureData.reset();
 #ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         fVkInfo.cleanup();
@@ -652,6 +563,10 @@ GrBackendTexture::GrBackendTexture(const GrBackendTexture& that) : fIsValid(fals
 }
 
 GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
+    if (this == &that) {
+        return *this;
+    }
+
     if (!that.isValid()) {
         this->cleanup();
         fIsValid = false;
@@ -667,11 +582,10 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     fTextureType = that.fTextureType;
 
     switch (that.fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            fGLInfo.assign(that.fGLInfo, this->isValid());
+            fTextureData.reset();
+            that.fTextureData->copyTo(fTextureData);
             break;
-#endif
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             fVkInfo.assign(that.fVkInfo, this->isValid());
@@ -766,22 +680,6 @@ sk_sp<GrD3DResourceState> GrBackendTexture::getGrD3DResourceState() const {
 }
 #endif
 
-#ifdef SK_GL
-bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
-    if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        *outInfo = fGLInfo.info();
-        return true;
-    }
-    return false;
-}
-
-void GrBackendTexture::glTextureParametersModified() {
-    if (this->isValid() && fBackend == GrBackendApi::kOpenGL) {
-        fGLInfo.parameters()->invalidate();
-    }
-}
-#endif
-
 bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
         *outInfo = fMockInfo;
@@ -798,11 +696,9 @@ bool GrBackendTexture::isProtected() const {
     if (!this->isValid()) {
         return false;
     }
-#ifdef SK_GL
     if (this->backend() == GrBackendApi::kOpenGL) {
-        return fGLInfo.isProtected();
+        return fTextureData->isProtected();
     }
-#endif
 #ifdef SK_VULKAN
     if (this->backend() == GrBackendApi::kVulkan) {
         return fVkInfo.isProtected();
@@ -823,10 +719,8 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
         return false;
     }
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return fGLInfo.info().fID == that.fGLInfo.info().fID;
-#endif
+            return fTextureData->isSameTexture(that.fTextureData.get());
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             return fVkInfo.snapImageInfo(fMutableState.get()).fImage ==
@@ -858,10 +752,8 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
         return GrBackendFormat();
     }
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return GrBackendFormat::MakeGL(fGLInfo.info().fFormat, fGLInfo.info().fTarget);
-#endif
+            return fTextureData->getBackendFormat();
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
             auto info = fVkInfo.snapImageInfo(fMutableState.get());
@@ -918,10 +810,8 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
     }
 
     switch (t0.fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return t0.fGLInfo.info() == t1.fGLInfo.info();
-#endif
+            return t0.fTextureData->equal(t1.fTextureData.get());
         case GrBackendApi::kMock:
             return t0.fMockInfo == t1.fMockInfo;
 #ifdef SK_VULKAN
@@ -949,7 +839,6 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrBackendRenderTarget::GrBackendRenderTarget() : fIsValid(false) {}
-
 
 #ifdef SK_DAWN
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
@@ -1046,21 +935,6 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fBackend(GrBackendApi::kDirect3D)
         , fD3DInfo(d3dInfo, state.release()) {}
 #endif
-#ifdef SK_GL
-GrBackendRenderTarget::GrBackendRenderTarget(int width,
-                                             int height,
-                                             int sampleCnt,
-                                             int stencilBits,
-                                             const GrGLFramebufferInfo& glInfo)
-        : fWidth(width)
-        , fHeight(height)
-        , fSampleCnt(std::max(1, sampleCnt))
-        , fStencilBits(stencilBits)
-        , fBackend(GrBackendApi::kOpenGL)
-        , fGLInfo(glInfo) {
-    fIsValid = SkToBool(glInfo.fFormat); // the glInfo must have a valid format
-}
-#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
@@ -1080,6 +954,7 @@ GrBackendRenderTarget::~GrBackendRenderTarget() {
 }
 
 void GrBackendRenderTarget::cleanup() {
+    fRTData.reset();
 #ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         fVkInfo.cleanup();
@@ -1097,6 +972,10 @@ GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTarget& that) 
 }
 
 GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTarget& that) {
+    if (this == &that) {
+        return *this;
+    }
+
     if (!that.isValid()) {
         this->cleanup();
         fIsValid = false;
@@ -1112,11 +991,12 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fBackend = that.fBackend;
 
     switch (that.fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            fGLInfo = that.fGLInfo;
+            fRTData.reset();
+            if (that.fRTData->isValid()) {
+                that.fRTData->copyTo(fRTData);
+            }
             break;
-#endif
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
             fVkInfo.assign(that.fVkInfo, this->isValid());
@@ -1211,25 +1091,13 @@ sk_sp<GrD3DResourceState> GrBackendRenderTarget::getGrD3DResourceState() const {
 }
 #endif
 
-#ifdef SK_GL
-bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) const {
-    if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
-        *outInfo = fGLInfo;
-        return true;
-    }
-    return false;
-}
-#endif
-
 GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
     if (!this->isValid()) {
         return GrBackendFormat();
     }
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return GrBackendFormat::MakeGL(fGLInfo.fFormat, GR_GL_TEXTURE_NONE);
-#endif
+            return fRTData->getBackendFormat();
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
             auto info = fVkInfo.snapImageInfo(fMutableState.get());
@@ -1283,11 +1151,9 @@ bool GrBackendRenderTarget::isProtected() const {
     if (!this->isValid()) {
         return false;
     }
-#ifdef SK_GL
     if (this->backend() == GrBackendApi::kOpenGL) {
-        return fGLInfo.isProtected();
+        return fRTData->isProtected();
     }
-#endif
 #ifdef SK_VULKAN
     if (this->backend() == GrBackendApi::kVulkan) {
         return fVkInfo.isProtected();
@@ -1316,10 +1182,8 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
     }
 
     switch (r0.fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
-            return r0.fGLInfo == r1.fGLInfo;
-#endif
+            return r0.fRTData->equal(r1.fRTData.get());
         case GrBackendApi::kMock:
             return r0.fMockInfo == r1.fMockInfo;
 #ifdef SK_VULKAN
@@ -1346,3 +1210,7 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
     return false;
 }
 #endif
+
+GrBackendFormatData::~GrBackendFormatData() {}
+GrBackendTextureData::~GrBackendTextureData() {}
+GrBackendRenderTargetData::~GrBackendRenderTargetData() {}
