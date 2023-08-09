@@ -4396,7 +4396,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // We allow the client to pass in a GrContextOption flag to say they prefer having tex storage
     // support regadless of memory usage impacts. This is important for supporting Protected
     // textures as they require tex storage support.
-    if (ctxInfo.vendor() == GrGLVendor::kARM && !contextOptions.fAlwaysUseTexStorageWhenAvailable) {
+    if (ctxInfo.vendor() == GrGLVendor::kARM &&
+        !contextOptions.fAlwaysUseTexStorageWhenAvailable &&
+        !fSupportsProtected) {
         formatWorkarounds->fDisableTexStorage = true;
     }
 #endif
