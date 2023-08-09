@@ -3,7 +3,6 @@ load(
     "exports_files_legacy",
     "skia_cc_deps",
     "skia_cc_library",
-    "skia_filegroup",
 )
 load("@rules_rust//rust:defs.bzl", "rust_static_library")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
@@ -36,20 +35,12 @@ skia_cc_library(
     ],
 )
 
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":fontations_ffi/filegroup",
-    ],
-    visibility = ["//src/ports:__pkg__"],
-)
-
 skia_cc_deps(
     name = "deps",
     visibility = ["//src/ports:__pkg__"],
     deps = [
         ":bridge_rust_side",
-        ":fontations_ffi/include",
+        ":fontations_ffi",
         ":path_bridge_include",
     ],
 )
