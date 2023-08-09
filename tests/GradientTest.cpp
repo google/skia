@@ -15,17 +15,21 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -35,11 +39,19 @@
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/shaders/SkShaderBase.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
 #include <cstdint>
 #include <cstring>
 #include <string>
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Surface.h"
+#endif
+
+struct GrContextOptions;
 
 using namespace skia_private;
 
@@ -611,6 +623,65 @@ static void test_sweep_fuzzer(skiatest::Reporter*) {
         canvas->drawPaint(paint);
     }
 }
+
+// Draw a sweep gradient in a translated canvas such that the colors in the center pixels of the
+// gradient will be evaluated at x = 0. If the implementation of the gradients calls atan2(y, x)
+// this will result in undefined behavior and likely incorrect results.
+// https://crbug.com/1468916
+void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface) {
+    // The gradient drawn has yellow for the first half and blue for the second half, using hard
+    // stops and running clockwise from (1, 0), so we should draw a rectangle with a blue top-half
+    // and yellow bottom-half.
+    constexpr float pts[4] = {0.0f, 0.5f, 0.5f, 1.0f};
+    constexpr SkColor colors[4] = {SK_ColorYELLOW, SK_ColorYELLOW, SK_ColorBLUE, SK_ColorBLUE};
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->save();
+    canvas->translate(1.5f, 1.5f);
+    SkPaint paint;
+    paint.setShader(SkGradientShader::MakeSweep(0.0f, 0.0f, colors, pts, 4));
+    canvas->drawRect(SkRect::MakeXYWH(-1.5f, -1.5f, 3.0f, 3.0f), paint);
+    canvas->restore();
+
+    // Read pixels.
+    SkBitmap bitmap;
+    SkPixmap pixmap;
+    bitmap.allocPixels(surface->imageInfo());
+    SkAssertResult(bitmap.peekPixels(&pixmap));
+    if (!surface->readPixels(pixmap, 0, 0)) {
+        ERRORF(reporter, "readPixels failed");
+        return;
+    }
+
+    // Check the results.
+    SkColor4f topColor = pixmap.getColor4f(1, 0);
+    SkColor4f bottomColor = pixmap.getColor4f(1, 2);
+    REPORTER_ASSERT(reporter, topColor == SkColors::kBlue);
+    REPORTER_ASSERT(reporter, bottomColor == SkColors::kYellow);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kNextRelease) {
+    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(3, 3),
+                                       SkColorType::kRGBA_8888_SkColorType,
+                                       SkAlphaType::kPremul_SkAlphaType);
+    GrDirectContext* context = contextInfo.directContext();
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, ii);
+    test_sweep_gradient_zero_x(reporter, surface.get());
+}
+
+#if defined(SK_GRAPHITE)
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGraphite, reporter, context) {
+    using namespace skgpu::graphite;
+    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(3, 3),
+                                       SkColorType::kRGBA_8888_SkColorType,
+                                       SkAlphaType::kPremul_SkAlphaType);
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), ii);
+    test_sweep_gradient_zero_x(reporter, surface.get());
+}
+#endif
 
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
