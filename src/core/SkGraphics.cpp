@@ -18,6 +18,7 @@
 #include "include/core/SkTime.h"
 #include "include/private/base/SkMath.h"
 #include "src/base/SkTSearch.h"
+#include "src/codec/SkSwizzler.h"
 #include "src/core/SkBitmapProcState.h"
 #include "src/core/SkBlitMask.h"
 #include "src/core/SkBlitRow.h"
@@ -40,6 +41,7 @@ void SkGraphics::Init() {
     SkOpts::Init_BitmapProcState();
     SkOpts::Init_BlitMask();
     SkOpts::Init_BlitRow();
+    SkOpts::Init_Swizzler();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

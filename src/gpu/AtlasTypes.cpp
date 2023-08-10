@@ -8,7 +8,7 @@
 #include "src/gpu/AtlasTypes.h"
 
 #include "include/private/base/SkMalloc.h"
-#include "src/core/SkOpts.h"
+#include "src/codec/SkSwizzler.h"
 
 namespace skgpu {
 
