@@ -625,8 +625,8 @@ static void test_sweep_fuzzer(skiatest::Reporter*) {
 }
 
 // Draw a sweep gradient in a translated canvas such that the colors in the center pixels of the
-// gradient will be evaluated at x = 0. If the implementation of the gradients calls atan2(y, x)
-// this will result in undefined behavior and likely incorrect results.
+// gradient will be evaluated at x = 0. The gradient implementation must not call atan2(y, x) with
+// x == 0, as this will result in undefined behavior and likely incorrect results.
 // https://crbug.com/1468916
 void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface) {
     // The gradient drawn has yellow for the first half and blue for the second half, using hard
@@ -636,10 +636,10 @@ void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface
     constexpr SkColor colors[4] = {SK_ColorYELLOW, SK_ColorYELLOW, SK_ColorBLUE, SK_ColorBLUE};
     SkCanvas* canvas = surface->getCanvas();
     canvas->save();
-    canvas->translate(1.5f, 1.5f);
+    canvas->translate(2.5f, 2.5f);
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeSweep(0.0f, 0.0f, colors, pts, 4));
-    canvas->drawRect(SkRect::MakeXYWH(-1.5f, -1.5f, 3.0f, 3.0f), paint);
+    canvas->drawRect(SkRect::MakeXYWH(-2.5f, -2.5f, 5.0f, 5.0f), paint);
     canvas->restore();
 
     // Read pixels.
@@ -653,8 +653,8 @@ void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface
     }
 
     // Check the results.
-    SkColor4f topColor = pixmap.getColor4f(1, 0);
-    SkColor4f bottomColor = pixmap.getColor4f(1, 2);
+    SkColor4f topColor = pixmap.getColor4f(2, 0);
+    SkColor4f bottomColor = pixmap.getColor4f(2, 4);
     REPORTER_ASSERT(reporter, topColor == SkColors::kBlue);
     REPORTER_ASSERT(reporter, bottomColor == SkColors::kYellow);
 }
@@ -663,7 +663,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
                                        reporter,
                                        contextInfo,
                                        CtsEnforcement::kNextRelease) {
-    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(3, 3),
+    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(5, 5),
                                        SkColorType::kRGBA_8888_SkColorType,
                                        SkAlphaType::kPremul_SkAlphaType);
     GrDirectContext* context = contextInfo.directContext();
@@ -675,7 +675,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
 // #if defined(SK_GRAPHITE)
 // DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGraphite, reporter, context) {
 //     using namespace skgpu::graphite;
-//     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(3, 3),
+//     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(5, 5),
 //                                        SkColorType::kRGBA_8888_SkColorType,
 //                                        SkAlphaType::kPremul_SkAlphaType);
 //     std::unique_ptr<Recorder> recorder = context->makeRecorder();
