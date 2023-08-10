@@ -221,7 +221,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     $BUILD_DIR/libsvg.a \
     $BUILD_DIR/libskia.a \
     $BUILTIN_FONT \
-    -sLLD_REPORT_UNDEFINED \
     -sALLOW_MEMORY_GROWTH=1 \
     -sEXPORT_NAME="InitWasmGMTests" \
     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \

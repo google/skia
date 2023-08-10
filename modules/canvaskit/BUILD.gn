@@ -159,8 +159,6 @@ skia_wasm_lib("canvaskit") {
       "-sASSERTIONS=1",
       "-sGL_ASSERTIONS=1",
       "-g3",
-      "--source-map-base",
-      "/node_modules/canvaskit/bin/",
       "--pre-js",
       rebase_path("debug.js"),
     ]
@@ -320,9 +318,7 @@ skia_wasm_lib("canvaskit") {
   ldflags += [
     "--pre-js",
     rebase_path("postamble.js"),
-    "-sLLD_REPORT_UNDEFINED",
     "-sALLOW_MEMORY_GROWTH",
-    "-sUSE_PTHREADS=0",
     "-sDISABLE_EXCEPTION_CATCHING",
     "-sNODEJS_CATCH_EXIT=0",
     "-sDYNAMIC_EXECUTION=0",

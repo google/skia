@@ -1,11 +1,11 @@
-/*
- * Add some helpers for matrices. This is ported from SkMatrix.cpp and others
- * to save complexity and overhead of going back and forth between C++ and JS layers.
- * I would have liked to use something like DOMMatrix, except it
- * isn't widely supported (would need polyfills) and it doesn't
- * have a mapPoints() function (which could maybe be tacked on here).
- * If DOMMatrix catches on, it would be worth re-considering this usage.
- */
+//
+// Add some helpers for matrices. This is ported from SkMatrix.cpp and others
+// to save complexity and overhead of going back and forth between C++ and JS layers.
+// I would have liked to use something like DOMMatrix, except it
+// isn't widely supported (would need polyfills) and it doesn't
+// have a mapPoints() function (which could maybe be tacked on here).
+// If DOMMatrix catches on, it would be worth re-considering this usage.
+//
 
 CanvasKit.Matrix = {};
 function sdot() { // to be called with an even number of scalar args

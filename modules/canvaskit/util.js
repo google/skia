@@ -1,6 +1,6 @@
-/**
- * This file houses miscellaneous helper functions and constants.
- */
+//
+// This file houses miscellaneous helper functions and constants.
+//
 
 var nullptr = 0; // emscripten doesn't like to take null as uintptr_t
 

@@ -5,8 +5,6 @@ This module defines rules for running JS tests in a browser.
 
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "ExternalNpmPackageInfo", "node_modules_aspect")
-
 # https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test")
 
@@ -25,6 +23,7 @@ def karma_test(name, config_file, srcs, static_files = None, env = None, **kwarg
 
     This draws inspiration from the karma_web_test implementation in concatjs
     https://github.com/bazelbuild/rules_nodejs/blob/700b7a3c5f97f2877320e6e699892ee706f85269/packages/concatjs/web_test/karma_web_test.bzl
+    https://github.com/bazelbuild/rules_nodejs/blob/c0b5865d7926298206e9a6aa32138967403ad1f2/packages/concatjs/web_test/karma_web_test.bzl
     but we were unable to use it because they prevented us from defining some proxies ourselves,
     which we need in order to communicate our test gms (PNG files) to a server that runs alongside
     the test. This implementation is simpler than concatjs's and does not try to work for all
@@ -58,12 +57,6 @@ def karma_test(name, config_file, srcs, static_files = None, env = None, **kwarg
     _karma_test(
         name = karma_test_name,
         srcs = srcs,
-        deps = [
-            "@npm//karma-chrome-launcher",
-            "@npm//karma-firefox-launcher",
-            "@npm//karma-jasmine",
-            "@npm//jasmine-core",
-        ],
         config_file = config_file,
         static_files = static_files,
         visibility = ["//visibility:private"],
@@ -213,13 +206,26 @@ function applyBazelSettings(cfg) {
 
 applyBazelSettings(cfg)
 
+function addPlugins(cfg) {
+    // Without listing these plugins, they will not be loaded (kjlubick suspects
+    // this has to do with karma/npm not being able to find them "globally"
+    // via some automagic process).
+    cfg.plugins = [
+      'karma-jasmine',
+      'karma-chrome-launcher',
+      'karma-firefox-launcher',
+    ];
+}
+
+addPlugins(cfg)
+
 // The user is expected to treat the BAZEL_APPLY_SETTINGS as a function name and pass in
 // the configuration as a parameter. Thus, we need to end such that our IIFE will be followed
 // by the parameter in parentheses and get passed in as cfg.
 })"""
 
 def _expand_templates_in_karma_config(ctx):
-    # Wrap the absolute paths of our files in quotes and make them comma seperated so they
+    # Wrap the absolute paths of our files in quotes and make them comma separated so they
     # can go in the Karma files list.
     srcs = ['"{}"'.format(_absolute_path(ctx, f)) for f in ctx.files.srcs]
     src_list = ", ".join(srcs)
@@ -308,31 +314,22 @@ def _karma_test_impl(ctx):
     #   - The templated configuration file
     #   - Any JS test files the user provided
     #   - Any static files the user specified
-    #   - The other dependencies from npm (e.g. jasmine-core)
     runfiles = [
         ctx.outputs.configuration,
     ]
     runfiles += ctx.files.srcs
     runfiles += ctx.files.static_files
-    runfiles += ctx.files.deps
 
-    # We need to add the sources for our Karma dependencies as transitive dependencies, otherwise
-    # things like the karma-chrome-launcher will not be available for Karma to load.
-    # https://docs.bazel.build/versions/main/skylark/lib/depset.html
-    node_modules_depsets = []
-    for dep in ctx.attr.deps:
-        if ExternalNpmPackageInfo in dep:
-            node_modules_depsets.append(dep[ExternalNpmPackageInfo].sources)
-        else:
-            fail("Not an external npm file: " + dep)
-    node_modules = depset(transitive = node_modules_depsets)
+    # Now we combine this with the files necessary to run Karma
+    # (which includes the plugins as data dependencies).
+    karma_files = ctx.attr.karma[DefaultInfo].default_runfiles
 
-    # https://docs.bazel.build/versions/main/skylark/lib/DefaultInfo.html
+    # https://bazel.build/rules/lib/builtins/ctx#runfiles
+    combined_runfiles = ctx.runfiles(files = runfiles).merge(karma_files)
+
+    # https://bazel.build/rules/lib/providers/DefaultInfo
     return [DefaultInfo(
-        runfiles = ctx.runfiles(
-            files = runfiles,
-            transitive_files = node_modules,
-        ).merge(ctx.attr.karma[DefaultInfo].data_runfiles),
+        runfiles = combined_runfiles,
         executable = ctx.outputs.executable,
     )]
 
@@ -351,17 +348,11 @@ _karma_test = rule(
             allow_files = [".js"],
             mandatory = True,
         ),
-        "deps": attr.label_list(
-            doc = """Any karma plugins (aka peer deps) required. These are generally listed
-            in the provided config_file""",
-            allow_files = True,
-            aspects = [node_modules_aspect],
-            mandatory = True,
-        ),
         "karma": attr.label(
             doc = "karma binary label",
             # By default, we use the karma pulled in via Bazel running npm install
-            default = "@npm//karma/bin:karma",
+            # that has extra data dependencies for the necessary plugins.
+            default = "//bazel/karma:karma_with_plugins",
             executable = True,
             cfg = "exec",
             allow_files = True,
