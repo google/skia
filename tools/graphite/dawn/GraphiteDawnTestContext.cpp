@@ -70,7 +70,11 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
         wgpu::FeatureName::DepthClipControl,
     };
     wgpu::DeviceDescriptor desc;
+#ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
+    desc.requiredFeatureCount = features.size();
+#else
     desc.requiredFeaturesCount = features.size();
+#endif
     desc.requiredFeatures      = features.data();
 
 #if !defined(SK_DEBUG)
@@ -78,7 +82,11 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
         std::array<const char*, 1> toggles = {
             "skip_validation",
         };
+#ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
+        deviceTogglesDesc.enabledToggleCount = toggles.size();
+#else
         deviceTogglesDesc.enabledTogglesCount = toggles.size();
+#endif
         deviceTogglesDesc.enabledToggles      = toggles.data();
         desc.nextInChain                      = &deviceTogglesDesc;
 #endif
