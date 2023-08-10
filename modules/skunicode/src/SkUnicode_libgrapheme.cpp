@@ -21,9 +21,6 @@ extern "C" {
 #include <vector>
 #include <unordered_map>
 
-#undef LEN
-#define LEN(x) (sizeof(x) / sizeof(*(x)))
-
 using namespace skia_private;
 
 #ifndef SK_UNICODE_ICU_IMPLEMENTATION
