@@ -394,6 +394,7 @@ sksl_wgsl_tests = [
   "wgsl/CastMat4x4ToMat3x4.sksl",
   "wgsl/CastMat4x4ToMat4x3.sksl",
   "wgsl/CastVec4ToMat2x2.sksl",
+  "wgsl/EntrypointIsWrittenLast.sksl",
   "wgsl/Equality.sksl",
   "wgsl/FunctionCallDependencies.sksl",
   "wgsl/GlobalUniforms.sksl",

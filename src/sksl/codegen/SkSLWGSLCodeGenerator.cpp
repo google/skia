@@ -603,9 +603,25 @@ bool WGSLCodeGenerator::generateCode() {
     }
     StringStream body;
     {
+        // Emit the program body.
         AutoOutputStream outputToBody(this, &body, &fIndentation);
+        const FunctionDefinition* mainFunc = nullptr;
         for (const ProgramElement* e : fProgram.elements()) {
             this->writeProgramElement(*e);
+
+            if (e->is<FunctionDefinition>()) {
+                const FunctionDefinition& func = e->as<FunctionDefinition>();
+                if (func.declaration().isMain()) {
+                    mainFunc = &func;
+                }
+            }
+        }
+
+        // At the bottom of the program body, emit the entrypoint function.
+        // The entrypoint relies on state that has been collected while we emitted the rest of the
+        // program, so it's important to do it last to make sure we don't miss anything.
+        if (mainFunc) {
+            this->writeEntryPoint(*mainFunc);
         }
     }
 
@@ -762,12 +778,6 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     --fIndentation;
     this->writeLine("}");
-
-    if (f.declaration().isMain()) {
-        // We just emitted the user-defined main function. Next, we generate a program entry point
-        // that calls the user-defined main.
-        this->writeEntryPoint(f);
-    }
 
     SkASSERT(fAtFunctionScope);
     fAtFunctionScope = false;
