@@ -12,10 +12,10 @@ http_archive(
     name = "emsdk",
     sha256 = "cb8cded78f6953283429d724556e89211e51ac4d871fcf38e0b32405ee248e91",
     strip_prefix = "emsdk-3.1.44/bazel",
-    urls = [
-        "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.44.tar.gz",
-        "https://storage.googleapis.com/skia-world-readable/bazel/cb8cded78f6953283429d724556e89211e51ac4d871fcf38e0b32405ee248e91.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "cb8cded78f6953283429d724556e89211e51ac4d871fcf38e0b32405ee248e91",
+        url = "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.44.tar.gz",
+    ),
 )
 
 load("@emsdk//:deps.bzl", emsdk_deps = "deps")
@@ -31,10 +31,10 @@ emsdk_emscripten_deps(emscripten_version = "3.1.44")
 http_archive(
     name = "bazel_skylib",
     sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+    ),
 )
 
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
@@ -45,10 +45,10 @@ http_archive(
     name = "bazel_toolchains",
     sha256 = "e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f",
     strip_prefix = "bazel-toolchains-5.1.1",
-    urls = [
-        "https://storage.googleapis.com/skia-world-readable/bazel/e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f.tar.gz",
-        "https://github.com/bazelbuild/bazel-toolchains/archive/refs/tags/v5.1.1.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f",
+        url = "https://github.com/bazelbuild/bazel-toolchains/archive/refs/tags/v5.1.1.tar.gz",
+    ),
 )
 
 load("@bazel_toolchains//repositories:repositories.bzl", bazel_toolchains_repositories = "repositories")
@@ -64,10 +64,10 @@ http_archive(
     name = "rules_python",
     sha256 = "5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29",
     strip_prefix = "rules_python-0.9.0",
-    urls = [
-        "https://storage.googleapis.com/skia-world-readable/bazel/5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29.tar.gz",
-        "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29",
+        url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
+    ),
 )
 
 # This sets up a hermetic python3, rather than depending on what is installed.
@@ -97,10 +97,10 @@ http_archive(
     name = "rules_jvm_external",
     sha256 = "cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca",
     strip_prefix = "rules_jvm_external-4.2",
-    urls = [
-        "https://storage.googleapis.com/skia-world-readable/bazel/cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca.zip",
-        "https://github.com/bazelbuild/rules_jvm_external/archive/4.2.zip",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca",
+        url = "https://github.com/bazelbuild/rules_jvm_external/archive/4.2.zip",
+    ),
 )
 
 load("@rules_jvm_external//:repositories.bzl", "rules_jvm_external_deps")
@@ -186,10 +186,10 @@ http_archive(
     name = "com_google_protobuf",
     sha256 = "b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576",
     strip_prefix = "protobuf-3.18.1",
-    urls = [
-        "https://storage.googleapis.com/skia-world-readable/bazel/b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576.tar.gz",
-        "https://github.com/protocolbuffers/protobuf/releases/download/v3.18.1/protobuf-all-3.18.1.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576",
+        url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.18.1/protobuf-all-3.18.1.tar.gz",
+    ),
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -217,10 +217,10 @@ npm_install(
 http_archive(
     name = "io_bazel_rules_webtesting",
     sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
-    urls = [
-        "https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz",
-        "https://storage.googleapis.com/skia-world-readable/bazel/e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "e9abb7658b6a129740c0b3ef6f5a2370864e102a5ba5ffca2cea565829ed825a",
+        url = "https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.5/rules_webtesting.tar.gz",
+    ),
 )
 
 # https://github.com/bazelbuild/rules_webtesting/blob/e9cf17123068b1123c68219edf9b274bf057b9cc/web/versioned/browsers-0.3.3.bzl
@@ -238,10 +238,10 @@ browser_repositories(
 http_archive(
     name = "rules_rust",
     sha256 = "950a3ad4166ae60c8ccd628d1a8e64396106e7f98361ebe91b0bcfe60d8e4b60",
-    urls = [
-        "https://github.com/bazelbuild/rules_rust/releases/download/0.20.0/rules_rust-v0.20.0.tar.gz",
-        "https://storage.googleapis.com/skia-world-readable/bazel/950a3ad4166ae60c8ccd628d1a8e64396106e7f98361ebe91b0bcfe60d8e4b60.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "950a3ad4166ae60c8ccd628d1a8e64396106e7f98361ebe91b0bcfe60d8e4b60",
+        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.20.0/rules_rust-v0.20.0.tar.gz",
+    ),
 )
 
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
@@ -251,12 +251,12 @@ rules_rust_dependencies()
 
 rust_register_toolchains(
     edition = "2021",
+    extra_target_triples = ["aarch64-apple-darwin"],
     versions = [
         # supported versions from https://github.com/bazelbuild/rules_rust/blob/dab425760656c449d3a0f73c490be92c240b6ef2/util/fetch_shas_VERSIONS.txt
         # The rust rules validate a toolchain by sha256 hash, as listed in https://github.com/bazelbuild/rules_rust/blob/dab425760656c449d3a0f73c490be92c240b6ef2/rust/known_shas.bzl
         "1.68.2",
     ],
-    extra_target_triples = ["aarch64-apple-darwin"],
 )
 
 # https://bazelbuild.github.io/rules_rust/crate_universe.html
@@ -274,10 +274,11 @@ http_archive(
     sha256 = "b20c2a31fb5a2e2aeebced19e35d78a974301171391b39e36d5ebb00bea2aa93",
     strip_prefix = "cxxbridge-cmd-1.0.94",
     type = "tar.gz",
-    urls = [
-        "https://crates.io/api/v1/crates/cxxbridge-cmd/1.0.94/download",
-        "https://storage.googleapis.com/skia-world-readable/bazel/b20c2a31fb5a2e2aeebced19e35d78a974301171391b39e36d5ebb00bea2aa93.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "b20c2a31fb5a2e2aeebced19e35d78a974301171391b39e36d5ebb00bea2aa93",
+        url = "https://crates.io/api/v1/crates/cxxbridge-cmd/1.0.94/download",
+        ext = ".tar.gz",
+    ),
 )
 
 load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
@@ -303,10 +304,11 @@ http_archive(
     sha256 = "f61f1b6389c3fe1c316bf8a4dccc90a38208354b330925bce1f74a6c4756eb93",
     strip_prefix = "cxx-1.0.94",
     type = "tar.gz",
-    urls = [
-        "https://crates.io/api/v1/crates/cxx/1.0.94/download",
-        "https://storage.googleapis.com/skia-world-readable/bazel/f61f1b6389c3fe1c316bf8a4dccc90a38208354b330925bce1f74a6c4756eb93.tar.gz",
-    ],
+    urls = gcs_mirror_url(
+        sha256 = "f61f1b6389c3fe1c316bf8a4dccc90a38208354b330925bce1f74a6c4756eb93",
+        url = "https://crates.io/api/v1/crates/cxx/1.0.94/download",
+        ext = ".tar.gz",
+    ),
 )
 
 # This finds all the dependencies needed to build cxx...

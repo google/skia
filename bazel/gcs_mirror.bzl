@@ -17,6 +17,7 @@ def gcs_mirror_url(url, sha256, ext = None):
 
     To mirror a new URL, please use the `gcs_mirror` utility found at
     https://skia.googlesource.com/skia/+/8ad66c2340713234df6b249e793415233337a103/bazel/gcs_mirror/gcs_mirror.go.
+    e.g. go run ./bazel/gcs_mirror/gcs_mirror.go --url https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.44.tar.gz --sha256 cb8cded78f6953283429d724556e89211e51ac4d871fcf38e0b32405ee248e91
 
     Args:
         url: URL of the mirrored resource.
