@@ -5,27 +5,6 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
-struct _skRow2 {
-    @size(16) r : vec2<f32>
-};
-struct _skMatrix22 {
-    c : array<_skRow2, 2>
-};
-fn _skMatrixUnpack22(m : _skMatrix22) -> mat2x2<f32> {
-    return mat2x2<f32>(m.c[0].r, m.c[1].r);
-}
-struct _skMatrix32 {
-    c : array<_skRow2, 3>
-};
-fn _skMatrixUnpack32(m : _skMatrix32) -> mat3x2<f32> {
-    return mat3x2<f32>(m.c[0].r, m.c[1].r, m.c[2].r);
-}
-struct _skMatrix42 {
-    c : array<_skRow2, 4>
-};
-fn _skMatrixUnpack42(m : _skMatrix42) -> mat4x2<f32> {
-    return mat4x2<f32>(m.c[0].r, m.c[1].r, m.c[2].r, m.c[3].r);
-}
 struct UniformBuffer {
   u22: _skMatrix22,
   u23: mat2x3<f32>,
@@ -60,3 +39,15 @@ fn main() -> vec4<f32> {
   _stageOut.sk_FragColor = main();
   return _stageOut;
 }
+struct _skRow2 {
+  @size(16) r : vec2<f32>
+};
+struct _skMatrix22 {
+  c : array<_skRow2, 2>
+};
+struct _skMatrix32 {
+  c : array<_skRow2, 3>
+};
+struct _skMatrix42 {
+  c : array<_skRow2, 4>
+};

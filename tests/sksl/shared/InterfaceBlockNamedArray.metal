@@ -8,6 +8,8 @@ struct Outputs {
 };
 struct testBlock {
     float x;
+    char pad0[12];
+    float2x2 m;
 } test[2];
 struct Globals {
     constant testBlock* test;
@@ -17,6 +19,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant array<testBlock,
     (void)_globals;
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = half4(half(_uniforms.test[1].x));
+    _out.sk_FragColor = half4(half(_uniforms.test[0].x), half(_uniforms.test[0].m[0].y), half2(_uniforms.test[1].m[1]));
     return _out;
 }
