@@ -571,6 +571,18 @@ cc_test_with_flags(
     deps = [":tests_base"],
 )
 
+png_codec_tests(name = "png_codec_tests")
+
+test_suite(
+    name = "cpu_gm_tests",
+    tests = [
+        "cpu_8888_test",
+        # "cpu_8888_via_picture_serialization_test",  # Fails due to differences in image.
+        "cpu_8888_via_picture_test",
+        ":png_codec_tests",
+    ],
+)
+
 cc_test_with_flags(
     name = "gpu_gles_test",
     srcs = ["BazelGMRunner.cpp"] + GPU_GMS,
@@ -588,8 +600,6 @@ cc_test_with_flags(
     },
     deps = [":tests_base"],
 )
-
-png_codec_tests(name = "png_codec_tests")
 
 [
     # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):

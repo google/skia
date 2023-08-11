@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "bazel_test_gm_lib",
+    srcs = ["bazel_test_gm.go"],
+    importpath = "go.skia.org/skia/infra/bots/task_drivers/bazel_test_gm",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//task_driver/go/lib/bazel",
+        "@org_skia_go_infra//task_driver/go/lib/os_steps",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)
+
+go_binary(
+    name = "bazel_test_gm",
+    embed = [":bazel_test_gm_lib"],
+    visibility = ["//visibility:public"],
+)

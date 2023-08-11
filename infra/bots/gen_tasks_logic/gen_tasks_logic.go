@@ -934,8 +934,8 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"NUC11TZi5":      "x86-64-avx2",
 				},
 				"AVX512": {
-					"GCE":            "x86-64-Skylake_GCE",
-					"Golo":           "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
+					"GCE":  "x86-64-Skylake_GCE",
+					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
 				},
 				"Rome": {
 					"GCE": "x86-64-AMD_Rome_GCE",
@@ -2132,6 +2132,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"skottie_tool_gpu":               {"//modules/skottie:skottie_tool_gpu", ""},
 	"tests":                          {"//tests:linux_rbe_build", ""},
 	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
+	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
 
 	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use
 	// by subsequent CI tasks.
@@ -2235,6 +2236,9 @@ func (b *jobBuilder) bazelTest() {
 	if taskdriverName == "precompiled" {
 		taskdriverName = "bazel_test_precompiled"
 	}
+	if taskdriverName == "gm" {
+		taskdriverName = "bazel_test_gm"
+	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
 		cmd := []string{"./" + taskdriverName,
@@ -2293,6 +2297,17 @@ func (b *jobBuilder) bazelTest() {
 			cmd = append(cmd,
 				"--command="+command,
 				"--command_workdir="+commandWorkDir)
+
+		case "bazel_test_gm":
+			cmd = append(cmd,
+				"--test_label="+labelAndSavedOutputDir.label,
+				"--test_config="+config,
+				"--goldctl_path=./cipd_bin_packages/goldctl",
+				"--git_commit="+specs.PLACEHOLDER_REVISION,
+				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
+				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
+				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
+			b.cipd(CIPD_PKGS_GOLDCTL)
 
 		default:
 			panic("Unsupported Bazel taskdriver " + taskdriverName)
