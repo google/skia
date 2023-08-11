@@ -318,9 +318,19 @@ public:
     emscripten::val getScalarSlot(const std::string& slotID) {
         if (auto s = fSlotMgr->getScalarSlot(SkString(slotID))) {
            return emscripten::val(*s);
-        } else {
-            return emscripten::val::null();
         }
+        return emscripten::val::null();
+    }
+
+    void getVec2Slot(const std::string& slotID, WASMPointerF32 outPtr) {
+        // [x, y, sentinel]
+        SkV3 vec3;
+        if (auto v = fSlotMgr->getVec2Slot(SkString(slotID))) {
+            vec3 = {v->x, v->y, 1};
+        } else {
+            vec3 = {0, 0, -1};
+        }
+        memcpy(reinterpret_cast<float*>(outPtr), vec3.ptr(), 3 * sizeof(float));
     }
 
     bool setColorSlot(const std::string& slotID, SkColor c) {
@@ -329,6 +339,10 @@ public:
 
     bool setScalarSlot(const std::string& slotID, float s) {
         return fSlotMgr->setScalarSlot(SkString(slotID), s);
+    }
+
+    bool setVec2Slot(const std::string& slotID, SkV2 v) {
+        return fSlotMgr->setVec2Slot(SkString(slotID), v);
     }
 
 private:
@@ -429,6 +443,12 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("_setColorSlot"    , optional_override([](ManagedAnimation& self, const std::string& key, WASMPointerF32 cPtr) {
             SkColor4f color = ptrToSkColor4f(cPtr);
             return self.setColorSlot(key, color.toSkColor());
+        }))
+        .function("_getVec2Slot"    , &ManagedAnimation::getVec2Slot)
+        .function("_setVec2Slot"    , optional_override([](ManagedAnimation& self, const std::string& key, WASMPointerF32 vPtr) {
+            float* twoFloats = reinterpret_cast<float*>(vPtr);
+            SkV2 vec2 = {twoFloats[0], twoFloats[1]};
+            return self.setVec2Slot(key, vec2);
         }))
         .function("getScalarSlot"    , &ManagedAnimation::getScalarSlot)
         .function("setScalarSlot"    , &ManagedAnimation::setScalarSlot);

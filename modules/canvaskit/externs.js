@@ -140,6 +140,8 @@ var CanvasKit = {
       getColorSlot: function() {},
       setScalarSlot: function() {},
       getScalarSlot: function() {},
+      setVec2Slot: function() {},
+      getVec2Slot: function() {},
       setTransform: function() {},
       size: function() {},
     },
@@ -149,6 +151,8 @@ var CanvasKit = {
     _setTransform: function() {},
     _setColorSlot: function() {},
     _getColorSlot: function() {},
+    _setVec2Slot: function() {},
+    _getVec2Slot: function() {},
     _size: function() {},
   },
 

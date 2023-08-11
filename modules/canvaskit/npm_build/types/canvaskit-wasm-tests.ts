@@ -769,9 +769,11 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
 
     const m = mAnim.setColorSlot('foo', CK.BLUE);  // $ExpectType boolean
     const n = mAnim.setScalarSlot('foo', 5);  // $ExpectType boolean
+    const o = mAnim.setVec2Slot('foo', [1, 2]); // $ExpectType boolean
 
-    const o = mAnim.getColorSlot('foo'); // $ExpectType Float32Array | null
-    const p = mAnim.getScalarSlot('foo'); // $ExpectType number | null
+    const p = mAnim.getColorSlot('foo'); // $ExpectType Float32Array | null
+    const q = mAnim.getScalarSlot('foo'); // $ExpectType number | null
+    const r = mAnim.getVec2Slot('foo'); // $ExpectType Float32Array | null
 }
 
 function shaderTests(CK: CanvasKit) {
