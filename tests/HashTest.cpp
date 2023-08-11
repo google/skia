@@ -53,6 +53,21 @@ DEF_TEST(HashMap, r) {
         map.set(i, 2.0*i);
     }
 
+    // Test walking the map with foreach(const K&, V)
+    map.foreach([&](const int& key, double value) {
+        REPORTER_ASSERT(r, key * 2 == value);
+    });
+
+    // Test walking the map with foreach(const K&, V*)
+    map.foreach([&](const int& key, double* value) {
+        REPORTER_ASSERT(r, key * 2 == *value);
+    });
+
+    // Test walking the map with foreach(const Pair&)
+    map.foreach([&](const THashMap<int, double>::Pair& pair) {
+        REPORTER_ASSERT(r, pair.first * 2 == pair.second);
+    });
+
     // Test walking the map with iterators, using preincrement (++iter).
     for (THashMap<int, double>::Iter iter = map.begin(); iter != map.end(); ++iter) {
         REPORTER_ASSERT(r, iter->first * 2 == (*iter).second);

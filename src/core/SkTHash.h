@@ -14,6 +14,7 @@
 #include <initializer_list>
 #include <memory>
 #include <new>
+#include <type_traits>
 #include <utility>
 
 namespace skia_private {
@@ -488,15 +489,24 @@ public:
     }
 
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.
-    template <typename Fn>  // f(K, V*) or f(const K&, V*)
+    template <typename Fn,  // f(K, V*) or f(const K&, V*)
+              std::enable_if_t<std::is_invocable_v<Fn, K, V*>>* = nullptr>
     void foreach(Fn&& fn) {
-        fTable.foreach([&fn](Pair* p){ fn(p->first, &p->second); });
+        fTable.foreach([&fn](Pair* p) { fn(p->first, &p->second); });
     }
 
     // Call fn on every key/value pair in the table.  You may not mutate anything.
-    template <typename Fn>  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
+    template <typename Fn,  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
+              std::enable_if_t<std::is_invocable_v<Fn, K, V>>* = nullptr>
     void foreach(Fn&& fn) const {
-        fTable.foreach([&fn](const Pair& p){ fn(p.first, p.second); });
+        fTable.foreach([&fn](const Pair& p) { fn(p.first, p.second); });
+    }
+
+    // Call fn on every key/value pair in the table.  You may not mutate anything.
+    template <typename Fn,  // f(Pair), or f(const Pair&)
+              std::enable_if_t<std::is_invocable_v<Fn, Pair>>* = nullptr>
+    void foreach(Fn&& fn) const {
+        fTable.foreach([&fn](const Pair& p) { fn(p); });
     }
 
     // Dereferencing an iterator gives back a key-value pair, suitable for structured binding.
