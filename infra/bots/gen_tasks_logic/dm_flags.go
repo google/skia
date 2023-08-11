@@ -1288,6 +1288,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "FilterResult")
 		// skbug:13815 - Flaky failures on ANGLE D3D9 ES2
 		skip(ALL, "tests", ALL, "SkRuntimeEffectSimple_GPU")
+		skip(ALL, "tests", ALL, "TestSweepGradientZeroXGanesh")
 	}
 
 	if b.extraConfig("Vulkan") && b.gpu("RadeonVega6") {
