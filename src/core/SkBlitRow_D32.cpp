@@ -11,7 +11,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkBlitRow.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 
 #include <cstring>
 #include <iterator>

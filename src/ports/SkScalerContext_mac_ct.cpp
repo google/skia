@@ -39,7 +39,7 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 #include "src/ports/SkScalerContext_mac_ct.h"
 #include "src/ports/SkTypeface_mac_ct.h"
 #include "src/sfnt/SkOTTableTypes.h"

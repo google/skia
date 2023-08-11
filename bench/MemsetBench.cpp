@@ -7,7 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 
 using namespace skia_private;
 

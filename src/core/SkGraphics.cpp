@@ -26,6 +26,7 @@
 #include "src/core/SkCpu.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkScalerContext.h"
@@ -41,6 +42,7 @@ void SkGraphics::Init() {
     SkOpts::Init_BitmapProcState();
     SkOpts::Init_BlitMask();
     SkOpts::Init_BlitRow();
+    SkOpts::Init_Memset();
     SkOpts::Init_Swizzler();
 }
 

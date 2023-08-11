@@ -54,7 +54,7 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

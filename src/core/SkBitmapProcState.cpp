@@ -14,8 +14,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTPin.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkMipmapAccessor.h"
-#include "src/core/SkOpts.h"
 
 #include <algorithm>
 #include <cstring>

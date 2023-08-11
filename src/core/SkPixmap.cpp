@@ -21,7 +21,7 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkReadPixelsRec.h"
 #include "src/core/SkSwizzlePriv.h"
-#include "src/opts/SkUtils_opts.h"
+#include "src/opts/SkMemset_opts.h"
 
 #include <cstring>
 #include <iterator>

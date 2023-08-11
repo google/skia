@@ -29,7 +29,7 @@
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRegionPriv.h"
 #include "src/shaders/SkShaderBase.h"

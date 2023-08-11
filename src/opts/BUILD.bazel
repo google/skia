@@ -34,11 +34,11 @@ skia_filegroup(
         "SkBitmapProcState_opts.h",
         "SkBlitMask_opts.h",
         "SkBlitRow_opts.h",
+        "SkMemset_opts.h",
         "SkOpts_RestoreTarget.h",
         "SkOpts_SetTarget.h",
         "SkRasterPipeline_opts.h",
         "SkSwizzler_opts.h",
-        "SkUtils_opts.h",
     ],
     visibility = ["//src:__pkg__"],
 )

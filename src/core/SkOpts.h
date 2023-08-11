@@ -8,7 +8,6 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
-#include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
@@ -57,9 +56,6 @@
  */
 
 struct SkRasterPipelineStage;
-namespace SkSL {
-class TraceHook;
-}
 
 #define SK_OPTS_TARGET_DEFAULT 0x00
 #define SK_OPTS_TARGET_SSSE3   0x01
@@ -71,14 +67,6 @@ namespace SkOpts {
     // Thread-safe and idempotent.
     // Called by SkGraphics::Init().
     void Init();
-
-    extern void (*memset16)(uint16_t[], uint16_t, int);
-    extern void (*memset32)(uint32_t[], uint32_t, int);
-    extern void (*memset64)(uint64_t[], uint64_t, int);
-
-    extern void (*rect_memset16)(uint16_t[], uint16_t, int, size_t, int);
-    extern void (*rect_memset32)(uint32_t[], uint32_t, int, size_t, int);
-    extern void (*rect_memset64)(uint64_t[], uint64_t, int, size_t, int);
 
     // We can't necessarily express the type of SkRasterPipeline stage functions here,
     // so we just use this void(*)(void) as a stand-in.
