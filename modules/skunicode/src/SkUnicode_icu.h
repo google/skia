@@ -63,7 +63,4 @@ struct SkICULib {
 // Platform/config specific ICU factory.
 std::unique_ptr<SkICULib> SkLoadICULib();
 
-// Get cached already loaded ICU library.
-const SkICULib* SkGetICULib();
-
 #endif // SkUnicode_icu_DEFINED

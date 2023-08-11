@@ -17,11 +17,9 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
     defines = [ "SK_UNICODE_AVAILABLE" ]
     if (skia_use_icu) {
       defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
-    }
-    if (skia_use_client_icu) {
+    } else if (skia_use_client_icu) {
       defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
-    }
-    if (skia_use_libgrapheme) {
+    } else if (skia_use_libgrapheme) {
       defines += [ "SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION" ]
     }
     if (is_component_build) {
