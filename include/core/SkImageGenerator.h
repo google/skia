@@ -60,6 +60,13 @@ public:
     }
 
     /**
+     *  Will this generator produce protected content
+     */
+    bool isProtected() const {
+        return this->onIsProtected();
+    }
+
+    /**
      *  Decode into the given pixels, a block of memory of size at
      *  least (info.fHeight - 1) * rowBytes + (info.fWidth *
      *  bytesPerPixel)
@@ -122,6 +129,7 @@ protected:
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrRecordingContext*) const { return true; }
+    virtual bool onIsProtected() const { return false; }
     virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
                                  SkYUVAPixmapInfo*) const { return false; }
     virtual bool onGetYUVAPlanes(const SkYUVAPixmaps&) { return false; }

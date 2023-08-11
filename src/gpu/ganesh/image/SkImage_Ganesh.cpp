@@ -133,6 +133,15 @@ inline GrMipmapped SkImage_Ganesh::ProxyChooser::mipmapped() const {
     return mipmapped;
 }
 
+inline skgpu::Protected SkImage_Ganesh::ProxyChooser::isProtected() const {
+    SkAutoSpinlock hold(fLock);
+    skgpu::Protected isProtected = fStableProxy->asTextureProxy()->isProtected();
+    if (fVolatileProxy) {
+        SkASSERT(fVolatileProxy->asTextureProxy()->isProtected() == isProtected);
+    }
+    return isProtected;
+}
+
 #ifdef SK_DEBUG
 inline const GrBackendFormat& SkImage_Ganesh::ProxyChooser::backendFormat() {
     SkAutoSpinlock hold(fLock);
@@ -232,6 +241,10 @@ bool SkImage_Ganesh::surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const 
 }
 
 bool SkImage_Ganesh::onHasMipmaps() const { return fChooser.mipmapped() == GrMipmapped::kYes; }
+
+bool SkImage_Ganesh::onIsProtected() const {
+    return fChooser.isProtected() == skgpu::Protected::kYes;
+}
 
 GrSemaphoresSubmitted SkImage_Ganesh::flush(GrDirectContext* dContext,
                                             const GrFlushInfo& info) const {

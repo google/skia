@@ -154,6 +154,19 @@ bool SkImage_GaneshYUVA::onHasMipmaps() const {
     return fYUVAProxies.mipmapped() == GrMipmapped::kYes;
 }
 
+bool SkImage_GaneshYUVA::onIsProtected() const {
+    skgpu::Protected isProtected = fYUVAProxies.proxy(0)->isProtected();
+
+#if defined(SK_DEBUG)
+    for (int i = 1; i < fYUVAProxies.numPlanes(); ++i) {
+        SkASSERT(isProtected == fYUVAProxies.proxy(i)->isProtected());
+    }
+#endif
+
+    return isProtected == skgpu::Protected::kYes;
+}
+
+
 size_t SkImage_GaneshYUVA::textureSize() const {
     size_t size = 0;
     for (int i = 0; i < fYUVAProxies.numPlanes(); ++i) {

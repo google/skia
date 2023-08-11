@@ -76,6 +76,10 @@ GrBackendTextureImageGenerator::~GrBackendTextureImageGenerator() {
     fRefHelper->unref();
 }
 
+bool GrBackendTextureImageGenerator::onIsProtected() const {
+    return fBackendTexture.isProtected();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* ctx) {

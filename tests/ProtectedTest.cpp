@@ -10,9 +10,11 @@
 #if defined(SK_GANESH)
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tools/gpu/ProtectedUtils.h"
 
@@ -45,6 +47,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
 
             dContext->submit(/* syncCpu= */ true);
 
+            REPORTER_ASSERT(reporter, image->isProtected() == isProtected);
             ProtectedUtils::CheckImageBEProtection(image.get(), isProtected);
         }
     }
@@ -68,6 +71,17 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
             REPORTER_ASSERT(reporter, beTex.isProtected() == isProtected);
 
             dContext->flushAndSubmit(/* syncCpu= */ true);
+
+            {
+                sk_sp<SkImage> img = SkImages::BorrowTextureFrom(dContext, beTex,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kRGBA_8888_SkColorType,
+                                                                 kPremul_SkAlphaType,
+                                                                 /* colorSpace= */ nullptr);
+
+                REPORTER_ASSERT(reporter, img->isProtected() == isProtected);
+            }
+
             if (beTex.isValid()) {
                 dContext->deleteBackendTexture(beTex);
             }

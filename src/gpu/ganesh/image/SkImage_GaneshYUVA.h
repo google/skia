@@ -57,6 +57,7 @@ public:
     // From SkImage_Base.h
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGaneshYUVA; }
     bool onHasMipmaps() const override;
+    bool onIsProtected() const override;
 
     using SkImage_GaneshBase::onMakeColorTypeAndColorSpace;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,

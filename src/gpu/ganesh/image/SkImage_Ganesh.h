@@ -50,6 +50,7 @@ struct SkRect;
 
 namespace skgpu {
 enum class Mipmapped : bool;
+enum class Protected : bool;
 }
 
 class SkImage_Ganesh final : public SkImage_GaneshBase {
@@ -72,6 +73,7 @@ public:
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGanesh; }
 
     bool onHasMipmaps() const override;
+    bool onIsProtected() const override;
 
     using SkImage_GaneshBase::onMakeColorTypeAndColorSpace;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
@@ -164,6 +166,7 @@ private:
         // Queries that should be independent of which proxy is in use.
         size_t gpuMemorySize() const SK_EXCLUDES(fLock);
         skgpu::Mipmapped mipmapped() const SK_EXCLUDES(fLock);
+        skgpu::Protected isProtected() const SK_EXCLUDES(fLock);
 #ifdef SK_DEBUG
         const GrBackendFormat& backendFormat() SK_EXCLUDES(fLock);
 #endif

@@ -45,6 +45,7 @@ protected:
         }
         return true;
     }
+    bool onIsProtected() const override;
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                          GrMipmapped mipmapped, GrImageTexGenPolicy) override;
