@@ -1887,11 +1887,13 @@ std::string WGSLCodeGenerator::assemblePartialSampleCall(std::string_view functi
     // This function returns `functionName(samplerᵗ, samplerˢ, coords` without a terminating
     // comma or close-parenthesis. This allows the caller to add more arguments as needed.
     SkASSERT(sampler.type().typeKind() == Type::TypeKind::kSampler);
-    std::string expr = std::string(functionName) + '(' +
-                       this->assembleExpression(sampler, Precedence::kSequence) +
-                       kTextureSuffix + ", " +
-                       this->assembleExpression(sampler, Precedence::kSequence) +
-                       kSamplerSuffix + ", ";
+    std::string expr = std::string(functionName) + '(';
+    expr += this->assembleExpression(sampler, Precedence::kSequence);
+    expr += kTextureSuffix;
+    expr += ", ";
+    expr += this->assembleExpression(sampler, Precedence::kSequence);
+    expr += kSamplerSuffix;
+    expr += ", ";
 
     // Compute the sample coordinates, dividing out the Z if a vec3 was provided.
     SkASSERT(coords.type().isVector());
@@ -2084,19 +2086,21 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                                                    *arguments[0],
                                                    *arguments[1]) + ')';
         }
-        case k_sampleLod_IntrinsicKind:
-            return this->assemblePartialSampleCall("textureSampleLevel",
-                                                   *arguments[0],
-                                                   *arguments[1]) + ", " +
-                   this->assembleExpression(*arguments[2], Precedence::kSequence) + ')';
-
-        case k_sampleGrad_IntrinsicKind:
-            return this->assemblePartialSampleCall("textureSampleGrad",
-                                                   *arguments[0],
-                                                   *arguments[1]) + ", " +
-                   this->assembleExpression(*arguments[2], Precedence::kSequence) + ", " +
-                   this->assembleExpression(*arguments[3], Precedence::kSequence) + ')';
-
+        case k_sampleLod_IntrinsicKind: {
+            std::string expr = this->assemblePartialSampleCall("textureSampleLevel",
+                                                               *arguments[0],
+                                                               *arguments[1]);
+            expr += ", " + this->assembleExpression(*arguments[2], Precedence::kSequence);
+            return expr + ')';
+        }
+        case k_sampleGrad_IntrinsicKind: {
+            std::string expr = this->assemblePartialSampleCall("textureSampleGrad",
+                                                               *arguments[0],
+                                                               *arguments[1]);
+            expr += ", " + this->assembleExpression(*arguments[2], Precedence::kSequence);
+            expr += ", " + this->assembleExpression(*arguments[3], Precedence::kSequence);
+            return expr + ')';
+        }
         case k_abs_IntrinsicKind:
         case k_acos_IntrinsicKind:
         case k_all_IntrinsicKind:
@@ -2295,15 +2299,16 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
             // If the argument is a sampler, we need to pass the texture _and_ its associated
             // sampler. (Function parameter lists also convert sampler parameters into a matching
             // texture/sampler parameter pair.)
-            expr += this->assembleExpression(*args[index], Precedence::kSequence) +
-                    kTextureSuffix + ", " +
-                    this->assembleExpression(*args[index], Precedence::kSequence) +
-                    kSamplerSuffix;
+            expr += this->assembleExpression(*args[index], Precedence::kSequence);
+            expr += kTextureSuffix;
+            expr += ", ";
+            expr += this->assembleExpression(*args[index], Precedence::kSequence);
+            expr += kSamplerSuffix;
         } else {
             expr += this->assembleExpression(*args[index], Precedence::kSequence);
         }
     }
-    expr.push_back(')');
+    expr += ')';
 
     if (call.type().isVoid()) {
         // Making function calls that result in `void` is only valid in on the left side of a
