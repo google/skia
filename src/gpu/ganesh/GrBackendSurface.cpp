@@ -853,20 +853,6 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
 #endif
 
 #ifdef SK_VULKAN
-static GrVkImageInfo resolve_vkii_sample_count(const GrVkImageInfo& vkII, int sidebandSampleCnt) {
-    auto result = vkII;
-    result.fSampleCount = std::max({vkII.fSampleCount,
-                                    static_cast<uint32_t>(sidebandSampleCnt),
-                                    1U});
-    return result;
-}
-
-GrBackendRenderTarget::GrBackendRenderTarget(int width,
-                                             int height,
-                                             int sampleCnt,
-                                             const GrVkImageInfo& vkInfo)
-        : GrBackendRenderTarget(width, height, resolve_vkii_sample_count(vkInfo, sampleCnt)) {}
-
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              const GrVkImageInfo& vkInfo)

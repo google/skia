@@ -373,7 +373,8 @@ bool VulkanWindowContext::createBuffers(VkFormat format,
             if (fDisplayParams.fMSAASampleCount > 1) {
                 return false;
             }
-            GrBackendRenderTarget backendRT(fWidth, fHeight, fSampleCount, info);
+            info.fSampleCount = fSampleCount;
+            GrBackendRenderTarget backendRT(fWidth, fHeight, info);
             fSurfaces[i] = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
                                                                backendRT,
                                                                kTopLeft_GrSurfaceOrigin,

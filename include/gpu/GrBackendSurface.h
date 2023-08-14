@@ -454,9 +454,6 @@ public:
 #endif
 
 #ifdef SK_VULKAN
-    /** Deprecated. Sample count is now part of GrVkImageInfo. */
-    GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
-
     GrBackendRenderTarget(int width, int height, const GrVkImageInfo& vkInfo);
 #endif
 

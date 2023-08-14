@@ -2103,7 +2103,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(SkISize dime
                                               isProtected)) {
         return {};
     }
-    return GrBackendRenderTarget(dimensions.width(), dimensions.height(), 0, info);
+    return GrBackendRenderTarget(dimensions.width(), dimensions.height(), info);
 }
 
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
