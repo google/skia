@@ -7,14 +7,17 @@ exports_files_legacy()
 skia_cc_library(
     name = "surface_manager",
     testonly = True,
-    srcs = select({
+    srcs = ["SurfaceManager.cpp"] + select({
         "//src/gpu:gl_ganesh": ["GaneshGLSurfaceManager.cpp"],
         "//src/gpu:vulkan_ganesh": ["GaneshVulkanSurfaceManager.cpp"],
         "//conditions:default": ["RasterSurfaceManager.cpp"],
     }),
     hdrs = ["SurfaceManager.h"],
     visibility = ["//gm:__pkg__"],
-    deps = ["//:skia_internal"] + select({
+    deps = [
+        "//:skia_internal",
+        "//tools:tool_utils",
+    ] + select({
         "//src/gpu:has_ganesh_backend": ["//tools/gpu:utils"],
         "//conditions:default": [],
     }),

@@ -10,6 +10,7 @@
 
 #include "include/core/SkSurface.h"
 
+#include <map>
 #include <string>
 
 // Abstract class to create and manage surfaces.
@@ -28,7 +29,18 @@ public:
     // do so may lead to blank pixmaps.
     virtual void flush() = 0;
 
+    // Returns the subset of Gold keys that are determined by the surface config. These keys
+    // pertain to color and are generated from the SkColorInfo passed to this class' constructor.
+    std::map<std::string, std::string> getGoldKeys();
+
     virtual ~SurfaceManager() = default;
+
+protected:
+    // Takes the SkColorInfo used to create the surface by the FromConfig static method.
+    SurfaceManager(SkColorInfo colorInfo) : fColorInfo(colorInfo) {}
+
+private:
+    SkColorInfo fColorInfo;
 };
 
 #endif  // SurfaceManager_DEFINED

@@ -198,6 +198,8 @@ public:
         return true;
     }
 
+    skiagm::GM::GoldCorpus getGoldCorpus() const override { return skiagm::GM::GoldCorpus::kImage; }
+
 protected:
     // Based on CodecSrc::name().
     // https://skia.googlesource.com/skia/+/ce49fc71bc7cc25244020cd3e64764a6d08e54fb/dm/DMSrcSink.cpp#828
