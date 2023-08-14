@@ -843,24 +843,22 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
     return float4(devPos.xy, devPos.z*depth, devPos.z);
 }
 
-float4 bitmap_text_vertex_fn(float2 baseCoords,
-                             // Uniforms
-                             float4x4 subRunDeviceMatrix,
-                             float4x4 deviceToLocal,
-                             float2 atlasSizeInv,
-                             // Instance Attributes
-                             float2 size,
-                             float2 uvPos,
-                             float2 xyPos,
-                             half2 indexAndFlags,
-                             float strikeToSourceScale,
-                             float depth,
-                             // Varyings
-                             out float2 textureCoords,
-                             out half texIndex,
-                             out half maskFormat,
-                             // Render Step
-                             out float2 stepLocalCoords) {
+float4 text_vertex_fn(float2 baseCoords,
+                      // Uniforms
+                      float4x4 subRunDeviceMatrix,
+                      float4x4 deviceToLocal,
+                      float2 atlasSizeInv,
+                      // Instance Attributes
+                      float2 size,
+                      float2 uvPos,
+                      float2 xyPos,
+                      float strikeToSourceScale,
+                      float depth,
+                      // Varyings
+                      out float2 textureCoords,
+                      out float2 unormTexCoords,  // used as varying in SDFText
+                      // Render Step
+                      out float2 stepLocalCoords) {
     baseCoords.xy *= float2(size);
 
     // Sub runs have a decomposed transform and are sometimes already transformed into device
@@ -874,10 +872,8 @@ float4 bitmap_text_vertex_fn(float2 baseCoords,
     // require a division + a valid z coordinate (which is currently set to 0).
     stepLocalCoords = (deviceToLocal * position).xy;
 
-    float2 unormTexCoords = baseCoords + uvPos;
+    unormTexCoords = baseCoords + uvPos;
     textureCoords = unormTexCoords * atlasSizeInv;
-    texIndex = indexAndFlags.x;
-    maskFormat = indexAndFlags.y;
 
     return float4(position.xy, depth, position.w);
 }

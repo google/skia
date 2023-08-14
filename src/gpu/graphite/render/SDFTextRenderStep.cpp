@@ -59,26 +59,21 @@ SDFTextRenderStep::SDFTextRenderStep(bool isA8)
 SDFTextRenderStep::~SDFTextRenderStep() {}
 
 std::string SDFTextRenderStep::vertexSkSL() const {
-    return
-        "float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));"
-        "baseCoords.xy *= float2(size);"
-
-        // Sub runs have a decomposed transform and are sometimes already transformed into device
-        // space, in which `subRunCoords` represents the bounds projected to device space without
-        // the local-to-device translation and `subRunDeviceMatrix` contains the translation.
-        "float2 subRunCoords = strikeToSourceScale * baseCoords + float2(xyPos);"
-        "float4 position = subRunDeviceMatrix * float4(subRunCoords, 0, 1);"
-
-        // Calculate the local coords used for shading.
-        // TODO(b/246963258): This is incorrect if the transform has perspective, which would
-        // require a division + a valid z coordinate (which is currently set to 0).
-        "stepLocalCoords = (deviceToLocal * position).xy;"
-
-        "unormTexCoords = baseCoords + float2(uvPos);"
-        "textureCoords = unormTexCoords * atlasSizeInv;"
-        "texIndex = float(indexAndFlags.x);"
-
-        "float4 devPosition = float4(position.xy, depth, position.w);";
+    // Returns the body of a vertex function, which must define a float4 devPosition variable and
+    // must write to an already-defined float2 stepLocalCoords variable.
+    return "texIndex = half(indexAndFlags.x);"
+           "float4 devPosition = text_vertex_fn(float2(sk_VertexID >> 1, sk_VertexID & 1), "
+                                               "subRunDeviceMatrix, "
+                                               "deviceToLocal, "
+                                               "atlasSizeInv, "
+                                               "float2(size), "
+                                               "float2(uvPos), "
+                                               "xyPos, "
+                                               "strikeToSourceScale, "
+                                               "depth, "
+                                               "textureCoords, "
+                                               "unormTexCoords, "
+                                               "stepLocalCoords);";
 }
 
 std::string SDFTextRenderStep::texturesAndSamplersSkSL(
@@ -94,60 +89,23 @@ std::string SDFTextRenderStep::texturesAndSamplersSkSL(
 }
 
 const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
+    // The returned SkSL must write its coverage into a 'half4 outputCoverage' variable (defined in
+    // the calling code) with the actual coverage splatted out into all four channels.
+
     // TODO: To minimize the number of shaders generated this is the full affine shader.
     // For best performance it may be worth creating the uniform scale shader as well,
     // as that's the most common case.
     // TODO: Need to add 565 support.
     // TODO: Need aliased and possibly sRGB support.
-    return
-        "half texColor;"
-        "if (texIndex == 0) {"
-           "texColor = sample(sdf_atlas_0, textureCoords).r;"
-        "} else if (texIndex == 1) {"
-           "texColor = sample(sdf_atlas_1, textureCoords).r;"
-        "} else if (texIndex == 2) {"
-           "texColor = sample(sdf_atlas_2, textureCoords).r;"
-        "} else if (texIndex == 3) {"
-           "texColor = sample(sdf_atlas_3, textureCoords).r;"
-        "} else {"
-           "texColor = sample(sdf_atlas_0, textureCoords).r;"
-        "}"
-        // The distance field is constructed as uchar8_t values, so that the zero value is at 128,
-        // and the supported range of distances is [-4 * 127/128, 4].
-        // Hence to convert to floats our multiplier (width of the range) is 4 * 255/128 = 7.96875
-        // and zero threshold is 128/255 = 0.50196078431.
-        "half dist = 7.96875*(texColor - 0.50196078431);"
-
-        // We may further adjust the distance for gamma correction.
-        "dist -= half(distAdjust);"
-
-        // After the distance is unpacked, we need to correct it by a factor dependent on the
-        // current transformation. For general transforms, to determine the amount of correction
-        // we multiply a unit vector pointing along the SDF gradient direction by the Jacobian of
-        // unormTexCoords (which is the inverse transform for this fragment) and take the length of
-        // the result.
-        "half2 dist_grad = half2(float2(dFdx(dist), dFdy(dist)));"
-            "half dg_len2 = dot(dist_grad, dist_grad);"
-
-        // The length of the gradient may be near 0, so we need to check for that. This also
-        // compensates for the Adreno, which likes to drop tiles on division by 0
-        "if (dg_len2 < 0.0001) {"
-            "dist_grad = half2(0.7071, 0.7071);"
-        "} else {"
-            "dist_grad = dist_grad*half(inversesqrt(dg_len2));"
-        "}"
-
-        // Computing the Jacobian and multiplying by the gradient.
-        "half2 Jdx = half2(dFdx(unormTexCoords));"
-        "half2 Jdy = half2(dFdy(unormTexCoords));"
-        "half2 grad = half2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,"
-                           "dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);"
-
-        // This gives us a smooth step across approximately one fragment.
-        "half afwidth = 0.65*length(grad);"
-        // TODO: handle aliased and sRGB rendering
-        "half val = smoothstep(-afwidth, afwidth, dist);"
-        "outputCoverage = half4(val);";
+    static_assert(kNumSDFAtlasTextures == 4);
+    return "outputCoverage = sdf_text_coverage_fn(sample_indexed_atlas(textureCoords, "
+                                                                      "int(texIndex), "
+                                                                      "sdf_atlas_0, "
+                                                                      "sdf_atlas_1, "
+                                                                      "sdf_atlas_2, "
+                                                                      "sdf_atlas_3).r, "
+                                                 "half(distAdjust), "
+                                                 "unormTexCoords);";
 }
 
 void SDFTextRenderStep::writeVertices(DrawWriter* dw,

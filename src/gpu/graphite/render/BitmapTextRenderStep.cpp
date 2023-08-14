@@ -60,20 +60,21 @@ BitmapTextRenderStep::~BitmapTextRenderStep() {}
 std::string BitmapTextRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
-    return "float4 devPosition = bitmap_text_vertex_fn(float2(sk_VertexID >> 1, sk_VertexID & 1), "
-                                                      "subRunDeviceMatrix, "
-                                                      "deviceToLocal, "
-                                                      "atlasSizeInv, "
-                                                      "float2(size), "
-                                                      "float2(uvPos), "
-                                                      "xyPos, "
-                                                      "half2(indexAndFlags), "
-                                                      "strikeToSourceScale, "
-                                                      "depth, "
-                                                      "textureCoords, "
-                                                      "texIndex, "
-                                                      "maskFormat, "
-                                                      "stepLocalCoords);";
+    return "texIndex = half(indexAndFlags.x);"
+           "maskFormat = half(indexAndFlags.y);"
+           "float2 unormTexCoords;"
+           "float4 devPosition = text_vertex_fn(float2(sk_VertexID >> 1, sk_VertexID & 1), "
+                                               "subRunDeviceMatrix, "
+                                               "deviceToLocal, "
+                                               "atlasSizeInv, "
+                                               "float2(size), "
+                                               "float2(uvPos), "
+                                               "xyPos, "
+                                               "strikeToSourceScale, "
+                                               "depth, "
+                                               "textureCoords, "
+                                               "unormTexCoords, "
+                                               "stepLocalCoords);";
 }
 
 std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
