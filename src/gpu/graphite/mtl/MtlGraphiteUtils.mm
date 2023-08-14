@@ -71,15 +71,15 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
     MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
 
     // Framebuffer fetch is supported in MSL 2.3 in MacOS 11+.
-    if (@available(macOS 11.0, iOS 14.0, *)) {
+    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         options.languageVersion = MTLLanguageVersion2_3;
 
     // array<> is supported in MSL 2.0 on MacOS 10.13+ and iOS 11+,
     // and in MSL 1.2 on iOS 10+ (but not MacOS).
-    } else if (@available(macOS 10.13, iOS 11.0, *)) {
+    } else if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         options.languageVersion = MTLLanguageVersion2_0;
 #if defined(SK_BUILD_FOR_IOS)
-    } else if (@available(macOS 10.12, iOS 10.0, *)) {
+    } else if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
         options.languageVersion = MTLLanguageVersion1_2;
 #endif
     }

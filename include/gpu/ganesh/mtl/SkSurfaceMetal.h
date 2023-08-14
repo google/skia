@@ -67,7 +67,7 @@ SK_API sk_sp<SkSurface> WrapMTKView(GrRecordingContext* context,
                                     SkColorType colorType,
                                     sk_sp<SkColorSpace> colorSpace,
                                     const SkSurfaceProps* surfaceProps)
-        SK_API_AVAILABLE(macos(10.11), ios(9.0));
+        SK_API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0));
 }  // namespace SkSurfaces
 
 #endif

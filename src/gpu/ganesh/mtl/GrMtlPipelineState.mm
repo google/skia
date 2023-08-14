@@ -181,7 +181,7 @@ void GrMtlPipelineState::setDepthStencilState(GrMtlRenderCommandEncoder* renderC
             fGpu->resourceProvider().findOrCreateCompatibleDepthStencilState(fStencil, origin);
     if (!fStencil.isDisabled()) {
         if (fStencil.isTwoSided()) {
-            if (@available(macOS 10.11, iOS 9.0, *)) {
+            if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
                 renderCmdEncoder->setStencilFrontBackReferenceValues(
                         fStencil.postOriginCCWFace(origin).fRef,
                         fStencil.postOriginCWFace(origin).fRef);

@@ -81,13 +81,13 @@ public:
     void callFinishedCallbacks() { fFinishedCallbacks.clear(); }
 
     void pushDebugGroup(NSString* string) {
-        if (@available(macOS 10.13, iOS 11.0, *)) {
+        if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
             [fCmdBuffer pushDebugGroup:string];
         }
     }
 
     void popDebugGroup() {
-        if (@available(macOS 10.13, iOS 11.0, *)) {
+        if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
             [fCmdBuffer popDebugGroup];
         }
     }

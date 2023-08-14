@@ -39,7 +39,7 @@ void GraphiteMetalWindowContext::initializeContext() {
     fQueue.reset([*fDevice newCommandQueue]);
 
     if (fDisplayParams.fMSAASampleCount > 1) {
-        if (@available(macOS 10.11, iOS 9.0, *)) {
+        if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
             if (![*fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
                 return;
             }

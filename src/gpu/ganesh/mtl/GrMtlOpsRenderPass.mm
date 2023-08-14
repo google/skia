@@ -406,7 +406,7 @@ void GrMtlOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, in
 #endif
     this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         fActiveRenderCmdEncoder->drawPrimitives(fActivePrimitiveType, baseVertex, vertexCount,
                                                 instanceCount, baseInstance);
     } else {
@@ -435,7 +435,7 @@ void GrMtlOpsRenderPass::onDrawIndexedInstanced(
 
     auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
     size_t indexOffset = sizeof(uint16_t) * baseIndex;
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType, indexCount,
                                                        MTLIndexTypeUInt16,
                                                        mtlIndexBuffer->mtlBuffer(), indexOffset,
@@ -468,7 +468,7 @@ void GrMtlOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer,
     auto mtlIndirectBuffer = static_cast<const GrMtlBuffer*>(drawIndirectBuffer);
     const size_t stride = sizeof(GrDrawIndirectCommand);
     while (drawCount >= 1) {
-        if (@available(macOS 10.11, iOS 9.0, *)) {
+        if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
             fActiveRenderCmdEncoder->drawPrimitives(fActivePrimitiveType,
                                                     mtlIndirectBuffer->mtlBuffer(), bufferOffset);
         } else {
@@ -506,7 +506,7 @@ void GrMtlOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffe
 
     const size_t stride = sizeof(GrDrawIndexedIndirectCommand);
     while (drawCount >= 1) {
-        if (@available(macOS 10.11, iOS 9.0, *)) {
+        if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
             fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType,
                                                            MTLIndexTypeUInt16,
                                                            mtlIndexBuffer->mtlBuffer(),

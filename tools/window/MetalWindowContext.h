@@ -53,7 +53,7 @@ protected:
     GrMTLHandle                 fDrawableHandle;
 #if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
     // wrapping this in sk_cfp throws up an availability warning, so we'll track lifetime manually
-    id<MTLBinaryArchive>        fPipelineArchive SK_API_AVAILABLE(macos(11.0), ios(14.0));
+    id<MTLBinaryArchive>        fPipelineArchive SK_API_AVAILABLE(macos(11.0),ios(14.0),tvos(14.0));
 #endif
 };
 

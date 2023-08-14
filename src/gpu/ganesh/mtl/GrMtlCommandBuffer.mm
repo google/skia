@@ -29,7 +29,7 @@ sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
 #endif
     id<MTLCommandBuffer> mtlCommandBuffer;
 #if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, *)) {
+    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         MTLCommandBufferDescriptor* desc = [[MTLCommandBufferDescriptor alloc] init];
         desc.errorOptions = MTLCommandBufferErrorOptionEncoderExecutionStatus;
         mtlCommandBuffer = [queue commandBufferWithDescriptor:desc];
@@ -245,7 +245,7 @@ void GrMtlCommandBuffer::endAllEncoding() {
 void GrMtlCommandBuffer::encodeSignalEvent(sk_sp<GrMtlEvent> event, uint64_t eventValue) {
     SkASSERT(fCmdBuffer);
     this->endAllEncoding(); // ensure we don't have any active command encoders
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         [fCmdBuffer encodeSignalEvent:event->mtlEvent() value:eventValue];
         this->addResource(std::move(event));
     }
@@ -256,7 +256,7 @@ void GrMtlCommandBuffer::encodeWaitForEvent(sk_sp<GrMtlEvent> event, uint64_t ev
     SkASSERT(fCmdBuffer);
     this->endAllEncoding(); // ensure we don't have any active command encoders
                             // TODO: not sure if needed but probably
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         [fCmdBuffer encodeWaitForEvent:event->mtlEvent() value:eventValue];
         this->addResource(std::move(event));
     }
