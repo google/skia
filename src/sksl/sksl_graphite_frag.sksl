@@ -1110,6 +1110,34 @@ $pure half4 sk_gaussian_colorfilter(half4 inColor) {
     return half4(factor);
 }
 
+$pure half4 sample_indexed_atlas(float2 textureCoords,
+                                 int atlasIndex,
+                                 sampler2D atlas0,
+                                 sampler2D atlas1,
+                                 sampler2D atlas2,
+                                 sampler2D atlas3) {
+    switch (atlasIndex) {
+        case 1:
+            return sample(atlas1, textureCoords);
+        case 2:
+            return sample(atlas2, textureCoords);
+        case 3:
+            return sample(atlas3, textureCoords);
+        default:
+            return sample(atlas0, textureCoords);
+    }
+}
+
+$pure half4 bitmap_text_coverage_fn(half4 texColor, int maskFormat) {
+    switch (maskFormat) {
+        case 0:  // A8
+            return texColor.rrrr;
+        case 1:  // LCD
+            return half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));
+        default:
+            return texColor;
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Support functions for analytic round rectangles
