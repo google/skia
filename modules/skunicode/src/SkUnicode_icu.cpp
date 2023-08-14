@@ -31,7 +31,7 @@
 
 using namespace skia_private;
 
-static const SkICULib* ICULib() {
+const SkICULib* SkGetICULib() {
     static const auto gICU = SkLoadICULib();
 
     return gICU.get();
@@ -41,47 +41,14 @@ static const SkICULib* ICULib() {
 #define SKICU_FUNC(funcname)                                                                \
     template <typename... Args>                                                             \
     auto sk_##funcname(Args&&... args) -> decltype(funcname(std::forward<Args>(args)...)) { \
-        return ICULib()->f_##funcname(std::forward<Args>(args)...);                         \
+        return SkGetICULib()->f_##funcname(std::forward<Args>(args)...);                    \
     }                                                                                       \
 
 SKICU_EMIT_FUNCS
 #undef SKICU_FUNC
 
-const char* SkUnicode_IcuBidi::errorName(UErrorCode status) {
-    return sk_u_errorName(status);
-}
-
-void SkUnicode_IcuBidi::bidi_close(UBiDi* bidi) {
-    sk_ubidi_close(bidi);
-}
-UBiDiDirection SkUnicode_IcuBidi::bidi_getDirection(const UBiDi* bidi) {
-    return sk_ubidi_getDirection(bidi);
-}
-SkBidiIterator::Position SkUnicode_IcuBidi::bidi_getLength(const UBiDi* bidi) {
-    return sk_ubidi_getLength(bidi);
-}
-SkBidiIterator::Level SkUnicode_IcuBidi::bidi_getLevelAt(const UBiDi* bidi, int pos) {
-    return sk_ubidi_getLevelAt(bidi, pos);
-}
-UBiDi* SkUnicode_IcuBidi::bidi_openSized(int32_t maxLength, int32_t maxRunCount, UErrorCode* pErrorCode) {
-    return sk_ubidi_openSized(maxLength, maxRunCount, pErrorCode);
-}
-void SkUnicode_IcuBidi::bidi_setPara(UBiDi* bidi,
-                         const UChar* text,
-                         int32_t length,
-                         UBiDiLevel paraLevel,
-                         UBiDiLevel* embeddingLevels,
-                         UErrorCode* status) {
-    return sk_ubidi_setPara(bidi, text, length, paraLevel, embeddingLevels, status);
-}
-void SkUnicode_IcuBidi::bidi_reorderVisual(const SkUnicode::BidiLevel runLevels[],
-                               int levelsCount,
-                               int32_t logicalFromVisual[]) {
-    sk_ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
-}
-
 static inline UBreakIterator* sk_ubrk_clone(const UBreakIterator* bi, UErrorCode* status) {
-    const auto* icu = ICULib();
+    const auto* icu = SkGetICULib();
     SkASSERT(icu->f_ubrk_clone_ || icu->f_ubrk_safeClone_);
     return icu->f_ubrk_clone_
         ? icu->f_ubrk_clone_(bi, status)
@@ -327,12 +294,12 @@ public:
     ~SkUnicode_icu() override { }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
                                                      SkBidiIterator::Direction dir) override {
-        return SkUnicode::makeBidiIterator(text, count, dir);
+        return SkUnicode_IcuBidi::MakeIterator(text, count, dir);
     }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const char text[],
                                                      int count,
                                                      SkBidiIterator::Direction dir) override {
-        return SkUnicode::makeBidiIterator(text, count, dir);
+        return SkUnicode_IcuBidi::MakeIterator(text, count, dir);
     }
     std::unique_ptr<SkBreakIterator> makeBreakIterator(const char locale[],
                                                        BreakType breakType) override {
@@ -375,7 +342,7 @@ public:
                         int utf8Units,
                         TextDirection dir,
                         std::vector<BidiRegion>* results) override {
-        return SkUnicode::extractBidi(utf8, utf8Units, dir, results);
+        return SkUnicode_IcuBidi::ExtractBidi(utf8, utf8Units, dir, results);
     }
 
     bool getWords(const char utf8[], int utf8Units, const char* locale, std::vector<Position>* results) override {
@@ -504,7 +471,7 @@ std::unique_ptr<SkUnicode> SkUnicode::MakeIcuBasedUnicode() {
     }
     #endif
 
-    return ICULib()
+    return SkGetICULib()
         ? std::make_unique<SkUnicode_icu>()
         : nullptr;
 }
