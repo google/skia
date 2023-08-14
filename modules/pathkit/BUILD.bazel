@@ -110,4 +110,7 @@ wasm_cc_binary(
     # Whatever is before the dot will be the name of the output js and wasm, aka "the stem".
     # https://github.com/emscripten-core/emsdk/blob/4a48a752e6a8bef6f222622f2b4926d5eb3bdeb3/bazel/emscripten_toolchain/wasm_cc_binary.bzl#L179
     cc_target = ":pathkit.build",
+    visibility = [
+        "//infra/jsfiddle:__pkg__",
+    ],
 )
