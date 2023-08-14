@@ -1405,6 +1405,8 @@ optional("typeface_fontations") {
     "src/ports/SkTypeface_fontations.cpp",
     "src/ports/SkTypeface_fontations_priv.h",
   ]
+
+  sources_for_tests = [ "tests/FontationsTest.cpp" ]
 }
 
 optional("webp_decode") {
@@ -2327,6 +2329,7 @@ if (skia_enable_tools) {
       ":skia",
       ":test",
       ":tool_utils",
+      ":typeface_fontations_tests",
       "experimental/sktext:tests",
       "modules/bentleyottmann:tests",
       "modules/skottie:tests",
