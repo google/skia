@@ -10,6 +10,15 @@ layout(set=0, binding=1) uniform UniformBuffer {
     float4x2 u42;
     float4x3 u43;
     float4x4 u44;
+    float2x2 au22[3];
+    float2x3 au23[3];
+    float2x4 au24[3];
+    float3x2 au32[3];
+    float3x3 au33[3];
+    float3x4 au34[3];
+    float4x2 au42[3];
+    float4x3 au43[3];
+    float4x4 au44[3];
 };
 
 layout(set=0, binding=2) buffer StorageBuffer {
@@ -22,8 +31,53 @@ layout(set=0, binding=2) buffer StorageBuffer {
     float4x2 s42;
     float4x3 s43;
     float4x4 s44;
+    float2x2 as22[3];
+    float2x3 as23[3];
+    float2x4 as24[3];
+    float3x2 as32[3];
+    float3x3 as33[3];
+    float3x4 as34[3];
+    float4x2 as42[3];
+    float4x3 as43[3];
+    float4x4 as44[3];
 };
 
 half4 main() {
-    return half4(0);
+    float value = u22[0][0] +
+                  u23[0][0] +
+                  u24[0][0] +
+                  u32[0][0] +
+                  u33[0][0] +
+                  u34[0][0] +
+                  u42[0][0] +
+                  u43[0][0] +
+                 au44[0][0][0] +
+                 au22[0][0][0] +
+                 au23[0][0][0] +
+                 au24[0][0][0] +
+                 au32[0][0][0] +
+                 au33[0][0][0] +
+                 au34[0][0][0] +
+                 au42[0][0][0] +
+                 au43[0][0][0] +
+                 au44[0][0][0] +
+                  s22[0][0] +
+                  s23[0][0] +
+                  s24[0][0] +
+                  s32[0][0] +
+                  s33[0][0] +
+                  s34[0][0] +
+                  s42[0][0] +
+                  s43[0][0] +
+                 as44[0][0][0] +
+                 as22[0][0][0] +
+                 as23[0][0][0] +
+                 as24[0][0][0] +
+                 as32[0][0][0] +
+                 as33[0][0][0] +
+                 as34[0][0][0] +
+                 as42[0][0][0] +
+                 as43[0][0][0] +
+                 as44[0][0][0];
+    return half4(value);
 }

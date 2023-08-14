@@ -1,0 +1,59 @@
+// Our buffers are in std140 layout, so the generated code will need to compensate.
+
+layout(set=0, binding=1) uniform UniformBuffer {
+    float     uf[3];
+    float2    uf2[3];
+    float3    uf3[3];
+    float4    uf4[3];
+    half      uh[3];
+    half2     uh2[3];
+    half3     uh3[3];
+    half4     uh4[3];
+    int       ui[3];
+    int2      ui2[3];
+    int3      ui3[3];
+    int4      ui4[3];
+};
+
+layout(set=0, binding=2) buffer StorageBuffer {
+    float     sf[4];
+    float2    sf2[4];
+    float3    sf3[4];
+    float4    sf4[4];
+    half      sh[4];
+    half2     sh2[4];
+    half3     sh3[4];
+    half4     sh4[4];
+    int       si[4];
+    int2      si2[4];
+    int3      si3[4];
+    int4      si4[4];
+};
+
+half4 main() {
+    float value = float(uf [1]  ) +
+                  float(uf2[1].x) +
+                  float(uf3[1].x) +
+                  float(uf4[1].x) +
+                  float(uh [1]  ) +
+                  float(uh2[1].x) +
+                  float(uh3[1].x) +
+                  float(uh4[1].x) +
+                  float(ui [1]  ) +
+                  float(ui2[1].x) +
+                  float(ui3[1].x) +
+                  float(ui4[1].x) +
+                  float(sf [1]  ) +
+                  float(sf2[1].x) +
+                  float(sf3[1].x) +
+                  float(sf4[1].x) +
+                  float(sh [1]  ) +
+                  float(sh2[1].x) +
+                  float(sh3[1].x) +
+                  float(sh4[1].x) +
+                  float(si [1]  ) +
+                  float(si2[1].x) +
+                  float(si3[1].x) +
+                  float(si4[1].x);
+    return half4(value);
+}

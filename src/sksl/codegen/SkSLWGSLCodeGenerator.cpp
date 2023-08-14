@@ -635,61 +635,89 @@ bool WGSLCodeGenerator::generateCode() {
 
 void WGSLCodeGenerator::writeUniformPolyfills() {
     // If we didn't encounter any uniforms that need polyfilling, there is nothing to do.
-    if (fMatrixPolyfillFields.empty()) {
+    if (fFieldPolyfillMap.empty()) {
         return;
     }
 
     // We store the list of polyfilled fields as pointers in a hash-map, so the order can be
     // inconsistent across runs. For determinism, we sort the polyfilled objects by name here.
-    TArray<const MatrixPolyfillFieldMap::Pair*> matrixPolyfillOrderedFields;
-    matrixPolyfillOrderedFields.reserve_exact(fMatrixPolyfillFields.count());
+    TArray<const FieldPolyfillMap::Pair*> orderedFields;
+    orderedFields.reserve_exact(fFieldPolyfillMap.count());
 
-    fMatrixPolyfillFields.foreach([&](const MatrixPolyfillFieldMap::Pair& pair) {
-        matrixPolyfillOrderedFields.push_back(&pair);
+    fFieldPolyfillMap.foreach([&](const FieldPolyfillMap::Pair& pair) {
+        orderedFields.push_back(&pair);
     });
 
-    std::sort(matrixPolyfillOrderedFields.begin(),
-              matrixPolyfillOrderedFields.end(),
-              [](const MatrixPolyfillFieldMap::Pair* a, const MatrixPolyfillFieldMap::Pair* b) {
+    std::sort(orderedFields.begin(),
+              orderedFields.end(),
+              [](const FieldPolyfillMap::Pair* a, const FieldPolyfillMap::Pair* b) {
                   return a->second.fReplacementName < b->second.fReplacementName;
               });
 
+    THashSet<const Type*> writtenArrayElementPolyfill;
     bool writtenUniformMatrixPolyfill[5][5] = {};  // m[column][row] for each matrix type
     bool writtenUniformRowPolyfill[5] = {};        // for each matrix row-size
     bool anyFieldAccessed = false;
-    for (const MatrixPolyfillFieldMap::Pair* pair : matrixPolyfillOrderedFields) {
-        // Create structs representing the matrix as an array of vectors, whether or not the matrix
-        // is ever accessed by the SkSL. (The struct itself is mentioned in the list of uniforms.)
+    for (const FieldPolyfillMap::Pair* pair : orderedFields) {
         const auto& [field, info] = *pair;
-        int c = field->fType->columns();
-        int r = field->fType->rows();
-        if (!writtenUniformRowPolyfill[r]) {
-            writtenUniformRowPolyfill[r] = true;
+        const Type* type = field->fType;
 
-            this->write("struct _skRow");
-            this->write(std::to_string(r));
-            this->writeLine(" {");
-            this->write("  @size(16) r : vec");
-            this->write(std::to_string(r));
-            this->write("<");
-            this->write(to_wgsl_type(field->fType->componentType()));
-            this->writeLine(">");
-            this->writeLine("};");
+        if (info.fIsArray) {
+            type = &type->componentType();
+            if (!writtenArrayElementPolyfill.contains(type)) {
+                writtenArrayElementPolyfill.add(type);
+                this->write("struct _skArrayElement_");
+                this->write(type->abbreviatedName());
+                this->writeLine(" {");
+
+                if (info.fIsMatrix) {
+                    // Create a struct representing the array containing std140-padded matrices.
+                    this->write("  e : _skMatrix");
+                    this->write(std::to_string(type->columns()));
+                    this->writeLine(std::to_string(type->rows()));
+                } else {
+                    // Create a struct representing the array with extra padding between elements.
+                    this->write("  @size(16) e : ");
+                    this->writeLine(to_wgsl_type(*type));
+                }
+                this->writeLine("};");
+            }
         }
 
-        if (!writtenUniformMatrixPolyfill[c][r]) {
-            writtenUniformMatrixPolyfill[c][r] = true;
+        if (info.fIsMatrix) {
+            // Create structs representing the matrix as an array of vectors, whether or not the
+            // matrix is ever accessed by the SkSL. (The struct itself is mentioned in the list of
+            // uniforms.)
+            int c = type->columns();
+            int r = type->rows();
+            if (!writtenUniformRowPolyfill[r]) {
+                writtenUniformRowPolyfill[r] = true;
 
-            this->write("struct _skMatrix");
-            this->write(std::to_string(c));
-            this->write(std::to_string(r));
-            this->writeLine(" {");
-            this->write("  c : array<_skRow");
-            this->write(std::to_string(r));
-            this->write(", ");
-            this->write(std::to_string(c));
-            this->writeLine(">");
-            this->writeLine("};");
+                this->write("struct _skRow");
+                this->write(std::to_string(r));
+                this->writeLine(" {");
+                this->write("  @size(16) r : vec");
+                this->write(std::to_string(r));
+                this->write("<");
+                this->write(to_wgsl_type(type->componentType()));
+                this->writeLine(">");
+                this->writeLine("};");
+            }
+
+            if (!writtenUniformMatrixPolyfill[c][r]) {
+                writtenUniformMatrixPolyfill[c][r] = true;
+
+                this->write("struct _skMatrix");
+                this->write(std::to_string(c));
+                this->write(std::to_string(r));
+                this->writeLine(" {");
+                this->write("  c : array<_skRow");
+                this->write(std::to_string(r));
+                this->write(", ");
+                this->write(std::to_string(c));
+                this->writeLine(">");
+                this->writeLine("};");
+            }
         }
 
         // We create a polyfill variable only if the uniform was actually accessed.
@@ -723,7 +751,7 @@ void WGSLCodeGenerator::writeUniformPolyfills() {
     this->writeLine("fn _skInitializePolyfilledUniforms() {");
     ++fIndentation;
 
-    for (const MatrixPolyfillFieldMap::Pair* pair : matrixPolyfillOrderedFields) {
+    for (const FieldPolyfillMap::Pair* pair : orderedFields) {
         // Only initialize a polyfill global if the uniform was actually accessed.
         const auto& [field, info] = *pair;
         if (!info.fWasAccessed) {
@@ -739,34 +767,69 @@ void WGSLCodeGenerator::writeUniformPolyfills() {
 
         // Initialize the global variable associated with this uniform.
         // If the interface block is arrayed, the associated global will be arrayed as well.
-        int numElements = interfaceBlockType.isArray() ? interfaceBlockType.columns() : 1;
-        for (int arrayIdx = 0; arrayIdx < numElements; ++arrayIdx) {
+        int numIBElements = interfaceBlockType.isArray() ? interfaceBlockType.columns() : 1;
+        for (int ibIdx = 0; ibIdx < numIBElements; ++ibIdx) {
             this->write(info.fReplacementName);
             if (interfaceBlockType.isArray()) {
                 this->write("[");
-                this->write(std::to_string(arrayIdx));
+                this->write(std::to_string(ibIdx));
                 this->write("]");
             }
             this->write(" = ");
-            this->write(to_wgsl_type(*field->fType));
-            this->write("(");
-            auto separator = String::Separator();
-            int numColumns = field->fType->columns();
-            for (int column = 0; column < numColumns; column++) {
-                this->write(separator());
-                this->write(instanceName);
-                if (interfaceBlockType.isArray()) {
-                    this->write("[");
-                    this->write(std::to_string(arrayIdx));
-                    this->write("]");
-                }
-                this->write(".");
-                this->write(this->assembleName(field->fName));
-                this->write(".c[");
-                this->write(std::to_string(column));
-                this->write("].r");
+
+            const Type* type = field->fType;
+            int numArrayElements;
+            if (info.fIsArray) {
+                this->write(to_wgsl_type(*type));
+                this->write("(");
+                numArrayElements = type->columns();
+                type = &type->componentType();
+            }  else{
+                numArrayElements = 1;
             }
-            this->writeLine(");");
+
+            auto arraySeparator = String::Separator();
+            for (int arrayIdx = 0; arrayIdx < numArrayElements; arrayIdx++) {
+                this->write(arraySeparator());
+
+                std::string fieldName{instanceName};
+                if (interfaceBlockType.isArray()) {
+                    fieldName += '[';
+                    fieldName += std::to_string(ibIdx);
+                    fieldName += ']';
+                }
+                fieldName += '.';
+                fieldName += this->assembleName(field->fName);
+
+                if (info.fIsArray) {
+                    fieldName += '[';
+                    fieldName += std::to_string(arrayIdx);
+                    fieldName += "].e";
+                }
+
+                if (info.fIsMatrix) {
+                    this->write(to_wgsl_type(*type));
+                    this->write("(");
+                    int numColumns = type->columns();
+                    auto matrixSeparator = String::Separator();
+                    for (int column = 0; column < numColumns; column++) {
+                        this->write(matrixSeparator());
+                        this->write(fieldName);
+                        this->write(".c[");
+                        this->write(std::to_string(column));
+                        this->write("].r");
+                    }
+                    this->write(")");
+                } else {
+                    this->write(fieldName);
+                }
+            }
+
+            if (info.fIsArray) {
+                this->write(")");
+            }
+
+            this->writeLine(";");
         }
     }
 
@@ -1021,7 +1084,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
 
     // Initialize polyfilled matrix uniforms if any were used.
     fIndentation++;
-    for (const auto& [field, info] : fMatrixPolyfillFields) {
+    for (const auto& [field, info] : fFieldPolyfillMap) {
         if (info.fWasAccessed) {
             this->writeLine("_skInitializePolyfilledUniforms();");
             break;
@@ -1890,15 +1953,15 @@ std::string WGSLCodeGenerator::assembleFieldAccess(const FieldAccess& f) {
     const Field* field = &f.base()->type().fields()[f.fieldIndex()];
     std::string expr;
 
-    if (MatrixPolyfillInfo* polyfillInfo = fMatrixPolyfillFields.find(field)) {
+    if (FieldPolyfillInfo* polyfillInfo = fFieldPolyfillMap.find(field)) {
         // We found a matrix uniform. We are required to pass some matrix uniforms as array vectors,
         // since the std140 layout for a matrix assumes 4-column vectors for each row, and WGSL
         // tightly packs 2-column matrices. When emitting code, we replace the field-access
         // expression with a global variable which holds an unpacked version of the uniform.
         polyfillInfo->fWasAccessed = true;
 
-        // The matrix polyfill can either be based directly onto a uniform in an interface block, or
-        // it might be based on an index-expression onto a uniform if the block is arrayed.
+        // The polyfill can either be based directly onto a uniform in an interface block, or it
+        // might be based on an index-expression onto a uniform if the interface block is arrayed.
         const Expression* base = f.base().get();
         const IndexExpression* indexExpr = nullptr;
         if (base->is<IndexExpression>()) {
@@ -3186,10 +3249,22 @@ void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields, const MemoryLayo
 
         this->write(this->assembleName(field.fName));
         this->write(": ");
-        if (fMatrixPolyfillFields.find(&field)) {
-            this->write("_skMatrix");
-            this->write(std::to_string(field.fType->columns()));
-            this->write(std::to_string(field.fType->rows()));
+        if (const FieldPolyfillInfo* info = fFieldPolyfillMap.find(&field)) {
+            if (info->fIsArray) {
+                // This properly handles arrays of matrices, as well as arrays of other primitives.
+                SkASSERT(field.fType->isArray());
+                this->write("array<_skArrayElement_");
+                this->write(field.fType->abbreviatedName());
+                this->write(", ");
+                this->write(std::to_string(field.fType->columns()));
+                this->write(">");
+            } else if (info->fIsMatrix) {
+                this->write("_skMatrix");
+                this->write(std::to_string(field.fType->columns()));
+                this->write(std::to_string(field.fType->rows()));
+            } else {
+                SkDEBUGFAILF("need polyfill for %s", info->fReplacementName.c_str());
+            }
         } else {
             this->write(to_wgsl_type(*field.fType));
         }
@@ -3332,21 +3407,41 @@ void WGSLCodeGenerator::prepareUniformPolyfillsForInterfaceBlock(
 
     const Type& structType = interfaceBlock->var()->type().componentType();
     for (const Field& field : structType.fields()) {
-        // Matrices will be represented as 16-byte aligned arrays in std140, and reconstituted into
-        // proper matrices as they are later accessed. We need to synthesize helpers for this.
-        if (field.fType->isMatrix()) {
-            // A polyfill is only necessary if the std140 layout (what Skia provides) actually
-            // differs from native layout (what WGSL expects). Otherwise the matrix is used as-is.
-            if (std140.stride(*field.fType) == native.stride(*field.fType)) {
-                continue;
-            }
+        const Type* type = field.fType;
+        bool needsArrayPolyfill = false;
+        bool needsMatrixPolyfill = false;
 
+        auto isPolyfillableMatrixType = [&](const Type* type) {
+            return type->isMatrix() && std140.stride(*type) != native.stride(*type);
+        };
+
+        if (isPolyfillableMatrixType(type)) {
+            // Matrices will be represented as 16-byte aligned arrays in std140, and reconstituted
+            // into proper matrices as they are later accessed. We need to synthesize polyfill.
+            needsMatrixPolyfill = true;
+        } else if (type->isArray() && !type->isUnsizedArray() &&
+                   !type->componentType().isOpaque()) {
+            const Type* innerType = &type->componentType();
+            if (isPolyfillableMatrixType(innerType)) {
+                // Use a polyfill when the array contains a matrix that requires polyfill.
+                needsArrayPolyfill = true;
+                needsMatrixPolyfill = true;
+            } else if (native.size(*innerType) < 16) {
+                // Use a polyfill when the array elements are smaller than 16 bytes, since std140
+                // will pad elements to a 16-byte stride.
+                needsArrayPolyfill = true;
+            }
+        }
+
+        if (needsArrayPolyfill || needsMatrixPolyfill) {
             // Add a polyfill for this matrix type.
-            MatrixPolyfillInfo info;
+            FieldPolyfillInfo info;
             info.fInterfaceBlock = interfaceBlock;
-            info.fReplacementName = "_skUnpacked_" + std::string(instanceName) + '_'
-                                    + this->assembleName(field.fName);
-            fMatrixPolyfillFields.set(&field, info);
+            info.fReplacementName = "_skUnpacked_" + std::string(instanceName) + '_' +
+                                    this->assembleName(field.fName);
+            info.fIsArray = needsArrayPolyfill;
+            info.fIsMatrix = needsMatrixPolyfill;
+            fFieldPolyfillMap.set(&field, info);
         }
     }
 }

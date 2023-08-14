@@ -357,16 +357,20 @@ private:
     bool fWrittenInverse3 = false;
     bool fWrittenInverse4 = false;
 
-    // These fields control uniform-matrix polyfill support. Because our uniform data is provided in
-    // std140 layout, matrices need to be represented as arrays of @size(16)-aligned vectors, and
-    // are unpacked into globals at the shader entrypoint.
-    struct MatrixPolyfillInfo {
+    // These fields control uniform polyfill support in cases where WGSL and std140 disagree.
+    // In std140 layout, matrices need to be represented as arrays of @size(16)-aligned vectors, and
+    // array elements are wrapped in a struct containing a single @size(16)-aligned element. Arrays
+    // of matrices combine both wrappers. These wrapper structs are unpacked into natively-typed
+    // globals at the shader entrypoint.
+    struct FieldPolyfillInfo {
         const InterfaceBlock* fInterfaceBlock;
         std::string fReplacementName;
+        bool fIsArray = false;
+        bool fIsMatrix = false;
         bool fWasAccessed = false;
     };
-    using MatrixPolyfillFieldMap = skia_private::THashMap<const Field*, MatrixPolyfillInfo>;
-    MatrixPolyfillFieldMap fMatrixPolyfillFields;
+    using FieldPolyfillMap = skia_private::THashMap<const Field*, FieldPolyfillInfo>;
+    FieldPolyfillMap fFieldPolyfillMap;
 
     // Output processing state.
     int fIndentation = 0;
