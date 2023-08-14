@@ -128,6 +128,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/SkGr.cpp"
   "src/gpu/ganesh/effects/GrPerlinNoise2Effect.cpp"
   "src/gpu/ganesh/gl/GrGLBackendSurface.cpp"
+  "src/gpu/ganesh/gl/GrGLGpu.cpp"
   "src/pdf/SkJpeg"
 
   # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.

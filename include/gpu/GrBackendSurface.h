@@ -18,11 +18,6 @@
 
 #include "include/gpu/mock/GrMockTypes.h"
 
-#if !defined(SK_DISABLE_LEGACY_GL_BACKEND_SURFACE) && defined(SK_GL)
-#include "include/gpu/gl/GrGLTypes.h" // IWYU pragma: keep
-#include "include/private/gpu/ganesh/GrGLTypesPriv.h" // IWYU pragma: keep
-#endif
-
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/gpu/ganesh/GrVkTypesPriv.h"
@@ -242,13 +237,6 @@ private:
         } fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;
-
-#if !defined(SK_DISABLE_LEGACY_GL_BACKEND_SURFACE) && defined(SK_GL)
-public:
-static GrBackendFormat MakeGL(GrGLenum format, GrGLenum target);
-GrGLFormat asGLFormat() const;
-GrGLenum asGLFormatEnum() const;
-#endif
 };
 
 class SK_API GrBackendTexture {
@@ -450,17 +438,6 @@ private:
 #endif
 
     sk_sp<skgpu::MutableTextureStateRef> fMutableState;
-
-#if !defined(SK_DISABLE_LEGACY_GL_BACKEND_SURFACE) && defined(SK_GL)
-public:
-    GrBackendTexture(int width,
-                     int height,
-                     GrMipmapped,
-                     const GrGLTextureInfo& glInfo,
-                     std::string_view label = {});
-    bool getGLTextureInfo(GrGLTextureInfo*) const;
-    void glTextureParametersModified();
-#endif
 };
 
 class SK_API GrBackendRenderTarget {
@@ -653,16 +630,6 @@ private:
     GrDawnRenderTargetInfo  fDawnInfo;
 #endif
     sk_sp<skgpu::MutableTextureStateRef> fMutableState;
-
-#if !defined(SK_DISABLE_LEGACY_GL_BACKEND_SURFACE) && defined(SK_GL)
-public:
-    GrBackendRenderTarget(int width,
-                          int height,
-                          int sampleCnt,
-                          int stencilBits,
-                          const GrGLFramebufferInfo& glInfo);
-    bool getGLFramebufferInfo(GrGLFramebufferInfo*) const;
-#endif
 };
 
 #endif

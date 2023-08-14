@@ -48,6 +48,11 @@
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
 
+#ifdef SK_IN_RENDERENGINE
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#endif
+
 #include <algorithm>
 #include <cstddef>
 #include <utility>
@@ -651,9 +656,11 @@ sk_sp<SkSurface> WrapBackendTexture(GrRecordingContext* rContext,
             GrWrapCacheable::kNo,
             std::move(releaseHelper)));
     if (!proxy) {
+        // TODO(scroggo,kjlubick) inline this into Android's AutoBackendTexture.cpp so we
+        // don't have a sometimes-dependency on the GL backend.
 #ifdef SK_IN_RENDERENGINE
         GrGLTextureInfo textureInfo;
-        bool retrievedTextureInfo = tex.getGLTextureInfo(&textureInfo);
+        bool retrievedTextureInfo = GrBackendTextures::GetGLTextureInfo(tex, &textureInfo);
         RENDERENGINE_ABORTF(
                 "%s failed to wrap the texture into a renderable target "
                 "\n\tGrBackendTexture: (%i x %i) hasMipmaps: %i isProtected: %i texType: %i"
