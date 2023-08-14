@@ -906,13 +906,6 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width, int height, const GrMtlT
         , fStencilBits(0)
         , fBackend(GrBackendApi::kMetal)
         , fMtlInfo(mtlInfo) {}
-
-GrBackendRenderTarget::GrBackendRenderTarget(int width, int height,
-                                             int sampleCount,
-                                             const GrMtlTextureInfo& mtlInfo)
-        : GrBackendRenderTarget(width, height, mtlInfo) {
-    fSampleCnt = sampleCount;
-}
 #endif
 
 #ifdef SK_DIRECT3D

@@ -488,11 +488,6 @@ public:
     GrBackendRenderTarget(int width,
                           int height,
                           const GrMtlTextureInfo& mtlInfo);
-    /** Deprecated. Sample count is ignored and is instead retrieved from the MtlTexture. */
-    GrBackendRenderTarget(int width,
-                          int height,
-                          int sampleCnt,
-                          const GrMtlTextureInfo& mtlInfo);
 #endif
 
 #ifdef SK_DIRECT3D
