@@ -51,7 +51,6 @@ bin/sk
 bin/sk.exe
 bin/sk.version
 third_party/ninja
-third_party/rust-toolchain
 bin/ninja
 bin/ninja.exe
 bin/ninja.version
