@@ -403,13 +403,11 @@ TextureProxyView TextureProxyView::Copy(Recorder* recorder,
     SkASSERT(srcView.proxy()->isFullyLazy() ||
              SkIRect::MakeSize(srcView.proxy()->dimensions()).contains(srcRect));
 
-    sk_sp<TextureProxy> dest = TextureProxy::Make(recorder->priv().caps(),
-                                                  srcRect.size(),
-                                                  srcColorInfo.colorType(),
-                                                  mipmapped,
-                                                  srcView.proxy()->textureInfo().isProtected(),
-                                                  Renderable::kNo,
-                                                  skgpu::Budgeted::kNo);
+    skgpu::graphite::TextureInfo textureInfo =
+            recorder->priv().caps()->getTextureInfoForSampledCopy(srcView.proxy()->textureInfo(),
+                                                                  mipmapped);
+    sk_sp<TextureProxy> dest = TextureProxy::Make(
+            recorder->priv().caps(), srcRect.size(), textureInfo, skgpu::Budgeted::kNo);
     if (!dest) {
         return {};
     }

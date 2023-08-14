@@ -125,6 +125,21 @@ TextureInfo DawnCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     return info;
 }
 
+TextureInfo DawnCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                   Mipmapped mipmapped) const {
+    DawnTextureInfo info;
+    if (!textureInfo.getDawnTextureInfo(&info)) {
+        return {};
+    }
+
+    info.fSampleCount = 1;
+    info.fMipmapped = mipmapped;
+    info.fUsage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst |
+                  wgpu::TextureUsage::CopySrc;
+
+    return info;
+}
+
 TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                 Discardable discardable) const {
     if (fDefaultMSAASamples <= 1) {

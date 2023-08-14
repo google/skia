@@ -762,6 +762,22 @@ TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     return info;
 }
 
+TextureInfo MtlCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                  Mipmapped mipmapped) const {
+    MtlTextureInfo info;
+    if (!textureInfo.getMtlTextureInfo(&info)) {
+        return {};
+    }
+
+    info.fSampleCount = 1;
+    info.fMipmapped = mipmapped;
+    info.fUsage = MTLTextureUsageShaderRead;
+    info.fStorageMode = MTLStorageModePrivate;
+    info.fFramebufferOnly = false;
+
+    return info;
+}
+
 MTLStorageMode MtlCaps::getDefaultMSAAStorageMode(Discardable discardable) const {
     // Try to use memoryless if it's available (only on new Apple silicon)
     if (discardable == Discardable::kYes && this->isApple()) {

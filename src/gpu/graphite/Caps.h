@@ -73,6 +73,9 @@ public:
                                                      Protected,
                                                      Renderable) const = 0;
 
+    virtual TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                     Mipmapped mipmapped) const = 0;
+
     virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                   Discardable discardable) const = 0;
 
