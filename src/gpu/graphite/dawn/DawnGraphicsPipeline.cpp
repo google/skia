@@ -235,6 +235,19 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                                        const RuntimeEffectDictionary* runtimeDict,
                                                        const GraphicsPipelineDesc& pipelineDesc,
                                                        const RenderPassDesc& renderPassDesc) {
+    constexpr bool kEnableWGSL = false;
+
+    using SkSLCompileFn = bool (*)(SkSL::Compiler*,
+                                   const std::string&,
+                                   SkSL::ProgramKind,
+                                   const SkSL::ProgramSettings&,
+                                   std::string*,
+                                   SkSL::Program::Interface*,
+                                   ShaderErrorHandler*);
+    const SkSLCompileFn skslCompileFn = kEnableWGSL ? SkSLToWGSL : SkSLToSPIRV;
+    constexpr const char *kVSEntrypoint = kEnableWGSL ? "vertexMain" : "main";
+    constexpr const char *kFSEntrypoint = kEnableWGSL ? "fragmentMain" : "main";
+
     const auto& device = sharedContext->device();
 
     SkSL::Program::Interface vsInterface, fsInterface;
@@ -251,7 +264,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     bool useShadingSsboIndex =
             sharedContext->caps()->storageBufferPreferred() && step->performsShading();
 
-    std::string vsSPIRV, fsSPIRV;
+    std::string vsCode, fsCode;
     wgpu::ShaderModule fsModule, vsModule;
 
     // Some steps just render depth buffer but not color buffer, so the fragment
@@ -270,18 +283,17 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     bool hasFragment = !fsSkSL.empty();
     if (hasFragment) {
-        if (!SkSLToSPIRV(compiler,
-                         fsSkSL,
-                         SkSL::ProgramKind::kGraphiteFragment,
-                         settings,
-                         &fsSPIRV,
-                         &fsInterface,
-                         errorHandler)) {
+        if (!skslCompileFn(compiler,
+                           fsSkSL,
+                           SkSL::ProgramKind::kGraphiteFragment,
+                           settings,
+                           &fsCode,
+                           &fsInterface,
+                           errorHandler)) {
             return {};
         }
-        fsModule = DawnCompileSPIRVShaderModule(sharedContext,
-                                                fsSPIRV,
-                                                errorHandler);
+        fsModule = kEnableWGSL ? DawnCompileWGSLShaderModule(sharedContext, fsCode, errorHandler)
+                               : DawnCompileSPIRVShaderModule(sharedContext, fsCode, errorHandler);
         if (!fsModule) {
             return {};
         }
@@ -291,17 +303,18 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                          step,
                                          useShadingSsboIndex,
                                          localCoordsNeeded);
-    if (!SkSLToSPIRV(compiler,
-                     vsSkSL,
-                     SkSL::ProgramKind::kGraphiteVertex,
-                     settings,
-                     &vsSPIRV,
-                     &vsInterface,
-                     errorHandler)) {
+    if (!skslCompileFn(compiler,
+                       vsSkSL,
+                       SkSL::ProgramKind::kGraphiteVertex,
+                       settings,
+                       &vsCode,
+                       &vsInterface,
+                       errorHandler)) {
         return {};
     }
 
-    vsModule = DawnCompileSPIRVShaderModule(sharedContext, vsSPIRV, errorHandler);
+    vsModule = kEnableWGSL ? DawnCompileWGSLShaderModule(sharedContext, vsCode, errorHandler)
+                           : DawnCompileSPIRVShaderModule(sharedContext, vsCode, errorHandler);
     if (!vsModule) {
         return {};
     }
@@ -337,7 +350,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     // Dawn doesn't allow having a color attachment but without fragment shader, so have to use a
     // noop fragment shader, if fragment shader is null.
     fragment.module = hasFragment ? std::move(fsModule) : sharedContext->noopFragment();
-    fragment.entryPoint = "main";
+    fragment.entryPoint = kFSEntrypoint;
     fragment.targetCount = 1;
     fragment.targets = &colorTarget;
     descriptor.fragment = &fragment;
@@ -500,7 +513,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     auto& vertex = descriptor.vertex;
     vertex.module = std::move(vsModule);
-    vertex.entryPoint = "main";
+    vertex.entryPoint = kVSEntrypoint;
     vertex.constantCount = 0;
     vertex.constants = nullptr;
     vertex.bufferCount = vertexBufferLayouts.size();
