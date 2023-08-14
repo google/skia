@@ -157,7 +157,7 @@ public:
         kGetFromCanvas,
     };
 
-    static constexpr const char* ModeToString(DecodeMode decodeMode) {
+    static constexpr const char* DecodeModeToString(DecodeMode decodeMode) {
         switch (decodeMode) {
             case DecodeMode::kGetAllPixels:
                 return "kGetAllPixels";
@@ -198,7 +198,14 @@ public:
         return true;
     }
 
-    skiagm::GM::GoldCorpus getGoldCorpus() const override { return skiagm::GM::GoldCorpus::kImage; }
+    std::map<std::string, std::string> getGoldKeys() const override {
+        return std::map<std::string, std::string>{
+                {"source_type", "image"},
+                {"decode_mode", DecodeModeToString(fDecodeMode)},
+                {"dst_color_type", DstColorTypeToString(fDstColorType)},
+                {"dst_alpha_type", sk_alpha_type_to_str(fDstAlphaType)},
+        };
+    }
 
 protected:
     // Based on CodecSrc::name().
