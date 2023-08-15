@@ -67,7 +67,6 @@ static DEFINE_string(via,
 // empty string on success, or an error message in the case of failures.
 static std::string write_png_and_json_files(std::string name,
                                             std::map<std::string, std::string> gmGoldKeys,
-                                            std::string surfaceConfig,
                                             std::map<std::string, std::string> surfaceGoldKeys,
                                             const SkBitmap& bitmap,
                                             const char* pngPath,
@@ -90,16 +89,22 @@ static std::string write_png_and_json_files(std::string name,
         return "Error encoding or writing PNG to " + std::string(pngPath);
     }
 
-    // Validate Gold keys.
+    // Validate GM-related Gold keys.
+    if (gmGoldKeys.find("name") == gmGoldKeys.end()) {
+        SK_ABORT("gmGoldKeys does not contain key \"name\"");
+    }
     if (gmGoldKeys.find("source_type") == gmGoldKeys.end()) {
         SK_ABORT("gmGoldKeys does not contain key \"source_type\"");
     }
 
-    // Compute Gold keys.
+    // Validate surface-related Gold keys.
+    if (surfaceGoldKeys.find("surface_config") == surfaceGoldKeys.end()) {
+        SK_ABORT("surfaceGoldKeys does not contain key \"surface_config\"");
+    }
+
+    // Gather all Gold keys.
     std::map<std::string, std::string> keys = {
-            {"name", name},
             {"image_md5", md5.c_str()},
-            {"surface_config", surfaceConfig},
             {"build_system", "bazel"},
     };
     keys.merge(surfaceGoldKeys);
@@ -204,7 +209,6 @@ void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outp
 
         std::string pngAndJSONResult = write_png_and_json_files(gm->getName().c_str(),
                                                                 gm->getGoldKeys(),
-                                                                config,
                                                                 surfaceManager->getGoldKeys(),
                                                                 bitmap,
                                                                 pngPath.c_str(),

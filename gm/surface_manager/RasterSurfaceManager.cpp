@@ -16,8 +16,8 @@
 
 class RasterSurfaceManager : public SurfaceManager {
 public:
-    RasterSurfaceManager(sk_sp<SkSurface> surface, SkColorInfo colorInfo)
-            : SurfaceManager(colorInfo), fSurface(surface) {}
+    RasterSurfaceManager(sk_sp<SkSurface> surface, std::string config, SkColorInfo colorInfo)
+            : SurfaceManager(config, colorInfo), fSurface(surface) {}
 
     sk_sp<SkSurface> getSurface() override { return fSurface; }
 
@@ -37,14 +37,14 @@ std::unique_ptr<SurfaceManager> SurfaceManager::FromConfig(std::string config,
         sk_sp<SkSurface> surface =
                 SkSurfaces::Raster(SkImageInfo::Make({width, height}, colorInfo));
         SkASSERT_RELEASE(surface);
-        return std::make_unique<RasterSurfaceManager>(surface, colorInfo);
+        return std::make_unique<RasterSurfaceManager>(surface, config, colorInfo);
     }
     if (config == "565") {
         SkColorInfo colorInfo(kRGB_565_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
         sk_sp<SkSurface> surface =
                 SkSurfaces::Raster(SkImageInfo::Make({width, height}, colorInfo));
         SkASSERT_RELEASE(surface);
-        return std::make_unique<RasterSurfaceManager>(surface, colorInfo);
+        return std::make_unique<RasterSurfaceManager>(surface, config, colorInfo);
     }
     return nullptr;
 }

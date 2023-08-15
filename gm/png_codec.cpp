@@ -200,6 +200,7 @@ public:
 
     std::map<std::string, std::string> getGoldKeys() const override {
         return std::map<std::string, std::string>{
+                {"name", getName().c_str()},
                 {"source_type", "image"},
                 {"decode_mode", DecodeModeToString(fDecodeMode)},
                 {"dst_color_type", DstColorTypeToString(fDstColorType)},

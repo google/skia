@@ -21,8 +21,9 @@ public:
     GaneshGLSurfaceManager(std::unique_ptr<sk_gpu_test::GrContextFactory> contextFactory,
                            GrDirectContext* context,
                            sk_sp<SkSurface> surface,
+                           std::string config,
                            SkColorInfo colorInfo)
-            : SurfaceManager(colorInfo)
+            : SurfaceManager(config, colorInfo)
             , fContextFactory(std::move(contextFactory))
             , fContext(context)
             , fSurface(surface) {}
@@ -61,7 +62,7 @@ std::unique_ptr<SurfaceManager> SurfaceManager::FromConfig(std::string config,
         SkASSERT_RELEASE(surface);
 
         return std::make_unique<GaneshGLSurfaceManager>(
-                std::move(testFactory), context, surface, colorInfo);
+                std::move(testFactory), context, surface, config, colorInfo);
     }
     return nullptr;
 }

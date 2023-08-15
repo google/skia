@@ -201,10 +201,12 @@ namespace skiagm {
         // TODO(lovisolo): Delete once it's no longer needed.
         virtual bool isBazelOnly() const { return false; }
 
-        // Ignored by DM. Returns the set of Gold key/value pairs specific to this GM. For example,
-        // codec GMs might return the parameters utilized to initialize the codec.
+        // Ignored by DM. Returns the set of Gold key/value pairs specific to this GM, such as the
+        // GM name and corpus. GMs may define additional keys. For example, codec GMs define keys
+        // for the parameters utilized to initialize the codec.
         virtual std::map<std::string, std::string> getGoldKeys() const {
             return std::map<std::string, std::string>{
+                    {"name", getName().c_str()},
                     {"source_type", "gm"},
             };
         }
