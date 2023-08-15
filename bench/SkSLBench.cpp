@@ -490,10 +490,16 @@ void main()
 
 COMPILER_BENCH(tiny, "void main() { sk_FragColor = half4(1); }");
 
-#define GRAPHITE_BENCH(name, text)                                                               \
-  static constexpr char name ## _SRC[] = text;                                                   \
-  DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kGrMtl);)  \
-  DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kGrWGSL);)
+#if defined(SK_GRAPHITE)
+
+#define GRAPHITE_BENCH(name, text)                                                                \
+    static constexpr char name##_SRC[] = text;                                                    \
+    DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kGrMtl);) \
+    DEF_BENCH(return new SkSLCompileBench(#name, name##_SRC, /*optimize=*/true, Output::kGrWGSL);)
+
+#else
+#define GRAPHITE_BENCH(name, text) /* Graphite is disabled */
+#endif
 
 GRAPHITE_BENCH(graphite_large, R"(
 layout(location=0) in flat int shadingSsboIndexVar;
