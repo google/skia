@@ -77,7 +77,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override { return SkString("gradient_dirty_laundry"); }
+    SkString getName() const override { return SkString("gradient_dirty_laundry"); }
     SkISize onISize() override { return SkISize::Make(640, 615); }
 
     void onDraw(SkCanvas* canvas) override {

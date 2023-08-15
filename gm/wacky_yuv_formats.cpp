@@ -771,7 +771,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("wacky_yuv_formats");
         if (fUseTargetColorSpace) {
             name += "_cs";
@@ -1024,9 +1024,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("yuv_make_color_space");
-    }
+    SkString getName() const override { return SkString("yuv_make_color_space"); }
 
     SkISize onISize() override {
         int numCols = 4; // (transparent, opaque) x (untagged, tagged)
@@ -1212,10 +1210,7 @@ public:
     YUVSplitterGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("yuv_splitter");
-    }
+    SkString getName() const override { return SkString("yuv_splitter"); }
 
     SkISize onISize() override {
         return SkISize::Make(1280, 768);

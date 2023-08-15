@@ -25,10 +25,7 @@ public:
     PointsGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("points");
-    }
+    SkString getName() const override { return SkString("points"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 490);

@@ -24,9 +24,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("scaledrects");
-    }
+    SkString getName() const override { return SkString("scaledrects"); }
 
     SkISize onISize() override {
         return SkISize::Make(128, 64);

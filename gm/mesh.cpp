@@ -139,7 +139,7 @@ protected:
         this->ensureBuffers();
     }
 
-    SkString onShortName() override { return SkString("custommesh"); }
+    SkString getName() const override { return SkString("custommesh"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString*) override {
         int i = 0;
@@ -403,7 +403,7 @@ protected:
         fVB = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
     }
 
-    SkString onShortName() override { return SkString("custommesh_cs"); }
+    SkString getName() const override { return SkString("custommesh_cs"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         // Force an intermediate surface if the canvas is in "legacy" mode
@@ -561,7 +561,7 @@ protected:
         fVB = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
     }
 
-    SkString onShortName() override { return SkString("custommesh_uniforms"); }
+    SkString getName() const override { return SkString("custommesh_uniforms"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         SkMatrix matrices[] {
@@ -712,7 +712,7 @@ protected:
                 SkTileMode::kClamp, SkTileMode::kClamp, SkFilterMode::kLinear);
     }
 
-    SkString onShortName() override { return SkString("mesh_updates"); }
+    SkString getName() const override { return SkString("mesh_updates"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         canvas->clear(SK_ColorBLACK);
@@ -931,7 +931,7 @@ protected:
         fSpec[1] = std::move(result.specification);
     }
 
-    SkString onShortName() override { return SkString("mesh_zero_init"); }
+    SkString getName() const override { return SkString("mesh_zero_init"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         GrRecordingContext* rc = canvas->recordingContext();
@@ -1092,7 +1092,7 @@ protected:
                                               /*localMatrix=*/nullptr);
     }
 
-    SkString onShortName() override { return SkString("picture_mesh"); }
+    SkString getName() const override { return SkString("picture_mesh"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         SkPaint paint;

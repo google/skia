@@ -96,9 +96,7 @@ public:
     LatticeGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("lattice");
-    }
+    SkString getName() const override { return SkString("lattice"); }
 
     SkISize onISize() override {
         return SkISize::Make(800, 800);
@@ -230,9 +228,7 @@ DEF_GM( return new LatticeGM; )
 class LatticeGM2 : public skiagm::GM {
 public:
     LatticeGM2() {}
-    SkString onShortName() override {
-        return SkString("lattice2");
-    }
+    SkString getName() const override { return SkString("lattice2"); }
 
     SkISize onISize() override {
         return SkISize::Make(800, 800);

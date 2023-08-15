@@ -27,10 +27,7 @@ public:
     QuadPathGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("quadpath");
-    }
+    SkString getName() const override { return SkString("quadpath"); }
 
     SkISize onISize() override { return SkISize::Make(1240, 390); }
 
@@ -157,10 +154,7 @@ public:
     QuadClosePathGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("quadclosepath");
-    }
+    SkString getName() const override { return SkString("quadclosepath"); }
 
     SkISize onISize() override { return SkISize::Make(1240, 390); }
 

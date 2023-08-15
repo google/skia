@@ -65,10 +65,7 @@ public:
     SpriteBitmapGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("spritebitmap");
-    }
+    SkString getName() const override { return SkString("spritebitmap"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);

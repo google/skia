@@ -30,10 +30,7 @@ public:
     Poly2PolyGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("poly2poly");
-    }
+    SkString getName() const override { return SkString("poly2poly"); }
 
     SkISize onISize() override {
         return SkISize::Make(835, 840);

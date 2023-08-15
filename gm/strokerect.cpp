@@ -60,10 +60,7 @@ public:
     StrokeRectGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokerect");
-    }
+    SkString getName() const override { return SkString("strokerect"); }
 
     SkISize onISize() override {
         return SkISize::Make(1400, 740);

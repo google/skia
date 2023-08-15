@@ -42,9 +42,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("image_from_yuv_textures");
-    }
+    SkString getName() const override { return SkString("image_from_yuv_textures"); }
 
     SkISize onISize() override { return {1420, 610}; }
 

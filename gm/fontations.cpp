@@ -119,7 +119,7 @@ protected:
                 SkTypeface_Make_Fontations(GetResourceAsStream(kReportFontName), SkFontArguments());
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("typeface_fontations_%s", fTestName.c_str());
     }
 

@@ -48,7 +48,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("fontcache");
         if (GrContextOptions::Enable::kYes == fAllowMultipleTextures) {
             name.append("-mt");

@@ -23,9 +23,7 @@ public:
     TestGradientGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("testgradient");
-    }
+    SkString getName() const override { return SkString("testgradient"); }
 
     SkISize onISize() override {
         return SkISize::Make(800, 800);

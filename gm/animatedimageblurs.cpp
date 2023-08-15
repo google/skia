@@ -37,7 +37,7 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override { return SkString("animated-image-blurs"); }
+    SkString getName() const override { return SkString("animated-image-blurs"); }
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 

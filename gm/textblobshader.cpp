@@ -88,9 +88,7 @@ private:
                                                SkTileMode::kRepeat);
     }
 
-    SkString onShortName() override {
-        return SkString("textblobshader");
-    }
+    SkString getName() const override { return SkString("textblobshader"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);

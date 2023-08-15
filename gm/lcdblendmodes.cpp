@@ -53,9 +53,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("lcdblendmodes");
-    }
+    SkString getName() const override { return SkString("lcdblendmodes"); }
 
     void onOnceBeforeDraw() override {
         fCheckerboard = ToolUtils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);

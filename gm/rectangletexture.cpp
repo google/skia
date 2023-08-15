@@ -54,9 +54,7 @@ private:
         k2x2
     };
 
-    SkString onShortName() override {
-        return SkString("rectangle_texture");
-    }
+    SkString getName() const override { return SkString("rectangle_texture"); }
 
     SkISize onISize() override { return SkISize::Make(1180, 710); }
 

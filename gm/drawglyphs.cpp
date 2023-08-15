@@ -47,9 +47,7 @@ public:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("drawglyphs");
-    }
+    SkString getName() const override { return SkString("drawglyphs"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);

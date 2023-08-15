@@ -78,9 +78,7 @@ public:
     SurfacePropsGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("surfaceprops");
-    }
+    SkString getName() const override { return SkString("surfaceprops"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H * 5);
@@ -133,9 +131,7 @@ public:
     NewSurfaceGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("surfacenew");
-    }
+    SkString getName() const override { return SkString("surfacenew"); }
 
     SkISize onISize() override {
         return SkISize::Make(300, 140);

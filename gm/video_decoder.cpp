@@ -17,10 +17,7 @@ public:
     VideoDecoderGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("videodecoder");
-    }
+    SkString getName() const override { return SkString("videodecoder"); }
 
     SkISize onISize() override {
         return SkISize::Make(1024, 768);

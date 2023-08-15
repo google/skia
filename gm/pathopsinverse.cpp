@@ -57,9 +57,7 @@ protected:
         paint->setColor(color);
     }
 
-    SkString onShortName() override {
-        return SkString("pathopsinverse");
-    }
+    SkString getName() const override { return SkString("pathopsinverse"); }
 
     SkISize onISize() override {
         return SkISize::Make(1200, 900);

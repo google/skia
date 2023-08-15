@@ -52,7 +52,7 @@ private:
     const char* fName;
     bool fDither;
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("shallow_gradient_%s%s", fName, fDither ? "" : "_nodither");
     }
 

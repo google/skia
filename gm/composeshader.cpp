@@ -56,9 +56,7 @@ protected:
         fShader = make_shader(SkBlendMode::kDstIn);
     }
 
-    SkString onShortName() override {
-        return SkString("composeshader");
-    }
+    SkString getName() const override { return SkString("composeshader"); }
 
     SkISize onISize() override {
         return SkISize::Make(120, 120);
@@ -85,9 +83,7 @@ public:
     ComposeShaderAlphaGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("composeshader_alpha");
-    }
+    SkString getName() const override { return SkString("composeshader_alpha"); }
 
     SkISize onISize() override {
         return SkISize::Make(750, 220);
@@ -170,7 +166,7 @@ public:
     ComposeShaderBitmapGM(bool use_lm) : fUseLocalMatrix(use_lm) {}
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("composeshader_bitmap%s", fUseLocalMatrix ? "_lm" : "");
     }
 

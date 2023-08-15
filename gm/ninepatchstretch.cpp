@@ -61,9 +61,7 @@ public:
     NinePatchStretchGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("ninepatch-stretch");
-    }
+    SkString getName() const override { return SkString("ninepatch-stretch"); }
 
     SkISize onISize() override {
         return SkISize::Make(760, 800);

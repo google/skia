@@ -220,9 +220,7 @@ protected:
     static const int kCellWidth = 128;
     static const int kCellHeight = 128;
 
-    SkString onShortName() override {
-        return SkString("bezier_conic_effects");
-    }
+    SkString getName() const override { return SkString("bezier_conic_effects"); }
 
     SkISize onISize() override {
         return SkISize::Make(kCellWidth, kNumConics*kCellHeight);
@@ -426,9 +424,7 @@ protected:
     static const int kCellWidth = 128;
     static const int kCellHeight = 128;
 
-    SkString onShortName() override {
-        return SkString("bezier_quad_effects");
-    }
+    SkString getName() const override { return SkString("bezier_quad_effects"); }
 
     SkISize onISize() override {
         return SkISize::Make(kCellWidth, kNumQuads*kCellHeight);

@@ -95,9 +95,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("hardstop_gradients");
-    }
+    SkString getName() const override { return SkString("hardstop_gradients"); }
 
     SkISize onISize() override {
         return SkISize::Make(512, 512);

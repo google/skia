@@ -24,7 +24,7 @@
 namespace skiagm {
 
 class EmptyPathGM : public GM {
-    SkString onShortName() override { return SkString("emptypath"); }
+    SkString getName() const override { return SkString("emptypath"); }
 
     SkISize onISize() override { return {600, 280}; }
 
@@ -157,7 +157,7 @@ static SkPath make_path_move_mix() {
 }
 
 class EmptyStrokeGM : public GM {
-    SkString onShortName() override { return SkString("emptystroke"); }
+    SkString getName() const override { return SkString("emptystroke"); }
 
     SkISize onISize() override { return {200, 240}; }
 

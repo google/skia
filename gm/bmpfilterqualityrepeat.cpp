@@ -45,7 +45,7 @@ protected:
         canvas.drawImage(colorBmp.asImage(), 20, 20);
     }
 
-    SkString onShortName() override { return SkString("bmp_filter_quality_repeat"); }
+    SkString getName() const override { return SkString("bmp_filter_quality_repeat"); }
 
     SkISize onISize() override { return SkISize::Make(1000, 400); }
 

@@ -43,7 +43,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString str;
         str.printf("complexclip_%s%s%s",
                    fDoAAClip ? "aa" : "bw",

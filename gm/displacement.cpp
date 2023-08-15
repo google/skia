@@ -31,9 +31,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("displacement");
-    }
+    SkString getName() const override { return SkString("displacement"); }
 
     void onOnceBeforeDraw() override {
         fImage = ToolUtils::create_string_image(80, 80, 0xFF884422, 15, 55, 96, "g");

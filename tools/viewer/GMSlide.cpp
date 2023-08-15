@@ -22,7 +22,7 @@ class SkMetaData;
 GMSlide::GMSlide(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
     fGM->setMode(skiagm::GM::kSample_Mode);
 
-    fName.printf("GM_%s", fGM->getName());
+    fName.printf("GM_%s", fGM->getName().c_str());
 }
 
 GMSlide::~GMSlide() = default;

@@ -55,9 +55,7 @@ protected:
          fPicture = make_picture();
     }
 
-    SkString onShortName() override {
-        return SkString("pictures");
-    }
+    SkString getName() const override { return SkString("pictures"); }
 
     SkISize onISize() override {
         return SkISize::Make(450, 120);
@@ -123,9 +121,7 @@ protected:
         SkASSERT(fPicture->cullRect().top() == 80);
     }
 
-    SkString onShortName() override {
-        return SkString("picture_cull_rect");
-    }
+    SkString getName() const override { return SkString("picture_cull_rect"); }
 
     SkISize onISize() override {
         return SkISize::Make(120, 120);

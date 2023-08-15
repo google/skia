@@ -34,9 +34,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("lcdoverlap");
-    }
+    SkString getName() const override { return SkString("lcdoverlap"); }
 
     void onOnceBeforeDraw() override {
         // build text blob

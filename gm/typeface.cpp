@@ -107,7 +107,7 @@ protected:
         }
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("typefacestyles");
         if (fApplyKerning) {
             name.append("_kerning");

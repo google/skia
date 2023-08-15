@@ -152,7 +152,7 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
 class SaveLayerWithBackdropGM : public skiagm::GM {
 protected:
     bool runAsBench() const override { return true; }
-    SkString onShortName() override { return SkString("savelayer_with_backdrop"); }
+    SkString getName() const override { return SkString("savelayer_with_backdrop"); }
     SkISize onISize() override { return SkISize::Make(830, 550); }
 
     void onDraw(SkCanvas* canvas) override {

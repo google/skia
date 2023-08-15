@@ -25,7 +25,7 @@ class BadPaintGM : public skiagm::GM {
     BadPaintGM() {}
 
 protected:
-    SkString onShortName() override { return SkString("badpaint"); }
+    SkString getName() const override { return SkString("badpaint"); }
 
     SkISize onISize() override { return SkISize::Make(100, 100); }
 

@@ -30,9 +30,7 @@ public:
     BlurQuickRejectGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("blurquickreject");
-    }
+    SkString getName() const override { return SkString("blurquickreject"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);

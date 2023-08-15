@@ -47,9 +47,7 @@ protected:
         kNumShapeTypes
     };
 
-    SkString onShortName() override {
-        return SkString("dstreadshuffle");
-    }
+    SkString getName() const override { return SkString("dstreadshuffle"); }
 
     SkISize onISize() override {
         return SkISize::Make(530, 680);

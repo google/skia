@@ -49,7 +49,7 @@ static sk_sp<SkShader> make_chrome_solid() {
 
 // Replicate chrome layout test - clipped pathed gradient-shaded text
 class ChromeGradTextGM1 : public skiagm::GM {
-    SkString onShortName() override { return SkString("chrome_gradtext1"); }
+    SkString getName() const override { return SkString("chrome_gradtext1"); }
 
     SkISize onISize() override { return {500, 480}; }
 
@@ -74,7 +74,7 @@ class ChromeGradTextGM1 : public skiagm::GM {
 
 // Replicate chrome layout test - switching between solid & gradient text
 class ChromeGradTextGM2 : public skiagm::GM {
-    SkString onShortName() override { return SkString("chrome_gradtext2"); }
+    SkString getName() const override { return SkString("chrome_gradtext2"); }
 
     SkISize onISize() override { return {500, 480}; }
 

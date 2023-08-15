@@ -35,10 +35,7 @@ public:
     StrokeRectAnisotropicGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokerect_anisotropic");
-    }
+    SkString getName() const override { return SkString("strokerect_anisotropic"); }
 
     SkISize onISize() override {
         return SkISize::Make(160, 160);

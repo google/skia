@@ -30,7 +30,7 @@
 class ShowMipLevels3 : public skiagm::GM {
     sk_sp<SkImage> fImg;
 
-    SkString onShortName() override { return SkString("showmiplevels_explicit"); }
+    SkString getName() const override { return SkString("showmiplevels_explicit"); }
 
     SkISize onISize() override { return {1130, 970}; }
 

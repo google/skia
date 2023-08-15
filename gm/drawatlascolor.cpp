@@ -71,9 +71,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("draw-atlas-colors");
-    }
+    SkString getName() const override { return SkString("draw-atlas-colors"); }
 
     SkISize onISize() override {
         return SkISize::Make(kNumXferModes * (kAtlasSize + kPad) + kPad,

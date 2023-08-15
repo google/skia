@@ -27,10 +27,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("arcofzorro");
-    }
+    SkString getName() const override { return SkString("arcofzorro"); }
 
     SkISize onISize() override {
         return SkISize::Make(1000, 1000);

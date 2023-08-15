@@ -19,10 +19,7 @@ public:
     ScaledStrokesGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("scaledstrokes");
-    }
+    SkString getName() const override { return SkString("scaledstrokes"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 320);

@@ -28,8 +28,7 @@ public:
     StrokeRectsGM(bool rotated) : fRotated(rotated) {}
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         if (fRotated) {
             return SkString("strokerects_rotated");
         } else {

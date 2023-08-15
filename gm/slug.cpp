@@ -57,9 +57,7 @@ protected:
         font.textToGlyphs(fText, txtLen, SkTextEncoding::kUTF8, fGlyphs.begin(), glyphCount);
     }
 
-    SkString onShortName() override {
-        return SkString("slug");
-    }
+    SkString getName() const override { return SkString("slug"); }
 
     SkISize onISize() override {
         return SkISize::Make(1000, 480);

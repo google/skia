@@ -58,7 +58,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("big_rrect_%s_aa_effect", fName);
         return name;

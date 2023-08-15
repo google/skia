@@ -43,7 +43,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("anisotropic_image_scale_");
         switch (fMode) {
             case Mode::kLinear:
@@ -160,7 +160,7 @@ public:
     AnisoMipsGM() = default;
 
 protected:
-    SkString onShortName() override { return SkString("anisomips"); }
+    SkString getName() const override { return SkString("anisomips"); }
 
     SkISize onISize() override { return SkISize::Make(520, 260); }
 

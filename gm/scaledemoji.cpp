@@ -52,9 +52,7 @@ protected:
         fEmojiFont.fText     = ToolUtils::emoji_sample_text();
     }
 
-    SkString onShortName() override {
-        return SkString("scaledemoji");
-    }
+    SkString getName() const override { return SkString("scaledemoji"); }
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 
@@ -101,9 +99,7 @@ protected:
         fEmojiFont.fText     = ToolUtils::emoji_sample_text();
     }
 
-    SkString onShortName() override {
-        return SkString("scaledemojipos");
-    }
+    SkString getName() const override { return SkString("scaledemojipos"); }
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 
@@ -169,9 +165,7 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("scaledemojiperspective");
-    }
+    SkString getName() const override { return SkString("scaledemojiperspective"); }
 
     SkISize onISize() override { return SkISize::Make(1200, 1200); }
 

@@ -146,7 +146,7 @@ static int gNumSkippedGMs = 0;
 // Runs a GM under the given surface config, and saves its output PNG file (and accompanying JSON
 // file with metadata) to the given output directory.
 void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outputDir) {
-    SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName());
+    SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName().c_str());
 
     // Create surface and canvas.
     std::unique_ptr<SurfaceManager> surfaceManager =
@@ -198,11 +198,11 @@ void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outp
 
     // Save PNG and JSON file with MD5 hash to disk if the GM was successful.
     if (result == skiagm::DrawResult::kOk) {
-        std::string name = std::string(gm->getName());
+        std::string name = std::string(gm->getName().c_str());
         SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
         SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
 
-        std::string pngAndJSONResult = write_png_and_json_files(gm->getName(),
+        std::string pngAndJSONResult = write_png_and_json_files(gm->getName().c_str(),
                                                                 gm->getGoldKeys(),
                                                                 config,
                                                                 surfaceManager->getGoldKeys(),

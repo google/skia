@@ -92,7 +92,7 @@ protected:
                 GetResourceAsStream(kColrCpalTestFontPath), paletteArguments);
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString gm_name = SkStringPrintf("font_palette_%s", fName.c_str());
         return gm_name;
     }

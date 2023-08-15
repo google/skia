@@ -317,10 +317,7 @@ protected:
         fVisualizerPath = make_visualizer();
     }
 
-
-    SkString onShortName() override {
-        return SkString("pathfill");
-    }
+    SkString getName() const override { return SkString("pathfill"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);
@@ -367,9 +364,7 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("pathinvfill");
-    }
+    SkString getName() const override { return SkString("pathinvfill"); }
 
     SkISize onISize() override {
         return SkISize::Make(450, 220);

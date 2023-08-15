@@ -39,7 +39,7 @@ half4 main(vec2 fragcoord) {
 class RuntimeFunctions : public skiagm::GM {
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override { return SkString("runtimefunctions"); }
+    SkString getName() const override { return SkString("runtimefunctions"); }
 
     SkISize onISize() override { return {256, 256}; }
 

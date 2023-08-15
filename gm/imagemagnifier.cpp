@@ -100,7 +100,7 @@ public:
     ImageMagnifierBounds() : fX(0.f), fY(0.f) {}
 
 protected:
-    SkString onShortName() override { return SkString("imagemagnifier_bounds"); }
+    SkString getName() const override { return SkString("imagemagnifier_bounds"); }
     SkISize onISize() override { return SkISize::Make(768, 512); }
 
     bool onAnimate(double nanos) override {

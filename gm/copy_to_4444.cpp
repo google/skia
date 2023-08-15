@@ -23,7 +23,7 @@ namespace {
  *  Test copying an image from 8888 to 4444.
  */
 class CopyTo4444GM : public skiagm::GM {
-    SkString onShortName() override { return SkString("copyTo4444"); }
+    SkString getName() const override { return SkString("copyTo4444"); }
 
     SkISize onISize() override { return {360, 180}; }
 

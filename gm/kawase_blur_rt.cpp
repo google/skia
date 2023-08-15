@@ -173,7 +173,7 @@ private:
 class KawaseBlurRT : public skiagm::GM {
 public:
     KawaseBlurRT() {}
-    SkString onShortName() override { return SkString("kawase_blur_rt"); }
+    SkString getName() const override { return SkString("kawase_blur_rt"); }
     SkISize onISize() override { return {1280, 768}; }
 
     void onOnceBeforeDraw() override {

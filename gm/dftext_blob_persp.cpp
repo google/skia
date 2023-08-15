@@ -41,9 +41,7 @@ public:
     DFTextBlobPerspGM() { this->setBGColor(0xFFFFFFFF); }
 
 protected:
-    SkString onShortName() override {
-        return SkString("dftext_blob_persp");
-    }
+    SkString getName() const override { return SkString("dftext_blob_persp"); }
 
     SkISize onISize() override { return SkISize::Make(900, 350); }
 

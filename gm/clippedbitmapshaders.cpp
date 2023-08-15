@@ -58,7 +58,7 @@ protected:
     SkTileMode fMode;
     bool fHQ;
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString descriptor;
         switch (fMode) {
             case SkTileMode::kRepeat:

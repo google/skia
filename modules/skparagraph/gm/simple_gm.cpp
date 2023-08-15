@@ -76,7 +76,7 @@ protected:
         this->buildParagraph();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("paragraph%s_%s",
                     fFlags & kTimeLayout   ? "_layout"    : "",

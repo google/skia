@@ -79,9 +79,7 @@ public:
     , fTotalFrames (-1) {}
 
 private:
-    SkString onShortName() override {
-        return SkString("animatedGif");
-    }
+    SkString getName() const override { return SkString("animatedGif"); }
 
     SkISize onISize() override {
         if (this->initCodec()) {
@@ -201,9 +199,7 @@ public:
     }
 
 private:
-    SkString onShortName() override {
-        return SkString("AnimCodecPlayer");
-    }
+    SkString getName() const override { return SkString("AnimCodecPlayer"); }
 
     SkISize onISize() override {
         return { 1024, 768 };
@@ -258,7 +254,7 @@ class AnimCodecPlayerExifGM : public skiagm::GM {
         }
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("AnimCodecPlayerExif_%s", strrchr(fPath, '/') + 1);
     }
 

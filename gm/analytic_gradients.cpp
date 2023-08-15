@@ -137,9 +137,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("analytic_gradients");
-    }
+    SkString getName() const override { return SkString("analytic_gradients"); }
 
     SkISize onISize() override {
         return SkISize::Make(1024, 512);

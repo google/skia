@@ -95,9 +95,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("bitmap_premul");
-    }
+    SkString getName() const override { return SkString("bitmap_premul"); }
 
     SkISize onISize() override {
         return SkISize::Make(SLIDE_SIZE * 2, SLIDE_SIZE * 2);

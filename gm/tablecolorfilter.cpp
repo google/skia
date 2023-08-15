@@ -118,9 +118,7 @@ public:
     TableColorFilterGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("tablecolorfilter");
-    }
+    SkString getName() const override { return SkString("tablecolorfilter"); }
 
     SkISize onISize() override {
         return {700, 1650};
@@ -225,7 +223,7 @@ public:
         : fColors(colors), fModes(modes), fName(name) {}
 
 private:
-    SkString onShortName() override { return SkString(fName); }
+    SkString getName() const override { return SkString(fName); }
 
     SkISize onISize() override { return {790, 790}; }
 

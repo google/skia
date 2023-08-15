@@ -32,9 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("morphology");
-    }
+    SkString getName() const override { return SkString("morphology"); }
 
     void onOnceBeforeDraw() override {
         auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(135, 135));

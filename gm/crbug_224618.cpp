@@ -20,9 +20,7 @@ public:
     CrBug224618GM() : fTime(0.f) {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("crbug_224618");
-    }
+    SkString getName() const override { return SkString("crbug_224618"); }
 
     SkISize onISize() override {
         return SkISize::Make(kMaxVW, kMaxVW);

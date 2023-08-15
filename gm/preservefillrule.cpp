@@ -38,7 +38,7 @@ public:
     PreserveFillRuleGM(bool big) : fBig(big) , fStarSize((big) ? 200 : 20) {}
 
 private:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("preservefillrule");
         name += (fBig) ? "_big" : "_little";
         return name;

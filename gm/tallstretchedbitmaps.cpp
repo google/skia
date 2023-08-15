@@ -67,9 +67,7 @@ public:
     TallStretchedBitmapsGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("tall_stretched_bitmaps");
-    }
+    SkString getName() const override { return SkString("tall_stretched_bitmaps"); }
 
     SkISize onISize() override {
         return SkISize::Make(730, 690);

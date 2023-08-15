@@ -78,9 +78,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagefiltersclipped");
-    }
+    SkString getName() const override { return SkString("imagefiltersclipped"); }
 
     SkISize onISize() override {
         return SkISize::Make(860, 500);

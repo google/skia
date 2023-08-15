@@ -92,9 +92,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("bitmapfilters");
-    }
+    SkString getName() const override { return SkString("bitmapfilters"); }
 
     SkISize onISize() override {
         return SkISize::Make(540, 250);
@@ -141,9 +139,7 @@ public:
     SkBitmap fBitmap, fAlpha;
 
 protected:
-    SkString onShortName() override {
-        return SkString("extractalpha");
-    }
+    SkString getName() const override { return SkString("extractalpha"); }
 
     SkISize onISize() override {
         return SkISize::Make(540, 330);

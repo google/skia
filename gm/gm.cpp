@@ -87,7 +87,7 @@ GM::GM(SkColor bgColor) {
 GM::~GM() {}
 
 DrawResult GM::gpuSetup(SkCanvas* canvas, SkString* errorMsg) {
-    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
+    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName().c_str()));
     if (!fGpuSetup) {
         // When drawn in viewer, gpuSetup will be called multiple times with the same
         // GrContext.
@@ -110,7 +110,7 @@ void GM::gpuTeardown() {
 }
 
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
-    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
+    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName().c_str()));
     this->drawBackground(canvas);
     return this->drawContent(canvas, errorMsg);
 }
@@ -140,25 +140,18 @@ void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
 
 
 SkISize SimpleGM::onISize() { return fSize; }
-SkString SimpleGM::onShortName() { return fName; }
+SkString SimpleGM::getName() const { return fName; }
 DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(canvas, errorMsg);
 }
 
 #if defined(SK_GANESH)
 SkISize SimpleGpuGM::onISize() { return fSize; }
-SkString SimpleGpuGM::onShortName() { return fName; }
+SkString SimpleGpuGM::getName() const { return fName; }
 DrawResult SimpleGpuGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(rContext, canvas, errorMsg);
 }
 #endif
-
-const char* GM::getName() {
-    if (fShortName.size() == 0) {
-        fShortName = this->onShortName();
-    }
-    return fShortName.c_str();
-}
 
 void GM::setBGColor(SkColor color) {
     fBGColor = color;

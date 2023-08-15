@@ -66,9 +66,7 @@ protected:
         kShape_Pass
     };
 
-    SkString onShortName() override {
-        return SkString("aaxfermodes");
-    }
+    SkString getName() const override { return SkString("aaxfermodes"); }
 
     SkISize onISize() override {
         return SkISize::Make(2 * kMargin + 2 * kXfermodeTypeSpacing -

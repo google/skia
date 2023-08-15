@@ -69,10 +69,7 @@ public:
     BeziersGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("beziers");
-    }
+    SkString getName() const override { return SkString("beziers"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);

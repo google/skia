@@ -76,7 +76,7 @@ protected:
         kNPOTSize = 21,
     };
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("tilemodes");
         if (!fPowerOfTwoSize) {
             name.append("_npot");
@@ -205,7 +205,7 @@ public:
     Tiling2GM(ShaderProc proc, const char name[]) : fProc(proc), fName(name) {}
 
 private:
-    SkString onShortName() override { return SkString(fName); }
+    SkString getName() const override { return SkString(fName); }
 
     SkISize onISize() override { return SkISize::Make(650, 610); }
 

@@ -52,7 +52,7 @@ public:
         fEffect = std::move(effect);
     }
 
-    SkString onShortName() override { return SkString("rippleshader"); }
+    SkString getName() const override { return SkString("rippleshader"); }
     SkISize onISize() override { return kSize; }
     bool onAnimate(double nanos) override {
         fMillis = nanos / (1000. * 1000.);

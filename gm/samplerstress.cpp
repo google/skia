@@ -38,10 +38,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("gpusamplerstress");
-    }
+    SkString getName() const override { return SkString("gpusamplerstress"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);

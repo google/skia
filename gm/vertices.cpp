@@ -124,7 +124,7 @@ protected:
         fColorFilter = make_color_filter();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("vertices");
         if (fShaderScale != 1) {
             name.append("_scaled_shader");

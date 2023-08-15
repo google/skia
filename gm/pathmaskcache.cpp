@@ -26,7 +26,7 @@ public:
     PathMaskCache() {}
 
 protected:
-    SkString onShortName() override { return SkString("path_mask_cache"); }
+    SkString getName() const override { return SkString("path_mask_cache"); }
 
     SkISize onISize() override {
         return SkISize::Make(650, 950);

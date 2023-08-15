@@ -34,7 +34,7 @@ public:
     Xfermodes2GM(bool grayscale) : fGrayscale(grayscale) {}
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         return fGrayscale ? SkString("xfermodes2_gray") : SkString("xfermodes2");
     }
 

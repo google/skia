@@ -34,9 +34,7 @@ protected:
 
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
-        return SkString("circular-clips");
-    }
+    SkString getName() const override { return SkString("circular-clips"); }
 
     SkISize onISize() override {
         return SkISize::Make(800, 200);

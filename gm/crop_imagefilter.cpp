@@ -348,7 +348,7 @@ protected:
         return {SkScalarRoundToInt(4.f * (kExampleBounds.fRight + 1.f) - 1.f),
                 SkScalarRoundToInt(5.f * (kExampleBounds.fBottom + 1.f) - 1.f)};
     }
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("crop_imagefilter_");
         switch(fInputMode) {
             case SkTileMode::kDecal:  name.append("decal");  break;

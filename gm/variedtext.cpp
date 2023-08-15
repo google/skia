@@ -36,7 +36,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("varied_text");
         if (fEffectiveClip) {
             name.append("_clipped");

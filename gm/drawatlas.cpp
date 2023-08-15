@@ -69,10 +69,7 @@ public:
     DrawAtlasGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("draw-atlas");
-    }
+    SkString getName() const override { return SkString("draw-atlas"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 480);

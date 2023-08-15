@@ -333,9 +333,7 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("smallpaths");
-    }
+    SkString getName() const override { return SkString("smallpaths"); }
 
     SkISize onISize() override {
         return SkISize::Make(640, 512);

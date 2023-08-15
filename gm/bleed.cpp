@@ -126,7 +126,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override { return fShortName; }
+    SkString getName() const override { return fShortName; }
     SkISize onISize() override { return SkISize::Make(800, 1000); }
 
     void drawImage(SkCanvas* canvas, sk_sp<SkImage> image, SkRect srcRect, SkRect dstRect,

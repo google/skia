@@ -50,7 +50,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("texel_subset");
         switch (fFilter) {
             case Filter::kNearest:

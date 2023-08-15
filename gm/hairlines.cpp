@@ -24,11 +24,7 @@ namespace skiagm {
 
 class HairlinesGM : public GM {
 protected:
-
-
-    SkString onShortName() override {
-        return SkString("hairlines");
-    }
+    SkString getName() const override { return SkString("hairlines"); }
 
     SkISize onISize() override { return SkISize::Make(1250, 1250); }
 

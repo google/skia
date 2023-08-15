@@ -61,7 +61,7 @@ static void show_zero_len_dash(SkCanvas* canvas) {
 }
 
 class DashingGM : public skiagm::GM {
-    SkString onShortName() override { return SkString("dashing"); }
+    SkString getName() const override { return SkString("dashing"); }
 
     SkISize onISize() override { return {640, 340}; }
 
@@ -139,7 +139,7 @@ static SkPath make_path_star(const SkRect& bounds) {
 }
 
 class Dashing2GM : public skiagm::GM {
-    SkString onShortName() override { return SkString("dashing2"); }
+    SkString getName() const override { return SkString("dashing2"); }
 
     SkISize onISize() override { return {640, 480}; }
 
@@ -189,7 +189,7 @@ class Dashing2GM : public skiagm::GM {
 
 // Test out the on/off line dashing Chrome if fond of
 class Dashing3GM : public skiagm::GM {
-    SkString onShortName() override { return SkString("dashing3"); }
+    SkString getName() const override { return SkString("dashing3"); }
 
     SkISize onISize() override { return {640, 480}; }
 
@@ -312,7 +312,7 @@ class Dashing3GM : public skiagm::GM {
 //////////////////////////////////////////////////////////////////////////////
 
 class Dashing4GM : public skiagm::GM {
-    SkString onShortName() override { return SkString("dashing4"); }
+    SkString getName() const override { return SkString("dashing4"); }
 
     SkISize onISize() override { return {640, 1100}; }
 
@@ -410,7 +410,7 @@ public:
 private:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override { return SkString(fDoAA ?  "dashing5_aa" : "dashing5_bw"); }
+    SkString getName() const override { return SkString(fDoAA ? "dashing5_aa" : "dashing5_bw"); }
 
     SkISize onISize() override { return {400, 200}; }
 

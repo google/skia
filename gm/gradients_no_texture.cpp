@@ -99,8 +99,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkString(fDither ? "gradients_no_texture" : "gradients_no_texture_nodither");
     }
 
@@ -237,8 +236,7 @@ public:
     GradientsManyColorsGM(bool dither) : fDither(dither) {}
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkString(fDither ? "gradients_many" : "gradients_many_nodither");
     }
 

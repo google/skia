@@ -113,9 +113,7 @@ public:
     ImageShaderGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("image-shader");
-    }
+    SkString getName() const override { return SkString("image-shader"); }
 
     SkISize onISize() override {
         return SkISize::Make(850, 450);

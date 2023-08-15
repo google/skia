@@ -67,10 +67,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("shadertext3");
-    }
+    SkString getName() const override { return SkString("shadertext3"); }
 
     SkISize onISize() override { return SkISize::Make(820, 930); }
 

@@ -174,7 +174,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         if (fDoStrokeAndFill) {
             return SkString("convex-lineonly-paths-stroke-and-fill");
         }

@@ -134,10 +134,7 @@ public:
     RRectGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("rrect");
-    }
+    SkString getName() const override { return SkString("rrect"); }
 
     SkISize onISize() override {
         return SkISize::Make(820, 710);

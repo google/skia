@@ -37,10 +37,7 @@ public:
     };
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("nonclosedpaths");
-    }
+    SkString getName() const override { return SkString("nonclosedpaths"); }
 
     // 12 * 18 + 3 cases, every case is 100 * 100 pixels.
     SkISize onISize() override {

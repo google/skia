@@ -21,9 +21,7 @@ public:
     ColorFilterAlpha8() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("colorfilteralpha8");
-    }
+    SkString getName() const override { return SkString("colorfilteralpha8"); }
 
     SkISize onISize() override {
         return SkISize::Make(400, 400);

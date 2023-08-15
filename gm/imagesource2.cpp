@@ -32,7 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("imagesrc2_");
         name.append(fSuffix);
         return name;

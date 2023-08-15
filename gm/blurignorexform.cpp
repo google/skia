@@ -38,7 +38,7 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("blur_ignore_xform_%s",
                     DrawType::kCircle == fDrawType ? "circle"

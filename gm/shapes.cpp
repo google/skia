@@ -38,7 +38,7 @@ protected:
         }
     }
 
-    SkString onShortName() final { return fName; }
+    SkString getName() const override { return fName; }
     SkISize onISize() override { return SkISize::Make(500, 500); }
 
     void onOnceBeforeDraw() override {

@@ -32,10 +32,7 @@ public:
     StringArtGM() : fNumSteps(kMaxNumSteps) {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("stringart");
-    }
+    SkString getName() const override { return SkString("stringart"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);
@@ -120,7 +117,7 @@ public:
 
 protected:
 
-    SkString onShortName() override { return SkString("skottie"); }
+    SkString getName() const override { return SkString("skottie"); }
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 

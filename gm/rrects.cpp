@@ -55,7 +55,7 @@ protected:
         this->setUpRRects();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("rrect");
         switch (fType) {
             case kBW_Draw_Type:

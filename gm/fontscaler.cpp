@@ -26,10 +26,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("fontscaler");
-    }
+    SkString getName() const override { return SkString("fontscaler"); }
 
     SkISize onISize() override {
         return SkISize::Make(1450, 750);

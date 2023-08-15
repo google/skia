@@ -54,10 +54,7 @@ public:
     StrokesGM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokes_round");
-    }
+    SkString getName() const override { return SkString("strokes_round"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -118,9 +115,7 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("zeroPath");
-    }
+    SkString getName() const override { return SkString("zeroPath"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -174,10 +169,7 @@ private:
 };
 
 class TeenyStrokesGM : public skiagm::GM {
-
-    SkString onShortName() override {
-        return SkString("teenyStrokes");
-    }
+    SkString getName() const override { return SkString("teenyStrokes"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -296,10 +288,7 @@ protected:
         }
     }
 
-
-    SkString onShortName() override {
-        return SkString("strokes_poly");
-    }
+    SkString getName() const override { return SkString("strokes_poly"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -388,10 +377,7 @@ public:
     Strokes3GM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokes3");
-    }
+    SkString getName() const override { return SkString("strokes3"); }
 
     SkISize onISize() override {
         return SkISize::Make(1500, 1500);
@@ -445,10 +431,7 @@ public:
     Strokes4GM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokes_zoomed");
-    }
+    SkString getName() const override { return SkString("strokes_zoomed"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);
@@ -473,10 +456,7 @@ public:
     Strokes5GM() {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("zero_control_stroke");
-    }
+    SkString getName() const override { return SkString("zero_control_stroke"); }
 
     SkISize onISize() override {
         return SkISize::Make(W, H*2);

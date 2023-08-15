@@ -67,7 +67,7 @@ class FontRegenGM : public skiagm::GM {
     }
 #endif
 
-    SkString onShortName() override { return SkString("fontregen"); }
+    SkString getName() const override { return SkString("fontregen"); }
 
     SkISize onISize() override { return {kSize, kSize}; }
 
@@ -135,8 +135,7 @@ DEF_GM(return new FontRegenGM())
 ///////////////////////////////////////////////////////////////////////////////
 
 class BadAppleGM : public skiagm::GM {
-
-    SkString onShortName() override { return SkString("badapple"); }
+    SkString getName() const override { return SkString("badapple"); }
 
     SkISize onISize() override { return {kSize, kSize}; }
 

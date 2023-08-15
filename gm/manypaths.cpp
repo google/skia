@@ -40,9 +40,7 @@ protected:
     static const int kWidth = 800;
     static const int kHeight = 600;
 
-    SkString onShortName() override {
-        return SkString("manycircles");
-    }
+    SkString getName() const override { return SkString("manycircles"); }
 
     SkISize onISize() override {
         return SkISize::Make(kWidth, kHeight);
@@ -78,10 +76,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("manyrrects");
-    }
+    SkString getName() const override { return SkString("manyrrects"); }
 
     SkISize onISize() override {
         return SkISize::Make(800, 300);

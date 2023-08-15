@@ -48,9 +48,7 @@ protected:
         fRect = SkRect::MakeLTRB(10, 10, 100, 70);
     }
 
-    SkString onShortName() override {
-        return SkString("contour_start");
-    }
+    SkString getName() const override { return SkString("contour_start"); }
 
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 

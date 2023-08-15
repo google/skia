@@ -38,9 +38,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("emboss");
-    }
+    SkString getName() const override { return SkString("emboss"); }
 
     SkISize onISize() override {
         return SkISize::Make(600, 120);

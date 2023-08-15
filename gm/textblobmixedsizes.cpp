@@ -93,7 +93,7 @@ protected:
         fBlob = builder.make();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("textblobmixedsizes%s",
                               fUseDFT ? "_df" : "");
     }
