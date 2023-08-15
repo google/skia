@@ -244,7 +244,16 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                    std::string*,
                                    SkSL::Program::Interface*,
                                    ShaderErrorHandler*);
-    const SkSLCompileFn skslCompileFn = kEnableWGSL ? SkSLToWGSL : SkSLToSPIRV;
+    const SkSLCompileFn kSkSLCompileFn = kEnableWGSL ? SkSLToWGSL
+                                                     : SkSLToSPIRV;
+
+    using DawnCompileFn = bool (*)(const DawnSharedContext* sharedContext,
+                                   const std::string&,
+                                   wgpu::ShaderModule* module,
+                                   ShaderErrorHandler*);
+    const DawnCompileFn kDawnCompileFn = kEnableWGSL ? DawnCompileWGSLShaderModule
+                                                     : DawnCompileSPIRVShaderModule;
+
     constexpr const char *kVSEntrypoint = kEnableWGSL ? "vertexMain" : "main";
     constexpr const char *kFSEntrypoint = kEnableWGSL ? "fragmentMain" : "main";
 
@@ -283,18 +292,16 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     bool hasFragment = !fsSkSL.empty();
     if (hasFragment) {
-        if (!skslCompileFn(compiler,
-                           fsSkSL,
-                           SkSL::ProgramKind::kGraphiteFragment,
-                           settings,
-                           &fsCode,
-                           &fsInterface,
-                           errorHandler)) {
+        if (!kSkSLCompileFn(compiler,
+                            fsSkSL,
+                            SkSL::ProgramKind::kGraphiteFragment,
+                            settings,
+                            &fsCode,
+                            &fsInterface,
+                            errorHandler)) {
             return {};
         }
-        fsModule = kEnableWGSL ? DawnCompileWGSLShaderModule(sharedContext, fsCode, errorHandler)
-                               : DawnCompileSPIRVShaderModule(sharedContext, fsCode, errorHandler);
-        if (!fsModule) {
+        if (!kDawnCompileFn(sharedContext, fsCode, &fsModule, errorHandler)) {
             return {};
         }
     }
@@ -303,19 +310,16 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                          step,
                                          useShadingSsboIndex,
                                          localCoordsNeeded);
-    if (!skslCompileFn(compiler,
-                       vsSkSL,
-                       SkSL::ProgramKind::kGraphiteVertex,
-                       settings,
-                       &vsCode,
-                       &vsInterface,
-                       errorHandler)) {
+    if (!kSkSLCompileFn(compiler,
+                        vsSkSL,
+                        SkSL::ProgramKind::kGraphiteVertex,
+                        settings,
+                        &vsCode,
+                        &vsInterface,
+                        errorHandler)) {
         return {};
     }
-
-    vsModule = kEnableWGSL ? DawnCompileWGSLShaderModule(sharedContext, vsCode, errorHandler)
-                           : DawnCompileSPIRVShaderModule(sharedContext, vsCode, errorHandler);
-    if (!vsModule) {
+    if (!kDawnCompileFn(sharedContext, vsCode, &vsModule, errorHandler)) {
         return {};
     }
 

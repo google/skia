@@ -88,9 +88,57 @@ wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlag
     return wgpu::TextureFormat::Undefined;
 }
 
-wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
-                                                std::string_view spirv,
-                                                ShaderErrorHandler*) {
+static bool check_shader_module(wgpu::ShaderModule* module,
+                                const char* shaderText,
+                                ShaderErrorHandler* errorHandler) {
+    struct Handler {
+        static void Fn(WGPUCompilationInfoRequestStatus status,
+                       const WGPUCompilationInfo* info,
+                       void* userdata) {
+            Handler* self = reinterpret_cast<Handler*>(userdata);
+            SkASSERT(status == WGPUCompilationInfoRequestStatus_Success);
+
+            // Walk the message list and check for hard errors.
+            self->fSuccess = true;
+            for (size_t index = 0; index < info->messageCount; ++index) {
+                const WGPUCompilationMessage& entry = info->messages[index];
+                if (entry.type == WGPUCompilationMessageType_Error) {
+                    self->fSuccess = false;
+                    break;
+                }
+            }
+
+            // If we found a hard error, report the compilation messages to the error handler.
+            if (!self->fSuccess) {
+                std::string errors;
+                for (size_t index = 0; index < info->messageCount; ++index) {
+                    const WGPUCompilationMessage& entry = info->messages[index];
+                    errors += "line " +
+                              std::to_string(entry.lineNum) + ':' +
+                              std::to_string(entry.linePos) + ' ' +
+                              entry.message + '\n';
+                }
+                self->fErrorHandler->compileError(self->fShaderText, errors.c_str());
+            }
+        }
+
+        const char* fShaderText;
+        ShaderErrorHandler* fErrorHandler;
+        bool fSuccess = false;
+    };
+
+    Handler handler;
+    handler.fShaderText = shaderText;
+    handler.fErrorHandler = errorHandler;
+    module->GetCompilationInfo(&Handler::Fn, &handler);
+
+    return handler.fSuccess;
+}
+
+bool DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
+                                  const std::string& spirv,
+                                  wgpu::ShaderModule* module,
+                                  ShaderErrorHandler* errorHandler) {
     wgpu::ShaderModuleSPIRVDescriptor spirvDesc;
     spirvDesc.codeSize = spirv.size() / 4;
     spirvDesc.code = reinterpret_cast<const uint32_t*>(spirv.data());
@@ -105,19 +153,24 @@ wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedC
     desc.nextInChain = &spirvDesc;
     spirvDesc.nextInChain = &dawnSpirvOptions;
 
-    return sharedContext->device().CreateShaderModule(&desc);
+    *module = sharedContext->device().CreateShaderModule(&desc);
+
+    return check_shader_module(module, "[SPIR-V omitted]", errorHandler);
 }
 
-wgpu::ShaderModule DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
-                                               const std::string& wgsl,
-                                               ShaderErrorHandler*) {
+bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
+                                 const std::string& wgsl,
+                                 wgpu::ShaderModule* module,
+                                 ShaderErrorHandler* errorHandler) {
     wgpu::ShaderModuleWGSLDescriptor wgslDesc;
     wgslDesc.code = wgsl.c_str();
 
     wgpu::ShaderModuleDescriptor desc;
     desc.nextInChain = &wgslDesc;
 
-    return sharedContext->device().CreateShaderModule(&desc);
+    *module = sharedContext->device().CreateShaderModule(&desc);
+
+    return check_shader_module(module, wgsl.c_str(), errorHandler);
 }
 
 } // namespace skgpu::graphite
