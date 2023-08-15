@@ -107,20 +107,20 @@ enum class TestType : uint8_t { kCPU, kGanesh, kGraphite };
 
 struct Test {
     static Test MakeCPU(const char* name, CPUTestProc proc) {
-        return Test(name, TestType::kCPU, CtsEnforcement::kNever,
-                    proc, nullptr, nullptr, nullptr);
+        return Test{name, TestType::kCPU, CtsEnforcement::kNever,
+                    proc, nullptr, nullptr, nullptr};
     }
 
     static Test MakeGanesh(const char* name, CtsEnforcement ctsEnforcement,
                            GaneshTestProc proc, ContextOptionsProc optionsProc = nullptr) {
-        return Test(name, TestType::kGanesh, ctsEnforcement,
-                    nullptr, proc, nullptr, optionsProc);
+        return Test{name, TestType::kGanesh, ctsEnforcement,
+                    nullptr, proc, nullptr, optionsProc};
     }
 
     static Test MakeGraphite(const char* name, CtsEnforcement ctsEnforcement,
                              GraphiteTestProc proc) {
-        return Test(name, TestType::kGraphite, ctsEnforcement,
-                    nullptr, nullptr, proc, nullptr);
+        return Test{name, TestType::kGraphite, ctsEnforcement,
+                    nullptr, nullptr, proc, nullptr};
     }
 
     const char* fName;
@@ -270,11 +270,9 @@ private:
 
 using skiatest::Test;
 
-#define DEF_CONDITIONAL_TEST(name, reporter, condition)                                \
-    static void test_##name(skiatest::Reporter*);                                      \
-    skiatest::TestRegistry name##TestRegistry(Test::MakeCPU(#name,                     \
-                                                            test_##name),              \
-                                              condition);                              \
+#define DEF_CONDITIONAL_TEST(name, reporter, condition)                                      \
+    static void test_##name(skiatest::Reporter*);                                            \
+    skiatest::TestRegistry name##TestRegistry(Test::MakeCPU(#name, test_##name), condition); \
     void test_##name(skiatest::Reporter* reporter)
 
 #define DEF_TEST(name, reporter) DEF_CONDITIONAL_TEST(name, reporter, true)
@@ -287,7 +285,7 @@ using skiatest::Test;
     #define UNIX_ONLY_TEST DEF_TEST_DISABLED
 #endif
 
-// TODO update all the callsites to support CtsEnforcement
+// TODO(b/296040739): update all the callsites to support CtsEnforcement
 #define DEF_GRAPHITE_TEST(name, reporter)                                                       \
     static void test_##name(skiatest::Reporter*);                                               \
     static void test_graphite_##name(skiatest::Reporter* reporter) {                            \
@@ -298,45 +296,52 @@ using skiatest::Test;
                                                                  test_graphite_##name));        \
     void test_##name(skiatest::Reporter* reporter)
 
-// TODO update all the callsites to support CtsEnforcement
-#define DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, context_filter, reporter, graphite_context)          \
-    static void test_##name(skiatest::Reporter*, skgpu::graphite::Context*);                      \
-    static void test_graphite_contexts_##name(skiatest::Reporter* _reporter) {                    \
-        skiatest::graphite::RunWithGraphiteTestContexts(test_##name, context_filter, _reporter);  \
-    }                                                                                             \
-    skiatest::TestRegistry name##TestRegistry(Test::MakeGraphite(#name,                           \
-                                                                 CtsEnforcement::kNever,          \
-                                                                 test_graphite_contexts_##name)); \
+// TODO(b/296040739): update all the callsites to support CtsEnforcement
+#define DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(                                              \
+        name, context_filter, reporter, graphite_context, cond)                                  \
+    static void test_##name(skiatest::Reporter*, skgpu::graphite::Context*);                     \
+    static void test_graphite_contexts_##name(skiatest::Reporter* _reporter) {                   \
+        skiatest::graphite::RunWithGraphiteTestContexts(test_##name, context_filter, _reporter); \
+    }                                                                                            \
+    skiatest::TestRegistry name##TestRegistry(                                                   \
+            Test::MakeGraphite(#name, CtsEnforcement::kNever, test_graphite_contexts_##name),    \
+            cond);                                                                               \
     void test_##name(skiatest::Reporter* reporter, skgpu::graphite::Context* graphite_context)
 
+#define DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(name, reporter, graphite_context, cond) \
+    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(name, nullptr, reporter, graphite_context, cond)
+
+#define DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(                                     \
+        name, reporter, graphite_context, cond)                                                   \
+    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(name,                                              \
+                                               sk_gpu_test::GrContextFactory::IsRenderingContext, \
+                                               reporter,                                          \
+                                               graphite_context,                                  \
+                                               cond)
+
+#define DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, context_filter, reporter, graphite_context) \
+    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(                                          \
+            name, context_filter, reporter, graphite_context, true)
+
 #define DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(name, reporter, graphite_context) \
-    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, nullptr, reporter, graphite_context)
+    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(name, reporter, graphite_context, true)
 
-#define DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(name, reporter, graphite_context)    \
-    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name,                                              \
-                                   sk_gpu_test::GrContextFactory::IsRenderingContext, \
-                                   reporter,                                          \
-                                   graphite_context)
+#define DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(name, reporter, graphite_context) \
+    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(name, reporter, graphite_context, true)
 
-#define DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(name, reporter, graphite_context)         \
-    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name,                                               \
-                                   skiatest::IsVulkanContextType, \
-                                   reporter,                                           \
-                                   graphite_context)
+#define DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(name, reporter, graphite_context) \
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, skiatest::IsVulkanContextType, reporter, graphite_context)
 
 #define DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(name, reporter, graphite_context) \
-    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name,                                      \
-                                   skiatest::IsMetalContextType,              \
-                                   reporter,                                  \
-                                   graphite_context)
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, skiatest::IsMetalContextType, reporter, graphite_context)
 
 #define DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(name, reporter, graphite_context) \
     DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, skiatest::IsDawnContextType, reporter, graphite_context)
 
-#define DEF_GANESH_TEST(name, reporter, options, ctsEnforcement)                     \
-    static void test_##name(skiatest::Reporter*, const GrContextOptions&);           \
-    skiatest::TestRegistry name##TestRegistry(Test::MakeGanesh(                      \
-            #name, ctsEnforcement, test_##name, nullptr));                           \
+#define DEF_GANESH_TEST(name, reporter, options, ctsEnforcement)            \
+    static void test_##name(skiatest::Reporter*, const GrContextOptions&);  \
+    skiatest::TestRegistry name##TestRegistry(                              \
+            Test::MakeGanesh(#name, ctsEnforcement, test_##name, nullptr)); \
     void test_##name(skiatest::Reporter* reporter, const GrContextOptions& options)
 
 #define DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(                                                \
@@ -346,9 +351,9 @@ using skiatest::Test;
                                          const GrContextOptions& options) {                      \
         skiatest::RunWithGaneshTestContexts(test_##name, context_filter, reporter, options);     \
     }                                                                                            \
-    skiatest::TestRegistry name##TestRegistry(Test::MakeGanesh(                                \
-            #name, ctsEnforcement, test_gpu_contexts_##name, options_filter),                    \
-        condition);                                        \
+    skiatest::TestRegistry name##TestRegistry(                                                   \
+            Test::MakeGanesh(#name, ctsEnforcement, test_gpu_contexts_##name, options_filter),   \
+            condition);                                                                          \
     void test_##name(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& context_info)
 
 #define DEF_CONDITIONAL_GANESH_TEST_FOR_ALL_CONTEXTS(            \
@@ -381,9 +386,11 @@ using skiatest::Test;
                                  context_info,                                               \
                                  nullptr,                                                    \
                                  ctsEnforcement)
+
 #define DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
     DEF_GANESH_TEST_FOR_CONTEXTS(                                                         \
             name, &skiatest::IsGLContextType, reporter, context_info, nullptr, ctsEnforcement)
+
 #define DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
     DEF_GANESH_TEST_FOR_CONTEXTS(name,                                                          \
                                  &skiatest::IsRenderingGLContextType,                           \
@@ -391,6 +398,7 @@ using skiatest::Test;
                                  context_info,                                                  \
                                  nullptr,                                                       \
                                  ctsEnforcement)
+
 #define DEF_GANESH_TEST_FOR_MOCK_CONTEXT(name, reporter, context_info) \
     DEF_GANESH_TEST_FOR_CONTEXTS(name,                                 \
                                  &skiatest::IsMockContextType,         \
@@ -398,9 +406,11 @@ using skiatest::Test;
                                  context_info,                         \
                                  nullptr,                              \
                                  CtsEnforcement::kNever)
+
 #define DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(name, reporter, context_info, ctsEnforcement) \
     DEF_GANESH_TEST_FOR_CONTEXTS(                                                        \
             name, &skiatest::IsVulkanContextType, reporter, context_info, nullptr, ctsEnforcement)
+
 #define DEF_GANESH_TEST_FOR_METAL_CONTEXT(name, reporter, context_info) \
     DEF_GANESH_TEST_FOR_CONTEXTS(name,                                  \
                                  &skiatest::IsMetalContextType,         \
@@ -415,6 +425,7 @@ using skiatest::Test;
                                  context_info,                        \
                                  nullptr,                             \
                                  CtsEnforcement::kNever)
+
 #define DEF_GANESH_TEST_FOR_DAWN_CONTEXT(name, reporter, context_info) \
     DEF_GANESH_TEST_FOR_CONTEXTS(name,                                 \
                                  &skiatest::IsDawnContextType,         \
