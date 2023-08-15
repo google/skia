@@ -111,9 +111,7 @@ protected:
         return SkStringPrintf("encode-srgb-%s", format);
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(imageWidth * 2, imageHeight * 15);
-    }
+    SkISize getISize() override { return SkISize::Make(imageWidth * 2, imageHeight * 15); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkColorType colorTypes[] = {

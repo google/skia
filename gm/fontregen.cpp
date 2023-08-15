@@ -69,7 +69,7 @@ class FontRegenGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("fontregen"); }
 
-    SkISize onISize() override { return {kSize, kSize}; }
+    SkISize getISize() override { return {kSize, kSize}; }
 
     void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorLTGRAY);
@@ -137,7 +137,7 @@ DEF_GM(return new FontRegenGM())
 class BadAppleGM : public skiagm::GM {
     SkString getName() const override { return SkString("badapple"); }
 
-    SkISize onISize() override { return {kSize, kSize}; }
+    SkISize getISize() override { return {kSize, kSize}; }
 
     void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorWHITE);

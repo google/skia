@@ -17,7 +17,7 @@ namespace skiagm {
 class BatchedConvexPathsGM : public GM {
 private:
     SkString getName() const override { return SkString("batchedconvexpaths"); }
-    SkISize onISize() override { return SkISize::Make(512, 512); }
+    SkISize getISize() override { return SkISize::Make(512, 512); }
 
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
         // Ensure our paths don't go through the atlas path renderer.

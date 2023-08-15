@@ -174,7 +174,7 @@ class KawaseBlurRT : public skiagm::GM {
 public:
     KawaseBlurRT() {}
     SkString getName() const override { return SkString("kawase_blur_rt"); }
-    SkISize onISize() override { return {1280, 768}; }
+    SkISize getISize() override { return {1280, 768}; }
 
     void onOnceBeforeDraw() override {
         fMandrill = GetResourceAsImage("images/mandrill_256.png");

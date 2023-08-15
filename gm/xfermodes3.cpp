@@ -45,9 +45,7 @@ public:
 protected:
     SkString getName() const override { return SkString("xfermodes3"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(630, 1215);
-    }
+    SkISize getISize() override { return SkISize::Make(630, 1215); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));

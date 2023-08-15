@@ -45,9 +45,7 @@ public:
 protected:
     SkString getName() const override { return SkString("colormatrix"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onOnceBeforeDraw() override {
         fSolidImg = CreateSolidBitmap(64, 64);

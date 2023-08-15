@@ -27,9 +27,7 @@ public:
 protected:
     SkString getName() const override { return SkString("points"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 490);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 490); }
 
     static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
         for (size_t i = 0; i < n; i++) {

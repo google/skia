@@ -33,7 +33,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {435, 1180}; }
+    SkISize getISize() override { return {435, 1180}; }
 
     void onOnceBeforeDraw() override {
         {
@@ -340,7 +340,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {468, 258}; }
+    SkISize getISize() override { return {468, 258}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -507,7 +507,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {140, 250}; }
+    SkISize getISize() override { return {140, 250}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -671,7 +671,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {270, 490}; }
+    SkISize getISize() override { return {270, 490}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -880,7 +880,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {90, 30}; }
+    SkISize getISize() override { return {90, 30}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes1[]{
@@ -1027,7 +1027,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {390, 90}; }
+    SkISize getISize() override { return {390, 90}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{

@@ -50,9 +50,7 @@ protected:
 
     SkString getName() const override { return SkString("dftext"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, 768);
-    }
+    SkISize getISize() override { return SkISize::Make(1024, 768); }
 
     void onDraw(SkCanvas* inputCanvas) override {
         SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
@@ -60,7 +58,7 @@ protected:
 
         // set up offscreen rendering with distance field text
         auto ctx = inputCanvas->recordingContext();
-        SkISize size = onISize();
+        SkISize size = getISize();
         SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
                                                 inputCanvas->imageInfo().refColorSpace());
         SkSurfaceProps inputProps;

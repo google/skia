@@ -276,7 +276,7 @@ namespace skiagm {
  */
 class AttributesGM : public GpuGM {
     SkString getName() const override { return SkString("attributes"); }
-    SkISize onISize() override { return {120, 340}; }
+    SkISize getISize() override { return {120, 340}; }
     DrawResult onDraw(GrRecordingContext*, SkCanvas*, SkString* errorMsg) override;
 };
 

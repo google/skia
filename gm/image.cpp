@@ -147,9 +147,7 @@ public:
 protected:
     SkString getName() const override { return SkString("image-surface"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(960, 1200);
-    }
+    SkISize getISize() override { return SkISize::Make(960, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(2, 2);
@@ -290,9 +288,7 @@ public:
 protected:
     SkString getName() const override { return SkString("scale-pixels"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(960, 1200);
-    }
+    SkISize getISize() override { return SkISize::Make(960, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);

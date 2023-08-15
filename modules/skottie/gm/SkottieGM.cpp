@@ -46,9 +46,7 @@ public:
 protected:
     SkString getName() const override { return SkString("skottie_webfont"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kSize, kSize);
-    }
+    SkISize getISize() override { return SkISize::Make(kSize, kSize); }
 
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream(kSkottieResource)) {
@@ -99,9 +97,7 @@ public:
 protected:
     SkString getName() const override { return SkStringPrintf("skottie_colorize_%s", fName); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kSize, kSize);
-    }
+    SkISize getISize() override { return SkISize::Make(kSize, kSize); }
 
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream(fResource)) {
@@ -183,9 +179,7 @@ public:
 protected:
     SkString getName() const override { return SkString("skottie_multiframe"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kSize, kSize);
-    }
+    SkISize getISize() override { return SkISize::Make(kSize, kSize); }
 
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream("skottie/skottie_sample_multiframe.json")) {

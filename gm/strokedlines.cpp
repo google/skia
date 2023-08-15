@@ -137,7 +137,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(kNumColumns * (2*kRadius+2*kPad), kNumRows * (2*kRadius+2*kPad));
     }
 

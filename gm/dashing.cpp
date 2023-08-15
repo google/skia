@@ -63,7 +63,7 @@ static void show_zero_len_dash(SkCanvas* canvas) {
 class DashingGM : public skiagm::GM {
     SkString getName() const override { return SkString("dashing"); }
 
-    SkISize onISize() override { return {640, 340}; }
+    SkISize getISize() override { return {640, 340}; }
 
     void onDraw(SkCanvas* canvas) override {
         struct Intervals {
@@ -141,7 +141,7 @@ static SkPath make_path_star(const SkRect& bounds) {
 class Dashing2GM : public skiagm::GM {
     SkString getName() const override { return SkString("dashing2"); }
 
-    SkISize onISize() override { return {640, 480}; }
+    SkISize getISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr int gIntervals[] = {
@@ -191,7 +191,7 @@ class Dashing2GM : public skiagm::GM {
 class Dashing3GM : public skiagm::GM {
     SkString getName() const override { return SkString("dashing3"); }
 
-    SkISize onISize() override { return {640, 480}; }
+    SkISize getISize() override { return {640, 480}; }
 
     // Draw a 100x100 block of dashed lines. The horizontal ones are BW
     // while the vertical ones are AA.
@@ -314,7 +314,7 @@ class Dashing3GM : public skiagm::GM {
 class Dashing4GM : public skiagm::GM {
     SkString getName() const override { return SkString("dashing4"); }
 
-    SkISize onISize() override { return {640, 1100}; }
+    SkISize getISize() override { return {640, 1100}; }
 
     void onDraw(SkCanvas* canvas) override {
         struct Intervals {
@@ -412,7 +412,7 @@ private:
 
     SkString getName() const override { return SkString(fDoAA ? "dashing5_aa" : "dashing5_bw"); }
 
-    SkISize onISize() override { return {400, 200}; }
+    SkISize getISize() override { return {400, 200}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr int kOn = 4;

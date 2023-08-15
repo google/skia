@@ -51,7 +51,7 @@ static sk_sp<SkShader> make_chrome_solid() {
 class ChromeGradTextGM1 : public skiagm::GM {
     SkString getName() const override { return SkString("chrome_gradtext1"); }
 
-    SkISize onISize() override { return {500, 480}; }
+    SkISize getISize() override { return {500, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -76,7 +76,7 @@ class ChromeGradTextGM1 : public skiagm::GM {
 class ChromeGradTextGM2 : public skiagm::GM {
     SkString getName() const override { return SkString("chrome_gradtext2"); }
 
-    SkISize onISize() override { return {500, 480}; }
+    SkISize getISize() override { return {500, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

@@ -23,9 +23,7 @@ public:
 protected:
     SkString getName() const override { return SkString("colorfilteralpha8"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(400, 400);
-    }
+    SkISize getISize() override { return SkISize::Make(400, 400); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorRED);

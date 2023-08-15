@@ -48,9 +48,7 @@ protected:
 
     SkString getName() const override { return SkString("blurcircles2"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(730, 1350);
-    }
+    SkISize getISize() override { return SkISize::Make(730, 1350); }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr SkScalar kMaxR = kMaxRadius + kMaxBlurRadius;

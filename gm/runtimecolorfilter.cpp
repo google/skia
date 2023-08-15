@@ -92,9 +92,7 @@ public:
 protected:
     SkString getName() const override { return SkString("runtimecolorfilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(256 * 3, 256 * 2);
-    }
+    SkISize getISize() override { return SkISize::Make(256 * 3, 256 * 2); }
 
     void onOnceBeforeDraw() override {
         fImg = GetResourceAsImage("images/mandrill_256.png");

@@ -436,7 +436,7 @@ protected:
             return SkString("simple-polygon-offset");
         }
     }
-    SkISize onISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
+    SkISize getISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
     bool runAsBench() const override { return true; }
 
     static void GetConvexPolygon(int index, SkPathDirection dir,

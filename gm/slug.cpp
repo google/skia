@@ -59,9 +59,7 @@ protected:
 
     SkString getName() const override { return SkString("slug"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1000, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(1000, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkTextBlob> blob(this->makeBlob());

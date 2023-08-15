@@ -105,9 +105,7 @@ protected:
 
     SkString getName() const override { return SkString("mixedtextblobs"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
 

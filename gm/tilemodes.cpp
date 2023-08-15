@@ -84,7 +84,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(880, 560); }
+    SkISize getISize() override { return SkISize::Make(880, 560); }
 
     void onOnceBeforeDraw() override {
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
@@ -207,7 +207,7 @@ public:
 private:
     SkString getName() const override { return SkString(fName); }
 
-    SkISize onISize() override { return SkISize::Make(650, 610); }
+    SkISize getISize() override { return SkISize::Make(650, 610); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);

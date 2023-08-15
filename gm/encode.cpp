@@ -30,9 +30,7 @@ public:
 protected:
     SkString getName() const override { return SkString("encode"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, 600);
-    }
+    SkISize getISize() override { return SkISize::Make(1024, 600); }
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap orig;

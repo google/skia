@@ -38,7 +38,7 @@ public:
 protected:
     SkString getName() const override { return SkString("sharedcorners"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         constexpr int numRows = 3 * 2;
         constexpr int numCols = (1 + std::size(kJitters)) * 2;
         return SkISize::Make(numCols * (kBoxSize + kPadSize) + kPadSize,

@@ -44,7 +44,7 @@ public:
 protected:
     SkString getName() const override { return SkString("dashcircle"); }
 
-    SkISize onISize() override { return SkISize::Make(900, 1200); }
+    SkISize getISize() override { return SkISize::Make(900, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint refPaint;
@@ -126,7 +126,7 @@ public:
 protected:
     SkString getName() const override { return SkString("dashcircle2"); }
 
-    SkISize onISize() override { return SkISize::Make(635, 900); }
+    SkISize getISize() override { return SkISize::Make(635, 900); }
 
     void onDraw(SkCanvas* canvas) override {
         // These intervals are defined relative to tau.

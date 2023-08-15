@@ -53,7 +53,7 @@ public:
     }
 
     SkString getName() const override { return SkString("rippleshader"); }
-    SkISize onISize() override { return kSize; }
+    SkISize getISize() override { return kSize; }
     bool onAnimate(double nanos) override {
         fMillis = nanos / (1000. * 1000.);
         return true;

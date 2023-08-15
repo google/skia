@@ -47,7 +47,7 @@ public:
 protected:
     SkString getName() const override { return SkString("convex_poly_effect"); }
 
-    SkISize onISize() override { return SkISize::Make(720, 550); }
+    SkISize getISize() override { return SkISize::Make(720, 550); }
 
     void onOnceBeforeDraw() override {
         SkPath tri;

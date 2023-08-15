@@ -74,7 +74,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         static constexpr int kN = GrSamplerState::kWrapModeCount;
         int w = kTestPad + 2*kN*(kImageSize.width()  + 2*kDrawPad + kTestPad);
         int h = kTestPad + 2*kN*(kImageSize.height() + 2*kDrawPad + kTestPad);
@@ -139,7 +139,7 @@ protected:
 
         SkRect localRect = SkRect::Make(fBitmap.bounds()).makeOutset(kDrawPad, kDrawPad);
 
-        auto size = this->onISize();
+        auto size = this->getISize();
 
         SkScalar y = kDrawPad + kTestPad;
         SkRect drawRect;

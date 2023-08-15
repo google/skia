@@ -28,7 +28,7 @@
 class ClippedCubicGM : public skiagm::GM {
     SkString getName() const override { return SkString("clippedcubic"); }
 
-    SkISize onISize() override { return {1240, 390}; }
+    SkISize getISize() override { return {1240, 390}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath path;
@@ -59,7 +59,7 @@ class ClippedCubicGM : public skiagm::GM {
 class ClippedCubic2GM : public skiagm::GM {
     SkString getName() const override { return SkString("clippedcubic2"); }
 
-    SkISize onISize() override { return {1240, 390}; }
+    SkISize getISize() override { return {1240, 390}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->save();
@@ -121,7 +121,7 @@ private:
 class CubicPathGM : public skiagm::GM {
     SkString getName() const override { return SkString("cubicpath"); }
 
-    SkISize onISize() override { return {1240, 390}; }
+    SkISize getISize() override { return {1240, 390}; }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -240,7 +240,7 @@ class CubicPathGM : public skiagm::GM {
 class CubicClosePathGM : public skiagm::GM {
     SkString getName() const override { return SkString("cubicclosepath"); }
 
-    SkISize onISize() override { return {1240, 390}; }
+    SkISize getISize() override { return {1240, 390}; }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -361,7 +361,7 @@ class CubicClosePathGM : public skiagm::GM {
 class CubicPathShaderGM : public skiagm::GM {
     SkString getName() const override { return SkString("cubicpath_shader"); }
 
-    SkISize onISize() override { return {1240, 390}; }
+    SkISize getISize() override { return {1240, 390}; }
 
     void drawPath(SkPath& path,SkCanvas* canvas,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,

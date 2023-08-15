@@ -23,7 +23,7 @@ class StLouisArchGM : public GM {
 protected:
     SkString getName() const override { return SkString("stlouisarch"); }
 
-    SkISize onISize() override { return SkISize::Make((int)kWidth, (int)kHeight); }
+    SkISize getISize() override { return SkISize::Make((int)kWidth, (int)kHeight); }
 
     void onOnceBeforeDraw() override {
         {

@@ -80,7 +80,7 @@ class FontMgrGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("fontmgr_iter"); }
 
-    SkISize onISize() override { return {1536, 768}; }
+    SkISize getISize() override { return {1536, 768}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar y = 20;
@@ -131,7 +131,7 @@ class FontMgrMatchGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("fontmgr_match"); }
 
-    SkISize onISize() override { return {640, 1024}; }
+    SkISize getISize() override { return {640, 1024}; }
 
     void iterateFamily(SkCanvas* canvas, const SkFont& font, SkFontStyleSet* fset) {
         SkFont f(font);
@@ -324,7 +324,7 @@ private:
         return drawBounds;
     }
 
-    SkISize onISize() override { return {1024, 850}; }
+    SkISize getISize() override { return {1024, 850}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkFont font;

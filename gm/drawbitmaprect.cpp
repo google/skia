@@ -180,7 +180,7 @@ public:
 protected:
     SkString getName() const override { return fName; }
 
-    SkISize onISize() override { return SkISize::Make(gSize, gSize); }
+    SkISize getISize() override { return SkISize::Make(gSize, gSize); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (!fImage || !fImage->isValid(canvas->recordingContext())) {

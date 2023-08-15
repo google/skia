@@ -51,9 +51,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onOnceBeforeDraw() override {
         fPaint.setAntiAlias(true);

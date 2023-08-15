@@ -26,9 +26,7 @@ public:
 protected:
     SkString getName() const override { return SkString("scaledrects"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(128, 64);
-    }
+    SkISize getISize() override { return SkISize::Make(128, 64); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clipRect(SkRect::MakeXYWH(10, 50, 100, 10));

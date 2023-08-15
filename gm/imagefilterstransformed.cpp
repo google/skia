@@ -66,7 +66,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagefilterstransformed"); }
 
-    SkISize onISize() override { return SkISize::Make(420, 240); }
+    SkISize getISize() override { return SkISize::Make(420, 240); }
 
     void onOnceBeforeDraw() override {
         fCheckerboard =
@@ -175,9 +175,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagefilter_matrix_localmatrix"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(512, 512);
-    }
+    SkISize getISize() override { return SkISize::Make(512, 512); }
 
     bool onAnimate(double nanos) override {
         // Animate the rotation angle to ensure the local matrix bounds modifications work
@@ -226,9 +224,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagefilter_composed_transform"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(512, 512);
-    }
+    SkISize getISize() override { return SkISize::Make(512, 512); }
 
     bool onAnimate(double nanos) override {
         // Animate the rotation angle to test a variety of transformations

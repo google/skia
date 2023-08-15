@@ -25,9 +25,7 @@ public:
 protected:
     SkString getName() const override { return SkString("alphagradients"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     static void draw_grad(SkCanvas* canvas, const SkRect& r,
                           SkColor c0, SkColor c1, bool doPreMul) {

@@ -65,9 +65,7 @@ public:
                               fAlpha < 1 ? "_alpha" : "");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(1400, 1450);
-    }
+    SkISize getISize() override { return SkISize::Make(1400, 1450); }
 
     void onDraw(SkCanvas* canvas) override {
         this->drawSceneColumn(canvas, SkPoint::Make(0, 0), 1, 1, 0);

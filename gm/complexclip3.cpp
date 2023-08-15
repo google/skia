@@ -40,7 +40,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override { return SkISize::Make(400, 950); }
+    SkISize getISize() override { return SkISize::Make(400, 950); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath clipSimple = SkPath::Circle(70, 50, 20);

@@ -97,9 +97,7 @@ public:
 protected:
     SkString getName() const override { return SkString("bitmap_premul"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(SLIDE_SIZE * 2, SLIDE_SIZE * 2);
-    }
+    SkISize getISize() override { return SkISize::Make(SLIDE_SIZE * 2, SLIDE_SIZE * 2); }
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar slideSize = SkIntToScalar(SLIDE_SIZE);

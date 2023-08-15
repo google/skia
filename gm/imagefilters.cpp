@@ -153,7 +153,7 @@ class SaveLayerWithBackdropGM : public skiagm::GM {
 protected:
     bool runAsBench() const override { return true; }
     SkString getName() const override { return SkString("savelayer_with_backdrop"); }
-    SkISize onISize() override { return SkISize::Make(830, 550); }
+    SkISize getISize() override { return SkISize::Make(830, 550); }
 
     void onDraw(SkCanvas* canvas) override {
         SkColorMatrix cm;

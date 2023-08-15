@@ -319,9 +319,7 @@ protected:
 
     SkString getName() const override { return SkString("pathfill"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -366,9 +364,7 @@ protected:
 
     SkString getName() const override { return SkString("pathinvfill"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(450, 220);
-    }
+    SkISize getISize() override { return SkISize::Make(450, 220); }
 
     static void show(SkCanvas* canvas, const SkPath& path, const SkPaint& paint,
                      const SkRect* clip, SkScalar top, const SkScalar bottom) {

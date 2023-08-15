@@ -47,7 +47,7 @@ protected:
 
     SkString getName() const override { return SkString("bmp_filter_quality_repeat"); }
 
-    SkISize onISize() override { return SkISize::Make(1000, 400); }
+    SkISize getISize() override { return SkISize::Make(1000, 400); }
 
     void onDraw(SkCanvas* canvas) override {
         this->drawAll(canvas, 2.5f);

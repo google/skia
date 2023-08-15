@@ -49,9 +49,7 @@ public:
 
     SkString getName() const override { return SkString("drawglyphs"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawGlyphs(fGlyphCount, fGlyphs.begin(), fPositions.begin(), {50, 100}, fFont,

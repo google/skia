@@ -41,7 +41,7 @@ class RuntimeFunctions : public skiagm::GM {
 
     SkString getName() const override { return SkString("runtimefunctions"); }
 
-    SkISize onISize() override { return {256, 256}; }
+    SkISize getISize() override { return {256, 256}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkRuntimeEffect::Result result =

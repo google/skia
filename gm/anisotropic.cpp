@@ -59,7 +59,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2*kImageSize + 3*kSpacer,
                              kNumVertImages*kImageSize + (kNumVertImages+1)*kSpacer);
     }
@@ -162,7 +162,7 @@ public:
 protected:
     SkString getName() const override { return SkString("anisomips"); }
 
-    SkISize onISize() override { return SkISize::Make(520, 260); }
+    SkISize getISize() override { return SkISize::Make(520, 260); }
 
     sk_sp<SkImage> updateImage(SkSurface* surf, SkColor color) {
         surf->getCanvas()->clear(color);

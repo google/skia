@@ -59,9 +59,7 @@ protected:
 
     SkString getName() const override { return SkString("pathopsinverse"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1200, 900);
-    }
+    SkISize getISize() override { return SkISize::Make(1200, 900); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath one, two;

@@ -48,7 +48,7 @@ public:
 protected:
     SkString getName() const override { return SkString("cliperror"); }
 
-    SkISize onISize() override { return SkISize::Make(WIDTH, HEIGHT); }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

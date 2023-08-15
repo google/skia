@@ -138,15 +138,14 @@ DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 }
 void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
 
-
-SkISize SimpleGM::onISize() { return fSize; }
+SkISize SimpleGM::getISize() { return fSize; }
 SkString SimpleGM::getName() const { return fName; }
 DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(canvas, errorMsg);
 }
 
 #if defined(SK_GANESH)
-SkISize SimpleGpuGM::onISize() { return fSize; }
+SkISize SimpleGpuGM::getISize() { return fSize; }
 SkString SimpleGpuGM::getName() const { return fName; }
 DrawResult SimpleGpuGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(rContext, canvas, errorMsg);

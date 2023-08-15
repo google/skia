@@ -25,9 +25,7 @@ class ConicPathsGM : public skiagm::GM {
 protected:
     SkString getName() const override { return SkString("conicpaths"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(920, 960);
-    }
+    SkISize getISize() override { return SkISize::Make(920, 960); }
 
     template <typename Proc> void append_path(Proc proc) {
         SkPathBuilder b;

@@ -81,7 +81,7 @@ protected:
         return descriptor;
     }
 
-    SkISize onISize() override { return {300, 300}; }
+    SkISize getISize() override { return {300, 300}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap bmp = create_bitmap();

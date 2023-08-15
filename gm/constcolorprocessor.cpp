@@ -66,9 +66,7 @@ protected:
         SkUNREACHABLE;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onOnceBeforeDraw() override {
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};

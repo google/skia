@@ -335,9 +335,7 @@ protected:
 
     SkString getName() const override { return SkString("smallpaths"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 512);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 512); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

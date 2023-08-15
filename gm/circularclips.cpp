@@ -36,9 +36,7 @@ protected:
 
     SkString getName() const override { return SkString("circular-clips"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(800, 200);
-    }
+    SkISize getISize() override { return SkISize::Make(800, 200); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkClipOp ops[] = {

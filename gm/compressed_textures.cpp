@@ -213,7 +213,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2*kCellWidth + 3*kPad, 2*kBaseTexHeight + 3*kPad);
     }
 

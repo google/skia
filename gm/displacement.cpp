@@ -46,9 +46,7 @@ protected:
         fLargeH = ToolUtils::create_checkerboard_image(64, 96, c1, c2, 8);
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 500);
-    }
+    SkISize getISize() override { return SkISize::Make(600, 500); }
 
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) const {
         canvas->save();

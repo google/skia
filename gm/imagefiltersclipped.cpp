@@ -80,9 +80,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagefiltersclipped"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(860, 500);
-    }
+    SkISize getISize() override { return SkISize::Make(860, 500); }
 
     void onOnceBeforeDraw() override {
         fCheckerboard =

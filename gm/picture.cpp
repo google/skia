@@ -57,9 +57,7 @@ protected:
 
     SkString getName() const override { return SkString("pictures"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(450, 120);
-    }
+    SkISize getISize() override { return SkISize::Make(450, 120); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);
@@ -123,9 +121,7 @@ protected:
 
     SkString getName() const override { return SkString("picture_cull_rect"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(120, 120);
-    }
+    SkISize getISize() override { return SkISize::Make(120, 120); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clipRect(SkRect::MakeLTRB(0, 60, 120, 120));

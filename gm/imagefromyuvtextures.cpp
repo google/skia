@@ -44,7 +44,7 @@ public:
 protected:
     SkString getName() const override { return SkString("image_from_yuv_textures"); }
 
-    SkISize onISize() override { return {1420, 610}; }
+    SkISize getISize() override { return {1420, 610}; }
 
     static std::unique_ptr<sk_gpu_test::LazyYUVImage> CreatePlanes(const char* name) {
         SkBitmap bmp;

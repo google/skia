@@ -166,7 +166,7 @@ protected:
 
     SkString getName() const override { return SkString("filterfastbounds"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make((std::size(gDrawMthds) + kNumXtraCols) * kTileWidth,
                              kNumVertTiles * kTileHeight);
     }

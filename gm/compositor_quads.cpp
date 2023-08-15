@@ -424,7 +424,7 @@ public:
             , fName(name) {}
 
 protected:
-    SkISize onISize() override {
+    SkISize getISize() override {
         // Initialize the array of renderers.
         this->onceBeforeDraw();
 

@@ -30,9 +30,7 @@ public:
 protected:
     SkString getName() const override { return SkString("drawregionmodes"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(375, 500);
-    }
+    SkISize getISize() override { return SkISize::Make(375, 500); }
 
     void onOnceBeforeDraw() override {
         fRegion.op({50,  50, 100, 100}, SkRegion::kUnion_Op);

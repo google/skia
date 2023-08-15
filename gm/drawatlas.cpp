@@ -71,9 +71,7 @@ public:
 protected:
     SkString getName() const override { return SkString("draw-atlas"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = { 50, 50, 80, 90 };

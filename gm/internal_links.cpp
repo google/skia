@@ -33,7 +33,7 @@ class InternalLinksGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("internal_links"); }
 
-    SkISize onISize() override { return {700, 500}; }
+    SkISize getISize() override { return {700, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkData> name(SkData::MakeWithCString("target-a"));

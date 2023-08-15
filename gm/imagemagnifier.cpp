@@ -101,7 +101,7 @@ public:
 
 protected:
     SkString getName() const override { return SkString("imagemagnifier_bounds"); }
-    SkISize onISize() override { return SkISize::Make(768, 512); }
+    SkISize getISize() override { return SkISize::Make(768, 512); }
 
     bool onAnimate(double nanos) override {
         fX = TimeUtils::SineWave(nanos, 10.f, 0.f, -200.f, 200.f);

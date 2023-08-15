@@ -63,9 +63,7 @@ protected:
         canvas->restore();
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(630, 100);
-    }
+    SkISize getISize() override { return SkISize::Make(630, 100); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);

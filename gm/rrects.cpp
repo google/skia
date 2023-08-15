@@ -77,7 +77,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
+    SkISize getISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);

@@ -54,7 +54,7 @@ protected:
 
     SkString getName() const override { return SkString("scaledemoji"); }
 
-    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+    SkISize getISize() override { return SkISize::Make(1200, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
 
@@ -101,7 +101,7 @@ protected:
 
     SkString getName() const override { return SkString("scaledemojipos"); }
 
-    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+    SkISize getISize() override { return SkISize::Make(1200, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
 
@@ -167,7 +167,7 @@ protected:
 
     SkString getName() const override { return SkString("scaledemojiperspective"); }
 
-    SkISize onISize() override { return SkISize::Make(1200, 1200); }
+    SkISize getISize() override { return SkISize::Make(1200, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
 

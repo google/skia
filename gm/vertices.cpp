@@ -132,9 +132,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(975, 1175);
-    }
+    SkISize getISize() override { return SkISize::Make(975, 1175); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkBlendMode modes[] = {

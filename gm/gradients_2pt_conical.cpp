@@ -346,7 +346,7 @@ private:
 
     SkString getName() const override { return fName; }
 
-    SkISize onISize() override { return {840, 815}; }
+    SkISize getISize() override { return {840, 815}; }
 
     void onDraw(SkCanvas* canvas) override {
 

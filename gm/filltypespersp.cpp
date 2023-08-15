@@ -40,9 +40,7 @@ public:
 protected:
     SkString getName() const override { return SkString("filltypespersp"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(835, 840);
-    }
+    SkISize getISize() override { return SkISize::Make(835, 840); }
 
     void showPath(SkCanvas* canvas, int x, int y, SkPathFillType ft,
                   SkScalar scale, const SkPaint& paint) {

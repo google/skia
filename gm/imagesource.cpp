@@ -42,7 +42,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagesource"); }
 
-    SkISize onISize() override { return SkISize::Make(500, 150); }
+    SkISize getISize() override { return SkISize::Make(500, 150); }
 
     void onOnceBeforeDraw() override {
         fImage = ToolUtils::create_string_image(100, 100, 0xFFFFFFFF, 20, 70, 96, "e");

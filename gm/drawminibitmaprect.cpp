@@ -87,7 +87,7 @@ public:
 protected:
     SkString getName() const override { return fName; }
 
-    SkISize onISize() override { return SkISize::Make(gSize, gSize); }
+    SkISize getISize() override { return SkISize::Make(gSize, gSize); }
 
     void onDraw(SkCanvas* canvas) override {
         if (nullptr == fImage) {

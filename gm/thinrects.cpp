@@ -29,9 +29,7 @@ public:
 protected:
     SkString getName() const override { return SkString(fRound ? "thinroundrects" : "thinrects"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(240, 320);
-    }
+    SkISize getISize() override { return SkISize::Make(240, 320); }
 
     void onDraw(SkCanvas* canvas) override {
 

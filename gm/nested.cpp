@@ -41,9 +41,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(kImageWidth, kImageHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     enum Shapes {
         kRect_Shape = 0,

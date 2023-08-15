@@ -42,9 +42,7 @@ class GammaTextGM : public skiagm::GM {
 protected:
     SkString getName() const override { return SkString("gammatext"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(1024, HEIGHT); }
 
     static void drawGrad(SkCanvas* canvas) {
         const SkPoint pts[] = { { 0, 0 }, { 0, SkIntToScalar(HEIGHT) } };
@@ -129,9 +127,7 @@ public:
 protected:
     SkString getName() const override { return SkString("gammagradienttext"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(300, 300);
-    }
+    SkISize getISize() override { return SkISize::Make(300, 300); }
 
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < std::size(fShaders); ++i) {

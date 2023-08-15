@@ -89,7 +89,7 @@ protected:
         return SkStringPrintf("encode-%scolor-types-%s", variant, fName);
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         const int width = fVariant == Variant::kNormal ? imageWidth * 7 : imageWidth * 2;
         return SkISize::Make(width, imageHeight);
     }

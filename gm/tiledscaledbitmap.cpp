@@ -34,9 +34,7 @@ public:
 protected:
     SkString getName() const override { return SkString("tiledscaledbitmap"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1016, 616);
-    }
+    SkISize getISize() override { return SkISize::Make(1016, 616); }
 
     static SkBitmap make_bm(int width, int height) {
         SkBitmap bm;

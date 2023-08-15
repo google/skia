@@ -25,7 +25,7 @@ class LcdTextGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("lcdtext"); }
 
-    SkISize onISize() override { return {640, 480}; }
+    SkISize getISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         fY = kTextHeight;
@@ -71,7 +71,7 @@ class LcdTextSizeGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("lcdtextsize"); }
 
-    SkISize onISize() override { return {320, 120}; }
+    SkISize getISize() override { return {320, 120}; }
 
     void onDraw(SkCanvas* canvas) override {
         const char* lcd_text = "LCD";
@@ -109,7 +109,7 @@ class SaveLayerPreserveLCDTextGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("savelayerpreservelcdtext"); }
 
-    SkISize onISize() override { return {620, 300}; }
+    SkISize getISize() override { return {620, 300}; }
 
     void onDraw(SkCanvas* canvas) override {
         drawText(canvas, SkString("SaveLayer PreserveLCDText"), 50,

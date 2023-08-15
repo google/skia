@@ -49,7 +49,7 @@ class ConvexPathsGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("convexpaths"); }
 
-    SkISize onISize() override { return {1200, 1100}; }
+    SkISize getISize() override { return {1200, 1100}; }
 
     void makePaths() {
         if (fOnce.alreadyDone()) {

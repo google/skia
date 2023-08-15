@@ -28,9 +28,7 @@ public:
 protected:
     SkString getName() const override { return SkString("path_mask_cache"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(650, 950);
-    }
+    SkISize getISize() override { return SkISize::Make(650, 950); }
 
     void onDraw(SkCanvas* canvas) override {
         static constexpr SkScalar kPad = 5.f;

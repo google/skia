@@ -80,9 +80,7 @@ public:
 protected:
     SkString getName() const override { return SkString("surfaceprops"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(W, H * 5);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 5); }
 
     void onDraw(SkCanvas* canvas) override {
         auto ctx = canvas->recordingContext();
@@ -133,9 +131,7 @@ public:
 protected:
     SkString getName() const override { return SkString("surfacenew"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(300, 140);
-    }
+    SkISize getISize() override { return SkISize::Make(300, 140); }
 
     static void drawInto(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorRED);

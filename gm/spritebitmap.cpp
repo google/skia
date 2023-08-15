@@ -67,9 +67,7 @@ public:
 protected:
     SkString getName() const override { return SkString("spritebitmap"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap bm;

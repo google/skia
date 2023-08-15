@@ -29,9 +29,7 @@ public:
 protected:
     SkString getName() const override { return SkString("arcofzorro"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
-    }
+    SkISize getISize() override { return SkISize::Make(1000, 1000); }
 
     void onDraw(SkCanvas* canvas) override {
         SkRandom rand;

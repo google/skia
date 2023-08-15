@@ -78,7 +78,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagefilterscropped"); }
 
-    SkISize onISize() override { return SkISize::Make(400, 960); }
+    SkISize getISize() override { return SkISize::Make(400, 960); }
 
     void make_checkerboard() {
         auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(80, 80));

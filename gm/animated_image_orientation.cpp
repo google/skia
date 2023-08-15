@@ -77,7 +77,7 @@ public:
 
     SkString getName() const override { return SkStringPrintf("%s_animated_image", fName); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         this->init();
         return fSize;
     }

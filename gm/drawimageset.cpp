@@ -107,7 +107,7 @@ namespace skiagm {
 class DrawImageSetGM : public GM {
 private:
     SkString getName() const override { return SkString("draw_image_set"); }
-    SkISize onISize() override { return {1000, 725}; }
+    SkISize getISize() override { return {1000, 725}; }
     void onOnceBeforeDraw() override {
         static constexpr SkColor kColors[] = {SK_ColorCYAN,    SK_ColorBLACK,
                                               SK_ColorMAGENTA, SK_ColorBLACK};
@@ -210,7 +210,7 @@ private:
 class DrawImageSetRectToRectGM : public GM {
 private:
     SkString getName() const override { return SkString("draw_image_set_rect_to_rect"); }
-    SkISize onISize() override { return {1250, 850}; }
+    SkISize getISize() override { return {1250, 850}; }
     void onOnceBeforeDraw() override {
         static constexpr SkColor kColors[] = {SK_ColorBLUE, SK_ColorWHITE,
                                               SK_ColorRED,  SK_ColorWHITE};
@@ -295,7 +295,7 @@ private:
 class DrawImageSetAlphaOnlyGM : public GM {
 private:
     SkString getName() const override { return SkString("draw_image_set_alpha_only"); }
-    SkISize onISize() override { return {kM*kTileW, 2*kN*kTileH}; }
+    SkISize getISize() override { return {kM * kTileW, 2 * kN * kTileH}; }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString*) override {
         auto direct = GrAsDirectContext(canvas->recordingContext());

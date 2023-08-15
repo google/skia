@@ -28,9 +28,7 @@ public:
 protected:
     SkString getName() const override { return SkString("fontscaler"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1450, 750);
-    }
+    SkISize getISize() override { return SkISize::Make(1450, 750); }
 
     void onDraw(SkCanvas* canvas) override {
         SkFont font;

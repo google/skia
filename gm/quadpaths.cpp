@@ -29,7 +29,7 @@ public:
 protected:
     SkString getName() const override { return SkString("quadpath"); }
 
-    SkISize onISize() override { return SkISize::Make(1240, 390); }
+    SkISize getISize() override { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -156,7 +156,7 @@ public:
 protected:
     SkString getName() const override { return SkString("quadclosepath"); }
 
-    SkISize onISize() override { return SkISize::Make(1240, 390); }
+    SkISize getISize() override { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,

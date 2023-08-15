@@ -218,7 +218,7 @@ protected:
 
     // Based on CodecSrc::size().
     // https://skia.googlesource.com/skia/+/ce49fc71bc7cc25244020cd3e64764a6d08e54fb/dm/DMSrcSink.cpp#803
-    SkISize onISize() override {
+    SkISize getISize() override {
         DecodeResult decodeResult = decode(fPath);
         if (decodeResult.errorMsg != "") {
             return {0, 0};

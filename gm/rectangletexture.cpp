@@ -56,7 +56,7 @@ private:
 
     SkString getName() const override { return SkString("rectangle_texture"); }
 
-    SkISize onISize() override { return SkISize::Make(1180, 710); }
+    SkISize getISize() override { return SkISize::Make(1180, 710); }
 
     SkBitmap makeImagePixels(int size, ImageType type) {
         auto ii = SkImageInfo::Make(size, size, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);

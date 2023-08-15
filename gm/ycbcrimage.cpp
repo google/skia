@@ -37,7 +37,7 @@ public:
 protected:
     SkString getName() const override { return SkString("ycbcrimage"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2*kPad+kImageSize, 2*kPad+kImageSize);
     }
 

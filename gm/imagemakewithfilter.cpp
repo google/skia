@@ -200,7 +200,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(1840, 860); }
+    SkISize getISize() override { return SkISize::Make(1840, 860); }
 
     void onOnceBeforeDraw() override {
         SkImageInfo info = SkImageInfo::MakeN32(100, 100, kUnpremul_SkAlphaType);

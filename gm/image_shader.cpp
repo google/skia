@@ -115,9 +115,7 @@ public:
 protected:
     SkString getName() const override { return SkString("image-shader"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(850, 450);
-    }
+    SkISize getISize() override { return SkISize::Make(850, 450); }
 
     void onOnceBeforeDraw() override {
         const SkRect bounds = SkRect::MakeWH(100, 100);

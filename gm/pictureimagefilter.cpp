@@ -68,7 +68,7 @@ public:
 protected:
     SkString getName() const override { return SkString("pictureimagefilter"); }
 
-    SkISize onISize() override { return SkISize::Make(600, 300); }
+    SkISize getISize() override { return SkISize::Make(600, 300); }
 
     void onOnceBeforeDraw() override {
         fPicture = make_picture();

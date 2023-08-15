@@ -36,9 +36,7 @@ public:
 protected:
     SkString getName() const override { return SkString("lighting"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void drawClippedBitmap(SkCanvas* canvas, const SkPaint& paint, int x, int y) {
         canvas->save();

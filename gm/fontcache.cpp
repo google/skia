@@ -56,7 +56,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(kSize, kSize); }
+    SkISize getISize() override { return SkISize::Make(kSize, kSize); }
 
     void onOnceBeforeDraw() override {
         fTypefaces[0] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic());

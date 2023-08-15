@@ -32,7 +32,7 @@ private:
     SkString getName() const override {
         return SkStringPrintf("manypathatlases_%i", fMaxAtlasSize);
     }
-    SkISize onISize() override { return SkISize::Make(128, 128); }
+    SkISize getISize() override { return SkISize::Make(128, 128); }
 
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
         // This will test the case where the atlas runs out of room if fMaxAtlasSize is small.

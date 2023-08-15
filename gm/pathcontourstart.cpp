@@ -50,7 +50,7 @@ protected:
 
     SkString getName() const override { return SkString("contour_start"); }
 
-    SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
+    SkISize getISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) override {
 

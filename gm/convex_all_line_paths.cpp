@@ -180,7 +180,7 @@ protected:
         }
         return SkString("convex-lineonly-paths");
     }
-    SkISize onISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
+    SkISize getISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
     bool runAsBench() const override { return true; }
 
     static SkPath GetPath(int index, SkPathDirection dir) {

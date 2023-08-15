@@ -68,7 +68,7 @@ protected:
 
     SkString getName() const override { return SkString("aaxfermodes"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2 * kMargin + 2 * kXfermodeTypeSpacing -
                              (kXfermodeTypeSpacing - (kLabelSpacing + 2 * kPaintSpacing)),
                              2 * kMargin + kTitleSpacing + kSubtitleSpacing +

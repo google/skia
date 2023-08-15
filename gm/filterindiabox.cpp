@@ -67,7 +67,7 @@ class FilterIndiaBoxGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("filterindiabox"); }
 
-    SkISize onISize() override { return {680, 130}; }
+    SkISize getISize() override { return {680, 130}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);

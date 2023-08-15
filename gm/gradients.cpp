@@ -231,7 +231,7 @@ private:
         return SkString(fDither ? "gradients" : "gradients_nodither");
     }
 
-    SkISize onISize() override { return {840, 815}; }
+    SkISize getISize() override { return {840, 815}; }
 };
 DEF_GM( return new GradientsGM(true); )
 DEF_GM( return new GradientsGM(false); )
@@ -248,7 +248,7 @@ private:
         return SkString(fDither ? "gradients4f" : "gradients4f_nodither");
     }
 
-    SkISize onISize() override { return {840, 815}; }
+    SkISize getISize() override { return {840, 815}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPoint pts[2] ={
@@ -300,7 +300,7 @@ private:
                                   "gradients_local_perspective_nodither");
     }
 
-    SkISize onISize() override { return {840, 815}; }
+    SkISize getISize() override { return {840, 815}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPoint pts[2] = {
@@ -349,7 +349,7 @@ private:
                                   "gradients_view_perspective_nodither");
     }
 
-    SkISize onISize() override { return {840, 500}; }
+    SkISize getISize() override { return {840, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkMatrix perspective;
@@ -391,7 +391,7 @@ private:
         return SkString(fDither ? "gradients_degenerate_2pt" : "gradients_degenerate_2pt_nodither");
     }
 
-    SkISize onISize() override { return {320, 320}; }
+    SkISize getISize() override { return {320, 320}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorBLUE);
@@ -464,7 +464,7 @@ private:
         return SkString(fDither ? "clamped_gradients" : "clamped_gradients_nodither");
     }
 
-    SkISize onISize() override { return {640, 510}; }
+    SkISize getISize() override { return {640, 510}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFDDDDDD);
@@ -495,7 +495,7 @@ DEF_GM( return new ClampedGradientsGM(false); )
 class RadialGradientGM : public skiagm::GM {
     SkString getName() const override { return SkString("radial_gradient"); }
 
-    SkISize onISize() override { return {1280, 1280}; }
+    SkISize getISize() override { return {1280, 1280}; }
 
     void onDraw(SkCanvas* canvas) override {
         const SkISize dim = this->getISize();
@@ -531,7 +531,7 @@ private:
         return SkString(fDither ? "radial_gradient2" : "radial_gradient2_nodither");
     }
 
-    SkISize onISize() override { return {800, 400}; }
+    SkISize getISize() override { return {800, 400}; }
 
     // Reproduces the example given in bug 7671058.
     void onDraw(SkCanvas* canvas) override {
@@ -595,7 +595,7 @@ private:
         return SkString(fDither ? "radial_gradient3" : "radial_gradient3_nodither");
     }
 
-    SkISize onISize() override { return {500, 500}; }
+    SkISize getISize() override { return {500, 500}; }
 
     bool runAsBench() const override { return true; }
 
@@ -632,7 +632,7 @@ private:
         return SkString(fDither ? "radial_gradient4" : "radial_gradient4_nodither");
     }
 
-    SkISize onISize() override { return {500, 500}; }
+    SkISize getISize() override { return {500, 500}; }
 
     void onOnceBeforeDraw() override {
         const SkPoint center = { 250, 250 };
@@ -674,7 +674,7 @@ private:
     const SkScalar kHeight = 5.f;
     const SkScalar kMinWidth = 540.f;
 
-    SkISize onISize() override { return {500, 500}; }
+    SkISize getISize() override { return {500, 500}; }
 
     void onOnceBeforeDraw() override {
         SkPoint pts[2] = { {0, 0}, {0, 0} };
@@ -718,7 +718,7 @@ class LinearGradientTinyGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("linear_gradient_tiny"); }
 
-    SkISize onISize() override { return {600, 500}; }
+    SkISize getISize() override { return {600, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         const SkScalar kRectSize = 100;

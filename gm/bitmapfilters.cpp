@@ -94,9 +94,7 @@ public:
 protected:
     SkString getName() const override { return SkString("bitmapfilters"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(540, 250);
-    }
+    SkISize getISize() override { return SkISize::Make(540, 250); }
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar x = SkIntToScalar(10);
@@ -141,9 +139,7 @@ public:
 protected:
     SkString getName() const override { return SkString("extractalpha"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(540, 330);
-    }
+    SkISize getISize() override { return SkISize::Make(540, 330); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

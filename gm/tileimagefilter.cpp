@@ -40,9 +40,7 @@ public:
 protected:
     SkString getName() const override { return SkString("tileimagefilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onOnceBeforeDraw() override {
         fBitmap = ToolUtils::create_string_image(50, 50, 0xD000D000, 10, 45, 50, "e");

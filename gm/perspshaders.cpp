@@ -50,7 +50,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(kCellSize*kNumCols, kCellSize*kNumRows);
     }
 

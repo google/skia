@@ -55,9 +55,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFCCCCCC);
@@ -146,9 +144,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
 
@@ -210,9 +206,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         if (!fBigImage) {
@@ -260,9 +254,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onOnceBeforeDraw() override {
         fBM.allocN32Pixels(10, 10);

@@ -25,9 +25,7 @@ public:
 protected:
     SkString getName() const override { return SkString("testgradient"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
+    SkISize getISize() override { return SkISize::Make(800, 800); }
 
     void onDraw(SkCanvas* canvas) override {
         // Set up a gradient paint for a rect.

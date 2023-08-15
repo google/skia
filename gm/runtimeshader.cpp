@@ -46,7 +46,7 @@ public:
 
     bool runAsBench() const override { return SkToBool(fFlags & kBench_RTFlag); }
     SkString getName() const override { return fName; }
-    SkISize onISize() override { return fSize; }
+    SkISize getISize() override { return fSize; }
 
     bool onAnimate(double nanos) override {
         fSecs = nanos / (1000 * 1000 * 1000);

@@ -34,7 +34,7 @@ public:
 protected:
     SkString getName() const override { return SkString("graphite-replay"); }
 
-    SkISize onISize() override { return SkISize::Make(kTileWidth * 3, kTileHeight * 2); }
+    SkISize getISize() override { return SkISize::Make(kTileWidth * 3, kTileHeight * 2); }
 
     bool onAnimate(double nanos) override {
         fStartX = kTileWidth * (1.0f + sinf(nanos * 1e-9)) * 0.5f;

@@ -204,7 +204,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagefiltersbase"); }
 
-    SkISize onISize() override { return SkISize::Make(700, 500); }
+    SkISize getISize() override { return SkISize::Make(700, 500); }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -295,7 +295,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(512, 342); }
+    SkISize getISize() override { return SkISize::Make(512, 342); }
 
     void drawWaterfall(SkCanvas* canvas, const SkPaint& paint) {
         static const SkFont::Edging kEdgings[3] = {

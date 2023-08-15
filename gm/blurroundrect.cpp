@@ -56,7 +56,7 @@ static sk_sp<SkShader> MakeRadial() {
 class SimpleBlurRoundRectGM : public skiagm::GM {
     SkString getName() const override { return SkString("simpleblurroundrect"); }
 
-    SkISize onISize() override { return {1000, 500}; }
+    SkISize getISize() override { return {1000, 500}; }
 
     bool runAsBench() const override { return true; }
 

@@ -796,7 +796,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         int numCols = 2 * (kLastEnum_SkYUVColorSpace + 1); // opacity x #-color-spaces
         int numRows = 1 + (kLast_YUVFormat + 1);  // original + #-yuv-formats
         int wh = SkScalarCeilToInt(kTileWidthHeight * (fUseSubset ? 1.5f : 1.f));
@@ -1026,7 +1026,7 @@ public:
 protected:
     SkString getName() const override { return SkString("yuv_make_color_space"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         int numCols = 4; // (transparent, opaque) x (untagged, tagged)
         int numRows = 5; // original, YUV, subset, makeNonTextureImage, readPixels
         return SkISize::Make(numCols * (kTileWidthHeight + kPad) + kPad,
@@ -1212,9 +1212,7 @@ public:
 protected:
     SkString getName() const override { return SkString("yuv_splitter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1280, 768);
-    }
+    SkISize getISize() override { return SkISize::Make(1280, 768); }
 
     void onOnceBeforeDraw() override {
         fOrig = GetResourceAsImage("images/mandrill_256.png");

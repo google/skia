@@ -139,9 +139,7 @@ public:
 protected:
     SkString getName() const override { return SkString("analytic_gradients"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, 512);
-    }
+    SkISize getISize() override { return SkISize::Make(1024, 512); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkPoint points[2] = { SkPoint::Make(0, 0), SkPoint::Make(RECT_WIDTH, 0.0) };

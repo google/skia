@@ -35,7 +35,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override { return SkISize::Make(970, 780); }
+    SkISize getISize() override { return SkISize::Make(970, 780); }
 
     // Android Framework will still support the legacy kReplace SkClipOp on older devices, so
     // this represents how to do so while also respecting the device restriction using the newer

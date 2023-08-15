@@ -29,9 +29,7 @@ public:
     }
 
 protected:
-    SkISize onISize() override {
-        return SkISize::Make(770, 770);
-    }
+    SkISize getISize() override { return SkISize::Make(770, 770); }
 
     SkString getName() const override { return SkString("pathinterior"); }
 

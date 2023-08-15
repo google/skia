@@ -63,9 +63,7 @@ protected:
         fImage = surf->makeImageSnapshot();
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(500, 300);
-    }
+    SkISize getISize() override { return SkISize::Make(500, 300); }
 
     sk_sp<SkImageFilter> makeFilter(const SkIPoint &kernelOffset,
                                     SkTileMode tileMode,

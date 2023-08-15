@@ -76,9 +76,7 @@ public:
 protected:
     SkString getName() const override { return SkString("image-picture"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(850, 450);
-    }
+    SkISize getISize() override { return SkISize::Make(850, 450); }
 
     void onOnceBeforeDraw() override {
         const SkRect bounds = SkRect::MakeXYWH(100, 100, 100, 100);
@@ -268,9 +266,7 @@ public:
 protected:
     SkString getName() const override { return fName; }
 
-    SkISize onISize() override {
-        return SkISize::Make(960, 450);
-    }
+    SkISize getISize() override { return SkISize::Make(960, 450); }
 
     void onOnceBeforeDraw() override {
         const SkRect bounds = SkRect::MakeXYWH(100, 100, 100, 100);

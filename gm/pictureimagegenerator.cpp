@@ -120,9 +120,7 @@ class PictureGeneratorGM : public skiagm::GM {
 protected:
     SkString getName() const override { return SkString("pictureimagegenerator"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1160, 860);
-    }
+    SkISize getISize() override { return SkISize::Make(1160, 860); }
 
     void onOnceBeforeDraw() override {
         const SkRect rect = SkRect::MakeWH(kPictureWidth, kPictureHeight);

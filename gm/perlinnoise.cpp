@@ -57,7 +57,7 @@ class PerlinNoiseGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("perlinnoise"); }
 
-    SkISize onISize() override { return {200, 500}; }
+    SkISize getISize() override { return {200, 500}; }
 
     void drawRect(SkCanvas* canvas, int x, int y, const SkPaint& paint, const SkISize& size) {
         canvas->save();
@@ -134,7 +134,7 @@ class PerlinNoiseLocalMatrixGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("perlinnoise_localmatrix"); }
 
-    SkISize onISize() override { return {640, 480}; }
+    SkISize getISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(10, 10);
@@ -198,8 +198,9 @@ class PerlinNoiseRotatedGM : public skiagm::GM {
 
     SkString getName() const override { return SkString("perlinnoise_rotated"); }
 
-    SkISize onISize() override { return { 2*kPad + kCellsX*kCellSize.width(),
-                                          2*kPad + kCellsY*kCellSize.height() }; }
+    SkISize getISize() override {
+        return {2 * kPad + kCellsX * kCellSize.width(), 2 * kPad + kCellsY * kCellSize.height()};
+    }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint outline;
@@ -249,7 +250,7 @@ class PerlinNoiseRotatedGM : public skiagm::GM {
 class PerlinNoiseLayeredGM : public skiagm::GM {
     SkString getName() const override { return SkString("perlinnoise_layered"); }
 
-    SkISize onISize() override { return {500, 500}; }
+    SkISize getISize() override { return {500, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         const sk_sp<SkImageFilter> perlin = SkImageFilters::ColorFilter(

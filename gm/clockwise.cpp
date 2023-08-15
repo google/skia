@@ -255,7 +255,7 @@ namespace skiagm {
  */
 class ClockwiseGM : public GpuGM {
     SkString getName() const override { return SkString("clockwise"); }
-    SkISize onISize() override { return {300, 200}; }
+    SkISize getISize() override { return {300, 200}; }
     DrawResult onDraw(GrRecordingContext*, SkCanvas*, SkString* errorMsg) override;
 };
 

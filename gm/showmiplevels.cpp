@@ -32,7 +32,7 @@ class ShowMipLevels3 : public skiagm::GM {
 
     SkString getName() const override { return SkString("showmiplevels_explicit"); }
 
-    SkISize onISize() override { return {1130, 970}; }
+    SkISize getISize() override { return {1130, 970}; }
 
     void onOnceBeforeDraw() override {
         fImg = GetResourceAsImage("images/ship.png");

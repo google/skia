@@ -134,7 +134,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(SkScalarRoundToInt(fTotalWidth),
                              SkScalarRoundToInt(fTotalHeight));
     }

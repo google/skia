@@ -29,7 +29,7 @@ public:
 protected:
     SkString getName() const override { return SkString("addarc"); }
 
-    SkISize onISize() override { return SkISize::Make(1040, 1040); }
+    SkISize getISize() override { return SkISize::Make(1040, 1040); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(20, 20);
@@ -119,7 +119,7 @@ public:
 protected:
     SkString getName() const override { return SkString("strokecircle"); }
 
-    SkISize onISize() override { return SkISize::Make(520, 520); }
+    SkISize getISize() override { return SkISize::Make(520, 520); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(20, 20);
@@ -169,7 +169,7 @@ public:
 protected:
     SkString getName() const override { return SkString("fillcircle"); }
 
-    SkISize onISize() override { return SkISize::Make(520, 520); }
+    SkISize getISize() override { return SkISize::Make(520, 520); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(20, 20);

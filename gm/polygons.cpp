@@ -32,7 +32,7 @@ public:
 protected:
     SkString getName() const override { return SkString("polygons"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         int width = kNumPolygons * kCellSize + 40;
         int height = (kNumJoins * kNumStrokeWidths + kNumExtraStyles) * kCellSize + 40;
         return SkISize::Make(width, height);

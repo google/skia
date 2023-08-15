@@ -124,7 +124,7 @@ private:
 
     SkString getName() const override { return SkString(fName); }
 
-    SkISize onISize() override { return {860, 820}; }
+    SkISize getISize() override { return {860, 820}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
@@ -250,7 +250,7 @@ class BlurRectCompareGM : public GM {
 protected:
     SkString getName() const override { return SkString("blurrect_compare"); }
 
-    SkISize onISize() override { return {900, 1220}; }
+    SkISize getISize() override { return {900, 1220}; }
 
     void onOnceBeforeDraw() override { this->prepareReferenceMasks(); }
 

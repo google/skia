@@ -32,7 +32,7 @@ public:
 protected:
     SkString getName() const override { return SkString("imagefiltersgraph"); }
 
-    SkISize onISize() override { return SkISize::Make(600, 150); }
+    SkISize getISize() override { return SkISize::Make(600, 150); }
 
     void onOnceBeforeDraw() override {
         fImage = ToolUtils::create_string_image(100, 100, SK_ColorWHITE, 20, 70, 96, "e");

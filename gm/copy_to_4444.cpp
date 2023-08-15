@@ -25,7 +25,7 @@ namespace {
 class CopyTo4444GM : public skiagm::GM {
     SkString getName() const override { return SkString("copyTo4444"); }
 
-    SkISize onISize() override { return {360, 180}; }
+    SkISize getISize() override { return {360, 180}; }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBitmap bm, bm4444;

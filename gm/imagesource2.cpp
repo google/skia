@@ -38,7 +38,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(256, 256); }
+    SkISize getISize() override { return SkISize::Make(256, 256); }
 
     // Create an image with high frequency vertical stripes
     void onOnceBeforeDraw() override {
