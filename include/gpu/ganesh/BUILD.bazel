@@ -14,6 +14,7 @@ skia_filegroup(
     ] + select_multi(
         {
             "//src/gpu:gl_ganesh": ["//include/gpu/ganesh/gl:public_hdrs"],
+            "//src/gpu:vulkan_ganesh": ["//include/gpu/ganesh/vk:public_hdrs"],
         },
     ),
     visibility = ["//include/gpu:__pkg__"],

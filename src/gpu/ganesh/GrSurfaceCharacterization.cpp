@@ -13,6 +13,7 @@
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 
 #ifdef SK_VULKAN
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
@@ -155,7 +156,7 @@ bool GrSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         }
 #ifdef SK_VULKAN
         GrVkImageInfo vkInfo;
-        if (!backendTex.getVkImageInfo(&vkInfo)) {
+        if (!GrBackendTextures::GetVkImageInfo(backendTex, &vkInfo)) {
             return false;
         }
         if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT)) {

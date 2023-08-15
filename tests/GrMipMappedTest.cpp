@@ -77,6 +77,7 @@ class GrRenderTask;
 #endif
 
 #if defined(SK_VULKAN)
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #endif
 
@@ -258,8 +259,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
             } else if (GrBackendApi::kVulkan == genBackendTex.backend()) {
                 GrVkImageInfo genImageInfo;
                 GrVkImageInfo origImageInfo;
-                if (genBackendTex.getVkImageInfo(&genImageInfo) &&
-                    backendTex.getVkImageInfo(&origImageInfo)) {
+                if (GrBackendTextures::GetVkImageInfo(genBackendTex, &genImageInfo) &&
+                    GrBackendTextures::GetVkImageInfo(backendTex, &origImageInfo)) {
                     if (requestMipmapped == GrMipmapped::kYes && betMipmapped == GrMipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fImage != genImageInfo.fImage);

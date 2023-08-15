@@ -10,6 +10,7 @@
 #ifdef SK_VULKAN
 
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
@@ -223,7 +224,7 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
                                GrProtected::kNo,
                                ycbcrInfo};
 
-    fTexture = GrBackendTexture(width, height, imageInfo);
+    fTexture = GrBackendTextures::MakeVk(width, height, imageInfo);
     return true;
 }
 

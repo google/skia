@@ -34,6 +34,7 @@
 #include "src/image/SkImage_Base.h"
 
 #ifdef SK_VULKAN
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #endif
 
@@ -753,7 +754,7 @@ sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
     GrColorType colorType = SkColorTypeToGrColorType(imageInfo.colorType());
 
     if (!this->caps()->isFormatAsColorTypeRenderable(
-            colorType, GrBackendFormat::MakeVk(vkInfo.fFormat), /*sampleCount=*/1)) {
+            colorType, GrBackendFormats::MakeVk(vkInfo.fFormat), /*sampleCount=*/1)) {
         return nullptr;
     }
 

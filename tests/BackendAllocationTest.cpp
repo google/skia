@@ -81,6 +81,7 @@
 #endif
 
 #if defined(SK_VULKAN)
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include <vulkan/vulkan_core.h>
@@ -187,7 +188,7 @@ static bool isBGRA8(const GrBackendFormat& format) {
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
             VkFormat vkFormat;
-            format.asVkFormat(&vkFormat);
+            GrBackendFormats::AsVkFormat(format, &vkFormat);
             return vkFormat == VK_FORMAT_B8G8R8A8_UNORM;
 #else
             return false;
@@ -234,7 +235,7 @@ static bool isRGB(const GrBackendFormat& format) {
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
             VkFormat vkFormat;
-            format.asVkFormat(&vkFormat);
+            GrBackendFormats::AsVkFormat(format, &vkFormat);
             return vkFormat == VK_FORMAT_R8G8B8_UNORM;
 #else
             return false;
@@ -581,7 +582,7 @@ enum class VkLayout {
 void check_vk_tiling(const GrBackendTexture& backendTex) {
 #if defined(SK_VULKAN) && defined(SK_DEBUG)
     GrVkImageInfo vkII;
-    if (backendTex.getVkImageInfo(&vkII)) {
+    if (GrBackendTextures::GetVkImageInfo(backendTex, &vkII)) {
         SkASSERT(VK_IMAGE_TILING_OPTIMAL == vkII.fImageTiling);
     }
 #endif
@@ -999,7 +1000,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest,
             continue;
         }
 
-        GrBackendFormat format = GrBackendFormat::MakeVk(combo.fFormat);
+        GrBackendFormat format = GrBackendFormats::MakeVk(combo.fFormat);
 
         for (auto mipmapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
             if (GrMipmapped::kYes == mipmapped && !vkCaps->mipmapSupport()) {
@@ -1012,7 +1013,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest,
                     // We must also check whether we allow rendering to the format using the
                     // color type.
                     if (!vkCaps->isFormatAsColorTypeRenderable(
-                            combo.fColorType, GrBackendFormat::MakeVk(combo.fFormat), 1)) {
+                            combo.fColorType, GrBackendFormats::MakeVk(combo.fFormat), 1)) {
                         continue;
                     }
                 }

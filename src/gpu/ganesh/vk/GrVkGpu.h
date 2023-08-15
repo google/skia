@@ -8,6 +8,7 @@
 #ifndef GrVkGpu_DEFINED
 #define GrVkGpu_DEFINED
 
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -115,7 +116,7 @@ public:
                                               SkISize dimensions, int numStencilSamples) override;
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
-        return GrBackendFormat::MakeVk(this->vkCaps().preferredStencilFormat());
+        return GrBackendFormats::MakeVk(this->vkCaps().preferredStencilFormat());
     }
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,

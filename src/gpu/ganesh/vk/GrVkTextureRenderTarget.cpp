@@ -17,6 +17,7 @@
 
 #include "src/core/SkMipmap.h"
 
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
@@ -70,7 +71,7 @@ bool create_rt_attachments(GrVkGpu* gpu, SkISize dimensions, VkFormat format, in
     if (sampleCnt > 1) {
         auto rp = gpu->getContext()->priv().resourceProvider();
         sk_sp<GrAttachment> msaaAttachment = rp->makeMSAAAttachment(
-                dimensions, GrBackendFormat::MakeVk(format), sampleCnt, isProtected,
+                dimensions, GrBackendFormats::MakeVk(format), sampleCnt, isProtected,
                 GrMemoryless::kNo);
         if (!msaaAttachment) {
             return false;

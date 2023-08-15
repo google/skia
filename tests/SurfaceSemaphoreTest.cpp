@@ -26,6 +26,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -206,7 +207,8 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
         // In Vulkan we need to make sure we are sending the correct VkImageLayout in with the
         // backendImage. After the first child draw the layout gets changed to SHADER_READ, so
         // we just manually set that here.
-        backendTexture.setVkImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        GrBackendTextures::SetVkImageLayout(&backendTexture,
+                                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     }
 #endif
 

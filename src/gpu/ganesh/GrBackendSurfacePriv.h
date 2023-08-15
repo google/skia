@@ -8,9 +8,11 @@
 #ifndef GrBackendSurfacePriv_DEFINED
 #define GrBackendSurfacePriv_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/MutableTextureStateRef.h"  // IWYU pragma: keep
 
 #include <cstddef>
 #include <cstdint>
@@ -19,7 +21,11 @@
 
 enum class GrBackendApi : unsigned int;
 enum class SkTextureCompressionType;
-namespace skgpu { enum class Mipmapped : bool; }
+
+namespace skgpu {
+enum class Mipmapped : bool;
+class MutableTextureState;
+}
 
 class GrBackendFormatData {
 public:
@@ -43,6 +49,9 @@ private:
     virtual GrColorFormatDesc desc() const = 0;
     virtual std::string toString() const = 0;
     virtual void copyTo(AnyFormatData&) const = 0;
+
+    // Vulkan-only API:
+    virtual void makeTexture2D() {}
 };
 
 class GrBackendTextureData {
@@ -64,6 +73,10 @@ private:
     virtual bool isSameTexture(const GrBackendTextureData*) const = 0;
     virtual GrBackendFormat getBackendFormat() const = 0;
     virtual void copyTo(AnyTextureData&) const = 0;
+
+    // Vulkan-only API:
+    virtual sk_sp<skgpu::MutableTextureStateRef> getMutableState() const { return nullptr; }
+    virtual void setMutableState(const skgpu::MutableTextureState&) {}
 };
 
 class GrBackendRenderTargetData {
@@ -84,6 +97,10 @@ private:
     virtual bool isProtected() const = 0;
     virtual bool equal(const GrBackendRenderTargetData* that) const = 0;
     virtual void copyTo(AnyRenderTargetData&) const = 0;
+
+    // Vulkan-only API:
+    virtual sk_sp<skgpu::MutableTextureStateRef> getMutableState() const { return nullptr; }
+    virtual void setMutableState(const skgpu::MutableTextureState&) {}
 };
 
 class GrBackendSurfacePriv final {
@@ -133,6 +150,10 @@ public:
 
     static const GrBackendRenderTargetData* GetBackendData(const GrBackendRenderTarget& rt) {
         return rt.fRTData.get();
+    }
+
+    static GrBackendRenderTargetData* GetBackendData(GrBackendRenderTarget* rt) {
+        return rt->fRTData.get();
     }
 };
 

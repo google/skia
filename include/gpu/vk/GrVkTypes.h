@@ -82,7 +82,6 @@ struct GrVkImageInfo {
     bool                     fPartOfSwapchainOrAndroidWindow = false;
 #endif
 
-#if defined(GR_TEST_UTILS)
     bool operator==(const GrVkImageInfo& that) const {
         bool equal = fImage == that.fImage && fAlloc == that.fAlloc &&
                      fImageTiling == that.fImageTiling &&
@@ -100,7 +99,6 @@ struct GrVkImageInfo {
 #endif
         return equal;
     }
-#endif
 };
 
 using GrVkGetProc = skgpu::VulkanGetProc;
