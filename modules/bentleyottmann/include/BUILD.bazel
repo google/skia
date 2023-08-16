@@ -8,6 +8,7 @@ skia_filegroup(
     name = "hdrs",
     srcs = [
         "EventQueue.h",
+        "Point.h",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],
 )
