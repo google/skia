@@ -276,6 +276,9 @@ void DawnCaps::initCaps(const wgpu::Device& device) {
     // TODO: support clamp to border.
     fClampToBorderSupport = false;
 
+    fMSAARenderToSingleSampledSupport =
+            device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
+
     fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
 }
 

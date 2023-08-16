@@ -162,8 +162,10 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     wgpu::RenderPassDepthStencilAttachment wgpuDepthStencilAttachment;
 
     // Set up color attachment.
+    wgpu::DawnRenderPassColorAttachmentRenderToSingleSampled mssaRenderToSingleSampledDesc;
+
     auto& colorInfo = renderPassDesc.fColorAttachment;
-    bool loadMSAAFromResolve = false;
+    bool loadMSAAFromResolveExplicitly = false;
     if (colorTexture) {
         wgpuRenderPass.colorAttachments = &wgpuColorAttachment;
         wgpuRenderPass.colorAttachmentCount = 1;
@@ -192,10 +194,19 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
             SkASSERT(wgpuColorAttachment.storeOp == wgpu::StoreOp::Discard);
 
             // But it also means we have to load the resolve texture into the MSAA color attachment
-            loadMSAAFromResolve = renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
+            loadMSAAFromResolveExplicitly =
+                    renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
             // TODO: If the color resolve texture is read-only we can use a private (vs. memoryless)
             // msaa attachment that's coupled to the framebuffer and the StoreAndMultisampleResolve
             // action instead of loading as a draw.
+        } else if (renderPassDesc.fSampleCount > 1 && colorTexture->numSamples() == 1) {
+            // If render pass is multi sampled but the color attachment is single sampled, we need
+            // to activate multisampled render to single sampled feature for this render pass.
+            SkASSERT(fSharedContext->device().HasFeature(
+                    wgpu::FeatureName::MSAARenderToSingleSampled));
+
+            wgpuColorAttachment.nextInChain = &mssaRenderToSingleSampledDesc;
+            mssaRenderToSingleSampledDesc.implicitSampleCount = renderPassDesc.fSampleCount;
         }
     }
 
@@ -231,7 +242,7 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         SkASSERT(!depthStencilInfo.fTextureInfo.isValid());
     }
 
-    if (loadMSAAFromResolve) {
+    if (loadMSAAFromResolveExplicitly) {
         // Manually load the contents of the resolve texture into the MSAA attachment as a draw,
         // so the actual load op for the MSAA attachment had better have been discard.
 

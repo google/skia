@@ -539,7 +539,19 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             break;
     }
 
-    descriptor.multisample.count = renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
+    // Multisampled state
+    descriptor.multisample.count = renderPassDesc.fSampleCount;
+    wgpu::DawnMultisampleStateRenderToSingleSampled pipelineMSAARenderToSingleSampledDesc;
+    if (renderPassDesc.fSampleCount > 1 && renderPassDesc.fColorAttachment.fTextureInfo.isValid() &&
+        renderPassDesc.fColorAttachment.fTextureInfo.numSamples() == 1) {
+        // If render pass is multi sampled but the color attachment is single sampled, we need
+        // to activate multisampled render to single sampled feature for this graphics pipeline.
+        SkASSERT(device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled));
+
+        descriptor.multisample.nextInChain = &pipelineMSAARenderToSingleSampledDesc;
+        pipelineMSAARenderToSingleSampledDesc.enabled = true;
+    }
+
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 

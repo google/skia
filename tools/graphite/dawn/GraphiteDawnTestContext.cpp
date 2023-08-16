@@ -66,9 +66,15 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
 #endif
     });
 
-    std::array<wgpu::FeatureName, 1> features = {
-        wgpu::FeatureName::DepthClipControl,
-    };
+    std::vector<wgpu::FeatureName> features;
+    wgpu::Adapter adapter = gAdapter.Get();
+    if (adapter.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled)) {
+        features.push_back(wgpu::FeatureName::MSAARenderToSingleSampled);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::TransientAttachments)) {
+        features.push_back(wgpu::FeatureName::TransientAttachments);
+    }
+
     wgpu::DeviceDescriptor desc;
 #ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
     desc.requiredFeatureCount = features.size();

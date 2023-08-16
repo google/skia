@@ -26,6 +26,17 @@ sk_sp<RenderPassTask> RenderPassTask::Make(DrawPassList passes,
         return nullptr;
     }
 
+    if (desc.fColorAttachment.fTextureInfo.isValid()) {
+        // The color attachment's samples count must ether match the render pass's samples count
+        // or be 1 (when multisampled render to single sampled is used).
+        SkASSERT(desc.fSampleCount == desc.fColorAttachment.fTextureInfo.numSamples() ||
+                 1 == desc.fColorAttachment.fTextureInfo.numSamples());
+    }
+
+    if (desc.fDepthStencilAttachment.fTextureInfo.isValid()) {
+        SkASSERT(desc.fSampleCount == desc.fDepthStencilAttachment.fTextureInfo.numSamples());
+    }
+
     return sk_sp<RenderPassTask>(new RenderPassTask(std::move(passes), desc, target));
 }
 

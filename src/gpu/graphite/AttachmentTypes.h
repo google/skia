@@ -69,6 +69,11 @@ struct RenderPassDesc {
 
     Swizzle fWriteSwizzle;
 
+    // This samples count usually matches fColorAttachment & fDepthStencilAttachment's samples
+    // count. The only exceptional case is when multisampled render to single sampled is used. In
+    // that case, the fColorAttachment's samples count will be 1 and fSampleCount will be > 1.
+    uint32_t fSampleCount;
+
     // TODO:
     // * bounds (TBD whether exact bounds vs. granular)
     // * input attachments
