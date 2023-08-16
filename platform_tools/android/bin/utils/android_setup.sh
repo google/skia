@@ -62,11 +62,11 @@ if [ -z "$ANDROID_SDK_ROOT" ]; then
   fi
 fi
 
-if [ -z "$ANDROID_NDK_ROOT" ]; then
+if [ -z "$ANDROID_NDK_HOME" ]; then
   if [ -d "${ANDROID_SDK_ROOT}/ndk-bundle" ]; then
-    exportVar ANDROID_NDK_ROOT ${ANDROID_SDK_ROOT}/ndk-bundle
+    exportVar ANDROID_NDK_HOME ${ANDROID_SDK_ROOT}/ndk-bundle
   else
-     echo "No ANDROID_NDK_ROOT set and can't auto detect it from location of SDK."
+     echo "No ANDROID_NDK_HOME set and can't auto detect it from location of SDK."
      exit 1
   fi
 fi
