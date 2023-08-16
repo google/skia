@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fNeverDisableColorWrites = false;
     fMustSetAnyTexParameterToEnableMipmapping = false;
     fAllowBGRA8CopyTexSubImage = false;
+    fAllowSRGBCopyTexSubImage = false;
     fDisallowDynamicMSAA = false;
     fMustResetBlendFuncBetweenDualSourceAndDisable = false;
     fBindTexture0WhenChangingTextureFBOMultisampleCount = false;
@@ -3474,6 +3475,15 @@ bool GrGLCaps::canCopyTexSubImage(GrGLFormat dstFormat, bool dstHasMSAARenderBuf
             return false;
         }
 
+        // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
+        // and SRGB isn't in the spec. There doesn't appear to be any extension that adds it.
+        // ANGLE, for one, does not allow it. However, we've found it works on some drivers and
+        // avoids bugs with using glBlitFramebuffer.
+        if ((GrGLFormatIsSRGB(dstFormat) || GrGLFormatIsSRGB(srcFormat)) &&
+            !fAllowSRGBCopyTexSubImage) {
+            return false;
+        }
+
         // Table 3.9 of the ES2 spec and 3.16 of ES3 spec indicates the supported internal base
         // formats with CopyTexSubImage. Each base format can be copied to itself or formats with
         // less channels.
@@ -3757,6 +3767,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kMali4xx ||
         ctxInfo.renderer() == GrGLRenderer::kTegra_PreK1) {
         fAllowBGRA8CopyTexSubImage = true;
+        fAllowSRGBCopyTexSubImage = true;
+    // glCopyTexSubImage2D works for sRGB with GLES 3.0
+    } else if (ctxInfo.version() > GR_GL_VER(3, 0)) {
+        fAllowSRGBCopyTexSubImage = true;
     }
 
     // http://anglebug.com/6030

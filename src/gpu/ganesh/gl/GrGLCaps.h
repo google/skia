@@ -625,6 +625,7 @@ private:
     bool fNeverDisableColorWrites : 1;
     bool fMustSetAnyTexParameterToEnableMipmapping : 1;
     bool fAllowBGRA8CopyTexSubImage : 1;
+    bool fAllowSRGBCopyTexSubImage : 1;
     bool fDisallowDynamicMSAA : 1;
     bool fMustResetBlendFuncBetweenDualSourceAndDisable : 1;
     bool fBindTexture0WhenChangingTextureFBOMultisampleCount : 1;
