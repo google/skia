@@ -21,6 +21,7 @@
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/gpu/ganesh/GrVkTypesPriv.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
@@ -546,11 +547,6 @@ GrBackendTexture::~GrBackendTexture() {
 
 void GrBackendTexture::cleanup() {
     fTextureData.reset();
-#ifdef SK_VULKAN
-    if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
-        fVkInfo.cleanup();
-    }
-#endif
 #ifdef SK_DIRECT3D
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
         fD3DInfo.cleanup();
@@ -588,7 +584,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             break;
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            fVkInfo.assign(that.fVkInfo);
+            fVkInfo = that.fVkInfo;
             break;
 #endif
 #ifdef SK_METAL
@@ -634,7 +630,7 @@ bool GrBackendTexture::getDawnTextureInfo(GrDawnTextureInfo* outInfo) const {
 #ifdef SK_VULKAN
 bool GrBackendTexture::getVkImageInfo(GrVkImageInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
-        *outInfo = fVkInfo.snapImageInfo(fMutableState.get());
+        *outInfo = GrVkImageInfoWithMutableState(fVkInfo, fMutableState.get());
         return true;
     }
     return false;
@@ -701,7 +697,7 @@ bool GrBackendTexture::isProtected() const {
     }
 #ifdef SK_VULKAN
     if (this->backend() == GrBackendApi::kVulkan) {
-        return fVkInfo.isProtected();
+        return fVkInfo.fProtected == skgpu::Protected::kYes;
     }
 #endif
     if (this->backend() == GrBackendApi::kMock) {
@@ -723,8 +719,7 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
             return fTextureData->isSameTexture(that.fTextureData.get());
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            return fVkInfo.snapImageInfo(fMutableState.get()).fImage ==
-                   that.fVkInfo.snapImageInfo(that.fMutableState.get()).fImage;
+        return fVkInfo.fImage == that.fVkInfo.fImage;
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
@@ -756,7 +751,7 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
             return fTextureData->getBackendFormat();
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
-            auto info = fVkInfo.snapImageInfo(fMutableState.get());
+            auto info = GrVkImageInfoWithMutableState(fVkInfo, fMutableState.get());
             bool usesDRMModifier = info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
             if (info.fYcbcrConversionInfo.isValid()) {
                 SkASSERT(info.fFormat == info.fYcbcrConversionInfo.fFormat);
@@ -816,7 +811,8 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
             return t0.fMockInfo == t1.fMockInfo;
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            return t0.fVkInfo == t1.fVkInfo;
+            return GrVkImageInfoWithMutableState(t0.fVkInfo, t0.fMutableState.get()) ==
+                   GrVkImageInfoWithMutableState(t1.fVkInfo, t0.fMutableState.get());
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
@@ -948,11 +944,6 @@ GrBackendRenderTarget::~GrBackendRenderTarget() {
 
 void GrBackendRenderTarget::cleanup() {
     fRTData.reset();
-#ifdef SK_VULKAN
-    if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
-        fVkInfo.cleanup();
-    }
-#endif
 #ifdef SK_DIRECT3D
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
         fD3DInfo.cleanup();
@@ -992,7 +983,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
             break;
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            fVkInfo.assign(that.fVkInfo);
+            fVkInfo = that.fVkInfo;
             break;
 #endif
 #ifdef SK_METAL
@@ -1038,7 +1029,7 @@ bool GrBackendRenderTarget::getDawnRenderTargetInfo(GrDawnRenderTargetInfo* outI
 #ifdef SK_VULKAN
 bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
-        *outInfo = fVkInfo.snapImageInfo(fMutableState.get());
+        *outInfo = GrVkImageInfoWithMutableState(fVkInfo, fMutableState.get());
         return true;
     }
     return false;
@@ -1093,7 +1084,7 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
             return fRTData->getBackendFormat();
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan: {
-            auto info = fVkInfo.snapImageInfo(fMutableState.get());
+            auto info = GrVkImageInfoWithMutableState(fVkInfo, fMutableState.get());
             if (info.fYcbcrConversionInfo.isValid()) {
                 SkASSERT(info.fFormat == info.fYcbcrConversionInfo.fFormat);
                 return GrBackendFormat::MakeVk(info.fYcbcrConversionInfo);
@@ -1149,7 +1140,7 @@ bool GrBackendRenderTarget::isProtected() const {
     }
 #ifdef SK_VULKAN
     if (this->backend() == GrBackendApi::kVulkan) {
-        return fVkInfo.isProtected();
+        return fVkInfo.fProtected == skgpu::Protected::kYes;
     }
 #endif
     if (this->backend() == GrBackendApi::kMock) {
@@ -1181,7 +1172,8 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
             return r0.fMockInfo == r1.fMockInfo;
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            return r0.fVkInfo == r1.fVkInfo;
+            return GrVkImageInfoWithMutableState(r0.fVkInfo, r0.fMutableState.get()) ==
+                   GrVkImageInfoWithMutableState(r1.fVkInfo, r0.fMutableState.get());
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
