@@ -125,7 +125,7 @@ def create_apk_impl(opts):
 
     apps_dir = 'platform_tools/android/apps'
     app = 'skqp'
-    lib = 'lib%s_app.so' % app
+    lib = 'lib%s_jni.so' % app
 
     # These are the locations in the tree where the gradle needs or will create
     # not-checked-in files.  Treat them specially to keep the tree clean.

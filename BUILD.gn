@@ -2692,7 +2692,7 @@ if (skia_enable_tools) {
     }
   }
   if (is_android) {
-    shared_library("libskqp_app") {  # Not a skia_shared_library
+    shared_library("libskqp_jni") {  # Not a skia_shared_library
       configs += [ ":skia_private" ]
       testonly = true
       sources = [ "tools/skqp/src/jni_skqp.cpp" ]
