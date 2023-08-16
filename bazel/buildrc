@@ -110,6 +110,11 @@ build:debugger_app_container --config=ck_full_webgl2_debug_debugger \
 build:jsfiddle_container --config=ck_full_webgl2_release \
                          --workspace_status_command=bazel/get_workspace_status.sh
 
+# config when building //infra/shaders:shaders_container.
+# This is invoked in a Louhi flow.
+build:shaders_container --config=ck_full_webgl2_release \
+                        --workspace_status_command=bazel/get_workspace_status.sh
+
 # We only want to enforce IWYU on debug builds because we have some things that are only
 # necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is
 # only needed in release mode. Thus our C++ debug includes should be a superset of the

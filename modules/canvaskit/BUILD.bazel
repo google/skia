@@ -300,6 +300,7 @@ wasm_cc_binary(
     visibility = [
         "//infra/debugger-app:__pkg__",
         "//infra/jsfiddle:__pkg__",
+        "//infra/shaders:__pkg__",
     ],
 )
 
