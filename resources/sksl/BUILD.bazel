@@ -122,6 +122,7 @@ skia_filegroup(
     name = "sksl_wgsl_tests_sources",
     srcs = [
         ":sksl_blend_tests",
+        ":sksl_folding_tests",
         ":sksl_shared_tests",
         ":sksl_wgsl_tests",
     ],
