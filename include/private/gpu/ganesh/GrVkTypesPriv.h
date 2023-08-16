@@ -29,9 +29,7 @@ struct GrVkBackendSurfaceInfo {
 
     GrVkBackendSurfaceInfo& operator=(const GrVkBackendSurfaceInfo&) = delete;
 
-    // Assigns the passed in GrVkBackendSurfaceInfo to this object. if isValid is true we will also
-    // attempt to unref the old fLayout on this object.
-    void assign(const GrVkBackendSurfaceInfo&, bool isValid);
+    void assign(const GrVkBackendSurfaceInfo&);
 
     GrVkImageInfo snapImageInfo(const skgpu::MutableTextureStateRef*) const;
 

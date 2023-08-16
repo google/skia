@@ -588,7 +588,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             break;
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            fVkInfo.assign(that.fVkInfo, this->isValid());
+            fVkInfo.assign(that.fVkInfo);
             break;
 #endif
 #ifdef SK_METAL
@@ -992,7 +992,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
             break;
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            fVkInfo.assign(that.fVkInfo, this->isValid());
+            fVkInfo.assign(that.fVkInfo);
             break;
 #endif
 #ifdef SK_METAL

@@ -12,7 +12,7 @@
 
 void GrVkBackendSurfaceInfo::cleanup() {}
 
-void GrVkBackendSurfaceInfo::assign(const GrVkBackendSurfaceInfo& that, bool isThisValid) {
+void GrVkBackendSurfaceInfo::assign(const GrVkBackendSurfaceInfo& that) {
     fImageInfo = that.fImageInfo;
 }
 
