@@ -424,6 +424,12 @@ TextureProxyView TextureProxyView::Copy(Recorder* recorder,
 
     recorder->priv().add(std::move(copyTask));
 
+    if (mipmapped == Mipmapped::kYes) {
+        if (!GenerateMipmaps(recorder, dest, srcColorInfo)) {
+            SKGPU_LOG_W("TextureProxyView::Copy: Failed to generate mipmaps");
+        }
+    }
+
     return { std::move(dest), srcView.swizzle() };
 }
 

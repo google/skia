@@ -869,7 +869,8 @@ bool MtlCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
 bool MtlCommandBuffer::onCopyTextureToTexture(const Texture* src,
                                               SkIRect srcRect,
                                               const Texture* dst,
-                                              SkIPoint dstPoint) {
+                                              SkIPoint dstPoint,
+                                              int mipLevel) {
     SkASSERT(!fActiveRenderCommandEncoder);
     SkASSERT(!fActiveComputeCommandEncoder);
 
@@ -885,7 +886,7 @@ bool MtlCommandBuffer::onCopyTextureToTexture(const Texture* src,
     blitCmdEncoder->pushDebugGroup(@"copyTextureToTexture");
 #endif
 
-    blitCmdEncoder->copyTextureToTexture(srcMtlTexture, srcRect, dstMtlTexture, dstPoint);
+    blitCmdEncoder->copyTextureToTexture(srcMtlTexture, srcRect, dstMtlTexture, dstPoint, mipLevel);
 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     blitCmdEncoder->popDebugGroup();

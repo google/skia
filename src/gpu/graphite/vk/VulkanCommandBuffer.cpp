@@ -1193,7 +1193,8 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
 bool VulkanCommandBuffer::onCopyTextureToTexture(const Texture* src,
                                                  SkIRect srcRect,
                                                  const Texture* dst,
-                                                 SkIPoint dstPoint) {
+                                                 SkIPoint dstPoint,
+                                                 int mipLevel) {
     const VulkanTexture* srcTexture = static_cast<const VulkanTexture*>(src);
     const VulkanTexture* dstTexture = static_cast<const VulkanTexture*>(dst);
 
@@ -1201,7 +1202,7 @@ bool VulkanCommandBuffer::onCopyTextureToTexture(const Texture* src,
     memset(&copyRegion, 0, sizeof(VkImageCopy));
     copyRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     copyRegion.srcOffset = { srcRect.fLeft, srcRect.fTop, 0 };
-    copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t)mipLevel, 0, 1 };
     copyRegion.dstOffset = { dstPoint.fX, dstPoint.fY, 0 };
     copyRegion.extent = { (uint32_t)srcRect.width(), (uint32_t)srcRect.height(), 1 };
 

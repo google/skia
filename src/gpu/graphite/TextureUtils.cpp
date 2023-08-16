@@ -27,6 +27,7 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/SynchronizeToCpuTask.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UploadTask.h"
@@ -306,6 +307,68 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
     } while (srcRect.width() != finalSize.width() || srcRect.height() != finalSize.height());
 
     return SkSurfaces::AsImage(dst);
+}
+
+bool GenerateMipmaps(Recorder* recorder,
+                     sk_sp<TextureProxy> texture,
+                     const SkColorInfo& colorInfo) {
+    constexpr SkSamplingOptions kSamplingOptions = SkSamplingOptions(SkFilterMode::kLinear);
+
+    SkASSERT(texture->mipmapped() == Mipmapped::kYes);
+
+    // Within a rescaling pass tempInput is read from and tempOutput is written to.
+    // At the end of the pass tempOutput's texture is wrapped and assigned to tempInput.
+    sk_sp<SkImage> tempInput(new Image(kNeedNewImageUniqueID,
+                                       TextureProxyView(texture),
+                                       colorInfo));
+    sk_sp<SkSurface> tempOutput;
+
+    SkISize srcSize = texture->dimensions();
+    const SkColorInfo outColorInfo = colorInfo.makeAlphaType(kPremul_SkAlphaType);
+
+    for (int mipLevel = 1; srcSize.width() > 1 || srcSize.height() > 1; ++mipLevel) {
+        SkISize stepSize = SkISize::Make(1, 1);
+        if (srcSize.width() > 1) {
+            stepSize.fWidth = srcSize.width() / 2;
+        }
+        if (srcSize.height() > 1) {
+            stepSize.fHeight = srcSize.height() / 2;
+        }
+
+        tempOutput = make_surface_with_fallback(recorder,
+                                                SkImageInfo::Make(stepSize, outColorInfo),
+                                                Mipmapped::kNo,
+                                                nullptr);
+        if (!tempOutput) {
+            return false;
+        }
+        SkCanvas* stepDst = tempOutput->getCanvas();
+        SkRect stepDstRect = SkRect::Make(stepSize);
+
+        SkPaint paint;
+        stepDst->drawImageRect(tempInput, SkRect::Make(srcSize), stepDstRect, kSamplingOptions,
+                               &paint, SkCanvas::kStrict_SrcRectConstraint);
+
+        // Make sure the rescaling draw finishes before copying the results.
+        sk_sp<SkSurface> stepDstSurface = sk_ref_sp(stepDst->getSurface());
+        skgpu::graphite::Flush(stepDstSurface);
+
+        sk_sp<CopyTextureToTextureTask> copyTask = CopyTextureToTextureTask::Make(
+                static_cast<const Surface*>(stepDstSurface.get())->readSurfaceView().refProxy(),
+                SkIRect::MakeSize(stepSize),
+                texture,
+                {0, 0},
+                mipLevel);
+        if (!copyTask) {
+            return false;
+        }
+        recorder->priv().add(std::move(copyTask));
+
+        tempInput = SkSurfaces::AsImage(tempOutput);
+        srcSize = stepSize;
+    }
+
+    return true;
 }
 
 } // namespace skgpu::graphite

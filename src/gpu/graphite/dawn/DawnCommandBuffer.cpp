@@ -853,7 +853,8 @@ bool DawnCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
 bool DawnCommandBuffer::onCopyTextureToTexture(const Texture* src,
                                                SkIRect srcRect,
                                                const Texture* dst,
-                                               SkIPoint dstPoint) {
+                                               SkIPoint dstPoint,
+                                               int mipLevel) {
     SkASSERT(!fActiveRenderPassEncoder);
     SkASSERT(!fActiveComputePassEncoder);
 
@@ -869,6 +870,7 @@ bool DawnCommandBuffer::onCopyTextureToTexture(const Texture* src,
     dstArgs.texture = wgpuTextureDst;
     dstArgs.origin.x = dstPoint.fX;
     dstArgs.origin.y = dstPoint.fY;
+    dstArgs.mipLevel = mipLevel;
 
     wgpu::Extent3D copySize = {
             static_cast<uint32_t>(srcRect.width()), static_cast<uint32_t>(srcRect.height()), 1};

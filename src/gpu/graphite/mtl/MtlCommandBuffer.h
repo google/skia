@@ -146,7 +146,8 @@ private:
     bool onCopyTextureToTexture(const Texture* src,
                                 SkIRect srcRect,
                                 const Texture* dst,
-                                SkIPoint dstPoint) override;
+                                SkIPoint dstPoint,
+                                int mipLevel) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
     bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
 

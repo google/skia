@@ -91,7 +91,8 @@ public:
     bool copyTextureToTexture(sk_sp<Texture> src,
                               SkIRect srcRect,
                               sk_sp<Texture> dst,
-                              SkIPoint dstPoint);
+                              SkIPoint dstPoint,
+                              int mipLevel);
     bool synchronizeBufferToCpu(sk_sp<Buffer>);
     bool clearBuffer(const Buffer* buffer, size_t offset, size_t size);
 
@@ -138,7 +139,8 @@ private:
     virtual bool onCopyTextureToTexture(const Texture* src,
                                         SkIRect srcRect,
                                         const Texture* dst,
-                                        SkIPoint dstPoint) = 0;
+                                        SkIPoint dstPoint,
+                                        int mipLevel) = 0;
     virtual bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) = 0;
     virtual bool onClearBuffer(const Buffer*, size_t offset, size_t size) = 0;
 

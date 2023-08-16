@@ -43,6 +43,8 @@ sk_sp<SkImage> RescaleImage(Recorder*,
                             SkImage::RescaleGamma rescaleGamma,
                             SkImage::RescaleMode rescaleMode);
 
+bool GenerateMipmaps(Recorder*, sk_sp<TextureProxy>, const SkColorInfo&);
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureUtils_DEFINED

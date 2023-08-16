@@ -161,7 +161,8 @@ bool CommandBuffer::copyBufferToTexture(const Buffer* buffer,
 bool CommandBuffer::copyTextureToTexture(sk_sp<Texture> src,
                                          SkIRect srcRect,
                                          sk_sp<Texture> dst,
-                                         SkIPoint dstPoint) {
+                                         SkIPoint dstPoint,
+                                         int mipLevel) {
     SkASSERT(src);
     SkASSERT(dst);
     if (src->textureInfo().isProtected() == Protected::kYes &&
@@ -170,7 +171,7 @@ bool CommandBuffer::copyTextureToTexture(sk_sp<Texture> src,
         return false;
     }
 
-    if (!this->onCopyTextureToTexture(src.get(), srcRect, dst.get(), dstPoint)) {
+    if (!this->onCopyTextureToTexture(src.get(), srcRect, dst.get(), dstPoint, mipLevel)) {
         return false;
     }
 

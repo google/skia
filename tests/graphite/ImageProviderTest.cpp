@@ -306,8 +306,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Default, rep
 //
 //    4) picture-backed image
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
-//                    drawn w/ mipmapping     --> drawn (yellow) - mipmap filtering is dropped
-//                                                                 due to no mipmap regen
+//                    drawn w/ mipmapping     --> drawn (yellow) - mipmaps auto generated
 //
 //    5) bitmap-backed-generator based image
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
@@ -336,17 +335,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter
                                          CtsEnforcement::kNextRelease) {
     static const struct {
         std::string name;
-        // Some of the factories don't correctly create mipmaps through makeTextureImage
-        // bc Graphite's mipmap regeneration isn't implemented yet (b/238754357).
-        bool     fMipmapsBlockedByBug;
         FactoryT fFactory;
     } testcases[] = {
-        { "raster_no_mips",    false, create_raster_backed_image_no_mipmaps   },
-        { "raster_with_mips",  false, create_raster_backed_image_with_mipmaps },
-        { "texture_no_mips",   false, create_gpu_backed_image_no_mipmaps      },
-        { "texture_with_mips", false, create_gpu_backed_image_with_mipmaps    },
-        { "picture_backed",    true,  create_picture_backed_image             },
-        { "image_generator",   true,  create_bitmap_generator_backed_image    },
+        { "raster_no_mips",    create_raster_backed_image_no_mipmaps   },
+        { "raster_with_mips",  create_raster_backed_image_with_mipmaps },
+        { "texture_no_mips",   create_gpu_backed_image_no_mipmaps      },
+        { "texture_with_mips", create_gpu_backed_image_with_mipmaps    },
+        { "picture_backed",    create_picture_backed_image             },
+        { "image_generator",   create_bitmap_generator_backed_image    },
     };
 
     const SkIRect kFakeSubset = SkIRect::MakeWH(kImageSize.width(), kImageSize.height());
@@ -368,11 +364,9 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter
             bool mipmapOptAllowed = orig->hasMipmaps() && !mipmapped;
 
             REPORTER_ASSERT(reporter, i->isTextureBacked());
-            if (!test.fMipmapsBlockedByBug || !mipmapped) {
-                REPORTER_ASSERT(
-                        reporter,
-                        (i->hasMipmaps() == mipmapped) || (i->hasMipmaps() && mipmapOptAllowed));
-            }
+            REPORTER_ASSERT(
+                    reporter,
+                    (i->hasMipmaps() == mipmapped) || (i->hasMipmaps() && mipmapOptAllowed));
 
             // SkImage::makeSubset should "leave an image where it is", that is, return a
             // texture backed image iff the original image was texture backed. Otherwise,
@@ -451,18 +445,15 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context,
                                          CtsEnforcement::kNextRelease) {
     static const struct {
         std::string name;
-        // Some of the factories don't correctly create mipmaps through SkImage::TextureFromImage
-        // bc Graphite's mipmap regeneration isn't implemented yet (b/238754357).
-        bool     fMipmapsBlockedByBug;
         FactoryT fFactory;
         bool     fTextureBacked;
     } testcases[] = {
-            { "raster_no_mips",    false, create_raster_backed_image_no_mipmaps,   false },
-            { "raster_with_mips",  false, create_raster_backed_image_with_mipmaps, false },
-            { "texture_no_mips",   false, create_gpu_backed_image_no_mipmaps,      true  },
-            { "texture_with_mips", false, create_gpu_backed_image_with_mipmaps,    true  },
-            { "picture_backed",    true,  create_picture_backed_image,             false },
-            { "image_generator",   true,  create_bitmap_generator_backed_image,    false },
+            { "raster_no_mips",    create_raster_backed_image_no_mipmaps,   false },
+            { "raster_with_mips",  create_raster_backed_image_with_mipmaps, false },
+            { "texture_no_mips",   create_gpu_backed_image_no_mipmaps,      true  },
+            { "texture_with_mips", create_gpu_backed_image_with_mipmaps,    true  },
+            { "picture_backed",    create_picture_backed_image,             false },
+            { "image_generator",   create_bitmap_generator_backed_image,    false },
     };
 
     sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
@@ -487,9 +478,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context,
             REPORTER_ASSERT(reporter, i->isTextureBacked() == testcase.fTextureBacked);
             REPORTER_ASSERT(reporter, i->colorSpace() == spin.get());
             if (testcase.fTextureBacked) {
-                if (!testcase.fMipmapsBlockedByBug) {
-                    REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
-                }
+                REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
             } else {
                 REPORTER_ASSERT(reporter, !i->hasMipmaps());
             }
@@ -502,9 +491,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context,
             REPORTER_ASSERT(reporter, i->colorType() == altCT);
             REPORTER_ASSERT(reporter, i->colorSpace() == spin.get());
             if (testcase.fTextureBacked) {
-                if (!testcase.fMipmapsBlockedByBug) {
-                    REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
-                }
+                REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
             } else {
                 REPORTER_ASSERT(reporter, !i->hasMipmaps());
             }
