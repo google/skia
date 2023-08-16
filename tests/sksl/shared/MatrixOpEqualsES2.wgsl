@@ -1,17 +1,3 @@
-### Compilation failed:
-
-error: :29:13 error: no matching overload for operator / (mat3x3<f32>, mat3x3<f32>)
-
-4 candidate operators:
-  operator / (T, T) -> T  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator / (vecN<T>, T) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator / (T, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator / (vecN<T>, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-
-      m = m / splat_4;
-            ^
-
-
 diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
@@ -40,7 +26,7 @@ fn test_matrix_op_matrix_half_b() -> bool {
       let _skTemp1 = mat3x3<f32>(-2.0, -4.0, -4.0, -4.0, -2.0, -4.0, -4.0, -4.0, -2.0);
       ok = ok && (all(m[0] == _skTemp1[0]) && all(m[1] == _skTemp1[1]) && all(m[2] == _skTemp1[2]));
       m = mat3x3<f32>(2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0);
-      m = m / splat_4;
+      m = mat3x3<f32>(m[0] / splat_4[0], m[1] / splat_4[1], m[2] / splat_4[2]);
       let _skTemp2 = mat3x3<f32>(0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5);
       ok = ok && (all(m[0] == _skTemp2[0]) && all(m[1] == _skTemp2[1]) && all(m[2] == _skTemp2[2]));
       m = splat_4;
@@ -52,7 +38,7 @@ fn test_matrix_op_matrix_half_b() -> bool {
       let _skTemp4 = mat3x3<f32>(2.0, 4.0, 4.0, 4.0, 2.0, 4.0, 4.0, 4.0, 2.0);
       ok = ok && (all(m[0] == _skTemp4[0]) && all(m[1] == _skTemp4[1]) && all(m[2] == _skTemp4[2]));
       m = splat_4;
-      m = m / splat_2;
+      m = mat3x3<f32>(m[0] / splat_2[0], m[1] / splat_2[1], m[2] / splat_2[2]);
       let _skTemp5 = mat3x3<f32>(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0);
       ok = ok && (all(m[0] == _skTemp5[0]) && all(m[1] == _skTemp5[1]) && all(m[2] == _skTemp5[2]));
     }
@@ -70,7 +56,7 @@ fn test_matrix_op_matrix_half_b() -> bool {
     }
     {
       var m: mat2x2<f32> = mat2x2<f32>(2.0, 4.0, 6.0, 8.0);
-      m = m / mat2x2<f32>(2.0, 2.0, 2.0, 4.0);
+      m = mat2x2<f32>(m[0] / mat2x2<f32>(2.0, 2.0, 2.0, 4.0)[0], m[1] / mat2x2<f32>(2.0, 2.0, 2.0, 4.0)[1]);
       let _skTemp8 = mat2x2<f32>(1.0, 2.0, 3.0, 2.0);
       ok = ok && (all(m[0] == _skTemp8[0]) && all(m[1] == _skTemp8[1]));
     }
@@ -105,7 +91,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
       let _skTemp12 = mat3x3<f32>(-2.0, -4.0, -4.0, -4.0, -2.0, -4.0, -4.0, -4.0, -2.0);
       _0_ok = _0_ok && (all(_3_m[0] == _skTemp12[0]) && all(_3_m[1] == _skTemp12[1]) && all(_3_m[2] == _skTemp12[2]));
       _3_m = mat3x3<f32>(2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0);
-      _3_m = _3_m / _1_splat_4;
+      _3_m = mat3x3<f32>(_3_m[0] / _1_splat_4[0], _3_m[1] / _1_splat_4[1], _3_m[2] / _1_splat_4[2]);
       let _skTemp13 = mat3x3<f32>(0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5);
       _0_ok = _0_ok && (all(_3_m[0] == _skTemp13[0]) && all(_3_m[1] == _skTemp13[1]) && all(_3_m[2] == _skTemp13[2]));
       _3_m = _1_splat_4;
@@ -117,7 +103,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
       let _skTemp15 = mat3x3<f32>(2.0, 4.0, 4.0, 4.0, 2.0, 4.0, 4.0, 4.0, 2.0);
       _0_ok = _0_ok && (all(_3_m[0] == _skTemp15[0]) && all(_3_m[1] == _skTemp15[1]) && all(_3_m[2] == _skTemp15[2]));
       _3_m = _1_splat_4;
-      _3_m = _3_m / _2_splat_2;
+      _3_m = mat3x3<f32>(_3_m[0] / _2_splat_2[0], _3_m[1] / _2_splat_2[1], _3_m[2] / _2_splat_2[2]);
       let _skTemp16 = mat3x3<f32>(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0);
       _0_ok = _0_ok && (all(_3_m[0] == _skTemp16[0]) && all(_3_m[1] == _skTemp16[1]) && all(_3_m[2] == _skTemp16[2]));
     }
@@ -135,7 +121,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     }
     {
       var _6_m: mat2x2<f32> = mat2x2<f32>(2.0, 4.0, 6.0, 8.0);
-      _6_m = _6_m / mat2x2<f32>(2.0, 2.0, 2.0, 4.0);
+      _6_m = mat2x2<f32>(_6_m[0] / mat2x2<f32>(2.0, 2.0, 2.0, 4.0)[0], _6_m[1] / mat2x2<f32>(2.0, 2.0, 2.0, 4.0)[1]);
       let _skTemp19 = mat2x2<f32>(1.0, 2.0, 3.0, 2.0);
       _0_ok = _0_ok && (all(_6_m[0] == _skTemp19[0]) && all(_6_m[1] == _skTemp19[1]));
     }
@@ -172,5 +158,3 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
-
-1 error

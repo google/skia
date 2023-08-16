@@ -228,6 +228,11 @@ private:
                                                 Operator op,
                                                 const Expression& other,
                                                 Precedence parentPrecedence);
+    std::string binaryOpOrComponentwiseDivision(const Expression& left,
+                                                const Expression& right,
+                                                const std::string& lhs,
+                                                const std::string& rhs,
+                                                Operator op);
     std::string assembleFieldAccess(const FieldAccess& f);
     std::string assembleFunctionCall(const FunctionCall& call, Precedence parentPrecedence);
     std::string assembleIndexExpression(const IndexExpression& i);
@@ -256,6 +261,10 @@ private:
                                           const Expression& sampler,
                                           const Expression& coords);
     std::string assembleInversePolyfill(const FunctionCall& call);
+    std::string assembleComponentwiseMatrixBinary(const Type& matrixType,
+                                                  const std::string& left,
+                                                  const std::string& right,
+                                                  Operator op);
 
     // Constructor expressions
     std::string assembleAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);

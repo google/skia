@@ -1740,6 +1740,21 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
     }
 }
 
+std::string WGSLCodeGenerator::binaryOpOrComponentwiseDivision(const Expression& left,
+                                                               const Expression& right,
+                                                               const std::string& lhs,
+                                                               const std::string& rhs,
+                                                               Operator op) {
+    if (left.type().isMatrix() && right.type().matches(left.type()) &&
+        op.kind() == OperatorKind::SLASH) {
+        // WGSL does not natively support componentwise matrix-division-by-matrix.
+        // We break it apart into componentwise vector division.
+        return this->assembleComponentwiseMatrixBinary(left.type(), lhs, rhs, op);
+    }
+    // Every other SkSL operator has a direct analogue.
+    return lhs + operator_name(op) + rhs;
+}
+
 std::string WGSLCodeGenerator::assembleBinaryExpressionElement(const Expression& expr,
                                                                Operator op,
                                                                const Expression& other,
@@ -1878,23 +1893,21 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
             return "";
         }
 
-        std::string result;
         if (op.kind() == OperatorKind::EQ) {
             // Evaluate the right-hand side of simple assignment (`a = b` --> `b`).
-            result = this->assembleBinaryExpressionElement(right, op, left,
-                                                           Precedence::kAssignment);
+            expr = this->assembleBinaryExpressionElement(right, op, left, Precedence::kAssignment);
         } else {
             // Evaluate the right-hand side of compound-assignment (`a += b` --> `a + b`).
             op = op.removeAssignment();
 
-            result += lvalue->load();
-            result += operator_name(op);
-            result += this->assembleBinaryExpressionElement(right, op, left,
-                                                            op.getBinaryPrecedence());
+            std::string lhs = lvalue->load();
+            std::string rhs = this->assembleBinaryExpressionElement(right, op, left,
+                                                                    op.getBinaryPrecedence());
+            expr = this->binaryOpOrComponentwiseDivision(left, right, lhs, rhs, op);
         }
 
         // Emit the assignment statement (`a = a + b`).
-        this->writeLine(lvalue->store(result));
+        this->writeLine(lvalue->store(expr));
 
         // Return the lvalue (`a`) as the result, since the value might be used by the caller.
         return lvalue->load();
@@ -1929,26 +1942,26 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
     }
 
     if (needParens) {
-        expr.push_back('(');
+        expr = "(";
     }
 
-    if (ConstantFolder::GetConstantValueOrNull(left) &&
-        ConstantFolder::GetConstantValueOrNull(right)) {
-        // If we are emitting `constant + constant`, this generally indicates that the values could
-        // not be constant-folded. This happens when the values overflow or become nan. WGSL will
-        // refuse to compile such expressions, as WGSL 1.0 has no infinity/nan support. However, the
-        // WGSL compile-time check can be dodged by putting one side into a let-variable. This
-        // technically gives us an indeterminate result, but the vast majority of backends will just
-        // calculate an infinity or nan here, as we would expect. (skia:14385)
-        expr += this->writeScratchLet(left, precedence);
-    } else {
-        expr += this->assembleBinaryExpressionElement(left, op, right, precedence);
-    }
-    expr += operator_name(op);
-    expr += this->assembleBinaryExpressionElement(right, op, left, precedence);
+    // If we are emitting `constant + constant`, this generally indicates that the values could not
+    // be constant-folded. This happens when the values overflow or become nan. WGSL will refuse to
+    // compile such expressions, as WGSL 1.0 has no infinity/nan support. However, the WGSL
+    // compile-time check can be dodged by putting one side into a let-variable. This technically
+    // gives us an indeterminate result, but the vast majority of backends will just calculate an
+    // infinity or nan here, as we would expect. (skia:14385)
+    bool bothSidesConstant = ConstantFolder::GetConstantValueOrNull(left) &&
+                             ConstantFolder::GetConstantValueOrNull(right);
+    std::string lhs = bothSidesConstant
+                              ? this->writeScratchLet(left, precedence)
+                              : this->assembleBinaryExpressionElement(left, op, right, precedence);
+    std::string rhs = this->assembleBinaryExpressionElement(right, op, left, precedence);
+
+    expr += this->binaryOpOrComponentwiseDivision(left, right, lhs, rhs, op);
 
     if (needParens) {
-        expr.push_back(')');
+        expr += ')';
     }
 
     return expr;
@@ -2153,6 +2166,21 @@ std::string WGSLCodeGenerator::assemblePartialSampleCall(std::string_view functi
     return expr;
 }
 
+std::string WGSLCodeGenerator::assembleComponentwiseMatrixBinary(const Type& matrixType,
+                                                                 const std::string& left,
+                                                                 const std::string& right,
+                                                                 Operator op) {
+    std::string expr = to_wgsl_type(matrixType) + '(';
+
+    auto separator = String::Separator();
+    int columns = matrixType.columns();
+    for (int c = 0; c < columns; ++c) {
+        String::appendf(&expr, "%s%s[%d]%s%s[%d]",
+                        separator().c_str(), left.c_str(), c, op.operatorName(), right.c_str(), c);
+    }
+    return expr + ')';
+}
+
 std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                                                      IntrinsicKind kind,
                                                      Precedence parentPrecedence) {
@@ -2224,16 +2252,8 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                             ? this->writeScratchLet(*arguments[0], Precedence::kPostfix)
                             : this->writeNontrivialScratchLet(*arguments[0], Precedence::kPostfix);
             std::string arg1 = this->writeNontrivialScratchLet(*arguments[1], Precedence::kPostfix);
-            std::string expr = to_wgsl_type(arguments[0]->type()) + '(';
-
-            auto separator = String::Separator();
-            int columns = arguments[0]->type().columns();
-            for (int c = 0; c < columns; ++c) {
-                String::appendf(&expr, "%s%s[%d] * %s[%d]",
-                                separator().c_str(), arg0.c_str(), c, arg1.c_str(), c);
-            }
-            expr += ')';
-            return this->writeScratchLet(expr);
+            return this->writeScratchLet(this->assembleComponentwiseMatrixBinary(
+                    arguments[0]->type(), arg0, arg1, OperatorKind::STAR));
         }
         case k_mix_IntrinsicKind: {
             const char* name = arguments[2]->type().componentType().isBoolean() ? "select" : "mix";
