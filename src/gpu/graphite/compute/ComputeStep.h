@@ -80,9 +80,9 @@ public:
         kUniformBuffer,
         kStorageBuffer,
 
-        kStorageTexture,
-        kTexture,
-        kSampler,
+        kWriteOnlyStorageTexture,
+        kReadOnlyTexture,
+        kSampledTexture,
     };
 
     enum class ResourcePolicy {

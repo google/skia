@@ -644,19 +644,19 @@ VelloFineStep::VelloFineStep() : VelloStep(
                 /*slot=*/kVelloSlot_InfoBinData,
             },
             {
-                /*type=*/ResourceType::kStorageTexture,
+                /*type=*/ResourceType::kWriteOnlyStorageTexture,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_OutputImage,
             },
             {
-                /*type=*/ResourceType::kTexture,
+                /*type=*/ResourceType::kReadOnlyTexture,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_GradientImage,
             },
             {
-                /*type=*/ResourceType::kTexture,
+                /*type=*/ResourceType::kReadOnlyTexture,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ImageAtlas,
