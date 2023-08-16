@@ -25,9 +25,6 @@ GENERAL_DEFINES = [
     "//bazel/common_config_settings:enable_effect_serialization_false": ["SK_DISABLE_EFFECT_DESERIALIZATION"],
     "//conditions:default": [],
 }) + select({
-    "//bazel/common_config_settings:enable_sksl_in_raster_pipeline_true": ["SK_ENABLE_SKSL_IN_RASTER_PIPELINE"],
-    "//conditions:default": [],
-}) + select({
     "//src/gpu:enable_gpu_test_utils_true": [
         "GR_TEST_UTILS=1",
         "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
@@ -37,7 +34,6 @@ GENERAL_DEFINES = [
     "//src/sksl:enable_skslc_true": [
         "SKSL_STANDALONE",
         "SK_DISABLE_TRACING",
-        "SK_ENABLE_SKSL_IN_RASTER_PIPELINE",
         "SK_ENABLE_SPIRV_CROSS",
         "SK_ENABLE_SPIRV_VALIDATION",
         "SK_ENABLE_WGSL_VALIDATION",
