@@ -1580,6 +1580,11 @@ void WGSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
         }
 
         // This case falls through, so it will need to be handled via emulation.
+        // If we have put together a collection of "native" cases (cases that fall through with no
+        // actual case-body), we will need to slide them over into the fallthrough-case list.
+        fallthroughCases.push_back_n(nativeCases.size(), nativeCases.data());
+        nativeCases.clear();
+
         fallthroughCases.push_back(&sc);
         foundFallthroughDefault |= sc.isDefault();
         previousCaseFellThrough = true;
