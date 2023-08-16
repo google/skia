@@ -285,7 +285,8 @@ void runtime_effect_test(const KeyContext& keyContext, skiatest::Reporter* repor
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();

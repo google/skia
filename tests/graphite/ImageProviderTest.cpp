@@ -270,7 +270,8 @@ void run_test(skiatest::Reporter* reporter,
 //                    drawn w/o mipmapping    --> dropped draw (blue)
 //                    drawn w/ mipmapping     --> dropped draw (blue)
 //
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     TestCase testcases[] = {
         { "0", create_raster_backed_image_no_mipmaps,   { kBackgroundColor, kBackgroundColor } },
         { "1", create_raster_backed_image_with_mipmaps, { kBackgroundColor, kBackgroundColor } },
@@ -312,7 +313,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Default, rep
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
 //                    drawn w/ mipmapping     --> drawn (yellow) - auto-converted
 //
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Testing, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Testing, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     static const TestCase testcases[] = {
         { "0", create_raster_backed_image_no_mipmaps,   { kBaseImageColor, kBaseImageColor } },
         { "1", create_raster_backed_image_with_mipmaps, { kBaseImageColor, kFirstMipLevelColor } },
@@ -330,7 +332,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Testing, rep
 
 // Here we're testing that the RequiredProperties parameter to makeTextureImage and makeSubset
 // works as expected.
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     static const struct {
         std::string name;
         // Some of the factories don't correctly create mipmaps through makeTextureImage
@@ -444,7 +447,8 @@ SkColorType pick_colortype(const Caps* caps, bool mipmapped) {
 //    SkImage::makeColorSpace and
 //    SkImage::makeColorTypeAndColorSpace
 // works as expected.
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     static const struct {
         std::string name;
         // Some of the factories don't correctly create mipmaps through SkImage::TextureFromImage

@@ -238,7 +238,8 @@ void setup_test_context(Context* context,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -321,7 +322,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillFailureTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -391,7 +393,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageCreationFailureTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     // Note: these dimensions are invalid and will cause MakeGraphitePromiseTexture to fail
     constexpr SkISize kDimensions { 0, 0 };
 
@@ -409,7 +412,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageCreation
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -501,7 +505,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFailureTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -572,7 +577,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFail
 // Test out dropping the Recorder prior to inserting the Recording
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorderLoss,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions{ 16, 16 };
 
     for (Volatile isVolatile : { Volatile::kNo, Volatile::kYes }) {
@@ -607,7 +613,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorderLoss,
 // previous instantiations don't impact the Recording's collection of PromiseImages.
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageMultipleImgUses,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions{ 16, 16 };
 
     static constexpr int kNumRecordings = 3;

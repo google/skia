@@ -21,7 +21,8 @@ namespace skgpu::graphite {
 
 // Tests that a drawing with MSAA will have contents retained between recordings.
 // This is for testing MSAA load from resolve feature.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     const SkImageInfo surfaceImageInfo = SkImageInfo::Make(
             16, 16, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
 

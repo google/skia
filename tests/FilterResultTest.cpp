@@ -1017,7 +1017,7 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
     DEF_GRAPHITE_TEST_FOR_CONTEXTS( \
             FilterResult_graphite_##name, \
             sk_gpu_test::GrContextFactory::IsNativeBackend, \
-            r, context) { \
+            r, context, CtsEnforcement::kNextRelease) { \
         using namespace skgpu::graphite; \
         auto recorder = context->makeRecorder(); \
         TestRunner runner(r, recorder.get()); \

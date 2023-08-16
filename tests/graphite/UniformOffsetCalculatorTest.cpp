@@ -71,7 +71,7 @@ static AlignmentAndSize calculate_alignment_and_size(Layout layout,
                         stride);                                                      \
     } while (0)
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kMetal;
 
     // scalars: int, float, short, half (unsigned types are disallowed)
@@ -111,7 +111,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r) {
     EXPECT(SkSLType::kHalf4x4,  /*alignment=*/8,  /*size=*/32);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kMetal;
     constexpr size_t kCount = 3;
 
@@ -152,7 +152,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r) {
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/8,  /*stride=*/32, /*size=*/96);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd430;
 
     // scalars: int, float, short, half (unsigned types are disallowed)
@@ -192,7 +192,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r) {
     EXPECT(SkSLType::kHalf4x4,  /*alignment=*/16, /*size=*/64);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd430;
     constexpr size_t kCount = 3;
 
@@ -233,7 +233,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r) {
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/16, /*stride=*/64, /*size=*/192);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd140;
 
     // scalars: int, float, short, half (unsigned types are disallowed)
@@ -273,7 +273,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r) {
     EXPECT(SkSLType::kHalf4x4,  /*alignment=*/16, /*size=*/64);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd140;
     constexpr uint32_t kCount = 3;
 

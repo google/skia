@@ -513,7 +513,8 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     using Image = sk_sp<SkImage>;
     using Renderable = skgpu::Renderable;
     using TextureInfo = skgpu::graphite::TextureInfo;
@@ -599,7 +600,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     using Surface = sk_sp<SkSurface>;
 
     auto reader = std::function<GraphiteReadSrcFn<Surface>>([context](const Surface& surface,

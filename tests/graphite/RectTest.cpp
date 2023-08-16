@@ -12,7 +12,7 @@ namespace skgpu::graphite {
 
 #define CHECK(A) REPORTER_ASSERT(reporter, A)
 
-DEF_GRAPHITE_TEST(skgpu_Rect, reporter) {
+DEF_GRAPHITE_TEST(skgpu_Rect, reporter, CtsEnforcement::kNextRelease) {
     using float2 = skvx::float2;
     using float4 = skvx::float4;
 
