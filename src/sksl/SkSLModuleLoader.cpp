@@ -63,7 +63,7 @@
         #include "src/sksl/generated/sksl_public.minified.sksl"
         #include "src/sksl/generated/sksl_rt_shader.minified.sksl"
         #include "src/sksl/generated/sksl_vert.minified.sksl"
-        #if defined(SK_GRAPHITE)
+        #if defined(SK_GRAPHITE) || defined(GR_TEST_UTILS)
         #include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
         #include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
         #endif
@@ -75,7 +75,7 @@
         #include "src/sksl/generated/sksl_public.unoptimized.sksl"
         #include "src/sksl/generated/sksl_rt_shader.unoptimized.sksl"
         #include "src/sksl/generated/sksl_vert.unoptimized.sksl"
-        #if defined(SK_GRAPHITE)
+        #if defined(SK_GRAPHITE) || defined(GR_TEST_UTILS)
         #include "src/sksl/generated/sksl_graphite_frag.unoptimized.sksl"
         #include "src/sksl/generated/sksl_graphite_vert.unoptimized.sksl"
         #endif
@@ -373,7 +373,7 @@ const Module* ModuleLoader::loadComputeModule(SkSL::Compiler* compiler) {
 }
 
 const Module* ModuleLoader::loadGraphiteFragmentModule(SkSL::Compiler* compiler) {
-#if defined(SK_GRAPHITE)
+#if defined(SK_GRAPHITE) || defined(GR_TEST_UTILS)
     if (!fModuleLoader.fGraphiteFragmentModule) {
         const Module* fragmentModule = this->loadFragmentModule(compiler);
         fModuleLoader.fGraphiteFragmentModule = compile_and_shrink(compiler,
@@ -388,7 +388,7 @@ const Module* ModuleLoader::loadGraphiteFragmentModule(SkSL::Compiler* compiler)
 }
 
 const Module* ModuleLoader::loadGraphiteVertexModule(SkSL::Compiler* compiler) {
-#if defined(SK_GRAPHITE)
+#if defined(SK_GRAPHITE) || defined(GR_TEST_UTILS)
     if (!fModuleLoader.fGraphiteVertexModule) {
         const Module* vertexModule = this->loadVertexModule(compiler);
         fModuleLoader.fGraphiteVertexModule = compile_and_shrink(compiler,
