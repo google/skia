@@ -80,6 +80,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, report
 
     class TestComputeStep : public ComputeStep {
     public:
+        // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
+        // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestArrayMultiply",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
@@ -89,6 +91,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, report
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,
+                        /*sksl=*/"readonly inputBlock {\n"
+                            "    float factor;\n"
+                            "    layout(offset=16) float4 in_data[];\n"
+                            "}",
                     },
                     // Output buffer:
                     {
@@ -97,6 +103,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, report
                                                      // Builder
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
                         /*slot=*/0,
+                        /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
                 }) {}
         ~TestComputeStep() override = default;
@@ -104,17 +111,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, report
         // A kernel that multiplies a large array of floats by a supplied factor.
         std::string computeSkSL() const override {
             return R"(
-                // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
-                // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
-                layout(set=0, binding=0) readonly buffer inputBlock
-                {
-                    float factor;
-                    layout(offset = 16) float4 in_data[];
-                };
-                layout(set=0, binding=1) buffer outputBlock
-                {
-                    float4 out_data[];
-                };
                 void main() {
                     out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * factor;
                 }
@@ -216,6 +212,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
 
     class TestComputeStep1 : public ComputeStep {
     public:
+        // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
+        // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
         TestComputeStep1() : ComputeStep(
                 /*name=*/"TestArrayMultiplyFirstPass",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
@@ -225,6 +223,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
+                        /*sksl=*/"readonly inputBlock {\n"
+                            "    float factor;\n"
+                            "    layout(offset=16) float4 in_data[];\n"
+                            "}",
                     },
                     // Output buffers:
                     {
@@ -232,12 +234,14 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,  // GPU-only, read by second step
                         /*slot=*/0,
+                        /*sksl=*/"outputBlock1 { float4 forward_data[]; }",
                     },
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
                         /*slot=*/1,
+                        /*sksl=*/"outputBlock2 { float2 extra_data; }",
                     }
                 }) {}
         ~TestComputeStep1() override = default;
@@ -245,21 +249,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
         // A kernel that multiplies a large array of floats by a supplied factor.
         std::string computeSkSL() const override {
             return R"(
-                // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
-                // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
-                layout(set=0, binding=0) readonly buffer inputBlock
-                {
-                    float factor;
-                    layout(offset = 16) float4 in_data[];
-                };
-                layout(set=0, binding=1) buffer outputBlock1
-                {
-                    float4 forward_data[];
-                };
-                layout(set=0, binding=2) buffer outputBlock2
-                {
-                    float2 extra_data;
-                };
                 void main() {
                     uint idx = sk_GlobalInvocationID.x;
                     forward_data[idx] = in_data[idx] * factor;
@@ -322,11 +311,13 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,  // GPU-only
                         /*slot=*/0, // this is the output from the first step
+                        /*sksl=*/"inputBlock { float4 in_data[]; }",
                     },
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,
+                        /*sksl=*/"factorBlock { float factor; }"
                     },
                     // Output buffer:
                     {
@@ -334,6 +325,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
                         /*slot=*/2,
+                        /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
                 }) {}
         ~TestComputeStep2() override = default;
@@ -341,18 +333,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
         // A kernel that multiplies a large array of floats by a supplied factor.
         std::string computeSkSL() const override {
             return R"(
-                layout(set=0, binding=0) readonly buffer inputBlock
-                {
-                    float4 in_data[];
-                };
-                layout(set=0, binding=1) readonly buffer factorBlock
-                {
-                    float factor;
-                };
-                layout(set=0, binding=2) buffer outputBlock
-                {
-                    float4 out_data[];
-                };
                 void main() {
                     out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * factor;
                 }
@@ -479,12 +459,14 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest, reporte
                         /*type=*/ResourceType::kUniformBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,
+                        /*sksl=*/"uniformBlock { float factor; }"
                     },
                     // Input buffer:
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,
+                        /*sksl=*/"inputBlock { float4 in_data[]; }",
                     },
                     // Output buffer:
                     {
@@ -493,6 +475,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest, reporte
                                                      // Builder
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
                         /*slot=*/0,
+                        /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
                 }) {}
         ~TestComputeStep() override = default;
@@ -500,18 +483,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest, reporte
         // A kernel that multiplies a large array of floats by a supplied factor.
         std::string computeSkSL() const override {
             return R"(
-                layout(set=0, binding=0) uniform uniformBlock
-                {
-                    float factor;
-                };
-                layout(set=0, binding=1) readonly buffer inputBlock
-                {
-                    float4 in_data[];
-                };
-                layout(set=0, binding=2) buffer outputBlock
-                {
-                    float4 out_data[];
-                };
                 void main() {
                     out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * factor;
                 }
@@ -632,6 +603,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer, 
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,
+                        /*sksl=*/"inputBlock {\n"
+                                 "    float factor;\n"
+                                 "    layout(offset = 16) float4 in_data[];\n"
+                                 "}\n",
                     },
                     // Output buffer:
                     {
@@ -640,6 +615,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer, 
                                                      // Builder
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
                         /*slot=*/0,
+                        /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
                 }) {}
         ~TestComputeStep() override = default;
@@ -647,15 +623,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer, 
         // A kernel that multiplies a large array of floats by a supplied factor.
         std::string computeSkSL() const override {
             return R"(
-                layout(set=0, binding=0) readonly buffer inputBlock
-                {
-                    float factor;
-                    layout(offset = 16) float4 in_data[];
-                };
-                layout(set=0, binding=1) buffer outputBlock
-                {
-                    float4 out_data[];
-                };
                 void main() {
                     out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * factor;
                 }
@@ -750,16 +717,15 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture, reporter, 
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/0,
+                        /*sksl=*/"dst",
                     }
                 }) {}
         ~TestComputeStep() override = default;
 
         std::string computeSkSL() const override {
             return R"(
-                layout(binding = 0) writeonly texture2D dest;
-
                 void main() {
-                    textureWrite(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
+                    textureWrite(dst, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
                 }
             )";
         }
@@ -852,24 +818,23 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/0,
+                        /*sksl=*/"src",
                     },
                     {
                         /*type=*/ResourceType::kWriteOnlyStorageTexture,
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/1,
+                        /*sksl=*/"dst",
                     }
                 }) {}
         ~TestComputeStep() override = default;
 
         std::string computeSkSL() const override {
             return R"(
-                layout(binding = 0) readonly texture2D src;
-                layout(binding = 1) writeonly texture2D dest;
-
                 void main() {
                     half4 color = textureRead(src, sk_LocalInvocationID.xy);
-                    textureWrite(dest, sk_LocalInvocationID.xy, color);
+                    textureWrite(dst, sk_LocalInvocationID.xy, color);
                 }
             )";
         }
@@ -1007,16 +972,15 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/0,
+                        /*sksl=*/"dst",
                     }
                 }) {}
         ~TestComputeStep1() override = default;
 
         std::string computeSkSL() const override {
             return R"(
-                layout(binding = 0) writeonly texture2D dest;
-
                 void main() {
-                    textureWrite(dest, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
+                    textureWrite(dst, sk_LocalInvocationID.xy, half4(0.0, 1.0, 0.0, 1.0));
                 }
             )";
         }
@@ -1044,24 +1008,23 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/0,
+                        /*sksl=*/"src",
                     },
                     {
                         /*type=*/ResourceType::kWriteOnlyStorageTexture,
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/1,
+                        /*sksl=*/"dst",
                     }
                 }) {}
         ~TestComputeStep2() override = default;
 
         std::string computeSkSL() const override {
             return R"(
-                layout(binding = 0) readonly texture2D src;
-                layout(binding = 1) writeonly texture2D dest;
-
                 void main() {
                     half4 color = textureRead(src, sk_LocalInvocationID.xy);
-                    textureWrite(dest, sk_LocalInvocationID.xy, color);
+                    textureWrite(dst, sk_LocalInvocationID.xy, color);
                 }
             )";
         }
@@ -1132,12 +1095,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
 }
 
 // Tests that a texture can be sampled by a compute step using a sampler.
-// TODO(armansito): Rework the binding index snippet generation to automatically assign the correct
-// index based on the ResourceBindingRequirements returned by Caps. Until then, the sampler and
-// texture bindings won't get assigned correctly.
 // TODO(armansito): Once the previous TODO is done, add additional tests that exercise mixed use of
 // texture, buffer, and sampler bindings.
-DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // The first ComputeStep initializes a 16x16 texture with a checkerboard pattern of alternating
@@ -1158,18 +1118,17 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/0,
+                        /*sksl=*/"dst",
                     }
                 }) {}
         ~TestComputeStep1() override = default;
 
         std::string computeSkSL() const override {
             return R"(
-                layout(binding = 0) writeonly texture2D dest;
-
                 void main() {
                     uint2 c = sk_LocalInvocationID.xy;
                     uint checkerBoardColor = (c.x + (c.y % 2)) % 2;
-                    textureWrite(dest, c, half4(checkerBoardColor, 0, 0, 1));
+                    textureWrite(dst, c, half4(checkerBoardColor, 0, 0, 1));
                 }
             )";
         }
@@ -1191,26 +1150,29 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
                 /*name=*/"Test_SampledTexture_Sample",
                 /*localDispatchSize=*/{kDstDim, kDstDim, 1},
                 /*resources=*/{
-                    {
-                        /*type=*/ResourceType::kSampledTexture,
-                        /*flow=*/DataFlow::kShared,
-                        /*policy=*/ResourcePolicy::kNone,
-                        /*slot=*/0,
-                    },
+                    // Declare the storage texture before the sampled texture. This tests that
+                    // binding index assignment works consistently across all backends when a
+                    // sampler-less texture and a texture+sampler pair are intermixed and sampler
+                    // bindings aren't necessarily contiguous when the ranges are distinct.
                     {
                         /*type=*/ResourceType::kWriteOnlyStorageTexture,
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kNone,
                         /*slot=*/1,
+                        /*sksl=*/"dst",
+                    },
+                    {
+                        /*type=*/ResourceType::kSampledTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                        /*sksl=*/"src",
                     }
                 }) {}
         ~TestComputeStep2() override = default;
 
         std::string computeSkSL() const override {
             return R"(
-                layout(binding = 0) sampler2D src;
-                layout(binding = 1) writeonly texture2D dest;
-
                 void main() {
                     // Normalize the 4x4 invocation indices and sample the source texture using
                     // that.
@@ -1220,19 +1182,19 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_SampledTexture, reporter, context) {
 
                     // Use explicit LOD, as quad derivatives are not available to a compute shader.
                     half4 color = sampleLod(src, unormCoord, 0);
-                    textureWrite(dest, dstCoord, color);
+                    textureWrite(dst, dstCoord, color);
                 }
             )";
         }
 
         std::tuple<SkISize, SkColorType> calculateTextureParameters(
                 int index, const ResourceDesc& r) const override {
-            SkASSERT(index == 1);
+            SkASSERT(index == 0 || index == 1);
             return {{kDstDim, kDstDim}, kRGBA_8888_SkColorType};
         }
 
         SamplerDesc calculateSamplerParameters(int index, const ResourceDesc&) const override {
-            SkASSERT(index == 0);
+            SkASSERT(index == 1);
             // Use the repeat tile mode to sample an infinite checkerboard.
             constexpr SkTileMode kTileModes[2] = {SkTileMode::kRepeat, SkTileMode::kRepeat};
             return {SkFilterMode::kLinear, kTileModes};
@@ -1316,6 +1278,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest, repo
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kMapped,
                         /*slot=*/0,
+                        /*sksl=*/"ssbo { atomicUint globalCounter; }",
                     }
                 }) {}
         ~TestComputeStep() override = default;
@@ -1328,10 +1291,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest, repo
         // and workgroup address spaces.
         std::string computeSkSL() const override {
             return R"(
-                layout(metal, binding = 0) buffer ssbo {
-                    atomicUint globalCounter;
-                };
-
                 workgroup atomicUint localCounter;
 
                 void main() {
@@ -1442,6 +1401,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kMapped,
                         /*slot=*/0,
+                        /*sksl=*/"ssbo {\n"
+                            "   atomicUint globalCountsFirstHalf;\n"
+                            "   atomicUint globalCountsSecondHalf;\n"
+                            "}\n"
                     }
                 }) {}
         ~TestComputeStep() override = default;
@@ -1455,14 +1418,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
         std::string computeSkSL() const override {
             return R"(
                 const uint WORKGROUP_SIZE = 256;
-
-                struct GlobalCounts {
-                    atomicUint firstHalfCount;
-                    atomicUint secondHalfCount;
-                };
-                layout(metal, binding = 0) buffer ssbo {
-                    GlobalCounts globalCounts;
-                };
 
                 workgroup atomicUint localCounts[2];
 
@@ -1488,8 +1443,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
 
                     // Add the workgroup-only tally to the global counter.
                     if (sk_LocalInvocationID.x == 0) {
-                        atomicAdd(globalCounts.firstHalfCount, atomicLoad(localCounts[0]));
-                        atomicAdd(globalCounts.secondHalfCount, atomicLoad(localCounts[1]));
+                        atomicAdd(globalCountsFirstHalf, atomicLoad(localCounts[0]));
+                        atomicAdd(globalCountsSecondHalf, atomicLoad(localCounts[1]));
                     }
                 }
             )";
@@ -1586,6 +1541,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer, reporter, c
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kClear,
+                        /*sksl=*/"readonly inputBlock { uint4 in_data[]; }\n",
                     },
                     // Output buffer:
                     {
@@ -1594,22 +1550,13 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer, reporter, c
                                                      // Builder
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
                         /*slot=*/0,
+                        /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
                     }
                 }) {}
         ~TestComputeStep() override = default;
 
         std::string computeSkSL() const override {
             return R"(
-                // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
-                // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
-                layout(set=0, binding=0) readonly buffer inputBlock
-                {
-                    uint4 in_data[];
-                };
-                layout(set=0, binding=1) buffer outputBlock
-                {
-                    uint4 out_data[];
-                };
                 void main() {
                     out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x];
                 }

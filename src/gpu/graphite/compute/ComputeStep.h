@@ -112,13 +112,30 @@ public:
 
         // This field only has meaning (and must have a non-negative value) if `fFlow` is
         // `DataFlow::kShared`.
-        int fSlot = -1;
+        int fSlot;
+
+        // The SkSL variable declaration code excluding the layout and type definitions. This field
+        // is ignored for a ComputeStep that supports native shader source.
+        const char* fSkSL = "";
 
         constexpr ResourceDesc(ResourceType type,
                                DataFlow flow,
                                ResourcePolicy policy,
                                int slot = -1)
                 : fType(type), fFlow(flow), fPolicy(policy), fSlot(slot) {}
+
+        constexpr ResourceDesc(ResourceType type,
+                               DataFlow flow,
+                               ResourcePolicy policy,
+                               int slot,
+                               const char* sksl)
+                : fType(type), fFlow(flow), fPolicy(policy), fSlot(slot), fSkSL(sksl) {}
+
+        constexpr ResourceDesc(ResourceType type,
+                               DataFlow flow,
+                               ResourcePolicy policy,
+                               const char* sksl)
+                : fType(type), fFlow(flow), fPolicy(policy), fSlot(-1), fSkSL(sksl) {}
     };
 
     // On platforms that support late bound workgroup shared resources (e.g. Metal) a ComputeStep
