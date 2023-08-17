@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Blender.Mode` Create a blender that implements the specified BlendMode.
 - `RuntimeEffect.MakeForBlender` Compiles a RuntimeEffect from the given blender code.
 - `ManagedAnimation` getters and setters for lottie slots exported by Essential Graphics in AE.
-   Color, scalar, and vec2 slot types are supported.
+   Color, scalar, vec2, and image slot types are supported.
 
 ### Fixed
  - `EmbindObject` has been updated to allow TypeScript to differentiate between opaque

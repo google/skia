@@ -959,6 +959,7 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
     setColorSlot(key: string, color: InputColor): boolean;
     setScalarSlot(key: string, scalar: number): boolean;
     setVec2Slot(key: string, vec2: InputVector2): boolean;
+    setImageSlot(key: string, assetName: string): boolean;
 
     getColorSlot(key: string): Color | null;
     getScalarSlot(key: string): number | null;

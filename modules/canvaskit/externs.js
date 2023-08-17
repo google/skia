@@ -142,6 +142,7 @@ var CanvasKit = {
       getScalarSlot: function() {},
       setVec2Slot: function() {},
       getVec2Slot: function() {},
+      setImageSlot: function() {},
       setTransform: function() {},
       size: function() {},
     },

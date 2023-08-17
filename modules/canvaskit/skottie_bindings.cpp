@@ -156,7 +156,7 @@ public:
         skottie::Animation::Builder builder;
         builder.setMarkerObserver(mgr->getMarkerObserver())
                .setPropertyObserver(mgr->getPropertyObserver())
-               .setResourceProvider(std::move(rp))
+               .setResourceProvider(rp)
                .setPrecompInterceptor(std::move(pinterceptor))
                .setLogger(JSLogger::Make(std::move(logger)));
         auto animation = builder.make(json.c_str(), json.size());
@@ -164,7 +164,7 @@ public:
 
         return animation
             ? sk_sp<ManagedAnimation>(new ManagedAnimation(std::move(animation), std::move(mgr),
-                                                           std::move(slotManager)))
+                                                           std::move(slotManager), std::move(rp)))
             : nullptr;
     }
 
@@ -333,6 +333,13 @@ public:
         memcpy(reinterpret_cast<float*>(outPtr), vec3.ptr(), 3 * sizeof(float));
     }
 
+    bool setImageSlot(const std::string& slotID, const std::string& assetName) {
+        // look for resource in preloaded SkottieAssetProvider
+        return fSlotMgr->setImageSlot(SkString(slotID), fResourceProvider->loadImageAsset(nullptr,
+                                                                            assetName.data(),
+                                                                            nullptr));
+    }
+
     bool setColorSlot(const std::string& slotID, SkColor c) {
         return fSlotMgr->setColorSlot(SkString(slotID), c);
     }
@@ -348,15 +355,18 @@ public:
 private:
     ManagedAnimation(sk_sp<skottie::Animation> animation,
                      std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr,
-                     sk_sp<skottie::SlotManager> slotMgr)
+                     sk_sp<skottie::SlotManager> slotMgr,
+                     sk_sp<skresources::ResourceProvider> rp)
         : fAnimation(std::move(animation))
         , fPropMgr(std::move(propMgr))
         , fSlotMgr(std::move(slotMgr))
+        , fResourceProvider(std::move(rp))
     {}
 
     const sk_sp<skottie::Animation>                             fAnimation;
     const std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
     const sk_sp<skottie::SlotManager>                           fSlotMgr;
+    const sk_sp<skresources::ResourceProvider>                  fResourceProvider;
 };
 
 } // anonymous ns
@@ -451,7 +461,8 @@ EMSCRIPTEN_BINDINGS(Skottie) {
             return self.setVec2Slot(key, vec2);
         }))
         .function("getScalarSlot"    , &ManagedAnimation::getScalarSlot)
-        .function("setScalarSlot"    , &ManagedAnimation::setScalarSlot);
+        .function("setScalarSlot"    , &ManagedAnimation::setScalarSlot)
+        .function("setImageSlot"     , &ManagedAnimation::setImageSlot);
 
     function("_MakeManagedAnimation", optional_override([](std::string json,
                                                            size_t assetCount,

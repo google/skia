@@ -87,17 +87,19 @@ describe('Skottie behavior', () => {
         expect(promises[0]).not.toBe('NOT FOUND');
         const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
 
-        const animation = CanvasKit.MakeManagedAnimation(promises[0]);
+        const animation = CanvasKit.MakeManagedAnimation(promises[0],
+                                                         {'flightAnim.gif': promises[1]});
         expect(animation).toBeTruthy();
 
         expect(animation.getScalarSlot('Opacity')).toBe(100);
 
         expect(animation.setColorSlot('FillsGroup', CanvasKit.RED)).toBeTruthy();
-        expect(animation.setScalarSlot('Opacity', 0.25)).toBeTruthy();
+        expect(animation.setScalarSlot('Opacity', 25)).toBeTruthy();
         expect(animation.setVec2Slot('ScaleGroup', [25, 50])).toBeTruthy();
+        expect(animation.setImageSlot('ImageSource', 'flighAnim.gif')).toBeTruthy();
 
         expectArrayCloseTo(animation.getColorSlot('FillsGroup'), CanvasKit.RED, 4);
-        expect(animation.getScalarSlot('Opacity')).toBe(0.25);
+        expect(animation.getScalarSlot('Opacity')).toBe(25);
         expectArrayCloseTo(animation.getVec2Slot('ScaleGroup'), [25, 50], 4);
 
 
@@ -108,7 +110,7 @@ describe('Skottie behavior', () => {
         animation.seek(0.5);
         animation.render(canvas, bounds);
         animation.delete();
-    }, slotPromise);
+    }, slotPromise, imgPromise);
 
     it('can load audio assets', (done) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
