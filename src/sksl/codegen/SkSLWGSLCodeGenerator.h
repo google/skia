@@ -18,7 +18,6 @@
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
 #include <cstdint>
-#include <initializer_list>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -140,17 +139,7 @@ public:
     };
 
     WGSLCodeGenerator(const Context* context, const Program* program, OutputStream* out)
-            : INHERITED(context, program, out)
-            , fReservedWords({"array",
-                              "FSIn",
-                              "FSOut",
-                              "_globalUniforms",
-                              "_GlobalUniforms",
-                              "_return",
-                              "_stageIn",
-                              "_stageOut",
-                              "VSIn",
-                              "VSOut"}) {}
+            : INHERITED(context, program, out) {}
 
     bool generateCode() override;
 
@@ -350,7 +339,6 @@ private:
     skia_private::THashMap<const Type*, std::string> fInterfaceBlockNameMap;
 
     // Stores the disallowed identifier names.
-    skia_private::THashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
     int fPipelineInputCount = 0;
 

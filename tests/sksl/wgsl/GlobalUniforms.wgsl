@@ -8,7 +8,7 @@ struct FSOut {
 struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
-  _array: array<vec4<f32>, 5>,
+  R_array: array<vec4<f32>, 5>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn main() -> vec4<f32> {
