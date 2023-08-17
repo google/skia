@@ -48,11 +48,10 @@ extern "C" {
 bool gCreateProtectedContext = false;
 
 namespace sk_gpu_test {
-GrContextFactory::GrContextFactory() { }
+GrContextFactory::GrContextFactory() {}
 
 GrContextFactory::GrContextFactory(const GrContextOptions& opts)
-    : fGlobalOptions(opts) {
-}
+    : fGlobalOptions(opts) {}
 
 GrContextFactory::~GrContextFactory() {
     this->destroyContexts();

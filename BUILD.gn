@@ -1969,6 +1969,7 @@ if (skia_enable_tools) {
       "tools/gpu/FlushFinishTracker.cpp",
       "tools/gpu/FlushFinishTracker.h",
       "tools/gpu/GrContextFactory.cpp",
+      "tools/gpu/GrContextFactory.h",
       "tools/gpu/GrTest.cpp",
       "tools/gpu/ManagedBackendTexture.cpp",
       "tools/gpu/ManagedBackendTexture.h",

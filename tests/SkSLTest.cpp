@@ -481,11 +481,21 @@ static void test_raster_pipeline(skiatest::Reporter* r,
     report_rp_pass(r, testFile, flags);
 }
 
+static bool is_rendering_context_but_not_dawn(sk_gpu_test::GrContextFactory::ContextType type) {
+    return sk_gpu_test::GrContextFactory::IsRenderingContext(type) &&
+           sk_gpu_test::GrContextFactory::ContextTypeBackend(type) != GrBackendApi::kDawn;
+}
+
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
     DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) { test_cpu(r, path, flags); } \
     DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }                 \
-    DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(                                    \
-            SkSL##name##_GPU, r, ctxInfo, is_gpu(flags), ctsEnforcement) {                 \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(SkSL##name##_Ganesh,                          \
+                                             is_rendering_context_but_not_dawn,            \
+                                             r,                                            \
+                                             ctxInfo,                                      \
+                                             nullptr,                                      \
+                                             is_gpu(flags),                                \
+                                             ctsEnforcement) {                             \
         test_gpu(r, ctxInfo.directContext(), path, flags);                                 \
     }                                                                                      \
     DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }

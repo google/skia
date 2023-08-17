@@ -17,6 +17,7 @@ skia_cc_library(
         "FlushFinishTracker.h",
         "GpuTimer.h",
         "GrContextFactory.cpp",
+        "GrContextFactory.h",
         "GrTest.cpp",
         "ManagedBackendTexture.cpp",
         "ManagedBackendTexture.h",
