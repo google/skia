@@ -27,14 +27,13 @@ def gcs_mirror_url(url, sha256, ext = None):
     Returns:
         A list of the form [original URL, mirror URL].
     """
-    extension = ""
     if ext == None:
         for suffix in _SUPPORTED_SUFFIXES:
             if url.endswith(suffix):
-                extension = suffix
+                ext = suffix
                 break
-        if extension == "":
+        if ext == "":
             fail("URL %s has an unsupported suffix." % url)
 
-    mirror_url = "%s/%s%s" % (_GCS_MIRROR_PREFIX, sha256, extension)
+    mirror_url = "%s/%s%s" % (_GCS_MIRROR_PREFIX, sha256, ext)
     return [mirror_url] if _TEST_GCS_MIRROR else [mirror_url, url]
