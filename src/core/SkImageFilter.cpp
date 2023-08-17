@@ -13,7 +13,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
@@ -24,7 +23,6 @@
 #include "src/core/SkLocalMatrixImageFilter.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
@@ -367,14 +365,6 @@ skif::DeviceSpace<SkIRect> SkImageFilter_Base::getOutputBounds(
     return mapping.layerToDevice(filterOutput);
 }
 
-// TODO (michaelludwig) - Default to using the old onFilterImage, as filters are updated one by one.
-// Once the old function is gone, this onFilterImage() will be made a pure virtual.
-skif::FilterResult SkImageFilter_Base::onFilterImage(const skif::Context& context) const {
-    SkIPoint origin = {0, 0};
-    auto image = this->onFilterImage(context, &origin);
-    return skif::FilterResult(std::move(image), skif::LayerSpace<SkIPoint>(origin));
-}
-
 SkImageFilter_Base::MatrixCapability SkImageFilter_Base::getCTMCapability() const {
     MatrixCapability result = this->onGetCTMCapability();
     const int count = this->countInputs();
@@ -384,34 +374,6 @@ SkImageFilter_Base::MatrixCapability SkImageFilter_Base::getCTMCapability() cons
         }
     }
     return result;
-}
-
-// NOTE: The new onGetOutputLayerBounds() and onGetInputLayerBounds() default to calling into the
-// deprecated onFilterBounds and onFilterNodeBounds. While these functions are not tagged, they do
-// match the documented default behavior for the new bounds functions.
-SkIRect SkImageFilter_Base::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                           MapDirection dir, const SkIRect* inputRect) const {
-    if (this->countInputs() < 1) {
-        return src;
-    }
-
-    SkIRect totalBounds;
-    for (int i = 0; i < this->countInputs(); ++i) {
-        const SkImageFilter* filter = this->getInput(i);
-        SkIRect rect = filter ? filter->filterBounds(src, ctm, dir, inputRect) : src;
-        if (0 == i) {
-            totalBounds = rect;
-        } else {
-            totalBounds.join(rect);
-        }
-    }
-
-    return totalBounds;
-}
-
-SkIRect SkImageFilter_Base::onFilterNodeBounds(const SkIRect& src, const SkMatrix&,
-                                               MapDirection, const SkIRect*) const {
-    return src;
 }
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildInputLayerBounds(
@@ -444,95 +406,9 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildOutputLayerBounds(
                        : contentBounds;
 }
 
-skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetInputLayerBounds(
-        const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
-    // Call old functions for now since they may have been overridden by a subclass that's not been
-    // updated yet; eventually this will be a pure virtual and impls control visiting children
-    SkIRect content = SkIRect(contentBounds);
-    SkIRect input = this->onFilterNodeBounds(SkIRect(desiredOutput), mapping.layerMatrix(),
-                                             kReverse_MapDirection, &content);
-
-    SkIRect aggregate = this->onFilterBounds(input, mapping.layerMatrix(),
-                                             kReverse_MapDirection, &input);
-    return skif::LayerSpace<SkIRect>(aggregate);
-}
-
-skif::LayerSpace<SkIRect> SkImageFilter_Base::onGetOutputLayerBounds(
-        const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const {
-    // Call old functions for now; eventually this will be a pure virtual. The old functions for
-    // filters that affected transparent black were often not overridden, in which case they would
-    // just return 'contentBounds' instead of being infinite.
-    SkIRect output;
-    if (this->onAffectsTransparentBlack()) {
-        output = SkRectPriv::MakeILarge();
-    } else {
-        SkIRect aggregate = this->onFilterBounds(SkIRect(contentBounds), mapping.layerMatrix(),
-                                                kForward_MapDirection, nullptr);
-        output = this->onFilterNodeBounds(aggregate, mapping.layerMatrix(),
-                                          kForward_MapDirection, nullptr);
-    }
-    return skif::LayerSpace<SkIRect>(output);
-}
-
 skif::FilterResult SkImageFilter_Base::getChildOutput(int index, const skif::Context& ctx) const {
     const SkImageFilter* input = this->getInput(index);
     return input ? as_IFB(input)->filterImage(ctx) : ctx.source();
-}
-
-sk_sp<SkSpecialImage> SkImageFilter_Base::filterInput(int index,
-                                                      const skif::Context& ctx,
-                                                      SkIPoint* offset) const {
-    // The deprecated version needs to use the mapped context for the call to imageAndOffset().
-    skif::Context inputCtx = this->mapContext(ctx);
-
-    const SkImageFilter* input = this->getInput(index);
-    if (!input) {
-        // Null image filters late bind to the source image
-        return ctx.source().imageAndOffset(inputCtx, offset);
-    }
-
-    skif::FilterResult result = as_IFB(input)->filterImage(inputCtx);
-    SkASSERT(!result.image() || ctx.gpuBacked() == result.image()->isGaneshBacked());
-
-    return result.imageAndOffset(inputCtx, offset);
-}
-
-skif::Context SkImageFilter_Base::mapContext(const skif::Context& ctx) const {
-    // We don't recurse through the child input filters because that happens automatically
-    // as part of the filterImage() evaluation. In this case, we want the bounds for the
-    // edge from this node to its children, without the effects of the child filters.
-    // NOTE: mapContext() is only used by the legacy functions, which split input bounds into a
-    // non-recursing function (onFilterNodeBounds) and a recursing one. The new
-    // onGetInputLayerBounds() always recurses so just use onFilterNodeBounds directly.
-    SkIRect desiredOutput = SkIRect(ctx.desiredOutput());
-    SkIRect requiredInput = this->onFilterNodeBounds(desiredOutput, ctx.mapping().layerMatrix(),
-                                                     kReverse_MapDirection, &desiredOutput);
-    return ctx.withNewDesiredOutput(skif::LayerSpace<SkIRect>(requiredInput));
-}
-
-
-
-// In repeat mode, when we are going to sample off one edge of the srcBounds we require the
-// opposite side be preserved.
-SkIRect SkImageFilter_Base::DetermineRepeatedSrcBound(const SkIRect& srcBounds,
-                                                      const SkIVector& filterOffset,
-                                                      const SkISize& filterSize,
-                                                      const SkIRect& originalSrcBounds) {
-    SkIRect tmp = srcBounds;
-    tmp.adjust(-filterOffset.fX, -filterOffset.fY,
-               filterSize.fWidth - filterOffset.fX, filterSize.fHeight - filterOffset.fY);
-
-    if (tmp.fLeft < originalSrcBounds.fLeft || tmp.fRight > originalSrcBounds.fRight) {
-        tmp.fLeft = originalSrcBounds.fLeft;
-        tmp.fRight = originalSrcBounds.fRight;
-    }
-    if (tmp.fTop < originalSrcBounds.fTop || tmp.fBottom > originalSrcBounds.fBottom) {
-        tmp.fTop = originalSrcBounds.fTop;
-        tmp.fBottom = originalSrcBounds.fBottom;
-    }
-
-    return tmp;
 }
 
 void SkImageFilter_Base::PurgeCache() {

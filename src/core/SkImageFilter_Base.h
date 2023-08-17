@@ -177,22 +177,6 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    // DEPRECATED - Use the private context-only variant
-    virtual sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint* offset) const {
-        return nullptr;
-    }
-
-    // DEPRECATED - Override onGetOutputLayerBounds and onGetInputLayerBounds instead. The
-    // node-specific and aggregation functions are no longer separated in the current API. A helper
-    // function is provided to do the default recursion for the common filter case.
-    virtual SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
-                                   MapDirection, const SkIRect* inputRect) const;
-    virtual SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
-                                       MapDirection, const SkIRect* inputRect) const;
-
-    // DEPRECRATED - Call the Context-only getChildOutput()
-    sk_sp<SkSpecialImage> filterInput(int index, const skif::Context& ctx, SkIPoint* offset) const;
-
     // Helper function to calculate the required input/output of a specific child filter,
     // automatically handling if the child filter is null.
     skif::LayerSpace<SkIRect> getChildInputLayerBounds(
@@ -213,28 +197,6 @@ protected:
     // passed to onFilterImage(), it should explicitly pass in an updated Context via
     // `withNewDesiredOutput`.
     skif::FilterResult getChildOutput(int index, const skif::Context& ctx) const;
-
-    /**
-     *  Creates a modified Context for use when recursing up the image filter DAG.
-     *  The clip bounds are adjusted to accommodate any margins that this
-     *  filter requires by calling this node's
-     *  onFilterNodeBounds(..., kReverse_MapDirection).
-     */
-    // TODO (michaelludwig) - I don't think this is necessary to keep as protected. Other than the
-    // real use case in recursing through the DAG for filterInput(), it feels wrong for blur and
-    // other filters to need to call it.
-    skif::Context mapContext(const skif::Context& ctx) const;
-
-    // If 'srcBounds' will sample outside the border of 'originalSrcBounds' (i.e., the sample
-    // will wrap around to the other side) we must preserve the far side of the src along that
-    // axis (e.g., if we will sample beyond the left edge of the src, the right side must be
-    // preserved for the repeat sampling to work).
-    // DEPRECATED - Remove once cropping is handled by a separate filter, that can also handle all
-    // tile modes (including repeat) properly
-    static SkIRect DetermineRepeatedSrcBound(const SkIRect& srcBounds,
-                                             const SkIVector& filterOffset,
-                                             const SkISize& filterSize,
-                                             const SkIRect& originalSrcBounds);
 
 private:
     friend class SkImageFilter;
@@ -288,7 +250,7 @@ private:
      *  to safely handle these null and empty images and return an image filling the context's clip
      *  bounds as if its input filtered image were transparent black.
      */
-    virtual skif::FilterResult onFilterImage(const skif::Context& context) const;
+    virtual skif::FilterResult onFilterImage(const skif::Context& context) const = 0;
 
     /**
      *  Calculates the necessary input layer size in order for the final output of the filter to
@@ -297,42 +259,26 @@ private:
      *  node require for input in order to satisfy (as its own output), the input needs of its
      *  parent?".
      *
-     *  If 'recurse' is true, this function is responsible for recursing to its child image filters
-     *  and accounting for what they require to meet this filter's input requirements. It is up to
-     *  the filter to determine how to aggregate these inputs, but a helper function is provided for
-     *  the common case where the final required layer size is the union of the child filters'
-     *  required inputs, evaluated on what this filter requires for itself. 'recurse' is kNo
-     *  when mapping Contexts while actually filtering images, since the child recursion is
-     *  happening at a higher level.
-     *
      *  Unlike the public getInputBounds(), all internal bounds calculations are done in the shared
      *  layer space defined by 'mapping'.
-     *
-     *  The default implementation assumes that current filter requires an input equal to
-     *  'desiredOutputBounds', and passes this down to its child filters, and returns the union of
-     *  their required inputs.
      */
     virtual skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const;
+            const skif::LayerSpace<SkIRect>& contentBounds) const = 0;
 
     /**
      *  Calculates the output bounds that this filter node would touch when processing an input
      *  sized to 'contentBounds'. This function is responsible for recursing to its child image
      *  filters and accounting for what they output. It is up to the filter to determine how to
-     *  aggregate the outputs of its children, but a helper function is provided for the common
-     *  case where the filter output is the union of its child outputs.
+     *  aggregate the outputs of its children.
      *
      *  Unlike the public getOutputBounds(), all internal bounds calculations are done in the
      *  shared layer space defined by 'mapping'.
-     *
-     *  The default implementation assumes that the output of this filter is equal to the union of
-     *  the outputs of its child filters evaluated with 'contentBounds'.
      */
     // TODO (michaelludwig) - When layerMatrix = I, this function could be used to implement
     // onComputeFastBounds() instead of making filters implement the essentially the same calcs x2
     virtual skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
-            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const;
+            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const = 0;
 
     skia_private::AutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
