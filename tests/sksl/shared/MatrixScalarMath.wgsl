@@ -27,11 +27,11 @@ fn test_bifffff22(_skParam0: i32, _skParam1: f32, _skParam2: f32, _skParam3: f32
     var m2: mat2x2<f32> = mat2x2<f32>(m11 * one, m12 * one, m21 * one, m22 * one);
     switch op {
       case 1 {
-        m2 = mat2x2<f32>(1.0, 1.0, 1.0, 1.0) + m2;
+        m2 = mat2x2<f32>(1.0 + m2[0], 1.0 + m2[1]);
         break;
       }
       case 2 {
-        m2 = m2 - mat2x2<f32>(1.0, 1.0, 1.0, 1.0);
+        m2 = mat2x2<f32>(m2[0] - 1.0, m2[1] - 1.0);
         break;
       }
       case 3 {
@@ -73,7 +73,7 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     var _1_one: f32 = f32(_globalUniforms.colorRed.x);
     var _2_m2: mat2x2<f32> = mat2x2<f32>(f1 * _1_one, f2 * _1_one, f3 * _1_one, f4 * _1_one);
     {
-      _2_m2 = mat2x2<f32>(1.0, 1.0, 1.0, 1.0) + _2_m2;
+      _2_m2 = mat2x2<f32>(1.0 + _2_m2[0], 1.0 + _2_m2[1]);
     }
     var _skTemp6: vec4<f32>;
     var _skTemp7: bool;

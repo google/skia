@@ -1,17 +1,3 @@
-### Compilation failed:
-
-error: :103:53 error: no matching overload for operator / (mat2x2<f32>, mat2x2<f32>)
-
-4 candidate operators:
-  operator / (T, T) -> T  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator / (vecN<T>, T) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator / (T, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-  operator / (vecN<T>, vecN<T>) -> vecN<T>  where: T is abstract-float, abstract-int, f32, i32, u32 or f16
-
-    m = mat2x2<f32>(scalar, scalar, scalar, scalar) / s;
-                                                    ^
-
-
 diagnostic(off, derivative_uniformity);
 struct _GlobalUniforms {
   testMatrix2x2: mat2x2<f32>,
@@ -114,19 +100,19 @@ fn test_no_op_mat2_X_scalar_b() -> bool {
     if (any(m[0] != _skTemp3[0]) || any(m[1] != _skTemp3[1])) {
       return false;
     }
-    m = mat2x2<f32>(scalar, scalar, scalar, scalar) / s;
+    m = mat2x2<f32>(scalar / s[0], scalar / s[1]);
     let _skTemp4 = mat2x2<f32>(scalar, scalar, scalar, scalar);
     if (any(m[0] != _skTemp4[0]) || any(m[1] != _skTemp4[1])) {
       return false;
     }
-    m = mat2x2<f32>(scalar, scalar, scalar, scalar) + z;
-    m = z + mat2x2<f32>(scalar, scalar, scalar, scalar);
+    m = mat2x2<f32>(scalar + z[0], scalar + z[1]);
+    m = mat2x2<f32>(z[0] + scalar, z[1] + scalar);
     let _skTemp5 = mat2x2<f32>(scalar, scalar, scalar, scalar);
     if (any(m[0] != _skTemp5[0]) || any(m[1] != _skTemp5[1])) {
       return false;
     }
-    m = mat2x2<f32>(scalar, scalar, scalar, scalar) - z;
-    m = z - mat2x2<f32>(scalar, scalar, scalar, scalar);
+    m = mat2x2<f32>(scalar - z[0], scalar - z[1]);
+    m = mat2x2<f32>(z[0] - scalar, z[1] - scalar);
     let _skTemp6 = (-1.0 * mat2x2<f32>(scalar, scalar, scalar, scalar));
     if (any(m[0] != _skTemp6[0]) || any(m[1] != _skTemp6[1])) {
       return false;
@@ -150,19 +136,19 @@ fn test_no_op_mat3_X_scalar_b() -> bool {
     if (any(m[0] != _skTemp7[0]) || any(m[1] != _skTemp7[1]) || any(m[2] != _skTemp7[2])) {
       return false;
     }
-    m = mat3x3<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar) / s;
+    m = mat3x3<f32>(scalar / s[0], scalar / s[1], scalar / s[2]);
     let _skTemp8 = mat3x3<f32>(scalar3[0], scalar3[1], scalar3[2], scalar3[0], scalar3[1], scalar3[2], scalar3[0], scalar3[1], scalar3[2]);
     if (any(m[0] != _skTemp8[0]) || any(m[1] != _skTemp8[1]) || any(m[2] != _skTemp8[2])) {
       return false;
     }
-    m = mat3x3<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar) + z;
-    m = z + mat3x3<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
+    m = mat3x3<f32>(scalar + z[0], scalar + z[1], scalar + z[2]);
+    m = mat3x3<f32>(z[0] + scalar, z[1] + scalar, z[2] + scalar);
     let _skTemp9 = mat3x3<f32>(scalar3[0], scalar3[1], scalar3[2], scalar3[0], scalar3[1], scalar3[2], scalar3[0], scalar3[1], scalar3[2]);
     if (any(m[0] != _skTemp9[0]) || any(m[1] != _skTemp9[1]) || any(m[2] != _skTemp9[2])) {
       return false;
     }
-    m = mat3x3<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar) - z;
-    m = z - mat3x3<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
+    m = mat3x3<f32>(scalar - z[0], scalar - z[1], scalar - z[2]);
+    m = mat3x3<f32>(z[0] - scalar, z[1] - scalar, z[2] - scalar);
     let _skTemp10 = (-1.0 * mat3x3<f32>(scalar3[0], scalar3[1], scalar3[2], scalar3[0], scalar3[1], scalar3[2], scalar3[0], scalar3[1], scalar3[2]));
     if (any(m[0] != _skTemp10[0]) || any(m[1] != _skTemp10[1]) || any(m[2] != _skTemp10[2])) {
       return false;
@@ -186,19 +172,19 @@ fn test_no_op_mat4_X_scalar_b() -> bool {
     if (any(m[0] != _skTemp11[0]) || any(m[1] != _skTemp11[1]) || any(m[2] != _skTemp11[2]) || any(m[3] != _skTemp11[3])) {
       return false;
     }
-    m = mat4x4<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar) / s;
+    m = mat4x4<f32>(scalar / s[0], scalar / s[1], scalar / s[2], scalar / s[3]);
     let _skTemp12 = mat4x4<f32>(scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3]);
     if (any(m[0] != _skTemp12[0]) || any(m[1] != _skTemp12[1]) || any(m[2] != _skTemp12[2]) || any(m[3] != _skTemp12[3])) {
       return false;
     }
-    m = mat4x4<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar) + z;
-    m = z + mat4x4<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
+    m = mat4x4<f32>(scalar + z[0], scalar + z[1], scalar + z[2], scalar + z[3]);
+    m = mat4x4<f32>(z[0] + scalar, z[1] + scalar, z[2] + scalar, z[3] + scalar);
     let _skTemp13 = mat4x4<f32>(scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3]);
     if (any(m[0] != _skTemp13[0]) || any(m[1] != _skTemp13[1]) || any(m[2] != _skTemp13[2]) || any(m[3] != _skTemp13[3])) {
       return false;
     }
-    m = mat4x4<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar) - z;
-    m = z - mat4x4<f32>(scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar);
+    m = mat4x4<f32>(scalar - z[0], scalar - z[1], scalar - z[2], scalar - z[3]);
+    m = mat4x4<f32>(z[0] - scalar, z[1] - scalar, z[2] - scalar, z[3] - scalar);
     let _skTemp14 = (-1.0 * mat4x4<f32>(scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3], scalar4[0], scalar4[1], scalar4[2], scalar4[3]));
     if (any(m[0] != _skTemp14[0]) || any(m[1] != _skTemp14[1]) || any(m[2] != _skTemp14[2]) || any(m[3] != _skTemp14[3])) {
       return false;
@@ -259,5 +245,3 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
 @fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
   return main(_coords);
 }
-
-1 error

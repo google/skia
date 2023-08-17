@@ -214,6 +214,8 @@ private:
     std::string variableReferenceNameForLValue(const VariableReference& r);
     std::string variablePrefix(const Variable& v);
 
+    bool binaryOpNeedsComponentwiseMatrixPolyfill(const Type& left, const Type& right, Operator op);
+
     // Writers for expressions. These return the final expression text as a string, and emit any
     // necessary setup code directly into the program as necessary. The returned expression may be
     // a `let`-alias that cannot be assigned-into; use `makeLValue` for an assignable expression.
@@ -224,15 +226,6 @@ private:
                                          const Expression& right,
                                          const Type& resultType,
                                          Precedence parentPrecedence);
-    std::string assembleBinaryExpressionElement(const Expression& expr,
-                                                Operator op,
-                                                const Expression& other,
-                                                Precedence parentPrecedence);
-    std::string binaryOpOrComponentwiseDivision(const Expression& left,
-                                                const Expression& right,
-                                                const std::string& lhs,
-                                                const std::string& rhs,
-                                                Operator op);
     std::string assembleFieldAccess(const FieldAccess& f);
     std::string assembleFunctionCall(const FunctionCall& call, Precedence parentPrecedence);
     std::string assembleIndexExpression(const IndexExpression& i);
@@ -261,7 +254,8 @@ private:
                                           const Expression& sampler,
                                           const Expression& coords);
     std::string assembleInversePolyfill(const FunctionCall& call);
-    std::string assembleComponentwiseMatrixBinary(const Type& matrixType,
+    std::string assembleComponentwiseMatrixBinary(const Type& leftType,
+                                                  const Type& rightType,
                                                   const std::string& left,
                                                   const std::string& right,
                                                   Operator op);
