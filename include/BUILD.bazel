@@ -89,7 +89,6 @@ generate_cpp_files_for_headers(
         "include/encode/SkJpegEncoder.h",
         "include/encode/SkPngEncoder.h",
         "include/encode/SkWebpEncoder.h",
-        "include/gpu/GrBackendSurfaceMutableState.h",
         "include/gpu/GrTypes.h",
         "include/gpu/MutableTextureState.h",
         "include/gpu/ganesh/GrExternalTextureGenerator.h",

@@ -63,7 +63,6 @@ skia_gpu_public = [
   "$_include/gpu/GrBackendDrawableInfo.h",
   "$_include/gpu/GrBackendSemaphore.h",
   "$_include/gpu/GrBackendSurface.h",
-  "$_include/gpu/GrBackendSurfaceMutableState.h",
   "$_include/gpu/GrContextOptions.h",
   "$_include/gpu/GrContextThreadSafeProxy.h",
   "$_include/gpu/GrDirectContext.h",
