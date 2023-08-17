@@ -782,9 +782,7 @@ with open('Android.bp', 'w') as Android_bp:
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
-    'x86_srcs':      bpfmt(16, strip_headers(defs['ssse3'] +
-                                             defs['avx'  ] +
-                                             defs['hsw'  ])),
+    'x86_srcs':      bpfmt(16, strip_headers(defs['hsw'  ])),
 
     'gm_includes'       : bpfmt(8, gm_includes),
     'gm_srcs'           : bpfmt(8, gm_srcs),

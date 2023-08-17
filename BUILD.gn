@@ -172,26 +172,6 @@ template("opts") {
 
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
 
-opts("ssse3") {
-  enabled = is_x86
-  sources = skia_opts.ssse3_sources
-  if (!is_clang && is_win) {
-    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSSE3" ]
-  } else {
-    cflags = [ "-mssse3" ]
-  }
-}
-
-opts("avx") {
-  enabled = is_x86
-  sources = skia_opts.avx_sources
-  if (is_win) {
-    cflags = [ "/arch:AVX" ]
-  } else {
-    cflags = [ "-mavx" ]
-  }
-}
-
 opts("hsw") {
   enabled = is_x86
   sources = skia_opts.hsw_sources
@@ -1496,7 +1476,6 @@ skia_component("skia") {
   deps = [
     ":android_utils",
     ":avif",
-    ":avx",
     ":fontmgr_factory",
     ":heif",
     ":hsw",
@@ -1505,7 +1484,6 @@ skia_component("skia") {
     ":ndk_images",
     ":png_decode",
     ":raw",
-    ":ssse3",
     ":typeface_fontations",
     ":vello",
     ":webp_decode",
@@ -1695,11 +1673,7 @@ skia_static_library("pathkit") {
   public_configs = [ ":skia_public" ]
   configs = skia_library_configs
 
-  deps = [
-    ":avx",
-    ":hsw",
-    ":ssse3",
-  ]
+  deps = [ ":hsw" ]
 
   sources = []
   sources += skia_pathops_sources

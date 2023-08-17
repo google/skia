@@ -51,24 +51,6 @@ OPTS_HDRS = [
 ]
 
 skia_cc_library(
-    name = "ssse3",  # https://en.wikipedia.org/wiki/SSSE3
-    srcs = ["SkOpts_ssse3.cpp"],
-    copts = DEFAULT_COPTS + ["-mssse3"],
-    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
-    textual_hdrs = OPTS_HDRS,
-    deps = ["@skia_user_config//:user_config"],
-)
-
-skia_cc_library(
-    name = "avx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
-    srcs = ["SkOpts_avx.cpp"],
-    copts = DEFAULT_COPTS + ["-mavx"],
-    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
-    textual_hdrs = OPTS_HDRS,
-    deps = ["@skia_user_config//:user_config"],
-)
-
-skia_cc_library(
     name = "hsw",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2
     srcs = ["SkOpts_hsw.cpp"],
     copts = DEFAULT_COPTS + ["-march=haswell"],
@@ -88,9 +70,7 @@ skia_cc_deps(
     ],
     deps = selects.with_or({
         ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
-            ":avx",
             ":hsw",
-            ":ssse3",
         ],
         # We have no architecture specific optimizations for ARM64 right now
         "@platforms//cpu:arm64": [],
