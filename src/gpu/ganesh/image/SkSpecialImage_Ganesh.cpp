@@ -7,17 +7,13 @@
 
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"  // IWYU pragma: keep
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/gpu/GpuTypes.h"
@@ -27,13 +23,11 @@
 #include "include/private/base/SkPoint_impl.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/Device.h"
-#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
@@ -47,7 +41,9 @@
 #include <tuple>
 #include <utility>
 
+class SkPaint;
 class SkShader;
+struct SkSamplingOptions;
 enum SkColorType : int;
 enum class SkTileMode;
 
@@ -225,34 +221,6 @@ GrSurfaceProxyView AsView(GrRecordingContext* context, const SkSpecialImage* img
     SkAssertResult(img->getROPixels(&bm));  // this should always succeed for raster images
     return std::get<0>(GrMakeCachedBitmapProxyView(
             context, bm, /*label=*/"SpecialImageRaster_AsView", GrMipmapped::kNo));
-}
-
-sk_sp<SkSpecialImage> ImageToColorSpace(const skif::Context& ctx,
-                                        SkSpecialImage* src) {
-    // There are several conditions that determine if we actually need to convert the source to the
-    // destination's color space. Rather than duplicate that logic here, just try to make an xform
-    // object. If that produces something, then both are tagged, and the source is in a different
-    // gamut than the dest. There is some overhead to making the xform, but those are cached, and
-    // if we get one back, that means we're about to use it during the conversion anyway.
-    auto colorSpaceXform = GrColorSpaceXform::Make(src->getColorSpace(),  src->alphaType(),
-                                                   ctx.colorSpace(), kPremul_SkAlphaType);
-
-    if (!colorSpaceXform) {
-        // No xform needed, just return the original image
-        return sk_ref_sp(src);
-    }
-
-    sk_sp<SkSpecialSurface> surf = ctx.makeSurface(src->dimensions());
-    if (!surf) {
-        return sk_ref_sp(src);
-    }
-
-    SkCanvas* canvas = surf->getCanvas();
-    SkASSERT(canvas);
-    SkPaint p;
-    p.setBlendMode(SkBlendMode::kSrc);
-    src->draw(canvas, 0, 0, SkSamplingOptions(), &p);
-    return surf->makeImageSnapshot();
 }
 
 }  // namespace SkSpecialImages

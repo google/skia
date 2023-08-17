@@ -23,8 +23,6 @@ struct SkIRect;
 enum GrSurfaceOrigin : int;
 struct SkImageInfo;
 
-namespace skif { class Context; }
-
 namespace SkSpecialImages {
 
 sk_sp<SkSpecialImage> MakeFromTextureImage(GrRecordingContext* rContext,
@@ -49,12 +47,6 @@ GrSurfaceProxyView AsView(GrRecordingContext*, const SkSpecialImage*);
 inline GrSurfaceProxyView AsView(GrRecordingContext* rContext, sk_sp<const SkSpecialImage> img) {
     return AsView(rContext, img.get());
 }
-/**
- *  Returns a version of the passed-in image (possibly the original), that is in the Context's
- *  colorspace and color type. This allows filters that do many
- *  texture samples to guarantee that any color space conversion has happened before running.
- */
-sk_sp<SkSpecialImage> ImageToColorSpace(const skif::Context&, SkSpecialImage*);
 
 }  // namespace SkSpecialImages
 
