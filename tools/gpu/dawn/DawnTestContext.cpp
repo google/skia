@@ -100,7 +100,7 @@ public:
         DawnProcTable backendProcs = dawn::native::GetProcs();
         dawnProcSetProcs(&backendProcs);
 
-        std::vector<dawn::native::Adapter> adapters = instance.GetAdapters();
+        std::vector<dawn::native::Adapter> adapters = instance.EnumerateAdapters();
         for (dawn::native::Adapter adapter : adapters) {
             wgpu::AdapterProperties properties;
             adapter.GetProperties(&properties);
