@@ -185,6 +185,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		configs = append(configs, "vk", "vkdmsaa")
 		// skbug.com/12826
 		skip(ALL, "test", ALL, "GrThreadSafeCache16Verts")
+                // b/296440036
+                skip(ALL, "test", ALL, "ImageAsyncReadPixels")
 		// skbug.com/12829
 		skip(ALL, "test", ALL, "image_subset")
 	} else if b.cpu() {

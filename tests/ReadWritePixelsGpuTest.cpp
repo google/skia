@@ -199,6 +199,10 @@ struct GpuReadPixelTestRules {
     bool fAllowUnpremulSrc = true;
     // Are reads that are overlapping but not contained by the src bounds expected to succeed?
     bool fUncontainedRectSucceeds = true;
+    // Skip SRGB src colortype?
+    bool fSkipSRGBCT = false;
+    // Skip 16-bit src colortypes?
+    bool fSkip16BitCT = false;
 };
 
 // Makes a src populated with the pixmap. The src should get its image info (or equivalent) from
@@ -461,6 +465,15 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
         }
         for (int sct = 0; sct <= kLastEnum_SkColorType; ++sct) {
             const auto srcCT = static_cast<SkColorType>(sct);
+            if (rules.fSkipSRGBCT && srcCT == kSRGBA_8888_SkColorType) {
+                continue;
+            }
+            if (rules.fSkip16BitCT &&
+                (srcCT == kR16G16_unorm_SkColorType ||
+                 srcCT == kR16G16B16A16_unorm_SkColorType)) {
+                continue;
+            }
+
             // We always make our ref data as F32
             auto refInfo = SkImageInfo::Make(kW, kH,
                                              kRGBA_F32_SkColorType,
@@ -679,6 +692,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = false;
     rules.fUncontainedRectSucceeds = false;
+    // TODO: some mobile GPUs have issues reading back sRGB src data with GLES -- skip for now
+    // b/296440036
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
+        rules.fSkipSRGBCT = true;
+    }
 
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto factory = std::function<GpuSrcFactory<Surface>>(
@@ -753,6 +771,16 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels,
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = true;
     rules.fUncontainedRectSucceeds = false;
+    // TODO: some mobile GPUs have issues reading back sRGB src data with GLES -- skip for now
+    // b/296440036
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
+        rules.fSkipSRGBCT = true;
+    }
+    // TODO: D3D on Intel has issues reading back 16-bit src data -- skip for now
+    // b/296440036
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kDirect3D_ContextType) {
+        rules.fSkip16BitCT = true;
+    }
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
