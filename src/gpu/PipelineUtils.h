@@ -18,18 +18,6 @@
 // This file houses utilities to be shared across pipelines of different backend types.
 namespace skgpu {
 
-// Print the source code for all shaders generated.
-#ifdef SK_PRINT_SKSL_SHADERS
-static constexpr bool gPrintSkSL  = true;
-#else
-static constexpr bool gPrintSkSL  = false;
-#endif
-#ifdef SK_PRINT_NATIVE_SHADERS
-static const bool gPrintBackendSL = true;
-#else
-static const bool gPrintBackendSL = false;
-#endif
-
 bool SkSLToGLSL(SkSL::Compiler*,
                 const std::string& sksl,
                 SkSL::ProgramKind programKind,

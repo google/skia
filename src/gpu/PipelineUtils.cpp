@@ -31,11 +31,20 @@ static bool sksl_to_backend(SkSL::Compiler* compiler,
         return false;
     }
 
-    bool printBackendSL = gPrintBackendSL && backendLabel;
+#if defined(SK_PRINT_SKSL_SHADERS)
+    const bool kPrintSkSL = true;
+#else
+    const bool kPrintSkSL = false;
+#endif
+#if defined(SK_PRINT_NATIVE_SHADERS)
+    const bool printBackendSL = (backendLabel != nullptr);
+#else
+    const bool printBackendSL = false;
+#endif
 
-    if (gPrintSkSL || gPrintBackendSL) {
+    if (kPrintSkSL || printBackendSL) {
         SkShaderUtils::PrintShaderBanner(programKind);
-        if (gPrintSkSL) {
+        if (kPrintSkSL) {
             SkDebugf("SkSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
         }
