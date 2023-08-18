@@ -291,7 +291,9 @@ sk_sp<Device> Device::Make(Recorder* recorder,
     if (!recorder) {
         return nullptr;
     }
-    if (colorInfo.alphaType() != kPremul_SkAlphaType) {
+    // We don't render to unknown or unpremul alphatypes
+    if (colorInfo.alphaType() == kUnknown_SkAlphaType ||
+        colorInfo.alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
 

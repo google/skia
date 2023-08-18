@@ -176,17 +176,14 @@ enum class Result {
 template <typename T>
 using GraphiteReadSrcFn = Result(const T&, const SkIPoint& offset, const SkPixmap&);
 
-SkPixmap make_pixmap_have_valid_alpha_type(SkPixmap pm) {
-    if (pm.alphaType() == kUnknown_SkAlphaType) {
-        return {pm.info().makeAlphaType(kUnpremul_SkAlphaType), pm.addr(), pm.rowBytes()};
-    }
-    return pm;
-}
-
 static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaque) {
     SkAutoPixmapStorage result;
-    result.alloc(info);
-    auto surface = SkSurfaces::WrapPixels(make_pixmap_have_valid_alpha_type(result));
+    if (info.alphaType() == kUnknown_SkAlphaType) {
+        result.alloc(info.makeAlphaType(kUnpremul_SkAlphaType));
+    } else {
+        result.alloc(info);
+    }
+    auto surface = SkSurfaces::WrapPixels(result);
     if (!surface) {
         return result;
     }
