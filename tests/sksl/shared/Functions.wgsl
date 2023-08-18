@@ -34,7 +34,7 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
     var _skTemp1: f32 = x;
     bar_vf(&_skTemp1);
     x = _skTemp1;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((x == 200.0)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(x == 200.0));
   }
 }
 @fragment fn main(_stageIn: FSIn) -> FSOut {
