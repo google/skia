@@ -80,7 +80,6 @@ protected:
 
 private:
     friend class GrBackendRenderTarget;
-    virtual bool isValid() const = 0;
     virtual GrBackendFormat getBackendFormat() const = 0;
     virtual bool isProtected() const = 0;
     virtual bool equal(const GrBackendRenderTargetData* that) const = 0;

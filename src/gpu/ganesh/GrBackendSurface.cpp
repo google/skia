@@ -963,9 +963,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     switch (that.fBackend) {
         case GrBackendApi::kOpenGL:
             fRTData.reset();
-            if (that.fRTData->isValid()) {
-                that.fRTData->copyTo(fRTData);
-            }
+            that.fRTData->copyTo(fRTData);
             break;
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
