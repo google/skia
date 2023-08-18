@@ -60,6 +60,10 @@ size_t Image_YUVA::textureSize() const {
     return size;
 }
 
+sk_sp<SkImage> Image_YUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
+    return sk_make_sp<Image_YUVA>(kNeedNewImageUniqueID, fYUVAProxies, std::move(newCS));
+}
+
 }  // namespace skgpu::graphite
 
 using namespace skgpu::graphite;

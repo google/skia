@@ -43,9 +43,7 @@ public:
         return false;
     }
 
-    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override {
-        return nullptr;
-    }
+    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
     const YUVATextureProxies& yuvaProxies() const {
         return fYUVAProxies;
