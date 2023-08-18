@@ -136,30 +136,9 @@ void ImageFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) con
     this->INHERITED::onRender(canvas, filter_ctx);
 }
 
-ImageFilter::ImageFilter(sk_sp<ImageFilter> input)
-    : ImageFilter(input ? std::make_unique<InputsT>(1, std::move(input)) : nullptr) {}
+ImageFilter::ImageFilter() : INHERITED(kBubbleDamage_Trait) {}
 
-ImageFilter::ImageFilter(std::unique_ptr<InputsT> inputs)
-    : INHERITED(kBubbleDamage_Trait)
-    , fInputs(std::move(inputs)) {
-    if (fInputs) {
-        for (const auto& input : *fInputs) {
-            this->observeInval(input);
-        }
-    }
-}
-
-ImageFilter::~ImageFilter() {
-    if (fInputs) {
-        for (const auto& input : *fInputs) {
-            this->unobserveInval(input);
-        }
-    }
-}
-
-sk_sp<SkImageFilter> ImageFilter::refInput(size_t i) const {
-    return (fInputs && i < fInputs->size()) ? (*fInputs)[i]->getFilter() : nullptr;
-}
+ImageFilter::~ImageFilter() = default;
 
 SkRect ImageFilter::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasInval());
@@ -171,36 +150,36 @@ SkRect ImageFilter::onRevalidate(InvalidationController*, const SkMatrix&) {
 ExternalImageFilter:: ExternalImageFilter() = default;
 ExternalImageFilter::~ExternalImageFilter() = default;
 
-sk_sp<DropShadowImageFilter> DropShadowImageFilter::Make(sk_sp<ImageFilter> input) {
-    return sk_sp<DropShadowImageFilter>(new DropShadowImageFilter(std::move(input)));
+sk_sp<DropShadowImageFilter> DropShadowImageFilter::Make() {
+    return sk_sp<DropShadowImageFilter>(new DropShadowImageFilter());
 }
 
-DropShadowImageFilter::DropShadowImageFilter(sk_sp<ImageFilter> input)
-    : INHERITED(std::move(input)) {}
+DropShadowImageFilter::DropShadowImageFilter()
+    : INHERITED() {}
 
 DropShadowImageFilter::~DropShadowImageFilter() = default;
 
 sk_sp<SkImageFilter> DropShadowImageFilter::onRevalidateFilter() {
     if (fMode == Mode::kShadowOnly) {
         return SkImageFilters::DropShadowOnly(fOffset.x(), fOffset.y(), fSigma.x(), fSigma.y(),
-                                              fColor, this->refInput(0));
+                                              fColor, nullptr);
     } else {
         return SkImageFilters::DropShadow(fOffset.x(), fOffset.y(), fSigma.x(), fSigma.y(),
-                                          fColor, this->refInput(0));
+                                          fColor, nullptr);
     }
 }
 
-sk_sp<BlurImageFilter> BlurImageFilter::Make(sk_sp<ImageFilter> input) {
-    return sk_sp<BlurImageFilter>(new BlurImageFilter(std::move(input)));
+sk_sp<BlurImageFilter> BlurImageFilter::Make() {
+    return sk_sp<BlurImageFilter>(new BlurImageFilter());
 }
 
-BlurImageFilter::BlurImageFilter(sk_sp<ImageFilter> input)
-    : INHERITED(std::move(input)) {}
+BlurImageFilter::BlurImageFilter()
+    : INHERITED() {}
 
 BlurImageFilter::~BlurImageFilter() = default;
 
 sk_sp<SkImageFilter> BlurImageFilter::onRevalidateFilter() {
-    return SkImageFilters::Blur(fSigma.x(), fSigma.y(), fTileMode, this->refInput(0));
+    return SkImageFilters::Blur(fSigma.x(), fSigma.y(), fTileMode, nullptr);
 }
 
 sk_sp<BlenderEffect> BlenderEffect::Make(sk_sp<RenderNode> child, sk_sp<SkBlender> blender) {

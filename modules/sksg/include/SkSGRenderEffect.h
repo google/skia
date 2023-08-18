@@ -108,20 +108,13 @@ public:
     }
 
 protected:
-    explicit ImageFilter(sk_sp<ImageFilter> input = nullptr);
-
-    using InputsT = std::vector<sk_sp<ImageFilter>>;
-    explicit ImageFilter(std::unique_ptr<InputsT> inputs);
+    ImageFilter();
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
 
     virtual sk_sp<SkImageFilter> onRevalidateFilter() = 0;
 
-    sk_sp<SkImageFilter> refInput(size_t) const;
-
 private:
-    const std::unique_ptr<InputsT> fInputs;
-
     sk_sp<SkImageFilter>           fFilter;
 
     using INHERITED = Node;
@@ -178,7 +171,7 @@ class DropShadowImageFilter final : public ImageFilter {
 public:
     ~DropShadowImageFilter() override;
 
-    static sk_sp<DropShadowImageFilter> Make(sk_sp<ImageFilter> input = nullptr);
+    static sk_sp<DropShadowImageFilter> Make();
 
     enum class Mode { kShadowAndForeground, kShadowOnly };
 
@@ -191,7 +184,7 @@ protected:
     sk_sp<SkImageFilter> onRevalidateFilter() override;
 
 private:
-    explicit DropShadowImageFilter(sk_sp<ImageFilter> input);
+    explicit DropShadowImageFilter();
 
     SkVector             fOffset = { 0, 0 },
                          fSigma  = { 0, 0 };
@@ -208,7 +201,7 @@ class BlurImageFilter final : public ImageFilter {
 public:
     ~BlurImageFilter() override;
 
-    static sk_sp<BlurImageFilter> Make(sk_sp<ImageFilter> input = nullptr);
+    static sk_sp<BlurImageFilter> Make();
 
     SG_ATTRIBUTE(Sigma   , SkVector  , fSigma   )
     SG_ATTRIBUTE(TileMode, SkTileMode, fTileMode)
@@ -217,7 +210,7 @@ protected:
     sk_sp<SkImageFilter> onRevalidateFilter() override;
 
 private:
-    explicit BlurImageFilter(sk_sp<ImageFilter> input);
+    explicit BlurImageFilter();
 
     SkVector   fSigma    = { 0, 0 };
     SkTileMode fTileMode = SkTileMode::kClamp;
