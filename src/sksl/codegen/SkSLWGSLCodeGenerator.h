@@ -250,17 +250,12 @@ private:
                                                   Operator op);
 
     // Constructor expressions
-    std::string assembleAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
-    std::string assembleConstructorCompound(const ConstructorCompound& c,
-                                            Precedence parentPrecedence);
-    std::string assembleConstructorCompoundVector(const ConstructorCompound& c,
-                                                  Precedence parentPrecedence);
-    std::string assembleConstructorCompoundMatrix(const ConstructorCompound& c,
-                                                  Precedence parentPrecedence);
-    std::string assembleConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
-                                                  Precedence parentPrecedence);
-    std::string assembleConstructorMatrixResize(const ConstructorMatrixResize& ctor,
-                                                Precedence parentPrecedence);
+    std::string assembleAnyConstructor(const AnyConstructor& c);
+    std::string assembleConstructorCompound(const ConstructorCompound& c);
+    std::string assembleConstructorCompoundVector(const ConstructorCompound& c);
+    std::string assembleConstructorCompoundMatrix(const ConstructorCompound& c);
+    std::string assembleConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
+    std::string assembleConstructorMatrixResize(const ConstructorMatrixResize& ctor);
 
     // Synthesized helper functions for comparison operators that are not supported by WGSL.
     std::string assembleEqualityExpression(const Type& left,
