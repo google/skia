@@ -1,0 +1,19 @@
+17 instructions
+
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_4_uniforms                $0..3 = colorRed
+splat_4_constants              $4..7 = 0x40000000 (2.0)
+cmplt_4_floats                 $0..3 = lessThan($0..3, $4..7)
+copy_4_uniforms                $4..7 = colorGreen
+splat_4_constants              $8..11 = 0x40400000 (3.0)
+cmplt_4_floats                 $4..7 = lessThan($4..7, $8..11)
+cmpeq_4_ints                   $0..3 = equal($0..3, $4..7)
+copy_4_slots_unmasked          result = $0..3
+bitwise_and_2_ints             $0..1 &= $2..3
+bitwise_and_int                $0 &= $1
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_uniforms                $4..7 = colorRed
+copy_4_uniforms                $8..11 = colorGreen
+mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+load_src                       src.rgba = $0..3

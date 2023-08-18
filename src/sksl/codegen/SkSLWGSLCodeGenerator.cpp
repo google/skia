@@ -2031,6 +2031,28 @@ static bool is_nontrivial_expression(const Expression& expr) {
     return true;
 }
 
+static bool binary_op_is_ambiguous_in_wgsl(Operator op) {
+    // WGSL always requires parentheses for some operators which are deemed to be ambiguous.
+    // (8.19. Operator Precedence and Associativity)
+    switch (op.kind()) {
+        case OperatorKind::LOGICALOR:
+        case OperatorKind::LOGICALAND:
+        case OperatorKind::BITWISEOR:
+        case OperatorKind::BITWISEAND:
+        case OperatorKind::BITWISEXOR:
+        case OperatorKind::SHL:
+        case OperatorKind::SHR:
+        case OperatorKind::LT:
+        case OperatorKind::GT:
+        case OperatorKind::LTEQ:
+        case OperatorKind::GTEQ:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 bool WGSLCodeGenerator::binaryOpNeedsComponentwiseMatrixPolyfill(const Type& left,
                                                                  const Type& right,
                                                                  Operator op) {
@@ -2201,28 +2223,9 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
 
     Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
-
-    // WGSL always requires parentheses for some operators which are deemed to be ambiguous.
-    // (8.19. Operator Precedence and Associativity)
-    switch (op.kind()) {
-        case OperatorKind::LOGICALOR:
-        case OperatorKind::LOGICALAND:
-        case OperatorKind::BITWISEOR:
-        case OperatorKind::BITWISEAND:
-        case OperatorKind::BITWISEXOR:
-        case OperatorKind::SHL:
-        case OperatorKind::SHR:
-        case OperatorKind::LT:
-        case OperatorKind::GT:
-        case OperatorKind::LTEQ:
-        case OperatorKind::GTEQ:
-            precedence = Precedence::kParentheses;
-            break;
-
-        default:
-            break;
+    if (binary_op_is_ambiguous_in_wgsl(op)) {
+        precedence = Precedence::kParentheses;
     }
-
     if (needParens) {
         expr = "(";
     }
@@ -2412,8 +2415,8 @@ std::string WGSLCodeGenerator::assembleBinaryOpIntrinsic(Operator op,
     SkASSERT(!call.type().isVoid());
 
     Precedence precedence = op.getBinaryPrecedence();
-    bool needParens = precedence >= parentPrecedence;
-
+    bool needParens = precedence >= parentPrecedence ||
+                      binary_op_is_ambiguous_in_wgsl(op);
     std::string expr;
     if (needParens) {
         expr.push_back('(');

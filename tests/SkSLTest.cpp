@@ -712,6 +712,7 @@ SKSL_TEST(CPU | GPU,     kNextRelease,MatrixSwizzleStore,              "shared/M
 SKSL_TEST(CPU | GPU,     kApiLevel_T, MatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, MultipleAssignments,             "shared/MultipleAssignments.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, NumberCasts,                     "shared/NumberCasts.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,NestedComparisonIntrinsics,      "shared/NestedComparisonIntrinsics.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, OperatorsES2,                    "shared/OperatorsES2.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      OperatorsES3,                    "shared/OperatorsES3.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, Ossfuzz36852,                    "shared/Ossfuzz36852.sksl")

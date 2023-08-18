@@ -1,0 +1,10 @@
+uniform half4 colorRed, colorGreen;
+
+half4 main(float2 coords) {
+    // The inner comparisons against colors should evaluate to true in every component.
+    // The outer comparison should evaluate to `true == true`, so is true in each channel.
+    bool4 result = equal(lessThan(colorRed, half4(2.0)),
+                         greaterThan(half4(3.0), colorGreen));
+
+    return all(result) ? colorGreen : colorRed;
+}

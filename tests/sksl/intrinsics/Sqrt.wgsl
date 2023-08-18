@@ -26,13 +26,13 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp3 = abs(_skTemp2 - 1.0);
     let _skTemp4 = sqrt(inputVal.xy);
     let _skTemp5 = abs(_skTemp4 - vec2<f32>(1.0, 2.0));
-    let _skTemp6 = all(_skTemp5 < vec2<f32>(0.05));
+    let _skTemp6 = all((_skTemp5 < vec2<f32>(0.05)));
     let _skTemp7 = sqrt(inputVal.xyz);
     let _skTemp8 = abs(_skTemp7 - vec3<f32>(1.0, 2.0, 3.0));
-    let _skTemp9 = all(_skTemp8 < vec3<f32>(0.05));
+    let _skTemp9 = all((_skTemp8 < vec3<f32>(0.05)));
     let _skTemp10 = sqrt(inputVal);
     let _skTemp11 = abs(_skTemp10 - expected);
-    let _skTemp12 = all(_skTemp11 < allowedDelta);
+    let _skTemp12 = all((_skTemp11 < allowedDelta));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((_skTemp3 < 0.05) && _skTemp6) && _skTemp9) && _skTemp12));
   }
 }

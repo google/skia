@@ -56,9 +56,9 @@ fn divisionTest_b() -> bool {
     var div: mat2x2<f32> = mat * (1.0 / _globalUniforms.testInputs.x);
     mat = mat * (1.0 / _globalUniforms.testInputs.x);
     let _skTemp2 = abs(vec4<f32>(div[0], div[1]) + vec4<f32>(8.0));
-    let _skTemp3 = all(_skTemp2 < vec4<f32>(0.01));
+    let _skTemp3 = all((_skTemp2 < vec4<f32>(0.01)));
     let _skTemp4 = abs(vec4<f32>(mat[0], mat[1]) + vec4<f32>(8.0));
-    let _skTemp5 = all(_skTemp4 < vec4<f32>(0.01));
+    let _skTemp5 = all((_skTemp4 < vec4<f32>(0.01)));
     return _skTemp3 && _skTemp5;
   }
 }

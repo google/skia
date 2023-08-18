@@ -924,6 +924,7 @@ skia_filegroup(
         "shared/MatrixSwizzleStore.sksl",
         "shared/MatrixToVectorCast.sksl",
         "shared/MultipleAssignments.sksl",
+        "shared/NestedComparisonIntrinsics.sksl",
         "shared/NoFragCoordsPos.vert",
         "shared/NoFragCoordsPosRT.vert",
         "shared/NormalizationVert.vert",
