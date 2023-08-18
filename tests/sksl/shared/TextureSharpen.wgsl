@@ -7,7 +7,7 @@ struct FSOut {
 };
 @group(0) @binding(10000) var s_Sampler: sampler;
 @group(0) @binding(10001) var s_Texture: texture_2d<f32>;
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     var a: vec4<f32> = vec4<f32>(textureSampleBias(s_Texture, s_Sampler, vec2<f32>(0.0), -0.475));
     let _skTemp2 = vec3<f32>(0.0);
@@ -15,8 +15,8 @@ fn main(_stageOut: ptr<function, FSOut>) {
     (*_stageOut).sk_FragColor = vec4<f32>(vec2<f32>(a.xy), vec2<f32>(b.xy));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

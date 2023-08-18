@@ -254,9 +254,6 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     const DawnCompileFn kDawnCompileFn = kEnableWGSL ? DawnCompileWGSLShaderModule
                                                      : DawnCompileSPIRVShaderModule;
 
-    constexpr const char *kVSEntrypoint = kEnableWGSL ? "vertexMain" : "main";
-    constexpr const char *kFSEntrypoint = kEnableWGSL ? "fragmentMain" : "main";
-
     const auto& device = sharedContext->device();
 
     SkSL::Program::Interface vsInterface, fsInterface;
@@ -354,7 +351,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     // Dawn doesn't allow having a color attachment but without fragment shader, so have to use a
     // noop fragment shader, if fragment shader is null.
     fragment.module = hasFragment ? std::move(fsModule) : sharedContext->noopFragment();
-    fragment.entryPoint = kFSEntrypoint;
+    fragment.entryPoint = "main";
     fragment.targetCount = 1;
     fragment.targets = &colorTarget;
     descriptor.fragment = &fragment;
@@ -517,7 +514,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     auto& vertex = descriptor.vertex;
     vertex.module = std::move(vsModule);
-    vertex.entryPoint = kVSEntrypoint;
+    vertex.entryPoint = "main";
     vertex.constantCount = 0;
     vertex.constants = nullptr;
     vertex.bufferCount = vertexBufferLayouts.size();

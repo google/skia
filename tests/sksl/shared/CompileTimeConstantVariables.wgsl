@@ -24,7 +24,7 @@ const kAnotherConstant: i32 = 2;
 const kFloatConstant: f32 = 2.14;
 const kFloatConstantAlias: f32 = kFloatConstant;
 const kConstVec: vec4<f32> = vec4<f32>(1.0, 0.2, 2.14, 1.0);
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   {
     const kLocalFloatConstant: f32 = 3.14;
     let kLocalFloatConstantAlias: f32 = kLocalFloatConstant;
@@ -65,8 +65,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
   }
   return vec4<f32>();
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

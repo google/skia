@@ -10,15 +10,15 @@ struct UniformBuffer {
   m2: _skMatrix22,
 };
 @group(12) @binding(34) var<uniform> _uniform0 : UniformBuffer;
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     (*_stageOut).sk_FragColor = vec4<f32>(_skUnpacked__uniform0_m1[0].x, _skUnpacked__uniform0_m1[1].y, _skUnpacked__uniform0_m2[0].x, _skUnpacked__uniform0_m2[1].y);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }
 struct _skRow2 {

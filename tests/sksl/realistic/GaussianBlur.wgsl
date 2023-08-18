@@ -39,7 +39,7 @@ fn MatrixEffect_Stage1_c0_c0_h4h4f2(_skParam0: vec4<f32>, _skParam1: vec2<f32>) 
     return _4_textureColor;
   }
 }
-fn main(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
   {
     var outputColor_Stage0: vec4<f32>;
     var outputCoverage_Stage0: vec4<f32>;
@@ -157,8 +157,8 @@ fn main(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
     }
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(_stageIn, &_stageOut);
+  _skslMain(_stageIn, &_stageOut);
   return _stageOut;
 }

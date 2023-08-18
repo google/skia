@@ -30,7 +30,7 @@ fn test_param_bff(_skParam0: array<f32, 3>, _skParam1: array<f32, 3>) -> bool {
     return _skTemp0;
   }
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var f: array<f32, 3>;
@@ -85,6 +85,6 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return _skTemp2;
   }
 }
-@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-  return main(_coords);
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  return _skslMain(_coords);
 }

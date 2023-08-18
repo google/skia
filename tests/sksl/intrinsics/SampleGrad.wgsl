@@ -8,7 +8,7 @@ struct FSOut {
 };
 @group(0) @binding(10000) var t_Sampler: sampler;
 @group(0) @binding(10001) var t_Texture: texture_2d<f32>;
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     let _skTemp2 = dpdx(coords);
@@ -16,8 +16,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return textureSampleGrad(t_Texture, t_Sampler, coords, _skTemp2, _skTemp3);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

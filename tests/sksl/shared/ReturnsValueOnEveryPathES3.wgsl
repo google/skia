@@ -207,7 +207,7 @@ fn switch_with_one_sided_if_then_fallthrough_b() -> bool {
     }
   }
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var _skTemp11: vec4<f32>;
@@ -297,8 +297,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return _skTemp11;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

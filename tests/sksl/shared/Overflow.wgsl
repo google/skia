@@ -10,7 +10,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     const h: f32 = 1e+09;
@@ -59,8 +59,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return ((((((((((((_globalUniforms.colorGreen * _skTemp13) * _skTemp14) * _skTemp15) * _skTemp16) * _skTemp17) * _skTemp18) * _skTemp19) * _skTemp20) * _skTemp21) * _skTemp22) * _skTemp23) * _skTemp24) * _skTemp25;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

@@ -35,16 +35,16 @@ struct StorageBuffer {
   si4: array<vec4<i32>, 4>,
 };
 @group(0) @binding(2) var<storage, read_write> _storage1 : StorageBuffer;
-fn main() -> vec4<f32> {
+fn _skslMain() -> vec4<f32> {
   {
     var value: f32 = ((((((((((((((((((((((_skUnpacked__uniform0_uf[1] + _skUnpacked__uniform0_uf2[1].x) + _skUnpacked__uniform0_uf3[1].x) + _uniform0.uf4[1].x) + f32(_skUnpacked__uniform0_uh[1])) + f32(_skUnpacked__uniform0_uh2[1].x)) + f32(_skUnpacked__uniform0_uh3[1].x)) + f32(_uniform0.uh4[1].x)) + f32(_skUnpacked__uniform0_ui[1])) + f32(_skUnpacked__uniform0_ui2[1].x)) + f32(_skUnpacked__uniform0_ui3[1].x)) + f32(_uniform0.ui4[1].x)) + _skUnpacked__storage1_sf[1]) + _skUnpacked__storage1_sf2[1].x) + _skUnpacked__storage1_sf3[1].x) + _storage1.sf4[1].x) + f32(_skUnpacked__storage1_sh[1])) + f32(_skUnpacked__storage1_sh2[1].x)) + f32(_skUnpacked__storage1_sh3[1].x)) + f32(_storage1.sh4[1].x)) + f32(_skUnpacked__storage1_si[1])) + f32(_skUnpacked__storage1_si2[1].x)) + f32(_skUnpacked__storage1_si3[1].x)) + f32(_storage1.si4[1].x);
     return vec4<f32>(f32(value));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main();
+  _stageOut.sk_FragColor = _skslMain();
   return _stageOut;
 }
 struct _skArrayElement_f {

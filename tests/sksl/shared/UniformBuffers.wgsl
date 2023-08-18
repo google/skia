@@ -12,15 +12,15 @@ struct testBlock {
   z: mat3x3<f32>,
 };
 @group(0) @binding(0) var<uniform> _uniform0 : testBlock;
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     (*_stageOut).sk_FragColor = vec4<f32>(_uniform0.x, _skUnpacked__uniform0_y[0], _skUnpacked__uniform0_y[1], 0.0);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }
 struct _skArrayElement_h {

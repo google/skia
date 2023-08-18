@@ -11,13 +11,13 @@ struct FSIn {
 };
 struct FSOut {
 };
-fn main() {
+fn _skslMain() {
   {
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main();
+  _skslMain();
   return _stageOut;
 }
 

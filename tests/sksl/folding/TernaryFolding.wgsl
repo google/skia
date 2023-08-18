@@ -11,7 +11,7 @@ fn do_side_effect_bb(_skParam0: ptr<function, bool>) -> bool {
     return false;
   }
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var ok: bool = true;
@@ -25,6 +25,6 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return select(red, green, vec4<bool>((ok && param) && call));
   }
 }
-@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-  return main(_coords);
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  return _skslMain(_coords);
 }

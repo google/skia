@@ -8,7 +8,7 @@ struct S {
   i: f32,
   j: f32,
 };
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var x: vec4<f32> = vec4<f32>(3.0, 2.0, 1.0, 0.0);
@@ -25,6 +25,6 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return vec4<f32>(x.w, s.i / s.j, a[0] - a[1], a[0] * a[1]);
   }
 }
-@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-  return main(_coords);
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  return _skslMain(_coords);
 }

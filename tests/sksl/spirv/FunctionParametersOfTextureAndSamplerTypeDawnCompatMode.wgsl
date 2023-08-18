@@ -20,14 +20,14 @@ fn helper_h4TZ(_stageIn: FSIn, t: texture_2d<f32>, s_Texture: texture_2d<f32>, s
     return _skTemp0;
   }
 }
-fn main(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
   {
     let _skTemp1 = helper_h4TZ(_stageIn, aTexture, aSampledTexture_Texture, aSampledTexture_Sampler);
     (*_stageOut).sk_FragColor = _skTemp1;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(_stageIn, &_stageOut);
+  _skslMain(_stageIn, &_stageOut);
   return _stageOut;
 }

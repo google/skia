@@ -37,14 +37,14 @@ fn modifyOutputColor_v(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
     (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor + _skTemp2;
   }
 }
-fn main(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
   {
     writeToOutput_v(_stageOut);
     modifyOutputColor_v(_stageIn, _stageOut);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(_stageIn, &_stageOut);
+  _skslMain(_stageIn, &_stageOut);
   return _stageOut;
 }

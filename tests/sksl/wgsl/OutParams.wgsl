@@ -36,7 +36,7 @@ fn one_out_param_indirect_vh(_skParam0: ptr<function, f32>) {
 struct S {
   v: vec4<f32>,
 };
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     var x: f32 = 1.0;
     var _skTemp1: f32;
@@ -79,8 +79,8 @@ fn main(_stageOut: ptr<function, FSOut>) {
     x = _skTemp14;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

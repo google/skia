@@ -8,7 +8,7 @@ struct VSOut {
   @location(1) vcoord_Stage0: vec2<f32>,
 };
 /* unsupported */ var<private> sk_PointSize: f32;
-fn main(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
+fn _skslMain(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
   {
     var x: i32 = i32(_stageIn.sk_InstanceID) % 200;
     var y: i32 = i32(_stageIn.sk_InstanceID) / 200;
@@ -30,8 +30,8 @@ fn main(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
     (*_stageOut).sk_Position = vec4<f32>(vertexpos.x, vertexpos.y, 0.0, 1.0);
   }
 }
-@vertex fn vertexMain(_stageIn: VSIn) -> VSOut {
+@vertex fn main(_stageIn: VSIn) -> VSOut {
   var _stageOut: VSOut;
-  main(_stageIn, &_stageOut);
+  _skslMain(_stageIn, &_stageOut);
   return _stageOut;
 }

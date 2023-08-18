@@ -61,7 +61,7 @@ a00*b09 - a01*b07 + a02*b06,
 a31*b01 - a30*b03 - a32*b00,
 a20*b03 - a21*b01 + a22*b00) * (1/det);
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let xy = _skParam0;
   {
     const matrix2x2: mat2x2<f32> = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);
@@ -86,8 +86,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((all(_skTemp0[0] == inv2x2[0]) && all(_skTemp0[1] == inv2x2[1])) && (all(_skTemp1[0] == inv3x3[0]) && all(_skTemp1[1] == inv3x3[1]) && all(_skTemp1[2] == inv3x3[2]))) && (all(_skTemp2[0] == inv4x4[0]) && all(_skTemp2[1] == inv4x4[1]) && all(_skTemp2[2] == inv4x4[2]) && all(_skTemp2[3] == inv4x4[3]))) && (any(_skTemp5[0] != inv3x3[0]) || any(_skTemp5[1] != inv3x3[1]) || any(_skTemp5[2] != inv3x3[2]))) && (all(_skTemp7[0] == inv2x2[0]) && all(_skTemp7[1] == inv2x2[1]))) && (all(_skTemp10[0] == inv3x3[0]) && all(_skTemp10[1] == inv3x3[1]) && all(_skTemp10[2] == inv3x3[2]))) && (all(_skTemp13[0] == inv4x4[0]) && all(_skTemp13[1] == inv4x4[1]) && all(_skTemp13[2] == inv4x4[2]) && all(_skTemp13[3] == inv4x4[3]))));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

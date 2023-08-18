@@ -6,13 +6,13 @@ struct VSOut {
   @builtin(position) sk_Position: vec4<f32>,
 };
 /* unsupported */ var<private> sk_PointSize: f32;
-fn main(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
+fn _skslMain(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
   {
     (*_stageOut).sk_Position = _stageIn.pos;
   }
 }
-@vertex fn vertexMain(_stageIn: VSIn) -> VSOut {
+@vertex fn main(_stageIn: VSIn) -> VSOut {
   var _stageOut: VSOut;
-  main(_stageIn, &_stageOut);
+  _skslMain(_stageIn, &_stageOut);
   return _stageOut;
 }

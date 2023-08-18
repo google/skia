@@ -1266,8 +1266,12 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
 void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl) {
     this->write("fn ");
-    this->write(this->assembleName(decl.mangledName()));
-    this->write("(");
+    if (decl.isMain()) {
+        this->write("_skslMain(");
+    } else {
+        this->write(this->assembleName(decl.mangledName()));
+        this->write("(");
+    }
     auto separator = SkSL::String::Separator();
     if (this->writeFunctionDependencyParams(decl)) {
         separator();  // update the separator as parameters have been written
@@ -1321,10 +1325,10 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         // Synthesize a basic entrypoint which just calls straight through to main.
         // This is only used by skslc and just needs to pass the WGSL validator; Skia won't ever
         // emit functions like this.
-        this->writeLine("@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> "
+        this->writeLine("@fragment fn main(@location(0) _coords: vec2<f32>) -> "
                                      "@location(0) vec4<f32> {");
         ++fIndentation;
-        this->writeLine("return main(_coords);");
+        this->writeLine("return _skslMain(_coords);");
         --fIndentation;
         this->writeLine("}");
         return;
@@ -1337,14 +1341,14 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     // function.
     std::string outputType;
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-        this->write("@vertex fn vertexMain(");
+        this->write("@vertex fn main(");
         if (fPipelineInputCount > 0) {
             this->write("_stageIn: VSIn");
         }
         this->writeLine(") -> VSOut {");
         outputType = "VSOut";
     } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-        this->write("@fragment fn fragmentMain(");
+        this->write("@fragment fn main(");
         if (fPipelineInputCount > 0) {
             this->write("_stageIn: FSIn");
         }
@@ -1380,8 +1384,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     }
 
     // Generate the function call to the user-defined main:
-    this->write(main.declaration().mangledName());
-    this->write("(");
+    this->write("_skslMain(");
     auto separator = SkSL::String::Separator();
     WGSLFunctionDependencies* deps = fRequirements.dependencies.find(&main.declaration());
     if (deps) {

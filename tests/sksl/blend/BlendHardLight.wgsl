@@ -29,14 +29,14 @@ fn blend_overlay_h4h4h4(_skParam0: vec4<f32>, _skParam1: vec4<f32>) -> vec4<f32>
     return result;
   }
 }
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     let _skTemp3 = blend_overlay_h4h4h4(_globalUniforms.dst, _globalUniforms.src);
     (*_stageOut).sk_FragColor = _skTemp3;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

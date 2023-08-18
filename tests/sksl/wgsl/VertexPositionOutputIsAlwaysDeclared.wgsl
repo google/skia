@@ -2,12 +2,12 @@ diagnostic(off, derivative_uniformity);
 struct VSOut {
   @builtin(position) sk_Position: vec4<f32>,
 };
-fn main() {
+fn _skslMain() {
   {
   }
 }
-@vertex fn vertexMain() -> VSOut {
+@vertex fn main() -> VSOut {
   var _stageOut: VSOut;
-  main();
+  _skslMain();
   return _stageOut;
 }

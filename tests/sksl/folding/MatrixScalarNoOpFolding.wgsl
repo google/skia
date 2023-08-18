@@ -194,7 +194,7 @@ fn test_no_op_mat4_X_scalar_b() -> bool {
     return (all(mm[0] == z[0]) && all(mm[1] == z[1]) && all(mm[2] == z[2]) && all(mm[3] == z[3]));
   }
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var _skTemp15: vec4<f32>;
@@ -242,6 +242,6 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return _skTemp15;
   }
 }
-@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-  return main(_coords);
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  return _skslMain(_coords);
 }

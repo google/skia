@@ -11,16 +11,16 @@ struct FSIn {
 };
 struct FSOut {
 };
-fn main() {
+fn _skslMain() {
   {
     var i: i32;
     let _skTemp0 = i;
     i = i - i32(1);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main();
+  _skslMain();
   return _stageOut;
 }
 

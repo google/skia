@@ -18,15 +18,15 @@ fn foo_ff(_skParam0: array<f32, 2>) -> f32 {
     return v[0];
   }
 }
-fn main() {
+fn _skslMain() {
   {
     var y: array<f32, 2>;
     let _skTemp0 = foo_ff(y);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main();
+  _skslMain();
   return _stageOut;
 }
 

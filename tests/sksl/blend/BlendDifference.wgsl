@@ -10,14 +10,14 @@ struct _GlobalUniforms {
   dst: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     let _skTemp0 = min(_globalUniforms.src.xyz * _globalUniforms.dst.w, _globalUniforms.dst.xyz * _globalUniforms.src.w);
     (*_stageOut).sk_FragColor = vec4<f32>((_globalUniforms.src.xyz + _globalUniforms.dst.xyz) - 2.0 * _skTemp0, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

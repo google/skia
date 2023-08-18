@@ -12,7 +12,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var uintValues: vec4<u32> = vec4<u32>(_globalUniforms.testInputs * 100.0 + 200.0);
@@ -31,8 +31,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((((((_skTemp0 == expectedA.x) && all(_skTemp1 == expectedA.xy)) && all(_skTemp2 == expectedA.xyz)) && all(_skTemp3 == expectedA)) && (100u == expectedA.x)) && all(vec2<u32>(100u, 200u) == expectedA.xy)) && all(vec3<u32>(100u, 200u, 275u) == expectedA.xyz)) && all(vec4<u32>(100u, 200u, 275u, 300u) == expectedA)) && (_skTemp4 == expectedB.x)) && all(_skTemp5 == expectedB.xy)) && all(_skTemp6 == expectedB.xyz)) && all(_skTemp7 == expectedB)) && (100u == expectedB.x)) && all(vec2<u32>(100u, 200u) == expectedB.xy)) && all(vec3<u32>(100u, 200u, 250u) == expectedB.xyz)) && all(vec4<u32>(100u, 200u, 250u, 425u) == expectedB)));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

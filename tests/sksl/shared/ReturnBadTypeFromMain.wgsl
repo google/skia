@@ -11,14 +11,14 @@ struct FSIn {
 };
 struct FSOut {
 };
-fn main() -> vec3<i32> {
+fn _skslMain() -> vec3<i32> {
   {
     return vec3<i32>(1, 2, 3);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main();
+  _skslMain();
   return _stageOut;
 }
 

@@ -28,7 +28,7 @@ fn cross_length_2d_hh2h2(_skParam0: vec2<f32>, _skParam1: vec2<f32>) -> f32 {
     return _skTemp1;
   }
 }
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     let _skTemp2 = cross_length_2d_hh2h2(_globalUniforms.ah, _globalUniforms.bh);
     (*_stageOut).sk_FragColor.x = _skTemp2;
@@ -36,8 +36,8 @@ fn main(_stageOut: ptr<function, FSOut>) {
     (*_stageOut).sk_FragColor.y = f32(_skTemp3);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

@@ -5,15 +5,15 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
-fn main() {
+fn _skslMain() {
   {
     {
       discard;
     }
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main();
+  _skslMain();
   return _stageOut;
 }
