@@ -1165,6 +1165,12 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
         return false;
     }
 
+    // For our tests when checking equality we are assuming the both backendTexture objects will
+    // be using the same mutable state object.
+    if (r0.fMutableState != r1.fMutableState) {
+        return false;
+    }
+
     switch (r0.fBackend) {
         case GrBackendApi::kOpenGL:
             return r0.fRTData->equal(r1.fRTData.get());
