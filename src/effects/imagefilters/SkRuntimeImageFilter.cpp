@@ -7,8 +7,6 @@
 
 #include "include/effects/SkImageFilters.h"
 
-#ifdef SK_ENABLE_SKSL
-
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
@@ -302,5 +300,3 @@ SkRect SkRuntimeImageFilter::computeFastBounds(const SkRect& src) const {
     // Can't predict what the RT Shader will generate (see onGetOutputLayerBounds)
     return SkRectPriv::MakeLargeS32();
 }
-
-#endif  // SK_ENABLE_SKSL

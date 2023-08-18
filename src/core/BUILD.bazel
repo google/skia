@@ -411,12 +411,8 @@ skia_filegroup(
         ":core_skslc_srcs",
         ":core_srcs",
         ":skpicture_srcs",
-    ] + select({
-        "//src/sksl:needs_sksl": [
-            ":sksl_srcs",
-        ],
-        "//conditions:default": [],
-    }),
+        ":sksl_srcs",
+    ],
     visibility = ["//src:__pkg__"],
 )
 
@@ -426,12 +422,8 @@ skia_filegroup(
         ":core_hdrs",
         ":core_skslc_hdrs",
         ":skpicture_hdrs",
-    ] + select({
-        "//src/sksl:needs_sksl": [
-            ":sksl_hdrs",
-        ],
-        "//conditions:default": [],
-    }),
+        ":sksl_hdrs",
+    ],
     visibility = ["//src:__pkg__"],
 )
 

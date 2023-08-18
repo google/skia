@@ -45,9 +45,6 @@ config("skia_public") {
       "SK_FORCE_AAA",
     ]
   }
-  if (skia_enable_sksl) {
-    defines += [ "SK_ENABLE_SKSL" ]
-  }
   if (skia_enable_precompile) {
     defines += [ "SK_ENABLE_PRECOMPILE" ]
   }
@@ -1481,6 +1478,7 @@ skia_component("skia") {
     ":hsw",
     ":jpeg_decode",
     ":jpegxl_decode",
+    ":minify_sksl",
     ":ndk_images",
     ":png_decode",
     ":raw",
@@ -1507,6 +1505,7 @@ skia_component("skia") {
   sources += skia_codec_core
   sources += skia_codec_decode_bmp
   sources += skia_encode_srcs
+  sources += skia_sksl_sources
   sources += [
     "src/android/SkAndroidFrameworkUtils.cpp",
     "src/android/SkAnimatedImage.cpp",
@@ -1527,18 +1526,9 @@ skia_component("skia") {
   defines = []
   libs = []
 
-  if (skia_enable_sksl) {
-    deps += [ ":minify_sksl" ]
-    sources += skia_sksl_sources
-    sources += skia_needs_sksl_sources
-    sources += skia_colorfilters_sksl_sources
-
-    if (skia_enable_sksl_tracing) {
-      defines += [ "SKSL_ENABLE_TRACING" ]
-      sources += skia_sksl_tracing_sources
-    }
-  } else {
-    sources += skia_colorfilters_nosksl_sources
+  if (skia_enable_sksl_tracing) {
+    defines += [ "SKSL_ENABLE_TRACING" ]
+    sources += skia_sksl_tracing_sources
   }
 
   if (skia_build_for_debugger) {

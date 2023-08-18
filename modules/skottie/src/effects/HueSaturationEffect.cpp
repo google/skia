@@ -15,10 +15,7 @@
 #include "src/utils/SkJSON.h"
 
 namespace skottie::internal {
-
-namespace  {
-
-#ifdef SK_ENABLE_SKSL
+namespace {
 
 // AE Saturation semantics:
 //
@@ -67,10 +64,6 @@ static sk_sp<SkColorFilter> make_saturate(float chroma_scale) {
 
     return effect->makeColorFilter(SkData::MakeWithCopy(&chroma_scale, sizeof(chroma_scale)));
 }
-
-#else
-static sk_sp<SkColorFilter> make_saturate(float) { return nullptr; }
-#endif  // SK_ENABLE_SKSL
 
 class HueSaturationEffectAdapter final : public AnimatablePropertyContainer {
 public:

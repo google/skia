@@ -10,11 +10,9 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_SKSL
 #include "include/sksl/SkSLVersion.h"
+
 namespace SkSL { struct ShaderCaps; }
-#endif
 
 #if defined(SK_GRAPHITE)
 namespace skgpu::graphite { class Caps; }
@@ -24,9 +22,7 @@ class SK_API SkCapabilities : public SkRefCnt {
 public:
     static sk_sp<const SkCapabilities> RasterBackend();
 
-#ifdef SK_ENABLE_SKSL
     SkSL::Version skslVersion() const { return fSkSLVersion; }
-#endif
 
 protected:
 #if defined(SK_GRAPHITE)
@@ -35,11 +31,9 @@ protected:
 
     SkCapabilities() = default;
 
-#ifdef SK_ENABLE_SKSL
     void initSkCaps(const SkSL::ShaderCaps*);
 
     SkSL::Version fSkSLVersion = SkSL::Version::k100;
-#endif
 };
 
 #endif

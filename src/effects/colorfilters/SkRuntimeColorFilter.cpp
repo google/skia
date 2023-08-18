@@ -33,10 +33,6 @@
 #include <string>
 #include <utility>
 
-#if !defined(SK_ENABLE_SKSL)
-#error This only be compiled if SKSL is enabled. See _none.cpp for the non-SKSL version.
-#endif
-
 SkRuntimeColorFilter::SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect,
                                            sk_sp<const SkData> uniforms,
                                            SkSpan<const SkRuntimeEffect::ChildPtr> children)

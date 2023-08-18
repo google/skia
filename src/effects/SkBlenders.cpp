@@ -10,7 +10,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkBlenders.h"
 
-#ifdef SK_ENABLE_SKSL
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkData.h"
 #include "include/core/SkScalar.h"
@@ -67,10 +66,3 @@ sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
     };
     return gArithmeticEffect->makeBlender(SkData::MakeWithCopy(array, sizeof(array)));
 }
-#else // SK_ENABLE_SKSL
-sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
-                                        bool enforcePremul) {
-    // TODO(skia:12197)
-    return nullptr;
-}
-#endif

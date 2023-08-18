@@ -73,11 +73,9 @@ skia_filegroup(
     srcs = [
         ":shader_srcs",
         ":skpicture_srcs",
+        ":sksl_srcs",
         "//src/shaders/gradients:srcs",
-    ] + select({
-        "//src/sksl:needs_sksl": [":sksl_srcs"],
-        "//conditions:default": [],
-    }),
+    ],
     visibility = ["//src:__pkg__"],
 )
 
@@ -86,10 +84,8 @@ skia_filegroup(
     srcs = [
         ":shader_hdrs",
         ":skpicture_hdrs",
+        ":sksl_hdrs",
         "//src/shaders/gradients:private_hdrs",
-    ] + select({
-        "//src/sksl:needs_sksl": [":sksl_hdrs"],
-        "//conditions:default": [],
-    }),
+    ],
     visibility = ["//src:__pkg__"],
 )

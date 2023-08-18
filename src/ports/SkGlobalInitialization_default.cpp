@@ -24,6 +24,7 @@
     #include "include/effects/SkImageFilters.h"
     #include "include/effects/SkOverdrawColorFilter.h"
     #include "include/effects/SkPerlinNoiseShader.h"
+    #include "include/effects/SkRuntimeEffect.h"
     #include "include/effects/SkShaderMaskFilter.h"
     #include "src/core/SkBlendModeBlender.h"
     #include "src/core/SkImageFilter_Base.h"
@@ -40,10 +41,6 @@
     #include "src/shaders/SkPictureShader.h"
     #include "src/shaders/SkShaderBase.h"
     #include "src/shaders/gradients/SkGradientBaseShader.h"
-
-#ifdef SK_ENABLE_SKSL
-    #include "include/effects/SkRuntimeEffect.h"
-#endif
 
 #ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     #include "include/effects/SkLayerDrawLooper.h"
@@ -84,10 +81,8 @@
         // Blenders.
         SK_REGISTER_FLATTENABLE(SkBlendModeBlender);
 
-#ifdef SK_ENABLE_SKSL
         // Runtime shaders, color filters, and blenders.
         SkRuntimeEffect::RegisterFlattenables();
-#endif
 
         // Mask filters.
         SK_REGISTER_FLATTENABLE(SkEmbossMaskFilter);
@@ -137,9 +132,7 @@
         SkRegisterMergeImageFilterFlattenable();
         SkRegisterMorphologyImageFilterFlattenables();
         SkRegisterPictureImageFilterFlattenable();
-#ifdef SK_ENABLE_SKSL
         SkRegisterRuntimeImageFilterFlattenable();
-#endif
         SkRegisterShaderImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
 

@@ -42,12 +42,10 @@ skia_cc_library(
     deps = [
         "//:skia_internal",
         "//tools:registry",
+        "//tools:runtime_blend_utils",
         "//tools:tool_utils",
     ] + select({
         "//src/gpu:has_ganesh_backend": ["//tools/gpu:utils"],
-        "//conditions:default": [],
-    }) + select({
-        "//src/sksl:needs_sksl": ["//tools:runtime_blend_utils"],
         "//conditions:default": [],
     }),
 )

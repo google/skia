@@ -568,7 +568,6 @@ DEF_TEST(AndroidCodec_gainmapInfoEncode, r) {
     }
 }
 
-#if defined(SK_ENABLE_SKSL)
 // Render an applied gainmap.
 static SkBitmap render_gainmap(const SkImageInfo& renderInfo,
                                float renderHdrRatio,
@@ -630,7 +629,6 @@ static SkColor4f render_gainmap_pixel(float renderHdrRatio,
             testPixelInfo, renderHdrRatio, baseBitmap, gainmapBitmap, gainmapInfo, x, y);
     return testPixelBitmap.getColor4f(0, 0);
 }
-#endif
 
 DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
     const char* path = "images/iphone_13_pro.jpeg";
@@ -692,7 +690,6 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
         REPORTER_ASSERT(
                 r, approx_eq(gainmapInfo[0].fHdrRatioMax, gainmapInfo[1].fHdrRatioMax, kEpsilon));
 
-#if defined(SK_ENABLE_SKSL)
         // Render a few pixels and verify that they come out the same. Rendering requires SkSL.
         const struct Rec {
             int x;
@@ -732,7 +729,6 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
 
             REPORTER_ASSERT(r, approx_eq_rgb(p0, p1, kEpsilon));
         }
-#endif  // !defined(SK_ENABLE_SKSL)
     }
 }
 #endif  // !defined(SK_ENABLE_NDK_IMAGES)

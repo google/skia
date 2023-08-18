@@ -26,11 +26,7 @@
 #include <climits>
 #include <cstdint>
 
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-#  if !defined(SK_ENABLE_SKSL)
-#    define SK_ENABLE_SKSL
-#  endif
-#else
+#if !defined(SK_GANESH) && !defined(SK_GRAPHITE)
 #  undef SK_GL
 #  undef SK_VULKAN
 #  undef SK_METAL

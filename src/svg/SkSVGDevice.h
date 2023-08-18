@@ -31,6 +31,7 @@ class SkBlender;
 class SkClipStack;
 class SkData;
 class SkImage;
+class SkMesh;
 class SkPaint;
 class SkPath;
 class SkRRect;
@@ -40,9 +41,6 @@ struct SkISize;
 struct SkPoint;
 struct SkRect;
 struct SkSamplingOptions;
-#ifdef SK_ENABLE_SKSL
-class SkMesh;
-#endif
 
 class SkSVGDevice final : public SkClipStackDevice {
 public:

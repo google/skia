@@ -15,11 +15,9 @@ skia_filegroup(
         "//include/encode:public_hdrs",
         "//include/pathops:public_hdrs",
         "//include/ports:public_hdrs",
+        "//include/sksl:public_hdrs",
         "//include/utils:public_hdrs",
     ] + select({
-        "//src/sksl:needs_sksl": ["//include/sksl:public_hdrs"],
-        "//conditions:default": [],
-    }) + select({
         "//src/gpu:has_ganesh_backend": ["//include/gpu:public_hdrs"],
         "//conditions:default": [],
     }) + select({

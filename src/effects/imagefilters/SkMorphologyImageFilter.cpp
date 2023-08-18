@@ -8,8 +8,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 
-#ifdef SK_ENABLE_SKSL
-
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkM44.h"
@@ -343,22 +341,3 @@ SkRect SkMorphologyImageFilter::computeFastBounds(const SkRect& src) const {
     }
     return bounds;
 }
-
-#else
-
-// The morphology effects requires SkSL, just return the input, possibly cropped
-sk_sp<SkImageFilter> SkImageFilters::Dilate(SkScalar radiusX, SkScalar radiusY,
-                                            sk_sp<SkImageFilter> input,
-                                            const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-sk_sp<SkImageFilter> SkImageFilters::Erode(SkScalar radiusX, SkScalar radiusY,
-                                           sk_sp<SkImageFilter> input,
-                                           const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-void SkRegisterMorphologyImageFilterFlattenables() {}
-
-#endif

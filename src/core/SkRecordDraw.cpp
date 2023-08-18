@@ -12,6 +12,7 @@
 #include "include/core/SkBlender.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkMesh.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -34,10 +35,6 @@
 #include "src/core/SkRecords.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/utils/SkPatchUtils.h"
-
-#if defined(SK_ENABLE_SKSL)
-#include "include/core/SkMesh.h"
-#endif
 
 #include <algorithm>
 #include <optional>
@@ -158,12 +155,7 @@ DRAW(DrawSlug, drawSlug(r.slug.get()))
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
                           r.cull, r.paint))
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))
-#ifdef SK_ENABLE_SKSL
 DRAW(DrawMesh, drawMesh(r.mesh, r.blender, r.paint))
-#else
-// Turn draw into a nop.
-template <> void Draw::draw(const DrawMesh&) {}
-#endif
 DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec))
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()))
 
@@ -461,11 +453,7 @@ private:
         return this->adjustAndMap(op.vertices->bounds(), &op.paint);
     }
     Bounds bounds(const DrawMesh& op) const {
-#ifdef SK_ENABLE_SKSL
         return this->adjustAndMap(op.mesh.bounds(), &op.paint);
-#else
-        return SkRect::MakeEmpty();
-#endif
     }
     Bounds bounds(const DrawAtlas& op) const {
         if (op.cull) {

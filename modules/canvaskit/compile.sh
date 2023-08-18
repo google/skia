@@ -87,12 +87,6 @@ if [[ $@ == *no_pathops* ]] ; then
   ENABLE_PATHOPS="false"
 fi
 
-ENABLE_RT_SHADER="true"
-if [[ $@ == *no_rt_shader* ]] ; then
-  echo "Omitting runtime shaders"
-  ENABLE_RT_SHADER="false"
-fi
-
 ENABLE_SKSL_TRACE="true"
 if [[ $@ == *no_sksl_trace* ]] ; then
   echo "Omitting SkSl trace"
@@ -241,7 +235,6 @@ echo "Compiling"
   skia_use_wuffs=true \
   skia_use_zlib=true \
   skia_enable_ganesh=${ENABLE_GANESH} \
-  skia_enable_sksl=${ENABLE_RT_SHADER} \
   skia_build_for_debugger=${DEBUGGER_ENABLED} \
   skia_enable_sksl_tracing=${ENABLE_SKSL_TRACE} \
   \
@@ -252,6 +245,7 @@ echo "Compiling"
   skia_enable_skshaper=true \
   skia_enable_skparagraph=true \
   skia_enable_pdf=false \
+  skia_canvaskit_enable_rt_shader=true \
   skia_canvaskit_force_tracing=${FORCE_TRACING} \
   skia_canvaskit_profile_build=${PROFILE_BUILD} \
   skia_canvaskit_enable_skp_serialization=${SERIALIZE_SKP} \
@@ -259,7 +253,6 @@ echo "Compiling"
   skia_canvaskit_enable_skottie=${ENABLE_SKOTTIE} \
   skia_canvaskit_include_viewer=${INCLUDE_VIEWER} \
   skia_canvaskit_enable_pathops=${ENABLE_PATHOPS} \
-  skia_canvaskit_enable_rt_shader=${ENABLE_RT_SHADER} \
   skia_canvaskit_enable_matrix_helper=${ENABLE_MATRIX} \
   skia_canvaskit_enable_canvas_bindings=${ENABLE_CANVAS} \
   skia_canvaskit_enable_font=${ENABLE_FONT} \

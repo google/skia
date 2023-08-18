@@ -25,6 +25,7 @@ class SkBlender;
 class SkImage;
 class SkImageFilterCache;
 class SkMatrix;
+class SkMesh;
 class SkPaint;
 class SkPath;
 class SkPixmap;
@@ -41,9 +42,7 @@ namespace sktext { class GlyphRunList; }
 struct SkImageInfo;
 struct SkPoint;
 struct SkRSXform;
-#ifdef SK_ENABLE_SKSL
-class SkMesh;
-#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 class SkBitmapDevice : public SkBaseDevice {
 public:

@@ -17,17 +17,14 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkShader.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
-
-#ifdef SK_ENABLE_SKSL
-#include "include/effects/SkRuntimeEffect.h"
-#include "src/core/SkRuntimeEffectPriv.h"
-#endif
 
 #include <algorithm>
 
@@ -186,8 +183,6 @@ std::optional<LayerSpace<SkMatrix>> periodic_axis_transform(
     }
 }
 
-#ifdef SK_ENABLE_SKSL
-
 // Returns true if decal tiling an image with 'imageBounds' subject to 'transform', limited to
 // the un-transformed 'sampleBounds' would exhibit significantly different visual quality from
 // drawing the image with clamp tiling and limited geometrically to 'imageBounds'.
@@ -286,8 +281,6 @@ sk_sp<SkShader> apply_decal(
     }
     return decalShader;
 }
-
-#endif
 
 // AutoSurface manages an SkSpecialSurface and canvas state to draw to a layer-space bounding box,
 // and then snap it into a FilterResult. It provides operators to be used directly as a canvas,
@@ -1050,13 +1043,10 @@ void FilterResult::draw(SkCanvas* canvas, const LayerSpace<SkIRect>& dstBounds) 
     }
 
     if (this->modifiesPixelsBeyondImage(dstBounds)) {
-#ifdef SK_ENABLE_SKSL
         if (fTileMode == SkTileMode::kDecal) {
             // apply_decal consumes the transform, so we don't modify the canvas
             paint.setShader(apply_decal(fTransform, fImage, fLayerBounds, sampling));
-        } else
-#endif
-        {
+        } else {
             // For clamp/repeat/mirror, tiling at the layer resolution vs. resolving the image to
             // the layer resolution and then tiling produces much more compatible results than
             // decal would, so just always use a simple shader. If we don't have SkSL to let us use
@@ -1117,12 +1107,9 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
     } else {
         // Since we didn't need to resolve, we know the content being sampled isn't cropped by
         // fLayerBounds. fTransform and fColorFilter are handled in the shader directly.
-#ifdef SK_ENABLE_SKSL
         if (fTileMode == SkTileMode::kDecal) {
             shader = apply_decal(fTransform, fImage, sampleBounds, sampling);
-        } else
-#endif
-        {
+        } else {
             shader = fImage->asShader(fTileMode, sampling, SkMatrix(fTransform));
         }
 

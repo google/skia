@@ -8,8 +8,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 
-#ifdef SK_ENABLE_SKSL
-
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
@@ -578,22 +576,3 @@ SkRect SkMatrixConvolutionImageFilter::computeFastBounds(const SkRect& bounds) c
     // expectations of an image filter that "affects" transparent black.
     return SkRectPriv::MakeLargeS32();
 }
-
-#else
-
-// The matrix convolution effect requires SkSL, just return the input, possibly cropped
-sk_sp<SkImageFilter> SkImageFilters::MatrixConvolution(const SkISize& kernelSize,
-                                                       const SkScalar kernel[],
-                                                       SkScalar gain,
-                                                       SkScalar bias,
-                                                       const SkIPoint& kernelOffset,
-                                                       SkTileMode tileMode,
-                                                       bool convolveAlpha,
-                                                       sk_sp<SkImageFilter> input,
-                                                       const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-void SkRegisterMatrixConvolutionImageFilterFlattenable() {}
-
-#endif // SK_ENABLE_SKSL

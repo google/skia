@@ -64,6 +64,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/core:core_skslc_srcs",
 				"//src/core:core_srcs",
 				"//src/core:legacy_draw_looper",
+				"//src/core:sksl_hdrs",
+				"//src/core:sksl_srcs",
 				"//src/image:core_hdrs",
 				"//src/image:core_srcs",
 				"//src/lazy:lazy_hdrs",
@@ -71,15 +73,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/opts:private_hdrs",
 				"//src/shaders:shader_hdrs",
 				"//src/shaders:shader_srcs",
-				"//src/text:text_hdrs",
-				"//src/text:text_srcs",
-			}},
-		{Var: "skia_needs_sksl_sources",
-			Rules: []string{
-				"//src/core:sksl_hdrs",
-				"//src/core:sksl_srcs",
 				"//src/shaders:sksl_hdrs",
 				"//src/shaders:sksl_srcs",
+				"//src/text:text_hdrs",
+				"//src/text:text_srcs",
 			}},
 		{Var: "skia_pathops_public",
 			Rules: []string{"//include/pathops:public_hdrs"}},
@@ -148,14 +145,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/effects/colorfilters:colorfilter_srcs",
 				"//src/effects/colorfilters:colorfilter_hdrs",
-			}},
-		{Var: "skia_colorfilters_sksl_sources",
-			Rules: []string{
-				"//src/effects/colorfilters:sksl_srcs",
-			}},
-		{Var: "skia_colorfilters_nosksl_sources",
-			Rules: []string{
-				"//src/effects/colorfilters:no_sksl_srcs",
 			}},
 	}},
 	{GNI: "gn/effects_imagefilters.gni", Vars: []exporter.GNIFileListExportDesc{

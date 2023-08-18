@@ -108,15 +108,6 @@ skia_filegroup(
 )
 
 selects.config_setting_group(
-    name = "needs_sksl",
-    match_any = [
-        "//src/gpu:has_ganesh_backend",
-        ":enable_sksl_true",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
-selects.config_setting_group(
     name = "use_sksl_gpu_srcs",
     match_any = [
         "//src/gpu:has_ganesh_backend",

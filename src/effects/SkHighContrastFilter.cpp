@@ -7,15 +7,13 @@
 
 #include "include/effects/SkHighContrastFilter.h"
 
-#include "include/core/SkColorFilter.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_SKSL
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skcms/skcms.h"
@@ -95,10 +93,3 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
             effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms))),
             &linear, nullptr/*use dst gamut*/, &unpremul);
 }
-#else // SK_ENABLE_SKSL
-sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
-    // TODO(skia:12197)
-    return nullptr;
-}
-#endif
-

@@ -132,10 +132,8 @@ skia_filegroup(
     srcs = [
         ":core_skslc_srcs",
         ":core_srcs",
+        ":sksl_srcs",
     ] + select({
-        "//src/sksl:needs_sksl": [":sksl_srcs"],
-        "//conditions:default": [],
-    }) + select({
         ":needs_json": [":json_srcs"],
         "//conditions:default": [],
     }) + select({
@@ -151,10 +149,8 @@ skia_filegroup(
         ":chromium_hdrs",
         ":core_hdrs",
         ":core_skslc_hdrs",
+        ":sksl_hdrs",
     ] + select({
-        "//src/sksl:needs_sksl": [":sksl_hdrs"],
-        "//conditions:default": [],
-    }) + select({
         ":needs_json": [":json_hdrs"],
         "//conditions:default": [],
     }) + select({

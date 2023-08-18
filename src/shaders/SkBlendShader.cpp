@@ -11,6 +11,7 @@
 #include "include/core/SkBlender.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
@@ -19,13 +20,9 @@
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
-
-#if defined(SK_ENABLE_SKSL)
-#include "include/effects/SkRuntimeEffect.h"
-#include "src/core/SkRuntimeEffectPriv.h"
-#endif
 
 #include <optional>
 
@@ -130,7 +127,6 @@ sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
         return sk_make_sp<SkBlendShader>(mode.value(), std::move(dst), std::move(src));
     }
 
-#ifdef SK_ENABLE_SKSL
     // This isn't a built-in blend mode; we might as well use a runtime effect to evaluate it.
     static SkRuntimeEffect* sBlendEffect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform shader s, d;"
@@ -141,10 +137,6 @@ sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
     );
     SkRuntimeEffect::ChildPtr children[] = {std::move(src), std::move(dst), std::move(blender)};
     return sBlendEffect->makeShader(/*uniforms=*/{}, children);
-#else
-    // We need SkSL to render this blend.
-    return nullptr;
-#endif
 }
 
 void SkRegisterBlendShaderFlattenable() {

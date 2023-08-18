@@ -18,10 +18,7 @@
 #include <cmath>
 
 namespace skottie::internal {
-
-#ifdef SK_ENABLE_SKSL
-
-namespace  {
+namespace {
 
 // The contrast effect transfer function can be approximated with the following
 // 3rd degree polynomial:
@@ -240,18 +237,11 @@ private:
 
 } // namespace
 
-#endif  // SK_ENABLE_SKSL
-
 sk_sp<sksg::RenderNode> EffectBuilder::attachBrightnessContrastEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
-#ifdef SK_ENABLE_SKSL
     return fBuilder->attachDiscardableAdapter<BrightnessContrastAdapter>(jprops,
                                                                          *fBuilder,
                                                                          std::move(layer));
-#else
-    // TODO(skia:12197)
-    return layer;
-#endif
 }
 
 } // namespace skottie::internal

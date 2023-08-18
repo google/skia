@@ -18,9 +18,6 @@
 #include <cmath>
 
 namespace skottie::internal {
-
-#ifdef SK_ENABLE_SKSL
-
 namespace {
 
 // An implementation of the ADBE Fractal Noise effect:
@@ -528,19 +525,12 @@ private:
 
 } // namespace
 
-#endif  // SK_ENABLE_SKSL
-
 sk_sp<sksg::RenderNode> EffectBuilder::attachFractalNoiseEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
-#ifdef SK_ENABLE_SKSL
     auto fractal_noise = sk_make_sp<FractalNoiseNode>(std::move(layer));
 
     return fBuilder->attachDiscardableAdapter<FractalNoiseAdapter>(jprops, fBuilder,
                                                                    std::move(fractal_noise));
-#else
-    // TODO(skia:12197)
-    return layer;
-#endif
 }
 
 } // namespace skottie::internal

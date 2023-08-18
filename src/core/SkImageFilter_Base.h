@@ -469,9 +469,7 @@ void SkRegisterMatrixTransformImageFilterFlattenable();
 void SkRegisterMergeImageFilterFlattenable();
 void SkRegisterMorphologyImageFilterFlattenables();
 void SkRegisterPictureImageFilterFlattenable();
-#ifdef SK_ENABLE_SKSL
 void SkRegisterRuntimeImageFilterFlattenable();
-#endif
 void SkRegisterShaderImageFilterFlattenable();
 
 // TODO(michaelludwig): These filters no longer have dedicated implementations, so their

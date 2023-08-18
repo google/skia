@@ -23,10 +23,7 @@
 #include <tuple>
 
 namespace skottie::internal {
-
-#ifdef SK_ENABLE_SKSL
-
-namespace  {
+namespace {
 
 // AE's displacement map effect [1] is somewhat similar to SVG's feDisplacementMap [2].  Main
 // differences:
@@ -387,11 +384,8 @@ private:
 
 } // namespace
 
-#endif  // SK_ENABLE_SKSL
-
 sk_sp<sksg::RenderNode> EffectBuilder::attachDisplacementMapEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
-#ifdef SK_ENABLE_SKSL
     auto [ displ, displ_size ] = DisplacementMapAdapter::GetDisplacementSource(jprops, this);
 
     auto displ_node = DisplacementNode::Make(layer, fLayerSize, std::move(displ), displ_size);
@@ -403,10 +397,6 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachDisplacementMapEffect(
     return fBuilder->attachDiscardableAdapter<DisplacementMapAdapter>(jprops,
                                                                       fBuilder,
                                                                       std::move(displ_node));
-#else
-    // TODO(skia:12197)
-    return layer;
-#endif
 }
 
 } // namespace skottie::internal

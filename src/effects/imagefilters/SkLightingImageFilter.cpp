@@ -8,8 +8,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 
-#ifdef SK_ENABLE_SKSL
-
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
@@ -697,49 +695,3 @@ skif::LayerSpace<SkIRect> SkLightingImageFilter::onGetOutputLayerBounds(
 SkRect SkLightingImageFilter::computeFastBounds(const SkRect& src) const {
     return SkRectPriv::MakeLargeS32();
 }
-
-#else // SK_ENABLE_SKSL
-
-// Without SkSL, just return the input image filter (possibly cropped)
-
-sk_sp<SkImageFilter> SkImageFilters::DistantLitDiffuse(
-        const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-sk_sp<SkImageFilter> SkImageFilters::PointLitDiffuse(
-        const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-sk_sp<SkImageFilter> SkImageFilters::SpotLitDiffuse(
-        const SkPoint3& location, const SkPoint3& target, SkScalar falloffExponent,
-        SkScalar cutoffAngle, SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
-        sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-sk_sp<SkImageFilter> SkImageFilters::DistantLitSpecular(
-        const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-sk_sp<SkImageFilter> SkImageFilters::PointLitSpecular(
-        const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-sk_sp<SkImageFilter> SkImageFilters::SpotLitSpecular(
-        const SkPoint3& location, const SkPoint3& target, SkScalar falloffExponent,
-        SkScalar cutoffAngle, SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess, sk_sp<SkImageFilter> input, const CropRect& cropRect) {
-    return cropRect ? SkMakeCropImageFilter(*cropRect, std::move(input)) : input;
-}
-
-void SkRegisterLightingImageFilterFlattenables() {}
-
-#endif // SK_ENABLE_SKSL
