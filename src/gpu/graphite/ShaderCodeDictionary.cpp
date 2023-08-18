@@ -298,12 +298,17 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     }
 
     const char* outColor = args.fPriorStageOutput.c_str();
-    if (step->emitsCoverage()) {
+    const Coverage coverage = step->coverage();
+    if (coverage != Coverage::kNone) {
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
 
+        // TODO: Determine whether draw is opaque and pass that to GetBlendFormula.
         BlendFormula coverageBlendFormula =
-                skgpu::GetBlendFormula(false, step->emitsCoverage(), fBlendMode);
+                coverage == Coverage::kLCD
+                        ? skgpu::GetLCDBlendFormula(fBlendMode)
+                        : skgpu::GetBlendFormula(
+                                  /*isOpaque=*/false, /*hasCoverage=*/true, fBlendMode);
 
         const bool needsSurfaceColorForCoverage =
                 this->needsSurfaceColor() || (coverageBlendFormula.hasSecondaryOutput() &&

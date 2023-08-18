@@ -108,6 +108,7 @@ public:
     std::tuple<bool, SkRect> deviceRectAndCheckTransform(const SkMatrix &positionMatrix) const;
 
     skgpu::MaskFormat grMaskType() const { return fMaskType; }
+    bool isLCD() const;
 
     int count() const { return SkCount(fLeftTop); }
 

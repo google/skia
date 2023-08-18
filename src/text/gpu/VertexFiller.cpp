@@ -347,6 +347,8 @@ AtlasTextOp::MaskType VertexFiller::opMaskType() const {
 }
 #endif  // defined(SK_GANESH)
 
+bool VertexFiller::isLCD() const { return fMaskType == MaskFormat::kA565; }
+
 // Return true if the positionMatrix represents an integer translation. Return the device
 // bounding box of all the glyphs. If the bounding box is empty, then something went singular
 // and this operation should be dropped.

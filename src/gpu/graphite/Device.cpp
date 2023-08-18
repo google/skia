@@ -978,10 +978,10 @@ void Device::drawGeometry(const Transform& localToDevice,
     // Figure out what dst color requirements we have, if any.
     DstReadRequirement dstReadReq = DstReadRequirement::kNone;
     const SkBlenderBase* blender = as_BB(paint.getBlender());
-    if (blender) {
-        dstReadReq = GetDstReadRequirement(
-                recorder()->priv().caps(), blender->asBlendMode(), renderer->emitsCoverage());
-    }
+    const std::optional<SkBlendMode> blendMode = blender ? blender->asBlendMode()
+                                                         : SkBlendMode::kSrcOver;
+    const Coverage rendererCoverage = renderer->coverage();
+    dstReadReq = GetDstReadRequirement(recorder()->priv().caps(), blendMode, rendererCoverage);
 
     // When using a tessellating path renderer a stroke-and-fill is rendered using two draws. When
     // drawing from an atlas we issue a single draw as the atlas mask covers both styles.
@@ -1073,7 +1073,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // order to blend correctly. We always query the most recent draw (even when opaque) because it
     // also lets Device easily track whether or not there are any overlapping draws.
     PaintParams shading{paint, std::move(primitiveBlender), dstReadReq, skipColorXform};
-    const bool dependsOnDst = renderer->emitsCoverage() || paint_depends_on_dst(shading);
+    const bool dependsOnDst = rendererCoverage != Coverage::kNone || paint_depends_on_dst(shading);
     CompressedPaintersOrder prevDraw =
             fColorDepthBoundsManager->getMostRecentDraw(clip.drawBounds());
     if (dependsOnDst) {
@@ -1154,7 +1154,7 @@ void Device::drawClipShape(const Transform& localToDevice,
 
     // Anti-aliased clipping requires the renderer to use MSAA to modify the depth per sample, so
     // analytic coverage renderers cannot be used.
-    SkASSERT(!renderer->emitsCoverage() && renderer->requiresMSAA());
+    SkASSERT(renderer->coverage() == Coverage::kNone && renderer->requiresMSAA());
     SkASSERT(pathAtlas == nullptr);
 
     // Clips draws are depth-only (null PaintParams), and filled (null StrokeStyle).
@@ -1188,7 +1188,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         SkASSERT(!requireMSAA);
         sktext::gpu::RendererData rendererData = geometry.subRunData().rendererData();
         if (!rendererData.isSDF) {
-            return {renderers->bitmapText(), nullptr};
+            return {renderers->bitmapText(rendererData.isLCD), nullptr};
         }
         return {renderers->sdfText(rendererData.isLCD), nullptr};
     } else if (geometry.isVertices()) {

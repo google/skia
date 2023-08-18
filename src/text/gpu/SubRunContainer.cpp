@@ -725,7 +725,7 @@ public:
               sk_sp<SkRefCnt> subRunStorage,
               AtlasDrawDelegate drawAtlas) const override {
         drawAtlas(this, drawOrigin, paint, std::move(subRunStorage),
-                  {/* isSDF = */false, /* isLCD = */false});
+                  {/* isSDF = */false, fVertexFiller.isLCD()});
     }
 
     int unflattenSize() const override {
@@ -963,7 +963,7 @@ public:
               sk_sp<SkRefCnt> subRunStorage,
               AtlasDrawDelegate drawAtlas) const override {
         drawAtlas(this, drawOrigin, paint, std::move(subRunStorage),
-                  {/* isSDF = */false, /* isLCD = */false});
+                  {/* isSDF = */false, fVertexFiller.isLCD()});
     }
 
 #if defined(SK_GANESH)

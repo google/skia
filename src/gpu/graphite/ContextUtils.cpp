@@ -84,17 +84,21 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
 
 DstReadRequirement GetDstReadRequirement(const Caps* caps,
                                          std::optional<SkBlendMode> blendMode,
-                                         bool hasCoverage) {
+                                         Coverage coverage) {
     // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
     // do a dst read.
     if (!blendMode || *blendMode > SkBlendMode::kLastCoeffMode) {
         return caps->getDstReadRequirement();
     }
 
-    BlendFormula blendFormula = skgpu::GetBlendFormula(false, hasCoverage, *blendMode);
+    const bool isLCD = coverage == Coverage::kLCD;
+    const bool hasCoverage = coverage != Coverage::kNone;
+    BlendFormula blendFormula = isLCD ? skgpu::GetLCDBlendFormula(*blendMode)
+                                      : skgpu::GetBlendFormula(false, hasCoverage, *blendMode);
     if (blendFormula.hasSecondaryOutput() && !caps->shaderCaps()->fDualSourceBlendingSupport) {
         return caps->getDstReadRequirement();
     }
+
     return DstReadRequirement::kNone;
 }
 

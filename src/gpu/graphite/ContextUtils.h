@@ -26,6 +26,7 @@ class Swizzle;
 namespace skgpu::graphite {
 
 class ComputeStep;
+enum class Coverage;
 class DrawParams;
 enum class DstReadRequirement;
 class GraphicsPipelineDesc;
@@ -65,7 +66,7 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
         const RenderStep* step,
         const DrawParams& params);
 
-DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, bool hasCoverage);
+DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, Coverage);
 
 std::string BuildVertexSkSL(const ResourceBindingRequirements&,
                             const RenderStep* step,

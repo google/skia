@@ -95,23 +95,23 @@ int PaintOptions::numCombinations() const {
 }
 
 DstReadRequirement get_dst_read_req(const Caps* caps,
-                                    bool hasCoverage,
+                                    Coverage coverage,
                                     SkSpan<const sk_sp<PrecompileBlender>> options,
                                     int desiredOption) {
     for (const sk_sp<PrecompileBlender>& option : options) {
         if (desiredOption < option->numCombinations()) {
-            return GetDstReadRequirement(caps, option->asBlendMode(), hasCoverage);
+            return GetDstReadRequirement(caps, option->asBlendMode(), coverage);
         }
         desiredOption -= option->numCombinations();
     }
-    return DstReadRequirement::kNone;
+    return GetDstReadRequirement(caps, SkBlendMode::kSrcOver, coverage);
 }
 
 void PaintOptions::createKey(const KeyContext& keyContext,
                              int desiredCombination,
                              PaintParamsKeyBuilder* keyBuilder,
                              bool addPrimitiveBlender,
-                             bool hasCoverage) const {
+                             Coverage coverage) const {
     SkDEBUGCODE(keyBuilder->checkReset();)
     SkASSERT(desiredCombination < this->numCombinations());
 
@@ -137,7 +137,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     keyBuilder->endBlock();
 
     DstReadRequirement dstReadReq = get_dst_read_req(
-            keyContext.caps(), hasCoverage, fBlenderOptions, desiredBlendCombination);
+            keyContext.caps(), coverage, fBlenderOptions, desiredBlendCombination);
     bool needsDstSample = dstReadReq == DstReadRequirement::kTextureCopy ||
                           dstReadReq == DstReadRequirement::kTextureSample;
     if (needsDstSample) {
@@ -206,14 +206,14 @@ void PaintOptions::createKey(const KeyContext& keyContext,
 void PaintOptions::buildCombinations(
         const KeyContext& keyContext,
         bool addPrimitiveBlender,
-        bool hasCoverage,
+        Coverage coverage,
         const std::function<void(UniquePaintParamsID)>& processCombination) const {
 
     PaintParamsKeyBuilder builder(keyContext.dict());
 
     int numCombinations = this->numCombinations();
     for (int i = 0; i < numCombinations; ++i) {
-        this->createKey(keyContext, i, &builder, addPrimitiveBlender, hasCoverage);
+        this->createKey(keyContext, i, &builder, addPrimitiveBlender, coverage);
 
         // The 'findOrCreate' calls lockAsKey on builder and then destroys the returned
         // PaintParamsKey. This serves to reset the builder.
