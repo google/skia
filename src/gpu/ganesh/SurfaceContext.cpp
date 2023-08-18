@@ -574,10 +574,7 @@ void SurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
         callback(callbackContext, nullptr);
         return;
     }
-    bool needsRescale = srcRect.size() != info.dimensions()               ||
-                        this->origin() == kBottomLeft_GrSurfaceOrigin     ||
-                        this->colorInfo().alphaType() != info.alphaType() ||
-                        !SkColorSpace::Equals(this->colorInfo().colorSpace(), info.colorSpace());
+    bool needsRescale = srcRect.size() != info.dimensions();
     auto colorTypeOfFinalContext = this->colorInfo().colorType();
     auto backendFormatOfFinalContext = this->asSurfaceProxy()->backendFormat();
     if (needsRescale) {
@@ -620,6 +617,46 @@ void SurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
         SkASSERT(SkColorSpace::Equals(tempFC->colorInfo().colorSpace(), info.colorSpace()));
         SkASSERT(tempFC->origin() == kTopLeft_GrSurfaceOrigin);
         x = y = 0;
+    } else {
+        // TODO (jvanverth): Figure out how to do this properly with rescale()
+        sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(this->colorInfo(),
+                                                                 info.colorInfo());
+        // Insert a draw to a temporary surface if we need to do a y-flip or color space conversion.
+        if (this->origin() == kBottomLeft_GrSurfaceOrigin || xform) {
+            GrSurfaceProxyView texProxyView = this->readSurfaceView();
+            SkIRect srcRectToDraw = srcRect;
+
+            // If the src is not texturable first try to make a copy to a texture.
+            if (!texProxyView.asTextureProxy()) {
+                texProxyView = GrSurfaceProxyView::Copy(fContext,
+                                                        texProxyView,
+                                                        GrMipmapped::kNo,
+                                                        srcRect,
+                                                        SkBackingFit::kApprox,
+                                                        Budgeted::kNo,
+                                                        "SurfaceContext_AsyncRescaleAndReadPixels");
+                if (!texProxyView) {
+                    callback(callbackContext, nullptr);
+                    return;
+                }
+                SkASSERT(texProxyView.asTextureProxy());
+                srcRectToDraw = SkIRect::MakeSize(srcRect.size());
+            }
+            auto tempInfo = GrImageInfo(info).makeColorType(this->colorInfo().colorType());
+            tempFC = fContext->priv().makeSFC(tempInfo,
+                                              "SurfaceContext_AsyncRescaleAndReadPixels2",
+                                              SkBackingFit::kApprox);
+            if (!tempFC) {
+                callback(callbackContext, nullptr);
+                return;
+            }
+            auto fp = GrTextureEffect::Make(std::move(texProxyView), this->colorInfo().alphaType());
+            fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
+            tempFC->fillRectToRectWithFP(srcRectToDraw,
+                                         SkIRect::MakeSize(tempFC->dimensions()),
+                                         std::move(fp));
+            x = y = 0;
+        }
     }
     auto srcCtx = tempFC ? tempFC.get() : this;
     return srcCtx->asyncReadPixels(dContext,

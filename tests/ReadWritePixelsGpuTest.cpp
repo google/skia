@@ -238,8 +238,12 @@ SkPixmap make_pixmap_have_valid_alpha_type(SkPixmap pm) {
 
 static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaque) {
     SkAutoPixmapStorage result;
-    result.alloc(info);
-    auto surface = SkSurfaces::WrapPixels(make_pixmap_have_valid_alpha_type(result));
+    if (info.alphaType() == kUnknown_SkAlphaType) {
+        result.alloc(info.makeAlphaType(kUnpremul_SkAlphaType));
+    } else {
+        result.alloc(info);
+    }
+    auto surface = SkSurfaces::WrapPixels(result);
     if (!surface) {
         return result;
     }
@@ -450,7 +454,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
     // and full complement of alpha types with one successful read in the loop.
     std::array<bool, kLastEnum_SkColorType + 1> srcCTTestedThoroughly  = {},
                                                 readCTTestedThoroughly = {};
-    for (int sat = 0; sat < kLastEnum_SkAlphaType; ++sat) {
+    for (int sat = 0; sat <= kLastEnum_SkAlphaType; ++sat) {
         const auto srcAT = static_cast<SkAlphaType>(sat);
         if (srcAT == kUnpremul_SkAlphaType && !rules.fAllowUnpremulSrc) {
             continue;
@@ -470,7 +474,23 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             bool forceOpaque = srcAT == kPremul_SkAlphaType &&
                     (srcCT == kRGBA_1010102_SkColorType || srcCT == kBGRA_1010102_SkColorType);
 
-            SkAutoPixmapStorage srcPixels = make_ref_data(refInfo, forceOpaque);
+            SkAutoPixmapStorage refPixels = make_ref_data(refInfo, forceOpaque);
+            // Convert the ref data to our desired src color type.
+            const auto srcInfo = SkImageInfo::Make(kW, kH, srcCT, srcAT, SkColorSpace::MakeSRGB());
+            SkAutoPixmapStorage srcPixels;
+            srcPixels.alloc(srcInfo);
+            {
+                SkPixmap readPixmap = srcPixels;
+                // Spoof the alpha type to kUnpremul so the read will succeed without doing any
+                // conversion (because we made our surface also use kUnpremul).
+                if (srcAT == kUnknown_SkAlphaType) {
+                    readPixmap.reset(srcPixels.info().makeAlphaType(kUnpremul_SkAlphaType),
+                                     srcPixels.addr(),
+                                     srcPixels.rowBytes());
+                }
+                refPixels.readPixels(readPixmap, 0, 0);
+            }
+
             auto src = srcFactory(srcPixels);
             if (!src) {
                 continue;
@@ -538,7 +558,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels,
                     return Result::kSuccess;
                 } else {
                     // Reading from a non-renderable format is not guaranteed to work on GL.
-                    // We'd have to be able to force a copy or draw draw to a renderable format.
+                    // We'd have to be able to force a copy or draw to a renderable format.
                     const auto& caps = *direct->priv().caps();
                     if (direct->backend() == GrBackendApi::kOpenGL &&
                         !caps.isFormatRenderable(surface->asSurfaceProxy()->backendFormat(), 1)) {
