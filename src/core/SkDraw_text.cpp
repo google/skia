@@ -76,8 +76,9 @@ void SkDraw::paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& 
                     if (SkMask::kARGB32_Format == mask.fFormat) {
                         SkBitmap bm;
                         bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
-                                         mask.fImage,
+                                         const_cast<uint8_t*>(mask.fImage),
                                          mask.fRowBytes);
+                        bm.setImmutable();
                         this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
                     } else {
                         const SkIRect& cr = clipper.rect();
@@ -110,8 +111,9 @@ void SkDraw::paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& 
                 if (SkMask::kARGB32_Format == mask.fFormat) {
                     SkBitmap bm;
                     bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
-                                     mask.fImage,
+                                     const_cast<uint8_t*>(mask.fImage),
                                      mask.fRowBytes);
+                    bm.setImmutable();
                     this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
                 } else {
                     blitter->blitMask(mask, *bounds);

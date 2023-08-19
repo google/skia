@@ -113,7 +113,7 @@ public:
             , fManuallyTile(manuallyTile) {}
 
 private:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name(fBaseName);
 
         if (fManuallyTile) {
@@ -123,7 +123,7 @@ private:
         return name;
     }
 
-    SkISize onISize() override { return {500, 600}; }
+    SkISize getISize() override { return {500, 600}; }
 
     void onDraw(SkCanvas* canvas) override {
         int veryBig = 65*1024; // 64K < size

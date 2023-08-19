@@ -24,7 +24,6 @@ CORE_FILES = [
     "GrAHardwareBufferImageGenerator.cpp",
     "GrAHardwareBufferImageGenerator.h",
     "GrAHardwareBufferUtils.cpp",
-    "GrAHardwareBufferUtils_impl.h",
     "GrAppliedClip.h",
     "GrAttachment.cpp",
     "GrAttachment.h",
@@ -33,6 +32,7 @@ CORE_FILES = [
     "GrAutoLocaleSetter.h",
     "GrBackendSemaphore.cpp",
     "GrBackendSurface.cpp",
+    "GrBackendSurfacePriv.h",
     "GrBackendTextureImageGenerator.cpp",
     "GrBackendTextureImageGenerator.h",
     "GrBackendUtils.cpp",
@@ -286,9 +286,9 @@ skia_filegroup(
         "//src/gpu/ganesh/text:srcs",
     ] + select_multi(
         {
-            "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:srcs"],
-            "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:srcs"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:srcs"],
+            "//src/gpu:dawn_ganesh": ["//src/gpu/ganesh/dawn:srcs"],
+            "//src/gpu:gl_ganesh": ["//src/gpu/ganesh/gl:srcs"],
+            "//src/gpu:vulkan_ganesh": ["//src/gpu/ganesh/vk:srcs"],
             "@platforms//os:android": ["//src/gpu/ganesh/surface:android_srcs"],
             # TODO(kjlubick) d3d backend
         },
@@ -300,7 +300,7 @@ skia_filegroup(
     name = "objc_srcs",
     srcs = select_multi(
         {
-            "//src/gpu:metal_backend": [
+            "//src/gpu:metal_ganesh": [
                 "//src/gpu/ganesh/mtl:objc_srcs",
                 "//src/gpu/ganesh/surface:mtl_objc_srcs",
             ],
@@ -326,10 +326,10 @@ skia_filegroup(
         "//src/gpu/ganesh/text:private_hdrs",
     ] + select_multi(
         {
-            "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:private_hdrs"],
-            "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:private_hdrs"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:private_hdrs"],
-            "//src/gpu:metal_backend": ["//src/gpu/ganesh/mtl:private_hdrs"],
+            "//src/gpu:dawn_ganesh": ["//src/gpu/ganesh/dawn:private_hdrs"],
+            "//src/gpu:gl_ganesh": ["//src/gpu/ganesh/gl:private_hdrs"],
+            "//src/gpu:vulkan_ganesh": ["//src/gpu/ganesh/vk:private_hdrs"],
+            "//src/gpu:metal_ganesh": ["//src/gpu/ganesh/mtl:private_hdrs"],
             # TODO(kjlubick) d3d backend
         },
     ),
@@ -341,8 +341,8 @@ skia_cc_deps(
     visibility = ["//src/gpu:__pkg__"],
     deps = select_multi(
         {
-            "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:deps"],
-            "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:deps"],
+            "//src/gpu:dawn_ganesh": ["//src/gpu/ganesh/dawn:deps"],
+            "//src/gpu:gl_ganesh": ["//src/gpu/ganesh/gl:deps"],
             # TODO(kjlubick) mtl and d3d backend
         },
     ),

@@ -116,6 +116,15 @@ public:
         return sCaps;
     }
 
+    static const SkSL::ShaderCaps* CannotUseVoidInSequenceExpressions() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
+            caps->fCanUseVoidInSequenceExpressions = false;
+            return caps.release();
+        }();
+        return sCaps;
+    }
+
     static const SkSL::ShaderCaps* EmulateAbsIntFunction() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -346,6 +355,9 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " CannotUseMinAndAbsTogether")) {
                     *caps = Factory::CannotUseMinAndAbsTogether();
+                }
+                if (consume_suffix(&settingsText, " CannotUseVoidInSequenceExpressions")) {
+                    *caps = Factory::CannotUseVoidInSequenceExpressions();
                 }
                 if (consume_suffix(&settingsText, " Default")) {
                     *caps = Factory::Default();
@@ -579,7 +591,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
         return ResultCode::kSuccess;
     };
 
-#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
     auto compileProgramAsRuntimeShader = [&](const auto& writeFn) -> ResultCode {
         if (kind == SkSL::ProgramKind::kVertex) {
             emitCompileError("Runtime shaders do not support vertex programs\n");
@@ -591,7 +602,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
         }
         return compileProgram(writeFn);
     };
-#endif
 
     if (skstd::ends_with(outputPath, ".spirv")) {
         return compileProgram(
@@ -644,7 +654,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toWGSL(program, out);
                 });
-#if defined(SK_ENABLE_SKSL_IN_RASTER_PIPELINE)
     } else if (skstd::ends_with(outputPath, ".skrp")) {
         settings.fMaxVersionAllowed = SkSL::Version::k300;
         return compileProgramAsRuntimeShader(
@@ -665,7 +674,6 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     rasterProg->dump(as_SkWStream(out).get(), /*writeInstructionCount=*/true);
                     return true;
                 });
-#endif
     } else if (skstd::ends_with(outputPath, ".stage")) {
         return compileProgram(
                 [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {

@@ -16,7 +16,7 @@ cc_binary_with_flags(
     set_flags = {
         # Use the GL backend with the normal GL standard (as opposed to WebGL or GLES)
         "gpu_backend": [
-            "gl_backend",
+            "gl_ganesh",
         ],
         "with_gl_standard": [
             "gl_standard",
@@ -31,7 +31,7 @@ cc_binary_with_flags(
         "//:skia_public",
     ] + select({
         "@platforms//os:macos": ["//tools/sk_app:sk_app_objc"],
-        "@platforms//os:linux": ["//tools/sk_app:sk_app"],
+        "@platforms//os:linux": ["//tools/sk_app"],
         "//conditions:default": [],
     }),
 )
@@ -46,7 +46,7 @@ cc_binary_with_flags(
     # These flags are defined in //bazel/common_config_settings/BUILD.bazel
     set_flags = {
         "gpu_backend": [
-            "vulkan_backend",
+            "vulkan_ganesh",
         ],
         # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
         # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
@@ -70,7 +70,7 @@ cc_binary_with_flags(
     # These flags are defined in //bazel/common_config_settings/BUILD.bazel
     set_flags = {
         "gpu_backend": [
-            "dawn_backend",
+            "dawn_ganesh",
         ],
         # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
         # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
@@ -94,7 +94,7 @@ cc_binary_with_flags(
     # These flags are defined in //bazel/common_config_settings/BUILD.bazel
     set_flags = {
         "gpu_backend": [
-            "metal_backend",
+            "metal_ganesh",
         ],
         # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
         # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
@@ -119,7 +119,7 @@ cc_binary_with_flags(
     # These flags are defined in //bazel/common_config_settings/BUILD.bazel
     set_flags = {
         "gpu_backend": [
-            "vulkan_backend",
+            "vulkan_ganesh",
         ],
     },
     deps = [

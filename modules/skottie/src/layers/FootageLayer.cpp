@@ -112,7 +112,7 @@ AnimationBuilder::loadFootageAsset(const skjson::ObjectValue& defaultJImage) con
     }
 
     auto asset = fResourceProvider->loadImageAsset(path->begin(), name->begin(), id->begin());
-    if (!asset) {
+    if (!asset && !slotID) {
         this->log(Logger::Level::kError, nullptr, "Could not load image asset: %s/%s (id: '%s').",
                   path->begin(), name->begin(), id->begin());
         return nullptr;

@@ -8,21 +8,16 @@
 #include "include/core/SkTypes.h"
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-#define GL_GLEXT_PROTOTYPES
-#define EGL_EGLEXT_PROTOTYPES
-
 
 #include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
 
-#include <android/hardware_buffer.h>
-
+#include "include/android/GrAHardwareBufferUtils.h"
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/core/SkMessageBus.h"
-#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -34,17 +29,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-
-#ifdef SK_VULKAN
-#include "src/gpu/ganesh/vk/GrVkGpu.h"
-#endif
-
-#define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
-#define EGL_PROTECTED_CONTENT_EXT 0x32C0
+#include <android/hardware_buffer.h>
 
 std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
         AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,

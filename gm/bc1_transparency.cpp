@@ -164,12 +164,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("bc1_transparency"); }
 
-    SkString onShortName() override {
-        return SkString("bc1_transparency");
-    }
-
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(kImgWidth + 2 * kPad, 2 * kImgHeight + 3 * kPad);
     }
 

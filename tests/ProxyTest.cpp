@@ -35,7 +35,7 @@
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #if defined(SK_GL)
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #endif
 
 #include <initializer_list>
@@ -286,12 +286,12 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
             if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
                 GrGLFramebufferInfo fboInfo;
                 fboInfo.fFBOID = 0;
-                fboInfo.fFormat = GrGLFormatToEnum(beFormat.asGLFormat());
+                fboInfo.fFormat = GrBackendFormats::AsGLFormatEnum(beFormat);
                 fboInfo.fProtected = skgpu::Protected::kNo;
                 SkASSERT(fboInfo.fFormat);
                 static constexpr int kStencilBits = 8;
-                GrBackendRenderTarget backendRT(kWidthHeight, kWidthHeight, numSamples,
-                                                kStencilBits, fboInfo);
+                GrBackendRenderTarget backendRT = GrBackendRenderTargets::MakeGL(
+                        kWidthHeight, kWidthHeight, numSamples, kStencilBits, fboInfo);
                 sk_sp<GrSurfaceProxy> sProxy(
                         proxyProvider->wrapBackendRenderTarget(backendRT, nullptr));
                 check_surface(

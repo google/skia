@@ -11,6 +11,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/ganesh/GrAutoLocaleSetter.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPersistentCacheUtils.h"
@@ -108,7 +109,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kFloat4_GrVertexAttribType:
             return MTLVertexFormatFloat4;
         case kHalf_GrVertexAttribType:
-            if (@available(macOS 10.13, iOS 11.0, *)) {
+            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
                 return MTLVertexFormatHalf;
             } else {
                 return MTLVertexFormatInvalid;
@@ -124,7 +125,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kInt4_GrVertexAttribType:
             return MTLVertexFormatInt4;
         case kByte_GrVertexAttribType:
-            if (@available(macOS 10.13, iOS 11.0, *)) {
+            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
                 return MTLVertexFormatChar;
             } else {
                 return MTLVertexFormatInvalid;
@@ -134,7 +135,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kByte4_GrVertexAttribType:
             return MTLVertexFormatChar4;
         case kUByte_GrVertexAttribType:
-            if (@available(macOS 10.13, iOS 11.0, *)) {
+            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
                 return MTLVertexFormatUChar;
             } else {
                 return MTLVertexFormatInvalid;
@@ -144,7 +145,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kUByte4_GrVertexAttribType:
             return MTLVertexFormatUChar4;
         case kUByte_norm_GrVertexAttribType:
-            if (@available(macOS 10.13, iOS 11.0, *)) {
+            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
                 return MTLVertexFormatUCharNormalized;
             } else {
                 return MTLVertexFormatInvalid;
@@ -164,7 +165,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
         case kUInt_GrVertexAttribType:
             return MTLVertexFormatUInt;
         case kUShort_norm_GrVertexAttribType:
-            if (@available(macOS 10.13, iOS 11.0, *)) {
+            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
                 return MTLVertexFormatUShortNormalized;
             } else {
                 return MTLVertexFormatInvalid;
@@ -286,25 +287,25 @@ static MTLBlendFactor blend_coeff_to_mtl_blend(skgpu::BlendCoeff coeff) {
         case skgpu::BlendCoeff::kIConstC:
             return MTLBlendFactorOneMinusBlendColor;
         case skgpu::BlendCoeff::kS2C:
-            if (@available(macOS 10.12, iOS 11.0, *)) {
+            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
                 return MTLBlendFactorSource1Color;
             } else {
                 return MTLBlendFactorZero;
             }
         case skgpu::BlendCoeff::kIS2C:
-            if (@available(macOS 10.12, iOS 11.0, *)) {
+            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
                 return MTLBlendFactorOneMinusSource1Color;
             } else {
                 return MTLBlendFactorZero;
             }
         case skgpu::BlendCoeff::kS2A:
-            if (@available(macOS 10.12, iOS 11.0, *)) {
+            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
                 return MTLBlendFactorSource1Alpha;
             } else {
                 return MTLBlendFactorZero;
             }
         case skgpu::BlendCoeff::kIS2A:
-            if (@available(macOS 10.12, iOS 11.0, *)) {
+            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
                 return MTLBlendFactorOneMinusSource1Alpha;
             } else {
                 return MTLBlendFactorZero;
@@ -671,7 +672,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
 
     NSError* error = nil;
 #if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, *)) {
+    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         id<MTLBinaryArchive> archive = fGpu->binaryArchive();
         if (archive) {
             NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];
@@ -803,7 +804,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
             [precompiledLibs->fFragmentLibrary newFunctionWithName: @"fragmentMain"];
 
 #if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, *)) {
+    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         id<MTLBinaryArchive> archive = gpu->binaryArchive();
         if (archive) {
             NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];

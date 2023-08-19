@@ -254,8 +254,8 @@ namespace skiagm {
  * target origins. We draw clockwise triangles green and counter-clockwise red.
  */
 class ClockwiseGM : public GpuGM {
-    SkString onShortName() override { return SkString("clockwise"); }
-    SkISize onISize() override { return {300, 200}; }
+    SkString getName() const override { return SkString("clockwise"); }
+    SkISize getISize() override { return {300, 200}; }
     DrawResult onDraw(GrRecordingContext*, SkCanvas*, SkString* errorMsg) override;
 };
 
@@ -281,7 +281,7 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
                                                                   {100, 200},
                                                                   SkSurfaceProps(),
                                                                   /*label=*/{},
-                                                                  1,
+                                                                  /* sampleCnt= */ 1,
                                                                   GrMipmapped::kNo,
                                                                   GrProtected::kNo,
                                                                   kTopLeft_GrSurfaceOrigin,
@@ -311,12 +311,7 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
                                                                   SkBackingFit::kExact,
                                                                   {100, 200},
                                                                   SkSurfaceProps(),
-                                                                  /*label=*/{},
-                                                                  1,
-                                                                  GrMipmapped::kNo,
-                                                                  GrProtected::kNo,
-                                                                  kBottomLeft_GrSurfaceOrigin,
-                                                                  skgpu::Budgeted::kYes)) {
+                                                                  /*label=*/{})) {
         topLeftSDC->clear(SK_PMColor4fTRANSPARENT);
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
         topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));

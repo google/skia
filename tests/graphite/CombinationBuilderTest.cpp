@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/Precompile.h"
+#include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 
 #include <array>
@@ -34,7 +35,7 @@ void empty_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
-                                          /* hasCoverage= */ false,
+                                          Coverage::kNone,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -54,7 +55,7 @@ void no_shader_option_test(const KeyContext& keyContext, skiatest::Reporter* rep
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
-                                          /* hasCoverage= */ false,
+                                          Coverage::kNone,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -72,7 +73,7 @@ void no_blend_mode_option_test(const KeyContext& keyContext, skiatest::Reporter*
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
-                                          /* hasCoverage= */ false,
+                                          Coverage::kNone,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -138,7 +139,7 @@ void big_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
-                                          /* hasCoverage= */ false,
+                                          Coverage::kNone,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -274,7 +275,7 @@ void runtime_effect_test(const KeyContext& keyContext, skiatest::Reporter* repor
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
                                           /* addPrimitiveBlender= */ false,
-                                          /* hasCoverage= */ false,
+                                          Coverage::kNone,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -284,7 +285,8 @@ void runtime_effect_test(const KeyContext& keyContext, skiatest::Reporter* repor
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();

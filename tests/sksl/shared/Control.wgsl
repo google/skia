@@ -9,7 +9,7 @@ struct _GlobalUniforms {
   unknownInput: f32,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     if _globalUniforms.unknownInput > 5.0 {
       {
@@ -62,8 +62,8 @@ fn main(_stageOut: ptr<function, FSOut>) {
     return ;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

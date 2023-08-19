@@ -540,7 +540,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TiledDrawCacheTest_Ganesh,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Graphite,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder =
             context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
 
@@ -549,7 +550,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BigImageTest_Graphite,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(TiledDrawCacheTest_Graphite,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder =
             context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
 

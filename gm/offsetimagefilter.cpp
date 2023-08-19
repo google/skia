@@ -35,13 +35,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("offsetimagefilter");
-    }
+    SkString getName() const override { return SkString("offsetimagefilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onOnceBeforeDraw() override {
         fBitmap = ToolUtils::create_string_image(80, 80, 0xD000D000, 15, 65, 96, "e");
@@ -107,11 +103,9 @@ public:
     SimpleOffsetImageFilterGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("simple-offsetimagefilter");
-    }
+    SkString getName() const override { return SkString("simple-offsetimagefilter"); }
 
-    SkISize onISize() override { return SkISize::Make(640, 200); }
+    SkISize getISize() override { return SkISize::Make(640, 200); }
 
     void doDraw(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imgf,
                 const SkIRect* cropR = nullptr, const SkRect* clipR = nullptr) {

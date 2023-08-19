@@ -71,7 +71,6 @@ SkRuntimeEffect::TracedShader SkRuntimeShader::makeTracedClone(const SkIPoint& c
 }
 
 bool SkRuntimeShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
         // SkRP has support for many parts of #version 300 already, but for now, we restrict its
         // usage in runtime effects to just #version 100.
@@ -92,7 +91,6 @@ bool SkRuntimeShader::appendStages(const SkStageRec& rec, const SkShaders::Matri
         bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks, uniforms);
         return success;
     }
-#endif
     return false;
 }
 

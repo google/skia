@@ -13,6 +13,7 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -43,6 +44,7 @@
 #include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLPoison.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -52,9 +54,11 @@
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -66,7 +70,6 @@
 #include <vector>
 
 using namespace skia_private;
-using namespace SkSL::dsl;
 
 namespace SkSL {
 
@@ -422,11 +425,10 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
 void Parser::declarations() {
     fEncounteredFatalError = false;
 
-    // If the program is longer than 8MB (Position::kMaxOffset), error reporting goes off the rails.
+    // If the program is 8MB or longer (Position::kMaxOffset), error reporting goes off the rails.
     // At any rate, there's no good reason for a program to be this long.
     if (fText->size() >= Position::kMaxOffset) {
         this->error(Position(), "program is too large");
-        fEncounteredFatalError = true;
         return;
     }
 
@@ -434,23 +436,22 @@ void Parser::declarations() {
     if (this->peek().fKind == Token::Kind::TK_DIRECTIVE) {
         this->directive(/*allowVersion=*/true);
     }
-    bool done = false;
-    while (!done) {
+
+    while (!fEncounteredFatalError) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_END_OF_FILE:
-                done = true;
-                break;
+                return;
+
+            case Token::Kind::TK_INVALID:
+                this->error(this->peek(), "invalid token");
+                return;
+
             case Token::Kind::TK_DIRECTIVE:
                 this->directive(/*allowVersion=*/false);
                 break;
-            case Token::Kind::TK_INVALID:
-                this->error(this->peek(), "invalid token");
-                this->nextToken();
-                done = true;
-                break;
+
             default:
                 this->declaration();
-                done = fEncounteredFatalError;
                 break;
         }
     }
@@ -561,8 +562,8 @@ bool Parser::declaration() {
         this->structVarDeclaration(this->position(start), modifiers);
         return true;
     }
-    DSLType type = this->type(&modifiers);
-    if (!type.hasValue()) {
+    const Type* type = this->type(&modifiers);
+    if (!type) {
         return false;
     }
     Token name;
@@ -580,7 +581,7 @@ bool Parser::declaration() {
 /* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
 bool Parser::functionDeclarationEnd(Position start,
                                     Modifiers& modifiers,
-                                    DSLType returnType,
+                                    const Type* returnType,
                                     const Token& name) {
     Token lookahead = this->peek();
     bool validParams = true;
@@ -615,7 +616,7 @@ bool Parser::functionDeclarationEnd(Position start,
                                                   this->text(name),
                                                   std::move(parameters),
                                                   start,
-                                                  &returnType.skslType());
+                                                  returnType);
     }
 
     if (this->checkNext(Token::Kind::TK_SEMICOLON)) {
@@ -644,14 +645,14 @@ bool Parser::defineFunction(SkSL::FunctionDeclaration* decl) {
 
     // Parse the function body.
     Token bodyStart = this->peek();
-    std::optional<DSLStatement> body = this->block();
+    std::unique_ptr<Statement> body = this->block();
 
     // If there was a problem with the declarations or body, don't actually create a definition.
     if (!decl || !body) {
         return false;
     }
 
-    std::unique_ptr<SkSL::Statement> block = body->release();
+    std::unique_ptr<SkSL::Statement> block = std::move(body);
     SkASSERT(block->is<Block>());
     Position pos = this->rangeFrom(bodyStart);
     block->fPosition = pos;
@@ -677,12 +678,11 @@ bool Parser::arraySize(SKSL_INT* outResult) {
         this->error(this->position(next), "unsized arrays are not permitted here");
         return true;
     }
-    DSLExpression sizeExpr = this->expression();
-    if (!sizeExpr.hasValue()) {
+    std::unique_ptr<Expression> sizeLiteral = this->expression();
+    if (!sizeLiteral) {
         return false;
     }
-    if (sizeExpr.isValid()) {
-        std::unique_ptr<SkSL::Expression> sizeLiteral = sizeExpr.release();
+    if (!sizeLiteral->is<Poison>()) {
         SKSL_INT size;
         if (!ConstantFolder::GetConstantInt(*sizeLiteral, &size)) {
             this->error(sizeLiteral->fPosition, "array size must be an integer");
@@ -702,12 +702,29 @@ bool Parser::arraySize(SKSL_INT* outResult) {
     return true;
 }
 
-bool Parser::parseArrayDimensions(Position pos, DSLType* type) {
+const Type* Parser::arrayType(const Type* base, int count, Position pos) {
+    const Context& context = fCompiler.context();
+    count = base->convertArraySize(context, pos, pos, count);
+    if (!count) {
+        return context.fTypes.fPoison.get();
+    }
+    return this->symbolTable()->addArrayDimension(base, count);
+}
+
+const Type* Parser::unsizedArrayType(const Type* base, Position pos) {
+    const Context& context = fCompiler.context();
+    if (!base->checkIfUsableInArray(context, pos)) {
+        return context.fTypes.fPoison.get();
+    }
+    return this->symbolTable()->addArrayDimension(base, SkSL::Type::kUnsizedArray);
+}
+
+bool Parser::parseArrayDimensions(Position pos, const Type** type) {
     Token next;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &next)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
             if (this->allowUnsizedArrays()) {
-                *type = UnsizedArray(*type, this->rangeFrom(pos));
+                *type = this->unsizedArrayType(*type, this->rangeFrom(pos));
             } else {
                 this->error(this->rangeFrom(pos), "unsized arrays are not permitted here");
             }
@@ -719,21 +736,21 @@ bool Parser::parseArrayDimensions(Position pos, DSLType* type) {
             if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
                 return false;
             }
-            *type = Array(*type, size, this->rangeFrom(pos));
+            *type = this->arrayType(*type, size, this->rangeFrom(pos));
         }
     }
     return true;
 }
 
-bool Parser::parseInitializer(Position pos, DSLExpression* initializer) {
+bool Parser::parseInitializer(Position pos, std::unique_ptr<Expression>* initializer) {
     if (this->checkNext(Token::Kind::TK_EQ)) {
         *initializer = this->assignmentExpression();
-        return initializer->hasValue();
+        return *initializer != nullptr;
     }
     return true;
 }
 
-void Parser::addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl) {
+void Parser::addGlobalVarDeclaration(std::unique_ptr<VarDeclaration> decl) {
     if (decl) {
         ThreadContext::ProgramElements().push_back(
                 std::make_unique<SkSL::GlobalVarDeclaration>(std::move(decl)));
@@ -744,10 +761,10 @@ void Parser::addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl)
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
 void Parser::globalVarDeclarationEnd(Position pos,
                                      const Modifiers& mods,
-                                     dsl::DSLType baseType,
+                                     const Type* baseType,
                                      Token name) {
-    DSLType type = baseType;
-    DSLExpression initializer;
+    const Type* type = baseType;
+    std::unique_ptr<Expression> initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
         return;
     }
@@ -757,11 +774,11 @@ void Parser::globalVarDeclarationEnd(Position pos,
     this->addGlobalVarDeclaration(VarDeclaration::Convert(fCompiler.context(),
                                                           this->rangeFrom(pos),
                                                           mods,
-                                                          type.skslType(),
+                                                          *type,
                                                           this->position(name),
                                                           this->text(name),
                                                           VariableStorage::kGlobal,
-                                                          initializer.releaseIfPossible()));
+                                                          std::move(initializer)));
     while (this->checkNext(Token::Kind::TK_COMMA)) {
         type = baseType;
         Token identifierName;
@@ -771,45 +788,44 @@ void Parser::globalVarDeclarationEnd(Position pos,
         if (!this->parseArrayDimensions(pos, &type)) {
             return;
         }
-        DSLExpression anotherInitializer;
+        std::unique_ptr<Expression> anotherInitializer;
         if (!this->parseInitializer(pos, &anotherInitializer)) {
             return;
         }
-        this->addGlobalVarDeclaration(
-                VarDeclaration::Convert(fCompiler.context(),
-                                        this->rangeFrom(identifierName),
-                                        mods,
-                                        type.skslType(),
-                                        this->position(identifierName),
-                                        this->text(identifierName),
-                                        VariableStorage::kGlobal,
-                                        anotherInitializer.releaseIfPossible()));
+        this->addGlobalVarDeclaration(VarDeclaration::Convert(fCompiler.context(),
+                                                              this->rangeFrom(identifierName),
+                                                              mods,
+                                                              *type,
+                                                              this->position(identifierName),
+                                                              this->text(identifierName),
+                                                              VariableStorage::kGlobal,
+                                                              std::move(anotherInitializer)));
     }
     this->expect(Token::Kind::TK_SEMICOLON, "';'");
 }
 
 /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
    (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
-DSLStatement Parser::localVarDeclarationEnd(Position pos,
-                                            const Modifiers& mods,
-                                            dsl::DSLType baseType,
-                                            Token name) {
-    DSLType type = baseType;
-    DSLExpression initializer;
+std::unique_ptr<Statement> Parser::localVarDeclarationEnd(Position pos,
+                                                          const Modifiers& mods,
+                                                          const Type* baseType,
+                                                          Token name) {
+    const Type* type = baseType;
+    std::unique_ptr<Expression> initializer;
     if (!this->parseArrayDimensions(pos, &type)) {
-        return {};
+        return nullptr;
     }
     if (!this->parseInitializer(pos, &initializer)) {
-        return {};
+        return nullptr;
     }
     std::unique_ptr<Statement> result = VarDeclaration::Convert(fCompiler.context(),
                                                                 this->rangeFrom(pos),
                                                                 mods,
-                                                                type.skslType(),
+                                                                *type,
                                                                 this->position(name),
                                                                 this->text(name),
                                                                 VariableStorage::kLocal,
-                                                                initializer.releaseIfPossible());
+                                                                std::move(initializer));
     for (;;) {
         if (!this->checkNext(Token::Kind::TK_COMMA)) {
             this->expect(Token::Kind::TK_SEMICOLON, "';'");
@@ -823,27 +839,27 @@ DSLStatement Parser::localVarDeclarationEnd(Position pos,
         if (!this->parseArrayDimensions(pos, &type)) {
             break;
         }
-        DSLExpression anotherInitializer;
+        std::unique_ptr<Expression> anotherInitializer;
         if (!this->parseInitializer(pos, &anotherInitializer)) {
             break;
         }
-        std::unique_ptr<Statement> next =
-                VarDeclaration::Convert(fCompiler.context(),
-                                        this->rangeFrom(identifierName),
-                                        mods,
-                                        type.skslType(),
-                                        this->position(identifierName),
-                                        this->text(identifierName),
-                                        VariableStorage::kLocal,
-                                        anotherInitializer.releaseIfPossible());
+        std::unique_ptr<Statement> next = VarDeclaration::Convert(fCompiler.context(),
+                                                                  this->rangeFrom(identifierName),
+                                                                  mods,
+                                                                  *type,
+                                                                  this->position(identifierName),
+                                                                  this->text(identifierName),
+                                                                  VariableStorage::kLocal,
+                                                                  std::move(anotherInitializer));
 
         result = Block::MakeCompoundStatement(std::move(result), std::move(next));
     }
-    return DSLStatement(std::move(result), this->rangeFrom(pos));
+    pos = this->rangeFrom(pos);
+    return this->statementOrNop(pos, std::move(result));
 }
 
 /* (varDeclarations | expressionStatement) */
-DSLStatement Parser::varDeclarationsOrExpressionStatement() {
+std::unique_ptr<Statement> Parser::varDeclarationsOrExpressionStatement() {
     Token nextToken = this->peek();
     if (nextToken.fKind == Token::Kind::TK_CONST) {
         // Statements that begin with `const` might be variable declarations, but can't be legal
@@ -879,76 +895,76 @@ bool Parser::varDeclarationsPrefix(VarDeclarationsPrefix* prefixData) {
     prefixData->fPosition = this->position(this->peek());
     prefixData->fModifiers = this->modifiers();
     prefixData->fType = this->type(&prefixData->fModifiers);
-    if (!prefixData->fType.hasValue()) {
+    if (!prefixData->fType) {
         return false;
     }
     return this->expectIdentifier(&prefixData->fName);
 }
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
-DSLStatement Parser::varDeclarations() {
+std::unique_ptr<Statement> Parser::varDeclarations() {
     VarDeclarationsPrefix prefix;
     if (!this->varDeclarationsPrefix(&prefix)) {
-        return {};
+        return nullptr;
     }
     return this->localVarDeclarationEnd(prefix.fPosition, prefix.fModifiers, prefix.fType,
-            prefix.fName);
+                                        prefix.fName);
 }
 
 /* STRUCT IDENTIFIER LBRACE varDeclaration* RBRACE */
-DSLType Parser::structDeclaration() {
+const Type* Parser::structDeclaration() {
     AutoDepth depth(this);
     Position start = this->position(this->peek());
     if (!this->expect(Token::Kind::TK_STRUCT, "'struct'")) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     Token name;
     if (!this->expectIdentifier(&name)) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     if (!depth.increase()) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     TArray<SkSL::Field> fields;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token fieldStart = this->peek();
         Modifiers modifiers = this->modifiers();
-        DSLType type = this->type(&modifiers);
-        if (!type.hasValue()) {
-            return DSLType(nullptr);
+        const Type* type = this->type(&modifiers);
+        if (!type) {
+            return nullptr;
         }
 
         do {
-            DSLType actualType = type;
+            const Type* actualType = type;
             Token memberName;
             if (!this->expectIdentifier(&memberName)) {
-                return DSLType(nullptr);
+                return nullptr;
             }
 
             while (this->checkNext(Token::Kind::TK_LBRACKET)) {
                 SKSL_INT size;
                 if (!this->arraySize(&size)) {
-                    return DSLType(nullptr);
+                    return nullptr;
                 }
                 if (!this->expect(Token::Kind::TK_RBRACKET, "']'")) {
-                    return DSLType(nullptr);
+                    return nullptr;
                 }
-                actualType = dsl::Array(actualType, size,
-                                        this->rangeFrom(this->position(fieldStart)));
+                actualType = this->arrayType(actualType, size,
+                                             this->rangeFrom(this->position(fieldStart)));
             }
 
             fields.push_back(SkSL::Field(this->rangeFrom(fieldStart),
                                          modifiers.fLayout,
                                          modifiers.fFlags,
                                          this->text(memberName),
-                                         &actualType.skslType()));
+                                         actualType));
         } while (this->checkNext(Token::Kind::TK_COMMA));
 
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-            return DSLType(nullptr);
+            return nullptr;
         }
     }
     std::unique_ptr<SkSL::StructDefinition> def = StructDefinition::Convert(fCompiler.context(),
@@ -956,18 +972,18 @@ DSLType Parser::structDeclaration() {
                                                                             this->text(name),
                                                                             std::move(fields));
     if (!def) {
-        return DSLType(nullptr);
+        return nullptr;
     }
 
-    DSLType result(&def->type());
+    const Type* result = &def->type();
     ThreadContext::ProgramElements().push_back(std::move(def));
     return result;
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
 void Parser::structVarDeclaration(Position start, const Modifiers& modifiers) {
-    DSLType type = this->structDeclaration();
-    if (!type.hasValue()) {
+    const Type* type = this->structDeclaration();
+    if (!type) {
         return;
     }
     Token name;
@@ -982,8 +998,8 @@ void Parser::structVarDeclaration(Position start, const Modifiers& modifiers) {
 bool Parser::parameter(std::unique_ptr<SkSL::Variable>* outParam) {
     Position pos = this->position(this->peek());
     Modifiers modifiers = this->modifiers();
-    DSLType type = this->type(&modifiers);
-    if (!type.hasValue()) {
+    const Type* type = this->type(&modifiers);
+    if (!type) {
         return false;
     }
     Token name;
@@ -1003,7 +1019,7 @@ bool Parser::parameter(std::unique_ptr<SkSL::Variable>* outParam) {
                                         modifiers.fPosition,
                                         modifiers.fLayout,
                                         modifiers.fFlags,
-                                        &type.skslType(),
+                                        type,
                                         namePos,
                                         nameText,
                                         VariableStorage::kParameter);
@@ -1059,8 +1075,13 @@ SkSL::Layout Parser::layout() {
             {"color",                       SkSL::LayoutFlag::kColor},
             {"spirv",                       SkSL::LayoutFlag::kSPIRV},
             {"metal",                       SkSL::LayoutFlag::kMetal},
-            {"gl",                          SkSL::LayoutFlag::kGL},
             {"wgsl",                        SkSL::LayoutFlag::kWGSL},
+            {"rgba8",                       SkSL::LayoutFlag::kRGBA8},
+            {"rgba32f",                     SkSL::LayoutFlag::kRGBA32F},
+            {"r32f",                        SkSL::LayoutFlag::kR32F},
+            {"local_size_x",                SkSL::LayoutFlag::kLocalSizeX},
+            {"local_size_y",                SkSL::LayoutFlag::kLocalSizeY},
+            {"local_size_z",                SkSL::LayoutFlag::kLocalSizeZ},
     });
 
     Layout result;
@@ -1110,6 +1131,15 @@ SkSL::Layout Parser::layout() {
                     case SkSL::LayoutFlag::kInputAttachmentIndex:
                         result.fInputAttachmentIndex = this->layoutInt();
                         break;
+                    case SkSL::LayoutFlag::kLocalSizeX:
+                        result.fLocalSizeX = this->layoutInt();
+                        break;
+                    case SkSL::LayoutFlag::kLocalSizeY:
+                        result.fLocalSizeY = this->layoutInt();
+                        break;
+                    case SkSL::LayoutFlag::kLocalSizeZ:
+                        result.fLocalSizeZ = this->layoutInt();
+                        break;
                     default:
                         break;
                 }
@@ -1151,12 +1181,22 @@ Modifiers Parser::modifiers() {
     return Modifiers{Position::Range(start, end), layout, flags};
 }
 
+std::unique_ptr<Statement> Parser::statementOrNop(Position pos, std::unique_ptr<Statement> stmt) {
+    if (!stmt) {
+        stmt = Nop::Make();
+    }
+    if (pos.valid() && !stmt->position().valid()) {
+        stmt->setPosition(pos);
+    }
+    return stmt;
+}
+
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
-DSLStatement Parser::statement() {
+std::unique_ptr<Statement> Parser::statement() {
     Token start = this->nextToken();
     AutoDepth depth(this);
     if (!depth.increase()) {
-        return {};
+        return nullptr;
     }
     this->pushback(start);
     switch (start.fKind) {
@@ -1178,13 +1218,11 @@ DSLStatement Parser::statement() {
             return this->continueStatement();
         case Token::Kind::TK_DISCARD:
             return this->discardStatement();
-        case Token::Kind::TK_LBRACE: {
-            std::optional<DSLStatement> result = this->block();
-            return result ? std::move(*result) : DSLStatement();
-        }
+        case Token::Kind::TK_LBRACE:
+            return this->block();
         case Token::Kind::TK_SEMICOLON:
             this->nextToken();
-            return DSLStatement(Nop::Make());
+            return Nop::Make();
         case Token::Kind::TK_HIGHP:
         case Token::Kind::TK_MEDIUMP:
         case Token::Kind::TK_LOWP:
@@ -1196,38 +1234,61 @@ DSLStatement Parser::statement() {
     }
 }
 
+const Type* Parser::findType(Position pos,
+                             Modifiers* modifiers,
+                             std::string_view name) {
+    const Context& context = fCompiler.context();
+    const Symbol* symbol = this->symbolTable()->find(name);
+    if (!symbol) {
+        this->error(pos, "no symbol named '" + std::string(name) + "'");
+        return context.fTypes.fPoison.get();
+    }
+    if (!symbol->is<Type>()) {
+        this->error(pos, "symbol '" + std::string(name) + "' is not a type");
+        return context.fTypes.fPoison.get();
+    }
+    const SkSL::Type* type = &symbol->as<Type>();
+    if (!context.fConfig->fIsBuiltinCode) {
+        if (!TypeReference::VerifyType(context, type, pos)) {
+            return context.fTypes.fPoison.get();
+        }
+    }
+    return modifiers ? type->applyQualifiers(context, &modifiers->fFlags, modifiers->fPosition)
+                     : type;
+}
+
 /* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
-DSLType Parser::type(Modifiers* modifiers) {
+const Type* Parser::type(Modifiers* modifiers) {
     Token type;
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
-        return DSLType(nullptr);
+        return nullptr;
     }
     if (!this->symbolTable()->isType(this->text(type))) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
-        return DSLType::Invalid();
+        return fCompiler.context().fTypes.fInvalid.get();
     }
-    DSLType result(this->text(type), this->position(type), modifiers);
-    if (result.isInterfaceBlock()) {
+    const Type* result = this->findType(this->position(type), modifiers, this->text(type));
+    if (result->isInterfaceBlock()) {
         // SkSL puts interface blocks into the symbol table, but they aren't general-purpose types;
         // you can't use them to declare a variable type or a function return type.
         this->error(type, "expected a type, found '" + std::string(this->text(type)) + "'");
-        return DSLType::Invalid();
+        return fCompiler.context().fTypes.fInvalid.get();
     }
     Token bracket;
     while (this->checkNext(Token::Kind::TK_LBRACKET, &bracket)) {
         if (this->checkNext(Token::Kind::TK_RBRACKET)) {
             if (this->allowUnsizedArrays()) {
-                result = UnsizedArray(result, this->rangeFrom(type));
+                result = this->unsizedArrayType(result, this->rangeFrom(type));
             } else {
                 this->error(this->rangeFrom(bracket), "unsized arrays are not permitted here");
             }
         } else {
             SKSL_INT size;
             if (!this->arraySize(&size)) {
-                return DSLType(nullptr);
+                return nullptr;
             }
             this->expect(Token::Kind::TK_RBRACKET, "']'");
-            result = Array(result, size, this->rangeFrom(type));
+            result = this->arrayType(result, size, this->rangeFrom(type));
         }
     }
     return result;
@@ -1253,8 +1314,8 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Position fieldPos = this->position(this->peek());
         Modifiers fieldModifiers = this->modifiers();
-        DSLType type = this->type(&fieldModifiers);
-        if (!type.hasValue()) {
+        const Type* type = this->type(&fieldModifiers);
+        if (!type) {
             return false;
         }
         do {
@@ -1262,7 +1323,7 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
             if (!this->expectIdentifier(&fieldName)) {
                 return false;
             }
-            DSLType actualType = type;
+            const Type* actualType = type;
             if (this->checkNext(Token::Kind::TK_LBRACKET)) {
                 Token sizeToken = this->peek();
                 if (sizeToken.fKind != Token::Kind::TK_RBRACKET) {
@@ -1270,9 +1331,9 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
                     if (!this->arraySize(&size)) {
                         return false;
                     }
-                    actualType = Array(std::move(actualType), size, this->position(typeName));
+                    actualType = this->arrayType(actualType, size, this->position(typeName));
                 } else if (this->allowUnsizedArrays()) {
-                    actualType = UnsizedArray(std::move(actualType), this->position(typeName));
+                    actualType = this->unsizedArrayType(actualType, this->position(typeName));
                 } else {
                     this->error(sizeToken, "unsized arrays are not permitted here");
                 }
@@ -1286,7 +1347,7 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
                                          fieldModifiers.fLayout,
                                          fieldModifiers.fFlags,
                                          this->text(fieldName),
-                                         &actualType.skslType()));
+                                         actualType));
         } while (this->checkNext(Token::Kind::TK_COMMA));
     }
     std::string_view instanceName;
@@ -1317,95 +1378,95 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
 }
 
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
-DSLStatement Parser::ifStatement() {
+std::unique_ptr<Statement> Parser::ifStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_IF, "'if'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
-    DSLExpression test = this->expression();
-    if (!test.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> test = this->expression();
+    if (!test) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
-    DSLStatement ifTrue = this->statement();
-    if (!ifTrue.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> ifTrue = this->statement();
+    if (!ifTrue) {
+        return nullptr;
     }
-    DSLStatement ifFalse;
+    std::unique_ptr<Statement> ifFalse;
     if (this->checkNext(Token::Kind::TK_ELSE)) {
         ifFalse = this->statement();
-        if (!ifFalse.hasValue()) {
-            return {};
+        if (!ifFalse) {
+            return nullptr;
         }
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(IfStatement::Convert(fCompiler.context(),
-                                             pos,
-                                             test.release(),
-                                             ifTrue.release(),
-                                             ifFalse.releaseIfPossible()), pos);
+    return this->statementOrNop(pos, IfStatement::Convert(fCompiler.context(),
+                                                          pos,
+                                                          std::move(test),
+                                                          std::move(ifTrue),
+                                                          std::move(ifFalse)));
 }
 
 /* DO statement WHILE LPAREN expression RPAREN SEMICOLON */
-DSLStatement Parser::doStatement() {
+std::unique_ptr<Statement> Parser::doStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_DO, "'do'", &start)) {
-        return {};
+        return nullptr;
     }
-    DSLStatement statement = this->statement();
-    if (!statement.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> statement = this->statement();
+    if (!statement) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_WHILE, "'while'")) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
-    DSLExpression test = this->expression();
-    if (!test.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> test = this->expression();
+    if (!test) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(DoStatement::Convert(fCompiler.context(), pos,
-                                             statement.release(), test.release()), pos);
+    return this->statementOrNop(pos, DoStatement::Convert(fCompiler.context(), pos,
+                                                          std::move(statement), std::move(test)));
 }
 
 /* WHILE LPAREN expression RPAREN STATEMENT */
-DSLStatement Parser::whileStatement() {
+std::unique_ptr<Statement> Parser::whileStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_WHILE, "'while'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
-    DSLExpression test = this->expression();
-    if (!test.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> test = this->expression();
+    if (!test) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
-    DSLStatement statement = this->statement();
-    if (!statement.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> statement = this->statement();
+    if (!statement) {
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(ForStatement::ConvertWhile(fCompiler.context(), pos,
-                                                   test.release(),
-                                                   statement.release()), pos);
+    return this->statementOrNop(pos, ForStatement::ConvertWhile(fCompiler.context(), pos,
+                                                                std::move(test),
+                                                                std::move(statement)));
 }
 
 /* COLON statement* */
@@ -1419,11 +1480,11 @@ bool Parser::switchCaseBody(ExpressionArray* values,
     while (this->peek().fKind != Token::Kind::TK_RBRACE &&
            this->peek().fKind != Token::Kind::TK_CASE &&
            this->peek().fKind != Token::Kind::TK_DEFAULT) {
-        DSLStatement s = this->statement();
-        if (!s.hasValue()) {
+        std::unique_ptr<Statement> s = this->statement();
+        if (!s) {
             return false;
         }
-        statements.push_back(s.release());
+        statements.push_back(std::move(s));
     }
     values->push_back(std::move(caseValue));
     caseBlocks->push_back(SkSL::Block::Make(Position(), std::move(statements),
@@ -1437,55 +1498,55 @@ bool Parser::switchCase(ExpressionArray* values, StatementArray* caseBlocks) {
     if (!this->expect(Token::Kind::TK_CASE, "'case'", &start)) {
         return false;
     }
-    DSLExpression caseValue = this->expression();
-    if (!caseValue.hasValue()) {
+    std::unique_ptr<Expression> caseValue = this->expression();
+    if (!caseValue) {
         return false;
     }
-    return this->switchCaseBody(values, caseBlocks, caseValue.release());
+    return this->switchCaseBody(values, caseBlocks, std::move(caseValue));
 }
 
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
-DSLStatement Parser::switchStatement() {
+std::unique_ptr<Statement> Parser::switchStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_SWITCH, "'switch'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
-        return {};
+        return nullptr;
     }
-    DSLExpression value = this->expression();
-    if (!value.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> value = this->expression();
+    if (!value) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
-        return {};
+        return nullptr;
     }
 
     ExpressionArray values;
     StatementArray caseBlocks;
     while (this->peek().fKind == Token::Kind::TK_CASE) {
         if (!this->switchCase(&values, &caseBlocks)) {
-            return {};
+            return nullptr;
         }
     }
     // Requiring `default:` to be last (in defiance of C and GLSL) was a deliberate decision. Other
     // parts of the compiler are allowed to rely upon this assumption.
     if (this->checkNext(Token::Kind::TK_DEFAULT)) {
         if (!this->switchCaseBody(&values, &caseBlocks, /*value=*/nullptr)) {
-            return {};
+            return nullptr;
         }
     }
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
-        return {};
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
-    return DSLStatement(SwitchStatement::Convert(fCompiler.context(), pos,
-                                                 value.release(),
-                                                 std::move(values),
-                                                 std::move(caseBlocks)), pos);
+    return this->statementOrNop(pos, SwitchStatement::Convert(fCompiler.context(), pos,
+                                                              std::move(value),
+                                                              std::move(values),
+                                                              std::move(caseBlocks)));
 }
 
 static Position range_of_at_least_one_char(int start, int end) {
@@ -1494,17 +1555,17 @@ static Position range_of_at_least_one_char(int start, int end) {
 
 /* FOR LPAREN (declaration | expression)? SEMICOLON expression? SEMICOLON expression? RPAREN
    STATEMENT */
-dsl::DSLStatement Parser::forStatement() {
+std::unique_ptr<Statement> Parser::forStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_FOR, "'for'", &start)) {
-        return {};
+        return nullptr;
     }
     Token lparen;
     if (!this->expect(Token::Kind::TK_LPAREN, "'('", &lparen)) {
-        return {};
+        return nullptr;
     }
     AutoSymbolTable symbols(this);
-    dsl::DSLStatement initializer;
+    std::unique_ptr<Statement> initializer;
     Token nextToken = this->peek();
     int firstSemicolonOffset;
     if (nextToken.fKind == Token::Kind::TK_SEMICOLON) {
@@ -1513,36 +1574,36 @@ dsl::DSLStatement Parser::forStatement() {
     } else {
         // The init-statement must be an expression or variable declaration.
         initializer = this->varDeclarationsOrExpressionStatement();
-        if (!initializer.hasValue()) {
-            return {};
+        if (!initializer) {
+            return nullptr;
         }
         firstSemicolonOffset = fLexer.getCheckpoint().fOffset - 1;
     }
-    dsl::DSLExpression test;
+    std::unique_ptr<Expression> test;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
         test = this->expression();
-        if (!test.hasValue()) {
-            return {};
+        if (!test) {
+            return nullptr;
         }
     }
     Token secondSemicolon;
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'", &secondSemicolon)) {
-        return {};
+        return nullptr;
     }
-    dsl::DSLExpression next;
+    std::unique_ptr<Expression> next;
     if (this->peek().fKind != Token::Kind::TK_RPAREN) {
         next = this->expression();
-        if (!next.hasValue()) {
-            return {};
+        if (!next) {
+            return nullptr;
         }
     }
     Token rparen;
     if (!this->expect(Token::Kind::TK_RPAREN, "')'", &rparen)) {
-        return {};
+        return nullptr;
     }
-    dsl::DSLStatement statement = this->statement();
-    if (!statement.hasValue()) {
-        return {};
+    std::unique_ptr<Statement> statement = this->statement();
+    if (!statement) {
+        return nullptr;
     }
     Position pos = this->rangeFrom(start);
     ForLoopPositions loopPositions{
@@ -1550,80 +1611,80 @@ dsl::DSLStatement Parser::forStatement() {
             range_of_at_least_one_char(firstSemicolonOffset + 1, secondSemicolon.fOffset),
             range_of_at_least_one_char(secondSemicolon.fOffset + 1, rparen.fOffset),
     };
-    return DSLStatement(ForStatement::Convert(fCompiler.context(), pos, loopPositions,
-                                              initializer.releaseIfPossible(),
-                                              test.releaseIfPossible(),
-                                              next.releaseIfPossible(),
-                                              statement.release()), pos);
+    return this->statementOrNop(pos, ForStatement::Convert(fCompiler.context(), pos, loopPositions,
+                                                           std::move(initializer),
+                                                           std::move(test),
+                                                           std::move(next),
+                                                           std::move(statement)));
 }
 
 /* RETURN expression? SEMICOLON */
-DSLStatement Parser::returnStatement() {
+std::unique_ptr<Statement> Parser::returnStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_RETURN, "'return'", &start)) {
-        return {};
+        return nullptr;
     }
-    DSLExpression expression;
+    std::unique_ptr<Expression> expression;
     if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
         expression = this->expression();
-        if (!expression.hasValue()) {
-            return {};
+        if (!expression) {
+            return nullptr;
         }
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     // We do not check for errors, or coerce the value to the correct type, until the return
     // statement is actually added to a function. (This is done in FunctionDefinition::Convert.)
-    return ReturnStatement::Make(this->rangeFrom(start), expression.releaseIfPossible());
+    return ReturnStatement::Make(this->rangeFrom(start), std::move(expression));
 }
 
 /* BREAK SEMICOLON */
-DSLStatement Parser::breakStatement() {
+std::unique_ptr<Statement> Parser::breakStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_BREAK, "'break'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     return SkSL::BreakStatement::Make(this->position(start));
 }
 
 /* CONTINUE SEMICOLON */
-DSLStatement Parser::continueStatement() {
+std::unique_ptr<Statement> Parser::continueStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_CONTINUE, "'continue'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     return SkSL::ContinueStatement::Make(this->position(start));
 }
 
 /* DISCARD SEMICOLON */
-DSLStatement Parser::discardStatement() {
+std::unique_ptr<Statement> Parser::discardStatement() {
     Token start;
     if (!this->expect(Token::Kind::TK_DISCARD, "'continue'", &start)) {
-        return {};
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
     Position pos = this->position(start);
-    return DSLStatement(SkSL::DiscardStatement::Convert(fCompiler.context(), pos), pos);
+    return this->statementOrNop(pos, SkSL::DiscardStatement::Convert(fCompiler.context(), pos));
 }
 
 /* LBRACE statement* RBRACE */
-std::optional<DSLStatement> Parser::block() {
+std::unique_ptr<Statement> Parser::block() {
     AutoDepth depth(this);
     Token start;
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'", &start)) {
-        return std::nullopt;
+        return nullptr;
     }
     if (!depth.increase()) {
-        return std::nullopt;
+        return nullptr;
     }
     AutoSymbolTable symbols(this);
     StatementArray statements;
@@ -1632,21 +1693,21 @@ std::optional<DSLStatement> Parser::block() {
             case Token::Kind::TK_RBRACE: {
                 this->nextToken();
                 Position pos = this->rangeFrom(start);
-                return DSLStatement(SkSL::Block::MakeBlock(pos, std::move(statements),
-                                                           Block::Kind::kBracedScope,
-                                                           this->symbolTable()), pos);
+                return SkSL::Block::MakeBlock(pos, std::move(statements),
+                                              Block::Kind::kBracedScope,
+                                              this->symbolTable());
             }
             case Token::Kind::TK_END_OF_FILE: {
                 this->error(this->peek(), "expected '}', but found end of file");
-                return std::nullopt;
+                return nullptr;
             }
             default: {
-                DSLStatement statement = this->statement();
+                std::unique_ptr<Statement> statement = this->statement();
                 if (fEncounteredFatalError) {
-                    return std::nullopt;
+                    return nullptr;
                 }
-                if (statement.hasValue()) {
-                    statements.push_back(statement.release());
+                if (statement) {
+                    statements.push_back(std::move(statement));
                 }
                 break;
             }
@@ -1655,58 +1716,79 @@ std::optional<DSLStatement> Parser::block() {
 }
 
 /* expression SEMICOLON */
-DSLStatement Parser::expressionStatement() {
-    DSLExpression expr = this->expression();
-    if (!expr.hasValue()) {
-        return {};
+std::unique_ptr<Statement> Parser::expressionStatement() {
+    std::unique_ptr<Expression> expr = this->expression();
+    if (!expr) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
-        return {};
+        return nullptr;
     }
-    Position pos = expr.position();
-    return DSLStatement(SkSL::ExpressionStatement::Convert(fCompiler.context(), expr.release()),
-                        pos);
+    Position pos = expr->position();
+    return this->statementOrNop(pos, SkSL::ExpressionStatement::Convert(fCompiler.context(),
+                                                                        std::move(expr)));
+}
+
+std::unique_ptr<Expression> Parser::poison(Position pos) {
+    return Poison::Make(pos, fCompiler.context());
+}
+
+std::unique_ptr<Expression> Parser::expressionOrPoison(Position pos,
+                                                       std::unique_ptr<Expression> expr) {
+    if (!expr) {
+        // If no expression was passed in, create a poison expression.
+        expr = this->poison(pos);
+    }
+    // If a valid position was passed in, it must match the expression's position.
+    SkASSERTF(!pos.valid() || expr->position() == pos,
+              "expected expression position (%d-%d), but received (%d-%d)",
+              pos.startOffset(),
+              pos.endOffset(),
+              expr->position().startOffset(),
+              expr->position().endOffset());
+    return expr;
 }
 
 bool Parser::operatorRight(Parser::AutoDepth& depth,
                            Operator::Kind op,
                            BinaryParseFn rightFn,
-                           DSLExpression& expr) {
+                           std::unique_ptr<Expression>& expr) {
     this->nextToken();
     if (!depth.increase()) {
         return false;
     }
-    DSLExpression right = (this->*rightFn)();
-    if (!right.hasValue()) {
+    std::unique_ptr<Expression> right = (this->*rightFn)();
+    if (!right) {
         return false;
     }
-    Position pos = expr.position().rangeThrough(right.position());
-    expr = DSLExpression(BinaryExpression::Convert(fCompiler.context(), pos,
-                                                   expr.release(), op, right.release()), pos);
+    Position pos = expr->position().rangeThrough(right->position());
+    expr = this->expressionOrPoison(pos, BinaryExpression::Convert(fCompiler.context(), pos,
+                                                                   std::move(expr), op,
+                                                                   std::move(right)));
     return true;
 }
 
 /* assignmentExpression (COMMA assignmentExpression)* */
-DSLExpression Parser::expression() {
+std::unique_ptr<Expression> Parser::expression() {
     AutoDepth depth(this);
     [[maybe_unused]] Token start = this->peek();
-    DSLExpression result = this->assignmentExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->assignmentExpression();
+    if (!result) {
+        return nullptr;
     }
     while (this->peek().fKind == Token::Kind::TK_COMMA) {
         if (!this->operatorRight(depth, Operator::Kind::COMMA, &Parser::assignmentExpression,
                                  result)) {
-            return {};
+            return nullptr;
         }
     }
-    SkASSERTF(result.position().valid(), "Expression %s has invalid position",
-              result.description().c_str());
-    SkASSERTF(result.position().startOffset() == this->position(start).startOffset(),
+    SkASSERTF(result->position().valid(), "Expression %s has invalid position",
+              result->description().c_str());
+    SkASSERTF(result->position().startOffset() == this->position(start).startOffset(),
               "Expected %s to start at %d (first token: '%.*s'), but it has range %d-%d\n",
-              result.description().c_str(), this->position(start).startOffset(),
+              result->description().c_str(), this->position(start).startOffset(),
               (int)this->text(start).length(), this->text(start).data(),
-              result.position().startOffset(), result.position().endOffset());
+              result->position().startOffset(), result->position().endOffset());
     return result;
 }
 
@@ -1714,11 +1796,11 @@ DSLExpression Parser::expression() {
    BITWISEANDEQ | BITWISEXOREQ | BITWISEOREQ | LOGICALANDEQ | LOGICALXOREQ | LOGICALOREQ)
    assignmentExpression)*
  */
-DSLExpression Parser::assignmentExpression() {
+std::unique_ptr<Expression> Parser::assignmentExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->ternaryExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->ternaryExpression();
+    if (!result) {
+        return nullptr;
     }
     for (;;) {
         Operator::Kind op;
@@ -1737,142 +1819,144 @@ DSLExpression Parser::assignmentExpression() {
             default:                           return result;
         }
         if (!this->operatorRight(depth, op, &Parser::assignmentExpression, result)) {
-            return {};
+            return nullptr;
         }
     }
 }
 
 /* logicalOrExpression ('?' expression ':' assignmentExpression)? */
-DSLExpression Parser::ternaryExpression() {
+std::unique_ptr<Expression> Parser::ternaryExpression() {
     AutoDepth depth(this);
-    DSLExpression base = this->logicalOrExpression();
-    if (!base.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> base = this->logicalOrExpression();
+    if (!base) {
+        return nullptr;
     }
     if (!this->checkNext(Token::Kind::TK_QUESTION)) {
         return base;
     }
     if (!depth.increase()) {
-        return {};
+        return nullptr;
     }
-    DSLExpression trueExpr = this->expression();
-    if (!trueExpr.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> trueExpr = this->expression();
+    if (!trueExpr) {
+        return nullptr;
     }
     if (!this->expect(Token::Kind::TK_COLON, "':'")) {
-        return {};
+        return nullptr;
     }
-    DSLExpression falseExpr = this->assignmentExpression();
-    if (!falseExpr.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> falseExpr = this->assignmentExpression();
+    if (!falseExpr) {
+        return nullptr;
     }
-    Position pos = base.position().rangeThrough(falseExpr.position());
-    return DSLExpression(TernaryExpression::Convert(fCompiler.context(), pos, base.release(),
-                                                    trueExpr.release(), falseExpr.release()), pos);
+    Position pos = base->position().rangeThrough(falseExpr->position());
+    return this->expressionOrPoison(pos, TernaryExpression::Convert(fCompiler.context(),
+                                                                    pos, std::move(base),
+                                                                    std::move(trueExpr),
+                                                                    std::move(falseExpr)));
 }
 
 /* logicalXorExpression (LOGICALOR logicalXorExpression)* */
-DSLExpression Parser::logicalOrExpression() {
+std::unique_ptr<Expression> Parser::logicalOrExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->logicalXorExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->logicalXorExpression();
+    if (!result) {
+        return nullptr;
     }
     while (this->peek().fKind == Token::Kind::TK_LOGICALOR) {
         if (!this->operatorRight(depth, Operator::Kind::LOGICALOR, &Parser::logicalXorExpression,
                                  result)) {
-            return {};
+            return nullptr;
         }
     }
     return result;
 }
 
 /* logicalAndExpression (LOGICALXOR logicalAndExpression)* */
-DSLExpression Parser::logicalXorExpression() {
+std::unique_ptr<Expression> Parser::logicalXorExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->logicalAndExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->logicalAndExpression();
+    if (!result) {
+        return nullptr;
     }
     while (this->peek().fKind == Token::Kind::TK_LOGICALXOR) {
         if (!this->operatorRight(depth, Operator::Kind::LOGICALXOR, &Parser::logicalAndExpression,
                                  result)) {
-            return {};
+            return nullptr;
         }
     }
     return result;
 }
 
 /* bitwiseOrExpression (LOGICALAND bitwiseOrExpression)* */
-DSLExpression Parser::logicalAndExpression() {
+std::unique_ptr<Expression> Parser::logicalAndExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->bitwiseOrExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->bitwiseOrExpression();
+    if (!result) {
+        return nullptr;
     }
     while (this->peek().fKind == Token::Kind::TK_LOGICALAND) {
         if (!this->operatorRight(depth, Operator::Kind::LOGICALAND, &Parser::bitwiseOrExpression,
                                  result)) {
-            return {};
+            return nullptr;
         }
     }
     return result;
 }
 
 /* bitwiseXorExpression (BITWISEOR bitwiseXorExpression)* */
-DSLExpression Parser::bitwiseOrExpression() {
+std::unique_ptr<Expression> Parser::bitwiseOrExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->bitwiseXorExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->bitwiseXorExpression();
+    if (!result) {
+        return nullptr;
     }
     while (this->peek().fKind == Token::Kind::TK_BITWISEOR) {
         if (!this->operatorRight(depth, Operator::Kind::BITWISEOR, &Parser::bitwiseXorExpression,
                                  result)) {
-            return {};
+            return nullptr;
         }
     }
     return result;
 }
 
 /* bitwiseAndExpression (BITWISEXOR bitwiseAndExpression)* */
-DSLExpression Parser::bitwiseXorExpression() {
+std::unique_ptr<Expression> Parser::bitwiseXorExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->bitwiseAndExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->bitwiseAndExpression();
+    if (!result) {
+        return nullptr;
     }
     while (this->peek().fKind == Token::Kind::TK_BITWISEXOR) {
         if (!this->operatorRight(depth, Operator::Kind::BITWISEXOR, &Parser::bitwiseAndExpression,
                                  result)) {
-            return {};
+            return nullptr;
         }
     }
     return result;
 }
 
 /* equalityExpression (BITWISEAND equalityExpression)* */
-DSLExpression Parser::bitwiseAndExpression() {
+std::unique_ptr<Expression> Parser::bitwiseAndExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->equalityExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->equalityExpression();
+    if (!result) {
+        return nullptr;
     }
     while (this->peek().fKind == Token::Kind::TK_BITWISEAND) {
         if (!this->operatorRight(depth, Operator::Kind::BITWISEAND, &Parser::equalityExpression,
                                  result)) {
-            return {};
+            return nullptr;
         }
     }
     return result;
 }
 
 /* relationalExpression ((EQEQ | NEQ) relationalExpression)* */
-DSLExpression Parser::equalityExpression() {
+std::unique_ptr<Expression> Parser::equalityExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->relationalExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->relationalExpression();
+    if (!result) {
+        return nullptr;
     }
     for (;;) {
         Operator::Kind op;
@@ -1882,17 +1966,17 @@ DSLExpression Parser::equalityExpression() {
             default:                   return result;
         }
         if (!this->operatorRight(depth, op, &Parser::relationalExpression, result)) {
-            return {};
+            return nullptr;
         }
     }
 }
 
 /* shiftExpression ((LT | GT | LTEQ | GTEQ) shiftExpression)* */
-DSLExpression Parser::relationalExpression() {
+std::unique_ptr<Expression> Parser::relationalExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->shiftExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->shiftExpression();
+    if (!result) {
+        return nullptr;
     }
     for (;;) {
         Operator::Kind op;
@@ -1904,17 +1988,17 @@ DSLExpression Parser::relationalExpression() {
             default:                   return result;
         }
         if (!this->operatorRight(depth, op, &Parser::shiftExpression, result)) {
-            return {};
+            return nullptr;
         }
     }
 }
 
 /* additiveExpression ((SHL | SHR) additiveExpression)* */
-DSLExpression Parser::shiftExpression() {
+std::unique_ptr<Expression> Parser::shiftExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->additiveExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->additiveExpression();
+    if (!result) {
+        return nullptr;
     }
     for (;;) {
         Operator::Kind op;
@@ -1924,17 +2008,17 @@ DSLExpression Parser::shiftExpression() {
             default:                  return result;
         }
         if (!this->operatorRight(depth, op, &Parser::additiveExpression, result)) {
-            return {};
+            return nullptr;
         }
     }
 }
 
 /* multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)* */
-DSLExpression Parser::additiveExpression() {
+std::unique_ptr<Expression> Parser::additiveExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->multiplicativeExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->multiplicativeExpression();
+    if (!result) {
+        return nullptr;
     }
     for (;;) {
         Operator::Kind op;
@@ -1944,17 +2028,17 @@ DSLExpression Parser::additiveExpression() {
             default:                    return result;
         }
         if (!this->operatorRight(depth, op, &Parser::multiplicativeExpression, result)) {
-            return {};
+            return nullptr;
         }
     }
 }
 
 /* unaryExpression ((STAR | SLASH | PERCENT) unaryExpression)* */
-DSLExpression Parser::multiplicativeExpression() {
+std::unique_ptr<Expression> Parser::multiplicativeExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->unaryExpression();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->unaryExpression();
+    if (!result) {
+        return nullptr;
     }
     for (;;) {
         Operator::Kind op;
@@ -1965,13 +2049,13 @@ DSLExpression Parser::multiplicativeExpression() {
             default:                      return result;
         }
         if (!this->operatorRight(depth, op, &Parser::unaryExpression, result)) {
-            return {};
+            return nullptr;
         }
     }
 }
 
 /* postfixExpression | (PLUS | MINUS | NOT | PLUSPLUS | MINUSMINUS) unaryExpression */
-DSLExpression Parser::unaryExpression() {
+std::unique_ptr<Expression> Parser::unaryExpression() {
     AutoDepth depth(this);
     Operator::Kind op;
     Token start = this->peek();
@@ -1986,23 +2070,23 @@ DSLExpression Parser::unaryExpression() {
     }
     this->nextToken();
     if (!depth.increase()) {
-        return {};
+        return nullptr;
     }
-    DSLExpression expr = this->unaryExpression();
-    if (!expr.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> expr = this->unaryExpression();
+    if (!expr) {
+        return nullptr;
     }
-    Position pos = Position::Range(start.fOffset, expr.position().endOffset());
-    return DSLExpression(PrefixExpression::Convert(fCompiler.context(),
-                                                   pos, op, expr.release()), pos);
+    Position pos = Position::Range(start.fOffset, expr->position().endOffset());
+    return this->expressionOrPoison(pos, PrefixExpression::Convert(fCompiler.context(),
+                                                                   pos, op, std::move(expr)));
 }
 
 /* term suffix* */
-DSLExpression Parser::postfixExpression() {
+std::unique_ptr<Expression> Parser::postfixExpression() {
     AutoDepth depth(this);
-    DSLExpression result = this->term();
-    if (!result.hasValue()) {
-        return {};
+    std::unique_ptr<Expression> result = this->term();
+    if (!result) {
+        return nullptr;
     }
     for (;;) {
         Token t = this->peek();
@@ -2018,11 +2102,11 @@ DSLExpression Parser::postfixExpression() {
             case Token::Kind::TK_PLUSPLUS:
             case Token::Kind::TK_MINUSMINUS: {
                 if (!depth.increase()) {
-                    return {};
+                    return nullptr;
                 }
                 result = this->suffix(std::move(result));
-                if (!result.hasValue()) {
-                    return {};
+                if (!result) {
+                    return nullptr;
                 }
                 break;
             }
@@ -2032,53 +2116,57 @@ DSLExpression Parser::postfixExpression() {
     }
 }
 
-DSLExpression Parser::swizzle(Position pos,
-                              DSLExpression base,
-                              std::string_view swizzleMask,
-                              Position maskPos) {
-    SkASSERT(swizzleMask.length() > 0);
-    if (!base.type().isVector() && !base.type().isScalar()) {
-        return DSLExpression(
-                FieldAccess::Convert(fCompiler.context(), pos, base.release(), swizzleMask),
-                pos);
+std::unique_ptr<Expression> Parser::swizzle(Position pos,
+                                            std::unique_ptr<Expression> base,
+                                            std::string_view swizzleMask,
+                                            Position maskPos) {
+    SkASSERT(!swizzleMask.empty());
+    if (!base->type().isVector() && !base->type().isScalar()) {
+        return this->expressionOrPoison(pos, FieldAccess::Convert(fCompiler.context(), pos,
+                                                                  std::move(base), swizzleMask));
+
     }
-    return DSLExpression(Swizzle::Convert(fCompiler.context(), pos, maskPos,
-                                          base.release(), swizzleMask), pos);
+    return this->expressionOrPoison(pos, Swizzle::Convert(fCompiler.context(), pos, maskPos,
+                                                          std::move(base), swizzleMask));
 }
 
-dsl::DSLExpression Parser::call(Position pos, dsl::DSLExpression base, ExpressionArray args) {
-    return DSLExpression(SkSL::FunctionCall::Convert(fCompiler.context(), pos, base.release(),
-                                                     std::move(args)), pos);
+std::unique_ptr<Expression> Parser::call(Position pos,
+                                         std::unique_ptr<Expression> base,
+                                         ExpressionArray args) {
+    return this->expressionOrPoison(pos, SkSL::FunctionCall::Convert(fCompiler.context(), pos,
+                                                                     std::move(base),
+                                                                     std::move(args)));
 }
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN arguments RPAREN |
    PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER | FLOAT_LITERAL [IDENTIFIER] */
-DSLExpression Parser::suffix(DSLExpression base) {
+std::unique_ptr<Expression> Parser::suffix(std::unique_ptr<Expression> base) {
     AutoDepth depth(this);
     Token next = this->nextToken();
     if (!depth.increase()) {
-        return {};
+        return nullptr;
     }
     switch (next.fKind) {
         case Token::Kind::TK_LBRACKET: {
             if (this->checkNext(Token::Kind::TK_RBRACKET)) {
                 this->error(this->rangeFrom(next), "missing index in '[]'");
-                return DSLExpression::Poison(this->rangeFrom(base.position()));
+                return this->poison(this->rangeFrom(base->position()));
             }
-            DSLExpression index = this->expression();
-            if (!index.hasValue()) {
-                return {};
+            std::unique_ptr<Expression> index = this->expression();
+            if (!index) {
+                return nullptr;
             }
             this->expect(Token::Kind::TK_RBRACKET, "']' to complete array access expression");
 
-            Position pos = this->rangeFrom(base.position());
-            return DSLExpression(IndexExpression::Convert(fCompiler.context(), pos,
-                                                          base.release(), index.release()), pos);
+            Position pos = this->rangeFrom(base->position());
+            return this->expressionOrPoison(pos, IndexExpression::Convert(fCompiler.context(), pos,
+                                                                          std::move(base),
+                                                                          std::move(index)));
         }
         case Token::Kind::TK_DOT: {
             std::string_view text;
             if (this->identifier(&text)) {
-                Position pos = this->rangeFrom(base.position());
+                Position pos = this->rangeFrom(base->position());
                 return this->swizzle(pos, std::move(base), text,
                                      this->rangeFrom(this->position(next).after()));
             }
@@ -2092,20 +2180,23 @@ DSLExpression Parser::suffix(DSLExpression base) {
             field.remove_prefix(1);
             // use the next *raw* token so we don't ignore whitespace - we only care about
             // identifiers that directly follow the float
-            Position pos = this->rangeFrom(base.position());
+            Position pos = this->rangeFrom(base->position());
             Position start = this->position(next);
             // skip past the "."
             start = Position::Range(start.startOffset() + 1, start.endOffset());
             Position maskPos = this->rangeFrom(start);
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
-                pos = this->rangeFrom(base.position());
+                pos = this->rangeFrom(base->position());
                 maskPos = this->rangeFrom(start);
-                return this->swizzle(pos, std::move(base), std::string(field) +
-                        std::string(this->text(id)), maskPos);
-            } else if (field.empty()) {
+                return this->swizzle(pos,
+                                     std::move(base),
+                                     std::string(field) + std::string(this->text(id)),
+                                     maskPos);
+            }
+            if (field.empty()) {
                 this->error(pos, "expected field name or swizzle mask after '.'");
-                return {{DSLExpression::Poison(pos)}};
+                return this->poison(pos);
             }
             this->pushback(id);
             return this->swizzle(pos, std::move(base), field, maskPos);
@@ -2114,18 +2205,18 @@ DSLExpression Parser::suffix(DSLExpression base) {
             ExpressionArray args;
             if (this->peek().fKind != Token::Kind::TK_RPAREN) {
                 for (;;) {
-                    DSLExpression expr = this->assignmentExpression();
-                    if (!expr.hasValue()) {
-                        return {};
+                    std::unique_ptr<Expression> expr = this->assignmentExpression();
+                    if (!expr) {
+                        return nullptr;
                     }
-                    args.push_back(expr.release());
+                    args.push_back(std::move(expr));
                     if (!this->checkNext(Token::Kind::TK_COMMA)) {
                         break;
                     }
                 }
             }
             this->expect(Token::Kind::TK_RPAREN, "')' to complete function arguments");
-            Position pos = this->rangeFrom(base.position());
+            Position pos = this->rangeFrom(base->position());
             return this->call(pos, std::move(base), std::move(args));
         }
         case Token::Kind::TK_PLUSPLUS:
@@ -2133,21 +2224,21 @@ DSLExpression Parser::suffix(DSLExpression base) {
             Operator::Kind op = (next.fKind == Token::Kind::TK_PLUSPLUS)
                                         ? Operator::Kind::PLUSPLUS
                                         : Operator::Kind::MINUSMINUS;
-            Position pos = this->rangeFrom(base.position());
-            return DSLExpression(
-                    PostfixExpression::Convert(fCompiler.context(), pos, base.release(), op),
-                    pos);
+            Position pos = this->rangeFrom(base->position());
+            return this->expressionOrPoison(pos, PostfixExpression::Convert(fCompiler.context(),
+                                                                            pos, std::move(base),
+                                                                            op));
         }
         default: {
             this->error(next, "expected expression suffix, but found '" +
                               std::string(this->text(next)) + "'");
-            return {};
+            return nullptr;
         }
     }
 }
 
 /* IDENTIFIER | intLiteral | floatLiteral | boolLiteral | '(' expression ')' */
-DSLExpression Parser::term() {
+std::unique_ptr<Expression> Parser::term() {
     AutoDepth depth(this);
     Token t = this->peek();
     switch (t.fKind) {
@@ -2155,7 +2246,7 @@ DSLExpression Parser::term() {
             std::string_view text;
             if (this->identifier(&text)) {
                 Position pos = this->position(t);
-                return DSLExpression(fCompiler.convertIdentifier(pos, text), pos);
+                return this->expressionOrPoison(pos, fCompiler.convertIdentifier(pos, text));
             }
             break;
         }
@@ -2165,7 +2256,8 @@ DSLExpression Parser::term() {
                 i = 0;
             }
             Position pos = this->position(t);
-            return DSLExpression(SkSL::Literal::MakeInt(fCompiler.context(), pos, i), pos);
+            return this->expressionOrPoison(pos, SkSL::Literal::MakeInt(fCompiler.context(),
+                                                                        pos, i));
         }
         case Token::Kind::TK_FLOAT_LITERAL: {
             SKSL_FLOAT f;
@@ -2173,24 +2265,26 @@ DSLExpression Parser::term() {
                 f = 0.0f;
             }
             Position pos = this->position(t);
-            return DSLExpression(SkSL::Literal::MakeFloat(fCompiler.context(), pos, f), pos);
+            return this->expressionOrPoison(pos, SkSL::Literal::MakeFloat(fCompiler.context(),
+                                                                          pos, f));
         }
         case Token::Kind::TK_TRUE_LITERAL: // fall through
         case Token::Kind::TK_FALSE_LITERAL: {
             bool b;
             SkAssertResult(this->boolLiteral(&b));
             Position pos = this->position(t);
-            return DSLExpression(SkSL::Literal::MakeBool(fCompiler.context(), pos, b), pos);
+            return this->expressionOrPoison(pos, SkSL::Literal::MakeBool(fCompiler.context(),
+                                                                         pos, b));
         }
         case Token::Kind::TK_LPAREN: {
             this->nextToken();
             if (!depth.increase()) {
-                return {};
+                return nullptr;
             }
-            DSLExpression result = this->expression();
-            if (result.hasValue()) {
+            std::unique_ptr<Expression> result = this->expression();
+            if (result != nullptr) {
                 this->expect(Token::Kind::TK_RPAREN, "')' to complete expression");
-                result.setPosition(this->rangeFrom(this->position(t)));
+                result->setPosition(this->rangeFrom(this->position(t)));
                 return result;
             }
             break;
@@ -2201,7 +2295,7 @@ DSLExpression Parser::term() {
             fEncounteredFatalError = true;
             break;
     }
-    return {};
+    return nullptr;
 }
 
 /* INT_LITERAL */

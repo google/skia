@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -11,6 +11,10 @@ skia_filegroup(
         "SkImageGanesh.h",
         "SkMeshGanesh.h",
         "SkSurfaceGanesh.h",
-    ],
+    ] + select_multi(
+        {
+            "//src/gpu:gl_ganesh": ["//include/gpu/ganesh/gl:public_hdrs"],
+        },
+    ),
     visibility = ["//include/gpu:__pkg__"],
 )

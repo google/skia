@@ -37,13 +37,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("xfermodeimagefilter");
-    }
+    SkString getName() const override { return SkString("xfermodeimagefilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onOnceBeforeDraw() override {
         fBitmap = ToolUtils::create_string_bitmap(80, 80, 0xD000D000, 15, 65, 96, "e");

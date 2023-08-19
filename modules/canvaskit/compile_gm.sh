@@ -57,7 +57,7 @@ GM_LIB="$BUILD_DIR/libgm_wasm.a"
 GN_FONT="skia_enable_fontmgr_custom_directory=false "
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 # Generate the font's binary file (which is covered by .gitignore)
-python tools/embed_resources.py \
+python3 tools/embed_resources.py \
       --name SK_EMBEDDED_FONTS \
       --input $BASE_DIR/fonts/NotoMono-Regular.ttf \
       --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
@@ -189,11 +189,12 @@ GLOBIGNORE+="tests/BackendAllocationTest.cpp:"\
 # All the tests in these files crash.
 GLOBIGNORE+="tests/GrThreadSafeCacheTest.cpp"
 
-# These are not tests
+# Bazel-related ignores (test runners, incompatible GMs, etc.).
 GLOBIGNORE+="tests/BazelNoopRunner.cpp:"\
 "tests/BazelTestRunner.cpp:"\
 "gm/BazelGMRunner.cpp:"\
-"gm/BazelNoopRunner.cpp"
+"gm/BazelNoopRunner.cpp:"\
+"gm/png_codec.cpp"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
@@ -220,7 +221,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     $BUILD_DIR/libsvg.a \
     $BUILD_DIR/libskia.a \
     $BUILTIN_FONT \
-    -sLLD_REPORT_UNDEFINED \
     -sALLOW_MEMORY_GROWTH=1 \
     -sEXPORT_NAME="InitWasmGMTests" \
     -sEXPORTED_FUNCTIONS=['_malloc','_free'] \

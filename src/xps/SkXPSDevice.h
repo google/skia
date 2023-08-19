@@ -166,7 +166,7 @@ private:
         IXpsOMBrush** xpsBrush);
 
     HRESULT createXpsImageBrush(
-        const SkBitmap& bitmap,
+        const SkPixmap& bitmap,
         const SkMatrix& localMatrix,
         const SkTileMode (&xy)[2],
         const SkAlpha alpha,

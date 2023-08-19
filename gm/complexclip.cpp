@@ -43,7 +43,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString str;
         str.printf("complexclip_%s%s%s",
                    fDoAAClip ? "aa" : "bw",
@@ -52,7 +52,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override { return SkISize::Make(388, 780); }
+    SkISize getISize() override { return SkISize::Make(388, 780); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath path = SkPathBuilder()

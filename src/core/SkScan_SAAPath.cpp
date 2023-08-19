@@ -434,24 +434,20 @@ private:
 #endif
     };
 
-    SkMask      fMask;
-    SkIRect     fClipRect;
+    SkMaskBuilder fMask;
+    SkIRect fClipRect;
     // we add 1 because add_aa_span can write (unchanged) 1 extra byte at the end, rather than
     // perform a test to see if stopAlpha != 0
-    uint32_t    fStorage[(kMAX_STORAGE >> 2) + 1];
+    uint32_t fStorage[(kMAX_STORAGE >> 2) + 1];
 };
 
 MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
                                    const SkIRect& clipBounds, bool isInverse)
     : BaseSuperBlitter(realBlitter, ir, clipBounds, isInverse)
+    , fMask((uint8_t*)fStorage, ir, ir.width(), SkMask::kA8_Format)
 {
     SkASSERT(CanHandleRect(ir));
     SkASSERT(!isInverse);
-
-    fMask.fImage    = (uint8_t*)fStorage;
-    fMask.fBounds   = ir;
-    fMask.fRowBytes = ir.width();
-    fMask.fFormat   = SkMask::kA8_Format;
 
     fClipRect = ir;
     if (!fClipRect.intersect(clipBounds)) {
@@ -561,7 +557,7 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
         x = 0;
     }
 
-    uint8_t* row = fMask.fImage + iy * fMask.fRowBytes + (x >> SHIFT);
+    uint8_t* row = fMask.image() + iy * fMask.fRowBytes + (x >> SHIFT);
 
     int start = x;
     int stop = x + width;

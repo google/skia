@@ -42,7 +42,6 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkOSFile.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkPictureData.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRecordDraw.h"
@@ -121,6 +120,11 @@ GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
 Result GMSrc::draw(SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
+    if (gm->isBazelOnly()) {
+        // We skip Bazel-only GMs because they might overlap with existing DM functionality. See
+        // comments in the skiagm::GM::isBazelOnly function declaration for context.
+        return Result(Result::Status::Skip, SkString("Bazel-only GM"));
+    }
     SkString msg;
 
     skiagm::DrawResult gpuSetupResult = gm->gpuSetup(canvas, &msg);
@@ -2106,7 +2110,9 @@ Result GraphiteSink::draw(const Src& src,
     dst->allocPixels(ii);
 
     {
-        sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), ii);
+        SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
+        sk_sp<SkSurface> surface =
+                SkSurfaces::RenderTarget(recorder.get(), ii, skgpu::Mipmapped::kNo, &props);
         if (!surface) {
             return Result::Fatal("Could not create a surface.");
         }

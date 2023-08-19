@@ -15,7 +15,6 @@
 #include "include/private/base/SkTPin.h"
 
 #include "src/base/SkMathPriv.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"

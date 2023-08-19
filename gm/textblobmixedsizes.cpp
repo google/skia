@@ -93,14 +93,12 @@ protected:
         fBlob = builder.make();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("textblobmixedsizes%s",
                               fUseDFT ? "_df" : "");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* inputCanvas) override {
         SkCanvas* canvas = inputCanvas;
@@ -108,7 +106,7 @@ protected:
         if (fUseDFT) {
             // Create a new Canvas to enable DFT
             auto ctx = inputCanvas->recordingContext();
-            SkISize size = onISize();
+            SkISize size = getISize();
             sk_sp<SkColorSpace> colorSpace = inputCanvas->imageInfo().refColorSpace();
             SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),
                                                     kPremul_SkAlphaType, colorSpace);

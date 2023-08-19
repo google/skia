@@ -44,10 +44,10 @@ skia_filegroup(
         "GrTypesPriv.h",
     ] + select_multi(
         {
-            "//src/gpu:dawn_backend": [":dawn_private_hdrs"],
-            "//src/gpu:gl_backend": [":gl_private_hdrs"],
-            "//src/gpu:vulkan_backend": [":vk_private_hdrs"],
-            "//src/gpu:metal_backend": [":mtl_private_hdrs"],
+            "//src/gpu:dawn_ganesh": [":dawn_private_hdrs"],
+            "//src/gpu:gl_ganesh": [":gl_private_hdrs"],
+            "//src/gpu:vulkan_ganesh": [":vk_private_hdrs"],
+            "//src/gpu:metal_ganesh": [":mtl_private_hdrs"],
             # TODO(kjlubick) Direct3D Backend
         },
     ),

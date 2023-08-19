@@ -23,6 +23,7 @@ struct DisplayParams {
         , fDisableVsync(false)
         , fDelayDrawableAcquisition(false)
         , fEnableBinaryArchive(false)
+        , fCreateProtectedNativeBackend(false)
     {}
 
     SkColorType         fColorType;
@@ -33,6 +34,7 @@ struct DisplayParams {
     bool                fDisableVsync;
     bool                fDelayDrawableAcquisition;
     bool                fEnableBinaryArchive;
+    bool                fCreateProtectedNativeBackend = false;
 };
 
 }  // namespace skwindow

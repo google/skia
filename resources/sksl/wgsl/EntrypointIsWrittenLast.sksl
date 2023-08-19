@@ -1,0 +1,31 @@
+// This is a copy of FunctionPrototype.sksl, but with `noinline` applied to all functions.
+
+layout (binding=0) uniform Uniforms {
+    layout (offset=0) half4 colorGreen;
+};
+
+noinline float this_function_is_prototyped_at_the_start_and_never_defined();
+noinline half4 this_function_is_defined_before_use(half4 x);
+noinline half4 this_function_is_defined_after_use(half4 x);
+noinline half4 this_function_is_defined_near_the_end(half4 x);
+half4 main(float2 coords); // prototyping main is allowed (although not particularly useful)
+
+noinline half4 this_function_is_defined_before_use(half4 x) {
+    return -this_function_is_defined_near_the_end(x);
+}
+
+noinline bool this_function_is_prototyped_in_the_middle_and_never_defined(float4x4 a);
+
+half4 main(float2 coords) {
+    return this_function_is_defined_after_use(colorGreen);
+}
+
+noinline half4 this_function_is_defined_after_use(half4 x) {
+    return this_function_is_defined_before_use(-x);
+}
+
+noinline half4 this_function_is_defined_near_the_end(half4 x) {
+    return x;
+}
+
+noinline int3 this_function_is_prototyped_at_the_very_end_and_never_defined(half2x2 x, bool2 y);

@@ -77,7 +77,7 @@ bool MtlCaps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFam
     // TODO: support tvOS
    *gpuFamily = GPUFamily::kApple;
     // iOS 12
-    if (@available(iOS 12.0, *)) {
+    if (@available(iOS 12.0, tvOS 12.0, *)) {
         if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily5_v1]) {
             *group = 5;
             return true;
@@ -100,7 +100,7 @@ bool MtlCaps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFam
         }
     }
     // iOS 11
-    if (@available(iOS 11.0, *)) {
+    if (@available(iOS 11.0, tvOS 11.0, *)) {
         if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily4_v1]) {
             *group = 4;
             return true;
@@ -119,7 +119,7 @@ bool MtlCaps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFam
         }
     }
     // iOS 10
-    if (@available(iOS 10.0, *)) {
+    if (@available(iOS 10.0, tvOS 10.0, *)) {
         if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v2]) {
             *group = 3;
             return true;
@@ -255,7 +255,7 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 
     fComputeSupport = true;
 
-    if (@available(macOS 10.12, ios 14.0, *)) {
+    if (@available(macOS 10.12, iOS 14.0, tvOS 14.0, *)) {
         fClampToBorderSupport = (this->isMac() || fFamilyGroup >= 7);
     } else {
         fClampToBorderSupport = false;
@@ -263,7 +263,7 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fColorSampleCounts.push_back(1);
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         for (auto sampleCnt : {2, 4, 8}) {
             if ([device supportsTextureSampleCount:sampleCnt]) {
                 fColorSampleCounts.push_back(sampleCnt);
@@ -276,7 +276,7 @@ void MtlCaps::initShaderCaps() {
     SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
 
     // Dual source blending requires Metal 1.2.
-    if (@available(macOS 10.12, iOS 10.0, *)) {
+    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
         shaderCaps->fDualSourceBlendingSupport = true;
     }
 
@@ -382,7 +382,7 @@ size_t MtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
 void MtlCaps::initFormatTable() {
     FormatInfo* info;
 
-    if (@available(macOS 11.0, iOS 8.0, *)) {
+    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
         if (this->isApple()) {
             SkASSERT(kMTLPixelFormatB5G6R5Unorm == MTLPixelFormatB5G6R5Unorm);
             SkASSERT(kMTLPixelFormatABGR4Unorm == MTLPixelFormatABGR4Unorm);
@@ -471,7 +471,7 @@ void MtlCaps::initFormatTable() {
         }
     }
 
-    if (@available(macOS 11.0, iOS 8.0, *)) {
+    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
         if (this->isApple()) {
             // Format: B5G6R5Unorm
             {
@@ -707,7 +707,7 @@ void MtlCaps::initFormatTable() {
 
     this->setColorType(kAlpha_8_SkColorType,          { MTLPixelFormatR8Unorm,
                                                         MTLPixelFormatA8Unorm });
-    if (@available(macOS 11.0, iOS 8.0, *)) {
+    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
         if (this->isApple()) {
             this->setColorType(kRGB_565_SkColorType,   {MTLPixelFormatB5G6R5Unorm});
             this->setColorType(kARGB_4444_SkColorType, { MTLPixelFormatABGR4Unorm });
@@ -762,10 +762,26 @@ TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     return info;
 }
 
+TextureInfo MtlCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                  Mipmapped mipmapped) const {
+    MtlTextureInfo info;
+    if (!textureInfo.getMtlTextureInfo(&info)) {
+        return {};
+    }
+
+    info.fSampleCount = 1;
+    info.fMipmapped = mipmapped;
+    info.fUsage = MTLTextureUsageShaderRead;
+    info.fStorageMode = MTLStorageModePrivate;
+    info.fFramebufferOnly = false;
+
+    return info;
+}
+
 MTLStorageMode MtlCaps::getDefaultMSAAStorageMode(Discardable discardable) const {
     // Try to use memoryless if it's available (only on new Apple silicon)
     if (discardable == Discardable::kYes && this->isApple()) {
-        if (@available(macOS 11.0, iOS 10.0, *)) {
+        if (@available(macOS 11.0, iOS 10.0, tvOS 10.0, *)) {
             return MTLStorageModeMemoryless;
         }
     }

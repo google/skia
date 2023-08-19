@@ -135,35 +135,17 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(SkSL::ProgramKind k
                                                              const SkSL::ProgramSettings& settings,
                                                              SkSL::Program::Interface* outInterface,
                                                              std::string* outHLSL) {
-#ifdef SK_DEBUG
-    std::string src = SkShaderUtils::PrettyPrint(sksl);
-#else
-    const std::string& src = sksl;
-#endif
-
-    std::unique_ptr<SkSL::Program> program = fGpu->shaderCompiler()->convertProgram(
-            kind, src, settings);
-    if (!program || !fGpu->shaderCompiler()->toHLSL(*program, outHLSL)) {
-        auto errorHandler = fGpu->getContext()->priv().getShaderErrorHandler();
-        errorHandler->compileError(src.c_str(),
-                                   fGpu->shaderCompiler()->errorText().c_str());
+    if (!skgpu::SkSLToHLSL(this->shaderCompiler(),
+                           sksl,
+                           kind,
+                           settings,
+                           outHLSL,
+                           outInterface,
+                           fGpu->getContext()->priv().getShaderErrorHandler())) {
         return gr_cp<ID3DBlob>();
     }
-    *outInterface = program->fInterface;
 
-    if (skgpu::gPrintSKSL || skgpu::gPrintBackendSL) {
-        SkShaderUtils::PrintShaderBanner(kind);
-        if (skgpu::gPrintSKSL) {
-            SkDebugf("SKSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
-        }
-        if (skgpu::gPrintBackendSL) {
-            SkDebugf("HLSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*outHLSL));
-        }
-    }
-
-    if (program->fInterface.fUseFlipRTUniform) {
+    if (outInterface->fUseFlipRTUniform) {
         this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }
 

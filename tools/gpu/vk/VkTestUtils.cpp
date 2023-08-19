@@ -497,6 +497,8 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
                                 isProtected)) {
         return false;
     }
+
+    SkASSERT(skgpuCtx.fProtectedContext == skgpu::Protected(isProtected));
     ctx->fInstance = skgpuCtx.fInstance;
     ctx->fPhysicalDevice = skgpuCtx.fPhysicalDevice;
     ctx->fDevice = skgpuCtx.fDevice;
@@ -507,9 +509,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     ctx->fDeviceFeatures2 = skgpuCtx.fDeviceFeatures2;
     ctx->fGetProc = skgpuCtx.fGetProc;
     ctx->fOwnsInstanceAndDevice = false;
-    ctx->fProtectedContext =
-            skgpuCtx.fProtectedContext == skgpu::Protected::kYes ? skgpu::Protected::kYes
-                                                                 : skgpu::Protected::kNo;
+    ctx->fProtectedContext = skgpuCtx.fProtectedContext;
     return true;
 }
 
@@ -892,7 +892,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     ctx->fVkExtensions = extensions;
     ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;
-    ctx->fProtectedContext = isProtected ? skgpu::Protected::kYes : skgpu::Protected::kNo;
+    ctx->fProtectedContext = skgpu::Protected(isProtected);
 
     return true;
 }

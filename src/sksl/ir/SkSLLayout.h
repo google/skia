@@ -40,10 +40,22 @@ enum class LayoutFlag : int {
     // These flags indicate the backend type; only one at most can be set.
     kSPIRV                      = 1 << 13,
     kMetal                      = 1 << 14,
-    kGL                         = 1 << 15,
-    kWGSL                       = 1 << 16,
+    kWGSL                       = 1 << 15,
 
-    kAllBackends                = kSPIRV | kMetal | kGL | kWGSL,
+    kAllBackends                = kSPIRV | kMetal | kWGSL,
+
+    // These flags indicate the pixel format; only one at most can be set.
+    // (https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Image_formats)
+    kRGBA8                      = 1 << 16,
+    kRGBA32F                    = 1 << 17,
+    kR32F                       = 1 << 18,
+
+    kAllPixelFormats            = kRGBA8 | kRGBA32F | kR32F,
+
+    // The local invocation size of a compute program.
+    kLocalSizeX                 = 1 << 19,
+    kLocalSizeY                 = 1 << 20,
+    kLocalSizeZ                 = 1 << 21,
 };
 
 }  // namespace SkSL
@@ -110,6 +122,11 @@ struct Layout {
     // input_attachment_index comes from Vulkan/SPIR-V to connect a shader variable to the a
     // corresponding attachment on the subpass in which the shader is being used.
     int fInputAttachmentIndex = -1;
+
+    // The local invocation size dimensions of a compute program.
+    int fLocalSizeX = -1;
+    int fLocalSizeY = -1;
+    int fLocalSizeZ = -1;
 };
 
 }  // namespace SkSL

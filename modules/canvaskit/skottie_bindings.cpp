@@ -153,16 +153,18 @@ public:
         static constexpr char kInterceptPrefix[] = "__";
         auto pinterceptor =
             sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(rp, kInterceptPrefix);
-        auto animation = skottie::Animation::Builder()
-                            .setMarkerObserver(mgr->getMarkerObserver())
-                            .setPropertyObserver(mgr->getPropertyObserver())
-                            .setResourceProvider(std::move(rp))
-                            .setPrecompInterceptor(std::move(pinterceptor))
-                            .setLogger(JSLogger::Make(std::move(logger)))
-                            .make(json.c_str(), json.size());
+        skottie::Animation::Builder builder;
+        builder.setMarkerObserver(mgr->getMarkerObserver())
+               .setPropertyObserver(mgr->getPropertyObserver())
+               .setResourceProvider(rp)
+               .setPrecompInterceptor(std::move(pinterceptor))
+               .setLogger(JSLogger::Make(std::move(logger)));
+        auto animation = builder.make(json.c_str(), json.size());
+        auto slotManager = builder.getSlotManager();
 
         return animation
-            ? sk_sp<ManagedAnimation>(new ManagedAnimation(std::move(animation), std::move(mgr)))
+            ? sk_sp<ManagedAnimation>(new ManagedAnimation(std::move(animation), std::move(mgr),
+                                                           std::move(slotManager), std::move(rp)))
             : nullptr;
     }
 
@@ -302,15 +304,69 @@ public:
         return markers;
     }
 
+    // Slot Manager API
+    void getColorSlot(const std::string& slotID, WASMPointerF32 outPtr) {
+        SkColor4f c4f;
+        if (auto c = fSlotMgr->getColorSlot(SkString(slotID))) {
+            c4f = SkColor4f::FromColor(*c);
+        } else {
+            c4f = {-1, -1, -1, -1};
+        }
+        memcpy(reinterpret_cast<float*>(outPtr), &c4f, 4 * sizeof(float));
+    }
+
+    emscripten::val getScalarSlot(const std::string& slotID) {
+        if (auto s = fSlotMgr->getScalarSlot(SkString(slotID))) {
+           return emscripten::val(*s);
+        }
+        return emscripten::val::null();
+    }
+
+    void getVec2Slot(const std::string& slotID, WASMPointerF32 outPtr) {
+        // [x, y, sentinel]
+        SkV3 vec3;
+        if (auto v = fSlotMgr->getVec2Slot(SkString(slotID))) {
+            vec3 = {v->x, v->y, 1};
+        } else {
+            vec3 = {0, 0, -1};
+        }
+        memcpy(reinterpret_cast<float*>(outPtr), vec3.ptr(), 3 * sizeof(float));
+    }
+
+    bool setImageSlot(const std::string& slotID, const std::string& assetName) {
+        // look for resource in preloaded SkottieAssetProvider
+        return fSlotMgr->setImageSlot(SkString(slotID), fResourceProvider->loadImageAsset(nullptr,
+                                                                            assetName.data(),
+                                                                            nullptr));
+    }
+
+    bool setColorSlot(const std::string& slotID, SkColor c) {
+        return fSlotMgr->setColorSlot(SkString(slotID), c);
+    }
+
+    bool setScalarSlot(const std::string& slotID, float s) {
+        return fSlotMgr->setScalarSlot(SkString(slotID), s);
+    }
+
+    bool setVec2Slot(const std::string& slotID, SkV2 v) {
+        return fSlotMgr->setVec2Slot(SkString(slotID), v);
+    }
+
 private:
     ManagedAnimation(sk_sp<skottie::Animation> animation,
-                     std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr)
+                     std::unique_ptr<skottie_utils::CustomPropertyManager> propMgr,
+                     sk_sp<skottie::SlotManager> slotMgr,
+                     sk_sp<skresources::ResourceProvider> rp)
         : fAnimation(std::move(animation))
         , fPropMgr(std::move(propMgr))
+        , fSlotMgr(std::move(slotMgr))
+        , fResourceProvider(std::move(rp))
     {}
 
     const sk_sp<skottie::Animation>                             fAnimation;
     const std::unique_ptr<skottie_utils::CustomPropertyManager> fPropMgr;
+    const sk_sp<skottie::SlotManager>                           fSlotMgr;
+    const sk_sp<skresources::ResourceProvider>                  fResourceProvider;
 };
 
 } // anonymous ns
@@ -392,7 +448,21 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("setOpacity"       , &ManagedAnimation::setOpacity)
         .function("getTextProps"     , &ManagedAnimation::getTextProps)
         .function("setText"          , &ManagedAnimation::setText)
-        .function("getTransformProps", &ManagedAnimation::getTransformProps);
+        .function("getTransformProps", &ManagedAnimation::getTransformProps)
+        .function("_getColorSlot"    , &ManagedAnimation::getColorSlot)
+        .function("_setColorSlot"    , optional_override([](ManagedAnimation& self, const std::string& key, WASMPointerF32 cPtr) {
+            SkColor4f color = ptrToSkColor4f(cPtr);
+            return self.setColorSlot(key, color.toSkColor());
+        }))
+        .function("_getVec2Slot"    , &ManagedAnimation::getVec2Slot)
+        .function("_setVec2Slot"    , optional_override([](ManagedAnimation& self, const std::string& key, WASMPointerF32 vPtr) {
+            float* twoFloats = reinterpret_cast<float*>(vPtr);
+            SkV2 vec2 = {twoFloats[0], twoFloats[1]};
+            return self.setVec2Slot(key, vec2);
+        }))
+        .function("getScalarSlot"    , &ManagedAnimation::getScalarSlot)
+        .function("setScalarSlot"    , &ManagedAnimation::setScalarSlot)
+        .function("setImageSlot"     , &ManagedAnimation::setImageSlot);
 
     function("_MakeManagedAnimation", optional_override([](std::string json,
                                                            size_t assetCount,

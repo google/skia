@@ -35,7 +35,7 @@ fn check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3i4(_skParam0: vec2<f32>, _skParam1: 
     return (((((((((((((((((f32(v1.x) + f32(v2.x)) + f32(v3.x)) + f32(v4.x)) + f32(v5.x)) + f32(v6.x)) + f32(v7.x)) + f32(v8.x)) + f32(v9.x)) + f32(v10.x)) + f32(v11.x)) + f32(v12.x)) + f32(v13.x)) + f32(v14.x)) + f32(v15.x)) + f32(v16.x)) + f32(v17.x)) + f32(v18.x)) == 18.0;
   }
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var v1: vec2<f32> = vec2<f32>(1.0);
@@ -66,8 +66,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return _skTemp0;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

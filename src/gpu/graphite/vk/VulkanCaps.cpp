@@ -12,9 +12,13 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
+#include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
+#include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -49,8 +53,8 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
     // give the minimum max size across all configs. So for simplicity we will use that for now.
     fMaxTextureSize = std::min(physDevProperties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
 
-    fRequiredUniformBufferAlignment = 256;
-    fRequiredStorageBufferAlignment = 1;
+    fRequiredUniformBufferAlignment = physDevProperties.limits.minUniformBufferOffsetAlignment;
+    fRequiredStorageBufferAlignment =  physDevProperties.limits.minStorageBufferOffsetAlignment;
     fRequiredTransferBufferAlignment = 4;
 
     fResourceBindingReqs.fUniformBufferLayout = Layout::kStd140;
@@ -100,6 +104,7 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
     } else {
         fMaxVertexAttributes = physDevProperties.limits.maxVertexInputAttributes;
     }
+    fMaxUniformBufferRange = physDevProperties.limits.maxUniformBufferRange;
     // TODO: Add support for using regular uniform buffers or push constants to store intrinsic
     // constant information. For now, require inline uniform support.
     fSupportsInlineUniformBlocks =
@@ -188,6 +193,24 @@ TextureInfo VulkanCaps::getDefaultSampledTextureInfo(SkColorType ct,
     }
     info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    return info;
+}
+
+TextureInfo VulkanCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                     Mipmapped mipmapped) const {
+    VulkanTextureInfo info;
+    if (!textureInfo.getVulkanTextureInfo(&info)) {
+        return {};
+    }
+
+    info.fSampleCount = 1;
+    info.fMipmapped = mipmapped;
+    info.fFlags = 0;
+    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                            VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     return info;
 }
@@ -1190,13 +1213,13 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     // Confirm all the below parts of the key can fit in a single uint32_t. The sum of the shift
     // amounts in the asserts must be less than or equal to 32. vkSpec.fFlags will go into its
     // own 32-bit block.
-    SkASSERT(samplesKey < (1u << 3));
-    SkASSERT(static_cast<uint32_t>(isMipped) < (1u << 1));
-    SkASSERT(static_cast<uint32_t>(isProtected) < (1u << 1));
-    SkASSERT(vkSpec.fImageTiling < (1u << 1));
-    SkASSERT(vkSpec.fImageUsageFlags < (1u << 5));
-    SkASSERT(vkSpec.fSharingMode < (1u << 1));
-    SkASSERT(vkSpec.fAspectMask < (1u << 11));
+    SkASSERT(samplesKey                         < (1u << 3));  // sample key is first 3 bits
+    SkASSERT(static_cast<uint32_t>(isMipped)    < (1u << 1));  // isMapped is 4th bit
+    SkASSERT(static_cast<uint32_t>(isProtected) < (1u << 1));  // isProtected is 5th bit
+    SkASSERT(vkSpec.fImageTiling                < (1u << 1));  // imageTiling is 6th bit
+    SkASSERT(vkSpec.fSharingMode                < (1u << 1));  // sharingMode is 7th bit
+    SkASSERT(vkSpec.fAspectMask                 < (1u << 11)); // aspectMask is bits 8 - 19
+    SkASSERT(vkSpec.fImageUsageFlags            < (1u << 12)); // imageUsageFlags are bits 20-32
 
     // We need two uint32_ts for dimensions, 1 for format, and 2 for the rest of the key.
     static int kNum32DataCnt = 2 + 1 + 2;
@@ -1207,13 +1230,13 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     builder[1] = dimensions.height();
     builder[2] = formatKey;
     builder[3] = (static_cast<uint32_t>(vkSpec.fFlags));
-    builder[4] = (samplesKey << 0) |
-                 (static_cast<uint32_t>(isMipped) << 3) |
-                 (static_cast<uint32_t>(isProtected) << 4) |
-                 (static_cast<uint32_t>(vkSpec.fImageTiling) << 5) |
-                 (static_cast<uint32_t>(vkSpec.fImageUsageFlags) << 10) |
-                 (static_cast<uint32_t>(vkSpec.fSharingMode) << 11) |
-                 (static_cast<uint32_t>(vkSpec.fAspectMask) << 12);
+    builder[4] = (samplesKey                                         << 0)  |
+                 (static_cast<uint32_t>(isMipped)                    << 3)  |
+                 (static_cast<uint32_t>(isProtected)                 << 4)  |
+                 (static_cast<uint32_t>(vkSpec.fImageTiling)         << 5)  |
+                 (static_cast<uint32_t>(vkSpec.fSharingMode)         << 6)  |
+                 (static_cast<uint32_t>(vkSpec.fAspectMask)          << 7)  |
+                 (static_cast<uint32_t>(vkSpec.fImageUsageFlags)     << 19);
 }
 
 uint64_t VulkanCaps::getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const {

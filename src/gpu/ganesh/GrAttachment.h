@@ -11,6 +11,7 @@
 #include "src/core/SkClipStack.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
+class GrCaps;
 class GrRenderTarget;
 
 /**

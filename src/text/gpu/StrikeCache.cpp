@@ -6,10 +6,20 @@
  */
 #include "src/text/gpu/StrikeCache.h"
 
+#include "include/private/base/SkAssert.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkGlyph.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/Glyph.h"
+
+#include <optional>
+#include <utility>
+
+class SkStrike;
 
 namespace sktext::gpu {
 
@@ -62,3 +72,29 @@ uint32_t TextStrike::HashTraits::Hash(SkPackedGlyphID key) {
 }
 
 }  // namespace sktext::gpu
+
+namespace sktext {
+std::optional<SkStrikePromise> SkStrikePromise::MakeFromBuffer(
+        SkReadBuffer& buffer, const SkStrikeClient* client, SkStrikeCache* strikeCache) {
+    std::optional<SkAutoDescriptor> descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
+    if (!buffer.validate(descriptor.has_value())) {
+        return std::nullopt;
+    }
+
+    // If there is a client, then this from a different process. Translate the SkTypefaceID from
+    // the strike server (Renderer) process to strike client (GPU) process.
+    if (client != nullptr) {
+        if (!client->translateTypefaceID(&descriptor.value())) {
+            return std::nullopt;
+        }
+    }
+
+    sk_sp<SkStrike> strike = strikeCache->findStrike(*descriptor->getDesc());
+    SkASSERT(strike != nullptr);
+    if (!buffer.validate(strike != nullptr)) {
+        return std::nullopt;
+    }
+
+    return SkStrikePromise{std::move(strike)};
+}
+}  // namespace sktext

@@ -731,13 +731,15 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPictureShader
     } else {
         const int msaaSampleCount = 0;
         const bool createWithMips = false;
+        const bool kUnprotected = false;
         auto image = info.makeImage(SkSurfaces::RenderTarget(ctx,
                                                              skgpu::Budgeted::kYes,
                                                              info.imageInfo,
                                                              msaaSampleCount,
                                                              kTopLeft_GrSurfaceOrigin,
                                                              &info.props,
-                                                             createWithMips),
+                                                             createWithMips,
+                                                             kUnprotected),
                                     shader->picture().get());
         if (!image) {
             return nullptr;
@@ -1006,9 +1008,15 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkSweepGradie
         "uniform int useAtanWorkaround;"  // specialized
 
         "half4 main(float2 coord) {"
-            "half angle = bool(useAtanWorkaround)"
-                    "? half(2 * atan(-coord.y, length(coord) - coord.x))"
-                    ": half(atan(-coord.y, -coord.x));"
+            "half angle;"
+            "if (bool(useAtanWorkaround)) {"
+                "angle = half(2 * atan(-coord.y, length(coord) - coord.x));"
+            "} else {"
+                // Hardcode pi/2 for the angle when x == 0, to avoid undefined behavior in this
+                // case. This hasn't proven to be necessary in the atan workaround case.
+                "angle = (coord.x != 0) ? half(atan(-coord.y, -coord.x)) :"
+                                        " sign(coord.y) * -1.5707963267949;"
+            "}"
 
             // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
             "half t = (angle * 0.1591549430918 + 0.5 + bias) * scale;"

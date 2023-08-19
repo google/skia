@@ -182,14 +182,11 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("lazytiling_%s", fOrigin == kTopLeft_GrSurfaceOrigin ? "tl" : "bl");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(kTotalWidth, kTotalHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kTotalWidth, kTotalHeight); }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
         auto dContext = GrAsDirectContext(canvas->recordingContext());

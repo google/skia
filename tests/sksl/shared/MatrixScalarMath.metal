@@ -23,7 +23,7 @@ bool test_bifffff22(Uniforms _uniforms, int op, float m11, float m12, float m21,
     float2x2 m2 = float2x2(float2(m11 * one, m12 * one), float2(m21 * one, m22 * one));
     switch (op) {
         case 1:
-            m2 += (float2x2(1.0, 1.0, 1.0, 1.0) * 1.0);
+            m2 = (float2x2(1.0, 1.0, 1.0, 1.0) * 1.0) + m2;
             break;
         case 2:
             m2 -= (float2x2(1.0, 1.0, 1.0, 1.0) * 1.0);
@@ -32,7 +32,7 @@ bool test_bifffff22(Uniforms _uniforms, int op, float m11, float m12, float m21,
             m2 *= 2.0;
             break;
         case 4:
-            m2 *= 0.5;
+            m2 = m2 * 0.5;
             break;
     }
     return ((m2[0].x == expected[0].x && m2[0].y == expected[0].y) && m2[1].x == expected[1].x) && m2[1].y == expected[1].y;
@@ -55,7 +55,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float _1_one = float(_uniforms.colorRed.x);
     float2x2 _2_m2 = float2x2(float2(f1 * _1_one, f2 * _1_one), float2(f3 * _1_one, f4 * _1_one));
     {
-        _2_m2 += (float2x2(1.0, 1.0, 1.0, 1.0) * 1.0);
+        _2_m2 = (float2x2(1.0, 1.0, 1.0, 1.0) * 1.0) + _2_m2;
     }
     _out.sk_FragColor = ((((((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y) && test_bifffff22(_uniforms, minus, f1, f2, f3, f4, float2x2(float2(f1 - 1.0, f2 - 1.0), float2(f3 - 1.0, f4 - 1.0)))) && test_bifffff22(_uniforms, star, f1, f2, f3, f4, float2x2(float2(f1 * 2.0, f2 * 2.0), float2(f3 * 2.0, f4 * 2.0)))) && test_bifffff22(_uniforms, slash, f1, f2, f3, f4, float2x2(float2(f1 * 0.5, f2 * 0.5), float2(f3 * 0.5, f4 * 0.5)))) && divisionTest_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;

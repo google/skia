@@ -47,10 +47,9 @@ class ConvexPathsGM : public skiagm::GM {
 
     void onOnceBeforeDraw() override { this->setBGColor(0xFF000000); }
 
-    SkString onShortName() override { return SkString("convexpaths"); }
+    SkString getName() const override { return SkString("convexpaths"); }
 
-
-    SkISize onISize() override { return {1200, 1100}; }
+    SkISize getISize() override { return {1200, 1100}; }
 
     void makePaths() {
         if (fOnce.alreadyDone()) {

@@ -58,13 +58,13 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("big_rrect_%s_aa_effect", fName);
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
+    SkISize getISize() override { return SkISize::Make(fWidth, fHeight); }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
         auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);

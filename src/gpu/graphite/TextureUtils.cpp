@@ -170,6 +170,18 @@ size_t ComputeSize(SkISize dimensions,
     return finalSize;
 }
 
+sk_sp<SkSurface> make_surface_with_fallback(Recorder* recorder,
+                                            const SkImageInfo& info,
+                                            Mipmapped mipmapped,
+                                            const SkSurfaceProps* surfaceProps) {
+    SkColorType ct = recorder->priv().caps()->getRenderableColorType(info.colorType());
+    if (ct == kUnknown_SkColorType) {
+        return nullptr;
+    }
+
+    return SkSurfaces::RenderTarget(recorder, info.makeColorType(ct), mipmapped, surfaceProps);
+}
+
 sk_sp<SkImage> RescaleImage(Recorder* recorder,
                             const SkImage* srcImage,
                             SkIRect srcIRect,
@@ -177,12 +189,15 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
                             SkImage::RescaleGamma rescaleGamma,
                             SkImage::RescaleMode rescaleMode) {
     // make a Surface matching dstInfo to rescale into
-    // TODO: use fallback colortype if necessary
     SkSurfaceProps surfaceProps = {};
-    sk_sp<SkSurface> dst = SkSurfaces::RenderTarget(recorder,
-                                                    dstInfo,
-                                                    Mipmapped::kNo,
-                                                    &surfaceProps);
+    sk_sp<SkSurface> dst = make_surface_with_fallback(recorder,
+                                                      dstInfo,
+                                                      Mipmapped::kNo,
+                                                      &surfaceProps);
+    if (!dst) {
+        return nullptr;
+    }
+
     SkRect srcRect = SkRect::Make(srcIRect);
     SkRect dstRect = SkRect::Make(dstInfo.dimensions());
 
@@ -212,7 +227,6 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
 
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
-
     if (rescaleGamma == Image::RescaleGamma::kLinear &&
         srcImageInfo.colorSpace() &&
         !srcImageInfo.colorSpace()->gammaIsLinear()) {
@@ -222,10 +236,13 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
                                                      tempInput->imageInfo().colorType(),
                                                      kPremul_SkAlphaType,
                                                      std::move(linearGamma));
-        tempOutput = SkSurfaces::RenderTarget(recorder,
-                                              gammaDstInfo,
-                                              Mipmapped::kNo,
-                                              &surfaceProps);
+        tempOutput = make_surface_with_fallback(recorder,
+                                                gammaDstInfo,
+                                                Mipmapped::kNo,
+                                                &surfaceProps);
+        if (!tempOutput) {
+            return nullptr;
+        }
         SkCanvas* gammaDst = tempOutput->getCanvas();
         SkRect gammaDstRect = SkRect::Make(srcIRect.size());
 
@@ -261,10 +278,10 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
             stepDstRect = dstRect;
         } else {
             SkImageInfo nextInfo = outImageInfo.makeDimensions(nextDims);
-            tempOutput = SkSurfaces::RenderTarget(recorder,
-                                                  nextInfo,
-                                                  Mipmapped::kNo,
-                                                  &surfaceProps);
+            tempOutput = make_surface_with_fallback(recorder,
+                                                    nextInfo,
+                                                    Mipmapped::kNo,
+                                                    &surfaceProps);
             if (!tempOutput) {
                 return nullptr;
             }

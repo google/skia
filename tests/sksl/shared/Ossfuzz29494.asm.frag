@@ -19,11 +19,10 @@
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
        %void = OpTypeVoid
          %11 = OpTypeFunction %void
-      %false = OpConstantFalse %bool
     %float_0 = OpConstant %float 0
-         %15 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+         %14 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
        %main = OpFunction %void None %11
          %12 = OpLabel
-               OpStore %sk_FragColor %15
+               OpStore %sk_FragColor %14
                OpReturn
                OpFunctionEnd

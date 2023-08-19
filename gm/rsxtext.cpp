@@ -19,13 +19,9 @@
 class RSXShaderGM : public skiagm::GM {
 public:
 private:
-    SkString onShortName() override {
-        return SkString("rsx_blob_shader");
-    }
+    SkString getName() const override { return SkString("rsx_blob_shader"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kSZ*kScale*2.1f, kSZ*kScale*2.1f);
-    }
+    SkISize getISize() override { return SkISize::Make(kSZ * kScale * 2.1f, kSZ * kScale * 2.1f); }
 
     void onOnceBeforeDraw() override {
         const SkFontStyle style(SkFontStyle::kExtraBlack_Weight,

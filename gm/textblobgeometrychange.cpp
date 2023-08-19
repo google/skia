@@ -29,13 +29,9 @@ public:
     TextBlobGeometryChange() { }
 
 protected:
-    SkString onShortName() override {
-        return SkString("textblobgeometrychange");
-    }
+    SkString getName() const override { return SkString("textblobgeometrychange"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
         const char text[] = "Hamburgefons";

@@ -37,6 +37,7 @@ IR_FILES = [
     "SkSLDiscardStatement.h",
     "SkSLDoStatement.cpp",
     "SkSLDoStatement.h",
+    "SkSLEmptyExpression.h",
     "SkSLExpression.cpp",
     "SkSLExpression.h",
     "SkSLExpressionStatement.cpp",

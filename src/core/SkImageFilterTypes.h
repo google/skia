@@ -774,10 +774,10 @@ public:
 
     enum class ShaderFlags : int {
         kNone = 0,
-        // TODO: Replace with a relaxed flag that hints the image will be sampled many times so
-        // deferred expensive effects should trigger resolving to a new image (e.g. color filters
-        // or color space differences).
-        kForceResolveInputs = 1 << 0,
+        // A hint that the input FilterResult will be sampled repeatedly per pixel. If there's
+        // colorspace conversions or deferred color filtering, it's worth resolving to a temporary
+        // image so that those calculations are performed once per pixel instead of N times.
+        kSampledRepeatedly = 1 << 0,
         // Specifies that the shader performs non-trivial operations on its coordinates to determine
         // how to sample any input FilterResults, so their sampling options should not be converted
         // to nearest-neighbor even if they appeared pixel-aligned with the output surface.

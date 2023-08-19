@@ -33,16 +33,13 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkString(fMinimal ? "persptext_minimal" : "persptext");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(1024, 768);
-    }
+    SkISize getISize() override { return SkISize::Make(1024, 768); }
 
-//#define TEST_PERSP_CHECK
+    // #define TEST_PERSP_CHECK
 
     void onDraw(SkCanvas* canvas) override {
 

@@ -105,7 +105,7 @@ bool GrMtlCaps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
     // TODO: support tvOS
    *gpuFamily = GPUFamily::kApple;
     // iOS 12
-    if (@available(iOS 12.0, *)) {
+    if (@available(iOS 12.0, tvOS 12.0, *)) {
         if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily5_v1]) {
             *group = 5;
             return true;
@@ -128,7 +128,7 @@ bool GrMtlCaps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
         }
     }
     // iOS 11
-    if (@available(iOS 11.0, *)) {
+    if (@available(iOS 11.0, tvOS 11.0, *)) {
         if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily4_v1]) {
             *group = 4;
             return true;
@@ -147,7 +147,7 @@ bool GrMtlCaps::getGPUFamilyFromFeatureSet(id<MTLDevice> device,
         }
     }
     // iOS 10
-    if (@available(iOS 10.0, *)) {
+    if (@available(iOS 10.0, tvOS 10.0, *)) {
         if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v2]) {
             *group = 3;
             return true;
@@ -369,7 +369,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fSampleCounts.push_back(1);
-    if (@available(iOS 9.0, *)) {
+    if (@available(iOS 9.0, tvOS 9.0, *)) {
         for (auto sampleCnt : {2, 4, 8}) {
             if ([device supportsTextureSampleCount:sampleCnt]) {
                 fSampleCounts.push_back(sampleCnt);
@@ -407,7 +407,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
 
     fSampleLocationsSupport = false;
 
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         if (this->isMac() || fFamilyGroup >= 3) {
             fDrawInstancedSupport = true;
             fNativeDrawIndirectSupport = true;
@@ -418,7 +418,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
 
     fFenceSyncSupport = true;
     bool supportsMTLEvent = false;
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         supportsMTLEvent = true;
     }
     fSemaphoreSupport = supportsMTLEvent;
@@ -526,7 +526,7 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fShaderDerivativeSupport = true;
     shaderCaps->fExplicitTextureLodSupport = true;
 
-    if (@available(macOS 10.12, iOS 11.0, *)) {
+    if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
         shaderCaps->fDualSourceBlendingSupport = true;
     } else {
         shaderCaps->fDualSourceBlendingSupport = false;
@@ -689,7 +689,7 @@ void GrMtlCaps::initFormatTable() {
         }
     }
 
-    if (@available(macOS 11.0, iOS 8.0, *)) {
+    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
         if (this->isApple()) {
             // Format: B5G6R5Unorm
             {
@@ -812,7 +812,7 @@ void GrMtlCaps::initFormatTable() {
     }
 
     // Format: BGR10A2Unorm
-    if (@available(macos 10.13, ios 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGR10A2Unorm)];
         if (this->isMac() && fFamilyGroup == 1) {
             info->fFlags = FormatInfo::kTexturable_Flag;
@@ -908,7 +908,7 @@ void GrMtlCaps::initFormatTable() {
         }
     }
 
-    if (@available(macOS 11.0, iOS 8.0, *)) {
+    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
         if (this->isApple()) {
             // ETC2_RGB8
             info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
@@ -968,7 +968,7 @@ void GrMtlCaps::initFormatTable() {
 
     this->setColorType(GrColorType::kAlpha_8,           { MTLPixelFormatR8Unorm,
                                                           MTLPixelFormatA8Unorm });
-    if (@available(macOS 11.0, iOS 8.0, *)) {
+    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
         if (this->isApple()) {
             this->setColorType(GrColorType::kBGR_565,   { MTLPixelFormatB5G6R5Unorm });
             this->setColorType(GrColorType::kABGR_4444, { MTLPixelFormatABGR4Unorm });
@@ -980,7 +980,7 @@ void GrMtlCaps::initFormatTable() {
     this->setColorType(GrColorType::kRG_88,             { MTLPixelFormatRG8Unorm });
     this->setColorType(GrColorType::kBGRA_8888,         { MTLPixelFormatBGRA8Unorm });
     this->setColorType(GrColorType::kRGBA_1010102,      { MTLPixelFormatRGB10A2Unorm });
-    if (@available(macos 10.13, ios 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         this->setColorType(GrColorType::kBGRA_1010102,  { MTLPixelFormatBGR10A2Unorm });
     }
     this->setColorType(GrColorType::kGray_8,            { MTLPixelFormatR8Unorm });

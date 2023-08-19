@@ -74,7 +74,7 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
     // Metal documents that maxAnisotropy must be between 1 and 16 inclusive.
     samplerDesc.maxAnisotropy = std::min(samplerState.maxAniso(), 16);
     samplerDesc.normalizedCoordinates = true;
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         samplerDesc.compareFunction = MTLCompareFunctionNever;
     }
 

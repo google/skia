@@ -20,9 +20,9 @@ namespace skgpu {
 
 // Print the source code for all shaders generated.
 #ifdef SK_PRINT_SKSL_SHADERS
-static constexpr bool gPrintSKSL  = true;
+static constexpr bool gPrintSkSL  = true;
 #else
-static constexpr bool gPrintSKSL  = false;
+static constexpr bool gPrintSkSL  = false;
 #endif
 #ifdef SK_PRINT_NATIVE_SHADERS
 static const bool gPrintBackendSL = true;
@@ -30,8 +30,14 @@ static const bool gPrintBackendSL = true;
 static const bool gPrintBackendSL = false;
 #endif
 
-// SkSL->SPIR-V is only needed by Dawn + Vulkan backends, but seeing as this is a small wrapper
-// function, it's fine to be here even if not all backends end up using it.
+bool SkSLToGLSL(SkSL::Compiler*,
+                const std::string& sksl,
+                SkSL::ProgramKind programKind,
+                const SkSL::ProgramSettings& settings,
+                std::string* glsl,
+                SkSL::Program::Interface*,
+                ShaderErrorHandler* errorHandler);
+
 bool SkSLToSPIRV(SkSL::Compiler*,
                  const std::string& sksl,
                  SkSL::ProgramKind,
@@ -39,6 +45,30 @@ bool SkSLToSPIRV(SkSL::Compiler*,
                  std::string* spirv,
                  SkSL::Program::Interface*,
                  ShaderErrorHandler*);
+
+bool SkSLToWGSL(SkSL::Compiler*,
+                const std::string& sksl,
+                SkSL::ProgramKind,
+                const SkSL::ProgramSettings&,
+                std::string* wgsl,
+                SkSL::Program::Interface*,
+                ShaderErrorHandler*);
+
+bool SkSLToMSL(SkSL::Compiler*,
+               const std::string& sksl,
+               SkSL::ProgramKind kind,
+               const SkSL::ProgramSettings& settings,
+               std::string* msl,
+               SkSL::Program::Interface* outInterface,
+               ShaderErrorHandler* errorHandler);
+
+bool SkSLToHLSL(SkSL::Compiler*,
+               const std::string& sksl,
+               SkSL::ProgramKind kind,
+               const SkSL::ProgramSettings& settings,
+               std::string* hlsl,
+               SkSL::Program::Interface* outInterface,
+               ShaderErrorHandler* errorHandler);
 
 } // namespace skgpu
 

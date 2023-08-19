@@ -114,6 +114,9 @@ action_foreach("generate_headers") {
 
 source_set("headers") {
   sources = get_target_outputs(":generate_headers")
+
+  #get_target_outputs does not actually depend on the outputs
+  deps = [ ":generate_headers" ]
 }
 
 third_party("libgrapheme") {

@@ -82,14 +82,14 @@ public:
     {}
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         const char* variant = fVariant == Variant::kOpaque ? "opaque-":
                               fVariant == Variant::kGray   ? "gray-"  :
                                                              ""       ;
         return SkStringPrintf("encode-%scolor-types-%s", variant, fName);
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         const int width = fVariant == Variant::kNormal ? imageWidth * 7 : imageWidth * 2;
         return SkISize::Make(width, imageHeight);
     }

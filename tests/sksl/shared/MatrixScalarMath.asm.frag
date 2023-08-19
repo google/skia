@@ -141,8 +141,8 @@
                OpSelectionMerge %57 None
                OpSwitch %56 %57 1 %58 2 %59 3 %60 4 %61
          %58 = OpLabel
-         %65 = OpFAdd %v2float %53 %63
-         %66 = OpFAdd %v2float %54 %63
+         %65 = OpFAdd %v2float %63 %53
+         %66 = OpFAdd %v2float %63 %54
          %67 = OpCompositeConstruct %mat2v2float %65 %66
                OpStore %m2 %67
                OpBranch %57
@@ -333,8 +333,8 @@
         %210 = OpCompositeConstruct %v2float %207 %208
         %211 = OpCompositeConstruct %mat2v2float %209 %210
                OpStore %_2_m2 %211
-        %212 = OpFAdd %v2float %209 %63
-        %213 = OpFAdd %v2float %210 %63
+        %212 = OpFAdd %v2float %63 %209
+        %213 = OpFAdd %v2float %63 %210
         %214 = OpCompositeConstruct %mat2v2float %212 %213
                OpStore %_2_m2 %214
         %215 = OpAccessChain %_ptr_Function_v2float %_2_m2 %int_0

@@ -24,9 +24,9 @@
 namespace skiagm {
 
 class EmptyPathGM : public GM {
-    SkString onShortName() override { return SkString("emptypath"); }
+    SkString getName() const override { return SkString("emptypath"); }
 
-    SkISize onISize() override { return {600, 280}; }
+    SkISize getISize() override { return {600, 280}; }
 
     void drawEmpty(SkCanvas* canvas,
                     SkColor color,
@@ -157,9 +157,9 @@ static SkPath make_path_move_mix() {
 }
 
 class EmptyStrokeGM : public GM {
-    SkString onShortName() override { return SkString("emptystroke"); }
+    SkString getName() const override { return SkString("emptystroke"); }
 
-    SkISize onISize() override { return {200, 240}; }
+    SkISize getISize() override { return {200, 240}; }
 
     void onDraw(SkCanvas* canvas) override {
         static constexpr SkPath (*kProcs[])() = {

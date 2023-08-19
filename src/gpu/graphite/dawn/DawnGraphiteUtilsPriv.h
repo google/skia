@@ -33,9 +33,16 @@ bool DawnFormatIsStencil(wgpu::TextureFormat);
 
 wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
 
-wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
-                                                const std::string& spirv,
-                                                ShaderErrorHandler* errorHandler);
+bool DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
+                                  const std::string& spirv,
+                                  wgpu::ShaderModule* module,
+                                  ShaderErrorHandler*);
+
+bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
+                                 const std::string& wgsl,
+                                 wgpu::ShaderModule* module,
+                                 ShaderErrorHandler*);
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DawnGraphiteUtilsPriv_DEFINED

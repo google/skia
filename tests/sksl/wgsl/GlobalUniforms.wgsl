@@ -8,16 +8,16 @@ struct FSOut {
 struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
-  _array: array<vec4<f32>, 5>,
+  R_array: array<vec4<f32>, 5>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main() -> vec4<f32> {
+fn _skslMain() -> vec4<f32> {
   {
     return vec4<f32>(_globalUniforms.colorGreen.x, _globalUniforms.colorRed.x, 0.0, 1.0);
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main();
+  _stageOut.sk_FragColor = _skslMain();
   return _stageOut;
 }

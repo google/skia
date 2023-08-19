@@ -438,9 +438,9 @@ static void setup_shader_stage_info(VkShaderStageFlagBits stage,
 }
 
 static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedContext,
-                                  bool hasStepUniforms,
-                                  bool hasFragment,
-                                  int numTextureSamplers) {
+                                              bool hasStepUniforms,
+                                              bool hasFragment,
+                                              int numTextureSamplers) {
     // Determine descriptor set layouts based upon the number of uniform buffers & texture/samplers.
     skia_private::STArray<2, VkDescriptorSetLayout> setLayouts;
     skia_private::STArray<VulkanGraphicsPipeline::kNumUniformBuffers, DescriptorData>
@@ -559,13 +559,13 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         return nullptr;
     }
 
-    FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps(),
-                                        sharedContext->shaderCodeDictionary(),
-                                        runtimeDict,
-                                        step,
-                                        pipelineDesc.paintParamsID(),
-                                        useShadingSsboIndex,
-                                        renderPassDesc.fWriteSwizzle);
+    FragSkSLInfo fsSkSLInfo = BuildFragmentSkSL(sharedContext->caps(),
+                                                sharedContext->shaderCodeDictionary(),
+                                                runtimeDict,
+                                                step,
+                                                pipelineDesc.paintParamsID(),
+                                                useShadingSsboIndex,
+                                                renderPassDesc.fWriteSwizzle);
     std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
 
@@ -590,10 +590,10 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         }
     }
 
-    std::string vsSkSL = GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
-                                   step,
-                                   useShadingSsboIndex,
-                                   localCoordsNeeded);
+    std::string vsSkSL = BuildVertexSkSL(sharedContext->caps()->resourceBindingRequirements(),
+                                         step,
+                                         useShadingSsboIndex,
+                                         localCoordsNeeded);
     if (!SkSLToSPIRV(compiler,
                      vsSkSL,
                      SkSL::ProgramKind::kGraphiteVertex,
@@ -733,12 +733,14 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     GraphicsPipeline::Shaders* pipelineShadersPtr = nullptr;
 #endif
 
-    return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(sharedContext,
-                                                                    pipelineShadersPtr,
-                                                                    pipelineLayout,
-                                                                    vkPipeline,
-                                                                    hasFragment,
-                                                                    !step->uniforms().empty()));
+    return sk_sp<VulkanGraphicsPipeline>(
+            new VulkanGraphicsPipeline(sharedContext,
+                                       pipelineShadersPtr,
+                                       pipelineLayout,
+                                       vkPipeline,
+                                       hasFragment,
+                                       !step->uniforms().empty(),
+                                       fsSkSLInfo.fNumTexturesAndSamplers));
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
@@ -746,12 +748,14 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(const skgpu::graphite::SharedCont
                                                VkPipelineLayout pipelineLayout,
                                                VkPipeline pipeline,
                                                bool hasFragment,
-                                               bool hasStepUniforms)
-        : GraphicsPipeline(sharedContext, pipelineShaders)
-        , fPipelineLayout(pipelineLayout)
-        , fPipeline(pipeline)
-        , fHasFragment(hasFragment)
-        , fHasStepUniforms(hasStepUniforms) {}
+                                               bool hasStepUniforms,
+                                               int numTextureSamplers)
+    : GraphicsPipeline(sharedContext, pipelineShaders)
+    , fPipelineLayout(pipelineLayout)
+    , fPipeline(pipeline)
+    , fHasFragment(hasFragment)
+    , fHasStepUniforms(hasStepUniforms)
+    , fNumTextureSamplers(numTextureSamplers) {}
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());

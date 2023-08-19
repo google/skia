@@ -131,13 +131,9 @@ public:
     ReadPixelsGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("readpixels");
-    }
+    SkString getName() const override { return SkString("readpixels"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(6 * kWidth, 9 * kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(6 * kWidth, 9 * kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkAlphaType alphaTypes[] = {
@@ -191,11 +187,9 @@ public:
     ReadPixelsCodecGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("readpixelscodec");
-    }
+    SkString getName() const override { return SkString("readpixelscodec"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(3 * (kEncodedWidth + 1), 12 * (kEncodedHeight + 1));
     }
 
@@ -255,13 +249,9 @@ public:
     ReadPixelsPictureGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("readpixelspicture");
-    }
+    SkString getName() const override { return SkString("readpixelspicture"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(3 * kWidth, 12 * kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(3 * kWidth, 12 * kHeight); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (!canvas->imageInfo().colorSpace()) {

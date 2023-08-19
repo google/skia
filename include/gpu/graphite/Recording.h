@@ -36,10 +36,6 @@ public:
 
     RecordingPriv priv();
 
-#if GRAPHITE_TEST_UTILS
-    bool isTargetProxyInstantiated() const;
-#endif
-
 private:
     friend class Recorder;  // for ctor and LazyProxyData
     friend class RecordingPriv;

@@ -16,40 +16,6 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/utils/SkShaderUtils.h"
 
-std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLGpu* gpu,
-                                            SkSL::ProgramKind programKind,
-                                            const std::string& sksl,
-                                            const SkSL::ProgramSettings& settings,
-                                            std::string* glsl,
-                                            GrContextOptions::ShaderErrorHandler* errorHandler) {
-    SkSL::Compiler* compiler = gpu->shaderCompiler();
-    std::unique_ptr<SkSL::Program> program;
-#ifdef SK_DEBUG
-    std::string src = SkShaderUtils::PrettyPrint(sksl);
-#else
-    const std::string& src = sksl;
-#endif
-    program = compiler->convertProgram(programKind, src, settings);
-    if (!program || !compiler->toGLSL(*program, glsl)) {
-        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
-        return nullptr;
-    }
-
-    if (skgpu::gPrintSKSL || skgpu::gPrintBackendSL) {
-        SkShaderUtils::PrintShaderBanner(programKind);
-        if (skgpu::gPrintSKSL) {
-            SkDebugf("SKSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
-        }
-        if (skgpu::gPrintBackendSL) {
-            SkDebugf("GLSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*glsl));
-        }
-    }
-
-    return program;
-}
-
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,

@@ -43,11 +43,19 @@ if (skia_enable_vello_shaders) {
       "BUILD.bazel",
       "src/lib.rs",
     ]
-    outputs = [ "$root_out_dir/libvello_ffi.a" ]
+    outputs = [
+      "$root_out_dir/libvello_ffi.a",
+      "$root_out_dir/third_party/vello/src/lib.rs.h",
+    ]
     args = [
              "//third_party/vello:vello_ffi",
              rebase_path("//bazel-bin/third_party/vello/libvello_ffi.a",
                          root_build_dir),
+
+             # we want the header to not simply be copied into the output directory,
+             # but in the same path as the Bazel build uses.
+             rebase_path("//bazel-bin/third_party/vello/src/lib.rs.h",
+                         root_build_dir) + "=third_party/vello/src/lib.rs.h",
            ] + bazel_args
   }
 
@@ -69,7 +77,8 @@ if (skia_enable_vello_shaders) {
 }
 
 third_party("vello") {
-  public_include_dirs = [ "../../bazel-bin/" ]
+  # this is where third_party/vello/src/lib.rs.h was generated and exists.
+  public_include_dirs = [ "$root_out_dir" ]
   libs = [
     "$root_out_dir/libvello_ffi.a",
     "$root_out_dir/libvello_rust.a",

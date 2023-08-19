@@ -9,6 +9,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -35,11 +36,11 @@ static sk_sp<SkSurface> make_gl_surface(GrDirectContext* dContext, int width, in
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboid);
     return SkSurfaces::WrapBackendRenderTarget(
             dContext,
-            GrBackendRenderTarget(width,
-                                  height,
-                                  kSampleCount,
-                                  kStencilBits,
-                                  GrGLFramebufferInfo{(GrGLuint)fboid, GL_RGBA8}),
+            GrBackendRenderTargets::MakeGL(width,
+                                           height,
+                                           kSampleCount,
+                                           kStencilBits,
+                                           GrGLFramebufferInfo{(GrGLuint)fboid, GL_RGBA8}),
             kBottomLeft_GrSurfaceOrigin,
             kRGBA_8888_SkColorType,
             nullptr,

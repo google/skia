@@ -28,18 +28,41 @@ public:
         kMetal,
 
         // WebGPU Shading Language buffer layout constraints for the uniform address space.
-        kWGSLUniform,
+        kWGSLUniform_Base,       // treats f16 as a full 32-bit float
+        kWGSLUniform_EnableF16,  // treats f16 as a 16-bit half float
 
         // WebGPU Shading Language buffer layout constraints for the storage address space.
-        kWGSLStorage,
+        kWGSLStorage_Base,
+        kWGSLStorage_EnableF16,
     };
 
-    MemoryLayout(Standard std)
-    : fStd(std) {}
+    MemoryLayout(Standard std) : fStd(std) {}
 
-    bool isWGSL() const { return fStd == Standard::kWGSLUniform || fStd == Standard::kWGSLStorage; }
+    bool isWGSL_Base() const {
+        return fStd == Standard::kWGSLUniform_Base ||
+               fStd == Standard::kWGSLStorage_Base;
+    }
 
-    bool isMetal() const { return fStd == Standard::kMetal; }
+    bool isWGSL_F16() const {
+        return fStd == Standard::kWGSLUniform_EnableF16 ||
+               fStd == Standard::kWGSLStorage_EnableF16;
+    }
+
+    bool isWGSL_Uniform() const {
+        return fStd == Standard::kWGSLUniform_Base ||
+               fStd == Standard::kWGSLUniform_EnableF16;
+    }
+
+    bool isWGSL() const {
+        return fStd == Standard::kWGSLUniform_Base ||
+               fStd == Standard::kWGSLStorage_Base ||
+               fStd == Standard::kWGSLUniform_EnableF16 ||
+               fStd == Standard::kWGSLStorage_EnableF16;
+    }
+
+    bool isMetal() const {
+        return fStd == Standard::kMetal;
+    }
 
     /**
      * WGSL and std140 require various types of variables (structs, arrays, and matrices) in the
@@ -54,7 +77,7 @@ public:
         }
         // WGSL uniform matrix layout is simply the alignment of the matrix columns and
         // doesn't have a 16-byte multiple alignment constraint.
-        if (fStd == Standard::kWGSLUniform && type != Type::TypeKind::kMatrix) {
+        if (this->isWGSL_Uniform() && type != Type::TypeKind::kMatrix) {
             return roundUp16(raw);
         }
         return raw;
@@ -74,15 +97,19 @@ public:
             case Type::TypeKind::kScalar:
             case Type::TypeKind::kAtomic:
                 return this->size(type);
+
             case Type::TypeKind::kVector:
                 return GetVectorAlignment(this->size(type.componentType()), type.columns());
+
             case Type::TypeKind::kMatrix:
                 return this->roundUpIfNeeded(
                         GetVectorAlignment(this->size(type.componentType()), type.rows()),
                         type.typeKind());
+
             case Type::TypeKind::kArray:
                 return this->roundUpIfNeeded(this->alignment(type.componentType()),
                                              type.typeKind());
+
             case Type::TypeKind::kStruct: {
                 size_t result = 0;
                 for (const auto& f : type.fields()) {
@@ -94,7 +121,7 @@ public:
                 return this->roundUpIfNeeded(result, type.typeKind());
             }
             default:
-                SK_ABORT("cannot determine alignment of type %s", type.displayName().c_str());
+                SK_ABORT("cannot determine alignment of type '%s'", type.displayName().c_str());
         }
     }
 
@@ -106,6 +133,7 @@ public:
         switch (type.typeKind()) {
             case Type::TypeKind::kMatrix:
                 return this->alignment(type);
+
             case Type::TypeKind::kArray: {
                 int stride = this->size(type.componentType());
                 if (stride > 0) {
@@ -117,7 +145,7 @@ public:
                 return stride;
             }
             default:
-                SK_ABORT("type does not have a stride");
+                SK_ABORT("type '%s' does not have a stride", type.displayName().c_str());
         }
     }
 
@@ -128,27 +156,30 @@ public:
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
                 if (type.isBoolean()) {
-                    if (this->isWGSL()) {
-                        return 0;
-                    }
-                    return 1;
+                    return this->isWGSL() ? 0 : 1;
                 }
-                if ((this->isMetal() || this->isWGSL()) && !type.highPrecision() &&
-                    type.isNumber()) {
+                if (this->isMetal() && !type.highPrecision() && type.isNumber()) {
+                    return 2;
+                }
+                if (this->isWGSL_F16() && !type.highPrecision() && type.isFloat()) {
                     return 2;
                 }
                 return 4;
+
             case Type::TypeKind::kAtomic:
                 // Our atomic types (currently atomicUint) always occupy 4 bytes.
                 return 4;
+
             case Type::TypeKind::kVector:
                 if (this->isMetal() && type.columns() == 3) {
                     return 4 * this->size(type.componentType());
                 }
                 return type.columns() * this->size(type.componentType());
+
             case Type::TypeKind::kMatrix: // fall through
             case Type::TypeKind::kArray:
                 return type.isUnsizedArray() ? 0 : (type.columns() * this->stride(type));
+
             case Type::TypeKind::kStruct: {
                 size_t total = 0;
                 for (const auto& f : type.fields()) {
@@ -165,7 +196,7 @@ public:
                 return (total + alignment - 1) & ~(alignment - 1);
             }
             default:
-                SK_ABORT("cannot determine size of type %s", type.displayName().c_str());
+                SK_ABORT("cannot determine size of type '%s'", type.displayName().c_str());
         }
     }
 
@@ -178,9 +209,8 @@ public:
                 return true;
 
             case Type::TypeKind::kScalar:
-                // bool and short are not host-shareable in WGSL.
-                return !this->isWGSL() ||
-                       (!type.isBoolean() && (type.isFloat() || type.highPrecision()));
+                // bool is not host-shareable in WGSL.
+                return this->isWGSL() ? !type.isBoolean() : true;
 
             case Type::TypeKind::kVector:
             case Type::TypeKind::kMatrix:

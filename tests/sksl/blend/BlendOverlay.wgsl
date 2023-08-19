@@ -17,7 +17,7 @@ fn blend_overlay_component_Qhh2h2(_skParam0: vec2<f32>, _skParam1: vec2<f32>) ->
     return select(s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x), (2.0 * s.x) * d.x, (2.0 * d.x) <= d.y);
   }
 }
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     let _skTemp0 = blend_overlay_component_Qhh2h2(_globalUniforms.src.xw, _globalUniforms.dst.xw);
     let _skTemp1 = blend_overlay_component_Qhh2h2(_globalUniforms.src.yw, _globalUniforms.dst.yw);
@@ -27,8 +27,8 @@ fn main(_stageOut: ptr<function, FSOut>) {
     (*_stageOut).sk_FragColor = _0_result;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 
 namespace skgpu::graphite {
@@ -71,7 +72,7 @@ void run_test(skiatest::Reporter* reporter,
     }
 
     // Veryify expectations are met and recording is uninstantiated.
-    REPORTER_ASSERT(reporter, !recording->isTargetProxyInstantiated());
+    REPORTER_ASSERT(reporter, !recording->priv().isTargetProxyInstantiated());
     for (const Expectation& e : expectations) {
         SkColor4f color = pixmap.getColor4f(e.fX, e.fY);
 #ifdef SK_DEBUG
@@ -92,7 +93,8 @@ void run_test(skiatest::Reporter* reporter,
 }
 
 // Tests that clear does not clear an entire replayed-to surface if recorded onto a smaller surface.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestClear, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestClear, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     SkISize surfaceSize = SkISize::Make(8, 4);
     SkISize recordingSize = SkISize::Make(4, 4);
     SkISize replayOffset = SkISize::Make(0, 0);
@@ -106,7 +108,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestClear, reporter, context
 }
 
 // Tests that writePixels is translated correctly when replayed with an offset.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixels, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixels, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(4, 4, true);
     SkCanvas bitmapCanvas(bitmap);
@@ -127,7 +130,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixels, reporter, c
 }
 
 // Tests that the result of writePixels is cropped correctly when offscreen.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixelsOffscreen, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixelsOffscreen, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(4, 4, true);
     SkCanvas bitmapCanvas(bitmap);

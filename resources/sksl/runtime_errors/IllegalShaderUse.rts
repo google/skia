@@ -53,7 +53,7 @@ parameters of type 'shader' not allowed
 unknown identifier 's'
 functions may not return opaque type 'shader'
 cannot construct 'shader'
-ternary expression of opaque type 'shader' not allowed
+ternary expression of opaque type 'shader' is not allowed
 expected '(' to begin method call
 function 'dangling_eval' can exit without returning a value
 *%%*/

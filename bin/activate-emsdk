@@ -14,7 +14,7 @@ EMSDK_ROOT = os.path.join('third_party', 'externals', 'emsdk')
 
 EMSDK_PATH = os.path.join(EMSDK_ROOT, 'emsdk.py')
 
-EMSDK_VERSION = '3.1.15'
+EMSDK_VERSION = '3.1.44'
 
 def main():
     if sysconfig.get_platform() in ['linux-aarch64', 'linux-arm64']:

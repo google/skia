@@ -539,6 +539,7 @@ bool ProgramVisitor::visit(const Program& program) {
 
 template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expression& e) {
     switch (e.kind()) {
+        case Expression::Kind::kEmpty:
         case Expression::Kind::kFunctionReference:
         case Expression::Kind::kLiteral:
         case Expression::Kind::kMethodReference:

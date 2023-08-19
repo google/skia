@@ -30,9 +30,7 @@ public:
 
     void reset();
 
-#ifdef GRAPHITE_TEST_UTILS
     bool hasTasks() const { return !fTasks.empty(); }
-#endif
 
 protected:
 private:

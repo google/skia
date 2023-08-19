@@ -110,7 +110,7 @@ skia_filegroup(
 selects.config_setting_group(
     name = "needs_sksl",
     match_any = [
-        "//src/gpu:has_gpu_backend",
+        "//src/gpu:has_ganesh_backend",
         ":enable_sksl_true",
     ],
     visibility = ["//:__subpackages__"],
@@ -119,7 +119,7 @@ selects.config_setting_group(
 selects.config_setting_group(
     name = "use_sksl_gpu_srcs",
     match_any = [
-        "//src/gpu:has_gpu_backend",
+        "//src/gpu:has_ganesh_backend",
         ":enable_skslc_true",
     ],
     visibility = ["//:__subpackages__"],
@@ -146,7 +146,6 @@ skia_filegroup(
         ":core_srcs",
         "//src/sksl/analysis:srcs",
         "//src/sksl/codegen:srcs",
-        "//src/sksl/dsl:srcs",
         "//src/sksl/ir:srcs",
         "//src/sksl/tracing:srcs",
         "//src/sksl/transform:srcs",

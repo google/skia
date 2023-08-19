@@ -21,14 +21,14 @@ struct SkRect;
 
 class SkBlurMask {
 public:
-    [[nodiscard]] static bool BlurRect(SkScalar sigma, SkMask *dst, const SkRect &src,
+    [[nodiscard]] static bool BlurRect(SkScalar sigma, SkMaskBuilder *dst, const SkRect &src,
                                        SkBlurStyle, SkIPoint *margin = nullptr,
-                                       SkMask::CreateMode createMode =
-                                           SkMask::kComputeBoundsAndRenderImage_CreateMode);
-    [[nodiscard]] static bool BlurRRect(SkScalar sigma, SkMask *dst, const SkRRect &src,
+                                       SkMaskBuilder::CreateMode createMode =
+                                           SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode);
+    [[nodiscard]] static bool BlurRRect(SkScalar sigma, SkMaskBuilder *dst, const SkRRect &src,
                                         SkBlurStyle, SkIPoint *margin = nullptr,
-                                        SkMask::CreateMode createMode =
-                                            SkMask::kComputeBoundsAndRenderImage_CreateMode);
+                                        SkMaskBuilder::CreateMode createMode =
+                                            SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode);
 
     // forceQuality will prevent BoxBlur from falling back to the low quality approach when sigma
     // is very small -- this can be used predict the margin bump ahead of time without completely
@@ -41,13 +41,13 @@ public:
     // * failure          - if src.fImage is not null, failure is signal with dst->fImage being
     //                      null.
 
-    [[nodiscard]] static bool BoxBlur(SkMask* dst, const SkMask& src,
+    [[nodiscard]] static bool BoxBlur(SkMaskBuilder* dst, const SkMask& src,
                                       SkScalar sigma, SkBlurStyle style,
                                       SkIPoint* margin = nullptr);
 
     // the "ground truth" blur does a gaussian convolution; it's slow
     // but useful for comparison purposes.
-    [[nodiscard]] static bool BlurGroundTruth(SkScalar sigma, SkMask* dst,
+    [[nodiscard]] static bool BlurGroundTruth(SkScalar sigma, SkMaskBuilder* dst,
                                               const SkMask& src,
                                               SkBlurStyle, SkIPoint* margin = nullptr);
 

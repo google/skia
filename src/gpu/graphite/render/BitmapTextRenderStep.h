@@ -14,7 +14,7 @@ namespace skgpu::graphite {
 
 class BitmapTextRenderStep final : public RenderStep {
 public:
-    BitmapTextRenderStep();
+    BitmapTextRenderStep(bool isLCD);
 
     ~BitmapTextRenderStep() override;
 

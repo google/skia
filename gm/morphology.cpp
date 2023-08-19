@@ -32,9 +32,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("morphology");
-    }
+    SkString getName() const override { return SkString("morphology"); }
 
     void onOnceBeforeDraw() override {
         auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(135, 135));
@@ -48,9 +46,7 @@ protected:
         fImage = surf->makeImageSnapshot();
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void drawClippedBitmap(SkCanvas* canvas, const SkPaint& paint, int x, int y) {
         canvas->save();

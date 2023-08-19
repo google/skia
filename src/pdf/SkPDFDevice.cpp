@@ -104,7 +104,7 @@ private:
 // Utility functions
 
 // This function destroys the mask and either frees or takes the pixels.
-sk_sp<SkImage> mask_to_greyscale_image(SkMask* mask) {
+sk_sp<SkImage> mask_to_greyscale_image(SkMaskBuilder* mask) {
     sk_sp<SkImage> img;
     SkPixmap pm(SkImageInfo::Make(mask->fBounds.width(), mask->fBounds.height(),
                                   kGray_8_SkColorType, kOpaque_SkAlphaType),
@@ -118,15 +118,15 @@ sk_sp<SkImage> mask_to_greyscale_image(SkMask* mask) {
             img = SkImages::DeferredFromEncodedData(buffer.detachAsData());
             SkASSERT(img);
             if (img) {
-                SkMask::FreeImage(mask->fImage);
+                SkMaskBuilder::FreeImage(mask->image());
             }
         }
     }
     if (!img) {
         img = SkImages::RasterFromPixmap(
-                pm, [](const void* p, void*) { SkMask::FreeImage((void*)p); }, nullptr);
+                pm, [](const void* p, void*) { SkMaskBuilder::FreeImage((void*)p); }, nullptr);
     }
-    *mask = SkMask();  // destructive;
+    *mask = SkMaskBuilder();  // destructive;
     return img;
 }
 
@@ -512,14 +512,14 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     path.transform(ctm, &path);
 
     SkIRect bounds = clipStack.bounds(this->bounds()).roundOut();
-    SkMask sourceMask;
+    SkMaskBuilder sourceMask;
     if (!SkDraw::DrawToMask(path, bounds, paint->getMaskFilter(), &SkMatrix::I(),
-                            &sourceMask, SkMask::kComputeBoundsAndRenderImage_CreateMode,
+                            &sourceMask, SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
                             initStyle)) {
         return;
     }
-    SkAutoMaskFreeImage srcAutoMaskFreeImage(sourceMask.fImage);
-    SkMask dstMask;
+    SkAutoMaskFreeImage srcAutoMaskFreeImage(sourceMask.image());
+    SkMaskBuilder dstMask;
     SkIPoint margin;
     if (!as_MFB(paint->getMaskFilter())->filterMask(&dstMask, sourceMask, ctm, &margin)) {
         return;

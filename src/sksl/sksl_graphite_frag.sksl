@@ -1110,6 +1110,77 @@ $pure half4 sk_gaussian_colorfilter(half4 inColor) {
     return half4(factor);
 }
 
+$pure half4 sample_indexed_atlas(float2 textureCoords,
+                                 int atlasIndex,
+                                 sampler2D atlas0,
+                                 sampler2D atlas1,
+                                 sampler2D atlas2,
+                                 sampler2D atlas3) {
+    switch (atlasIndex) {
+        case 1:
+            return sample(atlas1, textureCoords);
+        case 2:
+            return sample(atlas2, textureCoords);
+        case 3:
+            return sample(atlas3, textureCoords);
+        default:
+            return sample(atlas0, textureCoords);
+    }
+}
+
+$pure half4 bitmap_text_coverage_fn(half4 texColor, int maskFormat) {
+    switch (maskFormat) {
+        case 0:  // A8
+            return texColor.rrrr;
+        case 1:  // LCD
+            return half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));
+        default:
+            return texColor;
+    }
+}
+
+$pure half4 sdf_text_coverage_fn(half texColor,
+                                 half distAdjust,
+                                 float2 unormTexCoords) {
+    // TODO: To minimize the number of shaders generated this is the full affine shader.
+    // For best performance it may be worth creating the uniform scale shader as well,
+    // as that's the most common case.
+    // TODO: Need to add 565 support.
+
+    // The distance field is constructed as uchar8_t values, so that the zero value is at 128,
+    // and the supported range of distances is [-4 * 127/128, 4].
+    // Hence to convert to floats our multiplier (width of the range) is 4 * 255/128 = 7.96875
+    // and zero threshold is 128/255 = 0.50196078431.
+    half dist = 7.96875 * (texColor - 0.50196078431);
+
+    // We may further adjust the distance for gamma correction.
+    dist -= half(distAdjust);
+
+    // After the distance is unpacked, we need to correct it by a factor dependent on the
+    // current transformation. For general transforms, to determine the amount of correction
+    // we multiply a unit vector pointing along the SDF gradient direction by the Jacobian of
+    // unormTexCoords (which is the inverse transform for this fragment) and take the length of
+    // the result.
+    half2 dist_grad = half2(dFdx(dist), dFdy(dist));
+       half dg_len2 = dot(dist_grad, dist_grad);
+
+    // The length of the gradient may be near 0, so we need to check for that. This also
+    // compensates for the Adreno, which likes to drop tiles on division by 0.
+    dist_grad = (dg_len2 >= 0.0001) ? dist_grad * inversesqrt(dg_len2)
+                                    : half2(0.7071);
+
+    // Computing the Jacobian and multiplying by the gradient.
+    half2 Jdx = half2(dFdx(unormTexCoords));
+    half2 Jdy = half2(dFdy(unormTexCoords));
+    half2 grad = half2(dist_grad.x * Jdx.x + dist_grad.y * Jdy.x,
+                       dist_grad.x * Jdx.y + dist_grad.y * Jdy.y);
+
+    // This gives us a smooth step across approximately one fragment.
+    half afwidth = 0.65 * length(grad);
+
+    // TODO: handle aliased and sRGB rendering
+    return half4(smoothstep(-afwidth, afwidth, dist));
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Support functions for analytic round rectangles

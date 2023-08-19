@@ -8,7 +8,6 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
-#include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
@@ -56,49 +55,18 @@
  * be called as CPU instruction sets are typically super sets of older instruction sets
  */
 
-struct SkBitmapProcState;
 struct SkRasterPipelineStage;
-namespace SkSL {
-class TraceHook;
-}
+
+#define SK_OPTS_TARGET_DEFAULT 0x00
+#define SK_OPTS_TARGET_SSSE3   0x01
+#define SK_OPTS_TARGET_AVX     0x02
+#define SK_OPTS_TARGET_HSW     0x04
 
 namespace SkOpts {
     // Call to replace pointers to portable functions with pointers to CPU-specific functions.
     // Thread-safe and idempotent.
     // Called by SkGraphics::Init().
     void Init();
-
-    // Declare function pointers here...
-    extern void (*blit_mask_d32_a8)(SkPMColor*, size_t, const SkAlpha*, size_t, SkColor, int, int);
-    extern void (*blit_row_color32)(SkPMColor*, const SkPMColor*, int, SkPMColor);
-    extern void (*blit_row_s32a_opaque)(SkPMColor*, const SkPMColor*, int, U8CPU);
-
-    // Swizzle input into some sort of 8888 pixel, {premul,unpremul} x {rgba,bgra}.
-    typedef void (*Swizzle_8888_u32)(uint32_t*, const uint32_t*, int);
-    extern Swizzle_8888_u32 RGBA_to_BGRA,          // i.e. just swap RB
-                            RGBA_to_rgbA,          // i.e. just premultiply
-                            RGBA_to_bgrA,          // i.e. swap RB and premultiply
-                            inverted_CMYK_to_RGB1, // i.e. convert color space
-                            inverted_CMYK_to_BGR1; // i.e. convert color space
-
-    typedef void (*Swizzle_8888_u8)(uint32_t*, const uint8_t*, int);
-    extern Swizzle_8888_u8 RGB_to_RGB1,     // i.e. insert an opaque alpha
-                           RGB_to_BGR1,     // i.e. swap RB and insert an opaque alpha
-                           gray_to_RGB1,    // i.e. expand to color channels + an opaque alpha
-                           grayA_to_RGBA,   // i.e. expand to color channels
-                           grayA_to_rgbA;   // i.e. expand to color channels and premultiply
-
-    extern void (*memset16)(uint16_t[], uint16_t, int);
-    extern void (*memset32)(uint32_t[], uint32_t, int);
-    extern void (*memset64)(uint64_t[], uint64_t, int);
-
-    extern void (*rect_memset16)(uint16_t[], uint16_t, int, size_t, int);
-    extern void (*rect_memset32)(uint32_t[], uint32_t, int, size_t, int);
-    extern void (*rect_memset64)(uint64_t[], uint64_t, int, size_t, int);
-
-    // SkBitmapProcState optimized Shader, Sample, or Matrix procs.
-    extern void (*S32_alpha_D32_filter_DX)(const SkBitmapProcState&,
-                                           const uint32_t* xy, int count, SkPMColor*);
 
     // We can't necessarily express the type of SkRasterPipeline stage functions here,
     // so we just use this void(*)(void) as a stand-in.

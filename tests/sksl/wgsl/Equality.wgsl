@@ -28,7 +28,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main() -> vec4<f32> {
+fn _skslMain() -> vec4<f32> {
   {
     var ok: bool = true;
     ok = ok && (_globalUniforms.f1 == _globalUniforms.f2);
@@ -62,8 +62,8 @@ fn main() -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main();
+  _stageOut.sk_FragColor = _skslMain();
   return _stageOut;
 }

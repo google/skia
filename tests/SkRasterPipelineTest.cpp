@@ -104,8 +104,6 @@ DEF_TEST(SkRasterPipeline_PackBigContext, r) {
     REPORTER_ASSERT(r, unpacked.data == object.data);
 }
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-
 DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, reporter) {
     alignas(64) int32_t mask[]  = {~0, 0, ~0,  0, ~0, ~0, ~0,  0};
     alignas(64) int32_t maskCopy[SkRasterPipeline_kMaxStride_highp] = {};
@@ -2745,8 +2743,6 @@ DEF_TEST(SkRasterPipeline_BranchIfActiveLanesEqual, r) {
         }
     }
 }
-
-#endif
 
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.

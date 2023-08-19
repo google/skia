@@ -7,8 +7,6 @@
 
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
@@ -2149,6 +2147,9 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
         case Expression::Kind::kConstructorSplat:
             return this->pushConstructorSplat(e.as<ConstructorSplat>());
 
+        case Expression::Kind::kEmpty:
+            return true;
+
         case Expression::Kind::kFieldAccess:
             return this->pushFieldAccess(e.as<FieldAccess>());
 
@@ -4017,5 +4018,3 @@ std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& prog
 }
 
 }  // namespace SkSL
-
-#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE

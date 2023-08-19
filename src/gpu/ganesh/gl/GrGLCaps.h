@@ -9,7 +9,7 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
-#include <functional>
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/core/SkChecksum.h"
@@ -18,6 +18,8 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/gl/GrGLAttachment.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
+
+#include <functional>
 
 class GrGLContextInfo;
 class GrGLRenderTarget;
@@ -112,6 +114,12 @@ public:
                        // WEBGL_draw_instanced_base_vertex_base_instance
     };
 
+    enum class RegenerateMipmapType {
+        kBaseLevel,
+        kBasePlusMaxLevel,
+        kBasePlusSync
+    };
+
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
@@ -133,12 +141,13 @@ public:
 
     int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat& format) const override {
-        return this->getRenderTargetSampleCount(requestedCount, format.asGLFormat());
+        return this->getRenderTargetSampleCount(requestedCount,
+                                                GrBackendFormats::AsGLFormat(format));
     }
     int getRenderTargetSampleCount(int requestedCount, GrGLFormat) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat& format) const override {
-        return this->maxRenderTargetSampleCount(format.asGLFormat());
+        return this->maxRenderTargetSampleCount(GrBackendFormats::AsGLFormat(format));
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 
@@ -308,6 +317,9 @@ public:
 
     /// How are multi draws implemented (if at all)?
     MultiDrawType multiDrawType() const { return fMultiDrawType; }
+
+    /// How is restricting sampled miplevels in onRegenerateMipmapLevels implemented?
+    RegenerateMipmapType regenerateMipmapType() const { return fRegenerateMipmapType; }
 
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
@@ -486,10 +498,6 @@ public:
 
     bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
 
-    bool setMaxLevelForRegenerateMipMapLevels() const {
-        return fSetMaxLevelForRegenerateMipMapLevels;
-    }
-
     GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -577,6 +585,7 @@ private:
     TransferBufferType   fTransferBufferType   = TransferBufferType::kNone;
     FenceType            fFenceType            = FenceType::kNone;
     MultiDrawType        fMultiDrawType        = MultiDrawType::kNone;
+    RegenerateMipmapType fRegenerateMipmapType = RegenerateMipmapType::kBaseLevel;
 
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
@@ -616,13 +625,13 @@ private:
     bool fNeverDisableColorWrites : 1;
     bool fMustSetAnyTexParameterToEnableMipmapping : 1;
     bool fAllowBGRA8CopyTexSubImage : 1;
+    bool fAllowSRGBCopyTexSubImage : 1;
     bool fDisallowDynamicMSAA : 1;
     bool fMustResetBlendFuncBetweenDualSourceAndDisable : 1;
     bool fBindTexture0WhenChangingTextureFBOMultisampleCount : 1;
     bool fRebindColorAttachmentAfterCheckFramebufferStatus : 1;
     bool fFlushBeforeWritePixels : 1;
     bool fDisableScalingCopyAsDraws : 1;
-    bool fSetMaxLevelForRegenerateMipMapLevels : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;

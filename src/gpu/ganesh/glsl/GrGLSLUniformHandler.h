@@ -15,6 +15,7 @@
 // variable names beginning with this prefix will not be mangled
 #define GR_NO_MANGLE_PREFIX "sk_"
 
+class GrBackendFormat;
 class GrGLSLProgramBuilder;
 class GrGLSLShaderBuilder;
 class GrProcessor;

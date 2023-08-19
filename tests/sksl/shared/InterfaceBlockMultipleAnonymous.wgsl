@@ -13,13 +13,13 @@ struct testBlockB {
   y: vec2<f32>,
 };
 @group(0) @binding(2) var<uniform> _uniform1 : testBlockB;
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     (*_stageOut).sk_FragColor = vec4<f32>(vec2<f32>(_uniform0.x), vec2<f32>(_uniform1.y));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

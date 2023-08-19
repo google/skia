@@ -87,7 +87,7 @@ GM::GM(SkColor bgColor) {
 GM::~GM() {}
 
 DrawResult GM::gpuSetup(SkCanvas* canvas, SkString* errorMsg) {
-    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
+    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName().c_str()));
     if (!fGpuSetup) {
         // When drawn in viewer, gpuSetup will be called multiple times with the same
         // GrContext.
@@ -110,7 +110,7 @@ void GM::gpuTeardown() {
 }
 
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
-    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
+    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName().c_str()));
     this->drawBackground(canvas);
     return this->drawContent(canvas, errorMsg);
 }
@@ -138,27 +138,19 @@ DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 }
 void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
 
-
-SkISize SimpleGM::onISize() { return fSize; }
-SkString SimpleGM::onShortName() { return fName; }
+SkISize SimpleGM::getISize() { return fSize; }
+SkString SimpleGM::getName() const { return fName; }
 DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(canvas, errorMsg);
 }
 
 #if defined(SK_GANESH)
-SkISize SimpleGpuGM::onISize() { return fSize; }
-SkString SimpleGpuGM::onShortName() { return fName; }
+SkISize SimpleGpuGM::getISize() { return fSize; }
+SkString SimpleGpuGM::getName() const { return fName; }
 DrawResult SimpleGpuGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(rContext, canvas, errorMsg);
 }
 #endif
-
-const char* GM::getName() {
-    if (fShortName.size() == 0) {
-        fShortName = this->onShortName();
-    }
-    return fShortName.c_str();
-}
 
 void GM::setBGColor(SkColor color) {
     fBGColor = color;
@@ -264,3 +256,16 @@ void MarkGMBad(SkCanvas* canvas, SkScalar x, SkScalar y) {
                          -5,+5, paint);
     });
 }
+
+namespace skiagm {
+void Register(skiagm::GM* gm) {
+    // The skiagm::GMRegistry class is a subclass of sk_tools::Registry. Instances of
+    // sk_tools::Registry form a linked list (there is one such list for each subclass), where each
+    // instance holds a value and a pointer to the next sk_tools::Registry instance. The head of
+    // this linked list is stored in a global variable. The sk_tools::Registry constructor
+    // automatically pushes a new instance to the head of said linked list. Therefore, in order to
+    // register a value in the GM registry, it suffices to just instantiate skiagm::GMRegistry with
+    // the value we wish to register.
+    new skiagm::GMRegistry([=]() { return std::unique_ptr<skiagm::GM>(gm); });
+}
+}  // namespace skiagm

@@ -303,7 +303,6 @@ void VarDeclaration::ErrorCheck(const Context& context,
         permittedLayoutFlags &= ~LayoutFlag::kSPIRV;
         permittedLayoutFlags &= ~LayoutFlag::kMetal;
         permittedLayoutFlags &= ~LayoutFlag::kWGSL;
-        permittedLayoutFlags &= ~LayoutFlag::kGL;
     }
     if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         // Disallow all layout flags except 'color' in runtime effects

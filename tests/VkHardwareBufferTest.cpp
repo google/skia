@@ -21,6 +21,7 @@
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/base/SkAutoMalloc.h"
@@ -271,7 +272,7 @@ sk_sp<SkImage> EGLTestHelper::importHardwareBufferForRead(skiatest::Reporter* re
     textureInfo.fID = fTexID;
     textureInfo.fFormat = GR_GL_RGBA8;
 
-    GrBackendTexture backendTex(DEV_W, DEV_H, GrMipmapped::kNo, textureInfo);
+    auto backendTex = GrBackendTextures::MakeGL(DEV_W, DEV_H, GrMipmapped::kNo, textureInfo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     sk_sp<SkImage> image = SkImages::BorrowTextureFrom(fDirectContext,
@@ -299,7 +300,7 @@ sk_sp<SkSurface> EGLTestHelper::importHardwareBufferForWrite(skiatest::Reporter*
     textureInfo.fID = fTexID;
     textureInfo.fFormat = GR_GL_RGBA8;
 
-    GrBackendTexture backendTex(DEV_W, DEV_H, GrMipmapped::kNo, textureInfo);
+    auto backendTex = GrBackendTextures::MakeGL(DEV_W, DEV_H, GrMipmapped::kNo, textureInfo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(fDirectContext,

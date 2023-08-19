@@ -19,7 +19,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlTextureRenderTarget.h"
 
 DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
-    if (@available(macOS 11.0, iOS 9.0, *)) {
+    if (@available(macOS 11.0, iOS 9.0, tvOS 9.0, *)) {
         static const int kWidth = 1024;
         static const int kHeight = 768;
 

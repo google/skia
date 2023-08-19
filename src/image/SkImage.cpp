@@ -288,6 +288,8 @@ sk_sp<SkImage> SkImage::makeRasterImage(GrDirectContext* dContext, CachingHint c
 
 bool SkImage::hasMipmaps() const { return as_IB(this)->onHasMipmaps(); }
 
+bool SkImage::isProtected() const { return as_IB(this)->onIsProtected(); }
+
 sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
     if (mips == nullptr || mips->validForRootLevel(this->imageInfo())) {
         if (auto result = as_IB(this)->onMakeWithMipmaps(std::move(mips))) {

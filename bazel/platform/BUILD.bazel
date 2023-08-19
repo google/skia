@@ -22,7 +22,7 @@ platform(
     # See https://github.com/bazelbuild/bazel/blob/f28209df2b0ebeff1de0b8b7f6b9e215d890e753/src/main/java/com/google/devtools/build/lib/actions/ActionKeyCacher.java#L67-L73
     # for how the exec_properties and execution platform impact the action cache.
     exec_properties = create_rbe_exec_properties_dict(
-        container_image = "docker://gcr.io/skia-public/rbe_linux@sha256:654139e5cecb163f80a7d18e2b2da6c758ebe6325d2d9c41d9facf58e1b3f799",
+        container_image = "docker://gcr.io/skia-public/rbe_linux@sha256:82e8a4c7d06c8f47bbc08ee899c4c03069af0f7f4d8c0d958a50a23d814405e6",
         os_family = "Linux",
         pool = "gce_linux",
     ),

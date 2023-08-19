@@ -16,7 +16,7 @@
 GR_NORETAIN_BEGIN
 
 sk_sp<GrMtlEvent> GrMtlEvent::Make(GrMtlGpu* gpu) {
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];
         return sk_sp<GrMtlEvent>(new GrMtlEvent(event));
     } else {
@@ -27,7 +27,7 @@ sk_sp<GrMtlEvent> GrMtlEvent::Make(GrMtlGpu* gpu) {
 sk_sp<GrMtlEvent> GrMtlEvent::MakeWrapped(GrMTLHandle event) {
     // The GrMtlEvent will have strong ownership at this point.
     // The GrMTLHandle will subsequently only have weak ownership.
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         id<MTLEvent> mtlEvent = (__bridge_transfer id<MTLEvent>)event;
         return sk_sp<GrMtlEvent>(new GrMtlEvent(mtlEvent));
     } else {
@@ -39,7 +39,7 @@ GrBackendSemaphore GrMtlSemaphore::backendSemaphore() const {
     GrBackendSemaphore backendSemaphore;
     // The GrMtlSemaphore and the GrBackendSemaphore will have strong ownership at this point.
     // Whoever uses the GrBackendSemaphore will subsquently steal this ref (see MakeWrapped, above).
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         GrMTLHandle handle = (__bridge_retained GrMTLHandle)(fEvent->mtlEvent());
         backendSemaphore.initMetal(handle, fValue);
     }

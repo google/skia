@@ -47,11 +47,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("yuv_to_rgb_subset_effect");
-    }
+    SkString getName() const override { return SkString("yuv_to_rgb_subset_effect"); }
 
-    SkISize onISize() override { return {1310, 540}; }
+    SkISize getISize() override { return {1310, 540}; }
 
     void makePixmaps() {
         SkYUVAInfo yuvaInfo = SkYUVAInfo({8, 8},

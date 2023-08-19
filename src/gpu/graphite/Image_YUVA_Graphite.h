@@ -38,6 +38,11 @@ public:
         return false;
     }
 
+    bool onIsProtected() const override {
+        // TODO: add protected content support
+        return false;
+    }
+
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override {
         return nullptr;
     }

@@ -222,11 +222,9 @@ public:
     LocalMatrixOrder() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("localmatrix_order");
-    }
+    SkString getName() const override { return SkString("localmatrix_order"); }
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize getISize() override { return SkISize::Make(500, 500); }
 
     void onOnceBeforeDraw() override {
         auto mandrill = GetResourceAsImage("images/mandrill_256.png");  // 256x256

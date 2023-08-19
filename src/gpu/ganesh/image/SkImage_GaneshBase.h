@@ -93,7 +93,7 @@ public:
     static sk_sp<GrTextureProxy> MakePromiseImageLazyProxy(
             GrContextThreadSafeProxy*,
             SkISize dimensions,
-            GrBackendFormat,
+            const GrBackendFormat&,
             skgpu::Mipmapped,
             SkImages::PromiseImageTextureFulfillProc,
             sk_sp<skgpu::RefCntedCallback> releaseHelper);

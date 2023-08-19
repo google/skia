@@ -81,14 +81,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("imageblurrepeatmode"); }
 
-    SkString onShortName() override {
-        return SkString("imageblurrepeatmode");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(850, 920);
-    }
+    SkISize getISize() override { return SkISize::Make(850, 920); }
 
     bool runAsBench() const override { return true; }
 

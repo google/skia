@@ -38,13 +38,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("emboss");
-    }
+    SkString getName() const override { return SkString("emboss"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 120);
-    }
+    SkISize getISize() override { return SkISize::Make(600, 120); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

@@ -29,6 +29,9 @@ regenerate parts of the BUILD.bazel files. Instead of installing Bazel manually,
 you install [Bazelisk](https://github.com/bazelbuild/bazelisk#installation), which will fetch the
 appropriate version of [Bazel](https://bazel.build/) for you (as specified by //.bazelversion).
 
+### Install `ninja`
+Ninja can be supplied using `gclient` or with `bin/fetch-ninja`.
+
 ## Clone the Skia repository
 
 Skia can either be cloned using `git` or the `fetch` tool that is

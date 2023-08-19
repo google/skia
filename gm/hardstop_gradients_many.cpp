@@ -38,13 +38,9 @@ public:
     HardstopGradientsManyGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("hardstop_gradients_many");
-    }
+    SkString getName() const override { return SkString("hardstop_gradients_many"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
         static constexpr SkPoint points[] = {

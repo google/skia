@@ -117,12 +117,9 @@ public:
     PathEffectGM() {}
 
 protected:
+    SkString getName() const override { return SkString("patheffect"); }
 
-    SkString onShortName() override {
-        return SkString("patheffect");
-    }
-
-    SkISize onISize() override { return SkISize::Make(800, 600); }
+    SkISize getISize() override { return SkISize::Make(800, 600); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -184,12 +181,9 @@ public:
     ComboPathEfectsGM() {}
 
 protected:
+    SkString getName() const override { return SkString("combo-patheffects"); }
 
-    SkString onShortName() override {
-        return SkString("combo-patheffects");
-    }
-
-    SkISize onISize() override { return SkISize::Make(360, 630); }
+    SkISize getISize() override { return SkISize::Make(360, 630); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPath path0 = SkPath::Circle(100, 100, 60),
@@ -362,9 +356,9 @@ sk_sp<SkFlattenable> StrokeLineInflated::CreateProc(SkReadBuffer&) { return null
 
 class CTMPathEffectGM : public skiagm::GM {
 protected:
-    SkString onShortName() override { return SkString("ctmpatheffect"); }
+    SkString getName() const override { return SkString("ctmpatheffect"); }
 
-    SkISize onISize() override { return SkISize::Make(800, 600); }
+    SkISize getISize() override { return SkISize::Make(800, 600); }
 
     // TODO: ctm-aware path effects are currently CPU only
     DrawResult onGpuSetup(SkCanvas* canvas, SkString*) override {

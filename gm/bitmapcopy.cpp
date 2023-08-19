@@ -83,9 +83,9 @@ class BitmapCopyGM : public skiagm::GM {
 
     void onOnceBeforeDraw() override { this->setBGColor(0xFFDDDDDD); }
 
-    SkString onShortName() override { return SkString("bitmapcopy"); }
+    SkString getName() const override { return SkString("bitmapcopy"); }
 
-    SkISize onISize() override { return {540, 330}; }
+    SkISize getISize() override { return {540, 330}; }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

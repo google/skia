@@ -78,9 +78,9 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
 }
 
 class ArithmodeGM : public skiagm::GM {
-    SkString onShortName() override { return SkString("arithmode"); }
+    SkString getName() const override { return SkString("arithmode"); }
 
-    SkISize onISize() override { return {640, 572}; }
+    SkISize getISize() override { return {640, 572}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr int WW = 100,
@@ -182,12 +182,12 @@ class ArithmodeBlenderGM : public skiagm::GM {
     sk_sp<SkShader>        fSrcShader, fDstShader;
     sk_sp<SkRuntimeEffect> fRuntimeEffect;
 
-    SkString onShortName() override { return SkString("arithmode_blender"); }
+    SkString getName() const override { return SkString("arithmode_blender"); }
 
     static constexpr int W = 200;
     static constexpr int H = 200;
 
-    SkISize onISize() override { return {(W + 30) * 2, (H + 30) * 4}; }
+    SkISize getISize() override { return {(W + 30) * 2, (H + 30) * 4}; }
 
     void onOnceBeforeDraw() override {
         // Prepare a runtime effect for this blend.

@@ -6,7 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
-#include "src/core/SkOpts.h"
+#include "src/codec/SkSwizzler.h"
 
 class SwizzleBench : public Benchmark {
 public:

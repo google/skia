@@ -125,6 +125,21 @@ TextureInfo DawnCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     return info;
 }
 
+TextureInfo DawnCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                   Mipmapped mipmapped) const {
+    DawnTextureInfo info;
+    if (!textureInfo.getDawnTextureInfo(&info)) {
+        return {};
+    }
+
+    info.fSampleCount = 1;
+    info.fMipmapped = mipmapped;
+    info.fUsage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst |
+                  wgpu::TextureUsage::CopySrc;
+
+    return info;
+}
+
 TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                 Discardable discardable) const {
     if (fDefaultMSAASamples <= 1) {
@@ -260,6 +275,9 @@ void DawnCaps::initCaps(const wgpu::Device& device) {
 
     // TODO: support clamp to border.
     fClampToBorderSupport = false;
+
+    fMSAARenderToSingleSampledSupport =
+            device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
 
     fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
 }
@@ -490,7 +508,7 @@ size_t DawnCaps::GetFormatIndex(wgpu::TextureFormat format) {
             return i;
         }
         if (kFormats[i] == wgpu::TextureFormat::Undefined) {
-            SkDEBUGFAILF("Not supported wgpu::TextureFormat: %d\n", format);
+            SkDEBUGFAILF("Unsupported wgpu::TextureFormat: %d\n", static_cast<int>(format));
             return i;
         }
     }

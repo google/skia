@@ -26,7 +26,6 @@ declare_args() {
                         (is_wasm && skia_canvaskit_enable_skottie)
   skia_enable_precompile = true
   skia_enable_sksl = true
-  skia_enable_skvm = false
   skia_enable_svg = !is_component_build
   skia_enable_tools = is_skia_dev_build
   skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
@@ -106,7 +105,6 @@ declare_args() {
 }
 
 declare_args() {
-  skia_enable_sksl_in_raster_pipeline = !skia_enable_skvm
   skia_enable_sksl_tracing = is_skia_dev_build && !skia_enable_optimize_size
 }
 

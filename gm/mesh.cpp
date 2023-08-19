@@ -33,7 +33,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {435, 1180}; }
+    SkISize getISize() override { return {435, 1180}; }
 
     void onOnceBeforeDraw() override {
         {
@@ -139,7 +139,7 @@ protected:
         this->ensureBuffers();
     }
 
-    SkString onShortName() override { return SkString("custommesh"); }
+    SkString getName() const override { return SkString("custommesh"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString*) override {
         int i = 0;
@@ -340,7 +340,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {468, 258}; }
+    SkISize getISize() override { return {468, 258}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -403,7 +403,7 @@ protected:
         fVB = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
     }
 
-    SkString onShortName() override { return SkString("custommesh_cs"); }
+    SkString getName() const override { return SkString("custommesh_cs"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         // Force an intermediate surface if the canvas is in "legacy" mode
@@ -507,7 +507,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {140, 250}; }
+    SkISize getISize() override { return {140, 250}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -561,7 +561,7 @@ protected:
         fVB = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
     }
 
-    SkString onShortName() override { return SkString("custommesh_uniforms"); }
+    SkString getName() const override { return SkString("custommesh_uniforms"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         SkMatrix matrices[] {
@@ -671,7 +671,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {270, 490}; }
+    SkISize getISize() override { return {270, 490}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -712,7 +712,7 @@ protected:
                 SkTileMode::kClamp, SkTileMode::kClamp, SkFilterMode::kLinear);
     }
 
-    SkString onShortName() override { return SkString("mesh_updates"); }
+    SkString getName() const override { return SkString("mesh_updates"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         canvas->clear(SK_ColorBLACK);
@@ -880,7 +880,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {90, 30}; }
+    SkISize getISize() override { return {90, 30}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes1[]{
@@ -931,7 +931,7 @@ protected:
         fSpec[1] = std::move(result.specification);
     }
 
-    SkString onShortName() override { return SkString("mesh_zero_init"); }
+    SkString getName() const override { return SkString("mesh_zero_init"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         GrRecordingContext* rc = canvas->recordingContext();
@@ -1027,7 +1027,7 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
 
-    SkISize onISize() override { return {390, 90}; }
+    SkISize getISize() override { return {390, 90}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -1092,7 +1092,7 @@ protected:
                                               /*localMatrix=*/nullptr);
     }
 
-    SkString onShortName() override { return SkString("picture_mesh"); }
+    SkString getName() const override { return SkString("picture_mesh"); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         SkPaint paint;

@@ -32,10 +32,12 @@ constexpr int kNumTextAtlasTextures = 4;
 
 }  // namespace
 
-BitmapTextRenderStep::BitmapTextRenderStep()
+BitmapTextRenderStep::BitmapTextRenderStep(bool isLCD)
         : RenderStep("BitmapTextRenderStep",
                      "",
-                     Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
+                     isLCD ? Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
+                             Flags::kLCDCoverage
+                           : Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal"     , SkSLType::kFloat4x4},
                                    {"atlasSizeInv"      , SkSLType::kFloat2}},
@@ -58,27 +60,23 @@ BitmapTextRenderStep::BitmapTextRenderStep()
 BitmapTextRenderStep::~BitmapTextRenderStep() {}
 
 std::string BitmapTextRenderStep::vertexSkSL() const {
-    return
-        "float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));"
-        "baseCoords.xy *= float2(size);"
-
-        // Sub runs have a decomposed transform and are sometimes already transformed into device
-        // space, in which `subRunCoords` represents the bounds projected to device space without
-        // the local-to-device translation and `subRunDeviceMatrix` contains the translation.
-        "float2 subRunCoords = strikeToSourceScale * baseCoords + float2(xyPos);"
-        "float4 position = subRunDeviceMatrix * float4(subRunCoords, 0, 1);"
-
-        // Calculate the local coords used for shading.
-        // TODO(b/246963258): This is incorrect if the transform has perspective, which would
-        // require a division + a valid z coordinate (which is currently set to 0).
-        "stepLocalCoords = (deviceToLocal * position).xy;"
-
-        "float2 unormTexCoords = baseCoords + float2(uvPos);"
-        "textureCoords = unormTexCoords * atlasSizeInv;"
-        "texIndex = half(indexAndFlags.x);"
-        "maskFormat = half(indexAndFlags.y);"
-
-        "float4 devPosition = float4(position.xy, depth, position.w);";
+    // Returns the body of a vertex function, which must define a float4 devPosition variable and
+    // must write to an already-defined float2 stepLocalCoords variable.
+    return "texIndex = half(indexAndFlags.x);"
+           "maskFormat = half(indexAndFlags.y);"
+           "float2 unormTexCoords;"
+           "float4 devPosition = text_vertex_fn(float2(sk_VertexID >> 1, sk_VertexID & 1), "
+                                               "subRunDeviceMatrix, "
+                                               "deviceToLocal, "
+                                               "atlasSizeInv, "
+                                               "float2(size), "
+                                               "float2(uvPos), "
+                                               "xyPos, "
+                                               "strikeToSourceScale, "
+                                               "depth, "
+                                               "textureCoords, "
+                                               "unormTexCoords, "
+                                               "stepLocalCoords);";
 }
 
 std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
@@ -94,29 +92,16 @@ std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
 }
 
 const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
-    return
-        "half4 texColor;"
-        "if (texIndex == 0) {"
-           "texColor = sample(text_atlas_0, textureCoords);"
-        "} else if (texIndex == 1) {"
-           "texColor = sample(text_atlas_1, textureCoords);"
-        "} else if (texIndex == 2) {"
-           "texColor = sample(text_atlas_2, textureCoords);"
-        "} else if (texIndex == 3) {"
-           "texColor = sample(text_atlas_3, textureCoords);"
-        "} else {"
-           "texColor = sample(text_atlas_0, textureCoords);"
-        "}"
-        // A8
-        "if (maskFormat == 0) {"
-            "outputCoverage = texColor.rrrr;"
-        // LCD
-        "} else if (maskFormat == 1) {"
-            "outputCoverage = half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));"
-        // RGBA
-        "} else {"
-            "outputCoverage = texColor;"
-        "}";
+    // The returned SkSL must write its coverage into a 'half4 outputCoverage' variable (defined in
+    // the calling code) with the actual coverage splatted out into all four channels.
+    static_assert(kNumTextAtlasTextures == 4);
+    return "outputCoverage = bitmap_text_coverage_fn(sample_indexed_atlas(textureCoords, "
+                                                                         "int(texIndex), "
+                                                                         "text_atlas_0, "
+                                                                         "text_atlas_1, "
+                                                                         "text_atlas_2, "
+                                                                         "text_atlas_3), "
+                                                    "int(maskFormat));";
 }
 
 void BitmapTextRenderStep::writeVertices(DrawWriter* dw,

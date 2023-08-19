@@ -15,7 +15,6 @@
 #include "src/base/SkScopeExit.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkOpts.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourceCacheAccess.h"

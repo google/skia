@@ -27,15 +27,16 @@ public:
 
     void setFailureResultForFinishedProcs();
 
-#if GRAPHITE_TEST_UTILS
-    int numVolatilePromiseImages() const;
-    int numNonVolatilePromiseImages() const;
-    bool hasTasks() const;
-#endif
-
     bool addCommands(Context*, CommandBuffer*, Surface* targetSurface, SkIVector targetTranslation);
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Utility methods for testing only
+    bool isTargetProxyInstantiated() const;
+    int numVolatilePromiseImages() const;
+    int numNonVolatilePromiseImages() const;
+    bool hasTasks() const;
 
 private:
     explicit RecordingPriv(Recording* recorder) : fRecording(recorder) {}

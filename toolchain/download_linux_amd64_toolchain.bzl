@@ -282,6 +282,15 @@ filegroup(
     ),
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "link_libs",
+    srcs = [
+        "lib/x86_64-unknown-linux-gnu/libc++.a",
+        "lib/x86_64-unknown-linux-gnu/libc++abi.a",
+],
+    visibility = ["//visibility:public"],
+)
 """,
         executable = False,
     )

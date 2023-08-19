@@ -290,7 +290,7 @@ sk_sp<SkImage> SkImage_GaneshBase::makeColorTypeAndColorSpace(GrDirectContext* d
 sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
         GrContextThreadSafeProxy* tsp,
         SkISize dimensions,
-        GrBackendFormat backendFormat,
+        const GrBackendFormat& backendFormat,
         skgpu::Mipmapped mipmapped,
         SkImages::PromiseImageTextureFulfillProc fulfillProc,
         sk_sp<skgpu::RefCntedCallback> releaseHelper) {

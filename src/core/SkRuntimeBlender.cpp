@@ -62,7 +62,6 @@ sk_sp<SkFlattenable> SkRuntimeBlender::CreateProc(SkReadBuffer& buffer) {
 }
 
 bool SkRuntimeBlender::onAppendStages(const SkStageRec& rec) const {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
         // SkRP has support for many parts of #version 300 already, but for now, we restrict its
         // usage in runtime effects to just #version 100.
@@ -81,7 +80,6 @@ bool SkRuntimeBlender::onAppendStages(const SkStageRec& rec) const {
         bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks, uniforms);
         return success;
     }
-#endif
     return false;
 }
 

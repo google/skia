@@ -73,6 +73,7 @@ public:
     }
 
     bool onHasMipmaps() const override { return SkToBool(fBitmap.fMips); }
+    bool onIsProtected() const override { return false; }
 
     SkMipmap* onPeekMips() const override { return fBitmap.fMips.get(); }
 

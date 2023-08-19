@@ -29,8 +29,10 @@ class ManyPathAtlasesGM : public GM {
 public:
     ManyPathAtlasesGM(int maxAtlasSize) : fMaxAtlasSize(maxAtlasSize) {}
 private:
-    SkString onShortName() override { return SkStringPrintf("manypathatlases_%i", fMaxAtlasSize); }
-    SkISize onISize() override { return SkISize::Make(128, 128); }
+    SkString getName() const override {
+        return SkStringPrintf("manypathatlases_%i", fMaxAtlasSize);
+    }
+    SkISize getISize() override { return SkISize::Make(128, 128); }
 
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
         // This will test the case where the atlas runs out of room if fMaxAtlasSize is small.

@@ -38,13 +38,9 @@ public:
     DiscardGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("discard");
-    }
+    SkString getName() const override { return SkString("discard"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(100, 100);
-    }
+    SkISize getISize() override { return SkISize::Make(100, 100); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
 

@@ -89,7 +89,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1,
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/SpecialImage_Graphite.h"
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Graphite, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Graphite, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     using namespace skgpu::graphite;
 
     auto caps = context->priv().caps();

@@ -92,7 +92,8 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Ganesh,
 
 #if defined(SK_GRAPHITE)
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Graphite, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Graphite, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     using namespace skgpu::graphite;
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();

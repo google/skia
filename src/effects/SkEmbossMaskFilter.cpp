@@ -73,7 +73,7 @@ SkMask::Format SkEmbossMaskFilter::getFormat() const {
     return SkMask::k3D_Format;
 }
 
-bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
+bool SkEmbossMaskFilter::filterMask(SkMaskBuilder* dst, const SkMask& src,
                                     const SkMatrix& matrix, SkIPoint* margin) const {
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
@@ -85,7 +85,7 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
         return false;
     }
 
-    dst->fFormat = SkMask::k3D_Format;
+    dst->format() = SkMask::k3D_Format;
     if (margin) {
         margin->set(SkScalarCeilToInt(3*sigma), SkScalarCeilToInt(3*sigma));
     }
@@ -97,14 +97,14 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     // create a larger buffer for the other two channels (should force fBlur to do this for us)
 
     {
-        uint8_t* alphaPlane = dst->fImage;
+        uint8_t* alphaPlane = dst->image();
         size_t   planeSize = dst->computeImageSize();
         if (0 == planeSize) {
             return false;   // too big to allocate, abort
         }
-        dst->fImage = SkMask::AllocImage(planeSize * 3);
-        memcpy(dst->fImage, alphaPlane, planeSize);
-        SkMask::FreeImage(alphaPlane);
+        dst->image() = SkMaskBuilder::AllocImage(planeSize * 3);
+        memcpy(dst->image(), alphaPlane, planeSize);
+        SkMaskBuilder::FreeImage(alphaPlane);
     }
 
     // run the light direction through the matrix...
@@ -122,7 +122,7 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     SkEmbossMask::Emboss(dst, light);
 
     // restore original alpha
-    memcpy(dst->fImage, src.fImage, src.computeImageSize());
+    memcpy(dst->image(), src.fImage, src.computeImageSize());
 
     return true;
 }

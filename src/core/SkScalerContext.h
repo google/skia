@@ -397,7 +397,7 @@ protected:
      */
     virtual void generateImage(const SkGlyph& glyph, void* imageBuffer) = 0;
     static void GenerateImageFromPath(
-        const SkMask& mask, const SkPath& path, const SkMaskGamma::PreBlend& maskPreBlend,
+        SkMaskBuilder& dst, const SkPath& path, const SkMaskGamma::PreBlend& maskPreBlend,
         bool doBGR, bool verticalLCD, bool a8FromLCD, bool hairline);
 
     /** Sets the passed path to the glyph outline.

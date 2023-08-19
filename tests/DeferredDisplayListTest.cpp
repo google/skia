@@ -52,6 +52,7 @@ class SkImage;
 struct GrContextOptions;
 
 #ifdef SK_GL
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #endif
@@ -246,7 +247,8 @@ public:
             fboInfo.fFormat = GR_GL_RGBA8;
             fboInfo.fProtected = skgpu::Protected::kNo;
             static constexpr int kStencilBits = 8;
-            GrBackendRenderTarget backendRT(fWidth, fHeight, 1, kStencilBits, fboInfo);
+            GrBackendRenderTarget backendRT =
+                    GrBackendRenderTargets::MakeGL(fWidth, fHeight, 1, kStencilBits, fboInfo);
 
             if (!backendRT.isValid()) {
                 return nullptr;
@@ -643,7 +645,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest,
     sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
     const size_t resourceCacheLimit = context->getResourceCacheLimit();
 
-    GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D);
+    GrBackendFormat format = GrBackendFormats::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_2D);
 
     int availableSamples = caps->getRenderTargetSampleCount(4, format);
     if (availableSamples <= 1) {
@@ -682,7 +684,8 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest,
             SkASSERT(characterizations[index].usesGLFBO0() == isFBO0);
 
             GrGLFramebufferInfo fboInfo{ isFBO0 ? 0 : (GrGLuint) 1, GR_GL_RGBA8 };
-            GrBackendRenderTarget backendRT(128, 128, numSamples, kStencilBits, fboInfo);
+            GrBackendRenderTarget backendRT =
+                    GrBackendRenderTargets::MakeGL(128, 128, numSamples, kStencilBits, fboInfo);
             SkAssertResult(backendRT.isValid());
 
             surfaces[index] = SkSurfaces::WrapBackendRenderTarget(context,
@@ -1263,7 +1266,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest,
 
     for (GrGLenum target : { GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_2D } ) {
         for (auto mipmapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
-            GrBackendFormat format = GrBackendFormat::MakeGL(GR_GL_RGBA8, target);
+            GrBackendFormat format = GrBackendFormats::MakeGL(GR_GL_RGBA8, target);
 
             sk_sp<SkImage> image = SkImages::PromiseTextureFrom(
                     recorder.getCanvas()->recordingContext()->threadSafeProxy(),

@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: :9:24 error: unresolved type 'texture2D'
-var<private> aTexture: texture2D;
-                       ^^^^^^^^^
-
-
 diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
@@ -13,34 +6,28 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
-var<private> aTexture: texture2D;
-var<private> aSampledTexture: sampler2D;
-fn helpers_helper_h4ZT(_stageIn: FSIn, _skParam0: sampler2D, _skParam1: texture2D) -> vec4<f32> {
-  let s = _skParam0;
-  let t = _skParam1;
+@group(0) @binding(1) var aTexture: texture_2d<f32>;
+@group(0) @binding(10000) var aSampledTexture_Sampler: sampler;
+@group(0) @binding(10001) var aSampledTexture_Texture: texture_2d<f32>;
+fn helpers_helper_h4ZT(_stageIn: FSIn, s_Texture: texture_2d<f32>, s_Sampler: sampler, t: texture_2d<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = sample(s, _stageIn.c);
-    return _skTemp0;
+    return textureSample(s_Texture, s_Sampler, _stageIn.c);
   }
 }
-fn helper_h4TZ(_stageIn: FSIn, _skParam0: texture2D, _skParam1: sampler2D) -> vec4<f32> {
-  let t = _skParam0;
-  let s = _skParam1;
+fn helper_h4TZ(_stageIn: FSIn, t: texture_2d<f32>, s_Texture: texture_2d<f32>, s_Sampler: sampler) -> vec4<f32> {
   {
-    let _skTemp1 = helpers_helper_h4ZT(_stageIn, s, t);
-    return _skTemp1;
+    let _skTemp2 = helpers_helper_h4ZT(_stageIn, s_Texture, s_Sampler, t);
+    return _skTemp2;
   }
 }
-fn main(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp2 = helper_h4TZ(_stageIn, aTexture, aSampledTexture);
-    (*_stageOut).sk_FragColor = _skTemp2;
+    let _skTemp3 = helper_h4TZ(_stageIn, aTexture, aSampledTexture_Texture, aSampledTexture_Sampler);
+    (*_stageOut).sk_FragColor = _skTemp3;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(_stageIn, &_stageOut);
+  _skslMain(_stageIn, &_stageOut);
   return _stageOut;
 }
-
-1 error

@@ -1,0 +1,35 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# This is the easiest way to make sure we have a karma binary and all
+# the plugins loaded into the node_modules folder in
+#   $SANDBOX_EXEC_ROOT/node_modules
+# where the karma binary is invoked from. Other attempts to do this
+# involving DefaultInfo [1] and depsets [2] didn't quite work because
+# the transitive dependencies appear to have been loaded in
+#   $SANDBOX_EXEC_ROOT/bazel-out/k8-opt/bin/modules/canvaskit/canvaskit_js_tests.runfiles/npm/node_modules/
+# instead, which is not where karma could find them. (Putting transitive
+# deps under bazel-out works for C++ because we can add to the include
+# search directories (via --include-directory or -I), but it is not clear
+# how to expand karma's search path like that.
+#
+# Below basically says "We have a karma binary which needs these plugins to run"
+# and have the karma_test macro use this as the executable instead of karma
+# directly. This must be used in conjunction with listing the plugins in the
+# karma configuration file (handled by karma_test).
+nodejs_binary(
+    name = "karma_with_plugins",
+    data = [
+        "@npm//jasmine-core",
+        "@npm//karma",
+        "@npm//karma-chrome-launcher",
+        "@npm//karma-firefox-launcher",
+        "@npm//karma-jasmine",
+    ],
+    entry_point = {"@npm//:node_modules/karma": "bin/karma"},
+    visibility = ["//modules:__subpackages__"],
+)

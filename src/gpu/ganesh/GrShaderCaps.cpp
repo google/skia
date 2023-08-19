@@ -37,6 +37,8 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
 
     writer->appendBool("FB Fetch Support", fFBFetchSupport);
     writer->appendBool("Uses precision modifiers", fUsesPrecisionModifiers);
+    writer->appendBool("Can use void-typed expressions in a sequence expression",
+                       fCanUseVoidInSequenceExpressions);
     writer->appendBool("Can use min() and abs() together", fCanUseMinAndAbsTogether);
     writer->appendBool("Can use fract() for negative values", fCanUseFractForNegativeValues);
     writer->appendBool("Must force negated atan param to float", fMustForceNegatedAtanParamToFloat);
@@ -88,6 +90,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const { }
 
 void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fDisableDriverCorrectnessWorkarounds) {
+        SkASSERT(fCanUseVoidInSequenceExpressions);
         SkASSERT(fCanUseMinAndAbsTogether);
         SkASSERT(fCanUseFractForNegativeValues);
         SkASSERT(!fMustForceNegatedAtanParamToFloat);

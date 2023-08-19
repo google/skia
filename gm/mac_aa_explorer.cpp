@@ -113,9 +113,9 @@ protected:
         return DrawResult::kOk;
     }
 
-    SkISize onISize() override { return { 1024, 768 }; }
+    SkISize getISize() override { return {1024, 768}; }
 
-    SkString onShortName() override { return SkString("macaatest"); }
+    SkString getName() const override { return SkString("macaatest"); }
 
     bool onChar(SkUnichar uni) override {
         switch (uni) {

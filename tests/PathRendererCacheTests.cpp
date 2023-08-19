@@ -114,7 +114,7 @@ static void test_path(
                                                        {800, 800},
                                                        SkSurfaceProps(),
                                                        /*label=*/{},
-                                                       1,
+                                                       /* sampleCnt= */ 1,
                                                        GrMipmapped::kNo,
                                                        GrProtected::kNo,
                                                        kTopLeft_GrSurfaceOrigin);

@@ -1,5 +1,5 @@
 load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_filegroup", "wasm_cc_binary")
-load("//bazel:karma_test.bzl", "karma_test")
+load("//bazel/karma:karma_test.bzl", "karma_test")
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 
 licenses(["notice"])
@@ -36,7 +36,6 @@ DEBUG_OPTS = [
     "-sGL_ASSERTIONS",
     "-O0",
     "-g3",
-    "--source-map-base=/build/",
 ]
 
 skia_filegroup(
@@ -76,7 +75,7 @@ CK_DEFINES = [
     ":enable_runtime_effect_true": ["CK_INCLUDE_RUNTIME_EFFECT=1"],
     ":enable_runtime_effect_false": [],
 }) + select({
-    "//src/gpu:gl_backend": ["CK_ENABLE_WEBGL"],
+    "//src/gpu:gl_ganesh": ["CK_ENABLE_WEBGL"],
     "//conditions:default": [],
 })
 
@@ -104,7 +103,7 @@ CK_LINKOPTS = BASE_LINKOPTS + [
     "--pre-js",
     "modules/canvaskit/pathops.js",
 ] + select({
-    "//src/gpu:gl_backend": [
+    "//src/gpu:gl_ganesh": [
         "--pre-js",
         "modules/canvaskit/cpu.js",
         "--pre-js",
@@ -298,7 +297,11 @@ wasm_cc_binary(
     # Whatever is before the dot will be the name of the output js and wasm, aka "the stem".
     # https://github.com/emscripten-core/emsdk/blob/82ad00499a42abde16b363239d2bc83bf5d863ab/bazel/emscripten_toolchain/wasm_cc_binary.bzl#L91
     cc_target = ":canvaskit.build",
-    visibility = ["//infra/debugger-app:__pkg__"],
+    visibility = [
+        "//infra/debugger-app:__pkg__",
+        "//infra/jsfiddle:__pkg__",
+        "//infra/shaders:__pkg__",
+    ],
 )
 
 bool_flag(

@@ -243,6 +243,9 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
         case Expression::Kind::kConstructorCompoundCast:
             this->writeCastConstructor(expr.asAnyConstructor(), parentPrecedence);
             break;
+        case Expression::Kind::kEmpty:
+            this->write("false");
+            break;
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(expr.as<FieldAccess>());
             break;
@@ -1110,10 +1113,23 @@ void GLSLCodeGenerator::writeLiteral(const Literal& l) {
     this->write(l.description(OperatorPrecedence::kExpression));
 }
 
+bool GLSLCodeGenerator::shouldRewriteVoidTypedFunctions(const FunctionDeclaration* func) const {
+    // We can change void-typed user functions to return a (meaningless) float so that sequence
+    // expressions will work normally in WebGL2. (skbug.com/294893925)
+    return  func &&
+           !func->isMain() &&
+            func->returnType().isVoid() &&
+           !this->caps().fCanUseVoidInSequenceExpressions;
+}
+
 void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    this->writeTypePrecision(f.returnType());
-    this->writeType(f.returnType());
-    this->write(" ");
+    if (this->shouldRewriteVoidTypedFunctions(&f)) {
+        this->write("float ");
+    } else {
+        this->writeTypePrecision(f.returnType());
+        this->writeType(f.returnType());
+        this->write(" ");
+    }
     this->writeIdentifier(f.mangledName());
     this->write("(");
     auto separator = SkSL::String::Separator();
@@ -1162,6 +1178,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fSetupFragPosition = false;
     fSetupFragCoordWorkaround = false;
     fSetupClockwise = false;
+    fCurrentFunction = &f.declaration();
 
     this->writeFunctionDeclaration(f.declaration());
     this->writeLine(" {");
@@ -1178,12 +1195,20 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
     }
 
+    if (this->shouldRewriteVoidTypedFunctions(&f.declaration())) {
+        // If we can't use void in sequence expressions, we rewrite void-typed user functions to
+        // return a (never-used) float in case they are used in a sequence expression.
+        this->writeLine("return 0.0;");
+    }
+
     fIndentation--;
     this->writeLine("}");
 
     fOut = oldOut;
     this->write(fFunctionHeader);
     this->write(buffer.str());
+
+    fCurrentFunction = nullptr;
 }
 
 void GLSLCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
@@ -1623,10 +1648,16 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 }
 
 void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
+    SkASSERT(fCurrentFunction);
+
     this->write("return");
     if (r.expression()) {
         this->write(" ");
         this->writeExpression(*r.expression(), Precedence::kExpression);
+    } else if (this->shouldRewriteVoidTypedFunctions(fCurrentFunction)) {
+        // We need to rewrite `return` statements to say `return 0.0` since we are converting
+        // void-typed functions to return floats instead.
+        this->write(" 0.0");
     }
     this->write(";");
 }

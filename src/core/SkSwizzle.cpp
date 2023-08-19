@@ -7,7 +7,7 @@
 
 #include "include/core/SkSwizzle.h"
 
-#include "src/core/SkOpts.h"
+#include "src/codec/SkSwizzler.h"
 
 void SkSwapRB(uint32_t* dest, const uint32_t* src, int count) {
     SkOpts::RGBA_to_BGRA(dest, src, count);

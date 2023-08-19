@@ -63,7 +63,6 @@
         %int = OpTypeInt 32 1
       %int_0 = OpConstant %int 0
          %52 = OpTypeFunction %v4float %_ptr_Function_v2float
-      %false = OpConstantFalse %bool
 %_entrypoint_v = OpFunction %void None %19
          %20 = OpLabel
          %24 = OpVariable %_ptr_Function_v2float Function

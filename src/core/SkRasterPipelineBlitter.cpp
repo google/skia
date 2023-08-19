@@ -19,7 +19,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkShaderBase.h"
@@ -447,38 +447,22 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
 void SkRasterPipelineBlitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
     SkIRect clip = {x,y, x+2,y+1};
     uint8_t coverage[] = { (uint8_t)a0, (uint8_t)a1 };
-
-    SkMask mask;
-    mask.fImage    = coverage;
-    mask.fBounds   = clip;
-    mask.fRowBytes = 2;
-    mask.fFormat   = SkMask::kA8_Format;
-
+    SkMask mask(coverage, clip, 2, SkMask::kA8_Format);
     this->blitMask(mask, clip);
 }
 
 void SkRasterPipelineBlitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
     SkIRect clip = {x,y, x+1,y+2};
     uint8_t coverage[] = { (uint8_t)a0, (uint8_t)a1 };
-
-    SkMask mask;
-    mask.fImage    = coverage;
-    mask.fBounds   = clip;
-    mask.fRowBytes = 1;
-    mask.fFormat   = SkMask::kA8_Format;
-
+    SkMask mask(coverage, clip, 1, SkMask::kA8_Format);
     this->blitMask(mask, clip);
 }
 
 void SkRasterPipelineBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     SkIRect clip = {x,y, x+1,y+height};
-
-    SkMask mask;
-    mask.fImage    = &alpha;
-    mask.fBounds   = clip;
-    mask.fRowBytes = 0;     // so we reuse the 1 "row" for all of height
-    mask.fFormat   = SkMask::kA8_Format;
-
+    SkMask mask(&alpha, clip,
+                0,     // so we reuse the 1 "row" for all of height
+                SkMask::kA8_Format);
     this->blitMask(mask, clip);
 }
 

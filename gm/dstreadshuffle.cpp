@@ -47,13 +47,9 @@ protected:
         kNumShapeTypes
     };
 
-    SkString onShortName() override {
-        return SkString("dstreadshuffle");
-    }
+    SkString getName() const override { return SkString("dstreadshuffle"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(530, 680);
-    }
+    SkISize getISize() override { return SkISize::Make(530, 680); }
 
     void drawShape(SkCanvas* canvas, SkPaint* paint, ShapeType type) {
         const SkRect kRect = SkRect::MakeXYWH(0, 0, 75.f, 85.f);

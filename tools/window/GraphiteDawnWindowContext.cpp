@@ -115,27 +115,29 @@ void GraphiteDawnWindowContext::setDisplayParams(const DisplayParams& params) {
 }
 
 wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
-    fInstance->DiscoverDefaultPhysicalDevices();
     DawnProcTable backendProcs = dawn::native::GetProcs();
     dawnProcSetProcs(&backendProcs);
 
-    std::vector<dawn::native::Adapter> adapters = fInstance->GetAdapters();
-    for (dawn::native::Adapter adapter : adapters) {
-        wgpu::AdapterProperties properties;
-        adapter.GetProperties(&properties);
-        if (properties.backendType != type) {
-            continue;
-        }
-        auto device = wgpu::Device::Acquire(adapter.CreateDevice());
-        device.SetUncapturedErrorCallback(
-                [](WGPUErrorType type, const char* message, void*) {
-                    SkDebugf("Device error: %s\n", message);
-                    SkASSERT(false);
-                },
-                0);
-        return device;
+    wgpu::RequestAdapterOptions adapterOptions;
+    adapterOptions.backendType = type;
+
+    std::vector<dawn::native::Adapter> adapters = fInstance->EnumerateAdapters(&adapterOptions);
+    if (adapters.empty()) {
+        return nullptr;
     }
-    return nullptr;
+
+    auto device = wgpu::Device::Acquire(adapters[0].CreateDevice());
+    if (!device) {
+        return nullptr;
+    }
+
+    device.SetUncapturedErrorCallback(
+            [](WGPUErrorType type, const char* message, void*) {
+                SkDebugf("Device error: %s\n", message);
+                SkASSERT(false);
+            },
+            nullptr);
+    return device;
 }
 
 wgpu::SwapChain GraphiteDawnWindowContext::createSwapChain() {

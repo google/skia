@@ -22,7 +22,6 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
-#include "src/sksl/dsl/DSLType.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFieldSymbol.h"
@@ -32,6 +31,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -255,10 +255,10 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
         return nullptr;
     }
     switch (result->kind()) {
-        case Symbol::Kind::kFunctionDeclaration: {
+        case Symbol::Kind::kFunctionDeclaration:
             return std::make_unique<FunctionReference>(*fContext, pos,
                                                        &result->as<FunctionDeclaration>());
-        }
+
         case Symbol::Kind::kVariable: {
             const Variable* var = &result->as<Variable>();
             // default to kRead_RefKind; this will be corrected later if the variable is written to
@@ -271,13 +271,12 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
             return FieldAccess::Make(*fContext, pos, std::move(base), field->fieldIndex(),
                                      FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
         }
-        case Symbol::Kind::kType: {
-            // go through DSLType so we report errors on private types
-            dsl::DSLType dslType(result->name(), pos);
-            return TypeReference::Convert(*fContext, pos, &dslType.skslType());
-        }
+        case Symbol::Kind::kType:
+            return TypeReference::Convert(*fContext, pos, &result->as<Type>());
+
         default:
-            SK_ABORT("unsupported symbol type %d\n", (int) result->kind());
+            SkDEBUGFAILF("unsupported symbol type %d\n", (int)result->kind());
+            return nullptr;
     }
 }
 
@@ -413,13 +412,7 @@ bool Compiler::runInliner(Inliner* inliner,
     return true;
 #else
     // The program's SymbolTable was taken out of the context when the program was bundled, but
-    // the inliner relies (indirectly) on having a valid SymbolTable.
-    // In particular, inlining can turn a non-optimizable expression like `normalize(myVec)` into
-    // `normalize(vec2(7))`, which is now optimizable. The optimizer can use DSL to simplify this
-    // expression--e.g., in the case of normalize, using DSL's Length(). The DSL relies on
-    // convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol table to
-    // find the declaration of `length`. To allow this chain of events to succeed, we re-insert the
-    // program's symbol table temporarily.
+    // the inliner creates IR objects which may expect the context to hold a valid SymbolTable.
     SkASSERT(!fContext->fSymbolTable);
     fContext->fSymbolTable = symbols;
 

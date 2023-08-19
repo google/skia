@@ -20,7 +20,7 @@ skia_cc_deps(
     name = "deps",
     visibility = ["//tools/window:__pkg__"],
     deps = select({
-        "//src/gpu:vulkan_backend": ["//tools/gpu/vk:testutils"],
+        "//src/gpu:vulkan_ganesh": ["//tools/gpu/vk:testutils"],
         "//conditions:default": [],
     }),
 )

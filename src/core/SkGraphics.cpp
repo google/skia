@@ -18,10 +18,15 @@
 #include "include/core/SkTime.h"
 #include "include/private/base/SkMath.h"
 #include "src/base/SkTSearch.h"
+#include "src/codec/SkSwizzler.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkScalerContext.h"
@@ -34,6 +39,11 @@ void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
     SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
+    SkOpts::Init_BitmapProcState();
+    SkOpts::Init_BlitMask();
+    SkOpts::Init_BlitRow();
+    SkOpts::Init_Memset();
+    SkOpts::Init_Swizzler();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,8 +105,4 @@ SkGraphics::SetOpenTypeSVGDecoderFactory(OpenTypeSVGDecoderFactory svgDecoderFac
 
 SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory() {
     return gSVGDecoderFactory;
-}
-
-void SkGraphics::AllowJIT() {
-    // SkVM has been removed
 }

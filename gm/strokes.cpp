@@ -54,14 +54,9 @@ public:
     StrokesGM() {}
 
 protected:
+    SkString getName() const override { return SkString("strokes_round"); }
 
-    SkString onShortName() override {
-        return SkString("strokes_round");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 2); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -118,13 +113,9 @@ protected:
         }
     }
 
-    SkString onShortName() override {
-        return SkString("zeroPath");
-    }
+    SkString getName() const override { return SkString("zeroPath"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 2); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint fillPaint, strokePaint, dashPaint;
@@ -174,14 +165,9 @@ private:
 };
 
 class TeenyStrokesGM : public skiagm::GM {
+    SkString getName() const override { return SkString("teenyStrokes"); }
 
-    SkString onShortName() override {
-        return SkString("teenyStrokes");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 2); }
 
     static void line(SkScalar scale, SkCanvas* canvas, SkColor color) {
         SkPaint p;
@@ -296,14 +282,9 @@ protected:
         }
     }
 
+    SkString getName() const override { return SkString("strokes_poly"); }
 
-    SkString onShortName() override {
-        return SkString("strokes_poly");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 2); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
@@ -388,14 +369,9 @@ public:
     Strokes3GM() {}
 
 protected:
+    SkString getName() const override { return SkString("strokes3"); }
 
-    SkString onShortName() override {
-        return SkString("strokes3");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1500, 1500);
-    }
+    SkISize getISize() override { return SkISize::Make(1500, 1500); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint origPaint;
@@ -445,14 +421,9 @@ public:
     Strokes4GM() {}
 
 protected:
+    SkString getName() const override { return SkString("strokes_zoomed"); }
 
-    SkString onShortName() override {
-        return SkString("strokes_zoomed");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 2); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -473,14 +444,9 @@ public:
     Strokes5GM() {}
 
 protected:
+    SkString getName() const override { return SkString("zero_control_stroke"); }
 
-    SkString onShortName() override {
-        return SkString("zero_control_stroke");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 2); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;

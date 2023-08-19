@@ -3,13 +3,22 @@
 error: 1: interface blocks are not allowed in this kind of program
 layout(binding=123) uniform testBlock {
                             ^^^^^^^^^
-error: 5: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 8: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
-error: 6: unknown identifier 'sk_FragColor'
-    sk_FragColor = half4(half(test[1].x));
+error: 9: unknown identifier 'sk_FragColor'
+    sk_FragColor = half4(test[0].s, test[1].m[1][0], test[0].a[1], test[1].am[1][0][1]);
     ^^^^^^^^^^^^
-error: 6: unknown identifier 'test'
-    sk_FragColor = half4(half(test[1].x));
-                              ^^^^
-4 errors
+error: 9: unknown identifier 'test'
+    sk_FragColor = half4(test[0].s, test[1].m[1][0], test[0].a[1], test[1].am[1][0][1]);
+                         ^^^^
+error: 9: unknown identifier 'test'
+    sk_FragColor = half4(test[0].s, test[1].m[1][0], test[0].a[1], test[1].am[1][0][1]);
+                                    ^^^^
+error: 9: unknown identifier 'test'
+    sk_FragColor = half4(test[0].s, test[1].m[1][0], test[0].a[1], test[1].am[1][0][1]);
+                                                     ^^^^
+error: 9: unknown identifier 'test'
+    sk_FragColor = half4(test[0].s, test[1].m[1][0], test[0].a[1], test[1].am[1][0][1]);
+                                                                   ^^^^
+7 errors

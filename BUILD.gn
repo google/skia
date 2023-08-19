@@ -48,9 +48,6 @@ config("skia_public") {
   if (skia_enable_sksl) {
     defines += [ "SK_ENABLE_SKSL" ]
   }
-  if (skia_enable_sksl_in_raster_pipeline) {
-    defines += [ "SK_ENABLE_SKSL_IN_RASTER_PIPELINE" ]
-  }
   if (skia_enable_precompile) {
     defines += [ "SK_ENABLE_PRECOMPILE" ]
   }
@@ -174,26 +171,6 @@ template("opts") {
 }
 
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
-
-opts("ssse3") {
-  enabled = is_x86
-  sources = skia_opts.ssse3_sources
-  if (!is_clang && is_win) {
-    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSSE3" ]
-  } else {
-    cflags = [ "-mssse3" ]
-  }
-}
-
-opts("avx") {
-  enabled = is_x86
-  sources = skia_opts.avx_sources
-  if (is_win) {
-    cflags = [ "/arch:AVX" ]
-  } else {
-    cflags = [ "-mavx" ]
-  }
-}
 
 opts("hsw") {
   enabled = is_x86
@@ -750,7 +727,6 @@ if (skia_compile_sksl_tests) {
       "SKSL_ENABLE_TRACING",
       "SKSL_STANDALONE",
       "SK_DISABLE_TRACING",
-      "SK_ENABLE_SKSL_IN_RASTER_PIPELINE",
       "SK_ENABLE_SPIRV_CROSS",
       "SK_ENABLE_SPIRV_VALIDATION",
       "SK_ENABLE_WGSL_VALIDATION",
@@ -1329,13 +1305,88 @@ optional("typeface_freetype") {
   ]
 }
 
+if (skia_use_fontations) {
+  action("fontations_rust_side") {
+    bazel_args = [ "--with_fontations" ]
+    if (is_mac && target_cpu == "arm64") {
+      # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
+      # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
+      # right thing but may not be the right build configuration in the long run.
+      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+    }
+    if (!is_debug) {
+      bazel_args += [ "--compilation_mode=opt" ]
+    }
+    script = "gn/bazel_build.py"
+    sources = [
+      "src/ports/fontations/BUILD.bazel",
+      "src/ports/fontations/src/ffi.rs",
+    ]
+    outputs = [ "$root_out_dir/libbridge_rust_side.a" ]
+    args =
+        [
+          "//src/ports/fontations:bridge_rust_side",
+          rebase_path("//bazel-bin/src/ports/fontations/libbridge_rust_side.a",
+                      root_build_dir),
+        ] + bazel_args
+  }
+
+  action("fontations_ffi") {
+    bazel_args = [ "--with_fontations" ]
+    if (is_mac && target_cpu == "arm64") {
+      # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
+      # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
+      # right thing but may not be the right build configuration in the long run.
+      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+    }
+    if (!is_debug) {
+      bazel_args += [ "--compilation_mode=opt" ]
+    }
+    script = "gn/bazel_build.py"
+    sources = [
+      "src/ports/fontations/BUILD.bazel",
+      "src/ports/fontations/src/ffi.rs",
+    ]
+    outputs = [
+      "$root_out_dir/libfontations_ffi.a",
+      "$root_out_dir/src/ports/fontations/src/ffi.rs.h",
+    ]
+    args = [
+             "//src/ports/fontations:fontations_ffi",
+             rebase_path("//bazel-bin/src/ports/fontations/libfontations_ffi.a",
+                         root_build_dir),
+
+             # we want the header to not simply be copied into the output directory,
+             # but in the same path as the Bazel build uses.
+             rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.h",
+                         root_build_dir) + "=src/ports/fontations/src/ffi.rs.h",
+           ] + bazel_args
+  }
+}
+
 optional("typeface_fontations") {
   public_defines = [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
   enabled = skia_use_fontations
+  if (enabled) {
+    # this is where src/ports/fontations/src/ffi.rs.h was generated and exists.
+    public_include_dirs = [ "$root_out_dir" ]
+  }
+
+  deps = [
+    ":fontations_ffi",
+    ":fontations_rust_side",
+  ]
+
+  libs = [
+    "$root_out_dir/libfontations_ffi.a",
+    "$root_out_dir/libbridge_rust_side.a",
+  ]
   sources = [
     "src/ports/SkTypeface_fontations.cpp",
     "src/ports/SkTypeface_fontations_priv.h",
   ]
+
+  sources_for_tests = [ "tests/FontationsTest.cpp" ]
 }
 
 optional("webp_decode") {
@@ -1425,7 +1476,6 @@ skia_component("skia") {
   deps = [
     ":android_utils",
     ":avif",
-    ":avx",
     ":fontmgr_factory",
     ":heif",
     ":hsw",
@@ -1434,7 +1484,7 @@ skia_component("skia") {
     ":ndk_images",
     ":png_decode",
     ":raw",
-    ":ssse3",
+    ":typeface_fontations",
     ":vello",
     ":webp_decode",
     ":wuffs",
@@ -1586,10 +1636,6 @@ skia_component("skia") {
     defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
-  if (skia_use_fontations) {
-    deps += [ ":typeface_fontations" ]
-  }
-
   if (skia_include_multiframe_procs) {
     sources += [ "tools/SkSharingProc.cpp" ]
   }
@@ -1627,11 +1673,7 @@ skia_static_library("pathkit") {
   public_configs = [ ":skia_public" ]
   configs = skia_library_configs
 
-  deps = [
-    ":avx",
-    ":hsw",
-    ":ssse3",
-  ]
+  deps = [ ":hsw" ]
 
   sources = []
   sources += skia_pathops_sources
@@ -1693,6 +1735,7 @@ skia_static_library("pathkit") {
 
 group("modules") {
   deps = [
+    "modules/bentleyottmann",
     "modules/skottie",
     "modules/skparagraph",
     "modules/skshaper",
@@ -1926,12 +1969,16 @@ if (skia_enable_tools) {
       "tools/gpu/FlushFinishTracker.cpp",
       "tools/gpu/FlushFinishTracker.h",
       "tools/gpu/GrContextFactory.cpp",
+      "tools/gpu/GrContextFactory.h",
       "tools/gpu/GrTest.cpp",
       "tools/gpu/ManagedBackendTexture.cpp",
       "tools/gpu/ManagedBackendTexture.h",
       "tools/gpu/MemoryCache.cpp",
       "tools/gpu/MemoryCache.h",
+      "tools/gpu/ProtectedUtils.cpp",
+      "tools/gpu/ProtectedUtils.h",
       "tools/gpu/ProxyUtils.cpp",
+      "tools/gpu/ProxyUtils.h",
       "tools/gpu/TestContext.cpp",
       "tools/gpu/TestOps.cpp",
       "tools/gpu/TestOps.h",
@@ -2257,7 +2304,9 @@ if (skia_enable_tools) {
       ":skia",
       ":test",
       ":tool_utils",
+      ":typeface_fontations_tests",
       "experimental/sktext:tests",
+      "modules/bentleyottmann:tests",
       "modules/skottie:tests",
       "modules/skparagraph:tests",
       "modules/sksg:tests",
@@ -2334,28 +2383,6 @@ if (skia_enable_tools) {
         "modules/skcms",
       ]
     }
-    test_app("fm") {
-      sources = [
-        "dm/DMGpuTestProcs.cpp",  # blech
-        "tools/fm/fm.cpp",
-      ]
-      deps = [
-        ":common_flags_aa",
-        ":common_flags_fontmgr",
-        ":common_flags_gpu",
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":hash_and_encode",
-        ":skia",
-        ":tests",
-        ":tool_utils",
-        ":trace",
-        "modules/skottie",
-        "modules/skottie:utils",
-        "modules/svg",
-      ]
-    }
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
@@ -2393,7 +2420,7 @@ if (skia_enable_tools) {
       ]
     }
 
-    if (!skia_enable_optimize_size) {
+    if (!skia_enable_optimize_size && !skia_use_fontations) {
       # optional separate library to dlopen when running CanvasStateTests.
       skia_shared_library("canvas_state_lib") {
         sources = [
@@ -2665,7 +2692,7 @@ if (skia_enable_tools) {
     }
   }
   if (is_android) {
-    shared_library("libskqp_app") {  # Not a skia_shared_library
+    shared_library("libskqp_jni") {  # Not a skia_shared_library
       configs += [ ":skia_private" ]
       testonly = true
       sources = [ "tools/skqp/src/jni_skqp.cpp" ]
@@ -2885,6 +2912,7 @@ if (skia_enable_tools) {
         "tools/viewer/PathSlide.cpp",
         "tools/viewer/PathTessellatorsSlide.cpp",
         "tools/viewer/PathTextSlide.cpp",
+        "tools/viewer/ProtectedSlide.cpp",
         "tools/viewer/QuadStrokerSlide.cpp",
         "tools/viewer/RectanizerSlide.cpp",
         "tools/viewer/RepeatTileSlide.cpp",

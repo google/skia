@@ -352,8 +352,9 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
                 }
                 SkBitmap bm;
                 bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
-                                 mask.fImage,
+                                 const_cast<uint8_t*>(mask.fImage),
                                  mask.fRowBytes);
+                bm.setImmutable();
 
                 // Since the glyph in the cache is scaled by maxScale, its top left vector is too
                 // long. Reduce it to find proper positions on the device.

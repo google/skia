@@ -197,7 +197,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ShaderTestNestedBlendsGanesh,
 #endif
 
 #if defined(SK_GRAPHITE)
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ShaderTestNestedBlendsGraphite, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ShaderTestNestedBlendsGraphite, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     using namespace skgpu::graphite;
 
     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),

@@ -155,6 +155,6 @@ sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& op
 
 bool EncodeAnimated(SkWStream*, SkSpan<const SkEncoder::Frame>, const Options&) {
     SkDEBUGFAIL("Encoding Animated WebP images is not supported with the NDK.");
-    return nullptr;
+    return false;
 }
 }  // namespace SkWebpEncoder

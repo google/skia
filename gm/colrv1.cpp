@@ -65,7 +65,7 @@ protected:
         fVariationSliders = ToolUtils::VariationSliders(fTypeface.get(), fVariationPosition);
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkASSERT(!fTestName.isEmpty());
         SkString gm_name = SkStringPrintf("colrv1_%s", fTestName.c_str());
 
@@ -95,7 +95,7 @@ protected:
         return fVariationSliders.readControls(controls);
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         // Sweep tests get a slightly wider canvas so that glyphs from one group fit in one row.
         if (fTestName.equals("sweep_varsweep")) {
             return SkISize::Make(xWidth + 500, xWidth);
@@ -155,7 +155,7 @@ protected:
                                        paint);
                 SkScalar glyphAdvance = font.measureText(
                         &fCodepoints[i], sizeof(uint32_t), SkTextEncoding::kUTF32, nullptr);
-                if (x + glyphAdvance < onISize().width() - xTranslate) {
+                if (x + glyphAdvance < getISize().width() - xTranslate) {
                     x += glyphAdvance + glyphAdvance * 0.05f;
                 } else {
                     y += y_shift;

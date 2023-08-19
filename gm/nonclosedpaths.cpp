@@ -37,15 +37,10 @@ public:
     };
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("nonclosedpaths");
-    }
+    SkString getName() const override { return SkString("nonclosedpaths"); }
 
     // 12 * 18 + 3 cases, every case is 100 * 100 pixels.
-    SkISize onISize() override {
-        return SkISize::Make(1220, 1920);
-    }
+    SkISize getISize() override { return SkISize::Make(1220, 1920); }
 
     // Use rect-like geometry for non-closed path, for right angles make it
     // easier to show the visual difference of lineCap and lineJoin.

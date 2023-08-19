@@ -128,7 +128,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         // To preserve history, useDrawPath==true has no suffix.
         SkString name{"strokedlines"};
         if (!fUseDrawPath) {
@@ -137,7 +137,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(kNumColumns * (2*kRadius+2*kPad), kNumRows * (2*kRadius+2*kPad));
     }
 

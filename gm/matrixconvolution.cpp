@@ -46,10 +46,7 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
-        return SkStringPrintf("matrixconvolution%s", fNameSuffix);
-    }
+    SkString getName() const override { return SkStringPrintf("matrixconvolution%s", fNameSuffix); }
 
     void makeBitmap() {
         // Draw our bitmap in N32, so legacy devices get "premul" values they understand
@@ -66,9 +63,7 @@ protected:
         fImage = surf->makeImageSnapshot();
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(500, 300);
-    }
+    SkISize getISize() override { return SkISize::Make(500, 300); }
 
     sk_sp<SkImageFilter> makeFilter(const SkIPoint &kernelOffset,
                                     SkTileMode tileMode,

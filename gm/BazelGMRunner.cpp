@@ -27,12 +27,11 @@
 #include "tools/HashAndEncode.h"
 
 #include <ctime>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
-
-struct tm;
 
 // TODO(lovisolo): Add flag --skip.
 // TODO(lovisolo): Add flag --omitDigestIfHashInFile (provides the known hashes file).
@@ -67,8 +66,9 @@ static DEFINE_string(via,
 // Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files. Returns an
 // empty string on success, or an error message in the case of failures.
 static std::string write_png_and_json_files(std::string name,
-                                            std::string config,
-                                            SkBitmap& bitmap,
+                                            std::map<std::string, std::string> gmGoldKeys,
+                                            std::map<std::string, std::string> surfaceGoldKeys,
+                                            const SkBitmap& bitmap,
                                             const char* pngPath,
                                             const char* jsonPath) {
     HashAndEncode hashAndEncode(bitmap);
@@ -89,13 +89,34 @@ static std::string write_png_and_json_files(std::string name,
         return "Error encoding or writing PNG to " + std::string(pngPath);
     }
 
+    // Validate GM-related Gold keys.
+    if (gmGoldKeys.find("name") == gmGoldKeys.end()) {
+        SK_ABORT("gmGoldKeys does not contain key \"name\"");
+    }
+    if (gmGoldKeys.find("source_type") == gmGoldKeys.end()) {
+        SK_ABORT("gmGoldKeys does not contain key \"source_type\"");
+    }
+
+    // Validate surface-related Gold keys.
+    if (surfaceGoldKeys.find("surface_config") == surfaceGoldKeys.end()) {
+        SK_ABORT("surfaceGoldKeys does not contain key \"surface_config\"");
+    }
+
+    // Gather all Gold keys.
+    std::map<std::string, std::string> keys = {
+            {"image_md5", md5.c_str()},
+            {"build_system", "bazel"},
+    };
+    keys.merge(surfaceGoldKeys);
+    keys.merge(gmGoldKeys);
+
     // Write JSON file with MD5 hash.
     SkFILEWStream jsonFile(jsonPath);
     SkJSONWriter jsonWriter(&jsonFile, SkJSONWriter::Mode::kPretty);
     jsonWriter.beginObject();  // Root object.
-    jsonWriter.appendString("name", name);
-    jsonWriter.appendString("md5", md5);
-    jsonWriter.appendString("config", config);
+    for (auto const& [param, value] : keys) {
+        jsonWriter.appendString(param.c_str(), SkString(value));
+    }
     jsonWriter.endObject();
 
     return "";
@@ -119,7 +140,87 @@ static std::string draw_result_to_string(skiagm::DrawResult result) {
         case skiagm::DrawResult::kSkip:
             return "Skip";
         default:
-            return "Unknown";
+            SkUNREACHABLE;
+    }
+}
+
+static int gNumSuccessfulGMs = 0;
+static int gNumFailedGMs = 0;
+static int gNumSkippedGMs = 0;
+
+// Runs a GM under the given surface config, and saves its output PNG file (and accompanying JSON
+// file with metadata) to the given output directory.
+void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outputDir) {
+    SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName().c_str());
+
+    // Create surface and canvas.
+    std::unique_ptr<SurfaceManager> surfaceManager =
+            SurfaceManager::FromConfig(config, gm->getISize().width(), gm->getISize().height());
+    if (surfaceManager == nullptr) {
+        SK_ABORT("Unknown --surfaceConfig flag value: %s.", config.c_str());
+    }
+
+    // Set up GPU.
+    SkDebugf("[%s]     Setting up GPU...\n", now().c_str());
+    SkString msg;
+    skiagm::DrawResult result = gm->gpuSetup(surfaceManager->getSurface()->getCanvas(), &msg);
+
+    // Draw GM into canvas if GPU setup was successful.
+    SkBitmap bitmap;
+    if (result == skiagm::DrawResult::kOk) {
+        GMOutput output;
+        std::string viaName = FLAGS_via.size() == 0 ? "" : (FLAGS_via[0]);
+        SkDebugf("[%s]     Drawing GM via \"%s\"...\n", now().c_str(), viaName.c_str());
+        output = draw(gm.get(), surfaceManager->getSurface().get(), viaName);
+        result = output.result;
+        msg = SkString(output.msg.c_str());
+        bitmap = output.bitmap;
+    }
+
+    // Keep track of results. We will exit with a non-zero exit code in the case of failures.
+    switch (result) {
+        case skiagm::DrawResult::kOk:
+            // We don't increment numSuccessfulGMs just yet. We still need to successfully save
+            // its output bitmap to disk.
+            SkDebugf("[%s]     Flushing surface...\n", now().c_str());
+            surfaceManager->flush();
+            break;
+        case skiagm::DrawResult::kFail:
+            gNumFailedGMs++;
+            break;
+        case skiagm::DrawResult::kSkip:
+            gNumSkippedGMs++;
+            break;
+        default:
+            SkUNREACHABLE;
+    }
+
+    // Report GM result and optional message.
+    SkDebugf("[%s]     Result: %s\n", now().c_str(), draw_result_to_string(result).c_str());
+    if (!msg.isEmpty()) {
+        SkDebugf("[%s]     Message: \"%s\"\n", now().c_str(), msg.c_str());
+    }
+
+    // Save PNG and JSON file with MD5 hash to disk if the GM was successful.
+    if (result == skiagm::DrawResult::kOk) {
+        std::string name = std::string(gm->getName().c_str());
+        SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
+        SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
+
+        std::string pngAndJSONResult = write_png_and_json_files(gm->getName().c_str(),
+                                                                gm->getGoldKeys(),
+                                                                surfaceManager->getGoldKeys(),
+                                                                bitmap,
+                                                                pngPath.c_str(),
+                                                                jsonPath.c_str());
+        if (pngAndJSONResult != "") {
+            SkDebugf("[%s] %s\n", now().c_str(), pngAndJSONResult.c_str());
+            gNumFailedGMs++;
+        } else {
+            gNumSuccessfulGMs++;
+            SkDebugf("[%s]     PNG file written to: %s\n", now().c_str(), pngPath.c_str());
+            SkDebugf("[%s]     JSON file written to: %s\n", now().c_str(), jsonPath.c_str());
+        }
     }
 }
 
@@ -133,12 +234,11 @@ int main(int argc, char** argv) {
     if (argc < 2) {
         SkDebugf("GM runner invoked with no arguments.\n");
     } else {
-        std::ostringstream oss;
-        oss << "GM runner invoked with arguments:";
+        SkDebugf("GM runner invoked with arguments:");
         for (int i = 1; i < argc; i++) {
-            oss << " " << argv[i];
+            SkDebugf(" %s", argv[i]);
         }
-        SkDebugf("%s\n", oss.str().c_str());
+        SkDebugf("\n");
     }
 
     // When running under Bazel (e.g. "bazel test //path/to:test"), we'll store output files in
@@ -154,101 +254,42 @@ int main(int argc, char** argv) {
     // Parse and validate flags.
     CommandLineFlags::Parse(argc, argv);
     if (!isBazelTest && FLAGS_outputDir.isEmpty()) {
-        SkDebugf("Flag --outputDir cannot be empty.\n");
-        return 1;
+        SK_ABORT("Flag --outputDir cannot be empty.");
     }
     if (FLAGS_outputDir.size() > 1) {
-        SkDebugf("Flag --outputDir takes one single value, got %d.\n", FLAGS_outputDir.size());
-        return 1;
+        SK_ABORT("Flag --outputDir takes one single value, got %d.", FLAGS_outputDir.size());
     }
     if (FLAGS_surfaceConfig.isEmpty()) {
-        SkDebugf("Flag --surfaceConfig cannot be empty.\n");
-        return 1;
+        SK_ABORT("Flag --surfaceConfig cannot be empty.");
     }
     if (FLAGS_surfaceConfig.size() > 1) {
-        SkDebugf("Flag --surfaceConfig takes one single value, got %d.\n",
+        SK_ABORT("Flag --surfaceConfig takes one single value, got %d.",
                  FLAGS_surfaceConfig.size());
-        return 1;
     }
     if (FLAGS_via.size() > 1) {
-        SkDebugf("Flag --via takes at most one value, got %d.\n", FLAGS_via.size());
-        return 1;
+        SK_ABORT("Flag --via takes at most one value, got %d.", FLAGS_via.size());
     }
 
     std::string outputDir =
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
-    std::string config(FLAGS_surfaceConfig[0]);
+    std::string config = FLAGS_surfaceConfig[0];
 
-    // Iterate over all registered GMs.
-    bool failures = false;
-    int numImagesWritten = 0;
-    for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
-        std::unique_ptr<skiagm::GM> gm(f());
-        SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName());
-
-        // Create surface and canvas.
-        std::unique_ptr<SurfaceManager> surface_manager =
-                SurfaceManager::FromConfig(config, gm->getISize().width(), gm->getISize().height());
-        if (surface_manager == nullptr) {
-            SK_ABORT("unknown --surfaceConfig flag value: %s", config.c_str());
+    // Execute all GM registerer functions, then run all registered GMs.
+    for (const skiagm::GMRegistererFn& f : skiagm::GMRegistererFnRegistry::Range()) {
+        std::string errorMsg = f();
+        if (errorMsg != "") {
+            SK_ABORT("Error while gathering GMs: %s", errorMsg.c_str());
         }
-
-        // Set up GPU.
-        SkDebugf("[%s]     Setting up GPU...\n", now().c_str());
-        SkString msg;
-        skiagm::DrawResult result = gm->gpuSetup(surface_manager->getSurface()->getCanvas(), &msg);
-
-        // Draw GM into canvas if GPU setup was successful.
-        SkBitmap bitmap;
-        if (result == skiagm::DrawResult::kOk) {
-            GMOutput output;
-            std::string viaName = FLAGS_via.size() == 0 ? "" : (FLAGS_via[0]);
-            SkDebugf("[%s]     Drawing GM via \"%s\"...\n", now().c_str(), viaName.c_str());
-            output = draw(gm.get(), surface_manager->getSurface().get(), viaName);
-            result = output.result;
-            msg = SkString(output.msg.c_str());
-            bitmap = output.bitmap;
-        }
-
-        // Flush surface if the GM was successful.
-        if (result == skiagm::DrawResult::kOk) {
-            SkDebugf("[%s]     Flushing surface...\n", now().c_str());
-            surface_manager->flush();
-        }
-
-        // Keep track of failures. We will exit with a non-zero code if there are any.
-        if (result == skiagm::DrawResult::kFail) {
-            failures = true;
-        }
-
-        // Report GM result and optional message.
-        SkDebugf("[%s]     Result: %s\n", now().c_str(), draw_result_to_string(result).c_str());
-        if (!msg.isEmpty()) {
-            SkDebugf("[%s]     Message: \"%s\"\n", now().c_str(), msg.c_str());
-        }
-
-        // Save PNG and JSON file with MD5 hash to disk if the GM was successful.
-        if (result == skiagm::DrawResult::kOk) {
-            std::string name = std::string(gm->getName());
-            SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
-            SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
-
-            std::string pngAndJSONResult = write_png_and_json_files(
-                    gm->getName(), config, bitmap, pngPath.c_str(), jsonPath.c_str());
-            if (pngAndJSONResult != "") {
-                SkDebugf("[%s] %s\n", now().c_str(), pngAndJSONResult.c_str());
-                failures = true;
-            } else {
-                numImagesWritten++;
-                SkDebugf("[%s]     PNG file written to: %s\n", now().c_str(), pngPath.c_str());
-                SkDebugf("[%s]     JSON file written to: %s\n", now().c_str(), jsonPath.c_str());
-            }
-        }
+    }
+    for (const skiagm::GMFactory& f : skiagm::GMRegistry::Range()) {
+        run_gm(f(), config, outputDir);
     }
 
     // TODO(lovisolo): If running under Bazel, print command to display output files.
 
-    SkDebugf(failures ? "FAIL\n" : "PASS\n");
-    SkDebugf("%d images written to %s.\n", numImagesWritten, outputDir.c_str());
-    return failures ? 1 : 0;
+    SkDebugf(gNumFailedGMs > 0 ? "FAIL\n" : "PASS\n");
+    SkDebugf("%d successful GMs (images written to %s).\n", gNumSuccessfulGMs, outputDir.c_str());
+    SkDebugf("%d failed GMs.\n", gNumFailedGMs);
+    SkDebugf("%d skipped GMs.\n", gNumSkippedGMs);
+    return gNumFailedGMs > 0 ? 1 : 0;
 }

@@ -122,9 +122,9 @@ private:
         }
     }
 
-    SkString onShortName() override { return SkString(fName); }
+    SkString getName() const override { return SkString(fName); }
 
-    SkISize onISize() override { return {860, 820}; }
+    SkISize getISize() override { return {860, 820}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
@@ -212,13 +212,13 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
                 for (size_t k = 0 ; k < std::size(styles) ; k++) {
                     SkBlurStyle style = styles[k];
 
-                    SkMask mask;
+                    SkMaskBuilder mask;
                     if (!SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(radius),
                                               &mask, r, style)) {
                         continue;
                     }
 
-                    SkAutoMaskFreeImage amfi(mask.fImage);
+                    SkAutoMaskFreeImage amfi(mask.image());
 
                     SkBitmap bm;
                     bm.installMaskPixels(mask);
@@ -248,9 +248,9 @@ namespace skiagm {
 // Compares actual blur rects with reference masks created by the GM. Animates sigma in viewer.
 class BlurRectCompareGM : public GM {
 protected:
-    SkString onShortName() override { return SkString("blurrect_compare"); }
+    SkString getName() const override { return SkString("blurrect_compare"); }
 
-    SkISize onISize() override { return {900, 1220}; }
+    SkISize getISize() override { return {900, 1220}; }
 
     void onOnceBeforeDraw() override { this->prepareReferenceMasks(); }
 

@@ -703,7 +703,7 @@ var codesizeTaskNameRegexp = regexp.MustCompile("^CodeSize-[a-zA-Z0-9_]+-")
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *jobBuilder) deriveCompileTaskName() string {
-	if b.role("Test", "Perf", "FM") {
+	if b.role("Test", "Perf") {
 		task_os := b.parts["os"]
 		ec := []string{}
 		if val := b.parts["extra_config"]; val != "" {
@@ -918,6 +918,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"AppleM1": {
 					"MacMini9.1": "arm64-64-Apple_M1",
 				},
+				"AppleIntel": {
+					"MacBookPro16.2": "x86-64",
+				},
 				"AVX": {
 					"VMware7.1": "x86-64",
 				},
@@ -928,6 +931,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"MacMini7.1":     "x86-64-i5-4278U",
 					"NUC5i7RYH":      "x86-64-i7-5557U",
 					"NUC9i7QN":       "x86-64-i7-9750H",
+					"NUC11TZi5":      "x86-64-avx2",
 				},
 				"AVX512": {
 					"GCE":  "x86-64-Skylake_GCE",
@@ -960,7 +964,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				gpu, ok := map[string]string{
 					// At some point this might use the device ID, but for now it's like Chromebooks.
 					"GTX660":        "10de:11c0-26.21.14.4120",
-					"GTX960":        "10de:1401-31.0.15.3667",
+					"GTX960":        "10de:1401-31.0.15.3699",
 					"IntelHD4400":   "8086:0a16-20.19.15.4963",
 					"IntelIris540":  "8086:1926-31.0.101.2115",
 					"IntelIris6100": "8086:162b-20.19.15.4963",
@@ -970,7 +974,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-30.0.15.1179",
 					"RadeonVega6":   "1002:1636-31.0.14057.5006",
-					"RTX3060":       "10de:2489-31.0.15.3667",
+					"RTX3060":       "10de:2489-31.0.15.3699",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.parts["cpu_or_gpu_value"])
@@ -1264,7 +1268,7 @@ func (b *jobBuilder) compile() string {
 		b.addTask(name, func(b *taskBuilder) {
 			recipe := "compile"
 			casSpec := CAS_COMPILE
-			if b.extraConfig("NoDEPS", "CMake", "Flutter", "NoPatch", "Vello") {
+			if b.extraConfig("NoDEPS", "CMake", "Flutter", "NoPatch", "Vello", "Fontations") {
 				recipe = "sync_and_compile"
 				casSpec = CAS_RUN_RECIPE
 				b.recipeProps(EXTRA_PROPS)
@@ -1320,6 +1324,10 @@ func (b *jobBuilder) compile() string {
 				}
 				b.asset("ccache_linux")
 				b.usesCCache()
+				if b.extraConfig("Fontations") {
+					b.usesBazel("linux_x64")
+					b.attempts(1)
+				}
 			} else if b.matchOs("Win") {
 				b.asset("win_toolchain")
 				if b.compiler("Clang") {
@@ -1339,7 +1347,7 @@ func (b *jobBuilder) compile() string {
 				if b.extraConfig("iOS") {
 					b.asset("provisioning_profile_ios")
 				}
-				if b.extraConfig("Vello") {
+				if b.extraConfig("Vello") || b.extraConfig("Fontations") {
 					// All of our current Mac compile machines are x64 Mac only.
 					b.usesBazel("mac_x64")
 					b.attempts(1)
@@ -1770,55 +1778,6 @@ func (b *jobBuilder) dm() {
 	}
 }
 
-func (b *jobBuilder) fm() {
-	goos := "linux"
-	if strings.Contains(b.parts["os"], "Win") {
-		goos = "windows"
-	}
-	if strings.Contains(b.parts["os"], "Mac") {
-		goos = "darwin"
-	}
-
-	b.addTask(b.Name, func(b *taskBuilder) {
-		b.asset("skimage", "skp", "svg")
-		b.cas(CAS_TEST)
-		b.dep(b.buildTaskDrivers(goos, "amd64"), b.compile())
-		b.cmd("./fm_driver${EXECUTABLE_SUFFIX}",
-			"--local=false",
-			"--resources=skia/resources",
-			"--imgs=skimage",
-			"--skps=skp",
-			"--svgs=svg",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--bot", b.Name,
-			"--gold="+strconv.FormatBool(!b.matchExtraConfig("SAN")),
-			"--gold_hashes_url", b.cfg.GoldHashesURL,
-			"build/fm${EXECUTABLE_SUFFIX}")
-		b.serviceAccount(b.cfg.ServiceAccountUploadGM)
-		b.swarmDimensions()
-		b.attempts(1)
-
-		if b.isLinux() && b.matchExtraConfig("SAN") {
-			b.asset("clang_linux")
-			// Sanitizers may want to run llvm-symbolizer for readable stack traces.
-			b.addToPATH("clang_linux/bin")
-
-			// Point sanitizer builds at our prebuilt libc++ for this sanitizer.
-			if b.extraConfig("MSAN") {
-				// We'd see false positives in std::basic_string<char> if this weren't set.
-				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/msan")
-			} else if b.extraConfig("TSAN") {
-				// Occasional false positives may crop up in the standard library without this.
-				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/tsan")
-			} else {
-				// The machines we run on may not have libstdc++ installed.
-				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/lib/x86_64-unknown-linux-gnu")
-			}
-		}
-	})
-}
-
 // canary generates a task that uses TaskDrivers to trigger canary manual rolls on autorollers.
 // Canary-G3 does not use this path because it is very different from other autorollers.
 func (b *jobBuilder) canary(rollerName, canaryCQKeyword, targetProjectBaseURL string) {
@@ -2173,6 +2132,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"skottie_tool_gpu":               {"//modules/skottie:skottie_tool_gpu", ""},
 	"tests":                          {"//tests:linux_rbe_build", ""},
 	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
+	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
 
 	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use
 	// by subsequent CI tasks.
@@ -2276,6 +2236,9 @@ func (b *jobBuilder) bazelTest() {
 	if taskdriverName == "precompiled" {
 		taskdriverName = "bazel_test_precompiled"
 	}
+	if taskdriverName == "gm" {
+		taskdriverName = "bazel_test_gm"
+	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
 		cmd := []string{"./" + taskdriverName,
@@ -2334,6 +2297,17 @@ func (b *jobBuilder) bazelTest() {
 			cmd = append(cmd,
 				"--command="+command,
 				"--command_workdir="+commandWorkDir)
+
+		case "bazel_test_gm":
+			cmd = append(cmd,
+				"--test_label="+labelAndSavedOutputDir.label,
+				"--test_config="+config,
+				"--goldctl_path=./cipd_bin_packages/goldctl",
+				"--git_commit="+specs.PLACEHOLDER_REVISION,
+				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
+				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
+				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
+			b.cipd(CIPD_PKGS_GOLDCTL)
 
 		default:
 			panic("Unsupported Bazel taskdriver " + taskdriverName)

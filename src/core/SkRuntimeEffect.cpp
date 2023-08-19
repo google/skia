@@ -48,6 +48,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
@@ -61,17 +62,12 @@
 
 #include <algorithm>
 
+using namespace skia_private;
+
 class SkColorSpace;
 struct SkIPoint;
 
-// Set `skia_enable_sksl_in_raster_pipeline = true` in your GN args to use Raster Pipeline SkSL.
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
-
 constexpr bool kRPEnableLiveTrace = false;
-#endif
-
-using namespace skia_private;
 
 #if defined(SK_BUILD_FOR_DEBUGGER)
     #define SK_LENIENT_SKSL_DESERIALIZATION 1
@@ -203,7 +199,6 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
     // By using an SkOnce, we avoid thread hazards and behave in a conceptually const way, but we
     // can avoid the cost of invoking the RP code generator until it's actually needed.
     fCompileRPProgramOnce([&] {
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
         // We generally do not run the inliner when an SkRuntimeEffect program is initially created,
         // because the final compile to native shader code will do this. However, in SkRP, there's
         // no additional compilation occurring, so we need to manually inline here if we want the
@@ -237,7 +232,6 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
                 SkDebugf("----- RP unsupported -----\n\n");
             }
         }
-#endif
     });
 
     return fRPProgram.get();
@@ -267,7 +261,6 @@ SkSpan<const float> SkRuntimeEffectPriv::UniformsAsSpan(
                   originalData->size() / sizeof(float)};
 }
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 bool RuntimeEffectRPCallbacks::appendShader(int index) {
     if (SkShader* shader = fChildren[index].shader()) {
         if (fSampleUsages[index].isPassThrough()) {
@@ -335,7 +328,6 @@ void RuntimeEffectRPCallbacks::applyColorSpaceXform(const SkColorSpaceXformSteps
     // Restore the execution mask, and move the color back into program data.
     fStage.fPipeline->append(SkRasterPipelineOp::exchange_src, color);
 }
-#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
 bool SkRuntimeEffectPriv::CanDraw(const SkCapabilities* caps, const SkSL::Program* program) {
     SkASSERT(caps && program);

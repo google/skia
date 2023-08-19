@@ -1,0 +1,14 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "EventQueue.cpp",
+        "Point.cpp",
+    ],
+    visibility = ["//modules/bentleyottmann:__pkg__"],
+)

@@ -45,7 +45,7 @@ void MetalWindowContext::initializeContext() {
     fQueue.reset([*fDevice newCommandQueue]);
 
     if (fDisplayParams.fMSAASampleCount > 1) {
-        if (@available(macOS 10.11, iOS 9.0, *)) {
+        if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
             if (![*fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
                 return;
             }
@@ -60,7 +60,7 @@ void MetalWindowContext::initializeContext() {
 
 #if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
     if (fDisplayParams.fEnableBinaryArchive) {
-        if (@available(macOS 11.0, iOS 14.0, *)) {
+        if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
             sk_cfp<MTLBinaryArchiveDescriptor*> desc([MTLBinaryArchiveDescriptor new]);
             (*desc).url = CacheURL(); // try to load
             NSError* error;
@@ -75,7 +75,7 @@ void MetalWindowContext::initializeContext() {
             }
         }
     } else {
-        if (@available(macOS 11.0, iOS 14.0, *)) {
+        if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
             fPipelineArchive = nil;
         }
     }
@@ -85,7 +85,7 @@ void MetalWindowContext::initializeContext() {
     backendContext.fDevice.retain((GrMTLHandle)fDevice.get());
     backendContext.fQueue.retain((GrMTLHandle)fQueue.get());
 #if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, *)) {
+    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         backendContext.fBinaryArchive.retain((__bridge GrMTLHandle)fPipelineArchive);
     }
 #endif
@@ -110,7 +110,7 @@ void MetalWindowContext::destroyContext() {
     fValid = false;
 
 #if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, *)) {
+    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         [fPipelineArchive release];
     }
 #endif
@@ -139,10 +139,7 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
             GrMtlTextureInfo fbInfo;
             fbInfo.fTexture.retain(currentDrawable.texture);
 
-            GrBackendRenderTarget backendRT(fWidth,
-                                            fHeight,
-                                            fSampleCount,
-                                            fbInfo);
+            GrBackendRenderTarget backendRT(fWidth, fHeight, fbInfo);
 
             surface = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
                                                           backendRT,
@@ -181,7 +178,7 @@ void MetalWindowContext::activate(bool isActive) {
     // serialize pipeline archive
     if (!isActive) {
 #if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
-        if (@available(macOS 11.0, iOS 14.0, *)) {
+        if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
             if (fPipelineArchive) {
                 NSError* error;
                 [fPipelineArchive serializeToURL:CacheURL() error:&error];

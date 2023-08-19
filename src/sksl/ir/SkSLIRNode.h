@@ -71,6 +71,7 @@ enum class ExpressionKind {
     kConstructorScalarCast,
     kConstructorSplat,
     kConstructorStruct,
+    kEmpty,
     kFieldAccess,
     kFunctionReference,
     kFunctionCall,
@@ -104,8 +105,16 @@ public:
     IRNode(const IRNode&) = delete;
     IRNode& operator=(const IRNode&) = delete;
 
-    // position of this element within the program being compiled, for error reporting purposes
+    // Position of this element within the program being compiled, for error reporting purposes.
     Position fPosition;
+
+    Position position() const {
+        return fPosition;
+    }
+
+    void setPosition(Position p) {
+        fPosition = p;
+    }
 
     /**
      *  Use is<T> to check the type of an IRNode.

@@ -17,9 +17,11 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
     defines = [ "SK_UNICODE_AVAILABLE" ]
     if (skia_use_icu) {
       defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
-    } else if (skia_use_client_icu) {
+    }
+    if (skia_use_client_icu) {
       defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
-    } else if (skia_use_libgrapheme) {
+    }
+    if (skia_use_libgrapheme) {
       defines += [ "SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION" ]
     }
     if (is_component_build) {
@@ -33,7 +35,7 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
     public = skia_unicode_public
     deps = [ "../..:skia" ]
     defines = [ "SKUNICODE_IMPLEMENTATION=1" ]
-    sources = skia_unicode_sources
+    sources = skia_unicode_sources + skia_unicode_icu_bidi_sources
     defines += [ "SK_UNICODE_AVAILABLE" ]
     configs += [ "../../:skia_private" ]
 
@@ -50,17 +52,21 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
         deps += [ "//third_party/icu" ]
       }
       configs += [ "../../third_party/icu/config:no_cxx" ]
-    } else if (skia_use_client_icu) {
+    }
+    if (skia_use_client_icu) {
       sources += skia_unicode_client_icu_sources
       defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
-      deps += [ skia_icu_bidi_third_party_dir ]
-    } else if (skia_use_libgrapheme) {
+      if (!skia_use_icu) {
+        deps += [ skia_icu_bidi_third_party_dir ]
+      }
+    }
+    if (skia_use_libgrapheme) {
       sources += skia_unicode_libgrapheme_sources
       defines += [ "SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION" ]
-      deps += [
-        skia_icu_bidi_third_party_dir,
-        skia_libgrapheme_third_party_dir,
-      ]
+      deps += [ skia_libgrapheme_third_party_dir ]
+      if (!skia_use_icu) {
+        deps += [ skia_icu_bidi_third_party_dir ]
+      }
     }
   }
 

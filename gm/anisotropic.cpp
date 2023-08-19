@@ -43,7 +43,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("anisotropic_image_scale_");
         switch (fMode) {
             case Mode::kLinear:
@@ -59,7 +59,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2*kImageSize + 3*kSpacer,
                              kNumVertImages*kImageSize + (kNumVertImages+1)*kSpacer);
     }
@@ -160,9 +160,9 @@ public:
     AnisoMipsGM() = default;
 
 protected:
-    SkString onShortName() override { return SkString("anisomips"); }
+    SkString getName() const override { return SkString("anisomips"); }
 
-    SkISize onISize() override { return SkISize::Make(520, 260); }
+    SkISize getISize() override { return SkISize::Make(520, 260); }
 
     sk_sp<SkImage> updateImage(SkSurface* surf, SkColor color) {
         surf->getCanvas()->clear(color);
@@ -194,7 +194,7 @@ protected:
             surface = SkSurfaces::RenderTarget(rc,
                                                skgpu::Budgeted::kYes,
                                                ii,
-                                               1,
+                                               /* sampleCount= */ 1,
                                                kTopLeft_GrSurfaceOrigin,
                                                /*surfaceProps=*/nullptr,
                                                /*shouldCreateWithMips=*/true);

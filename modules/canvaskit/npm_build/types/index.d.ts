@@ -950,6 +950,20 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
     getOpacityProps(): OpacityProperty[];
     getTextProps(): TextProperty[];
     getTransformProps(): TransformProperty[];
+
+    // Slots in Lottie were exposed with bodymovin version 5.11.0
+    // Properties tracked under the Essential Graphics window in AE will be "slotted". These slots
+    // can be observed and editted live like with the other get/set tools. The slot id passed in
+    // must match the name of the property in the Essential Graphics window. Property Groups support
+    // one-to-many relationships.
+    setColorSlot(key: string, color: InputColor): boolean;
+    setScalarSlot(key: string, scalar: number): boolean;
+    setVec2Slot(key: string, vec2: InputVector2): boolean;
+    setImageSlot(key: string, assetName: string): boolean;
+
+    getColorSlot(key: string): Color | null;
+    getScalarSlot(key: string): number | null;
+    getVec2Slot(key: string): Vector2 | null;
 }
 
 /**
@@ -2733,7 +2747,7 @@ export interface SkPicture extends EmbindObject<"SkPicture"> {
     /**
      * Returns the approximate byte size. Does not include large objects.
      */
-    approximateBytesUsed() : number;
+    approximateBytesUsed(): number;
 
     /**
      * Returns the serialized format of this SkPicture. The format may change at anytime and
@@ -3131,7 +3145,6 @@ export interface FontCollection extends EmbindObject<"FontCollection"> {
      */
     setDefaultFontManager(fontManager: TypefaceFontProvider | null): void;
 }
-
 
 export interface URange {
     start: number;

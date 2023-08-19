@@ -28,7 +28,7 @@ cc_binary_with_flags(
     linkopts = LINKOPTS,
     set_flags = {
         "gpu_backend": [
-            "gl_backend",
+            "gl_ganesh",
         ],
         "with_gl_standard": [
             "webgl_standard",

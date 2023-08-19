@@ -51,7 +51,7 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
                                                                     id<MTLTexture> texture) {
     SkASSERT(nil != texture);
     SkASSERT(1 == texture.mipmapLevelCount);
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         SkASSERT(MTLTextureUsageRenderTarget & texture.usage);
     }
 

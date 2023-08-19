@@ -82,7 +82,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
     if (!textureAttachment) {
         return nullptr;
     }
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) &
                  textureAttachment->mtlTexture().usage);
     }
@@ -108,7 +108,7 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
         id<MTLTexture> texture,
         GrWrapCacheable cacheable) {
     SkASSERT(nil != texture);
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
     }
     GrMipmapStatus mipmapStatus = texture.mipmapLevelCount > 1

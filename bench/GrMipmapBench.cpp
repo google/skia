@@ -45,10 +45,10 @@ protected:
             fSurface = SkSurfaces::RenderTarget(context,
                                                 skgpu::Budgeted::kNo,
                                                 info,
-                                                0,
+                                                /* sampleCount= */ 0,
                                                 kBottomLeft_GrSurfaceOrigin,
-                                                nullptr,
-                                                true);
+                                                /* surfaceProps= */ nullptr,
+                                                /* shouldCreateWithMips= */ true);
         }
 
         // Clear surface once:

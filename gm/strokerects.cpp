@@ -28,8 +28,7 @@ public:
     StrokeRectsGM(bool rotated) : fRotated(rotated) {}
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         if (fRotated) {
             return SkString("strokerects_rotated");
         } else {
@@ -37,9 +36,7 @@ protected:
         }
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(W*2, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W * 2, H * 2); }
 
     static void rnd_rect(SkRect* r, SkRandom& rand) {
         SkScalar x = rand.nextUScalar1() * W;

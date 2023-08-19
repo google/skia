@@ -766,6 +766,15 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     const j = mAnim.setOpacity('foo', 0.5);  // $ExpectType boolean
     const k = mAnim.setText('foo', 'bar', 12);  // $ExpectType boolean
     const l = mAnim.setTransform('foo', [1, 2], [3, 4], [5, 6], 90, 1, 0);  // $ExpectType boolean
+
+    const m = mAnim.setColorSlot('foo', CK.BLUE);  // $ExpectType boolean
+    const n = mAnim.setScalarSlot('foo', 5);  // $ExpectType boolean
+    const o = mAnim.setVec2Slot('foo', [1, 2]); // $ExpectType boolean
+    const p = mAnim.setImageSlot('foo', 'bar'); // $ExpectType boolean
+
+    const q = mAnim.getColorSlot('foo'); // $ExpectType Float32Array | null
+    const r = mAnim.getScalarSlot('foo'); // $ExpectType number | null
+    const s = mAnim.getVec2Slot('foo'); // $ExpectType Float32Array | null
 }
 
 function shaderTests(CK: CanvasKit) {
@@ -938,8 +947,8 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
     const surfaceNine = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
         CK.ColorSpace.ADOBE_RGB)!;
 
-    var sample = gl.getParameter(gl.SAMPLES);
-    var stencil = gl.getParameter(gl.STENCIL_BITS);
+    const sample = gl.getParameter(gl.SAMPLES);
+    const stencil = gl.getParameter(gl.STENCIL_BITS);
     const surfaceTen = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
         CK.ColorSpace.ADOBE_RGB, sample, stencil)!;
 

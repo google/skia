@@ -11,14 +11,14 @@ fn fn_i(_stageIn: VSIn) -> i32 {
     return i32(_stageIn.sk_InstanceID);
   }
 }
-fn main(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
+fn _skslMain(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
   {
     let _skTemp0 = fn_i(_stageIn);
     (*_stageOut).id = _skTemp0;
   }
 }
-@vertex fn vertexMain(_stageIn: VSIn) -> VSOut {
+@vertex fn main(_stageIn: VSIn) -> VSOut {
   var _stageOut: VSOut;
-  main(_stageIn, &_stageOut);
+  _skslMain(_stageIn, &_stageOut);
   return _stageOut;
 }

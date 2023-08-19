@@ -31,13 +31,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("imageblurtiled");
-    }
+    SkString getName() const override { return SkString("imageblurtiled"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

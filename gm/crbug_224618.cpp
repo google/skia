@@ -20,13 +20,9 @@ public:
     CrBug224618GM() : fTime(0.f) {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("crbug_224618");
-    }
+    SkString getName() const override { return SkString("crbug_224618"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kMaxVW, kMaxVW);
-    }
+    SkISize getISize() override { return SkISize::Make(kMaxVW, kMaxVW); }
 
     // This animates the FOV in viewer, to ensure the panorama covering rects are stable across
     // a variety of perspective matrices

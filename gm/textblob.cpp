@@ -95,13 +95,9 @@ protected:
         font.textToGlyphs(fText, txtLen, SkTextEncoding::kUTF8, fGlyphs.begin(), glyphCount);
     }
 
-    SkString onShortName() override {
-        return SkString("textblob");
-    }
+    SkString getName() const override { return SkString("textblob"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         for (unsigned b = 0; b < std::size(blobConfigs); ++b) {

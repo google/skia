@@ -51,7 +51,7 @@ public:
     const Renderer* atlasShape() const { return &fAtlasShape; }
 
     // Atlas'ed text rendering
-    const Renderer* bitmapText() const { return &fBitmapText; }
+    const Renderer* bitmapText(bool useLCDText) const { return &fBitmapText[useLCDText]; }
     const Renderer* sdfText(bool useLCDText) const { return &fSDFText[useLCDText]; }
 
     // Mesh rendering
@@ -105,7 +105,7 @@ private:
 
     Renderer fAtlasShape;
 
-    Renderer fBitmapText;
+    Renderer fBitmapText[2];  // bool isLCD
     Renderer fSDFText[2]; // bool isLCD
 
     Renderer fAnalyticRRect;

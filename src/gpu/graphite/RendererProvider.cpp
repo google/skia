@@ -52,9 +52,9 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     fTessellatedStrokes = makeFromStep(
             std::make_unique<TessellateStrokesRenderStep>(infinitySupport), DrawTypeFlags::kShape);
     fAtlasShape = makeFromStep(std::make_unique<AtlasShapeRenderStep>(), DrawTypeFlags::kShape);
-    fBitmapText = makeFromStep(std::make_unique<BitmapTextRenderStep>(),
-                               DrawTypeFlags::kText);
     for (bool lcd : {false, true}) {
+        fBitmapText[lcd] = makeFromStep(std::make_unique<BitmapTextRenderStep>(lcd),
+                                        DrawTypeFlags::kText);
         fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd),
                                      DrawTypeFlags::kText);
     }

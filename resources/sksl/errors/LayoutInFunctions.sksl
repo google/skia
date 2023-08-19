@@ -12,7 +12,10 @@ layout (
     input_attachment_index = 1,
     spirv,
     metal,
-    gl)
+    wgsl,
+    rgba8,
+    rgba32f,
+    r32f)
 void on_return() {}
 
 void on_param(
@@ -30,10 +33,14 @@ layout (
     input_attachment_index = 1,
     spirv,
     metal,
-    gl) float x) {}
+    wgsl,
+    rgba8,
+    rgba32f,
+    r32f) float x) {}
 
 /*%%*
 only one backend qualifier can be used
+only one pixel format qualifier can be used
 layout qualifier 'origin_upper_left' is not permitted here
 layout qualifier 'push_constant' is not permitted here
 layout qualifier 'blend_support_all_equations' is not permitted here
@@ -47,8 +54,12 @@ layout qualifier 'builtin' is not permitted here
 layout qualifier 'input_attachment_index' is not permitted here
 layout qualifier 'spirv' is not permitted here
 layout qualifier 'metal' is not permitted here
-layout qualifier 'gl' is not permitted here
+layout qualifier 'wgsl' is not permitted here
+layout qualifier 'rgba8' is not permitted here
+layout qualifier 'rgba32f' is not permitted here
+layout qualifier 'r32f' is not permitted here
 only one backend qualifier can be used
+only one pixel format qualifier can be used
 layout qualifier 'origin_upper_left' is not permitted here
 layout qualifier 'push_constant' is not permitted here
 layout qualifier 'blend_support_all_equations' is not permitted here
@@ -62,5 +73,8 @@ layout qualifier 'builtin' is not permitted here
 layout qualifier 'input_attachment_index' is not permitted here
 layout qualifier 'spirv' is not permitted here
 layout qualifier 'metal' is not permitted here
-layout qualifier 'gl' is not permitted here
+layout qualifier 'wgsl' is not permitted here
+layout qualifier 'rgba8' is not permitted here
+layout qualifier 'rgba32f' is not permitted here
+layout qualifier 'r32f' is not permitted here
 *%%*/

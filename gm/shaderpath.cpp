@@ -67,12 +67,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("shaderpath"); }
 
-    SkString onShortName() override {
-        return SkString("shaderpath");
-    }
-
-    SkISize onISize() override { return SkISize::Make(820, 930); }
+    SkISize getISize() override { return SkISize::Make(820, 930); }
 
     void onOnceBeforeDraw() override {
         makebm(&fBmp, kPointSize / 4, kPointSize / 4);

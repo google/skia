@@ -34,9 +34,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("lcdoverlap");
-    }
+    SkString getName() const override { return SkString("lcdoverlap"); }
 
     void onOnceBeforeDraw() override {
         // build text blob
@@ -50,7 +48,7 @@ protected:
         fBlob = builder.make();
     }
 
-    SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void drawTestCase(SkCanvas* canvas, SkScalar x, SkScalar y, SkBlendMode mode,
                       SkBlendMode mode2) {

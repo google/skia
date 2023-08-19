@@ -73,13 +73,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override  {
-        return SkString("modecolorfilters");
-    }
+    SkString getName() const override { return SkString("modecolorfilters"); }
 
-    SkISize onISize() override  {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onDraw(SkCanvas* canvas) override {
         // size of rect for each test case

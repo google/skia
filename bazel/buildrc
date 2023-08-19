@@ -82,7 +82,7 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
                      --ck_enable_canvas_polyfill --ck_enable_skp_serialization --ck_enable_skottie \
                      --ck_enable_runtime_effect --ck_enable_matrix_js
 
-build:ck_webgl2 --with_gl_standard=webgl_standard --gpu_backend=gl_backend \
+build:ck_webgl2 --with_gl_standard=webgl_standard --gpu_backend=gl_ganesh \
                 --disable_legacy_shader_context
 # CPU build needs legacy shader context otherwise SkPerlinNoiseShader does not render
 build:ck_cpu --enable_sksl --enable_legacy_shader_context
@@ -105,14 +105,24 @@ build:ck_full_cpu_release_chrome --config=ck_full_cpu_release
 build:debugger_app_container --config=ck_full_webgl2_debug_debugger \
                              --workspace_status_command=bazel/get_workspace_status.sh
 
+# config when building //infra/jsfiddle:jsfiddle_container.
+# This is invoked in a Louhi flow.
+build:jsfiddle_container --config=ck_full_webgl2_release \
+                         --workspace_status_command=bazel/get_workspace_status.sh
+
+# config when building //infra/shaders:shaders_container.
+# This is invoked in a Louhi flow.
+build:shaders_container --config=ck_full_webgl2_release \
+                        --workspace_status_command=bazel/get_workspace_status.sh
+
 # We only want to enforce IWYU on debug builds because we have some things that are only
 # necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is
 # only needed in release mode. Thus our C++ debug includes should be a superset of the
 # release includes.
 build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --compilation_mode=dbg --keep_going \
-                   --with_gl_standard=gl_standard --gpu_backend=gl_backend \
-                   --gpu_backend=vulkan_backend \
+                   --with_gl_standard=gl_standard --gpu_backend=gl_ganesh \
+                   --gpu_backend=vulkan_ganesh \
                    --enable_gpu_test_utils --force_cpu_tests \
                    --include_fontmgr=custom_directory_fontmgr --include_fontmgr=custom_embedded_fontmgr \
                    --include_fontmgr=custom_empty_fontmgr --fontmgr_factory=custom_directory_fontmgr_factory \
@@ -136,19 +146,19 @@ build:cpu_only_release --config=cpu --config=release
 build:cpu_only_debug_rbe --config=cpu_only_debug --config=use_linux_rbe_pool
 build:cpu_only_release_rbe --config=cpu_only_release --config=use_linux_rbe_pool
 
-build:gl_ganesh --enable_gpu_test_utils --gpu_backend=gl_backend \
+build:gl_ganesh --enable_gpu_test_utils --gpu_backend=gl_ganesh \
                  --cc_output_directory_tag=gl_ganesh
 # We need to have this environment variable set when testing our Ganesh GL backend on Unix,
 # otherwise, we get "Failed to open X display." and connect make a GL context for testing.
 build:gl_ganesh --action_env=DISPLAY=:1
 
-build:vulkan_ganesh --enable_gpu_test_utils --gpu_backend=vulkan_backend \
+build:vulkan_ganesh --enable_gpu_test_utils --gpu_backend=vulkan_ganesh \
                     --cc_output_directory_tag=vulkan_ganesh
 
-build:dawn_ganesh --enable_gpu_test_utils --gpu_backend=dawn_backend \
+build:dawn_ganesh --enable_gpu_test_utils --gpu_backend=dawn_ganesh \
                     --cc_output_directory_tag=dawn_ganesh
 
-build:metal_ganesh --enable_gpu_test_utils --gpu_backend=metal_backend \
+build:metal_ganesh --enable_gpu_test_utils --gpu_backend=metal_ganesh\
                     --cc_output_directory_tag=metal_ganesh
 
 # Short-hand aliases

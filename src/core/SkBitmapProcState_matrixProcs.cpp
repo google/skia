@@ -16,7 +16,7 @@
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBitmapProcState.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 
 #include <cstdint>
 #include <cstring>

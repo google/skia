@@ -14,6 +14,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/base/SkNoncopyable.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkMask.h"
 
 class GrClip;
@@ -61,7 +62,7 @@ public:
                         applying the filter. If returning false, ignore this parameter.
         @return true if the dst mask was correctly created.
     */
-    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+    virtual bool filterMask(SkMaskBuilder* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const = 0;
 
     enum class Type {
@@ -117,13 +118,14 @@ protected:
 
     class NinePatch : ::SkNoncopyable {
     public:
-        NinePatch() : fCache(nullptr) { }
+        NinePatch(const SkMask& mask, SkIRect outerRect, SkIPoint center, SkCachedData* cache)
+            : fMask(mask), fOuterRect(outerRect), fCenter(center), fCache(cache) {}
         ~NinePatch();
 
         SkMask      fMask;      // fBounds must have [0,0] in its top-left
         SkIRect     fOuterRect; // width/height must be >= fMask.fBounds'
         SkIPoint    fCenter;    // identifies center row/col for stretching
-        SkCachedData* fCache;
+        SkCachedData* fCache = nullptr;
     };
 
     /**
@@ -144,13 +146,13 @@ protected:
     virtual FilterReturn filterRectsToNine(const SkRect[], int count,
                                            const SkMatrix&,
                                            const SkIRect& clipBounds,
-                                           NinePatch*) const;
+                                           SkTLazy<NinePatch>*) const;
     /**
      *  Similar to filterRectsToNine, except it performs the work on a round rect.
      */
     virtual FilterReturn filterRRectToNine(const SkRRect&, const SkMatrix&,
                                            const SkIRect& clipBounds,
-                                           NinePatch*) const;
+                                           SkTLazy<NinePatch>*) const;
 
 private:
     friend class SkDraw;

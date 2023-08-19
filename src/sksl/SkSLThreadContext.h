@@ -58,17 +58,17 @@ public:
     static void End();
 
     /**
-     * Returns the Compiler used by DSL operations in the current thread.
+     * Returns the Compiler used by SkSL in the current thread.
      */
     static SkSL::Compiler& Compiler() { return *Instance().fCompiler; }
 
     /**
-     * Returns the Context used by DSL operations in the current thread.
+     * Returns the Context used by SkSL in the current thread.
      */
     static SkSL::Context& Context();
 
     /**
-     * Returns the collection to which DSL program elements in this thread should be appended.
+     * Returns the collection to which SkSL program elements in this thread should be appended.
      */
     static std::vector<std::unique_ptr<SkSL::ProgramElement>>& ProgramElements() {
         return Instance().fProgramElements;

@@ -20,7 +20,7 @@ skia_filegroup(
         "//src/sksl:needs_sksl": ["//include/sksl:public_hdrs"],
         "//conditions:default": [],
     }) + select({
-        "//src/gpu:has_gpu_backend": ["//include/gpu:public_hdrs"],
+        "//src/gpu:has_ganesh_backend": ["//include/gpu:public_hdrs"],
         "//conditions:default": [],
     }) + select({
         "//src/svg:enable_svg_canvas_true": ["//include/svg:public_hdrs"],
@@ -35,7 +35,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = ["//include/private:private_hdrs"] + select({
-        "//src/gpu:has_gpu_backend": ["//include/android:private_hdrs"],
+        "//src/gpu:has_ganesh_backend": ["//include/android:private_hdrs"],
         "//conditions:default": [],
     }),
     visibility = [
@@ -89,7 +89,6 @@ generate_cpp_files_for_headers(
         "include/encode/SkJpegEncoder.h",
         "include/encode/SkPngEncoder.h",
         "include/encode/SkWebpEncoder.h",
-        "include/gpu/GrBackendSurfaceMutableState.h",
         "include/gpu/GrTypes.h",
         "include/gpu/MutableTextureState.h",
         "include/gpu/ganesh/GrExternalTextureGenerator.h",
@@ -99,6 +98,7 @@ generate_cpp_files_for_headers(
         "include/private/SkIDChangeListener.h",
         "include/private/SkWeakRefCnt.h",
         "include/private/gpu/ganesh/GrTextureGenerator.h",
+        "include/private/gpu/ganesh/GrTypesPriv.h",
         "include/private/chromium/SkImageChromium.h",
     ],
 )

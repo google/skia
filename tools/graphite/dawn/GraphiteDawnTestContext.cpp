@@ -25,13 +25,11 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     static SkOnce gOnce;
 
     gOnce([&]{
-        gInstance = std::make_unique<dawn::native::Instance>();
-
-        gInstance->DiscoverDefaultPhysicalDevices();
         DawnProcTable backendProcs = dawn::native::GetProcs();
         dawnProcSetProcs(&backendProcs);
 
-        std::vector<dawn::native::Adapter> adapters = gInstance->GetAdapters();
+        gInstance = std::make_unique<dawn::native::Instance>();
+        std::vector<dawn::native::Adapter> adapters = gInstance->EnumerateAdapters();
         SkASSERT(!adapters.empty());
         // Sort adapters by adapterType(DiscreteGPU, IntegratedGPU, CPU) and
         // backendType(WebGPU, D3D11, D3D12, Metal, Vulkan, OpenGL, OpenGLES).
@@ -68,11 +66,21 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
 #endif
     });
 
-    std::array<wgpu::FeatureName, 1> features = {
-        wgpu::FeatureName::DepthClipControl,
-    };
+    std::vector<wgpu::FeatureName> features;
+    wgpu::Adapter adapter = gAdapter.Get();
+    if (adapter.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled)) {
+        features.push_back(wgpu::FeatureName::MSAARenderToSingleSampled);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::TransientAttachments)) {
+        features.push_back(wgpu::FeatureName::TransientAttachments);
+    }
+
     wgpu::DeviceDescriptor desc;
+#ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
+    desc.requiredFeatureCount = features.size();
+#else
     desc.requiredFeaturesCount = features.size();
+#endif
     desc.requiredFeatures      = features.data();
 
 #if !defined(SK_DEBUG)
@@ -80,7 +88,11 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
         std::array<const char*, 1> toggles = {
             "skip_validation",
         };
+#ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
+        deviceTogglesDesc.enabledToggleCount = toggles.size();
+#else
         deviceTogglesDesc.enabledTogglesCount = toggles.size();
+#endif
         deviceTogglesDesc.enabledToggles      = toggles.data();
         desc.nextInChain                      = &deviceTogglesDesc;
 #endif

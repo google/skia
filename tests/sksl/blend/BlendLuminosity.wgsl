@@ -67,14 +67,14 @@ fn blend_hslc_h4h2h4h4(_skParam0: vec2<f32>, _skParam1: vec4<f32>, _skParam2: ve
     return vec4<f32>((((_5_result + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
   }
 }
-fn main(_stageOut: ptr<function, FSOut>) {
+fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     let _skTemp15 = blend_hslc_h4h2h4h4(vec2<f32>(1.0, 0.0), _globalUniforms.src, _globalUniforms.dst);
     (*_stageOut).sk_FragColor = _skTemp15;
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  main(&_stageOut);
+  _skslMain(&_stageOut);
   return _stageOut;
 }

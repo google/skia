@@ -843,6 +843,41 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
     return float4(devPos.xy, devPos.z*depth, devPos.z);
 }
 
+float4 text_vertex_fn(float2 baseCoords,
+                      // Uniforms
+                      float4x4 subRunDeviceMatrix,
+                      float4x4 deviceToLocal,
+                      float2 atlasSizeInv,
+                      // Instance Attributes
+                      float2 size,
+                      float2 uvPos,
+                      float2 xyPos,
+                      float strikeToSourceScale,
+                      float depth,
+                      // Varyings
+                      out float2 textureCoords,
+                      out float2 unormTexCoords,  // used as varying in SDFText
+                      // Render Step
+                      out float2 stepLocalCoords) {
+    baseCoords.xy *= float2(size);
+
+    // Sub runs have a decomposed transform and are sometimes already transformed into device
+    // space, in which `subRunCoords` represents the bounds projected to device space without
+    // the local-to-device translation and `subRunDeviceMatrix` contains the translation.
+    float2 subRunCoords = strikeToSourceScale * baseCoords + xyPos;
+    float4 position = subRunDeviceMatrix * subRunCoords.xy01;
+
+    // Calculate the local coords used for shading.
+    // TODO(b/246963258): This is incorrect if the transform has perspective, which would
+    // require a division + a valid z coordinate (which is currently set to 0).
+    stepLocalCoords = (deviceToLocal * position).xy;
+
+    unormTexCoords = baseCoords + uvPos;
+    textureCoords = unormTexCoords * atlasSizeInv;
+
+    return float4(position.xy, depth, position.w);
+}
+
 float4 atlas_shape_vertex_fn(float2 quadCoords,
                              // Uniforms
                              float2 atlasSizeInv,

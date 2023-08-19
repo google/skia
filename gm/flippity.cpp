@@ -177,13 +177,9 @@ public:
     }
 
 private:
-    SkString onShortName() override {
-        return SkString("flippity");
-    }
+    SkString getName() const override { return SkString("flippity"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kGMWidth, kGMHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
 
     // Draw the reference image and the four corner labels in the matrix's coordinate space
     void drawImageWithMatrixAndLabels(SkCanvas* canvas, SkImage* image, int matIndex,

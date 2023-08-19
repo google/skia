@@ -20,8 +20,13 @@ class GaneshGLSurfaceManager : public SurfaceManager {
 public:
     GaneshGLSurfaceManager(std::unique_ptr<sk_gpu_test::GrContextFactory> contextFactory,
                            GrDirectContext* context,
-                           sk_sp<SkSurface> surface)
-            : fContextFactory(std::move(contextFactory)), fContext(context), fSurface(surface) {}
+                           sk_sp<SkSurface> surface,
+                           std::string config,
+                           SkColorInfo colorInfo)
+            : SurfaceManager(config, colorInfo)
+            , fContextFactory(std::move(contextFactory))
+            , fContext(context)
+            , fSurface(surface) {}
 
     sk_sp<SkSurface> getSurface() override { return fSurface; }
 
@@ -56,7 +61,8 @@ std::unique_ptr<SurfaceManager> SurfaceManager::FromConfig(std::string config,
                 context, skgpu::Budgeted::kNo, info, /* sampleCount= */ 1, &props);
         SkASSERT_RELEASE(surface);
 
-        return std::make_unique<GaneshGLSurfaceManager>(std::move(testFactory), context, surface);
+        return std::make_unique<GaneshGLSurfaceManager>(
+                std::move(testFactory), context, surface, config, colorInfo);
     }
     return nullptr;
 }

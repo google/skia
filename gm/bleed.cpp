@@ -121,13 +121,13 @@ public:
         , fConstraint(constraint)
         , fManual(manual) {
         // Make sure GPU SkSurfaces can be created for this GM.
-        SkASSERT(this->onISize().width() <= kMaxTextureSize &&
-                 this->onISize().height() <= kMaxTextureSize);
+        SkASSERT(this->getISize().width() <= kMaxTextureSize &&
+                 this->getISize().height() <= kMaxTextureSize);
     }
 
 protected:
-    SkString onShortName() override { return fShortName; }
-    SkISize onISize() override { return SkISize::Make(800, 1000); }
+    SkString getName() const override { return fShortName; }
+    SkISize getISize() override { return SkISize::Make(800, 1000); }
 
     void drawImage(SkCanvas* canvas, sk_sp<SkImage> image, SkRect srcRect, SkRect dstRect,
                    const SkSamplingOptions& sampling, SkPaint* paint) {

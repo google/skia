@@ -27,6 +27,9 @@ public:
                                              Protected,
                                              Renderable) const override;
 
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                             Mipmapped mipmapped) const override;
+
     TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                           Discardable discardable) const override;
 

@@ -19,9 +19,9 @@ namespace {
 class TinyBitmapGM : public skiagm::GM {
     void onOnceBeforeDraw() override { this->setBGColor(0xFFDDDDDD); }
 
-    SkString onShortName() override { return SkString("tinybitmap"); }
+    SkString getName() const override { return SkString("tinybitmap"); }
 
-    SkISize onISize() override { return SkISize::Make(100, 100); }
+    SkISize getISize() override { return SkISize::Make(100, 100); }
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap bm;

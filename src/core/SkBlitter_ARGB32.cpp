@@ -19,10 +19,11 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkBlitMask.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>
@@ -707,7 +708,7 @@ void SkARGB32_Blitter::blitH(int x, int y, int width) {
     SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
 
     uint32_t* device = fDevice.writable_addr32(x, y);
-    SkBlitRow::Color32(device, device, width, fPMColor);
+    SkBlitRow::Color32(device, width, fPMColor);
 }
 
 void SkARGB32_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
@@ -732,7 +733,7 @@ void SkARGB32_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                 SkOpts::memset32(device, color, count);
             } else {
                 uint32_t sc = SkAlphaMulQ(color, SkAlpha255To256(aa));
-                SkBlitRow::Color32(device, device, count, sc);
+                SkBlitRow::Color32(device, count, sc);
             }
         }
         runs += count;
@@ -896,7 +897,7 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
         SkOpts::rect_memset32(device, color, width, rowBytes, height);
     } else {
         while (height --> 0) {
-            SkBlitRow::Color32(device, device, width, color);
+            SkBlitRow::Color32(device, width, color);
             device = (uint32_t*)((char*)device + rowBytes);
         }
     }

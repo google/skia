@@ -56,13 +56,9 @@ protected:
         fShader = make_shader(SkBlendMode::kDstIn);
     }
 
-    SkString onShortName() override {
-        return SkString("composeshader");
-    }
+    SkString getName() const override { return SkString("composeshader"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(120, 120);
-    }
+    SkISize getISize() override { return SkISize::Make(120, 120); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -85,13 +81,9 @@ public:
     ComposeShaderAlphaGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("composeshader_alpha");
-    }
+    SkString getName() const override { return SkString("composeshader_alpha"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(750, 220);
-    }
+    SkISize getISize() override { return SkISize::Make(750, 220); }
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkShader> shaders[] = {
@@ -170,11 +162,11 @@ public:
     ComposeShaderBitmapGM(bool use_lm) : fUseLocalMatrix(use_lm) {}
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("composeshader_bitmap%s", fUseLocalMatrix ? "_lm" : "");
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(7 * (squareLength + 5), 2 * (squareLength + 5));
     }
 

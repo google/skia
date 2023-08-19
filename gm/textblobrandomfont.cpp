@@ -97,13 +97,9 @@ protected:
         fBlob = builder.make();
     }
 
-    SkString onShortName() override {
-        return SkString("textblobrandomfont");
-    }
+    SkString getName() const override { return SkString("textblobrandomfont"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());

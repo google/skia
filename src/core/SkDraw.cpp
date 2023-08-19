@@ -430,12 +430,12 @@ void SkDraw::drawDevMask(const SkMask& srcM, const SkPaint& paint) const {
 
     const SkMask* mask = &srcM;
 
-    SkMask dstM;
+    SkMaskBuilder dstM;
     if (paint.getMaskFilter() &&
         as_MFB(paint.getMaskFilter())->filterMask(&dstM, srcM, *fCTM, nullptr)) {
         mask = &dstM;
     }
-    SkAutoMaskFreeImage ami(dstM.fImage);
+    SkAutoMaskFreeImage ami(dstM.image());
 
     SkAutoBlitterChoose blitterChooser(*this, nullptr, paint);
     SkBlitter* blitter = blitterChooser.get();
@@ -471,21 +471,19 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& s
         if (!bitmap.peekPixels(&pmap)) {
             return;
         }
-        SkMask  mask;
-        mask.fBounds.setXYWH(ix, iy, pmap.width(), pmap.height());
-        mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = SkToU32(pmap.rowBytes());
-        // fImage is typed as writable, but in this case it is used read-only
-        mask.fImage = (uint8_t*)pmap.addr8(0, 0);
+        SkMask mask(pmap.addr8(0, 0),
+                    SkIRect::MakeXYWH(ix, iy, pmap.width(), pmap.height()),
+                    SkToU32(pmap.rowBytes()),
+                    SkMask::kA8_Format);
 
         this->drawDevMask(mask, paint);
     } else {    // need to xform the bitmap first
         SkRect  r;
-        SkMask  mask;
+        SkMaskBuilder mask;
 
         r.setIWH(bitmap.width(), bitmap.height());
         fCTM->mapRect(&r);
-        r.round(&mask.fBounds);
+        r.round(&mask.bounds());
 
         // set the mask's bounds to the transformed bitmap-bounds,
         // clipped to the actual device and further limited by the clip bounds
@@ -494,13 +492,13 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& s
             SkIRect devBounds = fDst.bounds();
             devBounds.intersect(fRC->getBounds().makeOutset(1, 1));
             // need intersect(l, t, r, b) on irect
-            if (!mask.fBounds.intersect(devBounds)) {
+            if (!mask.bounds().intersect(devBounds)) {
                 return;
             }
         }
 
-        mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = SkAlign4(mask.fBounds.width());
+        mask.format() = SkMask::kA8_Format;
+        mask.rowBytes() = SkAlign4(mask.fBounds.width());
         size_t size = mask.computeImageSize();
         if (0 == size) {
             // the mask is too big to allocated, draw nothing
@@ -509,14 +507,14 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& s
 
         // allocate (and clear) our temp buffer to hold the transformed bitmap
         AutoTMalloc<uint8_t> storage(size);
-        mask.fImage = storage.get();
-        memset(mask.fImage, 0, size);
+        mask.image() = storage.get();
+        memset(mask.image(), 0, size);
 
         // now draw our bitmap(src) into mask(dst), transformed by the matrix
         {
             SkBitmap    device;
             device.installPixels(SkImageInfo::MakeA8(mask.fBounds.width(), mask.fBounds.height()),
-                                 mask.fImage, mask.fRowBytes);
+                                 mask.image(), mask.fRowBytes);
 
             SkCanvas c(device);
             // need the unclipped top/left for the translate

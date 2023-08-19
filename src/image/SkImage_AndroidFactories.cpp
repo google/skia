@@ -11,6 +11,7 @@
 
 #include "include/android/SkImageAndroid.h"
 
+#include "include/android/GrAHardwareBufferUtils.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
@@ -37,7 +38,6 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
-#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"

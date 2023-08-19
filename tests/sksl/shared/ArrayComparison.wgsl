@@ -39,7 +39,7 @@ struct S {
   x: i32,
   y: i32,
 };
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var f1: array<f32, 5> = array<f32, 5>(1.0, 2.0, 3.0, 4.0, 5.0);
@@ -57,9 +57,9 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((((f1[0] == f2[0]) && (f1[1] == f2[1]) && (f1[2] == f2[2]) && (f1[3] == f2[3]) && (f1[4] == f2[4])) && ((f1[0] != f3[0]) || (f1[1] != f3[1]) || (f1[2] != f3[2]) || (f1[3] != f3[3]) || (f1[4] != f3[4]))) && ((_globalUniforms.testArray[0] != _globalUniforms.testArrayNegative[0]) || (_globalUniforms.testArray[1] != _globalUniforms.testArrayNegative[1]) || (_globalUniforms.testArray[2] != _globalUniforms.testArrayNegative[2]) || (_globalUniforms.testArray[3] != _globalUniforms.testArrayNegative[3]) || (_globalUniforms.testArray[4] != _globalUniforms.testArrayNegative[4]))) && ((_globalUniforms.testArray[0] == f1[0]) && (_globalUniforms.testArray[1] == f1[1]) && (_globalUniforms.testArray[2] == f1[2]) && (_globalUniforms.testArray[3] == f1[3]) && (_globalUniforms.testArray[4] == f1[4]))) && ((_globalUniforms.testArray[0] != f3[0]) || (_globalUniforms.testArray[1] != f3[1]) || (_globalUniforms.testArray[2] != f3[2]) || (_globalUniforms.testArray[3] != f3[3]) || (_globalUniforms.testArray[4] != f3[4]))) && ((f1[0] == _globalUniforms.testArray[0]) && (f1[1] == _globalUniforms.testArray[1]) && (f1[2] == _globalUniforms.testArray[2]) && (f1[3] == _globalUniforms.testArray[3]) && (f1[4] == _globalUniforms.testArray[4]))) && ((f3[0] != _globalUniforms.testArray[0]) || (f3[1] != _globalUniforms.testArray[1]) || (f3[2] != _globalUniforms.testArray[2]) || (f3[3] != _globalUniforms.testArray[3]) || (f3[4] != _globalUniforms.testArray[4]))) && (all(v1[0] == v2[0]) && all(v1[1] == v2[1]))) && (any(v1[0] != v3[0]) || any(v1[1] != v3[1]))) && ((all(m1[0][0] == m2[0][0]) && all(m1[0][1] == m2[0][1])) && (all(m1[1][0] == m2[1][0]) && all(m1[1][1] == m2[1][1])) && (all(m1[2][0] == m2[2][0]) && all(m1[2][1] == m2[2][1])))) && ((any(m1[0][0] != m3[0][0]) || any(m1[0][1] != m3[0][1])) || (any(m1[1][0] != m3[1][0]) || any(m1[1][1] != m3[1][1])) || (any(m1[2][0] != m3[2][0]) || any(m1[2][1] != m3[2][1])))) && (((s1[0].x != s2[0].x) || (s1[0].y != s2[0].y)) || ((s1[1].x != s2[1].x) || (s1[1].y != s2[1].y)) || ((s1[2].x != s2[2].x) || (s1[2].y != s2[2].y)))) && (((s3[0].x == s1[0].x) && (s3[0].y == s1[0].y)) && ((s3[1].x == s1[1].x) && (s3[1].y == s1[1].y)) && ((s3[2].x == s1[2].x) && (s3[2].y == s1[2].y)))));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }
 

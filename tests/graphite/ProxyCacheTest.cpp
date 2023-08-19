@@ -25,7 +25,7 @@ namespace skgpu::graphite {
 // SkBitmap into the proxy cache and then changing its contents. This simple test should create
 // an IDChangeListener that will remove the entry in the cache when the bitmap is changed and
 // the resulting message processed.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest1, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest1, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
@@ -52,7 +52,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest1, r, context) {
 
 // This test checks that, if the same bitmap is added to two separate ProxyCaches, when it is
 // changed, both of the ProxyCaches will receive the message.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest2, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest2, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder1 = context->makeRecorder();
     ProxyCache* proxyCache1 = recorder1->priv().proxyCache();
     std::unique_ptr<Recorder> recorder2 = context->makeRecorder();
@@ -88,7 +88,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest2, r, context) {
 // This test exercises mipmap selectivity of the ProxyCache. Mipmapped and non-mipmapped version
 // of the same bitmap are keyed differently. Requesting a non-mipmapped version will
 // return a mipmapped version, if it exists.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest3, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest3, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
@@ -192,7 +192,7 @@ ProxyCacheSetup setup_test(Context* context, Recorder* recorder, skiatest::Repor
 } // anonymous namespace
 
 // This test exercises the ProxyCache's freeUniquelyHeld method.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
@@ -215,7 +215,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context) {
 }
 
 // This test exercises the ProxyCache's purgeProxiesNotUsedSince method.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
@@ -244,7 +244,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5, r, context) {
 
 // This test simply verifies that the ProxyCache is correctly updating the Resource's
 // last access time stamp.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
@@ -285,7 +285,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6, r, context) {
 }
 
 // Verify that the ProxyCache's purgeProxiesNotUsedSince method can clear out multiple proxies.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
@@ -305,7 +305,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7, r, context) {
 }
 
 // Verify that the ProxyCache's freeUniquelyHeld behavior is working in the ResourceCache.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceCache* resourceCache = recorder->priv().resourceCache();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
@@ -351,7 +351,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context) {
 
 // Verify that the ProxyCache's purgeProxiesNotUsedSince behavior is working when triggered from
 // ResourceCache.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9, r, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9, r, context, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceCache* resourceCache = recorder->priv().resourceCache();
     ProxyCache* proxyCache = recorder->priv().proxyCache();

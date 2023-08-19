@@ -1,3 +1,4 @@
+diagnostic(off, derivative_uniformity);
 struct FSIn {
   @builtin(front_facing) sk_Clockwise: bool,
   @builtin(position) sk_FragCoord: vec4<f32>,
@@ -10,7 +11,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var ok: bool;
@@ -21,9 +22,17 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
       var c: i32;
       let _skTemp0 = i32(_globalUniforms.colorGreen.y);
       switch _skTemp0 {
-        case 2, 3, 4, 5 {
+        case 0, 1, 2, 3, 4, 5 {
           var _skTemp1: bool = false;
-          if _skTemp0 == 2 {
+          if _skTemp0 == 0 {
+            ;
+            _skTemp1 = true;  // fallthrough
+          }
+          if _skTemp1 || _skTemp0 == 1 {
+            ;
+            _skTemp1 = true;  // fallthrough
+          }
+          if _skTemp1 || _skTemp0 == 2 {
             b = ONE;
             _skTemp1 = true;  // fallthrough
           }
@@ -40,17 +49,14 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
           }
           ok = a;
         }
-        case 0, 1 {
-          ;
-        }
         case default {}
       }
     }
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

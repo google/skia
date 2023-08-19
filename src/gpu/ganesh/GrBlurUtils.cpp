@@ -136,7 +136,7 @@ static bool draw_mask(skgpu::ganesh::SurfaceDrawContext* sdc,
 }
 
 static void mask_release_proc(void* addr, void* /*context*/) {
-    SkMask::FreeImage(addr);
+    SkMaskBuilder::FreeImage(addr);
 }
 
 // This stores the mapping from an unclipped, integerized, device-space, shape bounds to
@@ -202,12 +202,13 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
 
         devPath.transform(viewMatrix);
 
-        SkMask srcM, dstM;
+        SkMaskBuilder srcM, dstM;
         if (!SkDraw::DrawToMask(devPath, clipBounds, filter, &viewMatrix, &srcM,
-                                SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline)) {
+                                SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
+                                fillOrHairline)) {
             return {};
         }
-        SkAutoMaskFreeImage autoSrc(srcM.fImage);
+        SkAutoMaskFreeImage autoSrc(srcM.image());
 
         SkASSERT(SkMask::kA8_Format == srcM.fFormat);
 
@@ -215,7 +216,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
             return {};
         }
         // this will free-up dstM when we're done (allocated in filterMask())
-        SkAutoMaskFreeImage autoDst(dstM.fImage);
+        SkAutoMaskFreeImage autoDst(dstM.image());
 
         if (clip_bounds_quick_reject(clipBounds, dstM.fBounds)) {
             return {};
@@ -2096,7 +2097,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
             dstBounds.size(),
             SkSurfaceProps(),
             /*label=*/"SurfaceDrawContext_ConvolveGaussian2d",
-            1,
+            /* sampleCnt= */ 1,
             GrMipmapped::kNo,
             srcView.proxy()->isProtected(),
             srcView.origin());
@@ -2171,7 +2172,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian(
                                                     dstBounds.size(),
                                                     SkSurfaceProps(),
                                                     /*label=*/"SurfaceDrawContext_ConvolveGaussian",
-                                                    1,
+                                                    /* sampleCnt= */ 1,
                                                     GrMipmapped::kNo,
                                                     srcView.proxy()->isProtected(),
                                                     srcView.origin());
@@ -2346,7 +2347,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> reexpand(
                                                           dstSize,
                                                           SkSurfaceProps(),
                                                           /*label=*/"SurfaceDrawContext_Reexpand",
-                                                          1,
+                                                          /* sampleCnt= */ 1,
                                                           GrMipmapped::kNo,
                                                           srcView.proxy()->isProtected(),
                                                           srcView.origin());
@@ -2576,7 +2577,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
                                                         dstBounds.size(),
                                                         SkSurfaceProps(),
                                                         /*label=*/"SurfaceDrawContext_GaussianBlur",
-                                                        1,
+                                                        /* sampleCnt= */ 1,
                                                         GrMipmapped::kNo,
                                                         srcView.proxy()->isProtected(),
                                                         srcView.origin());
@@ -2683,7 +2684,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
             {rescaledSize.width() + 2 * padX, rescaledSize.height() + 2 * padY},
             SkSurfaceProps(),
             /*label=*/"RescaledSurfaceDrawContext",
-            1,
+            /* sampleCnt= */ 1,
             GrMipmapped::kNo,
             srcCtx->asSurfaceProxy()->isProtected(),
             srcCtx->origin());
@@ -2793,5 +2794,3 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
 }
 
 }  // namespace GrBlurUtils
-
-

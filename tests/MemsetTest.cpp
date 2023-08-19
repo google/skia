@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 #include "tests/Test.h"
 
 #include <cstddef>

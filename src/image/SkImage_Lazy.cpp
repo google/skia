@@ -154,6 +154,11 @@ sk_sp<SharedGenerator> SkImage_Lazy::generator() const {
     return fSharedGenerator;
 }
 
+bool SkImage_Lazy::onIsProtected() const {
+    ScopedGenerator generator(fSharedGenerator);
+    return generator->isProtected();
+}
+
 bool SkImage_Lazy::onReadPixels(GrDirectContext* dContext,
                                 const SkImageInfo& dstInfo,
                                 void* dstPixels,

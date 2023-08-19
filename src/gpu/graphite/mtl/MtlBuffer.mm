@@ -35,7 +35,7 @@ sk_sp<Buffer> MtlBuffer::Make(const MtlSharedContext* sharedContext,
     }
 
     NSUInteger options = 0;
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         if (accessPattern == AccessPattern::kHostVisible) {
 #ifdef SK_BUILD_FOR_MAC
             const MtlCaps& mtlCaps = sharedContext->mtlCaps();

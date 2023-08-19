@@ -73,6 +73,9 @@ public:
                                                      Protected,
                                                      Renderable) const = 0;
 
+    virtual TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                     Mipmapped mipmapped) const = 0;
+
     virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                   Discardable discardable) const = 0;
 
@@ -94,6 +97,7 @@ public:
     virtual bool isStorage(const TextureInfo&) const = 0;
 
     int maxTextureSize() const { return fMaxTextureSize; }
+    int defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
 
     virtual void buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo&,
@@ -156,6 +160,13 @@ public:
                                                      const TextureInfo& srcTextureInfo,
                                                      SkColorType dstColorType) const = 0;
 
+    /**
+     * Checks whether the passed color type is renderable. If so, the same color type is passed
+     * back. If not, provides an alternative (perhaps lower bit depth and/or unorm instead of float)
+     * color type that is supported or kUnknown if there no renderable fallback format.
+     */
+    SkColorType getRenderableColorType(SkColorType) const;
+
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
     bool protectedSupport() const { return fProtectedSupport; }
@@ -172,6 +183,9 @@ public:
 
     // Returns whether a draw buffer can be mapped.
     bool drawBufferCanBeMapped() const { return fDrawBufferCanBeMapped; }
+
+    // Returns whether multisampled render to single sampled is supported.
+    bool msaaRenderToSingleSampledSupport() const { return fMSAARenderToSingleSampledSupport; }
 
     // Returns whether compute shaders are supported.
     bool computeSupport() const { return fComputeSupport; }
@@ -257,6 +271,7 @@ protected:
     bool fStorageBufferSupport = false;
     bool fStorageBufferPreferred = false;
     bool fDrawBufferCanBeMapped = true;
+    bool fMSAARenderToSingleSampledSupport = false;
 
     bool fComputeSupport = false;
 

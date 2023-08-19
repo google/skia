@@ -150,42 +150,6 @@ size_t MtlFormatBytesPerBlock(MTLPixelFormat mtlFormat) {
     }
 }
 
-bool SkSLToMSL(SkSL::Compiler* compiler,
-               const std::string& sksl,
-               SkSL::ProgramKind programKind,
-               const SkSL::ProgramSettings& settings,
-               std::string* msl,
-               SkSL::Program::Interface* outInterface,
-               ShaderErrorHandler* errorHandler) {
-#ifdef SK_DEBUG
-    std::string src = SkShaderUtils::PrettyPrint(sksl);
-#else
-    const std::string& src = sksl;
-#endif
-    std::unique_ptr<SkSL::Program> program = compiler->convertProgram(programKind,
-                                                                      src,
-                                                                      settings);
-    if (!program || !compiler->toMetal(*program, msl)) {
-        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
-        return false;
-    }
-
-    if (gPrintSKSL || gPrintBackendSL) {
-        SkShaderUtils::PrintShaderBanner(programKind);
-        if (gPrintSKSL) {
-            SkDebugf("SKSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
-        }
-        if (gPrintBackendSL) {
-            SkDebugf("MSL:\n");
-            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(*msl));
-        }
-    }
-
-    *outInterface = program->fInterface;
-    return true;
-}
-
 #ifdef SK_BUILD_FOR_IOS
 bool MtlIsAppInBackground() {
     return [NSThread isMainThread] &&

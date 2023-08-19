@@ -43,18 +43,18 @@ using namespace emscripten;
 static JSArray ListGMs() {
     SkDebugf("Listing GMs\n");
     JSArray gms = emscripten::val::array();
-    for (skiagm::GMFactory fact : skiagm::GMRegistry::Range()) {
+    for (const skiagm::GMFactory& fact : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(fact());
-        SkDebugf("gm %s\n", gm->getName());
-        gms.call<void>("push", std::string(gm->getName()));
+        SkDebugf("gm %s\n", gm->getName().c_str());
+        gms.call<void>("push", std::string(gm->getName().c_str()));
     }
     return gms;
 }
 
 static std::unique_ptr<skiagm::GM> getGMWithName(std::string name) {
-    for (skiagm::GMFactory fact : skiagm::GMRegistry::Range()) {
+    for (const skiagm::GMFactory& fact : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(fact());
-        if (gm->getName() == name) {
+        if (gm->getName().c_str() == name) {
             return gm;
         }
     }

@@ -193,10 +193,10 @@ public:
      */
     std::unique_ptr<skgpu::ganesh::SurfaceFillContext> makeSFCWithFallback(
             GrImageInfo,
-            SkBackingFit = SkBackingFit::kExact,
-            int sampleCount = 1,
-            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
-            skgpu::Protected = skgpu::Protected::kNo,
+            SkBackingFit,
+            int sampleCount,
+            skgpu::Mipmapped,
+            skgpu::Protected,
             GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
             skgpu::Budgeted = skgpu::Budgeted::kYes);
 

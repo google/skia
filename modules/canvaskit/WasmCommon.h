@@ -70,6 +70,8 @@ template <typename T> TypedArray MakeTypedArray(int count, const T src[]) {
     return jarray;
 }
 
+SkColor4f ptrToSkColor4f(WASMPointerF32);
+
 /**
  *  Gives read access to a JSArray
  *

@@ -49,6 +49,12 @@ RenderStep::RenderStep(std::string_view className,
     }
 }
 
+Coverage RenderStep::GetCoverage(SkEnumBitMask<Flags> flags) {
+    return !(flags & Flags::kEmitsCoverage) ? Coverage::kNone
+           : (flags & Flags::kLCDCoverage)  ? Coverage::kLCD
+                                            : Coverage::kSingleChannel;
+}
+
 float Renderer::boundsOutset(const Transform& localToDevice, const Rect& bounds) const {
     float outset = 0.0f;
     for (int i = 0; i < this->numRenderSteps(); ++i) {

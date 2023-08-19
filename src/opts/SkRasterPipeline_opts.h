@@ -3311,8 +3311,6 @@ STAGE_TAIL(set_base_pointer, std::byte* p) {
     base = p;
 }
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-
 // All control flow stages used by SkSL maintain some state in the common registers:
 //   r: condition mask
 //   g: loop mask
@@ -4402,8 +4400,6 @@ DECLARE_TERNARY_INT(mix)
 #undef DECLARE_N_WAY_TERNARY_FLOAT
 #undef DECLARE_TERNARY_FLOAT
 #undef DECLARE_TERNARY_INT
-
-#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
 STAGE(gauss_a_to_rgba, NoCtx) {
     // x = 1 - x;

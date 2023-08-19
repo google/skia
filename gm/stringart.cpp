@@ -32,14 +32,9 @@ public:
     StringArtGM() : fNumSteps(kMaxNumSteps) {}
 
 protected:
+    SkString getName() const override { return SkString("stringart"); }
 
-    SkString onShortName() override {
-        return SkString("stringart");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar angle = kAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
@@ -120,9 +115,9 @@ public:
 
 protected:
 
-    SkString onShortName() override { return SkString("skottie"); }
+    SkString getName() const override { return SkString("skottie"); }
 
-    SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void init() {
         SkRandom rand;

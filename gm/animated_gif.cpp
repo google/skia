@@ -79,11 +79,9 @@ public:
     , fTotalFrames (-1) {}
 
 private:
-    SkString onShortName() override {
-        return SkString("animatedGif");
-    }
+    SkString getName() const override { return SkString("animatedGif"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         if (this->initCodec()) {
             SkISize dim = fCodec->getInfo().dimensions();
             // Wide enough to display all the frames.
@@ -201,13 +199,9 @@ public:
     }
 
 private:
-    SkString onShortName() override {
-        return SkString("AnimCodecPlayer");
-    }
+    SkString getName() const override { return SkString("AnimCodecPlayer"); }
 
-    SkISize onISize() override {
-        return { 1024, 768 };
-    }
+    SkISize getISize() override { return {1024, 768}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(0.25f, 0.25f);
@@ -258,11 +252,11 @@ class AnimCodecPlayerExifGM : public skiagm::GM {
         }
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("AnimCodecPlayerExif_%s", strrchr(fPath, '/') + 1);
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         this->init();
         return fSize;
     }

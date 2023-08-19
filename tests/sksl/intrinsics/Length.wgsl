@@ -12,7 +12,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   let coords = _skParam0;
   {
     var inputVal: vec4<f32> = _globalUniforms.testMatrix2x2 + vec4<f32>(2.0, -2.0, 1.0, 8.0);
@@ -33,8 +33,8 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((_skTemp1 < allowedDelta) && (_skTemp3 < allowedDelta)) && (_skTemp5 < allowedDelta)) && (_skTemp7 < allowedDelta)) && (_skTemp8 < allowedDelta)) && (_skTemp9 < allowedDelta)) && (_skTemp10 < allowedDelta)) && (_skTemp11 < allowedDelta)));
   }
 }
-@fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {
+@fragment fn main(_stageIn: FSIn) -> FSOut {
   var _stageOut: FSOut;
-  _stageOut.sk_FragColor = main(_stageIn.sk_FragCoord.xy);
+  _stageOut.sk_FragColor = _skslMain(_stageIn.sk_FragCoord.xy);
   return _stageOut;
 }

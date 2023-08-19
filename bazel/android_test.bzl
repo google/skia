@@ -79,9 +79,10 @@ def android_test(
             various codecs included, but most tests won't need that.
         extra_args: Additional command-line arguments to pass to the test, for example, any
             device-specific --skip flags to skip incompatible or buggy test cases.
-        requires_condition: A necessary condition for the test to work. For example, GPU tests
-            should set this argument to "//src/gpu:has_gpu_backend". If the condition is satisfied,
-            test_runner_if_required_condition_is_satisfied will be appended to the srcs attribute.
+        requires_condition: A necessary condition for the test to work. For example, Ganesh tests
+            should set this argument to "//src/gpu:has_ganesh_backend". If the condition is
+            satisfied, test_runner_if_required_condition_is_satisfied will be appended to the srcs
+            attribute.
             If the condition is not satisfied, test_runner_if_required_condition_is_not_satisfied
             will be included as the only source file, and no deps will be included. This prevents
             spurious build failures when using wildcard expressions (e.g.

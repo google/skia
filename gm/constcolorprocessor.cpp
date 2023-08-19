@@ -58,7 +58,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         switch (fMode) {
             case TestMode::kConstColor:    return SkString("const_color_processor");
             case TestMode::kModulateRGBA:  return SkString("modulate_rgba");
@@ -66,9 +66,7 @@ protected:
         SkUNREACHABLE;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onOnceBeforeDraw() override {
         SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};

@@ -9,8 +9,8 @@ skia_cc_library(
     name = "sk_app",
     testonly = True,
     srcs = [
-        "Window.cpp",
         "CommandSet.cpp",
+        "Window.cpp",
     ] + select({
         "@platforms//os:linux": ["//tools/sk_app/unix:srcs"],
         "//conditions:default": [],
@@ -37,21 +37,21 @@ skia_objc_library(
     name = "sk_app_objc",
     testonly = True,
     srcs = [
+        "RasterWindowContext.h",
         "Window.cpp",
         "WindowContext.cpp",
-        "RasterWindowContext.h",
     ] + select_multi(
         {
             # TODO(kjlubick, jmbetancourt) Graphite backend
-            "//src/gpu:dawn_backend": [
+            "//src/gpu:dawn_ganesh": [
                 "DawnWindowContext.h",
                 "DawnWindowContext.cpp",
             ],
-            "//src/gpu:gl_backend": [
+            "//src/gpu:gl_ganesh": [
                 "GLWindowContext.cpp",
                 "GLWindowContext.h",
             ],
-            "//src/gpu:metal_backend": [
+            "//src/gpu:metal_ganesh": [
                 "MetalWindowContext.h",
                 "MetalWindowContext.mm",
             ],

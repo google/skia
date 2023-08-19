@@ -266,6 +266,14 @@ bin/gn gen out/AppleSilicon --args='target_cpu="arm64"'
 Googlers should see [go/skia-corp-xcode](http://go/skia-corp-xcode) for
 instructions on setting up Xcode on a corp machine.
 
+### Python
+
+The version of Python supplied by Apple is a few versions out of date,
+and it is known to interact poorly with our build system. We recommend
+installing the latest official version of Python from
+https://www.python.org/downloads/. Then run
+"Applications/Python 3.11/Install Certificates.command".
+
 ## iOS
 
 Run GN to generate your build files. Set `target_os="ios"` to build for iOS.

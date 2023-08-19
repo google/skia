@@ -6,6 +6,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 CORE_FILES = [
+    "AHardwareBufferGL.cpp",
     "GrGLAssembleGLESInterfaceAutogen.cpp",
     "GrGLAssembleGLInterfaceAutogen.cpp",
     "GrGLAssembleHelpers.cpp",
@@ -21,6 +22,8 @@ CORE_FILES = [
     "GrGLContext.h",
     "GrGLDefines.h",
     "GrGLExtensions.cpp",
+    "GrGLBackendSurface.cpp",
+    "GrGLBackendSurfacePriv.h",
     "GrGLGLSL.cpp",
     "GrGLGLSL.h",
     "GrGLGpu.cpp",

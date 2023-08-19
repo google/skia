@@ -80,7 +80,7 @@ private:
             pos[i] = (float)i / (std::size(pos) - 1);
         }
 
-        SkISize sz = this->onISize();
+        SkISize sz = this->getISize();
         fShader = SkGradientShader::MakeRadial(SkPoint::Make(SkIntToScalar(sz.width() / 2),
                                                SkIntToScalar(sz.height() / 2)),
                                                sz.width() * .66f, colors, pos,
@@ -88,13 +88,9 @@ private:
                                                SkTileMode::kRepeat);
     }
 
-    SkString onShortName() override {
-        return SkString("textblobshader");
-    }
+    SkString getName() const override { return SkString("textblobshader"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint p;
@@ -102,7 +98,7 @@ private:
         p.setStyle(SkPaint::kFill_Style);
         p.setShader(fShader);
 
-        SkISize sz = this->onISize();
+        SkISize sz = this->getISize();
         constexpr int kXCount = 4;
         constexpr int kYCount = 3;
         for (int i = 0; i < kXCount; ++i) {

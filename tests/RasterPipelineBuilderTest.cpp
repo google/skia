@@ -8,13 +8,10 @@
 #include "include/core/SkStream.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkStringView.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"
-
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
 static sk_sp<SkData> get_program_dump(SkSL::RP::Program& program) {
     SkDynamicMemoryWStream stream;
@@ -884,5 +881,3 @@ trace_exit                     TraceExit(FunctionC) when $0 is true
         }
     }
 }
-
-#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE

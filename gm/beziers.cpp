@@ -69,14 +69,9 @@ public:
     BeziersGM() {}
 
 protected:
+    SkString getName() const override { return SkString("beziers"); }
 
-    SkString onShortName() override {
-        return SkString("beziers");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(W, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W, H * 2); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

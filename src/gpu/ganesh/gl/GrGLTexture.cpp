@@ -9,10 +9,12 @@
 
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/gl/GrGLBackendSurfacePriv.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
@@ -136,12 +138,13 @@ GrBackendTexture GrGLTexture::getBackendTexture() const {
     info.fFormat = GrGLFormatToEnum(fFormat);
     info.fProtected = skgpu::Protected(this->isProtected());
 
-    return GrBackendTexture(this->width(), this->height(), this->mipmapped(), info, fParameters);
+    return GrBackendTextures::MakeGL(
+            this->width(), this->height(), this->mipmapped(), info, fParameters);
 }
 
 GrBackendFormat GrGLTexture::backendFormat() const {
-    return GrBackendFormat::MakeGL(GrGLFormatToEnum(fFormat),
-                                   target_from_texture_type(this->textureType()));
+    return GrBackendFormats::MakeGL(GrGLFormatToEnum(fFormat),
+                                    target_from_texture_type(this->textureType()));
 }
 
 sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu,

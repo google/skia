@@ -32,6 +32,7 @@
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLConstructorStruct.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLEmptyExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
@@ -41,7 +42,6 @@
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
@@ -188,8 +188,10 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
                                           binaryExpr.getOperator(),
                                           expr(binaryExpr.right()));
         }
+        case Expression::Kind::kEmpty:
+            return expression.clone(pos);
         case Expression::Kind::kLiteral:
-            return expression.clone();
+            return expression.clone(pos);
         case Expression::Kind::kChildCall: {
             const ChildCall& childCall = expression.as<ChildCall>();
             return ChildCall::Make(*fContext,
@@ -265,13 +267,13 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
                                       argList(funcCall.arguments()));
         }
         case Expression::Kind::kFunctionReference:
-            return expression.clone();
+            return expression.clone(pos);
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = expression.as<IndexExpression>();
             return IndexExpression::Make(*fContext, pos, expr(idx.base()), expr(idx.index()));
         }
         case Expression::Kind::kMethodReference:
-            return expression.clone();
+            return expression.clone(pos);
         case Expression::Kind::kPrefix: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
             return PrefixExpression::Make(*fContext, pos, p.getOperator(), expr(p.operand()));
@@ -294,17 +296,17 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
                                            expr(t.ifTrue()), expr(t.ifFalse()));
         }
         case Expression::Kind::kTypeReference:
-            return expression.clone();
+            return expression.clone(pos);
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
             std::unique_ptr<Expression>* remap = varMap->find(v.variable());
             if (remap) {
                 return clone_with_ref_kind(**remap, v.refKind());
             }
-            return expression.clone();
+            return expression.clone(pos);
         }
         default:
-            SkASSERT(false);
+            SkDEBUGFAILF("unsupported expression: %s", expression.description().c_str());
             return nullptr;
     }
 }
@@ -574,9 +576,8 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
         // Return our result expression as-is.
         inlinedCall.fReplacementExpr = std::move(resultExpr);
     } else if (function.declaration().returnType().isVoid()) {
-        // It's a void function, so it doesn't actually result in anything, but we have to return
-        // something non-null as a standin.
-        inlinedCall.fReplacementExpr = Literal::MakeBool(*fContext, pos, /*value=*/false);
+        // It's a void function, so its result is the empty expression.
+        inlinedCall.fReplacementExpr = EmptyExpression::Make(pos, *fContext);
     } else {
         // It's a non-void function, but it never created a result expression--that is, it never
         // returned anything on any path! This should have been detected in the function finalizer.

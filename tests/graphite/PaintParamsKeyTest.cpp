@@ -37,6 +37,7 @@
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PublicPrecompile.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -634,7 +635,8 @@ void check_draw(skiatest::Reporter* reporter,
 //    and via the pre-compilation system
 //
 // TODO: keep this as a smoke test but add a fuzzer that reuses all the helpers
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     auto recorder = context->makeRecorder();
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
@@ -709,14 +711,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                             primitiveBlender = SkBlender::Mode(SkBlendMode::kSrcOver);
                         }
 
-                        bool hasCoverage = rand.nextBool();
+                        constexpr Coverage coverageOptions[3] = {
+                                Coverage::kNone, Coverage::kSingleChannel, Coverage::kLCD};
+                        Coverage coverage = coverageOptions[rand.nextULessThan(3)];
 
                         DstReadRequirement dstReadReq = DstReadRequirement::kNone;
                         const SkBlenderBase* blender = as_BB(paint.getBlender());
                         if (blender) {
                             dstReadReq = GetDstReadRequirement(recorder->priv().caps(),
                                                                blender->asBlendMode(),
-                                                               hasCoverage);
+                                                               coverage);
                         }
                         bool needsDstSample = dstReadReq == DstReadRequirement::kTextureCopy ||
                                               dstReadReq == DstReadRequirement::kTextureSample;
@@ -733,7 +737,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                         std::vector<UniquePaintParamsID> precompileIDs;
                         paintOptions.priv().buildCombinations(precompileKeyContext,
                                                               withPrimitiveBlender,
-                                                              hasCoverage,
+                                                              coverage,
                                                               [&](UniquePaintParamsID id) {
                                                                   precompileIDs.push_back(id);
                                                               });

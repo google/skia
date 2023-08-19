@@ -128,7 +128,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
         {
             GrVkImageInfo backendCopy = imageInfo;
             backendCopy.fImage = VK_NULL_HANDLE;
-            GrBackendRenderTarget backendRT(kW, kH, 1, backendCopy);
+            GrBackendRenderTarget backendRT(kW, kH, backendCopy);
             rt = gpu->wrapBackendRenderTarget(backendRT);
             REPORTER_ASSERT(reporter, !rt);
         }
@@ -138,7 +138,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
             GrVkImageInfo backendCopy = imageInfo;
             backendCopy.fAlloc = skgpu::VulkanAlloc();
             // can wrap null alloc
-            GrBackendRenderTarget backendRT(kW, kH, 1, backendCopy);
+            GrBackendRenderTarget backendRT(kW, kH, backendCopy);
             rt = gpu->wrapBackendRenderTarget(backendRT);
             REPORTER_ASSERT(reporter, rt);
         }

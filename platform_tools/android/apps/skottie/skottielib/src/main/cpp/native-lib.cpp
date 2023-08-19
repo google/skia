@@ -23,6 +23,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -234,7 +235,7 @@ Java_org_skia_skottie_SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
         colorType = kN32_SkColorType;
     }
     fboInfo.fProtected = skgpu::Protected::kNo;
-    GrBackendRenderTarget backendRT(width, height, 0, STENCIL_BUFFER_SIZE, fboInfo);
+    auto backendRT = GrBackendRenderTargets::MakeGL(width, height, 0, STENCIL_BUFFER_SIZE, fboInfo);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
 

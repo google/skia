@@ -220,13 +220,9 @@ protected:
     static const int kCellWidth = 128;
     static const int kCellHeight = 128;
 
-    SkString onShortName() override {
-        return SkString("bezier_conic_effects");
-    }
+    SkString getName() const override { return SkString("bezier_conic_effects"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kCellWidth, kNumConics*kCellHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kCellWidth, kNumConics * kCellHeight); }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
         auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
@@ -426,13 +422,9 @@ protected:
     static const int kCellWidth = 128;
     static const int kCellHeight = 128;
 
-    SkString onShortName() override {
-        return SkString("bezier_quad_effects");
-    }
+    SkString getName() const override { return SkString("bezier_quad_effects"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kCellWidth, kNumQuads*kCellHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kCellWidth, kNumQuads * kCellHeight); }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
         auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);

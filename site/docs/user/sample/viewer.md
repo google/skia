@@ -72,13 +72,45 @@ with the following script:
 
 where `<out_dir>` is the ninja out directory (e.g., `out/arm64`)
 that you created. Upon completion of the script the APK
-can be found at `<out_dir>/viewer.apk`
+can be found at `<out_dir>/viewer.apk`. Install it with `adb install`.
+
+### How to Use the App
+
+Most app functions (except touch gestures and arrow buttons) are placed in the **left drawer**.
+Click on the upper-left hamburger button to open that drawer.
+
+#### Switch Slides
+
+In the upper-right corner, there are two arrows: next slide, previous slide.
+
+In the left drawer, you can directly select a slide from a list (spinner). Above that spinner,
+there’s a text filter that applies to the slide list. There are hundreds of slides so if you
+know the slide name, use that filter to quickly locate and show it.
+
+#### Zoom / Translate
+
+We support touch gestures on the slide so you can drag and pinch to zoom.
+
+#### Change Backend
+
+In the left drawer, you can select the backend from a list of OpenGL, Vulkan, and Raster.
+
+#### Softkey / Stats
+
+In the left drawer, there’s a list of softkeys. They correspond to the keyboard commands
+of a desktop Viewer app. For example, you can toggle color mode or stats window. These can
+be filtered like the slides.
+
+For animation slides, we also show FPS (actually, it’s Seconds Per Frame) --- frame
+refresh rate in milliseconds.
+
+#### Loading resources / skps
+
+TODO (https://issues.skia.org/295805469): This used to be possible with the instructions
+below, but they no longer work on recent versions of Android.
 
 To load resources in the Android Viewer place them in
 `/data/local/tmp/resources`; to load SKPs place them in `/data/local/tmp/skps`.
-
-Swiping left and right will switch slides, pinch-zoom will zoom in and out, and
-display options are available in the UI.
 
 iOS
 ---

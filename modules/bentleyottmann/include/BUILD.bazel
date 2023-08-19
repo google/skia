@@ -1,0 +1,14 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "EventQueue.h",
+        "Point.h",
+    ],
+    visibility = ["//modules/bentleyottmann:__pkg__"],
+)

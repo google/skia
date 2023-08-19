@@ -99,6 +99,7 @@ public:
             case Expression::Kind::kFunctionReference:
             case Expression::Kind::kMethodReference:
             case Expression::Kind::kTypeReference:
+            case Expression::Kind::kEmpty:
                 return true;
 
             default:

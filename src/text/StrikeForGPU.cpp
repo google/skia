@@ -7,9 +7,7 @@
 
 #include "src/text/StrikeForGPU.h"
 
-#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
@@ -51,30 +49,6 @@ const SkDescriptor& SkStrikePromise::descriptor() const {
 
 void SkStrikePromise::flatten(SkWriteBuffer& buffer) const {
     this->descriptor().flatten(buffer);
-}
-
-std::optional<SkStrikePromise> SkStrikePromise::MakeFromBuffer(
-        SkReadBuffer& buffer, const SkStrikeClient* client, SkStrikeCache* strikeCache) {
-    std::optional<SkAutoDescriptor> descriptor = SkAutoDescriptor::MakeFromBuffer(buffer);
-    if (!buffer.validate(descriptor.has_value())) {
-        return std::nullopt;
-    }
-
-    // If there is a client, then this from a different process. Translate the SkTypefaceID from
-    // the strike server (Renderer) process to strike client (GPU) process.
-    if (client != nullptr) {
-        if (!client->translateTypefaceID(&descriptor.value())) {
-            return std::nullopt;
-        }
-    }
-
-    sk_sp<SkStrike> strike = strikeCache->findStrike(*descriptor->getDesc());
-    SkASSERT(strike != nullptr);
-    if (!buffer.validate(strike != nullptr)) {
-        return std::nullopt;
-    }
-
-    return SkStrikePromise{std::move(strike)};
 }
 
 // -- StrikeMutationMonitor ------------------------------------------------------------------------

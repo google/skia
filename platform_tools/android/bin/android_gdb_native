@@ -39,9 +39,9 @@ GDBSETUP=$GDB_TMP_DIR/gdb.setup
 # Launch gdb client
 HOST=`uname | tr '[A-Z]' '[a-z]'`
 if [ $HOST == "darwin" ]; then
-    GDB_HOST=$ANDROID_NDK_ROOT/prebuilt/darwin-x86_64/bin/gdb
+    GDB_HOST=$ANDROID_NDK_HOME/prebuilt/darwin-x86_64/bin/gdb
 elif [ $HOST == "linux" ]; then
-     GDB_HOST=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin/gdb
+     GDB_HOST=$ANDROID_NDK_HOME/prebuilt/linux-x86_64/bin/gdb
 else
     echo "Could not automatically determine OS!"
     exit 1;

@@ -69,7 +69,7 @@ cc_binary_with_flags(
     set_flags = {
         "enable_gpu_test_utils": ["True"],
         "fontmgr_factory": ["custom_directory_fontmgr_factory"],
-        "gpu_backend": ["gl_backend"],
+        "gpu_backend": ["gl_ganesh"],
         "include_decoder": [
             "jpeg_decode_codec",
             "png_decode_codec",

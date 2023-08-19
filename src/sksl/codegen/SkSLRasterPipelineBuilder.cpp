@@ -7,8 +7,6 @@
 
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-
 #include "include/core/SkStream.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
@@ -3700,5 +3698,3 @@ void Program::dump(SkWStream* out, bool writeInstructionCount) const {
 }
 
 }  // namespace SkSL::RP
-
-#endif  // SK_ENABLE_SKSL_IN_RASTER_PIPELINE

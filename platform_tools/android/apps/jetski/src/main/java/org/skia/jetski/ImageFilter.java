@@ -45,14 +45,18 @@ public class ImageFilter {
      *  @param sigmaX   The Gaussian sigma value for blurring along the X axis.
      *  @param sigmaY   The Gaussian sigma value for blurring along the Y axis.
      *  @param tileMode The tile mode applied at edges
+     *  @param left     Left, top, right, bottom are used to make the crop rect
      *  @param input    The input filter that is blurred, uses source bitmap if this is null.
      */
-    public static ImageFilter blur(float sigmaX, float sigmaY, TileMode tileMode, @Nullable ImageFilter input) {
+    public static ImageFilter blur(float sigmaX, float sigmaY, TileMode tileMode,
+                                   float left, float top, float right, float bottom,
+                                   @Nullable ImageFilter input) {
         long nativeInput = 0;
         if (input != null) {
             nativeInput = input.getNativeInstance();
         }
-        return new ImageFilter(nBlur(sigmaX, sigmaY, tileMode.nativeInt, nativeInput));
+        return new ImageFilter(nBlur(sigmaX, sigmaY, tileMode.nativeInt,
+                                     left, top, right, bottom, nativeInput));
     }
 
     /**
@@ -112,7 +116,8 @@ public class ImageFilter {
                                                   float r, float g, float b,
                                                   float surfaceScale, float kd,
                                                   long native_input);
-    private static native long nBlur(float sigmaX, float sigmaY, int tileMode, long native_input);
+    private static native long nBlur(float sigmaX, float sigmaY, int tileMode,
+                                     float l, float t, float r, float b, long native_input);
     private static native long nDropShadow(float dx, float dy, float sigmaX, float sigmaY,
                                            float r, float g, float b, long native_input);
     private static native long nBlend(int blendMode, long native_background, long native_foreground);

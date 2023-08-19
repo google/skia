@@ -41,11 +41,9 @@ protected:
         SkColor color;
     };
 
-    SkString onShortName() override {
-        return SkString("fillrect_gradient");
-    }
+    SkString getName() const override { return SkString("fillrect_gradient"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(kNumColumns * (kCellSize + kPadSize),
                              kNumRows * (kCellSize + kPadSize));
     }

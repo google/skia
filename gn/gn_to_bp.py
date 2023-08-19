@@ -311,6 +311,7 @@ cc_defaults {
     cflags: [
         "-DSK_SHAPER_HARFBUZZ_AVAILABLE",
         "-DSK_UNICODE_AVAILABLE",
+        "-DSK_UNICODE_ICU_IMPLEMENTATION",
         "-Wno-implicit-fallthrough",
         "-Wno-unused-parameter",
         "-Wno-unused-variable",
@@ -655,26 +656,26 @@ skqp_sdk_version = 26
 js_skqp = gn_to_bp_utils.GenerateJSONFromGN(skqp_gn_args.GetGNArgs(api_level=skqp_sdk_version,
                                                                    debug=False,
                                                                    is_android_bp=True))
-skqp_srcs      = strip_slashes(js_skqp['targets']['//:libskqp_app']['sources'])
-skqp_includes  = strip_slashes(js_skqp['targets']['//:libskqp_app']['include_dirs'])
-skqp_cflags    = strip_slashes(js_skqp['targets']['//:libskqp_app']['cflags'])
-skqp_cflags_cc = strip_slashes(js_skqp['targets']['//:libskqp_app']['cflags_cc'])
-skqp_defines   = strip_slashes(js_skqp['targets']['//:libskqp_app']['defines'])
+skqp_srcs      = strip_slashes(js_skqp['targets']['//:libskqp_jni']['sources'])
+skqp_includes  = strip_slashes(js_skqp['targets']['//:libskqp_jni']['include_dirs'])
+skqp_cflags    = strip_slashes(js_skqp['targets']['//:libskqp_jni']['cflags'])
+skqp_cflags_cc = strip_slashes(js_skqp['targets']['//:libskqp_jni']['cflags_cc'])
+skqp_defines   = strip_slashes(js_skqp['targets']['//:libskqp_jni']['defines'])
 
 skqp_includes.update(strip_slashes(js_skqp['targets']['//:public']['include_dirs']))
 
-gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'sources',
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'sources',
                                    skqp_srcs, None)
 # We are exlcuding gpu here to get rid of the includes that are being added from
 # vulkanmemoryallocator. This does not seem to remove any other incldues from gpu so things
 # should work out fine for now
-gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'include_dirs',
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'include_dirs',
                                    skqp_includes, ['//:gif', '//:gpu'])
-gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'cflags',
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'cflags',
                                    skqp_cflags, None)
-gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'cflags_cc',
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'cflags_cc',
                                    skqp_cflags_cc, None)
-gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_app', 'defines',
+gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'defines',
                                    skqp_defines, None)
 
 skqp_defines.add("SK_ENABLE_DUMP_GPU")
@@ -781,9 +782,7 @@ with open('Android.bp', 'w') as Android_bp:
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
-    'x86_srcs':      bpfmt(16, strip_headers(defs['ssse3'] +
-                                             defs['avx'  ] +
-                                             defs['hsw'  ])),
+    'x86_srcs':      bpfmt(16, strip_headers(defs['hsw'  ])),
 
     'gm_includes'       : bpfmt(8, gm_includes),
     'gm_srcs'           : bpfmt(8, gm_srcs),

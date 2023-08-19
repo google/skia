@@ -13,10 +13,10 @@ licenses(["notice"])
 exports_files_legacy()
 
 selects.config_setting_group(
-    name = "android_with_gpu_backend",
+    name = "android_with_ganesh_backend",
     match_all = [
         "@platforms//os:android",
-        "//src/gpu:has_gpu_backend",
+        "//src/gpu:has_ganesh_backend",
     ],
 )
 
@@ -38,7 +38,7 @@ skia_filegroup(
         "//src/utils:srcs",
         "//src/xml:srcs",
     ] + select({
-        "//src/gpu:has_gpu_backend": [
+        "//src/gpu:has_ganesh_backend": [
             "//src/gpu:srcs",
             "//src/text/gpu:srcs",
         ],
@@ -65,7 +65,7 @@ skia_filegroup(
         ],
         "//conditions:default": [],
     }) + select({
-        ":android_with_gpu_backend": ["//src/image:android_srcs"],
+        ":android_with_ganesh_backend": ["//src/image:android_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
@@ -74,7 +74,7 @@ skia_filegroup(
 skia_filegroup(
     name = "objc_srcs",
     srcs = select({
-        "//src/gpu:has_gpu_backend": ["//src/gpu:objc_srcs"],
+        "//src/gpu:has_ganesh_backend": ["//src/gpu:objc_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
@@ -99,7 +99,7 @@ skia_filegroup(
         "//src/utils:private_hdrs",
         "//src/xml:private_hdrs",
     ] + select({
-        "//src/gpu:has_gpu_backend": [
+        "//src/gpu:has_ganesh_backend": [
             "//src/gpu:private_hdrs",
             "//src/text/gpu:private_hdrs",
         ],
@@ -136,7 +136,7 @@ skia_cc_deps(
         "//src/ports:deps",
         "//src/xml:deps",
     ] + select({
-        "//src/gpu:has_gpu_backend": ["//src/gpu:deps"],
+        "//src/gpu:has_ganesh_backend": ["//src/gpu:deps"],
         "//conditions:default": [],
     }) + select({
         "//src/sksl:needs_sksl": ["//src/sksl:deps"],
@@ -169,7 +169,10 @@ generate_cpp_files_for_headers(
         "src/encode/SkICCPriv.h",
         "src/encode/SkImageEncoderFns.h",
         "src/encode/SkImageEncoderPriv.h",
+        "src/gpu/ganesh/GrBackendSurfacePriv.h",
+        "src/gpu/ganesh/gl/GrGLBackendSurfacePriv.h",
         "src/image/SkImageGeneratorPriv.h",
+        "src/text/TextBlobMailbox.h",
     ],
 )
 

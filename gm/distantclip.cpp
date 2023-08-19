@@ -21,9 +21,9 @@
 namespace skiagm {
 
 class DistantClipGM : public GM {
-    SkString onShortName() override { return SkString("distantclip"); }
+    SkString getName() const override { return SkString("distantclip"); }
 
-    SkISize onISize() override { return {100, 100}; }
+    SkISize getISize() override { return {100, 100}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr SkScalar kOffset = 35000.0f;

@@ -17,8 +17,5 @@ import("utils.gni")
 import("xml.gni")
 import("xps.gni")
 skia_opts = {
-  none_sources = []
-  ssse3_sources = ssse3
-  avx_sources = avx
   hsw_sources = hsw
 }

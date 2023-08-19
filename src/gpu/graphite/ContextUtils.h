@@ -25,6 +25,8 @@ class Swizzle;
 
 namespace skgpu::graphite {
 
+class ComputeStep;
+enum class Coverage;
 class DrawParams;
 enum class DstReadRequirement;
 class GraphicsPipelineDesc;
@@ -64,20 +66,22 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
         const RenderStep* step,
         const DrawParams& params);
 
-DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, bool hasCoverage);
+DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, Coverage);
 
-std::string GetSkSLVS(const ResourceBindingRequirements&,
-                      const RenderStep* step,
-                      bool defineShadingSsboIndexVarying,
-                      bool defineLocalCoordsVarying);
+std::string BuildVertexSkSL(const ResourceBindingRequirements&,
+                            const RenderStep* step,
+                            bool defineShadingSsboIndexVarying,
+                            bool defineLocalCoordsVarying);
 
-FragSkSLInfo GetSkSLFS(const Caps* caps,
-                       const ShaderCodeDictionary*,
-                       const RuntimeEffectDictionary*,
-                       const RenderStep* renderStep,
-                       UniquePaintParamsID paintID,
-                       bool useStorageBuffers,
-                       skgpu::Swizzle writeSwizzle);
+FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
+                               const ShaderCodeDictionary*,
+                               const RuntimeEffectDictionary*,
+                               const RenderStep* renderStep,
+                               UniquePaintParamsID paintID,
+                               bool useStorageBuffers,
+                               skgpu::Swizzle writeSwizzle);
+
+std::string BuildComputeSkSL(const Caps*, const ComputeStep*);
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,

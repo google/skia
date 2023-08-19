@@ -14,8 +14,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTPin.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkMipmapAccessor.h"
-#include "src/core/SkOpts.h"
 
 #include <algorithm>
 #include <cstring>
@@ -255,7 +255,7 @@ bool SkBitmapProcState::chooseProcs() {
     fMatrixProc = this->chooseMatrixProc(translate_only);
     SkASSERT(fMatrixProc);
 
-    fSampleProc32 = fBilerp ? SkOpts::S32_alpha_D32_filter_DX   : S32_alpha_D32_nofilter_DX  ;
+    fSampleProc32 = fBilerp ? SkOpts::S32_alpha_D32_filter_DX : S32_alpha_D32_nofilter_DX;
     SkASSERT(fSampleProc32);
 
     // our special-case shaderprocs

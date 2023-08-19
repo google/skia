@@ -298,17 +298,41 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     }
 
     const char* outColor = args.fPriorStageOutput.c_str();
-    if (step->emitsCoverage()) {
+    const Coverage coverage = step->coverage();
+    if (coverage != Coverage::kNone) {
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
 
+        // TODO: Determine whether draw is opaque and pass that to GetBlendFormula.
         BlendFormula coverageBlendFormula =
-                skgpu::GetBlendFormula(false, step->emitsCoverage(), fBlendMode);
+                coverage == Coverage::kLCD
+                        ? skgpu::GetLCDBlendFormula(fBlendMode)
+                        : skgpu::GetBlendFormula(
+                                  /*isOpaque=*/false, /*hasCoverage=*/true, fBlendMode);
 
         const bool needsSurfaceColorForCoverage =
                 this->needsSurfaceColor() || (coverageBlendFormula.hasSecondaryOutput() &&
                                               !caps->shaderCaps()->fDualSourceBlendingSupport);
         if (needsSurfaceColorForCoverage) {
+            // If this draw uses a non-coherent dst read, we want to keep the existing dst color (or
+            // whatever has been previously drawn) when there's no coverage. This helps for batching
+            // text draws that need to read from a dst copy for blends. However, this only helps the
+            // case where the outer bounding boxes of each letter overlap and not two actual parts
+            // of the text.
+            DstReadRequirement dstReadReq = caps->getDstReadRequirement();
+            if (dstReadReq == DstReadRequirement::kTextureCopy ||
+                dstReadReq == DstReadRequirement::kTextureSample) {
+                // We don't think any shaders actually output negative coverage, but just as a
+                // safety check for floating point precision errors, we compare with <= here. We
+                // just check the RGB values of the coverage, since the alpha may not have been set
+                // when using LCD. If we are using single-channel coverage, alpha will be equal to
+                // RGB anyway.
+                mainBody +=
+                    "if (all(lessThanEqual(outputCoverage.rgb, half3(0)))) {"
+                        "discard;"
+                    "}";
+            }
+
             // Use originally-specified BlendInfo and blend with dst manually.
             SkSL::String::appendf(
                     &mainBody,

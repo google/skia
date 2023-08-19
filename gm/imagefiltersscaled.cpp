@@ -61,14 +61,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("imagefiltersscaled"); }
 
-    SkString onShortName() override {
-        return SkString("imagefiltersscaled");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1428, 500);
-    }
+    SkISize getISize() override { return SkISize::Make(1428, 500); }
 
     void onOnceBeforeDraw() override {
         fCheckerboard = ToolUtils::create_checkerboard_image(64, 64, 0xFFA0A0A0, 0xFF404040, 8);
