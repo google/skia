@@ -163,29 +163,41 @@ bool SkXMLParser::parse(SkStream& docStream)
     // Disable entity processing, to inhibit internal entity expansion. See expat CVE-2013-0340.
     XML_SetEntityDeclHandler(ctx.fXMLParser, entity_decl_handler);
 
-    static constexpr int kBufferSize = 4096;
-    bool done = false;
-    do {
-        void* buffer = XML_GetBuffer(ctx.fXMLParser, kBufferSize);
-        if (!buffer) {
-            SkDEBUGF("could not buffer enough to continue\n");
-            return false;
-        }
+    XML_Status status = XML_STATUS_OK;
+    if (docStream.getMemoryBase() && docStream.hasLength()) {
+        const char* base = reinterpret_cast<const char*>(docStream.getMemoryBase());
+        status = XML_Parse(ctx.fXMLParser,
+                           base + docStream.getPosition(),
+                           docStream.getLength() - docStream.getPosition(),
+                           true);
+    } else {
+        static constexpr int kBufferSize = 4096;
+        bool done = false;
+        do {
+            void* buffer = XML_GetBuffer(ctx.fXMLParser, kBufferSize);
+            if (!buffer) {
+                SkDEBUGF("could not buffer enough to continue\n");
+                return false;
+            }
 
-        size_t len = docStream.read(buffer, kBufferSize);
-        done = docStream.isAtEnd();
-        XML_Status status = XML_ParseBuffer(ctx.fXMLParser, SkToS32(len), done);
-        if (XML_STATUS_ERROR == status) {
-        #if defined(SK_DEBUG)
-            XML_Error error = XML_GetErrorCode(ctx.fXMLParser);
-            int line = XML_GetCurrentLineNumber(ctx.fXMLParser);
-            int column = XML_GetCurrentColumnNumber(ctx.fXMLParser);
-            const XML_LChar* errorString = XML_ErrorString(error);
-            SkDEBUGF("parse error @%d:%d: %d (%s).\n", line, column, error, errorString);
-        #endif
-            return false;
-        }
-    } while (!done);
+            size_t len = docStream.read(buffer, kBufferSize);
+            done = docStream.isAtEnd();
+            status = XML_ParseBuffer(ctx.fXMLParser, SkToS32(len), done);
+            if (XML_STATUS_ERROR == status) {
+                break;
+            }
+        } while (!done);
+    }
+    if (XML_STATUS_ERROR == status) {
+#if defined(SK_DEBUG)
+        XML_Error error = XML_GetErrorCode(ctx.fXMLParser);
+        int line = XML_GetCurrentLineNumber(ctx.fXMLParser);
+        int column = XML_GetCurrentColumnNumber(ctx.fXMLParser);
+        const XML_LChar* errorString = XML_ErrorString(error);
+        SkDEBUGF("parse error @%d:%d: %d (%s).\n", line, column, error, errorString);
+#endif
+        return false;
+    }
 
     return true;
 }
