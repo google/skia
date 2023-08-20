@@ -50,7 +50,7 @@ func main() {
 	rootpaths := flagToStrings(*rootpathsFlag)
 
 	if len(execpaths) != len(rootpaths) {
-		die("Flags --execpaths and --rootpaths were passed lists of different lenghts: %d and %d.\n", len(execpaths), len(rootpaths))
+		die("Flags --execpaths and --rootpaths were passed lists of different lengths: %d and %d.\n", len(execpaths), len(rootpaths))
 	}
 
 	outputFile, err := os.Create(*outputFileFlag)
