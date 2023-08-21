@@ -1189,10 +1189,11 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels,
-                                       reporter,
-                                       ctxInfo,
-                                       CtsEnforcement::kApiLevel_T) {
+// Manually parameterized by GrRenderable and GrSurfaceOrigin to reduce per-test run time.
+void SurfaceContextWritePixels(GrRenderable renderable,
+                               GrSurfaceOrigin origin,
+                               skiatest::Reporter* reporter,
+                               sk_gpu_test::ContextInfo ctxInfo) {
     using Surface = std::unique_ptr<skgpu::ganesh::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto writer = std::function<GpuWriteDstFn<Surface>>(
@@ -1218,20 +1219,48 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels,
         return result;
     });
 
-    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-        for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-            auto factory = std::function<GpuDstFactory<Surface>>(
-                    [direct, origin, renderable](const SkImageInfo& info) {
-                        return CreateSurfaceContext(direct,
-                                                    info,
-                                                    SkBackingFit::kExact,
-                                                    origin,
-                                                    renderable);
-                    });
+    auto factory = std::function<GpuDstFactory<Surface>>(
+            [direct, origin, renderable](const SkImageInfo& info) {
+                return CreateSurfaceContext(direct,
+                                            info,
+                                            SkBackingFit::kExact,
+                                            origin,
+                                            renderable);
+            });
 
-            gpu_write_pixels_test_driver(reporter, factory, writer, reader);
-        }
-    }
+    gpu_write_pixels_test_driver(reporter, factory, writer, reader);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_NonRenderable_TopLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    SurfaceContextWritePixels(GrRenderable::kNo, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                              reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_NonRenderable_BottomLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    SurfaceContextWritePixels(GrRenderable::kNo, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                              reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_Renderable_TopLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    SurfaceContextWritePixels(GrRenderable::kYes, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                              reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_Renderable_BottomLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    SurfaceContextWritePixels(GrRenderable::kYes, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                              reporter, ctxInfo);
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
