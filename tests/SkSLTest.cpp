@@ -68,7 +68,7 @@ struct GrContextOptions;
 static constexpr int kWidth = 2;
 static constexpr int kHeight = 2;
 
-enum class SkSLTestFlags : int {
+enum class SkSLTestFlag : int {
     /** `CPU` tests must pass when painted to a CPU-backed surface via SkRuntimeEffect. */
     CPU     = 1 << 0,
 
@@ -91,16 +91,18 @@ enum class SkSLTestFlags : int {
     UsesNaN = 1 << 4,
 };
 
-static constexpr bool is_cpu(SkEnumBitMask<SkSLTestFlags> flags) {
-    return SkToBool(flags & SkSLTestFlags::CPU);
+using SkSLTestFlags = SkEnumBitMask<SkSLTestFlag>;
+
+static constexpr bool is_cpu(SkSLTestFlags flags) {
+    return SkToBool(flags & SkSLTestFlag::CPU);
 }
 
-static constexpr bool is_gpu(SkEnumBitMask<SkSLTestFlags> flags) {
-    return (flags & SkSLTestFlags::GPU) || (flags & SkSLTestFlags::GPU_ES3);
+static constexpr bool is_gpu(SkSLTestFlags flags) {
+    return (flags & SkSLTestFlag::GPU) || (flags & SkSLTestFlag::GPU_ES3);
 }
 
-static constexpr bool is_strict_es2(SkEnumBitMask<SkSLTestFlags> flags) {
-    return !(flags & SkSLTestFlags::GPU_ES3) && !(flags & SkSLTestFlags::ES3);
+static constexpr bool is_strict_es2(SkSLTestFlags flags) {
+    return !(flags & SkSLTestFlag::GPU_ES3) && !(flags & SkSLTestFlag::ES3);
 }
 
 struct UniformData {
@@ -284,10 +286,8 @@ static void test_permutations(skiatest::Reporter* r,
     test_one_permutation(r, surface, testFile, " (Unoptimized)", options);
 }
 
-static void test_cpu(skiatest::Reporter* r,
-                     const char* testFile,
-                     SkEnumBitMask<SkSLTestFlags> flags) {
-    SkASSERT(flags & SkSLTestFlags::CPU);
+static void test_cpu(skiatest::Reporter* r, const char* testFile, SkSLTestFlags flags) {
+    SkASSERT(flags & SkSLTestFlag::CPU);
 
     // Create a raster-backed surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
@@ -299,18 +299,18 @@ static void test_cpu(skiatest::Reporter* r,
 static void test_gpu(skiatest::Reporter* r,
                      GrDirectContext* ctx,
                      const char* testFile,
-                     SkEnumBitMask<SkSLTestFlags> flags) {
+                     SkSLTestFlags flags) {
     // If this is an ES3-only test on a GPU which doesn't support SkSL ES3, return immediately.
-    bool shouldRunGPU = SkToBool(flags & SkSLTestFlags::GPU);
+    bool shouldRunGPU = SkToBool(flags & SkSLTestFlag::GPU);
     bool shouldRunGPU_ES3 =
-            (flags & SkSLTestFlags::GPU_ES3) &&
+            (flags & SkSLTestFlag::GPU_ES3) &&
             (ctx->priv().caps()->shaderCaps()->supportedSkSLVerion() >= SkSL::Version::k300);
     if (!shouldRunGPU && !shouldRunGPU_ES3) {
         return;
     }
 
     // If this is a test that requires the GPU to generate NaN values, check for that first.
-    if (flags & SkSLTestFlags::UsesNaN) {
+    if (flags & SkSLTestFlag::UsesNaN) {
         if (!gpu_generates_nan(r, ctx)) {
             return;
         }
@@ -328,9 +328,7 @@ static void test_gpu(skiatest::Reporter* r,
     }
 }
 
-static void test_clone(skiatest::Reporter* r,
-                       const char* testFile,
-                       SkEnumBitMask<SkSLTestFlags> flags) {
+static void test_clone(skiatest::Reporter* r, const char* testFile, SkSLTestFlags flags) {
     SkString shaderString = load_source(r, testFile, "");
     if (shaderString.isEmpty()) {
         return;
@@ -358,26 +356,24 @@ static void test_clone(skiatest::Reporter* r,
     SkSL::ThreadContext::End();
 }
 
-static void report_rp_pass(skiatest::Reporter* r,
-                           const char* testFile,
-                           SkEnumBitMask<SkSLTestFlags> flags) {
-    if (!(flags & SkSLTestFlags::CPU) && !(flags & SkSLTestFlags::ES3)) {
+static void report_rp_pass(skiatest::Reporter* r, const char* testFile, SkSLTestFlags flags) {
+    if (!(flags & SkSLTestFlag::CPU) && !(flags & SkSLTestFlag::ES3)) {
         ERRORF(r, "NEW: %s", testFile);
     }
 }
 
 static void report_rp_fail(skiatest::Reporter* r,
                            const char* testFile,
-                           SkEnumBitMask<SkSLTestFlags> flags,
+                           SkSLTestFlags flags,
                            const char* reason) {
-    if ((flags & SkSLTestFlags::CPU) || (flags & SkSLTestFlags::ES3)) {
+    if ((flags & SkSLTestFlag::CPU) || (flags & SkSLTestFlag::ES3)) {
         ERRORF(r, "%s: %s", testFile, reason);
     }
 }
 
 static void test_raster_pipeline(skiatest::Reporter* r,
                                  const char* testFile,
-                                 SkEnumBitMask<SkSLTestFlags> flags) {
+                                 SkSLTestFlags flags) {
     SkString shaderString = load_source(r, testFile, "");
     if (shaderString.isEmpty()) {
         return;
@@ -514,11 +510,11 @@ static bool is_rendering_context_but_not_dawn(sk_gpu_test::GrContextFactory::Con
 
 // clang-format off
 
-constexpr SkEnumBitMask<SkSLTestFlags> CPU = SkSLTestFlags::CPU;
-constexpr SkEnumBitMask<SkSLTestFlags> ES3 = SkSLTestFlags::ES3;
-constexpr SkEnumBitMask<SkSLTestFlags> GPU = SkSLTestFlags::GPU;
-constexpr SkEnumBitMask<SkSLTestFlags> GPU_ES3 = SkSLTestFlags::GPU_ES3;
-constexpr SkEnumBitMask<SkSLTestFlags> UsesNaN = SkSLTestFlags::UsesNaN;
+constexpr SkSLTestFlags CPU = SkSLTestFlag::CPU;
+constexpr SkSLTestFlags ES3 = SkSLTestFlag::ES3;
+constexpr SkSLTestFlags GPU = SkSLTestFlag::GPU;
+constexpr SkSLTestFlags GPU_ES3 = SkSLTestFlag::GPU_ES3;
+constexpr SkSLTestFlags UsesNaN = SkSLTestFlag::UsesNaN;
 constexpr auto kApiLevel_T = CtsEnforcement::kApiLevel_T;
 constexpr auto kApiLevel_U = CtsEnforcement::kApiLevel_U;
 constexpr auto kNever = CtsEnforcement::kNever;
