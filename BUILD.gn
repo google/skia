@@ -2071,11 +2071,18 @@ if (skia_enable_tools) {
   }  # test_lib("gpu_tool_utils")
 
   test_lib("flags") {
-    sources = [ "tools/flags/CommandLineFlags.cpp" ]
+    sources = [
+      "tools/flags/CommandLineFlags.cpp",
+      "tools/flags/CommandLineFlags.h",
+    ]
   }
 
   test_lib("common_flags_config") {
-    sources = [ "tools/flags/CommonFlagsConfig.cpp" ]
+    sources = [
+      "tools/flags/CommonFlags.h",
+      "tools/flags/CommonFlagsConfig.cpp",
+      "tools/flags/CommonFlagsConfig.h",
+    ]
     deps = [ ":flags" ]
     public_deps = [ ":gpu_tool_utils" ]
   }

@@ -115,26 +115,30 @@ class SkCommandLineConfigGraphite : public SkCommandLineConfig {
 public:
     using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
-    SkCommandLineConfigGraphite(const SkString&           tag,
+    SkCommandLineConfigGraphite(const SkString& tag,
                                 const skia_private::TArray<SkString>& viaParts,
-                                ContextType               contextType,
-                                SkColorType               colorType,
-                                SkAlphaType               alphaType)
+                                ContextType contextType,
+                                SkColorType colorType,
+                                SkAlphaType alphaType,
+                                bool wgsl)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
             , fContextType(contextType)
             , fColorType(colorType)
-            , fAlphaType(alphaType) {
-    }
+            , fAlphaType(alphaType)
+            , fWGSL(wgsl) {}
+
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
     ContextType getContextType() const { return fContextType; }
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
+    bool getWGSL() const { return fWGSL; }
 
 private:
     ContextType         fContextType;
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;
+    bool                fWGSL;
 };
 
 #endif // SK_GRAPHITE

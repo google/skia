@@ -2083,13 +2083,14 @@ GraphiteSink::GraphiteSink(const SkCommandLineConfigGraphite* config)
         : fContextType(config->getContextType())
         , fColorType(config->getColorType())
         , fAlphaType(config->getAlphaType()) {
+    fBaseContextOptions.fEnableWGSL = config->getWGSL();
 }
 
 Result GraphiteSink::draw(const Src& src,
                           SkBitmap* dst,
                           SkWStream* dstStream,
                           SkString* log) const {
-    skgpu::graphite::ContextOptions options;
+    skgpu::graphite::ContextOptions options = fBaseContextOptions;
 
     src.modifyGraphiteContextOptions(&options);
 
