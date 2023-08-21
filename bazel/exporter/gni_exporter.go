@@ -456,10 +456,11 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *build.Q
 		if err != nil {
 			return gniFileContents{}, skerr.Wrap(err)
 		}
-		if len(t) > 0 {
-			targets = append(targets, t...)
-			rules = append(rules, ruleName)
+		if len(t) == 0 {
+			return gniFileContents{}, skerr.Fmt("No files to export in rule %s", ruleName)
 		}
+		targets = append(targets, t...)
+		rules = append(rules, ruleName)
 	}
 
 	files, err := convertTargetsToFilePaths(targets)

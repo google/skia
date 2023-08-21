@@ -31,12 +31,6 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
-    # TODO(b/294209201): remove colorfilters:sksl_srcs from Google3 BUILD file
-    name = "sksl_srcs",
-    srcs = [],
-)
-
-skia_filegroup(
     name = "srcs",
     srcs = [":colorfilter_srcs"],
     visibility = ["//src/effects:__pkg__"],
