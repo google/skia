@@ -149,6 +149,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_colorfilters_sksl_sources",
 			Rules: []string{
 				// TODO(b/294209201): remove skia_colorfilters_sksl_sources from Chrome GN files
+				// TODO(b/294209201): remove colorfilters:sksl_srcs from Google3 BUILD file
+				"//src/effects/colorfilters:sksl_srcs",
 			}},
 	}},
 	{GNI: "gn/effects_imagefilters.gni", Vars: []exporter.GNIFileListExportDesc{
