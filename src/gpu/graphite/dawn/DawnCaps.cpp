@@ -9,6 +9,7 @@
 
 #include <algorithm>
 
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
@@ -22,8 +23,7 @@
 namespace {
 
 // These are all the valid wgpu::TextureFormat that we currently support in Skia.
-// They are roughly ordered from most frequently used to least to improve look
-// up times in arrays.
+// They are roughly ordered from most frequently used to least to improve lookup times in arrays.
 static constexpr wgpu::TextureFormat kFormats[] = {
     wgpu::TextureFormat::RGBA8Unorm,
     wgpu::TextureFormat::R8Unorm,
@@ -47,7 +47,7 @@ namespace skgpu::graphite {
 
 DawnCaps::DawnCaps(const wgpu::Device& device, const ContextOptions& options)
     : Caps() {
-    this->initCaps(device);
+    this->initCaps(device, options);
     this->initShaderCaps();
     this->initFormatTable(device);
     this->finishInitialization(options);
@@ -247,7 +247,7 @@ SkColorType DawnCaps::supportedReadPixelsColorType(SkColorType srcColorType,
     return kUnknown_SkColorType;
 }
 
-void DawnCaps::initCaps(const wgpu::Device& device) {
+void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& options) {
     wgpu::SupportedLimits limits;
     if (!device.GetLimits(&limits)) {
         SkASSERT(false);
@@ -280,6 +280,7 @@ void DawnCaps::initCaps(const wgpu::Device& device) {
             device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
 
     fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
+    fEnableWGSL = options.fEnableWGSL;
 }
 
 void DawnCaps::initShaderCaps() {

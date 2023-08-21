@@ -235,7 +235,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                                        const RuntimeEffectDictionary* runtimeDict,
                                                        const GraphicsPipelineDesc& pipelineDesc,
                                                        const RenderPassDesc& renderPassDesc) {
-    constexpr bool kEnableWGSL = false;
+    const DawnCaps& caps = *static_cast<const DawnCaps*>(sharedContext->caps());
+    const bool enableWGSL = caps.enableWGSL();
 
     using SkSLCompileFn = bool (*)(SkSL::Compiler*,
                                    const std::string&,
@@ -244,15 +245,15 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                    std::string*,
                                    SkSL::Program::Interface*,
                                    ShaderErrorHandler*);
-    const SkSLCompileFn kSkSLCompileFn = kEnableWGSL ? SkSLToWGSL
-                                                     : SkSLToSPIRV;
+    const SkSLCompileFn kSkSLCompileFn = enableWGSL ? SkSLToWGSL
+                                                    : SkSLToSPIRV;
 
     using DawnCompileFn = bool (*)(const DawnSharedContext* sharedContext,
                                    const std::string&,
                                    wgpu::ShaderModule* module,
                                    ShaderErrorHandler*);
-    const DawnCompileFn kDawnCompileFn = kEnableWGSL ? DawnCompileWGSLShaderModule
-                                                     : DawnCompileSPIRVShaderModule;
+    const DawnCompileFn kDawnCompileFn = enableWGSL ? DawnCompileWGSLShaderModule
+                                                    : DawnCompileSPIRVShaderModule;
 
     const auto& device = sharedContext->device();
 
@@ -262,20 +263,18 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     settings.fForceNoRTFlip = true;
     settings.fSPIRVDawnCompatMode = true;
 
-    ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
+    ShaderErrorHandler* errorHandler = caps.shaderErrorHandler();
 
-    const RenderStep* step =
-            sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
+    const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
 
-    bool useShadingSsboIndex =
-            sharedContext->caps()->storageBufferPreferred() && step->performsShading();
+    bool useShadingSsboIndex = caps.storageBufferPreferred() && step->performsShading();
 
     std::string vsCode, fsCode;
     wgpu::ShaderModule fsModule, vsModule;
 
     // Some steps just render depth buffer but not color buffer, so the fragment
     // shader is null.
-    FragSkSLInfo fsSkSLInfo = BuildFragmentSkSL(sharedContext->caps(),
+    FragSkSLInfo fsSkSLInfo = BuildFragmentSkSL(&caps,
                                                 sharedContext->shaderCodeDictionary(),
                                                 runtimeDict,
                                                 step,
@@ -303,7 +302,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         }
     }
 
-    std::string vsSkSL = BuildVertexSkSL(sharedContext->caps()->resourceBindingRequirements(),
+    std::string vsSkSL = BuildVertexSkSL(caps.resourceBindingRequirements(),
                                          step,
                                          useShadingSsboIndex,
                                          localCoordsNeeded);
