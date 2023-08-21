@@ -48,6 +48,7 @@ skia_core_sources += skia_skpicture_sources
 
 skia_core_public += skia_pathops_public
 skia_core_public += skia_skpicture_public
+
 `
 
 var exportDescs = []GNIExportDesc{
