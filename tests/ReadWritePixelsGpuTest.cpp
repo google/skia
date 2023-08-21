@@ -369,7 +369,9 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             }
             int rgbBits = std::min({min_rgb_channel_bits(readCT), min_rgb_channel_bits(srcCT), 8});
             float tol = numer / (1 << rgbBits);
-            float alphaTol = 0;
+            // Swiftshader is producing alpha errors with 16-bit UNORM. We choose to always allow
+            // a small tolerance:
+            float alphaTol = 1.f / (1 << 10);
             if (readAT != kOpaque_SkAlphaType && srcAT != kOpaque_SkAlphaType) {
                 // Alpha can also get squashed down to 8 bits going through an intermediate
                 // color format.
