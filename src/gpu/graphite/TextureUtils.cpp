@@ -206,7 +206,7 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
     // For now this needs to be texturable because we can't depend on copies to scale.
     auto srcGraphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(srcImage);
 
-    TextureProxyView imageView = srcGraphiteImage->textureProxyView();
+    const TextureProxyView& imageView = srcGraphiteImage->textureProxyView();
     if (!imageView.proxy()) {
         // TODO: if not texturable, copy to a texturable format
         return nullptr;

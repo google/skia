@@ -14,6 +14,7 @@ skia_graphite_public = [
   "$_include/Context.h",
   "$_include/ContextOptions.h",
   "$_include/GraphiteTypes.h",
+  "$_include/Image.h",
   "$_include/ImageProvider.h",
   "$_include/Recorder.h",
   "$_include/Recording.h",

@@ -38,6 +38,13 @@ bool valid_client_provided_image(const SkImage* clientProvided,
         return false;
     }
 
+    // We require provided images to have a TopLeft origin
+    auto graphiteImage = static_cast<const skgpu::graphite::Image*>(clientProvided);
+    if (graphiteImage->textureProxyView().origin() != skgpu::Origin::kTopLeft) {
+        SKGPU_LOG_E("Client provided image must have a TopLeft origin.");
+        return false;
+    }
+
     return true;
 }
 

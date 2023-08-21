@@ -40,7 +40,7 @@ public:
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
-    TextureProxyView textureProxyView() const { return fTextureProxyView; }
+    const TextureProxyView& textureProxyView() const { return fTextureProxyView; }
 
     static sk_sp<TextureProxy> MakePromiseImageLazyProxy(
             const Caps*,

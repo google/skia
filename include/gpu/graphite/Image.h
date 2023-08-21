@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/gpu/GpuTypes.h"
 
 class SkYUVAInfo;
 class SkYUVAPixmaps;
@@ -58,8 +59,19 @@ using GraphitePromiseTextureReleaseProc = void (*)(GraphitePromiseTextureRelease
                                backend texture is linear, then the colorSpace should include
                                a description of the transfer function as
                                well (e.g., SkColorSpace::MakeSRGB()).
+    @param origin              Whether the Texture logically treats the origin as TopLeft or
+                               BottomLeft
     @return                    created SkImage, or nullptr
 */
+SK_API sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder*,
+                                       const skgpu::graphite::BackendTexture&,
+                                       SkColorType colorType,
+                                       SkAlphaType alphaType,
+                                       sk_sp<SkColorSpace> colorSpace,
+                                       skgpu::Origin origin,
+                                       TextureReleaseProc = nullptr,
+                                       ReleaseContext = nullptr);
+
 SK_API sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder*,
                                        const skgpu::graphite::BackendTexture&,
                                        SkColorType colorType,
@@ -107,6 +119,7 @@ SK_API sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder*,
     @param dimensions     width & height of promised gpu texture
     @param textureInfo    structural information for the promised gpu texture
     @param colorInfo      color type, alpha type and colorSpace information for the image
+    @param origin         Whether the Texture logically treats the origin as TopLeft or BottomLeft
     @param isVolatile     volatility of the promise image
     @param fulfill        function called to get the actual backend texture,
                           and the instance for the GraphitePromiseTextureReleaseProc
@@ -115,6 +128,17 @@ SK_API sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder*,
     @param imageContext   state passed to fulfill and imageRelease
     @return               created SkImage, or nullptr
 */
+SK_API sk_sp<SkImage> PromiseTextureFrom(skgpu::graphite::Recorder*,
+                                         SkISize dimensions,
+                                         const skgpu::graphite::TextureInfo&,
+                                         const SkColorInfo&,
+                                         skgpu::Origin origin,
+                                         skgpu::graphite::Volatile,
+                                         GraphitePromiseImageFulfillProc,
+                                         GraphitePromiseImageReleaseProc,
+                                         GraphitePromiseTextureReleaseProc,
+                                         GraphitePromiseImageContext);
+
 SK_API sk_sp<SkImage> PromiseTextureFrom(skgpu::graphite::Recorder*,
                                          SkISize dimensions,
                                          const skgpu::graphite::TextureInfo&,

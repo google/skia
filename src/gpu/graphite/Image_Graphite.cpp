@@ -72,7 +72,7 @@ sk_sp<SkImage> Image::makeTextureImage(Recorder* recorder, RequiredProperties re
 sk_sp<SkImage> Image::copyImage(const SkIRect& subset,
                                 Recorder* recorder,
                                 RequiredProperties requiredProps) const {
-    TextureProxyView srcView = this->textureProxyView();
+    const TextureProxyView& srcView = this->textureProxyView();
     if (!srcView) {
         return nullptr;
     }

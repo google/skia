@@ -1563,16 +1563,43 @@ static void add_to_key(const KeyContext& keyContext,
                        PipelineDataGatherer* gatherer,
                        const SkLocalMatrixShader* shader) {
     SkASSERT(shader);
+    auto wrappedShader = shader->wrappedShader().get();
 
-    LocalMatrixShaderBlock::LMShaderData lmShaderData(shader->localMatrix());
+    // Fold the texture's origin flip into the local matrix so that the image shader doesn't need
+    // additional state
+    SkMatrix matrix;
+    if (as_SB(wrappedShader)->type() == SkShaderBase::ShaderType::kImage) {
+        auto imgShader = static_cast<const SkImageShader*>(wrappedShader);
+        // If the image is not graphite backed then we can assume the origin will be TopLeft as we
+        // require that in the ImageProvider utility. Also Graphite YUV images are assumed to be
+        // TopLeft origin.
+        auto imgBase = as_IB(imgShader->image());
+        if (imgBase->isGraphiteBacked() && !imgBase->isYUVA()) {
+            auto imgGraphite = static_cast<Image*>(imgBase);
+            SkASSERT(imgGraphite);
+            const auto& view = imgGraphite->textureProxyView();
+            if (view.origin() == Origin::kBottomLeft) {
+                matrix.setScaleY(-1);
+                matrix.setTranslateY(view.height());
+            }
+        }
+    }
 
-    KeyContextWithLocalMatrix newContext(keyContext, shader->localMatrix());
+    matrix.postConcat(shader->localMatrix());
+    if (!matrix.isIdentity()) {
 
-    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
+        LocalMatrixShaderBlock::LMShaderData lmShaderData(matrix);
 
-    AddToKey(newContext, builder, gatherer, shader->wrappedShader().get());
+        KeyContextWithLocalMatrix newContext(keyContext, matrix);
 
-    builder->endBlock();
+        LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
+
+        AddToKey(newContext, builder, gatherer, wrappedShader);
+
+        builder->endBlock();
+    } else  {
+        AddToKey(keyContext, builder, gatherer, wrappedShader);
+    }
 }
 
 // If either of these change then the corresponding change must also be made in the SkSL

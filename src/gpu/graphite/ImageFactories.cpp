@@ -65,6 +65,7 @@ sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
                                 SkColorType ct,
                                 SkAlphaType at,
                                 sk_sp<SkColorSpace> cs,
+                                skgpu::Origin origin,
                                 TextureReleaseProc releaseP,
                                 ReleaseContext releaseC) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
@@ -92,14 +93,32 @@ sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
     SkASSERT(proxy);
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(ct, backendTex.info());
-    TextureProxyView view(std::move(proxy), swizzle);
+    TextureProxyView view(std::move(proxy), swizzle, origin);
     return sk_make_sp<skgpu::graphite::Image>(kNeedNewImageUniqueID, view, info);
+}
+
+sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
+                                const BackendTexture& backendTex,
+                                SkColorType ct,
+                                SkAlphaType at,
+                                sk_sp<SkColorSpace> cs,
+                                TextureReleaseProc releaseP,
+                                ReleaseContext releaseC) {
+    return AdoptTextureFrom(recorder,
+                            backendTex,
+                            ct,
+                            at,
+                            std::move(cs),
+                            skgpu::Origin::kTopLeft,
+                            releaseP,
+                            releaseC);
 }
 
 sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
                                   SkISize dimensions,
                                   const TextureInfo& textureInfo,
                                   const SkColorInfo& colorInfo,
+                                  skgpu::Origin origin,
                                   Volatile isVolatile,
                                   GraphitePromiseImageFulfillProc fulfillProc,
                                   GraphitePromiseImageReleaseProc imageReleaseProc,
@@ -140,8 +159,29 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
     }
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(colorInfo.colorType(), textureInfo);
-    TextureProxyView view(std::move(proxy), swizzle);
+    TextureProxyView view(std::move(proxy), swizzle, origin);
     return sk_make_sp<Image>(kNeedNewImageUniqueID, view, colorInfo);
+}
+
+sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
+                                  SkISize dimensions,
+                                  const TextureInfo& textureInfo,
+                                  const SkColorInfo& colorInfo,
+                                  Volatile isVolatile,
+                                  GraphitePromiseImageFulfillProc fulfillProc,
+                                  GraphitePromiseImageReleaseProc imageReleaseProc,
+                                  GraphitePromiseTextureReleaseProc textureReleaseProc,
+                                  GraphitePromiseImageContext imageContext) {
+    return PromiseTextureFrom(recorder,
+                              dimensions,
+                              textureInfo,
+                              colorInfo,
+                              skgpu::Origin::kTopLeft,
+                              isVolatile,
+                              fulfillProc,
+                              imageReleaseProc,
+                              textureReleaseProc,
+                              imageContext);
 }
 
 SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,

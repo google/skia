@@ -161,7 +161,7 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
     if (srcRect.size() == dstImageInfo.bounds().size()) {
         // No need for rescale
         auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
-        TextureProxyView proxyView = graphiteImage->textureProxyView();
+        const TextureProxyView& proxyView = graphiteImage->textureProxyView();
         return this->asyncReadPixels(proxyView.proxy(),
                                      image->imageInfo(),
                                      dstImageInfo.colorInfo(),
@@ -200,7 +200,7 @@ void Context::asyncRescaleAndReadPixels(const SkImage* image,
     SkASSERT(scaledImage->imageInfo() == dstImageInfo);
 
     auto scaledGraphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(scaledImage.get());
-    TextureProxyView scaledProxyView = scaledGraphiteImage->textureProxyView();
+    const TextureProxyView& scaledProxyView = scaledGraphiteImage->textureProxyView();
 
     this->asyncReadPixels(scaledProxyView.proxy(),
                           dstImageInfo,

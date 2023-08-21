@@ -13,6 +13,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTypes.h"
+#include "src/image/SkImage_Base.h"
+#include "src/shaders/SkImageShader.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <type_traits>
@@ -31,10 +33,23 @@ public:
     static std::enable_if_t<std::is_base_of_v<SkShader, T>, sk_sp<SkShader>>
     MakeWrapped(const SkMatrix* localMatrix, Args&&... args) {
         auto t = sk_make_sp<T>(std::forward<Args>(args)...);
-        if (!localMatrix || localMatrix->isIdentity()) {
+        bool isGraphiteImageShader = false;
+        if (t->type() == SkShaderBase::ShaderType::kImage) {
+            auto imgShader = static_cast<const SkImageShader*>(as_SB(t));
+            auto imgBase = as_IB(imgShader->image());
+            SkASSERT(imgBase);
+            isGraphiteImageShader = imgBase->isGraphiteBacked();
+        }
+        // In Graphite we can safely handle a local matrix shader with identity by not emitting code
+        // for it. Additionally, Graphite uses the local matrix shader to add the matrix for the
+        // origin y-flip if needed. Thus we always emit the local matrix shader here so we can
+        // connect the y-flip, but it doesn't hurt us if there is no flip.
+        if ((!localMatrix || localMatrix->isIdentity()) && !isGraphiteImageShader) {
             return t;
         }
-        return sk_make_sp<SkLocalMatrixShader>(sk_sp<SkShader>(std::move(t)), *localMatrix);
+
+        return sk_make_sp<SkLocalMatrixShader>(sk_sp<SkShader>(std::move(t)),
+                                               localMatrix ? *localMatrix : SkMatrix::I());
     }
 
     SkLocalMatrixShader(sk_sp<SkShader> wrapped, const SkMatrix& localMatrix)
