@@ -146,6 +146,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/effects/colorfilters:colorfilter_srcs",
 				"//src/effects/colorfilters:colorfilter_hdrs",
 			}},
+		{Var: "skia_colorfilters_sksl_sources",
+			Rules: []string{
+				// TODO(b/294209201): remove skia_colorfilters_sksl_sources from Chrome GN files
+			}},
 	}},
 	{GNI: "gn/effects_imagefilters.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_effects_imagefilter_public",
@@ -188,6 +192,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/sksl/transform:transform_srcs",
 				"//src/sksl:core_hdrs",
 				"//src/sksl:core_srcs",
+			}},
+		{Var: "skia_needs_sksl_sources",
+			Rules: []string{
+				// TODO(b/294209201): remove skia_needs_sksl_sources from Chrome GN files
 			}},
 		{Var: "skia_sksl_tracing_sources",
 			Rules: []string{
@@ -439,20 +447,20 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//modules/svg/src:srcs",
 			}},
 	}},
-    {GNI: "modules/bentleyottmann/bentleyottmann.gni", Vars: []exporter.GNIFileListExportDesc{
-        {Var: "bentleyottmann_public",
-            Rules: []string{
-                "//modules/bentleyottmann/include:hdrs",
-            }},
-        {Var: "bentleyottmann_sources",
-            Rules: []string{
-                "//modules/bentleyottmann/src:srcs",
-            }},
-        {Var: "bentleyottmann_tests",
-            Rules: []string{
-                "//modules/bentleyottmann/tests:tests",
-            }},
-    }},
+	{GNI: "modules/bentleyottmann/bentleyottmann.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "bentleyottmann_public",
+			Rules: []string{
+				"//modules/bentleyottmann/include:hdrs",
+			}},
+		{Var: "bentleyottmann_sources",
+			Rules: []string{
+				"//modules/bentleyottmann/src:srcs",
+			}},
+		{Var: "bentleyottmann_tests",
+			Rules: []string{
+				"//modules/bentleyottmann/tests:tests",
+			}},
+	}},
 	{GNI: "modules/skparagraph/skparagraph.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skparagraph_public",
 			Rules: []string{
