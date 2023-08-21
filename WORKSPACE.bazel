@@ -445,6 +445,38 @@ local_repository(
 load("//bazel:cipd_install.bzl", "cipd_install")
 
 cipd_install(
+    name = "git_linux_amd64",
+    build_file_content = """
+filegroup(
+  name = "all_files",
+  # The exclude pattern prevents files with spaces in their names from tripping up Bazel.
+  srcs = glob(include=["**/*"], exclude=["**/* *"]),
+  visibility = ["//visibility:public"],
+)
+""",
+    cipd_package = "infra/3pp/tools/git/linux-amd64",
+    # Based on
+    # https://skia.googlesource.com/buildbot/+/f1d21dc58818cd6aba0a7822e59d37636aefe936/WORKSPACE#391.
+    #
+    # Note that the below "git config" commands do not affect the user's Git configuration. These
+    # settings are only visible to Bazel targets that depend on @git_linux_amd64//:all_files via
+    # the "data" attribute. The result of these commands can be examined as follows:
+    #
+    #     $ cat $(bazel info output_base)/external/git_linux_amd64/etc/gitconfig
+    #     [user]
+    #             name = Bazel Test User
+    #             email = bazel-test-user@example.com
+    postinstall_cmds_posix = [
+        "mkdir etc",
+        "bin/git config --system user.name \"Bazel Test User\"",
+        "bin/git config --system user.email \"bazel-test-user@example.com\"",
+    ],
+    # From https://chrome-infra-packages.appspot.com/p/infra/3pp/tools/git/linux-amd64/+/version:2.29.2.chromium.6
+    sha256 = "36cb96051827d6a3f6f59c5461996fe9490d997bcd2b351687d87dcd4a9b40fa",
+    tag = "version:2.29.2.chromium.6",
+)
+
+cipd_install(
     name = "gn_linux_amd64",
     build_file_content = """
 exports_files(

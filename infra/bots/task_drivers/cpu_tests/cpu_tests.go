@@ -79,15 +79,16 @@ func main() {
 // config and any additional args to the build command. Instead of calling Bazel directly, we use
 // Bazelisk to make sure we use the right version of Bazel, as defined in the .bazelversion file
 // at the Skia root.
-func bazelTest(ctx context.Context, checkoutDir, label, config string, args ...string) error {
-	step := fmt.Sprintf("Test %s with config %s and %d extra flags", label, config, len(args))
+func bazelTest(ctx context.Context, checkoutDir, label, config string, extraArgs ...string) error {
+	step := fmt.Sprintf("Test %s with config %s and %d extra flags", label, config, len(extraArgs))
 	return td.Do(ctx, td.Props(step), func(ctx context.Context) error {
 		runCmd := &sk_exec.Command{
 			Name: "bazelisk",
-			Args: append([]string{"test",
+			Args: append([]string{
+				"test",
 				label,
 				"--config=" + config, // Should be defined in //bazel/buildrc
-			}, args...),
+			}, extraArgs...),
 			InheritEnv: true, // Makes sure bazelisk is on PATH
 			Dir:        checkoutDir,
 			LogStdout:  true,

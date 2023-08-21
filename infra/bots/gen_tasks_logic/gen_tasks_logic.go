@@ -428,8 +428,10 @@ func GenTasks(cfg *Config) {
 			"skia/resources",
 			"skia/package.json",
 			"skia/package-lock.json",
-			"skia/DEPS", // needed to check generation
+			"skia/DEPS",       // needed to check generation
+			"skia/infra/bots", // Many Go tests live here.
 			// Needed to run bazel
+			"skia/.bazelignore",
 			"skia/.bazelrc",
 			"skia/.bazelversion",
 			"skia/BUILD.bazel",
@@ -2133,6 +2135,28 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"tests":                          {"//tests:linux_rbe_build", ""},
 	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
 	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
+
+	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
+	// under a test_suite.
+	//
+	// Alternatives:
+	//
+	// - Use --test_lang_filters, which currently does not work for non-native rules. See
+	//   https://github.com/bazelbuild/bazel/issues/12618.
+	//
+	// - As suggested in the same GitHub issue, "bazel query 'kind(go_test, //...)'" would normally
+	//   return the list of labels. However, this fails due to BUILD.bazel files in
+	//   //third_party/externals and //bazel/external/vello. We could try either fixing those files
+	//   when possible, or adding them to //.bazelignore (either permanently or temporarily inside a
+	//   specialized task driver just for Go tests).
+	//
+	// - Have Gazelle add a tag to all Go tests: go_test(name = "foo_test", tag = "go", ... ). Then,
+	//   we can use a wildcard label such as //... and tell Bazel to only test those targets with
+	//   said tag, e.g. "bazel test //... --test_tag_filters=go"
+	//   (https://bazel.build/reference/command-line-reference#flag--test_tag_filters). Today this
+	//   does not work due to the third party and external BUILD.bazel files mentioned in the
+	//   previous bullet point.
+	"all_go_tests": {"//:all_go_tests", ""},
 
 	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use
 	// by subsequent CI tasks.

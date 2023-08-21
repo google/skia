@@ -39,17 +39,23 @@ go_binary(
 go_test(
     name = "codesize_test",
     srcs = ["codesize_test.go"],
+    data = select({
+        "@platforms//os:linux": ["@git_linux_amd64//:all_files"],
+        "//conditions:default": [],  # Prevent errors on platforms without this CIPD package.
+    }),
     embed = [":codesize_lib"],
     deps = [
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//mock",
         "@com_github_stretchr_testify//require",
+        "@org_skia_go_infra//bazel/go/bazel",
         "@org_skia_go_infra//go/exec",
         "@org_skia_go_infra//go/gcs",
         "@org_skia_go_infra//go/gcs/test_gcsclient",
         "@org_skia_go_infra//go/gerrit",
         "@org_skia_go_infra//go/gerrit/testutils",
         "@org_skia_go_infra//go/git",
+        "@org_skia_go_infra//go/git/git_common",
         "@org_skia_go_infra//go/git/testutils",
         "@org_skia_go_infra//go/gitiles",
         "@org_skia_go_infra//go/gitiles/testutils",

@@ -7,7 +7,15 @@ on the host machine.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-def cipd_install(name, cipd_package, sha256, tag, build_file = None, build_file_content = None):
+def cipd_install(
+        name,
+        cipd_package,
+        sha256,
+        tag,
+        build_file = None,
+        build_file_content = None,
+        postinstall_cmds_posix = None,
+        postinstall_cmds_win = None):
     """Download and extract the zipped archive from CIPD, making it available for Bazel rules.
 
     Args:
@@ -25,6 +33,8 @@ def cipd_install(name, cipd_package, sha256, tag, build_file = None, build_file_
             build_file_content can be specified, but not both.
         build_file_content: The content for the BUILD file for this repository. Either build_file
             or build_file_content can be specified, but not both.
+        postinstall_cmds_posix: Optional Bash commands to run on Mac/Linux after download.
+        postinstall_cmds_win: Optional Powershell commands to run on Windows after download.
     """
     cipd_url = "https://chrome-infra-packages.appspot.com/dl/"
     cipd_url += cipd_package
@@ -45,4 +55,6 @@ def cipd_install(name, cipd_package, sha256, tag, build_file = None, build_file_
         type = "zip",
         build_file = build_file,
         build_file_content = build_file_content,
+        patch_cmds = postinstall_cmds_posix,
+        patch_cmds_win = postinstall_cmds_win,
     )
