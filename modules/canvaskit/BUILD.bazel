@@ -301,6 +301,7 @@ wasm_cc_binary(
         "//infra/debugger-app:__pkg__",
         "//infra/jsfiddle:__pkg__",
         "//infra/shaders:__pkg__",
+        "//infra/skottie:__pkg__",
     ],
 )
 

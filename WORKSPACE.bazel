@@ -584,3 +584,11 @@ container_pull(
     registry = "gcr.io",
     repository = "skia-public/shaders-base",
 )
+
+# Pulls the gcr.io/skia-public/skottie-base container.
+container_pull(
+    name = "skottie-base",
+    digest = "sha256:a740f161fcf23b59f3d19b2fca8345b2ecfa0dd41d2c733415b411494279d7f6",
+    registry = "gcr.io",
+    repository = "skia-public/skottie-base",
+)
