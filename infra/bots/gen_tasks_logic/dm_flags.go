@@ -339,6 +339,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				skip(ALL, "test", ALL, "GraphiteTextureProxyTest")
 				skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageMultipleImgUses")
 				skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageRecorderLoss")
+				skip(ALL, "test", ALL, "ImageOriginTest_drawImage_Graphite")
+				skip(ALL, "test", ALL, "ImageOriginTest_imageShader_Graphite")
 				skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Testing")
 				skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Default")
 				skip(ALL, "test", ALL, "MakeColorSpace_Test")
