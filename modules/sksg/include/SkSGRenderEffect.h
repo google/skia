@@ -9,6 +9,7 @@
 #define SkSGRenderEffect_DEFINED
 
 #include "modules/sksg/include/SkSGEffectNode.h"
+#include "modules/sksg/include/SkSGNode.h"
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
@@ -107,6 +108,8 @@ public:
         return fFilter;
     }
 
+    SG_ATTRIBUTE(CropRect, SkImageFilters::CropRect, fCropRect)
+
 protected:
     ImageFilter();
 
@@ -115,7 +118,8 @@ protected:
     virtual sk_sp<SkImageFilter> onRevalidateFilter() = 0;
 
 private:
-    sk_sp<SkImageFilter>           fFilter;
+    sk_sp<SkImageFilter>     fFilter;
+    SkImageFilters::CropRect fCropRect = skif::kNoCropRect;
 
     using INHERITED = Node;
 };
@@ -129,6 +133,13 @@ public:
 
     static sk_sp<RenderNode> Make(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter);
 
+    enum class Cropping {
+        kNone,    // Doesn't use a crop rect.
+        kContent, // Uses the content bounding box as a crop rect.
+    };
+
+    SG_ATTRIBUTE(Cropping, Cropping, fCropping)
+
 protected:
     void onRender(SkCanvas*, const RenderContext*) const override;
     const RenderNode* onNodeAt(const SkPoint&)     const override;
@@ -139,6 +150,7 @@ private:
     ImageFilterEffect(sk_sp<RenderNode> child, sk_sp<ImageFilter> filter);
 
     sk_sp<ImageFilter> fImageFilter;
+    Cropping           fCropping = Cropping::kNone;
 
     using INHERITED = EffectNode;
 };
@@ -213,7 +225,7 @@ private:
     explicit BlurImageFilter();
 
     SkVector   fSigma    = { 0, 0 };
-    SkTileMode fTileMode = SkTileMode::kClamp;
+    SkTileMode fTileMode = SkTileMode::kDecal;
 
     using INHERITED = ImageFilter;
 };

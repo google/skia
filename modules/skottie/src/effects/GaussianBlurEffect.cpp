@@ -6,6 +6,7 @@
  */
 
 #include "modules/skottie/src/effects/Effects.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 
 #include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -62,14 +63,19 @@ private:
         fBlur->setSigma({ sigma * kDimensionsMap[dim_index].x(),
                           sigma * kDimensionsMap[dim_index].y() });
 
-        static constexpr SkTileMode kRepeatEdgeMap[] = {
-            SkTileMode::kDecal, // 0 -> repeat edge pixels: off
-            SkTileMode::kClamp, // 1 -> repeat edge pixels: on
-        };
+        // 0 -> repeat edge pixels: off
+        // 1 -> repeat edge pixels: on
+        const auto repeat_edge = static_cast<bool>(fRepeatEdge);
 
-        const auto repeat_index = SkTPin<size_t>(static_cast<size_t>(fRepeatEdge),
-                                                 0, std::size(kRepeatEdgeMap) - 1);
-        fBlur->setTileMode(kRepeatEdgeMap[repeat_index]);
+        // Repeat edge pixels implies two things:
+        //  - the blur uses kClamp tiling
+        //  - the output is cropped to content size
+        fBlur->setTileMode(repeat_edge
+            ? SkTileMode::kClamp
+            : SkTileMode::kDecal);
+        static_cast<sksg::ImageFilterEffect*>(fImageFilterEffect.get())->setCropping(repeat_edge
+            ? sksg::ImageFilterEffect::Cropping::kContent
+            : sksg::ImageFilterEffect::Cropping::kNone);
     }
 
     const sk_sp<sksg::BlurImageFilter> fBlur;

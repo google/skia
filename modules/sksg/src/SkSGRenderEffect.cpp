@@ -11,6 +11,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkImageFilters.h"
 #include "src/core/SkMaskFilterBase.h"
 
 namespace sksg {
@@ -105,6 +107,12 @@ ImageFilterEffect::~ImageFilterEffect() {
 }
 
 SkRect ImageFilterEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    const auto content_bounds = this->INHERITED::onRevalidate(ic, ctm);
+
+    fImageFilter->setCropRect(fCropping == Cropping::kContent
+        ? content_bounds
+        : skif::kNoCropRect);
+
     // FIXME: image filter effects should replace the descendents' damage!
     fImageFilter->revalidate(ic, ctm);
 
@@ -113,8 +121,6 @@ SkRect ImageFilterEffect::onRevalidate(InvalidationController* ic, const SkMatri
     // Would be nice for this this to stick, but canComputeFastBounds()
     // appears to be conservative (false negatives).
     // SkASSERT(!filter || filter->canComputeFastBounds());
-
-    const auto content_bounds = this->INHERITED::onRevalidate(ic, ctm);
 
     return filter ? filter->computeFastBounds(content_bounds)
                   : content_bounds;
@@ -162,10 +168,10 @@ DropShadowImageFilter::~DropShadowImageFilter() = default;
 sk_sp<SkImageFilter> DropShadowImageFilter::onRevalidateFilter() {
     if (fMode == Mode::kShadowOnly) {
         return SkImageFilters::DropShadowOnly(fOffset.x(), fOffset.y(), fSigma.x(), fSigma.y(),
-                                              fColor, nullptr);
+                                              fColor, nullptr, this->getCropRect());
     } else {
         return SkImageFilters::DropShadow(fOffset.x(), fOffset.y(), fSigma.x(), fSigma.y(),
-                                          fColor, nullptr);
+                                          fColor, nullptr, this->getCropRect());
     }
 }
 
@@ -179,7 +185,10 @@ BlurImageFilter::BlurImageFilter()
 BlurImageFilter::~BlurImageFilter() = default;
 
 sk_sp<SkImageFilter> BlurImageFilter::onRevalidateFilter() {
-    return SkImageFilters::Blur(fSigma.x(), fSigma.y(), fTileMode, nullptr);
+    // Tile modes other than kDecal require an explicit crop rect.
+    SkASSERT(fTileMode == SkTileMode::kDecal ||
+             this->getCropRect() != SkImageFilters::CropRect(skif::kNoCropRect));
+    return SkImageFilters::Blur(fSigma.x(), fSigma.y(), fTileMode, nullptr, this->getCropRect());
 }
 
 sk_sp<BlenderEffect> BlenderEffect::Make(sk_sp<RenderNode> child, sk_sp<SkBlender> blender) {
