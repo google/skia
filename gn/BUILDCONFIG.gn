@@ -47,6 +47,10 @@ declare_args() {
   min_watchos_version = "2.0"
   min_macos_version = "10.8"
   min_maccatalyst_version = "13.0"
+
+  ios_use_simulator =
+    (target_os == "ios" || target_os == "tvos" || target_os == "watchos") &&
+    (target_cpu == "x86" || target_cpu == "x64")
 }
 declare_args() {
   is_debug = !is_official_build

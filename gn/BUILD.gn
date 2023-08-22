@@ -37,7 +37,7 @@ if (is_ios && !is_maccatalyst && xcode_sysroot == "") {
   } else {
     sdk = "iphone"
   }
-  if (target_cpu == "x86" || target_cpu == "x64") {
+  if (ios_use_simulator) {
     sdk += "simulator"
   } else {
     sdk += "os"
@@ -278,9 +278,13 @@ config("default") {
         _arch_flags = [
           "-arch",
           "arm64",
-          "-arch",
-          "arm64e",
         ]
+        if (!ios_use_simulator) {
+          _arch_flags += [
+            "-arch",
+            "arm64e",
+          ] 
+        }
       }
     } else if (target_cpu == "x86") {
       _arch_flags = [
@@ -342,6 +346,14 @@ config("default") {
     } else {
       cflags += [ "-mios-version-min=$min_ios_version" ]
       ldflags += [ "-Wl,ios_version_min=$min_ios_version" ]
+      if (ios_use_simulator) {
+        cflags += [
+          "-target", "$target_cpu-apple-ios$min_ios_version-simulator",
+        ]
+        ldflags += [
+          "-target", "$target_cpu-apple-ios$min_ios_version-simulator",
+        ]
+      }
     }
   }
 
