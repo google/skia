@@ -21,8 +21,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		args = append(args, "--gpuStatsDump", "true")
 	}
 
-	args = append(args, "--scales", "1.0", "1.1")
-
 	configs := []string{}
 	if b.cpu() {
 		args = append(args, "--nogpu")
