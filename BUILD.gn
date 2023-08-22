@@ -3116,6 +3116,7 @@ skiasharp_build("HarfBuzzSharp") {
     "HAVE_OT",
     "HAVE_CONFIG_OVERRIDE_H",
     "HB_NO_FALLBACK_SHAPE",
+    # "HB_NO_WIN1256",
   ]
 
   include_dirs = [
