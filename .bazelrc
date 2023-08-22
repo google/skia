@@ -63,8 +63,6 @@ build --flag_alias=disable_native_interface=no//src/gpu/ganesh/gl:enable_native_
 build --flag_alias=enable_native_interface=//src/gpu/ganesh/gl:enable_native_interface
 build --flag_alias=disable_pdf_backend=no//src/pdf:enable_pdf_backend
 build --flag_alias=enable_pdf_backend=//src/pdf:enable_pdf_backend
-build --flag_alias=disable_sksl=no//src/sksl:enable_sksl
-build --flag_alias=enable_sksl=//src/sksl:enable_sksl
 build --flag_alias=disable_skslc=no//src/sksl:enable_skslc
 build --flag_alias=enable_skslc=//src/sksl:enable_skslc
 build --flag_alias=disable_sksl_tracing=no//src/sksl:enable_sksl_tracing

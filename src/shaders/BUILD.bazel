@@ -18,12 +18,15 @@ SHADER_FILES = [
     "SkCoordClampShader.h",
     "SkEmptyShader.cpp",
     "SkEmptyShader.h",
+    "SkGainmapShader.cpp",
     "SkImageShader.cpp",
     "SkImageShader.h",
     "SkLocalMatrixShader.cpp",
     "SkLocalMatrixShader.h",
     "SkPerlinNoiseShaderImpl.cpp",
     "SkPerlinNoiseShaderImpl.h",
+    "SkRuntimeShader.cpp",
+    "SkRuntimeShader.h",
     "SkShader.cpp",
     "SkShaderBase.cpp",
     "SkShaderBase.h",
@@ -56,24 +59,10 @@ bool_flag(
 )
 
 skia_filegroup(
-    name = "sksl_srcs",
-    srcs = [
-        "SkGainmapShader.cpp",
-        "SkRuntimeShader.cpp",
-    ],
-)
-
-skia_filegroup(
-    name = "sksl_hdrs",
-    srcs = ["SkRuntimeShader.h"],
-)
-
-skia_filegroup(
     name = "srcs",
     srcs = [
         ":shader_srcs",
         ":skpicture_srcs",
-        ":sksl_srcs",
         "//src/shaders/gradients:srcs",
     ],
     visibility = ["//src:__pkg__"],
@@ -84,7 +73,6 @@ skia_filegroup(
     srcs = [
         ":shader_hdrs",
         ":skpicture_hdrs",
-        ":sksl_hdrs",
         "//src/shaders/gradients:private_hdrs",
     ],
     visibility = ["//src:__pkg__"],

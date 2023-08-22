@@ -11,7 +11,6 @@ skia_cc_binary_with_flags(
         "Main.cpp",
     ],
     set_flags = {
-        "enable_sksl": ["True"],
         "enable_sksl_tracing": ["True"],
         "enable_skslc": ["True"],
     },

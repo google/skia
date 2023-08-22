@@ -198,6 +198,8 @@ CORE_FILES = [
     "SkMemset_opts.cpp",
     "SkMemset_opts_avx.cpp",
     "SkMemset_opts_erms.cpp",
+    "SkMesh.cpp",
+    "SkMeshPriv.h",
     "SkMessageBus.h",
     "SkMipmap.cpp",
     "SkMipmap.h",
@@ -272,6 +274,12 @@ CORE_FILES = [
     "SkRegion_path.cpp",
     "SkResourceCache.cpp",
     "SkResourceCache.h",
+    "SkRuntimeBlender.cpp",
+    "SkRuntimeBlender.h",
+    "SkRuntimeEffect.cpp",
+    "SkRuntimeEffectPriv.h",
+    "SkSLTypeShared.cpp",
+    "SkSLTypeShared.h",
     "SkSafeRange.h",
     "SkSamplingPriv.h",
     "SkScalar.cpp",
@@ -355,23 +363,6 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
-# These files are only needed if SkSL is enabled (GPU backend or SkRP).
-SKSL_FILES = [
-    "SkMesh.cpp",
-    "SkMeshPriv.h",
-    "SkRuntimeBlender.cpp",
-    "SkRuntimeBlender.h",
-    "SkRuntimeEffect.cpp",
-    "SkRuntimeEffectPriv.h",
-    "SkSLTypeShared.cpp",
-    "SkSLTypeShared.h",
-]
-
-split_srcs_and_hdrs(
-    name = "sksl",
-    files = SKSL_FILES,
-)
-
 skia_filegroup(
     name = "legacy_draw_looper",
     srcs = [
@@ -411,7 +402,6 @@ skia_filegroup(
         ":core_skslc_srcs",
         ":core_srcs",
         ":skpicture_srcs",
-        ":sksl_srcs",
     ],
     visibility = ["//src:__pkg__"],
 )
@@ -422,7 +412,6 @@ skia_filegroup(
         ":core_hdrs",
         ":core_skslc_hdrs",
         ":skpicture_hdrs",
-        ":sksl_hdrs",
     ],
     visibility = ["//src:__pkg__"],
 )

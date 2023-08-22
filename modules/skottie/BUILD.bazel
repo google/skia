@@ -48,7 +48,6 @@ cc_binary_with_flags(
             "png_decode_codec",
             "webp_decode_codec",
         ],
-        "enable_sksl": ["True"],
         "use_harfbuzz": ["True"],
         "use_icu": ["True"],
     },

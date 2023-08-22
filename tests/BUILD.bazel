@@ -114,7 +114,6 @@ skia_cpu_tests(
     name = "cpu_only_tests",
     flags = {
         "fontmgr_factory": ["custom_directory_fontmgr_factory"],
-        "enable_sksl": ["True"],
         "enable_sksl_tracing": ["True"],
         "include_decoder": [
             "jpeg_decode_codec",
@@ -372,7 +371,6 @@ android_unit_test(
     }),
     flags = {
         "fontmgr_factory": ["custom_directory_fontmgr_factory"],
-        "enable_sksl": ["True"],
         "enable_sksl_tracing": ["True"],
         "include_decoder": [
             "jpeg_decode_codec",

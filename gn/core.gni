@@ -132,8 +132,6 @@ skia_core_public = [
 #  //src/core:core_skslc_srcs
 #  //src/core:core_srcs
 #  //src/core:legacy_draw_looper
-#  //src/core:sksl_hdrs
-#  //src/core:sksl_srcs
 #  //src/image:core_hdrs
 #  //src/image:core_srcs
 #  //src/lazy:lazy_hdrs
@@ -141,8 +139,6 @@ skia_core_public = [
 #  //src/opts:private_hdrs
 #  //src/shaders:shader_hdrs
 #  //src/shaders:shader_srcs
-#  //src/shaders:sksl_hdrs
-#  //src/shaders:sksl_srcs
 #  //src/text:text_hdrs
 #  //src/text:text_srcs
 skia_core_sources = [

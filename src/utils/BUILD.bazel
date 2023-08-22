@@ -10,6 +10,8 @@ CORE_SKSLC_FILES = [
     "SkParse.cpp",
     "SkOSPath.h",
     "SkOSPath.cpp",
+    "SkShaderUtils.cpp",
+    "SkShaderUtils.h",
 ]
 
 split_srcs_and_hdrs(
@@ -51,6 +53,8 @@ CORE_FILES = [
     "SkPatchUtils.h",
     "SkPolyUtils.cpp",
     "SkPolyUtils.h",
+    "SkShaderUtils.cpp",
+    "SkShaderUtils.h",
     "SkShadowTessellator.cpp",
     "SkShadowTessellator.h",
     "SkShadowUtils.cpp",
@@ -106,17 +110,6 @@ selects.config_setting_group(
     ],
 )
 
-# In separate group to avoid exporting to a *.gni file.
-SKSL_FILES = [
-    "SkShaderUtils.cpp",
-    "SkShaderUtils.h",
-]
-
-split_srcs_and_hdrs(
-    name = "sksl",
-    files = SKSL_FILES,
-)
-
 skia_filegroup(
     name = "chromium_hdrs",
     # We allow chromium to use this as a diagnostic tool, but it is not
@@ -132,7 +125,6 @@ skia_filegroup(
     srcs = [
         ":core_skslc_srcs",
         ":core_srcs",
-        ":sksl_srcs",
     ] + select({
         ":needs_json": [":json_srcs"],
         "//conditions:default": [],
@@ -149,7 +141,6 @@ skia_filegroup(
         ":chromium_hdrs",
         ":core_hdrs",
         ":core_skslc_hdrs",
-        ":sksl_hdrs",
     ] + select({
         ":needs_json": [":json_hdrs"],
         "//conditions:default": [],

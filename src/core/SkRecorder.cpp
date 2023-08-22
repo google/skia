@@ -23,7 +23,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
-#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"

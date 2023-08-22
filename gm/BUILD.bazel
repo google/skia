@@ -508,7 +508,6 @@ cc_test_with_flags(
     ],
     data = ["//resources"],
     set_flags = {
-        "enable_sksl": ["True"],
         "include_decoder": [
             "gif_decode_codec",
             "webp_decode_codec",
@@ -534,7 +533,6 @@ cc_test_with_flags(
     ],
     data = ["//resources"],
     set_flags = {
-        "enable_sksl": ["True"],
         "include_decoder": [
             "gif_decode_codec",
             "webp_decode_codec",
@@ -558,7 +556,6 @@ cc_test_with_flags(
     ],
     data = ["//resources"],
     set_flags = {
-        "enable_sksl": ["True"],
         "include_decoder": [
             "gif_decode_codec",
             "webp_decode_codec",
@@ -592,7 +589,6 @@ cc_test_with_flags(
     ],
     data = ["//resources"],
     set_flags = {
-        "enable_sksl": ["True"],
         "include_decoder": [
             "gif_decode_codec",
             "webp_decode_codec",
@@ -614,7 +610,6 @@ cc_test_with_flags(
         srcs = CPU_GMS,
         config = config,
         flags = {
-            "enable_sksl": ["True"],
             "include_decoder": [
                 "gif_decode_codec",
                 "webp_decode_codec",

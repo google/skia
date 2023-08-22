@@ -117,11 +117,6 @@ selects.config_setting_group(
 )
 
 bool_flag(
-    name = "enable_sksl",
-    default = False,
-)
-
-bool_flag(
     name = "enable_skslc",
     default = False,
 )

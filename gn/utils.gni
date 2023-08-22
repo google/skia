@@ -46,8 +46,6 @@ skia_utils_chromium = [ "$_src/utils/SkMultiPictureDocument.h" ]
 #  //src/utils:core_srcs
 #  //src/utils:json_hdrs
 #  //src/utils:json_srcs
-#  //src/utils:sksl_hdrs
-#  //src/utils:sksl_srcs
 #  //src/utils/mac:core_hdrs
 #  //src/utils/mac:core_srcs
 #  //src/utils/win:core_hdrs
