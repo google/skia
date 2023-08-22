@@ -77,39 +77,38 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
 
     wgpu::DeviceDescriptor desc;
 #ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
-    desc.requiredFeatureCount = features.size();
+    desc.requiredFeatureCount  = features.size();
 #else
     desc.requiredFeaturesCount = features.size();
 #endif
     desc.requiredFeatures      = features.data();
 
-#if !defined(SK_DEBUG)
-        wgpu::DawnTogglesDescriptor deviceTogglesDesc;
-        std::array<const char*, 1> toggles = {
-            "skip_validation",
-        };
+    wgpu::DawnTogglesDescriptor deviceTogglesDesc;
+    static constexpr const char* kToggles[] = {
+        "use_user_defined_labels_in_backend"
+    };
 #ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
-        deviceTogglesDesc.enabledToggleCount = toggles.size();
+    deviceTogglesDesc.enabledToggleCount  = std::size(kToggles);
 #else
-        deviceTogglesDesc.enabledTogglesCount = toggles.size();
+    deviceTogglesDesc.enabledTogglesCount = std::size(kToggles);
 #endif
-        deviceTogglesDesc.enabledToggles      = toggles.data();
-        desc.nextInChain                      = &deviceTogglesDesc;
-#endif
-    auto device = wgpu::Device::Acquire(gAdapter.CreateDevice(&desc));
+    deviceTogglesDesc.enabledToggles      = kToggles;
+    desc.nextInChain                      = &deviceTogglesDesc;
+
+    wgpu::Device device = wgpu::Device::Acquire(gAdapter.CreateDevice(&desc));
     SkASSERT(device);
     device.SetUncapturedErrorCallback(
             [](WGPUErrorType type, const char* message, void*) {
                 SkDebugf("Device error: %s\n", message);
             },
-            0);
+            /*userdata=*/nullptr);
     device.SetDeviceLostCallback(
             [](WGPUDeviceLostReason reason, const char* message, void*) {
                 if (reason != WGPUDeviceLostReason_Destroyed) {
                     SK_ABORT("Device lost: %s\n", message);
                 }
             },
-            0);
+            /*userdata=*/nullptr);
 
     skgpu::graphite::DawnBackendContext backendContext;
     backendContext.fDevice = device;
