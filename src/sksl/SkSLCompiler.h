@@ -177,7 +177,7 @@ public:
                                           bool shouldInline);
 
     /** Optimize a module at minification time, before writing it out. */
-    bool optimizeModuleBeforeMinifying(ProgramKind kind, Module& module);
+    bool optimizeModuleBeforeMinifying(ProgramKind kind, Module& module, bool shrinkSymbols);
 
     const Module* moduleForProgramKind(ProgramKind kind);
 

@@ -121,14 +121,12 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
         if (!m) {
             return {};
         }
-        if (!gUnoptimized) {
-            // We need to optimize every module in the chain. We rename private functions at global
-            // scope, and we need to make sure there are no name collisions between nested modules.
-            // (i.e., if module A claims names `$a` and `$b` at global scope, module B will need to
-            // start at `$c`. The most straightforward way to handle this is to actually perform the
-            // renames.)
-            compiler.optimizeModuleBeforeMinifying(kind, *m);
-        }
+        // We need to optimize every module in the chain. We rename private functions at global
+        // scope, and we need to make sure there are no name collisions between nested modules.
+        // (i.e., if module A claims names `$a` and `$b` at global scope, module B will need to
+        // start at `$c`. The most straightforward way to handle this is to actually perform the
+        // renames.)
+        compiler.optimizeModuleBeforeMinifying(kind, *m, /*shrinkSymbols=*/!gUnoptimized);
         modules.push_front(std::move(m));
     }
     // Return all of the modules to transfer their ownership to the caller.
