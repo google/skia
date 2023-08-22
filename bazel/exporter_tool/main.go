@@ -142,10 +142,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/effects/colorfilters:colorfilter_srcs",
 				"//src/effects/colorfilters:colorfilter_hdrs",
 			}},
-		{Var: "skia_colorfilters_sksl_sources",
-			Rules: []string{
-				// TODO(b/294209201): remove skia_colorfilters_sksl_sources from Chrome GN files
-			}},
 	}},
 	{GNI: "gn/effects_imagefilters.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_effects_imagefilter_public",
@@ -188,10 +184,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/sksl/transform:transform_srcs",
 				"//src/sksl:core_hdrs",
 				"//src/sksl:core_srcs",
-			}},
-		{Var: "skia_needs_sksl_sources",
-			Rules: []string{
-				// TODO(b/294209201): remove skia_needs_sksl_sources from Chrome GN files
 			}},
 		{Var: "skia_sksl_tracing_sources",
 			Rules: []string{
