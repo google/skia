@@ -1160,6 +1160,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		b.gpu("IntelHD6000")) {
 		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_Ganesh")         // skia:14025
 		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_Ganesh") // skia:14025
+		// TODO(skia:296960708): The IntelIrisPlus+Metal config hangs on this test, but passes
+		// SurfaceContextWritePixelsMipped so let that one keep running.
+		skip(ALL, "tests", ALL, "SurfaceContextWritePixels$")
 	}
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && b.extraConfig("ANGLE") {
