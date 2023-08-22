@@ -60,6 +60,18 @@
 #include <string_view>
 #include <vector>
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/ContextOptions.h"
+#include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
+#if defined(SK_DAWN)
+#include "src/gpu/graphite/dawn/DawnCaps.h"
+#endif
+#endif
+
 using namespace skia_private;
 
 namespace SkSL { class Context; }
@@ -277,8 +289,8 @@ static void test_permutations(skiatest::Reporter* r,
                               SkSurface* surface,
                               const char* testFile,
                               bool strictES2) {
-    SkRuntimeEffect::Options options =
-            strictES2 ? SkRuntimeEffect::Options{} : SkRuntimeEffectPriv::ES3Options();
+    SkRuntimeEffect::Options options = strictES2 ? SkRuntimeEffect::Options{}
+                                                 : SkRuntimeEffectPriv::ES3Options();
     options.forceUnoptimized = false;
     test_one_permutation(r, surface, testFile, "", options);
 
@@ -296,10 +308,11 @@ static void test_cpu(skiatest::Reporter* r, const char* testFile, SkSLTestFlags 
     test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
 }
 
-static void test_gpu(skiatest::Reporter* r,
-                     GrDirectContext* ctx,
-                     const char* testFile,
-                     SkSLTestFlags flags) {
+#if defined(SK_GANESH)
+static void test_ganesh(skiatest::Reporter* r,
+                        GrDirectContext* ctx,
+                        const char* testFile,
+                        SkSLTestFlags flags) {
     // If this is an ES3-only test on a GPU which doesn't support SkSL ES3, return immediately.
     bool shouldRunGPU = SkToBool(flags & SkSLTestFlag::GPU);
     bool shouldRunGPU_ES3 =
@@ -316,7 +329,7 @@ static void test_gpu(skiatest::Reporter* r,
         }
     }
 
-    // Create a GPU-backed surface.
+    // Create a GPU-backed Ganesh surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
 
@@ -327,6 +340,53 @@ static void test_gpu(skiatest::Reporter* r,
         test_permutations(r, surface.get(), testFile, /*strictES2=*/false);
     }
 }
+#endif
+
+#if defined(SK_GRAPHITE)
+static void test_graphite(skiatest::Reporter* r,
+                          skgpu::graphite::Context* ctx,
+                          const char* testFile,
+                          SkSLTestFlags flags) {
+    // If this is an ES3-only test on a GPU which doesn't support SkSL ES3, return immediately.
+    bool shouldRunGPU = SkToBool(flags & SkSLTestFlag::GPU);
+    bool shouldRunGPU_ES3 =
+            (flags & SkSLTestFlag::GPU_ES3) &&
+            (ctx->priv().caps()->shaderCaps()->supportedSkSLVerion() >= SkSL::Version::k300);
+    if (!shouldRunGPU && !shouldRunGPU_ES3) {
+        return;
+    }
+
+#if defined(SK_DAWN)
+    if (ctx->backend() == skgpu::BackendApi::kDawn) {
+        // We always force-enable WGSL via `force_wgsl_in_dawn` below. Dawn's SPIR-V Reader has
+        // known limitations that we will bump into otherwise (some of our tests cause it to emit
+        // malformed WGSL).
+        SkASSERT(static_cast<const skgpu::graphite::DawnCaps*>(ctx->priv().caps())->enableWGSL());
+
+        // If this is a test that requires the GPU to generate NaN values, we don't run it in Dawn.
+        // (WGSL/Dawn does not support infinity or NaN even if the GPU natively does.)
+        if (flags & SkSLTestFlag::UsesNaN) {
+            return;
+        }
+    }
+#endif
+
+    // Create a GPU-backed Graphite surface.
+    std::unique_ptr<skgpu::graphite::Recorder> recorder = ctx->makeRecorder();
+
+    const SkImageInfo info = SkImageInfo::Make({kWidth, kHeight},
+                                                kRGBA_8888_SkColorType,
+                                                kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
+
+    if (shouldRunGPU) {
+        test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
+    }
+    if (shouldRunGPU_ES3) {
+        test_permutations(r, surface.get(), testFile, /*strictES2=*/false);
+    }
+}
+#endif
 
 static void test_clone(skiatest::Reporter* r, const char* testFile, SkSLTestFlags flags) {
     SkString shaderString = load_source(r, testFile, "");
@@ -477,24 +537,58 @@ static void test_raster_pipeline(skiatest::Reporter* r,
     report_rp_pass(r, testFile, flags);
 }
 
+
+#if defined(SK_GANESH)
 static bool is_rendering_context_but_not_dawn(sk_gpu_test::GrContextFactory::ContextType type) {
     return sk_gpu_test::GrContextFactory::IsRenderingContext(type) &&
            sk_gpu_test::GrContextFactory::ContextTypeBackend(type) != GrBackendApi::kDawn;
 }
 
+#define DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path)                 \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(SkSL##name##_Ganesh,               \
+                                             is_rendering_context_but_not_dawn, \
+                                             r,                                 \
+                                             ctxInfo,                           \
+                                             nullptr,                           \
+                                             is_gpu(flags),                     \
+                                             ctsEnforcement) {                  \
+        test_ganesh(r, ctxInfo.directContext(), path, flags);                   \
+    }
+#else
+#define DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path) /* Ganesh is disabled */
+#endif
+
+#if defined(SK_GRAPHITE)
+static bool is_native_context_or_dawn(sk_gpu_test::GrContextFactory::ContextType type) {
+    // This avoids re-testing Dawn over and over again against every possible API.
+    return sk_gpu_test::GrContextFactory::IsNativeBackend(type) ||
+           type == sk_gpu_test::GrContextFactory::kDawn_ContextType;
+}
+
+static void force_wgsl_in_dawn(skgpu::graphite::ContextOptions* options) {
+    options->fEnableWGSL = true;
+}
+
+#define DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path)         \
+    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(SkSL##name##_Graphite,     \
+                                               is_native_context_or_dawn, \
+                                               r,                         \
+                                               context,                   \
+                                               force_wgsl_in_dawn,        \
+                                               is_gpu(flags),             \
+                                               ctsEnforcement) {          \
+        test_graphite(r, context, path, flags);                           \
+    }
+#else
+#define DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path) /* Graphite is disabled */
+#endif
+
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
     DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) { test_cpu(r, path, flags); } \
     DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }                 \
-    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(SkSL##name##_Ganesh,                          \
-                                             is_rendering_context_but_not_dawn,            \
-                                             r,                                            \
-                                             ctxInfo,                                      \
-                                             nullptr,                                      \
-                                             is_gpu(flags),                                \
-                                             ctsEnforcement) {                             \
-        test_gpu(r, ctxInfo.directContext(), path, flags);                                 \
-    }                                                                                      \
-    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }
+    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                        \
+    DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path)                                \
+    DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path)
 
 /**
  * Test flags:

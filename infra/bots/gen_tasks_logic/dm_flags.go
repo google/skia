@@ -1156,10 +1156,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_Ganesh")
 	}
 
-	if b.matchOs("Mac") && b.extraConfig("Metal") && (b.gpu("IntelIrisPlus") ||
-		b.gpu("IntelHD6000")) {
-		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_Ganesh")         // skia:14025
-		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_Ganesh") // skia:14025
+	if b.matchOs("Mac") && (b.gpu("IntelIrisPlus") || b.gpu("IntelHD6000")) &&
+						   (b.extraConfig("Metal") || b.extraConfig("Dawn")) {
+		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_Ganesh")           // skia:14025
+		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_Ganesh")   // skia:14025
+		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_Graphite")         // skia:14025
+		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_Graphite") // skia:14025
+
 		// TODO(skia:296960708): The IntelIrisPlus+Metal config hangs on this test, but passes
 		// SurfaceContextWritePixelsMipped so let that one keep running.
 		skip(ALL, "tests", ALL, "SurfaceContextWritePixels$")
