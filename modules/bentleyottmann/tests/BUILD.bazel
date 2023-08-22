@@ -9,5 +9,6 @@ skia_filegroup(
     srcs = [
         "EventQueueTest.cpp",
         "PointTest.cpp",
+        "SegmentTest.cpp",
     ],
 )

@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "EventQueue.cpp",
         "Point.cpp",
+        "Segment.cpp",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],
 )
