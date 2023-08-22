@@ -10,6 +10,10 @@
 #include "include/private/base/SkTArray.h"
 #include "tools/flags/CommandLineFlags.h"
 
+namespace skgpu::graphite {
+struct ContextOptions;
+};
+
 namespace CommonFlags {
 /**
  *  Helper to assist in collecting image paths from |dir| specified through a command line

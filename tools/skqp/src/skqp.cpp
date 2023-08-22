@@ -154,8 +154,8 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
         CtsEnforcement::RunMode::kRunStrict) {
         options.fDisableDriverCorrectnessWorkarounds = true;
     }
-    if (test->fContextOptionsProc) {
-        test->fContextOptionsProc(&options);
+    if (test->fGaneshContextOptionsProc) {
+        test->fGaneshContextOptionsProc(&options);
     }
     test->ganesh(&r, options);
     fTestResults.push_back(TestResult{test->fName, r.fErrors});

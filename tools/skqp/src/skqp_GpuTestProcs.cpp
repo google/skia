@@ -128,7 +128,10 @@ namespace graphite {
 
 void RunWithGraphiteTestContexts(GraphiteTestFn* test,
                                  GrContextTypeFilterFn* filter,
-                                 Reporter* reporter) { SK_ABORT(); }
+                                 Reporter* reporter,
+                                 const skgpu::graphite::ContextOptions&) {
+    SK_ABORT();
+}
 
 }  // namespace graphite
 

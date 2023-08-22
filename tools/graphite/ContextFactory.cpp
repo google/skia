@@ -37,8 +37,7 @@ ContextFactory::ContextInfo::ContextInfo(GrContextFactory::ContextType type,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ContextFactory::ContextFactory(const skgpu::graphite::ContextOptions& options)
-        : fOptions(options) {
-}
+        : fOptions(options) {}
 
 ContextFactory::~ContextFactory() {}
 
