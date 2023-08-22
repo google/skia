@@ -90,7 +90,6 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Release-Graphite_Vulkan',
   'Build-Win-Clang-x86_64-Release-Direct3D',
   'Build-Win-Clang-x86_64-Release-Shared',
-  'Build-Win-Clang-x86_64-Release-Dawn',
   'Build-Win-Clang-x86_64-Release-Vulkan',
 ]
 

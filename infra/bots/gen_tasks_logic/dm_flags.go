@@ -269,14 +269,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, "gles", "glesdft")
 		}
 
-		// Dawn task *only* runs the dawn config
-		if b.extraConfig("Dawn") && !b.extraConfig("Graphite") {
-			// The SPIR-V reader emits bad code for a `matrixCompMult` that overflows. (tint:1989)
-			skip(ALL, "test", ALL, "SkSLIntrinsicMatrixCompMultES2_Ganesh")
-
-			configs = []string{"dawn"}
-		}
-
 		// The FailFlushTimeCallbacks tasks only run the 'gl' config
 		if b.extraConfig("FailFlushTimeCallbacks") {
 			configs = []string{"gl"}
@@ -483,7 +475,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, "vk1010102")
 				// Decoding transparent images to 1010102 just looks bad
 				skip("vk1010102", "image", ALL, ALL)
-			} else if !b.extraConfig("Dawn") {
+			} else {
 				configs = append(configs, "gl1010102", "gltestpersistentcache", "gltestglslcache", "gltestprecompile")
 				// Decoding transparent images to 1010102 just looks bad
 				skip("gl1010102", "image", ALL, ALL)
