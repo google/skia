@@ -43,6 +43,7 @@
     SKICU_FUNC(ubrk_preceding)        \
     SKICU_FUNC(ubrk_setText)          \
     SKICU_FUNC(ubrk_setUText)         \
+    SKICU_FUNC(uloc_forLanguageTag)   \
     SKICU_FUNC(uloc_getDefault)       \
     SKICU_FUNC(uscript_getScript)     \
     SKICU_FUNC(utext_close)           \
@@ -57,6 +58,9 @@ struct SkICULib {
     // ubrk_safeClone deprecated in ICU69 and not exposed by Android.
     UBreakIterator* (*f_ubrk_clone_)(const UBreakIterator*, UErrorCode*);
     UBreakIterator* (*f_ubrk_safeClone_)(const UBreakIterator*, void*, int32_t*, UErrorCode*);
+
+    // ubrk_getLocaleByType not exposed by Android.
+    const char* (*f_ubrk_getLocaleByType)(const UBreakIterator*, ULocDataLocaleType, UErrorCode*);
 };
 #undef SKICU_FUNC
 

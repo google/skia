@@ -73,6 +73,7 @@ std::unique_ptr<SkICULib> SkLoadICULib() {
 
     *(void**)(&lib.f_ubrk_clone_)     = resolve_sym(dlhnd, "ubrk_clone");
     *(void**)(&lib.f_ubrk_safeClone_) = resolve_sym(dlhnd, "ubrk_safeClone");
+    *(void**)(&lib.f_ubrk_getLocaleByType) = resolve_sym(dlhnd, "ubrk_getLocaleByType");
 
     if (!resolved_required_syms || (!lib.f_ubrk_clone_ && !lib.f_ubrk_safeClone_)) {
         SkDEBUGF("ICU loader: failed to resolve required symbols.");
