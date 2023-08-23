@@ -8,8 +8,11 @@
 #define SkImage_Picture_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTiledImageUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Lazy.h"
+
+#include <cstdint>
 
 class SkCanvas;
 class SkColorSpace;
@@ -38,6 +41,10 @@ public:
 
     // Call drawPicture on the provided canvas taking care of any required mutex locking.
     void replay(SkCanvas*) const;
+
+    // If possible, extract key data based on the underlying drawPicture-call's parameters.
+    // Takes care of any required mutex locking.
+    bool getImageKeyValues(uint32_t keyValues[SkTiledImageUtils::kNumImageKeyValues]) const;
 };
 
 #endif

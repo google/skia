@@ -102,7 +102,7 @@ inline void DrawImage(SkCanvas* canvas,
     DrawImage(canvas, image.get(), x, y, sampling, paint, constraint);
 }
 
-static constexpr int kNumImageKeyValues = 5;
+static constexpr int kNumImageKeyValues = 6;
 
 /** Retrieves a set of values that can be used as part of a cache key for the provided image.
 
@@ -110,6 +110,10 @@ static constexpr int kNumImageKeyValues = 5;
     SkBitmap-backed SkImages can share a single SkBitmap and refer to different subsets of it.
     In this situation the optimal key is based on the SkBitmap's generation ID and the subset
     rectangle.
+    For Picture-backed images this method will attempt to generate a concise internally-based
+    key (i.e., containing picture ID, matrix translation, width and height, etc.). For complicated
+    Picture-backed images (i.e., those w/ a paint or a full matrix) it will fall back to
+    using 'image's unique key.
 
     @param image     The image for which key values are desired
     @param keyValues The resulting key values
