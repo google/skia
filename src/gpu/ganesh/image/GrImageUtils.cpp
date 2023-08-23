@@ -9,8 +9,6 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -240,9 +238,6 @@ static GrSurfaceProxyView generate_picture_texture(GrRecordingContext* ctx,
     SkASSERT(ctx);
     SkASSERT(img);
 
-    auto sharedGenerator = img->generator();
-    SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
-
     skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                        ? skgpu::Budgeted::kNo
                                        : skgpu::Budgeted::kYes;
@@ -257,8 +252,8 @@ static GrSurfaceProxyView generate_picture_texture(GrRecordingContext* ctx,
         return {};
     }
 
-    surface->getCanvas()->clear(SkColors::kTransparent);
-    surface->getCanvas()->drawPicture(img->picture(), img->matrix(), img->paint());
+    img->replay(surface->getCanvas());
+
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     if (!image) {
         return {};

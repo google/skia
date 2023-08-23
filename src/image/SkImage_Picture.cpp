@@ -7,11 +7,14 @@
 
 #include "src/image/SkImage_Picture.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkMutex.h"
 #include "src/base/SkTLazy.h"
 #include "src/image/SkImageGeneratorPriv.h"
 #include "src/image/SkImage_Lazy.h"
@@ -37,20 +40,18 @@ sk_sp<SkImage> SkImage_Picture::Make(sk_sp<SkPicture> picture, const SkISize& di
     return validator ? sk_make_sp<SkImage_Picture>(&validator) : nullptr;
 }
 
-SkPictureImageGenerator* SkImage_Picture::gen() const {
-    return static_cast<SkPictureImageGenerator*>(this->generator()->fGenerator.get());
+const SkSurfaceProps* SkImage_Picture::props() const {
+    auto pictureIG = static_cast<SkPictureImageGenerator*>(this->generator()->fGenerator.get());
+    return &pictureIG->fProps;
 }
 
-const SkSurfaceProps* SkImage_Picture::props() const { return &this->gen()->fProps; }
+void SkImage_Picture::replay(SkCanvas* canvas) const {
+    auto sharedGenerator = this->generator();
+    SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
 
-SkPicture* SkImage_Picture::picture() const {
-    return this->gen()->fPicture.get();
-}
-
-SkMatrix* SkImage_Picture::matrix() const {
-    return &this->gen()->fMatrix;
-}
-
-SkPaint* SkImage_Picture::paint() const {
-    return this->gen()->fPaint.getMaybeNull();
+    auto pictureIG = static_cast<SkPictureImageGenerator*>(sharedGenerator->fGenerator.get());
+    canvas->clear(SkColors::kTransparent);
+    canvas->drawPicture(pictureIG->fPicture,
+                        &pictureIG->fMatrix,
+                        pictureIG->fPaint.getMaybeNull());
 }

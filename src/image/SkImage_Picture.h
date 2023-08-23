@@ -11,12 +11,12 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Lazy.h"
 
+class SkCanvas;
 class SkColorSpace;
 class SkImage;
 class SkMatrix;
 class SkPaint;
 class SkPicture;
-class SkPictureImageGenerator;
 class SkSurfaceProps;
 struct SkISize;
 
@@ -36,14 +36,8 @@ public:
     // This is thread safe. It is a const field set in the constructor.
     const SkSurfaceProps* props() const;
 
-    // These are not necessarily thread-safe. Be sure to grab the mutex from the shared
-    // generator before accessing them.
-    SkPicture* picture() const;
-    SkMatrix* matrix() const;
-    SkPaint* paint() const;
-
-private:
-    SkPictureImageGenerator* gen() const;
+    // Call drawPicture on the provided canvas taking care of any required mutex locking.
+    void replay(SkCanvas*) const;
 };
 
 #endif
