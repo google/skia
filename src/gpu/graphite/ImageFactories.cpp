@@ -264,7 +264,7 @@ static sk_sp<SkImage> generate_picture_texture(skgpu::graphite::Recorder* record
     SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
 
     auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder, info, mm);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder, info, mm, img->props());
     if (!surface) {
         SKGPU_LOG_E("Failed to create Surface");
         return nullptr;

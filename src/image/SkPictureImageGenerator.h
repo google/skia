@@ -29,10 +29,10 @@ protected:
     bool onGetPixels(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&) override;
 
 private:
-    sk_sp<SkPicture> fPicture;
-    SkMatrix         fMatrix;
-    SkTLazy<SkPaint> fPaint;
-    SkSurfaceProps   fProps;
+    sk_sp<SkPicture>     fPicture;
+    SkMatrix             fMatrix;
+    SkTLazy<SkPaint>     fPaint;
+    const SkSurfaceProps fProps;
 
     friend class SkImage_Picture;
 };

@@ -110,7 +110,7 @@ public:
     static sk_sp<SharedGenerator> Make(std::unique_ptr<SkImageGenerator> gen);
 
     // This is thread safe.  It is a const field set in the constructor.
-    const SkImageInfo& getInfo();
+    const SkImageInfo& getInfo() const;
 
     bool isTextureGenerator();
 

@@ -41,6 +41,8 @@ SkPictureImageGenerator* SkImage_Picture::gen() const {
     return static_cast<SkPictureImageGenerator*>(this->generator()->fGenerator.get());
 }
 
+const SkSurfaceProps* SkImage_Picture::props() const { return &this->gen()->fProps; }
+
 SkPicture* SkImage_Picture::picture() const {
     return this->gen()->fPicture.get();
 }
@@ -51,8 +53,4 @@ SkMatrix* SkImage_Picture::matrix() const {
 
 SkPaint* SkImage_Picture::paint() const {
     return this->gen()->fPaint.getMaybeNull();
-}
-
-SkSurfaceProps* SkImage_Picture::props() const {
-    return &this->gen()->fProps;
 }

@@ -33,7 +33,7 @@ SharedGenerator::SharedGenerator(std::unique_ptr<SkImageGenerator> gen)
     SkASSERT(fGenerator);
 }
 
-const SkImageInfo& SharedGenerator::getInfo() { return fGenerator->getInfo(); }
+const SkImageInfo& SharedGenerator::getInfo() const { return fGenerator->getInfo(); }
 
 bool SharedGenerator::isTextureGenerator() { return fGenerator->isTextureGenerator(); }
 
