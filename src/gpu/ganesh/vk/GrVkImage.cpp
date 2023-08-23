@@ -522,7 +522,12 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
     bool useLazyAllocation =
             SkToBool(imageDesc.fUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
 
-    auto checkResult = [gpu](VkResult result) {
+    auto checkResult = [gpu, isProtected, forceDedicatedMemory, useLazyAllocation](
+                               VkResult result) {
+        GR_VK_LOG_IF_NOT_SUCCESS(gpu, result, "skgpu::VulkanMemory::AllocImageMemory"
+                                 " (isProtected:%d, forceDedicatedMemory:%d, useLazyAllocation:%d)",
+                                 (int)isProtected, (int)forceDedicatedMemory,
+                                 (int)useLazyAllocation);
         return gpu->checkVkResult(result);
     };
     auto allocator = gpu->memoryAllocator();
