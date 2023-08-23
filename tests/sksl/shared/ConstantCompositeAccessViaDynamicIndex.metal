@@ -1,5 +1,8 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wall"
+#endif
 using namespace metal;
 constant const array<half, 2> globalArray = array<half, 2>{1.0h, 1.0h};
 constant const half2 globalVector = half2(1.0h);

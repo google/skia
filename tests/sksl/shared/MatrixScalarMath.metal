@@ -1,5 +1,8 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wall"
+#endif
 using namespace metal;
 constant const int minus = 2;
 constant const int star = 3;

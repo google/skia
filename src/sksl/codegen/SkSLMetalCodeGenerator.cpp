@@ -2673,9 +2673,12 @@ void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 }
 
 void MetalCodeGenerator::writeHeader() {
-    this->write("#include <metal_stdlib>\n");
-    this->write("#include <simd/simd.h>\n");
-    this->write("using namespace metal;\n");
+    this->writeLine("#include <metal_stdlib>");
+    this->writeLine("#include <simd/simd.h>");
+    this->writeLine("#ifdef __clang__");
+    this->writeLine("#pragma clang diagnostic ignored \"-Wall\"");
+    this->writeLine("#endif");
+    this->writeLine("using namespace metal;");
 }
 
 void MetalCodeGenerator::writeSampler2DPolyfill() {
