@@ -47,7 +47,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     std::string fragShaderText;
     fragShaderText.append(
-            "layout(spirv, input_attachment_index=0, set=2, binding=0) uniform subpassInput uInput;"
+            "layout(spirv, input_attachment_index=0, set=2, binding=0) subpassInput uInput;"
 
             "// MSAA Load Program FS\n"
             "void main() {"

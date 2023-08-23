@@ -193,7 +193,7 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
 
         for (const TextureAndSampler& t : samplers) {
             result += EmitSamplerLayout(bindingReqs, binding);
-            SkSL::String::appendf(&result, " uniform sampler2D %s_%d;\n",
+            SkSL::String::appendf(&result, " sampler2D %s_%d;\n",
                                   t.name(), node->keyIndex());
         }
     }

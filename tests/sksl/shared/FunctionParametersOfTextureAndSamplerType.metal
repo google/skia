@@ -40,6 +40,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> aTexture 
     (void)_globals;
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = helper_h4TZ(_in, _uniforms.aTexture, _globals.aSampledTexture);
+    _out.sk_FragColor = helper_h4TZ(_in, _globals.aTexture, _globals.aSampledTexture);
     return _out;
 }

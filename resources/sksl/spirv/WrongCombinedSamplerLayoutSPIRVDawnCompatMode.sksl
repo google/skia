@@ -1,5 +1,5 @@
 /*#pragma settings SPIRVDawnCompatMode*/
-layout(set=0, binding=0) uniform sampler2D aSampler;
+layout(set=0, binding=0) sampler2D aSampler;
 
 void main() {
     sk_FragColor = sample(aSampler, float2(0));

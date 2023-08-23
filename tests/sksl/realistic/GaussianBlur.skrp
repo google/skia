@@ -1,8 +1,8 @@
 ### Compilation failed:
 
 error: 1: invalid type
-layout(binding=0) uniform sampler2D uTextureSampler_0_Stage1;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(binding=0) sampler2D uTextureSampler_0_Stage1;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 2: interface blocks are not allowed in this kind of program
 layout (binding=0) uniform uniformBuffer
                            ^^^^^^^^^^^^^

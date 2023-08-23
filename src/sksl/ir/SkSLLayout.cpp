@@ -62,8 +62,7 @@ std::string Layout::paddedDescription() const {
         result += separator() + "builtin = " + std::to_string(fBuiltin);
     }
     if (fInputAttachmentIndex >= 0) {
-        result += separator() + "input_attachment_index = " +
-                  std::to_string(fInputAttachmentIndex);
+        result += separator() + "input_attachment_index = " + std::to_string(fInputAttachmentIndex);
     }
     if (fFlags & LayoutFlag::kOriginUpperLeft) {
         result += separator() + "origin_upper_left";

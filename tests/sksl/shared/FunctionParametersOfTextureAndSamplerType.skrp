@@ -1,11 +1,11 @@
 ### Compilation failed:
 
 error: 1: invalid type
-layout(set = 0, binding = 1) uniform texture2D aTexture;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(set = 0, binding = 1) texture2D aTexture;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 2: invalid type
-layout(set = 0, binding = 2) uniform sampler2D aSampledTexture;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(set = 0, binding = 2) sampler2D aSampledTexture;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 4: 'in' is not permitted here
 layout(location = 1) in float2 c;
 ^^^^^^^^^^^^^^^^^^^^^^^

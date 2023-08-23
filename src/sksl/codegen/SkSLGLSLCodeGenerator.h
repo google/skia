@@ -33,6 +33,7 @@ class FunctionCall;
 class FunctionDeclaration;
 class FunctionDefinition;
 class FunctionPrototype;
+class GlobalVarDeclaration;
 class IfStatement;
 class IndexExpression;
 class InterfaceBlock;
@@ -108,6 +109,8 @@ protected:
     const char* getTypePrecision(const Type& type);
 
     void writeTypePrecision(const Type& type);
+
+    void writeGlobalVarDeclaration(const GlobalVarDeclaration& e);
 
     void writeVarDeclaration(const VarDeclaration& var, bool global);
 

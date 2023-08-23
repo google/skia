@@ -55,7 +55,7 @@ std::string AtlasShapeRenderStep::vertexSkSL() const {
 
 std::string AtlasShapeRenderStep::texturesAndSamplersSkSL(
         const ResourceBindingRequirements& bindingReqs, int* nextBindingIndex) const {
-    return EmitSamplerLayout(bindingReqs, nextBindingIndex) + " uniform sampler2D pathAtlas;";
+    return EmitSamplerLayout(bindingReqs, nextBindingIndex) + " sampler2D pathAtlas;";
 }
 
 const char* AtlasShapeRenderStep::fragmentCoverageSkSL() const {

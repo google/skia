@@ -1,4 +1,4 @@
-layout(wgsl, set=1, texture=2, sampler=3) uniform sampler2D aSampler;
+layout(wgsl, set=1, texture=2, sampler=3) sampler2D aSampler;
 
 void main() {
     sk_FragColor = sample(aSampler, float2(0));

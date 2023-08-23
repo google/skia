@@ -264,7 +264,7 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
     tempInfo.fVariable =
             GrShaderVar{std::move(mangleName),
                         SkSLCombinedSamplerTypeForTextureType(backendFormat.textureType()),
-                        GrShaderVar::TypeModifier::Uniform,
+                        GrShaderVar::TypeModifier::None,
                         GrShaderVar::kNonArray,
                         std::move(layoutQualifier),
                         SkString()};
@@ -306,10 +306,15 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addInputSampler(
     layoutQualifier.appendf("input_attachment_index=%d, set=%d, binding=%d",
                             kDstInputAttachmentIndex, kInputDescSet, kInputBinding);
 
-    fInputUniform = {
-            GrShaderVar{std::move(mangleName), SkSLType::kInput, GrShaderVar::TypeModifier::Uniform,
-                        GrShaderVar::kNonArray, std::move(layoutQualifier), SkString()},
-            kFragment_GrShaderFlag, nullptr, SkString(name)};
+    fInputUniform = {GrShaderVar{std::move(mangleName),
+                                 SkSLType::kInput,
+                                 GrShaderVar::TypeModifier::None,
+                                 GrShaderVar::kNonArray,
+                                 std::move(layoutQualifier),
+                                 SkString()},
+                     kFragment_GrShaderFlag,
+                     nullptr,
+                     SkString(name)};
     fInputSwizzle = swizzle;
     return GrGLSLUniformHandler::SamplerHandle(0);
 }

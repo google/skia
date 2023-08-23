@@ -1,5 +1,5 @@
-layout(binding=1) uniform sampler2D texA;
-layout(binding=0) uniform sampler2D texB;
+layout(binding=1) sampler2D texA;
+layout(binding=0) sampler2D texB;
 void main()
 {
     sk_FragColor = sample(texA, half2(0)) * sample(texB, half2(0));

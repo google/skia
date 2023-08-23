@@ -2900,11 +2900,11 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
         const VarDeclaration& decl = global.varDeclaration();
         const Variable& var = *decl.var();
-        if (var.type().typeKind() == Type::TypeKind::kSampler) {
+        if (decl.baseType().typeKind() == Type::TypeKind::kSampler) {
             visitor->visitSampler(var.type(), var.mangledName());
             continue;
         }
-        if (var.type().typeKind() == Type::TypeKind::kTexture) {
+        if (decl.baseType().typeKind() == Type::TypeKind::kTexture) {
             visitor->visitTexture(var.type(), var.mangledName());
             continue;
         }

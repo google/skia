@@ -780,8 +780,8 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
                                             nullptr);
 
     const char* fs =
-        "layout(spirv, set = 0, binding = 0) uniform sampler samp;"
-        "layout(spirv, set = 0, binding = 1) uniform texture2D tex;"
+        "layout(spirv, set = 0, binding = 0) sampler samp;"
+        "layout(spirv, set = 0, binding = 1) texture2D tex;"
         "layout(location = 0) in float2 texCoord;"
         "void main() {"
             "sk_FragColor = sample(makeSampler2D(tex, samp), texCoord);"

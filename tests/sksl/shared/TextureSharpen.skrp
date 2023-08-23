@@ -1,8 +1,8 @@
 ### Compilation failed:
 
 error: 3: invalid type
-layout(binding=0) uniform sampler2D s;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(binding=0) sampler2D s;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 5: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^

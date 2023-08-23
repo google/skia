@@ -1,4 +1,4 @@
-layout(metal, texture=5, sampler=7) uniform sampler2D mtlSampler;
+layout(metal, texture=5, sampler=7) sampler2D mtlSampler;
 
 void main() {
     sk_FragColor = sample(mtlSampler, float2(0));

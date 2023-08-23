@@ -1,6 +1,6 @@
 /*#pragma settings IncompleteShortIntPrecision*/
 
-uniform sampler2D tex;
+sampler2D tex;
 in float2 texcoord;
 in short2 offset;
 

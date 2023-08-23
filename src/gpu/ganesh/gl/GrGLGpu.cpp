@@ -3284,7 +3284,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     GrShaderVar uTexCoordXform("u_texCoordXform", SkSLType::kHalf4,
                                GrShaderVar::TypeModifier::Uniform);
     GrShaderVar uPosXform("u_posXform", SkSLType::kHalf4, GrShaderVar::TypeModifier::Uniform);
-    GrShaderVar uTexture("u_texture", samplerType, GrShaderVar::TypeModifier::Uniform);
+    GrShaderVar uTexture("u_texture", samplerType);
     GrShaderVar vTexCoord("v_texCoord", SkSLType::kHalf2, GrShaderVar::TypeModifier::Out);
     GrShaderVar oFragColor("o_FragColor", SkSLType::kHalf4, GrShaderVar::TypeModifier::Out);
 
@@ -3407,8 +3407,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     GrShaderVar aVertex("a_vertex", SkSLType::kHalf2, GrShaderVar::TypeModifier::In);
     GrShaderVar uTexCoordXform("u_texCoordXform", SkSLType::kHalf4,
                                GrShaderVar::TypeModifier::Uniform);
-    GrShaderVar uTexture("u_texture", SkSLType::kTexture2DSampler,
-                         GrShaderVar::TypeModifier::Uniform);
+    GrShaderVar uTexture("u_texture", SkSLType::kTexture2DSampler);
     // We need 1, 2, or 4 texture coordinates (depending on parity of each dimension):
     GrShaderVar vTexCoords[] = {
         GrShaderVar("v_texCoord0", SkSLType::kHalf2, GrShaderVar::TypeModifier::Out),

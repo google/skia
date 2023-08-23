@@ -1,4 +1,4 @@
-layout(binding=0) uniform sampler2D uTextureSampler_0_Stage1;
+layout(binding=0) sampler2D uTextureSampler_0_Stage1;
 layout (binding=0) uniform uniformBuffer
 {
 	layout(offset=0) float4 sk_RTAdjust;

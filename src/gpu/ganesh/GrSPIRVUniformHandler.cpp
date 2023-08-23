@@ -240,7 +240,7 @@ GrGLSLUniformHandler::SamplerHandle GrSPIRVUniformHandler::addSampler(const GrBa
     SPIRVUniformInfo tempInfo;
     tempInfo.fVariable = GrShaderVar{std::move(mangleName),
                                      SkSLType::kSampler,
-                                     GrShaderVar::TypeModifier::Uniform,
+                                     GrShaderVar::TypeModifier::None,
                                      GrShaderVar::kNonArray,
                                      std::move(layoutQualifier),
                                      SkString()};
@@ -259,7 +259,7 @@ GrGLSLUniformHandler::SamplerHandle GrSPIRVUniformHandler::addSampler(const GrBa
     texLayoutQualifier.appendf("set = %d, binding = %d", kSamplerTextureDescriptorSet, binding + 1);
     tempInfo.fVariable = GrShaderVar{std::move(mangleTexName),
                                      SkSLType::kTexture2D,
-                                     GrShaderVar::TypeModifier::Uniform,
+                                     GrShaderVar::TypeModifier::None,
                                      GrShaderVar::kNonArray,
                                      std::move(texLayoutQualifier),
                                      SkString()};

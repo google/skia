@@ -67,8 +67,8 @@ static bool check_valid_uniform_type(Position pos,
         // platforms and drivers. We disallow atomic variables in uniforms as that doesn't map
         // cleanly to all backends.
         if (error || (ct.isBoolean() && (t->isScalar() || t->isVector())) || ct.isAtomic()) {
-            context.fErrors->error(
-                    pos, "variables of type '" + t->displayName() + "' may not be uniform");
+            context.fErrors->error(pos, "variables of type '" + t->displayName() +
+                                        "' may not be uniform");
             return false;
         }
     }
@@ -77,8 +77,8 @@ static bool check_valid_uniform_type(Position pos,
     // their fields are allowed.
     if (t->isStruct()) {
         for (const Field& field : t->fields()) {
-            if (!check_valid_uniform_type(
-                        field.fPosition, field.fType, context, /*topLevel=*/false)) {
+            if (!check_valid_uniform_type(field.fPosition, field.fType, context,
+                                          /*topLevel=*/false)) {
                 // Emit a "caused by" line only for the top-level uniform type and not for any
                 // nested structs.
                 if (topLevel) {
@@ -177,8 +177,8 @@ void VarDeclaration::ErrorCheck(const Context& context,
         check_valid_uniform_type(pos, baseType, context);
     }
     if (baseType->isEffectChild() && !modifierFlags.isUniform()) {
-        context.fErrors->error(pos,
-                "variables of type '" + baseType->displayName() + "' must be uniform");
+        context.fErrors->error(pos, "variables of type '" + baseType->displayName() +
+                                    "' must be uniform");
     }
     if (baseType->isEffectChild() && (context.fConfig->fKind == ProgramKind::kMeshVertex ||
                                       context.fConfig->fKind == ProgramKind::kMeshFragment)) {
@@ -379,7 +379,7 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
     if (var.storage() == Variable::Storage::kInterfaceBlock) {
         if (var.type().isOpaque()) {
             context.fErrors->error(var.fPosition, "opaque type '" + var.type().displayName() +
-                    "' is not permitted in an interface block");
+                                                  "' is not permitted in an interface block");
             return false;
         }
     }

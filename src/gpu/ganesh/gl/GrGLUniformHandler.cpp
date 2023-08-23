@@ -80,8 +80,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
 
     GLUniformInfo tempInfo;
     tempInfo.fVariable = GrShaderVar{std::move(mangleName),
-                                     SkSLCombinedSamplerTypeForTextureType(type),
-                                     GrShaderVar::TypeModifier::Uniform};
+                                     SkSLCombinedSamplerTypeForTextureType(type)};
 
     tempInfo.fVisibility = kFragment_GrShaderFlag;
     tempInfo.fOwner      = nullptr;

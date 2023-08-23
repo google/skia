@@ -1,5 +1,5 @@
-layout(binding=0) uniform sampler2D test2D;
-layout(binding=1) uniform sampler2D test2DRect;
+layout(binding=0) sampler2D test2D;
+layout(binding=1) sampler2D test2DRect;
 
 void main() {
     sk_FragColor = sample(test2D, float2(0.5));

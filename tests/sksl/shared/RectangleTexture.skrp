@@ -1,11 +1,11 @@
 ### Compilation failed:
 
 error: 1: invalid type
-layout(binding=0) uniform sampler2D test2D;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(binding=0) sampler2D test2D;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 2: invalid type
-layout(binding=1) uniform sampler2D test2DRect;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(binding=1) sampler2D test2DRect;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 4: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^

@@ -1,4 +1,4 @@
-layout(wgsl, set=1, texture=2, sampler=3) uniform sampler2D tex;
+layout(wgsl, set=1, texture=2, sampler=3) sampler2D tex;
 
 void main()
 {
