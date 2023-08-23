@@ -86,3 +86,77 @@ DEF_TEST(BO_no_intersection_bounding_box, reporter) {
         }
     }
 }
+
+DEF_TEST(BO_intersectBasic, reporter) {
+
+    auto checkIntersection = [reporter](Segment s0, Segment s1, Point expected) {
+        {
+            auto answer = intersect(s0, s1);
+            REPORTER_ASSERT(reporter, answer.has_value());
+            REPORTER_ASSERT(reporter, answer.value() == expected);
+        }
+        {
+            auto answer = intersect(s1, s0);
+            REPORTER_ASSERT(reporter, answer.has_value());
+            REPORTER_ASSERT(reporter, answer.value() == expected);
+        }
+        {
+            auto answer = intersect(swap_ends(s0), swap_ends(s1));
+            REPORTER_ASSERT(reporter, answer.has_value());
+            REPORTER_ASSERT(reporter, answer.value() == expected);
+        }
+        {
+            auto answer = intersect(swap_ends(s1), swap_ends(s0));
+            REPORTER_ASSERT(reporter, answer.has_value());
+            REPORTER_ASSERT(reporter, answer.value() == expected);
+        }
+    };
+
+    {
+        Segment s0 = {{-1, 0}, {1,  0}},
+                s1 = {{ 0, 1}, {0, -1}};
+
+        checkIntersection(s0, s1, Point{0, 0});
+    }
+    {
+        Segment s0 = {{-1, 0}, {5,  0}},
+                s1 = {{ 0, 1}, {0, -1}};
+
+        checkIntersection(s0, s1, Point{0, 0});
+    }
+
+    {
+        Segment s0 = {{5, 0}, {-1,  0}},
+                s1 = {{ 0, -1}, {0, 1}};
+
+        checkIntersection(s0, s1, Point{0, 0});
+    }
+
+    {
+        Segment s0 = {{-5, -5}, {5, 5}},
+                s1 = {{-5, 5}, {5, -5}};
+
+        checkIntersection(s0, s1, Point{0, 0});
+    }
+
+    // Test very close segments (x0, 0) -> (x1, 1) & (x2, 0) -> (x3, 1)
+    for (int32_t x0 = -10; x0 <= 10; x0++) {
+        for (int32_t x1 = -10; x1 <= 10; x1++) {
+            for (int32_t x2 = -10; x2 <= 10; x2++) {
+                for (int32_t x3 = -10; x3 <= 10; x3++) {
+                    Point P0 = {x0, 0},
+                          P1 = {x1, 1},
+                          P2 = {x2, 0},
+                          P3 = {x3, 1};
+                    auto actual = intersect({P0, P1}, {P2, P3});
+                    bool expected = (x0 < x2 && x3 < x1) || (x2 < x0 && x1 < x3);
+                    REPORTER_ASSERT(reporter, actual.has_value() == expected);
+                    if (actual) {
+                        int32_t y = std::abs(x2 - x0) >= std::abs(x3 - x1);
+                        REPORTER_ASSERT(reporter, actual.value().y == y);
+                    }
+                }
+            }
+        }
+    }
+}

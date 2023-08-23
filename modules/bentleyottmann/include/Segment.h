@@ -6,6 +6,7 @@
 
 #include "modules/bentleyottmann/include/Point.h"
 
+#include <optional>
 #include <tuple>
 
 namespace bentleyottmann {
@@ -25,6 +26,10 @@ struct Segment {
 };
 
 bool no_intersection_by_bounding_box(const Segment& s0, const Segment& s1);
+
+// Finds the intersection of s0 and s1. Returns nullopt if there is no intersection.
+// Note this intersection assumes that line segments do not include their end points.
+std::optional<Point> intersect(const Segment& s0, const Segment& s1);
 
 }  // namespace bentleyottmann
 #endif  // Segment_DEFINED
