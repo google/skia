@@ -20,11 +20,8 @@
 DEF_SIMPLE_GM(crbug_1313579, canvas, 110, 110) {
     static constexpr auto kBGRect = SkIRect{0, 0, 100, 100};
 
-    sk_sp<SkImageFilter> backdrop_filter =
-            SkImageFilters::Blur(50.f, 50.f, SkTileMode::kClamp, nullptr);
-    sk_sp<SkImageFilter> crop = SkImageFilters::Offset(0, 0, nullptr, &kBGRect);
-    backdrop_filter = SkImageFilters::Compose(
-            crop, SkImageFilters::Compose(std::move(backdrop_filter), crop));
+   sk_sp<SkImageFilter> backdrop_filter =
+            SkImageFilters::Blur(50.f, 50.f, SkTileMode::kClamp, nullptr, kBGRect);
 
     SkMatrix m;
 

@@ -120,8 +120,8 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(
 
 /*
  * Any sigmas smaller than this are effectively an identity blur so can skip convolution at a higher
- * level. The value was chosen because it corresponds roughly to a radius of 1/10px, and is slightly
- * greater than sqrt(1/2*sigma^2) for SK_ScalarNearlyZero.
+ * level. The value was chosen because it corresponds roughly to a radius of 1/10px, and because
+ * 2*sigma^2 is slightly greater than SK_ScalarNearlyZero.
  */
 inline bool IsEffectivelyZeroSigma(float sigma) { return sigma <= 0.03f; }
 

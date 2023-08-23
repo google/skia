@@ -631,6 +631,10 @@ sk_sp<SkSpecialImage> FilterResult::imageAndOffset(const Context& ctx, SkIPoint*
     return image;
 }
 
+std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>FilterResult::imageAndOffset(
+        const Context& ctx) const {
+    return this->resolve(ctx, fLayerBounds);
+}
 
 bool FilterResult::modifiesPixelsBeyondImage(const LayerSpace<SkIRect>& dstBounds) const {
     // If there is no transparency-affecting color filter and it's just decal tiling, it doesn't

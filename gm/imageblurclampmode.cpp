@@ -79,17 +79,20 @@ protected:
             canvas->save();
 
             // x-only blur
-            filter =  SkImageFilters::Blur(sigma, 0.0f, SkTileMode::kClamp, nullptr);
+            filter =  SkImageFilters::Blur(
+                    sigma, 0.0f, SkTileMode::kClamp, nullptr, image->bounds());
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 
             // y-only blur
-            filter = SkImageFilters::Blur(0.0f, sigma, SkTileMode::kClamp, nullptr);
+            filter = SkImageFilters::Blur(
+                    0.0f, sigma, SkTileMode::kClamp, nullptr, image->bounds());
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 
             // both directions
-            filter = SkImageFilters::Blur(sigma, sigma, SkTileMode::kClamp, nullptr);
+            filter = SkImageFilters::Blur(
+                    sigma, sigma, SkTileMode::kClamp, nullptr, image->bounds());
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 

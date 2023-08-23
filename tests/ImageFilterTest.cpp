@@ -579,13 +579,14 @@ static bool special_image_to_bitmap(GrDirectContext* dContext, const SkSpecialIm
 
 static void test_negative_blur_sigma(skiatest::Reporter* reporter,
                                      GrDirectContext* dContext) {
-    // Check that SkBlurImageFilter will accept a negative sigma, either in
-    // the given arguments or after CTM application.
+    // Check that SkBlurImageFilter will reject a negative sigma on creation, but properly uses the
+    // absolute value of the mapped sigma after CTM application.
     static const int kWidth = 32, kHeight = 32;
     static const SkScalar kBlurSigma = SkIntToScalar(5);
 
     sk_sp<SkImageFilter> positiveFilter(SkImageFilters::Blur(kBlurSigma, kBlurSigma, nullptr));
     sk_sp<SkImageFilter> negativeFilter(SkImageFilters::Blur(-kBlurSigma, kBlurSigma, nullptr));
+    REPORTER_ASSERT(reporter, !negativeFilter);
 
     sk_sp<SkImage> gradient = make_gradient_circle(kWidth, kHeight).asImage();
     sk_sp<SkSpecialImage> imgSrc;
@@ -599,57 +600,31 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
     SkIPoint offset;
     skif::Context ctx = make_context(32, 32, imgSrc.get());
 
-    sk_sp<SkSpecialImage> positiveResult1(
+    sk_sp<SkSpecialImage> positiveResult(
             as_IFB(positiveFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
-    REPORTER_ASSERT(reporter, positiveResult1);
-
-    sk_sp<SkSpecialImage> negativeResult1(
-            as_IFB(negativeFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
-    REPORTER_ASSERT(reporter, negativeResult1);
+    REPORTER_ASSERT(reporter, positiveResult);
 
     SkMatrix negativeScale;
     negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
     skif::Context negativeCTX = ctx.withNewMapping(skif::Mapping(negativeScale));
 
-    sk_sp<SkSpecialImage> negativeResult2(
+    sk_sp<SkSpecialImage> negativeResult(
             as_IFB(positiveFilter)->filterImage(negativeCTX).imageAndOffset(ctx, &offset));
-    REPORTER_ASSERT(reporter, negativeResult2);
-
-    sk_sp<SkSpecialImage> positiveResult2(
-            as_IFB(negativeFilter)->filterImage(negativeCTX).imageAndOffset(ctx, &offset));
-    REPORTER_ASSERT(reporter, positiveResult2);
+    REPORTER_ASSERT(reporter, negativeResult);
 
 
-    SkBitmap positiveResultBM1, positiveResultBM2;
-    SkBitmap negativeResultBM1, negativeResultBM2;
+    SkBitmap positiveResultBM;
+    SkBitmap negativeResultBM;
 
-    REPORTER_ASSERT(reporter, special_image_to_bitmap(dContext, positiveResult1.get(),
-                                                      &positiveResultBM1));
-    REPORTER_ASSERT(reporter, special_image_to_bitmap(dContext, positiveResult2.get(),
-                                                      &positiveResultBM2));
-    REPORTER_ASSERT(reporter, special_image_to_bitmap(dContext, negativeResult1.get(),
-                                                      &negativeResultBM1));
-    REPORTER_ASSERT(reporter, special_image_to_bitmap(dContext, negativeResult2.get(),
-                                                      &negativeResultBM2));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(dContext, positiveResult.get(),
+                                                      &positiveResultBM));
+    REPORTER_ASSERT(reporter, special_image_to_bitmap(dContext, negativeResult.get(),
+                                                      &negativeResultBM));
 
     for (int y = 0; y < kHeight; y++) {
-        int diffs = memcmp(positiveResultBM1.getAddr32(0, y),
-                           negativeResultBM1.getAddr32(0, y),
-                           positiveResultBM1.rowBytes());
-        REPORTER_ASSERT(reporter, !diffs);
-        if (diffs) {
-            break;
-        }
-        diffs = memcmp(positiveResultBM1.getAddr32(0, y),
-                       negativeResultBM2.getAddr32(0, y),
-                       positiveResultBM1.rowBytes());
-        REPORTER_ASSERT(reporter, !diffs);
-        if (diffs) {
-            break;
-        }
-        diffs = memcmp(positiveResultBM1.getAddr32(0, y),
-                       positiveResultBM2.getAddr32(0, y),
-                       positiveResultBM1.rowBytes());
+        int diffs = memcmp(positiveResultBM.getAddr32(0, y),
+                           negativeResultBM.getAddr32(0, y),
+                           positiveResultBM.rowBytes());
         REPORTER_ASSERT(reporter, !diffs);
         if (diffs) {
             break;
@@ -978,8 +953,14 @@ DEF_TEST(ImageFilterShadowThenBlurBounds, reporter) {
     sk_sp<SkImageFilter> filter2(make_blur(std::move(filter1)));
 
     SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    // Drop shadow offset pads 1px on top-left for linear filtering
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-134, -134, 237, 237);
+    // NOTE: 'bounds' is used as both the desired output and the available content bounds.
+    // The outer blur requires [-3,-3,103,103] for its input ('bounds' outset by 3*sigma).
+    // However, the blend at the root of the drop shadow dag is able to realize that it will not
+    // output anything to the left or above (0,0) so the drop shadow's blur and offset are only
+    // applied to [0,0,103,103], which is simply an outset by 31px (3*sigma + 1 for bilerp) and
+    // translate by -100,-100. This produces [-131,-131,34,34] which is then unioned with the
+    // original foreground bounds of the drop shadow to produce 'expectedBounds':
+    SkIRect expectedBounds = SkIRect::MakeLTRB(-131, -131, 103, 103);
     bounds = filter2->filterBounds(bounds, SkMatrix::I(),
                                    SkImageFilter::kReverse_MapDirection, &bounds);
 
