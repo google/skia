@@ -88,9 +88,6 @@ class GrSemaphore;
 #ifdef SK_DIRECT3D
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 #endif
-#ifdef SK_DAWN
-#include "src/gpu/ganesh/dawn/GrDawnGpu.h"
-#endif
 
 #if GR_TEST_UTILS
 #   include "src/base/SkRandom.h"
@@ -1342,25 +1339,4 @@ sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& 
 
     return direct;
 }
-#endif
-
-#ifdef SK_DAWN
-/*************************************************************************************************/
-sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device) {
-    GrContextOptions defaultOptions;
-    return MakeDawn(device, defaultOptions);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeDawn(const wgpu::Device& device,
-                                                 const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kDawn, options));
-
-    direct->fGpu = GrDawnGpu::Make(device, options, direct.get());
-    if (!direct->init()) {
-        return nullptr;
-    }
-
-    return direct;
-}
-
 #endif

@@ -28,13 +28,6 @@
 #include "src/gpu/ganesh/mtl/GrMtlCppUtil.h"
 #endif
 
-#ifdef SK_DAWN
-#include "src/gpu/dawn/DawnUtilsPriv.h"
-#include "src/gpu/ganesh/dawn/GrDawnUtil.h"
-#include <cstdint>
-namespace wgpu { enum class TextureFormat : uint32_t; }
-#endif
-
 SkTextureCompressionType GrBackendFormatToCompressionType(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL: {
@@ -120,13 +113,7 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
 #endif
         }
         case GrBackendApi::kDawn: {
-#ifdef SK_DAWN
-            wgpu::TextureFormat dawnFormat;
-            SkAssertResult(format.asDawnFormat(&dawnFormat));
-            return skgpu::DawnFormatBytesPerBlock(dawnFormat);
-#else
             break;
-#endif
         }
         case GrBackendApi::kMock: {
             SkTextureCompressionType compression = format.asMockCompressionType();
@@ -180,13 +167,7 @@ int GrBackendFormatStencilBits(const GrBackendFormat& format) {
 #endif
         }
         case GrBackendApi::kDawn: {
-#ifdef SK_DAWN
-            wgpu::TextureFormat dawnFormat;
-            SkAssertResult(format.asDawnFormat(&dawnFormat));
-            return GrDawnFormatStencilBits(dawnFormat);
-#else
             break;
-#endif
         }
         case GrBackendApi::kMock: {
             if (format.isMockStencilFormat()) {

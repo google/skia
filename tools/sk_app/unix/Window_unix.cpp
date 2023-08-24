@@ -395,11 +395,6 @@ bool Window_unix::attach(BackendType attachType) {
     }
 
     switch (attachType) {
-#ifdef SK_DAWN
-        case kDawn_BackendType:
-            fWindowContext = skwindow::MakeDawnVulkanForXlib(winInfo, fRequestedDisplayParams);
-            break;
-#endif
 #if defined(SK_DAWN) && defined(SK_GRAPHITE)
         case kGraphiteDawn_BackendType:
             fWindowContext = skwindow::MakeGraphiteDawnVulkanForXlib(winInfo,

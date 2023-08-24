@@ -414,8 +414,6 @@ DEF_FUZZ(Precompile, fuzz) {
     contextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
 #elif defined(SK_VULKAN)
     contextType = sk_gpu_test::GrContextFactory::kVulkan_ContextType;
-#elif defined(SK_DAWN)
-    contextType = sk_gpu_test::GrContextFactory::kDawn_ContextType;
 #else
     contextType = sk_gpu_test::GrContextFactory::kMock_ContextType;
 #endif

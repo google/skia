@@ -44,7 +44,6 @@ skia_filegroup(
         "GrTypesPriv.h",
     ] + select_multi(
         {
-            "//src/gpu:dawn_ganesh": [":dawn_private_hdrs"],
             "//src/gpu:gl_ganesh": [":gl_private_hdrs"],
             "//src/gpu:vulkan_ganesh": [":vk_private_hdrs"],
             "//src/gpu:metal_ganesh": [":mtl_private_hdrs"],

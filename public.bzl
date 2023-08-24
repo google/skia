@@ -144,7 +144,6 @@ SKIA_PUBLIC_HDRS = [
     "include/encode/SkWebpEncoder.h",
     "include/gpu/d3d/GrD3DBackendContext.h",
     "include/gpu/d3d/GrD3DTypes.h",
-    "include/gpu/dawn/GrDawnTypes.h",
     "include/gpu/ganesh/GrExternalTextureGenerator.h",
     "include/gpu/ganesh/SkImageGanesh.h",
     "include/gpu/ganesh/SkMeshGanesh.h",

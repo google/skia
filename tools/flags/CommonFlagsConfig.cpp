@@ -100,9 +100,6 @@ static const struct {
     { "angle_mtl_es2",         "gpu", "api=angle_mtl_es2" },
     { "angle_mtl_es3",         "gpu", "api=angle_mtl_es3" },
     { "mock",                  "gpu", "api=mock" },
-#ifdef SK_DAWN
-    { "dawn",                  "gpu", "api=dawn" },
-#endif
 #ifdef SK_VULKAN
     { "vk",                    "gpu", "api=vulkan" },
     { "vkf16",                 "gpu", "api=vulkan,color=f16" },
@@ -365,12 +362,6 @@ static bool parse_option_gpu_api(const SkString&                      value,
 #ifdef SK_DIRECT3D
     if (value.equals("direct3d")) {
         *outContextType = GrContextFactory::kDirect3D_ContextType;
-        return true;
-    }
-#endif
-#ifdef SK_DAWN
-    if (value.equals("dawn")) {
-        *outContextType = GrContextFactory::kDawn_ContextType;
         return true;
     }
 #endif

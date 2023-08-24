@@ -23,10 +23,6 @@
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #endif
 
-#ifdef SK_DAWN
-#include "include/gpu/dawn/GrDawnTypes.h"
-#endif
-
 enum class SkTextureCompressionType;
 class GrBackendFormatData;
 class GrBackendTextureData;
@@ -36,10 +32,6 @@ namespace skgpu {
 class MutableTextureState;
 class MutableTextureStateRef;
 }
-
-#ifdef SK_DAWN
-#include "webgpu/webgpu_cpp.h"
-#endif
 
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
@@ -74,12 +66,6 @@ public:
 
     static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo,
                                   bool willUseDRMFormatModifiers = false);
-#endif
-
-#ifdef SK_DAWN
-    static GrBackendFormat MakeDawn(wgpu::TextureFormat format) {
-        return GrBackendFormat(format);
-    }
 #endif
 
 #ifdef SK_METAL
@@ -120,14 +106,6 @@ public:
     bool asVkFormat(VkFormat*) const;
 
     const GrVkYcbcrConversionInfo* getVkYcbcrConversionInfo() const;
-#endif
-
-#ifdef SK_DAWN
-    /**
-     * If the backend API is Dawn this gets the format as a wgpu::TextureFormat and returns true.
-     * Otherwise, returns false.
-     */
-    bool asDawnFormat(wgpu::TextureFormat*) const;
 #endif
 
 #ifdef SK_METAL
@@ -189,10 +167,6 @@ private:
                     bool willUseDRMFormatModifiers);
 #endif
 
-#ifdef SK_DAWN
-    GrBackendFormat(wgpu::TextureFormat format);
-#endif
-
 #ifdef SK_METAL
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
 #endif
@@ -217,9 +191,6 @@ private:
             VkFormat                 fFormat;
             GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
         } fVk;
-#endif
-#ifdef SK_DAWN
-        wgpu::TextureFormat fDawnFormat;
 #endif
 
 #ifdef SK_METAL
@@ -265,13 +236,6 @@ public:
                      std::string_view label = {});
 #endif
 
-#ifdef SK_DAWN
-    GrBackendTexture(int width,
-                     int height,
-                     const GrDawnTextureInfo& dawnInfo,
-                     std::string_view label = {});
-#endif
-
     GrBackendTexture(int width,
                      int height,
                      GrMipmapped,
@@ -294,12 +258,6 @@ public:
     bool hasMipMaps() const { return this->hasMipmaps(); }
     GrBackendApi backend() const {return fBackend; }
     GrTextureType textureType() const { return fTextureType; }
-
-#ifdef SK_DAWN
-    // If the backend API is Dawn, copies a snapshot of the GrDawnTextureInfo struct into the passed
-    // in pointer and returns true. Otherwise returns false if the backend API is not Dawn.
-    bool getDawnTextureInfo(GrDawnTextureInfo*) const;
-#endif
 
 #ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
@@ -432,9 +390,6 @@ private:
 #ifdef SK_METAL
     GrMtlTextureInfo fMtlInfo;
 #endif
-#ifdef SK_DAWN
-    GrDawnTextureInfo fDawnInfo;
-#endif
 
     sk_sp<skgpu::MutableTextureStateRef> fMutableState;
 };
@@ -443,15 +398,6 @@ class SK_API GrBackendRenderTarget {
 public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget();
-
-#ifdef SK_DAWN
-    // If wrapping in an SkSurface we require the stencil bits to be either 0, 8 or 16.
-    GrBackendRenderTarget(int width,
-                          int height,
-                          int sampleCnt,
-                          int stencilBits,
-                          const GrDawnRenderTargetInfo& dawnInfo);
-#endif
 
 #ifdef SK_VULKAN
     GrBackendRenderTarget(int width, int height, const GrVkImageInfo& vkInfo);
@@ -487,12 +433,6 @@ public:
     int stencilBits() const { return fStencilBits; }
     GrBackendApi backend() const {return fBackend; }
     bool isFramebufferOnly() const { return fFramebufferOnly; }
-
-#ifdef SK_DAWN
-    // If the backend API is Dawn, copies a snapshot of the GrDawnRenderTargetInfo struct into the
-    // passed-in pointer and returns true. Otherwise returns false if the backend API is not Dawn.
-    bool getDawnRenderTargetInfo(GrDawnRenderTargetInfo*) const;
-#endif
 
 #ifdef SK_VULKAN
     // If the backend API is Vulkan, copies a snapshot of the GrVkImageInfo struct into the passed
@@ -621,9 +561,6 @@ private:
     };
 #ifdef SK_METAL
     GrMtlTextureInfo fMtlInfo;
-#endif
-#ifdef SK_DAWN
-    GrDawnRenderTargetInfo  fDawnInfo;
 #endif
     sk_sp<skgpu::MutableTextureStateRef> fMutableState;
 };

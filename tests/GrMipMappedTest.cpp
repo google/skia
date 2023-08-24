@@ -80,11 +80,6 @@ class GrRenderTask;
 #include "include/gpu/vk/GrVkTypes.h"
 #endif
 
-#if defined(SK_DAWN)
-#include "include/gpu/dawn/GrDawnTypes.h"
-#include "dawn/webgpu_cpp.h"
-#endif
-
 static constexpr int kSize = 8;
 
 // Test that the correct mip map states are on the GrTextures when wrapping GrBackendTextures in
@@ -307,24 +302,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                     }
                 } else {
                     ERRORF(reporter, "Failed to get GrMtlTextureInfo");
-                }
-#endif
-#ifdef SK_DAWN
-            } else if (GrBackendApi::kDawn == genBackendTex.backend()) {
-                GrDawnTextureInfo genImageInfo;
-                GrDawnTextureInfo origImageInfo;
-                if (genBackendTex.getDawnTextureInfo(&genImageInfo) &&
-                    backendTex.getDawnTextureInfo(&origImageInfo)) {
-                    if (requestMipmapped == GrMipmapped::kYes && betMipmapped == GrMipmapped::kNo) {
-                        // We did a copy so the texture IDs should be different
-                        REPORTER_ASSERT(reporter,
-                            origImageInfo.fTexture.Get() != genImageInfo.fTexture.Get());
-                    } else {
-                        REPORTER_ASSERT(reporter,
-                            origImageInfo.fTexture.Get() == genImageInfo.fTexture.Get());
-                    }
-                } else {
-                    ERRORF(reporter, "Failed to get GrDawnTextureInfo");
                 }
 #endif
             } else {

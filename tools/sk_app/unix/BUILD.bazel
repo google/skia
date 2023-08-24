@@ -1,5 +1,4 @@
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup")
-load("//bazel:flags.bzl", "selects")
 
 licenses(["notice"])
 
@@ -18,14 +17,6 @@ skia_filegroup(
     visibility = ["//tools/sk_app:__pkg__"],
 )
 
-selects.config_setting_group(
-    name = "dawn_or_vulkan",
-    match_any = [
-        "//src/gpu:dawn_ganesh",
-        "//src/gpu:vulkan_ganesh",
-    ],
-)
-
 skia_cc_deps(
     name = "deps",
     testonly = True,
@@ -35,12 +26,12 @@ skia_cc_deps(
         "-lXau",  # dep of xcb
         "-lXdmcp",  # dep of xcb
     ] + select({
-        ":dawn_or_vulkan": ["-lX11-xcb"],
+        "//src/gpu:vulkan_ganesh": ["-lX11-xcb"],
         "//conditions:default": [],
     }),
     visibility = ["//tools/sk_app:__pkg__"],
     deps = select({
-        ":dawn_or_vulkan": ["//tools/gpu/vk:testutils"],
+        "//src/gpu:vulkan_ganesh": ["//tools/gpu/vk:testutils"],
         "//conditions:default": [],
     }),
 )

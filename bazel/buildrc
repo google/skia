@@ -160,9 +160,6 @@ build:gl_ganesh --action_env=DISPLAY=:1
 build:vulkan_ganesh --enable_gpu_test_utils --gpu_backend=vulkan_ganesh \
                     --cc_output_directory_tag=vulkan_ganesh
 
-build:dawn_ganesh --enable_gpu_test_utils --gpu_backend=dawn_ganesh \
-                    --cc_output_directory_tag=dawn_ganesh
-
 build:metal_ganesh --enable_gpu_test_utils --gpu_backend=metal_ganesh\
                     --cc_output_directory_tag=metal_ganesh
 
@@ -170,7 +167,6 @@ build:metal_ganesh --enable_gpu_test_utils --gpu_backend=metal_ganesh\
 build:cpu --config=cpu_only
 build:gl --config=gl_ganesh
 build:vk --config=vulkan_ganesh
-build:dawn --config=dawn_ganesh
 
 # Layering check does not work without sandboxing because the system headers are not in the
 # right spot and so they are not found.

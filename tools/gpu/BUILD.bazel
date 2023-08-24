@@ -44,10 +44,6 @@ skia_cc_library(
             "//tools/gpu/vk:private_hdrs",
             "//tools/gpu/vk:srcs",
         ],
-        "//src/gpu:dawn_ganesh": [
-            "//tools/gpu/dawn:private_hdrs",
-            "//tools/gpu/dawn:srcs",
-        ],
         "//src/gpu:metal_ganesh": [
             "//tools/gpu/mtl:private_hdrs",
             "//tools/gpu/mtl:srcs",
@@ -65,7 +61,6 @@ skia_cc_library(
     ],
     deps = ["//:skia_internal"] + select_multi({
         "//src/gpu:gl_ganesh": ["//tools/gpu/gl:deps"],
-        "//src/gpu:dawn_ganesh": ["//tools/gpu/dawn:deps"],
     }) + select({
         "@platforms//os:macos": ["//tools:autorelease_pool_objc"],
         "//conditions:default": ["//tools:autorelease_pool"],

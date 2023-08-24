@@ -1035,11 +1035,6 @@ optional("gpu") {
     }
   }
 
-  if (skia_use_dawn) {
-    public += skia_gpu_dawn_public
-    sources += skia_gpu_dawn_private
-  }
-
   if (skia_use_direct3d) {
     public_defines += [ "SK_DIRECT3D" ]
     deps += [ "//third_party/d3d12allocator" ]
@@ -2035,7 +2030,6 @@ if (skia_enable_tools) {
     }
     if (skia_use_dawn) {
       public_deps += [ "//third_party/externals/dawn/include/dawn:headers" ]
-      sources += [ "tools/gpu/dawn/DawnTestContext.cpp" ]
       if (is_clang) {
         cflags_cc = [ "-Wno-microsoft-cast" ]
       }

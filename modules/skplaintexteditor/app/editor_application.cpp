@@ -373,8 +373,6 @@ static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kVul
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kMetal_BackendType;
 #elif SK_GL
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kNativeGL_BackendType;
-#elif SK_DAWN
-static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kDawn_BackendType;
 #else
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kRaster_BackendType;
 #endif

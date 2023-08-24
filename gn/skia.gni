@@ -199,6 +199,8 @@ declare_args() {
   }
 }
 
+assert(!skia_use_dawn || skia_enable_graphite)  # Dawn is Graphite-only
+
 # Our tools require static linking (they use non-exported symbols), and the Ganesh backend.
 skia_enable_tools =
     skia_enable_tools && !is_component_build && skia_enable_ganesh

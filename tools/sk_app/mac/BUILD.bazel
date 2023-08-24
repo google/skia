@@ -16,7 +16,6 @@ skia_filegroup(
     ] + select({
         # TODO(kjlubick, jmbetancourt) Graphite backend
         "//src/gpu:gl_ganesh": ["GLWindowContext_mac.mm"],
-        "//src/gpu:dawn_ganesh": ["DawnMTLWindowContext_mac.mm"],
         "//src/gpu:metal_ganesh": ["MetalWindowContext_mac.mm"],
         "//conditions:default": [],
     }),

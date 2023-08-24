@@ -358,16 +358,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/d3d:d3d_hdrs",
 				"//src/gpu/ganesh/d3d:d3d_srcs",
 			}},
-		{Var: "skia_gpu_dawn_public",
-			Rules: []string{
-				"//include/gpu/dawn:public_hdrs",
-			}},
-		{Var: "skia_gpu_dawn_private",
-			Rules: []string{
-				"//include/private/gpu/ganesh:dawn_private_hdrs",
-				"//src/gpu/ganesh/dawn:dawn_hdrs",
-				"//src/gpu/ganesh/dawn:dawn_srcs",
-			}},
 		{Var: "skia_gpu_metal_public",
 			Rules: []string{
 				"//include/gpu/mtl:public_hdrs",

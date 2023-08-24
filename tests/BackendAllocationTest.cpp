@@ -59,10 +59,6 @@
 #include <memory>
 #include <utility>
 
-#if defined(SK_DAWN)
-#include <dawn/webgpu_cpp.h>
-#endif
-
 #if defined(SK_GL)
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLInterface.h"
@@ -212,13 +208,7 @@ static bool isBGRA8(const GrBackendFormat& format) {
 #endif
         }
         case GrBackendApi::kDawn: {
-#ifdef SK_DAWN
-            wgpu::TextureFormat dawnFormat;
-            format.asDawnFormat(&dawnFormat);
-            return dawnFormat == wgpu::TextureFormat::BGRA8Unorm;
-#else
             return false;
-#endif
         }
         case GrBackendApi::kMock: {
             SkTextureCompressionType compression = format.asMockCompressionType();

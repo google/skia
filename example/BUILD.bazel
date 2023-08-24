@@ -61,30 +61,6 @@ cc_binary_with_flags(
 )
 
 cc_binary_with_flags(
-    name = "hello_world_dawn",
-    testonly = True,
-    srcs = [
-        "HelloWorld.cpp",
-        "HelloWorld.h",
-    ],
-    # These flags are defined in //bazel/common_config_settings/BUILD.bazel
-    set_flags = {
-        "gpu_backend": [
-            "dawn_ganesh",
-        ],
-        # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
-        # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
-        "fontmgr_factory": [
-            "custom_directory_fontmgr_factory",
-        ],
-    },
-    deps = [
-        "//:skia_public",
-        "//tools/sk_app",
-    ],
-)
-
-cc_binary_with_flags(
     name = "hello_world_metal",
     testonly = True,
     srcs = [

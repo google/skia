@@ -56,7 +56,6 @@ string_flag_with_values(
     name = "gpu_backend",
     multiple = True,
     values = [
-        "dawn_ganesh",
         "gl_ganesh",
         "metal_ganesh",
         "vulkan_ganesh",
@@ -78,7 +77,6 @@ string_flag_with_values(
 selects.config_setting_group(
     name = "has_ganesh_backend",
     match_any = [
-        ":dawn_ganesh",
         ":gl_ganesh",
         ":metal_ganesh",
         ":vulkan_ganesh",
@@ -119,7 +117,6 @@ bool_flag(
 selects.config_setting_group(
     name = "has_dawn",
     match_any = [
-        ":dawn_ganesh",
         ":dawn_graphite",
     ],
 )
