@@ -2727,9 +2727,9 @@ void MetalCodeGenerator::writeUniformStruct() {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = *decls.varDeclaration().var();
-            if (var.modifierFlags().isUniform() &&
-                var.type().typeKind() != Type::TypeKind::kSampler &&
-                var.type().typeKind() != Type::TypeKind::kTexture) {
+            if (var.modifierFlags().isUniform()) {
+                SkASSERT(var.type().typeKind() != Type::TypeKind::kSampler &&
+                         var.type().typeKind() != Type::TypeKind::kTexture);
                 int uniformSet = this->getUniformSet(var.layout());
                 // Make sure that the program's uniform-set value is consistent throughout.
                 if (-1 == fUniformBuffer) {
