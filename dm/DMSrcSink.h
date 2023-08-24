@@ -381,7 +381,7 @@ public:
                   std::function<void(GrDirectContext*)> initContext = nullptr,
                   std::function<SkCanvas*(SkCanvas*)> wrapCanvas = nullptr) const;
 
-    sk_gpu_test::GrContextFactory::ContextType contextType() const { return fContextType; }
+    skgpu::ContextType contextType() const { return fContextType; }
     const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() const {
         return fContextOverrides;
     }
@@ -404,7 +404,7 @@ protected:
     bool readBack(SkSurface*, SkBitmap* dst) const;
 
 private:
-    sk_gpu_test::GrContextFactory::ContextType        fContextType;
+    skgpu::ContextType                                fContextType;
     sk_gpu_test::GrContextFactory::ContextOverrides   fContextOverrides;
     SkCommandLineConfigGpu::SurfType                  fSurfType;
     int                                               fSampleCount;
@@ -573,8 +573,6 @@ private:
 
 class GraphiteSink : public Sink {
 public:
-    using ContextType = sk_gpu_test::GrContextFactory::ContextType;
-
     GraphiteSink(const SkCommandLineConfigGraphite*);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
@@ -588,7 +586,7 @@ public:
 
 private:
     skgpu::graphite::ContextOptions fBaseContextOptions;
-    ContextType fContextType;
+    skgpu::ContextType fContextType;
     SkColorType fColorType;
     SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;

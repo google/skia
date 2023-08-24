@@ -544,7 +544,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
     return loops;
 }
 
-#define kBogusContextType GrContextFactory::kGL_ContextType
+#define kBogusContextType skgpu::ContextType::kGL
 #define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
 
 static std::optional<Config> create_config(const SkCommandLineConfig* config) {

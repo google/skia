@@ -27,7 +27,7 @@ ContextFactory::ContextInfo::ContextInfo(ContextInfo&& other)
     , fContext(std::move(other.fContext)) {
 }
 
-ContextFactory::ContextInfo::ContextInfo(GrContextFactory::ContextType type,
+ContextFactory::ContextInfo::ContextInfo(skgpu::ContextType type,
                                          std::unique_ptr<GraphiteTestContext> testContext,
                                          std::unique_ptr<skgpu::graphite::Context> context)
     : fType(type)
@@ -42,7 +42,7 @@ ContextFactory::ContextFactory(const skgpu::graphite::ContextOptions& options)
 ContextFactory::~ContextFactory() {}
 
 std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getContextInfo(
-        GrContextFactory::ContextType type) {
+        skgpu::ContextType type) {
 
     for (ContextInfo& c : fContexts) {
         if (c.type() == type) {
@@ -53,17 +53,17 @@ std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getC
     std::unique_ptr<GraphiteTestContext> testCtx;
 
     switch (type) {
-        case GrContextFactory::kMetal_ContextType: {
+        case skgpu::ContextType::kMetal: {
 #ifdef SK_METAL
             testCtx = graphite::MtlTestContext::Make();
 #endif
         } break;
-        case GrContextFactory::kVulkan_ContextType: {
+        case skgpu::ContextType::kVulkan: {
 #ifdef SK_VULKAN
             testCtx = graphite::VulkanTestContext::Make();
 #endif
         } break;
-        case GrContextFactory::kDawn_ContextType:
+        case skgpu::ContextType::kDawn:
         {
 #ifdef SK_DAWN
             // Pass nullopt for default backend.
@@ -72,14 +72,13 @@ std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getC
         } break;
 #ifdef SK_DAWN
 
-#define CASE(TYPE)                                                              \
-        case GrContextFactory::kDawn_##TYPE##_ContextType:                      \
-        {                                                                       \
-            testCtx = graphite::DawnTestContext::Make(wgpu::BackendType::TYPE); \
-        } break;
+#define CASE(TYPE)                                                          \
+    case skgpu::ContextType::kDawn_##TYPE:                                  \
+        testCtx = graphite::DawnTestContext::Make(wgpu::BackendType::TYPE); \
+        break;
 #else
-#define CASE(TYPE)                                                              \
-        case GrContextFactory::kDawn_##TYPE##_ContextType:                      \
+#define CASE(TYPE)                         \
+    case skgpu::ContextType::kDawn_##TYPE: \
         break;
 #endif // SK_DAWN
         CASE(D3D11)

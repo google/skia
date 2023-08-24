@@ -1951,6 +1951,8 @@ if (skia_enable_tools) {
       "tools/gpu/BackendSurfaceFactory.h",
       "tools/gpu/BackendTextureImageFactory.cpp",
       "tools/gpu/BackendTextureImageFactory.h",
+      "tools/gpu/ContextType.cpp",
+      "tools/gpu/ContextType.h",
       "tools/gpu/FlushFinishTracker.cpp",
       "tools/gpu/FlushFinishTracker.h",
       "tools/gpu/GrContextFactory.cpp",

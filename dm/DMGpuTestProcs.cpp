@@ -26,42 +26,42 @@ using sk_gpu_test::GLTestContext;
 
 namespace skiatest {
 
-bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kOpenGL == GrContextFactory::ContextTypeBackend(type);
+bool IsGLContextType(skgpu::ContextType type) {
+    return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kVulkan == GrContextFactory::ContextTypeBackend(type);
+bool IsVulkanContextType(skgpu::ContextType type) {
+    return GrBackendApi::kVulkan == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kMetal == GrContextFactory::ContextTypeBackend(type);
+bool IsMetalContextType(skgpu::ContextType type) {
+    return GrBackendApi::kMetal == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsDirect3DContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kDirect3D == GrContextFactory::ContextTypeBackend(type);
+bool IsDirect3DContextType(skgpu::ContextType type) {
+    return GrBackendApi::kDirect3D == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kDawn == GrContextFactory::ContextTypeBackend(type);
+bool IsDawnContextType(skgpu::ContextType type) {
+    return GrBackendApi::kDawn == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+bool IsRenderingGLContextType(skgpu::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
 }
-bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == GrContextFactory::kMock_ContextType;
+bool IsMockContextType(skgpu::ContextType type) {
+    return type == skgpu::ContextType::kMock;
 }
 
 void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
                                Reporter* reporter, const GrContextOptions& options) {
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-    static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
+    static constexpr auto kNativeGLType = skgpu::ContextType::kGL;
 #else
-    static constexpr auto kNativeGLType = GrContextFactory::kGLES_ContextType;
+    static constexpr auto kNativeGLType = skgpu::ContextType::kGLES;
 #endif
 
-    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
-        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+    for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
+        skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
         // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
         // desktop since tests do not account for not fixing http://skbug.com/2809
-        if (contextType == GrContextFactory::kGL_ContextType ||
-            contextType == GrContextFactory::kGLES_ContextType) {
+        if (contextType == skgpu::ContextType::kGL ||
+            contextType == skgpu::ContextType::kGLES) {
             if (contextType != kNativeGLType) {
                 continue;
             }
@@ -76,7 +76,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
             continue;
         }
 
-        ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
+        ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
         if (ctxInfo.directContext()) {
             (*testFn)(reporter, ctxInfo);
             // In case the test changed the current context make sure we move it back before
@@ -97,8 +97,8 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test,
                                  Reporter* reporter,
                                  const skgpu::graphite::ContextOptions& ctxOptions) {
     ContextFactory factory(ctxOptions);
-    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
-        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType)typeInt;
+    for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
+        skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
         if (filter && !(*filter)(contextType)) {
             continue;
         }
@@ -108,7 +108,7 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test,
             continue;
         }
 
-        ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
+        ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
         (*test)(reporter, context);
     }
 }

@@ -15,6 +15,7 @@
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/gpu/ContextType.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrContextOptions.h"
@@ -50,46 +51,46 @@ private:
 
 #if defined(SK_GANESH)
 namespace skiatest {
-bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+bool IsGLContextType(skgpu::ContextType type) {
     return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+bool IsVulkanContextType(skgpu::ContextType type) {
     return GrBackendApi::kVulkan == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+bool IsMetalContextType(skgpu::ContextType type) {
     return GrBackendApi::kMetal == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsDirect3DContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+bool IsDirect3DContextType(skgpu::ContextType type) {
     return GrBackendApi::kDirect3D == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+bool IsDawnContextType(skgpu::ContextType type) {
     return GrBackendApi::kDawn == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
 }
-bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
+bool IsRenderingGLContextType(skgpu::ContextType type) {
     return IsGLContextType(type) && sk_gpu_test::GrContextFactory::IsRenderingContext(type);
 }
-bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == sk_gpu_test::GrContextFactory::kMock_ContextType;
+bool IsMockContextType(skgpu::ContextType type) {
+    return type == skgpu::ContextType::kMock;
 }
 
-sk_gpu_test::GrContextFactory::ContextType compiledInContextTypes[] = {
+skgpu::ContextType compiledInContextTypes[] = {
 #if defined(SK_GL)
     // Use "native" instead of explicitly trying both OpenGL and OpenGL ES. Do not use GLES on
     // desktop since tests do not account for not fixing http://skbug.com/2809
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-    sk_gpu_test::GrContextFactory::kGL_ContextType,
+    skgpu::ContextType::kGL,
 #else
-    sk_gpu_test::GrContextFactory::kGLES_ContextType,
+    skgpu::ContextType::kGLES,
 #endif
 #endif // defined(SK_GL)
 #if defined(SK_VULKAN)
-    sk_gpu_test::GrContextFactory::kVulkan_ContextType,
+    skgpu::ContextType::kVulkan,
 #endif
 #if defined(SK_DAWN)
-    sk_gpu_test::GrContextFactory::kDawn_ContextType,
+    skgpu::ContextType::kDawn,
 #endif
 // TODO(kjlubick) Other Ganesh backends
-    sk_gpu_test::GrContextFactory::kMock_ContextType,
+    skgpu::ContextType::kMock,
 };
 
 // The macros defined in Test.h eventually call into this function. For each GPU backend that is
@@ -98,7 +99,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
                                Reporter* reporter, const GrContextOptions& options) {
     sk_gpu_test::GrContextFactory factory(options);
 
-    for (sk_gpu_test::GrContextFactory::ContextType ctxType : compiledInContextTypes) {
+    for (skgpu::ContextType ctxType : compiledInContextTypes) {
         if (filter && !(*filter)(ctxType)) {
             continue;
         }

@@ -544,7 +544,7 @@ static void test_raster_pipeline(skiatest::Reporter* r,
 
 
 #if defined(SK_GANESH)
-static bool is_rendering_context_but_not_dawn(sk_gpu_test::GrContextFactory::ContextType type) {
+static bool is_rendering_context_but_not_dawn(skgpu::ContextType type) {
     return sk_gpu_test::GrContextFactory::IsRenderingContext(type) &&
            sk_gpu_test::GrContextFactory::ContextTypeBackend(type) != GrBackendApi::kDawn;
 }
@@ -564,10 +564,10 @@ static bool is_rendering_context_but_not_dawn(sk_gpu_test::GrContextFactory::Con
 #endif
 
 #if defined(SK_GRAPHITE)
-static bool is_native_context_or_dawn(sk_gpu_test::GrContextFactory::ContextType type) {
+static bool is_native_context_or_dawn(skgpu::ContextType type) {
     // This avoids re-testing Dawn over and over again against every possible API.
     return sk_gpu_test::GrContextFactory::IsNativeBackend(type) ||
-           type == sk_gpu_test::GrContextFactory::kDawn_ContextType;
+           type == skgpu::ContextType::kDawn;
 }
 
 static void force_wgsl_in_dawn(skgpu::graphite::ContextOptions* options) {

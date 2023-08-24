@@ -15,6 +15,10 @@
 #include "tests/CtsEnforcement.h"
 #include "tools/Registry.h"
 
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+namespace skgpu { enum class ContextType; }
+#endif
+
 #if defined(SK_GANESH)
 #include "tools/gpu/GrContextFactory.h" // IWYU pragma: export (because it is used by a macro)
 #else
@@ -193,13 +197,13 @@ private:
 using TestRegistry = sk_tools::Registry<Test>;
 
 #if defined(SK_GANESH)
-using GrContextFactoryContextType = sk_gpu_test::GrContextFactory::ContextType;
+using GpuContextType = skgpu::ContextType;
 #else
-using GrContextFactoryContextType = nullptr_t;
+using GpuContextType = nullptr_t;
 #endif
 
 typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);
-typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);
+typedef bool GrContextTypeFilterFn(GpuContextType);
 
 // We want to run the same test against potentially multiple Ganesh backends. Test runners should
 // implement this function by calling the testFn with a fresh ContextInfo if that backend matches
@@ -210,13 +214,13 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
 
 // These context filters should be implemented by test runners and return true if the backend was
 // compiled in (i.e. is supported) and matches the criteria indicated by the name of the filter.
-extern bool IsGLContextType(GrContextFactoryContextType);
-extern bool IsVulkanContextType(GrContextFactoryContextType);
-extern bool IsMetalContextType(GrContextFactoryContextType);
-extern bool IsDawnContextType(GrContextFactoryContextType);
-extern bool IsDirect3DContextType(GrContextFactoryContextType);
-extern bool IsRenderingGLContextType(GrContextFactoryContextType);
-extern bool IsMockContextType(GrContextFactoryContextType);
+extern bool IsGLContextType(GpuContextType);
+extern bool IsVulkanContextType(GpuContextType);
+extern bool IsMetalContextType(GpuContextType);
+extern bool IsDawnContextType(GpuContextType);
+extern bool IsDirect3DContextType(GpuContextType);
+extern bool IsRenderingGLContextType(GpuContextType);
+extern bool IsMockContextType(GpuContextType);
 
 namespace graphite {
 

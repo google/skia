@@ -12,6 +12,8 @@ skia_cc_library(
         "BackendSurfaceFactory.h",
         "BackendTextureImageFactory.cpp",
         "BackendTextureImageFactory.h",
+        "ContextType.cpp",
+        "ContextType.h",
         "FenceSync.h",
         "FlushFinishTracker.cpp",
         "FlushFinishTracker.h",

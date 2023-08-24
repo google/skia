@@ -150,7 +150,7 @@ private:
 };
 
 bool EGLTestHelper::init(skiatest::Reporter* reporter) {
-    fGLESContextInfo = fFactory.getContextInfo(sk_gpu_test::GrContextFactory::kGLES_ContextType);
+    fGLESContextInfo = fFactory.getContextInfo(skgpu::ContextType::kGLES);
     fDirectContext = fGLESContextInfo.directContext();
     fGLCtx = fGLESContextInfo.glContext();
     if (!fDirectContext || !fGLCtx) {

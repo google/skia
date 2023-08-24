@@ -303,65 +303,65 @@ static bool parse_option_gpu_api(const SkString&                      value,
                                  bool*                                outFakeGLESVersion2) {
     *outFakeGLESVersion2 = false;
     if (value.equals("gl")) {
-        *outContextType = GrContextFactory::kGL_ContextType;
+        *outContextType = skgpu::ContextType::kGL;
         return true;
     }
     if (value.equals("gles")) {
-        *outContextType = GrContextFactory::kGLES_ContextType;
+        *outContextType = skgpu::ContextType::kGLES;
         return true;
     }
     if (value.equals("glesfakev2")) {
-        *outContextType = GrContextFactory::kGLES_ContextType;
+        *outContextType = skgpu::ContextType::kGLES;
         *outFakeGLESVersion2 = true;
         return true;
     }
     if (value.equals("angle_d3d9_es2")) {
-        *outContextType = GrContextFactory::kANGLE_D3D9_ES2_ContextType;
+        *outContextType = skgpu::ContextType::kANGLE_D3D9_ES2;
         return true;
     }
     if (value.equals("angle_d3d11_es2")) {
-        *outContextType = GrContextFactory::kANGLE_D3D11_ES2_ContextType;
+        *outContextType = skgpu::ContextType::kANGLE_D3D11_ES2;
         return true;
     }
     if (value.equals("angle_d3d11_es3")) {
-        *outContextType = GrContextFactory::kANGLE_D3D11_ES3_ContextType;
+        *outContextType = skgpu::ContextType::kANGLE_D3D11_ES3;
         return true;
     }
     if (value.equals("angle_gl_es2")) {
-        *outContextType = GrContextFactory::kANGLE_GL_ES2_ContextType;
+        *outContextType = skgpu::ContextType::kANGLE_GL_ES2;
         return true;
     }
     if (value.equals("angle_gl_es3")) {
-        *outContextType = GrContextFactory::kANGLE_GL_ES3_ContextType;
+        *outContextType = skgpu::ContextType::kANGLE_GL_ES3;
         return true;
     }
     if (value.equals("angle_mtl_es2")) {
-        *outContextType = GrContextFactory::kANGLE_Metal_ES2_ContextType;
+        *outContextType = skgpu::ContextType::kANGLE_Metal_ES2;
         return true;
     }
     if (value.equals("angle_mtl_es3")) {
-        *outContextType = GrContextFactory::kANGLE_Metal_ES3_ContextType;
+        *outContextType = skgpu::ContextType::kANGLE_Metal_ES3;
         return true;
     }
     if (value.equals("mock")) {
-        *outContextType = GrContextFactory::kMock_ContextType;
+        *outContextType = skgpu::ContextType::kMock;
         return true;
     }
 #ifdef SK_VULKAN
     if (value.equals("vulkan")) {
-        *outContextType = GrContextFactory::kVulkan_ContextType;
+        *outContextType = skgpu::ContextType::kVulkan;
         return true;
     }
 #endif
 #ifdef SK_METAL
     if (value.equals("metal")) {
-        *outContextType = GrContextFactory::kMetal_ContextType;
+        *outContextType = skgpu::ContextType::kMetal;
         return true;
     }
 #endif
 #ifdef SK_DIRECT3D
     if (value.equals("direct3d")) {
-        *outContextType = GrContextFactory::kDirect3D_ContextType;
+        *outContextType = skgpu::ContextType::kDirect3D;
         return true;
     }
 #endif
@@ -477,49 +477,49 @@ public:
         }
 #ifdef SK_DAWN
         if (optionValue->equals("dawn")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDawn_ContextType;
+            *outContextType = skgpu::ContextType::kDawn;
             return true;
         }
         if (optionValue->equals("dawn_d3d11")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDawn_D3D11_ContextType;
+            *outContextType = skgpu::ContextType::kDawn_D3D11;
             return true;
         }
         if (optionValue->equals("dawn_d3d12")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDawn_D3D12_ContextType;
+            *outContextType = skgpu::ContextType::kDawn_D3D12;
             return true;
         }
         if (optionValue->equals("dawn_mtl")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDawn_Metal_ContextType;
+            *outContextType = skgpu::ContextType::kDawn_Metal;
             return true;
         }
         if (optionValue->equals("dawn_vk")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDawn_Vulkan_ContextType;
+            *outContextType = skgpu::ContextType::kDawn_Vulkan;
             return true;
         }
         if (optionValue->equals("dawn_gl")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDawn_OpenGL_ContextType;
+            *outContextType = skgpu::ContextType::kDawn_OpenGL;
             return true;
         }
         if (optionValue->equals("dawn_gles")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDawn_OpenGLES_ContextType;
+            *outContextType = skgpu::ContextType::kDawn_OpenGLES;
             return true;
         }
 #endif
 #ifdef SK_DIRECT3D
         if (optionValue->equals("direct3d")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kDirect3D_ContextType;
+            *outContextType = skgpu::ContextType::kDirect3D;
             return true;
         }
 #endif
 #ifdef SK_METAL
         if (optionValue->equals("metal")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
+            *outContextType = skgpu::ContextType::kMetal;
             return true;
         }
 #endif
 #ifdef SK_VULKAN
         if (optionValue->equals("vulkan")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kVulkan_ContextType;
+            *outContextType = skgpu::ContextType::kVulkan;
             return true;
         }
 #endif
@@ -605,7 +605,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&         ta
                                                       const TArray<SkString>& vias,
                                                       const SkString&         options) {
     // Defaults for GPU backend.
-    SkCommandLineConfigGpu::ContextType contextType         = GrContextFactory::kGL_ContextType;
+    SkCommandLineConfigGpu::ContextType contextType         = skgpu::ContextType::kGL;
     bool                                useDIText           = false;
     bool                                useDMSAA            = false;
     int                                 samples             = 1;
@@ -680,9 +680,9 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&         ta
 SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& tag,
                                                                 const TArray<SkString>& vias,
                                                                 const SkString& options) {
-    using ContextType = sk_gpu_test::GrContextFactory::ContextType;
+    using ContextType = skgpu::ContextType;
 
-    ContextType contextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
+    ContextType contextType = skgpu::ContextType::kMetal;
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;
     bool wgsl = false;
