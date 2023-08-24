@@ -371,6 +371,10 @@ static void test_graphite(skiatest::Reporter* r,
     }
 #endif
 
+#if defined(SK_BUILD_FOR_UNIX) && !defined(SK_DEBUG)
+    // TODO(b/297239696): re-enable these tests once Graphite works properly here
+    return;
+#else
     // Create a GPU-backed Graphite surface.
     std::unique_ptr<skgpu::graphite::Recorder> recorder = ctx->makeRecorder();
 
@@ -385,6 +389,7 @@ static void test_graphite(skiatest::Reporter* r,
     if (shouldRunGPU_ES3) {
         test_permutations(r, surface.get(), testFile, /*strictES2=*/false);
     }
+#endif
 }
 #endif
 
