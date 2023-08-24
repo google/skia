@@ -140,7 +140,7 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
     auto checkResult = [gpu, allocUsage, shouldPersistentlyMapCpuToGpu](VkResult result) {
         GR_VK_LOG_IF_NOT_SUCCESS(gpu, result, "skgpu::VulkanMemory::AllocBufferMemory "
                                  "(allocUsage:%d, shouldPersistentlyMapCpuToGpu:%d)",
-                                 allocUsage, (int)shouldPersistentlyMapCpuToGpu);
+                                 (int)allocUsage, (int)shouldPersistentlyMapCpuToGpu);
         return gpu->checkVkResult(result);
     };
     auto allocator = gpu->memoryAllocator();
