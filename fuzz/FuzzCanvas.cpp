@@ -1622,7 +1622,7 @@ static void fuzz_ganesh(Fuzz* fuzz, GrDirectContext* context) {
 
 DEF_FUZZ(MockGPUCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
-    fuzz_ganesh(fuzz, f.get(skgpu::ContextType::kMock));
+    fuzz_ganesh(fuzz, f.get(sk_gpu_test::GrContextFactory::kMock_ContextType));
 }
 #endif
 
@@ -1643,9 +1643,9 @@ static void dump_GPU_info(GrDirectContext* context) {
 
 DEF_FUZZ(NativeGLCanvas, fuzz) {
     sk_gpu_test::GrContextFactory f;
-    auto context = f.get(skgpu::ContextType::kGL);
+    auto context = f.get(sk_gpu_test::GrContextFactory::kGL_ContextType);
     if (!context) {
-        context = f.get(skgpu::ContextType::kGLES);
+        context = f.get(sk_gpu_test::GrContextFactory::kGLES_ContextType);
     }
     if (FLAGS_gpuInfo) {
         dump_GPU_info(context);

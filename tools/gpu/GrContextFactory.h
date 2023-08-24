@@ -12,12 +12,11 @@
 #include "include/gpu/GrDirectContext.h"
 
 #include "include/private/base/SkTArray.h"
-#include "tools/gpu/ContextType.h"
-#include "tools/gpu/TestContext.h"
 
 #ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
 #endif
+#include "tools/gpu/TestContext.h"
 
 struct GrVkBackendContext;
 
@@ -33,7 +32,33 @@ class ContextInfo;
  */
 class GrContextFactory : SkNoncopyable {
 public:
-    using ContextType = skgpu::ContextType;
+    // The availability of context types is subject to platform and build configuration
+    // restrictions.
+    enum ContextType {
+        kGL_ContextType,                 //! OpenGL context.
+        kGLES_ContextType,               //! OpenGL ES context.
+        kANGLE_D3D9_ES2_ContextType,     //! ANGLE on Direct3D9 OpenGL ES 2 context.
+        kANGLE_D3D11_ES2_ContextType,    //! ANGLE on Direct3D11 OpenGL ES 2 context.
+        kANGLE_D3D11_ES3_ContextType,    //! ANGLE on Direct3D11 OpenGL ES 3 context.
+        kANGLE_GL_ES2_ContextType,       //! ANGLE on OpenGL OpenGL ES 2 context.
+        kANGLE_GL_ES3_ContextType,       //! ANGLE on OpenGL OpenGL ES 3 context.
+        kANGLE_Metal_ES2_ContextType,    //! ANGLE on Metal ES 2 context.
+        kANGLE_Metal_ES3_ContextType,    //! ANGLE on Metal ES 3 context.
+        kVulkan_ContextType,             //! Vulkan
+        kMetal_ContextType,              //! Metal
+        kDirect3D_ContextType,           //! Direct3D 12
+        kDawn_ContextType,               //! Dawn
+        kDawn_D3D11_ContextType,         //! Dawn on Direct3D11
+        kDawn_D3D12_ContextType,         //! Dawn on Direct3D12
+        kDawn_Metal_ContextType,         //! Dawn on Metal
+        kDawn_Vulkan_ContextType,        //! Dawn on Vulkan
+        kDawn_OpenGL_ContextType,        //! Dawn on Vulkan
+        kDawn_OpenGLES_ContextType,      //! Dawn on Vulkan
+        kMock_ContextType,               //! Mock context that does not draw.
+        kLastContextType = kMock_ContextType
+    };
+
+    static const int kContextTypeCnt = kLastContextType + 1;
 
     /**
      * Overrides for the initial GrContextOptions provided at construction time, and required
@@ -48,7 +73,7 @@ public:
 
     static bool IsRenderingContext(ContextType type) {
         switch (type) {
-            case ContextType::kMock:
+            case kMock_ContextType:
                 return false;
             default:
                 return true;
@@ -57,11 +82,11 @@ public:
 
     static bool IsNativeBackend(ContextType type) {
         switch (type) {
-            case ContextType::kDirect3D:
-            case ContextType::kGL:
-            case ContextType::kGLES:
-            case ContextType::kMetal:
-            case ContextType::kVulkan:
+            case kDirect3D_ContextType:
+            case kGL_ContextType:
+            case kGLES_ContextType:
+            case kMetal_ContextType:
+            case kVulkan_ContextType:
                 return true;
             default:
                 // Mock doesn't use the GPU, and Dawn and ANGLE add a layer between Skia and the
@@ -72,25 +97,71 @@ public:
 
     static GrBackendApi ContextTypeBackend(ContextType type) {
         switch (type) {
-            case ContextType::kVulkan:
+            case kVulkan_ContextType:
                 return GrBackendApi::kVulkan;
-            case ContextType::kMetal:
+            case kMetal_ContextType:
                 return GrBackendApi::kMetal;
-            case ContextType::kDirect3D:
+            case kDirect3D_ContextType:
                 return GrBackendApi::kDirect3D;
-            case ContextType::kDawn:
-            case ContextType::kDawn_D3D11:
-            case ContextType::kDawn_D3D12:
-            case ContextType::kDawn_Metal:
-            case ContextType::kDawn_Vulkan:
-            case ContextType::kDawn_OpenGL:
-            case ContextType::kDawn_OpenGLES:
+            case kDawn_ContextType:
+            case kDawn_D3D11_ContextType:
+            case kDawn_D3D12_ContextType:
+            case kDawn_Metal_ContextType:
+            case kDawn_Vulkan_ContextType:
+            case kDawn_OpenGL_ContextType:
+            case kDawn_OpenGLES_ContextType:
                 return GrBackendApi::kDawn;
-            case ContextType::kMock:
+            case kMock_ContextType:
                 return GrBackendApi::kMock;
             default:
                 return GrBackendApi::kOpenGL;
         }
+    }
+
+    static const char* ContextTypeName(ContextType contextType) {
+        switch (contextType) {
+            case kGL_ContextType:
+                return "OpenGL";
+            case kGLES_ContextType:
+                return "OpenGLES";
+            case kANGLE_D3D9_ES2_ContextType:
+                return "ANGLE D3D9 ES2";
+            case kANGLE_D3D11_ES2_ContextType:
+                return "ANGLE D3D11 ES2";
+            case kANGLE_D3D11_ES3_ContextType:
+                return "ANGLE D3D11 ES3";
+            case kANGLE_GL_ES2_ContextType:
+                return "ANGLE GL ES2";
+            case kANGLE_GL_ES3_ContextType:
+                return "ANGLE GL ES3";
+            case kANGLE_Metal_ES2_ContextType:
+                return "ANGLE Metal ES2";
+            case kANGLE_Metal_ES3_ContextType:
+                return "ANGLE Metal ES3";
+            case kVulkan_ContextType:
+                return "Vulkan";
+            case kMetal_ContextType:
+                return "Metal";
+            case kDirect3D_ContextType:
+                return "Direct3D";
+            case kDawn_ContextType:
+                return "Dawn";
+            case kDawn_D3D11_ContextType:
+                return "Dawn D3D11";
+            case kDawn_D3D12_ContextType:
+                return "Dawn D3D12";
+            case kDawn_Metal_ContextType:
+                return "Dawn Metal";
+            case kDawn_Vulkan_ContextType:
+                return "Dawn Vulkan";
+            case kDawn_OpenGL_ContextType:
+                return "Dawn OpenGL";
+            case kDawn_OpenGLES_ContextType:
+                return "Dawn OpenGLES";
+            case kMock_ContextType:
+                return "Mock";
+        }
+        SK_ABORT("Unreachable");
     }
 
     explicit GrContextFactory(const GrContextOptions& opts);
@@ -150,7 +221,7 @@ public:
     ContextInfo(const ContextInfo&) = default;
     ContextInfo& operator=(const ContextInfo&) = default;
 
-    skgpu::ContextType type() const { return fType; }
+    GrContextFactory::ContextType type() const { return fType; }
     GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
 
     GrDirectContext* directContext() const { return fContext; }
@@ -166,13 +237,13 @@ public:
     const GrContextOptions& options() const { return fOptions; }
 
 private:
-    ContextInfo(skgpu::ContextType type,
+    ContextInfo(GrContextFactory::ContextType type,
                 TestContext* testContext,
                 GrDirectContext* context,
                 const GrContextOptions& options)
             : fType(type), fTestContext(testContext), fContext(context), fOptions(options) {}
 
-    skgpu::ContextType fType = skgpu::ContextType::kGL;
+    GrContextFactory::ContextType fType = GrContextFactory::kGL_ContextType;
     // Valid until the factory destroys it via abandonContexts() or destroyContexts().
     TestContext* fTestContext = nullptr;
     GrDirectContext* fContext = nullptr;

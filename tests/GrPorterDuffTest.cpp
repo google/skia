@@ -35,7 +35,6 @@
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/ContextType.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #include <initializer_list>
@@ -1087,7 +1086,7 @@ DEF_GANESH_TEST(PorterDuffNoDualSourceBlending, reporter, options, CtsEnforcemen
     GrContextOptions opts = options;
     opts.fSuppressDualSourceBlending = true;
     sk_gpu_test::GrContextFactory mockFactory(opts);
-    auto ctx = mockFactory.get(skgpu::ContextType::kMock);
+    auto ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kMock_ContextType);
     if (!ctx) {
         SK_ABORT("Failed to create mock context without ARB_blend_func_extended.");
     }

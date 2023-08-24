@@ -658,7 +658,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage,
 
 DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLevel_T) {
     using Factory = sk_gpu_test::GrContextFactory;
-    for (int ct = 0; ct < skgpu::kContextTypeCount; ++ct) {
+    for (int ct = 0; ct < Factory::kContextTypeCnt; ++ct) {
         auto type = static_cast<Factory::ContextType>(ct);
         std::unique_ptr<Factory> factory(new Factory);
         if (!factory->get(type)) {
@@ -980,9 +980,9 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease,
 static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
                                      const char* testName,
                                      std::function<sk_sp<SkImage>(GrDirectContext*)> imageMaker) {
-    for (int i = 0; i < skgpu::kContextTypeCount; ++i) {
+    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory testFactory(options);
-        skgpu::ContextType ctxType = static_cast<skgpu::ContextType>(i);
+        GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
         ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
         auto dContext = ctxInfo.directContext();
         if (!dContext) {
@@ -1164,9 +1164,9 @@ DEF_GANESH_TEST(SkImage_CrossContextGrayAlphaConfigs,
         SkAutoPixmapStorage pixmap;
         pixmap.alloc(SkImageInfo::Make(4, 4, ct, kPremul_SkAlphaType));
 
-        for (int i = 0; i < skgpu::kContextTypeCount; ++i) {
+        for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
             GrContextFactory testFactory(options);
-            skgpu::ContextType ctxType = static_cast<skgpu::ContextType>(i);
+            GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
             ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
             auto dContext = ctxInfo.directContext();
             if (!dContext || !dContext->priv().caps()->crossContextTextureSupport()) {

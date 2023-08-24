@@ -29,7 +29,6 @@
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/ContextType.h"
 #include "tools/gpu/FenceSync.h"
 
 #include <string>
@@ -121,8 +120,8 @@ static void cleanup_test(skiatest::Reporter* reporter) {
     GrMockOptions options;
     sk_sp<GrDirectContext> mockContext = GrDirectContext::MakeMock(&options);
 
-    for (int i = 0; i < skgpu::kContextTypeCount; ++i) {
-        auto ctxType = static_cast<skgpu::ContextType>(i);
+    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+        GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
 
         {
             sk_sp<SkImage> img;

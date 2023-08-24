@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto contextType = skgpu::ContextType::kGL;
+    auto contextType = sk_gpu_test::GrContextFactory::kGL_ContextType;
     GrContextOptions grCtxOptions;
     sk_gpu_test::GrContextFactory factory(grCtxOptions);
 

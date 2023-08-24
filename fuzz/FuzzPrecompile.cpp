@@ -411,11 +411,11 @@ DEF_FUZZ(Precompile, fuzz) {
 
     sk_gpu_test::GrContextFactory::ContextType contextType;
 #if defined(SK_METAL)
-    contextType = skgpu::ContextType::kMetal;
+    contextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
 #elif defined(SK_VULKAN)
-    contextType = skgpu::ContextType::kVulkan;
+    contextType = sk_gpu_test::GrContextFactory::kVulkan_ContextType;
 #else
-    contextType = skgpu::ContextType::kMock;
+    contextType = sk_gpu_test::GrContextFactory::kMock_ContextType;
 #endif
 
     auto [_, context] = factory.getContextInfo(contextType);

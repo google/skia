@@ -301,5 +301,5 @@ void DDLFuzzer::run() {
 }
 
 DEF_FUZZ(DDLThreadingGL, fuzz) {
-    DDLFuzzer(fuzz, skgpu::ContextType::kGL).run();
+    DDLFuzzer(fuzz, ContextType::kGL_ContextType).run();
 }

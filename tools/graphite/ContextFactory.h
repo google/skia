@@ -12,8 +12,14 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "tools/gpu/ContextType.h"
 #include "tools/graphite/GraphiteTestContext.h"
+
+// TODO: This is only included to get access to GrContextFactory::ContextType. We should instead
+// move all of tools/gpu/ into tools/gpu/ganesh and tools/graphite into tools/gpu/graphite. Then in
+// tools gpu we can have files for shared things between ganesh and graphite like ContextType.
+#include "tools/gpu/GrContextFactory.h"
+
+using sk_gpu_test::GrContextFactory;
 
 namespace skgpu::graphite {
     class Context;
@@ -29,7 +35,7 @@ public:
         ContextInfo(ContextInfo&& other);
         ~ContextInfo() = default;
 
-        skgpu::ContextType type() const { return fType; }
+        GrContextFactory::ContextType type() const { return fType; }
 
         skgpu::graphite::Context* context() const { return fContext.get(); }
         GraphiteTestContext* testContext() const { return fTestContext.get(); }
@@ -37,12 +43,12 @@ public:
     private:
         friend class ContextFactory; // for ctor
 
-        ContextInfo(skgpu::ContextType type,
+        ContextInfo(GrContextFactory::ContextType type,
                     std::unique_ptr<GraphiteTestContext> testContext,
                     std::unique_ptr<skgpu::graphite::Context> context);
 
-        skgpu::ContextType fType = skgpu::ContextType::kMock;
-        std::unique_ptr<GraphiteTestContext> fTestContext;
+        GrContextFactory::ContextType             fType = GrContextFactory::kMock_ContextType;
+        std::unique_ptr<GraphiteTestContext>      fTestContext;
         std::unique_ptr<skgpu::graphite::Context> fContext;
     };
 
@@ -54,7 +60,7 @@ public:
     ~ContextFactory();
 
     std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> getContextInfo(
-            skgpu::ContextType);
+            GrContextFactory::ContextType);
 
 private:
     std::vector<ContextInfo> fContexts;

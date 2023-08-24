@@ -209,7 +209,7 @@ DEF_FUZZ(CreateDDL, fuzz) {
     fuzz->nextEnum(&origin, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin);
 
     sk_gpu_test::GrContextFactory factory;
-    auto ctxInfo = factory.getContextInfo(skgpu::ContextType::kGL);
+    auto ctxInfo = factory.getContextInfo(sk_gpu_test::GrContextFactory::kGL_ContextType);
 
     GrDirectContext* dContext = ctxInfo.directContext();
     if (!dContext) {

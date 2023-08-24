@@ -57,7 +57,6 @@
 #include "tools/ToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
-#include "tools/gpu/ContextType.h"
 
 #include <algorithm>
 #include <array>
@@ -697,7 +696,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
     rules.fUncontainedRectSucceeds = false;
     // TODO: some mobile GPUs have issues reading back sRGB src data with GLES -- skip for now
     // b/296440036
-    if (ctxInfo.type() == skgpu::ContextType::kGLES) {
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
         rules.fSkipSRGBCT = true;
     }
 
@@ -776,12 +775,12 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels,
     rules.fUncontainedRectSucceeds = false;
     // TODO: some mobile GPUs have issues reading back sRGB src data with GLES -- skip for now
     // b/296440036
-    if (ctxInfo.type() == skgpu::ContextType::kGLES) {
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
         rules.fSkipSRGBCT = true;
     }
     // TODO: D3D on Intel has issues reading back 16-bit src data -- skip for now
     // b/296440036
-    if (ctxInfo.type() == skgpu::ContextType::kDirect3D) {
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kDirect3D_ContextType) {
         rules.fSkip16BitCT = true;
     }
 
@@ -811,8 +810,8 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
         kReleaseAndAbandon_DestroyContext_FreeResult,
         kAbandon_DestroyContext_FreeResult,
     };
-    for (int t = 0; t < skgpu::kContextTypeCount; ++t) {
-        auto type = static_cast<skgpu::ContextType>(t);
+    for (int t = 0; t < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++t) {
+        auto type = static_cast<sk_gpu_test::GrContextFactory::ContextType>(t);
         for (auto sequence : {ShutdownSequence::kFreeResult_DestroyContext,
                               ShutdownSequence::kDestroyContext_FreeResult,
                               ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext,
@@ -823,7 +822,8 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                               ShutdownSequence::kAbandon_DestroyContext_FreeResult}) {
             // Vulkan and D3D context abandoning without resource release has issues outside of the
             // scope of this test.
-            if ((type == skgpu::ContextType::kVulkan || type == skgpu::ContextType::kDirect3D) &&
+            if ((type == sk_gpu_test::GrContextFactory::kVulkan_ContextType ||
+                 type == sk_gpu_test::GrContextFactory::kDirect3D_ContextType) &&
                 (sequence == ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext ||
                  sequence == ShutdownSequence::kFreeResult_Abandon_DestroyContext ||
                  sequence == ShutdownSequence::kReleaseAndAbandon_FreeResult_DestroyContext ||
@@ -886,7 +886,7 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                         case ReadType::kYUVA: readTypeStr = "yuva"; break;
                     }
                     ERRORF(reporter, "Callback failed on %s. read type is: %s",
-                           skgpu::ContextTypeName(type), readTypeStr);
+                           sk_gpu_test::GrContextFactory::ContextTypeName(type), readTypeStr);
                     continue;
                 }
                 // For vulkan we need to release all refs to the GrDirectContext before trying to

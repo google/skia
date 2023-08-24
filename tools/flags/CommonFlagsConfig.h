@@ -53,7 +53,7 @@ private:
 class SkCommandLineConfigGpu : public SkCommandLineConfig {
 public:
     enum class SurfType { kDefault, kBackendTexture, kBackendRenderTarget };
-    typedef skgpu::ContextType                              ContextType;
+    typedef sk_gpu_test::GrContextFactory::ContextType      ContextType;
     typedef sk_gpu_test::GrContextFactory::ContextOverrides ContextOverrides;
 
     SkCommandLineConfigGpu(const SkString&           tag,
@@ -113,7 +113,7 @@ private:
 
 class SkCommandLineConfigGraphite : public SkCommandLineConfig {
 public:
-    using ContextType = skgpu::ContextType;
+    using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
     SkCommandLineConfigGraphite(const SkString& tag,
                                 const skia_private::TArray<SkString>& viaParts,

@@ -50,7 +50,6 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
-#include "tools/gpu/ContextType.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
 
@@ -757,8 +756,8 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
 }
 
 DEF_GANESH_TEST(ColorTypeBackendAllocationTest, reporter, options, CtsEnforcement::kApiLevel_T) {
-    for (int t = 0; t < skgpu::kContextTypeCount; ++t) {
-        auto type = static_cast<skgpu::ContextType>(t);
+    for (int t = 0; t < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++t) {
+        auto type = static_cast<sk_gpu_test::GrContextFactory::ContextType>(t);
         if (!sk_gpu_test::GrContextFactory::IsRenderingContext(type)) {
             continue;
         }

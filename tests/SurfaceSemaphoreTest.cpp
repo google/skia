@@ -31,7 +31,6 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/ContextType.h"
 #include "tools/gpu/TestContext.h"
 
 #include <string>
@@ -216,18 +215,19 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
 #ifdef SK_GL
 DEF_GANESH_TEST(SurfaceSemaphores, reporter, options, CtsEnforcement::kApiLevel_T) {
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-    static constexpr auto kNativeGLType = skgpu::ContextType::kGL;
+    static constexpr auto kNativeGLType = sk_gpu_test::GrContextFactory::kGL_ContextType;
 #else
-    static constexpr auto kNativeGLType = skgpu::ContextType::kGLES;
+    static constexpr auto kNativeGLType = sk_gpu_test::GrContextFactory::kGLES_ContextType;
 #endif
 
-    for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
+    for (int typeInt = 0; typeInt < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++typeInt) {
         for (auto flushType : {FlushType::kSurface, FlushType::kImage, FlushType::kContext}) {
-            skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
+            sk_gpu_test::GrContextFactory::ContextType contextType =
+                    (sk_gpu_test::GrContextFactory::ContextType) typeInt;
             // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
             // desktop since tests do not account for not fixing http://skbug.com/2809
-            if (contextType == skgpu::ContextType::kGL ||
-                contextType == skgpu::ContextType::kGLES) {
+            if (contextType == sk_gpu_test::GrContextFactory::kGL_ContextType ||
+                contextType == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
                 if (contextType != kNativeGLType) {
                     continue;
                 }
@@ -237,7 +237,8 @@ DEF_GANESH_TEST(SurfaceSemaphores, reporter, options, CtsEnforcement::kApiLevel_
             if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {
                 continue;
             }
-            skiatest::ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
+            skiatest::ReporterContext ctx(
+                   reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
             if (ctxInfo.directContext()) {
                 sk_gpu_test::ContextInfo child1 =
                         factory.getSharedContextInfo(ctxInfo.directContext(), 0);
