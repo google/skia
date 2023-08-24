@@ -666,4 +666,73 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedOverBudgetTest, reporter,
     REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resource3Ptr));
 }
 
+// Test call purgeResources on the ResourceCache and make sure all unlocked resources are getting
+// purged regardless of when they were last used.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeResourcesTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
+    ResourceCache* resourceCache = resourceProvider->resourceCache();
+    const SharedContext* sharedContext = resourceProvider->sharedContext();
+
+    // set resourceCache budget to 10 for testing.
+    resourceCache->setMaxBudget(10);
+
+    // Basic test where we purge 1 resource
+    auto resourcePtr = add_new_purgeable_resource(reporter,
+                                                  sharedContext,
+                                                  resourceCache,
+                                                  /*gpuMemorySize=*/1);
+    if (!resourcePtr) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+
+    // purging should purge the one unlocked resource.
+    resourceCache->purgeResources();
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+
+    // Test making 2 purgeable resources
+    Resource* resourcePtr1 = add_new_purgeable_resource(reporter,
+                                                        sharedContext,
+                                                        resourceCache,
+                                                        /*gpuMemorySize=*/1);
+
+    Resource* resourcePtr2 = add_new_purgeable_resource(reporter,
+                                                        sharedContext,
+                                                        resourceCache,
+                                                        /*gpuMemorySize=*/1);
+    if (!resourcePtr1 || !resourcePtr2) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr1));
+    REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr2));
+
+    resourceCache->purgeResources();
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+
+    // purgeResources should have no impact on non-purgeable resources
+    auto resource = add_new_resource(reporter,
+                                     sharedContext,
+                                     resourceCache,
+                                     /*gpuMemorySize=*/1);
+    if (!resource) {
+        return;
+    }
+    resourcePtr = resource.get();
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+
+    resourceCache->purgeResources();
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(reporter, !resourceCache->testingInPurgeableQueue(resourcePtr));
+
+    resource.reset();
+    resourceCache->purgeResources();
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+}
+
 }  // namespace skgpu::graphite

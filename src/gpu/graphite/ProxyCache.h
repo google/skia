@@ -53,7 +53,7 @@ private:
 
     void processInvalidKeyMsgs();
     void freeUniquelyHeld();
-    void purgeProxiesNotUsedSince(skgpu::StdSteadyClock::time_point purgeTime);
+    void purgeProxiesNotUsedSince(const skgpu::StdSteadyClock::time_point* purgeTime);
 
     typedef SkMessageBus<skgpu::UniqueKeyInvalidatedMsg_Graphite, uint32_t>::Inbox InvalidKeyInbox;
 

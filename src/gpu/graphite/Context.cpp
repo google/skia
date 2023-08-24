@@ -735,6 +735,14 @@ void Context::deleteBackendTexture(BackendTexture& texture) {
     fResourceProvider->deleteBackendTexture(texture);
 }
 
+void Context::freeGpuResources() {
+    ASSERT_SINGLE_OWNER
+
+    this->checkAsyncWorkCompletion();
+
+    fResourceProvider->freeGpuResources();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 #if GRAPHITE_TEST_UTILS

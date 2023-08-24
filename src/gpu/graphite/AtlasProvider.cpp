@@ -51,4 +51,8 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
     return proxy;
 }
 
+void AtlasProvider::clearTexturePool() {
+    fTexturePool.clear();
+}
+
 }  // namespace skgpu::graphite

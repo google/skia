@@ -134,6 +134,14 @@ public:
     // Recording snap, at which point it is deleted.
     SkCanvas* makeDeferredCanvas(const SkImageInfo&, const TextureInfo&);
 
+    /**
+     * Frees GPU resources created and held by the Recorder. Can be called to reduce GPU memory
+     * pressure. Any resources that are still in use (e.g. being used by work submitted to the GPU)
+     * will not be deleted by this call. If the caller wants to make sure all resources are freed,
+     * then they should first make sure to submit and wait on any outstanding work.
+     */
+    void freeGpuResources();
+
     // Provides access to functions that aren't part of the public API.
     RecorderPriv priv();
     const RecorderPriv priv() const;  // NOLINT(readability-const-return-type)

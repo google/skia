@@ -67,6 +67,10 @@ public:
     // and things like descriptor sets.
     void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);
 
+    // Purge any unlocked resources. Resources that have a gpu memory size of zero will not be
+    // purged.
+    void purgeResources();
+
     // Called by the ResourceProvider when it is dropping its ref to the ResourceCache. After this
     // is called no more Resources can be returned to the ResourceCache (besides those already in
     // the return queue). Also no new Resources can be retrieved from the ResourceCache.
@@ -119,6 +123,8 @@ private:
     bool overbudget() const { return fBudgetedBytes > fMaxBytes; }
     void purgeAsNeeded();
     void purgeResource(Resource*);
+    // Passing in a nullptr for purgeTime will trigger us to try and free all unlocked resources.
+    void purgeResources(const StdSteadyClock::time_point* purgeTime);
 
 #ifdef SK_DEBUG
     bool isInCache(const Resource* r) const;

@@ -379,13 +379,23 @@ void ResourceCache::purgeAsNeeded() {
 
 void ResourceCache::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
     ASSERT_SINGLE_OWNER
+    this->purgeResources(&purgeTime);
+}
 
+void ResourceCache::purgeResources() {
+    ASSERT_SINGLE_OWNER
+    this->purgeResources(nullptr);
+}
+
+void ResourceCache::purgeResources(const StdSteadyClock::time_point* purgeTime) {
     fProxyCache->purgeProxiesNotUsedSince(purgeTime);
     this->processReturnedResources();
 
     // Early out if the very first item is too new to purge to avoid sorting the queue when
     // nothing will be deleted.
-    if (fPurgeableQueue.count() && fPurgeableQueue.peek()->lastAccessTime() >= purgeTime) {
+    if (fPurgeableQueue.count() &&
+        purgeTime &&
+        fPurgeableQueue.peek()->lastAccessTime() >= *purgeTime) {
         return;
     }
 
@@ -398,7 +408,7 @@ void ResourceCache::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeT
         Resource* resource = fPurgeableQueue.at(i);
 
         const skgpu::StdSteadyClock::time_point resourceTime = resource->lastAccessTime();
-        if (resourceTime >= purgeTime) {
+        if (purgeTime && resourceTime >= *purgeTime) {
             // scratch or not, all later iterations will be too recently used to purge.
             break;
         }

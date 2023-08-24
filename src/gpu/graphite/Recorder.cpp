@@ -341,6 +341,20 @@ void Recorder::addFinishInfo(const InsertFinishInfo& info) {
     }
 }
 
+void Recorder::freeGpuResources() {
+    // We don't want to free the Uniform/TextureDataCaches or the Draw/UploadBufferManagers since
+    // all their resources need to be held on to until a Recording is snapped. And once snapped, all
+    // their held resources are released. The StrikeCache and TextBlobCache don't hold onto any Gpu
+    // resources.
+
+    // The AtlasProvider gives out refs to TextureProxies so it should be safe to clear its pool
+    // in the middle of Recording since those using the previous TextureProxies will have refs on
+    // them.
+    fAtlasProvider->clearTexturePool();
+
+    fResourceProvider->freeGpuResources();
+}
+
 void RecorderPriv::add(sk_sp<Task> task) {
     ASSERT_SINGLE_OWNER_PRIV
     fRecorder->fGraph->add(std::move(task));

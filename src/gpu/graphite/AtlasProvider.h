@@ -40,6 +40,8 @@ public:
     // Return an Alpha_8 TextureProxy with the given dimensions.
     sk_sp<TextureProxy> getAtlasTexture(Recorder*, uint32_t width, uint32_t height);
 
+    void clearTexturePool();
+
 private:
     std::unique_ptr<TextAtlasManager> fTextAtlasManager;
 

@@ -145,14 +145,15 @@ void ProxyCache::freeUniquelyHeld() {
     }
 }
 
-void ProxyCache::purgeProxiesNotUsedSince(skgpu::StdSteadyClock::time_point purgeTime) {
+void ProxyCache::purgeProxiesNotUsedSince(const skgpu::StdSteadyClock::time_point* purgeTime) {
     this->processInvalidKeyMsgs();
 
     std::vector<skgpu::UniqueKey> toRemove;
 
     fCache.foreach([&](const skgpu::UniqueKey& key, const sk_sp<TextureProxy>* proxy) {
         if (Resource* resource = (*proxy)->texture();
-            resource && resource->lastAccessTime() < purgeTime) {
+            resource &&
+            (!purgeTime || resource->lastAccessTime() < *purgeTime)) {
             resource->setDeleteASAP();
             toRemove.push_back(key);
         }
@@ -190,7 +191,7 @@ void ProxyCache::forceFreeUniquelyHeld() {
 }
 
 void ProxyCache::forcePurgeProxiesNotUsedSince(skgpu::StdSteadyClock::time_point purgeTime) {
-    this->purgeProxiesNotUsedSince(purgeTime);
+    this->purgeProxiesNotUsedSince(&purgeTime);
 }
 
 #endif // GRAPHITE_TEST_UTILS

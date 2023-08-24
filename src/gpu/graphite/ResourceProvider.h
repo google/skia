@@ -79,6 +79,8 @@ public:
 
     size_t getResourceCacheLimit() const { return fResourceCache->getMaxBudget(); }
 
+    void freeGpuResources();
+
 #if GRAPHITE_TEST_UTILS
     ResourceCache* resourceCache() { return fResourceCache.get(); }
     const SharedContext* sharedContext() { return fSharedContext; }
