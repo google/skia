@@ -47,6 +47,10 @@
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #endif // defined(SK_GANESH)
 
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+#include "src/gpu/BlurUtils.h"
+#endif
+
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>
     #define SK_PREFETCH(ptr) _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
@@ -995,8 +999,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(const skif::Context& ctx,
                                                    SkIRect dstBounds,
                                                    SkIPoint inputOffset,
                                                    SkIPoint* offset) const {
-    if (GrBlurUtils::IsEffectivelyZeroSigma(sigma.x()) &&
-        GrBlurUtils::IsEffectivelyZeroSigma(sigma.y())) {
+    if (skgpu::BlurIsEffectivelyIdentity(sigma.x()) &&
+        skgpu::BlurIsEffectivelyIdentity(sigma.y())) {
         offset->fX = inputBounds.x() + inputOffset.fX;
         offset->fY = inputBounds.y() + inputOffset.fY;
         return input->makeSubset(inputBounds);
@@ -1089,6 +1093,10 @@ struct SkIPoint;
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #endif // defined(SK_GANESH)
+
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+#include "src/gpu/BlurUtils.h"
+#endif
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <xmmintrin.h>
@@ -1960,8 +1968,8 @@ sk_sp<SkSpecialImage> gpu_blur(const skif::Context& ctx,
                                skif::LayerSpace<SkIRect> srcBounds,
                                skif::LayerSpace<SkIRect> dstBounds) {
     // A no-op blur should have been caught in onFilterImage()
-    SkASSERT(!GrBlurUtils::IsEffectivelyZeroSigma(sigma.width()) ||
-             !GrBlurUtils::IsEffectivelyZeroSigma(sigma.height()));
+    SkASSERT(!skgpu::BlurIsEffectivelyIdentity(sigma.width()) ||
+             !skgpu::BlurIsEffectivelyIdentity(sigma.height()));
 
     auto rContext = ctx.getContext();
     SkASSERT(rContext);
@@ -2086,16 +2094,16 @@ skif::LayerSpace<SkSize> SkBlurImageFilter::mapSigma(const skif::Mapping& mappin
     // Disable bluring on axes that are not finite, or that are small enough that the blur is
     // effectively an identity.
     if (!SkScalarIsFinite(sigma.width()) || (!gpuBacked && calculate_window(sigma.width()) <= 1)
-#if defined(SK_GANESH)
-        || (gpuBacked && GrBlurUtils::IsEffectivelyZeroSigma(sigma.width()))
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+        || (gpuBacked && skgpu::BlurIsEffectivelyIdentity(sigma.width()))
 #endif
     ) {
         sigma = skif::LayerSpace<SkSize>({0.f, sigma.height()});
     }
 
     if (!SkScalarIsFinite(sigma.height()) || (!gpuBacked && calculate_window(sigma.height()) <= 1)
-#if defined(SK_GANESH)
-        || (gpuBacked && GrBlurUtils::IsEffectivelyZeroSigma(sigma.height()))
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+        || (gpuBacked && skgpu::BlurIsEffectivelyIdentity(sigma.height()))
 #endif
     ) {
         sigma = skif::LayerSpace<SkSize>({sigma.width(), 0.f});

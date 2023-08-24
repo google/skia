@@ -12,6 +12,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/private/base/SkAssert.h"
+#include "src/gpu/BlurUtils.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -33,7 +34,7 @@ public:
     // A little bit less than the minimum # uniforms required by DX9SM2 (32).
     // Allows for a 5x5 kernel (or 28x1, for that matter).
     // Must be a multiple of 4, since we upload these in vec4s.
-    inline static constexpr int kMaxUniformSize = 28;
+    inline static constexpr int kMaxUniformSize = skgpu::kMaxBlurSamples;
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext*,
                                                      GrSurfaceProxyView srcView,

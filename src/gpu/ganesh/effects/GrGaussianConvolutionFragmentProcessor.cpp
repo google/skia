@@ -15,8 +15,8 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/gpu/BlurUtils.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
@@ -29,6 +29,7 @@
 #include "src/sksl/SkSLString.h"
 
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <string>
 #include <utility>
@@ -70,8 +71,8 @@ void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {
     // For variable-length loops, size the kernel uniform for the maximum width so we can reuse the
     // same code for any kernel width.
     bool variableLengthLoop = should_use_variable_length_loop(*args.fShaderCaps);
-    int width = GrBlurUtils::LinearKernelWidth(ce.fRadius);
-    int arrayCount = variableLengthLoop ? GrBlurUtils::LinearKernelWidth(kMaxKernelRadius)
+    int width = skgpu::BlurLinearKernelWidth(ce.fRadius);
+    int arrayCount = variableLengthLoop ? skgpu::BlurLinearKernelWidth(kMaxKernelRadius)
                                         : width;
 
     const char* offsetsAndKernel;
@@ -125,7 +126,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::onSetData(const GrGLSLProgram
     increment[static_cast<int>(conv.fDirection)] = 1;
     pdman.set2fv(fIncrementUni, 1, increment);
 
-    int kernelWidth = GrBlurUtils::LinearKernelWidth(conv.fRadius);
+    int kernelWidth = skgpu::BlurLinearKernelWidth(conv.fRadius);
     SkASSERT(kernelWidth <= kMaxKernelWidth);
     pdman.set2fv(fOffsetsAndKernelUni, kernelWidth, conv.fOffsetsAndKernel[0].ptr());
     if (fKernelWidthUni.isValid()) {
@@ -146,15 +147,9 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
         const SkIRect* pixelDomain,
         const GrCaps& caps) {
     std::unique_ptr<GrFragmentProcessor> child;
-    bool is_zero_sigma = GrBlurUtils::IsEffectivelyZeroSigma(gaussianSigma);
-    // We should sample as nearest if there will be no shader to preserve existing behaviour, but
-    // the linear blur requires a linear sample.
-    GrSamplerState::Filter filter = is_zero_sigma ?
-        GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kLinear;
-    GrSamplerState sampler(wm, filter);
-    if (is_zero_sigma) {
-        halfWidth = 0;
-    }
+    SkASSERT(!skgpu::BlurIsEffectivelyIdentity(gaussianSigma));
+    GrSamplerState sampler(wm, GrSamplerState::Filter::kLinear);
+
     // It's pretty common to blur a subset of an input texture. In reduced shader mode we always
     // apply the wrap mode in the shader.
     bool alwaysUseShaderTileMode = caps.reducedShaderMode();
@@ -184,9 +179,6 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Mak
                                             alwaysUseShaderTileMode);
     }
 
-    if (is_zero_sigma) {
-        return child;
-    }
     return std::unique_ptr<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
             std::move(child), dir, halfWidth, gaussianSigma));
 }
@@ -205,9 +197,9 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
     this->setUsesSampleCoordsDirectly();
 
     // Assemble a gaussian kernel and offset list.
-    float kernel[kMaxKernelWidth] = {};
-    float offsets[kMaxKernelWidth] = {};
-    GrBlurUtils::Compute1DLinearGaussianKernel(kernel, offsets, gaussianSigma, fRadius);
+    std::array<float, skgpu::kMaxBlurSamples> kernel;
+    std::array<float, skgpu::kMaxBlurSamples> offsets;
+    skgpu::Compute1DBlurLinearKernel(gaussianSigma, fRadius, kernel, offsets);
 
     // Interleave the kernel and offset values into an array of SkV2s.
     for (int index = 0; index < kMaxKernelWidth; ++index) {
@@ -239,7 +231,7 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
     const auto& that = sBase.cast<GrGaussianConvolutionFragmentProcessor>();
     return fRadius == that.fRadius && fDirection == that.fDirection &&
            std::equal(fOffsetsAndKernel,
-                      fOffsetsAndKernel + GrBlurUtils::LinearKernelWidth(fRadius),
+                      fOffsetsAndKernel + skgpu::BlurLinearKernelWidth(fRadius),
                       that.fOffsetsAndKernel);
 }
 

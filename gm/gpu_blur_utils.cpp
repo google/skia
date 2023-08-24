@@ -12,6 +12,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/BlurUtils.h"
 #include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -78,7 +79,7 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* rContext,
         return sfc->readSurfaceView();
     };
 
-    SkIPoint outset = {GrBlurUtils::SigmaRadius(sigmaX), GrBlurUtils::SigmaRadius(sigmaY)};
+    SkIPoint outset = {skgpu::BlurSigmaRadius(sigmaX), skgpu::BlurSigmaRadius(sigmaY)};
     SkISize size = {dstB.width() + 2*outset.x(), dstB.height() + 2*outset.y()};
     src = tileInto(std::move(src), srcB, size, outset - dstB.topLeft(), mode);
     if (!src) {
@@ -88,18 +89,18 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* rContext,
 
     while (sigmaX || sigmaY) {
         float stepX = sigmaX;
-        if (stepX > GrBlurUtils::kMaxSigma) {
-            stepX = GrBlurUtils::kMaxSigma;
+        if (stepX > skgpu::kMaxLinearBlurSigma) {
+            stepX = skgpu::kMaxLinearBlurSigma;
             // A blur of sigma1 followed by a blur of sigma2 is equiv. to a single blur of
             // sqrt(sigma1^2 + sigma2^2).
-            sigmaX = sqrt(sigmaX*sigmaX - GrBlurUtils::kMaxSigma*GrBlurUtils::kMaxSigma);
+            sigmaX = sqrt(sigmaX*sigmaX - skgpu::kMaxLinearBlurSigma*skgpu::kMaxLinearBlurSigma);
         } else {
             sigmaX = 0.f;
         }
         float stepY = sigmaY;
-        if (stepY > GrBlurUtils::kMaxSigma) {
-            stepY = GrBlurUtils::kMaxSigma;
-            sigmaY = sqrt(sigmaY*sigmaY- GrBlurUtils::kMaxSigma*GrBlurUtils::kMaxSigma);
+        if (stepY > skgpu::kMaxLinearBlurSigma) {
+            stepY = skgpu::kMaxLinearBlurSigma;
+            sigmaY = sqrt(sigmaY*sigmaY- skgpu::kMaxLinearBlurSigma*skgpu::kMaxLinearBlurSigma);
         } else {
             sigmaY = 0.f;
         }

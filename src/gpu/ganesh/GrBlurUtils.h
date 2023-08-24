@@ -12,7 +12,6 @@
 #include "include/core/SkScalar.h"
 #include "src/gpu/SkBackingFit.h"
 
-#include <cmath>
 #include <memory>
 
 class GrClip;
@@ -36,11 +35,8 @@ struct SkISize;
  *  Blur utilities.
  */
 namespace GrBlurUtils {
-/** Maximum sigma before the implementation downscales the input image. */
-static constexpr float kMaxSigma = 4.f;
-static constexpr int kBlurRRectMaxDivisions = 6;
 
-void Compute1DLinearGaussianKernel(float* kernel, float* offset, float sigma, int radius);
+static constexpr int kBlurRRectMaxDivisions = 6;
 
 /**
  * This method computes all the parameters for drawing a partially occluded nine-patched
@@ -117,21 +113,6 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(
         float sigmaY,
         SkTileMode mode,
         SkBackingFit fit = SkBackingFit::kApprox);
-
-/*
- * Any sigmas smaller than this are effectively an identity blur so can skip convolution at a higher
- * level. The value was chosen because it corresponds roughly to a radius of 1/10px, and because
- * 2*sigma^2 is slightly greater than SK_ScalarNearlyZero.
- */
-inline bool IsEffectivelyZeroSigma(float sigma) { return sigma <= 0.03f; }
-
-inline int KernelWidth(int radius) { return 2 * radius + 1; }
-
-inline int LinearKernelWidth(int radius) { return radius + 1; }
-
-inline int SigmaRadius(float sigma) {
-    return IsEffectivelyZeroSigma(sigma) ? 0 : static_cast<int>(ceilf(sigma * 3.0f));
-}
 
 }  // namespace GrBlurUtils
 
