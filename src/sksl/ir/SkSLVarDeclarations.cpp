@@ -39,38 +39,41 @@ static bool check_valid_uniform_type(Position pos,
 
     // In RuntimeEffects we only allow a restricted set of types, namely shader/blender/colorFilter,
     // 32-bit signed integers, 16-bit and 32-bit floats, and their composites.
-    {
-        bool error = false;
-        if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
-            // `shader`, `blender`, `colorFilter`
-            if (t->isEffectChild()) {
-                return true;
-            }
-
-            // `int`, `int2`, `int3`, `int4`
-            if (ct.isSigned() && ct.bitWidth() == 32 && (t->isScalar() || t->isVector())) {
-                return true;
-            }
-
-            // `float`, `float2`, `float3`, `float4`, `float2x2`, `float3x3`, `float4x4`
-            // `half`, `half2`, `half3`, `half4`, `half2x2`, `half3x3`, `half4x4`
-            if (ct.isFloat() &&
-                (t->isScalar() || t->isVector() || (t->isMatrix() && t->rows() == t->columns()))) {
-                return true;
-            }
-
-            // Everything else is an error.
-            error = true;
+    bool error = false;
+    if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
+        // `shader`, `blender`, `colorFilter`
+        if (t->isEffectChild()) {
+            return true;
         }
+
+        // `int`, `int2`, `int3`, `int4`
+        if (ct.isSigned() && ct.bitWidth() == 32 && (t->isScalar() || t->isVector())) {
+            return true;
+        }
+
+        // `float`, `float2`, `float3`, `float4`, `float2x2`, `float3x3`, `float4x4`
+        // `half`, `half2`, `half3`, `half4`, `half2x2`, `half3x3`, `half4x4`
+        if (ct.isFloat() &&
+            (t->isScalar() || t->isVector() || (t->isMatrix() && t->rows() == t->columns()))) {
+            return true;
+        }
+
+        // Everything else is an error.
+        error = true;
+    } else {
+        // We don't allow samplers, textures or atomics to be marked as uniforms. This rules out
+        // any possible opaque type.
+        error = error || ct.isOpaque();
 
         // We disallow boolean uniforms in SkSL since they are not well supported by backend
-        // platforms and drivers. We disallow atomic variables in uniforms as that doesn't map
-        // cleanly to all backends.
-        if (error || (ct.isBoolean() && (t->isScalar() || t->isVector())) || ct.isAtomic()) {
-            context.fErrors->error(pos, "variables of type '" + t->displayName() +
-                                        "' may not be uniform");
-            return false;
-        }
+        // platforms and drivers.
+        error = error || (ct.isBoolean() && (t->isScalar() || t->isVector()));
+    }
+
+    if (error) {
+        context.fErrors->error(pos, "variables of type '" + t->displayName() +
+                                    "' may not be uniform");
+        return false;
     }
 
     // In non-RTE SkSL we allow structs and interface blocks to be uniforms but we must make sure

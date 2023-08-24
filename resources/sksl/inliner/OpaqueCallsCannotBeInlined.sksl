@@ -1,5 +1,5 @@
-layout(binding=0) uniform sampler uSampler;
-layout(binding=1) uniform texture2D uTexture;
+layout(binding=0) sampler uSampler;
+layout(binding=1) texture2D uTexture;
 
 half4 simpleSample(float2 p, sampler2D s) {
     // This call is allowed to inline because no scratch variables are needed; each argument is
