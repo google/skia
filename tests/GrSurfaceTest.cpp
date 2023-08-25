@@ -284,7 +284,7 @@ DEF_GANESH_TEST(InitialTextureClear, reporter, baseOptions, CtsEnforcement::kApi
     for (int ct = 0; ct < skgpu::kContextTypeCount; ++ct) {
         sk_gpu_test::GrContextFactory factory(options);
         auto contextType = static_cast<skgpu::ContextType>(ct);
-        if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {
+        if (!skgpu::IsRenderingContext(contextType)) {
             continue;
         }
         auto dContext = factory.get(contextType);

@@ -121,7 +121,7 @@ static bool is_rendering_and_not_angle_es3(skgpu::ContextType type) {
         type == skgpu::ContextType::kANGLE_Metal_ES3) {
         return false;
     }
-    return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
+    return skgpu::IsRenderingContext(type);
 }
 
 static GrAttachment* get_SB(GrRenderTarget* rt) { return rt->getStencilAttachment(); }

@@ -46,53 +46,6 @@ public:
         kReducedShaders                = 0x4,
     };
 
-    static bool IsRenderingContext(ContextType type) {
-        switch (type) {
-            case ContextType::kMock:
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    static bool IsNativeBackend(ContextType type) {
-        switch (type) {
-            case ContextType::kDirect3D:
-            case ContextType::kGL:
-            case ContextType::kGLES:
-            case ContextType::kMetal:
-            case ContextType::kVulkan:
-                return true;
-            default:
-                // Mock doesn't use the GPU, and Dawn and ANGLE add a layer between Skia and the
-                // native GPU backend.
-                return false;
-        }
-    }
-
-    static GrBackendApi ContextTypeBackend(ContextType type) {
-        switch (type) {
-            case ContextType::kVulkan:
-                return GrBackendApi::kVulkan;
-            case ContextType::kMetal:
-                return GrBackendApi::kMetal;
-            case ContextType::kDirect3D:
-                return GrBackendApi::kDirect3D;
-            case ContextType::kDawn:
-            case ContextType::kDawn_D3D11:
-            case ContextType::kDawn_D3D12:
-            case ContextType::kDawn_Metal:
-            case ContextType::kDawn_Vulkan:
-            case ContextType::kDawn_OpenGL:
-            case ContextType::kDawn_OpenGLES:
-                return GrBackendApi::kDawn;
-            case ContextType::kMock:
-                return GrBackendApi::kMock;
-            default:
-                return GrBackendApi::kOpenGL;
-        }
-    }
-
     explicit GrContextFactory(const GrContextOptions& opts);
     GrContextFactory();
 
@@ -151,7 +104,7 @@ public:
     ContextInfo& operator=(const ContextInfo&) = default;
 
     skgpu::ContextType type() const { return fType; }
-    GrBackendApi backend() const { return GrContextFactory::ContextTypeBackend(fType); }
+    GrBackendApi backend() const { return skgpu::ganesh::ContextTypeBackend(fType); }
 
     GrDirectContext* directContext() const { return fContext; }
     TestContext* testContext() const { return fTestContext; }

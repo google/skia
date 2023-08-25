@@ -459,6 +459,5 @@ DEF_GANESH_TEST(Programs, reporter, options, CtsEnforcement::kNever) {
     GrContextOptions opts = options;
     opts.fSuppressPrints = true;
     sk_gpu_test::GrContextFactory debugFactory(opts);
-    skiatest::RunWithGaneshTestContexts(
-            test_programs, &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, opts);
+    skiatest::RunWithGaneshTestContexts(test_programs, &skgpu::IsRenderingContext, reporter, opts);
 }

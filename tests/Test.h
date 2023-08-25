@@ -203,13 +203,13 @@ using GpuContextType = nullptr_t;
 #endif
 
 typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);
-typedef bool GrContextTypeFilterFn(GpuContextType);
+typedef bool ContextTypeFilterFn(GpuContextType);
 
 // We want to run the same test against potentially multiple Ganesh backends. Test runners should
 // implement this function by calling the testFn with a fresh ContextInfo if that backend matches
 // the provided filter. If filter is nullptr, then all compiled-in Ganesh backends should be used.
 // The reporter and opts arguments are piped in from Test::run.
-void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* filter,
                                Reporter* reporter, const GrContextOptions& options);
 
 // These context filters should be implemented by test runners and return true if the backend was
@@ -227,7 +227,7 @@ namespace graphite {
 typedef void GraphiteTestFn(Reporter*, skgpu::graphite::Context*);
 
 void RunWithGraphiteTestContexts(GraphiteTestFn*,
-                                 GrContextTypeFilterFn* filter,
+                                 ContextTypeFilterFn* filter,
                                  Reporter*,
                                  const skgpu::graphite::ContextOptions&);
 
@@ -338,14 +338,14 @@ using skiatest::Test;
     DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(name, nullptr, reporter, graphite_context, \
                                                nullptr, cond, ctsEnforcement)
 
-#define DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(                                     \
-        name, reporter, graphite_context, cond, ctsEnforcement)                                   \
-    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(name,                                              \
-                                               sk_gpu_test::GrContextFactory::IsRenderingContext, \
-                                               reporter,                                          \
-                                               graphite_context,                                  \
-                                               nullptr,                                           \
-                                               cond,                                              \
+#define DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(             \
+        name, reporter, graphite_context, cond, ctsEnforcement)           \
+    DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(name,                      \
+                                               skgpu::IsRenderingContext, \
+                                               reporter,                  \
+                                               graphite_context,          \
+                                               nullptr,                   \
+                                               cond,                      \
                                                ctsEnforcement)
 
 #define DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, context_filter, reporter, graphite_context, \
@@ -396,14 +396,14 @@ using skiatest::Test;
     DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(                    \
             name, nullptr, reporter, context_info, nullptr, condition, ctsEnforcement)
 
-#define DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(                                     \
-        name, reporter, context_info, condition, ctsEnforcement)                                \
-    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(name,                                              \
-                                             sk_gpu_test::GrContextFactory::IsRenderingContext, \
-                                             reporter,                                          \
-                                             context_info,                                      \
-                                             nullptr,                                           \
-                                             condition,                                         \
+#define DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(             \
+        name, reporter, context_info, condition, ctsEnforcement)        \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(name,                      \
+                                             skgpu::IsRenderingContext, \
+                                             reporter,                  \
+                                             context_info,              \
+                                             nullptr,                   \
+                                             condition,                 \
                                              ctsEnforcement)
 
 #define DEF_GANESH_TEST_FOR_CONTEXTS(                                                 \
@@ -415,16 +415,12 @@ using skiatest::Test;
     DEF_GANESH_TEST_FOR_CONTEXTS(name, nullptr, reporter, context_info, nullptr, ctsEnforcement)
 
 #define DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
-    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                                       \
-                                 sk_gpu_test::GrContextFactory::IsRenderingContext,          \
-                                 reporter,                                                   \
-                                 context_info,                                               \
-                                 nullptr,                                                    \
-                                 ctsEnforcement)
+    DEF_GANESH_TEST_FOR_CONTEXTS(                                                            \
+            name, skgpu::IsRenderingContext, reporter, context_info, nullptr, ctsEnforcement)
 
 #define DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
     DEF_GANESH_TEST_FOR_CONTEXTS(                                                         \
-            name, &skiatest::IsGLContextType, reporter, context_info, nullptr, ctsEnforcement)
+            name, skiatest::IsGLContextType, reporter, context_info, nullptr, ctsEnforcement)
 
 #define DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
     DEF_GANESH_TEST_FOR_CONTEXTS(name,                                                          \

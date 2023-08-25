@@ -270,12 +270,12 @@ namespace skiatest {
 
 using ContextType = skgpu::ContextType;
 
-// These are the supported GrContextTypeFilterFn. They are defined in Test.h and implemented here.
+// These are the supported ContextTypeFilterFn. They are defined in Test.h and implemented here.
 bool IsGLContextType(skgpu::ContextType ct) {
-    return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(ct);
+    return skgpu::ganesh::ContextTypeBackend(ct) == GrBackendApi::kOpenGL;
 }
 bool IsRenderingGLContextType(skgpu::ContextType ct) {
-    return IsGLContextType(ct) && sk_gpu_test::GrContextFactory::IsRenderingContext(ct);
+    return IsGLContextType(ct);
 }
 bool IsMockContextType(skgpu::ContextType ct) {
     return ct == skgpu::ContextType::kMock;
@@ -286,7 +286,7 @@ bool IsMetalContextType(ContextType) { return false; }
 bool IsDirect3DContextType(ContextType) { return false; }
 bool IsDawnContextType(ContextType) { return false; }
 
-void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* filter,
                                Reporter* reporter, const GrContextOptions& options) {
     for (auto contextType : {skgpu::ContextType::kGLES, skgpu::ContextType::kMock}) {
         if (filter && !(*filter)(contextType)) {

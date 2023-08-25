@@ -8,7 +8,13 @@
 #ifndef ContextType_DEFINED
 #define ContextType_DEFINED
 
+#include <optional>
+
+enum class GrBackendApi : unsigned;
+
 namespace skgpu {
+
+enum class BackendApi : unsigned;
 
 // The availability of context types is subject to platform and build configuration
 // restrictions.
@@ -38,8 +44,23 @@ enum class ContextType {
 
 static const int kContextTypeCount = (int)ContextType::kLastContextType + 1;
 
-const char* ContextTypeName(skgpu::ContextType contextType);
+const char* ContextTypeName(skgpu::ContextType type);
 
+bool IsNativeBackend(skgpu::ContextType type);
+
+bool IsRenderingContext(skgpu::ContextType type);
+
+namespace ganesh {
+
+GrBackendApi ContextTypeBackend(skgpu::ContextType type);
+
+}  // namespace ganesh
+
+namespace graphite {
+
+std::optional<skgpu::BackendApi> ContextTypeBackend(skgpu::ContextType type);
+
+}  // namespace graphite
 }  // namespace skgpu
 
 #endif

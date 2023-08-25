@@ -31,13 +31,13 @@ using sk_gpu_test::GLTestContext;
 namespace skiatest {
 
 bool IsGLContextType(skgpu::ContextType type) {
-    return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kOpenGL;
 }
 bool IsVulkanContextType(skgpu::ContextType type) {
-    return GrBackendApi::kVulkan == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kVulkan;
 }
 bool IsRenderingGLContextType(skgpu::ContextType type) {
-    return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
+    return IsGLContextType(type);
 }
 bool IsMockContextType(skgpu::ContextType type) {
     return type == skgpu::ContextType::kMock;
@@ -94,7 +94,7 @@ static bool skip_context(skgpu::ContextType contextType) {
 }
 
 void RunWithGaneshTestContexts(GrContextTestFn* testFn,
-                               GrContextTypeFilterFn* filter,
+                               ContextTypeFilterFn* filter,
                                Reporter* reporter,
                                const GrContextOptions& options) {
     for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
@@ -126,7 +126,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn,
 namespace graphite {
 
 void RunWithGraphiteTestContexts(GraphiteTestFn* test,
-                                 GrContextTypeFilterFn* filter,
+                                 ContextTypeFilterFn* filter,
                                  Reporter* reporter,
                                  const skgpu::graphite::ContextOptions&) {
     SK_ABORT();

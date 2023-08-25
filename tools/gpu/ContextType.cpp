@@ -6,54 +6,144 @@
  */
 
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrTypes.h"
 #include "tools/gpu/ContextType.h"
 
-namespace skgpu {
-
-const char* ContextTypeName(skgpu::ContextType contextType) {
-    switch (contextType) {
-        case ContextType::kGL:
+const char* skgpu::ContextTypeName(skgpu::ContextType type) {
+    switch (type) {
+        case skgpu::ContextType::kGL:
             return "OpenGL";
-        case ContextType::kGLES:
+        case skgpu::ContextType::kGLES:
             return "OpenGLES";
-        case ContextType::kANGLE_D3D9_ES2:
+        case skgpu::ContextType::kANGLE_D3D9_ES2:
             return "ANGLE D3D9 ES2";
-        case ContextType::kANGLE_D3D11_ES2:
+        case skgpu::ContextType::kANGLE_D3D11_ES2:
             return "ANGLE D3D11 ES2";
-        case ContextType::kANGLE_D3D11_ES3:
+        case skgpu::ContextType::kANGLE_D3D11_ES3:
             return "ANGLE D3D11 ES3";
-        case ContextType::kANGLE_GL_ES2:
+        case skgpu::ContextType::kANGLE_GL_ES2:
             return "ANGLE GL ES2";
-        case ContextType::kANGLE_GL_ES3:
+        case skgpu::ContextType::kANGLE_GL_ES3:
             return "ANGLE GL ES3";
-        case ContextType::kANGLE_Metal_ES2:
+        case skgpu::ContextType::kANGLE_Metal_ES2:
             return "ANGLE Metal ES2";
-        case ContextType::kANGLE_Metal_ES3:
+        case skgpu::ContextType::kANGLE_Metal_ES3:
             return "ANGLE Metal ES3";
-        case ContextType::kVulkan:
+        case skgpu::ContextType::kVulkan:
             return "Vulkan";
-        case ContextType::kMetal:
+        case skgpu::ContextType::kMetal:
             return "Metal";
-        case ContextType::kDirect3D:
+        case skgpu::ContextType::kDirect3D:
             return "Direct3D";
-        case ContextType::kDawn:
+        case skgpu::ContextType::kDawn:
             return "Dawn";
-        case ContextType::kDawn_D3D11:
+        case skgpu::ContextType::kDawn_D3D11:
             return "Dawn D3D11";
-        case ContextType::kDawn_D3D12:
+        case skgpu::ContextType::kDawn_D3D12:
             return "Dawn D3D12";
-        case ContextType::kDawn_Metal:
+        case skgpu::ContextType::kDawn_Metal:
             return "Dawn Metal";
-        case ContextType::kDawn_Vulkan:
+        case skgpu::ContextType::kDawn_Vulkan:
             return "Dawn Vulkan";
-        case ContextType::kDawn_OpenGL:
+        case skgpu::ContextType::kDawn_OpenGL:
             return "Dawn OpenGL";
-        case ContextType::kDawn_OpenGLES:
+        case skgpu::ContextType::kDawn_OpenGLES:
             return "Dawn OpenGLES";
-        case ContextType::kMock:
+        case skgpu::ContextType::kMock:
             return "Mock";
     }
     SkUNREACHABLE;
 }
 
-}  // namespace skgpu
+bool skgpu::IsNativeBackend(skgpu::ContextType type) {
+    switch (type) {
+        case ContextType::kDirect3D:
+        case ContextType::kGL:
+        case ContextType::kGLES:
+        case ContextType::kMetal:
+        case ContextType::kVulkan:
+            return true;
+
+        default:
+            // Mock doesn't use the GPU, and Dawn and ANGLE add a layer between Skia and the native
+            // GPU backend.
+            return false;
+    }
+}
+
+bool skgpu::IsRenderingContext(ContextType type) {
+    return type != ContextType::kMock;
+}
+
+GrBackendApi skgpu::ganesh::ContextTypeBackend(skgpu::ContextType type) {
+    switch (type) {
+        case skgpu::ContextType::kGL:
+        case skgpu::ContextType::kGLES:
+        case skgpu::ContextType::kANGLE_D3D9_ES2:
+        case skgpu::ContextType::kANGLE_D3D11_ES2:
+        case skgpu::ContextType::kANGLE_D3D11_ES3:
+        case skgpu::ContextType::kANGLE_GL_ES2:
+        case skgpu::ContextType::kANGLE_GL_ES3:
+        case skgpu::ContextType::kANGLE_Metal_ES2:
+        case skgpu::ContextType::kANGLE_Metal_ES3:
+            return GrBackendApi::kOpenGL;
+
+        case ContextType::kVulkan:
+            return GrBackendApi::kVulkan;
+
+        case ContextType::kMetal:
+            return GrBackendApi::kMetal;
+
+        case ContextType::kDirect3D:
+            return GrBackendApi::kDirect3D;
+
+        case ContextType::kDawn:
+        case ContextType::kDawn_D3D11:
+        case ContextType::kDawn_D3D12:
+        case ContextType::kDawn_Metal:
+        case ContextType::kDawn_Vulkan:
+        case ContextType::kDawn_OpenGL:
+        case ContextType::kDawn_OpenGLES:
+            return GrBackendApi::kDawn;
+
+        case ContextType::kMock:
+            return GrBackendApi::kMock;
+    }
+    SkUNREACHABLE;
+}
+
+std::optional<skgpu::BackendApi> skgpu::graphite::ContextTypeBackend(ContextType type) {
+    switch (type) {
+        case skgpu::ContextType::kGL:
+        case skgpu::ContextType::kGLES:
+        case skgpu::ContextType::kANGLE_D3D9_ES2:
+        case skgpu::ContextType::kANGLE_D3D11_ES2:
+        case skgpu::ContextType::kANGLE_D3D11_ES3:
+        case skgpu::ContextType::kANGLE_GL_ES2:
+        case skgpu::ContextType::kANGLE_GL_ES3:
+        case skgpu::ContextType::kANGLE_Metal_ES2:
+        case skgpu::ContextType::kANGLE_Metal_ES3:
+        case skgpu::ContextType::kDirect3D:
+            return std::nullopt;  // no Graphite backend
+
+        case ContextType::kVulkan:
+            return BackendApi::kVulkan;
+
+        case ContextType::kMetal:
+            return BackendApi::kMetal;
+
+        case ContextType::kDawn:
+        case ContextType::kDawn_D3D11:
+        case ContextType::kDawn_D3D12:
+        case ContextType::kDawn_Metal:
+        case ContextType::kDawn_Vulkan:
+        case ContextType::kDawn_OpenGL:
+        case ContextType::kDawn_OpenGLES:
+            return BackendApi::kDawn;
+
+        case ContextType::kMock:
+            return BackendApi::kMock;
+    }
+    SkUNREACHABLE;
+}

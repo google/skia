@@ -2091,7 +2091,7 @@ static void disable_tessellation_atlas(GrContextOptions* options) {
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(ClipStack_SWMask,
-                             sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             skgpu::IsRenderingContext,
                              r,
                              ctxInfo,
                              disable_tessellation_atlas,

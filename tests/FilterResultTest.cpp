@@ -42,6 +42,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
+#include "tools/gpu/ContextType.h"
 
 #include <cmath>
 #include <initializer_list>
@@ -1000,37 +1001,40 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
 // TODO(skbug.com/14607) - Run FilterResultTests on Dawn and ANGLE backends, too
 
 #if defined(SK_GANESH)
-#define DEF_GANESH_TEST_SUITE(name, ctsEnforcement) \
-    DEF_GANESH_TEST_FOR_CONTEXTS( \
-            FilterResult_ganesh_##name, \
-            sk_gpu_test::GrContextFactory::IsNativeBackend, \
-            r, ctxInfo, nullptr, ctsEnforcement) { \
-        TestRunner runner(r, ctxInfo.directContext()); \
-        test_suite_##name(runner); \
+#define DEF_GANESH_TEST_SUITE(name, ctsEnforcement)          \
+    DEF_GANESH_TEST_FOR_CONTEXTS(FilterResult_ganesh_##name, \
+                                 skgpu::IsNativeBackend,     \
+                                 r,                          \
+                                 ctxInfo,                    \
+                                 nullptr,                    \
+                                 ctsEnforcement) {           \
+        TestRunner runner(r, ctxInfo.directContext());       \
+        test_suite_##name(runner);                           \
     }
 #else
 #define DEF_GANESH_TEST_SUITE(name) // do nothing
 #endif
 
 #if defined(SK_GRAPHITE)
-#define DEF_GRAPHITE_TEST_SUITE(name, ctsEnforcement) \
-    DEF_GRAPHITE_TEST_FOR_CONTEXTS( \
-            FilterResult_graphite_##name, \
-            sk_gpu_test::GrContextFactory::IsNativeBackend, \
-            r, context, ctsEnforcement) { \
-        using namespace skgpu::graphite; \
-        auto recorder = context->makeRecorder(); \
-        TestRunner runner(r, recorder.get()); \
-        test_suite_##name(runner); \
+#define DEF_GRAPHITE_TEST_SUITE(name, ctsEnforcement)            \
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS(FilterResult_graphite_##name, \
+                                   skgpu::IsNativeBackend,       \
+                                   r,                            \
+                                   context,                      \
+                                   ctsEnforcement) {             \
+        using namespace skgpu::graphite;                         \
+        auto recorder = context->makeRecorder();                 \
+        TestRunner runner(r, recorder.get());                    \
+        test_suite_##name(runner);                               \
         std::unique_ptr<Recording> recording = recorder->snap(); \
-        if (!recording) { \
-            ERRORF(r, "Failed to make recording"); \
-            return; \
-        } \
-        InsertRecordingInfo insertInfo; \
-        insertInfo.fRecording = recording.get(); \
-        context->insertRecording(insertInfo); \
-        context->submit(SyncToCpu::kYes); \
+        if (!recording) {                                        \
+            ERRORF(r, "Failed to make recording");               \
+            return;                                              \
+        }                                                        \
+        InsertRecordingInfo insertInfo;                          \
+        insertInfo.fRecording = recording.get();                 \
+        context->insertRecording(insertInfo);                    \
+        context->submit(SyncToCpu::kYes);                        \
     }
 #else
 #define DEF_GRAPHITE_TEST_SUITE(name) // do nothing

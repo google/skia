@@ -759,7 +759,7 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
 DEF_GANESH_TEST(ColorTypeBackendAllocationTest, reporter, options, CtsEnforcement::kApiLevel_T) {
     for (int t = 0; t < skgpu::kContextTypeCount; ++t) {
         auto type = static_cast<skgpu::ContextType>(t);
-        if (!sk_gpu_test::GrContextFactory::IsRenderingContext(type)) {
+        if (!skgpu::IsRenderingContext(type)) {
             continue;
         }
         sk_gpu_test::GrContextFactory factory(options);

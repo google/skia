@@ -52,22 +52,22 @@ private:
 #if defined(SK_GANESH)
 namespace skiatest {
 bool IsGLContextType(skgpu::ContextType type) {
-    return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kOpenGL;
 }
 bool IsVulkanContextType(skgpu::ContextType type) {
-    return GrBackendApi::kVulkan == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kVulkan;
 }
 bool IsMetalContextType(skgpu::ContextType type) {
-    return GrBackendApi::kMetal == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kMetal;
 }
 bool IsDirect3DContextType(skgpu::ContextType type) {
-    return GrBackendApi::kDirect3D == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kDirect3D;
 }
 bool IsDawnContextType(skgpu::ContextType type) {
-    return GrBackendApi::kDawn == sk_gpu_test::GrContextFactory::ContextTypeBackend(type);
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kDawn;
 }
 bool IsRenderingGLContextType(skgpu::ContextType type) {
-    return IsGLContextType(type) && sk_gpu_test::GrContextFactory::IsRenderingContext(type);
+    return IsGLContextType(type);
 }
 bool IsMockContextType(skgpu::ContextType type) {
     return type == skgpu::ContextType::kMock;
@@ -95,7 +95,7 @@ skgpu::ContextType compiledInContextTypes[] = {
 
 // The macros defined in Test.h eventually call into this function. For each GPU backend that is
 // compiled in, we run the testFn with a freshly created
-void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* filter,
                                Reporter* reporter, const GrContextOptions& options) {
     sk_gpu_test::GrContextFactory factory(options);
 

@@ -245,7 +245,7 @@ DEF_GANESH_TEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::
         // and http://skbug.com/8275
         // Also problematic on Dawn; see http://skbug.com/10326
         // And Direct3D, for similar reasons.
-        GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
+        GrBackendApi api = skgpu::ganesh::ContextTypeBackend(contextType);
         if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDawn ||
             api == GrBackendApi::kDirect3D) {
             continue;

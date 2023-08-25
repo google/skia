@@ -234,7 +234,7 @@ DEF_GANESH_TEST(SurfaceSemaphores, reporter, options, CtsEnforcement::kApiLevel_
             }
             sk_gpu_test::GrContextFactory factory(options);
             sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
-            if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {
+            if (!skgpu::IsRenderingContext(contextType)) {
                 continue;
             }
             skiatest::ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));

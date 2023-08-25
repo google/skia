@@ -28,6 +28,7 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/gpu/ContextType.h"
 
 #include <memory>
 #include <utility>
@@ -136,7 +137,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(DefaultPathRendererTest,
-                             sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             skgpu::IsRenderingContext,
                              reporter,
                              ctxInfo,
                              only_allow_default,

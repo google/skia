@@ -162,7 +162,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     }
 
     std::unique_ptr<TestContext> testCtx;
-    GrBackendApi backend = ContextTypeBackend(type);
+    GrBackendApi backend = skgpu::ganesh::ContextTypeBackend(type);
     switch (backend) {
 #ifdef SK_GL
         case GrBackendApi::kOpenGL: {
