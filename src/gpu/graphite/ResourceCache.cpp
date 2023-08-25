@@ -22,12 +22,15 @@ namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
-sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner, uint32_t recorderID) {
-    return sk_sp<ResourceCache>(new ResourceCache(singleOwner, recorderID));
+sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner,
+                                         uint32_t recorderID,
+                                         size_t maxBytes) {
+    return sk_sp<ResourceCache>(new ResourceCache(singleOwner, recorderID, maxBytes));
 }
 
-ResourceCache::ResourceCache(SingleOwner* singleOwner, uint32_t recorderID)
-        : fSingleOwner(singleOwner) {
+ResourceCache::ResourceCache(SingleOwner* singleOwner, uint32_t recorderID, size_t maxBytes)
+        : fMaxBytes(maxBytes)
+        , fSingleOwner(singleOwner) {
     if (recorderID != SK_InvalidGenID) {
         fProxyCache = std::make_unique<ProxyCache>(recorderID);
     }

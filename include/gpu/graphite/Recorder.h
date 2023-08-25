@@ -64,6 +64,10 @@ struct SK_API RecorderOptions final {
     ~RecorderOptions();
 
     sk_sp<ImageProvider> fImageProvider;
+
+    const size_t kDefaultRecorderBudget = 256 * (1 << 20);
+    // What is the budget for GPU resources allocated and held by this Recorder.
+    size_t fGpuBudgetInBytes = kDefaultRecorderBudget;
 };
 
 class SK_API Recorder final {

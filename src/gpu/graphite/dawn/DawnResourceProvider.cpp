@@ -83,8 +83,9 @@ wgpu::RenderPipeline create_blit_render_pipeline(const wgpu::Device& device,
 
 DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
                                            SingleOwner* singleOwner,
-                                           uint32_t recorderID)
-        : ResourceProvider(sharedContext, singleOwner, recorderID) {}
+                                           uint32_t recorderID,
+                                           size_t resourceBudget)
+        : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget) {}
 
 DawnResourceProvider::~DawnResourceProvider() = default;
 

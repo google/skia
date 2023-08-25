@@ -72,7 +72,9 @@ Context::Context(sk_sp<SharedContext> sharedContext,
         , fContextID(ContextID::Next()) {
     // We have to create this outside the initializer list because we need to pass in the Context's
     // SingleOwner object and it is declared last
-    fResourceProvider = fSharedContext->makeResourceProvider(&fSingleOwner, SK_InvalidGenID);
+    fResourceProvider = fSharedContext->makeResourceProvider(&fSingleOwner,
+                                                             SK_InvalidGenID,
+                                                             options.fGpuBudgetInBytes);
     fMappedBufferManager = std::make_unique<ClientMappedBufferManager>(this->contextID());
     fPlotUploadTracker = std::make_unique<PlotUploadTracker>();
 }

@@ -99,6 +99,14 @@ struct SK_API ContextOptions {
      * that created it. Used by readPixels() and other methods that normally require a Context.
      */
     bool fStoreContextRefInRecorder = false;
+
+
+    const size_t kDefaultContextBudget = 256 * (1 << 20);
+    /**
+     * What is the budget for GPU resources allocated and held by the Context.
+     */
+    size_t fGpuBudgetInBytes = kDefaultContextBudget;
+
 #endif
 };
 

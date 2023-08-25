@@ -68,8 +68,9 @@ GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDe
 
 VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
                                                SingleOwner* singleOwner,
-                                               uint32_t recorderID)
-        : ResourceProvider(sharedContext, singleOwner, recorderID) {}
+                                               uint32_t recorderID,
+                                               size_t resourceBudget)
+        : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget) {}
 
 VulkanResourceProvider::~VulkanResourceProvider() {
     if (fPipelineCache != VK_NULL_HANDLE) {

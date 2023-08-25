@@ -50,7 +50,8 @@ public:
     const ShaderCodeDictionary* shaderCodeDictionary() const { return &fShaderDictionary; }
 
     virtual std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
-                                                                   uint32_t recorderID) = 0;
+                                                                   uint32_t recorderID,
+                                                                   size_t resourceBudget) = 0;
 
 protected:
     SharedContext(std::unique_ptr<const Caps>, BackendApi);

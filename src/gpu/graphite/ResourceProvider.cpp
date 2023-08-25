@@ -29,9 +29,10 @@ namespace skgpu::graphite {
 
 ResourceProvider::ResourceProvider(SharedContext* sharedContext,
                                    SingleOwner* singleOwner,
-                                   uint32_t recorderID)
+                                   uint32_t recorderID,
+                                   size_t resourceBudget)
         : fSharedContext(sharedContext)
-        , fResourceCache(ResourceCache::Make(singleOwner, recorderID)) {}
+        , fResourceCache(ResourceCache::Make(singleOwner, recorderID, resourceBudget)) {}
 
 ResourceProvider::~ResourceProvider() {
     fResourceCache->shutdown();

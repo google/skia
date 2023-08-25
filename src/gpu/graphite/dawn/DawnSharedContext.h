@@ -24,7 +24,8 @@ public:
     ~DawnSharedContext() override;
 
     std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
-                                                           uint32_t recorderID) override;
+                                                           uint32_t recorderID,
+                                                           size_t resourceBudget) override;
 
     const DawnCaps* dawnCaps() const { return static_cast<const DawnCaps*>(this->caps()); }
     const wgpu::Device& device() const { return fDevice; }

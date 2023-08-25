@@ -102,7 +102,9 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext, const RecorderOptions& op
         fClientImageProvider = DefaultImageProvider::Make();
     }
 
-    fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(), fRecorderID);
+    fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(),
+                                                             fRecorderID,
+                                                             options.fGpuBudgetInBytes);
     fDrawBufferManager.reset( new DrawBufferManager(fResourceProvider.get(),
                                                     fSharedContext->caps()));
     fUploadBufferManager.reset(new UploadBufferManager(fResourceProvider.get(),

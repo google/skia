@@ -90,7 +90,8 @@ public:
 protected:
     ResourceProvider(SharedContext* sharedContext,
                      SingleOwner* singleOwner,
-                     uint32_t recorderID);
+                     uint32_t recorderID,
+                     size_t resourceBudget);
 
     SharedContext* fSharedContext;
     // Each ResourceProvider owns one local cache; for some resources it also refers out to the
