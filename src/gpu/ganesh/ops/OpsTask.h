@@ -106,7 +106,7 @@ public:
     void visitProxies_debugOnly(const GrVisitProxyFunc&) const override;
 #endif
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void dump(const SkString& label,
               SkString indent,
               bool printDependencies,

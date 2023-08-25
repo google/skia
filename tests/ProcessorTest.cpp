@@ -268,7 +268,7 @@ static DEFINE_bool(randomProcessorTest, false,
 static DEFINE_int(processorSeed, 0,
                   "Use specific seed for processor tests. Overridden by --randomProcessorTest.");
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 static GrColor input_texel_color(int x, int y, SkScalar delta) {
     // Delta must be less than 0.5 to prevent over/underflow issues with the input color
@@ -1044,4 +1044,4 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest,
     }
 }
 
-#endif  // GR_TEST_UTILS
+#endif  // defined(GR_TEST_UTILS)

@@ -628,7 +628,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.size(); ++i) {
@@ -749,7 +749,7 @@ GrOp::Owner Make(GrRecordingContext* context,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 
@@ -792,4 +792,4 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     } while (true);
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)

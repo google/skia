@@ -37,7 +37,7 @@ public:
     }
     bool onExecute(GrOpFlushState*) override { return true; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     const char* name() const final { return "Mock"; }
 #endif
 

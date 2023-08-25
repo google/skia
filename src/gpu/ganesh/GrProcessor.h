@@ -109,7 +109,7 @@ public:
     virtual const char* name() const = 0;
 
     /** Human-readable dump of all information */
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     virtual SkString onDumpInfo() const { return SkString(); }
 
     SkString dumpInfo() const {

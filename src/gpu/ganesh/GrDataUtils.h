@@ -45,7 +45,7 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY = fal
 /** Clears the dst image to a constant color. */
 bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::array<float, 4> color);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 /**
  * BC1 compress an image that contains only either opaque black or transparent black and one
  * other color.

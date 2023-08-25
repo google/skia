@@ -122,7 +122,7 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     /** Reset GPU stats */
     void resetGpuStats() const;
 

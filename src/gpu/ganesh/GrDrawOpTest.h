@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 class GrContext_Base;
 class GrDrawOp;

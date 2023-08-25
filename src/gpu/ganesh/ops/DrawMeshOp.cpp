@@ -508,7 +508,7 @@ private:
 
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
 
@@ -866,7 +866,7 @@ MeshOp::MeshOp(GrProcessorSet*          processorSet,
     fIndexCount  = fMeshes.back().indexCount();
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 SkString MeshOp::onDumpInfo() const { return {}; }
 #endif
 

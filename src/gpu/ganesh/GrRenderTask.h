@@ -105,7 +105,7 @@ public:
      */
     virtual skgpu::ganesh::OpsTask* asOpsTask() { return nullptr; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     /*
      * Dump out the GrRenderTask dependency DAG
      */
@@ -149,7 +149,7 @@ public:
     // Used by GrRenderTaskCluster.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrRenderTask);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     const GrTextureResolveRenderTask* resolveTask() const { return fTextureResolveTask; }
 #endif
 protected:

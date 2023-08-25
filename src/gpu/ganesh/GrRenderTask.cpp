@@ -311,7 +311,7 @@ void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, sk_sp<GrSurfaceProxy>
     fTargets.emplace_back(std::move(proxy));
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 void GrRenderTask::dump(const SkString& label,
                         SkString indent,
                         bool printDependencies,

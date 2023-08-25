@@ -68,7 +68,7 @@ private:
             , fMode(that.fMode)
             , fShareBlendLogic(that.fShareBlendLogic) {}
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("(fMode=%s)", SkBlendMode_Name(fMode));
     }
@@ -201,7 +201,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     // Create one or two random fragment processors.
     std::unique_ptr<GrFragmentProcessor> src(GrProcessorUnitTest::MakeOptionalChildFP(d));

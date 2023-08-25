@@ -83,7 +83,7 @@ bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo
 
 
 //////////////////////////////////////////////////////////////////////////////
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 void GrDirectContextPriv::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS

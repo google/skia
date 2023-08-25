@@ -365,7 +365,7 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory)
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 const GrXPFactory* CustomXPFactory::TestGet(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU((int)SkBlendMode::kLastCoeffMode + 1,
                                       (int)SkBlendMode::kLastSeparableMode);

@@ -466,7 +466,7 @@ GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
 
 GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 const GrXPFactory* GrPorterDuffXPFactory::TestGet(GrProcessorTestData* d) {
     SkBlendMode mode = SkBlendMode(d->fRandom->nextULessThan((int)SkBlendMode::kLastCoeffMode));
     return GrPorterDuffXPFactory::Get(mode);

@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 
 #if GR_GPU_STATS
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "include/core/SkString.h"
 
 using namespace skia_private;
@@ -57,5 +57,5 @@ void GrThreadSafePipelineBuilder::Stats::dumpKeyValuePairs(TArray<SkString>* key
     keys->push_back(SkString("shader_compilations")); values->push_back(fShaderCompilations);
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 #endif // GR_GPU_STATS

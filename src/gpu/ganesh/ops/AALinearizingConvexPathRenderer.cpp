@@ -303,7 +303,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (const auto& path : fPaths) {
@@ -414,7 +414,7 @@ bool AALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 }  // namespace skgpu::ganesh
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);

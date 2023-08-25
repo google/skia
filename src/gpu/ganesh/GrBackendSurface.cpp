@@ -322,7 +322,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     return false;
 }
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 #include "include/core/SkString.h"
 
 SkString GrBackendFormat::toStr() const {
@@ -701,7 +701,7 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
     }
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBackendTexture& t1) {
     if (!t0.isValid() || !t1.isValid()) {
         return false; // two invalid backend textures are not considered equal
@@ -1008,7 +1008,7 @@ bool GrBackendRenderTarget::isProtected() const {
     return false;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
                                                const GrBackendRenderTarget& r1) {
     if (!r0.isValid() || !r1.isValid()) {

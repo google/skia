@@ -118,7 +118,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const skgpu::UniqueK
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
         SkISize dimensions,
         const GrBackendFormat& format,

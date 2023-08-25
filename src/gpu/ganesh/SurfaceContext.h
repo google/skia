@@ -163,7 +163,7 @@ public:
                      SkImage::RescaleGamma,
                      SkImage::RescaleMode);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool testCopy(sk_sp<GrSurfaceProxy> src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
         return this->copy(std::move(src), srcRect, dstPoint) != nullptr;
     }

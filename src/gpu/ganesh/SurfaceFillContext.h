@@ -25,7 +25,7 @@ public:
 
     OpsTask* getOpsTask();
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     OpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
 

@@ -942,7 +942,7 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrDstSampleFlags)
 
 using GrVisitProxyFunc = std::function<void(GrSurfaceProxy*, GrMipmapped)>;
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS) || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
     switch (api) {
         case GrBackendApi::kOpenGL:   return "OpenGL";

@@ -297,7 +297,7 @@ void GrMockGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     }
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kMock == tex.backend());
 

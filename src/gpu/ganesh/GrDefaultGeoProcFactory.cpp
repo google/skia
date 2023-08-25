@@ -257,7 +257,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     uint32_t flags = 0;
     if (d->fRandom->nextBool()) {

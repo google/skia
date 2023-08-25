@@ -320,7 +320,7 @@ void SurfaceDrawContext::willReplaceOpsTask(OpsTask* prevTask, OpsTask* nextTask
         // values?
         nextTask->setInitialStencilContent(OpsTask::StencilContent::kPreserved);
     }
-#if GR_GPU_STATS && GR_TEST_UTILS
+#if GR_GPU_STATS && defined(GR_TEST_UTILS)
     if (fCanUseDynamicMSAA) {
         fContext->priv().dmsaaStats().fNumRenderPasses++;
     }
@@ -788,7 +788,7 @@ int SurfaceDrawContext::maxWindowRectangles() const {
 }
 
 OpsTask::CanDiscardPreviousOps SurfaceDrawContext::canDiscardPreviousOpsOnFullClear() const {
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     if (fPreserveOpsOnFullClear_TestingOnly) {
         return OpsTask::CanDiscardPreviousOps::kNo;
     }
@@ -2003,7 +2003,7 @@ void SurfaceDrawContext::addDrawOp(const GrClip* clip,
         this->setNeedsStencil();
     }
 
-#if GR_GPU_STATS && GR_TEST_UTILS
+#if GR_GPU_STATS && defined(GR_TEST_UTILS)
     if (fCanUseDynamicMSAA && drawNeedsMSAA) {
         if (!opsTask->usesMSAASurface()) {
             fContext->priv().dmsaaStats().fNumMultisampleRenderPasses++;

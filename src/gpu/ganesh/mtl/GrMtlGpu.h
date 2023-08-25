@@ -64,7 +64,7 @@ public:
 
     bool precompileShader(const SkData& key, const SkData& data) override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
@@ -297,7 +297,7 @@ private:
                                            GrMipmapped,
                                            GrMtlTextureInfo*);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void testingOnly_startCapture() override;
     void testingOnly_stopCapture() override;
 #endif

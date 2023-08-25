@@ -31,7 +31,7 @@
 #include "src/gpu/ganesh/d3d/GrD3DUtil.h"
 #include "src/sksl/SkSLCompiler.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include <DXProgrammableCapture.h>
 #endif
 
@@ -93,7 +93,7 @@ GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptio
     GR_D3D_CALL_ERRCHECK(fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
                                               IID_PPV_ARGS(&fFence)));
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     HRESULT getAnalysis = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&fGraphicsAnalysis));
     if (FAILED(getAnalysis)) {
         fGraphicsAnalysis = nullptr;
@@ -1644,7 +1644,7 @@ bool GrD3DGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
     return false;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kDirect3D == tex.backend());
 

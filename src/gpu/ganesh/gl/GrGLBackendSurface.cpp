@@ -71,7 +71,7 @@ private:
     }
 
     std::string toString() const override {
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
         return GrGLFormatToStr(fGLFormat);
 #else
         return "";

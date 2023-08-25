@@ -63,7 +63,7 @@ private:
 
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
 
@@ -188,7 +188,7 @@ DrawAtlasOpImpl::DrawAtlasOpImpl(GrProcessorSet* processorSet, const SkPMColor4f
     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsHairline::kNo);
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 SkString DrawAtlasOpImpl::onDumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {
@@ -327,7 +327,7 @@ GrOp::Owner Make(GrRecordingContext* context,
 
 }  // namespace skgpu::ganesh::DrawAtlasOp
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 
 static SkRSXform random_xform(SkRandom* random) {

@@ -83,7 +83,7 @@ public:
 
     void markPipelineStateUniformsDirty() { fPipelineStateCache->markPipelineStateUniformsDirty(); }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
 #endif
 

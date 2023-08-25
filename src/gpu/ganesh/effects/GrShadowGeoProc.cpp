@@ -81,7 +81,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrRRectShadowGeoProc::makeProg
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomAlphaOnlyView();
 

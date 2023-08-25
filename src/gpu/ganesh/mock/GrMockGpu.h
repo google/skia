@@ -215,7 +215,7 @@ private:
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override { return false; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,

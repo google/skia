@@ -89,7 +89,7 @@ class GrSemaphore;
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 #endif
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #   include "src/base/SkRandom.h"
 #   if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #       include <sanitizer/lsan_interface.h>
@@ -276,7 +276,7 @@ bool GrDirectContext::init() {
                                                        this->contextID());
     fResourceCache->setProxyProvider(this->proxyProvider());
     fResourceCache->setThreadSafeCache(this->threadSafeCache());
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     if (this->options().fResourceCacheLimitOverride != -1) {
         this->setResourceCacheLimit(this->options().fResourceCacheLimitOverride);
     }
@@ -1193,7 +1193,7 @@ sk_sp<GrDirectContext> GrDirectContext::MakeGL() {
     return MakeGL(nullptr, defaultOptions);
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGetErrorFn> original) {
     // A SkRandom and a GrGLFunction<GrGLGetErrorFn> are too big to be captured by a
     // GrGLFunction<GrGLGetError> (surprise, surprise). So we make a context object and
@@ -1225,7 +1225,7 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
                                                const GrContextOptions& options) {
     sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kOpenGL, options));
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     if (options.fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
         copy->fFunctions.fGetError =

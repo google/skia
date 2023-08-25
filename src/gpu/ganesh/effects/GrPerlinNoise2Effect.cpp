@@ -33,7 +33,7 @@ class SkShader;
 /////////////////////////////////////////////////////////////////////
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData* d) {
     int numOctaves = d->fRandom->nextRangeU(2, 10);
     bool stitchTiles = d->fRandom->nextBool();

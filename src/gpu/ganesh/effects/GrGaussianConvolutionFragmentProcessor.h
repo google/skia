@@ -74,7 +74,7 @@ private:
 
     explicit GrGaussianConvolutionFragmentProcessor(const GrGaussianConvolutionFragmentProcessor&);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("(dir=%s, radius=%d)",
                               Direction::kX == fDirection ? "X" : "Y", fRadius);

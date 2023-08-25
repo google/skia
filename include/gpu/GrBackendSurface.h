@@ -42,7 +42,7 @@ class MutableTextureStateRef;
 class GrD3DResourceState;
 #endif
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 class SkString;
 #endif
 
@@ -141,7 +141,7 @@ public:
     // Returns true if the backend format has been initialized.
     bool isValid() const { return fValid; }
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
     SkString toStr() const;
 #endif
 
@@ -310,7 +310,7 @@ public:
     // Returns true if both textures are valid and refer to the same API texture.
     bool isSameTexture(const GrBackendTexture&);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     static bool TestingOnly_Equals(const GrBackendTexture&, const GrBackendTexture&);
 #endif
 
@@ -481,7 +481,7 @@ public:
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fIsValid; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);
 #endif
 

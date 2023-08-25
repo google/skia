@@ -96,7 +96,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
     uint8_t luts[256][4];

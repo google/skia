@@ -59,7 +59,7 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string("Scissor [ ");
         if (fScissor.enabled()) {

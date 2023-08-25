@@ -313,11 +313,11 @@ bool GrGLInterface::validate() const {
     return true;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 void GrGLInterface::abandon() const {
     const_cast<GrGLInterface*>(this)->fFunctions = GrGLInterface::Functions();
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 `

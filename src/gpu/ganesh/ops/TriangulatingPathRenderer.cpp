@@ -525,7 +525,7 @@ private:
         flushState->drawMesh(*fMesh);
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("Color 0x%08x, aa: %d\n%s",
                               fColor.toBytes_RGBA(), fAntiAlias, fHelper.dumpInfo().c_str());
@@ -551,7 +551,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);

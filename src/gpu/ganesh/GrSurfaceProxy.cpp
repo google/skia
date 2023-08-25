@@ -376,7 +376,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                 outTask);
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 int32_t GrSurfaceProxy::testingOnly_getBackingRefCnt() const {
     if (fTarget) {
         return fTarget->testingOnly_getRefCnt();

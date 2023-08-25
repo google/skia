@@ -634,7 +634,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
@@ -729,7 +729,7 @@ bool SmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 }  // namespace skgpu::ganesh
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
@@ -745,6 +745,6 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
                                             GrGetRandomStencil(random, context));
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

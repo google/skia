@@ -241,7 +241,7 @@ public:
 
     void getStats(Stats*) const;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void dumpStats(SkString*) const;
 
     void dumpStatsKeyValuePairs(
@@ -250,7 +250,7 @@ public:
 
 #endif // GR_CACHE_STATS
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     int countUniqueKeysWithTag(const char* tag) const;
 
     void changeTimestamp(uint32_t newTimestamp);

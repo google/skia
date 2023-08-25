@@ -49,7 +49,7 @@ GrProcessorSet::~GrProcessorSet() {
     }
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 SkString GrProcessorSet::dumpProcessors() const {
     SkString result;
     if (this->hasColorFragmentProcessor()) {

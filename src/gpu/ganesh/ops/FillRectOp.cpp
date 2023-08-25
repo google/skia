@@ -31,7 +31,7 @@ using VertexSpec = skgpu::ganesh::QuadPerEdgeAA::VertexSpec;
 using ColorType = skgpu::ganesh::QuadPerEdgeAA::ColorType;
 using Subset = skgpu::ganesh::QuadPerEdgeAA::Subset;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 SkString dump_quad_info(int index, const GrQuad* deviceQuad,
                         const GrQuad* localQuad, const SkPMColor4f& color,
                         GrQuadAAFlags aaFlags) {
@@ -183,7 +183,7 @@ public:
 private:
     friend class skgpu::ganesh::FillRectOp;  // for access to addQuad
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     int numQuads() const final { return fQuads.count(); }
 #endif
 
@@ -368,7 +368,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str = SkStringPrintf("# draws: %u\n", fQuads.count());
         str.appendf("Device quad type: %u, local quad type: %u\n",
@@ -556,7 +556,7 @@ void FillRectOp::AddFillRectOps(skgpu::ganesh::SurfaceDrawContext* sdc,
 
 }  // namespace skgpu::ganesh
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 uint32_t skgpu::ganesh::FillRectOp::ClassID() { return FillRectOpImpl::ClassID(); }
 

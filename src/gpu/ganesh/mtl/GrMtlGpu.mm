@@ -43,7 +43,7 @@ using namespace skia_private;
 
 GR_NORETAIN_BEGIN
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 // set to 1 if you want to do GPU capture of each commandBuffer
 #define GR_METAL_CAPTURE_COMMANDBUFFER 0
 #endif
@@ -1140,7 +1140,7 @@ bool GrMtlGpu::precompileShader(const SkData& key, const SkData& data) {
     return this->resourceProvider().precompileShader(key, data);
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kMetal == tex.backend());
 
@@ -1196,7 +1196,7 @@ void GrMtlGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
         // is deleted.
     }
 }
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 
 void GrMtlGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src) {
     // TODO: Add support for subrectangles
@@ -1755,7 +1755,7 @@ GrMtlRenderCommandEncoder* GrMtlGpu::loadMSAAFromResolve(
     return renderCmdEncoder;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 void GrMtlGpu::testingOnly_startCapture() {
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         // TODO: add Metal 3 interface as well

@@ -547,7 +547,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string = SkStringPrintf("Color: 0x%08x Count: %d\n",
                                          fColor.toBytes_RGBA(), fPaths.size());
@@ -586,7 +586,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

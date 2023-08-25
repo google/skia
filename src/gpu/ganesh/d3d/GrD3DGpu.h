@@ -21,7 +21,7 @@ struct GrD3DBackendContext;
 class GrD3DOpsRenderPass;
 struct GrD3DOptions;
 class GrPipeline;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 struct IDXGraphicsAnalysis;
 #endif
 
@@ -59,7 +59,7 @@ public:
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
@@ -329,7 +329,7 @@ private:
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     IDXGraphicsAnalysis* fGraphicsAnalysis;
 #endif
 

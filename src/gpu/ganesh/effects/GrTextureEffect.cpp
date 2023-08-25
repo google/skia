@@ -851,7 +851,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::clone() const {
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect)
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTestData* testData) {
     auto [view, ct, at] = testData->randomView();
     Wrap wrapModes[2];

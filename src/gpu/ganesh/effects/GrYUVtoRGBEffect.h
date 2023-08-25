@@ -46,7 +46,7 @@ private:
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
 

@@ -16,7 +16,7 @@
 
 using namespace skia_private;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 class GrGeometryProcessor;
 

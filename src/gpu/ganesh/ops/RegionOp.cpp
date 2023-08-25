@@ -170,7 +170,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str = SkStringPrintf("# combined: %d\n", fRegions.size());
         for (int i = 0; i < fRegions.size(); ++i) {
@@ -216,7 +216,7 @@ GrOp::Owner Make(GrRecordingContext* context,
 
 }  // namespace skgpu::ganesh::RegionOp
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 
@@ -253,4 +253,4 @@ GR_DRAW_OP_TEST_DEFINE(RegionOp) {
                                                        GrGetRandomStencil(random, context));
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)

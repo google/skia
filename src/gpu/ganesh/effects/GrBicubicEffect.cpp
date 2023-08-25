@@ -248,7 +248,7 @@ SkPMColor4f GrBicubicEffect::constantOutputForConstantInput(const SkPMColor4f& i
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     Direction direction = Direction::kX;
     switch (d->fRandom->nextULessThan(3)) {

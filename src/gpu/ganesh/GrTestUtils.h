@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurfaceProps.h"

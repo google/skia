@@ -360,7 +360,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str;
 
@@ -413,7 +413,7 @@ GrOp::Owner MakeNonAA(GrRecordingContext* context,
 
 }  // namespace skgpu::ganesh::LatticeOp
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"

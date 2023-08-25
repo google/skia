@@ -29,7 +29,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #endif
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 // GrContextOptions::fMaxTextureSizeOverride exists but doesn't allow for changing the
 // maxTextureSize on the fly.
 int gOverrideMaxTextureSize = 0;
@@ -116,7 +116,7 @@ void draw_tiled_bitmap(SkCanvas* canvas,
     int nx = bitmap.width() / tileSize;
     int ny = bitmap.height() / tileSize;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     gNumTilesDrawn.store(0, std::memory_order_relaxed);
 #endif
 
@@ -200,7 +200,7 @@ void draw_tiled_bitmap(SkCanvas* canvas,
                                                          aaFlags,
                                                          /* hasClip= */ false));
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
                 (void)gNumTilesDrawn.fetch_add(+1, std::memory_order_relaxed);
 #endif
             }
@@ -463,7 +463,7 @@ bool TiledTextureUtils::DrawAsTiledImageRect(SkCanvas* canvas,
         }
 
         int maxTileSize = get_max_texture_size(canvas) - 2*tileFilterPad;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
         if (gOverrideMaxTextureSize) {
             maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
         }

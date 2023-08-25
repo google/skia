@@ -82,7 +82,7 @@ public:
                                  const SkMatrix& viewMatrix,
                                  sk_sp<GrColorSpaceXform> textureXform);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     static uint32_t ClassID();
 #endif
 

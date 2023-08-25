@@ -241,7 +241,7 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
     }
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 // Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
 void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {

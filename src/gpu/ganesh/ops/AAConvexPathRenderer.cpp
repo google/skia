@@ -675,7 +675,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> QuadEdgeEffect::makeProgramImp
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
     bool usesLocalCoords = d->fRandom->nextBool();
@@ -875,7 +875,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("Count: %d\n%s", fPaths.size(), fHelper.dumpInfo().c_str());
     }
@@ -936,7 +936,7 @@ bool AAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 }  // namespace skgpu::ganesh
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);

@@ -19,7 +19,7 @@ class GrGpu;
 class GrResourceCache;
 class SkTraceMemoryDump;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 class GrSurface;
 #endif
 
@@ -69,7 +69,7 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     int32_t testingOnly_getRefCnt() const { return this->getRefCnt(); }
 #endif
 
@@ -226,7 +226,7 @@ public:
 
     static uint32_t CreateUniqueID();
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     virtual const GrSurface* asSurface() const { return nullptr; }
 #endif
 

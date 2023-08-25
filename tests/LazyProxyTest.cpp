@@ -76,7 +76,7 @@ public:
     }
 
     bool preFlush(GrOnFlushResourceProvider* onFlushRP) override {
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
         if (onFlushRP->failFlushTimeCallbacks()) {
             return false;
         }

@@ -117,7 +117,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fReducedShaderVariations) {
         fReducedShaderMode = true;
     }
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     if (options.fSuppressDualSourceBlending) {
         fDualSourceBlendingSupport = false;
     }

@@ -76,7 +76,7 @@ public:
 
     GrAuditTrail* auditTrail() { return this->context()->fAuditTrail.get(); }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     // Used by tests that intentionally exercise codepaths that print warning messages, in order to
     // not confuse users with output that looks like a testing failure.
     class AutoSuppressWarningMessages {
@@ -95,7 +95,7 @@ public:
 #endif
 
     void printWarningMessage(const char* msg) const {
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
         if (this->context()->fSuppressWarningMessages > 0) {
             return;
         }
@@ -107,7 +107,7 @@ public:
         return &this->context()->fStats;
     }
 
-#if GR_GPU_STATS && GR_TEST_UTILS
+#if GR_GPU_STATS && defined(GR_TEST_UTILS)
     using DMSAAStats = GrRecordingContext::DMSAAStats;
     DMSAAStats& dmsaaStats() { return this->context()->fDMSAAStats; }
 #endif

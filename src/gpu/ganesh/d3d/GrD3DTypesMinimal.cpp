@@ -55,7 +55,7 @@ bool GrD3DBackendSurfaceInfo::isProtected() const {
     return fTextureResourceInfo->fProtected == GrProtected::kYes;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrD3DBackendSurfaceInfo::operator==(const GrD3DBackendSurfaceInfo& that) const {
     GrD3DTextureResourceInfo cpyInfoThis = *fTextureResourceInfo;
     GrD3DTextureResourceInfo cpyInfoThat = *that.fTextureResourceInfo;

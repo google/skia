@@ -86,11 +86,6 @@
     #define SK_GAMMA_EXPONENT (0.0f)  // SRGB
 #endif
 
-#ifndef GR_TEST_UTILS
-#  define GR_TEST_UTILS 0
-#endif
-
-
 #if defined(SK_HISTOGRAM_ENUMERATION)  || \
     defined(SK_HISTOGRAM_BOOLEAN)      || \
     defined(SK_HISTOGRAM_EXACT_LINEAR) || \
@@ -138,7 +133,8 @@
 #endif
 
 /**
- *  Gr defines are set to 0 or 1, rather than being undefined or defined
+ *  These defines are set to 0 or 1, rather than being undefined or defined
+ *  TODO: consider updating these for consistency
  */
 
 #if !defined(GR_CACHE_STATS)
@@ -150,7 +146,7 @@
 #endif
 
 #if !defined(GR_GPU_STATS)
-  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS) || GR_TEST_UTILS
+  #if defined(SK_DEBUG) || defined(SK_DUMP_STATS) || defined(GR_TEST_UTILS)
       #define GR_GPU_STATS    1
   #else
       #define GR_GPU_STATS    0

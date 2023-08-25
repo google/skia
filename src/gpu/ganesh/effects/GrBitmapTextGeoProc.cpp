@@ -212,7 +212,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrBitmapTextGeoProc::makeProgr
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();

@@ -104,7 +104,7 @@ public:
     };
     inline static constexpr int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     static GrOp::Owner CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext*,
                                            const SkPaint&,
                                            const SkFont&,
@@ -182,7 +182,7 @@ private:
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
 

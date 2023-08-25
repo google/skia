@@ -12,7 +12,7 @@
 #include "include/core/SkTypes.h"
 #include <atomic>
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 #endif
@@ -68,7 +68,7 @@ public:
         int numCompilationSuccesses() const { return fNumCompilationSuccesses; }
         void incNumCompilationSuccesses() { ++fNumCompilationSuccesses; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
         void dump(SkString*);
         void dumpKeyValuePairs(skia_private::TArray<SkString>* keys, skia_private::TArray<double>* values);
 #endif
@@ -96,7 +96,7 @@ public:
         void incNumPartialCompilationSuccesses() {}
         void incNumCompilationSuccesses() {}
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
         void dump(SkString*) {}
         void dumpKeyValuePairs(skia_private::TArray<SkString>*, skia_private::TArray<double>*) {}
 #endif

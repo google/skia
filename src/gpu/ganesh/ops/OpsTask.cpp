@@ -782,7 +782,7 @@ void OpsTask::discard() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 void OpsTask::dump(const SkString& label,
                    SkString indent,
                    bool printDependencies,

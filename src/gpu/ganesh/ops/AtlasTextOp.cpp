@@ -31,7 +31,7 @@
 #include <new>
 #include <utility>
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #endif
 
@@ -140,7 +140,7 @@ void AtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 SkString AtlasTextOp::onDumpInfo() const {
     SkString str;
     int i = 0;
@@ -515,7 +515,7 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 }
 #endif // !defined(SK_DISABLE_SDF_TEXT)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext* sdc,
                                              const SkPaint& skPaint,
                                              const SkFont& font,
@@ -559,7 +559,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::ganesh::SurfaceDrawContext* 
 
 } // namespace skgpu::ganesh
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
     SkMatrix ctm = GrTest::TestMatrixInvertible(random);
 

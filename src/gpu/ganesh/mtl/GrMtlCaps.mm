@@ -26,7 +26,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
 #include "src/gpu/mtl/MtlUtilsPriv.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #endif
 
@@ -1232,7 +1232,7 @@ bool GrMtlCaps::renderTargetSupportsDiscardableMSAA(const GrMtlRenderTarget* rt)
            (rt->numSamples() > 1 && this->preferDiscardableMSAAAttachment());
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::vector<GrTest::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombinations() const {
     std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,          GrBackendFormat::MakeMtl(MTLPixelFormatA8Unorm)         },
