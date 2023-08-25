@@ -126,6 +126,10 @@
 #include "include/ports/SkFontMgr_data.h"
 #endif
 
+#if GR_TEST_UTILS
+#error "This define should not be set, as it brings in test-only things and bloats codesize."
+#endif
+
 struct OptionalMatrix : SkMatrix {
     OptionalMatrix(WASMPointerF32 mPtr) {
         if (mPtr) {
