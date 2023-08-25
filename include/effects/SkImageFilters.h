@@ -191,6 +191,11 @@ public:
                                                const CropRect& cropRect = {});
 
     /**
+     * Create a filter that always produces transparent black.
+     */
+    static sk_sp<SkImageFilter> Empty();
+
+    /**
      *  Create a filter that draws the 'srcRect' portion of image into 'dstRect' using the given
      *  filter quality. Similar to SkCanvas::drawImageRect. The returned image filter evaluates
      *  to transparent black if 'image' is null.

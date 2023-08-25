@@ -31,10 +31,12 @@ public:
     SkShaderImageFilter(sk_sp<SkShader> shader, SkImageFilters::Dither dither)
             : SkImageFilter_Base(nullptr, 0, nullptr)
             , fShader(std::move(shader))
-            , fDither(dither) {}
+            , fDither(dither) {
+        SkASSERT(fShader);
+    }
 
     SkRect computeFastBounds(const SkRect& /*bounds*/) const override {
-        return fShader ? SkRectPriv::MakeLargeS32() : SkRect::MakeEmpty();
+        return SkRectPriv::MakeLargeS32();
     }
 
 protected:
@@ -68,6 +70,10 @@ private:
 sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader,
                                             Dither dither,
                                             const CropRect& cropRect) {
+    if (!shader) {
+        return SkImageFilters::Empty();
+    }
+
     sk_sp<SkImageFilter> filter{new SkShaderImageFilter(std::move(shader), dither)};
     if (cropRect) {
         filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
@@ -126,12 +132,7 @@ skif::LayerSpace<SkIRect> SkShaderImageFilter::onGetInputLayerBounds(
 skif::LayerSpace<SkIRect> SkShaderImageFilter::onGetOutputLayerBounds(
         const skif::Mapping&,
         const skif::LayerSpace<SkIRect>&) const {
-    if (fShader) {
-        // The output of a shader is infinite, unless we were to inspect the shader for a decal
-        // tile mode around a gradient or image.
-        return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
-    } else {
-        // An empty shader is fully transparent
-        return skif::LayerSpace<SkIRect>::Empty();
-    }
+    // The output of a shader is infinite, unless we were to inspect the shader for a decal
+    // tile mode around a gradient or image.
+    return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
 }

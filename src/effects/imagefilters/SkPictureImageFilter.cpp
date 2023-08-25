@@ -31,8 +31,7 @@ public:
             , fPicture(std::move(picture))
             , fCullRect(cullRect) {
         // The external cullrect should already have been intersected with the internal cull rect
-        SkASSERT((!fPicture && cullRect.isEmpty()) ||
-                 (fPicture && fPicture->cullRect().contains(cullRect)));
+        SkASSERT(fPicture && fPicture->cullRect().contains(cullRect));
     }
 
     SkRect computeFastBounds(const SkRect&) const override { return SkRect(fCullRect); }
@@ -70,8 +69,7 @@ sk_sp<SkImageFilter> SkImageFilters::Picture(sk_sp<SkPicture> pic, const SkRect&
             return sk_sp<SkImageFilter>(new SkPictureImageFilter(std::move(pic), cullRect));
         }
     }
-    // Will always produce an empty image
-    return sk_sp<SkImageFilter>(new SkPictureImageFilter(nullptr, SkRect::MakeEmpty()));
+    return SkImageFilters::Empty();
 }
 
 void SkRegisterPictureImageFilterFlattenable() {
@@ -116,11 +114,6 @@ skif::LayerSpace<SkIRect> SkPictureImageFilter::onGetInputLayerBounds(
 skif::LayerSpace<SkIRect> SkPictureImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>&) const {
-    if (fPicture) {
-        // The output is the transformed bounds of the picture.
-        return mapping.paramToLayer(fCullRect).roundOut();
-    } else {
-        // An empty picture is fully transparent
-        return skif::LayerSpace<SkIRect>::Empty();
-    }
+    // The output is the transformed bounds of the picture.
+    return mapping.paramToLayer(fCullRect).roundOut();
 }

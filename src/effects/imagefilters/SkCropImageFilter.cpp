@@ -99,6 +99,12 @@ sk_sp<SkImageFilter> SkMakeCropImageFilter(const SkRect& rect,
     return sk_sp<SkImageFilter>(new SkCropImageFilter(rect, tileMode, std::move(input)));
 }
 
+// While a number of filter factories could handle "empty" cases (e.g. a null SkShader or SkPicture)
+// just use a crop with an empty rect because its implementation gracefully handles empty rects.
+sk_sp<SkImageFilter> SkImageFilters::Empty() {
+    return SkMakeCropImageFilter(SkRect::MakeEmpty(), SkTileMode::kDecal, nullptr);
+}
+
 sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
                                           const SkRect& dst,
                                           sk_sp<SkImageFilter> input) {

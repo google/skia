@@ -37,9 +37,8 @@ public:
             , fSrcRect(srcRect)
             , fDstRect(dstRect)
             , fSampling(sampling) {
-        // The dst rect should be empty if the image is null and non-empty for an actual image
-        SkASSERT((!fImage && dstRect.isEmpty()) ||
-                 (fImage && !dstRect.isEmpty()));
+        // The dst rect should be non-empty
+        SkASSERT(fImage && !dstRect.isEmpty());
     }
 
     SkRect computeFastBounds(const SkRect&) const override { return SkRect(fDstRect); }
@@ -78,14 +77,9 @@ sk_sp<SkImageFilter> SkImageFilters::Image(sk_sp<SkImage> image,
                                            const SkRect& srcRect,
                                            const SkRect& dstRect,
                                            const SkSamplingOptions& sampling) {
-    auto emptyFilter = []() {
-        return sk_sp<SkImageFilter>(new SkImageImageFilter(
-                nullptr, SkRect::MakeEmpty(), SkRect::MakeEmpty(), {}));
-    };
-
     if (srcRect.isEmpty() || dstRect.isEmpty() || !image) {
         // There is no content to draw, so the filter should produce transparent black
-        return emptyFilter();
+        return SkImageFilters::Empty();
     } else {
         SkRect imageBounds = SkRect::Make(image->dimensions());
         if (imageBounds.contains(srcRect)) {
@@ -96,7 +90,7 @@ sk_sp<SkImageFilter> SkImageFilters::Image(sk_sp<SkImage> image,
             SkMatrix srcToDst = SkMatrix::RectToRect(srcRect, dstRect);
             if (!imageBounds.intersect(srcRect)) {
                 // No overlap, so draw empty
-                return emptyFilter();
+                return SkImageFilters::Empty();
             }
 
             // Adjust dstRect to match the updated src (which is stored in imageBounds)
@@ -156,11 +150,6 @@ skif::LayerSpace<SkIRect> SkImageImageFilter::onGetInputLayerBounds(
 skif::LayerSpace<SkIRect> SkImageImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>&) const {
-    if (fImage) {
-        // The output is the transformed bounds of the image.
-        return mapping.paramToLayer(fDstRect).roundOut();
-    } else {
-        // An empty picture is fully transparent
-        return skif::LayerSpace<SkIRect>::Empty();
-    }
+    // The output is the transformed bounds of the image.
+    return mapping.paramToLayer(fDstRect).roundOut();
 }

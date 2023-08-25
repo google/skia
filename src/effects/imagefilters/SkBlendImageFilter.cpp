@@ -119,8 +119,9 @@ sk_sp<SkImageFilter> make_blend(sk_sp<SkBlender> blender,
             return cropped(std::move(foreground));
         } else if (bm == SkBlendMode::kDst) {
             return cropped(std::move(background));
+        } else if (bm == SkBlendMode::kClear) {
+            return SkImageFilters::Empty();
         }
-        // TODO(b/283548627): Route kClear to a dedicated Empty image filter.
     }
 
     sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
@@ -353,9 +354,7 @@ skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetOutputLayerBounds(
     bool transparentOutsideFG = false;
     bool transparentOutsideBG = false;
     if (auto bm = as_BB(fBlender)->asBlendMode()) {
-        if (*bm == SkBlendMode::kClear) {
-            return skif::LayerSpace<SkIRect>::Empty();
-        }
+        SkASSERT(*bm != SkBlendMode::kClear); // Should have been caught at creation time
         SkBlendModeCoeff src, dst;
         if (SkBlendMode_AsCoeff(*bm, &src, &dst)) {
             // If dst's coefficient is 0 then nothing can produce non-transparent content outside
@@ -371,7 +370,7 @@ skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetOutputLayerBounds(
     } else if (fArithmeticCoefficients.has_value()) {
         [[maybe_unused]] static constexpr SkV4 kClearCoeff = {0.f, 0.f, 0.f, 0.f};
         const SkV4& k = *fArithmeticCoefficients;
-        SkASSERT(k != kClearCoeff); // Should have been converted to a clear blender
+        SkASSERT(k != kClearCoeff); // Should have been converted to an empty filter
 
         if (k[3] != 0.f) {
             // The arithmetic equation produces non-transparent black everywhere
@@ -416,9 +415,7 @@ SkRect SkBlendImageFilter::computeFastBounds(const SkRect& bounds) const {
     bool transparentOutsideFG = false;
     bool transparentOutsideBG = false;
     if (auto bm = as_BB(fBlender)->asBlendMode()) {
-        if (*bm == SkBlendMode::kClear) {
-            return SkRect::MakeEmpty();
-        }
+        SkASSERT(*bm != SkBlendMode::kClear); // Should have been caught at creation time
         SkBlendModeCoeff src, dst;
         if (SkBlendMode_AsCoeff(*bm, &src, &dst)) {
             // If dst's coefficient is 0 then nothing can produce non-transparent content outside
@@ -430,7 +427,7 @@ SkRect SkBlendImageFilter::computeFastBounds(const SkRect& bounds) const {
     } else if (fArithmeticCoefficients.has_value()) {
         [[maybe_unused]] static constexpr SkV4 kClearCoeff = {0.f, 0.f, 0.f, 0.f};
         const SkV4& k = *fArithmeticCoefficients;
-        SkASSERT(k != kClearCoeff); // Should have been converted to a clear blender
+        SkASSERT(k != kClearCoeff); // Should have been converted to an empty image filter
 
         if (k[3] != 0.f) {
             // The arithmetic equation produces non-transparent black everywhere

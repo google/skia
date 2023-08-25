@@ -1128,10 +1128,7 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
 FilterResult FilterResult::MakeFromPicture(const Context& ctx,
                                            sk_sp<SkPicture> pic,
                                            ParameterSpace<SkRect> cullRect) {
-    if (!pic) {
-        return {};
-    }
-
+    SkASSERT(pic);
     LayerSpace<SkIRect> dstBounds = ctx.mapping().paramToLayer(cullRect).roundOut();
     if (!dstBounds.intersect(ctx.desiredOutput())) {
         return {};
@@ -1154,10 +1151,7 @@ FilterResult FilterResult::MakeFromPicture(const Context& ctx,
 FilterResult FilterResult::MakeFromShader(const Context& ctx,
                                           sk_sp<SkShader> shader,
                                           bool dither) {
-    if (!shader) {
-        return {};
-    }
-
+    SkASSERT(shader);
     AutoSurface surface{ctx, ctx.desiredOutput(), /*renderInParameterSpace=*/true};
     if (surface) {
         SkPaint paint;
@@ -1173,10 +1167,7 @@ FilterResult FilterResult::MakeFromImage(const Context& ctx,
                                          const SkRect& srcRect,
                                          const ParameterSpace<SkRect>& dstRect,
                                          const SkSamplingOptions& sampling) {
-    if (!image) {
-        return {};
-    }
-
+    SkASSERT(image);
     // Check for direct conversion to an SkSpecialImage and then FilterResult. Eventually this
     // whole function should be replaceable with:
     //    FilterResult(fImage, fSrcRect, fDstRect).applyTransform(mapping.layerMatrix(), fSampling);
@@ -1282,9 +1273,10 @@ FilterResult FilterResult::Builder::drawShader(sk_sp<SkShader> shader,
 }
 
 FilterResult FilterResult::Builder::merge() {
-    if (fInputs.empty()) {
-        return {};
-    } else if (fInputs.size() == 1) {
+    // merge() could return an empty image on 0 added inputs, but this should have been caught
+    // earlier and routed to SkImageFilters::Empty() instead.
+    SkASSERT(!fInputs.empty());
+    if (fInputs.size() == 1) {
         SkASSERT(!fInputs[0].fSampleBounds.has_value() &&
                  fInputs[0].fSampling == kDefaultSampling &&
                  fInputs[0].fFlags == ShaderFlags::kNone);

@@ -697,13 +697,13 @@ public:
 
     // Renders the 'pic', clipped by 'cullRect', into an optimally sized surface (depending on
     // picture bounds and 'ctx's desired output). The picture is transformed by the context's
-    // layer matrix. Treats null pictures as fully transparent.
+    // layer matrix. 'pic' must not be null.
     static FilterResult MakeFromPicture(const Context& ctx,
                                         sk_sp<SkPicture> pic,
                                         ParameterSpace<SkRect> cullRect);
 
-    // Renders 'shader' into a surface that fills the context's desired output bounds. Treats null
-    // shaders as fully transparent.
+    // Renders 'shader' into a surface that fills the context's desired output bounds, 'shader' must
+    // not be null.
     // TODO: Update 'dither' to SkImageFilters::Dither, but that cannot be forward declared at the
     // moment because SkImageFilters is a class and not a namespace.
     static FilterResult MakeFromShader(const Context& ctx,
@@ -712,7 +712,7 @@ public:
 
     // Converts image to a FilterResult. If 'srcRect' is pixel-aligned it does so without rendering.
     // Otherwise it draws the src->dst sampling of 'image' into an optimally sized surface based
-    // on the context's desired output.
+    // on the context's desired output. 'image' must not be null.
     static FilterResult MakeFromImage(const Context& ctx,
                                       sk_sp<SkImage> image,
                                       const SkRect& srcRect,

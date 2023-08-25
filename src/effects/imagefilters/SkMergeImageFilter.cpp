@@ -24,7 +24,9 @@ namespace {
 class SkMergeImageFilter final : public SkImageFilter_Base {
 public:
     SkMergeImageFilter(sk_sp<SkImageFilter>* const filters, int count)
-            : SkImageFilter_Base(filters, count, nullptr) {}
+            : SkImageFilter_Base(filters, count, nullptr) {
+        SkASSERT(filters && count > 0);
+    }
 
     SkRect computeFastBounds(const SkRect&) const override;
 
@@ -52,6 +54,10 @@ private:
 
 sk_sp<SkImageFilter> SkImageFilters::Merge(sk_sp<SkImageFilter>* const filters, int count,
                                            const CropRect& cropRect) {
+    if (count <= 0 || !filters) {
+        return SkImageFilters::Empty();
+    }
+
     sk_sp<SkImageFilter> filter{new SkMergeImageFilter(filters, count)};
     if (cropRect) {
         filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
@@ -89,31 +95,22 @@ skif::LayerSpace<SkIRect> SkMergeImageFilter::onGetInputLayerBounds(
         const skif::LayerSpace<SkIRect>& desiredOutput,
         const skif::LayerSpace<SkIRect>& contentBounds) const {
     const int inputCount = this->countInputs();
-    if (inputCount <= 0) {
-        // A leaf, so no required input or recursion
-        return skif::LayerSpace<SkIRect>::Empty();
-    } else {
-        // Union of all child input bounds so that one source image can provide for all of them.
-        return skif::LayerSpace<SkIRect>::Union(
-                inputCount,
-                [&](int i) {
-                    return this->getChildInputLayerBounds(i, mapping, desiredOutput, contentBounds);
-                });
-    }
+    // Union of all child input bounds so that one source image can provide for all of them.
+    return skif::LayerSpace<SkIRect>::Union(
+            inputCount,
+            [&](int i) {
+                return this->getChildInputLayerBounds(i, mapping, desiredOutput, contentBounds);
+            });
 }
 
 skif::LayerSpace<SkIRect> SkMergeImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& contentBounds) const {
     const int inputCount = this->countInputs();
-    if (inputCount <= 0) {
-        return skif::LayerSpace<SkIRect>::Empty(); // Transparent black
-    } else {
-        // Merge is src-over of all child outputs, so covers their union but no more
-        return skif::LayerSpace<SkIRect>::Union(
-                inputCount,
-                [&](int i) { return this->getChildOutputLayerBounds(i, mapping, contentBounds); });
-    }
+    // Merge is src-over of all child outputs, so covers their union but no more
+    return skif::LayerSpace<SkIRect>::Union(
+            inputCount,
+            [&](int i) { return this->getChildOutputLayerBounds(i, mapping, contentBounds); });
 }
 
 SkRect SkMergeImageFilter::computeFastBounds(const SkRect& rect) const {
@@ -122,9 +119,5 @@ SkRect SkMergeImageFilter::computeFastBounds(const SkRect& rect) const {
     // base implementation when there are filters to merge.
     // TODO: When the bounds update is complete, this default implementation may go away and we
     // can move the union'ing logic here.
-    if (this->countInputs() <= 0) {
-        return SkRect::MakeEmpty();
-    } else {
-        return SkImageFilter_Base::computeFastBounds(rect);
-    }
+    return SkImageFilter_Base::computeFastBounds(rect);
 }
