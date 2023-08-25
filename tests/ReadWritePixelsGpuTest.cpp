@@ -715,11 +715,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
         gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
         auto backendRTFactory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
-                    // Dawn backend implementation of backend render targets doesn't support
-                    // reading.
-                    if (context->backend() == GrBackendApi::kDawn) {
-                        return Surface();
-                    }
                     auto surf = sk_gpu_test::MakeBackendRenderTargetSurface(context,
                                                                             src.info(),
                                                                             origin,

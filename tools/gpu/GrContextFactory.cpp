@@ -88,7 +88,7 @@ void GrContextFactory::abandonContexts() {
                 context.fTestContext->testAbandon();
             }
             GrBackendApi api = context.fGrContext->backend();
-            bool requiresEarlyAbandon = api == GrBackendApi::kVulkan || api == GrBackendApi::kDawn;
+            bool requiresEarlyAbandon = api == GrBackendApi::kVulkan;
             if (requiresEarlyAbandon) {
                 context.fGrContext->abandonContext();
             }

@@ -208,9 +208,6 @@ static bool isBGRA8(const GrBackendFormat& format) {
             return false;
 #endif
         }
-        case GrBackendApi::kDawn: {
-            return false;
-        }
         case GrBackendApi::kMock: {
             SkTextureCompressionType compression = format.asMockCompressionType();
             if (compression != SkTextureCompressionType::kNone) {
@@ -218,6 +215,9 @@ static bool isBGRA8(const GrBackendFormat& format) {
             }
 
             return format.asMockColorType() == GrColorType::kBGRA_8888;
+        }
+        case GrBackendApi::kUnsupported: {
+            return false;
         }
     }
     SkUNREACHABLE;
@@ -244,10 +244,10 @@ static bool isRGB(const GrBackendFormat& format) {
             return false;  // Metal doesn't even pretend to support this
         case GrBackendApi::kDirect3D:
             return false;  // Not supported in Direct3D 12
-        case GrBackendApi::kDawn:
-            return false;
         case GrBackendApi::kMock:
             return format.asMockColorType() == GrColorType::kRGB_888;
+        case GrBackendApi::kUnsupported:
+            return false;
     }
     SkUNREACHABLE;
 }

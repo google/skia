@@ -354,12 +354,12 @@ SkString GrBackendFormat::toStr() const {
             str.append(GrDxgiFormatToStr(fDxgiFormat));
 #endif
             break;
-        case GrBackendApi::kDawn:
-            break;
         case GrBackendApi::kMock:
             str.append(GrColorTypeToStr(fMock.fColorType));
             str.appendf("-");
             str.append(GrCompressionTypeToStr(fMock.fCompressionType));
+            break;
+        case GrBackendApi::kUnsupported:
             break;
     }
 

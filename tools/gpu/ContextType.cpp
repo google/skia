@@ -105,7 +105,7 @@ GrBackendApi skgpu::ganesh::ContextTypeBackend(skgpu::ContextType type) {
         case ContextType::kDawn_Vulkan:
         case ContextType::kDawn_OpenGL:
         case ContextType::kDawn_OpenGLES:
-            return GrBackendApi::kDawn;
+            return GrBackendApi::kUnsupported;
 
         case ContextType::kMock:
             return GrBackendApi::kMock;
@@ -113,7 +113,7 @@ GrBackendApi skgpu::ganesh::ContextTypeBackend(skgpu::ContextType type) {
     SkUNREACHABLE;
 }
 
-std::optional<skgpu::BackendApi> skgpu::graphite::ContextTypeBackend(ContextType type) {
+skgpu::BackendApi skgpu::graphite::ContextTypeBackend(ContextType type) {
     switch (type) {
         case skgpu::ContextType::kGL:
         case skgpu::ContextType::kGLES:
@@ -125,7 +125,7 @@ std::optional<skgpu::BackendApi> skgpu::graphite::ContextTypeBackend(ContextType
         case skgpu::ContextType::kANGLE_Metal_ES2:
         case skgpu::ContextType::kANGLE_Metal_ES3:
         case skgpu::ContextType::kDirect3D:
-            return std::nullopt;  // no Graphite backend
+            return BackendApi::kUnsupported;
 
         case ContextType::kVulkan:
             return BackendApi::kVulkan;

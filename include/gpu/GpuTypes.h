@@ -24,6 +24,11 @@ enum class BackendApi : unsigned {
     kMetal,
     kVulkan,
     kMock,
+
+    /**
+     * Graphite doesn't support some context types (e.g. Direct3D) and will return Unsupported.
+     */
+    kUnsupported,
 };
 
 /** Indicates whether an allocation should count against a cache budget. */

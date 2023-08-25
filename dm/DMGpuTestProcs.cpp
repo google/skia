@@ -27,20 +27,49 @@ using sk_gpu_test::GLTestContext;
 namespace skiatest {
 
 bool IsGLContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
     return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kOpenGL;
+#else
+    return false;
+#endif
 }
+
 bool IsVulkanContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
     return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kVulkan;
+#elif defined(SK_GRAPHITE)
+    return skgpu::graphite::ContextTypeBackend(type) == BackendApi::kVulkan;
+#else
+    return false;
+#endif
 }
+
 bool IsMetalContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
     return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kMetal;
+#elif defined(SK_GRAPHITE)
+    return skgpu::graphite::ContextTypeBackend(type) == BackendApi::kMetal;
+#else
+    return false;
+#endif
 }
+
 bool IsDirect3DContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
     return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kDirect3D;
+#else
+    return false;
+#endif
 }
+
 bool IsDawnContextType(skgpu::ContextType type) {
-    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kDawn;
+#if defined(SK_GRAPHITE)
+    return skgpu::graphite::ContextTypeBackend(type) == skgpu::BackendApi::kDawn;
+#else
+    return false;
+#endif
 }
+
 bool IsMockContextType(skgpu::ContextType type) {
     return type == skgpu::ContextType::kMock;
 }

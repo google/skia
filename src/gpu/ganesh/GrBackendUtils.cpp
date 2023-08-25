@@ -72,11 +72,11 @@ SkTextureCompressionType GrBackendFormatToCompressionType(const GrBackendFormat&
             break;
 #endif
         }
-        case GrBackendApi::kDawn: {
-            return SkTextureCompressionType::kNone;
-        }
         case GrBackendApi::kMock: {
             return format.asMockCompressionType();
+        }
+        case GrBackendApi::kUnsupported: {
+            break;
         }
     }
     return SkTextureCompressionType::kNone;
@@ -112,9 +112,6 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
             break;
 #endif
         }
-        case GrBackendApi::kDawn: {
-            break;
-        }
         case GrBackendApi::kMock: {
             SkTextureCompressionType compression = format.asMockCompressionType();
             if (compression != SkTextureCompressionType::kNone) {
@@ -124,6 +121,9 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
                 return kMockStencilSize;
             }
             return GrColorTypeBytesPerPixel(format.asMockColorType());
+        }
+        case GrBackendApi::kUnsupported: {
+            break;
         }
     }
     return 0;
@@ -166,14 +166,15 @@ int GrBackendFormatStencilBits(const GrBackendFormat& format) {
             break;
 #endif
         }
-        case GrBackendApi::kDawn: {
-            break;
-        }
         case GrBackendApi::kMock: {
             if (format.isMockStencilFormat()) {
                 static constexpr int kMockStencilBits = 8;
                 return kMockStencilBits;
             }
+            break;
+        }
+        case GrBackendApi::kUnsupported: {
+            break;
         }
     }
     return 0;

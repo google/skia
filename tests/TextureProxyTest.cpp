@@ -272,8 +272,7 @@ static void invalidation_test(GrDirectContext* dContext,
     // Some of our backends use buffers to do uploads that will live in our resource cache. So we
     // need to account for those extra resources here.
     int bufferResources = 0;
-    if (dContext->backend() == GrBackendApi::kDawn ||
-        dContext->backend() == GrBackendApi::kVulkan ||
+    if (dContext->backend() == GrBackendApi::kVulkan ||
         dContext->backend() == GrBackendApi::kDirect3D ||
         dContext->backend() == GrBackendApi::kMetal) {
         bufferResources = 1;

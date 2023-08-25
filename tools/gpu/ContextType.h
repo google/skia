@@ -8,8 +8,6 @@
 #ifndef ContextType_DEFINED
 #define ContextType_DEFINED
 
-#include <optional>
-
 enum class GrBackendApi : unsigned;
 
 namespace skgpu {
@@ -58,7 +56,7 @@ GrBackendApi ContextTypeBackend(skgpu::ContextType type);
 
 namespace graphite {
 
-std::optional<skgpu::BackendApi> ContextTypeBackend(skgpu::ContextType type);
+skgpu::BackendApi ContextTypeBackend(skgpu::ContextType type);
 
 }  // namespace graphite
 }  // namespace skgpu

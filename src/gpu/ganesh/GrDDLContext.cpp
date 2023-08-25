@@ -43,11 +43,8 @@ private:
 
         const GrCaps* caps = this->caps();
 
-        if (this->backend() == GrBackendApi::kMetal ||
-            this->backend() == GrBackendApi::kDirect3D ||
-            this->backend() == GrBackendApi::kDawn) {
-            // Currently Metal, Direct3D, and Dawn require a live renderTarget to
-            // compute the key
+        if (this->backend() == GrBackendApi::kMetal || this->backend() == GrBackendApi::kDirect3D) {
+            // Currently Metal and Direct3D require a live renderTarget to compute the key
             return;
         }
 
