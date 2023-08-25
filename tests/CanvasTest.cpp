@@ -12,7 +12,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkDocument.h"
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
@@ -38,10 +37,8 @@
 #include "include/utils/SkNWayCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkBigPicture.h"
-#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/utils/SkCanvasStack.h"
 #include "tests/Test.h"
 
@@ -53,11 +50,6 @@
 using namespace skia_private;
 
 class SkPicture;
-class SkReadBuffer;
-
-namespace skif {
-class Context;
-}
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "include/core/SkColorSpace.h"
@@ -620,40 +612,10 @@ DEF_TEST(Canvas_LegacyColorBehavior, r) {
 }
 #endif
 
-namespace {
-
-class ZeroBoundsImageFilter : public SkImageFilter_Base {
-public:
-    static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
-
-protected:
-    sk_sp<SkSpecialImage> onFilterImage(const skif::Context&, SkIPoint*) const override {
-        return nullptr;
-    }
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&,
-                               MapDirection, const SkIRect* inputRect) const override {
-        return SkIRect::MakeEmpty();
-    }
-
-private:
-    SK_FLATTENABLE_HOOKS(ZeroBoundsImageFilter)
-
-    ZeroBoundsImageFilter() : INHERITED(nullptr, 0, nullptr) {}
-
-    using INHERITED = SkImageFilter_Base;
-};
-
-sk_sp<SkFlattenable> ZeroBoundsImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SkDEBUGFAIL("Should never get here");
-    return nullptr;
-}
-
-}  // anonymous namespace
-
 DEF_TEST(Canvas_SaveLayerWithNullBoundsAndZeroBoundsImageFilter, r) {
     SkCanvas canvas(10, 10);
     SkPaint p;
-    p.setImageFilter(ZeroBoundsImageFilter::Make());
+    p.setImageFilter(SkImageFilters::Empty());
     // This should not fail any assert.
     canvas.saveLayer(nullptr, &p);
     REPORTER_ASSERT(r, canvas.getDeviceClipBounds().isEmpty());
