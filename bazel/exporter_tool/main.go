@@ -358,14 +358,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/d3d:d3d_hdrs",
 				"//src/gpu/ganesh/d3d:d3d_srcs",
 			}},
-		{Var: "skia_gpu_dawn_public",
-			Rules: []string{
-				// TODO(b/297077133): need to remove Chromium reference to this file list
-			}},
-		{Var: "skia_gpu_dawn_private",
-			Rules: []string{
-				// TODO(b/297077133): need to remove Chromium reference to this file list
-			}},
 		{Var: "skia_gpu_metal_public",
 			Rules: []string{
 				"//include/gpu/mtl:public_hdrs",
