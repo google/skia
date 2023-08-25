@@ -86,7 +86,6 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrGaussianConvolutionFragmentProcessor.h"
-#include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
@@ -1909,7 +1908,20 @@ void DrawShapeWithMaskFilter(GrRecordingContext* rContext,
 
 // =================== Gaussian Blur =========================================
 
+namespace {
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
+
+// On the CPU, the kernel coefficients are scalars, but are packed as half4's in the GPU shader.
+// For upload purposes, the memory size and layout of a float[28] vs. a SkV4[7] is the same, but the
+// type must be changed to pass uniform type validation in GrSkSLFP::Make.
+SkSpan<const SkV4> scalar_array_as_vec4_span(
+        const std::array<float, skgpu::kMaxBlurSamples>& vals) {
+    static_assert(skgpu::kMaxBlurSamples % 4 == 0);
+    const void* begin = static_cast<const void*>(vals.data());
+    return SkSpan<const SkV4>{static_cast<const SkV4*>(begin), skgpu::kMaxBlurSamples / 4};
+}
+
+} // end namespace
 
 /**
  * Draws 'dstRect' into 'surfaceFillContext' evaluating a 1D Gaussian over 'srcView'. The src rect
@@ -1979,29 +1991,22 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
         return nullptr;
     }
 
-    SkISize size = SkISize::Make(skgpu::BlurKernelWidth(radiusX),
-                                 skgpu::BlurKernelWidth(radiusY));
-    SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
-    GrPaint paint;
-    auto wm = SkTileModeToWrapMode(mode);
-
     // GaussianBlur() should have downsampled the request until we can handle the 2D blur with
-    // just a uniform array.
-    SkASSERT(size.area() <= skgpu::kMaxBlurSamples);
+    // just a uniform array, which is asserted inside the Compute function.
+    const SkISize radii{radiusX, radiusY};
     std::array<float, skgpu::kMaxBlurSamples> kernel;
-    skgpu::Compute2DBlurKernel({sigmaX, sigmaY}, {radiusX, radiusY}, kernel);
-    auto conv = GrMatrixConvolutionEffect::Make(rContext,
-                                                std::move(srcView),
-                                                srcBounds,
-                                                size,
-                                                kernel.data(),
-                                                1.0f,
-                                                0.0f,
-                                                kernelOffset,
-                                                wm,
-                                                true,
-                                                *sdc->caps());
+    skgpu::Compute2DBlurKernel({sigmaX, sigmaY}, radii, kernel);
 
+    GrSamplerState sampler{SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest};
+    auto child = GrTextureEffect::MakeSubset(std::move(srcView), kPremul_SkAlphaType, SkMatrix::I(),
+                                             sampler, SkRect::Make(srcBounds), *sdc->caps());
+    auto conv = GrSkSLFP::Make(skgpu::GetBlur2DEffect(), "GaussianBlur2D", /*inputFP=*/nullptr,
+                               GrSkSLFP::OptFlags::kNone,
+                               "kernel", scalar_array_as_vec4_span(kernel),
+                               "radii", radii,
+                               "child", std::move(child));
+
+    GrPaint paint;
     paint.setColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

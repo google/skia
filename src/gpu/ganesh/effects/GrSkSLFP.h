@@ -32,6 +32,7 @@ class SkData;
 class SkM44;
 namespace skgpu { class KeyBuilder; }
 struct GrShaderCaps;
+struct SkISize;
 struct SkRect;
 struct SkV2;
 struct SkV4;
@@ -60,6 +61,7 @@ UNIFORM_TYPE(kFloat4,   SkV4);
 UNIFORM_TYPE(kFloat4,   skvx::Vec<4, float>);
 UNIFORM_TYPE(kFloat4x4, SkM44);
 UNIFORM_TYPE(kInt,      int);
+UNIFORM_TYPE(kInt2,     SkISize);
 
 #undef UNIFORM_TYPE
 #endif

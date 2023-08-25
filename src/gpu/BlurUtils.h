@@ -15,6 +15,8 @@
 
 #include <array>
 
+class SkRuntimeEffect;
+
 // TODO(b/): Many of these utilities could be lifted even into src/core as part of the backend
 // agnostic blur engine once that API exists.
 
@@ -54,6 +56,21 @@ static constexpr int kMaxBlurSamples = 28;
 static constexpr float kMaxLinearBlurSigma = 4.f; // -> radius = 27 -> linear kernel width = 28
 // NOTE: There is no defined kMaxBlurSigma for direct 2D blurs since it is entirely dependent on the
 // ratio between the two axes' sigmas, but generally it will be small on the order of a 5x5 kernel.
+
+// Return a runtime effect that applies a 2D Gaussian blur in a single pass. The returned effect can
+// perform arbitrarily sized blur kernels so long as the kernel area is less than kMaxBlurSamples.
+// An SkRuntimeEffect is returned to give flexibility for callers to convert it to an SkShader or
+// a GrFragmentProcessor. Callers are responsible for providing the uniform values (using the
+// appropriate API of the target effect type). The effect declares the following uniforms:
+//
+//    uniform half4 kernel[7];
+//    uniform int2 radius;
+//    uniform shader child;
+//
+// 'kernel' should be set to the output of Compute2DBlurKernel(). 'radius' should match the radii
+// passed into that function. 'child' should be bound to whatever input is intended to be blurred,
+// and can use nearest-neighbor sampling (when it's an image).
+const SkRuntimeEffect* GetBlur2DEffect();
 
 // Calculates a set of weights for a 2D Gaussian blur of the given sigma and radius. It is assumed
 // that the radius was from prior calls to BlurSigmaRadius(sigma.width()|height()) and is passed in
