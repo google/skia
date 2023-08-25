@@ -398,7 +398,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
 
     if ((isProtected == GrProtected::kYes) &&
         (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0))) {
-        fSupportsProtectedMemory = true;
+        fSupportsProtectedContent = true;
         fAvoidUpdateBuffers = true;
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
@@ -517,9 +517,9 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 #endif
 
     // Protected memory features have problems in Android P and earlier.
-    if (fSupportsProtectedMemory && (kQualcomm_VkVendor == properties.vendorID)) {
+    if (fSupportsProtectedContent && (kQualcomm_VkVendor == properties.vendorID)) {
         if (androidAPIVersion <= 28) {
-            fSupportsProtectedMemory = false;
+            fSupportsProtectedContent = false;
         }
     }
 

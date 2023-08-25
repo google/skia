@@ -164,9 +164,6 @@ public:
         return 3;
     }
 
-    // Returns true if the device supports protected memory.
-    bool supportsProtectedMemory() const { return fSupportsProtectedMemory; }
-
     // Returns true if the VK_EXT_image_drm_format_modifier is enabled.
     bool supportsDRMFormatModifiers() const { return fSupportsDRMFormatModifiers; }
 
@@ -449,8 +446,6 @@ private:
     bool fSupportsAndroidHWBExternalMemory = false;
 
     bool fSupportsYcbcrConversion = false;
-
-    bool fSupportsProtectedMemory = false;
 
     bool fSupportsDRMFormatModifiers = false;
 

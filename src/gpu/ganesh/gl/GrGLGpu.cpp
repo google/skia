@@ -733,7 +733,7 @@ static bool check_backend_texture(const GrBackendTexture& backendTex,
     } else if (GR_GL_TEXTURE_2D != desc->fTarget) {
         return false;
     }
-    if (desc->fIsProtected == skgpu::Protected::kYes && !caps.supportsProtected()) {
+    if (desc->fIsProtected == skgpu::Protected::kYes && !caps.supportsProtectedContent()) {
         return false;
     }
 
@@ -800,7 +800,7 @@ static bool check_compressed_backend_texture(const GrBackendTexture& backendTex,
     if (GR_GL_TEXTURE_2D != desc->fTarget) {
         return false;
     }
-    if (desc->fIsProtected == skgpu::Protected::kYes && !caps.supportsProtected()) {
+    if (desc->fIsProtected == skgpu::Protected::kYes && !caps.supportsProtectedContent()) {
         return false;
     }
 
@@ -888,7 +888,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    if (backendRT.isProtected() && !this->glCaps().supportsProtected()) {
+    if (backendRT.isProtected() && !this->glCaps().supportsProtectedContent()) {
         return nullptr;
     }
 
@@ -1509,7 +1509,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
                                           int mipLevelCount,
                                           uint32_t levelClearMask,
                                           std::string_view label) {
-    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtected()) {
+    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtectedContent()) {
         return nullptr;
     }
     SkASSERT(GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType() || renderTargetSampleCnt == 1);
@@ -1618,7 +1618,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     GrProtected isProtected,
                                                     const void* data,
                                                     size_t dataSize) {
-    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtected()) {
+    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtectedContent()) {
         return nullptr;
     }
     SkTextureCompressionType compression = GrBackendFormatToCompressionType(format);
@@ -1662,7 +1662,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
 GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(
         SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipmapped,
         GrProtected isProtected) {
-    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtected()) {
+    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtectedContent()) {
         return {};
     }
 
@@ -1861,7 +1861,7 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
                                                GR_GL_TEXTURE_2D);
 
     if (GrProtected::kYes == isProtected) {
-        if (this->glCaps().supportsProtected()) {
+        if (this->glCaps().supportsProtectedContent()) {
             GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_PROTECTED_EXT, GR_GL_TRUE));
         } else {
             GL_CALL(DeleteTextures(1, &id));
@@ -1906,7 +1906,7 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
     }
 
     if (GrProtected::kYes == isProtected) {
-        if (this->glCaps().supportsProtected()) {
+        if (this->glCaps().supportsProtectedContent()) {
             GL_CALL(TexParameteri(target, GR_GL_TEXTURE_PROTECTED_EXT, GR_GL_TRUE));
         } else {
             GL_CALL(DeleteTextures(1, &id));
@@ -4024,7 +4024,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dime
         dimensions.height() > this->caps()->maxRenderTargetSize()) {
         return {};
     }
-    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtected()) {
+    if (isProtected == GrProtected::kYes && !this->glCaps().supportsProtectedContent()) {
         return {};
     }
 

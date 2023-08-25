@@ -13,37 +13,7 @@
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
 
-#ifdef SK_GL
-#include "src/gpu/ganesh/gl/GrGLCaps.h"
-#endif
-#ifdef SK_VULKAN
-#include "src/gpu/ganesh/vk/GrVkCaps.h"
-#endif
-
 namespace ProtectedUtils {
-
-bool ContextSupportsProtected(GrDirectContext* dContext) {
-    [[maybe_unused]] const GrCaps* caps = dContext->priv().caps();
-
-#ifdef SK_GL
-    if (dContext->backend() == GrBackendApi::kOpenGL) {
-        const GrGLCaps* glCaps = static_cast<const GrGLCaps*>(caps);
-        return glCaps->supportsProtected();
-    }
-#endif
-#ifdef SK_VULKAN
-    if (dContext->backend() == GrBackendApi::kVulkan) {
-        const GrVkCaps* vkCaps = static_cast<const GrVkCaps*>(caps);
-        return vkCaps->supportsProtectedMemory();
-    }
-#endif
-    if (dContext->backend() == GrBackendApi::kMock) {
-        return true;
-    }
-
-    // Metal, Dawn and D3D don't support protected textures
-    return false;
-}
 
 sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext* dContext,
                                           SkISize size,

@@ -167,7 +167,7 @@ public:
         origCanvas->clear(SK_ColorDKGRAY);
 
         GrDirectContext* dContext = GrAsDirectContext(origCanvas->recordingContext());
-        if (!dContext) {
+        if (!dContext || !dContext->supportsProtectedContent()) {
             origCanvas->clear(SK_ColorGREEN);
             return;
         }

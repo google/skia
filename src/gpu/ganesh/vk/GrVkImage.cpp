@@ -470,7 +470,8 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
     if (0 == imageDesc.fWidth || 0 == imageDesc.fHeight) {
         return false;
     }
-    if ((imageDesc.fIsProtected == GrProtected::kYes) && !gpu->vkCaps().supportsProtectedMemory()) {
+    if ((imageDesc.fIsProtected == GrProtected::kYes) &&
+        !gpu->vkCaps().supportsProtectedContent()) {
         return false;
     }
 
@@ -716,4 +717,3 @@ void GrVkImage::setCurrentQueueFamilyToGraphicsQueue(GrVkGpu* gpu) {
     fMutableState->setQueueFamilyIndex(gpu->queueIndex());
 }
 #endif
-

@@ -84,6 +84,11 @@ public:
     SK_API bool colorTypeSupportedAsImage(SkColorType) const;
 
     /**
+     * Does this context support protected content?
+     */
+    SK_API bool supportsProtectedContent() const;
+
+    /**
      * Gets the maximum supported sample count for a color type. 1 is returned if only non-MSAA
      * rendering is supported for the color type. 0 is returned if rendering to this color type
      * is not supported at all.

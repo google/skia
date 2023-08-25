@@ -18,8 +18,6 @@ struct SkISize;
 
 namespace ProtectedUtils {
 
-bool ContextSupportsProtected(GrDirectContext*);
-
 sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext*,
                                           SkISize size,
                                           bool textureable = true,

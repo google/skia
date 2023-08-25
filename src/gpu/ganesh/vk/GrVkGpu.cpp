@@ -203,7 +203,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                       instanceVersion, physDevVersion,
                                       std::move(memoryAllocator)));
      if (backendContext.fProtectedContext == GrProtected::kYes &&
-         !vkGpu->vkCaps().supportsProtectedMemory()) {
+         !vkGpu->vkCaps().supportsProtectedContent()) {
          return nullptr;
      }
      return std::move(vkGpu);

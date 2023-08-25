@@ -175,6 +175,10 @@ bool GrRecordingContext::colorTypeSupportedAsImage(SkColorType colorType) const 
     return format.isValid();
 }
 
+bool GrRecordingContext::supportsProtectedContent() const {
+    return this->caps()->supportsProtectedContent();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_ENABLE_DUMP_GPU
