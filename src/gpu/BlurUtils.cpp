@@ -138,6 +138,43 @@ void Compute1DBlurLinearKernel(float sigma,
     memset(offsets.data() + halfSize, 0, sizeof(float)*(kMaxBlurSamples - halfSize));
 }
 
+const SkRuntimeEffect* GetLinearBlur1DEffect() {
+    static SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        SkStringPrintf("const int kMaxUniformKernelSize = %d / 4;"
+                       // Pack scalar coefficients into half4 for better packing on std140
+                       "uniform half4 kernel[kMaxUniformKernelSize];"
+                       "uniform half4 offsets[kMaxUniformKernelSize];"
+                       "uniform int radius;"
+                       "uniform half2 dir;"
+                       "uniform shader child;"
+
+                       "half4 main(float2 coord) {"
+                           "half4 sum = half4(0);"
+
+                           // The constant 1D loop will iterate kernelPos over [0,radius].
+                           "int kernelPos = 0;"
+                           "for (int i = 0; i < kMaxUniformKernelSize; ++i) {"
+                               "if (kernelPos > radius) { break; }"
+
+                                "half4 k4 = kernel[i];"
+                                "half4 o4 = offsets[i];"
+                                "for (int j = 0; j < 4; ++j) {"
+                                    "if (kernelPos > radius) { break; }"
+                                    "half k = k4[j];"
+
+                                    // The offset value uploaded to the GPU already includes the
+                                    // pixel-level shift for each iteration.
+                                    "half4 c = child.eval(coord + dir * o4[j]);"
+                                    "sum += c*k;"
+
+                                    "kernelPos += 1;"
+                                "}"
+                           "}"
+                           "return sum;"
+                       "}", kMaxBlurSamples).c_str());
+    return effect;
+}
+
 const SkRuntimeEffect* GetBlur2DEffect() {
     // TODO(michaelludwig): This shares a lot of similarity with the matrix convolution image filter
     // with convolveAlpha=true and a centered kernel size and offset (represented by just radii).
