@@ -280,4 +280,8 @@ void ResourceProvider::freeGpuResources() {
     fResourceCache->purgeResources();
 }
 
+void ResourceProvider::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
+    fResourceCache->purgeResourcesNotUsedSince(purgeTime);
+}
+
 }  // namespace skgpu::graphite

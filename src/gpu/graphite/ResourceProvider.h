@@ -80,6 +80,7 @@ public:
     size_t getResourceCacheLimit() const { return fResourceCache->getMaxBudget(); }
 
     void freeGpuResources();
+    void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);
 
 #if GRAPHITE_TEST_UTILS
     ResourceCache* resourceCache() { return fResourceCache.get(); }

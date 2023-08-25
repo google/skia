@@ -342,6 +342,8 @@ void Recorder::addFinishInfo(const InsertFinishInfo& info) {
 }
 
 void Recorder::freeGpuResources() {
+    ASSERT_SINGLE_OWNER
+
     // We don't want to free the Uniform/TextureDataCaches or the Draw/UploadBufferManagers since
     // all their resources need to be held on to until a Recording is snapped. And once snapped, all
     // their held resources are released. The StrikeCache and TextBlobCache don't hold onto any Gpu
@@ -353,6 +355,13 @@ void Recorder::freeGpuResources() {
     fAtlasProvider->clearTexturePool();
 
     fResourceProvider->freeGpuResources();
+}
+
+void Recorder::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
+    ASSERT_SINGLE_OWNER
+
+    auto purgeTime = skgpu::StdSteadyClock::now() - msNotUsed;
+    fResourceProvider->purgeResourcesNotUsedSince(purgeTime);
 }
 
 void RecorderPriv::add(sk_sp<Task> task) {

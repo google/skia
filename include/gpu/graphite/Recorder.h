@@ -15,6 +15,7 @@
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkTArray.h"
 
+#include <chrono>
 #include <vector>
 
 class SkCanvas;
@@ -141,6 +142,14 @@ public:
      * then they should first make sure to submit and wait on any outstanding work.
      */
     void freeGpuResources();
+
+    /**
+     * Purge GPU resources on the Recorder that haven't been used in the past 'msNotUsed'
+     * milliseconds or are otherwise marked for deletion, regardless of whether the context is under
+     * budget.
+     */
+    void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
+
 
     // Provides access to functions that aren't part of the public API.
     RecorderPriv priv();

@@ -743,6 +743,15 @@ void Context::freeGpuResources() {
     fResourceProvider->freeGpuResources();
 }
 
+void Context::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
+    ASSERT_SINGLE_OWNER
+
+    this->checkAsyncWorkCompletion();
+
+    auto purgeTime = skgpu::StdSteadyClock::now() - msNotUsed;
+    fResourceProvider->purgeResourcesNotUsedSince(purgeTime);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 #if GRAPHITE_TEST_UTILS
