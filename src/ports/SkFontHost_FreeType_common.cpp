@@ -434,6 +434,7 @@ const uint16_t kForegroundColorPaletteIndex = 0xFFFF;
 // truncating and drawing color lines. When drawing into N32 surfaces, this is expected to be true.
 // If that changes, or if we support other color spaces in CPAL tables at some point, this needs to
 // be looked at.
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
 SkColor lerpSkColor(SkColor c0, SkColor c1, float t) {
     // Due to the floating point calculation in the caller, when interpolating between very narrow
     // stops, we may get values outside the interpolation range, guard against these.
@@ -448,6 +449,26 @@ SkColor lerpSkColor(SkColor c0, SkColor c1, float t) {
 
     return Sk4f_toL32(c_4f);
 }
+#else
+SkColor4f lerpSkColor(SkColor4f c0, SkColor4f c1, float t) {
+    // Due to the floating point calculation in the caller, when interpolating between very narrow
+    // stops, we may get values outside the interpolation range, guard against these.
+    if (t < 0) {
+        return c0;
+    }
+    if (t > 1) {
+        return c1;
+    }
+
+    const auto c0_4f = skvx::float4::Load(c0.vec());
+    const auto c1_4f = skvx::float4::Load(c1.vec());
+    const auto c_4f = c0_4f + (c1_4f - c0_4f) * t;
+
+    SkColor4f l;
+    c_4f.store(l.vec());
+    return l;
+}
+#endif
 
 enum TruncateStops {
     TruncateStart,
@@ -457,7 +478,11 @@ enum TruncateStops {
 // Truncate a vector of color stops at a previously computed stop position and insert at that
 // position the color interpolated between the surrounding stops.
 void truncateToStopInterpolating(SkScalar zeroRadiusStop,
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
                                  std::vector<SkColor>& colors,
+#else
+                                 std::vector<SkColor4f>& colors,
+#endif
                                  std::vector<SkScalar>& stops,
                                  TruncateStops truncateStops) {
     if (stops.size() <= 1u ||
@@ -472,7 +497,11 @@ void truncateToStopInterpolating(SkScalar zeroRadiusStop,
 
     const float t = (zeroRadiusStop - stops[afterIndex - 1]) /
                     (stops[afterIndex] - stops[afterIndex - 1]);
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
     SkColor lerpColor = lerpSkColor(colors[afterIndex - 1], colors[afterIndex], t);
+#else
+    SkColor4f lerpColor = lerpSkColor(colors[afterIndex - 1], colors[afterIndex], t);
+#endif
 
     if (truncateStops == TruncateStart) {
         stops.erase(stops.begin(), stops.begin() + afterIndex);
@@ -602,7 +631,11 @@ bool colrv1_configure_skpaint(FT_Face face,
     auto fetchColorStops = [&face, &palette, &foregroundColor](
                                                const FT_ColorStopIterator& colorStopIterator,
                                                std::vector<SkScalar>& stops,
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
                                                std::vector<SkColor>& colors) -> bool {
+#else
+                                               std::vector<SkColor4f>& colors) -> bool {
+#endif
         const FT_UInt colorStopCount = colorStopIterator.num_color_stops;
         if (colorStopCount == 0) {
             return false;
@@ -612,29 +645,52 @@ bool colrv1_configure_skpaint(FT_Face face,
         // "Applications shall apply the colorStops in increasing stopOffset order."
         struct ColorStop {
             SkScalar pos;
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             SkColor color;
+#else
+            SkColor4f color;
+#endif
         };
         std::vector<ColorStop> colorStopsSorted;
         colorStopsSorted.resize(colorStopCount);
 
-        FT_ColorStop color_stop;
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
+       FT_ColorStop color_stop;
+       FT_ColorStopIterator mutable_color_stop_iterator = colorStopIterator;
+       while (FT_Get_Colorline_Stops(face, &color_stop, &mutable_color_stop_iterator)) {
+           FT_UInt index = mutable_color_stop_iterator.current_color_stop - 1;
+           colorStopsSorted[index].pos = color_stop.stop_offset / kColorStopShift;
+           FT_UInt16& palette_index = color_stop.color.palette_index;
+           if (palette_index == kForegroundColorPaletteIndex) {
+               U8CPU newAlpha = SkColorGetA(foregroundColor) *
+                                SkColrV1AlphaToFloat(color_stop.color.alpha);
+               colorStopsSorted[index].color = SkColorSetA(foregroundColor, newAlpha);
+           } else if (palette_index >= palette.size()) {
+               return false;
+           } else {
+               U8CPU newAlpha = SkColorGetA(palette[palette_index]) *
+                                SkColrV1AlphaToFloat(color_stop.color.alpha);
+               colorStopsSorted[index].color = SkColorSetA(palette[palette_index], newAlpha);
+           }
+       }
+#else
+        FT_ColorStop ftStop;
         FT_ColorStopIterator mutable_color_stop_iterator = colorStopIterator;
-        while (FT_Get_Colorline_Stops(face, &color_stop, &mutable_color_stop_iterator)) {
+        while (FT_Get_Colorline_Stops(face, &ftStop, &mutable_color_stop_iterator)) {
             FT_UInt index = mutable_color_stop_iterator.current_color_stop - 1;
-            colorStopsSorted[index].pos = color_stop.stop_offset / kColorStopShift;
-            FT_UInt16& palette_index = color_stop.color.palette_index;
+            ColorStop& skStop = colorStopsSorted[index];
+            skStop.pos = ftStop.stop_offset / kColorStopShift;
+            FT_UInt16& palette_index = ftStop.color.palette_index;
             if (palette_index == kForegroundColorPaletteIndex) {
-                U8CPU newAlpha = SkColorGetA(foregroundColor) *
-                                 SkColrV1AlphaToFloat(color_stop.color.alpha);
-                colorStopsSorted[index].color = SkColorSetA(foregroundColor, newAlpha);
+                skStop.color = SkColor4f::FromColor(foregroundColor);
             } else if (palette_index >= palette.size()) {
                 return false;
             } else {
-                U8CPU newAlpha = SkColorGetA(palette[palette_index]) *
-                                 SkColrV1AlphaToFloat(color_stop.color.alpha);
-                colorStopsSorted[index].color = SkColorSetA(palette[palette_index], newAlpha);
+                skStop.color = SkColor4f::FromColor(palette[palette_index]);
             }
+            skStop.color.fA *= SkColrV1AlphaToFloat(ftStop.color.alpha);
         }
+#endif
 
         std::stable_sort(colorStopsSorted.begin(), colorStopsSorted.end(),
                          [](const ColorStop& a, const ColorStop& b) { return a.pos < b.pos; });
@@ -653,6 +709,7 @@ bool colrv1_configure_skpaint(FT_Face face,
             FT_PaintSolid solid = colrPaint.u.solid;
 
             // Dont' draw anything with this color if the palette index is out of bounds.
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             SkColor color = SK_ColorTRANSPARENT;
             if (solid.color.palette_index == kForegroundColorPaletteIndex) {
                 U8CPU newAlpha = SkColorGetA(foregroundColor) *
@@ -665,6 +722,17 @@ bool colrv1_configure_skpaint(FT_Face face,
                                  SkColrV1AlphaToFloat(solid.color.alpha);
                 color = SkColorSetA(palette[solid.color.palette_index], newAlpha);
             }
+#else
+            SkColor4f color = SkColors::kTransparent;
+            if (solid.color.palette_index == kForegroundColorPaletteIndex) {
+                color = SkColor4f::FromColor(foregroundColor);
+            } else if (solid.color.palette_index >= palette.size()) {
+                return false;
+            } else {
+                color = SkColor4f::FromColor(palette[solid.color.palette_index]);
+            }
+            color.fA *= SkColrV1AlphaToFloat(solid.color.alpha);
+#endif
             paint->setShader(nullptr);
             paint->setColor(color);
             return true;
@@ -672,7 +740,11 @@ bool colrv1_configure_skpaint(FT_Face face,
         case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT: {
             const FT_PaintLinearGradient& linearGradient = colrPaint.u.linear_gradient;
             std::vector<SkScalar> stops;
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             std::vector<SkColor> colors;
+#else
+            std::vector<SkColor4f> colors;
+#endif
 
             if (!fetchColorStops(linearGradient.colorline.color_stop_iterator, stops, colors)) {
                 return false;
@@ -761,10 +833,24 @@ bool colrv1_configure_skpaint(FT_Face face,
                 }
             }
 
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
                                    linePositions,
                                    colors.data(), stops.data(), stops.size(),
                                    tileMode));
+#else
+            sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
+                linePositions,
+                colors.data(), SkColorSpace::MakeSRGB(), stops.data(), stops.size(),
+                tileMode,
+                SkGradientShader::Interpolation{
+                    SkGradientShader::Interpolation::InPremul::kNo,
+                    SkGradientShader::Interpolation::ColorSpace::kSRGB,
+                    SkGradientShader::Interpolation::HueMethod::kShorter
+                },
+                nullptr));
+#endif
+
             SkASSERT(shader);
             // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
@@ -782,7 +868,11 @@ bool colrv1_configure_skpaint(FT_Face face,
 
 
             std::vector<SkScalar> stops;
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             std::vector<SkColor> colors;
+#else
+            std::vector<SkColor4f> colors;
+#endif
             if (!fetchColorStops(radialGradient.colorline.color_stop_iterator, stops, colors)) {
                 return false;
             }
@@ -938,9 +1028,23 @@ bool colrv1_configure_skpaint(FT_Face face,
             // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
 
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             paint->setShader(SkGradientShader::MakeTwoPointConical(
                     start, startRadius, end, endRadius, colors.data(), stops.data(), stops.size(),
                     tileMode));
+#else
+            paint->setShader(SkGradientShader::MakeTwoPointConical(
+                start, startRadius, end, endRadius,
+                colors.data(), SkColorSpace::MakeSRGB(), stops.data(), stops.size(),
+                tileMode,
+                SkGradientShader::Interpolation{
+                    SkGradientShader::Interpolation::InPremul::kNo,
+                    SkGradientShader::Interpolation::ColorSpace::kSRGB,
+                    SkGradientShader::Interpolation::HueMethod::kShorter
+                },
+                nullptr));
+#endif
+
             return true;
         }
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
@@ -957,7 +1061,11 @@ bool colrv1_configure_skpaint(FT_Face face,
             endAngle += 180.0f;
 
             std::vector<SkScalar> stops;
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             std::vector<SkColor> colors;
+#else
+            std::vector<SkColor4f> colors;
+#endif
             if (!fetchColorStops(sweepGradient.colorline.color_stop_iterator, stops, colors)) {
                 return false;
             }
@@ -1042,6 +1150,7 @@ bool colrv1_configure_skpaint(FT_Face face,
                 }
             }
 
+#ifdef SK_IGNORE_COLRV1_GRADIENT_COLORSPACE_FIX
             paint->setShader(SkGradientShader::MakeSweep(center.x(), center.y(),
                                                          colors.data(),
                                                          stops.data(), stops.size(),
@@ -1049,6 +1158,20 @@ bool colrv1_configure_skpaint(FT_Face face,
                                                          startAngleScaled,
                                                          endAngleScaled,
                                                          0, nullptr));
+#else
+            paint->setShader(SkGradientShader::MakeSweep(
+                center.x(), center.y(),
+                colors.data(), SkColorSpace::MakeSRGB(), stops.data(), stops.size(),
+                tileMode,
+                startAngleScaled, endAngleScaled,
+                SkGradientShader::Interpolation{
+                    SkGradientShader::Interpolation::InPremul::kNo,
+                    SkGradientShader::Interpolation::ColorSpace::kSRGB,
+                    SkGradientShader::Interpolation::HueMethod::kShorter
+                },
+                nullptr));
+#endif
+
             return true;
         }
         default: {

@@ -781,16 +781,24 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
             }
         }
 
-        std::unique_ptr<SkColor[]> skColors(new SkColor[stops.size()]);
+        std::unique_ptr<SkColor4f[]> skColors(new SkColor4f[stops.size()]);
         std::unique_ptr<SkScalar[]> skStops(new SkScalar[stops.size()]);
         for (size_t i = 0; i < stops.size(); ++i) {
-            skColors[i] = sk_color_from(stops[i].color).toSkColor();
+            skColors[i] = sk_color_from(stops[i].color);
             skStops[i] = stops[i].position;
         }
 
         sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
             linePositions,
-            skColors.get(), skStops.get(), stops.size(), tileMode));
+            skColors.get(), SkColorSpace::MakeSRGB(), skStops.get(), stops.size(),
+            tileMode,
+            SkGradientShader::Interpolation{
+                SkGradientShader::Interpolation::InPremul::kNo,
+                SkGradientShader::Interpolation::ColorSpace::kSRGB,
+                SkGradientShader::Interpolation::HueMethod::kShorter
+            },
+            nullptr));
+
         SkASSERT(shader);
         // An opaque color is needed to ensure the gradient is not modulated by alpha.
         skPaint.setColor(SK_ColorBLACK);
@@ -964,10 +972,10 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
             }
         }
 
-        std::unique_ptr<SkColor[]> skColors(new SkColor[stops.size()]);
+        std::unique_ptr<SkColor4f[]> skColors(new SkColor4f[stops.size()]);
         std::unique_ptr<SkScalar[]> skStops(new SkScalar[stops.size()]);
         for (size_t i = 0; i < stops.size(); ++i) {
-            skColors[i] = sk_color_from(stops[i].color).toSkColor();
+            skColors[i] = sk_color_from(stops[i].color);
             skStops[i] = stops[i].position;
         }
 
@@ -975,7 +983,14 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
         skPaint.setColor(SK_ColorBLACK);
         skPaint.setShader(SkGradientShader::MakeTwoPointConical(
             start, startRadius, end, endRadius,
-            skColors.get(), skStops.get(), stops.size(), tileMode));
+            skColors.get(), SkColorSpace::MakeSRGB(), skStops.get(), stops.size(),
+            tileMode,
+            SkGradientShader::Interpolation{
+                SkGradientShader::Interpolation::InPremul::kNo,
+                SkGradientShader::Interpolation::ColorSpace::kSRGB,
+                SkGradientShader::Interpolation::HueMethod::kShorter
+            },
+            nullptr));
         canvas.drawPaint(skPaint);
         return true;
     }
@@ -1082,18 +1097,24 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
             }
         }
 
-        std::unique_ptr<SkColor[]> skColors(new SkColor[stops.size()]);
+        std::unique_ptr<SkColor4f[]> skColors(new SkColor4f[stops.size()]);
         std::unique_ptr<SkScalar[]> skStops(new SkScalar[stops.size()]);
         for (size_t i = 0; i < stops.size(); ++i) {
-            skColors[i] = sk_color_from(stops[i].color).toSkColor();
+            skColors[i] = sk_color_from(stops[i].color);
             skStops[i] = stops[i].position;
         }
 
         skPaint.setShader(SkGradientShader::MakeSweep(
             center.x(), center.y(),
-            skColors.get(), skStops.get(), stops.size(), tileMode,
+            skColors.get(), SkColorSpace::MakeSRGB(), skStops.get(), stops.size(),
+            tileMode,
             startAngleScaled, endAngleScaled,
-            0, nullptr));
+            SkGradientShader::Interpolation{
+                SkGradientShader::Interpolation::InPremul::kNo,
+                SkGradientShader::Interpolation::ColorSpace::kSRGB,
+                SkGradientShader::Interpolation::HueMethod::kShorter
+            },
+            nullptr));
         canvas.drawPaint(skPaint);
         return true;
     }
