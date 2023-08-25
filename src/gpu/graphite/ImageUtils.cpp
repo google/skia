@@ -136,13 +136,13 @@ Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
                                          const SkSurfaceProps* props) {
         return SkSpecialSurfaces::MakeGraphite(recorder, imageInfo, *props);
     };
-    auto makeImageCallback = [recorder](const SkIRect& subset,
+    auto makeImageFunctor = [recorder](const SkIRect& subset,
                                 sk_sp<SkImage> image,
                                 const SkSurfaceProps& props) {
         // This just makes a raster image, but it could maybe call MakeFromGraphite
         return SkSpecialImages::MakeGraphite(recorder, subset, image, props);
     };
-    auto makeCachedBitmapCallback = [recorder](const SkBitmap& data) -> sk_sp<SkImage> {
+    auto makeCachedBitmapFunctor = [recorder](const SkBitmap& data) -> sk_sp<SkImage> {
         auto proxy = skgpu::graphite::RecorderPriv::CreateCachedProxy(recorder, data);
         if (!proxy) {
             return nullptr;
@@ -156,7 +156,28 @@ Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
                 skgpu::graphite::TextureProxyView(std::move(proxy), swizzle),
                 colorInfo);
     };
+    auto blurImageFunctor = [](SkSize sigma,
+                               sk_sp<SkSpecialImage> input,
+                               SkIRect srcRect,
+                               SkIRect dstRect,
+                               sk_sp<SkColorSpace> outCS,
+                               const SkSurfaceProps& outProps) -> sk_sp<SkSpecialImage> {
+        // TODO: Actually implement this, but for now just pass the input image out un-modified.
+        // We need to have a non-null blur image functor so that SkBlurImageFilter does not try to
+        // use the CPU blur implementation on a Graphite image.
+        if (!srcRect.contains(dstRect)) {
+            return nullptr;
+        }
+        // Subsetting the input image with dst rect keeps it located where FilterResult::Builder
+        // expects it to be. This is temporary since eventually we'll be creating a surface to fill
+        // 'dstRect'.
+        return input->makeSubset(dstRect);
+    };
 
-    return Context(info, nullptr, makeSurfaceFunctor, makeImageCallback, makeCachedBitmapCallback);
+    return Context(info,
+                   makeSurfaceFunctor,
+                   makeImageFunctor,
+                   makeCachedBitmapFunctor,
+                   blurImageFunctor);
 }
 }  // namespace skif
