@@ -36,9 +36,6 @@ bool IsGLContextType(skgpu::ContextType type) {
 bool IsVulkanContextType(skgpu::ContextType type) {
     return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kVulkan;
 }
-bool IsRenderingGLContextType(skgpu::ContextType type) {
-    return IsGLContextType(type);
-}
 bool IsMockContextType(skgpu::ContextType type) {
     return type == skgpu::ContextType::kMock;
 }

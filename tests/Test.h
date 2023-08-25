@@ -219,7 +219,6 @@ extern bool IsVulkanContextType(GpuContextType);
 extern bool IsMetalContextType(GpuContextType);
 extern bool IsDawnContextType(GpuContextType);
 extern bool IsDirect3DContextType(GpuContextType);
-extern bool IsRenderingGLContextType(GpuContextType);
 extern bool IsMockContextType(GpuContextType);
 
 namespace graphite {
@@ -422,12 +421,12 @@ using skiatest::Test;
     DEF_GANESH_TEST_FOR_CONTEXTS(                                                         \
             name, skiatest::IsGLContextType, reporter, context_info, nullptr, ctsEnforcement)
 
-#define DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
-    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                                          \
-                                 &skiatest::IsRenderingGLContextType,                           \
-                                 reporter,                                                      \
-                                 context_info,                                                  \
-                                 nullptr,                                                       \
+#define DEF_GANESH_TEST_FOR_GL_CONTEXT(name, reporter, context_info, ctsEnforcement) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                               \
+                                 &skiatest::IsGLContextType,                         \
+                                 reporter,                                           \
+                                 context_info,                                       \
+                                 nullptr,                                            \
                                  ctsEnforcement)
 
 #define DEF_GANESH_TEST_FOR_MOCK_CONTEXT(name, reporter, context_info) \

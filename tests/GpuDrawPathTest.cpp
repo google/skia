@@ -81,7 +81,7 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 2, 0));
 }
 
-DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::kNever) {
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {1, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);

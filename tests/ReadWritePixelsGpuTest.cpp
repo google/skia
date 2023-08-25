@@ -1442,10 +1442,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
 // Tests a bug found in OOP-R canvas2d in Chrome. The GPU backend would incorrectly not bind
 // buffer 0 to GL_PIXEL_PACK_BUFFER before a glReadPixels() that was supposed to read into
 // client memory if a GrDirectContext::resetContext() occurred.
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(GLReadPixelsUnbindPBO,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(GLReadPixelsUnbindPBO,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kApiLevel_T) {
     // Start with a async read so that we bind to GL_PIXEL_PACK_BUFFER.
     auto info = SkImageInfo::Make(16, 16, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAutoPixmapStorage pmap = make_ref_data(info, /*forceOpaque=*/false);

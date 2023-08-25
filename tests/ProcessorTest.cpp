@@ -582,10 +582,10 @@ static bool legal_modulation(const GrColor inGr[3], const GrColor outGr[3]) {
     return isLegalColorModulation || isLegalAlphaModulation;
 }
 
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorOptimizationValidationTest,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kNever) {
     GrDirectContext* context = ctxInfo.directContext();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
@@ -951,10 +951,7 @@ static void log_clone_failure(skiatest::Reporter* reporter, int renderSize,
 
 // Tests that a fragment processor returned by GrFragmentProcessor::clone() is equivalent to its
 // progenitor.
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorCloneTest, reporter, ctxInfo, CtsEnforcement::kNever) {
     GrDirectContext* context = ctxInfo.directContext();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 

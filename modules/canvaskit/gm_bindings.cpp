@@ -274,9 +274,6 @@ using ContextType = skgpu::ContextType;
 bool IsGLContextType(skgpu::ContextType ct) {
     return skgpu::ganesh::ContextTypeBackend(ct) == GrBackendApi::kOpenGL;
 }
-bool IsRenderingGLContextType(skgpu::ContextType ct) {
-    return IsGLContextType(ct);
-}
 bool IsMockContextType(skgpu::ContextType ct) {
     return ct == skgpu::ContextType::kMock;
 }

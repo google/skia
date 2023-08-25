@@ -152,10 +152,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(RectangleTexture, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();

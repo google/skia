@@ -922,10 +922,10 @@ struct TextureReleaseChecker {
     }
 };
 
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(SkImage_NewFromTextureRelease,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kApiLevel_T) {
     const int kWidth = 10;
     const int kHeight = 10;
 
@@ -1187,10 +1187,7 @@ DEF_GANESH_TEST(SkImage_CrossContextGrayAlphaConfigs,
     }
 }
 
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(makeBackendTexture, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
     sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();

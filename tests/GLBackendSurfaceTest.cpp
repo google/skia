@@ -63,10 +63,10 @@ static bool params_valid(const GrGLTextureParameters& parameters, const GrGLCaps
     return caps->useSamplerObjects() == sampler_params_invalid(parameters);
 }
 
-DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
-                                    reporter,
-                                    ctxInfo,
-                                    CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(GLTextureParameters,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto caps = static_cast<const GrGLCaps*>(dContext->priv().caps());
 

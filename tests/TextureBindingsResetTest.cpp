@@ -45,10 +45,10 @@
 
 struct GrContextOptions;
 
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kApiLevel_T) {
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)
 
     auto dContext = ctxInfo.directContext();

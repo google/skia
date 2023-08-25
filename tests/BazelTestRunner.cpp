@@ -66,9 +66,6 @@ bool IsDirect3DContextType(skgpu::ContextType type) {
 bool IsDawnContextType(skgpu::ContextType type) {
     return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kDawn;
 }
-bool IsRenderingGLContextType(skgpu::ContextType type) {
-    return IsGLContextType(type);
-}
 bool IsMockContextType(skgpu::ContextType type) {
     return type == skgpu::ContextType::kMock;
 }

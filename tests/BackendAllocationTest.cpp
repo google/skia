@@ -784,10 +784,10 @@ DEF_GANESH_TEST(ColorTypeBackendAllocationTest, reporter, options, CtsEnforcemen
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef SK_GL
 
-DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest,
-                                    reporter,
-                                    ctxInfo,
-                                    CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(GLBackendAllocationTest,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kApiLevel_T) {
     sk_gpu_test::GLTestContext* glCtx = ctxInfo.glContext();
     GrGLStandard standard = glCtx->gl()->fStandard;
     auto context = ctxInfo.directContext();
