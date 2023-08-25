@@ -81,35 +81,25 @@ static constexpr GrSurfaceOrigin kTestSurfaceOrigin = kTopLeft_GrSurfaceOrigin;
 
 class MatrixTestImageFilter : public SkImageFilter_Base {
 public:
-    static sk_sp<SkImageFilter> Make(skiatest::Reporter* reporter,
-                                     const SkMatrix& expectedMatrix) {
-        return sk_sp<SkImageFilter>(new MatrixTestImageFilter(reporter, expectedMatrix));
-    }
-
-protected:
-    sk_sp<SkSpecialImage> onFilterImage(const skif::Context& ctx, SkIPoint* offset) const override {
-        REPORTER_ASSERT(fReporter, ctx.ctm() == fExpectedMatrix);
-        offset->fX = offset->fY = 0;
-        return sk_ref_sp<SkSpecialImage>(ctx.sourceImage());
-    }
-
-    void flatten(SkWriteBuffer& buffer) const override {
-        SkDEBUGFAIL("Should never get here");
-    }
+    MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
+            : SkImageFilter_Base(nullptr, 0, nullptr)
+            , fReporter(reporter)
+            , fExpectedMatrix(expectedMatrix) {}
 
 private:
-    SK_FLATTENABLE_HOOKS(MatrixTestImageFilter)
+    Factory getFactory() const override {
+        SK_ABORT("Does not participate in serialization");
+        return nullptr;
+    }
+    const char* getTypeName() const override { return "MatrixTestImageFilter"; }
 
-    MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
-        : INHERITED(nullptr, 0, nullptr)
-        , fReporter(reporter)
-        , fExpectedMatrix(expectedMatrix) {
+    skif::FilterResult onFilterImage(const skif::Context& ctx) const override {
+        REPORTER_ASSERT(fReporter, ctx.mapping().layerMatrix() == fExpectedMatrix);
+        return ctx.source();
     }
 
     skiatest::Reporter* fReporter;
     SkMatrix fExpectedMatrix;
-
-    using INHERITED = SkImageFilter_Base;
 };
 
 void draw_gradient_circle(SkCanvas* canvas, int width, int height) {
@@ -271,11 +261,6 @@ private:
 };
 
 }  // namespace
-
-sk_sp<SkFlattenable> MatrixTestImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SkDEBUGFAIL("Should never get here");
-    return nullptr;
-}
 
 static skif::Context make_context(const SkIRect& out, const SkSpecialImage* src) {
     skif::Mapping mapping{SkMatrix::I()};
@@ -1250,7 +1235,7 @@ DEF_TEST(ImageFilterMatrix, reporter) {
     SkCanvas* recordingCanvas = recorder.beginRecording(100, 100, &factory);
 
     SkPaint paint;
-    paint.setImageFilter(MatrixTestImageFilter::Make(reporter, expectedMatrix));
+    paint.setImageFilter(sk_sp<SkImageFilter>(new MatrixTestImageFilter(reporter, expectedMatrix)));
     recordingCanvas->saveLayer(nullptr, &paint);
     SkPaint solidPaint;
     solidPaint.setColor(0xFFFFFFFF);
