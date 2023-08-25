@@ -25,8 +25,6 @@ declare_args() {
   skia_enable_skottie = !(is_win && is_component_build) ||
                         (is_wasm && skia_canvaskit_enable_skottie)
   skia_enable_precompile = true
-  skia_enable_sksl = true  # TODO(b/294209201): SK_ENABLE_SKSL has been removed;
-                           # eliminate this flag
   skia_enable_svg = !is_component_build
   skia_enable_tools = is_skia_dev_build
   skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
