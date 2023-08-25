@@ -466,7 +466,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context,
         skiatest::ReporterContext subtest(reporter, testcase.name);
         sk_sp<SkImage> orig = testcase.fFactory(recorder.get());
 
-        SkASSERT(orig->colorType() == kRGBA_8888_SkColorType);
+        SkASSERT(orig->colorType() == kRGBA_8888_SkColorType ||
+                 orig->colorType() == kBGRA_8888_SkColorType);
         SkASSERT(!orig->colorSpace() || orig->colorSpace() == SkColorSpace::MakeSRGB().get());
 
         for (bool mipmapped : {false, true}) {

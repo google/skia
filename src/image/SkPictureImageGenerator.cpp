@@ -88,4 +88,3 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
     canvas->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
     return true;
 }
-
