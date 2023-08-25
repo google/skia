@@ -91,7 +91,7 @@ bool SkImage_Picture::getImageKeyValues(
     int width = ii.width();
     int height = ii.height();
     float transX = m.getTranslateX();
-    float transY = m.getTranslateX();
+    float transY = m.getTranslateY();
 
     SkASSERT(pixelGeometry <= 4);
     SkASSERT(surfacePropFlags < 8);
