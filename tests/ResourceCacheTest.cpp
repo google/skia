@@ -49,6 +49,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/gpu/ContextType.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #include <chrono>
@@ -114,10 +115,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache,
     context->setResourceCacheLimit(oldMaxBytes);
 }
 
-static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::ContextType type) {
-    if (type == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES3_ContextType ||
-        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType ||
-        type == sk_gpu_test::GrContextFactory::kANGLE_Metal_ES3_ContextType) {
+static bool is_rendering_and_not_angle_es3(skgpu::ContextType type) {
+    if (type == skgpu::ContextType::kANGLE_D3D11_ES3 ||
+        type == skgpu::ContextType::kANGLE_GL_ES3 ||
+        type == skgpu::ContextType::kANGLE_Metal_ES3) {
         return false;
     }
     return sk_gpu_test::GrContextFactory::IsRenderingContext(type);

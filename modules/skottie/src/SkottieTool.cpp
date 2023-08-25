@@ -324,8 +324,7 @@ private:
     GPUGenerator(FrameSink* sink, const SkMatrix& matrix)
         : FrameGenerator(sink)
     {
-        fCtx = fFactory.getContextInfo(sk_gpu_test::GrContextFactory::kGL_ContextType)
-                           .directContext();
+        fCtx = fFactory.getContextInfo(skgpu::ContextType::kGL).directContext();
         fSurface = SkSurfaces::RenderTarget(fCtx,
                                             skgpu::Budgeted::kNo,
                                             SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height),

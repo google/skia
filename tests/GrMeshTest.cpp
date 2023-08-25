@@ -76,7 +76,7 @@ using namespace skia_private;
 
 #if 0
 #include "tools/ToolUtils.h"
-#define WRITE_PNG_CONTEXT_TYPE kANGLE_D3D11_ES3_ContextType
+#define WRITE_PNG_CONTEXT_TYPE kANGLE_D3D11_ES3
 #endif
 
 SKGPU_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
@@ -149,8 +149,8 @@ static void run_test(GrDirectContext*,
                      std::function<void(DrawMeshHelper*)> executeFn);
 
 #ifdef WRITE_PNG_CONTEXT_TYPE
-static bool IsContextTypeForOutputPNGs(skiatest::GrContextFactoryContextType type) {
-    return type == skiatest::GrContextFactoryContextType::WRITE_PNG_CONTEXT_TYPE;
+static bool IsContextTypeForOutputPNGs(skgpu::ContextType type) {
+    return type == skgpu::ContextType::WRITE_PNG_CONTEXT_TYPE;
 }
 DEF_GANESH_TEST_FOR_CONTEXTS(GrMeshTest, IsContextTypeForOutputPNGs, reporter, ctxInfo, nullptr) {
 #else

@@ -48,7 +48,7 @@ std::unique_ptr<SurfaceManager> SurfaceManager::FromConfig(std::string config,
         GrContextOptions grCtxOptions;
         auto testFactory = std::make_unique<sk_gpu_test::GrContextFactory>(grCtxOptions);
         sk_gpu_test::ContextInfo contextInfo = testFactory.get()->getContextInfo(
-                sk_gpu_test::GrContextFactory::kGLES_ContextType,
+                skgpu::ContextType::kGLES,
                 sk_gpu_test::GrContextFactory::ContextOverrides::kNone);
         GrDirectContext* context = contextInfo.directContext();
         SkASSERT_RELEASE(context);
