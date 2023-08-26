@@ -63,34 +63,14 @@ static constexpr float kMaxLinearBlurSigma = 4.f; // -> radius = 27 -> linear ke
 // a GrFragmentProcessor. Callers are responsible for providing the uniform values (using the
 // appropriate API of the target effect type). The effect declares the following uniforms:
 //
-//    uniform half4  kernel[7];
-//    uniform int2   radius;
+//    uniform half4 kernel[7];
+//    uniform int2 radius;
 //    uniform shader child;
 //
 // 'kernel' should be set to the output of Compute2DBlurKernel(). 'radius' should match the radii
 // passed into that function. 'child' should be bound to whatever input is intended to be blurred,
 // and can use nearest-neighbor sampling (when it's an image).
 const SkRuntimeEffect* GetBlur2DEffect();
-
-// Return a runtime effect that applies a 1D Gaussian blur, taking advantage of HW linear
-// interpolation to accumulate adjacent pixels with fewer samples. The returned effect can be used
-// for both X and Y axes by changing the 'dir' uniform value (see below). It can be used for all
-// 1D blurs such that BlurLinearKernelWidth(radius) is less than or equal to kMaxBlurSamples.
-// Like GetBlur2DEffect(), the caller is free to convert this to an SkShader or a
-// GrFragmentProcessor and is responsible for assigning uniforms with the appropriate API. Its
-// uniforms are declared as:
-//
-//     uniform half4  kernel[7];
-//     uniform half4  offsets[7];
-//     uniform int    radius;
-//     uniform half2  dir;
-//     uniform shader child;
-//
-// 'kernel' and 'offsets' should be set to the output of Compute1DBlurLinearKernel(). 'radius'
-// should match the radius passed to that function. 'dir' should either be the vector {1,0} or {0,1}
-// for X and Y axis passes, respectively. 'child' should be bound to whatever input is intended to
-// be blurred and must use linear sampling in order for the outer blur effect to function correctly.
-const SkRuntimeEffect* GetLinearBlur1DEffect();
 
 // Calculates a set of weights for a 2D Gaussian blur of the given sigma and radius. It is assumed
 // that the radius was from prior calls to BlurSigmaRadius(sigma.width()|height()) and is passed in
