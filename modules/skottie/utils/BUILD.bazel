@@ -8,6 +8,7 @@ skia_filegroup(
     name = "hdrs",
     srcs = [
         "SkottieUtils.h",
+        "TextEditor.h",
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )
@@ -16,6 +17,7 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "SkottieUtils.cpp",
+        "TextEditor.cpp",
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )

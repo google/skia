@@ -19,12 +19,12 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skottie/utils/TextEditor.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
-#include "tools/viewer/SkottieTextEditor.h"
 
 #include <cmath>
 #include <vector>
@@ -551,8 +551,8 @@ void SkottieSlide::init() {
             // Attach the editor to the first text layer, and track the rest as dependents.
             auto editor_target = std::move(text_props[0]);
             text_props.erase(text_props.cbegin());
-            fTextEditor = sk_make_sp<SkottieTextEditor>(std::move(editor_target),
-                                                        std::move(text_props));
+            fTextEditor = sk_make_sp<skottie_utils::TextEditor>(std::move(editor_target),
+                                                                std::move(text_props));
         }
     } else {
         SkDebugf("failed to load Bodymovin animation: %s\n", fPath.c_str());

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/viewer/SkottieTextEditor.h"
+#include "modules/skottie/utils/TextEditor.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -14,6 +14,8 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkAssert.h"
 #include "src/base/SkUTF.h"
+
+namespace skottie_utils {
 
 namespace {
 
@@ -64,7 +66,7 @@ size_t prev_utf8(const SkString& str, size_t index) {
 
 } // namespace
 
-SkottieTextEditor::SkottieTextEditor(
+TextEditor::TextEditor(
         std::unique_ptr<skottie::TextPropertyHandle>&& prop,
         std::vector<std::unique_ptr<skottie::TextPropertyHandle>>&& deps)
     : fTextProp(std::move(prop))
@@ -73,9 +75,9 @@ SkottieTextEditor::SkottieTextEditor(
     , fCursorBounds(fCursorPath.computeTightBounds())
 {}
 
-SkottieTextEditor::~SkottieTextEditor() = default;
+TextEditor::~TextEditor() = default;
 
-void SkottieTextEditor::toggleEnabled() {
+void TextEditor::toggleEnabled() {
     fEnabled = !fEnabled;
 
     auto txt = fTextProp->get();
@@ -90,13 +92,13 @@ void SkottieTextEditor::toggleEnabled() {
     fTimeBase = std::chrono::steady_clock::now();
 }
 
-std::tuple<size_t, size_t> SkottieTextEditor::currentSelection() const {
+std::tuple<size_t, size_t> TextEditor::currentSelection() const {
     // Selection can be inverted.
     return std::make_tuple(std::min(std::get<0>(fSelection), std::get<1>(fSelection)),
                            std::max(std::get<0>(fSelection), std::get<1>(fSelection)));
 }
 
-size_t SkottieTextEditor::closestGlyph(const SkPoint& pt) const {
+size_t TextEditor::closestGlyph(const SkPoint& pt) const {
     float  min_distance = std::numeric_limits<float>::max();
     size_t min_index    = 0;
 
@@ -111,7 +113,7 @@ size_t SkottieTextEditor::closestGlyph(const SkPoint& pt) const {
     return min_index;
 }
 
-void SkottieTextEditor::drawCursor(SkCanvas* canvas, const TextInfo& tinfo) const {
+void TextEditor::drawCursor(SkCanvas* canvas, const TextInfo& tinfo) const {
     constexpr double kCursorHz = 2;
     const auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                             std::chrono::steady_clock::now() - fTimeBase).count();
@@ -168,7 +170,7 @@ void SkottieTextEditor::drawCursor(SkCanvas* canvas, const TextInfo& tinfo) cons
     canvas->drawPath(cpath, p);
 }
 
-void SkottieTextEditor::updateDeps(const SkString& txt) {
+void TextEditor::updateDeps(const SkString& txt) {
     for (const auto& dep : fDependentProps) {
         auto txt_prop = dep->get();
         txt_prop.fText = txt;
@@ -176,7 +178,7 @@ void SkottieTextEditor::updateDeps(const SkString& txt) {
     }
 }
 
-void SkottieTextEditor::insertChar(SkUnichar c) {
+void TextEditor::insertChar(SkUnichar c) {
     auto txt = fTextProp->get();
     const auto initial_size = txt.fText.size();
 
@@ -187,7 +189,7 @@ void SkottieTextEditor::insertChar(SkUnichar c) {
     this->updateDeps(txt.fText);
 }
 
-void SkottieTextEditor::deleteChars(size_t offset, size_t count) {
+void TextEditor::deleteChars(size_t offset, size_t count) {
     auto txt = fTextProp->get();
 
     txt.fText.remove(offset, count);
@@ -197,7 +199,7 @@ void SkottieTextEditor::deleteChars(size_t offset, size_t count) {
     fCursorIndex = offset;
 }
 
-bool SkottieTextEditor::deleteSelection() {
+bool TextEditor::deleteSelection() {
     const auto [glyph_sel_start, glyph_sel_end] = this->currentSelection();
     if (glyph_sel_start == glyph_sel_end) {
         return false;
@@ -214,7 +216,7 @@ bool SkottieTextEditor::deleteSelection() {
     return true;
 }
 
-void SkottieTextEditor::onDecorate(SkCanvas* canvas, const TextInfo& tinfo) {
+void TextEditor::onDecorate(SkCanvas* canvas, const TextInfo& tinfo) {
     const auto [sel_start, sel_end] = this->currentSelection();
 
     fGlyphData.clear();
@@ -245,7 +247,7 @@ void SkottieTextEditor::onDecorate(SkCanvas* canvas, const TextInfo& tinfo) {
     }
 }
 
-bool SkottieTextEditor::onMouseInput(SkScalar x, SkScalar y, skui::InputState state,
+bool TextEditor::onMouseInput(SkScalar x, SkScalar y, skui::InputState state,
                                      skui::ModifierKey) {
     if (!fEnabled || fGlyphData.empty()) {
         return false;
@@ -276,7 +278,7 @@ bool SkottieTextEditor::onMouseInput(SkScalar x, SkScalar y, skui::InputState st
     return true;
 }
 
-bool SkottieTextEditor::onCharInput(SkUnichar c) {
+bool TextEditor::onCharInput(SkUnichar c) {
     if (!fEnabled || fGlyphData.empty()) {
         return false;
     }
@@ -319,3 +321,5 @@ bool SkottieTextEditor::onCharInput(SkUnichar c) {
 
     return true;
 }
+
+}  // namespace skottie_utils

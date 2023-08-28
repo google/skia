@@ -41,7 +41,10 @@ if (skia_enable_skottie) {
       public_configs = [ ":utils_config" ]
       configs = [ "../../:skia_private" ]
 
-      sources = [ "utils/SkottieUtils.cpp" ]
+      sources = [
+        "utils/SkottieUtils.cpp",
+        "utils/TextEditor.cpp",
+      ]
       deps = [
         ":skottie",
         "../..:skia",

@@ -30,6 +30,7 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         ":skottie",
+        "//tools/skui",
     ],
 )
 
