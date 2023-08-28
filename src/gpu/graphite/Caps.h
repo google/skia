@@ -286,7 +286,7 @@ protected:
      */
     ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     int  fMaxTextureAtlasSize = 2048;
 #endif
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;

@@ -41,7 +41,7 @@ public:
     [[nodiscard]] bool submitToGpu();
     void checkForFinishedWork(SyncToCpu);
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     virtual void startCapture() {}
     virtual void stopCapture() {}
 #endif

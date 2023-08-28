@@ -26,7 +26,7 @@ class GraphicsPipeline : public Resource {
 public:
     ~GraphicsPipeline() override;
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     struct Shaders {
         std::string fSkSLVertexShader;
         std::string fSkSLFragmentShader;
@@ -45,7 +45,7 @@ protected:
     GraphicsPipeline(const SharedContext*, Shaders*);
 
 private:
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     Shaders fPipelineShaders;
 #endif
 };

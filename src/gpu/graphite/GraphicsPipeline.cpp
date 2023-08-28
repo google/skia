@@ -12,7 +12,7 @@ namespace skgpu::graphite {
 
 GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext, Shaders* pipelineShaders)
         : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0) {
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     if (pipelineShaders) {
         fPipelineShaders.fSkSLVertexShader =
                 SkShaderUtils::PrettyPrint(pipelineShaders->fSkSLVertexShader);

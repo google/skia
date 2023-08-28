@@ -61,7 +61,7 @@ QueueManager::OutstandingSubmission MtlQueueManager::onSubmitToGpu() {
     return submission;
 }
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
 void MtlQueueManager::startCapture() {
     if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         // TODO: add newer Metal interface as well

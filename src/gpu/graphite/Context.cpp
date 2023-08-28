@@ -66,7 +66,7 @@ Context::Context(sk_sp<SharedContext> sharedContext,
                  const ContextOptions& options)
         : fSharedContext(std::move(sharedContext))
         , fQueueManager(std::move(queueManager))
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
         , fStoreContextRefInRecorder(options.fStoreContextRefInRecorder)
 #endif
         , fContextID(ContextID::Next()) {
@@ -80,7 +80,7 @@ Context::Context(sk_sp<SharedContext> sharedContext,
 }
 
 Context::~Context() {
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     ASSERT_SINGLE_OWNER
     for (auto& recorder : fTrackedRecorders) {
         recorder->priv().setContext(nullptr);
@@ -116,7 +116,7 @@ std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) 
     ASSERT_SINGLE_OWNER
 
     auto recorder = std::unique_ptr<Recorder>(new Recorder(fSharedContext, options));
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     if (fStoreContextRefInRecorder) {
         recorder->priv().setContext(this);
     }
@@ -756,7 +756,7 @@ void Context::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
 bool ContextPriv::readPixels(const SkPixmap& pm,
                              const TextureProxy* textureProxy,
                              const SkImageInfo& srcImageInfo,

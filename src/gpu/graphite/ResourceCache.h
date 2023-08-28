@@ -17,7 +17,7 @@
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
 #include <functional>
 #endif
 #include <vector>
@@ -32,7 +32,7 @@ class GraphiteResourceKey;
 class ProxyCache;
 class Resource;
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
 class Texture;
 #endif
 
@@ -78,7 +78,7 @@ public:
 
     size_t getMaxBudget() const { return fMaxBytes; }
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     void forceProcessReturnedResources() { this->processReturnedResources(); }
 
     void forcePurgeAsNeeded() { this->purgeAsNeeded(); }

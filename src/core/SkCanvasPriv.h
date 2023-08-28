@@ -23,7 +23,7 @@ class SkReadBuffer;
 struct SkRect;
 class SkWriteBuffer;
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
 namespace skgpu::graphite {
     class TextureProxy;
 }
@@ -66,7 +66,7 @@ public:
         return canvas->topDevice();
     }
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     static skgpu::graphite::TextureProxy* TopDeviceGraphiteTargetProxy(SkCanvas*);
 #endif
 

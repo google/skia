@@ -49,7 +49,7 @@ public:
         return fContext->fPlotUploadTracker.get();
     }
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     void startCapture() {
         fContext->fQueueManager->startCapture();
     }

@@ -88,7 +88,7 @@ struct SK_API ContextOptions {
      */
     size_t fGpuBudgetInBytes = kDefaultContextBudget;
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     /**
      * Private options that are only meant for testing within Skia's tools.
      */

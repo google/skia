@@ -40,7 +40,7 @@ public:
 
     void purgeAll();
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     int numCached() const;
     sk_sp<TextureProxy> find(const SkBitmap&, Mipmapped);
     void forceProcessInvalidKeyMsgs();

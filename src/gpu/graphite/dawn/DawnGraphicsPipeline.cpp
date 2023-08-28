@@ -557,7 +557,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         return {};
     }
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     GraphicsPipeline::Shaders pipelineShaders = {
         std::move(vsSkSL),
         std::move(fsSkSL),

@@ -2627,7 +2627,7 @@ void Viewer::drawImGui() {
                         });
                     }
 #if defined(SK_GRAPHITE)
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
                     if (skgpu::graphite::Context* gctx = fWindow->graphiteContext()) {
                         // TODO(skia:14418): populate fCachedShaders with recently-used shaders
                         auto callback = [&](const skgpu::UniqueKey& key,
