@@ -26,8 +26,6 @@ EFFECTS_FILES = [
     "GrDisableColorXP.h",
     "GrDistanceFieldGeoProc.cpp",
     "GrDistanceFieldGeoProc.h",
-    "GrGaussianConvolutionFragmentProcessor.cpp",
-    "GrGaussianConvolutionFragmentProcessor.h",
     "GrMatrixEffect.cpp",
     "GrMatrixEffect.h",
     "GrModulateAtlasCoverageEffect.cpp",

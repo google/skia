@@ -1075,8 +1075,6 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/effects/GrDisableColorXP.h",
     "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.cpp",
     "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h",
-    "src/gpu/ganesh/effects/GrGaussianConvolutionFragmentProcessor.cpp",
-    "src/gpu/ganesh/effects/GrGaussianConvolutionFragmentProcessor.h",
     "src/gpu/ganesh/effects/GrMatrixEffect.cpp",
     "src/gpu/ganesh/effects/GrMatrixEffect.h",
     "src/gpu/ganesh/effects/GrModulateAtlasCoverageEffect.cpp",

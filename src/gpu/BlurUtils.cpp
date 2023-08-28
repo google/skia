@@ -8,6 +8,7 @@
 #include "src/gpu/BlurUtils.h"
 
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 
 #include <array>
@@ -65,8 +66,7 @@ void Compute2DBlurKernel(SkSize sigma,
 
 void Compute1DBlurLinearKernel(float sigma,
                                int radius,
-                               std::array<float, kMaxBlurSamples>& kernel,
-                               std::array<float, kMaxBlurSamples>& offsets) {
+                               std::array<SkV4, kMaxBlurSamples/2>& offsetsAndKernel) {
     SkASSERT(sigma <= kMaxLinearBlurSigma);
     SkASSERT(radius == BlurSigmaRadius(sigma));
     SkASSERT(BlurLinearKernelWidth(radius) <= kMaxBlurSamples);
@@ -89,6 +89,8 @@ void Compute1DBlurLinearKernel(float sigma,
     std::array<float, kMaxKernelWidth> fullKernel;
     Compute1DBlurKernel(sigma, radius, SkSpan<float>{fullKernel.data(), BlurKernelWidth(radius)});
 
+    std::array<float, kMaxBlurSamples> kernel;
+    std::array<float, kMaxBlurSamples> offsets;
     // Note that halfsize isn't just size / 2, but radius + 1. This is the size of the output array.
     int halfSize = skgpu::BlurLinearKernelWidth(radius);
     int halfRadius = halfSize / 2;
@@ -136,6 +138,61 @@ void Compute1DBlurLinearKernel(float sigma,
     // Zero out remaining values in the arrays
     memset(kernel.data() + halfSize, 0, sizeof(float)*(kMaxBlurSamples - halfSize));
     memset(offsets.data() + halfSize, 0, sizeof(float)*(kMaxBlurSamples - halfSize));
+
+    // Interleave into the output array to match the 1D SkSL effect
+    for (int i = 0; i < skgpu::kMaxBlurSamples / 2; ++i) {
+        offsetsAndKernel[i] = SkV4{offsets[2*i], kernel[2*i], offsets[2*i+1], kernel[2*i+1]};
+    }
+}
+
+const SkRuntimeEffect* GetLinearBlur1DEffect(int radius) {
+    static const auto makeEffect = [](int maxRadius) {
+        SkASSERT(maxRadius < kMaxBlurSamples);
+        return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                SkStringPrintf(
+                       // The coefficients are always stored in for the max radius to keep the
+                       // uniform block consistent across all effects.
+                       "const int kMaxUniformKernelSize = %d / 2;"
+                       // But to help lower-end GPUs with unrolling, we bucket the max loop level.
+                       "const int kMaxLoopLimit = %d / 2 + 1;"
+
+                       "uniform half4 offsetsAndKernel[kMaxUniformKernelSize];"
+                       "uniform half2 dir;"
+                       "uniform int radius;"
+                       "uniform shader child;"
+
+                       "half4 main(float2 coord) {"
+                           "half4 sum = half4(0);"
+                            "for (int i = 0; i < kMaxLoopLimit; ++i) {"
+                                "half4 s = offsetsAndKernel[i];"
+                                "if (radius < 2*i) { break; }"
+                                "half2 o = offsetsAndKernel[i].x * dir;"
+                                "sum += offsetsAndKernel[i].y * child.eval(coord + o);"
+
+                                "if (radius <= 2*i) { break; }"
+                                "o = offsetsAndKernel[i].z * dir;"
+                                "sum += offsetsAndKernel[i].w * child.eval(coord + o);"
+                            "}"
+                            "return sum;"
+                       "}", kMaxBlurSamples, maxRadius).c_str());
+    };
+
+    SkASSERT(radius > 0 && radius < kMaxBlurSamples);
+    switch(SkNextLog2(radius)) {
+        // Group radius [1,4] in the same shader
+        case 0: [[fallthrough]];
+        case 1: [[fallthrough]];
+        case 2: {  static const SkRuntimeEffect* effect = makeEffect(4);
+                   return effect; }
+        case 3: {  static const SkRuntimeEffect* effect = makeEffect(8);
+                   return effect; }
+        case 4: {  static const SkRuntimeEffect* effect = makeEffect(16);
+                   return effect; }
+        case 5: {  static const SkRuntimeEffect* effect = makeEffect(kMaxBlurSamples - 1);
+                   return effect; }
+        default:
+            SkUNREACHABLE;
+    }
 }
 
 const SkRuntimeEffect* GetBlur2DEffect() {
@@ -175,6 +232,7 @@ const SkRuntimeEffect* GetBlur2DEffect() {
                            "}"
                            "return sum;"
                        "}", kMaxBlurSamples).c_str());
+    // TODO(b/297590025): Bucket the 2D effect similarly to the 1D effect above.
     return effect;
 }
 

@@ -8,6 +8,7 @@
 #ifndef skgpu_BlurUtils_DEFINED
 #define skgpu_BlurUtils_DEFINED
 
+#include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
@@ -63,14 +64,33 @@ static constexpr float kMaxLinearBlurSigma = 4.f; // -> radius = 27 -> linear ke
 // a GrFragmentProcessor. Callers are responsible for providing the uniform values (using the
 // appropriate API of the target effect type). The effect declares the following uniforms:
 //
-//    uniform half4 kernel[7];
-//    uniform int2 radius;
+//    uniform half4  kernel[7];
+//    uniform int2   radius;
 //    uniform shader child;
 //
 // 'kernel' should be set to the output of Compute2DBlurKernel(). 'radius' should match the radii
 // passed into that function. 'child' should be bound to whatever input is intended to be blurred,
 // and can use nearest-neighbor sampling (when it's an image).
 const SkRuntimeEffect* GetBlur2DEffect();
+
+// Return a runtime effect that applies a 1D Gaussian blur, taking advantage of HW linear
+// interpolation to accumulate adjacent pixels with fewer samples. The returned effect can be used
+// for both X and Y axes by changing the 'dir' uniform value (see below). It can be used for all
+// 1D blurs such that BlurLinearKernelWidth(radius) is less than or equal to kMaxBlurSamples.
+// Like GetBlur2DEffect(), the caller is free to convert this to an SkShader or a
+// GrFragmentProcessor and is responsible for assigning uniforms with the appropriate API. Its
+// uniforms are declared as:
+//
+//     uniform half4  offsetsAndKernel[14];
+//     uniform half2  dir;
+//     uniform int    radius;
+//     uniform shader child;
+//
+// 'offsetsAndKernel' should be set to the output of Compute1DBlurLinearKernel(). 'radius' should
+// match the radius passed to that function. 'dir' should either be the vector {1,0} or {0,1}
+// for X and Y axis passes, respectively. 'child' should be bound to whatever input is intended to
+// be blurred and must use linear sampling in order for the outer blur effect to function correctly.
+const SkRuntimeEffect* GetLinearBlur1DEffect(int radius);
 
 // Calculates a set of weights for a 2D Gaussian blur of the given sigma and radius. It is assumed
 // that the radius was from prior calls to BlurSigmaRadius(sigma.width()|height()) and is passed in
@@ -92,9 +112,11 @@ inline void Compute1DBlurKernel(float sigma, int radius, SkSpan<float> kernel) {
 
 // Calculates a set of weights and sampling offsets for a 1D blur that uses GPU hardware to linearly
 // combine two logical source pixel values. This assumes that 'radius' was from a prior call to
-// BlurSigmaRadius() and is passed in to avoid redundant calculations.
+// BlurSigmaRadius() and is passed in to avoid redundant calculations. To match std140 uniform
+// packing, the offset and kernel weight for adjacent samples are packed into a single SkV4 as
+//   {offset[2*i], kernel[2*i], offset[2*i+1], kernel[2*i+1]}
 //
-// The provided arrays are fully written to. The calculated values are written to indices 0 through
+// The provided array is fully written to. The calculated values are written to indices 0 through
 // BlurLinearKernelWidth(radius), with any remaining indices zero initialized. It requires the spans
 // to be the same size and have at least BlurLinearKernelWidth(radius) elements.
 //
@@ -103,8 +125,7 @@ inline void Compute1DBlurKernel(float sigma, int radius, SkSpan<float> kernel) {
 // can be stored on the stack internally.
 void Compute1DBlurLinearKernel(float sigma,
                                int radius,
-                               std::array<float, kMaxBlurSamples>& kernel,
-                               std::array<float, kMaxBlurSamples>& offsets);
+                               std::array<SkV4, kMaxBlurSamples/2>& offsetsAndKernel);
 
 } // namespace skgpu
 
