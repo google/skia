@@ -805,8 +805,6 @@ std::string GenerateLocalMatrixPreamble(const ShaderInfo& shaderInfo,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumXferFnCoeffs = 7;
-
 static constexpr Uniform kImageShaderUniforms[] = {
         { "imgSize",               SkSLType::kFloat2 },
         { "subset",                SkSLType::kFloat4 },
@@ -814,13 +812,12 @@ static constexpr Uniform kImageShaderUniforms[] = {
         { "tilemodeY",             SkSLType::kInt },
         { "filterMode",            SkSLType::kInt },
         { "readSwizzle",           SkSLType::kInt },
-        // The next 6 uniforms are for the color space transformation
+        // The next 5 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
-        { "csXformSrcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
         { "csXformGamutTransform", SkSLType::kHalf3x3 },
         { "csXformDstKind",        SkSLType::kInt },
-        { "csXformDstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
+        { "csXformCoeffs",         SkSLType::kHalf4x4 },
 };
 
 static constexpr Uniform kCubicImageShaderUniforms[] = {
@@ -830,13 +827,12 @@ static constexpr Uniform kCubicImageShaderUniforms[] = {
         { "tilemodeY",             SkSLType::kInt },
         { "cubicCoeffs",           SkSLType::kHalf4x4 },
         { "readSwizzle",           SkSLType::kInt },
-        // The next 6 uniforms are for the color space transformation
+        // The next 5 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
-        { "csXformSrcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
         { "csXformGamutTransform", SkSLType::kHalf3x3 },
         { "csXformDstKind",        SkSLType::kInt },
-        { "csXformDstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
+        { "csXformCoeffs",         SkSLType::kHalf4x4 },
 };
 
 static constexpr TextureAndSampler kISTexturesAndSamplers[] = {
@@ -886,10 +882,9 @@ static constexpr Uniform kYUVImageShaderUniforms[] = {
         // The next 6 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
-        { "csXformSrcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
         { "csXformGamutTransform", SkSLType::kHalf3x3 },
         { "csXformDstKind",        SkSLType::kInt },
-        { "csXformDstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
+        { "csXformCoeffs",         SkSLType::kHalf4x4 },
 };
 
 static constexpr TextureAndSampler kYUVISTexturesAndSamplers[] = {
@@ -1179,10 +1174,9 @@ static constexpr char kGaussianColorFilterName[] = "sk_gaussian_colorfilter";
 static constexpr Uniform kColorSpaceTransformUniforms[] = {
         { "flags",          SkSLType::kInt },
         { "srcKind",        SkSLType::kInt },
-        { "srcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
         { "gamutTransform", SkSLType::kHalf3x3 },
         { "dstKind",        SkSLType::kInt },
-        { "dstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
+        { "csXformCoeffs",  SkSLType::kHalf4x4 },
 };
 
 static_assert(0 == static_cast<int>(skcms_TFType_Invalid),

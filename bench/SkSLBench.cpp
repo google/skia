@@ -520,10 +520,9 @@ struct FSUniformData
 	// 3 - ColorSpaceTransform uniforms
 	int flags_3;
 	int srcKind_3;
-	half srcCoeffs_3[7];
 	half3x3 gamutTransform_3;
 	int dstKind_3;
-	half dstCoeffs_3[7];
+	half4x4 csXformCoeffs_3;
 	// 4 - DitherShader uniforms
 	half range_4;
 }
@@ -538,7 +537,7 @@ layout(binding=0) sampler2D sampler_4;
 // [1]   1: ColorFilterShader
 half4 ColorFilterShader_1(half4 inColor, half4 destColor, float2 coords)
 {
-	return sk_color_space_transform(sk_conical_grad_8_shader(coords, fsUniformData[shadingSsboIndexVar].colors_2, fsUniformData[shadingSsboIndexVar].offsets_2, fsUniformData[shadingSsboIndexVar].point0_2, fsUniformData[shadingSsboIndexVar].point1_2, fsUniformData[shadingSsboIndexVar].radius0_2, fsUniformData[shadingSsboIndexVar].radius1_2, fsUniformData[shadingSsboIndexVar].tilemode_2, fsUniformData[shadingSsboIndexVar].colorSpace_2, fsUniformData[shadingSsboIndexVar].doUnPremul_2), fsUniformData[shadingSsboIndexVar].flags_3, fsUniformData[shadingSsboIndexVar].srcKind_3, fsUniformData[shadingSsboIndexVar].srcCoeffs_3, fsUniformData[shadingSsboIndexVar].gamutTransform_3, fsUniformData[shadingSsboIndexVar].dstKind_3, fsUniformData[shadingSsboIndexVar].dstCoeffs_3);
+	return sk_color_space_transform(sk_conical_grad_8_shader(coords, fsUniformData[shadingSsboIndexVar].colors_2, fsUniformData[shadingSsboIndexVar].offsets_2, fsUniformData[shadingSsboIndexVar].point0_2, fsUniformData[shadingSsboIndexVar].point1_2, fsUniformData[shadingSsboIndexVar].radius0_2, fsUniformData[shadingSsboIndexVar].radius1_2, fsUniformData[shadingSsboIndexVar].tilemode_2, fsUniformData[shadingSsboIndexVar].colorSpace_2, fsUniformData[shadingSsboIndexVar].doUnPremul_2), fsUniformData[shadingSsboIndexVar].flags_3, fsUniformData[shadingSsboIndexVar].srcKind_3, fsUniformData[shadingSsboIndexVar].gamutTransform_3, fsUniformData[shadingSsboIndexVar].dstKind_3, fsUniformData[shadingSsboIndexVar].csXformCoeffs_3);
 }
 void main()
 {
