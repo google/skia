@@ -1080,8 +1080,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchGpu("Adreno[3456]") { // disable broken tests on Adreno 3/4/5/6xx
-		skip(ALL, "tests", ALL, "ImageAsyncReadPixels")   // b/296440036
-		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels") // b/296440036
 		skip(ALL, "tests", ALL, "SkSLArrayCast_Ganesh")       // skia:12332
 		skip(ALL, "tests", ALL, "SkSLArrayComparison_Ganesh") // skia:12332
 		skip(ALL, "tests", ALL, "SkSLCommaSideEffects_Ganesh")
@@ -1111,6 +1109,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx Vulkan
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels") // b/296440036
+		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels") // b/296440036
 		skip(ALL, "tests", ALL, "SkSLInoutParameters_Ganesh")        // skia:12869
 		skip(ALL, "tests", ALL, "SkSLOutParams_Ganesh")              // skia:11919
 		skip(ALL, "tests", ALL, "SkSLOutParamsDoubleSwizzle_Ganesh") // skia:11919
