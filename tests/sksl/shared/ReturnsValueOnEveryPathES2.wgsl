@@ -110,8 +110,7 @@ fn if_else_chain_b() -> bool {
   }
   return bool();
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;

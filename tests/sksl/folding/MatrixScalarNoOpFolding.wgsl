@@ -194,8 +194,7 @@ fn test_no_op_mat4_X_scalar_b() -> bool {
     return (all(mm[0] == z[0]) && all(mm[1] == z[1]) && all(mm[2] == z[2]) && all(mm[3] == z[3]));
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp15: vec4<f32>;
     var _skTemp16: bool;

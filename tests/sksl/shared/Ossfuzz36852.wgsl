@@ -6,8 +6,7 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var x: mat2x2<f32> = mat2x2<f32>(0.0, 1.0, 2.0, 3.0);
     var y: vec2<f32> = vec2<f32>(vec4<f32>(x[0], x[1]).xy);

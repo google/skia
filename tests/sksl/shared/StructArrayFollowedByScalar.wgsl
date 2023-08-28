@@ -10,8 +10,7 @@ struct S {
   rgb: array<f32, 3>,
   a: f32,
 };
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var s: S;
     s.rgb[0] = 0.0;

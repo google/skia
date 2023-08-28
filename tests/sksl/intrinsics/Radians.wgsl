@@ -12,8 +12,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const expected: vec4<f32> = vec4<f32>(-0.021816615, 0.0, 0.01308997, 0.03926991);
     const allowedDelta: vec4<f32> = vec4<f32>(0.0005);

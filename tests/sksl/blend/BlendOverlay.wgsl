@@ -10,9 +10,7 @@ struct _GlobalUniforms {
   dst: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn blend_overlay_component_Qhh2h2(_skParam0: vec2<f32>, _skParam1: vec2<f32>) -> f32 {
-  let s = _skParam0;
-  let d = _skParam1;
+fn blend_overlay_component_Qhh2h2(s: vec2<f32>, d: vec2<f32>) -> f32 {
   {
     return select(s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x), (2.0 * s.x) * d.x, (2.0 * d.x) <= d.y);
   }

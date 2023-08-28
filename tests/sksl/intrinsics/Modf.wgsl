@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :23:20 error: no matching call to modf(f32, f32)
+error: :22:20 error: no matching call to modf(f32, f32)
 
 2 candidate functions:
   modf(T) -> __modf_result_T  where: T is abstract-float, f32 or f16
@@ -23,8 +23,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var value: vec4<f32> = vec4<f32>(2.5, -2.5, 8.0, -0.125);
     const expectedWhole: vec4<f32> = vec4<f32>(2.0, -2.0, 8.0, 0.0);

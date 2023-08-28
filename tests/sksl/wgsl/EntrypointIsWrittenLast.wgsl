@@ -10,29 +10,25 @@ struct Uniforms {
   colorGreen: vec4<f32>,
 };
 @group(0) @binding(0) var<uniform> _uniform0 : Uniforms;
-fn this_function_is_defined_before_use_h4h4(_skParam0: vec4<f32>) -> vec4<f32> {
-  let x = _skParam0;
+fn this_function_is_defined_before_use_h4h4(x: vec4<f32>) -> vec4<f32> {
   {
     let _skTemp1 = this_function_is_defined_near_the_end_h4h4(x);
     return -_skTemp1;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp2 = this_function_is_defined_after_use_h4h4(_uniform0.colorGreen);
     return _skTemp2;
   }
 }
-fn this_function_is_defined_after_use_h4h4(_skParam0: vec4<f32>) -> vec4<f32> {
-  let x = _skParam0;
+fn this_function_is_defined_after_use_h4h4(x: vec4<f32>) -> vec4<f32> {
   {
     let _skTemp3 = this_function_is_defined_before_use_h4h4(-x);
     return _skTemp3;
   }
 }
-fn this_function_is_defined_near_the_end_h4h4(_skParam0: vec4<f32>) -> vec4<f32> {
-  let x = _skParam0;
+fn this_function_is_defined_near_the_end_h4h4(x: vec4<f32>) -> vec4<f32> {
   {
     return x;
   }

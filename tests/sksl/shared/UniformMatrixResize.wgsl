@@ -18,8 +18,7 @@ fn resizeMatrix_f22() -> mat2x2<f32> {
     return mat2x2<f32>(_skTemp0[0][0], _skTemp0[0][1], _skTemp0[1][0], _skTemp0[1][1]);
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp1: vec4<f32>;
     var _skTemp2: bool;

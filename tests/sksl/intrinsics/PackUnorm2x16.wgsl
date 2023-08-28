@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :18:20 error: unresolved call target 'packUnorm2x16'
+error: :17:20 error: unresolved call target 'packUnorm2x16'
     let _skTemp0 = packUnorm2x16(_globalUniforms.testInputs.xy);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -19,8 +19,7 @@ struct _GlobalUniforms {
   testInputs: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = packUnorm2x16(_globalUniforms.testInputs.xy);
     var xy: u32 = _skTemp0;

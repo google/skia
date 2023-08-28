@@ -10,8 +10,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const h: f32 = 1e+09;
     let _skTemp0 = 1e+36;

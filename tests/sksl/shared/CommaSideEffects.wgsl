@@ -13,14 +13,12 @@ struct _GlobalUniforms {
   colorBlack: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn setToColorBlack_vh4(_skParam0: ptr<function, vec4<f32>>) {
-  let x = _skParam0;
+fn setToColorBlack_vh4(x: ptr<function, vec4<f32>>) {
   {
     (*x) = _globalUniforms.colorBlack;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var a: vec4<f32>;
     var b: vec4<f32>;

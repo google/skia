@@ -18,31 +18,26 @@ struct S {
 };
 var<private> globalVar: vec4<f32>;
 var<private> globalStruct: S;
-fn keepAlive_vh(_skParam0: ptr<function, f32>) {
-  let h = _skParam0;
+fn keepAlive_vh(h: ptr<function, f32>) {
   {
   }
 }
-fn keepAlive_vf(_skParam0: ptr<function, f32>) {
-  let f = _skParam0;
+fn keepAlive_vf(f: ptr<function, f32>) {
   {
   }
 }
-fn keepAlive_vi(_skParam0: ptr<function, i32>) {
-  let i = _skParam0;
+fn keepAlive_vi(i: ptr<function, i32>) {
   {
   }
 }
-fn assignToFunctionParameter_vif(_skParam0: i32, _skParam1: ptr<function, f32>) {
+fn assignToFunctionParameter_vif(_skParam0: i32, y: ptr<function, f32>) {
   var x = _skParam0;
-  let y = _skParam1;
   {
     x = 1;
     (*y) = 1.0;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var i: i32 = 0;
     var i4: vec4<i32> = vec4<i32>(1, 2, 3, 4);

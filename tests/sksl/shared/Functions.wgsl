@@ -11,14 +11,12 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn foo_ff2(_skParam0: vec2<f32>) -> f32 {
-  let v = _skParam0;
+fn foo_ff2(v: vec2<f32>) -> f32 {
   {
     return v.x * v.y;
   }
 }
-fn bar_vf(_skParam0: ptr<function, f32>) {
-  let x = _skParam0;
+fn bar_vf(x: ptr<function, f32>) {
   {
     var y: array<f32, 2>;
     y[0] = (*x);
@@ -27,8 +25,7 @@ fn bar_vf(_skParam0: ptr<function, f32>) {
     (*x) = _skTemp0;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var x: f32 = 10.0;
     var _skTemp1: f32 = x;

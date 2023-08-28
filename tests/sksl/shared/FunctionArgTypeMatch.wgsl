@@ -16,140 +16,117 @@ fn takes_void_b() -> bool {
     return true;
   }
 }
-fn takes_float_bf(_skParam0: f32) -> bool {
-  let x = _skParam0;
+fn takes_float_bf(x: f32) -> bool {
   {
     return true;
   }
 }
-fn takes_float2_bf2(_skParam0: vec2<f32>) -> bool {
-  let x = _skParam0;
+fn takes_float2_bf2(x: vec2<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_float3_bf3(_skParam0: vec3<f32>) -> bool {
-  let x = _skParam0;
+fn takes_float3_bf3(x: vec3<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_float4_bf4(_skParam0: vec4<f32>) -> bool {
-  let x = _skParam0;
+fn takes_float4_bf4(x: vec4<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_float2x2_bf22(_skParam0: mat2x2<f32>) -> bool {
-  let x = _skParam0;
+fn takes_float2x2_bf22(x: mat2x2<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_float3x3_bf33(_skParam0: mat3x3<f32>) -> bool {
-  let x = _skParam0;
+fn takes_float3x3_bf33(x: mat3x3<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_float4x4_bf44(_skParam0: mat4x4<f32>) -> bool {
-  let x = _skParam0;
+fn takes_float4x4_bf44(x: mat4x4<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_half_bh(_skParam0: f32) -> bool {
-  let x = _skParam0;
+fn takes_half_bh(x: f32) -> bool {
   {
     return true;
   }
 }
-fn takes_half2_bh2(_skParam0: vec2<f32>) -> bool {
-  let x = _skParam0;
+fn takes_half2_bh2(x: vec2<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_half3_bh3(_skParam0: vec3<f32>) -> bool {
-  let x = _skParam0;
+fn takes_half3_bh3(x: vec3<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_half4_bh4(_skParam0: vec4<f32>) -> bool {
-  let x = _skParam0;
+fn takes_half4_bh4(x: vec4<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_half2x2_bh22(_skParam0: mat2x2<f32>) -> bool {
-  let x = _skParam0;
+fn takes_half2x2_bh22(x: mat2x2<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_half3x3_bh33(_skParam0: mat3x3<f32>) -> bool {
-  let x = _skParam0;
+fn takes_half3x3_bh33(x: mat3x3<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_half4x4_bh44(_skParam0: mat4x4<f32>) -> bool {
-  let x = _skParam0;
+fn takes_half4x4_bh44(x: mat4x4<f32>) -> bool {
   {
     return true;
   }
 }
-fn takes_bool_bb(_skParam0: bool) -> bool {
-  let x = _skParam0;
+fn takes_bool_bb(x: bool) -> bool {
   {
     return true;
   }
 }
-fn takes_bool2_bb2(_skParam0: vec2<bool>) -> bool {
-  let x = _skParam0;
+fn takes_bool2_bb2(x: vec2<bool>) -> bool {
   {
     return true;
   }
 }
-fn takes_bool3_bb3(_skParam0: vec3<bool>) -> bool {
-  let x = _skParam0;
+fn takes_bool3_bb3(x: vec3<bool>) -> bool {
   {
     return true;
   }
 }
-fn takes_bool4_bb4(_skParam0: vec4<bool>) -> bool {
-  let x = _skParam0;
+fn takes_bool4_bb4(x: vec4<bool>) -> bool {
   {
     return true;
   }
 }
-fn takes_int_bi(_skParam0: i32) -> bool {
-  let x = _skParam0;
+fn takes_int_bi(x: i32) -> bool {
   {
     return true;
   }
 }
-fn takes_int2_bi2(_skParam0: vec2<i32>) -> bool {
-  let x = _skParam0;
+fn takes_int2_bi2(x: vec2<i32>) -> bool {
   {
     return true;
   }
 }
-fn takes_int3_bi3(_skParam0: vec3<i32>) -> bool {
-  let x = _skParam0;
+fn takes_int3_bi3(x: vec3<i32>) -> bool {
   {
     return true;
   }
 }
-fn takes_int4_bi4(_skParam0: vec4<i32>) -> bool {
-  let x = _skParam0;
+fn takes_int4_bi4(x: vec4<i32>) -> bool {
   {
     return true;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;

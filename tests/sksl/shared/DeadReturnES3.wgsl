@@ -144,8 +144,7 @@ fn test_loop_break_b() -> bool {
     return true;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let xy = _skParam0;
+fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;

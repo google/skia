@@ -4,15 +4,13 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn do_side_effect_bb(_skParam0: ptr<function, bool>) -> bool {
-  let x = _skParam0;
+fn do_side_effect_bb(x: ptr<function, bool>) -> bool {
   {
     (*x) = true;
     return false;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var ok: bool = true;
     var green: vec4<f32> = _globalUniforms.colorGreen;

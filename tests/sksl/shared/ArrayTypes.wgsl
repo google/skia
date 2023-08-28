@@ -9,15 +9,13 @@ struct FSOut {
 struct S {
   v: vec2<f32>,
 };
-fn initialize_vS(_skParam0: ptr<function, array<S, 2>>) {
-  let z = _skParam0;
+fn initialize_vS(z: ptr<function, array<S, 2>>) {
   {
     (*z)[0].v = vec2<f32>(0.0, 1.0);
     (*z)[1].v = vec2<f32>(2.0, 1.0);
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var x: array<vec2<f32>, 2>;
     x[0] = vec2<f32>(0.0);

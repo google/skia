@@ -10,36 +10,31 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn outParameterWrite_vh4(_skParam0: ptr<function, vec4<f32>>) {
-  let x = _skParam0;
+fn outParameterWrite_vh4(x: ptr<function, vec4<f32>>) {
   {
     (*x) = _globalUniforms.colorGreen;
   }
 }
-fn outParameterWriteIndirect_vh4(_skParam0: ptr<function, vec4<f32>>) {
-  let c = _skParam0;
+fn outParameterWriteIndirect_vh4(c: ptr<function, vec4<f32>>) {
   {
     var _skTemp0: vec4<f32>;
     outParameterWrite_vh4(&_skTemp0);
     (*c) = _skTemp0;
   }
 }
-fn inoutParameterWrite_vh4(_skParam0: ptr<function, vec4<f32>>) {
-  let x = _skParam0;
+fn inoutParameterWrite_vh4(x: ptr<function, vec4<f32>>) {
   {
     (*x) = (*x) * (*x);
   }
 }
-fn inoutParameterWriteIndirect_vh4(_skParam0: ptr<function, vec4<f32>>) {
-  let x = _skParam0;
+fn inoutParameterWriteIndirect_vh4(x: ptr<function, vec4<f32>>) {
   {
     var _skTemp1: vec4<f32> = (*x);
     inoutParameterWrite_vh4(&_skTemp1);
     (*x) = _skTemp1;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var c: vec4<f32>;
     var _skTemp2: vec4<f32>;

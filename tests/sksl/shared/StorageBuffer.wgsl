@@ -20,8 +20,7 @@ struct SomeData {
   a: vec4<f32>,
   b: vec2<f32>,
 };
-fn _skslMain(_stageIn: FSIn, _skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(_stageIn: FSIn, coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp2 = _storage0.offset;
     let _skTemp3 = _storage0.offset;

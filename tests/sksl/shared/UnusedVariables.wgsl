@@ -6,14 +6,12 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
-fn userfunc_ff(_skParam0: f32) -> f32 {
-  let v = _skParam0;
+fn userfunc_ff(v: f32) -> f32 {
   {
     return v + 1.0;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var b: f32 = 2.0;
     var c: f32 = 3.0;

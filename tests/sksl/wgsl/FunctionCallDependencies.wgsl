@@ -6,21 +6,18 @@ struct FSIn {
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
-fn getColor_h4h(_skParam0: f32) -> vec4<f32> {
-  let c = _skParam0;
+fn getColor_h4h(c: f32) -> vec4<f32> {
   {
     return vec4<f32>(c);
   }
 }
-fn getFragCoordAugmentedColor_h4h(_stageIn: FSIn, _skParam0: f32) -> vec4<f32> {
-  let c = _skParam0;
+fn getFragCoordAugmentedColor_h4h(_stageIn: FSIn, c: f32) -> vec4<f32> {
   {
     let _skTemp0 = getColor_h4h(c);
     return vec4<f32>(_stageIn.sk_FragCoord.xyxy * vec4<f32>(_skTemp0));
   }
 }
-fn writeColorToOutput_vh(_stageOut: ptr<function, FSOut>, _skParam0: f32) {
-  let c = _skParam0;
+fn writeColorToOutput_vh(_stageOut: ptr<function, FSOut>, c: f32) {
   {
     let _skTemp1 = getColor_h4h(c);
     (*_stageOut).sk_FragColor = _skTemp1;

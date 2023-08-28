@@ -10,15 +10,13 @@ struct S {
   c: i32,
 };
 var<private> numSideEffects: i32 = 0;
-fn side_effecting_ii(_skParam0: i32) -> i32 {
-  let value = _skParam0;
+fn side_effecting_ii(value: i32) -> i32 {
   {
     numSideEffects = numSideEffects + i32(1);
     return value;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _0_val1: i32 = 2;
     var _1_val2: i32 = 1;

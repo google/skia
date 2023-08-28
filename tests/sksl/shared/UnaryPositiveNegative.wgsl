@@ -84,8 +84,7 @@ fn test_hmat4_b() -> bool {
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]) && all(x[2] == negated[2]) && all(x[3] == negated[3]));
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _0_x: f32 = f32(_globalUniforms.colorWhite.x);
     _0_x = -_0_x;

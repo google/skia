@@ -13,8 +13,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let xy = _skParam0;
+fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = -2e+34;
     let _skTemp1 = 9.968786e+08 - 2 * _skTemp0 * 9.968786e+08 * _skTemp0;

@@ -4,21 +4,17 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn check_array_is_int_2_bi(_skParam0: array<i32, 2>) -> bool {
-  let x = _skParam0;
+fn check_array_is_int_2_bi(x: array<i32, 2>) -> bool {
   {
     return true;
   }
 }
-fn check_array_is_float_3_bf(_skParam0: array<f32, 3>) -> bool {
-  let x = _skParam0;
+fn check_array_is_float_3_bf(x: array<f32, 3>) -> bool {
   {
     return true;
   }
 }
-fn test_param_bff(_skParam0: array<f32, 3>, _skParam1: array<f32, 3>) -> bool {
-  let a = _skParam0;
-  let b = _skParam1;
+fn test_param_bff(a: array<f32, 3>, b: array<f32, 3>) -> bool {
   {
     var _skTemp0: bool;
     if true {
@@ -30,8 +26,7 @@ fn test_param_bff(_skParam0: array<f32, 3>, _skParam1: array<f32, 3>) -> bool {
     return _skTemp0;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var f: array<f32, 3>;
     var g: array<f32, 3>;

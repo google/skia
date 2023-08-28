@@ -18,9 +18,7 @@ struct uniformBuffer {
 @group(0) @binding(0) var<uniform> _uniform0 : uniformBuffer;
 @group(0) @binding(10001) var uTextureSampler_0_Stage1_Sampler: sampler;
 @group(0) @binding(10002) var uTextureSampler_0_Stage1_Texture: texture_2d<f32>;
-fn MatrixEffect_Stage1_c0_c0_h4h4f2(_skParam0: vec4<f32>, _skParam1: vec2<f32>) -> vec4<f32> {
-  let _input = _skParam0;
-  let _coords = _skParam1;
+fn MatrixEffect_Stage1_c0_c0_h4h4f2(_input: vec4<f32>, _coords: vec2<f32>) -> vec4<f32> {
   {
     var _1_inCoord: vec2<f32> = (_uniform0.umatrix_Stage1_c0_c0 * vec3<f32>(_coords, 1.0)).xy;
     _1_inCoord = _1_inCoord * _uniform0.unorm_Stage1_c0_c0_c0.xy;

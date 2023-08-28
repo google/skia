@@ -12,15 +12,13 @@ struct _GlobalUniforms {
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 var<private> globalValue: i32 = 0;
-fn side_effecting_ii(_skParam0: i32) -> i32 {
-  let value = _skParam0;
+fn side_effecting_ii(value: i32) -> i32 {
   {
     globalValue = globalValue + i32(1);
     return value;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _7_two: i32 = 2;
     const _8_flatten0: i32 = 1;

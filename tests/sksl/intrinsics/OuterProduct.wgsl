@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :21:20 error: unresolved call target 'outerProduct'
+error: :20:20 error: unresolved call target 'outerProduct'
     let _skTemp0 = outerProduct(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -21,8 +21,7 @@ struct _GlobalUniforms {
   testInputs: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const c12: vec2<f32> = vec2<f32>(1.0, 2.0);
     let _skTemp0 = outerProduct(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);

@@ -61,8 +61,7 @@ a00*b09 - a01*b07 + a02*b06,
 a31*b01 - a30*b03 - a32*b00,
 a20*b03 - a21*b01 + a22*b00) * (1/det);
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let xy = _skParam0;
+fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
   {
     const matrix2x2: mat2x2<f32> = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);
     var inv2x2: mat2x2<f32> = mat2x2<f32>(-2.0, 1.0, 1.5, -0.5);

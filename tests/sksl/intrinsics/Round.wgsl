@@ -12,8 +12,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const expectedA: vec4<f32> = vec4<f32>(-1.0, 0.0, 1.0, 2.0);
     let _skTemp0 = round(_globalUniforms.testInputs.x);

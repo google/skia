@@ -11,8 +11,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = mat2x4<f32>(9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0);
     let _skTemp1 = mat2x4<f32>(_globalUniforms.colorRed[0], _globalUniforms.colorRed[1], _globalUniforms.colorRed[2], _globalUniforms.colorRed[3], _globalUniforms.colorGreen[0], _globalUniforms.colorGreen[1], _globalUniforms.colorGreen[2], _globalUniforms.colorGreen[3]);

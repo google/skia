@@ -207,8 +207,7 @@ fn switch_with_one_sided_if_then_fallthrough_b() -> bool {
     }
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp11: vec4<f32>;
     var _skTemp12: bool;

@@ -1223,7 +1223,32 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     SkASSERT(!fAtFunctionScope);
     fAtFunctionScope = true;
 
-    this->writeFunctionDeclaration(decl);
+    // WGSL parameters are immutable and are considered as taking no storage, but SkSL parameters
+    // are real variables. To work around this, we make var-based copies of parameters. It's
+    // wasteful to make a copy of every single parameter--even if the compiler can eventually
+    // optimize them all away, that takes time and generates bloated code. So, we only make
+    // parameter copies if the variable is actually written-to.
+    STArray<32, bool> paramNeedsDedicatedStorage;
+    paramNeedsDedicatedStorage.push_back_n(decl.parameters().size(), true);
+
+    for (size_t index = 0; index < decl.parameters().size(); ++index) {
+        const Variable& param = *decl.parameters()[index];
+        if (param.type().isOpaque() || param.name().empty()) {
+            // Opaque-typed or anonymous parameters don't need dedicated storage.
+            paramNeedsDedicatedStorage[index] = false;
+            continue;
+        }
+
+        const ProgramUsage::VariableCounts counts = fProgram.fUsage->get(param);
+        if ((param.modifierFlags() & ModifierFlag::kOut) || counts.fWrite == 0) {
+            // Variables which are never written-to don't need dedicated storage.
+            // Out-parameters are passed as pointers; the pointer itself is never modified, so
+            // it doesn't need dedicated storage.
+            paramNeedsDedicatedStorage[index] = false;
+        }
+    }
+
+    this->writeFunctionDeclaration(decl, paramNeedsDedicatedStorage);
     this->writeLine(" {");
     ++fIndentation;
 
@@ -1231,15 +1256,9 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     // storage and are immutable. If mutability is required, we create variables here; otherwise, we
     // create properly-named `let` aliases.
     for (size_t index = 0; index < decl.parameters().size(); ++index) {
-        const Variable& param = *decl.parameters()[index];
-        if (!param.name().empty() && !param.type().isOpaque()) {
-            // Variables which are never written-to don't need dedicated storage and can use `let`.
-            // Out-parameters are passed as pointers; the pointer itself is never modified, so it
-            // doesn't need a dedicated variable and can use `let`.
-            const ProgramUsage::VariableCounts counts = fProgram.fUsage->get(param);
-            this->write(((param.modifierFlags() & ModifierFlag::kOut) || counts.fWrite == 0)
-                                ? "let "
-                                : "var ");
+        if (paramNeedsDedicatedStorage[index]) {
+            const Variable& param = *decl.parameters()[index];
+            this->write("var ");
             this->write(this->assembleName(param.mangledName()));
             this->write(" = _skParam");
             this->write(std::to_string(index));
@@ -1264,7 +1283,8 @@ void WGSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fAtFunctionScope = false;
 }
 
-void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl) {
+void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl,
+                                                 SkSpan<const bool> paramNeedsDedicatedStorage) {
     this->write("fn ");
     if (decl.isMain()) {
         this->write("_skslMain(");
@@ -1281,6 +1301,7 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl
 
         const Variable& param = *decl.parameters()[index];
         if (param.type().isOpaque()) {
+            SkASSERT(!paramNeedsDedicatedStorage[index]);
             if (param.type().isSampler()) {
                 // Create parameters for both the texture and associated sampler.
                 this->write(param.name());
@@ -1296,14 +1317,19 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl
                 this->write(to_wgsl_type(param.type()));
             }
         } else {
-            // Create an unnamed parameter, which will later be assigned a `var` or `let` in the
-            // function body.
-            this->write("_skParam");
-            this->write(std::to_string(index));
+            if (paramNeedsDedicatedStorage[index] || param.name().empty()) {
+                // Create an unnamed parameter. If the parameter needs dedicated storage, it will
+                // later be assigned a `var` in the function body. (If it's anonymous, a var isn't
+                // needed.)
+                this->write("_skParam");
+                this->write(std::to_string(index));
+            } else {
+                // Use the name directly from the SkSL program.
+                this->write(this->assembleName(param.name()));
+            }
             this->write(": ");
-
-            // Declare an "out" function parameter as a pointer.
             if (param.modifierFlags() & ModifierFlag::kOut) {
+                // Declare an "out" function parameter as a pointer.
                 this->write(to_ptr_type(param.type()));
             } else {
                 this->write(to_wgsl_type(param.type()));

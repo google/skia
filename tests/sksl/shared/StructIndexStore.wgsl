@@ -21,8 +21,7 @@ struct Root {
   valueAtRoot: i32,
   outer: array<OuterLUT, 3>,
 };
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var data: Root;
     data.valueAtRoot = 1234;

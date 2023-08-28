@@ -17,8 +17,7 @@ fn GetTestMatrix_f33() -> mat3x3<f32> {
     return _globalUniforms.testMatrix3x3;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var expected: f32 = 0.0;
     {

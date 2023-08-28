@@ -11,17 +11,14 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn out_params_are_distinct_bhh(_skParam0: ptr<function, f32>, _skParam1: ptr<function, f32>) -> bool {
-  let x = _skParam0;
-  let y = _skParam1;
+fn out_params_are_distinct_bhh(x: ptr<function, f32>, y: ptr<function, f32>) -> bool {
   {
     (*x) = 1.0;
     (*y) = 2.0;
     return ((*x) == 1.0) && ((*y) == 2.0);
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var x: f32 = 0.0;
     var _skTemp0: vec4<f32>;

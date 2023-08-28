@@ -13,8 +13,7 @@ struct _GlobalUniforms {
   colorWhite: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var expectedA: vec4<f32> = vec4<f32>(0.75, 0.0, 0.75, 0.25);
     var expectedB: vec4<f32> = vec4<f32>(0.25, 0.0, 0.75, 1.0);

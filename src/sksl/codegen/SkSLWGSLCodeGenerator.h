@@ -172,7 +172,8 @@ private:
 
     // Write a function definition.
     void writeFunction(const FunctionDefinition& f);
-    void writeFunctionDeclaration(const FunctionDeclaration& f);
+    void writeFunctionDeclaration(const FunctionDeclaration& f,
+                                  SkSpan<const bool> paramNeedsDedicatedStorage);
 
     // Write the program entry point.
     void writeEntryPoint(const FunctionDefinition& f);

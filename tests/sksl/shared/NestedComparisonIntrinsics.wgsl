@@ -11,8 +11,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var result: vec4<bool> = (_globalUniforms.colorRed < vec4<f32>(2.0)) == (vec4<f32>(3.0) > _globalUniforms.colorGreen);
     let _skTemp0 = all(result);

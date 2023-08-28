@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :20:20 error: unresolved call target 'isinf'
+error: :19:20 error: unresolved call target 'isinf'
     let _skTemp0 = isinf(infiniteValue.x);
                    ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -19,8 +19,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var infiniteValue: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]) / _globalUniforms.colorGreen.x;
     var finiteValue: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]) / _globalUniforms.colorGreen.y;

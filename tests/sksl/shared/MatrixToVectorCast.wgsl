@@ -12,8 +12,7 @@ struct _GlobalUniforms {
   testMatrix2x2: mat2x2<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var ok: bool = true;
     ok = ok && all(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]) == vec4<f32>(1.0, 2.0, 3.0, 4.0));

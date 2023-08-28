@@ -11,20 +11,17 @@ fn d_vi(_skParam0: i32) {
     var b: i32 = 4;
   }
 }
-fn c_vi(_skParam0: i32) {
-  let i = _skParam0;
+fn c_vi(i: i32) {
   {
     d_vi(i);
   }
 }
-fn b_vi(_skParam0: i32) {
-  let i = _skParam0;
+fn b_vi(i: i32) {
   {
     c_vi(i);
   }
 }
-fn a_vi(_skParam0: i32) {
-  let i = _skParam0;
+fn a_vi(i: i32) {
   {
     b_vi(i);
     b_vi(i);

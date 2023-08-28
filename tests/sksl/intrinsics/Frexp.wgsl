@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :21:20 error: no matching call to frexp(f32, i32)
+error: :20:20 error: no matching call to frexp(f32, i32)
 
 2 candidate functions:
   frexp(T) -> __frexp_result_T  where: T is abstract-float, f32 or f16
@@ -23,8 +23,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var value: vec4<f32> = vec4<f32>(_globalUniforms.colorGreen.yyyy * 6.0);
     var _0_exp: vec4<i32>;

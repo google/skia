@@ -39,8 +39,7 @@ struct S {
   m: mat2x2<f32>,
   a: array<f32, 5>,
 };
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var R_array: array<f32, 5> = array<f32, 5>(1.0, 2.0, 3.0, 4.0, 5.0);
     var s1: S = S(1, 2, mat2x2<f32>(1.0, 0.0, 0.0, 1.0), R_array);

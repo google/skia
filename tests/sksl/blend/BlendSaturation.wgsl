@@ -11,8 +11,7 @@ struct _GlobalUniforms {
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 const sk_PrivkGuardedDivideEpsilon: f32 = f32(select(0.0, 1e-08, false));
-fn blend_color_saturation_Qhh3(_skParam0: vec3<f32>) -> f32 {
-  let color = _skParam0;
+fn blend_color_saturation_Qhh3(color: vec3<f32>) -> f32 {
   {
     let _skTemp0 = max(color.x, color.y);
     let _skTemp1 = max(_skTemp0, color.z);
@@ -21,10 +20,7 @@ fn blend_color_saturation_Qhh3(_skParam0: vec3<f32>) -> f32 {
     return _skTemp1 - _skTemp3;
   }
 }
-fn blend_hslc_h4h2h4h4(_skParam0: vec2<f32>, _skParam1: vec4<f32>, _skParam2: vec4<f32>) -> vec4<f32> {
-  let flipSat = _skParam0;
-  let src = _skParam1;
-  let dst = _skParam2;
+fn blend_hslc_h4h2h4h4(flipSat: vec2<f32>, src: vec4<f32>, dst: vec4<f32>) -> vec4<f32> {
   {
     var alpha: f32 = dst.w * src.w;
     var sda: vec3<f32> = src.xyz * dst.w;

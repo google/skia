@@ -8,8 +8,7 @@ struct FSOut {
 };
 @group(0) @binding(10000) var t_Sampler: sampler;
 @group(0) @binding(10001) var t_Texture: texture_2d<f32>;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp2 = dpdx(coords);
     let _skTemp3 = dpdy(coords);

@@ -33,8 +33,7 @@ struct _GlobalUniforms {
   testArray: array<f32, 5>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var one: f32 = _globalUniforms.testArray[0];
     var two: f32 = _globalUniforms.testArray[1];

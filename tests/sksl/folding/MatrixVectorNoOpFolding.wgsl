@@ -164,8 +164,7 @@ fn test_no_op_vec4_X_mat4_b() -> bool {
     return all(v == vec4<f32>(-4.0, -8.0, -12.0, -16.0));
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp8: vec4<f32>;
     var _skTemp9: bool;

@@ -24,8 +24,7 @@ fn test_int_b() -> bool {
     return ok;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _0_unknown: f32 = _globalUniforms.unknownInput;
     var _1_ok: bool = true;

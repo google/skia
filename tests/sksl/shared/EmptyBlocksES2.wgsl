@@ -10,8 +10,7 @@ struct _GlobalUniforms {
   unknownInput: f32,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var color: vec4<f32> = vec4<f32>(0.0);
     if _globalUniforms.unknownInput == 1.0 {

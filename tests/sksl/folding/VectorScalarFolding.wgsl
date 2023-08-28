@@ -78,8 +78,7 @@ fn test_int_b() -> bool {
     return ok;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _0_ok: bool = true;
     var _1_x: vec4<f32> = vec4<f32>(6.0, 6.0, 7.0, 8.0);

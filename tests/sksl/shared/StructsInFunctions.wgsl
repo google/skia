@@ -36,21 +36,18 @@ fn constructs_a_struct_S() -> S {
     return S(2.0, 3);
   }
 }
-fn accepts_a_struct_fS(_skParam0: S) -> f32 {
-  let s = _skParam0;
+fn accepts_a_struct_fS(s: S) -> f32 {
   {
     return s.x + f32(s.y);
   }
 }
-fn modifies_a_struct_vS(_skParam0: ptr<function, S>) {
-  let s = _skParam0;
+fn modifies_a_struct_vS(s: ptr<function, S>) {
   {
     (*s).x = (*s).x + f32(1);
     (*s).y = (*s).y + i32(1);
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = returns_a_struct_S();
     var s: S = _skTemp0;

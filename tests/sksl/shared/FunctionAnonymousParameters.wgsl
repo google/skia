@@ -14,20 +14,17 @@ struct _GlobalUniforms {
 struct S {
   i: i32,
 };
-fn fnGreen_h4bf2(_skParam0: bool, _skParam1: vec2<f32>) -> vec4<f32> {
-  let b = _skParam0;
+fn fnGreen_h4bf2(b: bool, _skParam1: vec2<f32>) -> vec4<f32> {
   {
     return _globalUniforms.colorGreen;
   }
 }
-fn fnRed_h4ifS(_skParam0: i32, _skParam1: f32, _skParam2: S) -> vec4<f32> {
-  let f = _skParam1;
+fn fnRed_h4ifS(_skParam0: i32, f: f32, _skParam2: S) -> vec4<f32> {
   {
     return _globalUniforms.colorRed;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp0: vec4<f32>;
     if bool(_globalUniforms.colorGreen.y) {

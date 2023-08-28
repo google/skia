@@ -13,8 +13,7 @@ struct _GlobalUniforms {
   testMatrix3x3: mat3x3<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _0_ok: bool = true;
     let _skTemp0 = mat2x2<f32>(1.0, 2.0, 3.0, 4.0);

@@ -14,8 +14,7 @@ struct _GlobalUniforms {
   testInputs: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var expectedBW: vec4<f32> = vec4<f32>(0.5, 0.5, 0.5, 1.0);
     var expectedWT: vec4<f32> = vec4<f32>(1.0, 0.5, 1.0, 2.25);

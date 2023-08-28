@@ -37,8 +37,7 @@ fn test_mat4_mat4_b() -> bool {
     return (all(m[0] == _skTemp1[0]) && all(m[1] == _skTemp1[1]) && all(m[2] == _skTemp1[2]) && all(m[3] == _skTemp1[3])) && (all(mm[0] == z[0]) && all(mm[1] == z[1]) && all(mm[2] == z[2]) && all(mm[3] == z[3]));
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _0_m: mat2x2<f32>;
     var _1_mm: mat2x2<f32>;

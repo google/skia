@@ -20,8 +20,7 @@ struct OuterLUT {
 struct Root {
   outer: array<OuterLUT, 3>,
 };
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var data: Root;
     data.outer[0].inner[0].values = vec3<f32>(1.0, 10.0, 100.0);
