@@ -80,7 +80,7 @@ struct SK_API ContextOptions {
      * rely on Tint's SPIR-V Reader. When true, we emit native WGSL.
      * TODO(b/40044196): once WGSL is stable, remove this flag and always emit WGSL.
      */
-    bool fEnableWGSL = false;
+    bool fEnableWGSL = true;
 
     static constexpr size_t kDefaultContextBudget = 256 * (1 << 20);
     /**
