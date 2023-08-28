@@ -8,7 +8,6 @@
 // This is a GPU-backend specific test. It relies on static initializers to work
 
 #include "include/core/SkTypes.h"
-#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 
 #if defined(SK_VULKAN)
 #include "include/core/SkAlphaType.h"
@@ -21,6 +20,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
