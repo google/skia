@@ -183,13 +183,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
             PrecompileBase::SelectOption(fBlenderOptions, desiredBlendCombination);
     std::optional<SkBlendMode> finalBlendMode = blender ? blender->asBlendMode()
                                                         : SkBlendMode::kSrcOver;
-    if (finalBlendMode && *finalBlendMode <= SkBlendMode::kLastCoeffMode) {
-        BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
-                kFixedFunctionBlendModeIDOffset + (int) *finalBlendMode);
-        keyBuilder->beginBlock(fixedFuncBlendModeID);
-        keyBuilder->endBlock();
-
-    } else {
+    if (dstReadReq != DstReadRequirement::kNone) {
         BlendShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
         // src -- prior output
         PriorOutputBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
@@ -200,7 +194,15 @@ void PaintOptions::createKey(const KeyContext& keyContext,
         // blender -- shader based blending
         PrecompileBase::AddToKey(keyContext, keyBuilder, fBlenderOptions, desiredBlendCombination);
         keyBuilder->endBlock();  // BlendShaderBlock
+
+        finalBlendMode = SkBlendMode::kSrc;
     }
+
+    SkASSERT(finalBlendMode);
+    BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
+            kFixedFunctionBlendModeIDOffset + static_cast<int>(*finalBlendMode));
+    keyBuilder->beginBlock(fixedFuncBlendModeID);
+    keyBuilder->endBlock();
 }
 
 void PaintOptions::buildCombinations(
