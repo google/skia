@@ -561,8 +561,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     GraphicsPipeline::Shaders pipelineShaders = {
         std::move(vsSkSL),
         std::move(fsSkSL),
-        "SPIR-V disassembly not available",
-        "SPIR-V disassembly not available",
+        enableWGSL ? std::move(vsCode) : std::string("SPIR-V disassembly not available"),
+        enableWGSL ? std::move(fsCode) : std::string("SPIR-V disassembly not available"),
     };
     GraphicsPipeline::Shaders* pipelineShadersPtr = &pipelineShaders;
 #else
