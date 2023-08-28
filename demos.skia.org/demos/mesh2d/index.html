@@ -8,49 +8,82 @@
     width: 1024px;
     height: 1024px;
     background-color: #ccc;
+    display: none;
+  }
+
+  .root {
+    display: flex;
+  }
+
+  .controls {
+    display: flex;
+  }
+  .controls-left  { width: 50%; }
+  .controls-right { width: 50%; }
+  .controls-right select { width: 100%; }
+
+  #loader {
+    width: 1024px;
+    height: 1024px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f2f3;
+    font: bold 2em monospace;
+    color: #85a2b6;
   }
 </style>
 
-<canvas id="canvas2d" width="1024" height="1024"></canvas>
-<canvas id="canvas3d" width="1024" height="1024"></canvas>
+<div class="root">
+  <div id="loader">
+    <img src="BeanEater-1s-200px.gif">
+    <div>Fetching <a href="https://skia.org/docs/user/modules/canvaskit/">CanvasKit</a>...</div>
+  </div>
 
-<br>
-<label>
-    Show mesh:
-    <input type="checkbox" id="show_mesh"/>
-</label>
+  <canvas id="canvas2d" width="1024" height="1024"></canvas>
+  <canvas id="canvas3d" width="1024" height="1024"></canvas>
 
-<label>
-    Level of detail:
-    <select id="lod">
-      <option value="4">4x4</option>
-      <option value="8" selected>8x8</option>
-      <option value="16">16x16</option>
-      <option value="32">32x32</option>
-      <option value="64">64x64</option>
-      <option value="128">128x128</option>
-      <option value="255">255x255</option>
-    </select>
-</label>
-
-<label>
-    Animator:
-    <select id="animator">
-      <option value="">None</option>
-      <option value="squircleAnimator" selected>Squircle</option>
-      <option value="twirlAnimator">Twirl</option>
-      <option value="wiggleAnimator">Wiggle</option>
-      <option value="cylinderAnimator">Cylinder</option>
-    </select>
-</label>
-
-<label>
-    Renderer:
-    <select id="renderer">
-      <option value="ckRenderer" selected>CanvasKit (polyfill)</option>
-      <option value="nativeRenderer">Canvas2D (native)</option>
-    </select>
-</label>
+  <div class="controls">
+    <div class="controls-left">
+      <div>Show mesh</div>
+      <div>Level of detail</div>
+      <div>Animator</div>
+      <div>Renderer</div>
+    </div>
+    <div class="controls-right">
+      <div>
+        <input type="checkbox" id="show_mesh"/>
+      </div>
+      <div>
+        <select id="lod">
+          <option value="4">4x4</option>
+          <option value="8" selected>8x8</option>
+          <option value="16">16x16</option>
+          <option value="32">32x32</option>
+          <option value="64">64x64</option>
+          <option value="128">128x128</option>
+          <option value="255">255x255</option>
+        </select>
+      </div>
+      <div>
+        <select id="animator">
+          <option value="">None</option>
+          <option value="squircleAnimator" selected>Squircle</option>
+          <option value="twirlAnimator">Twirl</option>
+          <option value="wiggleAnimator">Wiggle</option>
+          <option value="cylinderAnimator">Cylinder</option>
+        </select>
+      </div>
+      <div>
+        <select id="renderer" disabled>
+          <option value="ckRenderer" selected>CanvasKit (polyfill)</option>
+          <option value="nativeRenderer">Canvas2D (native)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.38.2/bin/full/canvaskit.js"></script>
 
@@ -359,6 +392,7 @@
     rendererSelectUI.disabled = !nativeRenderer;
     rendererSelectUI.value = nativeRenderer ? "nativeRenderer" : "ckRenderer";
 
+    document.getElementById('loader').style.display = 'none';
     switchRenderer(nativeRenderer ? nativeRenderer : ckRenderer);
 
     requestAnimationFrame(drawFrame);
