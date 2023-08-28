@@ -208,7 +208,10 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
 
     const TextureProxyView& imageView = srcGraphiteImage->textureProxyView();
     if (!imageView.proxy()) {
-        // TODO: if not texturable, copy to a texturable format
+        // With the current definition of SkImage, this shouldn't happen.
+        // If we allow non-texturable formats for compute, we'll need to
+        // copy to a texturable format.
+        SkASSERT(false);
         return nullptr;
     }
 
