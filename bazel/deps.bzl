@@ -60,7 +60,7 @@ def git_repos_from_deps(ws = "@"):
     new_git_repository(
         name = "harfbuzz",
         build_file = ws + "//bazel/external/harfbuzz:BUILD.bazel",
-        commit = "f94508edd60e26a015586c37c29104d6bdc26462",
+        commit = "f380a32825a1b2c51bbe21dc7acb9b3cc0921f69",
         remote = "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git",
     )
 
