@@ -12,7 +12,6 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/private/base/SkThreadAnnotations.h"
 #include "src/base/SkSpinlock.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
@@ -101,9 +100,6 @@ public:
 
     void generatingSurfaceIsDeleted() override;
 
-    skif::Context onCreateFilterContext(GrRecordingContext* rContext,
-                                        const skif::ContextInfo& ctxInfo) const override;
-
     // From SkImage_GaneshBase.h
     GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const override;
 
@@ -126,6 +122,8 @@ public:
     bool getExistingBackendTexture(GrBackendTexture* outTexture,
                                    bool flushPendingGrContextIO,
                                    GrSurfaceOrigin* origin) const;
+
+    GrSurfaceOrigin origin() const override { return fOrigin; }
 
 private:
     SkImage_Ganesh(sk_sp<GrDirectContext>,

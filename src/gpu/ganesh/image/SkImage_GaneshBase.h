@@ -13,6 +13,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/image/SkImage_Base.h"
 
 #include <memory>
@@ -32,6 +33,7 @@ class SkBitmap;
 class SkColorSpace;
 class SkImage;
 class SkMatrix;
+enum GrSurfaceOrigin : int;
 enum SkAlphaType : int;
 enum SkColorType : int;
 enum class GrColorType;
@@ -108,6 +110,11 @@ public:
                                                                      const SkMatrix&,
                                                                      const SkRect*,
                                                                      const SkRect*) const = 0;
+
+    skif::Context onCreateFilterContext(GrRecordingContext* rContext,
+                                        const skif::ContextInfo& ctxInfo) const override;
+
+    virtual GrSurfaceOrigin origin() const = 0;
 
 protected:
     SkImage_GaneshBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);

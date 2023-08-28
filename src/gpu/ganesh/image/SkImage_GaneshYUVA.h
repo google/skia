@@ -12,7 +12,6 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
@@ -32,6 +31,7 @@ enum SkColorType : int;
 enum class GrColorType;
 enum class GrImageTexGenPolicy : int;
 enum class GrSemaphoresSubmitted : bool;
+enum GrSurfaceOrigin : int;
 enum class SkTileMode;
 struct GrFlushInfo;
 struct SkRect;
@@ -66,9 +66,6 @@ public:
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
-    skif::Context onCreateFilterContext(GrRecordingContext* rContext,
-                                        const skif::ContextInfo& ctxInfo) const override;
-
     // From SkImage_GaneshBase.h
     GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const override;
 
@@ -84,6 +81,8 @@ public:
                                                              const SkRect*) const override;
 
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
+
+    GrSurfaceOrigin origin() const override { return fYUVAProxies.textureOrigin(); }
 
 private:
     enum class ColorSpaceMode {
