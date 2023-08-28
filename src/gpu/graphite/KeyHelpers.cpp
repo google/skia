@@ -422,20 +422,17 @@ void LocalMatrixShaderBlock::BeginBlock(const KeyContext& keyContext,
 namespace {
 
 void add_color_space_uniforms(const SkColorSpaceXformSteps& steps, PipelineDataGatherer* gatherer) {
-    // We have 7 source coefficients and 7 destination coefficients. We pass them via a 4x4 matrix;
-    // the first two columns hold the source values, and the second two hold the destination.
-    // (The final value of each 8-element group is ignored.)
-    // In std140, this arrangement is much more efficient than a simple array of scalars.
-    SkM44 coeffs;
+    static constexpr int kNumXferFnCoeffs = 7;
+    static constexpr float kEmptyXferFn[kNumXferFnCoeffs] = {};
 
     gatherer->write(SkTo<int>(steps.flags.mask()));
 
     if (steps.flags.linearize) {
         gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&steps.srcTF)));
-        coeffs.setCol(0, {steps.srcTF.g, steps.srcTF.a, steps.srcTF.b, steps.srcTF.c});
-        coeffs.setCol(1, {steps.srcTF.d, steps.srcTF.e, steps.srcTF.f, 0.0f});
+        gatherer->writeHalfArray({&steps.srcTF.g, kNumXferFnCoeffs});
     } else {
         gatherer->write(SkTo<int>(skcms_TFType::skcms_TFType_Invalid));
+        gatherer->writeHalfArray({kEmptyXferFn, kNumXferFnCoeffs});
     }
 
     SkMatrix gamutTransform;
@@ -447,13 +444,11 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps, PipelineDataG
 
     if (steps.flags.encode) {
         gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&steps.dstTFInv)));
-        coeffs.setCol(2, {steps.dstTFInv.g, steps.dstTFInv.a, steps.dstTFInv.b, steps.dstTFInv.c});
-        coeffs.setCol(3, {steps.dstTFInv.d, steps.dstTFInv.e, steps.dstTFInv.f, 0.0f});
+        gatherer->writeHalfArray({&steps.dstTFInv.g, kNumXferFnCoeffs});
     } else {
         gatherer->write(SkTo<int>(skcms_TFType::skcms_TFType_Invalid));
+        gatherer->writeHalfArray({kEmptyXferFn, kNumXferFnCoeffs});
     }
-
-    gatherer->writeHalf(coeffs);
 }
 
 void add_image_uniform_data(const ShaderCodeDictionary* dict,
