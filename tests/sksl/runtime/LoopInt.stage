@@ -53,7 +53,12 @@ bool loop_operator_le_0()
 {
 	;
 	;
-	int4 result = int4(9);
+	;
+	int4 result = int4(8);
+	for (int i = 0;i <= 0; ++i) 
+	{
+		result += int4(1);
+	}
 	for (int i = 1;i <= 3; ++i) 
 	{
 		result = int4(result.yzw, i);
@@ -64,7 +69,12 @@ bool loop_operator_lt_0()
 {
 	;
 	;
-	int4 result = int4(9);
+	;
+	int4 result = int4(8);
+	for (int i = 0;i < 1; ++i) 
+	{
+		result += int4(1);
+	}
 	for (int i = 1;i < 4; ++i) 
 	{
 		result = int4(result.yzw, i);
@@ -75,7 +85,12 @@ bool loop_operator_ge_0()
 {
 	;
 	;
-	int4 result = int4(9);
+	;
+	int4 result = int4(8);
+	for (int i = 0;i >= 0; --i) 
+	{
+		result += int4(1);
+	}
 	for (int i = 3;i >= 1; --i) 
 	{
 		result = int4(result.yzw, i);
@@ -86,7 +101,12 @@ bool loop_operator_gt_0()
 {
 	;
 	;
-	int4 result = int4(9);
+	;
+	int4 result = int4(8);
+	for (int i = 1;i > 0; --i) 
+	{
+		result += int4(1);
+	}
 	for (int i = 3;i > 0; --i) 
 	{
 		result = int4(result.yzw, i);
@@ -96,7 +116,11 @@ bool loop_operator_gt_0()
 bool loop_operator_ne_0()
 {
 	;
-	int4 result = int4(9);
+	int4 result = int4(8);
+	for (int i = 1;i != 2; ++i) 
+	{
+		result += int4(1);
+	}
 	for (int i = 1;i != 4; ++i) 
 	{
 		result = int4(result.yzw, i);

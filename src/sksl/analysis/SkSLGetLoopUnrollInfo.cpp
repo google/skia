@@ -36,7 +36,7 @@ class Context;
 static constexpr int kLoopTerminationLimit = 100000;
 
 static int calculate_count(double start, double end, double delta, bool forwards, bool inclusive) {
-    if (forwards != (start < end)) {
+    if ((forwards && start > end) || (!forwards && start < end)) {
         // The loop starts in a completed state (the start has already advanced past the end).
         return 0;
     }
@@ -56,15 +56,14 @@ static int calculate_count(double start, double end, double delta, bool forwards
     return (int)count;
 }
 
-std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(
-        const Context& context,
-        Position loopPos,
-        const ForLoopPositions& positions,
-        const Statement* loopInitializer,
-        std::unique_ptr<Expression>* loopTest,
-        const Expression* loopNext,
-        const Statement* loopStatement,
-        ErrorReporter* errorPtr) {
+std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(const Context& context,
+                                                            Position loopPos,
+                                                            const ForLoopPositions& positions,
+                                                            const Statement* loopInitializer,
+                                                            std::unique_ptr<Expression>* loopTest,
+                                                            const Expression* loopNext,
+                                                            const Statement* loopStatement,
+                                                            ErrorReporter* errorPtr) {
     NoOpErrorReporter unused;
     ErrorReporter& errors = errorPtr ? *errorPtr : unused;
 
@@ -177,7 +176,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(
                     errors.error(loopNext->fPosition, "invalid operator in loop expression");
                     return nullptr;
             }
-        } break;
+            break;
+        }
         case Expression::Kind::kPrefix: {
             const PrefixExpression& next = loopNext->as<PrefixExpression>();
             if (!is_loop_index(next.operand())) {
@@ -191,7 +191,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(
                     errors.error(loopNext->fPosition, "invalid operator in loop expression");
                     return nullptr;
             }
-        } break;
+            break;
+        }
         case Expression::Kind::kPostfix: {
             const PostfixExpression& next = loopNext->as<PostfixExpression>();
             if (!is_loop_index(next.operand())) {
@@ -205,7 +206,8 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(
                     errors.error(loopNext->fPosition, "invalid operator in loop expression");
                     return nullptr;
             }
-        } break;
+            break;
+        }
         default:
             errors.error(loopNext->fPosition, "invalid loop expression");
             return nullptr;
