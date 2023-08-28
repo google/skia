@@ -57,10 +57,10 @@ using namespace skia_private;
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/SpecialImage_Graphite.h"
 #include "src/gpu/graphite/TextureProxyView.h"
+#include "src/gpu/graphite/TextureUtils.h"
 #endif
 
 

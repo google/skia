@@ -83,8 +83,6 @@ skia_graphite_sources = [
   "$_src/GraphiteResourceKey.cpp",
   "$_src/GraphiteResourceKey.h",
   "$_src/ImageFactories.cpp",
-  "$_src/ImageUtils.cpp",
-  "$_src/ImageUtils.h",
   "$_src/Image_Base_Graphite.cpp",
   "$_src/Image_Base_Graphite.h",
   "$_src/Image_Graphite.cpp",

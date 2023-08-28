@@ -12,9 +12,9 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
+#include "src/gpu/graphite/TextureUtils.h"
 #include "src/shaders/SkImageShader.h"
 
 namespace skgpu::graphite {

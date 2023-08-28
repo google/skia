@@ -18,7 +18,6 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/ImageUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceCache.h"
@@ -26,6 +25,7 @@
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxyView.h"
+#include "src/gpu/graphite/TextureUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/Resources.h"
 
