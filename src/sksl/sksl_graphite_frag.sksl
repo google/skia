@@ -38,24 +38,18 @@ $pure half4 sk_solid_shader(float4 colorParam) {
 }
 
 $pure half4 $apply_swizzle(int swizzleType, half4 color) {
-    half4 resultantColor = color;
     switch (swizzleType) {
-        case $kReadSwizzleNormalRGBA:
-            break;
         case $kReadSwizzleRGB1:
-            resultantColor = color.rgb1;
-            break;
+            return color.rgb1;
         case $kReadSwizzleRRRR:
-            resultantColor = color.rrrr;
-            break;
+            return color.rrrr;
         case $kReadSwizzleRRR1:
-            resultantColor = color.rrr1;
-            break;
+            return color.rrr1;
         case $kReadSwizzleBGRA:
-            resultantColor = color.bgra;
-            break;
+            return color.bgra;
+        default:
+            return color;
     }
-    return resultantColor;
 }
 
 $pure float $apply_xfer_fn(int kind, float x, half cs[7]) {
