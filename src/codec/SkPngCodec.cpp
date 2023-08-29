@@ -27,6 +27,7 @@
 #include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
 #include "src/core/SkMemset.h"
+#include "src/core/SkSwizzlePriv.h"
 
 #include <csetjmp>
 #include <algorithm>

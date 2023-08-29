@@ -551,6 +551,7 @@ BASE_SRCS_ALL = [
     "src/core/SkOSFile.h",
     "src/core/SkOpts.cpp",
     "src/core/SkOpts.h",
+    "src/core/SkOptsTargets.h",
     "src/core/SkOrderedReadBuffer.h",
     "src/core/SkOverdrawCanvas.cpp",
     "src/core/SkPaint.cpp",

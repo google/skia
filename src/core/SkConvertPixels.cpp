@@ -14,11 +14,11 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkHalf.h"
 #include "src/base/SkRectMemcpy.h"
-#include "src/codec/SkSwizzler.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkSwizzlePriv.h"
 
 #include <cstdint>
 #include <cstring>

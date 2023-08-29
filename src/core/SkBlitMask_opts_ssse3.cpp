@@ -7,7 +7,7 @@
 
 #include "include/private/base/SkFeatures.h"
 #include "src/core/SkBlitMask.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkOptsTargets.h"
 
 #if defined(SK_CPU_X86) && !defined(SK_ENABLE_OPTIMIZE_SIZE)
 

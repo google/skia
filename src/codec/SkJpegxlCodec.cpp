@@ -21,8 +21,8 @@
 #include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkFrameHolder.h"
-#include "src/codec/SkSwizzler.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/core/SkSwizzlePriv.h"
 
 #include "jxl/codestream_header.h"
 #include "jxl/decode.h"

@@ -210,6 +210,7 @@ CORE_FILES = [
     "SkNextID.h",
     "SkOSFile.h",
     "SkOpts.cpp",
+    "SkOptsTargets.h",
     "SkOpts.h",
     "SkOverdrawCanvas.cpp",
     "SkPaint.cpp",

@@ -8,7 +8,6 @@
 #include "include/private/base/SkFeatures.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkMemset.h"
-#include "src/core/SkOpts.h"
 
 #define SK_OPTS_TARGET SK_OPTS_TARGET_DEFAULT
 #include "src/opts/SkOpts_SetTarget.h"
