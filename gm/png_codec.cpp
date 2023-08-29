@@ -21,7 +21,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/codec/SkSwizzler.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
