@@ -71,7 +71,7 @@ static constexpr float kMaxLinearBlurSigma = 4.f; // -> radius = 27 -> linear ke
 // 'kernel' should be set to the output of Compute2DBlurKernel(). 'radius' should match the radii
 // passed into that function. 'child' should be bound to whatever input is intended to be blurred,
 // and can use nearest-neighbor sampling (when it's an image).
-const SkRuntimeEffect* GetBlur2DEffect();
+const SkRuntimeEffect* GetBlur2DEffect(const SkISize& radii);
 
 // Return a runtime effect that applies a 1D Gaussian blur, taking advantage of HW linear
 // interpolation to accumulate adjacent pixels with fewer samples. The returned effect can be used
@@ -105,6 +105,13 @@ const SkRuntimeEffect* GetLinearBlur1DEffect(int radius);
 void Compute2DBlurKernel(SkSize sigma,
                          SkISize radius,
                          SkSpan<float> kernel);
+
+// A convenience function that packs the kMaxBlurSample scalars into SkV4's to match the required
+// type of the uniforms in GetBlur2DEffect().
+void Compute2DBlurKernel(SkSize sigma,
+                         SkISize radius,
+                         std::array<SkV4, kMaxBlurSamples/4>& kernel);
+
 // A convenience for the 2D case where one dimension has a sigma of 0.
 inline void Compute1DBlurKernel(float sigma, int radius, SkSpan<float> kernel) {
     Compute2DBlurKernel({sigma, 0.f}, {radius, 0}, kernel);

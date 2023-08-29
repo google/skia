@@ -1911,15 +1911,6 @@ namespace {
 
 enum class Direction { kX, kY };
 
-// On the CPU, the kernel coefficients are scalars, but are packed as half4's in the GPU shader.
-// For upload purposes, the memory size and layout of a float[28] vs. a SkV4[7] is the same, but the
-// type must be changed to pass uniform type validation in GrSkSLFP::Make.
-SkSpan<const SkV4> scalar_array_as_vec4_span(
-        const std::array<float, skgpu::kMaxBlurSamples>& vals) {
-    static_assert(skgpu::kMaxBlurSamples % 4 == 0);
-    const void* begin = static_cast<const void*>(vals.data());
-    return SkSpan<const SkV4>{static_cast<const SkV4*>(begin), skgpu::kMaxBlurSamples / 4};
-}
 
 } // end namespace
 
@@ -2025,15 +2016,17 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
     // GaussianBlur() should have downsampled the request until we can handle the 2D blur with
     // just a uniform array, which is asserted inside the Compute function.
     const SkISize radii{radiusX, radiusY};
-    std::array<float, skgpu::kMaxBlurSamples> kernel;
+    std::array<SkV4, skgpu::kMaxBlurSamples/4> kernel;
     skgpu::Compute2DBlurKernel({sigmaX, sigmaY}, radii, kernel);
 
     GrSamplerState sampler{SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest};
     auto child = GrTextureEffect::MakeSubset(std::move(srcView), kPremul_SkAlphaType, SkMatrix::I(),
                                              sampler, SkRect::Make(srcBounds), *sdc->caps());
-    auto conv = GrSkSLFP::Make(skgpu::GetBlur2DEffect(), "GaussianBlur2D", /*inputFP=*/nullptr,
+    auto conv = GrSkSLFP::Make(skgpu::GetBlur2DEffect(radii),
+                               "GaussianBlur2D",
+                               /*inputFP=*/nullptr,
                                GrSkSLFP::OptFlags::kNone,
-                               "kernel", scalar_array_as_vec4_span(kernel),
+                               "kernel", SkSpan<SkV4>{kernel},
                                "radii", radii,
                                "child", std::move(child));
 

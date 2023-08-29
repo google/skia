@@ -64,6 +64,15 @@ void Compute2DBlurKernel(SkSize sigma,
     memset(kernel.data() + kernelSize, 0, sizeof(float)*(kernel.size() - kernelSize));
 }
 
+void Compute2DBlurKernel(SkSize sigma,
+                         SkISize radii,
+                         std::array<SkV4, kMaxBlurSamples/4>& kernel) {
+    static_assert(sizeof(kernel) == sizeof(std::array<float, kMaxBlurSamples>));
+    static_assert(alignof(float) == alignof(SkV4));
+    float* data = kernel[0].ptr();
+    Compute2DBlurKernel(sigma, radii, SkSpan<float>(data, kMaxBlurSamples));
+}
+
 void Compute1DBlurLinearKernel(float sigma,
                                int radius,
                                std::array<SkV4, kMaxBlurSamples/2>& offsetsAndKernel) {
@@ -150,19 +159,19 @@ const SkRuntimeEffect* GetLinearBlur1DEffect(int radius) {
         SkASSERT(maxRadius < kMaxBlurSamples);
         return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
                 SkStringPrintf(
-                       // The coefficients are always stored in for the max radius to keep the
-                       // uniform block consistent across all effects.
-                       "const int kMaxUniformKernelSize = %d / 2;"
-                       // But to help lower-end GPUs with unrolling, we bucket the max loop level.
-                       "const int kMaxLoopLimit = %d / 2 + 1;"
+                        // The coefficients are always stored for the max radius to keep the
+                        // uniform block consistent across all effects.
+                        "const int kMaxUniformKernelSize = %d / 2;"
+                        // But to help lower-end GPUs with unrolling, we bucket the max loop level.
+                        "const int kMaxLoopLimit = %d / 2 + 1;"
 
-                       "uniform half4 offsetsAndKernel[kMaxUniformKernelSize];"
-                       "uniform half2 dir;"
-                       "uniform int radius;"
-                       "uniform shader child;"
+                        "uniform half4 offsetsAndKernel[kMaxUniformKernelSize];"
+                        "uniform half2 dir;"
+                        "uniform int radius;"
+                        "uniform shader child;"
 
-                       "half4 main(float2 coord) {"
-                           "half4 sum = half4(0);"
+                        "half4 main(float2 coord) {"
+                            "half4 sum = half4(0);"
                             "for (int i = 0; i < kMaxLoopLimit; ++i) {"
                                 "half4 s = offsetsAndKernel[i];"
                                 "if (radius < 2*i) { break; }"
@@ -174,7 +183,7 @@ const SkRuntimeEffect* GetLinearBlur1DEffect(int radius) {
                                 "sum += offsetsAndKernel[i].w * child.eval(coord + o);"
                             "}"
                             "return sum;"
-                       "}", kMaxBlurSamples, maxRadius).c_str());
+                        "}", kMaxBlurSamples, maxRadius).c_str());
     };
 
     SkASSERT(radius > 0 && radius < kMaxBlurSamples);
@@ -195,25 +204,33 @@ const SkRuntimeEffect* GetLinearBlur1DEffect(int radius) {
     }
 }
 
-const SkRuntimeEffect* GetBlur2DEffect() {
+const SkRuntimeEffect* GetBlur2DEffect(const SkISize& radii) {
     // TODO(michaelludwig): This shares a lot of similarity with the matrix convolution image filter
     // with convolveAlpha=true and a centered kernel size and offset (represented by just radii).
     // Perhaps it can be consolidated by having the runtime effect call out to module functions?
-    static SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        SkStringPrintf("const int kMaxUniformKernelSize = %d / 4;"
-                       // Pack scalar coefficients into half4 for better packing on std140
-                       "uniform half4 kernel[kMaxUniformKernelSize];"
-                       "uniform int2 radii;"
-                       "uniform shader child;"
+    static const auto makeEffect = [](int maxKernelSize) {
+        SkASSERT(maxKernelSize % 4 == 0);
+        return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                SkStringPrintf(
+                        // The coefficients are always stored for the max radius to keep the
+                        // uniform block consistent across all effects.
+                        "const int kMaxUniformKernelSize = %d / 4;"
+                        // But to help lower-end GPUs with unrolling, we bucket the max loop level.
+                        "const int kMaxLoopLimit = %d / 4;"
 
-                       "half4 main(float2 coord) {"
-                           "half4 sum = half4(0);"
+                        // Pack scalar coefficients into half4 for better packing on std140
+                        "uniform half4 kernel[kMaxUniformKernelSize];"
+                        "uniform int2 radii;"
+                        "uniform shader child;"
 
-                           // The constant 1D loop will iterate kernelPos over
-                           // [-radii.x,radii.x]X[-radii.y,radii.y].
-                           "int2 kernelPos = -radii;"
-                           "for (int i = 0; i < kMaxUniformKernelSize; ++i) {"
-                               "if (kernelPos.y > radii.y) { break; }"
+                        "half4 main(float2 coord) {"
+                            "half4 sum = half4(0);"
+
+                            // The constant 1D loop will iterate kernelPos over
+                            // [-radii.x,radii.x]X[-radii.y,radii.y].
+                            "int2 kernelPos = -radii;"
+                            "for (int i = 0; i < kMaxLoopLimit; ++i) {"
+                                "if (kernelPos.y > radii.y) { break; }"
 
                                 "half4 k4 = kernel[i];"
                                 "for (int j = 0; j < 4; ++j) {"
@@ -229,11 +246,28 @@ const SkRuntimeEffect* GetBlur2DEffect() {
                                         "kernelPos.y += 1;"
                                     "}"
                                 "}"
-                           "}"
-                           "return sum;"
-                       "}", kMaxBlurSamples).c_str());
-    // TODO(b/297590025): Bucket the 2D effect similarly to the 1D effect above.
-    return effect;
+                            "}"
+                            "return sum;"
+                        "}", kMaxBlurSamples, maxKernelSize).c_str());
+    };
+
+    int kernelArea = BlurKernelWidth(radii.width()) * BlurKernelWidth(radii.height());
+    SkASSERT(kernelArea > 0 && kernelArea < kMaxBlurSamples);
+    switch(SkNextLog2(kernelArea)) {
+        // Group area [1,4] in the same shader
+        case 0: [[fallthrough]];
+        case 1: [[fallthrough]];
+        case 2: {  static const SkRuntimeEffect* effect = makeEffect(4);
+                   return effect; }
+        case 3: {  static const SkRuntimeEffect* effect = makeEffect(8);
+                   return effect; }
+        case 4: {  static const SkRuntimeEffect* effect = makeEffect(16);
+                   return effect; }
+        case 5: {  static const SkRuntimeEffect* effect = makeEffect(kMaxBlurSamples);
+                   return effect; }
+        default:
+            SkUNREACHABLE;
+    }
 }
 
 } // namespace skgpu
