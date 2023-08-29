@@ -1911,6 +1911,38 @@ namespace {
 
 enum class Direction { kX, kY };
 
+std::unique_ptr<GrFragmentProcessor> make_texture_effect(const GrCaps* caps,
+                                                         GrSurfaceProxyView srcView,
+                                                         SkAlphaType srcAlphaType,
+                                                         const GrSamplerState& sampler,
+                                                         const SkIRect& srcSubset,
+                                                         const SkIRect& srcRelativeDstRect,
+                                                         const SkISize& radii) {
+    // It's pretty common to blur a subset of an input texture. In reduced shader mode we always
+    // apply the wrap mode in the shader.
+    if (caps->reducedShaderMode()) {
+        return GrTextureEffect::MakeSubset(std::move(srcView),
+                                           srcAlphaType,
+                                           SkMatrix::I(),
+                                           sampler,
+                                           SkRect::Make(srcSubset),
+                                           *caps,
+                                           GrTextureEffect::kDefaultBorder,
+                                           /*alwaysUseShaderTileMode=*/true);
+    } else {
+        // Inset because we expect to be invoked at pixel centers
+        SkRect domain = SkRect::Make(srcRelativeDstRect);
+        domain.inset(0.5f, 0.5f);
+        domain.outset(radii.width(), radii.height());
+        return GrTextureEffect::MakeSubset(std::move(srcView),
+                                           srcAlphaType,
+                                           SkMatrix::I(),
+                                           sampler,
+                                           SkRect::Make(srcSubset),
+                                           domain,
+                                           *caps);
+    }
+}
 
 } // end namespace
 
@@ -1920,7 +1952,7 @@ enum class Direction { kX, kY };
  */
 static void convolve_gaussian_1d(skgpu::ganesh::SurfaceFillContext* sfc,
                                  GrSurfaceProxyView srcView,
-                                 const SkIRect srcSubset,
+                                 const SkIRect& srcSubset,
                                  SkIVector dstToSrcOffset,
                                  const SkIRect& dstRect,
                                  SkAlphaType srcAlphaType,
@@ -1936,36 +1968,16 @@ static void convolve_gaussian_1d(skgpu::ganesh::SurfaceFillContext* sfc,
 
     // The child of the 1D linear blur effect must be linearly sampled.
     GrSamplerState sampler{SkTileModeToWrapMode(mode), GrSamplerState::Filter::kLinear};
-    // It's pretty common to blur a subset of an input texture. In reduced shader mode we always
-    // apply the wrap mode in the shader.
-    // TODO(b/297590025): Extract this into a helper function and use it for for 2d case too.
-    std::unique_ptr<GrFragmentProcessor> child;
-    if (sfc->caps()->reducedShaderMode()) {
-        child = GrTextureEffect::MakeSubset(std::move(srcView),
-                                            srcAlphaType,
-                                            SkMatrix::I(),
-                                            sampler,
-                                            SkRect::Make(srcSubset),
-                                            *sfc->caps(),
-                                            GrTextureEffect::kDefaultBorder,
-                                            /*alwaysUseShaderTileMode=*/true);
-    } else {
-        // Inset because we expect to be invoked at pixel centers
-        SkRect domain = SkRect::Make(srcRect);
-        domain.inset(0.5f, 0.5f);
-        if (direction == Direction::kX) {
-            domain.outset(radius, 0);
-        } else {
-            domain.outset(0, radius);
-        }
-        child = GrTextureEffect::MakeSubset(std::move(srcView),
-                                            srcAlphaType,
-                                            SkMatrix::I(),
-                                            sampler,
-                                            SkRect::Make(srcSubset),
-                                            domain,
-                                            *sfc->caps());
-    }
+
+    SkISize radii = {direction == Direction::kX ? radius : 0,
+                     direction == Direction::kY ? radius : 0};
+    std::unique_ptr<GrFragmentProcessor> child = make_texture_effect(sfc->caps(),
+                                                                     std::move(srcView),
+                                                                     srcAlphaType,
+                                                                     sampler,
+                                                                     srcSubset,
+                                                                     srcRect,
+                                                                     radii);
 
     auto conv = GrSkSLFP::Make(skgpu::GetLinearBlur1DEffect(radius),
                                "GaussianBlur1D",
@@ -2020,8 +2032,13 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
     skgpu::Compute2DBlurKernel({sigmaX, sigmaY}, radii, kernel);
 
     GrSamplerState sampler{SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest};
-    auto child = GrTextureEffect::MakeSubset(std::move(srcView), kPremul_SkAlphaType, SkMatrix::I(),
-                                             sampler, SkRect::Make(srcBounds), *sdc->caps());
+    auto child = make_texture_effect(sdc->caps(),
+                                     std::move(srcView),
+                                     kPremul_SkAlphaType,
+                                     sampler,
+                                     srcBounds,
+                                     dstBounds,
+                                     radii);
     auto conv = GrSkSLFP::Make(skgpu::GetBlur2DEffect(radii),
                                "GaussianBlur2D",
                                /*inputFP=*/nullptr,
