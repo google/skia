@@ -725,11 +725,8 @@ SkYUVAPixmapInfo::SupportedDataTypes SupportedTextureFormats(const GrImageContex
 }  // namespace skgpu::ganesh
 
 namespace skif {
-Context MakeGaneshContext(GrRecordingContext* context,
-                          GrSurfaceOrigin origin,
-                          const ContextInfo& info) {
+Functors MakeGaneshFunctors(GrRecordingContext* context, GrSurfaceOrigin origin) {
     SkASSERT(context);
-    SkASSERT(!info.fSource.image() || info.fSource.image()->isGaneshBacked());
 
     auto makeSurfaceFunctor = [context, origin](const SkImageInfo& imageInfo,
                                                 const SkSurfaceProps* props) {
@@ -808,12 +805,17 @@ Context MakeGaneshContext(GrRecordingContext* context,
                                                     outProps);
     };
 
-    return Context(info,
-                   makeSurfaceFunctor,
-                   makeImageFunctor,
-                   makeCachedBitmapFunctor,
-                   blurImageFunctor,
-                   context);
+    return Functors(makeSurfaceFunctor, makeImageFunctor, makeCachedBitmapFunctor,
+                    blurImageFunctor, context);
+}
+
+Context MakeGaneshContext(GrRecordingContext* context,
+                          GrSurfaceOrigin origin,
+                          const ContextInfo& info) {
+    SkASSERT(context);
+    SkASSERT(!info.fSource.image() || info.fSource.image()->isGaneshBacked());
+
+    return Context(info, MakeGaneshFunctors(context, origin));
 }
 
 }  // namespace skif

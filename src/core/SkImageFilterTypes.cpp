@@ -343,36 +343,39 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+Functors MakeRasterFunctors() {
+    auto makeSurfaceFunctor = [](const SkImageInfo& imageInfo,
+                                 const SkSurfaceProps* props) {
+        return SkSpecialSurfaces::MakeRaster(imageInfo, *props);
+    };
+    auto makeImageFunctor = [](const SkIRect& subset,
+                               sk_sp<SkImage> image,
+                               const SkSurfaceProps& props) {
+        return SkSpecialImages::MakeFromRaster(subset, image, props);
+    };
+    auto makeCachedBitmapFunctor = [](const SkBitmap& data) {
+        return SkImages::RasterFromBitmap(data);
+    };
+
+    // TODO: For now pass null for the blur image functor so that SkBlurImageFilter uses its N32
+    // implementation.
+    return Functors(makeSurfaceFunctor, makeImageFunctor, makeCachedBitmapFunctor,
+                    /*blurImageFunctor=*/ nullptr);
+}
+
 Context Context::MakeRaster(const ContextInfo& info) {
     // TODO (skbug:14286): Remove this forcing to 8888. Many legacy image filters only support
     // N32 on CPU, but once they are implemented in terms of draws and SkSL they will support
     // all color types, like the GPU backends.
     ContextInfo n32 = info;
     n32.fColorType = kN32_SkColorType;
-    auto makeSurfaceFunctor = [](const SkImageInfo& imageInfo,
-                                  const SkSurfaceProps* props) {
-        return SkSpecialSurfaces::MakeRaster(imageInfo, *props);
-    };
-    auto makeImageFunctor = [](const SkIRect& subset,
-                                sk_sp<SkImage> image,
-                                const SkSurfaceProps& props) {
-        return SkSpecialImages::MakeFromRaster(subset, image, props);
-    };
-    auto makeCachedBitmapFunctor = [](const SkBitmap& data) {
-        return SkImages::RasterFromBitmap(data);
-    };
-    // TODO: For now pass null for the blur image functor so that SkBlurImageFilter uses its N32
-    // implementation.
-    return Context(n32,
-                   makeSurfaceFunctor,
-                   makeImageFunctor,
-                   makeCachedBitmapFunctor,
-                   /*blurImageFunctor=*/nullptr);
+
+    return Context(n32, MakeRasterFunctors());
 }
 
 sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                              const SkSurfaceProps* props) const {
-    SkASSERT(fMakeSurfaceFunctor);
+    SkASSERT(fFunctors.fMakeSurfaceFunctor);
     if (!props) {
         props = &fInfo.fSurfaceProps;
     }
@@ -381,17 +384,17 @@ sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                               fInfo.fColorType,
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(fInfo.fColorSpace));
-    return fMakeSurfaceFunctor(imageInfo, props);
+    return fFunctors.fMakeSurfaceFunctor(imageInfo, props);
 }
 
 sk_sp<SkSpecialImage> Context::makeImage(const SkIRect& subset, sk_sp<SkImage> image) const {
-    SkASSERT(fMakeImageFunctor);
-    return fMakeImageFunctor(subset, image, fInfo.fSurfaceProps);
+    SkASSERT(fFunctors.fMakeImageFunctor);
+    return fFunctors.fMakeImageFunctor(subset, image, fInfo.fSurfaceProps);
 }
 
 sk_sp<SkImage> Context::getCachedBitmap(const SkBitmap& data) const {
-    SkASSERT(fMakeCachedBitmapFunctor);
-    return fMakeCachedBitmapFunctor(data);
+    SkASSERT(fFunctors.fMakeCachedBitmapFunctor);
+    return fFunctors.fMakeCachedBitmapFunctor(data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1313,7 +1316,7 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
 
     // TODO: The blur functor is only supported for GPU contexts; SkBlurImageFilter should have
     // detected this.
-    SkASSERT(fContext.fBlurImageFunctor);
+    SkASSERT(fContext.fFunctors.fBlurImageFunctor);
 
     // TODO: De-duplicate this logic between SkBlurImageFilter, here, and skgpu::BlurUtils.
     skif::LayerSpace<SkISize> radii =
@@ -1351,12 +1354,12 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     // for creating their own target surfaces.
     auto srcRelativeOutput = outputBounds;
     srcRelativeOutput.offset(-origin);
-    image = fContext.fBlurImageFunctor(SkSize(sigma),
-                                       image,
-                                       SkIRect::MakeSize(image->dimensions()),
-                                       SkIRect(srcRelativeOutput),
-                                       fContext.refColorSpace(),
-                                       fContext.surfaceProps());
+    image = fContext.fFunctors.fBlurImageFunctor(SkSize(sigma),
+                                                 image,
+                                                 SkIRect::MakeSize(image->dimensions()),
+                                                 SkIRect(srcRelativeOutput),
+                                                 fContext.refColorSpace(),
+                                                 fContext.surfaceProps());
 
     // TODO: Allow the blur functor to provide an upscaling transform that is applied to the
     // FilterResult so that a render pass can possibly be elided if this is the final operation.

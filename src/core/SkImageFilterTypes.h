@@ -965,6 +965,56 @@ struct ContextInfo {
     SkImageFilterCache* fCache;
 };
 
+struct Functors {
+    using MakeSurfaceFunctor = std::function<sk_sp<SkSpecialSurface>(const SkImageInfo& info,
+                                                                     const SkSurfaceProps* props)>;
+
+    // For input images to be processed by image filters
+    using MakeImageFunctor = std::function<sk_sp<SkSpecialImage>(const SkIRect& subset,
+                                                                 sk_sp<SkImage> image,
+                                                                 const SkSurfaceProps& props)>;
+    // For internal data to be accessed by filter implementations
+    using MakeCachedBitmapFunctor = std::function<sk_sp<SkImage>(const SkBitmap& data)>;
+    // For backend-optimized blurring implementations (TODO: Possibly replaced by a SkBlurEngine).
+    // The srcRect and dstRect are relative to (0,0) of 'input's logical image (which may have its
+    // own offset to backing data). The returned image should have a width and height equal to the
+    // dstRect's dimensions and its (0,0) pixel is assumed to be located at dstRect.topLeft().
+    using BlurImageFunctor = std::function<sk_sp<SkSpecialImage>(SkSize sigma,
+                                                                 sk_sp<SkSpecialImage> input,
+                                                                 SkIRect srcRect,
+                                                                 SkIRect dstRect,
+                                                                 sk_sp<SkColorSpace> outCS,
+                                                                 const SkSurfaceProps& outProps)>;
+
+    Functors(MakeSurfaceFunctor makeSurfaceFunctor,
+             MakeImageFunctor makeImageFunctor,
+             MakeCachedBitmapFunctor makeCachedBitmapFunctor,
+             BlurImageFunctor blurImageFunctor,
+             GrRecordingContext* ganeshContext = nullptr)
+                 : fMakeSurfaceFunctor(makeSurfaceFunctor)
+                 , fMakeImageFunctor(makeImageFunctor)
+                 , fMakeCachedBitmapFunctor(makeCachedBitmapFunctor)
+                 , fBlurImageFunctor(blurImageFunctor)
+                 , fGaneshContext(ganeshContext) {
+        SkASSERT(fMakeSurfaceFunctor);
+        SkASSERT(fMakeImageFunctor);
+        SkASSERT(fMakeCachedBitmapFunctor);
+        // The blur functor is currently not implemented yet for CPU blurs so it can be null
+    }
+
+    // TODO: Reorganize these into a virtual class that can have an implementation per backend.
+    // std::function<> is very heavyweight in terms of codesize. The context can be a pointer to
+    // the backend impl, the fixed context info that won't change, and the context info that
+    // must change frequently during evaluation.
+    MakeSurfaceFunctor fMakeSurfaceFunctor;
+    MakeImageFunctor fMakeImageFunctor;
+    MakeCachedBitmapFunctor fMakeCachedBitmapFunctor;
+    BlurImageFunctor fBlurImageFunctor;
+
+    // TODO: Can be removed once legacy blur code is deleted
+    GrRecordingContext* fGaneshContext;
+};
+
 class Context {
     static constexpr GrSurfaceOrigin kUnusedOrigin = (GrSurfaceOrigin) 0;
 public:
@@ -1016,9 +1066,9 @@ public:
         // TODO: Once CPU blurs are moved to a blur functor, we'll need a different signal.
         // On the otherhand, if CPU blurs become more consistent with handling of identity sigmas,
         // then SkBlurImageFilter may not need to check this at all.
-        return SkToBool(fBlurImageFunctor);
+        return SkToBool(fFunctors.fBlurImageFunctor);
     }
-    GrRecordingContext* getContext() const { return fGaneshContext; }
+    GrRecordingContext* getContext() const { return fFunctors.fGaneshContext; }
 
     // Create a surface of the given size, that matches the context's color type and color space
     // as closely as possible, and uses the same backend of the device that produced the source
@@ -1034,86 +1084,35 @@ public:
     Context withNewMapping(const Mapping& mapping) const {
         ContextInfo info = fInfo;
         info.fMapping = mapping;
-        return Context(info, *this);
+        return Context(info, fFunctors);
     }
     // Create a new context that matches this context, but with an overridden desired output rect.
     Context withNewDesiredOutput(const LayerSpace<SkIRect>& desiredOutput) const {
         ContextInfo info = fInfo;
         info.fDesiredOutput = desiredOutput;
-        return Context(info, *this);
+        return Context(info, fFunctors);
     }
     // Create a new context that matches this context, but with an overridden color space.
     Context withNewColorSpace(SkColorSpace* cs) const {
         ContextInfo info = fInfo;
         info.fColorSpace = cs;
-        return Context(info, *this);
+        return Context(info, fFunctors);
     }
 
     // Create a new context that matches this context, but with an overridden source.
     Context withNewSource(const FilterResult& source) const {
         ContextInfo info = fInfo;
         info.fSource = source;
-        return Context(info, *this);
+        return Context(info, fFunctors);
     }
 
 private:
-    using MakeSurfaceFunctor = std::function<sk_sp<SkSpecialSurface>(const SkImageInfo& info,
-                                                                      const SkSurfaceProps* props)>;
-
-    // For input images to be processed by image filters
-    using MakeImageFunctor = std::function<sk_sp<SkSpecialImage>(
-            const SkIRect& subset, sk_sp<SkImage> image, const SkSurfaceProps& props)>;
-    // For internal data to be accessed by filter implementations
-    using MakeCachedBitmapFunctor = std::function<sk_sp<SkImage>(const SkBitmap& data)>;
-    // For backend-optimized blurring implementations (TODO: Possibly replaced by a SkBlurEngine).
-    // The srcRect and dstRect are relative to (0,0) of 'input's logical image (which may have its
-    // own offset to backing data). The returned image should have a width and height equal to the
-    // dstRect's dimensions and its (0,0) pixel is assumed to be located at dstRect.topLeft().
-    using BlurImageFunctor = std::function<sk_sp<SkSpecialImage>(SkSize sigma,
-                                                                 sk_sp<SkSpecialImage> input,
-                                                                 SkIRect srcRect,
-                                                                 SkIRect dstRect,
-                                                                 sk_sp<SkColorSpace> outCS,
-                                                                 const SkSurfaceProps& outProps)>;
-
-    Context(const ContextInfo& info,
-            MakeSurfaceFunctor makeSurfaceFunctor,
-            MakeImageFunctor makeImageFunctor,
-            MakeCachedBitmapFunctor makeCachedBitmapFunctor,
-            BlurImageFunctor blurImageFunctor,
-            GrRecordingContext* ganeshContext=nullptr)
+    Context(const ContextInfo& info, const Functors& functors)
             : fInfo(info)
-            , fMakeSurfaceFunctor(makeSurfaceFunctor)
-            , fMakeImageFunctor(makeImageFunctor)
-            , fMakeCachedBitmapFunctor(makeCachedBitmapFunctor)
-            , fBlurImageFunctor(blurImageFunctor)
-            , fGaneshContext(ganeshContext) {
-        SkASSERT(fMakeSurfaceFunctor);
-        SkASSERT(fMakeImageFunctor);
-        SkASSERT(fMakeCachedBitmapFunctor);
-        // The blur functor is currently not implemented yet for CPU blurs so it can be null
-    }
-    Context(const ContextInfo& info, const Context& ctx)
-            : Context(info,
-                      ctx.fMakeSurfaceFunctor,
-                      ctx.fMakeImageFunctor,
-                      ctx.fMakeCachedBitmapFunctor,
-                      ctx.fBlurImageFunctor,
-                      ctx.fGaneshContext) {}
+            , fFunctors(functors) {}
 
     ContextInfo fInfo;
-
-    // TODO: Reorganize these into a virtual class that can have an implementation per backend.
-    // std::function<> is very heavyweight in terms of codesize. The context can be a pointer to
-    // the backend impl, the fixed context info that won't change, and the context info that
-    // must change frequently during evaluation.
-    MakeSurfaceFunctor fMakeSurfaceFunctor;
-    MakeImageFunctor fMakeImageFunctor;
-    MakeCachedBitmapFunctor fMakeCachedBitmapFunctor;
-    BlurImageFunctor fBlurImageFunctor;
-
-    // TODO: Can be removed onced legacy blur code is deleted
-    GrRecordingContext* fGaneshContext;
+    Functors fFunctors;
 
     friend Context MakeGaneshContext(GrRecordingContext* context,
                                      GrSurfaceOrigin origin,
