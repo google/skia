@@ -7,17 +7,28 @@
 
 #include "src/core/SkResourceCache.h"
 
+#include "include/core/SkGraphics.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
-#include "include/private/chromium/SkDiscardableMemory.h"
+#include "src/core/SkCachedData.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkMipmap.h"
+#include "src/core/SkTHash.h"
 
-#include <stddef.h>
-#include <stdlib.h>
+#if defined(SK_USE_DISCARDABLE_SCALEDIMAGECACHE)
+#include "include/private/chromium/SkDiscardableMemory.h"
+#endif
+
+#include <algorithm>
 
 using namespace skia_private;
 
@@ -62,8 +73,6 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
     fHash = SkChecksum::Hash32(this->as32() + kUnhashedLocal32s,
                                (fCount32 - kUnhashedLocal32s) << 2);
 }
-
-#include "src/core/SkTHash.h"
 
 namespace {
     struct HashTraits {
@@ -551,9 +560,6 @@ void SkResourceCache::PostPurgeSharedID(uint64_t sharedID) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkGraphics.h"
-#include "include/core/SkImageFilter.h"
 
 size_t SkGraphics::GetResourceCacheTotalBytesUsed() {
     return SkResourceCache::GetTotalBytesUsed();

@@ -8,13 +8,18 @@
 #include "include/core/SkRegion.h"
 
 #include "include/private/base/SkMacros.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkBuffer.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkRegionPriv.h"
 
 #include <algorithm>
-#include <utility>
+#include <atomic>
+#include <cstring>
+#include <functional>
 
 using namespace skia_private;
 
@@ -1140,8 +1145,6 @@ bool SkRegion::op(const SkRegion& rgna, const SkRegion& rgnb, Op op) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "src/base/SkBuffer.h"
 
 size_t SkRegion::writeToMemory(void* storage) const {
     if (nullptr == storage) {

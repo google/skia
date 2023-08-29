@@ -5,14 +5,30 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkScan.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <iterator>
 
 // The rgnbuilder caller *seems* to pass short counts, possible often seens early failure, so
 // we may not want to promote this to a "std" routine just yet.
