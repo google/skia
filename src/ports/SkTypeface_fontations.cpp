@@ -80,8 +80,9 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
     return probeTypeface->hasValidBridgeFontRef() ? probeTypeface : nullptr;
 }
 
+namespace sk_fontations {
 // Path sanitization ported from SkFTGeometrySink.
-void SkPathWrapper::going_to(SkPoint point) {
+void PathGeometrySink::going_to(SkPoint point) {
     if (!fStarted) {
         fStarted = true;
         fPath.moveTo(fCurrent);
@@ -89,9 +90,9 @@ void SkPathWrapper::going_to(SkPoint point) {
     fCurrent = point;
 }
 
-bool SkPathWrapper::current_is_not(SkPoint point) { return fCurrent != point; }
+bool PathGeometrySink::current_is_not(SkPoint point) { return fCurrent != point; }
 
-void SkPathWrapper::move_to(float x, float y) {
+void PathGeometrySink::move_to(float x, float y) {
     if (fStarted) {
         fPath.close();
         fStarted = false;
@@ -99,7 +100,7 @@ void SkPathWrapper::move_to(float x, float y) {
     fCurrent = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
 }
 
-void SkPathWrapper::line_to(float x, float y) {
+void PathGeometrySink::line_to(float x, float y) {
     SkPoint pt0 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
     if (current_is_not(pt0)) {
         going_to(pt0);
@@ -107,7 +108,7 @@ void SkPathWrapper::line_to(float x, float y) {
     }
 }
 
-void SkPathWrapper::quad_to(float cx0, float cy0, float x, float y) {
+void PathGeometrySink::quad_to(float cx0, float cy0, float x, float y) {
     SkPoint pt0 = SkPoint::Make(SkFloatToScalar(cx0), SkFloatToScalar(cy0));
     SkPoint pt1 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
     if (current_is_not(pt0) || current_is_not(pt1)) {
@@ -115,7 +116,7 @@ void SkPathWrapper::quad_to(float cx0, float cy0, float x, float y) {
         fPath.quadTo(pt0, pt1);
     }
 }
-void SkPathWrapper::curve_to(float cx0, float cy0, float cx1, float cy1, float x, float y) {
+void PathGeometrySink::curve_to(float cx0, float cy0, float cx1, float cy1, float x, float y) {
     SkPoint pt0 = SkPoint::Make(SkFloatToScalar(cx0), SkFloatToScalar(cy0));
     SkPoint pt1 = SkPoint::Make(SkFloatToScalar(cx1), SkFloatToScalar(cy1));
     SkPoint pt2 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
@@ -125,14 +126,14 @@ void SkPathWrapper::curve_to(float cx0, float cy0, float cx1, float cy1, float x
     }
 }
 
-void SkPathWrapper::close() { fPath.close(); }
+void PathGeometrySink::close() { fPath.close(); }
 
-SkPath SkPathWrapper::into_inner() && { return std::move(fPath); }
+SkPath PathGeometrySink::into_inner() && { return std::move(fPath); }
 
-SkAxisWrapper::SkAxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount)
+AxisWrapper::AxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount)
         : fAxisArray(axisArray), fAxisCount(axisCount) {}
 
-bool SkAxisWrapper::populate_axis(
+bool AxisWrapper::populate_axis(
         size_t i, uint32_t axisTag, float min, float def, float max, bool hidden) {
     if (i >= fAxisCount) {
         return false;
@@ -146,7 +147,8 @@ bool SkAxisWrapper::populate_axis(
     return true;
 }
 
-size_t SkAxisWrapper::size() const { return fAxisCount; }
+size_t AxisWrapper::size() const { return fAxisCount; }
+}  // namespace sk_fontations
 
 int SkTypeface_Fontations::onGetUPEM() const {
     return fontations_ffi::units_per_em_or_zero(*fBridgeFontRef);
@@ -257,7 +259,7 @@ protected:
                     SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix)) {
             return false;
         }
-        SkPathWrapper pathWrapper;
+        sk_fontations::PathGeometrySink pathWrapper;
         fontations_ffi::BridgeScalerMetrics scalerMetrics;
 
         if (!fontations_ffi::get_path(fBridgeFontRef,
@@ -362,6 +364,6 @@ int SkTypeface_Fontations::onGetVariationDesignPosition(
 
 int SkTypeface_Fontations::onGetVariationDesignParameters(
         SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
-    SkAxisWrapper axisWrapper(parameters, parameterCount);
+    sk_fontations::AxisWrapper axisWrapper(parameters, parameterCount);
     return fontations_ffi::populate_axes(*fBridgeFontRef, axisWrapper);
 }
