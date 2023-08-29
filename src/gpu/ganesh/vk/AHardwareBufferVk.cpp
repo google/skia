@@ -11,6 +11,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
@@ -31,20 +32,20 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
     }
     switch (bufferFormat) {
         case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
-            return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
+            return GrBackendFormats::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
         case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
-            return GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
+            return GrBackendFormats::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
         case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
-            return GrBackendFormat::MakeVk(VK_FORMAT_R5G6B5_UNORM_PACK16);
+            return GrBackendFormats::MakeVk(VK_FORMAT_R5G6B5_UNORM_PACK16);
         case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
-            return GrBackendFormat::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32);
+            return GrBackendFormats::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32);
         case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
-            return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
+            return GrBackendFormats::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
         case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
-            return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
+            return GrBackendFormats::MakeVk(VK_FORMAT_R8G8B8_UNORM);
 #if __ANDROID_API__ >= 33
         case AHARDWAREBUFFER_FORMAT_R8_UNORM:
-            return GrBackendFormat::MakeVk(VK_FORMAT_R8_UNORM);
+            return GrBackendFormats::MakeVk(VK_FORMAT_R8_UNORM);
 #endif
         default: {
             if (requireKnownFormat) {
@@ -92,7 +93,7 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
                     ycbcrConversion.fChromaFilter = VK_FILTER_NEAREST;
                 }
 
-                return GrBackendFormat::MakeVk(ycbcrConversion);
+                return GrBackendFormats::MakeVk(ycbcrConversion);
             }
         }
     }
@@ -152,8 +153,8 @@ static GrBackendTexture make_vk_backend_texture(
     }
 
     VkFormat format;
-    if (!backendFormat.asVkFormat(&format)) {
-        SkDebugf("asVkFormat failed (valid: %d, backend: %u)",
+    if (!GrBackendFormats::AsVkFormat(backendFormat, &format)) {
+        SkDebugf("AsVkFormat failed (valid: %d, backend: %u)",
                  backendFormat.isValid(),
                  (unsigned)backendFormat.backend());
         return GrBackendTexture();
@@ -186,7 +187,8 @@ static GrBackendTexture make_vk_backend_texture(
     externalFormat.pNext = nullptr;
     externalFormat.externalFormat = 0;  // If this is zero it is as if we aren't using this struct.
 
-    const GrVkYcbcrConversionInfo* ycbcrConversion = backendFormat.getVkYcbcrConversionInfo();
+    const GrVkYcbcrConversionInfo* ycbcrConversion =
+            GrBackendFormats::GetVkYcbcrConversionInfo(backendFormat);
     if (!ycbcrConversion) {
         return GrBackendTexture();
     }
@@ -356,7 +358,7 @@ static GrBackendTexture make_vk_backend_texture(
     *updateProc = update_vk_image;
     *imageCtx = new VulkanCleanupHelper(gpu, image, memory);
 
-    return GrBackendTexture(width, height, imageInfo);
+    return GrBackendTextures::MakeVk(width, height, imageInfo);
 }
 
 static bool can_import_protected_content(GrDirectContext* dContext) {
