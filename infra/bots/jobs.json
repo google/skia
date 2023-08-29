@@ -44,7 +44,7 @@
   {"name": "BazelTest-gm-cpu_gms-cpu_only_debug_rbe-linux_x64",
     "cq_config": {"experimental": true}
   },
-  {"name": "BazelTest-gm-hello_bazel_world_test-cpu_only_release_rbe-linux_x64",
+  {"name": "BazelTest-gm-hello_bazel_world_test-linux_rbe-linux_x64",
     "cq_config": {"experimental": true}
   },
   {"name": "BazelTest-toolchain_layering_check-experimental_bazel_test_client-release-linux_x64"},

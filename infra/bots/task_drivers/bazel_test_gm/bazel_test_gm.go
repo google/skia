@@ -12,16 +12,37 @@
 package main
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
+	"os"
 	"path/filepath"
+	"regexp"
+	"runtime"
+	"sort"
+	"strings"
 
 	sk_exec "go.skia.org/infra/go/exec"
+	"go.skia.org/infra/go/skerr"
+	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_driver/go/lib/bazel"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
 )
+
+// goldctlBazelLabelAllowList is the list of Bazel targets that are allowed to upload results to
+// Gold via goldctl. This is to prevent polluting Gold with spurious digests, or digests with the
+// wrong keys while we experiment with running GMs with Bazel.
+//
+// TODO(lovisolo): Delete once migration is complete.
+var goldctlBazelLabelAllowList = map[string]bool{
+	"//gm:hello_bazel_world_test": true,
+}
 
 var (
 	// Required properties for this task.
@@ -35,7 +56,7 @@ var (
 	projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
 	taskId    = flag.String("task_id", "", "ID of this task.")
 	taskName  = flag.String("task_name", "", "Name of the task.")
-	workdir   = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
+	workdir   = flag.String("workdir", ".", "Working directory.")
 
 	// goldctl data.
 	goldctlPath      = flag.String("goldctl_path", "", "The path to the golctl binary on disk.")
@@ -66,7 +87,6 @@ func main() {
 	if err != nil {
 		td.Fatal(ctx, err)
 	}
-	skiaDir := filepath.Join(wd, "skia")
 
 	opts := bazel.BazelOptions{
 		CachePath: *cachePath,
@@ -81,20 +101,97 @@ func main() {
 		td.Fatal(ctx, fmt.Errorf("cross compilation not yet supported"))
 	}
 
-	if err := bazelTest(ctx, skiaDir, *label, *config); err != nil {
+	if err := run(ctx, taskDriverArgs{
+		checkoutDir:   filepath.Join(wd, "skia"),
+		bazelLabel:    *label,
+		bazelConfig:   *config,
+		goldctlPath:   filepath.Join(wd, *goldctlPath),
+		gitCommit:     *gitCommit,
+		changelistID:  *changelistID,
+		patchsetOrder: *patchsetOrderStr,
+		tryjobID:      *tryjobID,
+	}); err != nil {
 		td.Fatal(ctx, err)
+	}
+}
+
+// taskDriverArgs gathers the inputs to this task driver, and decouples the task driver's
+// entry-point function from the command line flags, which facilitates writing unit tests.
+type taskDriverArgs struct {
+	checkoutDir   string
+	bazelLabel    string
+	bazelConfig   string
+	goldctlPath   string
+	gitCommit     string
+	changelistID  string
+	patchsetOrder string // 1, 2, 3, etc.
+	tryjobID      string
+
+	// testOnlyAllowAnyBazelLabel should only be used from tests. If true, the
+	// goldctlBazelLabelAllowList will be ignored.
+	//
+	// TODO(lovisolo): Delete once migration is complete.
+	testOnlyAllowAnyBazelLabel bool
+}
+
+// run is the entrypoint of this task driver.
+func run(ctx context.Context, tdArgs taskDriverArgs) error {
+	outputsZipPath, err := validateLabelAndReturnOutputsZipPath(tdArgs.checkoutDir, tdArgs.bazelLabel)
+	if err != nil {
+		return skerr.Wrap(err)
 	}
 
-	if err := uploadToGold(ctx); err != nil {
-		td.Fatal(ctx, err)
+	if err := bazelTest(ctx, tdArgs.checkoutDir, tdArgs.bazelLabel, tdArgs.bazelConfig); err != nil {
+		return skerr.Wrap(err)
 	}
+
+	// TODO(lovisolo): Delete once migration is complete.
+	if !tdArgs.testOnlyAllowAnyBazelLabel {
+		if _, ok := goldctlBazelLabelAllowList[tdArgs.bazelLabel]; !ok {
+			return nil
+		}
+	}
+
+	if err := maybeUploadToGold(ctx, tdArgs, outputsZipPath); err != nil {
+		return skerr.Wrap(err)
+	}
+
+	return nil
+}
+
+// validLabelRegexps represent valid, fully-qualified Bazel labels.
+var validLabelRegexps = []*regexp.Regexp{
+	regexp.MustCompile(`^//:[a-zA-Z0-9_-]+$`),                  // Matches "//:foo".
+	regexp.MustCompile(`^/(/[a-zA-Z0-9_-]+)+:[a-zA-Z0-9_-]+$`), // Matches "//foo:bar", "//foo/bar:baz", etc.
+}
+
+// validateLabelAndReturnOutputsZipPath validates the given Bazel label and returns the path within
+// the checkout directory where the ZIP archive with undeclared test outputs will be found, if
+// applicable.
+func validateLabelAndReturnOutputsZipPath(checkoutDir, label string) (string, error) {
+	valid := false
+	for _, re := range validLabelRegexps {
+		if re.MatchString(label) {
+			valid = true
+			break
+		}
+	}
+	if !valid {
+		return "", skerr.Fmt("invalid label: %q", label)
+	}
+
+	return filepath.Join(
+		checkoutDir,
+		"bazel-testlogs",
+		strings.ReplaceAll(strings.TrimPrefix(label, "//"), ":", "/"),
+		"test.outputs",
+		"outputs.zip"), nil
 }
 
 // bazelTest runs the test referenced by the given fully qualified Bazel label under the given
 // config.
 func bazelTest(ctx context.Context, checkoutDir, label, config string) error {
-	step := fmt.Sprintf("Test %s with config %s", label, config)
-	return td.Do(ctx, td.Props(step), func(ctx context.Context) error {
+	return td.Do(ctx, td.Props(fmt.Sprintf("Test %s with config %s", label, config)), func(ctx context.Context) error {
 		runCmd := &sk_exec.Command{
 			Name: "bazelisk",
 			Args: []string{"test",
@@ -116,10 +213,316 @@ func bazelTest(ctx context.Context, checkoutDir, label, config string) error {
 	})
 }
 
-// uploadToGold uploads any GM results to Gold via goldctl.
-func uploadToGold(ctx context.Context) error {
-	return td.Do(ctx, td.Props("[Not yet implemented] Upload GM results to Gold via goldctl"), func(ctx context.Context) error {
-		// TODO(lovisolo): Implement.
-		return nil
+// gmOutput represents a single GM output; that is, a PNG file and the information contained in the
+// associated JSON file produced by //gm/BazelGMRunner.cpp.
+type gmOutput struct {
+	testName string
+	pngPath  string
+	pngMD5   string
+	keys     map[string]string
+}
+
+// maybeUploadToGold uploads any GM results to Gold via goldctl.
+func maybeUploadToGold(ctx context.Context, tdArgs taskDriverArgs, outputsZipPath string) error {
+	// Were there any undeclared test outputs?
+	if _, err := os.Stat(outputsZipPath); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return td.Do(ctx, td.Props("Test did not produce an undeclared test outputs ZIP file; nothing to upload to Gold"), func(ctx context.Context) error {
+				return nil
+			})
+		} else {
+			return skerr.Wrap(err)
+		}
+	}
+
+	// Extract undeclared outputs ZIP archive.
+	outputsDir, err := extractOutputsZip(ctx, outputsZipPath)
+	if err != nil {
+		return skerr.Wrap(err)
+	}
+	defer util.RemoveAll(outputsDir)
+
+	// Gather GM outputs.
+	gmOutputs, err := gatherGMOutputs(ctx, outputsDir)
+	if err != nil {
+		return skerr.Wrap(err)
+	}
+	if len(gmOutputs) == 0 {
+		return td.Do(ctx, td.Props("Undeclared test outputs ZIP file contains no GM outputs; nothing to upload to Gold"), func(ctx context.Context) error {
+			return nil
+		})
+	}
+
+	return td.Do(ctx, td.Props("Upload GM outputs to Gold"), func(ctx context.Context) error {
+		// Create working directory for goldctl.
+		goldctlWorkDir, err := os_steps.TempDir(ctx, "", "goldctl-workdir-*")
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		defer util.RemoveAll(goldctlWorkDir)
+
+		// Authorize goldctl.
+		if err := goldctl(ctx, tdArgs.checkoutDir, tdArgs.goldctlPath, "auth", "--work-dir", goldctlWorkDir, "--luci"); err != nil {
+			return skerr.Wrap(err)
+		}
+
+		// Prepare task-specific key:value pairs.
+		var taskSpecificKeyValuePairs []string
+		for k, v := range computeTaskSpecificGoldctlKeyValuePairs() {
+			taskSpecificKeyValuePairs = append(taskSpecificKeyValuePairs, k+":"+v)
+		}
+		sort.Strings(taskSpecificKeyValuePairs) // Sort for determinism.
+
+		// Initialize goldctl.
+		args := []string{
+			"imgtest", "init",
+			"--work-dir", goldctlWorkDir,
+			"--instance", "skia",
+			// If we use flag --instance alone, goldctl will incorrectly infer the Gold instance URL as
+			// https://skia-gold.skia.org.
+			"--url", "https://gold.skia.org",
+			// Similarly, unless we specify a GCE bucket explicitly, goldctl will incorrectly infer
+			// "skia-gold-skia" as the instance's bucket.
+			"--bucket", "skia-infra-gm",
+			"--git_hash", tdArgs.gitCommit,
+		}
+		if tdArgs.changelistID != "" && tdArgs.patchsetOrder != "" {
+			args = append(args,
+				"--crs", "gerrit",
+				"--cis", "buildbucket",
+				"--changelist", tdArgs.changelistID,
+				"--patchset", tdArgs.patchsetOrder,
+				"--jobid", tdArgs.tryjobID)
+		}
+		for _, kv := range taskSpecificKeyValuePairs {
+			args = append(args, "--key", kv)
+		}
+		if err := goldctl(ctx, tdArgs.checkoutDir, tdArgs.goldctlPath, args...); err != nil {
+			return skerr.Wrap(err)
+		}
+
+		// Add PNGs.
+		for _, gmOutput := range gmOutputs {
+			args := []string{
+				"imgtest", "add",
+				"--work-dir", goldctlWorkDir,
+				"--test-name", gmOutput.testName,
+				"--png-file", gmOutput.pngPath,
+				"--png-digest", gmOutput.pngMD5,
+			}
+			var testSpecificKeyValuePairs []string
+			for k, v := range gmOutput.keys {
+				testSpecificKeyValuePairs = append(testSpecificKeyValuePairs, k+":"+v)
+			}
+			sort.Strings(testSpecificKeyValuePairs) // Sort for determinism.
+			for _, kv := range testSpecificKeyValuePairs {
+				// We assume that all keys are non-optional. That is, all keys are part of the trace. It is
+				// possible to add support for optional keys in the future, which can be specified via the
+				// --add-test-optional-key flag.
+				args = append(args, "--add-test-key", kv)
+			}
+
+			if err := goldctl(ctx, tdArgs.checkoutDir, tdArgs.goldctlPath, args...); err != nil {
+				return skerr.Wrap(err)
+			}
+		}
+
+		// Finalize and upload screenshots to Gold.
+		return goldctl(ctx, tdArgs.checkoutDir, tdArgs.goldctlPath, "imgtest", "finalize", "--work-dir", goldctlWorkDir)
 	})
+}
+
+// extractOutputsZip extracts the undeclared outputs ZIP archive into a temporary directory, and
+// returns the path to said directory.
+func extractOutputsZip(ctx context.Context, outputsZipPath string) (string, error) {
+	// Create extraction directory.
+	extractionDir, err := os.MkdirTemp("", "bazel-test-output-dir-*")
+	if err != nil {
+		return "", skerr.Wrap(err)
+	}
+
+	// Extract ZIP archive.
+	if err := td.Do(ctx, td.Props(fmt.Sprintf("Extract undeclared outputs archive %s into %s", outputsZipPath, extractionDir)), func(ctx context.Context) error {
+		outputsZip, err := zip.OpenReader(outputsZipPath)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		defer util.Close(outputsZip)
+
+		for _, file := range outputsZip.File {
+			// Skip directories. We assume all output files are at the root directory of the archive.
+			if file.FileInfo().IsDir() {
+				if err := td.Do(ctx, td.Props(fmt.Sprintf("Ignoring directory: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
+					return skerr.Wrap(err)
+				}
+				continue
+			}
+
+			// Ignore anything that is not a PNG or JSON file.
+			if !strings.HasSuffix(strings.ToLower(file.Name), ".png") && !strings.HasSuffix(strings.ToLower(file.Name), ".json") {
+				if err := td.Do(ctx, td.Props(fmt.Sprintf("Ignoring non-PNG / non-JSON file: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
+					return skerr.Wrap(err)
+				}
+				continue
+			}
+
+			// Extract file.
+			if err := td.Do(ctx, td.Props(fmt.Sprintf("Extracting file: %s", file.Name)), func(ctx context.Context) error {
+				reader, err := file.Open()
+				if err != nil {
+					return skerr.Wrap(err)
+				}
+				defer util.Close(reader)
+
+				buf := &bytes.Buffer{}
+				if _, err := io.Copy(buf, reader); err != nil {
+					return skerr.Wrap(err)
+				}
+
+				return skerr.Wrap(os.WriteFile(filepath.Join(extractionDir, file.Name), buf.Bytes(), 0644))
+			}); err != nil {
+				return skerr.Wrap(err)
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return "", skerr.Wrap(err)
+	}
+
+	return extractionDir, nil
+}
+
+// gatherGMOutputs inspects a directory with the contents of the undeclared test outputs ZIP
+// archive and gathers any GM outputs found therein.
+func gatherGMOutputs(ctx context.Context, outputsDir string) ([]gmOutput, error) {
+	var gmOutputs []gmOutput
+
+	if err := td.Do(ctx, td.Props("Gather JSON and PNG files produced by GMs"), func(ctx context.Context) error {
+		files, err := os.ReadDir(outputsDir)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+
+		for _, file := range files {
+			if !strings.HasSuffix(file.Name(), ".json") {
+				continue
+			}
+
+			jsonPath := file.Name()
+			pngPath := strings.TrimSuffix(jsonPath, ".json") + ".png"
+			testName := strings.TrimSuffix(jsonPath, ".json")
+
+			// Skip JSON file if there is no associated PNG file.
+			if _, err := os.Stat(filepath.Join(outputsDir, pngPath)); err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					if err := td.Do(ctx, td.Props(fmt.Sprintf("Ignoring %q: file %q not found", jsonPath, pngPath)), func(ctx context.Context) error {
+						return nil
+					}); err != nil {
+						return skerr.Wrap(err)
+					}
+					continue
+				} else {
+					return skerr.Wrap(err)
+				}
+			}
+
+			// Parse JSON file. Skip it if parsing fails (rather than failing the entire task in the off
+			// chance that the test has other kinds of undeclared outputs).
+			bytes, err := os.ReadFile(filepath.Join(outputsDir, jsonPath))
+			if err != nil {
+				return skerr.Wrap(err)
+			}
+			jsonContents := map[string]string{}
+			if err := json.Unmarshal(bytes, &jsonContents); err != nil {
+				if err := td.Do(ctx, td.Props(fmt.Sprintf("Ignoring %q; JSON parsing error: %s", jsonPath, err)), func(ctx context.Context) error {
+					return nil
+				}); err != nil {
+					return skerr.Wrap(err)
+				}
+				continue
+			}
+			if _, ok := jsonContents["image_md5"]; !ok {
+				if err := td.Do(ctx, td.Props(fmt.Sprintf(`Ignoring %q: key "image_md5" not found`, jsonPath)), func(ctx context.Context) error {
+					return nil
+				}); err != nil {
+					return skerr.Wrap(err)
+				}
+				continue
+			}
+
+			// Save GM output.
+			if err := td.Do(ctx, td.Props(fmt.Sprintf("Gather %q", pngPath)), func(ctx context.Context) error {
+				output := gmOutput{
+					testName: testName,
+					pngPath:  filepath.Join(outputsDir, pngPath),
+					keys:     map[string]string{},
+				}
+				for k, v := range jsonContents {
+					if k == "image_md5" {
+						output.pngMD5 = v
+					} else {
+						output.keys[k] = v
+					}
+				}
+				gmOutputs = append(gmOutputs, output)
+				return nil
+			}); err != nil {
+				return skerr.Wrap(err)
+			}
+		}
+
+		return nil
+	}); err != nil {
+		return nil, skerr.Wrap(err)
+	}
+
+	// Sort outputs for determinism.
+	sort.Slice(gmOutputs, func(i, j int) bool {
+		return gmOutputs[i].testName < gmOutputs[j].testName
+	})
+
+	return gmOutputs, nil
+}
+
+// goldctl runs the goldctl command.
+func goldctl(ctx context.Context, checkoutDir, goldctlPath string, args ...string) error {
+	cmd := &sk_exec.Command{
+		Name:      goldctlPath,
+		Args:      args,
+		Dir:       checkoutDir,
+		LogStdout: true,
+		LogStderr: true,
+	}
+	_, err := sk_exec.RunCommand(ctx, cmd)
+	return skerr.Wrap(err)
+}
+
+// computeTaskSpecificGoldctlKeyValuePairs returns the set of task-specific key-value pairs.
+func computeTaskSpecificGoldctlKeyValuePairs() map[string]string {
+	// The "os" key produced by DM can have values like these:
+	//
+	// - Android
+	// - ChromeOS
+	// - Debian10
+	// - Mac10.15.7
+	// - Mac11
+	// - Ubuntu18
+	// - Win10
+	// - Win2019
+	// - iOS
+	//
+	// TODO(lovisolo): Determine the "os" key in a fashion similar to DM.
+	if runtime.GOOS != "linux" {
+		panic("only linux is supported at this time")
+	}
+	os := "linux"
+
+	// TODO(lovisolo): "arch" key ("arm", "arm64", "x86", "x86_64", etc.).
+	// TODO(lovisolo): "configuration" key ("Debug", "Release", "OptimizeForSize", etc.).
+	// TODO(lovisolo): "model" key ("MacBook10.1", "Pixel5", "iPadPro", "iPhone11", etc.).
+
+	return map[string]string{
+		"os": os,
+	}
 }
