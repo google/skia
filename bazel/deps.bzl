@@ -53,7 +53,7 @@ def git_repos_from_deps(ws = "@"):
     new_git_repository(
         name = "freetype",
         build_file = ws + "//bazel/external/freetype:BUILD.bazel",
-        commit = "5769f13a6b9fafa3840726f06dde07e755501a16",
+        commit = "2d9fce53d4ce89f36075168282fcdd7289e082f9",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git",
     )
 
