@@ -164,15 +164,15 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
             this->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
 
 #if defined(GRAPHITE_TEST_UTILS)
-    GraphicsPipeline::Shaders pipelineShaders = {
-        std::move(vsSkSL),
-        std::move(fsSkSL),
-        std::move(vsMSL),
-        std::move(fsMSL),
-    };
-    GraphicsPipeline::Shaders* pipelineShadersPtr = &pipelineShaders;
+    GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
+                                                   pipelineDesc.paintParamsID(),
+                                                   std::move(vsSkSL),
+                                                   std::move(fsSkSL),
+                                                   std::move(vsMSL),
+                                                   std::move(fsMSL) };
+    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = &pipelineInfo;
 #else
-    GraphicsPipeline::Shaders* pipelineShadersPtr = nullptr;
+    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
 #endif
     return MtlGraphicsPipeline::Make(this->mtlSharedContext(),
                                      step->name(),
@@ -184,7 +184,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
                                      step->depthStencilSettings().fStencilReferenceValue,
                                      blendInfo,
                                      renderPassDesc,
-                                     pipelineShadersPtr);
+                                     pipelineInfoPtr);
 }
 
 sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(

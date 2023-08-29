@@ -66,7 +66,7 @@ public:
 
 private:
     DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
-                         Shaders* pipelineShaders,
+                         PipelineInfo* pipelineInfo,
                          wgpu::RenderPipeline renderPipeline,
                          PrimitiveType primitiveType,
                          uint32_t refValue,

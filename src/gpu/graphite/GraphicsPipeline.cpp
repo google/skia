@@ -10,16 +10,18 @@
 
 namespace skgpu::graphite {
 
-GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext, Shaders* pipelineShaders)
+GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext, PipelineInfo* pipelineInfo)
         : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0) {
 #if defined(GRAPHITE_TEST_UTILS)
-    if (pipelineShaders) {
-        fPipelineShaders.fSkSLVertexShader =
-                SkShaderUtils::PrettyPrint(pipelineShaders->fSkSLVertexShader);
-        fPipelineShaders.fSkSLFragmentShader =
-                SkShaderUtils::PrettyPrint(pipelineShaders->fSkSLFragmentShader);
-        fPipelineShaders.fNativeVertexShader = std::move(pipelineShaders->fNativeVertexShader);
-        fPipelineShaders.fNativeFragmentShader = std::move(pipelineShaders->fNativeFragmentShader);
+    if (pipelineInfo) {
+        fPipelineInfo.fRenderStepID = pipelineInfo->fRenderStepID;
+        fPipelineInfo.fPaintID = pipelineInfo->fPaintID;
+        fPipelineInfo.fSkSLVertexShader =
+                SkShaderUtils::PrettyPrint(pipelineInfo->fSkSLVertexShader);
+        fPipelineInfo.fSkSLFragmentShader =
+                SkShaderUtils::PrettyPrint(pipelineInfo->fSkSLFragmentShader);
+        fPipelineInfo.fNativeVertexShader = std::move(pipelineInfo->fNativeVertexShader);
+        fPipelineInfo.fNativeFragmentShader = std::move(pipelineInfo->fNativeFragmentShader);
     }
 #endif
 }

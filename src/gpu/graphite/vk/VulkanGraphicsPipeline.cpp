@@ -722,20 +722,20 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     destroy_shader_modules(sharedContext, vsModule, fsModule);
 
 #if defined(GRAPHITE_TEST_UTILS)
-    GraphicsPipeline::Shaders pipelineShaders = {
-        std::move(vsSkSL),
-        std::move(fsSkSL),
-        "SPIR-V disassembly not available",
-        "SPIR-V disassembly not available",
-    };
-    GraphicsPipeline::Shaders* pipelineShadersPtr = &pipelineShaders;
+    GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
+                                                   pipelineDesc.paintParamsID(),
+                                                   std::move(vsSkSL),
+                                                   std::move(fsSkSL),
+                                                   "SPIR-V disassembly not available",
+                                                   "SPIR-V disassembly not available"};
+    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = &pipelineInfo;
 #else
-    GraphicsPipeline::Shaders* pipelineShadersPtr = nullptr;
+    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
 #endif
 
     return sk_sp<VulkanGraphicsPipeline>(
             new VulkanGraphicsPipeline(sharedContext,
-                                       pipelineShadersPtr,
+                                       pipelineInfoPtr,
                                        pipelineLayout,
                                        vkPipeline,
                                        hasFragment,
@@ -744,18 +744,18 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
-                                               Shaders* pipelineShaders,
+                                               PipelineInfo* pipelineInfo,
                                                VkPipelineLayout pipelineLayout,
                                                VkPipeline pipeline,
                                                bool hasFragment,
                                                bool hasStepUniforms,
                                                int numTextureSamplers)
-    : GraphicsPipeline(sharedContext, pipelineShaders)
-    , fPipelineLayout(pipelineLayout)
-    , fPipeline(pipeline)
-    , fHasFragment(hasFragment)
-    , fHasStepUniforms(hasStepUniforms)
-    , fNumTextureSamplers(numTextureSamplers) {}
+        : GraphicsPipeline(sharedContext, pipelineInfo)
+        , fPipelineLayout(pipelineLayout)
+        , fPipeline(pipeline)
+        , fHasFragment(hasFragment)
+        , fHasStepUniforms(hasStepUniforms)
+        , fNumTextureSamplers(numTextureSamplers) {}
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
