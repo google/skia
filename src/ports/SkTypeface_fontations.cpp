@@ -8,6 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkStream.h"
+#include "include/pathops/SkPathOps.h"
 #include "include/ports/SkTypeface_fontations.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
@@ -79,21 +80,54 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
     return probeTypeface->hasValidBridgeFontRef() ? probeTypeface : nullptr;
 }
 
-void SkPathWrapper::move_to(float x, float y) { path_.moveTo(x, y); }
+// Path sanitization ported from SkFTGeometrySink.
+void SkPathWrapper::going_to(SkPoint point) {
+    if (!fStarted) {
+        fStarted = true;
+        fPath.moveTo(fCurrent);
+    }
+    fCurrent = point;
+}
 
-void SkPathWrapper::line_to(float x, float y) { path_.lineTo(x, y); }
+bool SkPathWrapper::current_is_not(SkPoint point) { return fCurrent != point; }
+
+void SkPathWrapper::move_to(float x, float y) {
+    if (fStarted) {
+        fPath.close();
+        fStarted = false;
+    }
+    fCurrent = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
+}
+
+void SkPathWrapper::line_to(float x, float y) {
+    SkPoint pt0 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
+    if (current_is_not(pt0)) {
+        going_to(pt0);
+        fPath.lineTo(pt0);
+    }
+}
 
 void SkPathWrapper::quad_to(float cx0, float cy0, float x, float y) {
-    path_.quadTo(cx0, cy0, x, y);
+    SkPoint pt0 = SkPoint::Make(SkFloatToScalar(cx0), SkFloatToScalar(cy0));
+    SkPoint pt1 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
+    if (current_is_not(pt0) || current_is_not(pt1)) {
+        going_to(pt1);
+        fPath.quadTo(pt0, pt1);
+    }
 }
 void SkPathWrapper::curve_to(float cx0, float cy0, float cx1, float cy1, float x, float y) {
-    path_.cubicTo(cx0, cy0, cx1, cy1, x, y);
+    SkPoint pt0 = SkPoint::Make(SkFloatToScalar(cx0), SkFloatToScalar(cy0));
+    SkPoint pt1 = SkPoint::Make(SkFloatToScalar(cx1), SkFloatToScalar(cy1));
+    SkPoint pt2 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
+    if (current_is_not(pt0) || current_is_not(pt1) || current_is_not(pt2)) {
+        going_to(pt2);
+        fPath.cubicTo(pt0, pt1, pt2);
+    }
 }
 
-void SkPathWrapper::close() { path_.close(); }
+void SkPathWrapper::close() { fPath.close(); }
 
-SkPath SkPathWrapper::into_inner() && { return std::move(path_); }
-
+SkPath SkPathWrapper::into_inner() && { return std::move(fPath); }
 
 SkAxisWrapper::SkAxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount)
         : fAxisArray(axisArray), fAxisCount(axisCount) {}
@@ -224,16 +258,22 @@ protected:
             return false;
         }
         SkPathWrapper pathWrapper;
+        fontations_ffi::BridgeScalerMetrics scalerMetrics;
 
         if (!fontations_ffi::get_path(fBridgeFontRef,
                                       glyph.getGlyphID(),
                                       scale.y(),
                                       fBridgeNormalizedCoords,
-                                      pathWrapper)) {
+                                      pathWrapper,
+                                      scalerMetrics)) {
             return false;
         }
-
         *path = std::move(pathWrapper).into_inner();
+        if (scalerMetrics.has_overlaps) {
+            // See SkScalerContext_FreeType_Base::generateGlyphPath.
+            Simplify(*path, path);
+            AsWinding(*path, path);
+        }
         *path = path->makeTransform(remainingMatrix);
         return true;
     }

@@ -34,7 +34,12 @@ public:
     SkPath into_inner() &&;
 
 private:
-    SkPath path_;
+    void going_to(SkPoint point);
+    bool current_is_not(SkPoint);
+
+    SkPath fPath;
+    bool fStarted;
+    SkPoint fCurrent;
 };
 
 /** SkAxiswrapper implementation of AxisWrapper FFI C++ interface, allowing Rust to call back into

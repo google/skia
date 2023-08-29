@@ -15,6 +15,7 @@ use skrifa::{
 use std::pin::Pin;
 
 use crate::ffi::AxisWrapper;
+use crate::ffi::BridgeScalerMetrics;
 use crate::ffi::PathWrapper;
 
 fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16 {
@@ -66,6 +67,7 @@ fn get_path(
     size: f32,
     coords: &BridgeNormalizedCoords,
     path_wrapper: Pin<&mut PathWrapper>,
+    scaler_metrics: &mut BridgeScalerMetrics,
 ) -> bool {
     font_ref
         .with_font(|f| {
@@ -78,7 +80,13 @@ fn get_path(
             let mut pen_dump = PathWrapperPen {
                 path_wrapper: path_wrapper,
             };
-            scaler.outline(GlyphId::new(glyph_id), &mut pen_dump).ok()
+            match scaler.outline(GlyphId::new(glyph_id), &mut pen_dump) {
+                Err(_) => None,
+                Ok(metrics) => {
+                    scaler_metrics.has_overlaps = metrics.has_overlaps;
+                    Some(())
+                }
+            }
         })
         .is_some()
 }
@@ -363,6 +371,10 @@ mod ffi {
         value: f32,
     }
 
+    struct BridgeScalerMetrics {
+        has_overlaps: bool,
+    }
+
     extern "Rust" {
 
         type BridgeFontRef<'a>;
@@ -383,6 +395,7 @@ mod ffi {
             size: f32,
             coords: &BridgeNormalizedCoords,
             path_wrapper: Pin<&mut PathWrapper>,
+            scaler_metrics: &mut BridgeScalerMetrics,
         ) -> bool;
         fn advance_width_or_zero(
             font_ref: &BridgeFontRef,
