@@ -1,7 +1,6 @@
-// We use bitwise ops below, which SkVM supports but ES2 technically does not.
 #version 300
 
-/*#pragma settings DebugTrace NoTraceVarInDebugTrace*/
+/*#pragma settings DebugTrace*/
 
 uniform half4 colorGreen, colorRed;
 uniform float2x2 testMatrix2x2;

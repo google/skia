@@ -18,10 +18,10 @@ copy_constant                  $0 = 0
 copy_slot_unmasked             $1 = $13
 copy_slot_masked               $0 = Mask($1)
 trace_scope                    TraceScope(+1) when $0 is true
-trace_line                     TraceLine(10) when $13 is true
+trace_line                     TraceLine(9) when $13 is true
 copy_constant                  ok = 0xFFFFFFFF
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(11) when $13 is true
+trace_line                     TraceLine(10) when $13 is true
 copy_uniform                   $1 = testMatrix2x2(0)
 cast_to_int_from_float         $1 = FloatToInt($1)
 copy_slot_unmasked             a = $1
@@ -31,176 +31,176 @@ swizzle_1                      $1 = ($1..2).y
 cast_to_int_from_float         $1 = FloatToInt($1)
 copy_slot_unmasked             b = $1
 trace_var                      TraceVar(b) when $13 is true
-trace_line                     TraceLine(12) when $13 is true
+trace_line                     TraceLine(11) when $13 is true
 copy_uniform                   c = testMatrix2x2(2)
 trace_var                      TraceVar(c) when $13 is true
 copy_2_uniforms                $1..2 = testMatrix2x2(2..3)
 swizzle_1                      $1 = ($1..2).y
 copy_slot_unmasked             d = $1
 trace_var                      TraceVar(d) when $13 is true
-trace_line                     TraceLine(14) when $13 is true
+trace_line                     TraceLine(13) when $13 is true
 copy_2_slots_unmasked          $1..2 = a, b
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             a_and_b = $1
 trace_var                      TraceVar(a_and_b) when $13 is true
-trace_line                     TraceLine(15) when $13 is true
+trace_line                     TraceLine(14) when $13 is true
 copy_slot_unmasked             $1 = b
 copy_slot_unmasked             $2 = a
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             b_and_a = $1
 trace_var                      TraceVar(b_and_a) when $13 is true
-trace_line                     TraceLine(16) when $13 is true
+trace_line                     TraceLine(15) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = a_and_b, b_and_a
 cmpeq_int                      $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(18) when $13 is true
+trace_line                     TraceLine(17) when $13 is true
 copy_2_slots_unmasked          $1..2 = a, b
 bitwise_or_int                 $1 |= $2
 copy_slot_unmasked             a_or_b = $1
 trace_var                      TraceVar(a_or_b) when $13 is true
-trace_line                     TraceLine(19) when $13 is true
+trace_line                     TraceLine(18) when $13 is true
 copy_slot_unmasked             $1 = b
 copy_slot_unmasked             $2 = a
 bitwise_or_int                 $1 |= $2
 copy_slot_unmasked             b_or_a = $1
 trace_var                      TraceVar(b_or_a) when $13 is true
-trace_line                     TraceLine(20) when $13 is true
+trace_line                     TraceLine(19) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = a_or_b, b_or_a
 cmpeq_int                      $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(22) when $13 is true
+trace_line                     TraceLine(21) when $13 is true
 copy_2_slots_unmasked          $1..2 = a, b
 bitwise_xor_int                $1 ^= $2
 copy_slot_unmasked             a_xor_b = $1
 trace_var                      TraceVar(a_xor_b) when $13 is true
-trace_line                     TraceLine(23) when $13 is true
+trace_line                     TraceLine(22) when $13 is true
 copy_slot_unmasked             $1 = b
 copy_slot_unmasked             $2 = a
 bitwise_xor_int                $1 ^= $2
 copy_slot_unmasked             b_xor_a = $1
 trace_var                      TraceVar(b_xor_a) when $13 is true
-trace_line                     TraceLine(24) when $13 is true
+trace_line                     TraceLine(23) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = a_xor_b, b_xor_a
 cmpeq_int                      $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(26) when $13 is true
+trace_line                     TraceLine(25) when $13 is true
 copy_2_slots_unmasked          $1..2 = a, b
 cmpeq_int                      $1 = equal($1, $2)
 copy_slot_unmasked             a_eq_b = $1
 trace_var                      TraceVar(a_eq_b) when $13 is true
-trace_line                     TraceLine(27) when $13 is true
+trace_line                     TraceLine(26) when $13 is true
 copy_slot_unmasked             $1 = b
 copy_slot_unmasked             $2 = a
 cmpeq_int                      $1 = equal($1, $2)
 copy_slot_unmasked             b_eq_a = $1
 trace_var                      TraceVar(b_eq_a) when $13 is true
-trace_line                     TraceLine(28) when $13 is true
+trace_line                     TraceLine(27) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = a_eq_b, b_eq_a
 cmpeq_int                      $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(30) when $13 is true
+trace_line                     TraceLine(29) when $13 is true
 copy_2_slots_unmasked          $1..2 = a, b
 cmpne_int                      $1 = notEqual($1, $2)
 copy_slot_unmasked             a_neq_b = $1
 trace_var                      TraceVar(a_neq_b) when $13 is true
-trace_line                     TraceLine(31) when $13 is true
+trace_line                     TraceLine(30) when $13 is true
 copy_slot_unmasked             $1 = b
 copy_slot_unmasked             $2 = a
 cmpne_int                      $1 = notEqual($1, $2)
 copy_slot_unmasked             b_neq_a = $1
 trace_var                      TraceVar(b_neq_a) when $13 is true
-trace_line                     TraceLine(32) when $13 is true
+trace_line                     TraceLine(31) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = a_neq_b, b_neq_a
 cmpeq_int                      $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(34) when $13 is true
+trace_line                     TraceLine(33) when $13 is true
 copy_2_slots_unmasked          $1..2 = a, b
 add_int                        $1 += $2
 copy_slot_unmasked             a_add_b = $1
 trace_var                      TraceVar(a_add_b) when $13 is true
-trace_line                     TraceLine(35) when $13 is true
+trace_line                     TraceLine(34) when $13 is true
 copy_slot_unmasked             $1 = b
 copy_slot_unmasked             $2 = a
 add_int                        $1 += $2
 copy_slot_unmasked             b_add_a = $1
 trace_var                      TraceVar(b_add_a) when $13 is true
-trace_line                     TraceLine(36) when $13 is true
+trace_line                     TraceLine(35) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = a_add_b, b_add_a
 cmpeq_int                      $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(38) when $13 is true
+trace_line                     TraceLine(37) when $13 is true
 copy_2_slots_unmasked          $1..2 = c, d
 add_float                      $1 += $2
 copy_slot_unmasked             c_add_d = $1
 trace_var                      TraceVar(c_add_d) when $13 is true
-trace_line                     TraceLine(39) when $13 is true
+trace_line                     TraceLine(38) when $13 is true
 copy_slot_unmasked             $1 = d
 copy_slot_unmasked             $2 = c
 add_float                      $1 += $2
 copy_slot_unmasked             d_add_c = $1
 trace_var                      TraceVar(d_add_c) when $13 is true
-trace_line                     TraceLine(40) when $13 is true
+trace_line                     TraceLine(39) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = c_add_d, d_add_c
 cmpeq_float                    $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(42) when $13 is true
+trace_line                     TraceLine(41) when $13 is true
 copy_2_slots_unmasked          $1..2 = a, b
 mul_int                        $1 *= $2
 copy_slot_unmasked             a_mul_b = $1
 trace_var                      TraceVar(a_mul_b) when $13 is true
-trace_line                     TraceLine(43) when $13 is true
+trace_line                     TraceLine(42) when $13 is true
 copy_slot_unmasked             $1 = b
 copy_slot_unmasked             $2 = a
 mul_int                        $1 *= $2
 copy_slot_unmasked             b_mul_a = $1
 trace_var                      TraceVar(b_mul_a) when $13 is true
-trace_line                     TraceLine(44) when $13 is true
+trace_line                     TraceLine(43) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = a_mul_b, b_mul_a
 cmpeq_int                      $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(46) when $13 is true
+trace_line                     TraceLine(45) when $13 is true
 copy_2_slots_unmasked          $1..2 = c, d
 mul_float                      $1 *= $2
 copy_slot_unmasked             c_mul_d = $1
 trace_var                      TraceVar(c_mul_d) when $13 is true
-trace_line                     TraceLine(47) when $13 is true
+trace_line                     TraceLine(46) when $13 is true
 copy_slot_unmasked             $1 = d
 copy_slot_unmasked             $2 = c
 mul_float                      $1 *= $2
 copy_slot_unmasked             d_mul_c = $1
 trace_var                      TraceVar(d_mul_c) when $13 is true
-trace_line                     TraceLine(48) when $13 is true
+trace_line                     TraceLine(47) when $13 is true
 copy_slot_unmasked             $1 = ok
 copy_2_slots_unmasked          $2..3 = c_mul_d, d_mul_c
 cmpeq_float                    $2 = equal($2, $3)
 bitwise_and_int                $1 &= $2
 copy_slot_unmasked             ok = $1
 trace_var                      TraceVar(ok) when $13 is true
-trace_line                     TraceLine(50) when $13 is true
+trace_line                     TraceLine(49) when $13 is true
 copy_slot_unmasked             $1 = ok
 swizzle_4                      $1..4 = ($1..4).xxxx
 copy_4_uniforms                $5..8 = colorRed
