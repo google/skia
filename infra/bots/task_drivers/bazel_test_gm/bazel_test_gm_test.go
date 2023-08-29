@@ -146,9 +146,11 @@ func TestRun_WithOutputsZip_NoValidImages_NoGoldctlInvocations(t *testing.T) {
 				}`,
 				"image-with-no-json-file.png": "fake PNG",
 				"json-file-with-no-image.json": `{
-					"name": "no-image",
-					"image_md5": "00000000000000000000000000000000",
-					"source_type": "no-corpus"
+					"md5": "00000000000000000000000000000000",
+					"keys": {
+						"name": "no-image",
+						"source_type": "no-corpus"
+					}
 				}`,
 				"not-an-image-nor-json-file.txt": "I'm neither a PNG nor a JSON file.",
 			})
@@ -176,7 +178,7 @@ func TestRun_WithOutputsZip_NoValidImages_NoGoldctlInvocations(t *testing.T) {
 				"Extracting file: json-file-with-no-image.json",
 				"Ignoring non-PNG / non-JSON file: not-an-image-nor-json-file.txt",
 				"Gather JSON and PNG files produced by GMs",
-				"Ignoring \"image-with-invalid-json-file.json\": key \"image_md5\" not found",
+				"Ignoring \"image-with-invalid-json-file.json\": field \"md5\" not found",
 				"Ignoring \"json-file-with-no-image.json\": file \"json-file-with-no-image.png\" not found",
 				"Undeclared test outputs ZIP file contains no GM outputs; nothing to upload to Gold",
 			)
@@ -233,17 +235,21 @@ func TestRun_WithOutputsZip_ValidImages_ImagesUploadedToGold(t *testing.T) {
 				// The contents of PNG files does not matter for this test.
 				"alfa.png": "fake PNG",
 				"alfa.json": `{
-					"build_system": "bazel",
-					"name": "alfa",
-					"image_md5": "a01a01a01a01a01a01a01a01a01a01a0",
-					"source_type": "gm"
+					"md5": "a01a01a01a01a01a01a01a01a01a01a0",
+					"keys": {
+						"build_system": "bazel",
+						"name": "alfa",
+						"source_type": "gm"
+					}
 				}`,
 				"beta.png": "fake PNG",
 				"beta.json": `{
-					"build_system": "bazel",
-					"name": "beta",
-					"image_md5": "b02b02b02b02b02b02b02b02b02b02b0",
-					"source_type": "gm"
+					"md5": "b02b02b02b02b02b02b02b02b02b02b0",
+					"keys": {
+						"build_system": "bazel",
+						"name": "beta",
+						"source_type": "gm"
+					}
 				}`,
 				"image-with-invalid-json-file.png": "fake PNG",
 				"image-with-invalid-json-file.json": `{
@@ -251,9 +257,11 @@ func TestRun_WithOutputsZip_ValidImages_ImagesUploadedToGold(t *testing.T) {
 				}`,
 				"image-with-no-json-file.png": "fake PNG",
 				"json-file-with-no-image.json": `{
-					"name": "no-image",
-					"image_md5": "00000000000000000000000000000000",
-					"source_type": "no-corpus"
+					"md5": "00000000000000000000000000000000",
+					"keys": {
+						"name": "no-image",
+						"source_type": "no-corpus"
+					}
 				}`,
 				"not-an-image-nor-json-file.txt": "I'm neither a PNG nor a JSON file.",
 			})
@@ -287,7 +295,7 @@ func TestRun_WithOutputsZip_ValidImages_ImagesUploadedToGold(t *testing.T) {
 				"Gather JSON and PNG files produced by GMs",
 				"Gather \"alfa.png\"",
 				"Gather \"beta.png\"",
-				"Ignoring \"image-with-invalid-json-file.json\": key \"image_md5\" not found",
+				"Ignoring \"image-with-invalid-json-file.json\": field \"md5\" not found",
 				"Ignoring \"json-file-with-no-image.json\": file \"json-file-with-no-image.png\" not found",
 				"Upload GM outputs to Gold",
 				"Creating TempDir",

@@ -213,15 +213,6 @@ func bazelTest(ctx context.Context, checkoutDir, label, config string) error {
 	})
 }
 
-// gmOutput represents a single GM output; that is, a PNG file and the information contained in the
-// associated JSON file produced by //gm/BazelGMRunner.cpp.
-type gmOutput struct {
-	testName string
-	pngPath  string
-	pngMD5   string
-	keys     map[string]string
-}
-
 // maybeUploadToGold uploads any GM results to Gold via goldctl.
 func maybeUploadToGold(ctx context.Context, tdArgs taskDriverArgs, outputsZipPath string) error {
 	// Were there any undeclared test outputs?
@@ -306,12 +297,12 @@ func maybeUploadToGold(ctx context.Context, tdArgs taskDriverArgs, outputsZipPat
 			args := []string{
 				"imgtest", "add",
 				"--work-dir", goldctlWorkDir,
-				"--test-name", gmOutput.testName,
-				"--png-file", gmOutput.pngPath,
-				"--png-digest", gmOutput.pngMD5,
+				"--test-name", gmOutput.TestName,
+				"--png-file", gmOutput.PNGPath,
+				"--png-digest", gmOutput.MD5,
 			}
 			var testSpecificKeyValuePairs []string
-			for k, v := range gmOutput.keys {
+			for k, v := range gmOutput.Keys {
 				testSpecificKeyValuePairs = append(testSpecificKeyValuePairs, k+":"+v)
 			}
 			sort.Strings(testSpecificKeyValuePairs) // Sort for determinism.
@@ -393,10 +384,20 @@ func extractOutputsZip(ctx context.Context, outputsZipPath string) (string, erro
 	return extractionDir, nil
 }
 
+// gmJSONOutput represents a JSON file produced by //gm/BazelGMRunner.cpp, plus bookkeeping
+// information required by this task driver.
+type gmJSONOutput struct {
+	MD5  string            `json:"md5"`
+	Keys map[string]string `json:"keys"`
+
+	TestName string `json:"-"` // Convenience alias, should be the same as the "name" key.
+	PNGPath  string `json:"-"`
+}
+
 // gatherGMOutputs inspects a directory with the contents of the undeclared test outputs ZIP
 // archive and gathers any GM outputs found therein.
-func gatherGMOutputs(ctx context.Context, outputsDir string) ([]gmOutput, error) {
-	var gmOutputs []gmOutput
+func gatherGMOutputs(ctx context.Context, outputsDir string) ([]gmJSONOutput, error) {
+	var outputs []gmJSONOutput
 
 	if err := td.Do(ctx, td.Props("Gather JSON and PNG files produced by GMs"), func(ctx context.Context) error {
 		files, err := os.ReadDir(outputsDir)
@@ -433,8 +434,11 @@ func gatherGMOutputs(ctx context.Context, outputsDir string) ([]gmOutput, error)
 			if err != nil {
 				return skerr.Wrap(err)
 			}
-			jsonContents := map[string]string{}
-			if err := json.Unmarshal(bytes, &jsonContents); err != nil {
+			output := gmJSONOutput{
+				TestName: testName,
+				PNGPath:  filepath.Join(outputsDir, pngPath),
+			}
+			if err := json.Unmarshal(bytes, &output); err != nil {
 				if err := td.Do(ctx, td.Props(fmt.Sprintf("Ignoring %q; JSON parsing error: %s", jsonPath, err)), func(ctx context.Context) error {
 					return nil
 				}); err != nil {
@@ -442,8 +446,8 @@ func gatherGMOutputs(ctx context.Context, outputsDir string) ([]gmOutput, error)
 				}
 				continue
 			}
-			if _, ok := jsonContents["image_md5"]; !ok {
-				if err := td.Do(ctx, td.Props(fmt.Sprintf(`Ignoring %q: key "image_md5" not found`, jsonPath)), func(ctx context.Context) error {
+			if output.MD5 == "" {
+				if err := td.Do(ctx, td.Props(fmt.Sprintf(`Ignoring %q: field "md5" not found`, jsonPath)), func(ctx context.Context) error {
 					return nil
 				}); err != nil {
 					return skerr.Wrap(err)
@@ -453,19 +457,7 @@ func gatherGMOutputs(ctx context.Context, outputsDir string) ([]gmOutput, error)
 
 			// Save GM output.
 			if err := td.Do(ctx, td.Props(fmt.Sprintf("Gather %q", pngPath)), func(ctx context.Context) error {
-				output := gmOutput{
-					testName: testName,
-					pngPath:  filepath.Join(outputsDir, pngPath),
-					keys:     map[string]string{},
-				}
-				for k, v := range jsonContents {
-					if k == "image_md5" {
-						output.pngMD5 = v
-					} else {
-						output.keys[k] = v
-					}
-				}
-				gmOutputs = append(gmOutputs, output)
+				outputs = append(outputs, output)
 				return nil
 			}); err != nil {
 				return skerr.Wrap(err)
@@ -478,11 +470,11 @@ func gatherGMOutputs(ctx context.Context, outputsDir string) ([]gmOutput, error)
 	}
 
 	// Sort outputs for determinism.
-	sort.Slice(gmOutputs, func(i, j int) bool {
-		return gmOutputs[i].testName < gmOutputs[j].testName
+	sort.Slice(outputs, func(i, j int) bool {
+		return outputs[i].TestName < outputs[j].TestName
 	})
 
-	return gmOutputs, nil
+	return outputs, nil
 }
 
 // goldctl runs the goldctl command.
