@@ -349,30 +349,24 @@ Context Context::MakeRaster(const ContextInfo& info) {
     // all color types, like the GPU backends.
     ContextInfo n32 = info;
     n32.fColorType = kN32_SkColorType;
-    auto makeSurfaceFunctor = [](const SkImageInfo& imageInfo,
+    auto makeSurfaceCallback = [](const SkImageInfo& imageInfo,
                                   const SkSurfaceProps* props) {
         return SkSpecialSurfaces::MakeRaster(imageInfo, *props);
     };
-    auto makeImageFunctor = [](const SkIRect& subset,
+    auto makeImageCallback = [](const SkIRect& subset,
                                 sk_sp<SkImage> image,
                                 const SkSurfaceProps& props) {
         return SkSpecialImages::MakeFromRaster(subset, image, props);
     };
-    auto makeCachedBitmapFunctor = [](const SkBitmap& data) {
+    auto makeCachedBitmapCallback = [](const SkBitmap& data) {
         return SkImages::RasterFromBitmap(data);
     };
-    // TODO: For now pass null for the blur image functor so that SkBlurImageFilter uses its N32
-    // implementation.
-    return Context(n32,
-                   makeSurfaceFunctor,
-                   makeImageFunctor,
-                   makeCachedBitmapFunctor,
-                   /*blurImageFunctor=*/nullptr);
+    return Context(n32, nullptr, makeSurfaceCallback, makeImageCallback, makeCachedBitmapCallback);
 }
 
 sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                              const SkSurfaceProps* props) const {
-    SkASSERT(fMakeSurfaceFunctor);
+    SkASSERT(fMakeSurfaceDelegate);
     if (!props) {
         props = &fInfo.fSurfaceProps;
     }
@@ -381,17 +375,17 @@ sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                               fInfo.fColorType,
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(fInfo.fColorSpace));
-    return fMakeSurfaceFunctor(imageInfo, props);
+    return fMakeSurfaceDelegate(imageInfo, props);
 }
 
 sk_sp<SkSpecialImage> Context::makeImage(const SkIRect& subset, sk_sp<SkImage> image) const {
-    SkASSERT(fMakeImageFunctor);
-    return fMakeImageFunctor(subset, image, fInfo.fSurfaceProps);
+    SkASSERT(fMakeImageDelegate);
+    return fMakeImageDelegate(subset, image, fInfo.fSurfaceProps);
 }
 
 sk_sp<SkImage> Context::getCachedBitmap(const SkBitmap& data) const {
-    SkASSERT(fMakeCachedBitmapFunctor);
-    return fMakeCachedBitmapFunctor(data);
+    SkASSERT(fMakeCachedBitmapDelegate);
+    return fMakeCachedBitmapDelegate(data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1306,61 +1300,6 @@ FilterResult FilterResult::Builder::merge() {
         }
     }
     return surface.snap();
-}
-
-FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
-    SkASSERT(fInputs.size() == 1);
-
-    // TODO: The blur functor is only supported for GPU contexts; SkBlurImageFilter should have
-    // detected this.
-    SkASSERT(fContext.fBlurImageFunctor);
-
-    // TODO: De-duplicate this logic between SkBlurImageFilter, here, and skgpu::BlurUtils.
-    skif::LayerSpace<SkISize> radii =
-            LayerSpace<SkSize>({3.f*sigma.width(), 3.f*sigma.height()}).ceil();
-    auto maxOutput = fInputs[0].fImage.layerBounds();
-    maxOutput.outset(radii);
-
-    // TODO: If the input image is periodic, the output that's calculated can be the original image
-    // size and then have the layer bounds and tilemode of the output image apply the tile again.
-    // Similarly, a clamped blur can be restricted to a radius-outset buffer of the image bounds
-    // (vs. layer bounds) and rendered with clamp tiling.
-    const auto outputBounds = this->outputBounds(maxOutput);
-    if (outputBounds.isEmpty()) {
-        return {};
-    }
-
-    // These are the source pixels that will be read from the input image, which can be calculated
-    // internally because the blur's access pattern is well defined (vs. needing it to be provided
-    // in Builder::add()).
-    auto sampleBounds = outputBounds;
-    sampleBounds.outset(radii);
-
-    // TODO: If the blur implementation requires downsampling, we should incorporate any deferred
-    // transform and colorfilter to the first rescale step instead of generating a full resolution
-    // simple image first.
-    // TODO: The presence of a non-decal tilemode should not force resolving to a simple image; it
-    // should be incorporated into the image that's sampled by the blur effect (modulo biasing edge
-    // pixels somehow for very large clamp blurs).
-    auto [image, origin] = fInputs[0].fImage.resolve(fContext, sampleBounds);
-    if (!image) {
-        return {};
-    }
-
-    // TODO: Can blur() take advantage of AutoSurface? Right now the GPU functions are responsible
-    // for creating their own target surfaces.
-    auto srcRelativeOutput = outputBounds;
-    srcRelativeOutput.offset(-origin);
-    image = fContext.fBlurImageFunctor(SkSize(sigma),
-                                       image,
-                                       SkIRect::MakeSize(image->dimensions()),
-                                       SkIRect(srcRelativeOutput),
-                                       fContext.refColorSpace(),
-                                       fContext.surfaceProps());
-
-    // TODO: Allow the blur functor to provide an upscaling transform that is applied to the
-    // FilterResult so that a render pass can possibly be elided if this is the final operation.
-    return {image, outputBounds.topLeft()};
 }
 
 } // end namespace skif

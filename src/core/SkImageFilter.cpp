@@ -245,9 +245,7 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
     result = this->onFilterImage(context);
 
     if (context.gpuBacked()) {
-        SkASSERT(!result.image() ||
-                 result.image()->isGaneshBacked() ||
-                 result.image()->isGraphiteBacked());
+        SkASSERT(!result.image() || result.image()->isGaneshBacked());
     }
 
     if (context.cache()) {
