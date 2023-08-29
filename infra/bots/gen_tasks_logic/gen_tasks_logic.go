@@ -2135,6 +2135,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"tests":                          {"//tests:linux_rbe_build", ""},
 	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
 	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
+	"hello_bazel_world_test":         {"//gm:hello_bazel_world_test", ""},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.

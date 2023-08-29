@@ -597,6 +597,20 @@ cc_test_with_flags(
     deps = [":tests_base"],
 )
 
+cc_test_with_flags(
+    name = "hello_bazel_world_test",
+    srcs = [
+        "BazelGMRunner.cpp",
+        "hello_bazel_world.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "8888",
+    ],
+    data = ["//resources"],
+    deps = [":tests_base"],
+)
+
 [
     # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):
     #
