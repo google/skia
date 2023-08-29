@@ -20,7 +20,6 @@
 
 class GrDirectContext;
 class GrImageContext;
-class GrRecordingContext;
 class SkBitmap;
 class SkColorSpace;
 class SkPixmap;
@@ -33,11 +32,6 @@ struct SkImageInfo;
 enum {
     kNeedNewImageUniqueID = 0
 };
-
-namespace skif {
-class Context;
-struct ContextInfo;
-}
 
 namespace skgpu { namespace graphite { class Recorder; } }
 
@@ -187,10 +181,6 @@ public:
     virtual sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
                                         const SkIRect&,
                                         RequiredProperties) const = 0;
-
-    // Returns a raster-backed image filtering context by default.
-    virtual skif::Context onCreateFilterContext(GrRecordingContext* rContext,
-                                                const skif::ContextInfo& info) const;
 
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);

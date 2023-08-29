@@ -1119,6 +1119,13 @@ private:
                                      const ContextInfo& info);
     friend Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
                                        const ContextInfo& info);
+    friend sk_sp<SkImage> MakeWithFilter_Shared(const skif::Functors& functors,
+                                                sk_sp<SkImage> src,
+                                                const SkImageFilter* filter,
+                                                const SkIRect& subset,
+                                                const SkIRect& clipBounds,
+                                                SkIRect* outSubset,
+                                                SkIPoint* offset);
 
     friend class FilterResult::Builder; // for fBlurImageFunctor
 };

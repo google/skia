@@ -19,7 +19,6 @@
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 
 #include <atomic>
@@ -164,9 +163,4 @@ sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(skgpu::graphite::Recorde
     // image is, for example, a raster backed image. The graphite subclass overrides
     // this method and things work correctly.
     return this->makeColorTypeAndColorSpace(nullptr, ct, std::move(cs));
-}
-
-skif::Context SkImage_Base::onCreateFilterContext(GrRecordingContext*,
-                                                  const skif::ContextInfo& ctxInfo) const {
-    return skif::Context::MakeRaster(ctxInfo);
 }

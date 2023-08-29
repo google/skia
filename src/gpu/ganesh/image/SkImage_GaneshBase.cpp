@@ -401,11 +401,6 @@ sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
             tsp, std::move(callback), backendFormat, dimensions, mipmapped);
 }
 
-skif::Context SkImage_GaneshBase::onCreateFilterContext(GrRecordingContext* rContext,
-                                                        const skif::ContextInfo& ctxInfo) const {
-    return skif::MakeGaneshContext(rContext, this->origin(), ctxInfo);
-}
-
 namespace SkImages {
 sk_sp<SkImage> SubsetTextureFrom(GrDirectContext* context,
                                  const SkImage* img,

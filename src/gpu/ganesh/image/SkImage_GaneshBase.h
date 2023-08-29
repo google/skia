@@ -13,7 +13,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/image/SkImage_Base.h"
 
 #include <memory>
@@ -110,9 +109,6 @@ public:
                                                                      const SkMatrix&,
                                                                      const SkRect*,
                                                                      const SkRect*) const = 0;
-
-    skif::Context onCreateFilterContext(GrRecordingContext* rContext,
-                                        const skif::ContextInfo& ctxInfo) const override;
 
     virtual GrSurfaceOrigin origin() const = 0;
 
