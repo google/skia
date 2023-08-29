@@ -24,7 +24,6 @@ roots = [
   'bench',
   'dm',
   'docs',
-  'example',
   'experimental',
   'fuzz',
   'gm',
@@ -95,6 +94,7 @@ for file_path in to_rewrite():
       'jetski' in file_path or
       'tools/window' in file_path or
       file_path.startswith('bazel/rbe') or
+      'example/external_client/' in file_path or
       # We intentionally list SkUserConfig.h not from the root in this file.
       file_path == 'include/private/base/SkLoadUserConfig.h'):
     continue

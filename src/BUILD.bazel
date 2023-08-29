@@ -175,6 +175,7 @@ skia_cc_library(
     name = "base",
     srcs = [
         "//src/base:srcs",
+        "//src/ports:buffet_base_srcs",
     ] + select({
         "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
             "//include/private/base:generated_base_header_cpps",

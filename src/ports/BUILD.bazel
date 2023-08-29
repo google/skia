@@ -356,18 +356,17 @@ skia_cc_deps(
 )
 
 skia_cc_library(
-    name = "default_logging",
-    srcs = [":skdebug"],
-    copts = ["-Wno-format-nonliteral"],
-    features = ["layering_check"],
-    visibility = ["//:__pkg__"],
-    deps = ["//src:base"],
-)
-
-skia_cc_library(
     name = "default_malloc",
     srcs = [":malloc"],
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = ["//src:base"],
+)
+
+skia_filegroup(
+    name = "buffet_base_srcs",
+    srcs = [
+        ":skdebug",
+    ],
+    visibility = ["//src:__pkg__"],
 )

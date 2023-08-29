@@ -98,12 +98,6 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-alias(
-    name = "default_logging",
-    actual = "//src/ports:default_logging",
-    visibility = ["//visibility:public"],
-)
-
 # Load bearing comment below - gazelle looks here (and not in any other BUILD.bazel files)
 # for a special comment indicating the prefix.
 # gazelle:prefix go.skia.org/skia

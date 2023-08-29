@@ -1,5 +1,8 @@
 workspace(name = "skia")
 
+load("//bazel:deps.bzl", "bazel_deps", "c_plus_plus_deps")
+bazel_deps()
+
 load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skia")
 
 download_toolchains_for_skia("clang_linux_amd64", "clang_mac", "ndk_linux_amd64")
@@ -27,19 +30,6 @@ emsdk_deps()
 load("@emsdk//:emscripten_deps.bzl", emsdk_emscripten_deps = "emscripten_deps")
 
 emsdk_emscripten_deps(emscripten_version = "3.1.44")
-
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
-    urls = gcs_mirror_url(
-        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
-        url = "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-    ),
-)
-
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-
-bazel_skylib_workspace()
 
 http_archive(
     name = "bazel_toolchains",
@@ -375,8 +365,6 @@ local_repository(
     path = "include/config",
 )
 
-load("//bazel:deps.bzl", "git_repos_from_deps")
-
 # This are two lists of Bazel repository names, which is brought in by the following macro.
 # It is here for easier grepping, i.e. someone trying to find where a label like @brotli//:brotlidec
 # was defined. If a dep has its own BUILD rules, then one will need to go to its git repository
@@ -415,7 +403,7 @@ load("//bazel:deps.bzl", "git_repos_from_deps")
 # @wuffs - //bazel/external/wuffs:BUILD.bazel
 # @zlib_skia - //bazel/external/zlib_skia:BUILD.bazel
 #### END GENERATED LIST OF THIRD_PARTY DEPS
-git_repos_from_deps()
+c_plus_plus_deps()
 
 # In order to copy the Freetype configurations into the checked out Freetype folder,
 # it is easiest to treat them as a third-party dependency from the perspective of Freetype.
