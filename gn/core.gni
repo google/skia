@@ -372,7 +372,6 @@ skia_core_sources = [
   "$_src/core/SkFontStream.cpp",
   "$_src/core/SkFontStream.h",
   "$_src/core/SkFont_serial.cpp",
-  "$_src/core/SkFuzzLogging.h",
   "$_src/core/SkGaussFilter.cpp",
   "$_src/core/SkGaussFilter.h",
   "$_src/core/SkGeometry.cpp",

@@ -485,7 +485,6 @@ BASE_SRCS_ALL = [
     "src/core/SkFontStream.cpp",
     "src/core/SkFontStream.h",
     "src/core/SkFont_serial.cpp",
-    "src/core/SkFuzzLogging.h",
     "src/core/SkGaussFilter.cpp",
     "src/core/SkGaussFilter.h",
     "src/core/SkGeometry.cpp",
