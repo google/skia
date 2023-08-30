@@ -1,4 +1,3 @@
-/*#pragma settings SPIRVDawnCompatMode*/
 layout(webgpu, set=1, texture=2, sampler=3) sampler2D aSampler;
 layout(webgpu, set=1, texture=4, sampler=5) sampler2D anotherSampler;
 

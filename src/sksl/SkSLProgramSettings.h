@@ -76,9 +76,6 @@ struct ProgramSettings {
     // If true, VarDeclaration can be cloned for testing purposes. See VarDeclaration::clone for
     // more information.
     bool fAllowVarDeclarationCloneForTesting = false;
-    // If true, SPIR-V codegen restricted to a subset supported by Dawn.
-    // TODO(skia:13840, skia:14023): Remove this setting when Skia can use WGSL on Dawn.
-    bool fSPIRVDawnCompatMode = false;
 };
 
 /**

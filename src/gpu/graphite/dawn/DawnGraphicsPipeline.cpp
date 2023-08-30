@@ -262,7 +262,6 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     SkSL::ProgramSettings settings;
 
     settings.fForceNoRTFlip = true;
-    settings.fSPIRVDawnCompatMode = true;
 
     ShaderErrorHandler* errorHandler = caps.shaderErrorHandler();
 

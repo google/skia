@@ -370,6 +370,7 @@ sksl_spirv_tests = [
   "spirv/InterfaceBlockPushConstant.sksl",
   "spirv/LayoutMultipleOf4.sksl",
   "spirv/LayoutOutOfOrder.sksl",
+  "spirv/MixedSamplerTypes.sksl",
   "spirv/OpaqueTypeInArray.sksl",
   "spirv/Ossfuzz35916.sksl",
   "spirv/Ossfuzz37627.sksl",
@@ -377,8 +378,7 @@ sksl_spirv_tests = [
   "spirv/Ossfuzz53202.sksl",
   "spirv/StructArrayMemberInDifferentLayouts.sksl",
   "spirv/UnusedInterfaceBlock.sksl",
-  "spirv/WGSLLayoutInVulkanSPIRV.sksl",
-  "spirv/WrongCombinedSamplerLayoutSPIRVDawnCompatMode.sksl",
+  "spirv/WrongCombinedSamplerLayoutForWebGPUSampler.sksl",
   "workarounds/RewriteMatrixVectorMultiply.sksl",
 ]
 

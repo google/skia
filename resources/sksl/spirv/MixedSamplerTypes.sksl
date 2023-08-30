@@ -1,0 +1,7 @@
+layout(webgpu, set=1, texture=2, sampler=3) sampler2D wgpuSampler;
+layout(vulkan, set=1, binding=4)            sampler2D vkSampler;
+
+void main() {
+    sk_FragColor = sample(wgpuSampler, float2(0));
+    sk_FragColor = sample(vkSampler,   float2(0));
+}
