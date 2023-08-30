@@ -157,48 +157,63 @@ void Compute1DBlurLinearKernel(float sigma,
 const SkRuntimeEffect* GetLinearBlur1DEffect(int radius) {
     static const auto makeEffect = [](int maxRadius) {
         SkASSERT(maxRadius < kMaxBlurSamples);
+        int kernelWidth = BlurLinearKernelWidth(maxRadius);
         return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
                 SkStringPrintf(
                         // The coefficients are always stored for the max radius to keep the
                         // uniform block consistent across all effects.
                         "const int kMaxUniformKernelSize = %d / 2;"
-                        // But to help lower-end GPUs with unrolling, we bucket the max loop level.
-                        "const int kMaxLoopLimit = %d / 2 + 1;"
+                        // But we generate an exact loop over the specific kernel size
+                        "const int kMaxLoopLimit = %d;"
 
                         "uniform half4 offsetsAndKernel[kMaxUniformKernelSize];"
                         "uniform half2 dir;"
-                        "uniform int radius;"
                         "uniform shader child;"
 
                         "half4 main(float2 coord) {"
                             "half4 sum = half4(0);"
                             "for (int i = 0; i < kMaxLoopLimit; ++i) {"
                                 "half4 s = offsetsAndKernel[i];"
-                                "if (radius < 2*i) { break; }"
-                                "half2 o = offsetsAndKernel[i].x * dir;"
-                                "sum += offsetsAndKernel[i].y * child.eval(coord + o);"
-
-                                "if (radius <= 2*i) { break; }"
-                                "o = offsetsAndKernel[i].z * dir;"
-                                "sum += offsetsAndKernel[i].w * child.eval(coord + o);"
+                                "sum += s.y * child.eval(coord + s.x*dir);"
+                                "sum += s.w * child.eval(coord + s.z*dir);"
+                            "}"
+                            "if (%d != 0) {"
+                                "half4 s = offsetsAndKernel[%d];"
+                                "sum += s.y * child.eval(coord + s.x*dir);"
                             "}"
                             "return sum;"
-                        "}", kMaxBlurSamples, maxRadius).c_str());
+                        "}",  kMaxBlurSamples, kernelWidth/2, kernelWidth%2, maxRadius/2).c_str());
     };
 
     SkASSERT(radius > 0 && radius < kMaxBlurSamples);
-    switch(SkNextLog2(radius)) {
-        // Group radius [1,4] in the same shader
-        case 0: [[fallthrough]];
-        case 1: [[fallthrough]];
-        case 2: {  static const SkRuntimeEffect* effect = makeEffect(4);
-                   return effect; }
-        case 3: {  static const SkRuntimeEffect* effect = makeEffect(8);
-                   return effect; }
-        case 4: {  static const SkRuntimeEffect* effect = makeEffect(16);
-                   return effect; }
-        case 5: {  static const SkRuntimeEffect* effect = makeEffect(kMaxBlurSamples - 1);
-                   return effect; }
+    switch(radius) {
+        case 1:  { static const SkRuntimeEffect* effect = makeEffect(1);  return effect; }
+        case 2:  { static const SkRuntimeEffect* effect = makeEffect(2);  return effect; }
+        case 3:  { static const SkRuntimeEffect* effect = makeEffect(3);  return effect; }
+        case 4:  { static const SkRuntimeEffect* effect = makeEffect(4);  return effect; }
+        case 5:  { static const SkRuntimeEffect* effect = makeEffect(5);  return effect; }
+        case 6:  { static const SkRuntimeEffect* effect = makeEffect(6);  return effect; }
+        case 7:  { static const SkRuntimeEffect* effect = makeEffect(7);  return effect; }
+        case 8:  { static const SkRuntimeEffect* effect = makeEffect(8);  return effect; }
+        case 9:  { static const SkRuntimeEffect* effect = makeEffect(9);  return effect; }
+        case 10: { static const SkRuntimeEffect* effect = makeEffect(10); return effect; }
+        case 11: { static const SkRuntimeEffect* effect = makeEffect(11); return effect; }
+        case 12: { static const SkRuntimeEffect* effect = makeEffect(12); return effect; }
+        case 13: { static const SkRuntimeEffect* effect = makeEffect(13); return effect; }
+        case 14: { static const SkRuntimeEffect* effect = makeEffect(14); return effect; }
+        case 15: { static const SkRuntimeEffect* effect = makeEffect(15); return effect; }
+        case 16: { static const SkRuntimeEffect* effect = makeEffect(16); return effect; }
+        case 17: { static const SkRuntimeEffect* effect = makeEffect(17); return effect; }
+        case 18: { static const SkRuntimeEffect* effect = makeEffect(18); return effect; }
+        case 19: { static const SkRuntimeEffect* effect = makeEffect(19); return effect; }
+        case 20: { static const SkRuntimeEffect* effect = makeEffect(20); return effect; }
+        case 21: { static const SkRuntimeEffect* effect = makeEffect(21); return effect; }
+        case 22: { static const SkRuntimeEffect* effect = makeEffect(22); return effect; }
+        case 23: { static const SkRuntimeEffect* effect = makeEffect(23); return effect; }
+        case 24: { static const SkRuntimeEffect* effect = makeEffect(24); return effect; }
+        case 25: { static const SkRuntimeEffect* effect = makeEffect(25); return effect; }
+        case 26: { static const SkRuntimeEffect* effect = makeEffect(26); return effect; }
+        case 27: { static const SkRuntimeEffect* effect = makeEffect(27); return effect; }
         default:
             SkUNREACHABLE;
     }
