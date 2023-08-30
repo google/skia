@@ -609,7 +609,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     }
 
     sk_sp<GrD3DRootSignature> rootSig =
-            fGpu->resourceProvider().findOrCreateRootSignature(fUniformHandler.fTextures.count());
+            fGpu->resourceProvider().findOrCreateRootSignature(fUniformHandler.fSamplers.count());
     if (!rootSig) {
         return nullptr;
     }

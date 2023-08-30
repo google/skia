@@ -63,11 +63,9 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    UniformInfoArray    fUniforms;
-    UniformInfoArray    fSamplers;
-    UniformInfoArray    fTextures;
+    UniformInfoArray fUniforms;
+    UniformInfoArray fSamplers;
     skia_private::TArray<skgpu::Swizzle> fSamplerSwizzles;
-    skia_private::TArray<SkString>  fSamplerReferences;
 
     uint32_t fCurrentUBOOffset = 0;
     uint32_t fRTFlipOffset = 0;
