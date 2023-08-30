@@ -4,22 +4,29 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkTypeface.h"
 
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkTypeface.h"
-#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/utils/SkCustomTypeface.h"
+#include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkEndian.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkDescriptor.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
 
@@ -39,6 +46,11 @@
 #ifdef SK_TYPEFACE_FACTORY_FONTATIONS
 #include "src/ports/SkTypeface_fontations_priv.h"
 #endif
+
+#include <cstddef>
+#include <cstring>
+#include <utility>
+#include <vector>
 
 using namespace skia_private;
 
@@ -536,9 +548,6 @@ std::unique_ptr<SkStreamAsset> SkTypeface::onOpenExistingStream(int* ttcIndex) c
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkPaint.h"
-#include "src/core/SkDescriptor.h"
 
 SkRect SkTypeface::getBounds() const {
     fBoundsOnce([this] {

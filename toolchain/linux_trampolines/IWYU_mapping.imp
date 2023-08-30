@@ -399,6 +399,7 @@
 
   { symbol: ["std::time_t", "private", "<ctime>", "public"] },
   { symbol: ["time_t", "private", "<ctime>", "public"] },
+  { symbol: ["tm", "private", "<ctime>", "public"] },
 
   # We are pretty forgiving with iostream headers. If we specify
   # any of them, that is generally sufficient.

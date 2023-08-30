@@ -9,13 +9,15 @@
 #define SkGraphics_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 
 class SkData;
 class SkImageGenerator;
 class SkOpenTypeSVGDecoder;
-class SkPath;
 class SkTraceMemoryDump;
 
 class SK_API SkGraphics {

@@ -10,10 +10,9 @@
 #ifndef SkTime_DEFINED
 #define SkTime_DEFINED
 
-#include "include/core/SkTypes.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkAPI.h"
 
-#include <cinttypes>
+#include <cstdint>
 
 class SkString;
 
