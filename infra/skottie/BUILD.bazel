@@ -6,7 +6,7 @@ skia_app_container(
     name = "skottie_container",
     base_image = "@skottie-base//image",
     dirs = {
-        "/usr/local/share/skottie/dist/": [
+        "/usr/local/share/skottie/": [
             [
                 # This brings in all the CanvasKit build files.
                 "//modules/canvaskit:canvaskit",
