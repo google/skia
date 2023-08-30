@@ -13,6 +13,7 @@ skia_filegroup(
         "Int96.cpp",
         "Point.cpp",
         "Segment.cpp",
+        "SweepLine.cpp",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],
 )

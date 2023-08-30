@@ -7,10 +7,12 @@ exports_files_legacy()
 skia_filegroup(
     name = "tests",
     srcs = [
+        "BentleyOttmann1Test.cpp",
         "BruteForceCrossingsTest.cpp",
         "EventQueueTest.cpp",
         "Int96Test.cpp",
         "PointTest.cpp",
         "SegmentTest.cpp",
+        "SweepLineTest.cpp",
     ],
 )
