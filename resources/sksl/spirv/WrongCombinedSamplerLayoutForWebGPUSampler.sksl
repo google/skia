@@ -5,5 +5,5 @@ void main() {
 }
 
 /*%%*
-SPIR-V dawn compatibility mode requires an explicit texture and sampler index
+selected backend requires separate texture and sampler indices
 *%%*/

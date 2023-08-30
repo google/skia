@@ -13,6 +13,7 @@ layout (
     vulkan,
     metal,
     webgpu,
+    direct3d,
     rgba8,
     rgba32f,
     r32f,
@@ -31,6 +32,7 @@ layout (
     vulkan,
     metal,
     webgpu,
+    direct3d,
     rgba8,
     rgba32f,
     r32f
@@ -51,6 +53,7 @@ layout qualifier 'input_attachment_index' appears more than once
 layout qualifier 'vulkan' appears more than once
 layout qualifier 'metal' appears more than once
 layout qualifier 'webgpu' appears more than once
+layout qualifier 'direct3d' appears more than once
 layout qualifier 'rgba8' appears more than once
 layout qualifier 'rgba32f' appears more than once
 layout qualifier 'r32f' appears more than once

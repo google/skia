@@ -48,6 +48,9 @@ layout (
 error: 1: layout qualifier 'webgpu' is not permitted here
 layout (
 ^^^^^^^^...
+error: 1: layout qualifier 'direct3d' is not permitted here
+layout (
+^^^^^^^^...
 error: 1: layout qualifier 'rgba8' is not permitted here
 layout (
 ^^^^^^^^...
@@ -57,61 +60,64 @@ layout (
 error: 1: layout qualifier 'r32f' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: only one backend qualifier can be used
+error: 23: only one backend qualifier can be used
 layout (
 ^^^^^^^^...
-error: 22: only one pixel format qualifier can be used
+error: 23: only one pixel format qualifier can be used
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'origin_upper_left' is not permitted here
+error: 23: layout qualifier 'origin_upper_left' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'push_constant' is not permitted here
+error: 23: layout qualifier 'push_constant' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'blend_support_all_equations' is not permitted here
+error: 23: layout qualifier 'blend_support_all_equations' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'color' is not permitted here
+error: 23: layout qualifier 'color' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'location' is not permitted here
+error: 23: layout qualifier 'location' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'offset' is not permitted here
+error: 23: layout qualifier 'offset' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'binding' is not permitted here
+error: 23: layout qualifier 'binding' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'index' is not permitted here
+error: 23: layout qualifier 'index' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'set' is not permitted here
+error: 23: layout qualifier 'set' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'builtin' is not permitted here
+error: 23: layout qualifier 'builtin' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'input_attachment_index' is not permitted here
+error: 23: layout qualifier 'input_attachment_index' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'vulkan' is not permitted here
+error: 23: layout qualifier 'vulkan' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'metal' is not permitted here
+error: 23: layout qualifier 'metal' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'webgpu' is not permitted here
+error: 23: layout qualifier 'webgpu' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'rgba8' is not permitted here
+error: 23: layout qualifier 'direct3d' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'rgba32f' is not permitted here
+error: 23: layout qualifier 'rgba8' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'r32f' is not permitted here
+error: 23: layout qualifier 'rgba32f' is not permitted here
 layout (
 ^^^^^^^^...
-38 errors
+error: 23: layout qualifier 'r32f' is not permitted here
+layout (
+^^^^^^^^...
+40 errors

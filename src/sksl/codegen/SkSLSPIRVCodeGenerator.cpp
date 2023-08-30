@@ -3870,7 +3870,8 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
                                                    const VarDeclaration& varDecl) {
     const Variable* var = varDecl.var();
     const LayoutFlags backendFlags = var->layout().fFlags & LayoutFlag::kAllBackends;
-    const LayoutFlags kPermittedBackendFlags = LayoutFlag::kVulkan | LayoutFlag::kWebGPU;
+    const LayoutFlags kPermittedBackendFlags =
+            LayoutFlag::kVulkan | LayoutFlag::kWebGPU | LayoutFlag::kDirect3D;
     if (backendFlags & ~kPermittedBackendFlags) {
         fContext.fErrors->error(var->fPosition, "incompatible backend flag in SPIR-V codegen");
         return false;
@@ -3896,8 +3897,8 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
 
     if (fUseTextureSamplerPairs && var->type().isSampler()) {
         if (var->layout().fTexture == -1 || var->layout().fSampler == -1) {
-            fContext.fErrors->error(var->fPosition, "WebGPU samplers require explicit texture and "
-                                                    "sampler indices");
+            fContext.fErrors->error(var->fPosition, "selected backend requires separate texture "
+                                                    "and sampler indices");
             return false;
         }
         SkASSERT(storageClass == SpvStorageClassUniformConstant);
@@ -4488,8 +4489,8 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     // Do an initial pass over the program elements to establish some baseline info.
     const FunctionDeclaration* main = nullptr;
     int localSizeX = 1, localSizeY = 1, localSizeZ = 1;
-    Position vulkanSamplerPos;
-    Position webGPUSamplerPos;
+    Position combinedSamplerPos;
+    Position separateSamplerPos;
     for (const ProgramElement* e : program.elements()) {
         switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
@@ -4510,10 +4511,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                 const Variable& var = *decl.varDeclaration().var();
                 if (var.type().isSampler()) {
                     if (var.layout().fFlags & LayoutFlag::kVulkan) {
-                        vulkanSamplerPos = decl.position();
+                        combinedSamplerPos = decl.position();
                     }
-                    if (var.layout().fFlags & LayoutFlag::kWebGPU) {
-                        webGPUSamplerPos = decl.position();
+                    if (var.layout().fFlags & (LayoutFlag::kWebGPU | LayoutFlag::kDirect3D)) {
+                        separateSamplerPos = decl.position();
                     }
                 }
                 break;
@@ -4546,13 +4547,13 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         return;
     }
     // Make sure our program's sampler usage is consistent.
-    if (vulkanSamplerPos.valid() && webGPUSamplerPos.valid()) {
+    if (combinedSamplerPos.valid() && separateSamplerPos.valid()) {
         fContext.fErrors->error(Position(), "programs cannot contain a mixture of sampler types");
-        fContext.fErrors->error(vulkanSamplerPos, "Vulkan sampler found here:");
-        fContext.fErrors->error(webGPUSamplerPos, "WebGPU sampler found here:");
+        fContext.fErrors->error(combinedSamplerPos, "combined sampler found here:");
+        fContext.fErrors->error(separateSamplerPos, "separate sampler found here:");
         return;
     }
-    fUseTextureSamplerPairs = webGPUSamplerPos.valid();
+    fUseTextureSamplerPairs = separateSamplerPos.valid();
 
     // Emit interface blocks.
     std::set<SpvId> interfaceVars;

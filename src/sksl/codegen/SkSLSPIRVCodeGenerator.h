@@ -561,8 +561,7 @@ private:
     StringStream fDecorationBuffer;
 
     // Mapping from combined sampler declarations to synthesized texture/sampler variables.
-    // This is used when the sampler is declared as `layout(webgpu)`.
-    // TODO(skia:14023): Remove when WebGPU backend is fully transitioned to WGSL codegen.
+    // This is used when the sampler is declared as `layout(webgpu)` or `layout(direct3d)`.
     bool fUseTextureSamplerPairs = false;
     struct SynthesizedTextureSamplerPair {
         // The names of the synthesized variables. The Variable objects themselves store string
