@@ -13,6 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -360,6 +361,13 @@ sk_sp<SkImage> MakeWithFilter_Shared(const skif::Functors& functors,
     sk_sp<SkImageFilterCache> cache(
             SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
 
+    static const SkSurfaceProps kDefaultSurfaceProps;
+
+    auto srcSpecialImage = functors.fMakeImageFunctor(subset, src, kDefaultSurfaceProps);
+    if (!srcSpecialImage) {
+        return nullptr;
+    }
+
     // The filters operate in the local space of the src image, where (0,0) corresponds to the
     // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
     // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
@@ -369,20 +377,14 @@ sk_sp<SkImage> MakeWithFilter_Shared(const skif::Functors& functors,
     skif::ContextInfo ctxInfo = {
             skif::Mapping(SkMatrix::Translate(-subset.x(), -subset.y())),
             skif::LayerSpace<SkIRect>(clipBounds.makeOffset(-subset.topLeft())),
-            /*fSource=*/{}, // Will be filled in by following withNewSource call
+            // TODO: Pass subset.topLeft() as the origin of the source FilterResult
+            /* fSource= */skif::FilterResult{std::move(srcSpecialImage)},
             src->imageInfo().colorType(),
             src->imageInfo().colorSpace(),
-            /*fSurfaceProps=*/{},
+            kDefaultSurfaceProps,
             cache.get()};
-    skif::Context context(ctxInfo, functors);
+    const skif::Context context(ctxInfo, functors);
 
-    auto srcSpecialImage = context.makeImage(subset, std::move(src));
-    if (!srcSpecialImage) {
-        return nullptr;
-    }
-
-    // TODO: Pass subset.topLeft() as the origin of the source FilterResult
-    context = context.withNewSource(skif::FilterResult{srcSpecialImage});
     sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(context)
                                                   .imageAndOffset(context, offset);
     if (!result) {
