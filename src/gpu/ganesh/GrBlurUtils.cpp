@@ -1986,7 +1986,6 @@ static void convolve_gaussian_1d(skgpu::ganesh::SurfaceFillContext* sfc,
                                "offsetsAndKernel", SkSpan<SkV4>{offsetsAndKernel},
                                "dir", direction == Direction::kX ? SkV2{1.f, 0.f}
                                                                  : SkV2{0.f, 1.f},
-                               "radius", radius,
                                "child", std::move(child));
     sfc->fillRectToRectWithFP(srcRect, dstRect, std::move(conv));
 }
