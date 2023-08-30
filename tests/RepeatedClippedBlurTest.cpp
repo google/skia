@@ -116,8 +116,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest,
 
         SkIRect outSubset;
         SkIPoint offset;
-        sk_sp<SkImage> filteredImg = smImg->makeWithFilter(dContext, blur.get(), subset, clip,
-                                                           &outSubset, &offset);
+        sk_sp<SkImage> filteredImg = SkImages::MakeWithFilter(dContext, smImg, blur.get(), subset,
+                                                              clip, &outSubset, &offset);
 
         SkRect dstRect = SkRect::MakeXYWH(offset.fX, offset.fY,
                                           outSubset.width(), outSubset.height());

@@ -39,10 +39,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -52,14 +49,29 @@
 #include "src/core/SkSpecialSurface.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/image/GrImageUtils.h"
-#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
+#include "src/image/SkImage_Base.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
+#endif
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
+#include "include/gpu/graphite/Surface.h"
+#endif
 
 #include <algorithm>
 #include <cstdint>
@@ -352,16 +364,6 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrRecordingContext* 
                                                   kTestSurfaceOrigin);
     } else {
         return SkSpecialSurfaces::MakeRaster(ii, SkSurfaceProps());
-    }
-}
-
-static sk_sp<SkSurface> create_surface(GrRecordingContext* rContext, int width, int height) {
-    const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
-    if (rContext) {
-        return SkSurfaces::RenderTarget(
-                rContext, skgpu::Budgeted::kNo, info, 0, kTestSurfaceOrigin, nullptr);
-    } else {
-        return SkSurfaces::Raster(info);
     }
 }
 
@@ -1712,8 +1714,16 @@ DEF_TEST(ImageFilterBlurLargeImage, reporter) {
     test_large_blur_input(reporter, surface->getCanvas());
 }
 
-static void test_make_with_filter(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
-    sk_sp<SkSurface> surface(create_surface(rContext, 192, 128));
+static void test_make_with_filter(
+        skiatest::Reporter* reporter,
+        const std::function<sk_sp<SkSurface>(int width, int height)>& createSurface,
+        const std::function<sk_sp<SkImage>(sk_sp<SkImage> src,
+                                           const SkImageFilter* filter,
+                                           const SkIRect& subset,
+                                           const SkIRect& clipBounds,
+                                           SkIRect* outSubset,
+                                           SkIPoint* offset)>& makeWithFilter) {
+    sk_sp<SkSurface> surface(createSurface(192, 128));
     surface->getCanvas()->clear(SK_ColorRED);
     SkPaint bluePaint;
     bluePaint.setColor(SK_ColorBLUE);
@@ -1727,44 +1737,36 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrRecordingConte
     SkIPoint offset;
     sk_sp<SkImage> result;
 
-    result = sourceImage->makeWithFilter(rContext, nullptr, subset, clipBounds,
-                                         &outSubset, &offset);
-    REPORTER_ASSERT(reporter, !result);
+    result = makeWithFilter(sourceImage, nullptr, subset, clipBounds, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);  // filter is required
 
-    result = sourceImage->makeWithFilter(rContext, filter.get(), subset, clipBounds,
-                                         nullptr, &offset);
-    REPORTER_ASSERT(reporter, !result);
+    result = makeWithFilter(sourceImage, filter.get(), subset, clipBounds, nullptr, &offset);
+    REPORTER_ASSERT(reporter, !result);  // outSubset is required
 
-    result = sourceImage->makeWithFilter(rContext, filter.get(), subset, clipBounds,
-                                         &outSubset, nullptr);
-    REPORTER_ASSERT(reporter, !result);
+    result = makeWithFilter(sourceImage, filter.get(), subset, clipBounds, &outSubset, nullptr);
+    REPORTER_ASSERT(reporter, !result);  // offset is required
 
     SkIRect bigSubset = SkIRect::MakeXYWH(-10000, -10000, 20000, 20000);
-    result = sourceImage->makeWithFilter(rContext, filter.get(), bigSubset, clipBounds,
-                                         &outSubset, &offset);
+    result = makeWithFilter(sourceImage, filter.get(), bigSubset, clipBounds, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);  // subset needs to be w/in source's bounds
+
+    const SkIRect kEmpty = SkIRect::MakeEmpty();
+    result = makeWithFilter(sourceImage, filter.get(), kEmpty, clipBounds, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);  // subset can't be empty
+
+    result = makeWithFilter(sourceImage, filter.get(), subset, kEmpty, &outSubset, &offset);
+    REPORTER_ASSERT(reporter, !result);  // clipBounds can't be empty
+
+    const SkIRect kLeftField = SkIRect::MakeXYWH(-1000, 0, 100, 100);
+    result = makeWithFilter(sourceImage, filter.get(), subset, kLeftField, &outSubset, &offset);
     REPORTER_ASSERT(reporter, !result);
 
-    SkIRect empty = SkIRect::MakeEmpty();
-    result = sourceImage->makeWithFilter(rContext, filter.get(), empty, clipBounds,
-                                         &outSubset, &offset);
-    REPORTER_ASSERT(reporter, !result);
-
-    result = sourceImage->makeWithFilter(rContext, filter.get(), subset, empty,
-                                         &outSubset, &offset);
-    REPORTER_ASSERT(reporter, !result);
-
-    SkIRect leftField = SkIRect::MakeXYWH(-1000, 0, 100, 100);
-    result = sourceImage->makeWithFilter(rContext, filter.get(), subset, leftField,
-                                         &outSubset, &offset);
-    REPORTER_ASSERT(reporter, !result);
-
-    result = sourceImage->makeWithFilter(rContext, filter.get(), subset, clipBounds,
-                                         &outSubset, &offset);
+    result = makeWithFilter(sourceImage, filter.get(), subset, clipBounds, &outSubset, &offset);
 
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->bounds().contains(outSubset));
     SkIRect destRect = SkIRect::MakeXYWH(offset.x(), offset.y(),
-                                          outSubset.width(), outSubset.height());
+                                         outSubset.width(), outSubset.height());
     REPORTER_ASSERT(reporter, clipBounds.contains(destRect));
 
     // In GPU-mode, this case creates a special image with a backing size that differs from
@@ -1774,29 +1776,148 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrRecordingConte
         subset.setXYWH(0, 0, 160, 90);
 
         filter = SkImageFilters::Blend(SkBlendMode::kSrcOver, nullptr);
-        result = sourceImage->makeWithFilter(rContext, filter.get(), subset, clipBounds,
-                                             &outSubset, &offset);
+        result = makeWithFilter(sourceImage, filter.get(), subset, clipBounds, &outSubset, &offset);
         REPORTER_ASSERT(reporter, result);
 
-        // In GPU-mode, we want the result image (and all intermediate steps) to have used the same
+        // In Ganesh, we want the result image (and all intermediate steps) to have used the same
         // origin as the original surface.
-        if (rContext) {
-            auto [proxyView, _] = skgpu::ganesh::AsView(rContext, result, GrMipmapped::kNo);
-            REPORTER_ASSERT(reporter, proxyView && proxyView.origin() == kTestSurfaceOrigin);
+        if (result && as_IB(result)->isGaneshBacked()) {
+            SkImage_GaneshBase* base = static_cast<SkImage_GaneshBase*>(result.get());
+            REPORTER_ASSERT(reporter, base->origin() == kTestSurfaceOrigin);
         }
     }
 }
 
 DEF_TEST(ImageFilterMakeWithFilter, reporter) {
-    test_make_with_filter(reporter, nullptr);
+    auto createRasterSurface = [](int width, int height) -> sk_sp<SkSurface> {
+        const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
+        return SkSurfaces::Raster(info);
+    };
+
+    auto raster = [](sk_sp<SkImage> src,
+                     const SkImageFilter* filter,
+                     const SkIRect& subset,
+                     const SkIRect& clipBounds,
+                     SkIRect* outSubset,
+                     SkIPoint* offset) -> sk_sp<SkImage> {
+                         return SkImages::MakeWithFilter(std::move(src),
+                                                         filter,
+                                                         subset,
+                                                         clipBounds,
+                                                         outSubset,
+                                                         offset);
+                     };
+
+    test_make_with_filter(reporter, createRasterSurface, raster);
 }
 
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Gpu,
+// TODO(b/293326072): remove when SkImage::makeWithFilter is removed
+DEF_TEST(ImageFilterMakeWithFilter_LegacyRaster, reporter) {
+    auto createRasterSurface = [](int width, int height) -> sk_sp<SkSurface> {
+        const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
+        return SkSurfaces::Raster(info);
+    };
+
+    auto legacy = [](sk_sp<SkImage> src,
+                     const SkImageFilter* filter,
+                     const SkIRect& subset,
+                     const SkIRect& clipBounds,
+                     SkIRect* outSubset,
+                     SkIPoint* offset) -> sk_sp<SkImage> {
+        return src->makeWithFilter(nullptr, filter, subset, clipBounds, outSubset, offset);
+    };
+
+    test_make_with_filter(reporter, createRasterSurface, legacy);
+}
+
+// TODO(b/293326072): remove when SkImage::makeWithFilter is removed
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_LegacyGanesh,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
-    test_make_with_filter(reporter, ctxInfo.directContext());
+    GrRecordingContext* rContext = ctxInfo.directContext();
+
+    auto createGaneshSurface = [rContext](int width, int height) -> sk_sp<SkSurface> {
+        const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
+        return SkSurfaces::RenderTarget(
+                rContext, skgpu::Budgeted::kNo, info, 0, kTestSurfaceOrigin, nullptr);
+    };
+
+    auto legacy = [rContext](sk_sp<SkImage> src,
+                             const SkImageFilter* filter,
+                             const SkIRect& subset,
+                             const SkIRect& clipBounds,
+                             SkIRect* outSubset,
+                             SkIPoint* offset) -> sk_sp<SkImage> {
+        return src->makeWithFilter(rContext, filter, subset, clipBounds, outSubset, offset);
+    };
+
+    test_make_with_filter(reporter, createGaneshSurface, legacy);
 }
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Ganesh,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    GrRecordingContext* rContext = ctxInfo.directContext();
+
+    auto createGaneshSurface = [rContext](int width, int height) -> sk_sp<SkSurface> {
+        const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
+        return SkSurfaces::RenderTarget(
+                rContext, skgpu::Budgeted::kNo, info, 0, kTestSurfaceOrigin, nullptr);
+    };
+
+    auto ganesh = [rContext](sk_sp<SkImage> src,
+                             const SkImageFilter* filter,
+                             const SkIRect& subset,
+                             const SkIRect& clipBounds,
+                             SkIRect* outSubset,
+                             SkIPoint* offset) -> sk_sp<SkImage> {
+         return SkImages::MakeWithFilter(rContext,
+                                         std::move(src),
+                                         filter,
+                                         subset,
+                                         clipBounds,
+                                         outSubset,
+                                         offset);
+    };
+
+    test_make_with_filter(reporter, createGaneshSurface, ganesh);
+}
+
+#if defined(SK_GRAPHITE)
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Graphite,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
+    std::unique_ptr<skgpu::graphite::Recorder> recorder =
+            context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
+
+    auto createGraphiteSurface = [r = recorder.get()](int width, int height) -> sk_sp<SkSurface> {
+        const SkImageInfo info = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
+        return SkSurfaces::RenderTarget(r, info);
+    };
+
+    auto graphite = [r = recorder.get()](sk_sp<SkImage> src,
+                                         const SkImageFilter* filter,
+                                         const SkIRect& subset,
+                                         const SkIRect& clipBounds,
+                                         SkIRect* outSubset,
+                                         SkIPoint* offset) -> sk_sp<SkImage> {
+        return SkImages::MakeWithFilter(r,
+                                        std::move(src),
+                                        filter,
+                                        subset,
+                                        clipBounds,
+                                        outSubset,
+                                        offset);
+    };
+
+    test_make_with_filter(reporter, createGraphiteSurface, graphite);
+}
+
+#endif
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu,
                                        reporter,

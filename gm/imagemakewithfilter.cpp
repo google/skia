@@ -25,13 +25,18 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-
 #include "include/effects/SkImageFilters.h"
-
-#include "include/gpu/GrDirectContext.h"
-
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Image.h"
+#endif
 
 #include <utility>
 
@@ -367,9 +372,23 @@ private:
             SkIRect outSubset;
             SkIPoint offset;
 
-            auto rContext = canvas->recordingContext();
-            result = mainImage->makeWithFilter(rContext, filter.get(), subset, clip,
-                                               &outSubset, &offset);
+#if defined(SK_GANESH)
+            if (auto rContext = canvas->recordingContext()) {
+                result = SkImages::MakeWithFilter(rContext, mainImage, filter.get(),
+                                                  subset, clip, &outSubset, &offset);
+            } else
+#endif
+#if defined(SK_GRAPHITE)
+            if (auto recorder = canvas->recorder()){
+                result = SkImages::MakeWithFilter(recorder, mainImage, filter.get(),
+                                                  subset, clip, &outSubset, &offset);
+            } else
+#endif
+            {
+                result = SkImages::MakeWithFilter(mainImage, filter.get(),
+                                                  subset, clip, &outSubset, &offset);
+            }
+
             if (!result) {
                 return;
             }

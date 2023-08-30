@@ -9,10 +9,16 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/gpu/GrDirectContext.h"
+#include "tools/Resources.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "tools/Resources.h"
+#endif
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Image.h"
+#endif
 
 // Exercise a blur filter connected to 5 inputs of the same merge filter.
 // This bench shows an improvement in performance once cacheing of re-used
@@ -74,13 +80,6 @@ protected:
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkIRect discardSubset;
 
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-        // makeWithFilter will only use the GPU backend if the image is already a texture
-        sk_sp<SkImage> image = SkImages::TextureFromImage(dContext, fImage);
-        if (!image) {
-            image = fImage;
-        }
-
         // Set up the filters once so the allocation cost isn't included per-loop
         sk_sp<SkImageFilter> blur(SkImageFilters::Blur(20.0f, 20.0f, nullptr));
         sk_sp<SkImageFilter> inputs[kNumInputs];
@@ -91,8 +90,24 @@ protected:
 
         // But measure makeWithFilter() per loop since that's the focus of this benchmark
         for (int j = 0; j < loops; j++) {
-            image = image->makeWithFilter(dContext, mergeFilter.get(), subset, subset,
-                                          &discardSubset, &offset);
+            sk_sp<SkImage> image;
+
+#if defined(SK_GANESH)
+            if (auto rContext = canvas->recordingContext()) {
+                image = SkImages::MakeWithFilter(rContext, fImage, mergeFilter.get(),
+                                                 subset, subset, &discardSubset, &offset);
+            } else
+#endif
+#if defined(SK_GRAPHITE)
+            if (auto recorder = canvas->recorder()) {
+                image = SkImages::MakeWithFilter(recorder, fImage, mergeFilter.get(),
+                                                 subset, subset, &discardSubset, &offset);
+            } else
+#endif
+            {
+                image = SkImages::MakeWithFilter(fImage, mergeFilter.get(),
+                                                 subset, subset, &discardSubset, &offset);
+            }
             SkASSERT(image && image->dimensions() == fImage->dimensions());
         }
     }
