@@ -21,11 +21,14 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/chromium/GrPromiseImageTexture.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkImageFilterTypes.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
@@ -51,6 +54,8 @@
 #include <utility>
 
 class GrContextThreadSafeProxy;
+class SkImageFilter;
+struct SkIPoint;
 
 SkImage_GaneshBase::SkImage_GaneshBase(sk_sp<GrImageContext> context,
                                        SkImageInfo info,
@@ -412,4 +417,29 @@ sk_sp<SkImage> SubsetTextureFrom(GrDirectContext* context,
     return SkImages::TextureFromImage(context, subsetImg.get());
 }
 
+sk_sp<SkImage> MakeWithFilter(GrRecordingContext* rContext,
+                              sk_sp<SkImage> src,
+                              const SkImageFilter* filter,
+                              const SkIRect& subset,
+                              const SkIRect& clipBounds,
+                              SkIRect* outSubset,
+                              SkIPoint* offset) {
+    if (!rContext || !src || !filter) {
+        return nullptr;
+    }
+
+    GrSurfaceOrigin origin = kTopLeft_GrSurfaceOrigin;
+    if (as_IB(src)->isGaneshBacked()) {
+        SkImage_GaneshBase* base = static_cast<SkImage_GaneshBase*>(src.get());
+        origin = base->origin();
+    }
+
+    return as_IFB(filter)->makeImageWithFilter(skif::MakeGaneshFunctors(rContext, origin),
+                                               std::move(src),
+                                               subset,
+                                               clipBounds,
+                                               outSubset,
+                                               offset);
 }
+
+} // namespace SkImages

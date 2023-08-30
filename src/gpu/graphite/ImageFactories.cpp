@@ -19,6 +19,8 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/YUVABackendTextures.h"
 #include "include/private/base/SkMutex.h"
+#include "src/core/SkImageFilterTypes.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Image_Base_Graphite.h"
@@ -254,6 +256,25 @@ sk_sp<SkImage> SubsetTextureFrom(skgpu::graphite::Recorder* recorder,
     }
     auto subsetImg = img->makeSubset(recorder, subset, props);
     return SkImages::TextureFromImage(recorder, subsetImg, props);
+}
+
+sk_sp<SkImage> MakeWithFilter(skgpu::graphite::Recorder* recorder,
+                              sk_sp<SkImage> src,
+                              const SkImageFilter* filter,
+                              const SkIRect& subset,
+                              const SkIRect& clipBounds,
+                              SkIRect* outSubset,
+                              SkIPoint* offset) {
+    if (!recorder || !src || !filter) {
+        return nullptr;
+    }
+
+    return as_IFB(filter)->makeImageWithFilter(skif::MakeGraphiteFunctors(recorder),
+                                               std::move(src),
+                                               subset,
+                                               clipBounds,
+                                               outSubset,
+                                               offset);
 }
 
 static sk_sp<SkImage> generate_picture_texture(skgpu::graphite::Recorder* recorder,

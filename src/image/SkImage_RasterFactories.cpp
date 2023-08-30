@@ -15,6 +15,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkMath.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkImageFilterTypes.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImagePriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Raster.h"
@@ -23,7 +25,14 @@
 #include <cstdint>
 #include <utility>
 
+class SkImageFilter;
+struct SkIPoint;
+struct SkIRect;
 enum class SkTextureCompressionType;
+
+namespace skif {
+Functors MakeRasterFunctors();
+} // namespace skif
 
 static bool valid_args(const SkImageInfo& info, size_t rowBytes, size_t* minSize) {
     const int maxDimension = SK_MaxS32 >> 2;
@@ -90,6 +99,24 @@ sk_sp<SkImage> RasterFromData(const SkImageInfo& info, sk_sp<SkData> data, size_
     }
 
     return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes);
+}
+
+sk_sp<SkImage> MakeWithFilter(sk_sp<SkImage> src,
+                              const SkImageFilter* filter,
+                              const SkIRect& subset,
+                              const SkIRect& clipBounds,
+                              SkIRect* outSubset,
+                              SkIPoint* offset) {
+    if (!src || !filter) {
+        return nullptr;
+    }
+
+    return as_IFB(filter)->makeImageWithFilter(skif::MakeRasterFunctors(),
+                                               std::move(src),
+                                               subset,
+                                               clipBounds,
+                                               outSubset,
+                                               offset);
 }
 
 // TODO: this could be improved to decode and make use of the mipmap

@@ -14,25 +14,13 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkImageFilterTypes.h"
-#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkNextID.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkImageShader.h"
 
-#if defined(SK_GANESH)
-enum GrSurfaceOrigin : int;
-#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
-#endif
-
 #include <utility>
-
-namespace skif {
-Functors MakeRasterFunctors();
-Functors MakeGaneshFunctors(GrRecordingContext* context, GrSurfaceOrigin origin);
-} // namespace skif
 
 class SkShader;
 
@@ -309,27 +297,27 @@ sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
     return this->withMipmaps(nullptr);
 }
 
+#if !defined(SK_DISABLE_LEGACY_MAKEWITHFILTER)
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
+
 sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext,
                                        const SkImageFilter* filter,
                                        const SkIRect& subset,
                                        const SkIRect& clipBounds,
                                        SkIRect* outSubset,
                                        SkIPoint* offset) const {
-    if (!filter) {
-        return nullptr;
-    }
-
-    const SkImageFilter_Base* ifb = as_IFB(filter);
-
 #if defined(SK_GANESH)
-    if (as_IB(this)->isGaneshBacked()) {
-        const SkImage_GaneshBase* base = static_cast<const SkImage_GaneshBase*>(this);
-
-        return ifb->makeImageWithFilter(skif::MakeGaneshFunctors(rContext, base->origin()),
-                                        sk_ref_sp(this), subset, clipBounds, outSubset, offset);
+    if (rContext) {
+        return SkImages::MakeWithFilter(rContext, sk_ref_sp(this), filter, subset, clipBounds,
+                                        outSubset, offset);
     }
 #endif
 
-    return ifb->makeImageWithFilter(skif::MakeRasterFunctors(),
-                                    sk_ref_sp(this), subset, clipBounds, outSubset, offset);
+    return SkImages::MakeWithFilter(sk_ref_sp(this), filter, subset, clipBounds,
+                                    outSubset, offset);
 }
+
+#endif // !defined(SK_DISABLE_LEGACY_MAKEWITHFILTER)
