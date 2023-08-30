@@ -3872,8 +3872,8 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
     const Variable* var = varDecl.var();
     const bool inDawnMode = fProgram.fConfig->fSettings.fSPIRVDawnCompatMode;
     const LayoutFlags backendFlags = var->layout().fFlags & LayoutFlag::kAllBackends;
-    const LayoutFlags permittedBackendFlags = LayoutFlag::kSPIRV | (inDawnMode ? LayoutFlag::kWGSL
-                                                                               : LayoutFlag::kNone);
+    const LayoutFlags permittedBackendFlags =
+            LayoutFlag::kVulkan | (inDawnMode ? LayoutFlag::kWebGPU : LayoutFlag::kNone);
     if (backendFlags & ~permittedBackendFlags) {
         fContext.fErrors->error(var->fPosition, "incompatible backend flag in SPIR-V codegen");
         return false;
@@ -3900,7 +3900,7 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
     if (var->type().typeKind() == Type::TypeKind::kSampler && inDawnMode) {
         if (var->layout().fTexture == -1 ||
             var->layout().fSampler == -1 ||
-            !(var->layout().fFlags & LayoutFlag::kWGSL)) {
+            !(var->layout().fFlags & LayoutFlag::kWebGPU)) {
             fContext.fErrors->error(var->fPosition, "SPIR-V dawn compatibility mode requires an "
                                                     "explicit texture and sampler index");
             return false;

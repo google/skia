@@ -39,13 +39,13 @@ layout (
 error: 1: layout qualifier 'input_attachment_index' is not permitted here
 layout (
 ^^^^^^^^...
-error: 1: layout qualifier 'spirv' is not permitted here
+error: 1: layout qualifier 'vulkan' is not permitted here
 layout (
 ^^^^^^^^...
 error: 1: layout qualifier 'metal' is not permitted here
 layout (
 ^^^^^^^^...
-error: 1: layout qualifier 'wgsl' is not permitted here
+error: 1: layout qualifier 'webgpu' is not permitted here
 layout (
 ^^^^^^^^...
 error: 1: layout qualifier 'rgba8' is not permitted here
@@ -96,13 +96,13 @@ layout (
 error: 22: layout qualifier 'input_attachment_index' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'spirv' is not permitted here
+error: 22: layout qualifier 'vulkan' is not permitted here
 layout (
 ^^^^^^^^...
 error: 22: layout qualifier 'metal' is not permitted here
 layout (
 ^^^^^^^^...
-error: 22: layout qualifier 'wgsl' is not permitted here
+error: 22: layout qualifier 'webgpu' is not permitted here
 layout (
 ^^^^^^^^...
 error: 22: layout qualifier 'rgba8' is not permitted here

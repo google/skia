@@ -10,9 +10,9 @@ layout (
     set = 1,
     builtin = 1,
     input_attachment_index = 1,
-    spirv,
+    vulkan,
     metal,
-    wgsl,
+    webgpu,
     rgba8,
     rgba32f,
     r32f)
@@ -31,9 +31,9 @@ layout (
     set = 1,
     builtin = 1,
     input_attachment_index = 1,
-    spirv,
+    vulkan,
     metal,
-    wgsl,
+    webgpu,
     rgba8,
     rgba32f,
     r32f) float x) {}
@@ -52,9 +52,9 @@ layout qualifier 'index' is not permitted here
 layout qualifier 'set' is not permitted here
 layout qualifier 'builtin' is not permitted here
 layout qualifier 'input_attachment_index' is not permitted here
-layout qualifier 'spirv' is not permitted here
+layout qualifier 'vulkan' is not permitted here
 layout qualifier 'metal' is not permitted here
-layout qualifier 'wgsl' is not permitted here
+layout qualifier 'webgpu' is not permitted here
 layout qualifier 'rgba8' is not permitted here
 layout qualifier 'rgba32f' is not permitted here
 layout qualifier 'r32f' is not permitted here
@@ -71,9 +71,9 @@ layout qualifier 'index' is not permitted here
 layout qualifier 'set' is not permitted here
 layout qualifier 'builtin' is not permitted here
 layout qualifier 'input_attachment_index' is not permitted here
-layout qualifier 'spirv' is not permitted here
+layout qualifier 'vulkan' is not permitted here
 layout qualifier 'metal' is not permitted here
-layout qualifier 'wgsl' is not permitted here
+layout qualifier 'webgpu' is not permitted here
 layout qualifier 'rgba8' is not permitted here
 layout qualifier 'rgba32f' is not permitted here
 layout qualifier 'r32f' is not permitted here

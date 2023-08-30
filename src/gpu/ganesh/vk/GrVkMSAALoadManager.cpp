@@ -34,7 +34,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     std::string vertShaderText;
     vertShaderText.append(
-            "layout(spirv, set=0, binding=0) uniform vertexUniformBuffer {"
+            "layout(vulkan, set=0, binding=0) uniform vertexUniformBuffer {"
             "half4 uPosXform;"
             "};"
 
@@ -47,7 +47,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     std::string fragShaderText;
     fragShaderText.append(
-            "layout(spirv, input_attachment_index=0, set=2, binding=0) subpassInput uInput;"
+            "layout(vulkan, input_attachment_index=0, set=2, binding=0) subpassInput uInput;"
 
             "// MSAA Load Program FS\n"
             "void main() {"

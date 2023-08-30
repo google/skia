@@ -250,15 +250,18 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
 }
 
 GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
-        const GrBackendFormat& backendFormat, GrSamplerState state, const skgpu::Swizzle& swizzle,
-        const char* name, const GrShaderCaps* shaderCaps) {
+        const GrBackendFormat& backendFormat,
+        GrSamplerState state,
+        const skgpu::Swizzle& swizzle,
+        const char* name,
+        const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
 
     const char prefix = 'u';
     SkString mangleName = fProgramBuilder->nameVariable(prefix, name, /*mangle=*/true);
 
     SkString layoutQualifier;
-    layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count());
+    layoutQualifier.appendf("vulkan, set=%d, binding=%d", kSamplerDescSet, fSamplers.count());
 
     VkUniformInfo tempInfo;
     tempInfo.fVariable =

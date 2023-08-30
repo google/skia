@@ -1,6 +1,6 @@
 /*#pragma settings SPIRVDawnCompatMode*/
 layout(set = 0, binding = 1) texture2D aTexture;
-layout(wgsl, set = 0, texture = 2, sampler = 3) sampler2D aSampledTexture;
+layout(webgpu, set = 0, texture = 2, sampler = 3) sampler2D aSampledTexture;
 
 layout(location = 1) in float2 c;
 

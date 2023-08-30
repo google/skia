@@ -33,15 +33,15 @@ error: 29: layout qualifier 'builtin' appears more than once
 error: 30: layout qualifier 'input_attachment_index' appears more than once
     input_attachment_index = 2,
     ^^^^^^^^^^^^^^^^^^^^^^
-error: 31: layout qualifier 'spirv' appears more than once
-    spirv,
-    ^^^^^
+error: 31: layout qualifier 'vulkan' appears more than once
+    vulkan,
+    ^^^^^^
 error: 32: layout qualifier 'metal' appears more than once
     metal,
     ^^^^^
-error: 33: layout qualifier 'wgsl' appears more than once
-    wgsl,
-    ^^^^
+error: 33: layout qualifier 'webgpu' appears more than once
+    webgpu,
+    ^^^^^^
 error: 34: layout qualifier 'rgba8' appears more than once
     rgba8,
     ^^^^^

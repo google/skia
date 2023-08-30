@@ -38,11 +38,11 @@ enum class LayoutFlag : int {
     kInputAttachmentIndex       = 1 << 12,
 
     // These flags indicate the backend type; only one at most can be set.
-    kSPIRV                      = 1 << 13,
+    kVulkan                     = 1 << 13,
     kMetal                      = 1 << 14,
-    kWGSL                       = 1 << 15,
+    kWebGPU                     = 1 << 15,
 
-    kAllBackends                = kSPIRV | kMetal | kWGSL,
+    kAllBackends                = kVulkan | kMetal | kWebGPU,
 
     // These flags indicate the pixel format; only one at most can be set.
     // (https://www.khronos.org/opengl/wiki/Layout_Qualifier_(GLSL)#Image_formats)

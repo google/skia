@@ -303,9 +303,9 @@ void VarDeclaration::ErrorCheck(const Context& context,
                                                   !permitBindingAndSet)) {
         permittedLayoutFlags &= ~LayoutFlag::kBinding;
         permittedLayoutFlags &= ~LayoutFlag::kSet;
-        permittedLayoutFlags &= ~LayoutFlag::kSPIRV;
+        permittedLayoutFlags &= ~LayoutFlag::kVulkan;
         permittedLayoutFlags &= ~LayoutFlag::kMetal;
-        permittedLayoutFlags &= ~LayoutFlag::kWGSL;
+        permittedLayoutFlags &= ~LayoutFlag::kWebGPU;
     }
     if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         // Disallow all layout flags except 'color' in runtime effects

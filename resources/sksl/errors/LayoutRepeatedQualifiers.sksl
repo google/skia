@@ -10,9 +10,9 @@ layout (
     set = 1,
     builtin = 1,
     input_attachment_index = 1,
-    spirv,
+    vulkan,
     metal,
-    wgsl,
+    webgpu,
     rgba8,
     rgba32f,
     r32f,
@@ -28,9 +28,9 @@ layout (
     set = 2,
     builtin = 2,
     input_attachment_index = 2,
-    spirv,
+    vulkan,
     metal,
-    wgsl,
+    webgpu,
     rgba8,
     rgba32f,
     r32f
@@ -48,9 +48,9 @@ layout qualifier 'index' appears more than once
 layout qualifier 'set' appears more than once
 layout qualifier 'builtin' appears more than once
 layout qualifier 'input_attachment_index' appears more than once
-layout qualifier 'spirv' appears more than once
+layout qualifier 'vulkan' appears more than once
 layout qualifier 'metal' appears more than once
-layout qualifier 'wgsl' appears more than once
+layout qualifier 'webgpu' appears more than once
 layout qualifier 'rgba8' appears more than once
 layout qualifier 'rgba32f' appears more than once
 layout qualifier 'r32f' appears more than once

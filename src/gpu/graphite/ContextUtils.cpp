@@ -285,7 +285,7 @@ std::string EmitSamplerLayout(const ResourceBindingRequirements& bindingReqs, in
     if (bindingReqs.fSeparateTextureAndSamplerBinding) {
         int samplerIndex = (*binding)++;
         int textureIndex = (*binding)++;
-        result = SkSL::String::printf("layout(wgsl, %ssampler=%d, texture=%d)",
+        result = SkSL::String::printf("layout(webgpu, %ssampler=%d, texture=%d)",
                                       distinctIndexRange,
                                       samplerIndex,
                                       textureIndex);
