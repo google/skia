@@ -37,8 +37,7 @@
 #include "include/core/SkTiledImageUtils.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/ImageProvider.h"
-
-#include <unordered_map>
+#include "src/core/SkLRUCache.h"
 #endif
 
 #if defined(SK_ENABLE_SVG)
@@ -692,6 +691,7 @@ SkSpan<const SkFontArguments::VariationPosition::Coordinate> VariationSliders::g
 // TODO: add testing of a single ImageProvider passed to multiple recorders
 class TestingImageProvider : public skgpu::graphite::ImageProvider {
 public:
+    TestingImageProvider() : fCache(kDefaultNumCachedImages) {}
     ~TestingImageProvider() override {}
 
     sk_sp<SkImage> findOrCreate(skgpu::graphite::Recorder* recorder,
@@ -704,16 +704,16 @@ public:
             // key, we could remove the hidden non-mipmapped key/image from the cache.
             ImageKey mipMappedKey(image, /* mipmapped= */ true);
             auto result = fCache.find(mipMappedKey);
-            if (result != fCache.end()) {
-                return result->second;
+            if (result) {
+                return *result;
             }
         }
 
         ImageKey key(image, requiredProps.fMipmapped);
 
         auto result = fCache.find(key);
-        if (result != fCache.end()) {
-            return result->second;
+        if (result) {
+            return *result;
         }
 
         sk_sp<SkImage> newImage = SkImages::TextureFromImage(recorder, image, requiredProps);
@@ -721,13 +721,15 @@ public:
             return nullptr;
         }
 
-        auto [iter, success] = fCache.insert({ key, newImage });
-        SkASSERT(success);
+        result = fCache.insert(key, std::move(newImage));
+        SkASSERT(result);
 
-        return iter->second;
+        return *result;
     }
 
 private:
+    static constexpr int kDefaultNumCachedImages = 256;
+
     class ImageKey {
     public:
         ImageKey(const SkImage* image, bool mipmapped) {
@@ -760,7 +762,7 @@ private:
         size_t operator()(const ImageKey& key) const { return key.hash(); }
     };
 
-    std::unordered_map<ImageKey, sk_sp<SkImage>, ImageHash> fCache;
+    SkLRUCache<ImageKey, sk_sp<SkImage>, ImageHash> fCache;
 };
 
 skgpu::graphite::RecorderOptions CreateTestingRecorderOptions() {
