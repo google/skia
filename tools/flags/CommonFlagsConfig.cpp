@@ -137,13 +137,13 @@ static const struct {
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
 #ifdef SK_DAWN
-    { "grdawn",                "graphite", "api=dawn" },
-    { "grdawn_d3d11",          "graphite", "api=dawn_d3d11" },
-    { "grdawn_d3d12",          "graphite", "api=dawn_d3d12" },
-    { "grdawn_mtl",            "graphite", "api=dawn_mtl" },
-    { "grdawn_vk",             "graphite", "api=dawn_vk" },
-    { "grdawn_gl",             "graphite", "api=dawn_gl" },
-    { "grdawn_gles",           "graphite", "api=dawn_gles" },
+    { "grdawn",                "graphite", "api=dawn,wgsl=true" },
+    { "grdawn_d3d11",          "graphite", "api=dawn_d3d11,wgsl=true" },
+    { "grdawn_d3d12",          "graphite", "api=dawn_d3d12,wgsl=true" },
+    { "grdawn_mtl",            "graphite", "api=dawn_mtl,wgsl=true" },
+    { "grdawn_vk",             "graphite", "api=dawn_vk,wgsl=true" },
+    { "grdawn_gl",             "graphite", "api=dawn_gl,wgsl=true" },
+    { "grdawn_gles",           "graphite", "api=dawn_gles,wgsl=true" },
 #endif
 #ifdef SK_METAL
     { "grmtl",                 "graphite", "api=metal" },
