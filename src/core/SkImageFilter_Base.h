@@ -36,6 +36,18 @@ public:
     skif::FilterResult filterImage(const skif::Context& context) const;
 
     /**
+     * Create a filtered version of the 'src' image using this filter. This is basically a wrapper
+     * around filterImage that prepares the skif::Context to filter the 'src' image directly,
+     * for implementing the SkImages::MakeWithFilter API calls.
+     */
+    sk_sp<SkImage> makeImageWithFilter(const skif::Functors& functors,
+                                       sk_sp<SkImage> src,
+                                       const SkIRect& subset,
+                                       const SkIRect& clipBounds,
+                                       SkIRect* outSubset,
+                                       SkIPoint* offset) const;
+
+    /**
      *  Calculate the smallest-possible required layer bounds that would provide sufficient
      *  information to correctly compute the image filter for every pixel in the desired output
      *  bounds. The 'desiredOutput' is intended to represent either the root render target bounds,

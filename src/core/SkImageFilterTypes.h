@@ -33,6 +33,7 @@
 #include <utility>
 
 class FilterResultImageResolver;  // for testing
+class SkImageFilter_Base;
 class GrRecordingContext;
 class SkBitmap;
 class SkCanvas;
@@ -1119,14 +1120,7 @@ private:
                                      const ContextInfo& info);
     friend Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
                                        const ContextInfo& info);
-    friend sk_sp<SkImage> MakeWithFilter_Shared(const skif::Functors& functors,
-                                                sk_sp<SkImage> src,
-                                                const SkImageFilter* filter,
-                                                const SkIRect& subset,
-                                                const SkIRect& clipBounds,
-                                                SkIRect* outSubset,
-                                                SkIPoint* offset);
-
+    friend class ::SkImageFilter_Base;    // for private ctor
     friend class FilterResult::Builder; // for fBlurImageFunctor
 };
 
