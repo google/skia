@@ -1970,7 +1970,7 @@ skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) co
     // *before* we apply any legacy tile mode since the legacy tiling did not actually cause the
     // output to extend fully.
     skif::LayerSpace<SkIRect> maxOutput =
-            this->kernelBounds(ctx.mapping(), childOutput.layerBounds(), /*gpuBacked=*/false);
+            this->kernelBounds(ctx.mapping(), childOutput.layerBounds(), ctx.gpuBacked());
     if (!maxOutput.intersect(ctx.desiredOutput())) {
         return {};
     }
