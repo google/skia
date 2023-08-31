@@ -22,6 +22,7 @@
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/base/SkAutoMalloc.h"
@@ -826,7 +827,7 @@ sk_sp<SkImage> VulkanTestHelper::importHardwareBufferForRead(skiatest::Reporter*
         return nullptr;
     }
 
-    GrBackendTexture backendTex(DEV_W, DEV_H, imageInfo);
+    auto backendTex = GrBackendTextures::MakeVk(DEV_W, DEV_H, imageInfo);
 
     sk_sp<SkImage> wrappedImage = SkImages::BorrowTextureFrom(fDirectContext.get(),
                                                               backendTex,
@@ -988,7 +989,7 @@ sk_sp<SkSurface> VulkanTestHelper::importHardwareBufferForWrite(skiatest::Report
         return nullptr;
     }
 
-    GrBackendTexture backendTex(DEV_W, DEV_H, imageInfo);
+    auto backendTex = GrBackendTextures::MakeVk(DEV_W, DEV_H, imageInfo);
 
     sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(fDirectContext.get(),
                                                               backendTex,
