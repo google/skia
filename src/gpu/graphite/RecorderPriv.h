@@ -70,12 +70,13 @@ public:
 
     size_t getResourceCacheLimit() const;
 
-#if defined(GRAPHITE_TEST_UTILS)
+    ////////////////////////////////////////////////////////////////////////////////
+    // Utility methods for testing only
     ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }
     // used by the Context that created this Recorder to set a back pointer
     void setContext(Context*);
     Context* context() { return fRecorder->fContext; }
-#endif
+    bool deviceIsRegistered(Device*);
 
 private:
     explicit RecorderPriv(Recorder* recorder) : fRecorder(recorder) {}

@@ -235,18 +235,6 @@ void Recorder::deregisterDevice(const Device* device) {
     }
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
-bool Recorder::deviceIsRegistered(Device* device) {
-    ASSERT_SINGLE_OWNER
-    for (auto& currentDevice : fTrackedDevices) {
-        if (device == currentDevice) {
-            return true;
-        }
-    }
-    return false;
-}
-#endif
-
 BackendTexture Recorder::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
     ASSERT_SINGLE_OWNER
 
@@ -389,12 +377,22 @@ size_t RecorderPriv::getResourceCacheLimit() const {
     return fRecorder->fResourceProvider->getResourceCacheLimit();
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
+////////////////////////////////////////////////////////////////////////////////
+// Utility methods for testing only
+
 // used by the Context that created this Recorder to set a back pointer
 void RecorderPriv::setContext(Context* context) {
     fRecorder->fContext = context;
 }
-#endif
 
+bool RecorderPriv::deviceIsRegistered(Device* device) {
+    ASSERT_SINGLE_OWNER_PRIV
+    for (auto& currentDevice : fRecorder->fTrackedDevices) {
+        if (device == currentDevice) {
+            return true;
+        }
+    }
+    return false;
+}
 
 } // namespace skgpu::graphite
