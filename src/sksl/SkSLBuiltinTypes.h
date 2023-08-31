@@ -108,11 +108,13 @@ public:
     const std::unique_ptr<Type> fMat4x3;
     const std::unique_ptr<Type> fMat4x4;
 
-    const std::unique_ptr<Type> fTexture2D;
+    // These texture types use `sample` access.
+    const std::unique_ptr<Type> fTexture2D_sample;
     const std::unique_ptr<Type> fTextureExternalOES;
     const std::unique_ptr<Type> fTexture2DRect;
 
-    const std::unique_ptr<Type> fReadWriteTexture2D;
+    // These texture types use `read`/`write` access.
+    const std::unique_ptr<Type> fTexture2D;
     const std::unique_ptr<Type> fReadOnlyTexture2D;
     const std::unique_ptr<Type> fWriteOnlyTexture2D;
 

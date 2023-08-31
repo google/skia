@@ -30,44 +30,46 @@
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
-         %13 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %13 = OpTypeImage %float 2D 0 0 0 2 Rgba8
 %_ptr_UniformConstant_13 = OpTypePointer UniformConstant %13
    %aTexture = OpVariable %_ptr_UniformConstant_13 UniformConstant
-%aSampledTexture_texture = OpVariable %_ptr_UniformConstant_13 UniformConstant
-         %17 = OpTypeSampler
-%_ptr_UniformConstant_17 = OpTypePointer UniformConstant %17
-%aSampledTexture_sampler = OpVariable %_ptr_UniformConstant_17 UniformConstant
+         %16 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%_ptr_UniformConstant_16 = OpTypePointer UniformConstant %16
+%aSampledTexture_texture = OpVariable %_ptr_UniformConstant_16 UniformConstant
+         %19 = OpTypeSampler
+%_ptr_UniformConstant_19 = OpTypePointer UniformConstant %19
+%aSampledTexture_sampler = OpVariable %_ptr_UniformConstant_19 UniformConstant
     %v2float = OpTypeVector %float 2
 %_ptr_Input_v2float = OpTypePointer Input %v2float
           %c = OpVariable %_ptr_Input_v2float Input
-         %22 = OpTypeFunction %v4float %_ptr_UniformConstant_13 %_ptr_UniformConstant_17 %_ptr_UniformConstant_13
-         %31 = OpTypeSampledImage %13
-         %33 = OpTypeFunction %v4float %_ptr_UniformConstant_13 %_ptr_UniformConstant_13 %_ptr_UniformConstant_17
+         %24 = OpTypeFunction %v4float %_ptr_UniformConstant_16 %_ptr_UniformConstant_19 %_ptr_UniformConstant_13
+         %33 = OpTypeSampledImage %16
+         %35 = OpTypeFunction %v4float %_ptr_UniformConstant_13 %_ptr_UniformConstant_16 %_ptr_UniformConstant_19
        %void = OpTypeVoid
-         %40 = OpTypeFunction %void
-%helpers_helper_h4ZT = OpFunction %v4float None %22
-         %23 = OpFunctionParameter %_ptr_UniformConstant_13
-         %24 = OpFunctionParameter %_ptr_UniformConstant_17
-         %25 = OpFunctionParameter %_ptr_UniformConstant_13
-         %26 = OpLabel
-         %28 = OpLoad %13 %23
-         %29 = OpLoad %17 %24
-         %30 = OpSampledImage %31 %28 %29
-         %32 = OpLoad %v2float %c
-         %27 = OpImageSampleImplicitLod %v4float %30 %32
-               OpReturnValue %27
+         %42 = OpTypeFunction %void
+%helpers_helper_h4ZT = OpFunction %v4float None %24
+         %25 = OpFunctionParameter %_ptr_UniformConstant_16
+         %26 = OpFunctionParameter %_ptr_UniformConstant_19
+         %27 = OpFunctionParameter %_ptr_UniformConstant_13
+         %28 = OpLabel
+         %30 = OpLoad %16 %25
+         %31 = OpLoad %19 %26
+         %32 = OpSampledImage %33 %30 %31
+         %34 = OpLoad %v2float %c
+         %29 = OpImageSampleImplicitLod %v4float %32 %34
+               OpReturnValue %29
                OpFunctionEnd
-%helper_h4TZ = OpFunction %v4float None %33
-         %34 = OpFunctionParameter %_ptr_UniformConstant_13
-         %35 = OpFunctionParameter %_ptr_UniformConstant_13
-         %36 = OpFunctionParameter %_ptr_UniformConstant_17
-         %37 = OpLabel
-         %38 = OpFunctionCall %v4float %helpers_helper_h4ZT %35 %36 %34
-               OpReturnValue %38
+%helper_h4TZ = OpFunction %v4float None %35
+         %36 = OpFunctionParameter %_ptr_UniformConstant_13
+         %37 = OpFunctionParameter %_ptr_UniformConstant_16
+         %38 = OpFunctionParameter %_ptr_UniformConstant_19
+         %39 = OpLabel
+         %40 = OpFunctionCall %v4float %helpers_helper_h4ZT %37 %38 %36
+               OpReturnValue %40
                OpFunctionEnd
-       %main = OpFunction %void None %40
-         %41 = OpLabel
-         %42 = OpFunctionCall %v4float %helper_h4TZ %aTexture %aSampledTexture_texture %aSampledTexture_sampler
-               OpStore %sk_FragColor %42
+       %main = OpFunction %void None %42
+         %43 = OpLabel
+         %44 = OpFunctionCall %v4float %helper_h4TZ %aTexture %aSampledTexture_texture %aSampledTexture_sampler
+               OpStore %sk_FragColor %44
                OpReturn
                OpFunctionEnd

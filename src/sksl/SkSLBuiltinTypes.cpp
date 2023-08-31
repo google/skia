@@ -95,12 +95,12 @@ BuiltinTypes::BuiltinTypes()
         , fMat4x2(Type::MakeAliasType("mat4x2", *fFloat4x2))
         , fMat4x3(Type::MakeAliasType("mat4x3", *fFloat4x3))
         , fMat4x4(Type::MakeAliasType("mat4x4", *fFloat4x4))
-        , fTexture2D(Type::MakeTextureType("texture2D",
-                                           SpvDim2D,
-                                           /*isDepth=*/false,
-                                           /*isArrayedTexture=*/false,
-                                           /*isMultisampled=*/false,
-                                           Type::TextureAccess::kSample))
+        , fTexture2D_sample(Type::MakeTextureType("$texture2D_sample",
+                                                  SpvDim2D,
+                                                  /*isDepth=*/false,
+                                                  /*isArrayedTexture=*/false,
+                                                  /*isMultisampled=*/false,
+                                                  Type::TextureAccess::kSample))
         , fTextureExternalOES(Type::MakeTextureType("textureExternalOES",
                                                     SpvDim2D,
                                                     /*isDepth=*/false,
@@ -113,12 +113,12 @@ BuiltinTypes::BuiltinTypes()
                                                /*isArrayedTexture=*/false,
                                                /*isMultisampled=*/false,
                                                Type::TextureAccess::kSample))
-        , fReadWriteTexture2D(Type::MakeTextureType("readWriteTexture2D",
-                                                    SpvDim2D,
-                                                    /*isDepth=*/false,
-                                                    /*isArrayedTexture=*/false,
-                                                    /*isMultisampled=*/false,
-                                                    Type::TextureAccess::kReadWrite))
+        , fTexture2D(Type::MakeTextureType("texture2D",
+                                           SpvDim2D,
+                                           /*isDepth=*/false,
+                                           /*isArrayedTexture=*/false,
+                                           /*isMultisampled=*/false,
+                                           Type::TextureAccess::kReadWrite))
         , fReadOnlyTexture2D(Type::MakeTextureType("readonlyTexture2D",
                                                    SpvDim2D,
                                                    /*isDepth=*/false,
@@ -134,19 +134,19 @@ BuiltinTypes::BuiltinTypes()
         , fGenTexture2D(Type::MakeGenericType("$genTexture2D",
                                               {fReadOnlyTexture2D.get(),
                                                fWriteOnlyTexture2D.get(),
-                                               fReadWriteTexture2D.get()},
-                                              fReadWriteTexture2D.get()))
+                                               fTexture2D.get()},
+                                              fTexture2D.get()))
         , fReadableTexture2D(Type::MakeGenericType("$readableTexture2D",
                                                    {fReadOnlyTexture2D.get(),
                                                     fInvalid.get(),
-                                                    fReadWriteTexture2D.get()},
-                                                   fReadWriteTexture2D.get()))
+                                                    fTexture2D.get()},
+                                                   fTexture2D.get()))
         , fWritableTexture2D(Type::MakeGenericType("$writableTexture2D",
                                                    {fInvalid.get(),
                                                     fWriteOnlyTexture2D.get(),
-                                                    fReadWriteTexture2D.get()},
-                                                   fReadWriteTexture2D.get()))
-        , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
+                                                    fTexture2D.get()},
+                                                   fTexture2D.get()))
+        , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D_sample))
         , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
         , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
 

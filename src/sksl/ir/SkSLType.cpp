@@ -945,7 +945,7 @@ const Type* Type::applyAccessQualifiers(const Context& context,
     *modifierFlags &= ~(ModifierFlag::kReadOnly |
                         ModifierFlag::kWriteOnly);
 
-    if (this->matches(*context.fTypes.fReadWriteTexture2D)) {
+    if (this->matches(*context.fTypes.fTexture2D)) {
         if (accessQualifiers == ModifierFlag::kReadOnly) {
             return context.fTypes.fReadOnlyTexture2D.get();
         }

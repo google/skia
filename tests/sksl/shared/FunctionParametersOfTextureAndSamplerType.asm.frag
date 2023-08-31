@@ -21,7 +21,7 @@
                OpDecorate %aSampledTexture Binding 2
                OpDecorate %aSampledTexture DescriptorSet 0
                OpDecorate %c Location 1
-               OpDecorate %26 RelaxedPrecision
+               OpDecorate %27 RelaxedPrecision
        %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -29,38 +29,39 @@
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
-         %13 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %13 = OpTypeImage %float 2D 0 0 0 2 Rgba8
 %_ptr_UniformConstant_13 = OpTypePointer UniformConstant %13
    %aTexture = OpVariable %_ptr_UniformConstant_13 UniformConstant
-         %16 = OpTypeSampledImage %13
-%_ptr_UniformConstant_16 = OpTypePointer UniformConstant %16
-%aSampledTexture = OpVariable %_ptr_UniformConstant_16 UniformConstant
+         %16 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %17 = OpTypeSampledImage %16
+%_ptr_UniformConstant_17 = OpTypePointer UniformConstant %17
+%aSampledTexture = OpVariable %_ptr_UniformConstant_17 UniformConstant
     %v2float = OpTypeVector %float 2
 %_ptr_Input_v2float = OpTypePointer Input %v2float
           %c = OpVariable %_ptr_Input_v2float Input
-         %21 = OpTypeFunction %v4float %_ptr_UniformConstant_16 %_ptr_UniformConstant_13
-         %28 = OpTypeFunction %v4float %_ptr_UniformConstant_13 %_ptr_UniformConstant_16
+         %22 = OpTypeFunction %v4float %_ptr_UniformConstant_17 %_ptr_UniformConstant_13
+         %29 = OpTypeFunction %v4float %_ptr_UniformConstant_13 %_ptr_UniformConstant_17
        %void = OpTypeVoid
-         %34 = OpTypeFunction %void
-%helpers_helper_h4ZT = OpFunction %v4float None %21
-         %22 = OpFunctionParameter %_ptr_UniformConstant_16
-         %23 = OpFunctionParameter %_ptr_UniformConstant_13
-         %24 = OpLabel
-         %26 = OpLoad %16 %22
-         %27 = OpLoad %v2float %c
-         %25 = OpImageSampleImplicitLod %v4float %26 %27
-               OpReturnValue %25
+         %35 = OpTypeFunction %void
+%helpers_helper_h4ZT = OpFunction %v4float None %22
+         %23 = OpFunctionParameter %_ptr_UniformConstant_17
+         %24 = OpFunctionParameter %_ptr_UniformConstant_13
+         %25 = OpLabel
+         %27 = OpLoad %17 %23
+         %28 = OpLoad %v2float %c
+         %26 = OpImageSampleImplicitLod %v4float %27 %28
+               OpReturnValue %26
                OpFunctionEnd
-%helper_h4TZ = OpFunction %v4float None %28
-         %29 = OpFunctionParameter %_ptr_UniformConstant_13
-         %30 = OpFunctionParameter %_ptr_UniformConstant_16
-         %31 = OpLabel
-         %32 = OpFunctionCall %v4float %helpers_helper_h4ZT %30 %29
-               OpReturnValue %32
+%helper_h4TZ = OpFunction %v4float None %29
+         %30 = OpFunctionParameter %_ptr_UniformConstant_13
+         %31 = OpFunctionParameter %_ptr_UniformConstant_17
+         %32 = OpLabel
+         %33 = OpFunctionCall %v4float %helpers_helper_h4ZT %31 %30
+               OpReturnValue %33
                OpFunctionEnd
-       %main = OpFunction %void None %34
-         %35 = OpLabel
-         %36 = OpFunctionCall %v4float %helper_h4TZ %aTexture %aSampledTexture
-               OpStore %sk_FragColor %36
+       %main = OpFunction %void None %35
+         %36 = OpLabel
+         %37 = OpFunctionCall %v4float %helper_h4TZ %aTexture %aSampledTexture
+               OpStore %sk_FragColor %37
                OpReturn
                OpFunctionEnd

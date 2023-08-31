@@ -133,8 +133,8 @@ static constexpr BuiltinTypePtr kPrivateTypes[] = {
     TYPE(SubpassInput), TYPE(SubpassInputMS),
 
     TYPE(Sampler),
-    TYPE(Texture2D),
-    TYPE(ReadWriteTexture2D), TYPE(ReadOnlyTexture2D), TYPE(WriteOnlyTexture2D),
+    TYPE(Texture2D_sample),
+    TYPE(Texture2D), TYPE(ReadOnlyTexture2D), TYPE(WriteOnlyTexture2D),
     TYPE(GenTexture2D), TYPE(ReadableTexture2D), TYPE(WritableTexture2D),
 
     TYPE(AtomicUInt),
@@ -195,12 +195,6 @@ void ModuleLoader::unloadModules() {
 
 ModuleLoader::Impl::Impl() {
     this->makeRootSymbolTable();
-}
-
-static void add_compute_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
-    // A `texture2D` in a compute shader should generally mean "read-write" texture access, not
-    // "sample" texture access. Remap the name `texture2D` to point to `readWriteTexture2D`.
-    symbols->inject(Type::MakeAliasType("texture2D", *types.fReadWriteTexture2D));
 }
 
 static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
@@ -366,8 +360,6 @@ const Module* ModuleLoader::loadComputeModule(SkSL::Compiler* compiler) {
                                                           ProgramKind::kCompute,
                                                           MODULE_DATA(sksl_compute),
                                                           gpuModule);
-        add_compute_type_aliases(fModuleLoader.fComputeModule->fSymbols.get(),
-                                 this->builtinTypes());
     }
     return fModuleLoader.fComputeModule.get();
 }
