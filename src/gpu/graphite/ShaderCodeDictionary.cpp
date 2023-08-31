@@ -335,6 +335,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                     &mainBody,
                     "sk_FragColor = %s * outputCoverage + surfaceColor * (1.0 - outputCoverage);",
                     outColor);
+            if (coverage == Coverage::kLCD) {
+                SkSL::String::appendf(
+                        &mainBody,
+                        "half3 lerpRGB = mix(surfaceColor.aaa, %s.aaa, outputCoverage.rgb);"
+                        "sk_FragColor.a = max(max(lerpRGB.r, lerpRGB.g), lerpRGB.b);",
+                        outColor);
+            }
 
         } else {
             fBlendInfo = {coverageBlendFormula.equation(),
@@ -343,6 +350,11 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                           SK_PMColor4fTRANSPARENT,
                           coverageBlendFormula.modifiesDst()};
 
+            if (coverage == Coverage::kLCD) {
+                mainBody += "outputCoverage.a = max(max(outputCoverage.r, "
+                                                       "outputCoverage.g), "
+                                                   "outputCoverage.b);";
+            }
             append_color_output(
                     &mainBody, coverageBlendFormula.primaryOutput(), "sk_FragColor", outColor);
             if (coverageBlendFormula.hasSecondaryOutput()) {

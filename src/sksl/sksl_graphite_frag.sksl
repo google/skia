@@ -1129,8 +1129,6 @@ $pure half4 bitmap_text_coverage_fn(half4 texColor, int maskFormat) {
     switch (maskFormat) {
         case 0:  // A8
             return texColor.rrrr;
-        case 1:  // LCD
-            return half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));
         default:
             return texColor;
     }

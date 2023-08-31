@@ -95,7 +95,8 @@ DstReadRequirement GetDstReadRequirement(const Caps* caps,
     const bool hasCoverage = coverage != Coverage::kNone;
     BlendFormula blendFormula = isLCD ? skgpu::GetLCDBlendFormula(*blendMode)
                                       : skgpu::GetBlendFormula(false, hasCoverage, *blendMode);
-    if (blendFormula.hasSecondaryOutput() && !caps->shaderCaps()->fDualSourceBlendingSupport) {
+    if ((blendFormula.hasSecondaryOutput() && !caps->shaderCaps()->fDualSourceBlendingSupport) ||
+        (coverage == Coverage::kLCD && blendMode != SkBlendMode::kSrcOver)) {
         return caps->getDstReadRequirement();
     }
 
