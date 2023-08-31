@@ -310,10 +310,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                         : skgpu::GetBlendFormula(
                                   /*isOpaque=*/false, /*hasCoverage=*/true, fBlendMode);
 
-        const bool needsSurfaceColorForCoverage =
-                this->needsSurfaceColor() || (coverageBlendFormula.hasSecondaryOutput() &&
-                                              !caps->shaderCaps()->fDualSourceBlendingSupport);
-        if (needsSurfaceColorForCoverage) {
+        if (this->needsSurfaceColor()) {
             // If this draw uses a non-coherent dst read, we want to keep the existing dst color (or
             // whatever has been previously drawn) when there's no coverage. This helps for batching
             // text draws that need to read from a dst copy for blends. However, this only helps the
