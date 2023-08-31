@@ -2028,7 +2028,9 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
     // just a uniform array, which is asserted inside the Compute function.
     const SkISize radii{radiusX, radiusY};
     std::array<SkV4, skgpu::kMaxBlurSamples/4> kernel;
+    std::array<SkV4, skgpu::kMaxBlurSamples/2> offsets;
     skgpu::Compute2DBlurKernel({sigmaX, sigmaY}, radii, kernel);
+    skgpu::Compute2DBlurOffsets(radii, offsets);
 
     GrSamplerState sampler{SkTileModeToWrapMode(mode), GrSamplerState::Filter::kNearest};
     auto child = make_texture_effect(sdc->caps(),
@@ -2043,7 +2045,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
                                /*inputFP=*/nullptr,
                                GrSkSLFP::OptFlags::kNone,
                                "kernel", SkSpan<SkV4>{kernel},
-                               "radii", radii,
+                               "offsets", SkSpan<SkV4>{offsets},
                                "child", std::move(child));
 
     GrPaint paint;

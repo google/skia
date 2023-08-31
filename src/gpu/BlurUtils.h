@@ -65,12 +65,13 @@ static constexpr float kMaxLinearBlurSigma = 4.f; // -> radius = 27 -> linear ke
 // appropriate API of the target effect type). The effect declares the following uniforms:
 //
 //    uniform half4  kernel[7];
-//    uniform int2   radius;
+//    uniform half4  offsets[14];
 //    uniform shader child;
 //
-// 'kernel' should be set to the output of Compute2DBlurKernel(). 'radius' should match the radii
-// passed into that function. 'child' should be bound to whatever input is intended to be blurred,
-// and can use nearest-neighbor sampling (when it's an image).
+// 'kernel' should be set to the output of Compute2DBlurKernel(). 'offsets' should be set to the
+// output of Compute2DBlurOffsets() with the same 'radii' passed to this function. 'child' should be
+// bound to whatever input is intended to be blurred, and can use nearest-neighbor sampling
+// (assuming it's an image).
 const SkRuntimeEffect* GetBlur2DEffect(const SkISize& radii);
 
 // Return a runtime effect that applies a 1D Gaussian blur, taking advantage of HW linear
@@ -116,6 +117,12 @@ void Compute2DBlurKernel(SkSize sigma,
 inline void Compute1DBlurKernel(float sigma, int radius, SkSpan<float> kernel) {
     Compute2DBlurKernel({sigma, 0.f}, {radius, 0}, kernel);
 }
+
+// Utility function to fill in 'offsets' for the effect returned by GetBlur2DEffect(). It
+// automatically fills in the elements beyond the kernel size with the last real offset to
+// maximize texture cache hits. Each offset is really an SkV2 but are packed into SkV4's to match
+// the uniform declaration, and are otherwise ordered row-major.
+void Compute2DBlurOffsets(SkISize radius, std::array<SkV4, kMaxBlurSamples/2>& offsets);
 
 // Calculates a set of weights and sampling offsets for a 1D blur that uses GPU hardware to linearly
 // combine two logical source pixel values. This assumes that 'radius' was from a prior call to
