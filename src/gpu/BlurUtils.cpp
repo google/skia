@@ -193,35 +193,34 @@ const SkRuntimeEffect* GetLinearBlur1DEffect(int radius) {
     const int kernelWidth = BlurLinearKernelWidth(radius);
     SkASSERT(kernelWidth >= 2 && kernelWidth <= kMaxBlurSamples);
     switch(kernelWidth) {
-        // Be exact for small kernel widths
-        case 2:  { static const SkRuntimeEffect* effect = makeEffect(2);  return effect; }
-        case 3:  { static const SkRuntimeEffect* effect = makeEffect(3);  return effect; }
+        // Batch on multiples of 4 (skipping width=1, since that can't happen)
+        case 2:  [[fallthrough]];
+        case 3:  [[fallthrough]];
         case 4:  { static const SkRuntimeEffect* effect = makeEffect(4);  return effect; }
-        case 5:  { static const SkRuntimeEffect* effect = makeEffect(5);  return effect; }
-        case 6:  { static const SkRuntimeEffect* effect = makeEffect(6);  return effect; }
-        // Start batching on multiples of two, which will mean one wasted sample() per kernel
+        case 5:  [[fallthrough]];
+        case 6:  [[fallthrough]];
         case 7:  [[fallthrough]];
         case 8:  { static const SkRuntimeEffect* effect = makeEffect(8);  return effect; }
         case 9:  [[fallthrough]];
-        case 10: { static const SkRuntimeEffect* effect = makeEffect(10); return effect; }
+        case 10: [[fallthrough]];
         case 11: [[fallthrough]];
         case 12: { static const SkRuntimeEffect* effect = makeEffect(12); return effect; }
-        // With larger kernels, batch on multiples of four so up to three wasted samples.
-        case 13:
-        case 14:
-        case 15:
+        case 13: [[fallthrough]];
+        case 14: [[fallthrough]];
+        case 15: [[fallthrough]];
         case 16: { static const SkRuntimeEffect* effect = makeEffect(16); return effect; }
-        case 17:
-        case 18:
-        case 19:
+        case 17: [[fallthrough]];
+        case 18: [[fallthrough]];
+        case 19: [[fallthrough]];
+        // With larger kernels, batch on multiples of eight so up to 7 wasted samples.
         case 20: { static const SkRuntimeEffect* effect = makeEffect(20); return effect; }
-        case 21:
-        case 22:
-        case 23:
-        case 24: { static const SkRuntimeEffect* effect = makeEffect(24); return effect; }
-        case 25:
-        case 26:
-        case 27:
+        case 21: [[fallthrough]];
+        case 22: [[fallthrough]];
+        case 23: [[fallthrough]];
+        case 24: [[fallthrough]];
+        case 25: [[fallthrough]];
+        case 26: [[fallthrough]];
+        case 27: [[fallthrough]];
         case 28: { static const SkRuntimeEffect* effect = makeEffect(28); return effect; }
         default:
             SkUNREACHABLE;
