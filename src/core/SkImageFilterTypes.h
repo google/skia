@@ -990,13 +990,11 @@ struct Functors {
     Functors(MakeSurfaceFunctor makeSurfaceFunctor,
              MakeImageFunctor makeImageFunctor,
              MakeCachedBitmapFunctor makeCachedBitmapFunctor,
-             BlurImageFunctor blurImageFunctor,
-             GrRecordingContext* ganeshContext = nullptr)
+             BlurImageFunctor blurImageFunctor)
                  : fMakeSurfaceFunctor(makeSurfaceFunctor)
                  , fMakeImageFunctor(makeImageFunctor)
                  , fMakeCachedBitmapFunctor(makeCachedBitmapFunctor)
-                 , fBlurImageFunctor(blurImageFunctor)
-                 , fGaneshContext(ganeshContext) {
+                 , fBlurImageFunctor(blurImageFunctor) {
         SkASSERT(fMakeSurfaceFunctor);
         SkASSERT(fMakeImageFunctor);
         SkASSERT(fMakeCachedBitmapFunctor);
@@ -1011,9 +1009,6 @@ struct Functors {
     MakeImageFunctor fMakeImageFunctor;
     MakeCachedBitmapFunctor fMakeCachedBitmapFunctor;
     BlurImageFunctor fBlurImageFunctor;
-
-    // TODO: Can be removed once legacy blur code is deleted
-    GrRecordingContext* fGaneshContext;
 };
 
 class Context {
@@ -1069,7 +1064,6 @@ public:
         // then SkBlurImageFilter may not need to check this at all.
         return SkToBool(fFunctors.fBlurImageFunctor);
     }
-    GrRecordingContext* getContext() const { return fFunctors.fGaneshContext; }
 
     // Create a surface of the given size, that matches the context's color type and color space
     // as closely as possible, and uses the same backend of the device that produced the source

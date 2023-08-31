@@ -806,7 +806,7 @@ Functors MakeGaneshFunctors(GrRecordingContext* context, GrSurfaceOrigin origin)
     };
 
     return Functors(makeSurfaceFunctor, makeImageFunctor, makeCachedBitmapFunctor,
-                    blurImageFunctor, context);
+                    blurImageFunctor);
 }
 
 Context MakeGaneshContext(GrRecordingContext* context,
