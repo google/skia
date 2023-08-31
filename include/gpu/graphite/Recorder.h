@@ -159,6 +159,10 @@ public:
     RecorderPriv priv();
     const RecorderPriv priv() const;  // NOLINT(readability-const-return-type)
 
+#if defined(GRAPHITE_TEST_UTILS)
+    bool deviceIsRegistered(Device*);
+#endif
+
 private:
     friend class Context; // For ctor
     friend class Device; // For registering and deregistering Devices;
@@ -219,9 +223,10 @@ private:
 
     skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // Utility members for testing only
-    Context* fContext = nullptr;  // The Context used to create this Recorder
+#if defined(GRAPHITE_TEST_UTILS)
+    // For testing use only -- the Context used to create this Recorder
+    Context* fContext = nullptr;
+#endif
 };
 
 } // namespace skgpu::graphite
