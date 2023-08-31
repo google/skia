@@ -18,13 +18,6 @@
 
 #include "include/gpu/mock/GrMockTypes.h"
 
-#if !defined(SK_DISABLE_LEGACY_VK_BACKEND_SURFACE) && defined(SK_VULKAN)
-#include "include/private/gpu/vk/SkiaVulkan.h"
-
-struct GrVkImageInfo;
-struct GrVkYcbcrConversionInfo;
-#endif
-
 enum class SkTextureCompressionType;
 class GrBackendFormatData;
 class GrBackendTextureData;
@@ -178,18 +171,6 @@ private:
         } fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;
-
-#if !defined(SK_DISABLE_LEGACY_VK_BACKEND_SURFACE) && defined(SK_VULKAN)
-public:
-    GrBackendFormat(VkFormat vkFormat,
-                    const GrVkYcbcrConversionInfo& ycbcrInfo,
-                    bool willUseDRMFormatModifiers = false);
-    static GrBackendFormat MakeVk(VkFormat format, bool willUseDRMFormatModifiers = false);
-    static GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo,
-                                  bool willUseDRMFormatModifiers = false);
-    bool asVkFormat(VkFormat*) const;
-    const GrVkYcbcrConversionInfo* getVkYcbcrConversionInfo() const;
-#endif
 };
 
 class SK_API GrBackendTexture {
@@ -343,16 +324,6 @@ private:
 #ifdef SK_METAL
     GrMtlTextureInfo fMtlInfo;
 #endif
-
-#if !defined(SK_DISABLE_LEGACY_VK_BACKEND_SURFACE) && defined(SK_VULKAN)
-public:
-    GrBackendTexture(int width,
-                     int height,
-                     const GrVkImageInfo& vkInfo,
-                     std::string_view label = {});
-    bool getVkImageInfo(GrVkImageInfo*) const;
-    void setVkImageLayout(VkImageLayout);
-#endif
 };
 
 class SK_API GrBackendRenderTarget {
@@ -496,13 +467,6 @@ private:
     };
 #ifdef SK_METAL
     GrMtlTextureInfo fMtlInfo;
-#endif
-
-#if !defined(SK_DISABLE_LEGACY_VK_BACKEND_SURFACE) && defined(SK_VULKAN)
-public:
-    GrBackendRenderTarget(int width, int height, const GrVkImageInfo& vkInfo);
-    bool getVkImageInfo(GrVkImageInfo*) const;
-    void setVkImageLayout(VkImageLayout);
 #endif
 };
 
