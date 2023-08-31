@@ -391,7 +391,9 @@ void ResourceCache::purgeResources() {
 }
 
 void ResourceCache::purgeResources(const StdSteadyClock::time_point* purgeTime) {
-    fProxyCache->purgeProxiesNotUsedSince(purgeTime);
+    if (fProxyCache) {
+        fProxyCache->purgeProxiesNotUsedSince(purgeTime);
+    }
     this->processReturnedResources();
 
     // Early out if the very first item is too new to purge to avoid sorting the queue when
