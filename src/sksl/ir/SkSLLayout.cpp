@@ -151,19 +151,19 @@ bool Layout::checkPermittedLayout(const Context& context,
         context.fErrors->error(pos, "'binding' modifier cannot coexist with 'texture'/'sampler'");
         success = false;
     }
-    // The `texture` and `sampler` flags are only allowed when explicitly targeting Metal, WebGPU or
-    // Direct3D.
+    // The `texture` and `sampler` flags are only allowed when targeting Metal, WebGPU or Direct3D.
     if (!(layoutFlags & (LayoutFlag::kMetal | LayoutFlag::kWebGPU | LayoutFlag::kDirect3D))) {
         permittedLayoutFlags &= ~LayoutFlag::kTexture;
         permittedLayoutFlags &= ~LayoutFlag::kSampler;
     }
-    // The `set` flag is not allowed when explicitly targeting Metal. It is currently allowed when
-    // no backend flag is present.
-    // TODO(skia:14023): Further restrict the `set` flag to SPIR-V and WGSL
+    // The `push_constant` flag is only allowed when targeting Vulkan or WebGPU.
+    if (!(layoutFlags & (LayoutFlag::kVulkan | LayoutFlag::kWebGPU))) {
+        permittedLayoutFlags &= ~LayoutFlag::kPushConstant;
+    }
+    // The `set` flag is not allowed when explicitly targeting Metal.
     if (layoutFlags & LayoutFlag::kMetal) {
         permittedLayoutFlags &= ~LayoutFlag::kSet;
     }
-    // TODO(skia:14023): Restrict the `push_constant` flag to SPIR-V and WGSL.
 
     for (const auto& lf : kLayoutFlags) {
         if (layoutFlags & lf.flag) {
