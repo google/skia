@@ -63,6 +63,8 @@ struct StructureElementNode {
     SkString fLang;
 };
 
+using DateTime = SkTime::DateTime;
+
 /** Optional metadata to be passed into the PDF factory function.
 */
 struct Metadata {
@@ -96,12 +98,12 @@ struct Metadata {
     /** The date and time the document was created.
         The zero default value represents an unknown/unset time.
     */
-    SkTime::DateTime fCreation = {0, 0, 0, 0, 0, 0, 0, 0};
+    DateTime fCreation = {0, 0, 0, 0, 0, 0, 0, 0};
 
     /** The date and time the document was most recently modified.
         The zero default value represents an unknown/unset time.
     */
-    SkTime::DateTime fModified = {0, 0, 0, 0, 0, 0, 0, 0};
+    DateTime fModified = {0, 0, 0, 0, 0, 0, 0, 0};
 
     /** The DPI (pixels-per-inch) at which features without native PDF support
         will be rasterized (e.g. draw image with perspective, draw text with
