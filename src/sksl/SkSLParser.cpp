@@ -1254,7 +1254,11 @@ const Type* Parser::findType(Position pos,
             return context.fTypes.fPoison.get();
         }
     }
-    return modifiers ? type->applyQualifiers(context, &modifiers->fFlags, modifiers->fPosition)
+    Position qualifierRange = modifiers->fPosition;
+    if (qualifierRange.startOffset() == qualifierRange.endOffset()) {
+        qualifierRange = this->rangeFrom(qualifierRange);
+    }
+    return modifiers ? type->applyQualifiers(context, &modifiers->fFlags, qualifierRange)
                      : type;
 }
 

@@ -26,16 +26,16 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 struct Globals {
-    texture2d<half, access::read_write> aTexture;
+    texture2d<half, access::read> aTexture;
     sampler2D aSampledTexture;
 };
-half4 helpers_helper_h4ZT(Inputs _in, sampler2D s, texture2d<half, access::read_write> t) {
+half4 helpers_helper_h4ZT(Inputs _in, sampler2D s, texture2d<half, access::read> t) {
     return sample(s, _in.c);
 }
-half4 helper_h4TZ(Inputs _in, texture2d<half, access::read_write> t, sampler2D s) {
+half4 helper_h4TZ(Inputs _in, texture2d<half, access::read> t, sampler2D s) {
     return helpers_helper_h4ZT(_in, s, t);
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half, access::read_write> aTexture [[texture(1)]], texture2d<half> aSampledTexture_Tex [[texture(2)]], sampler aSampledTexture_Smplr [[sampler(2)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half, access::read> aTexture [[texture(1)]], texture2d<half> aSampledTexture_Tex [[texture(2)]], sampler aSampledTexture_Smplr [[sampler(2)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{aTexture, {aSampledTexture_Tex, aSampledTexture_Smplr}};
     (void)_globals;
     Outputs _out;

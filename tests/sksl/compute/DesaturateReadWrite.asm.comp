@@ -5,22 +5,27 @@
                OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
                OpExecutionMode %main LocalSize 16 16 1
                OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
-               OpName %tex "tex"
+               OpName %texIn "texIn"
+               OpName %texOut "texOut"
                OpName %main "main"
                OpName %_0_color "_0_color"
+               OpName %gray "gray"
                OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
-               OpDecorate %tex Binding 0
-               OpDecorate %tex DescriptorSet 0
-               OpDecorate %21 RelaxedPrecision
-               OpDecorate %29 RelaxedPrecision
+               OpDecorate %texIn Binding 0
+               OpDecorate %texIn DescriptorSet 0
+               OpDecorate %texOut Binding 0
+               OpDecorate %texOut DescriptorSet 0
+               OpDecorate %22 RelaxedPrecision
+               OpDecorate %30 RelaxedPrecision
                OpDecorate %_0_color RelaxedPrecision
-               OpDecorate %38 RelaxedPrecision
-               OpDecorate %41 RelaxedPrecision
+               OpDecorate %39 RelaxedPrecision
                OpDecorate %42 RelaxedPrecision
-               OpDecorate %48 RelaxedPrecision
+               OpDecorate %43 RelaxedPrecision
                OpDecorate %49 RelaxedPrecision
                OpDecorate %50 RelaxedPrecision
-               OpDecorate %52 RelaxedPrecision
+               OpDecorate %51 RelaxedPrecision
+               OpDecorate %gray RelaxedPrecision
+               OpDecorate %54 RelaxedPrecision
        %uint = OpTypeInt 32 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
@@ -28,9 +33,10 @@
       %float = OpTypeFloat 32
           %9 = OpTypeImage %float 2D 0 0 0 2 Rgba8
 %_ptr_UniformConstant_9 = OpTypePointer UniformConstant %9
-        %tex = OpVariable %_ptr_UniformConstant_9 UniformConstant
+      %texIn = OpVariable %_ptr_UniformConstant_9 UniformConstant
+     %texOut = OpVariable %_ptr_UniformConstant_9 UniformConstant
        %void = OpTypeVoid
-         %12 = OpTypeFunction %void
+         %13 = OpTypeFunction %void
        %bool = OpTypeBool
       %false = OpConstantFalse %bool
      %v2uint = OpTypeVector %uint 2
@@ -40,47 +46,49 @@
 %float_0_219999999 = OpConstant %float 0.219999999
 %float_0_670000017 = OpConstant %float 0.670000017
 %float_0_109999999 = OpConstant %float 0.109999999
-         %47 = OpConstantComposite %v3float %float_0_219999999 %float_0_670000017 %float_0_109999999
-       %main = OpFunction %void None %12
-         %13 = OpLabel
+         %48 = OpConstantComposite %v3float %float_0_219999999 %float_0_670000017 %float_0_109999999
+       %main = OpFunction %void None %13
+         %14 = OpLabel
    %_0_color = OpVariable %_ptr_Function_v4float Function
-         %16 = OpLoad %v3uint %sk_GlobalInvocationID
-         %17 = OpCompositeExtract %uint %16 0
-         %21 = OpLoad %9 %tex
-         %20 = OpImageQuerySize %v2uint %21
-         %18 = OpCompositeExtract %uint %20 0
-         %22 = OpULessThan %bool %17 %18
-               OpSelectionMerge %24 None
-               OpBranchConditional %22 %23 %24
-         %23 = OpLabel
-         %25 = OpLoad %v3uint %sk_GlobalInvocationID
-         %26 = OpCompositeExtract %uint %25 1
-         %29 = OpLoad %9 %tex
-         %28 = OpImageQuerySize %v2uint %29
-         %27 = OpCompositeExtract %uint %28 1
-         %30 = OpULessThan %bool %26 %27
-               OpBranch %24
+       %gray = OpVariable %_ptr_Function_v4float Function
+         %17 = OpLoad %v3uint %sk_GlobalInvocationID
+         %18 = OpCompositeExtract %uint %17 0
+         %22 = OpLoad %9 %texIn
+         %21 = OpImageQuerySize %v2uint %22
+         %19 = OpCompositeExtract %uint %21 0
+         %23 = OpULessThan %bool %18 %19
+               OpSelectionMerge %25 None
+               OpBranchConditional %23 %24 %25
          %24 = OpLabel
-         %31 = OpPhi %bool %false %13 %30 %23
-               OpSelectionMerge %33 None
-               OpBranchConditional %31 %32 %33
-         %32 = OpLabel
-         %38 = OpLoad %9 %tex
-         %39 = OpLoad %v3uint %sk_GlobalInvocationID
-         %40 = OpVectorShuffle %v2uint %39 %39 0 1
-         %37 = OpImageRead %v4float %38 %40
-               OpStore %_0_color %37
-         %42 = OpVectorShuffle %v3float %37 %37 0 1 2
-         %41 = OpDot %float %42 %47
-         %48 = OpCompositeConstruct %v3float %41 %41 %41
-         %49 = OpLoad %v4float %_0_color
-         %50 = OpVectorShuffle %v4float %49 %48 4 5 6 3
-               OpStore %_0_color %50
-         %52 = OpLoad %9 %tex
-         %53 = OpLoad %v3uint %sk_GlobalInvocationID
-         %54 = OpVectorShuffle %v2uint %53 %53 0 1
-               OpImageWrite %52 %54 %50
-               OpBranch %33
+         %26 = OpLoad %v3uint %sk_GlobalInvocationID
+         %27 = OpCompositeExtract %uint %26 1
+         %30 = OpLoad %9 %texIn
+         %29 = OpImageQuerySize %v2uint %30
+         %28 = OpCompositeExtract %uint %29 1
+         %31 = OpULessThan %bool %27 %28
+               OpBranch %25
+         %25 = OpLabel
+         %32 = OpPhi %bool %false %14 %31 %24
+               OpSelectionMerge %34 None
+               OpBranchConditional %32 %33 %34
          %33 = OpLabel
+         %39 = OpLoad %9 %texIn
+         %40 = OpLoad %v3uint %sk_GlobalInvocationID
+         %41 = OpVectorShuffle %v2uint %40 %40 0 1
+         %38 = OpImageRead %v4float %39 %41
+               OpStore %_0_color %38
+         %43 = OpVectorShuffle %v3float %38 %38 0 1 2
+         %42 = OpDot %float %43 %48
+         %49 = OpCompositeConstruct %v3float %42 %42 %42
+         %50 = OpLoad %v4float %_0_color
+         %51 = OpVectorShuffle %v4float %50 %49 4 5 6 3
+               OpStore %_0_color %51
+               OpStore %gray %51
+         %54 = OpLoad %9 %texOut
+         %55 = OpLoad %v3uint %sk_GlobalInvocationID
+         %56 = OpVectorShuffle %v2uint %55 %55 0 1
+               OpImageWrite %54 %56 %51
+               OpBranch %34
+         %34 = OpLabel
                OpReturn
                OpFunctionEnd

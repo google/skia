@@ -936,28 +936,33 @@ const Type* Type::applyAccessQualifiers(const Context& context,
                                         Position pos) const {
     ModifierFlags accessQualifiers = *modifierFlags & (ModifierFlag::kReadOnly |
                                                        ModifierFlag::kWriteOnly);
-    if (!accessQualifiers) {
-        // No access qualifiers here. Return the type as-is.
-        return this;
-    }
 
-    // We're going to return a whole new type, so the modifier bits can be cleared out.
+    // We're going to return a whole new type, so the modifier bits must be cleared out.
     *modifierFlags &= ~(ModifierFlag::kReadOnly |
                         ModifierFlag::kWriteOnly);
 
     if (this->matches(*context.fTypes.fTexture2D)) {
+        // We require all texture2Ds to be qualified with `readonly` or `writeonly`.
+        // (Read-write textures are not yet supported in WGSL.)
         if (accessQualifiers == ModifierFlag::kReadOnly) {
             return context.fTypes.fReadOnlyTexture2D.get();
         }
         if (accessQualifiers == ModifierFlag::kWriteOnly) {
             return context.fTypes.fWriteOnlyTexture2D.get();
         }
-        context.fErrors->error(pos, "'readonly' and 'writeonly' qualifiers cannot be combined");
+        context.fErrors->error(
+                pos,
+                accessQualifiers
+                        ? "'readonly' and 'writeonly' qualifiers cannot be combined"
+                        : "'texture2D' requires a 'readonly' or 'writeonly' access qualifier");
         return this;
     }
 
-    context.fErrors->error(pos, "type '" + this->displayName() + "' does not support qualifier '" +
-                                accessQualifiers.description() + "'");
+    if (accessQualifiers) {
+        context.fErrors->error(pos, "type '" + this->displayName() + "' does not support "
+                                    "qualifier '" + accessQualifiers.description() + "'");
+    }
+
     return this;
 }
 

@@ -8,7 +8,9 @@ layout(set=0, binding=2) buffer myOtherBuffer {
    workgroup float bar;
 };
 
-workgroup texture2D tex;
+workgroup readonly texture2D rtex;
+
+workgroup writeonly texture2D wtex;
 
 workgroup void a() {}
 
@@ -20,6 +22,7 @@ void c() {
 
 /*%%*
 modifier 'workgroup' is not permitted on an interface block field
+'workgroup' is not permitted here
 'workgroup' is not permitted here
 'workgroup' is not permitted here
 'workgroup' is not permitted here
