@@ -250,7 +250,6 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
         case k_dFdx_IntrinsicKind:          return FLOAT_SPIRV(DPdx);
         case k_dFdy_IntrinsicKind:          return SPECIAL(DFdy);
         case k_fwidth_IntrinsicKind:        return FLOAT_SPIRV(Fwidth);
-        case k_makeSampler2D_IntrinsicKind: return SPECIAL(SampledImage);
 
         case k_sample_IntrinsicKind:      return SPECIAL(Texture);
         case k_sampleGrad_IntrinsicKind:  return SPECIAL(TextureGrad);

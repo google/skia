@@ -69,7 +69,6 @@
     SKSL_INTRINSIC(lessThan)         \
     SKSL_INTRINSIC(log2)             \
     SKSL_INTRINSIC(log)              \
-    SKSL_INTRINSIC(makeSampler2D)    \
     SKSL_INTRINSIC(matrixCompMult)   \
     SKSL_INTRINSIC(matrixInverse)    \
     SKSL_INTRINSIC(max)              \

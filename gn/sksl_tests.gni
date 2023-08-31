@@ -774,7 +774,6 @@ sksl_inliner_tests = [
   "inliner/ModifiedArrayParametersCannotBeInlined.sksl",
   "inliner/ModifiedStructParametersCannotBeInlined.sksl",
   "inliner/NoInline.sksl",
-  "inliner/OpaqueCallsCannotBeInlined.sksl",
   "inliner/Ossfuzz37994.sksl",
   "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl",
   "inliner/StaticSwitch.sksl",
