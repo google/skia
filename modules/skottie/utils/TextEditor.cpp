@@ -92,6 +92,12 @@ void TextEditor::toggleEnabled() {
     fTimeBase = std::chrono::steady_clock::now();
 }
 
+void TextEditor::setEnabled(bool enabled) {
+    if (enabled != fEnabled) {
+        this->toggleEnabled();
+    }
+}
+
 std::tuple<size_t, size_t> TextEditor::currentSelection() const {
     // Selection can be inverted.
     return std::make_tuple(std::min(std::get<0>(fSelection), std::get<1>(fSelection)),

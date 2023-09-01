@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RuntimeEffect.MakeForBlender` Compiles a RuntimeEffect from the given blender code.
 - `ManagedAnimation` getters and setters for lottie slots exported by Essential Graphics in AE.
    Color, scalar, vec2, and image slot types are supported.
+- `ManagedAnimation` WYSIWYG editor API: `attachEditor`, `enableEditor`, `dispatchEditorKey`,
+  `dispatchEditorPointer`.
+- `InputState` and `ModifierKey` enums.
 
 ### Fixed
  - `EmbindObject` has been updated to allow TypeScript to differentiate between opaque

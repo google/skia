@@ -47,18 +47,23 @@ public:
 
     std::vector<PropKey> getColorProps() const;
     skottie::ColorPropertyValue getColor(const PropKey&) const;
+    std::unique_ptr<skottie::ColorPropertyHandle> getColorHandle(const PropKey&, size_t) const;
     bool setColor(const PropKey&, const skottie::ColorPropertyValue&);
 
     std::vector<PropKey> getOpacityProps() const;
     skottie::OpacityPropertyValue getOpacity(const PropKey&) const;
+    std::unique_ptr<skottie::OpacityPropertyHandle> getOpacityHandle(const PropKey&, size_t) const;
     bool setOpacity(const PropKey&, const skottie::OpacityPropertyValue&);
 
     std::vector<PropKey> getTransformProps() const;
     skottie::TransformPropertyValue getTransform(const PropKey&) const;
+    std::unique_ptr<skottie::TransformPropertyHandle> getTransformHandle(const PropKey&,
+                                                                         size_t) const;
     bool setTransform(const PropKey&, const skottie::TransformPropertyValue&);
 
     std::vector<PropKey> getTextProps() const;
     skottie::TextPropertyValue getText(const PropKey&) const;
+    std::unique_ptr<skottie::TextPropertyHandle> getTextHandle(const PropKey&, size_t index) const;
     bool setText(const PropKey&, const skottie::TextPropertyValue&);
 
     struct MarkerInfo {
@@ -90,6 +95,9 @@ private:
 
     template <typename V, typename T>
     V get(const PropKey&, const PropMap<T>& container) const;
+
+    template <typename T>
+    std::unique_ptr<T> getHandle(const PropKey&, size_t, const PropMap<T>& container) const;
 
     template <typename V, typename T>
     bool set(const PropKey&, const V&, const PropMap<T>& container);

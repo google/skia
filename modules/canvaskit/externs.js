@@ -145,6 +145,11 @@ var CanvasKit = {
       setImageSlot: function() {},
       setTransform: function() {},
       size: function() {},
+
+      attachEditor:          function() {},
+      enableEditor:          function() {},
+      dispatchEditorKey:     function() {},
+      dispatchEditorPointer: function() {},
     },
     _render: function() {},
     _seek: function() {},
@@ -1093,6 +1098,23 @@ var CanvasKit = {
     Triangles: {},
     TrianglesStrip: {},
     TriangleFan: {},
+  },
+
+  InputState: {
+    Up: {},
+    Down: {},
+    Move: {},
+    Right: {},
+    Left: {},
+  },
+
+  ModifierKey: {
+    None: {},
+    Shift: {},
+    Control: {},
+    Option: {},
+    Command: {},
+    FirstPass: {},
   },
 
   // Things Enscriptem adds for us

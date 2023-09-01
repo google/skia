@@ -117,6 +117,8 @@ public:
         , fRevalidator(std::move(revalidator)) {}
     ~PropertyHandle();
 
+    PropertyHandle(const PropertyHandle&);
+
     ValueT get() const;
     void set(const ValueT&);
 

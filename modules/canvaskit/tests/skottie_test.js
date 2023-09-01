@@ -29,7 +29,9 @@ describe('Skottie behavior', () => {
     const washPromise = fetch('/assets/map-shield.json')
         .then((response) => response.text());
     const slotPromise = fetch('/assets/skottie_basic_slots.json')
-    .then((response) => response.text());
+        .then((response) => response.text());
+    const editPromise = fetch('/assets/text_edit.json')
+        .then((response) => response.text());
 
     gm('skottie_animgif', (canvas, promises) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
@@ -111,6 +113,67 @@ describe('Skottie behavior', () => {
         animation.render(canvas, bounds);
         animation.delete();
     }, slotPromise, imgPromise);
+
+    gm('skottie_textedit', (canvas, promises) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+        expect(promises[0]).not.toBe('NOT FOUND');
+        const bounds = CanvasKit.LTRBRect(0, 0, 600, 600);
+
+        const animation = CanvasKit.MakeManagedAnimation(promises[0]);
+        expect(animation).toBeTruthy();
+
+        // The animation contains two text layers grouped under the "text_layer" ID, and one
+        // descriptive text layer.
+        {
+            const texts = animation.getTextProps();
+            expect(texts.length).toEqual(2);
+            expect(texts[0].key).toEqual('text_layer');
+            expect(texts[0].value.text).toEqual('foo');
+        }
+
+        expect(animation.attachEditor('txt_layer', 0)).toBeFalse();  // nonexistent layer
+        expect(animation.attachEditor('text_layer', 2)).toBeFalse(); // nonexistent index
+        expect(animation.attachEditor('text_layer', 0)).toBeTrue();
+        expect(animation.attachEditor('text_layer', 1)).toBeTrue();
+
+        {
+            // no effect, editor inactive
+            expect(animation.dispatchEditorKey('Backspace')).toBeFalse();
+
+            const texts = animation.getTextProps();
+            expect(texts.length).toEqual(2);
+            expect(texts[0].key).toEqual('text_layer');
+            expect(texts[0].value.text).toEqual('foo');
+        }
+
+        animation.enableEditor(true);
+
+        // To be fully functional, the editor requires glyph data issued during rendering callbacks.
+        animation.seek(0);
+        animation.render(canvas, bounds);
+
+        {
+            expect(animation.dispatchEditorKey('Backspace')).toBeTrue();
+            expect(animation.dispatchEditorKey('Backspace')).toBeTrue();
+            expect(animation.dispatchEditorKey('Backspace')).toBeTrue();
+            expect(animation.dispatchEditorKey('b')).toBeTrue();
+            expect(animation.dispatchEditorKey('a')).toBeTrue();
+            expect(animation.dispatchEditorKey('r')).toBeTrue();
+
+            const texts = animation.getTextProps();
+            expect(texts.length).toEqual(2);
+            expect(texts[0].key).toEqual('text_layer');
+            expect(texts[0].value.text).toEqual('bar');
+        }
+
+        // Final render, after edits.
+        animation.seek(0);
+        animation.render(canvas, bounds);
+        animation.delete();
+    }, editPromise);
 
     it('can load audio assets', (done) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {

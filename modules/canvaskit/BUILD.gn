@@ -131,6 +131,7 @@ skia_wasm_lib("canvaskit") {
   if (skia_canvaskit_enable_skottie) {
     sources += [
       "../../modules/skottie/utils/SkottieUtils.cpp",
+      "../../modules/skottie/utils/TextEditor.cpp",
       "skottie_bindings.cpp",
     ]
   }

@@ -25,6 +25,7 @@ public:
     ~TextEditor() override;
 
     void toggleEnabled();
+    void setEnabled(bool);
 
     void onDecorate(SkCanvas*, const TextInfo&) override;
 

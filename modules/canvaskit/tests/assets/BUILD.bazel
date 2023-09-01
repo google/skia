@@ -31,6 +31,7 @@ skia_filegroup(
         "skottie_basic_slots.json",
         "test.ttc",
         "test_glyphs-glyf_colr_1.ttf",
+        "text_edit.json",
     ],
     visibility = ["//:__subpackages__"],
 )

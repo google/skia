@@ -134,6 +134,19 @@ V CustomPropertyManager::get(const PropKey& key, const PropMap<T>& container) co
             : prop_group->second.front()->get();
 }
 
+template <typename T>
+std::unique_ptr<T> CustomPropertyManager::getHandle(const PropKey& key,
+                                                    size_t index,
+                                                    const PropMap<T>& container) const {
+    auto prop_group = container.find(key);
+
+    if (prop_group == container.end() || index >= prop_group->second.size()) {
+        return nullptr;
+    }
+
+    return std::make_unique<T>(*prop_group->second[index]);
+}
+
 template <typename V, typename T>
 bool CustomPropertyManager::set(const PropKey& key, const V& val, const PropMap<T>& container) {
     auto prop_group = container.find(key);
@@ -158,6 +171,11 @@ skottie::ColorPropertyValue CustomPropertyManager::getColor(const PropKey& key) 
     return this->get<skottie::ColorPropertyValue>(key, fColorMap);
 }
 
+std::unique_ptr<skottie::ColorPropertyHandle>
+CustomPropertyManager::getColorHandle(const PropKey& key, size_t index) const {
+    return this->getHandle(key, index, fColorMap);
+}
+
 bool CustomPropertyManager::setColor(const PropKey& key, const skottie::ColorPropertyValue& c) {
     return this->set(key, c, fColorMap);
 }
@@ -169,6 +187,11 @@ CustomPropertyManager::getOpacityProps() const {
 
 skottie::OpacityPropertyValue CustomPropertyManager::getOpacity(const PropKey& key) const {
     return this->get<skottie::OpacityPropertyValue>(key, fOpacityMap);
+}
+
+std::unique_ptr<skottie::OpacityPropertyHandle>
+CustomPropertyManager::getOpacityHandle(const PropKey& key, size_t index) const {
+    return this->getHandle(key, index, fOpacityMap);
 }
 
 bool CustomPropertyManager::setOpacity(const PropKey& key, const skottie::OpacityPropertyValue& o) {
@@ -184,6 +207,11 @@ skottie::TransformPropertyValue CustomPropertyManager::getTransform(const PropKe
     return this->get<skottie::TransformPropertyValue>(key, fTransformMap);
 }
 
+std::unique_ptr<skottie::TransformPropertyHandle>
+CustomPropertyManager::getTransformHandle(const PropKey& key, size_t index) const {
+    return this->getHandle(key, index, fTransformMap);
+}
+
 bool CustomPropertyManager::setTransform(const PropKey& key,
                                          const skottie::TransformPropertyValue& t) {
     return this->set(key, t, fTransformMap);
@@ -196,6 +224,11 @@ CustomPropertyManager::getTextProps() const {
 
 skottie::TextPropertyValue CustomPropertyManager::getText(const PropKey& key) const {
     return this->get<skottie::TextPropertyValue>(key, fTextMap);
+}
+
+std::unique_ptr<skottie::TextPropertyHandle>
+CustomPropertyManager::getTextHandle(const PropKey& key, size_t index) const {
+    return this->getHandle(key, index, fTextMap);
 }
 
 bool CustomPropertyManager::setText(const PropKey& key, const skottie::TextPropertyValue& o) {
