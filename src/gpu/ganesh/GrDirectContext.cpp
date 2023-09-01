@@ -493,11 +493,13 @@ void GrDirectContext::flushAndSubmit(sk_sp<const SkImage> image) {
     this->submit();
 }
 
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_FLUSH)
 GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<SkSurface> surface,
                                              SkSurfaces::BackendSurfaceAccess access,
                                              const GrFlushInfo& info) {
     return this->flush(surface.get(), access, info);
 }
+#endif
 
 GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
                                              SkSurfaces::BackendSurfaceAccess access,
@@ -509,6 +511,7 @@ GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
     if (!sb->isGaneshBacked()) {
         return GrSemaphoresSubmitted::kNo;
     }
+
     auto gs = static_cast<SkSurface_Ganesh*>(surface);
     SkASSERT(this->priv().matches(gs->getDevice()->recordingContext()->asDirectContext()));
     GrRenderTargetProxy* rtp = gs->getDevice()->targetProxy();
@@ -516,11 +519,13 @@ GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
     return this->priv().flushSurface(rtp, access, info, nullptr);
 }
 
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_FLUSH)
 GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<SkSurface> surface,
                                              const GrFlushInfo& info,
                                              const skgpu::MutableTextureState* newState) {
     return this->flush(surface.get(), info, newState);
 }
+#endif
 
 GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
                                              const GrFlushInfo& info,
@@ -532,6 +537,7 @@ GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
     if (!sb->isGaneshBacked()) {
         return GrSemaphoresSubmitted::kNo;
     }
+
     auto gs = static_cast<SkSurface_Ganesh*>(surface);
     SkASSERT(this->priv().matches(gs->getDevice()->recordingContext()->asDirectContext()));
     GrRenderTargetProxy* rtp = gs->getDevice()->targetProxy();
@@ -540,14 +546,27 @@ GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
             rtp, SkSurfaces::BackendSurfaceAccess::kNoAccess, info, newState);
 }
 
+void GrDirectContext::flushAndSubmit(SkSurface* surface, bool syncCpu) {
+    this->flush(surface, SkSurfaces::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
+    this->submit(syncCpu);
+}
+
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_FLUSH)
 void GrDirectContext::flushAndSubmit(sk_sp<SkSurface> surface, bool syncCpu) {
     this->flush(surface.get(), SkSurfaces::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
     this->submit(syncCpu);
 }
+#endif
 
-void GrDirectContext::flush(sk_sp<SkSurface> surface) {
-    this->flush(surface.get(), GrFlushInfo(), nullptr);
+void GrDirectContext::flush(SkSurface* surface) {
+    this->flush(surface, GrFlushInfo(), nullptr);
 }
+
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_FLUSH)
+void GrDirectContext::flush(sk_sp<SkSurface> surface) {
+    this->flush(surface, GrFlushInfo(), nullptr);
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
