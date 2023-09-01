@@ -1127,8 +1127,6 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             return this->writeInstruction(SpvOpTypeSampler, Words{Word::Result()}, fConstantBuffer);
         }
         case Type::TypeKind::kSampler: {
-            // Subpass inputs should use the Texture type, not a Sampler.
-            SkASSERT(type->dimensions() != SpvDimSubpassData);
             if (SpvDimBuffer == type->dimensions()) {
                 fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
             }

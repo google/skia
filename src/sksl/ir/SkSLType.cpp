@@ -517,7 +517,12 @@ public:
 
     SamplerType(const char* name, const Type& textureType)
             : INHERITED(name, "Z", kTypeKind)
-            , fTextureType(textureType.as<TextureType>()) {}
+            , fTextureType(textureType.as<TextureType>()) {
+        // Samplers require sampled texture access.
+        SkASSERT(this->textureAccess() == TextureAccess::kSample);
+        // Subpass inputs cannot be sampled.
+        SkASSERT(this->dimensions() != SpvDimSubpassData);
+    }
 
     const TextureType& textureType() const override {
         return fTextureType;
