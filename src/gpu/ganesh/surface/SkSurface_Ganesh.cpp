@@ -775,7 +775,7 @@ GrSemaphoresSubmitted Flush(sk_sp<SkSurface> surface) {
         return GrSemaphoresSubmitted::kNo;
     }
     if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        return rContext->asDirectContext()->flush(surface, {});
+        return rContext->asDirectContext()->flush(surface.get(), {});
     }
     return GrSemaphoresSubmitted::kNo;
 }
@@ -785,7 +785,7 @@ void FlushAndSubmit(SkSurface* surface) {
         return;
     }
     if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        rContext->asDirectContext()->flushAndSubmit(surface);
+        rContext->asDirectContext()->flushAndSubmit(surface, false);
     }
 }
 
@@ -794,7 +794,7 @@ void FlushAndSubmit(sk_sp<SkSurface> surface) {
         return;
     }
     if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        rContext->asDirectContext()->flushAndSubmit(surface);
+        rContext->asDirectContext()->flushAndSubmit(surface.get(), false);
     }
 }
 
