@@ -1,6 +1,6 @@
 
 out vec4 sk_FragColor;
-layout (binding = 1, set = 0) uniform readonlyTexture2D aTexture;
+layout (rgba8, binding = 1, set = 0) uniform readonlyTexture2D aTexture;
 layout (binding = 2, set = 0) uniform sampler2D aSampledTexture;
 layout (location = 1) in vec2 c;
 vec4 helpers_helper_h4ZT(sampler2D s, layout (rgba8) readonlyTexture2D t) {

@@ -22,9 +22,11 @@ void test() {
     takes_rgba8(rgba8Tex);
 }
 
-#error /* TODO(b/295160569): implement pixel-format mismatch tests */
-
-
 /*%%*
-unsupported directive '#error'
+expected argument of type 'layout (rgba32f) writeonlyTexture2D'
+expected argument of type 'layout (rgba32f) writeonlyTexture2D'
+expected argument of type 'layout (r32f) writeonlyTexture2D'
+expected argument of type 'layout (r32f) writeonlyTexture2D'
+expected argument of type 'layout (rgba8) writeonlyTexture2D'
+expected argument of type 'layout (rgba8) writeonlyTexture2D'
 *%%*/

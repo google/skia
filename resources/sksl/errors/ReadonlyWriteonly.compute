@@ -1,6 +1,6 @@
-layout(binding=0) readonly texture2D src;
-layout(binding=1) writeonly texture2D dest;
-//layout(binding=2) texture2D multipurpose;
+layout(binding=0, rgba32f) readonly texture2D src;
+layout(binding=1, rgba32f) writeonly texture2D dest;
+//layout(binding=2, rgba32f) texture2D multipurpose;
 
 // If we add support for read-write textures in SkSL, uncomment `needs_all_access`.
 //void needs_all_access(texture2D t) {}

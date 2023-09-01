@@ -390,6 +390,7 @@ skia_filegroup(
         "errors/OverloadedMain.sksl",
         "errors/PixelFormatMismatch.compute",
         "errors/PixelFormatMissing.compute",
+        "errors/PixelFormatOverloads.compute",
         "errors/PrecisionQualifiersDisallowed.sksl",
         "errors/PrivateTypes.rts",
         "errors/PrivateVariables.rts",
