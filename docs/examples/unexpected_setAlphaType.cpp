@@ -1,5 +1,6 @@
 // Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include "include/core/SkColorType.h"
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(unexpected_setAlphaType, 256, 256, true, 0) {
 static const char* alphatype_name(SkAlphaType at) {
@@ -29,6 +30,7 @@ static const char* colortype_name(SkColorType ct) {
         case kBGRA_1010102_SkColorType:       return "BGRA_1010102";
         case kBGR_101010x_SkColorType:        return "BGR_101010x";
         case kBGR_101010x_XR_SkColorType:     return "BGR_101010x_xr";
+        case kRGBA_10x6_SkColorType:          return "RGBA_10x6";
         case kGray_8_SkColorType:             return "Gray_8";
         case kRGBA_F16Norm_SkColorType:       return "RGBA_F16Norm";
         case kRGBA_F16_SkColorType:           return "RGBA_F16";

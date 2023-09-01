@@ -199,6 +199,7 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
             return true;
         }
 
+        case kRGBA_10x6_SkColorType:
         case kR16G16B16A16_unorm_SkColorType: {
             auto src64 = (const uint64_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {

@@ -1463,6 +1463,12 @@ SI void from_1010102_xr(U32 rgba, F* r, F* g, F* b, F* a) {
     *b = cast((rgba >> 20) & 0x3ff) * (1/1023.0f) * range + min;
     *a = cast((rgba >> 30)        ) * (1/   3.0f);
 }
+SI void from_10x6(U64 _10x6, F* r, F* g, F* b, F* a) {
+    *r = cast64((_10x6 >>  6) & 0x3ff) * (1/1023.0f);
+    *g = cast64((_10x6 >> 22) & 0x3ff) * (1/1023.0f);
+    *b = cast64((_10x6 >> 38) & 0x3ff) * (1/1023.0f);
+    *a = cast64((_10x6 >> 54) & 0x3ff) * (1/1023.0f);
+}
 SI void from_1616(U32 _1616, F* r, F* g) {
     *r = cast((_1616      ) & 0xffff) * (1/65535.0f);
     *g = cast((_1616 >> 16) & 0xffff) * (1/65535.0f);
@@ -2646,6 +2652,30 @@ STAGE(store_16161616, const SkRasterPipeline_MemoryCtx* ctx) {
         G = pack(to_unorm(g, 65535)),
         B = pack(to_unorm(b, 65535)),
         A = pack(to_unorm(a, 65535));
+
+    store4(ptr,tail, R,G,B,A);
+}
+
+STAGE(load_10x6, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint64_t>(ctx, dx, dy);
+    from_10x6(load<U64>(ptr, tail), &r,&g, &b, &a);
+}
+STAGE(load_10x6_dst, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint64_t>(ctx, dx, dy);
+    from_10x6(load<U64>(ptr, tail), &dr, &dg, &db, &da);
+}
+STAGE(gather_10x6, const SkRasterPipeline_GatherCtx* ctx) {
+    const uint64_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    from_10x6(gather(ptr, ix), &r, &g, &b, &a);
+}
+STAGE(store_10x6, const SkRasterPipeline_MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,4*dy);
+
+    U16 R = pack(to_unorm(r, 1023)) << 6,
+        G = pack(to_unorm(g, 1023)) << 6,
+        B = pack(to_unorm(b, 1023)) << 6,
+        A = pack(to_unorm(a, 1023)) << 6;
 
     store4(ptr,tail, R,G,B,A);
 }

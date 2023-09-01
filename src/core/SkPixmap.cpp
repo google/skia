@@ -10,6 +10,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkFloatingPoint.h"
@@ -23,6 +24,7 @@
 #include "src/core/SkSwizzlePriv.h"
 #include "src/opts/SkMemset_opts.h"
 
+#include <cstdint>
 #include <cstring>
 #include <iterator>
 #include <utility>
@@ -136,6 +138,11 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kBGRA_1010102_SkColorType: {
             uint32_t u32 = static_cast<const uint32_t*>(srcPtr)[0];
             value = (u32 >> 30) * (1.0f/3);
+            break;
+        }
+        case kRGBA_10x6_SkColorType: {
+            uint64_t u64 = static_cast<const uint64_t*>(srcPtr)[0];
+            value = (u64 >> 54) * (1.0f/1023);
             break;
         }
         case kR16G16B16A16_unorm_SkColorType: {
@@ -305,6 +312,17 @@ SkColor SkPixmap::getColor(int x, int y) const {
                 g = SkTPin(g/a, 0.0f, 1.0f);
                 b = SkTPin(b/a, 0.0f, 1.0f);
             }
+            return (uint32_t)( r * 255.0f ) << 16
+                 | (uint32_t)( g * 255.0f ) <<  8
+                 | (uint32_t)( b * 255.0f ) <<  0
+                 | (uint32_t)( a * 255.0f ) << 24;
+        }
+        case kRGBA_10x6_SkColorType: {
+            uint64_t value = *this->addr64(x, y);
+            float r = ((value >>  6) & 0x3ff) * (1/1023.0f),
+                  g = ((value >> 22) & 0x3ff) * (1/1023.0f),
+                  b = ((value >> 38) & 0x3ff) * (1/1023.0f),
+                  a = ((value >> 54) & 0x3ff) * (1/1023.0f);
             return (uint32_t)( r * 255.0f ) << 16
                  | (uint32_t)( g * 255.0f ) <<  8
                  | (uint32_t)( b * 255.0f ) <<  0
@@ -495,6 +513,15 @@ SkColor4f SkPixmap::getColor4f(int x, int y) const {
             }
             return SkColor4f{r, g, b, a};
         }
+        case kRGBA_10x6_SkColorType: {
+            uint64_t value = *this->addr64(x, y);
+
+            float r = ((value >>  6) & 0x3ff) * (1/1023.0f),
+                  g = ((value >> 22) & 0x3ff) * (1/1023.0f),
+                  b = ((value >> 38) & 0x3ff) * (1/1023.0f),
+                  a = ((value >> 54) & 0x3ff) * (1/1023.0f);
+            return SkColor4f{r, g, b, a};
+        }
         case kR16G16B16A16_unorm_SkColorType: {
             uint64_t value = *this->addr64(x, y);
 
@@ -651,6 +678,19 @@ bool SkPixmap::computeIsOpaque() const {
                     c &= row[x];
                 }
                 if (0b11 != c >> 30) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        case kRGBA_10x6_SkColorType: {
+            uint16_t acc = 0xFFC0;  // Ignore bottom six bits
+            for (int y = 0; y < height; ++y) {
+                const uint64_t* row = this->addr64(0, y);
+                for (int x = 0; x < width; ++x) {
+                    acc &= (row[x] >> 48);
+                }
+                if (0xFFC0 != acc) {
                     return false;
                 }
             }

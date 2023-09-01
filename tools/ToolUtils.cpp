@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -89,6 +90,7 @@ const char* colortype_name(SkColorType ct) {
         case kRGB_101010x_SkColorType:        return "RGB_101010x";
         case kBGR_101010x_SkColorType:        return "BGR_101010x";
         case kBGR_101010x_XR_SkColorType:     return "BGR_101010x_XR";
+        case kRGBA_10x6_SkColorType:          return "RGBA_10x6";
         case kGray_8_SkColorType:             return "Gray_8";
         case kRGBA_F16Norm_SkColorType:       return "RGBA_F16Norm";
         case kRGBA_F16_SkColorType:           return "RGBA_F16";
@@ -119,6 +121,7 @@ const char* colortype_depth(SkColorType ct) {
         case kRGB_101010x_SkColorType:        return "101010";
         case kBGR_101010x_SkColorType:        return "101010";
         case kBGR_101010x_XR_SkColorType:     return "101010";
+        case kRGBA_10x6_SkColorType:          return "10101010";
         case kGray_8_SkColorType:             return "G8";
         case kRGBA_F16Norm_SkColorType:       return "F16Norm";
         case kRGBA_F16_SkColorType:           return "F16";

@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkShader.h"
@@ -229,6 +230,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             case kRGBA_1010102_SkColorType:
             case kBGR_101010x_SkColorType:
             case kBGRA_1010102_SkColorType:
+            case kRGBA_10x6_SkColorType:
                 blitter->fDitherRate = 1 / 1023.0f;
                 break;
 

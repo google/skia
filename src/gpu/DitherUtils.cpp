@@ -44,6 +44,7 @@ float DitherRangeForConfig(SkColorType dstColorType) {
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
         case kBGR_101010x_XR_SkColorType:
+        case kRGBA_10x6_SkColorType:
             return 1 / 1023.f;
 
         // 16 bit

@@ -210,6 +210,7 @@ void SkRasterPipeline::append_load(SkColorType ct, const SkRasterPipeline_Memory
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:          this->append(Op::load_f16,     ctx); break;
         case kRGBA_F32_SkColorType:          this->append(Op::load_f32,     ctx); break;
+        case kRGBA_10x6_SkColorType:         this->append(Op::load_10x6,    ctx); break;
 
         case kGray_8_SkColorType:            this->append(Op::load_a8, ctx);
                                              this->append(Op::alpha_to_gray);
@@ -270,6 +271,7 @@ void SkRasterPipeline::append_load_dst(SkColorType ct, const SkRasterPipeline_Me
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:           this->append(Op::load_f16_dst,     ctx); break;
         case kRGBA_F32_SkColorType:           this->append(Op::load_f32_dst,     ctx); break;
+        case kRGBA_10x6_SkColorType:          this->append(Op::load_10x6_dst,    ctx); break;
 
         case kGray_8_SkColorType:             this->append(Op::load_a8_dst, ctx);
                                               this->append(Op::alpha_to_gray_dst);
@@ -334,6 +336,7 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:           this->append(Op::store_f16,     ctx); break;
         case kRGBA_F32_SkColorType:           this->append(Op::store_f32,     ctx); break;
+        case kRGBA_10x6_SkColorType:          this->append(Op::store_10x6,    ctx); break;
 
         case kRGB_888x_SkColorType:           this->append(Op::force_opaque);
                                               this->append(Op::store_8888, ctx);

@@ -368,6 +368,7 @@ static skgpu::Swizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipelineO
         case GrColorType::kBGRA_1010102:     *load = SkRasterPipelineOp::load_1010102;
                                              swizzle = skgpu::Swizzle("bgra");
                                              break;
+        case GrColorType::kRGBA_10x6:        *load = SkRasterPipelineOp::load_10x6;     break;
         case GrColorType::kAlpha_F16:        *load = SkRasterPipelineOp::load_af16;     break;
         case GrColorType::kRGBA_F16_Clamped: *load = SkRasterPipelineOp::load_f16;      break;
         case GrColorType::kRG_1616:          *load = SkRasterPipelineOp::load_rg1616;   break;
@@ -452,6 +453,7 @@ static skgpu::Swizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline
         case GrColorType::kBGRA_1010102:     swizzle = skgpu::Swizzle("bgra");
                                              *store = SkRasterPipelineOp::store_1010102;
                                              break;
+        case GrColorType::kRGBA_10x6:        *store = SkRasterPipelineOp::store_10x6;     break;
         case GrColorType::kRGBA_F16_Clamped: *store = SkRasterPipelineOp::store_f16;      break;
         case GrColorType::kRG_1616:          *store = SkRasterPipelineOp::store_rg1616;   break;
         case GrColorType::kRGBA_16161616:    *store = SkRasterPipelineOp::store_16161616; break;

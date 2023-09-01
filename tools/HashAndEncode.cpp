@@ -4,6 +4,7 @@
 #include "tools/HashAndEncode.h"
 
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkString.h"
 #include "include/encode/SkICC.h"
 #include "modules/skcms/skcms.h"
@@ -57,6 +58,7 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
         case kR16G16_float_SkColorType:       return;
         case kA16_unorm_SkColorType:          return;
         case kA16_float_SkColorType:          return;
+        case kRGBA_10x6_SkColorType:          return;
     }
 
     skcms_ICCProfile srcProfile = *skcms_sRGB_profile();

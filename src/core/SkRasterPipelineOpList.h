@@ -166,6 +166,7 @@
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102)     \
     M(load_1010102_xr) M(load_1010102_xr_dst) M(store_1010102_xr)              \
     M(gather_1010102_xr)                                                       \
+    M(load_10x6) M(load_10x6_dst) M(store_10x6) M(gather_10x6)                 \
     M(store_u16_be)                                                            \
     M(store_src_rg) M(load_src_rg)                                             \
     M(byte_tables)                                                             \
