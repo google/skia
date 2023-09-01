@@ -43,7 +43,7 @@ public:
                         std::string_view name,
                         skia_private::TArray<Variable*> parameters,
                         const Type* returnType,
-                        bool builtin);
+                        IntrinsicKind intrinsicKind);
 
     static FunctionDeclaration* Convert(const Context& context,
                                         Position pos,

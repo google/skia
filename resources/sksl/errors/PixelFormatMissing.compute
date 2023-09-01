@@ -1,0 +1,11 @@
+layout(set = 0, binding = 1, rgba32f) writeonly texture2D rgba32fTex;
+layout(set = 0, binding = 2, r32f)    writeonly texture2D r32fTex;
+layout(set = 0, binding = 3, rgba8)   writeonly texture2D rgba8Tex;
+
+void takes_any_pixel_format(readonly  texture2D tex) {}
+void takes_any_pixel_format(writeonly texture2D tex) {}
+
+/*%%*
+storage texture parameters must specify a pixel format layout-qualifier
+storage texture parameters must specify a pixel format layout-qualifier
+*%%*/

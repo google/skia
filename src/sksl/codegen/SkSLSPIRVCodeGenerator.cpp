@@ -4311,7 +4311,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
                                                   "_entrypoint",
                                                   /*parameters=*/TArray<Variable*>{},
                                                   /*returnType=*/fContext.fTypes.fVoid.get(),
-                                                  /*builtin=*/false);
+                                                  kNotIntrinsic);
     // Define it.
     adapter.entrypointDef = FunctionDefinition::Convert(fContext,
                                                         Position(),

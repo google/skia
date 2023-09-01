@@ -1,16 +1,18 @@
 layout(local_size_x = 16, local_size_y = 16) in;
 
-layout(binding=0) readonly texture2D src;
-layout(binding=1) writeonly texture2D dest;
+layout(binding=0, rgba32f) readonly texture2D src;
+layout(binding=1, rgba32f) writeonly texture2D dest;
 
-noinline void desaturate(readonlyTexture2D src, writeonlyTexture2D dest) {
+noinline void desaturate(layout(rgba32f) readonly texture2D src,
+                         layout(rgba32f) writeonly texture2D dest) {
     half4 color = textureRead(src, sk_GlobalInvocationID.xy);
     color.rgb = half3(dot(color.rgb, half3(0.22, 0.67, 0.11)));
     textureWrite(dest, sk_GlobalInvocationID.xy, color);
 }
 
 void main() {
-    if (sk_GlobalInvocationID.x < textureWidth(src) && sk_GlobalInvocationID.y < textureHeight(src)) {
+    if (sk_GlobalInvocationID.x < textureWidth(src) &&
+        sk_GlobalInvocationID.y < textureHeight(src)) {
         desaturate(src, dest);
     }
 }

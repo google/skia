@@ -610,7 +610,7 @@ bool Parser::functionDeclarationEnd(Position start,
 
     SkSL::FunctionDeclaration* decl = nullptr;
     if (validParams) {
-        decl = SkSL::FunctionDeclaration::Convert(ThreadContext::Context(),
+        decl = SkSL::FunctionDeclaration::Convert(fCompiler.context(),
                                                   this->rangeFrom(start),
                                                   modifiers,
                                                   this->text(name),

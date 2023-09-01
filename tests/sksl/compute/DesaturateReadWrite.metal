@@ -11,7 +11,7 @@ struct Globals {
     texture2d<half, access::read> texIn;
     texture2d<half, access::write> texOut;
 };
-kernel void computeMain(uint3 sk_GlobalInvocationID [[thread_position_in_grid]], texture2d<half, access::read> texIn [[texture(0)]], texture2d<half, access::write> texOut [[texture(0)]]) {
+kernel void computeMain(uint3 sk_GlobalInvocationID [[thread_position_in_grid]], texture2d<half, access::read> texIn [[texture(0)]], texture2d<half, access::write> texOut [[texture(1)]]) {
     Globals _globals{texIn, texOut};
     (void)_globals;
     Inputs _in = { sk_GlobalInvocationID };

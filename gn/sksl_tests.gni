@@ -209,6 +209,8 @@ sksl_error_tests = [
   "errors/OverflowUintLiteral.sksl",
   "errors/OverloadedBuiltin.sksl",
   "errors/OverloadedMain.sksl",
+  "errors/PixelFormatMismatch.compute",
+  "errors/PixelFormatMissing.compute",
   "errors/PrecisionQualifiersDisallowed.sksl",
   "errors/PrivateTypes.rts",
   "errors/PrivateVariables.rts",

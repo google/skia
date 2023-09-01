@@ -13,7 +13,7 @@
                OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
                OpDecorate %texIn Binding 0
                OpDecorate %texIn DescriptorSet 0
-               OpDecorate %texOut Binding 0
+               OpDecorate %texOut Binding 1
                OpDecorate %texOut DescriptorSet 0
                OpDecorate %22 RelaxedPrecision
                OpDecorate %30 RelaxedPrecision

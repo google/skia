@@ -5,8 +5,8 @@ layout(binding=1) writeonly texture2D dest;
 // If we add support for read-write textures in SkSL, uncomment `needs_all_access`.
 //void needs_all_access(texture2D t) {}
 
-void overload(readonly texture2D t)       {}
-void overload(writeonly texture2D t, int) {}
+void overload(layout(rgba32f) readonly texture2D t)       {}
+void overload(layout(rgba32f) writeonly texture2D t, int) {}
 
 void main() {
     //needs_all_access(src);                          // BAD
@@ -30,14 +30,14 @@ void main() {
 //    textureWrite(t, sk_GlobalInvocationID.xy, half4(1)); // OK
 //}
 
-void function_param_honors_readonly(readonly texture2D t) {
+void function_param_honors_readonly(layout(rgba32f) readonly texture2D t) {
     //needs_all_access(t);                               // BAD
     textureWidth(t);                                     // OK
     textureRead(t, sk_GlobalInvocationID.xy);            // OK
     textureWrite(t, sk_GlobalInvocationID.xy, half4(1)); // BAD
 }
 
-void function_param_honors_writeonly(writeonly texture2D t) {
+void function_param_honors_writeonly(layout(rgba32f) writeonly texture2D t) {
     //needs_all_access(t);                               // BAD
     textureWidth(t);                                     // OK
     textureRead(t, sk_GlobalInvocationID.xy);            // BAD

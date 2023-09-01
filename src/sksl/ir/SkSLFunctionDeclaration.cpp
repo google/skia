@@ -70,21 +70,34 @@ static bool check_return_type(const Context& context, Position pos, const Type& 
 
 static bool check_parameters(const Context& context,
                              TArray<std::unique_ptr<Variable>>& parameters,
-                             ModifierFlags modifierFlags) {
+                             ModifierFlags modifierFlags,
+                             IntrinsicKind intrinsicKind) {
     // Check modifiers on each function parameter.
     for (auto& param : parameters) {
         const Type& type = param->type();
         ModifierFlags permittedFlags = ModifierFlag::kConst | ModifierFlag::kIn;
+        LayoutFlags permittedLayoutFlags = LayoutFlag::kNone;
         if (!type.isOpaque()) {
             permittedFlags |= ModifierFlag::kOut;
         }
         if (type.typeKind() == Type::TypeKind::kTexture) {
+            // We allow `readonly` `writeonly` and `layout(pixel-format)` on storage textures.
             permittedFlags |= ModifierFlag::kReadOnly | ModifierFlag::kWriteOnly;
+            permittedLayoutFlags |= LayoutFlag::kAllPixelFormats;
+
+            // Intrinsics are allowed to accept any pixel format, but user code must explicitly
+            // specify a pixel format like `layout(rgba32f)`.
+            if (intrinsicKind == kNotIntrinsic &&
+                !(param->layout().fFlags & LayoutFlag::kAllPixelFormats)) {
+                context.fErrors->error(param->fPosition, "storage texture parameters must specify "
+                                                         "a pixel format layout-qualifier");
+                return false;
+            }
         }
         param->modifierFlags().checkPermittedFlags(context, param->modifiersPosition(),
                                                    permittedFlags);
         param->layout().checkPermittedLayout(context, param->modifiersPosition(),
-                                             /*permittedLayoutFlags=*/LayoutFlag::kNone);
+                                             permittedLayoutFlags);
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.
@@ -331,6 +344,7 @@ static bool parameters_match(SkSpan<const std::unique_ptr<Variable>> params,
 static bool find_existing_declaration(const Context& context,
                                       Position pos,
                                       ModifierFlags modifierFlags,
+                                      IntrinsicKind intrinsicKind,
                                       std::string_view name,
                                       TArray<std::unique_ptr<Variable>>& parameters,
                                       Position returnTypePos,
@@ -348,7 +362,7 @@ static bool find_existing_declaration(const Context& context,
                                    name,
                                    std::move(paramPtrs),
                                    returnType,
-                                   context.fConfig->fIsBuiltinCode)
+                                   intrinsicKind)
                 .description();
     };
 
@@ -402,14 +416,14 @@ FunctionDeclaration::FunctionDeclaration(const Context& context,
                                          std::string_view name,
                                          TArray<Variable*> parameters,
                                          const Type* returnType,
-                                         bool builtin)
+                                         IntrinsicKind intrinsicKind)
         : INHERITED(pos, kIRNodeKind, name, /*type=*/nullptr)
         , fDefinition(nullptr)
         , fParameters(std::move(parameters))
         , fReturnType(returnType)
         , fModifierFlags(modifierFlags)
-        , fIntrinsicKind(builtin ? FindIntrinsicKind(name) : kNotIntrinsic)
-        , fBuiltin(builtin)
+        , fIntrinsicKind(intrinsicKind)
+        , fBuiltin(context.fConfig->fIsBuiltinCode)
         , fIsMain(name == "main") {
     int builtinColorIndex = 0;
     for (const Variable* param : fParameters) {
@@ -463,13 +477,14 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     }
 
     bool isMain = (name == "main");
-
+    IntrinsicKind intrinsicKind = context.fConfig->fIsBuiltinCode ? FindIntrinsicKind(name)
+                                                                  : kNotIntrinsic;
     FunctionDeclaration* decl = nullptr;
     if (!check_modifiers(context, modifiers.fPosition, modifierFlags) ||
         !check_return_type(context, returnTypePos, *returnType) ||
-        !check_parameters(context, parameters, modifierFlags) ||
+        !check_parameters(context, parameters, modifierFlags, intrinsicKind) ||
         (isMain && !check_main_signature(context, pos, *returnType, parameters)) ||
-        !find_existing_declaration(context, pos, modifierFlags, name, parameters,
+        !find_existing_declaration(context, pos, modifierFlags, intrinsicKind, name, parameters,
                                    returnTypePos, returnType, &decl)) {
         return nullptr;
     }
@@ -488,7 +503,7 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
                                                   name,
                                                   std::move(finalParameters),
                                                   returnType,
-                                                  context.fConfig->fIsBuiltinCode));
+                                                  intrinsicKind));
 }
 
 void FunctionDeclaration::addParametersToSymbolTable(const Context& context) {

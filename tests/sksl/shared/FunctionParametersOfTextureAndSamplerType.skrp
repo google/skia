@@ -16,14 +16,20 @@ error: 4: layout qualifier 'location' is not permitted here
 layout(location = 1) in float2 c;
 ^^^^^^^^^^^^^^^^^^^^^^^
 error: 6: type 'texture2D' does not support qualifier 'readonly'
-noinline half4 helpers_helper(sampler2D s, readonly texture2D t) {
-                                           ^^^^^^^^
+noinline half4 helpers_helper(sampler2D s, layout(rgba8) readonly texture2D t) {
+                                           ^^^^^^^^^^^^^^^^^^^^^^
+error: 6: layout qualifier 'rgba8' is not permitted here
+noinline half4 helpers_helper(sampler2D s, layout(rgba8) readonly texture2D t) {
+                                           ^^^^^^^^^^^^^^^^^^^^^^
 error: 7: unknown identifier 'sample'
     return sample(s, c);
            ^^^^^^
 error: 10: type 'texture2D' does not support qualifier 'readonly'
-noinline half4 helper(readonly texture2D t, sampler2D s) {
-                      ^^^^^^^^
+noinline half4 helper(layout(rgba8) readonly texture2D t, sampler2D s) {
+                      ^^^^^^^^^^^^^^^^^^^^^^
+error: 10: layout qualifier 'rgba8' is not permitted here
+noinline half4 helper(layout(rgba8) readonly texture2D t, sampler2D s) {
+                      ^^^^^^^^^^^^^^^^^^^^^^
 error: 14: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
@@ -36,4 +42,4 @@ error: 15: unknown identifier 'aTexture'
 error: 15: unknown identifier 'aSampledTexture'
     sk_FragColor = helper(aTexture, aSampledTexture);
                                     ^^^^^^^^^^^^^^^
-12 errors
+14 errors
