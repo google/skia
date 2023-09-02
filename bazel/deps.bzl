@@ -186,7 +186,7 @@ def c_plus_plus_deps(ws = "@"):
     new_git_repository(
         name = "vulkan_headers",
         build_file = ws + "//bazel/external/vulkan_headers:BUILD.bazel",
-        commit = "a0c76b4ef76e219483755ff61dce6b67ff79f24b",
+        commit = "2634c969d7dc0e983f005f7f2e665cce8449efe6",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers",
     )
 
