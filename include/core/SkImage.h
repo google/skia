@@ -727,6 +727,16 @@ public:
 
     struct RequiredProperties {
         bool fMipmapped;
+
+        bool operator==(const RequiredProperties& other) const {
+            return fMipmapped == other.fMipmapped;
+        }
+
+        bool operator!=(const RequiredProperties& other) const { return !(*this == other); }
+
+        bool operator<(const RequiredProperties& other) const {
+            return fMipmapped < other.fMipmapped;
+        }
     };
 
     /** Returns subset of this image.
