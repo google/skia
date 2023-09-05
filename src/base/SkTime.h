@@ -11,9 +11,11 @@
     Platform-implemented utilities to return a monotonic counter.
 */
 namespace SkTime {
+
 double GetNSecs();
 inline double GetSecs() { return GetNSecs() * 1e-9; }
 inline double GetMSecs() { return GetNSecs() * 1e-6; }
-};
+
+} // namespace SkTime
 
 #endif
