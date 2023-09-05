@@ -151,7 +151,7 @@ void draw_texture(skgpu::ganesh::SurfaceDrawContext* sdc,
         // Conservative estimate of how much a coord could be outset from src rect:
         // 1/2 pixel for AA and 1/2 pixel for linear filtering
         float buffer = 0.5f * (aaFlags != GrQuadAAFlags::kNone) +
-                       0.5f * (filter == GrSamplerState::Filter::kLinear);
+                       GrTextureEffect::kLinearInset * (filter == GrSamplerState::Filter::kLinear);
         SkRect safeBounds = proxy->getBoundsRect();
         safeBounds.inset(buffer, buffer);
         if (!safeBounds.contains(srcRect)) {

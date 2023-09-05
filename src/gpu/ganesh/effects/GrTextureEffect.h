@@ -33,6 +33,12 @@ class GrTextureEffect : public GrFragmentProcessor {
 public:
     inline static constexpr float kDefaultBorder[4] = {0};
 
+    // An extra inset amount to apply to subset clamp boundaries to ensure clamped coordinates will
+    // access texel (i-1) to i instead of i to (i+1), even if the weights should mean the clamped
+    // color is still equal to texel i's value.
+    inline static constexpr float kInsetEpsilon = 0.00001f;
+    inline static constexpr float kLinearInset = 0.5f + kInsetEpsilon;
+
     /** Make from a filter. The sampler will be configured with clamp mode. */
     static std::unique_ptr<GrFragmentProcessor> Make(
             GrSurfaceProxyView,
