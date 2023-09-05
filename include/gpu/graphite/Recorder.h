@@ -154,14 +154,9 @@ public:
      */
     void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
 
-
     // Provides access to functions that aren't part of the public API.
     RecorderPriv priv();
     const RecorderPriv priv() const;  // NOLINT(readability-const-return-type)
-
-#if defined(GRAPHITE_TEST_UTILS)
-    bool deviceIsRegistered(Device*);
-#endif
 
 private:
     friend class Context; // For ctor

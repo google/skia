@@ -31,12 +31,12 @@ public:
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // Utility methods for testing only
+#if defined(GRAPHITE_TEST_UTILS)
     bool isTargetProxyInstantiated() const;
     int numVolatilePromiseImages() const;
     int numNonVolatilePromiseImages() const;
     bool hasTasks() const;
+#endif
 
 private:
     explicit RecordingPriv(Recording* recorder) : fRecording(recorder) {}

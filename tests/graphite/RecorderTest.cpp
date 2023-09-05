@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/Device.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 
 using namespace skgpu::graphite;
 using Mipmapped = skgpu::Mipmapped;
@@ -29,11 +30,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                                          /* addInitialClear= */ true);
 
     REPORTER_ASSERT(reporter, device1->recorder() == recorder.get());
-    REPORTER_ASSERT(reporter, recorder->deviceIsRegistered(device1.get()));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device1.get()));
 
     Device* devPtr = device1.get();
     device1.reset();
-    REPORTER_ASSERT(reporter, !recorder->deviceIsRegistered(devPtr));
+    REPORTER_ASSERT(reporter, !recorder->priv().deviceIsRegistered(devPtr));
 
     // Test adding multiple devices
     device1 = Device::Make(recorder.get(),
@@ -57,16 +58,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
     REPORTER_ASSERT(reporter, device1->recorder() == recorder.get());
     REPORTER_ASSERT(reporter, device2->recorder() == recorder.get());
     REPORTER_ASSERT(reporter, device3->recorder() == recorder.get());
-    REPORTER_ASSERT(reporter, recorder->deviceIsRegistered(device1.get()));
-    REPORTER_ASSERT(reporter, recorder->deviceIsRegistered(device2.get()));
-    REPORTER_ASSERT(reporter, recorder->deviceIsRegistered(device3.get()));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device1.get()));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device2.get()));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device3.get()));
 
     // Test freeing a device in the middle.
     devPtr = device2.get();
     device2.reset();
-    REPORTER_ASSERT(reporter, recorder->deviceIsRegistered(device1.get()));
-    REPORTER_ASSERT(reporter, !recorder->deviceIsRegistered(devPtr));
-    REPORTER_ASSERT(reporter, recorder->deviceIsRegistered(device3.get()));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device1.get()));
+    REPORTER_ASSERT(reporter, !recorder->priv().deviceIsRegistered(devPtr));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device3.get()));
 
     // Delete the recorder and make sure remaining devices not longer have a valid recorder.
     recorder.reset();

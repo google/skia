@@ -169,8 +169,7 @@ void RecordingPriv::addTask(sk_sp<Task> task) {
     fRecording->fGraph->prepend(std::move(task));
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Utility methods for testing only
+#if defined(GRAPHITE_TEST_UTILS)
 bool RecordingPriv::isTargetProxyInstantiated() const {
     return fRecording->fTargetProxyData->lazyProxy()->isInstantiated();
 }
@@ -186,5 +185,6 @@ int RecordingPriv::numNonVolatilePromiseImages() const {
 bool RecordingPriv::hasTasks() const {
     return fRecording->fGraph->hasTasks();
 }
+#endif
 
 } // namespace skgpu::graphite
