@@ -22,9 +22,9 @@ import argparse
 import subprocess
 
 
-VERSION = "1.4.230811000-preview2"
-SHORT_VERSION = "1.4-preview2"
-SHA256 = "ff29782c87707a934b554e16312398090c2d3358c9dc94efd351310b9ef5f550"
+VERSION = "1.4.230822000"
+SHORT_VERSION = "1.4"
+SHA256 = "7f20ada4989afb3efd885f3c26ad2b63c1b01f4b1d7bb183f5f1a7f859c566df"
 URL = "https://www.nuget.org/api/v2/package/Microsoft.WindowsAppSDK/%s"
 
 
