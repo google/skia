@@ -1259,7 +1259,8 @@ public:
             // The destination pixels are not effected by the src pixels,
             // change to zero as per the spec.
             // https://drafts.fxtf.org/filter-effects/#FilterPrimitivesOverviewIntro
-            while (dstIdx < srcIdx) {
+            int commonEnd = std::min(srcIdx, dstEnd);
+            while (dstIdx < commonEnd) {
                 *dstCursor = 0;
                 dstCursor += dstStride;
                 SK_PREFETCH(dstCursor);
