@@ -19,9 +19,9 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSwizzle.h"
-#include "include/core/SkTime.h"
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkTDArray.h"
+#include "src/base/SkTime.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 

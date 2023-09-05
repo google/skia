@@ -12,10 +12,10 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
-#include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkTime.h"
 #include "src/base/SkUTF.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 

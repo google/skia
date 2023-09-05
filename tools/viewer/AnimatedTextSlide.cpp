@@ -10,9 +10,9 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "src/base/SkRandom.h"
+#include "src/base/SkTime.h"
 #include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"
 

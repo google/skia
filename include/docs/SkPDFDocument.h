@@ -11,8 +11,8 @@
 #include "include/core/SkMilestone.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
-#include "include/core/SkTime.h"
 #include "include/private/base/SkNoncopyable.h"
+#include "src/base/SkTime.h"
 
 #define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
 #define SKPDF_STRING_IMPL(X) #X
@@ -63,7 +63,19 @@ struct StructureElementNode {
     SkString fLang;
 };
 
-using DateTime = SkTime::DateTime;
+struct DateTime {
+    int16_t  fTimeZoneMinutes;  // The number of minutes that this
+                                // is ahead of or behind UTC.
+    uint16_t fYear;          //!< e.g. 2005
+    uint8_t  fMonth;         //!< 1..12
+    uint8_t  fDayOfWeek;     //!< 0..6, 0==Sunday
+    uint8_t  fDay;           //!< 1..31
+    uint8_t  fHour;          //!< 0..23
+    uint8_t  fMinute;        //!< 0..59
+    uint8_t  fSecond;        //!< 0..59
+
+    void toISO8601(SkString* dst) const;
+};
 
 /** Optional metadata to be passed into the PDF factory function.
 */

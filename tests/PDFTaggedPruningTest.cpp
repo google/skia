@@ -17,9 +17,9 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
-#include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
+#include "src/pdf/SkPDFUtils.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -44,8 +44,8 @@ DEF_TEST(SkPDF_tagged_pruning, r) {
     SkPDF::Metadata metadata;
     metadata.fTitle = "Example Tagged PDF";
     metadata.fCreator = "Skia";
-    SkTime::DateTime now;
-    SkTime::GetDateTime(&now);
+    SkPDF::DateTime now;
+    SkPDFUtils::GetDateTime(&now);
     metadata.fCreation = now;
     metadata.fModified = now;
 
@@ -109,8 +109,8 @@ DEF_TEST(SkPDF_tagged_pruning_empty, r) {
     SkPDF::Metadata metadata;
     metadata.fTitle = "Example Tagged PDF";
     metadata.fCreator = "Skia";
-    SkTime::DateTime now;
-    SkTime::GetDateTime(&now);
+    SkPDF::DateTime now;
+    SkPDFUtils::GetDateTime(&now);
     metadata.fCreation = now;
     metadata.fModified = now;
 

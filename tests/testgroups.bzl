@@ -396,6 +396,7 @@ PDF_TESTS = [
     "PDFTaggedPruningTest.cpp",
     "PDFTaggedTableTest.cpp",
     "PDFTaggedTest.cpp",
+    "Time.cpp",
     # TODO(kjlubick, bungeman) There are PDF-specific tests in
     # CanvasTest.cpp
 ]

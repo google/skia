@@ -8,10 +8,10 @@
 #include "tools/viewer/TouchGesture.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkTime.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkTime.h"
 
 #include <algorithm>
 #include <cmath>

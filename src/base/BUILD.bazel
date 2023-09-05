@@ -50,6 +50,7 @@ skia_filegroup(
         "SkSharedMutex.h",
         "SkSpinlock.h",
         "SkTSearch.h",
+        "SkTime.h",
         "SkUTF.h",
         "SkUtils.h",
         "SkVx.h",  # Causes IWYU to crash when compiling.
@@ -94,6 +95,7 @@ skia_filegroup(
         "SkSpinlock.cpp",
         "SkTDArray.cpp",
         "SkTSearch.cpp",
+        "SkTime.cpp",
         ":skslc_srcs",
     ],
     visibility = ["//src:__pkg__"],

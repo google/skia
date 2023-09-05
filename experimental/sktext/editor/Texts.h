@@ -10,7 +10,7 @@
 #include "experimental/sktext/include/Types.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
+#include "src/base/SkTime.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
 #include "tools/skui/ModifierKey.h"

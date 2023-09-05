@@ -165,7 +165,7 @@ struct LightOnSphere {
     }
 };
 
-#include "include/core/SkTime.h"
+#include "src/base/SkTime.h"
 
 class RotateAnimator {
     SkV3        fAxis = {0, 0, 0};
