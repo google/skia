@@ -51,4 +51,13 @@ layout(local_size_y = 16) out;
 error: 18: local size layout qualifiers must be defined using an 'in' declaration
 layout(local_size_z = 16) out;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-17 errors
+error: 20: local size qualifiers cannot be zero
+layout(local_size_x = 0) in;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 21: local size qualifiers cannot be zero
+layout(local_size_y = 0) in;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 22: local size qualifiers cannot be zero
+layout(local_size_z = 0) in;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 errors

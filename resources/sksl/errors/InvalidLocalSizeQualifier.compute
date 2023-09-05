@@ -17,6 +17,10 @@ layout(local_size_x = 16) out;
 layout(local_size_y = 16) out;
 layout(local_size_z = 16) out;
 
+layout(local_size_x = 0) in;
+layout(local_size_y = 0) in;
+layout(local_size_z = 0) in;
+
 /*%%*
 local size layout qualifiers must be defined using an 'in' declaration
 local size layout qualifiers must be defined using an 'in' declaration
@@ -35,4 +39,7 @@ local size layout qualifiers must be defined using an 'in' declaration
 local size layout qualifiers must be defined using an 'in' declaration
 local size layout qualifiers must be defined using an 'in' declaration
 local size layout qualifiers must be defined using an 'in' declaration
+local size qualifiers cannot be zero
+local size qualifiers cannot be zero
+local size qualifiers cannot be zero
 *%%*/
