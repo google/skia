@@ -1389,13 +1389,17 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& decl, bool glo
     }
     if (!fFoundExternalSamplerDecl &&
         var->type().matches(*fContext.fTypes.fSamplerExternalOES)) {
-        if (this->caps().externalTextureExtensionString()) {
-            this->writeExtension(this->caps().externalTextureExtensionString());
+        if (!this->caps().fExternalTextureSupport) {
+            fContext.fErrors->error(decl.position(), "external texture support is not enabled");
+        } else {
+            if (this->caps().externalTextureExtensionString()) {
+                this->writeExtension(this->caps().externalTextureExtensionString());
+            }
+            if (this->caps().secondExternalTextureExtensionString()) {
+                this->writeExtension(this->caps().secondExternalTextureExtensionString());
+            }
+            fFoundExternalSamplerDecl = true;
         }
-        if (this->caps().secondExternalTextureExtensionString()) {
-            this->writeExtension(this->caps().secondExternalTextureExtensionString());
-        }
-        fFoundExternalSamplerDecl = true;
     }
     if (!fFoundRectSamplerDecl && var->type().matches(*fContext.fTypes.fSampler2DRect)) {
         fFoundRectSamplerDecl = true;

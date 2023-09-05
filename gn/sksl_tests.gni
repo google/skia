@@ -279,6 +279,7 @@ sksl_error_tests = [
   "errors/ReturnFromVoid.rts",
   "errors/ReturnMissingValue.rts",
   "errors/ReturnTypeMismatch.rts",
+  "errors/SamplerExternalOES.frag",
   "errors/SelfReferentialInitializerExpression.rts",
   "errors/SpuriousFloat.rts",
   "errors/StructMemberReservedName.rts",
