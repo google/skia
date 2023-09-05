@@ -31,5 +31,9 @@ bool no_intersection_by_bounding_box(const Segment& s0, const Segment& s1);
 // Note this intersection assumes that line segments do not include their end points.
 std::optional<Point> intersect(const Segment& s0, const Segment& s1);
 
+// Compare two segments at the sweep line given by y.
+// It is an error to pass segments that don't intersect the horizontal line at y.
+bool lessThanAt(const Segment& s0, const Segment& s1, int32_t y);
+
 }  // namespace bentleyottmann
 #endif  // Segment_DEFINED

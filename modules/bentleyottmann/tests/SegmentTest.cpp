@@ -160,3 +160,31 @@ DEF_TEST(BO_intersectBasic, reporter) {
         }
     }
 }
+
+DEF_TEST(BO_lessAtBasic, reporter) {
+    { // Parallel lines
+        Segment s0 = {{-1, 1}, {-1, -1}},
+                s1 = {{1, 1}, {1, -1}};
+
+        REPORTER_ASSERT(reporter, lessThanAt(s0, s1, -1));
+        REPORTER_ASSERT(reporter, !lessThanAt(s1, s0, -1));
+        REPORTER_ASSERT(reporter, lessThanAt(s0, s1, 0));
+        REPORTER_ASSERT(reporter, !lessThanAt(s1, s0, 0));
+        REPORTER_ASSERT(reporter, lessThanAt(s0, s1, 1));
+        REPORTER_ASSERT(reporter, !lessThanAt(s1, s0, 1));
+    }
+    { // Crossed lines
+        Segment s0 = {{-1, 1}, {-1, -1}},
+                s1 = {{-1, 1}, {1, -1}};
+
+        REPORTER_ASSERT(reporter, lessThanAt(s0, s1, -1));
+        REPORTER_ASSERT(reporter, !lessThanAt(s1, s0, -1));
+
+        // When they are == neither is less.
+        REPORTER_ASSERT(reporter, !lessThanAt(s0, s1, 0));
+        REPORTER_ASSERT(reporter, !lessThanAt(s1, s0, 0));
+
+        REPORTER_ASSERT(reporter, !lessThanAt(s0, s1, 1));
+        REPORTER_ASSERT(reporter, lessThanAt(s1, s0, 1));
+    }
+}
