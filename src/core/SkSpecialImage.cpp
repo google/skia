@@ -180,10 +180,7 @@ sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
     }
 
     SkASSERT(image->bounds().contains(subset));
-    // This assert currently fails when using Graphite because Graphite makes raster images.
-    // TODO(michaelludwig) re-enable this assert after SkImage::makeWithFilter is implemented.
-    //SkASSERT(!image->isTextureBacked());
-    SkASSERT(!as_IB(image)->isGaneshBacked());
+    SkASSERT(!image->isTextureBacked());
 
     // This will not work if the image is uploaded to a GPU render target.
     SkBitmap bm;

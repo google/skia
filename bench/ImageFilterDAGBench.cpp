@@ -88,7 +88,7 @@ protected:
         }
         sk_sp<SkImageFilter> mergeFilter = SkImageFilters::Merge(inputs, kNumInputs);
 
-        // But measure makeWithFilter() per loop since that's the focus of this benchmark
+        // But measure MakeWithFilter() per loop since that's the focus of this benchmark
         for (int j = 0; j < loops; j++) {
             sk_sp<SkImage> image;
 

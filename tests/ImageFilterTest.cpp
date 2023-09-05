@@ -1811,6 +1811,7 @@ DEF_TEST(ImageFilterMakeWithFilter, reporter) {
     test_make_with_filter(reporter, createRasterSurface, raster);
 }
 
+#if !defined(SK_DISABLE_LEGACY_MAKEWITHFILTER)
 // TODO(b/293326072): remove when SkImage::makeWithFilter is removed
 DEF_TEST(ImageFilterMakeWithFilter_LegacyRaster, reporter) {
     auto createRasterSurface = [](int width, int height) -> sk_sp<SkSurface> {
@@ -1854,6 +1855,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_LegacyGanesh,
 
     test_make_with_filter(reporter, createGaneshSurface, legacy);
 }
+#endif
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Ganesh,
                                        reporter,

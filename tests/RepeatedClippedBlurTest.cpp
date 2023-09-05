@@ -35,7 +35,7 @@
 struct GrContextOptions;
 
 // This is the repro of a CastOS memory regression bug (b/138674523).
-// The test simply keeps calling SkImage::makeWithFilter (with a blur image filter) while
+// The test simply keeps calling SkImages::MakeWithFilter (with a blur image filter) while
 // shrinking the clip.
 // When explicit resource allocation was enabled the last (re-expanded) image in the
 // blur creation process became exact.

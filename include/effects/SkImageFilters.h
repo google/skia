@@ -44,7 +44,8 @@ namespace skif {
 // A set of factory functions providing useful SkImageFilter effects. For image filters that take an
 // input filter, providing nullptr means it will automatically use the dynamic source image. This
 // source depends on how the filter is applied, but is either the contents of a saved layer when
-// drawing with SkCanvas, or an explicit SkImage if using SkImage::makeWithFilter.
+// drawing with SkCanvas, or an explicit SkImage if using one of the SkImages::MakeWithFilter
+// factories.
 class SK_API SkImageFilters {
 public:
     // This is just a convenience type to allow passing SkIRects, SkRects, and optional pointers
