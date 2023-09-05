@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "BentleyOttmann1.cpp",
         "EventQueue.cpp",
+        "Int96.cpp",
         "Point.cpp",
         "Segment.cpp",
     ],
