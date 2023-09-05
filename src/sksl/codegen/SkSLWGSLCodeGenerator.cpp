@@ -2373,8 +2373,6 @@ static bool all_arguments_constant(const ExpressionArray& arguments) {
 
 std::string WGSLCodeGenerator::assembleSimpleIntrinsic(std::string_view intrinsicName,
                                                        const FunctionCall& call) {
-    SkASSERT(!call.type().isVoid());
-
     // Invoke the function, passing each function argument.
     std::string expr = std::string(intrinsicName);
     expr.push_back('(');
@@ -2391,7 +2389,13 @@ std::string WGSLCodeGenerator::assembleSimpleIntrinsic(std::string_view intrinsi
     }
     expr.push_back(')');
 
-    return this->writeScratchLet(expr);
+    if (call.type().isVoid()) {
+        this->write(expr);
+        this->writeLine(";");
+        return std::string();
+    } else {
+        return this->writeScratchLet(expr);
+    }
 }
 
 std::string WGSLCodeGenerator::assembleVectorizedIntrinsic(std::string_view intrinsicName,
@@ -2746,7 +2750,9 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_sign_IntrinsicKind:
         case k_sin_IntrinsicKind:
         case k_sqrt_IntrinsicKind:
+        case k_storageBarrier_IntrinsicKind:
         case k_tan_IntrinsicKind:
+        case k_workgroupBarrier_IntrinsicKind:
         default:
             return this->assembleSimpleIntrinsic(call.function().name(), call);
     }
@@ -2857,10 +2863,7 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
 
     // Many intrinsics need to be rewritten in WGSL.
     if (func.isIntrinsic()) {
-        result = this->assembleIntrinsicCall(call, func.intrinsicKind(), parentPrecedence);
-        if (!result.empty()) {
-            return result;
-        }
+        return this->assembleIntrinsicCall(call, func.intrinsicKind(), parentPrecedence);
     }
 
     // We implement function out-parameters by declaring them as pointers. SkSL follows GLSL's

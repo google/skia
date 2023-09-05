@@ -1066,6 +1066,7 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_wgsl_tests",
     srcs = [
+        "compute/Barrier.compute",
         "shared/Derivatives.sksl",
         "shared/Optimizations.sksl",
         "shared/Switch.sksl",
