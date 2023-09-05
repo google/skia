@@ -52,6 +52,7 @@
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
+#include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -381,6 +382,7 @@ std::string_view pipeline_struct_prefix(ProgramKind kind) {
     if (ProgramConfig::IsFragment(kind)) {
         return "FS";
     }
+    // Compute programs don't have stage-in/stage-out pipeline structs.
     return "";
 }
 
@@ -1365,7 +1367,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     // FSIn/FSOut/VSIn/VSOut struct types that have been synthesized in generateCode(). An entry
     // point always has the same signature and acts as a trampoline to the user-defined main
     // function.
-    std::string outputType;
+    std::string_view outputType;
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
         this->write("@vertex fn main(");
         if (fPipelineInputCount > 0) {
@@ -1380,6 +1382,16 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         }
         this->writeLine(") -> FSOut {");
         outputType = "FSOut";
+    } else if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
+        // Compute programs don't have stage outputs, and stage inputs are not yet implemented.
+        this->write("@compute @workgroup_size(");
+        this->write(std::to_string(fLocalSizeX));
+        this->write(", ");
+        this->write(std::to_string(fLocalSizeY));
+        this->write(", ");
+        this->write(std::to_string(fLocalSizeZ));
+        this->write(") fn main(");
+        this->writeLine(") {");
     } else {
         fContext.fErrors->error(Position(), "program kind not supported");
         return;
@@ -1394,10 +1406,12 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         }
     }
 
-    // Declare the stage output struct.
-    this->write("var _stageOut: ");
-    this->write(outputType);
-    this->writeLine(";");
+    if (!outputType.empty()) {
+        // Declare the stage output struct.
+        this->write("var _stageOut: ");
+        this->write(outputType);
+        this->writeLine(";");
+    }
 
     // Generate assignment to sk_FragColor built-in if the user-defined main returns a color.
     if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
@@ -1409,7 +1423,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         }
     }
 
-    // Generate the function call to the user-defined main:
+    // Generate a function call to the user-defined main.
     this->write("_skslMain(");
     auto separator = SkSL::String::Separator();
     WGSLFunctionDependencies* deps = fRequirements.dependencies.find(&main.declaration());
@@ -1427,16 +1441,19 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     if (const Variable* v = main.declaration().getMainCoordsParameter()) {
         const Type& type = v->type();
         if (!type.matches(*fContext.fTypes.fFloat2)) {
-            fContext.fErrors->error(main.fPosition, "main function has unsupported parameter: "
-                                                    + type.description());
+            fContext.fErrors->error(main.fPosition, "main function has unsupported parameter: " +
+                                                    type.description());
             return;
         }
-
         this->write(separator());
         this->write("_stageIn.sk_FragCoord.xy");
     }
     this->writeLine(");");
-    this->writeLine("return _stageOut;");
+
+    if (!outputType.empty()) {
+        // Return the stage output struct.
+        this->writeLine("return _stageOut;");
+    }
 
     fIndentation--;
     this->writeLine("}");
@@ -3488,6 +3505,9 @@ void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kFunction:
             this->writeFunction(e.as<FunctionDefinition>());
             break;
+        case ProgramElement::Kind::kModifiers:
+            this->writeModifiersDeclaration(e.as<ModifiersDeclaration>());
+            break;
         default:
             SkDEBUGFAILF("unsupported program element: %s\n", e.description().c_str());
             break;
@@ -3571,6 +3591,25 @@ void WGSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     this->writeLine("struct " + type.displayName() + " {");
     this->writeFields(type.fields(), /*memoryLayout=*/nullptr);
     this->writeLine("};");
+}
+
+void WGSLCodeGenerator::writeModifiersDeclaration(const ModifiersDeclaration& modifiers) {
+    LayoutFlags flags = modifiers.layout().fFlags;
+    flags &= ~(LayoutFlag::kLocalSizeX | LayoutFlag::kLocalSizeY | LayoutFlag::kLocalSizeZ);
+    if (flags != LayoutFlag::kNone) {
+        fContext.fErrors->error(modifiers.position(), "unsupported declaration");
+        return;
+    }
+
+    if (modifiers.layout().fLocalSizeX >= 0) {
+        fLocalSizeX = modifiers.layout().fLocalSizeX;
+    }
+    if (modifiers.layout().fLocalSizeY >= 0) {
+        fLocalSizeY = modifiers.layout().fLocalSizeY;
+    }
+    if (modifiers.layout().fLocalSizeZ >= 0) {
+        fLocalSizeZ = modifiers.layout().fLocalSizeZ;
+    }
 }
 
 void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields, const MemoryLayout* memoryLayout) {

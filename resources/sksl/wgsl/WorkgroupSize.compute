@@ -1,0 +1,9 @@
+layout (local_size_x = 12, local_size_y = 34, local_size_z = 56) in;
+
+layout (webgpu, binding = 0) buffer Outputs {
+    int result;
+};
+
+void main() {
+    result = 1;
+}

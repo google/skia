@@ -1102,5 +1102,6 @@ skia_filegroup(
         "wgsl/UniformMatrices.sksl",
         "wgsl/UserDefinedPipelineIO.sksl",
         "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
+        "wgsl/WorkgroupSize.compute",
     ],
 )

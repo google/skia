@@ -47,6 +47,7 @@ class InterfaceBlock;
 enum IntrinsicKind : int8_t;
 struct Layout;
 class Literal;
+class ModifiersDeclaration;
 class OutputStream;
 class PostfixExpression;
 class PrefixExpression;
@@ -287,6 +288,7 @@ private:
     void writeProgramElement(const ProgramElement& e);
     void writeGlobalVarDeclaration(const GlobalVarDeclaration& d);
     void writeStructDefinition(const StructDefinition& s);
+    void writeModifiersDeclaration(const ModifiersDeclaration&);
 
     // Writes the WGSL struct fields for SkSL structs and interface blocks. Enforces WGSL address
     // space layout constraints
@@ -365,6 +367,9 @@ private:
     bool fHasUnconditionalReturn = false;
     bool fAtFunctionScope = false;
     int fConditionalScopeDepth = 0;
+    int fLocalSizeX = 1;
+    int fLocalSizeY = 1;
+    int fLocalSizeZ = 1;
 
     int fScratchCount = 0;
 };
