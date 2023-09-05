@@ -104,12 +104,7 @@ public:
     };
 
     SPIRVCodeGenerator(const Context* context, const Program* program, OutputStream* out)
-            : INHERITED(context, program, out)
-            , fDefaultLayout(MemoryLayout::Standard::k140)
-            , fCapabilities(0)
-            , fIdCount(1)
-            , fCurrentBlock(0)
-            , fSynthetics(/*builtin=*/true) {}
+            : INHERITED(context, program, out) {}
 
     bool generateCode() override;
 
@@ -170,15 +165,17 @@ private:
 
     SpvId getType(const Type& type);
 
-    SpvId getType(const Type& type, const MemoryLayout& layout);
+    SpvId getType(const Type& type, const Layout& typeLayout, const MemoryLayout& memoryLayout);
 
     SpvId getFunctionType(const FunctionDeclaration& function);
 
-    SpvId getFunctionParameterType(const Type& parameterType);
+    SpvId getFunctionParameterType(const Type& parameterType, const Layout& parameterLayout);
 
     SpvId getPointerType(const Type& type, SpvStorageClass_ storageClass);
 
-    SpvId getPointerType(const Type& type, const MemoryLayout& layout,
+    SpvId getPointerType(const Type& type,
+                         const Layout& typeLayout,
+                         const MemoryLayout& memoryLayout,
                          SpvStorageClass_ storageClass);
 
     skia_private::TArray<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
@@ -538,10 +535,10 @@ private:
     std::tuple<const Variable*, const Variable*> synthesizeTextureAndSampler(
             const Variable& combinedSampler);
 
-    const MemoryLayout fDefaultLayout;
+    const MemoryLayout fDefaultMemoryLayout{MemoryLayout::Standard::k140};
 
-    uint64_t fCapabilities;
-    SpvId fIdCount;
+    uint64_t fCapabilities = 0;
+    SpvId fIdCount = 1;
     SpvId fGLSLExtendedInstructions;
     struct Intrinsic {
         IntrinsicOpcodeKind opKind;
@@ -604,12 +601,12 @@ private:
     skia_private::TArray<SpvId> fStoreOps;
 
     // label of the current block, or 0 if we are not in a block
-    SpvId fCurrentBlock;
+    SpvId fCurrentBlock = 0;
     skia_private::TArray<SpvId> fBreakTarget;
     skia_private::TArray<SpvId> fContinueTarget;
     bool fWroteRTFlip = false;
     // holds variables synthesized during output, for lifetime purposes
-    SymbolTable fSynthetics;
+    SymbolTable fSynthetics{/*builtin=*/true};
     // Holds a list of uniforms that were declared as globals at the top-level instead of in an
     // interface block.
     UniformBuffer fUniformBuffer;

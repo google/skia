@@ -86,6 +86,7 @@ using namespace skia_private;
 
 constexpr int DEVICE_FRAGCOORDS_BUILTIN = -1000;
 constexpr int DEVICE_CLOCKWISE_BUILTIN  = -1001;
+static constexpr SkSL::Layout kDefaultTypeLayout;
 
 namespace SkSL {
 
@@ -985,7 +986,7 @@ SpvId SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memo
     Words words;
     words.push_back(Word::UniqueResult());
     for (const auto& f : type.fields()) {
-        words.push_back(this->getType(*f.fType, memoryLayout));
+        words.push_back(this->getType(*f.fType, f.fLayout, memoryLayout));
     }
     SpvId resultId = this->writeInstruction(SpvOpTypeStruct, words, fConstantBuffer);
     this->writeInstruction(SpvOpName, resultId, type.name(), fNameBuffer);
@@ -1046,10 +1047,31 @@ SpvId SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memo
 }
 
 SpvId SPIRVCodeGenerator::getType(const Type& type) {
-    return this->getType(type, fDefaultLayout);
+    return this->getType(type, kDefaultTypeLayout, fDefaultMemoryLayout);
 }
 
-SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
+static SpvImageFormat layout_flags_to_image_format(LayoutFlags flags) {
+    flags &= LayoutFlag::kAllPixelFormats;
+    switch (flags.value()) {
+        case (int)LayoutFlag::kRGBA8:
+            return SpvImageFormatRgba8;
+
+        case (int)LayoutFlag::kRGBA32F:
+            return SpvImageFormatRgba32f;
+
+        case (int)LayoutFlag::kR32F:
+            return SpvImageFormatR32f;
+
+        default:
+            return SpvImageFormatUnknown;
+    }
+
+    SkUNREACHABLE;
+}
+
+SpvId SPIRVCodeGenerator::getType(const Type& rawType,
+                                  const Layout& typeLayout,
+                                  const MemoryLayout& memoryLayout) {
     const Type* type = &rawType;
 
     switch (type->typeKind()) {
@@ -1083,27 +1105,29 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             return (SpvId)-1;
         }
         case Type::TypeKind::kVector: {
-            SpvId scalarTypeId = this->getType(type->componentType(), layout);
+            SpvId scalarTypeId = this->getType(type->componentType(), typeLayout, memoryLayout);
             return this->writeInstruction(
                     SpvOpTypeVector,
                     Words{Word::Result(), scalarTypeId, Word::Number(type->columns())},
                     fConstantBuffer);
         }
         case Type::TypeKind::kMatrix: {
-            SpvId vectorTypeId = this->getType(IndexExpression::IndexType(fContext, *type), layout);
+            SpvId vectorTypeId = this->getType(IndexExpression::IndexType(fContext, *type),
+                                               typeLayout,
+                                               memoryLayout);
             return this->writeInstruction(
                     SpvOpTypeMatrix,
                     Words{Word::Result(), vectorTypeId, Word::Number(type->columns())},
                     fConstantBuffer);
         }
         case Type::TypeKind::kArray: {
-            if (!layout.isSupported(*type)) {
+            if (!memoryLayout.isSupported(*type)) {
                 fContext.fErrors->error(type->fPosition, "type '" + type->displayName() +
                                                          "' is not permitted here");
                 return NA;
             }
-            size_t stride = layout.stride(*type);
-            SpvId typeId = this->getType(type->componentType(), layout);
+            size_t stride = memoryLayout.stride(*type);
+            SpvId typeId = this->getType(type->componentType(), typeLayout, memoryLayout);
             SpvId result = NA;
             if (type->isUnsizedArray()) {
                 result = this->writeInstruction(SpvOpTypeRuntimeArray,
@@ -1121,7 +1145,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             return result;
         }
         case Type::TypeKind::kStruct: {
-            return this->writeStruct(*type, layout);
+            return this->writeStruct(*type, memoryLayout);
         }
         case Type::TypeKind::kSeparateSampler: {
             return this->writeInstruction(SpvOpTypeSampler, Words{Word::Result()}, fConstantBuffer);
@@ -1130,21 +1154,21 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             if (SpvDimBuffer == type->dimensions()) {
                 fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
             }
-            SpvId imageTypeId = this->getType(type->textureType(), layout);
+            SpvId imageTypeId = this->getType(type->textureType(), typeLayout, memoryLayout);
             return this->writeInstruction(SpvOpTypeSampledImage,
                                           Words{Word::Result(), imageTypeId},
                                           fConstantBuffer);
         }
         case Type::TypeKind::kTexture: {
-            SpvId floatTypeId = this->getType(*fContext.fTypes.fFloat, layout);
-            int sampled = (type->textureAccess() == Type::TextureAccess::kSample) ? 1 : 2;
+            SpvId floatTypeId = this->getType(*fContext.fTypes.fFloat,
+                                              kDefaultTypeLayout,
+                                              memoryLayout);
 
-            // TODO(skia:293670098) SkSL doesn't provide a way to specify a pixel format. Until
-            // then, access an unsampled storage texture as rgba8 and pretend the underlying
-            // resource has a compatible format.
-            SpvImageFormat format = (sampled == 2 && type->dimensions() != SpvDimSubpassData)
-                                            ? SpvImageFormatRgba8
+            bool sampled = (type->textureAccess() == Type::TextureAccess::kSample);
+            SpvImageFormat format = (!sampled && type->dimensions() != SpvDimSubpassData)
+                                            ? layout_flags_to_image_format(typeLayout.fFlags)
                                             : SpvImageFormatUnknown;
+
             return this->writeInstruction(SpvOpTypeImage,
                                           Words{Word::Result(),
                                                 floatTypeId,
@@ -1152,7 +1176,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                                 Word::Number(type->isDepth()),
                                                 Word::Number(type->isArrayedTexture()),
                                                 Word::Number(type->isMultisampled()),
-                                                Word::Number(sampled),
+                                                Word::Number(sampled ? 1 : 2),
                                                 format},
                                           fConstantBuffer);
         }
@@ -1178,16 +1202,19 @@ SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
     words.push_back(this->getType(function.returnType()));
     for (const Variable* parameter : function.parameters()) {
         if (fUseTextureSamplerPairs && parameter->type().isSampler()) {
-            words.push_back(this->getFunctionParameterType(parameter->type().textureType()));
-            words.push_back(this->getFunctionParameterType(*fContext.fTypes.fSampler));
+            words.push_back(this->getFunctionParameterType(parameter->type().textureType(),
+                                                           parameter->layout()));
+            words.push_back(this->getFunctionParameterType(*fContext.fTypes.fSampler,
+                                                           kDefaultTypeLayout));
         } else {
-            words.push_back(this->getFunctionParameterType(parameter->type()));
+            words.push_back(this->getFunctionParameterType(parameter->type(), parameter->layout()));
         }
     }
     return this->writeInstruction(SpvOpTypeFunction, words, fConstantBuffer);
 }
 
-SpvId SPIRVCodeGenerator::getFunctionParameterType(const Type& parameterType) {
+SpvId SPIRVCodeGenerator::getFunctionParameterType(const Type& parameterType,
+                                                   const Layout& parameterLayout) {
     // glslang treats all function arguments as pointers whether they need to be or
     // not. I was initially puzzled by this until I ran bizarre failures with certain
     // patterns of function calls and control constructs, as exemplified by this minimal
@@ -1227,20 +1254,28 @@ SpvId SPIRVCodeGenerator::getFunctionParameterType(const Type& parameterType) {
     } else {
         storageClass = SpvStorageClassFunction;
     }
-    return this->getPointerType(parameterType, storageClass);
+    return this->getPointerType(parameterType,
+                                parameterLayout,
+                                this->memoryLayoutForStorageClass(storageClass),
+                                storageClass);
 }
 
 SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ storageClass) {
-    return this->getPointerType(
-            type, this->memoryLayoutForStorageClass(storageClass), storageClass);
+    return this->getPointerType(type,
+                                kDefaultTypeLayout,
+                                this->memoryLayoutForStorageClass(storageClass),
+                                storageClass);
 }
 
-SpvId SPIRVCodeGenerator::getPointerType(const Type& type, const MemoryLayout& layout,
+SpvId SPIRVCodeGenerator::getPointerType(const Type& type,
+                                         const Layout& typeLayout,
+                                         const MemoryLayout& memoryLayout,
                                          SpvStorageClass_ storageClass) {
-    return this->writeInstruction(
-            SpvOpTypePointer,
-            Words{Word::Result(), Word::Number(storageClass), this->getType(type, layout)},
-            fConstantBuffer);
+    return this->writeInstruction(SpvOpTypePointer,
+                                  Words{Word::Result(),
+                                        Word::Number(storageClass),
+                                        this->getType(type, typeLayout, memoryLayout)},
+                                  fConstantBuffer);
 }
 
 SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& out) {
@@ -2640,11 +2675,11 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                         *this,
                         memberId,
                         /*isMemoryObjectPointer=*/true,
-                        this->getType(type, this->memoryLayoutForVariable(var)),
+                        this->getType(type, kDefaultTypeLayout, this->memoryLayoutForVariable(var)),
                         precision,
                         SpvStorageClassUniform);
             }
-            SpvId typeId = this->getType(type, this->memoryLayoutForVariable(var));
+            SpvId typeId = this->getType(type, var.layout(), this->memoryLayoutForVariable(var));
             SpvId* entry = fVariableMap.find(&var);
             SkASSERTF(entry, "%s", expr.description().c_str());
             return std::make_unique<PointerLValue>(*this, *entry,
@@ -2666,7 +2701,9 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                     *this,
                     member,
                     /*isMemoryObjectPointer=*/false,
-                    this->getType(type, this->memoryLayoutForStorageClass(storageClass)),
+                    this->getType(type,
+                                  kDefaultTypeLayout,
+                                  this->memoryLayoutForStorageClass(storageClass)),
                     precision,
                     storageClass);
         }
@@ -3634,8 +3671,8 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
             fVariableMap.set(texture, textureId);
             fVariableMap.set(sampler, samplerId);
 
-            SpvId textureType = this->getFunctionParameterType(texture->type());
-            SpvId samplerType = this->getFunctionParameterType(sampler->type());
+            SpvId textureType = this->getFunctionParameterType(texture->type(), texture->layout());
+            SpvId samplerType = this->getFunctionParameterType(sampler->type(), kDefaultTypeLayout);
 
             this->writeInstruction(SpvOpFunctionParameter, textureType, textureId, out);
             this->writeInstruction(SpvOpFunctionParameter, samplerType, samplerId, out);
@@ -3643,7 +3680,7 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
             SpvId id = this->nextId(nullptr);
             fVariableMap.set(parameter, id);
 
-            SpvId type = this->getFunctionParameterType(parameter->type());
+            SpvId type = this->getFunctionParameterType(parameter->type(), parameter->layout());
             this->writeInstruction(SpvOpFunctionParameter, type, id, out);
         }
     }
@@ -3737,12 +3774,13 @@ void SPIRVCodeGenerator::writeFieldLayout(const Layout& layout, SpvId target, in
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForStorageClass(SpvStorageClass_ storageClass) {
     return storageClass == SpvStorageClassPushConstant ? MemoryLayout(MemoryLayout::Standard::k430)
-                                                       : fDefaultLayout;
+                                                       : fDefaultMemoryLayout;
 }
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) const {
     bool pushConstant = SkToBool(v.layout().fFlags & LayoutFlag::kPushConstant);
-    return pushConstant ? MemoryLayout(MemoryLayout::Standard::k430) : fDefaultLayout;
+    return pushConstant ? MemoryLayout(MemoryLayout::Standard::k430)
+                        : fDefaultMemoryLayout;
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTFlip) {
@@ -3804,7 +3842,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fWroteRTFlip = true;
         return result;
     }
-    SpvId typeId = this->getType(type, memoryLayout);
+    SpvId typeId = this->getType(type, kDefaultTypeLayout, memoryLayout);
     if (intfVar.layout().fBuiltin == -1) {
         // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
         // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"
@@ -3937,7 +3975,10 @@ SpvId SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind,
         layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
     }
 
-    SpvId typeId = this->getPointerType(type, storageClass);
+    SpvId typeId = this->getPointerType(type,
+                                        layout,
+                                        this->memoryLayoutForStorageClass(storageClass),
+                                        storageClass);
     this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
     this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
     this->writeLayout(layout, id, var.fPosition);
@@ -4438,12 +4479,10 @@ std::tuple<const Variable*, const Variable*> SPIRVCodeGenerator::synthesizeTextu
     SkASSERT(fUseTextureSamplerPairs);
     SkASSERT(combinedSampler.type().typeKind() == Type::TypeKind::kSampler);
 
-    const Layout& layout = combinedSampler.layout();
-
     auto data = std::make_unique<SynthesizedTextureSamplerPair>();
 
-    Layout texLayout = layout;
-    texLayout.fBinding = layout.fTexture;
+    Layout texLayout = combinedSampler.layout();
+    texLayout.fBinding = texLayout.fTexture;
     data->fTextureName = std::string(combinedSampler.name()) + "_texture";
 
     auto texture = Variable::Make(/*pos=*/Position(),
@@ -4456,8 +4495,9 @@ std::tuple<const Variable*, const Variable*> SPIRVCodeGenerator::synthesizeTextu
                                   /*builtin=*/false,
                                   Variable::Storage::kGlobal);
 
-    Layout samplerLayout = layout;
-    samplerLayout.fBinding = layout.fSampler;
+    Layout samplerLayout = combinedSampler.layout();
+    samplerLayout.fBinding = samplerLayout.fSampler;
+    samplerLayout.fFlags &= ~LayoutFlag::kAllPixelFormats;
     data->fSamplerName = std::string(combinedSampler.name()) + "_sampler";
 
     auto sampler = Variable::Make(/*pos=*/Position(),

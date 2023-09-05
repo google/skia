@@ -31,7 +31,7 @@
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
 %sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
       %float = OpTypeFloat 32
-          %9 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+          %9 = OpTypeImage %float 2D 0 0 0 2 Rgba32f
 %_ptr_UniformConstant_9 = OpTypePointer UniformConstant %9
       %texIn = OpVariable %_ptr_UniformConstant_9 UniformConstant
      %texOut = OpVariable %_ptr_UniformConstant_9 UniformConstant

@@ -30,7 +30,7 @@
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
-         %13 = OpTypeImage %float 2D 0 0 0 2 Rgba8
+         %13 = OpTypeImage %float 2D 0 0 0 2 R32f
 %_ptr_UniformConstant_13 = OpTypePointer UniformConstant %13
    %aTexture = OpVariable %_ptr_UniformConstant_13 UniformConstant
          %16 = OpTypeImage %float 2D 0 0 0 1 Unknown
