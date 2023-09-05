@@ -352,6 +352,13 @@ public:
     }
 
     /**
+     * Returns true if this is a storage texture.
+     */
+    bool isStorageTexture() const {
+        return fTypeKind == TypeKind::kTexture && this->dimensions() != SpvDimSubpassData;
+    }
+
+    /**
      * Returns the "priority" of a number type, in order of float > half > int > short.
      * When operating on two number types, the result is the higher-priority type.
      */
@@ -451,17 +458,17 @@ public:
     }
 
     virtual SpvDim_ dimensions() const {
-        SkASSERT(false);
+        SkDEBUGFAIL("Internal error: not a texture type");
         return SpvDim1D;
     }
 
     virtual bool isDepth() const {
-        SkASSERT(false);
+        SkDEBUGFAIL("Internal error: not a texture type");
         return false;
     }
 
     virtual bool isArrayedTexture() const {
-        SkASSERT(false);
+        SkDEBUGFAIL("Internal error: not a texture type");
         return false;
     }
 

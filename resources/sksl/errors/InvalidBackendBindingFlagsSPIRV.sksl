@@ -1,18 +1,26 @@
 // Valid declarations:
-layout(vulkan, set=0, binding=0) uniform ubo { float a; };       // valid
-layout(vulkan, set=0, binding=0) buffer ssbo { float b; };       // valid
-layout(vulkan, set=0, binding=0) readonly texture2D rtexture1;   // valid
-layout(vulkan, set=0, binding=0) writeonly texture2D wtexture1;  // valid
-layout(vulkan, set=0, binding=0) sampler2D sampler1;             // valid
+layout(vulkan, input_attachment_index=0, set=0, binding=0) subpassInput subpass1; // valid
+layout(vulkan, set=0, binding=0) uniform ubo { float a; };                        // valid
+layout(vulkan, set=0, binding=0) buffer ssbo { float b; };                        // valid
+layout(vulkan, rgba32f, set=0, binding=0) readonly texture2D rtexture1;           // valid
+layout(vulkan, rgba32f, set=0, binding=0) writeonly texture2D wtexture1;          // valid
+layout(vulkan, set=0, binding=0) sampler2D sampler1;                              // valid
 
 // Invalid declarations:
-layout(vulkan, texture=0) readonly texture2D rtexture2;   // invalid
-layout(vulkan, texture=0) writeonly texture2D wtexture2;  // invalid
-layout(vulkan, texture=0, sampler=0) sampler2D sampler2;  // invalid
+layout(vulkan, rgba32f, input_attachment_index=0,
+       set=0, binding=0) subpassInput subpass2;                    // invalid (has pixformat)
+layout(vulkan, rgba32f, texture=0) readonly texture2D rtexture2;   // invalid (no set/binding)
+layout(vulkan, rgba32f, texture=0) writeonly texture2D wtexture2;  // invalid (no set/binding)
+layout(vulkan, set=0, binding=0) readonly texture2D rtexture3;     // invalid (no pixformat)
+layout(vulkan, set=0, binding=0) writeonly texture2D wtexture3;    // invalid (no pixformat)
+layout(vulkan, texture=0, sampler=0) sampler2D sampler2;           // invalid
 
 /*%%*
+layout qualifier 'rgba32f' is not permitted here
 layout qualifier 'texture' is not permitted here
 layout qualifier 'texture' is not permitted here
+storage textures must declare a pixel format
+storage textures must declare a pixel format
 layout qualifier 'texture' is not permitted here
 layout qualifier 'sampler' is not permitted here
 *%%*/

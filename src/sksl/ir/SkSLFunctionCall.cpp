@@ -1025,7 +1025,7 @@ static bool argument_and_parameter_flags_match(const Expression& argument,
     LayoutFlags paramPixelFormat = parameter.layout().fFlags & LayoutFlag::kAllPixelFormats;
     if (paramPixelFormat != LayoutFlag::kNone) {
         // The only SkSL type that supports pixel-format qualifiers is a storage texture.
-        if (parameter.type().typeKind() == Type::TypeKind::kTexture) {
+        if (parameter.type().isStorageTexture()) {
             // Storage textures are opaquely typed, so there's no way to specify one other than by
             // directly accessing a variable.
             if (!argument.is<VariableReference>()) {

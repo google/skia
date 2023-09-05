@@ -64,4 +64,7 @@ only one backend qualifier can be used
 only one pixel format qualifier can be used
 layout qualifier 'push_constant' is not permitted here
 layout qualifier 'set' is not permitted here
+layout qualifier 'rgba8' is not permitted here
+layout qualifier 'rgba32f' is not permitted here
+layout qualifier 'r32f' is not permitted here
 *%%*/

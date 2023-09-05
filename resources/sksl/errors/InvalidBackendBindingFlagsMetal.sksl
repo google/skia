@@ -1,25 +1,33 @@
 // Valid declarations:
-layout(metal, binding=0) uniform ubo1 { float a; };      // valid
-layout(metal, binding=0) buffer ssbo { float b; };       // valid
-layout(metal, texture=0) readonly texture2D rtexture1;   // valid
-layout(metal, texture=0) writeonly texture2D wtexture1;  // valid
-layout(metal, texture=0, sampler=0) sampler2D sampler1;  // valid
+layout(metal, binding=0) uniform ubo1 { float a; };               // valid
+layout(metal, binding=0) buffer ssbo { float b; };                // valid
+layout(metal, rgba32f, texture=0) readonly texture2D rtexture1;   // valid
+layout(metal, rgba32f, texture=0) writeonly texture2D wtexture1;  // valid
+layout(metal, texture=0, sampler=0) sampler2D sampler1;           // valid
 
 // TODO(skia:14023): This should require 'texture' once the metal backend supports it
-layout(metal, binding=0) readonly texture2D rtexture2;   // valid
-layout(metal, binding=0) writeonly texture2D wtexture2;  // valid
-layout(metal, binding=0) sampler2D sampler2;             // valid
+layout(metal, rgba32f, binding=0) readonly texture2D rtexture2;   // valid
+layout(metal, rgba32f, binding=0) writeonly texture2D wtexture2;  // valid
+layout(metal, binding=0) sampler2D sampler2;                      // valid
 
 // Invalid declarations:
-layout(metal, sampler=0) readonly texture2D rtexture3;              // invalid
-layout(metal, sampler=0) writeonly texture2D wtexture3;             // invalid
-layout(metal, binding=0, texture=0, sampler=0) sampler2D sampler3;  // invalid
-layout(metal, texture=0, sampler=0) ubo2 { float c; };              // invalid
-layout(metal, set=0, binding=0) ubo3 { float d; };                  // invalid
+layout(metal, rgba32f, sampler=0) readonly texture2D rtexture3;            // invalid (has sampler)
+layout(metal, rgba32f, sampler=0) writeonly texture2D wtexture3;           // invalid (has sampler)
+layout(metal, rgba32f, texture=0, sampler=0) readonly texture2D rtexture4; // invalid (has sampler)
+layout(metal, rgba32f, texture=0, sampler=0) writeonly texture2D wtexture4;// invalid (has sampler)
+layout(metal, texture=0) readonly texture2D rtexture5;                     // invalid (no pixformat)
+layout(metal, texture=0) writeonly texture2D wtexture5;                    // invalid (no pixformat)
+layout(metal, binding=0, texture=0, sampler=0) sampler2D sampler3;         // invalid (has binding)
+layout(metal, texture=0, sampler=0) ubo2 { float c; };                     // invalid (has tex/samp)
+layout(metal, set=0, binding=0) ubo3 { float d; };                         // invalid (has set)
 
 /*%%*
 layout qualifier 'sampler' is not permitted here
 layout qualifier 'sampler' is not permitted here
+layout qualifier 'sampler' is not permitted here
+layout qualifier 'sampler' is not permitted here
+storage textures must declare a pixel format
+storage textures must declare a pixel format
 'binding' modifier cannot coexist with 'texture'/'sampler'
 layout qualifier 'texture' is not permitted here
 layout qualifier 'sampler' is not permitted here

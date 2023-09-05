@@ -75,4 +75,13 @@ layout (
 error: 1: layout qualifier 'set' is not permitted here
 layout (
 ^^^^^^^^...
-25 errors
+error: 1: layout qualifier 'rgba8' is not permitted here
+layout (
+^^^^^^^^...
+error: 1: layout qualifier 'rgba32f' is not permitted here
+layout (
+^^^^^^^^...
+error: 1: layout qualifier 'r32f' is not permitted here
+layout (
+^^^^^^^^...
+28 errors
