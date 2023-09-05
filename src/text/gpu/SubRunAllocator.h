@@ -130,9 +130,9 @@ private:
     // kAllocationAlignment accounts for this difference. For more information see:
     // https://github.com/emscripten-core/emscripten/issues/10072
     #if !defined(SK_FORCE_8_BYTE_ALIGNMENT)
-        inline static constexpr int kAllocationAlignment = alignof(std::max_align_t);
+        static constexpr int kAllocationAlignment = alignof(std::max_align_t);
     #else
-        inline static constexpr int kAllocationAlignment = 8;
+        static constexpr int kAllocationAlignment = 8;
     #endif
 
     static constexpr size_t AlignUp(int size, int alignment) {
