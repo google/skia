@@ -34,23 +34,13 @@ SHADER_FILES = [
     "SkTransformShader.h",
     "SkTriColorShader.cpp",
     "SkTriColorShader.h",
-]
-
-split_srcs_and_hdrs(
-    name = "shader",
-    files = SHADER_FILES,
-)
-
-# Maintain SkPicture files in separate skia_filegroups so that the legacy
-# skia_skpicture_sources GNI file list can be created.
-SKPICTURE_FILES = [
     "SkPictureShader.cpp",
     "SkPictureShader.h",
 ]
 
 split_srcs_and_hdrs(
-    name = "skpicture",
-    files = SKPICTURE_FILES,
+    name = "shader",
+    files = SHADER_FILES,
 )
 
 bool_flag(
@@ -62,7 +52,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         ":shader_srcs",
-        ":skpicture_srcs",
         "//src/shaders/gradients:srcs",
     ],
     visibility = ["//src:__pkg__"],
@@ -72,7 +61,6 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":shader_hdrs",
-        ":skpicture_hdrs",
         "//src/shaders/gradients:private_hdrs",
     ],
     visibility = ["//src:__pkg__"],

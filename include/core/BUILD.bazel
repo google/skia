@@ -4,17 +4,6 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-# Maintain SkPicture files in separate skia_filegroup so that the legacy
-# skia_skpicture_public GNI file list can be created.
-skia_filegroup(
-    name = "skpicture_public_hdrs",
-    srcs = [
-        "SkPicture.h",
-        "SkPictureRecorder.h",
-    ],
-    visibility = ["//include:__pkg__"],
-)
-
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
@@ -73,6 +62,8 @@ skia_filegroup(
         "SkPathMeasure.h",
         "SkPathTypes.h",
         "SkPathUtils.h",
+        "SkPicture.h",
+        "SkPictureRecorder.h",
         "SkPixelRef.h",
         "SkPixmap.h",
         "SkPoint.h",
@@ -106,7 +97,6 @@ skia_filegroup(
         "SkVertices.h",
         "SkYUVAInfo.h",
         "SkYUVAPixmaps.h",
-        ":skpicture_public_hdrs",
     ],
     visibility = ["//include:__pkg__"],
 )

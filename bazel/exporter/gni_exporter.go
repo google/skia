@@ -76,10 +76,8 @@ var deprecatedFiles = []string{
 
 // The footer written to gn/core.gni.
 const coreGNIFooter = `skia_core_sources += skia_pathops_sources
-skia_core_sources += skia_skpicture_sources
 
 skia_core_public += skia_pathops_public
-skia_core_public += skia_skpicture_public
 `
 
 // The footer written to gn/sksl_tests.gni.

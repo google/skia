@@ -42,6 +42,8 @@ CORE_FILES = [
     "SkAutoPixmapStorage.cpp",
     "SkAutoPixmapStorage.h",
     "SkBBHFactory.cpp",
+    "SkBigPicture.cpp",
+    "SkBigPicture.h",
     "SkBitmap.cpp",
     "SkBitmapCache.cpp",
     "SkBitmapCache.h",
@@ -209,8 +211,8 @@ CORE_FILES = [
     "SkNextID.h",
     "SkOSFile.h",
     "SkOpts.cpp",
-    "SkOptsTargets.h",
     "SkOpts.h",
+    "SkOptsTargets.h",
     "SkOverdrawCanvas.cpp",
     "SkPaint.cpp",
     "SkPaintDefaults.h",
@@ -228,7 +230,17 @@ CORE_FILES = [
     "SkPathRef.cpp",
     "SkPathUtils.cpp",
     "SkPath_serial.cpp",
+    "SkPicture.cpp",
+    "SkPictureData.cpp",
+    "SkPictureData.h",
+    "SkPictureFlat.cpp",
+    "SkPictureFlat.h",
+    "SkPicturePlayback.cpp",
+    "SkPicturePlayback.h",
     "SkPicturePriv.h",
+    "SkPictureRecord.cpp",
+    "SkPictureRecord.h",
+    "SkPictureRecorder.cpp",
     "SkPixelRef.cpp",
     "SkPixelRefPriv.h",
     "SkPixmap.cpp",
@@ -265,6 +277,10 @@ CORE_FILES = [
     "SkRecordOpts.cpp",
     "SkRecordOpts.h",
     "SkRecordPattern.h",
+    "SkRecordedDrawable.cpp",
+    "SkRecordedDrawable.h",
+    "SkRecorder.cpp",
+    "SkRecorder.h",
     "SkRecords.cpp",
     "SkRecords.h",
     "SkRect.cpp",
@@ -369,38 +385,11 @@ skia_filegroup(
     ],
 )
 
-# SkPicture files are maintained as a separate skia_filegroups for backward compatability
-# with GNI files. This allows the generation of skia_skpicture_sources GNI file list.
-SKPICTURE_FILES = [
-    "SkBigPicture.cpp",
-    "SkBigPicture.h",
-    "SkPicture.cpp",
-    "SkPictureData.cpp",
-    "SkPictureData.h",
-    "SkPictureFlat.cpp",
-    "SkPictureFlat.h",
-    "SkPicturePlayback.cpp",
-    "SkPicturePlayback.h",
-    "SkPictureRecord.cpp",
-    "SkPictureRecord.h",
-    "SkPictureRecorder.cpp",
-    "SkRecordedDrawable.cpp",
-    "SkRecordedDrawable.h",
-    "SkRecorder.cpp",
-    "SkRecorder.h",
-]
-
-split_srcs_and_hdrs(
-    name = "skpicture",
-    files = SKPICTURE_FILES,
-)
-
 skia_filegroup(
     name = "srcs",
     srcs = [
         ":_core_srcs",
         ":core_skslc_srcs",
-        ":skpicture_srcs",
     ],
     visibility = ["//src:__pkg__"],
 )
@@ -410,7 +399,6 @@ skia_filegroup(
     srcs = [
         ":_core_hdrs",
         ":core_skslc_hdrs",
-        ":skpicture_hdrs",
     ],
     visibility = ["//src:__pkg__"],
 )
