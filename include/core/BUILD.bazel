@@ -99,6 +99,7 @@ skia_filegroup(
         "SkTextureCompressionType.h",
         "SkTileMode.h",
         "SkTiledImageUtils.h",
+        "SkTime.h",
         "SkTraceMemoryDump.h",
         "SkTypeface.h",
         "SkTypes.h",

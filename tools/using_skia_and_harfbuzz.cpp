@@ -187,8 +187,8 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStrea
     pdf_info.fKeywords = config.keywords.value.c_str();
     pdf_info.fCreator = config.creator.value.c_str();
     #if 0
-        SkPDF::DateTime now;
-        SkPDFUtils::GetDateTime(&now);
+        SkTime::DateTime now;
+        SkTime::GetDateTime(&now);
         pdf_info.fCreation = now;
         pdf_info.fModified = now;
         pdf_info.fPDFA = true;

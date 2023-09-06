@@ -4,9 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/core/SkTypes.h"
-
-#ifdef SK_SUPPORT_PDF
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -18,9 +15,9 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
-#include "src/pdf/SkPDFUtils.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -45,8 +42,8 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     SkPDF::Metadata metadata;
     metadata.fTitle = "Example Tagged PDF";
     metadata.fCreator = "Skia";
-    SkPDF::DateTime now;
-    SkPDFUtils::GetDateTime(&now);
+    SkTime::DateTime now;
+    SkTime::GetDateTime(&now);
     metadata.fCreation = now;
     metadata.fModified = now;
 
@@ -193,4 +190,3 @@ DEF_TEST(SkPDF_tagged_doc, r) {
 
     outputStream.flush();
 }
-#endif

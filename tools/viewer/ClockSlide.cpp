@@ -7,8 +7,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkTime.h"
 #include "src/base/SkRandom.h"
-#include "src/pdf/SkPDFUtils.h"
 #include "tools/viewer/Slide.h"
 
 // Implementation in C++ of Mozilla Canvas2D benchmark Canvas Clock Test
@@ -89,9 +89,8 @@ public:
         }
         canvas->restore();
 
-        // TODO(herb,kjlubick) Switch to std::chrono::system_clock
-        SkPDF::DateTime time;
-        SkPDFUtils::GetDateTime(&time);
+        SkTime::DateTime time;
+        SkTime::GetDateTime(&time);
         time.fHour = time.fHour >= 12 ? time.fHour-12 : time.fHour;
         paintFill.setColor(SK_ColorBLACK);
 
