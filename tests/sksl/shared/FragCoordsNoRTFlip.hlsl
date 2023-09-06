@@ -13,7 +13,7 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    sk_FragColor = float4(gl_FragCoord.xy.x, gl_FragCoord.xy.y, sk_FragColor.z, sk_FragColor.w);
+    sk_FragColor = float4(gl_FragCoord.yx.x, gl_FragCoord.yx.y, sk_FragColor.z, sk_FragColor.w);
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

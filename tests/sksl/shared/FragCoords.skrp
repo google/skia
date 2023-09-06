@@ -1,9 +1,9 @@
-7 instructions
+### Compilation failed:
 
-store_src_rg                   v0..1 = src.rg
-init_lane_masks                CondMask = LoopMask = RetMask = true
-store_device_xy01              sk_FragCoord = DeviceCoords.xy01
-copy_4_slots_unmasked          $0..3 = sk_FragCoord
-swizzle_2                      $0..1 = ($0..1).yx
-splat_2_constants              $2..3 = 0x3F800000 (1.0)
-load_src                       src.rgba = $0..3
+error: 1: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 2: unknown identifier 'sk_FragColor'
+    sk_FragColor.xy = half2(sk_FragCoord.yx);
+    ^^^^^^^^^^^^
+2 errors

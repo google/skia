@@ -126,17 +126,11 @@ public:
                                                WGSLFunctionDependencies>;
 
         ProgramRequirements() = default;
-        ProgramRequirements(DepsMap dependencies, bool mainNeedsCoordsArgument)
-                : dependencies(std::move(dependencies))
-                , mainNeedsCoordsArgument(mainNeedsCoordsArgument) {}
+        ProgramRequirements(DepsMap dependencies) : dependencies(std::move(dependencies)) {}
 
         // Mappings used to synthesize function parameters according to dependencies on pipeline
         // input/output variables.
         DepsMap dependencies;
-
-        // True, if the main function takes a coordinate parameter. This is used to ensure that
-        // sk_FragCoord is declared as part of pipeline inputs.
-        bool mainNeedsCoordsArgument;
     };
 
     WGSLCodeGenerator(const Context* context, const Program* program, OutputStream* out)

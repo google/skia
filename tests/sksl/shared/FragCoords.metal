@@ -15,6 +15,6 @@ struct sksl_synthetic_uniforms {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = half4(float4(float4(_fragCoord.x, _anonInterface0.u_skRTFlip.x + _anonInterface0.u_skRTFlip.y * _fragCoord.y, 0.0, _fragCoord.w).yx, 1.0, 1.0));
+    _out.sk_FragColor.xy = half2(float4(_fragCoord.x, _anonInterface0.u_skRTFlip.x + _anonInterface0.u_skRTFlip.y * _fragCoord.y, 0.0, _fragCoord.w).yx);
     return _out;
 }

@@ -29,7 +29,7 @@
        %main = OpFunction %void None %13
          %14 = OpLabel
          %15 = OpLoad %v4float %sk_FragCoord
-         %16 = OpVectorShuffle %v2float %15 %15 0 1
+         %16 = OpVectorShuffle %v2float %15 %15 1 0
          %18 = OpLoad %v4float %sk_FragColor
          %19 = OpVectorShuffle %v4float %18 %16 4 5 2 3
                OpStore %sk_FragColor %19

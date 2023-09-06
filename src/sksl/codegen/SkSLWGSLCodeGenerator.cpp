@@ -692,7 +692,6 @@ private:
 };
 
 WGSLCodeGenerator::ProgramRequirements resolve_program_requirements(const Program* program) {
-    bool mainNeedsCoordsArgument = false;
     WGSLCodeGenerator::ProgramRequirements::DepsMap dependencies;
 
     for (const ProgramElement* e : program->elements()) {
@@ -701,13 +700,12 @@ WGSLCodeGenerator::ProgramRequirements resolve_program_requirements(const Progra
         }
 
         const FunctionDeclaration& decl = e->as<FunctionDefinition>().declaration();
-        mainNeedsCoordsArgument |= (decl.getMainCoordsParameter() != nullptr);
 
         FunctionDependencyResolver resolver(program, &decl, &dependencies);
         dependencies.set(&decl, resolver.resolve());
     }
 
-    return WGSLCodeGenerator::ProgramRequirements(std::move(dependencies), mainNeedsCoordsArgument);
+    return WGSLCodeGenerator::ProgramRequirements(std::move(dependencies));
 }
 
 int count_pipeline_inputs(const Program* program) {
@@ -1460,8 +1458,12 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
             this->write("&_stageOut");
         }
     }
-    // TODO(armansito): Handle arbitrary parameters.
+
+#if defined(SKSL_STANDALONE)
     if (const Variable* v = main.declaration().getMainCoordsParameter()) {
+        // We are compiling a Runtime Effect as a fragment shader, for testing purposes.
+        // We need to synthesize a coordinates parameter, but the coordinates don't matter.
+        SkASSERT(ProgramConfig::IsFragment(fProgram.fConfig->fKind));
         const Type& type = v->type();
         if (!type.matches(*fContext.fTypes.fFloat2)) {
             fContext.fErrors->error(main.fPosition, "main function has unsupported parameter: " +
@@ -1469,8 +1471,10 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
             return;
         }
         this->write(separator());
-        this->write("_stageIn.sk_FragCoord.xy");
+        this->write("/*fragcoord*/ vec2<f32>()");
     }
+#endif
+
     this->writeLine(");");
 
     if (!outputType.empty()) {
@@ -3734,7 +3738,6 @@ void WGSLCodeGenerator::writeStageInputStruct() {
     this->writeLine("In {");
     fIndentation++;
 
-    bool declaredFragCoordsBuiltin = false;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const Variable* v = e->as<GlobalVarDeclaration>().declaration()
@@ -3742,9 +3745,6 @@ void WGSLCodeGenerator::writeStageInputStruct() {
             if (v->modifierFlags() & ModifierFlag::kIn) {
                 this->writePipelineIODeclaration(v->layout(), v->type(), v->mangledName(),
                                                  Delimiter::kComma);
-                if (v->layout().fBuiltin == SK_FRAGCOORD_BUILTIN) {
-                    declaredFragCoordsBuiltin = true;
-                }
             }
         } else if (e->is<InterfaceBlock>()) {
             const Variable* v = e->as<InterfaceBlock>().var();
@@ -3757,17 +3757,9 @@ void WGSLCodeGenerator::writeStageInputStruct() {
                 for (const auto& f : v->type().fields()) {
                     this->writePipelineIODeclaration(f.fLayout, *f.fType, f.fName,
                                                      Delimiter::kComma);
-                    if (f.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
-                        declaredFragCoordsBuiltin = true;
-                    }
                 }
             }
         }
-    }
-
-    if (ProgramConfig::IsFragment(fProgram.fConfig->fKind) &&
-        fRequirements.mainNeedsCoordsArgument && !declaredFragCoordsBuiltin) {
-        this->writeLine("@builtin(position) sk_FragCoord: vec4<f32>,");
     }
 
     fIndentation--;

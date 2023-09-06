@@ -1,9 +1,9 @@
 ### Compilation failed:
 
 error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
-void main() { sk_FragColor.xy = half2(sk_FragCoord.xy); }
+void main() {
 ^^^^^^^^^^^
-error: 3: unknown identifier 'sk_FragColor'
-void main() { sk_FragColor.xy = half2(sk_FragCoord.xy); }
-              ^^^^^^^^^^^^
+error: 4: unknown identifier 'sk_FragColor'
+    sk_FragColor.xy = half2(sk_FragCoord.yx);
+    ^^^^^^^^^^^^
 2 errors

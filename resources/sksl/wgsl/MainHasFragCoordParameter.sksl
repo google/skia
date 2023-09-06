@@ -1,3 +1,0 @@
-half4 main(float2 coords) {
-    return half4(coords.x, coords.y, 1, 1);
-}
