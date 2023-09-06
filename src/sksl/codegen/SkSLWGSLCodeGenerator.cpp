@@ -2508,8 +2508,9 @@ std::string WGSLCodeGenerator::assembleBinaryOpIntrinsic(Operator op,
 std::string WGSLCodeGenerator::assemblePartialSampleCall(std::string_view functionName,
                                                          const Expression& sampler,
                                                          const Expression& coords) {
-    // This function returns `functionName(samplerᵗ, samplerˢ, coords` without a terminating
-    // comma or close-parenthesis. This allows the caller to add more arguments as needed.
+    // This function returns `functionName(inSampler_texture, inSampler_sampler, coords` without a
+    // terminating comma or close-parenthesis. This allows the caller to add more arguments as
+    // needed.
     SkASSERT(sampler.type().typeKind() == Type::TypeKind::kSampler);
     std::string expr = std::string(functionName) + '(';
     expr += this->assembleExpression(sampler, Precedence::kSequence);
@@ -2706,13 +2707,6 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             }
             return this->assembleSimpleIntrinsic("refract", call);
 
-        case k_clamp_IntrinsicKind:
-        case k_max_IntrinsicKind:
-        case k_min_IntrinsicKind:
-        case k_smoothstep_IntrinsicKind:
-        case k_step_IntrinsicKind:
-            return this->assembleVectorizedIntrinsic(call.function().name(), call);
-
         case k_sample_IntrinsicKind: {
             // Determine if a bias argument was passed in.
             SkASSERT(arguments.size() == 2 || arguments.size() == 3);
@@ -2754,6 +2748,29 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             expr += ", " + this->assembleExpression(*arguments[3], Precedence::kSequence);
             return expr + ')';
         }
+        case k_textureHeight_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("textureDimensions", call) + ".y";
+
+        case k_textureRead_IntrinsicKind: {
+            // We need to inject an extra argument for the mip-level. We don't plan on using mipmaps
+            // in our storage textures, so we can just pass zero.
+            std::string tex = this->assembleExpression(*arguments[0], Precedence::kSequence);
+            std::string pos = this->writeScratchLet(*arguments[1], Precedence::kSequence);
+            return std::string("textureLoad(") + tex + ", " + pos + ", 0)";
+        }
+        case k_textureWidth_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("textureDimensions", call) + ".x";
+
+        case k_textureWrite_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("textureStore", call);
+
+        case k_clamp_IntrinsicKind:
+        case k_max_IntrinsicKind:
+        case k_min_IntrinsicKind:
+        case k_smoothstep_IntrinsicKind:
+        case k_step_IntrinsicKind:
+            return this->assembleVectorizedIntrinsic(call.function().name(), call);
+
         case k_abs_IntrinsicKind:
         case k_acos_IntrinsicKind:
         case k_all_IntrinsicKind:
