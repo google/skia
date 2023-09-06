@@ -1099,6 +1099,7 @@ skia_filegroup(
         "wgsl/OutParams.sksl",
         "wgsl/Sample.sksl",
         "wgsl/TernaryThenShortCircuit.sksl",
+        "wgsl/TextureIntrinsics.compute",
         "wgsl/UniformArrays.sksl",
         "wgsl/UniformMatrices.sksl",
         "wgsl/UserDefinedPipelineIO.sksl",

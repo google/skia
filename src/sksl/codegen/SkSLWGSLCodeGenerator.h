@@ -155,21 +155,24 @@ private:
     void write(std::string_view s);
     void writeLine(std::string_view s = std::string_view());
     void finishLine();
-    void writeVariableDecl(const Type& type, std::string_view name, Delimiter delimiter);
 
     // Helpers to declare a pipeline stage IO parameter declaration.
     void writePipelineIODeclaration(const Layout& layout,
                                     const Type& type,
                                     std::string_view name,
                                     Delimiter delimiter);
-    void writeUserDefinedIODecl(const Type& type,
+    void writeUserDefinedIODecl(const Layout& layout,
+                                const Type& type,
                                 std::string_view name,
-                                int location,
                                 Delimiter delimiter);
     void writeBuiltinIODecl(const Type& type,
                             std::string_view name,
                             Builtin builtin,
                             Delimiter delimiter);
+    void writeVariableDecl(const Layout& layout,
+                           const Type& type,
+                           std::string_view name,
+                           Delimiter delimiter);
 
     // Write a function definition.
     void writeFunction(const FunctionDefinition& f);
@@ -227,6 +230,8 @@ private:
     std::string assembleTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
     std::string assembleVariableReference(const VariableReference& r);
     std::string assembleName(std::string_view name);
+
+    std::string assembleIncrementExpr(const Type& type);
 
     // Intrinsic helper functions.
     std::string assembleIntrinsicCall(const FunctionCall& call,
