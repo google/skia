@@ -270,7 +270,7 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);

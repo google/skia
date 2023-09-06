@@ -236,10 +236,6 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
-SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
-    return Create(info, SkSurfaceProps());
-}
-
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
                                SkRasterHandleAllocator::Handle hndl)
         : SkDevice(bitmap.info(), surfaceProps)
@@ -250,9 +246,9 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
-SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
-                                       const SkSurfaceProps& surfaceProps,
-                                       SkRasterHandleAllocator* allocator) {
+sk_sp<SkBitmapDevice> SkBitmapDevice::Create(const SkImageInfo& origInfo,
+                                             const SkSurfaceProps& surfaceProps,
+                                             SkRasterHandleAllocator* allocator) {
     SkAlphaType newAT = origInfo.alphaType();
     if (!valid_for_bitmap_device(origInfo, &newAT)) {
         return nullptr;
@@ -285,7 +281,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
         }
     }
 
-    return new SkBitmapDevice(bitmap, surfaceProps, hndl);
+    return sk_make_sp<SkBitmapDevice>(bitmap, surfaceProps, hndl);
 }
 
 void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
@@ -294,7 +290,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     fBitmap = bm;   // intent is to use bm's pixelRef (and rowbytes/config)
 }
 
-SkDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+sk_sp<SkDevice> SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
 
     // Need to force L32 for now if we have an image filter.

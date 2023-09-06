@@ -1972,8 +1972,8 @@ void SkXPSDevice::drawDevice(SkDevice* dev, const SkSamplingOptions&, const SkPa
          "Could not add layer to current visuals.");
 }
 
-SkDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*) {
-    SkXPSDevice* dev = new SkXPSDevice(info.fInfo.dimensions());
+sk_sp<SkDevice> SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*) {
+    sk_sp<SkXPSDevice> dev = sk_make_sp<SkXPSDevice>(info.fInfo.dimensions());
     dev->fXpsFactory.reset(SkRefComPtr(fXpsFactory.get()));
     dev->fCurrentCanvasSize = this->fCurrentCanvasSize;
     dev->fCurrentUnitsPerMeter = this->fCurrentUnitsPerMeter;

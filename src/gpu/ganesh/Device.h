@@ -331,7 +331,7 @@ private:
 
     Device(std::unique_ptr<SurfaceDrawContext>, DeviceFlags);
 
-    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 

@@ -123,7 +123,8 @@ private:
 
     // Pixel management
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
-    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+
+    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     bool onReadPixels(const SkPixmap&, int x, int y) override;
 

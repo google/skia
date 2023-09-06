@@ -218,7 +218,7 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
     return Op(SkPath::Rect(bounds), invPath, kIntersect_SkPathOp, outPath);
 }
 
-SkDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+sk_sp<SkDevice> SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     // PDF does not support image filters, so render them on CPU.
     // Note that this rendering is done at "screen" resolution (100dpi), not
     // printer resolution.
@@ -229,7 +229,7 @@ SkDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* la
         // need to return a raster device, which we will detect in drawDevice()
         return SkBitmapDevice::Create(cinfo.fInfo, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     }
-    return new SkPDFDevice(cinfo.fInfo.dimensions(), fDocument);
+    return sk_make_sp<SkPDFDevice>(cinfo.fInfo.dimensions(), fDocument);
 }
 
 // A helper class to automatically finish a ContentEntry at the end of a

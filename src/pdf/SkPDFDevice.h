@@ -145,7 +145,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Set alpha to true if making a transparency group form x-objects.
     SkPDFIndirectReference makeFormXObjectFromDevice(bool alpha = false);

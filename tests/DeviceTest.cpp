@@ -49,7 +49,7 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(2*kWidth, 2*kHeight);
 
-    sk_sp<SkDevice> bmDev(SkBitmapDevice::Create(ii));
+    sk_sp<SkDevice> bmDev = SkBitmapDevice::Create(ii);
 
     SkBitmap bm;
     bm.tryAllocN32Pixels(kWidth, kHeight);

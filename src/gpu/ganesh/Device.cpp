@@ -1337,15 +1337,10 @@ void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDevice* Device::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
+sk_sp<SkDevice> Device::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     ASSERT_SINGLE_OWNER
 
     SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
-
-    // layers are never drawn in repeat modes, so we can request an approx
-    // match and ignore any padding.
-    SkBackingFit fit = kNever_TileUsage == cinfo.fTileUsage ? SkBackingFit::kApprox
-                                                            : SkBackingFit::kExact;
 
     SkASSERT(cinfo.fInfo.colorType() != kRGBA_1010102_SkColorType);
 
@@ -1353,7 +1348,7 @@ SkDevice* Device::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
             fContext.get(),
             SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
             fSurfaceDrawContext->colorInfo().refColorSpace(),
-            fit,
+            SkBackingFit::kApprox,
             cinfo.fInfo.dimensions(),
             props,
             fSurfaceDrawContext->numSamples(),
@@ -1368,7 +1363,7 @@ SkDevice* Device::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     // Skia's convention is to only clear a device if it is non-opaque.
     InitContents init = cinfo.fInfo.isOpaque() ? InitContents::kUninit : InitContents::kClear;
 
-    return Device::Make(std::move(sdc), cinfo.fInfo.alphaType(), init).release();
+    return Device::Make(std::move(sdc), cinfo.fInfo.alphaType(), init);
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {

@@ -358,10 +358,9 @@ SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
     return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
 }
 
-SkDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
+sk_sp<SkDevice> Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
     // TODO: Inspect the paint and create info to determine if there's anything that has to be
     // modified to support inline subpasses.
-    // TODO: onCreateDevice really should return sk_sp<SkDevice>...
     SkSurfaceProps props(this->surfaceProps().flags(), info.fPixelGeometry);
 
     // Skia's convention is to only clear a device if it is non-opaque.
@@ -372,8 +371,7 @@ SkDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
                 skgpu::Budgeted::kYes,
                 Mipmapped::kNo,
                 props,
-                addInitialClear)
-            .release();
+                addInitialClear);
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& props) {

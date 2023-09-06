@@ -53,13 +53,6 @@ public:
     SkBitmapDevice(const SkBitmap& bitmap);
 
     /**
-     * Create a new device along with its requisite pixel memory using
-     * default SkSurfaceProps (i.e., kLegacyFontHost_InitType-style).
-     * Note: this entry point is slated for removal - no one should call it.
-     */
-    static SkBitmapDevice* Create(const SkImageInfo& info);
-
-    /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
      *  any drawing to this device will have no effect.
@@ -67,7 +60,7 @@ public:
     SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
                    void* externalHandle = nullptr);
 
-    static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
+    static sk_sp<SkBitmapDevice> Create(const SkImageInfo&, const SkSurfaceProps&,
                                   SkRasterHandleAllocator* = nullptr);
 
 protected:
@@ -157,7 +150,7 @@ private:
     // width/height, so there should be no change to any clip information.
     void replaceBitmapBackendForRasterSurface(const SkBitmap&);
 
-    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
