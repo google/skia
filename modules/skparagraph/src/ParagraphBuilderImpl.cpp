@@ -36,7 +36,7 @@ std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection, std::unique_ptr<SkUnicode> unicode)
-        : ParagraphBuilder(style, fontCollection)
+        : ParagraphBuilder()
         , fUtf8()
         , fFontCollection(std::move(fontCollection))
         , fParagraphStyle(style)
@@ -46,12 +46,13 @@ ParagraphBuilderImpl::ParagraphBuilderImpl(
         , fUsingClientInfo(false)
 #endif
 {
+    SkASSERT(fFontCollection);
     startStyledBlock();
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilderImpl(style, fontCollection, SkUnicode::Make())
+        : ParagraphBuilderImpl(style, std::move(fontCollection), SkUnicode::Make())
 { }
 
 ParagraphBuilderImpl::~ParagraphBuilderImpl() = default;

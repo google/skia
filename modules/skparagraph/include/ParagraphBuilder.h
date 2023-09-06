@@ -16,9 +16,10 @@ namespace skia {
 namespace textlayout {
 
 class ParagraphBuilder {
-public:
-    ParagraphBuilder(const ParagraphStyle&, sk_sp<FontCollection>) { }
+protected:
+    ParagraphBuilder() {}
 
+public:
     virtual ~ParagraphBuilder() = default;
 
     // Push a style to the stack. The corresponding text added with AddText will

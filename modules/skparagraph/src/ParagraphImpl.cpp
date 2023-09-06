@@ -65,7 +65,9 @@ Paragraph::Paragraph(ParagraphStyle style, sk_sp<FontCollection> fonts)
             , fMinIntrinsicWidth(0)
             , fLongestLine(0)
             , fExceededMaxLines(0)
-{ }
+{
+    SkASSERT(fFontCollection);
+}
 
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
