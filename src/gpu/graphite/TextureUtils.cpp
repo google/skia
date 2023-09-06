@@ -86,11 +86,10 @@ sk_sp<SkSpecialImage> eval_blur(skgpu::graphite::Recorder* recorder,
                                 sk_sp<SkShader> blurEffect,
                                 const SkIRect& dstRect,
                                 SkColorType colorType,
-                                SkAlphaType alphaType,
                                 sk_sp<SkColorSpace> outCS,
                                 const SkSurfaceProps& outProps) {
     SkImageInfo outII = SkImageInfo::Make({dstRect.width(), dstRect.height()},
-                                          colorType, alphaType, std::move(outCS));
+                                          colorType, kPremul_SkAlphaType, std::move(outCS));
     auto surface = SkSpecialSurfaces::MakeGraphite(recorder, outII, outProps);
     if (!surface) {
         return nullptr;
@@ -127,7 +126,7 @@ sk_sp<SkSpecialImage> blur_2d(skgpu::graphite::Recorder* recorder,
                                                  SkMatrix::Translate(srcRect.left(),srcRect.top()));
 
     return eval_blur(recorder, builder.makeShader(), dstRect,
-                     input->colorType(), input->alphaType(), std::move(outCS), outProps);
+                     input->colorType(), std::move(outCS), outProps);
 }
 
 sk_sp<SkSpecialImage> blur_1d(skgpu::graphite::Recorder* recorder,
@@ -152,7 +151,7 @@ sk_sp<SkSpecialImage> blur_1d(skgpu::graphite::Recorder* recorder,
                                                  SkMatrix::Translate(srcRect.left(),srcRect.top()));
 
     return eval_blur(recorder, builder.makeShader(), dstRect,
-                     input->colorType(), input->alphaType(), std::move(outCS), outProps);
+                     input->colorType(), std::move(outCS), outProps);
 }
 
 sk_sp<SkSpecialImage> blur(skgpu::graphite::Recorder* recorder,
