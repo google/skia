@@ -101,12 +101,12 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
 
     // if we're clipped at all, we can't overwrite the entire surface
     {
-        const SkDevice* base = this->baseDevice();
+        const SkDevice* root = this->rootDevice();
         const SkDevice* top = this->topDevice();
-        if (base != top) {
+        if (root != top) {
             return false;   // we're in a saveLayer, so conservatively don't assume we'll overwrite
         }
-        if (!base->isClipWideOpen()) {
+        if (!root->isClipWideOpen()) {
             return false;
         }
     }
@@ -267,11 +267,11 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 
     // We're peering through a lot of structs here.  Only at this scope do we
     // know that the device is a SkNoPixelsDevice.
-    SkASSERT(fBaseDevice->isNoPixelsDevice());
-    fBaseDevice = sk_make_sp<SkNoPixelsDevice>(bounds,
-                                               fBaseDevice->surfaceProps(),
-                                               fBaseDevice->imageInfo().refColorSpace());
-    fMCRec->reset(fBaseDevice.get());
+    SkASSERT(fRootDevice->isNoPixelsDevice());
+    fRootDevice = sk_make_sp<SkNoPixelsDevice>(bounds,
+                                               fRootDevice->surfaceProps(),
+                                               fRootDevice->imageInfo().refColorSpace());
+    fMCRec->reset(fRootDevice.get());
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }
 
@@ -295,7 +295,7 @@ void SkCanvas::init(sk_sp<SkDevice> device) {
     SkASSERT(fProps.pixelGeometry() == device->surfaceProps().pixelGeometry());
 
     fSurfaceBase = nullptr;
-    fBaseDevice = std::move(device);
+    fRootDevice = std::move(device);
     fScratchGlyphRunBuilder = std::make_unique<sktext::GlyphRunBuilder>();
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }
@@ -346,7 +346,7 @@ SkSurface* SkCanvas::getSurface() const {
 }
 
 SkISize SkCanvas::getBaseLayerSize() const {
-    return this->baseDevice()->imageInfo().dimensions();
+    return this->rootDevice()->imageInfo().dimensions();
 }
 
 SkDevice* SkCanvas::topDevice() const {
@@ -355,7 +355,7 @@ SkDevice* SkCanvas::topDevice() const {
 }
 
 bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
-    return pm.addr() && this->baseDevice()->readPixels(pm, x, y);
+    return pm.addr() && this->rootDevice()->readPixels(pm, x, y);
 }
 
 bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowBytes, int x, int y) {
@@ -377,7 +377,7 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
 
 bool SkCanvas::writePixels(const SkImageInfo& srcInfo, const void* pixels, size_t rowBytes,
                            int x, int y) {
-    SkDevice* device = this->baseDevice();
+    SkDevice* device = this->rootDevice();
 
     // This check gives us an early out and prevents generation ID churn on the surface.
     // This is purely optional: it is a subset of the checks performed by SkWritePixelsRec.
@@ -1156,7 +1156,7 @@ sk_sp<SkSurface> SkCanvas::makeSurface(const SkImageInfo& info, const SkSurfaceP
 }
 
 sk_sp<SkSurface> SkCanvas::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
-    return this->baseDevice()->makeSurface(info, props);
+    return this->rootDevice()->makeSurface(info, props);
 }
 
 SkImageInfo SkCanvas::imageInfo() const {
@@ -1164,7 +1164,7 @@ SkImageInfo SkCanvas::imageInfo() const {
 }
 
 SkImageInfo SkCanvas::onImageInfo() const {
-    return this->baseDevice()->imageInfo();
+    return this->rootDevice()->imageInfo();
 }
 
 bool SkCanvas::getProps(SkSurfaceProps* props) const {
@@ -1195,7 +1195,7 @@ bool SkCanvas::peekPixels(SkPixmap* pmap) {
 }
 
 bool SkCanvas::onPeekPixels(SkPixmap* pmap) {
-    return this->baseDevice()->peekPixels(pmap);
+    return this->rootDevice()->peekPixels(pmap);
 }
 
 void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin) {
@@ -1354,7 +1354,7 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     // - Historically, the empty rect would reset the clip restriction but it only could do so
     //   partially since the device's clips wasn't adjusted. Resetting is now handled
     //   automatically via SkCanvas::restore(), so empty input rects are skipped.
-    SkASSERT(this->topDevice() == this->baseDevice()); // shouldn't be in a nested layer
+    SkASSERT(this->topDevice() == this->rootDevice()); // shouldn't be in a nested layer
     // and shouldn't already have a restriction
     SkASSERT(fClipRestrictionSaveCount < 0 && fClipRestrictionRect.isEmpty());
 
@@ -1379,7 +1379,7 @@ void SkCanvas::internal_private_resetClip() {
 
 void SkCanvas::onResetClip() {
     SkIRect deviceRestriction = this->topDevice()->imageInfo().bounds();
-    if (fClipRestrictionSaveCount >= 0 && this->topDevice() == this->baseDevice()) {
+    if (fClipRestrictionSaveCount >= 0 && this->topDevice() == this->rootDevice()) {
         // Respect the device clip restriction when resetting the clip if we're on the base device.
         // If we're not on the base device, then the "reset" applies to the top device's clip stack,
         // and the clip restriction will be respected automatically during a restore of the layer.

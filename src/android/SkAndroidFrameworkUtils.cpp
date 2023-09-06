@@ -19,7 +19,7 @@
 
 #if defined(SK_GANESH)
 bool SkAndroidFrameworkUtils::clipWithStencil(SkCanvas* canvas) {
-    return canvas->baseDevice()->android_utils_clipWithStencil();
+    return canvas->rootDevice()->android_utils_clipWithStencil();
 }
 #endif
 

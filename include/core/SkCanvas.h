@@ -2310,9 +2310,9 @@ private:
 
     // The bottom-most device in the stack, only changed by init(). Image properties and the final
     // canvas pixels are determined by this device.
-    SkDevice* baseDevice() const {
-        SkASSERT(fBaseDevice);
-        return fBaseDevice.get();
+    SkDevice* rootDevice() const {
+        SkASSERT(fRootDevice);
+        return fRootDevice.get();
     }
 
     // The top-most device in the stack, will change within saveLayer()'s. All drawing and clipping
@@ -2352,7 +2352,7 @@ private:
         std::unique_ptr<Layer> fLayer;
 
         // This points to the device of the top-most layer (which may be lower in the stack), or
-        // to the canvas's fBaseDevice. The MCRec does not own the device.
+        // to the canvas's fRootDevice. The MCRec does not own the device.
         SkDevice* fDevice;
 
         std::unique_ptr<BackImage> fBackImage;
@@ -2381,7 +2381,7 @@ private:
     MCRec*      fMCRec;
 
     // Installed via init()
-    sk_sp<SkDevice> fBaseDevice;
+    sk_sp<SkDevice> fRootDevice;
     const SkSurfaceProps fProps;
 
     int         fSaveCount;         // value returned by getSaveCount()

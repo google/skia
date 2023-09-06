@@ -28,7 +28,7 @@
 class SkPaint;
 
 SkTestCanvas<SkSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
-        : SkCanvas(sk_ref_sp(canvas->baseDevice())) {}
+        : SkCanvas(sk_ref_sp(canvas->rootDevice())) {}
 
 void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
@@ -48,7 +48,7 @@ void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
 }
 
 SkTestCanvas<SkSerializeSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
-        : SkCanvas(sk_ref_sp(canvas->baseDevice())) {}
+        : SkCanvas(sk_ref_sp(canvas->rootDevice())) {}
 
 void SkTestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
@@ -124,7 +124,7 @@ private:
 };
 
 SkTestCanvas<SkRemoteSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
-        : SkCanvas(sk_ref_sp(canvas->baseDevice()))
+        : SkCanvas(sk_ref_sp(canvas->rootDevice()))
         , fServerHandleManager(new ServerHandleManager{})
         , fClientHandleManager(new ClientHandleManager{})
         , fStrikeServer(fServerHandleManager.get())

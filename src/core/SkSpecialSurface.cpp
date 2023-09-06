@@ -37,13 +37,13 @@ SkSpecialSurface::SkSpecialSurface(sk_sp<SkDevice> device, const SkIRect& subset
 sk_sp<SkSpecialImage> SkSpecialSurface::makeImageSnapshot() {
     fCanvas->restoreToCount(0);
 
-    // Because of the above 'restoreToCount(0)' we know we're getting the base device here.
-    SkDevice* baseDevice = SkCanvasPriv::TopDevice(fCanvas.get());
-    if (!baseDevice) {
+    // Because of the above 'restoreToCount(0)' we know we're getting the root device here.
+    SkDevice* rootDevice = SkCanvasPriv::TopDevice(fCanvas.get());
+    if (!rootDevice) {
         return nullptr;
     }
 
-    sk_sp<SkSpecialImage> image = baseDevice->snapSpecial(this->subset());
+    sk_sp<SkSpecialImage> image = rootDevice->snapSpecial(this->subset());
 
     fCanvas.reset();
     return image;
