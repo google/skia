@@ -45,7 +45,7 @@ skia_filegroup(
         "SkColorData.h",
         "SkIDChangeListener.h",
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = ["//src/core:__pkg__"],
 )
 
 skia_filegroup(
@@ -55,5 +55,5 @@ skia_filegroup(
         # so we add it to core under srcs instead to enforce that.
         "SkPathRef.h",
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = ["//src/core:__pkg__"],
 )

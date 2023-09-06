@@ -60,7 +60,7 @@ filegroup(
         ":generated_base_header_cpps1",
         ":generated_base_header_cpps2",
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = ["//src/base:__pkg__"],
 )
 
 skia_filegroup(
@@ -77,6 +77,6 @@ skia_filegroup(
     ],
     visibility = [
         "//include/private:__pkg__",
-        "//src:__pkg__",
+        "//src/base:__pkg__",
     ],
 )

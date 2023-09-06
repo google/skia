@@ -152,5 +152,5 @@ skia_filegroup(
         "SkStrokeRec.h",
         "SkTypes.h",
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = ["//src/core:__pkg__"],
 )

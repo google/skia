@@ -360,7 +360,7 @@ skia_cc_library(
     srcs = [":malloc"],
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
-    deps = ["//src:base"],
+    deps = ["//src/base"],
 )
 
 skia_filegroup(
@@ -368,5 +368,5 @@ skia_filegroup(
     srcs = [
         ":skdebug",
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = ["//src/base:__pkg__"],
 )

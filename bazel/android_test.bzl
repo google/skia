@@ -13,7 +13,7 @@ def android_test(
         deps = [],
         flags = {},
         extra_args = [],
-        requires_condition = "//:always_true",
+        requires_condition = "//bazel/common_config_settings:always_true",
         requires_resources_dir = False,
         save_output_files = False):
     """Defines an Android test.

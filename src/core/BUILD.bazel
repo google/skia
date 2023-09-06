@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -358,7 +358,7 @@ CORE_FILES = [
 ]
 
 split_srcs_and_hdrs(
-    name = "core",
+    name = "_core",
     files = CORE_FILES,
 )
 
@@ -398,8 +398,8 @@ split_srcs_and_hdrs(
 skia_filegroup(
     name = "srcs",
     srcs = [
+        ":_core_srcs",
         ":core_skslc_srcs",
-        ":core_srcs",
         ":skpicture_srcs",
     ],
     visibility = ["//src:__pkg__"],
@@ -408,7 +408,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        ":core_hdrs",
+        ":_core_hdrs",
         ":core_skslc_hdrs",
         ":skpicture_hdrs",
     ],
@@ -433,7 +433,6 @@ skia_filegroup(
         "SkStreamPriv.h",
         "SkSwizzlePriv.h",
     ],
-    visibility = ["//src:__pkg__"],
 )
 
 skia_filegroup(
@@ -470,5 +469,35 @@ skia_filegroup(
         "SkString.cpp",
         "SkStringUtils.cpp",
     ],
-    visibility = ["//src:__pkg__"],
+)
+
+skia_cc_library(
+    name = "core",
+    srcs = [
+        ":buffet_hdrs",
+        ":buffet_srcs",
+        "//include/private:buffet_hdrs",
+        "//include/private:buffet_srcs",
+    ],
+    hdrs = ["//include/core:core_hdrs"],
+    features = ["layering_check"],
+    visibility = [
+        "//:__pkg__",
+        "//src:__subpackages__",
+    ],
+    deps = ["//src/base"],
+)
+
+skia_cc_library(
+    name = "core_priv",
+    hdrs = [
+        ":buffet_hdrs",
+        "//include/private:buffet_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//src:__subpackages__"],
+    deps = [
+        ":core",
+        "//src/base",
+    ],
 )
