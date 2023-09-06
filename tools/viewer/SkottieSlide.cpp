@@ -11,7 +11,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkTime.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/audioplayer/SkAudioPlayer.h"
@@ -21,6 +20,7 @@
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skottie/utils/TextEditor.h"
 #include "modules/skresources/include/SkResources.h"
+#include "src/base/SkTime.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"

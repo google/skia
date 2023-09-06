@@ -17,10 +17,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTDArray.h"
+#include "src/base/SkTime.h"
 
 #include <algorithm>
 #include <string>

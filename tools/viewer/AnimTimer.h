@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkScalar.h"
-#include "include/core/SkTime.h"
+#include "src/base/SkTime.h"
 
 #ifndef AnimTimer_DEFINED
 #define AnimTimer_DEFINED

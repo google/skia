@@ -13,13 +13,19 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkFixed.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/pdf/SkPDFResourceDict.h"
 #include "src/pdf/SkPDFTypes.h"
 
+#if defined(SK_BUILD_FOR_WIN)
+#include "src/base/SkLeanWindows.h"
+#endif
+
 #include <cmath>
+#include <ctime>
 
 const char* SkPDFUtils::BlendModeName(SkBlendMode mode) {
     // PDF32000.book section 11.3.5 "Blend Mode"
@@ -394,3 +400,41 @@ void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
     }
     content->writeText("cm\n");
 }
+
+
+#if defined(SK_BUILD_FOR_WIN)
+
+void SkPDFUtils::GetDateTime(SkPDF::DateTime* dt) {
+    if (dt) {
+        SYSTEMTIME st;
+        GetSystemTime(&st);
+        dt->fTimeZoneMinutes = 0;
+        dt->fYear       = st.wYear;
+        dt->fMonth      = SkToU8(st.wMonth);
+        dt->fDayOfWeek  = SkToU8(st.wDayOfWeek);
+        dt->fDay        = SkToU8(st.wDay);
+        dt->fHour       = SkToU8(st.wHour);
+        dt->fMinute     = SkToU8(st.wMinute);
+        dt->fSecond     = SkToU8(st.wSecond);
+    }
+}
+
+#else // SK_BUILD_FOR_WIN
+
+void SkPDFUtils::GetDateTime(SkPDF::DateTime* dt) {
+    if (dt) {
+        time_t m_time;
+        time(&m_time);
+        struct tm tstruct;
+        gmtime_r(&m_time, &tstruct);
+        dt->fTimeZoneMinutes = 0;
+        dt->fYear       = tstruct.tm_year + 1900;
+        dt->fMonth      = SkToU8(tstruct.tm_mon + 1);
+        dt->fDayOfWeek  = SkToU8(tstruct.tm_wday);
+        dt->fDay        = SkToU8(tstruct.tm_mday);
+        dt->fHour       = SkToU8(tstruct.tm_hour);
+        dt->fMinute     = SkToU8(tstruct.tm_min);
+        dt->fSecond     = SkToU8(tstruct.tm_sec);
+    }
+}
+#endif // SK_BUILD_FOR_WIN

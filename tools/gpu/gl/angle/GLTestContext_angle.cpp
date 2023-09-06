@@ -7,9 +7,9 @@
 
 #include "tools/gpu/gl/angle/GLTestContext_angle.h"
 
-#include "include/core/SkTime.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
+#include "src/base/SkTime.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
