@@ -153,10 +153,9 @@ private:
 
     class BDDraw;
 
-    // used to change the backend's pixels (and possibly config/rowbytes)
-    // but cannot change the width/height, so there should be no change to
-    // any clip information.
-    void replaceBitmapBackendForRasterSurface(const SkBitmap&) override;
+    // Used to change the backend's pixels (and possibly config/rowbytes) but cannot change the
+    // width/height, so there should be no change to any clip information.
+    void replaceBitmapBackendForRasterSurface(const SkBitmap&);
 
     SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 

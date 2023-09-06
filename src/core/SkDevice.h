@@ -463,6 +463,25 @@ protected:
     // Defaults to a CPU image filtering context.
     virtual skif::Context createContext(const skif::ContextInfo&) const;
 
+    // Configure the device's coordinate spaces, specifying both how its device image maps back to
+    // the global space (via 'deviceToGlobal') and the initial CTM of the device (via
+    // 'localToDevice', i.e. what geometry drawn into this device will be transformed with).
+    //
+    // (bufferOriginX, bufferOriginY) defines where the (0,0) pixel the device's backing buffer
+    // is anchored in the device space. The final device-to-global matrix stored by the SkDevice
+    // will include a pre-translation by T(deviceOriginX, deviceOriginY), and the final
+    // local-to-device matrix will have a post-translation of T(-deviceOriginX, -deviceOriginY).
+    void setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
+                                   const SkM44& globalToDevice,
+                                   const SkM44& localToDevice,
+                                   int bufferOriginX,
+                                   int bufferOriginY);
+    // Convenience to configure the device to be axis-aligned with the root canvas, but with a
+    // unique origin.
+    void setOrigin(const SkM44& globalCTM, int x, int y) {
+        this->setDeviceCoordinateSystem(SkM44(), SkM44(), globalCTM, x, y);
+    }
+
     // Returns whether or not localToDevice() has changed since the last call to this function.
     bool checkLocalToDeviceDirty() {
         bool wasDirty = fLocalToDeviceDirty;
@@ -484,42 +503,9 @@ private:
                                           const SkPaint& initialPaint,
                                           const SkPaint& drawingPaint);
 
-    // used to change the backend's pixels (and possibly config/rowbytes)
-    // but cannot change the width/height, so there should be no change to
-    // any clip information.
-    // TODO: move to SkBitmapDevice
-    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) {}
-
-    virtual bool forceConservativeRasterClip() const { return false; }
-
-    // Configure the device's coordinate spaces, specifying both how its device image maps back to
-    // the global space (via 'deviceToGlobal') and the initial CTM of the device (via
-    // 'localToDevice', i.e. what geometry drawn into this device will be transformed with).
-    //
-    // (bufferOriginX, bufferOriginY) defines where the (0,0) pixel the device's backing buffer
-    // is anchored in the device space. The final device-to-global matrix stored by the SkDevice
-    // will include a pre-translation by T(deviceOriginX, deviceOriginY), and the final
-    // local-to-device matrix will have a post-translation of T(-deviceOriginX, -deviceOriginY).
-    void setDeviceCoordinateSystem(const SkM44& deviceToGlobal,
-                                   const SkM44& globalToDevice,
-                                   const SkM44& localToDevice,
-                                   int bufferOriginX,
-                                   int bufferOriginY);
-    // Convenience to configure the device to be axis-aligned with the root canvas, but with a
-    // unique origin.
-    void setOrigin(const SkM44& globalCTM, int x, int y) {
-        this->setDeviceCoordinateSystem(SkM44(), SkM44(), globalCTM, x, y);
-    }
-
     virtual void onClipShader(sk_sp<SkShader>) = 0;
 
     virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }
-
-    friend class SkNoPixelsDevice;
-    friend class SkBitmapDevice;
-    void privateResize(int w, int h) {
-        *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
-    }
 
     const SkImageInfo    fInfo;
     const SkSurfaceProps fSurfaceProps;
@@ -547,13 +533,6 @@ public:
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props);
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props,
                      sk_sp<SkColorSpace> colorSpace);
-
-    void resetForNextPicture(const SkIRect& bounds) {
-        //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
-        this->privateResize(bounds.width(), bounds.height());
-        this->setOrigin(SkM44(), bounds.left(), bounds.top());
-        this->resetClipStack();
-    }
 
     // SkNoPixelsDevice tracks the clip conservatively in order to respond to some queries as
     // accurately as possible while emphasizing performance

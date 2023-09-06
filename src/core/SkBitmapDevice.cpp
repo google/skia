@@ -292,7 +292,6 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     SkASSERT(bm.width() == fBitmap.width());
     SkASSERT(bm.height() == fBitmap.height());
     fBitmap = bm;   // intent is to use bm's pixelRef (and rowbytes/config)
-    this->privateResize(fBitmap.info().width(), fBitmap.info().height());
 }
 
 SkDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {

@@ -19,7 +19,7 @@
 #include "include/core/SkSurface.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMath.h"
-#include "src/core/SkDevice.h"
+#include "src/core/SkBitmapDevice.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSurfacePriv.h"
@@ -145,7 +145,8 @@ bool SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         // what is being used by the image. Next we update the canvas to use
         // this as its backend, so we can't modify the image's pixels anymore.
         SkASSERT(this->getCachedCanvas());
-        this->getCachedCanvas()->baseDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
+        SkBitmapDevice* bmDev = static_cast<SkBitmapDevice*>(this->getCachedCanvas()->baseDevice());
+        bmDev->replaceBitmapBackendForRasterSurface(fBitmap);
     }
     return true;
 }

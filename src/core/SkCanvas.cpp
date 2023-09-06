@@ -268,7 +268,9 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     // We're peering through a lot of structs here.  Only at this scope do we
     // know that the device is a SkNoPixelsDevice.
     SkASSERT(fBaseDevice->isNoPixelsDevice());
-    static_cast<SkNoPixelsDevice*>(fBaseDevice.get())->resetForNextPicture(bounds);
+    fBaseDevice = sk_make_sp<SkNoPixelsDevice>(bounds,
+                                               fBaseDevice->surfaceProps(),
+                                               fBaseDevice->imageInfo().refColorSpace());
     fMCRec->reset(fBaseDevice.get());
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }

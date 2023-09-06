@@ -337,8 +337,6 @@ private:
 
     SkImageFilterCache* getImageFilterCache() override;
 
-    bool forceConservativeRasterClip() const override { return true; }
-
     void onClipShader(sk_sp<SkShader> shader) override {
         fClip.clipShader(std::move(shader));
     }
