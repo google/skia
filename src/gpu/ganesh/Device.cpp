@@ -344,10 +344,10 @@ void Device::clearAll() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Device::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+void Device::clipPath(const SkPath& path, SkClipOp op, bool aa) {
 #if defined(GR_TEST_UTILS)
     if (fContext->priv().options().fAllPathsVolatile && !path.isVolatile()) {
-        this->onClipPath(SkPath(path).setIsVolatile(true), op, aa);
+        this->clipPath(SkPath(path).setIsVolatile(true), op, aa);
         return;
     }
 #endif
@@ -355,7 +355,7 @@ void Device::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
     fClip.clipPath(this->localToDevice(), path, GrAA(aa), op);
 }
 
-void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
+void Device::clipRegion(const SkRegion& globalRgn, SkClipOp op) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
 
     // Regions don't actually need AA, but in DMSAA mode every clip element is antialiased.
@@ -372,7 +372,7 @@ void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
     }
 }
 
-void Device::onAsRgnClip(SkRegion* region) const {
+void Device::android_utils_clipAsRgn(SkRegion* region) const {
     SkIRect bounds = fClip.getConservativeBounds();
     // Assume wide open and then perform intersect/difference operations reducing the region
     region->setRect(bounds);
@@ -392,7 +392,7 @@ void Device::onAsRgnClip(SkRegion* region) const {
     }
 }
 
-bool Device::onClipIsAA() const {
+bool Device::isClipAntiAliased() const {
     for (const ClipStack::Element& e : fClip) {
         if (e.fAA == GrAA::kYes) {
             return true;
@@ -400,18 +400,6 @@ bool Device::onClipIsAA() const {
         SkASSERT(!fSurfaceDrawContext->alwaysAntialias());
     }
     return false;
-}
-
-SkDevice::ClipType Device::onGetClipType() const {
-    ClipStack::ClipState state = fClip.clipState();
-    if (state == ClipStack::ClipState::kEmpty) {
-        return ClipType::kEmpty;
-    } else if (state == ClipStack::ClipState::kDeviceRect ||
-               state == ClipStack::ClipState::kWideOpen) {
-        return ClipType::kRect;
-    } else {
-        return ClipType::kComplex;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1409,7 +1397,7 @@ SkImageFilterCache* Device::getImageFilterCache() {
 
 bool Device::android_utils_clipWithStencil() {
     SkRegion clipRegion;
-    this->onAsRgnClip(&clipRegion);
+    this->android_utils_clipAsRgn(&clipRegion);
     if (clipRegion.isEmpty()) {
         return false;
     }

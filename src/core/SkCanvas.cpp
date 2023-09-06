@@ -106,7 +106,7 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
         if (base != top) {
             return false;   // we're in a saveLayer, so conservatively don't assume we'll overwrite
         }
-        if (!base->clipIsWideOpen()) {
+        if (!base->isClipWideOpen()) {
             return false;
         }
     }
@@ -467,7 +467,7 @@ void SkCanvas::restoreToCount(int count) {
 void SkCanvas::internalSave() {
     fMCRec = new (fMCStack.push_back()) MCRec(fMCRec);
 
-    this->topDevice()->save();
+    this->topDevice()->pushClipStack();
 }
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
@@ -1100,7 +1100,8 @@ void SkCanvas::internalRestore() {
         return;
     }
 
-    this->topDevice()->restore(fMCRec->fMatrix);
+    this->topDevice()->popClipStack();
+    this->topDevice()->setGlobalCTM(fMCRec->fMatrix);
 
     if (backImage) {
         SkPaint paint;
@@ -1484,14 +1485,14 @@ void SkCanvas::validateClip() const {
 }
 
 bool SkCanvas::androidFramework_isClipAA() const {
-    return this->topDevice()->onClipIsAA();
+    return this->topDevice()->isClipAntiAliased();
 }
 
 void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
     rgn->setEmpty();
     SkDevice* device = this->topDevice();
     if (device && device->isPixelAlignedToGlobal()) {
-        device->onAsRgnClip(rgn);
+        device->android_utils_clipAsRgn(rgn);
         SkIPoint origin = device->getOrigin();
         if (origin.x() | origin.y()) {
             rgn->translate(origin.x(), origin.y());
@@ -1502,11 +1503,11 @@ void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::isClipEmpty() const {
-    return this->topDevice()->onGetClipType() == SkDevice::ClipType::kEmpty;
+    return this->topDevice()->isClipEmpty();
 }
 
 bool SkCanvas::isClipRect() const {
-    return this->topDevice()->onGetClipType() == SkDevice::ClipType::kRect;
+    return this->topDevice()->isClipRect();
 }
 
 bool SkCanvas::quickReject(const SkRect& src) const {
@@ -1565,7 +1566,7 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
 
 SkRect SkCanvas::computeDeviceClipBounds(bool outsetForAA) const {
     const SkDevice* dev = this->topDevice();
-    if (dev->onGetClipType() == SkDevice::ClipType::kEmpty) {
+    if (dev->isClipEmpty()) {
         return SkRect::MakeEmpty();
     } else {
         SkRect devClipBounds =
@@ -1922,7 +1923,7 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
     // The backimage location (and thus bounds) were defined in the device's space, so mark it
     // as a clip. We use a clip instead of just drawing a rect in case the paint has an image
     // filter on it (which is applied before any auto-layer so the filter is clipped).
-    dev->save();
+    dev->pushClipStack();
     {
         // We also have to temporarily whack the device matrix since clipRegion is affected by the
         // global-to-device matrix and clipRect is affected by the local-to-device.
@@ -1936,7 +1937,7 @@ void SkCanvas::onDrawBehind(const SkPaint& paint) {
         this->topDevice()->drawPaint(layer->paint());
     }
 
-    dev->restore(fMCRec->fMatrix);
+    dev->popClipStack();
 }
 
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {

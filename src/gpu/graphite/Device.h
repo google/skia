@@ -84,24 +84,30 @@ private:
     class IntersectionTreeSet;
 
     // Clipping
-    void onSave() override { fClip.save(); }
-    void onRestore() override { fClip.restore(); }
+    void pushClipStack() override { fClip.save(); }
+    void popClipStack() override { fClip.restore(); }
 
-    bool onClipIsWideOpen() const override {
+    bool isClipWideOpen() const override {
         return fClip.clipState() == ClipStack::ClipState::kWideOpen;
     }
-    bool onClipIsAA() const override;
-    ClipType onGetClipType() const override;
-    SkIRect onDevClipBounds() const override;
-    void onAsRgnClip(SkRegion*) const override;
+    bool isClipEmpty() const override {
+        return fClip.clipState() == ClipStack::ClipState::kEmpty;
+    }
+    bool isClipRect() const override {
+        return fClip.clipState() == ClipStack::ClipState::kDeviceRect ||
+               fClip.clipState() == ClipStack::ClipState::kWideOpen;
+    }
 
-    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
-    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
-    void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
+    bool isClipAntiAliased() const override;
+    SkIRect devClipBounds() const override;
+    void android_utils_clipAsRgn(SkRegion*) const override;
 
-    void onClipShader(sk_sp<SkShader> shader) override;
-    void onClipRegion(const SkRegion& globalRgn, SkClipOp) override;
-    void onReplaceClip(const SkIRect& rect) override;
+    void clipRect(const SkRect& rect, SkClipOp, bool aa) override;
+    void clipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
+    void clipPath(const SkPath& path, SkClipOp, bool aa) override;
+
+    void clipRegion(const SkRegion& globalRgn, SkClipOp) override;
+    void replaceClip(const SkIRect& rect) override;
 
     // Drawing
     void drawPaint(const SkPaint& paint) override;
@@ -155,7 +161,9 @@ private:
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
-    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
+    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy) override;
+
+    void onClipShader(sk_sp<SkShader> shader) override;
 
     skif::Context createContext(const skif::ContextInfo&) const override;
 

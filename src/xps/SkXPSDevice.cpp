@@ -1170,7 +1170,7 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
                                    bool transformRect,
                                    const SkPaint& paint) {
     //Exit early if there is nothing to draw.
-    if (this->onGetClipType() == ClipType::kEmpty || (paint.getAlpha() == 0 && paint.isSrcOver())) {
+    if (this->isClipEmpty() || (paint.getAlpha() == 0 && paint.isSrcOver())) {
         return;
     }
 
@@ -1490,8 +1490,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
     // nothing to draw
-    if (this->onGetClipType() == ClipType::kEmpty ||
-        (paint->getAlpha() == 0 && paint->isSrcOver())) {
+    if (this->isClipEmpty() || (paint->getAlpha() == 0 && paint->isSrcOver())) {
         return;
     }
 

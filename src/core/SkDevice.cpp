@@ -262,22 +262,16 @@ void SkDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], int co
         entryPaint.setAntiAlias(images[i].fAAFlags == SkCanvas::kAll_QuadAAFlags);
         entryPaint.setAlphaf(paint.getAlphaf() * images[i].fAlpha);
 
-        bool needsRestore = false;
         SkASSERT(images[i].fMatrixIndex < 0 || preViewMatrices);
         if (images[i].fMatrixIndex >= 0) {
-            this->save();
             this->setLocalToDevice(baseLocalToDevice *
                                    SkM44(preViewMatrices[images[i].fMatrixIndex]));
-            needsRestore = true;
         }
 
         SkASSERT(!images[i].fHasClip || dstClips);
         if (images[i].fHasClip) {
             // Since drawImageRect requires a srcRect, the dst clip is implemented as a true clip
-            if (!needsRestore) {
-                this->save();
-                needsRestore = true;
-            }
+            this->pushClipStack();
             SkPath clipPath;
             clipPath.addPoly(dstClips + clipIndex, 4, true);
             this->clipPath(clipPath, SkClipOp::kIntersect, entryPaint.isAntiAlias());
@@ -285,8 +279,11 @@ void SkDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], int co
         }
         this->drawImageRect(images[i].fImage.get(), &images[i].fSrcRect, images[i].fDstRect,
                             sampling, entryPaint, constraint);
-        if (needsRestore) {
-            this->restoreLocal(baseLocalToDevice);
+        if (images[i].fHasClip) {
+            this->popClipStack();
+        }
+        if (images[i].fMatrixIndex >= 0) {
+            this->setLocalToDevice(baseLocalToDevice);
         }
     }
 }
@@ -529,12 +526,12 @@ SkNoPixelsDevice::SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& 
     this->resetClipStack();
 }
 
-void SkNoPixelsDevice::onSave() {
+void SkNoPixelsDevice::pushClipStack() {
     SkASSERT(!fClipStack.empty());
     fClipStack.back().fDeferredSaveCount++;
 }
 
-void SkNoPixelsDevice::onRestore() {
+void SkNoPixelsDevice::popClipStack() {
     SkASSERT(!fClipStack.empty());
     if (fClipStack.back().fDeferredSaveCount > 0) {
         fClipStack.back().fDeferredSaveCount--;
@@ -559,17 +556,17 @@ SkNoPixelsDevice::ClipState& SkNoPixelsDevice::writableClip() {
     }
 }
 
-void SkNoPixelsDevice::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+void SkNoPixelsDevice::clipRect(const SkRect& rect, SkClipOp op, bool aa) {
     this->writableClip().op(op, this->localToDevice44(), rect,
                             aa, /*fillsBounds=*/true);
 }
 
-void SkNoPixelsDevice::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+void SkNoPixelsDevice::clipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
     this->writableClip().op(op, this->localToDevice44(), rrect.getBounds(),
                             aa, /*fillsBounds=*/rrect.isRect());
 }
 
-void SkNoPixelsDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+void SkNoPixelsDevice::clipPath(const SkPath& path, SkClipOp op, bool aa) {
     // Toggle op if the path is inverse filled
     if (path.isInverseFillType()) {
         op = (op == SkClipOp::kDifference ? SkClipOp::kIntersect : SkClipOp::kDifference);
@@ -578,7 +575,7 @@ void SkNoPixelsDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
                             aa, /*fillsBounds=*/false);
 }
 
-void SkNoPixelsDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
+void SkNoPixelsDevice::clipRegion(const SkRegion& globalRgn, SkClipOp op) {
     this->writableClip().op(op, this->globalToDevice(), SkRect::Make(globalRgn.getBounds()),
                             /*isAA=*/false, /*fillsBounds=*/globalRgn.isRect());
 }
@@ -587,7 +584,7 @@ void SkNoPixelsDevice::onClipShader(sk_sp<SkShader> shader) {
     this->writableClip().fIsRect = false;
 }
 
-void SkNoPixelsDevice::onReplaceClip(const SkIRect& rect) {
+void SkNoPixelsDevice::replaceClip(const SkIRect& rect) {
     SkIRect deviceRect = SkMatrixPriv::MapRect(this->globalToDevice(), SkRect::Make(rect)).round();
     if (!deviceRect.intersect(this->bounds())) {
         deviceRect.setEmpty();
@@ -596,17 +593,6 @@ void SkNoPixelsDevice::onReplaceClip(const SkIRect& rect) {
     clip.fClipBounds = deviceRect;
     clip.fIsRect = true;
     clip.fIsAA = false;
-}
-
-SkDevice::ClipType SkNoPixelsDevice::onGetClipType() const {
-    const auto& clip = this->clip();
-    if (clip.fClipBounds.isEmpty()) {
-        return ClipType::kEmpty;
-    } else if (clip.fIsRect) {
-        return ClipType::kRect;
-    } else {
-        return ClipType::kComplex;
-    }
 }
 
 void SkNoPixelsDevice::ClipState::op(SkClipOp op, const SkM44& transform, const SkRect& bounds,

@@ -105,6 +105,22 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    void pushClipStack() override;
+    void popClipStack() override;
+    void clipRect(const SkRect& rect, SkClipOp, bool aa) override;
+    void clipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
+    void clipPath(const SkPath& path, SkClipOp, bool aa) override;
+    void clipRegion(const SkRegion& deviceRgn, SkClipOp) override;
+    void replaceClip(const SkIRect& rect) override;
+    bool isClipAntiAliased() const override;
+    bool isClipEmpty() const override;
+    bool isClipRect() const override;
+    bool isClipWideOpen() const override;
+    void android_utils_clipAsRgn(SkRegion*) const override;
+    SkIRect devClipBounds() const override;
+
+    ///////////////////////////////////////////////////////////////////////////
+
     void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
                      const SkPaint&) override;
 
@@ -119,25 +135,11 @@ protected:
                             const sktext::GlyphRunList&,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
+
     bool onReadPixels(const SkPixmap&, int x, int y) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessPixels(SkPixmap*) override;
-
-    void onSave() override;
-    void onRestore() override;
-    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
-    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
-    void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
-    void onClipShader(sk_sp<SkShader>) override;
-    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
-    void onReplaceClip(const SkIRect& rect) override;
-    bool onClipIsAA() const override;
-    bool onClipIsWideOpen() const override;
-    void onAsRgnClip(SkRegion*) const override;
-    void validateDevBounds(const SkIRect& r) override;
-    ClipType onGetClipType() const override;
-    SkIRect onDevClipBounds() const override;
 
     void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                     const SkSamplingOptions&, const SkPaint&);
@@ -161,6 +163,8 @@ private:
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
     SkImageFilterCache* getImageFilterCache() override;
+
+    void onClipShader(sk_sp<SkShader>) override;
 
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;

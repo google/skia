@@ -501,7 +501,7 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Device::onClipIsAA() const {
+bool Device::isClipAntiAliased() const {
     // All clips are AA'ed unless it's wide-open, empty, or a device-rect with integer coordinates
     ClipStack::ClipState type = fClip.clipState();
     if (type == ClipStack::ClipState::kWideOpen || type == ClipStack::ClipState::kEmpty) {
@@ -515,24 +515,12 @@ bool Device::onClipIsAA() const {
     }
 }
 
-SkDevice::ClipType Device::onGetClipType() const {
-    ClipStack::ClipState state = fClip.clipState();
-    if (state == ClipStack::ClipState::kEmpty) {
-        return ClipType::kEmpty;
-    } else if (state == ClipStack::ClipState::kDeviceRect ||
-               state == ClipStack::ClipState::kWideOpen) {
-        return ClipType::kRect;
-    } else {
-        return ClipType::kComplex;
-    }
-}
-
-SkIRect Device::onDevClipBounds() const {
+SkIRect Device::devClipBounds() const {
     return rect_to_pixelbounds(fClip.conservativeBounds());
 }
 
 // TODO: This is easy enough to support, but do we still need this API in Skia at all?
-void Device::onAsRgnClip(SkRegion* region) const {
+void Device::android_utils_clipAsRgn(SkRegion* region) const {
     SkIRect bounds = this->devClipBounds();
     // Assume wide open and then perform intersect/difference operations reducing the region
     region->setRect(bounds);
@@ -551,20 +539,20 @@ void Device::onAsRgnClip(SkRegion* region) const {
     }
 }
 
-void Device::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+void Device::clipRect(const SkRect& rect, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
     // TODO: Snap rect edges to pixel bounds if non-AA and axis-aligned?
     fClip.clipShape(this->localToDeviceTransform(), Shape{rect}, op);
 }
 
-void Device::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+void Device::clipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
     // TODO: Snap rrect edges to pixel bounds if non-AA and axis-aligned? Is that worth doing to
     // seam with non-AA rects even if the curves themselves are AA'ed?
     fClip.clipShape(this->localToDeviceTransform(), Shape{rrect}, op);
 }
 
-void Device::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+void Device::clipPath(const SkPath& path, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
     // TODO: Ensure all path inspection is handled here or in SkCanvas, and that non-AA rects as
     // paths are routed appropriately.
@@ -577,7 +565,7 @@ void Device::onClipShader(sk_sp<SkShader> shader) {
 }
 
 // TODO: Is clipRegion() on the deprecation chopping block. If not it should be...
-void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
+void Device::clipRegion(const SkRegion& globalRgn, SkClipOp op) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
 
     Transform globalToDevice{this->globalToDevice()};
@@ -596,7 +584,7 @@ void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
     }
 }
 
-void Device::onReplaceClip(const SkIRect& rect) {
+void Device::replaceClip(const SkIRect& rect) {
     // ReplaceClip() is currently not intended to be supported in Graphite since it's only used
     // for emulating legacy clip ops in Android Framework, and apps/devices that require that
     // should not use Graphite. However, if it needs to be supported, we could probably implement
@@ -617,7 +605,7 @@ void Device::drawPaint(const SkPaint& paint) {
     // We never want to do a fullscreen clear on a fully-lazy render target, because the device size
     // may be smaller than the final surface we draw to, in which case we don't want to fill the
     // entire final surface.
-    if (this->clipIsWideOpen() && !fDC->target()->isFullyLazy()) {
+    if (this->isClipWideOpen() && !fDC->target()->isFullyLazy()) {
         if (!paint_depends_on_dst(paint)) {
             if (std::optional<SkColor4f> color = extract_paint_color(paint, fDC->colorInfo())) {
                 // do fullscreen clear
