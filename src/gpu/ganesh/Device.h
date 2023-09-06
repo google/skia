@@ -83,9 +83,9 @@ class SurfaceFillContext;
 class SurfaceDrawContext;
 
 /**
- *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the canvas.
+ *  Subclass of SkDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class Device final : public SkBaseDevice {
+class Device final : public SkDevice {
 public:
     enum class InitContents {
         kClear,
@@ -209,7 +209,7 @@ public:
 
     void drawDrawable(SkCanvas*, SkDrawable*, const SkMatrix*) override;
 
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
+    void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override;
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice, const SkSamplingOptions&,
                      const SkPaint&) override;
 
@@ -323,7 +323,7 @@ private:
 
     Device(std::unique_ptr<SurfaceDrawContext>, DeviceFlags);
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 

@@ -19,9 +19,9 @@
 #include <cstddef>
 
 class SkArenaAlloc;
-class SkBaseDevice;
 class SkBitmap;
 class SkBlender;
+class SkDevice;
 class SkGlyph;
 class SkGlyphRunListPainterCPU;
 class SkMatrix;
@@ -51,14 +51,14 @@ public:
     void paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& paint) const override;
 
     void drawPoints(SkCanvas::PointMode, size_t count, const SkPoint[],
-                       const SkPaint&, SkBaseDevice*) const;
+                    const SkPaint&, SkDevice*) const;
     /* If skipColorXform, skips color conversion when assigning per-vertex colors */
     void drawVertices(const SkVertices*,
                       sk_sp<SkBlender>,
                       const SkPaint&,
                       bool skipColorXform) const;
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
-                    sk_sp<SkBlender>, const SkPaint&);
+                   sk_sp<SkBlender>, const SkPaint&);
 
 #if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
     void drawDevMask(const SkMask& mask, const SkPaint&) const;

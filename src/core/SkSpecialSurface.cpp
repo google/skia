@@ -22,7 +22,7 @@
 #include <memory>
 #include <utility>
 
-SkSpecialSurface::SkSpecialSurface(sk_sp<SkBaseDevice> device, const SkIRect& subset)
+SkSpecialSurface::SkSpecialSurface(sk_sp<SkDevice> device, const SkIRect& subset)
         : fSubset(subset) {
     SkASSERT(fSubset.width() > 0);
     SkASSERT(fSubset.height() > 0);
@@ -38,7 +38,7 @@ sk_sp<SkSpecialImage> SkSpecialSurface::makeImageSnapshot() {
     fCanvas->restoreToCount(0);
 
     // Because of the above 'restoreToCount(0)' we know we're getting the base device here.
-    SkBaseDevice* baseDevice = SkCanvasPriv::TopDevice(fCanvas.get());
+    SkDevice* baseDevice = SkCanvasPriv::TopDevice(fCanvas.get());
     if (!baseDevice) {
         return nullptr;
     }
@@ -66,8 +66,8 @@ sk_sp<SkSpecialSurface> MakeRaster(const SkImageInfo& info,
     bitmap.setInfo(info, info.minRowBytes());
     bitmap.setPixelRef(std::move(pr), 0, 0);
 
-    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap,
-                                                  { props.flags(), kUnknown_SkPixelGeometry }));
+    sk_sp<SkDevice> device = sk_make_sp<SkBitmapDevice>(
+            bitmap, props.cloneWithPixelGeometry(kUnknown_SkPixelGeometry));
     if (!device) {
         return nullptr;
     }

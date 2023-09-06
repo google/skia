@@ -330,10 +330,10 @@ public:
 
     /** Specifies whether SkPath is volatile; whether it will be altered or discarded
         by the caller after it is drawn. SkPath by default have volatile set false, allowing
-        SkBaseDevice to attach a cache of data which speeds repeated drawing.
+        Skia to attach a cache of data which speeds repeated drawing.
 
         Mark temporary paths, discarded or modified after use, as volatile
-        to inform SkBaseDevice that the path need not be cached.
+        to inform Skia that the path need not be cached.
 
         Mark animating SkPath volatile to improve performance.
         Mark unchanging SkPath non-volatile to improve repeated rendering.

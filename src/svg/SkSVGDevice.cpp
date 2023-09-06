@@ -729,15 +729,16 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
     }
 }
 
-sk_sp<SkBaseDevice> SkSVGDevice::Make(const SkISize& size, std::unique_ptr<SkXMLWriter> writer,
-                                      uint32_t flags) {
-    return writer ? sk_sp<SkBaseDevice>(new SkSVGDevice(size, std::move(writer), flags))
+sk_sp<SkDevice> SkSVGDevice::Make(const SkISize& size,
+                                  std::unique_ptr<SkXMLWriter> writer,
+                                  uint32_t flags) {
+    return writer ? sk_sp<SkDevice>(new SkSVGDevice(size, std::move(writer), flags))
                   : nullptr;
 }
 
 SkSVGDevice::SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter> writer, uint32_t flags)
-    : INHERITED(SkImageInfo::MakeUnknown(size.fWidth, size.fHeight),
-                SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    : SkClipStackDevice(SkImageInfo::MakeUnknown(size.fWidth, size.fHeight),
+                        SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fWriter(std::move(writer))
     , fResourceBucket(new ResourceBucket)
     , fFlags(flags)

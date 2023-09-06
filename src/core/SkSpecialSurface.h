@@ -15,7 +15,7 @@
 
 #include <memory>
 
-class SkBaseDevice;
+class SkDevice;
 class SkSpecialImage;
 struct SkImageInfo;
 
@@ -29,7 +29,7 @@ struct SkImageInfo;
  */
 class SkSpecialSurface : public SkRefCnt {
 public:
-    SkSpecialSurface(sk_sp<SkBaseDevice>, const SkIRect& subset);
+    SkSpecialSurface(sk_sp<SkDevice>, const SkIRect& subset);
 
 #ifdef SK_DEBUG
     SkSurfaceProps props() const { return fCanvas->getBaseProps(); }

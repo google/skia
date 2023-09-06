@@ -315,7 +315,7 @@ static constexpr int kGridCellSize = 16;
 static constexpr int kMaxBruteForceN = 64;
 
 Device::Device(Recorder* recorder, sk_sp<DrawContext> dc, bool addInitialClear)
-        : SkBaseDevice(dc->imageInfo(), dc->surfaceProps())
+        : SkDevice(dc->imageInfo(), dc->surfaceProps())
         , fRecorder(recorder)
         , fDC(std::move(dc))
         , fClip(this)
@@ -358,10 +358,10 @@ SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
     return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
 }
 
-SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
+SkDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
     // TODO: Inspect the paint and create info to determine if there's anything that has to be
     // modified to support inline subpasses.
-    // TODO: onCreateDevice really should return sk_sp<SkBaseDevice>...
+    // TODO: onCreateDevice really should return sk_sp<SkDevice>...
     SkSurfaceProps props(this->surfaceProps().flags(), info.fPixelGeometry);
 
     // Skia's convention is to only clear a device if it is non-opaque.
@@ -515,7 +515,7 @@ bool Device::onClipIsAA() const {
     }
 }
 
-SkBaseDevice::ClipType Device::onGetClipType() const {
+SkDevice::ClipType Device::onGetClipType() const {
     ClipStack::ClipState state = fClip.clipState();
     if (state == ClipStack::ClipState::kEmpty) {
         return ClipType::kEmpty;
@@ -1329,12 +1329,6 @@ bool Device::needsFlushBeforeDraw(int numNewDraws, DstReadRequirement dstReadReq
             (DrawList::kMaxDraws - fDC->pendingDrawCount()) < numNewDraws ||
             // Need flush if this draw needs to copy the dst surface for reading.
             dstReadReq == DstReadRequirement::kTextureCopy;
-}
-
-void Device::drawDevice(SkBaseDevice* device,
-                        const SkSamplingOptions& sampling,
-                        const SkPaint& paint) {
-    this->SkBaseDevice::drawDevice(device, sampling, paint);
 }
 
 void Device::drawSpecial(SkSpecialImage* special,

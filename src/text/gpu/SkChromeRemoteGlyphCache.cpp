@@ -455,7 +455,7 @@ public:
         SkASSERT(fStrikeServerImpl != nullptr);
     }
 
-    SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
+    SkDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return new GlyphTrackingDevice(cinfo.fInfo.dimensions(), surfaceProps, fStrikeServerImpl,
                                        cinfo.fInfo.refColorSpace(), fSDFTControl);
@@ -542,11 +542,11 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
     auto control = sktext::gpu::SDFTControl{};
 #endif
 
-    sk_sp<SkBaseDevice> trackingDevice(new GlyphTrackingDevice(
+    sk_sp<SkDevice> trackingDevice = sk_make_sp<GlyphTrackingDevice>(
             SkISize::Make(width, height),
             props, this->impl(),
             std::move(colorSpace),
-            control));
+            control);
     return std::make_unique<SkCanvas>(std::move(trackingDevice));
 }
 

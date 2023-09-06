@@ -16,7 +16,7 @@
 
 #include <cstddef>
 
-class SkBaseDevice;
+class SkDevice;
 class SkImageFilter;
 class SkMatrix;
 class SkReadBuffer;
@@ -62,7 +62,7 @@ public:
         canvas->internal_private_resetClip();
     }
 
-    static SkBaseDevice* TopDevice(const SkCanvas* canvas) {
+    static SkDevice* TopDevice(const SkCanvas* canvas) {
         return canvas->topDevice();
     }
 

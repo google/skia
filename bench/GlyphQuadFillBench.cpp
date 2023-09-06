@@ -29,7 +29,7 @@ static const char* gText =
 class FillBench {};
 template <> class SkTestCanvas<FillBench> {
 public:
-    static SkBaseDevice* GetDevice(SkCanvas* canvas) {
+    static SkDevice* GetDevice(SkCanvas* canvas) {
         return canvas->topDevice();
     }
 };

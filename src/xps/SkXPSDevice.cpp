@@ -119,8 +119,8 @@ HRESULT SkXPSDevice::createId(wchar_t* buffer, size_t bufferSize, wchar_t sep) {
 }
 
 SkXPSDevice::SkXPSDevice(SkISize s)
-    : INHERITED(SkImageInfo::MakeUnknown(s.width(), s.height()),
-                SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    : SkClipStackDevice(SkImageInfo::MakeUnknown(s.width(), s.height()),
+                        SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fCurrentPage(0), fTopTypefaces(&fTypefaces) {}
 
 SkXPSDevice::~SkXPSDevice() {}
@@ -1166,14 +1166,11 @@ void SkXPSDevice::drawRRect(const SkRRect& rr,
     this->drawPath(path, paint, true);
 }
 
-static SkIRect size(const SkBaseDevice& dev) { return {0, 0, dev.width(), dev.height()}; }
-
 void SkXPSDevice::internalDrawRect(const SkRect& r,
                                    bool transformRect,
                                    const SkPaint& paint) {
     //Exit early if there is nothing to draw.
-    if (this->cs().isEmpty(size(*this)) ||
-        (paint.getAlpha() == 0 && paint.isSrcOver())) {
+    if (this->onGetClipType() == ClipType::kEmpty || (paint.getAlpha() == 0 && paint.isSrcOver())) {
         return;
     }
 
@@ -1493,7 +1490,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
     // nothing to draw
-    if (this->cs().isEmpty(size(*this)) ||
+    if (this->onGetClipType() == ClipType::kEmpty ||
         (paint->getAlpha() == 0 && paint->isSrcOver())) {
         return;
     }
@@ -1564,7 +1561,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
         this->convertToPpm(filter,
                            &matrix,
                            &ppuScale,
-                           this->cs().bounds(size(*this)).roundOut(),
+                           this->devClipBounds(),
                            &clipIRect);
 
         //[Fillable-path -> Pixel-path]
@@ -1690,7 +1687,7 @@ HRESULT SkXPSDevice::clip(IXpsOMVisual* xpsVisual) {
         return S_OK;
     }
     SkPath clipPath;
-    // clipPath.addRect(this->cs().bounds(size(*this)));
+    // clipPath.addRect(this->devClipBounds()));
     SkClipStack_AsPath(this->cs(), &clipPath);
     // TODO: handle all the kinds of paths, like drawPath does
     return this->clipToPath(xpsVisual, clipPath, XPS_FILL_RULE_EVENODD);
@@ -1958,7 +1955,7 @@ void SkXPSDevice::onDrawGlyphRunList(SkCanvas*,
     }
 }
 
-void SkXPSDevice::drawDevice(SkBaseDevice* dev, const SkSamplingOptions&, const SkPaint&) {
+void SkXPSDevice::drawDevice(SkDevice* dev, const SkSamplingOptions&, const SkPaint&) {
     SkXPSDevice* that = static_cast<SkXPSDevice*>(dev);
     SkASSERT(that->fTopTypefaces == this->fTopTypefaces);
 
@@ -1976,18 +1973,7 @@ void SkXPSDevice::drawDevice(SkBaseDevice* dev, const SkSamplingOptions&, const 
          "Could not add layer to current visuals.");
 }
 
-SkBaseDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*) {
-//Conditional for bug compatibility with PDF device.
-#if 0
-    if (SkBaseDevice::kGeneral_Usage == info.fUsage) {
-        return nullptr;
-        //To what stream do we write?
-        //SkXPSDevice* dev = new SkXPSDevice(this);
-        //SkSize s = SkSize::Make(width, height);
-        //dev->BeginCanvas(s, s, SkMatrix::I());
-        //return dev;
-    }
-#endif
+SkDevice* SkXPSDevice::onCreateDevice(const CreateInfo& info, const SkPaint*) {
     SkXPSDevice* dev = new SkXPSDevice(info.fInfo.dimensions());
     dev->fXpsFactory.reset(SkRefComPtr(fXpsFactory.get()));
     dev->fCurrentCanvasSize = this->fCurrentCanvasSize;

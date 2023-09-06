@@ -61,9 +61,30 @@ struct SkStrikeDeviceInfo {
     const sktext::gpu::SDFTControl* const fSDFTControl;
 };
 
-class SkBaseDevice : public SkRefCnt {
+/**
+ * SkDevice is the internal API and implementation that SkCanvas will use to perform rendering and
+ * implement the saveLayer abstraction. A device wraps some pixel allocation (for non-document based
+ * devices) or wraps some other container that stores rendering operations. The drawing operations
+ * perform equivalently to their corresponding functions in SkCanvas except that the canvas is
+ * responsible for all SkImageFilters. An image filter is applied by automatically creating a layer,
+ * drawing the filter-less paint into the layer, and then evaluating the filter on the layer's
+ * image.
+ *
+ * Each layer in an SkCanvas stack is represented by an SkDevice instance that was created by the
+ * parent SkDevice (up to the canvas's base device). In most cases these devices will be pixel
+ * aligned with one another but may differ in size based on the known extent of the active clip. In
+ * complex image filtering scenarios, they may not be axis aligned, although the effective pixel
+ * size should remain approximately equal across all devices in a canvas.
+ *
+ * While SkCanvas manages a single stack of layers and canvas transforms, SkDevice does not have a
+ * stack of transforms. Instead, it has a single active transform that is modified as needed by
+ * SkCanvas. However, SkDevices are the means by which SkCanvas manages the clip stack because each
+ * layer's clip stack starts anew (although the layer's results are then clipped by its parent's
+ * stack when it is restored).
+ */
+class SkDevice : public SkRefCnt {
 public:
-    SkBaseDevice(const SkImageInfo&, const SkSurfaceProps&);
+    SkDevice(const SkImageInfo&, const SkSurfaceProps&);
 
     /**
      *  Return ImageInfo for this device. If the canvas is not backed by pixels
@@ -175,7 +196,7 @@ public:
      * that device is drawn to the root device, the net effect will be that this device's contents
      * have been transformed by the global CTM.
      */
-    SkMatrix getRelativeTransform(const SkBaseDevice&) const;
+    SkMatrix getRelativeTransform(const SkDevice&) const;
 
     virtual void* getRasterHandle() const { return nullptr; }
 
@@ -384,7 +405,7 @@ protected:
      * from the input device to this device. The provided SkPaint cannot have a mask filter or
      * image filter, and any shader is ignored.
      */
-    virtual void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&);
+    virtual void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&);
 
     /**
      * Draw the special image's subset to this device, subject to the given matrix transform instead
@@ -458,12 +479,12 @@ protected:
      *
      *  The subclass may be handed this device in drawDevice(), so it must always return
      *  a device that it knows how to draw, and that it knows how to identify if it is not of the
-     *  same subclass (since drawDevice is passed a SkBaseDevice*). If the subclass cannot fulfill
+     *  same subclass (since drawDevice is passed a SkDevice*). If the subclass cannot fulfill
      *  that contract (e.g. PDF cannot support some settings on the paint) it should return NULL,
      *  and the caller may then decide to explicitly create a bitmapdevice, knowing that later
      *  it could not call drawDevice with it (but it could call drawSprite or drawBitmap).
      */
-    virtual SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) {
+    virtual SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) {
         return nullptr;
     }
 
@@ -549,11 +570,9 @@ private:
     // However, track a dirty bit for subclasses that want to defer local-to-device dependent
     // calculations until needed for a clip or draw.
     bool fLocalToDeviceDirty = true;
-
-    using INHERITED = SkRefCnt;
 };
 
-class SkNoPixelsDevice : public SkBaseDevice {
+class SkNoPixelsDevice : public SkDevice {
 public:
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props);
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props,
@@ -597,7 +616,7 @@ protected:
     void drawOval(const SkRect&, const SkPaint&) override {}
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
+    void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override {}
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override {}
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
 
@@ -633,13 +652,11 @@ private:
     }
 
     skia_private::STArray<4, ClipState> fClipStack;
-
-    using INHERITED = SkBaseDevice;
 };
 
 class SkAutoDeviceTransformRestore : SkNoncopyable {
 public:
-    SkAutoDeviceTransformRestore(SkBaseDevice* device, const SkMatrix& localToDevice)
+    SkAutoDeviceTransformRestore(SkDevice* device, const SkMatrix& localToDevice)
         : fDevice(device)
         , fPrevLocalToDevice(device->localToDevice())
     {
@@ -650,7 +667,7 @@ public:
     }
 
 private:
-    SkBaseDevice* fDevice;
+    SkDevice* fDevice;
     const SkM44   fPrevLocalToDevice;
 };
 

@@ -28,15 +28,15 @@ struct GrContextOptions;
 
 class DeviceTestingAccess {
 public:
-    static sk_sp<SkSpecialImage> MakeSpecial(SkBaseDevice* dev, const SkBitmap& bm) {
+    static sk_sp<SkSpecialImage> MakeSpecial(SkDevice* dev, const SkBitmap& bm) {
         return dev->makeSpecial(bm);
     }
 
-    static sk_sp<SkSpecialImage> MakeSpecial(SkBaseDevice* dev, SkImage* img) {
+    static sk_sp<SkSpecialImage> MakeSpecial(SkDevice* dev, SkImage* img) {
         return dev->makeSpecial(img);
     }
 
-    static sk_sp<SkSpecialImage> SnapSpecial(SkBaseDevice* dev) {
+    static sk_sp<SkSpecialImage> SnapSpecial(SkDevice* dev) {
         return dev->snapSpecial();
     }
 };
@@ -49,7 +49,7 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(2*kWidth, 2*kHeight);
 
-    sk_sp<SkBaseDevice> bmDev(SkBitmapDevice::Create(ii));
+    sk_sp<SkDevice> bmDev(SkBitmapDevice::Create(ii));
 
     SkBitmap bm;
     bm.tryAllocN32Pixels(kWidth, kHeight);

@@ -97,7 +97,8 @@ protected:
             SkCanvas*, const sktext::GlyphRunList&, const SkPaint&, const SkPaint&) override;
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
+    void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override;
+
 
 private:
     class TypefaceUse {
@@ -269,13 +270,11 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);
     void operator=(const SkXPSDevice&);
-
-    using INHERITED = SkClipStackDevice;
 };
 
 #endif  // SK_BUILD_FOR_WIN

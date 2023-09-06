@@ -190,7 +190,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     // Historically, the canvas state could report multiple top-level layers because SkCanvas
     // supported unclipped layers. With that feature removed, all required information is contained
     // by the canvas' top-most device.
-    SkBaseDevice* device = canvas->topDevice();
+    SkDevice* device = canvas->topDevice();
     SkASSERT(device);
 
     SkSWriter32<sizeof(SkCanvasLayerState)> layerWriter;

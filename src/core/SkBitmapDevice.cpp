@@ -229,7 +229,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
-        : INHERITED(bitmap.info(), SkSurfaceProps())
+        : SkDevice(bitmap.info(), SkSurfaceProps())
         , fBitmap(bitmap)
         , fRCStack(bitmap.width(), bitmap.height())
         , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), bitmap.colorSpace()) {
@@ -242,7 +242,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
                                SkRasterHandleAllocator::Handle hndl)
-        : INHERITED(bitmap.info(), surfaceProps)
+        : SkDevice(bitmap.info(), surfaceProps)
         , fBitmap(bitmap)
         , fRasterHandle(hndl)
         , fRCStack(bitmap.width(), bitmap.height())
@@ -295,7 +295,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     this->privateResize(fBitmap.info().width(), fBitmap.info().height());
 }
 
-SkBaseDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+SkDevice* SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
 
     // Need to force L32 for now if we have an image filter.
@@ -564,21 +564,13 @@ void SkBitmapDevice::drawAtlas(const SkRSXform xform[],
                                const SkPaint& paint) {
     // set this to true for performance comparisons with the old drawVertices way
     if ((false)) {
-        this->INHERITED::drawAtlas(xform, tex, colors, count, std::move(blender), paint);
+        this->SkDevice::drawAtlas(xform, tex, colors, count, std::move(blender), paint);
         return;
     }
     BDDraw(this).drawAtlas(xform, tex, colors, count, std::move(blender), paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& sampling,
-                                const SkPaint& paint) {
-    SkASSERT(!paint.getImageFilter());
-    SkASSERT(!paint.getMaskFilter());
-
-    this->INHERITED::drawDevice(device, sampling, paint);
-}
 
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
                                  const SkMatrix& localToDevice,
@@ -702,7 +694,7 @@ void SkBitmapDevice::validateDevBounds(const SkIRect& drawClipBounds) {
 #endif
 }
 
-SkBaseDevice::ClipType SkBitmapDevice::onGetClipType() const {
+SkDevice::ClipType SkBitmapDevice::onGetClipType() const {
     const SkRasterClip& rc = fRCStack.rc();
     if (rc.isEmpty()) {
         return ClipType::kEmpty;

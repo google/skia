@@ -16,7 +16,6 @@
 #include "include/core/SkSamplingOptions.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyphRunPainter.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkRasterClipStack.h"
 
 #include <cstddef>
@@ -44,7 +43,7 @@ struct SkPoint;
 struct SkRSXform;
 
 ///////////////////////////////////////////////////////////////////////////////
-class SkBitmapDevice : public SkBaseDevice {
+class SkBitmapDevice : public SkDevice {
 public:
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
@@ -106,7 +105,6 @@ protected:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
     void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
                      const SkPaint&) override;
 
@@ -158,7 +156,7 @@ private:
     // any clip information.
     void replaceBitmapBackendForRasterSurface(const SkBitmap&) override;
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
@@ -168,9 +166,6 @@ private:
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
     SkGlyphRunListPainterCPU fGlyphPainter;
-
-
-    using INHERITED = SkBaseDevice;
 };
 
 #endif // SkBitmapDevice_DEFINED

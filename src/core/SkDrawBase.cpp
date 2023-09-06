@@ -595,7 +595,7 @@ bool SkDrawBase::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
 
 void SkDrawBase::drawDevicePoints(SkCanvas::PointMode mode, size_t count,
                                   const SkPoint pts[], const SkPaint& paint,
-                                  SkBaseDevice* device) const {
+                                  SkDevice* device) const {
     // if we're in lines mode, force count to be even
     if (SkCanvas::kLines_PointMode == mode) {
         count &= ~(size_t)1;
@@ -763,4 +763,3 @@ void SkDrawBase::drawDevicePoints(SkCanvas::PointMode mode, size_t count,
         }
     }
 }
-

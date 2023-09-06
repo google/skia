@@ -104,7 +104,7 @@ void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
     }
 }
 
-SkBaseDevice::ClipType SkClipStackDevice::onGetClipType() const {
+SkDevice::ClipType SkClipStackDevice::onGetClipType() const {
     if (fClipStack.isWideOpen()) {
         return ClipType::kRect;
     }

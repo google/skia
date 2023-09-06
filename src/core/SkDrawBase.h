@@ -20,9 +20,9 @@
 #include <cstddef>
 
 class SkArenaAlloc;
-class SkBaseDevice;
 class SkBitmap;
 class SkBlitter;
+class SkDevice;
 class SkGlyph;
 class SkMaskFilter;
 class SkMatrix;
@@ -74,7 +74,7 @@ public:
     }
 
     void drawDevicePoints(SkCanvas::PointMode, size_t count, const SkPoint[], const SkPaint&,
-                          SkBaseDevice*) const;
+                          SkDevice*) const;
 
     static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
                                   const SkMaskFilter* filter, const SkMatrix* filterMatrix,

@@ -11,10 +11,10 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDevice.h"
 
-class SkClipStackDevice : public SkBaseDevice {
+class SkClipStackDevice : public SkDevice {
 public:
     SkClipStackDevice(const SkImageInfo& info, const SkSurfaceProps& props)
-        : SkBaseDevice(info, props)
+        : SkDevice(info, props)
         , fClipStack(fStorage, sizeof(fStorage))
     {}
 
@@ -42,8 +42,6 @@ private:
     };
     intptr_t fStorage[kPreallocCount * sizeof(SkClipStack::Element) / sizeof(intptr_t)];
     SkClipStack fClipStack;
-
-    using INHERITED = SkBaseDevice;
 };
 
 #endif

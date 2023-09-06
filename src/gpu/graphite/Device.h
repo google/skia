@@ -38,7 +38,7 @@ class StrokeStyle;
 class TextureProxy;
 class TextureProxyView;
 
-class Device final : public SkBaseDevice  {
+class Device final : public SkDevice {
 public:
     ~Device() override;
 
@@ -117,7 +117,7 @@ private:
 
     // Pixel management
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     bool onReadPixels(const SkPixmap&, int x, int y) override;
 
@@ -150,7 +150,6 @@ private:
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override {}
 
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice,
                      const SkSamplingOptions&, const SkPaint&) override;
 

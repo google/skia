@@ -116,7 +116,7 @@ protected:
 
     void drawAnnotation(const SkRect&, const char key[], SkData* value) override;
 
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
+    void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override;
     void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
                      const SkPaint&) override;
 
@@ -145,7 +145,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    SkDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Set alpha to true if making a transparency group form x-objects.
     SkPDFIndirectReference makeFormXObjectFromDevice(bool alpha = false);
@@ -200,8 +200,6 @@ private:
     bool hasEmptyClip() const { return this->cs().isEmpty(this->bounds()); }
 
     void reset();
-
-    using INHERITED = SkClipStackDevice;
 };
 
 #endif

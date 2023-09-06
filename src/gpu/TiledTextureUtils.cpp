@@ -216,7 +216,7 @@ void draw_tiled_bitmap(SkCanvas* canvas,
                                             constraint);
 }
 
-size_t get_cache_size(SkBaseDevice* device) {
+size_t get_cache_size(SkDevice* device) {
 #if defined(SK_GANESH)
     if (auto dContext = GrAsDirectContext(device->recordingContext())) {
         // NOTE: if the context is not a direct context, it doesn't have access to the resource
@@ -442,7 +442,7 @@ bool TiledTextureUtils::DrawAsTiledImageRect(SkCanvas* canvas,
             constraint = SkCanvas::kFast_SrcRectConstraint;
         }
 
-        SkBaseDevice* device = SkCanvasPriv::TopDevice(canvas);
+        SkDevice* device = SkCanvasPriv::TopDevice(canvas);
         const SkMatrix& localToDevice = device->localToDevice();
 
         SkSamplingOptions sampling = origSampling;

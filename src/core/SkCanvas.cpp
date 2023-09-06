@@ -101,8 +101,8 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
 
     // if we're clipped at all, we can't overwrite the entire surface
     {
-        const SkBaseDevice* base = this->baseDevice();
-        const SkBaseDevice* top = this->topDevice();
+        const SkDevice* base = this->baseDevice();
+        const SkDevice* top = this->topDevice();
         if (base != top) {
             return false;   // we're in a saveLayer, so conservatively don't assume we'll overwrite
         }
@@ -171,7 +171,7 @@ bool SkCanvas::predrawNotify(const SkRect* rect, const SkPaint* paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkCanvas::Layer::Layer(sk_sp<SkBaseDevice> device,
+SkCanvas::Layer::Layer(sk_sp<SkDevice> device,
                        sk_sp<SkImageFilter> imageFilter,
                        const SkPaint& paint)
         : fDevice(std::move(device))
@@ -191,7 +191,7 @@ SkCanvas::BackImage::BackImage(BackImage&&) = default;
 SkCanvas::BackImage& SkCanvas::BackImage::operator=(const BackImage&) = default;
 SkCanvas::BackImage::~BackImage() = default;
 
-SkCanvas::MCRec::MCRec(SkBaseDevice* device) : fDevice(device) {
+SkCanvas::MCRec::MCRec(SkDevice* device) : fDevice(device) {
     SkASSERT(fDevice);
 }
 
@@ -201,7 +201,7 @@ SkCanvas::MCRec::MCRec(const MCRec* prev) : fDevice(prev->fDevice), fMatrix(prev
 
 SkCanvas::MCRec::~MCRec() {}
 
-void SkCanvas::MCRec::newLayer(sk_sp<SkBaseDevice> layerDevice,
+void SkCanvas::MCRec::newLayer(sk_sp<SkDevice> layerDevice,
                                sk_sp<SkImageFilter> filter,
                                const SkPaint& restorePaint) {
     SkASSERT(!fBackImage);
@@ -209,7 +209,7 @@ void SkCanvas::MCRec::newLayer(sk_sp<SkBaseDevice> layerDevice,
     fDevice = fLayer->fDevice.get();
 }
 
-void SkCanvas::MCRec::reset(SkBaseDevice* device) {
+void SkCanvas::MCRec::reset(SkDevice* device) {
     SkASSERT(!fLayer);
     SkASSERT(device);
     SkASSERT(fDeferredSaveCount == 0);
@@ -273,7 +273,7 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }
 
-void SkCanvas::init(sk_sp<SkBaseDevice> device) {
+void SkCanvas::init(sk_sp<SkDevice> device) {
     // SkCanvas.h declares internal storage for the hidden struct MCRec, and this
     // assert ensure it's sufficient. <= is used because the struct has pointer fields, so the
     // declared size is an upper bound across architectures. When the size is smaller, more stack
@@ -315,7 +315,7 @@ SkCanvas::SkCanvas(const SkIRect& bounds)
     this->init(sk_make_sp<SkNoPixelsDevice>(r, fProps));
 }
 
-SkCanvas::SkCanvas(sk_sp<SkBaseDevice> device)
+SkCanvas::SkCanvas(sk_sp<SkDevice> device)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage))
         , fProps(device->surfaceProps()) {
     this->init(std::move(device));
@@ -347,7 +347,7 @@ SkISize SkCanvas::getBaseLayerSize() const {
     return this->baseDevice()->imageInfo().dimensions();
 }
 
-SkBaseDevice* SkCanvas::topDevice() const {
+SkDevice* SkCanvas::topDevice() const {
     SkASSERT(fMCRec->fDevice);
     return fMCRec->fDevice;
 }
@@ -375,7 +375,7 @@ bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
 
 bool SkCanvas::writePixels(const SkImageInfo& srcInfo, const void* pixels, size_t rowBytes,
                            int x, int y) {
-    SkBaseDevice* device = this->baseDevice();
+    SkDevice* device = this->baseDevice();
 
     // This check gives us an early out and prevents generation ID churn on the surface.
     // This is purely optional: it is a subset of the checks performed by SkWritePixelsRec.
@@ -647,8 +647,8 @@ static bool can_layer_be_drawn_as_sprite(const SkMatrix& matrix, const SkISize& 
     return SkTreatAsSprite(matrix, size, sampling, paint.isAntiAlias());
 }
 
-void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
-                                            SkBaseDevice* dst,
+void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
+                                            SkDevice* dst,
                                             const SkImageFilter* filter,
                                             const SkPaint& paint,
                                             DeviceCompatibleWithFilter compat,
@@ -777,15 +777,15 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
             }
             // Make a new surface and draw 'srcImage' into it with the srcToIntermediate transform
             // to produce the final input image for the filter
-            SkBaseDevice::CreateInfo info(SkImageInfo::Make(requiredInput.width(),
-                                                            requiredInput.height(),
-                                                            filterColorType,
-                                                            kPremul_SkAlphaType,
-                                                            filterColorSpace),
+            SkDevice::CreateInfo info(SkImageInfo::Make(requiredInput.width(),
+                                                        requiredInput.height(),
+                                                        filterColorType,
+                                                        kPremul_SkAlphaType,
+                                                        filterColorSpace),
                                           SkPixelGeometry::kUnknown_SkPixelGeometry,
-                                          SkBaseDevice::TileUsage::kNever_TileUsage,
+                                          SkDevice::TileUsage::kNever_TileUsage,
                                           fAllocator.get());
-            sk_sp<SkBaseDevice> intermediateDevice(src->onCreateDevice(info, &paint));
+            sk_sp<SkDevice> intermediateDevice(src->onCreateDevice(info, &paint));
             if (!intermediateDevice) {
                 return;
             }
@@ -915,7 +915,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             rec.fPaint ? rec.fPaint->getImageFilter() : nullptr, &restorePaint);
 
     // Size the new layer relative to the prior device, which may already be aligned for filters.
-    SkBaseDevice* priorDevice = this->topDevice();
+    SkDevice* priorDevice = this->topDevice();
     skif::Mapping newLayerMapping;
     skif::LayerSpace<SkIRect> layerBounds;
     auto mappingAndBounds = get_layer_mapping_and_bounds(
@@ -969,7 +969,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         return;
     }
 
-    sk_sp<SkBaseDevice> newDevice;
+    sk_sp<SkDevice> newDevice;
     if (strategy == kFullLayer_SaveLayerStrategy) {
         SkASSERT(!layerBounds.isEmpty());
 
@@ -983,8 +983,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
         SkPixelGeometry geo = rec.fSaveLayerFlags & kPreserveLCDText_SaveLayerFlag
                                       ? fProps.pixelGeometry()
                                       : kUnknown_SkPixelGeometry;
-        const auto createInfo = SkBaseDevice::CreateInfo(info, geo, SkBaseDevice::kNever_TileUsage,
-                                                         fAllocator.get());
+        const auto createInfo = SkDevice::CreateInfo(info, geo, SkDevice::kNever_TileUsage,
+                                                     fAllocator.get());
         // Use the original paint as a hint so that it includes the image filter
         newDevice.reset(priorDevice->onCreateDevice(createInfo, rec.fPaint));
     }
@@ -1045,7 +1045,7 @@ int SkCanvas::saveLayerAlphaf(const SkRect* bounds, float alpha) {
 }
 
 void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
-    SkBaseDevice* device = this->topDevice();
+    SkDevice* device = this->topDevice();
 
     // Map the local bounds into the top device's coordinate space (this is not
     // necessarily the full global CTM transform).
@@ -1119,7 +1119,7 @@ void SkCanvas::internalRestore() {
         // Don't go through AutoLayerForImageFilter since device draws are so closely tied to
         // internalSaveLayer and internalRestore.
         if (this->predrawNotify()) {
-            SkBaseDevice* dstDev = this->topDevice();
+            SkDevice* dstDev = this->topDevice();
             if (layer->fImageFilter) {
                 this->internalDrawDeviceWithFilter(layer->fDevice.get(), // src
                                                    dstDev,               // dst
@@ -1489,7 +1489,7 @@ bool SkCanvas::androidFramework_isClipAA() const {
 
 void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
     rgn->setEmpty();
-    SkBaseDevice* device = this->topDevice();
+    SkDevice* device = this->topDevice();
     if (device && device->isPixelAlignedToGlobal()) {
         device->onAsRgnClip(rgn);
         SkIPoint origin = device->getOrigin();
@@ -1502,11 +1502,11 @@ void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::isClipEmpty() const {
-    return this->topDevice()->onGetClipType() == SkBaseDevice::ClipType::kEmpty;
+    return this->topDevice()->onGetClipType() == SkDevice::ClipType::kEmpty;
 }
 
 bool SkCanvas::isClipRect() const {
-    return this->topDevice()->onGetClipType() == SkBaseDevice::ClipType::kRect;
+    return this->topDevice()->onGetClipType() == SkDevice::ClipType::kRect;
 }
 
 bool SkCanvas::quickReject(const SkRect& src) const {
@@ -1564,8 +1564,8 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
 }
 
 SkRect SkCanvas::computeDeviceClipBounds(bool outsetForAA) const {
-    const SkBaseDevice* dev = this->topDevice();
-    if (dev->onGetClipType() == SkBaseDevice::ClipType::kEmpty) {
+    const SkDevice* dev = this->topDevice();
+    if (dev->onGetClipType() == SkDevice::ClipType::kEmpty) {
         return SkRect::MakeEmpty();
     } else {
         SkRect devClipBounds =
@@ -1896,7 +1896,7 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 }
 
 void SkCanvas::onDrawBehind(const SkPaint& paint) {
-    SkBaseDevice* dev = this->topDevice();
+    SkDevice* dev = this->topDevice();
     if (!dev) {
         return;
     }
@@ -2085,7 +2085,7 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
         !SkCanvasPriv::ImageToColorFilter(&realPaint)) {
         // Evaluate the image filter directly on the input image and then draw the result, instead
         // of first drawing the image to a temporary layer and filtering.
-        SkBaseDevice* device = this->topDevice();
+        SkDevice* device = this->topDevice();
         sk_sp<SkSpecialImage> special;
         if ((special = device->makeSpecial(image))) {
             sk_sp<SkImageFilter> filter = realPaint.refImageFilter();
@@ -2673,9 +2673,6 @@ SkNoDrawCanvas::SkNoDrawCanvas(int width, int height)
 SkNoDrawCanvas::SkNoDrawCanvas(const SkIRect& bounds)
     : INHERITED(bounds) {}
 
-SkNoDrawCanvas::SkNoDrawCanvas(sk_sp<SkBaseDevice> device)
-    : INHERITED(device) {}
-
 SkCanvas::SaveLayerStrategy SkNoDrawCanvas::getSaveLayerStrategy(const SaveLayerRec& rec) {
     (void)this->INHERITED::getSaveLayerStrategy(rec);
     return kNoLayer_SaveLayerStrategy;
@@ -2693,7 +2690,7 @@ static_assert((int)SkRegion::kIntersect_Op  == (int)SkClipOp::kIntersect, "");
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkRasterHandleAllocator::Handle SkCanvas::accessTopRasterHandle() const {
-    const SkBaseDevice* dev = this->topDevice();
+    const SkDevice* dev = this->topDevice();
     if (fAllocator) {
         SkRasterHandleAllocator::Handle handle = dev->getRasterHandle();
         SkIRect clip = dev->devClipBounds();
