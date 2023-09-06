@@ -455,7 +455,7 @@ public:
         SkASSERT(fStrikeServerImpl != nullptr);
     }
 
-    sk_sp<SkDevice> onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override {
+    sk_sp<SkDevice> createDevice(const CreateInfo& cinfo, const SkPaint*) override {
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return sk_make_sp<GlyphTrackingDevice>(cinfo.fInfo.dimensions(),
                                                surfaceProps,

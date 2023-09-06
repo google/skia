@@ -80,9 +80,6 @@ public:
     TextureProxy* target();
     TextureProxyView readSurfaceView() const;
 
-private:
-    class IntersectionTreeSet;
-
     // Clipping
     void pushClipStack() override { fClip.save(); }
     void popClipStack() override { fClip.restore(); }
@@ -121,18 +118,6 @@ private:
     // No need to specialize drawDRRect, drawArc, drawRegion, drawPatch as the default impls all
     // route to drawPath, drawRect, or drawVertices as desired.
 
-    // Pixel management
-    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
-
-    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
-
-    bool onReadPixels(const SkPixmap&, int x, int y) override;
-
-    bool onWritePixels(const SkPixmap&, int x, int y) override;
-
-    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&,
-                            const SkPaint&, const SkPaint&) override;
-
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
                         SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color,
                         SkBlendMode mode) override;
@@ -146,6 +131,8 @@ private:
                        const SkSamplingOptions&, const SkPaint&,
                        SkCanvas::SrcRectConstraint) override;
 
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
+
     // TODO: Implement these using per-edge AA quads and an inlined image shader program.
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override {}
@@ -153,16 +140,31 @@ private:
                    const SkPaint&) override {}
 
     void drawDrawable(SkCanvas*, SkDrawable*, const SkMatrix*) override {}
-    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override {}
+
+    // Special images and layers
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+
+    sk_sp<SkDevice> createDevice(const CreateInfo&, const SkPaint*) override;
+
+    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
 
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice,
                      const SkSamplingOptions&, const SkPaint&) override;
 
+private:
+    class IntersectionTreeSet;
+
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
-    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy) override;
+
+    bool onReadPixels(const SkPixmap&, int x, int y) override;
+
+    bool onWritePixels(const SkPixmap&, int x, int y) override;
+
+    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&,
+                            const SkPaint&, const SkPaint&) override;
 
     void onClipShader(sk_sp<SkShader> shader) override;
 

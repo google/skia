@@ -290,7 +290,7 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     fBitmap = bm;   // intent is to use bm's pixelRef (and rowbytes/config)
 }
 
-sk_sp<SkDevice> SkBitmapDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+sk_sp<SkDevice> SkBitmapDevice::createDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
 
     // Need to force L32 for now if we have an image filter.

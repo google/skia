@@ -359,22 +359,6 @@ void SkDevice::drawFilteredImage(const skif::Mapping& mapping,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkDevice::readPixels(const SkPixmap& pm, int x, int y) {
-    return this->onReadPixels(pm, x, y);
-}
-
-bool SkDevice::writePixels(const SkPixmap& pm, int x, int y) {
-    return this->onWritePixels(pm, x, y);
-}
-
-bool SkDevice::onWritePixels(const SkPixmap&, int, int) {
-    return false;
-}
-
-bool SkDevice::onReadPixels(const SkPixmap&, int x, int y) {
-    return false;
-}
-
 bool SkDevice::accessPixels(SkPixmap* pmap) {
     SkPixmap tempStorage;
     if (nullptr == pmap) {
@@ -518,7 +502,7 @@ SkNoPixelsDevice::SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& 
 SkNoPixelsDevice::SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props,
                                    sk_sp<SkColorSpace> colorSpace)
     : SkDevice(SkImageInfo::Make(bounds.size(), kUnknown_SkColorType, kUnknown_SkAlphaType,
-                                     std::move(colorSpace)), props) {
+                                 std::move(colorSpace)), props) {
     // this fails if we enable this assert: DiscardableImageMapTest.GetDiscardableImagesInRectMaxImage
     //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
 

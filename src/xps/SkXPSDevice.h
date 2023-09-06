@@ -76,7 +76,6 @@ public:
     bool endSheet();
     bool endPortfolio();
 
-protected:
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count,
                     const SkPoint[], const SkPaint& paint) override;
@@ -93,12 +92,13 @@ protected:
                        const SkRect* srcOrNull, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint& paint,
                        SkCanvas::SrcRectConstraint) override;
-    void onDrawGlyphRunList(
-            SkCanvas*, const sktext::GlyphRunList&, const SkPaint&, const SkPaint&) override;
+
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
+
     void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override;
 
+    sk_sp<SkDevice> createDevice(const CreateInfo&, const SkPaint*) override;
 
 private:
     class TypefaceUse {
@@ -114,6 +114,9 @@ private:
         SkBitSet glyphsUsed;
     };
     friend HRESULT subset_typeface(const TypefaceUse& current);
+
+    void onDrawGlyphRunList(
+            SkCanvas*, const sktext::GlyphRunList&, const SkPaint&, const SkPaint&) override;
 
     bool createCanvasForLayer();
 
@@ -269,8 +272,6 @@ private:
         const SkMask& mask,
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
-
-    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);

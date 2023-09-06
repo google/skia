@@ -238,30 +238,23 @@ public:
                          const SkMatrix& srcToDst,
                          SkTileMode);
 
-    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
-    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
-    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
-    sk_sp<SkSpecialImage> snapSpecialScaled(const SkIRect& subset, const SkISize& dstDims) override;
-
-    bool onAccessPixels(SkPixmap*) override;
-
-    Device* asGaneshDevice() override { return this; }
-
-protected:
-    bool onReadPixels(const SkPixmap&, int, int) override;
-    bool onWritePixels(const SkPixmap&, int, int) override;
-
-    void onDrawGlyphRunList(SkCanvas*,
-                            const sktext::GlyphRunList&,
-                            const SkPaint& initialPaint,
-                            const SkPaint& drawingPaint) override;
-
     sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(
             const sktext::GlyphRunList& glyphRunList,
             const SkPaint& initialPaint,
             const SkPaint& drawingPaint) override;
 
     void drawSlug(SkCanvas*, const sktext::gpu::Slug* slug, const SkPaint& drawingPaint) override;
+
+    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
+    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
+    sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
+    sk_sp<SkSpecialImage> snapSpecialScaled(const SkIRect& subset, const SkISize& dstDims) override;
+
+    sk_sp<SkDevice> createDevice(const CreateInfo&, const SkPaint*) override;
+
+    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+
+    Device* asGaneshDevice() override { return this; }
 
     SkIRect devClipBounds() const override { return fClip.getConservativeBounds(); }
 
@@ -303,8 +296,6 @@ protected:
     void android_utils_clipAsRgn(SkRegion*) const override;
     bool android_utils_clipWithStencil() override;
 
-    skif::Context createContext(const skif::ContextInfo&) const override;
-
 private:
     enum class DeviceFlags {
         kNone      = 0,
@@ -331,9 +322,16 @@ private:
 
     Device(std::unique_ptr<SurfaceDrawContext>, DeviceFlags);
 
-    sk_sp<SkDevice> onCreateDevice(const CreateInfo&, const SkPaint*) override;
+    void onDrawGlyphRunList(SkCanvas*,
+                            const sktext::GlyphRunList&,
+                            const SkPaint& initialPaint,
+                            const SkPaint& drawingPaint) override;
 
-    sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;
+    bool onReadPixels(const SkPixmap&, int, int) override;
+    bool onWritePixels(const SkPixmap&, int, int) override;
+    bool onAccessPixels(SkPixmap*) override;
+
+    skif::Context createContext(const skif::ContextInfo& ctxInfo) const override;
 
     SkImageFilterCache* getImageFilterCache() override;
 

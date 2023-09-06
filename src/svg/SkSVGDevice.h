@@ -60,15 +60,17 @@ public:
                   const SkPaint& paint,
                   bool pathIsMutable = false) override;
 
+    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
+    void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
+
+private:
+    SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
+    ~SkSVGDevice() override;
+
     void onDrawGlyphRunList(SkCanvas*,
                             const sktext::GlyphRunList&,
                             const SkPaint& initialPaint,
                             const SkPaint& drawingPaint) override;
-    void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
-    void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
-private:
-    SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
-    ~SkSVGDevice() override;
 
     struct MxCp;
     void drawBitmapCommon(const MxCp&, const SkBitmap& bm, const SkPaint& paint);

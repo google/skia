@@ -218,7 +218,7 @@ static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
     return Op(SkPath::Rect(bounds), invPath, kIntersect_SkPathOp, outPath);
 }
 
-sk_sp<SkDevice> SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
+sk_sp<SkDevice> SkPDFDevice::createDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
     // PDF does not support image filters, so render them on CPU.
     // Note that this rendering is done at "screen" resolution (100dpi), not
     // printer resolution.
@@ -316,7 +316,7 @@ private:
 
 SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& transform)
     : SkClipStackDevice(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
-                SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+                        SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fInitialTransform(transform)
     , fNodeId(0)
     , fDocument(doc)

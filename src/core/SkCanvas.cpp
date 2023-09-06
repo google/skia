@@ -786,7 +786,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
                                                         filterColorSpace),
                                       SkPixelGeometry::kUnknown_SkPixelGeometry,
                                       fAllocator.get());
-            sk_sp<SkDevice> intermediateDevice = src->onCreateDevice(info, &paint);
+            sk_sp<SkDevice> intermediateDevice = src->createDevice(info, &paint);
             if (!intermediateDevice) {
                 return;
             }
@@ -986,7 +986,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                       : kUnknown_SkPixelGeometry;
         const auto createInfo = SkDevice::CreateInfo(info, geo, fAllocator.get());
         // Use the original paint as a hint so that it includes the image filter
-        newDevice = priorDevice->onCreateDevice(createInfo, rec.fPaint);
+        newDevice = priorDevice->createDevice(createInfo, rec.fPaint);
     }
 
     bool initBackdrop = (rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) || rec.fBackdrop;
