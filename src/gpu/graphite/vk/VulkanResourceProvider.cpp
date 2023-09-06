@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/vk/VulkanDescriptorPool.h"
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
+#include "src/gpu/graphite/vk/VulkanRenderPass.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanTexture.h"
@@ -174,6 +175,27 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
     auto descSet = fResourceCache->findAndRefResource(descSetKeys[0], skgpu::Budgeted::kNo);
     return descSet ? sk_sp<VulkanDescriptorSet>(static_cast<VulkanDescriptorSet*>(descSet))
                    : nullptr;
+}
+
+sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
+        const RenderPassDesc& renderPassDesc, bool compatibleOnly) {
+    auto renderPassKey = VulkanRenderPass::MakeRenderPassKey(renderPassDesc, compatibleOnly);
+    Resource* existingRenderPass =
+            fResourceCache->findAndRefResource(renderPassKey, skgpu::Budgeted::kYes);
+
+    if (existingRenderPass) {
+        return sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(existingRenderPass));
+    } else {
+        auto newRenderPass = VulkanRenderPass::MakeRenderPass(
+                this->vulkanSharedContext(), renderPassDesc, compatibleOnly);
+        SkASSERT(newRenderPass);
+        newRenderPass->setKey(renderPassKey);
+        fResourceCache->insertResource(newRenderPass.get());
+    }
+
+    auto renderPass = fResourceCache->findAndRefResource(renderPassKey, skgpu::Budgeted::kYes);
+    return renderPass ? sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(renderPass))
+                      : nullptr;
 }
 
 VkPipelineCache VulkanResourceProvider::pipelineCache() {

@@ -445,6 +445,10 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     static_assert((int)StoreOp::kDiscard == 1);
     static_assert(std::size(vkStoreOp) == kStoreOpCount);
 
+    // TODO(b/293931220): Complete migration from using the dynamic rendering extension to instead
+    // using regular VkRenderPasses by calling and using the result of
+    // fResourceProvider->findOrCreateRenderPass.
+
     // Get render pass descriptor
     VkRenderingInfoKHR renderingInfo;
     memset(&renderingInfo, 0, sizeof(VkRenderingInfoKHR));
