@@ -118,7 +118,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLTextureParameters,
 
     REPORTER_ASSERT(reporter, surf);
     surf->getCanvas()->drawImage(wrappedImage, 0, 0);
-    dContext->flushAndSubmit(surf);
+    dContext->flushAndSubmit(surf.get(), GrSyncCpu::kNo);
     REPORTER_ASSERT(reporter, params_valid(*parameters, caps));
 
     // Test invalidating from the copy.
@@ -150,7 +150,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLTextureParameters,
 
     wrappedImage.reset();
     dContext->flush();
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
     dContext->deleteBackendTexture(backendTex);
 }
 #endif

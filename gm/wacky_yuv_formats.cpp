@@ -870,7 +870,7 @@ protected:
             // before they are deleted. Since we don't know when we'll next have access to a
             // direct context, flush all the work now.
             dContext->flush();
-            dContext->submit(true);
+            dContext->submit(GrSyncCpu::kYes);
         }
 
         return true;
@@ -1089,7 +1089,7 @@ protected:
         // they are deleted. Since we don't know when we'll next have access to a direct context,
         // flush all the work now.
         context->flush();
-        context->submit(true);
+        context->submit(GrSyncCpu::kYes);
 
         return true;
     }

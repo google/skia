@@ -246,4 +246,14 @@ enum class GrSemaphoresSubmitted : bool {
     kYes = true
 };
 
+enum class GrPurgeResourceOptions {
+    kAllResources,
+    kScratchResourcesOnly,
+};
+
+enum class GrSyncCpu : bool {
+    kNo = false,
+    kYes = true,
+};
+
 #endif

@@ -285,8 +285,8 @@ void GrMtlGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallba
     commandBuffer()->addFinishedCallback(std::move(finishedCallback));
 }
 
-bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
-    if (syncCpu) {
+bool GrMtlGpu::onSubmitToGpu(GrSyncCpu sync) {
+    if (sync == GrSyncCpu::kYes) {
         return this->submitCommandBuffer(kForce_SyncQueue);
     } else {
         return this->submitCommandBuffer(kSkip_SyncQueue);
@@ -294,7 +294,7 @@ bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
 }
 
 std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
-    this->submitToGpu(false);
+    this->submitToGpu(GrSyncCpu::kNo);
     return nullptr;
 }
 
@@ -1191,7 +1191,7 @@ void GrMtlGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
 
     GrMtlTextureInfo info;
     if (rt.getMtlTextureInfo(&info)) {
-        this->submitToGpu(true);
+        this->submitToGpu(GrSyncCpu::kYes);
         // Nothing else to do here, will get cleaned up when the GrBackendRenderTarget
         // is deleted.
     }

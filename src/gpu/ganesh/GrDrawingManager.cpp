@@ -214,7 +214,7 @@ bool GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> proxies,
     return true;
 }
 
-bool GrDrawingManager::submitToGpu(bool syncToCpu) {
+bool GrDrawingManager::submitToGpu(GrSyncCpu sync) {
     if (fFlushing || this->wasAbandoned()) {
         return false;
     }
@@ -224,7 +224,7 @@ bool GrDrawingManager::submitToGpu(bool syncToCpu) {
         return false; // Can't submit while DDL recording
     }
     GrGpu* gpu = direct->priv().getGpu();
-    return gpu->submitToGpu(syncToCpu);
+    return gpu->submitToGpu(sync);
 }
 
 bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
@@ -273,7 +273,7 @@ bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
             anyRenderTasksExecuted = true;
         }
         if (++numRenderTasksExecuted >= kMaxRenderTasksBeforeFlush) {
-            flushState->gpu()->submitToGpu(false);
+            flushState->gpu()->submitToGpu(GrSyncCpu::kNo);
             numRenderTasksExecuted = 0;
         }
     }
@@ -477,7 +477,7 @@ static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
         if (rtProxy->isMSAADirty()) {
             SkASSERT(rtProxy->peekRenderTarget());
             gpu->resolveRenderTarget(rtProxy->peekRenderTarget(), rtProxy->msaaDirtyRect());
-            gpu->submitToGpu(false);
+            gpu->submitToGpu(GrSyncCpu::kNo);
             rtProxy->markMSAAResolved();
         }
     }
@@ -1060,7 +1060,7 @@ void GrDrawingManager::flushIfNecessary() {
     auto resourceCache = direct->priv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
         if (this->flush({}, SkSurfaces::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr)) {
-            this->submitToGpu(false);
+            this->submitToGpu(GrSyncCpu::kNo);
         }
         resourceCache->purgeAsNeeded();
     }

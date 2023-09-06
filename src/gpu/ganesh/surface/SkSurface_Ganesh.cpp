@@ -798,7 +798,7 @@ void FlushAndSubmit(SkSurface* surface) {
         return;
     }
     if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        rContext->asDirectContext()->flushAndSubmit(surface, false);
+        rContext->asDirectContext()->flushAndSubmit(surface, GrSyncCpu::kNo);
     }
 }
 
@@ -807,7 +807,7 @@ void FlushAndSubmit(sk_sp<SkSurface> surface) {
         return;
     }
     if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        rContext->asDirectContext()->flushAndSubmit(surface.get(), false);
+        rContext->asDirectContext()->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     }
 }
 

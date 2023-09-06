@@ -4232,8 +4232,9 @@ void GrGLGpu::flush(FlushType flushType) {
     }
 }
 
-bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
-    if (syncCpu || (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
+bool GrGLGpu::onSubmitToGpu(GrSyncCpu sync) {
+    if (sync == GrSyncCpu::kYes ||
+        (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
         this->finishOutstandingGpuWork();
         fFinishCallbacks.callAll(true);
     } else {

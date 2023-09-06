@@ -109,7 +109,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* fil
             // calling flush.
             ctxInfo.testContext()->makeCurrent();
             // Sync so any release/finished procs get called.
-            ctxInfo.directContext()->flushAndSubmit(/*sync*/true);
+            ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
         }
     }
 }

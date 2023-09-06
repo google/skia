@@ -329,7 +329,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext,
     if (!FLAGS_png.isEmpty()) {
         // The user wants to see the final result
         skgpu::ganesh::DrawDDL(dstSurface, tiles.composeDDL());
-        dContext->flushAndSubmit(dstSurface);
+        dContext->flushAndSubmit(dstSurface.get(), GrSyncCpu::kNo);
     }
 
     tiles.resetAllTiles();
@@ -337,7 +337,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext,
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
     dContext->flush();
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
 
     promiseImageHelper.deleteAllFromGPU(nullptr, dContext);
 
@@ -375,8 +375,8 @@ static void run_benchmark(GrDirectContext* context,
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
-    context->flush(surface);
-    context->submit(true);
+    context->flush(surface.get());
+    context->submit(GrSyncCpu::kYes);
 }
 
 static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
@@ -445,8 +445,8 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
 
     // Make sure the gpu has finished all its work before we exit this function and delete the
     // fence.
-    context->flush(surface);
-    context->submit(true);
+    context->flush(surface.get());
+    context->submit(GrSyncCpu::kYes);
 }
 
 void print_result(const std::vector<Sample>& samples, const char* config, const char* bench)  {

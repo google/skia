@@ -99,7 +99,7 @@ void Window::onPaint() {
     this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
 
     if (auto dContext = this->directContext()) {
-        dContext->flushAndSubmit(backbuffer);
+        dContext->flushAndSubmit(backbuffer.get(), GrSyncCpu::kNo);
     }
 
     fWindowContext->swapBuffers();

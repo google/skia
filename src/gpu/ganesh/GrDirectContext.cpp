@@ -253,7 +253,7 @@ void GrDirectContext::freeGpuResources() {
 
     this->drawingManager()->freeGpuResources();
 
-    fResourceCache->purgeUnlockedResources();
+    fResourceCache->purgeUnlockedResources(GrPurgeResourceOptions::kAllResources);
 }
 
 bool GrDirectContext::init() {
@@ -357,14 +357,14 @@ void GrDirectContext::setResourceCacheLimit(size_t maxResourceBytes) {
     fResourceCache->setLimit(maxResourceBytes);
 }
 
-void GrDirectContext::purgeUnlockedResources(bool scratchResourcesOnly) {
+void GrDirectContext::purgeUnlockedResources(GrPurgeResourceOptions opts) {
     ASSERT_SINGLE_OWNER
 
     if (this->abandoned()) {
         return;
     }
 
-    fResourceCache->purgeUnlockedResources(scratchResourcesOnly);
+    fResourceCache->purgeUnlockedResources(opts);
     fResourceCache->purgeAsNeeded();
 
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
@@ -375,7 +375,7 @@ void GrDirectContext::purgeUnlockedResources(bool scratchResourcesOnly) {
 }
 
 void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed,
-                                             bool scratchResourcesOnly) {
+                                             GrPurgeResourceOptions opts) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     ASSERT_SINGLE_OWNER
@@ -389,7 +389,7 @@ void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed
     auto purgeTime = skgpu::StdSteadyClock::now() - msNotUsed;
 
     fResourceCache->purgeAsNeeded();
-    fResourceCache->purgeResourcesNotUsedSince(purgeTime, scratchResourcesOnly);
+    fResourceCache->purgeResourcesNotUsedSince(purgeTime, opts);
 
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs
@@ -460,7 +460,7 @@ GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
             {}, SkSurfaces::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
-bool GrDirectContext::submit(bool syncCpu) {
+bool GrDirectContext::submit(GrSyncCpu sync) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         return false;
@@ -470,7 +470,7 @@ bool GrDirectContext::submit(bool syncCpu) {
         return false;
     }
 
-    return fGpu->submitToGpu(syncCpu);
+    return fGpu->submitToGpu(sync);
 }
 
 GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<const SkImage> image,
@@ -546,17 +546,25 @@ GrSemaphoresSubmitted GrDirectContext::flush(SkSurface* surface,
             rtp, SkSurfaces::BackendSurfaceAccess::kNoAccess, info, newState);
 }
 
-void GrDirectContext::flushAndSubmit(SkSurface* surface, bool syncCpu) {
+void GrDirectContext::flushAndSubmit(SkSurface* surface, GrSyncCpu sync) {
     this->flush(surface, SkSurfaces::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
-    this->submit(syncCpu);
+    this->submit(sync);
+}
+
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_BOOLS)
+void GrDirectContext::flushAndSubmit(SkSurface* surface, bool syncCpu) {
+    this->flushAndSubmit(surface, syncCpu ? GrSyncCpu::kYes : GrSyncCpu::kNo);
 }
 
 #if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_FLUSH)
 void GrDirectContext::flushAndSubmit(sk_sp<SkSurface> surface, bool syncCpu) {
-    this->flush(surface.get(), SkSurfaces::BackendSurfaceAccess::kNoAccess, GrFlushInfo());
-    this->submit(syncCpu);
+    this->flushAndSubmit(surface.get(), syncCpu ? GrSyncCpu::kYes : GrSyncCpu::kNo);
 }
-#endif
+void GrDirectContext::flushAndSubmit(sk_sp<SkSurface> surface, GrSyncCpu sync) {
+    this->flushAndSubmit(surface.get(), sync);
+}
+#endif  // Flush
+#endif  // Bools
 
 void GrDirectContext::flush(SkSurface* surface) {
     this->flush(surface, GrFlushInfo(), nullptr);

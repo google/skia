@@ -1003,7 +1003,7 @@ protected:
                     result.mesh = {};
                     SkASSERT(!ib);  // NOLINT - bugprone-use-after-move. We're asserting it's moved.
                     SkASSERT(!vb);  // NOLINT
-                    ctx->flushAndSubmit(true);
+                    ctx->flushAndSubmit(GrSyncCpu::kYes);
                 }
             }
         }

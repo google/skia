@@ -1024,7 +1024,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             sk_sp<SkImage> refImg(imageMaker(dContext));
 
             canvas->drawImage(refImg, 0, 0);
-            dContext->flushAndSubmit(surface);
+            dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
 
             refImg.reset(nullptr); // force a release of the image
         }
@@ -1036,7 +1036,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             canvas->drawImage(refImg, 0, 0);
             refImg.reset(nullptr); // force a release of the image
 
-            dContext->flushAndSubmit(surface);
+            dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
         }
 
         // Configure second context
@@ -1061,7 +1061,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             otherTestContext->makeCurrent();
             canvas->drawImage(refImg, 0, 0);
-            otherCtx->flushAndSubmit(surface);
+            otherCtx->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
 
             testContext->makeCurrent();
             refImg.reset(nullptr); // force a release of the image
@@ -1081,7 +1081,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             otherTestContext->makeCurrent();
             // Sync is specifically here for vulkan to guarantee the command buffer will finish
             // which is when we call the ReleaseProc.
-            otherCtx->flushAndSubmit(surface, true);
+            otherCtx->flushAndSubmit(surface.get(), GrSyncCpu::kYes);
         }
 
         // Case #6: Verify that only one context can be using the image at a time
@@ -1578,13 +1578,13 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::
 
     // Syncing forces the flush to happen even if the images aren't used.
     dContext->flush(i0);
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     dContext->flush(i1);
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
     dContext->flush(i2);
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 
     // Use image 1

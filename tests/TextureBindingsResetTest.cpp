@@ -136,7 +136,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
     surf->getCanvas()->scale(0.25, 0.25);
     surf->getCanvas()->drawImage(img.get(), 0, 0, SkSamplingOptions({1.0f/3, 1.0f/3}), nullptr);
     surf->getCanvas()->restore();
-    dContext->flushAndSubmit(surf);
+    dContext->flushAndSubmit(surf.get(), GrSyncCpu::kNo);
     dContext->resetGLTextureBindings();
     checkBindings();
     resetBindings();
@@ -174,7 +174,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
         REPORTER_ASSERT(reporter, img);
         surf->getCanvas()->drawImage(img, 0, 0);
         img.reset();
-        dContext->flushAndSubmit(surf);
+        dContext->flushAndSubmit(surf.get(), GrSyncCpu::kNo);
         dContext->resetGLTextureBindings();
         checkBindings();
         resetBindings();
@@ -198,7 +198,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
             REPORTER_ASSERT(reporter, img);
             surf->getCanvas()->drawImage(img, 0, 0);
             img.reset();
-            dContext->flushAndSubmit(surf);
+            dContext->flushAndSubmit(surf.get(), GrSyncCpu::kNo);
             dContext->resetGLTextureBindings();
             checkBindings();
             resetBindings();

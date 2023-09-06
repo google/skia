@@ -335,7 +335,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     direct->flush(GrFlushInfo());
-    direct->submit(false);
+    direct->submit(GrSyncCpu::kNo);
 
     // Validate that GrFPs work correctly without an input.
     auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(direct,
@@ -365,7 +365,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
             GrDrawRandomOp(&random, sdc.get(), std::move(paint));
 
             direct->flush(GrFlushInfo());
-            direct->submit(false);
+            direct->submit(GrSyncCpu::kNo);
         }
     }
 

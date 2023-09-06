@@ -483,9 +483,8 @@ void GrResourceCache::purgeAsNeeded() {
 }
 
 void GrResourceCache::purgeUnlockedResources(const skgpu::StdSteadyClock::time_point* purgeTime,
-                                             bool scratchResourcesOnly) {
-
-    if (!scratchResourcesOnly) {
+                                             GrPurgeResourceOptions opts) {
+    if (opts == GrPurgeResourceOptions::kAllResources) {
         if (purgeTime) {
             fThreadSafeCache->dropUniqueRefsOlderThan(*purgeTime);
         } else {
@@ -512,6 +511,7 @@ void GrResourceCache::purgeUnlockedResources(const skgpu::StdSteadyClock::time_p
             resource->cacheAccess().release();
         }
     } else {
+        SkASSERT(opts == GrPurgeResourceOptions::kScratchResourcesOnly);
         // Early out if the very first item is too new to purge to avoid sorting the queue when
         // nothing will be deleted.
         if (purgeTime && fPurgeableQueue.count() &&

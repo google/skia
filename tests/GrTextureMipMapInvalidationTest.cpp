@@ -77,7 +77,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
         auto surf2 = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization
         surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
-        context->flushAndSubmit(surf1);
+        context->flushAndSubmit(surf1.get(), GrSyncCpu::kNo);
 
         // No mipmaps initially
         REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);

@@ -440,7 +440,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAbandonPostFlush_Gpu,
         return;
     }
     // This flush can put command buffer refs on the GrGpuResource for the surface.
-    direct->flush(surface);
+    direct->flush(surface.get());
     direct->abandonContext();
     // We pass the test if we don't hit any asserts or crashes when the ref on the surface goes away
     // after we abanonded the context. One thing specifically this checks is to make sure we're
@@ -465,7 +465,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBackendAccessAbandoned_Gpu,
             surface.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
     REPORTER_ASSERT(reporter, beTex.isValid());
 
-    dContext->flush(surface);
+    dContext->flush(surface.get());
     dContext->abandonContext();
 
     // After abandoning the context none of the backend surfaces should be valid.
@@ -1057,8 +1057,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu,
         }
 
         surface->getCanvas()->clear(SK_ColorRED);
-        ctx->flush(surface);
-        ctx->submit(true);
+        ctx->flush(surface.get());
+        ctx->submit(GrSyncCpu::kYes);
 
         // Now exercise the release proc
         REPORTER_ASSERT(reporter, 0 == releaseChecker.fReleaseCount);

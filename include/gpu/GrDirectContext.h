@@ -266,18 +266,26 @@ public:
     /**
      * Purge GPU resources that haven't been used in the past 'msNotUsed' milliseconds or are
      * otherwise marked for deletion, regardless of whether the context is under budget.
+
      *
-     * If 'scratchResourcesOnly' is true all unlocked scratch resources older than 'msNotUsed' will
-     * be purged but the unlocked resources with persistent data will remain. If
-     * 'scratchResourcesOnly' is false then all unlocked resources older than 'msNotUsed' will be
-     * purged.
-     *
-     * @param msNotUsed              Only unlocked resources not used in these last milliseconds
-     *                               will be cleaned up.
-     * @param scratchResourcesOnly   If true only unlocked scratch resources will be purged.
+     * @param msNotUsed   Only unlocked resources not used in these last milliseconds will be
+     *                    cleaned up.
+     * @param opts        Specify which resources should be cleaned up. If kScratchResourcesOnly
+     *                    then, all unlocked scratch resources older than 'msNotUsed' will be purged
+     *                    but the unlocked resources with persistent data will remain. If
+     *                    kAllResources
      */
-    void performDeferredCleanup(std::chrono::milliseconds msNotUsed,
-                                bool scratchResourcesOnly=false);
+
+    void performDeferredCleanup(
+            std::chrono::milliseconds msNotUsed,
+            GrPurgeResourceOptions opts = GrPurgeResourceOptions::kAllResources);
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_BOOLS)
+    void performDeferredCleanup(std::chrono::milliseconds msNotUsed, bool scratchResourcesOnly) {
+        performDeferredCleanup(msNotUsed,
+                               scratchResourcesOnly ? GrPurgeResourceOptions::kScratchResourcesOnly
+                                                    : GrPurgeResourceOptions::kAllResources);
+    }
+#endif
 
     // Temporary compatibility API for Android.
     void purgeResourcesNotUsedInMs(std::chrono::milliseconds msNotUsed) {
@@ -306,10 +314,16 @@ public:
      * ensure that resource usage is under budget (i.e., even if 'scratchResourcesOnly' is true
      * some resources with persistent data may be purged to be under budget).
      *
-     * @param scratchResourcesOnly   If true only unlocked scratch resources will be purged prior
-     *                               enforcing the budget requirements.
+     * @param opts If kScratchResourcesOnly only unlocked scratch resources will be purged prior
+     *             enforcing the budget requirements.
      */
-    void purgeUnlockedResources(bool scratchResourcesOnly);
+    void purgeUnlockedResources(GrPurgeResourceOptions opts);
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_BOOLS)
+    void purgeUnlockedResources(bool scratchResourcesOnly) {
+        purgeUnlockedResources(scratchResourcesOnly ? GrPurgeResourceOptions::kScratchResourcesOnly
+                                                    : GrPurgeResourceOptions::kAllResources);
+    }
+#endif
 
     /**
      * Gets the maximum supported texture size.
@@ -364,12 +378,18 @@ public:
     /**
      * Call to ensure all drawing to the context has been flushed and submitted to the underlying 3D
      * API. This is equivalent to calling GrContext::flush with a default GrFlushInfo followed by
-     * GrContext::submit(syncCpu).
+     * GrContext::submit(sync).
      */
-    void flushAndSubmit(bool syncCpu = false) {
+    void flushAndSubmit(GrSyncCpu sync = GrSyncCpu::kNo) {
         this->flush(GrFlushInfo());
-        this->submit(syncCpu);
+        this->submit(sync);
     }
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_BOOLS)
+    void flushAndSubmit(bool syncCpu) {
+        this->flush(GrFlushInfo());
+        this->submit(syncCpu ? GrSyncCpu::kYes : GrSyncCpu::kNo);
+    }
+#endif
 
     /**
      * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
@@ -507,10 +527,15 @@ public:
      *
      *  Has no effect on a CPU-backed surface.
      */
-    void flushAndSubmit(SkSurface* surface, bool syncCpu = false);
+    void flushAndSubmit(SkSurface* surface, GrSyncCpu sync = GrSyncCpu::kNo);
+
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_BOOLS)
+    void flushAndSubmit(SkSurface* surface, bool syncCpu);
 #if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_FLUSH)
     // TODO(kjlubick) remove this as it is error prone https://crbug.com/1475906
-    void flushAndSubmit(sk_sp<SkSurface> surface, bool syncCpu = false);
+    void flushAndSubmit(sk_sp<SkSurface> surface, bool syncCpu);
+    void flushAndSubmit(sk_sp<SkSurface> surface, GrSyncCpu sync = GrSyncCpu::kNo);
+#endif
 #endif
 
     /**
@@ -535,10 +560,13 @@ public:
      * If it returns false, then those same semaphores will not have been submitted and we will not
      * try to submit them again. The caller is free to delete the semaphores at any time.
      *
-     * If the syncCpu flag is true this function will return once the gpu has finished with all
+     * If sync flag is GrSyncCpu::kYes, this function will return once the gpu has finished with all
      * submitted work.
      */
-    bool submit(bool syncCpu = false);
+    bool submit(GrSyncCpu sync = GrSyncCpu::kNo);
+#if !defined(SK_DISABLE_LEGACY_GRDIRECTCONTEXT_BOOLS)
+    bool submit(bool syncCpu) { return this->submit(syncCpu ? GrSyncCpu::kYes : GrSyncCpu::kNo); }
+#endif
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.

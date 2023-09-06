@@ -303,7 +303,7 @@ public:
 
     ~GPUGenerator() override {
         // ensure all pending reads are completed
-        fCtx->flushAndSubmit(true);
+        fCtx->flushAndSubmit(GrSyncCpu::kYes);
     }
 
     void generateFrame(const skottie::Animation* anim, size_t frame_index) override {

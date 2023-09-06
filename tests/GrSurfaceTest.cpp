@@ -370,7 +370,8 @@ DEF_GANESH_TEST(InitialTextureClear, reporter, baseOptions, CtsEnforcement::kApi
                             }
                         }
 
-                        dContext->priv().getResourceCache()->purgeUnlockedResources();
+                        dContext->priv().getResourceCache()->purgeUnlockedResources(
+                                GrPurgeResourceOptions::kAllResources);
                     }
 
                     // Try creating the texture as a deferred proxy.
@@ -400,7 +401,8 @@ DEF_GANESH_TEST(InitialTextureClear, reporter, baseOptions, CtsEnforcement::kApi
                                 }
                             }
                         }
-                        dContext->priv().getResourceCache()->purgeUnlockedResources();
+                        dContext->priv().getResourceCache()->purgeUnlockedResources(
+                                GrPurgeResourceOptions::kAllResources);
                     }
                 }
             }

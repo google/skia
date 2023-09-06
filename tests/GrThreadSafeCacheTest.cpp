@@ -192,7 +192,7 @@ public:
 
     ~TestHelper() {
         fDContext->flush();
-        fDContext->submit(true);
+        fDContext->submit(GrSyncCpu::kYes);
     }
 
     Stats* stats() { return &fStats; }
@@ -1013,7 +1013,7 @@ static void test_4_75(GrDirectContext* dContext, skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
     dContext->flush();
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
 
     REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 0, kNoID));
@@ -1318,10 +1318,10 @@ static void test_10(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 2, kNoID));
 
     dContext->flush();
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
 
     // This should clear out everything but the textures locked in the thread-safe cache
-    dContext->purgeUnlockedResources(false);
+    dContext->purgeUnlockedResources(GrPurgeResourceOptions::kAllResources);
 
     ddl1 = nullptr;
     ddl2 = nullptr;
@@ -1383,7 +1383,7 @@ static void test_11(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     dContext->flush();
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
     REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
@@ -1392,11 +1392,11 @@ static void test_11(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
 
     // This shouldn't remove anything from the cache
-    dContext->purgeUnlockedResources(/* scratchResourcesOnly */ true);
+    dContext->purgeUnlockedResources(GrPurgeResourceOptions::kScratchResourcesOnly);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
-    dContext->purgeUnlockedResources(/* scratchResourcesOnly */ false);
+    dContext->purgeUnlockedResources(GrPurgeResourceOptions::kAllResources);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 }
@@ -1437,7 +1437,7 @@ static void test_12(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     dContext->flush();
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
     REPORTER_ASSERT(reporter, (helper.*check)(helper.liveCanvas(), kImageWH,
@@ -1556,7 +1556,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache14,
         if (!i) {
             // Drop all the accumulated resources from the thread-safe cache
             helper.snap1();
-            ctxInfo.directContext()->purgeUnlockedResources(/* scratchResourcesOnly */ false);
+            ctxInfo.directContext()->purgeUnlockedResources(GrPurgeResourceOptions::kAllResources);
         }
     }
 }
@@ -1585,7 +1585,7 @@ static void test_15(GrDirectContext* dContext, skiatest::Reporter* reporter,
     SkMessageBus<skgpu::UniqueKeyInvalidatedMessage, uint32_t>::Post(msg);
 
     // This purge call is needed to process the invalidation messages
-    dContext->purgeUnlockedResources(/* scratchResourcesOnly */ true);
+    dContext->purgeUnlockedResources(GrPurgeResourceOptions::kScratchResourcesOnly);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 

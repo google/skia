@@ -53,7 +53,7 @@ private:
         auto context = canvas->recordingContext()->asDirectContext();
 
         context->flush();
-        context->submit(true);
+        context->submit(GrSyncCpu::kYes);
 
         for (int i = 0; i < fBackendTextures.size(); ++i) {
             if (fBackendTextures[i].isValid()) {

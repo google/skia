@@ -49,7 +49,7 @@ DEF_GANESH_TEST(GrContext_oomed, reporter, originalOptions, CtsEnforcement::kApi
                         SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, info, 1, nullptr);
                 SkPaint paint;
                 surf->getCanvas()->drawRect(SkRect::MakeLTRB(100, 100, 2000, 2000), paint);
-                context->flushAndSubmit(surf);
+                context->flushAndSubmit(surf.get(), GrSyncCpu::kNo);
                 if ((oomed = context->oomed())) {
                     REPORTER_ASSERT(reporter, !context->oomed(), "oomed() wasn't cleared");
                     break;

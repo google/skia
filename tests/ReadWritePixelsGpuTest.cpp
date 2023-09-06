@@ -1460,7 +1460,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLReadPixelsUnbindPBO,
                                      &asyncContext);
 
     // This will force the async readback to finish.
-    ctxInfo.directContext()->flushAndSubmit(true);
+    ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
     if (!asyncContext.fCalled) {
         ERRORF(reporter, "async_callback not called.");
     }

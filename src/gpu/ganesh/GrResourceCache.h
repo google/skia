@@ -167,19 +167,19 @@ public:
         keys. */
     void purgeAsNeeded();
 
-    // Purge unlocked resources. If 'scratchResourcesOnly' is true the purgeable resources
-    // containing persistent data are spared. If it is false then all purgeable resources will
-    // be deleted.
-    void purgeUnlockedResources(bool scratchResourcesOnly=false) {
-        this->purgeUnlockedResources(/*purgeTime=*/nullptr, scratchResourcesOnly);
+    // Purge unlocked resources. If 'opts' is kScratchResourcesOnly, the purgeable resources
+    // containing persistent data are spared. If it is kAllResources then all purgeable resources
+    // will be deleted.
+    void purgeUnlockedResources(GrPurgeResourceOptions opts) {
+        this->purgeUnlockedResources(/*purgeTime=*/nullptr, opts);
     }
 
-    // Purge unlocked resources not used since the passed point in time. If 'scratchResourcesOnly'
-    // is true the purgeable resources containing persistent data are spared. If it is false then
-    // all purgeable resources older than 'purgeTime' will be deleted.
+    // Purge unlocked resources not used since the passed point in time. If 'opts' is
+    // kScratchResourcesOnly, the purgeable resources containing persistent data are spared.
+    // If it is kAllResources then all purgeable resources older than 'purgeTime' will be deleted.
     void purgeResourcesNotUsedSince(skgpu::StdSteadyClock::time_point purgeTime,
-                                    bool scratchResourcesOnly=false) {
-        this->purgeUnlockedResources(&purgeTime, scratchResourcesOnly);
+                                    GrPurgeResourceOptions opts) {
+        this->purgeUnlockedResources(&purgeTime, opts);
     }
 
     /** If it's possible to purge enough resources to get the provided amount of budget
@@ -317,7 +317,7 @@ private:
     uint32_t getNextTimestamp();
 
     void purgeUnlockedResources(const skgpu::StdSteadyClock::time_point* purgeTime,
-                                bool scratchResourcesOnly);
+                                GrPurgeResourceOptions opts);
 
 #ifdef SK_DEBUG
     bool isInCache(const GrGpuResource* r) const;

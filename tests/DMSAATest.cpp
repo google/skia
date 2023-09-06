@@ -325,7 +325,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
                                             &paint,
                                             SkCanvas::kStrict_SrcRectConstraint);
         // Make sure there isn't any batching
-        context->flushAndSubmit(surface);
+        context->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     }
 
     // Next we do an image draw to a different surface that doesn't have the dmsaa flag. This will
@@ -346,7 +346,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
                                             SkSamplingOptions(),
                                             &paint,
                                             SkCanvas::kStrict_SrcRectConstraint);
-        context->flushAndSubmit(surface);
+        context->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     }
 
     {
@@ -384,7 +384,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
     }
     sourceImage.reset();
     // Need to make sure the gpu is fully finished before deleting the textures
-    context->flushAndSubmit(true);
+    context->flushAndSubmit(GrSyncCpu::kYes);
     context->deleteBackendTexture(sourceTexture);
     context->deleteBackendTexture(texture1);
     context->deleteBackendTexture(texture2);
