@@ -924,6 +924,14 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
                                         "sk_LastFragColor requires framebuffer fetch support");
             }
             break;
+        case SK_SAMPLEMASKIN_BUILTIN:
+            // GLSL defines gl_SampleMaskIn as an array of ints. SkSL defines it as a scalar uint.
+            this->writeIdentifier("uint(gl_SampleMaskIn[0])");
+            break;
+        case SK_SAMPLEMASK_BUILTIN:
+            // GLSL defines gl_SampleMask as an array of ints. SkSL defines it as a scalar uint.
+            this->writeIdentifier("gl_SampleMask[0]");
+            break;
         default:
             this->writeIdentifier(ref.variable()->mangledName());
             break;
@@ -937,8 +945,20 @@ void GLSLCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
     this->write("]");
 }
 
-bool is_sk_position(const FieldAccess& f) {
+bool is_sk_position(const Expression& expr) {
+    if (!expr.is<FieldAccess>()) {
+        return false;
+    }
+    const FieldAccess& f = expr.as<FieldAccess>();
     return f.base()->type().fields()[f.fieldIndex()].fLayout.fBuiltin == SK_POSITION_BUILTIN;
+}
+
+bool is_sk_samplemask(const Expression& expr) {
+    if (!expr.is<VariableReference>()) {
+        return false;
+    }
+    const VariableReference& v = expr.as<VariableReference>();
+    return v.variable()->layout().fBuiltin == SK_SAMPLEMASK_BUILTIN;
 }
 
 void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
@@ -993,15 +1013,14 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     const Expression& left = *b.left();
     const Expression& right = *b.right();
     Operator op = b.getOperator();
-    if (this->caps().fUnfoldShortCircuitAsTernary &&
-            (op.kind() == Operator::Kind::LOGICALAND || op.kind() == Operator::Kind::LOGICALOR)) {
+    if (this->caps().fUnfoldShortCircuitAsTernary && (op.kind() == Operator::Kind::LOGICALAND ||
+                                                      op.kind() == Operator::Kind::LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
         return;
     }
 
-    if (this->caps().fRewriteMatrixComparisons &&
-            left.type().isMatrix() && right.type().isMatrix() &&
-            (op.kind() == Operator::Kind::EQEQ || op.kind() == Operator::Kind::NEQ)) {
+    if (this->caps().fRewriteMatrixComparisons && left.type().isMatrix() &&
+        right.type().isMatrix() && op.isEquality()) {
         this->writeMatrixComparisonWorkaround(b);
         return;
     }
@@ -1010,19 +1029,29 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
-    bool positionWorkaround = ProgramConfig::IsVertex(fProgram.fConfig->fKind) &&
-                              op.isAssignment() &&
-                              left.is<FieldAccess>() &&
-                              is_sk_position(left.as<FieldAccess>()) &&
-                              !Analysis::ContainsRTAdjust(right) &&
-                              !this->caps().fCanUseFragCoord;
-    if (positionWorkaround) {
+    const bool needsPositionWorkaround = ProgramConfig::IsVertex(fProgram.fConfig->fKind) &&
+                                         op.isAssignment() &&
+                                         is_sk_position(left) &&
+                                         !Analysis::ContainsRTAdjust(right) &&
+                                         !this->caps().fCanUseFragCoord;
+    if (needsPositionWorkaround) {
         this->write("sk_FragCoord_Workaround = (");
     }
     this->writeExpression(left, precedence);
     this->write(op.operatorName());
+
+    const bool isAssignmentToSampleMask = ProgramConfig::IsFragment(fProgram.fConfig->fKind) &&
+                                          op.isAssignment() &&
+                                          is_sk_samplemask(left);
+    if (isAssignmentToSampleMask) {
+        // GLSL defines the sample masks as signed ints; SkSL (and Metal/WebGPU) use unsigned ints.
+        this->write("int(");
+    }
     this->writeExpression(right, precedence);
-    if (positionWorkaround) {
+    if (isAssignmentToSampleMask) {
+        this->write(")");
+    }
+    if (needsPositionWorkaround) {
         this->write(")");
     }
     if (precedence >= parentPrecedence) {

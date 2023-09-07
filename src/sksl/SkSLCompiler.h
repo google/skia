@@ -23,22 +23,24 @@
 #include <type_traits>
 #include <vector>
 
-#define SK_FRAGCOLOR_BUILTIN           10001
-#define SK_LASTFRAGCOLOR_BUILTIN       10008
-#define SK_SECONDARYFRAGCOLOR_BUILTIN  10012
-#define SK_FRAGCOORD_BUILTIN              15
-#define SK_CLOCKWISE_BUILTIN              17
+constexpr int SK_FRAGCOLOR_BUILTIN =           10001;
+constexpr int SK_LASTFRAGCOLOR_BUILTIN =       10008;
+constexpr int SK_SECONDARYFRAGCOLOR_BUILTIN =  10012;
+constexpr int SK_FRAGCOORD_BUILTIN =              15;
+constexpr int SK_CLOCKWISE_BUILTIN =              17;
+constexpr int SK_SAMPLEMASKIN_BUILTIN =           20;
+constexpr int SK_SAMPLEMASK_BUILTIN =          10020;
 
-#define SK_VERTEXID_BUILTIN               42
-#define SK_INSTANCEID_BUILTIN             43
-#define SK_POSITION_BUILTIN                0
-#define SK_POINTSIZE_BUILTIN               1
+constexpr int SK_VERTEXID_BUILTIN =               42;
+constexpr int SK_INSTANCEID_BUILTIN =             43;
+constexpr int SK_POSITION_BUILTIN =                0;
+constexpr int SK_POINTSIZE_BUILTIN =               1;
 
-#define SK_NUMWORKGROUPS_BUILTIN          24
-#define SK_WORKGROUPID_BUILTIN            26
-#define SK_LOCALINVOCATIONID_BUILTIN      27
-#define SK_GLOBALINVOCATIONID_BUILTIN     28
-#define SK_LOCALINVOCATIONINDEX_BUILTIN   29
+constexpr int SK_NUMWORKGROUPS_BUILTIN =          24;
+constexpr int SK_WORKGROUPID_BUILTIN =            26;
+constexpr int SK_LOCALINVOCATIONID_BUILTIN =      27;
+constexpr int SK_GLOBALINVOCATIONID_BUILTIN =     28;
+constexpr int SK_LOCALINVOCATIONINDEX_BUILTIN =   29;
 
 namespace SkSL {
 

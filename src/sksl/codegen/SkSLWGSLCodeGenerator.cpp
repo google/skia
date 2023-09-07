@@ -508,6 +508,7 @@ std::string_view wgsl_builtin_name(WGSLCodeGenerator::Builtin builtin) {
         case Builtin::kFragDepth:
             return "frag_depth";
         case Builtin::kSampleMask:
+        case Builtin::kSampleMaskIn:
             return "sample_mask";
         case Builtin::kLocalInvocationId:
             return "local_invocation_id";
@@ -543,6 +544,8 @@ std::string_view wgsl_builtin_type(WGSLCodeGenerator::Builtin builtin) {
         case Builtin::kFragDepth:
             return "f32";
         case Builtin::kSampleMask:
+            return "u32";
+        case Builtin::kSampleMaskIn:
             return "u32";
         case Builtin::kLocalInvocationId:
             return "vec3<u32>";
@@ -598,6 +601,10 @@ std::optional<WGSLCodeGenerator::Builtin> builtin_from_sksl_name(int builtin) {
             // on how Skia configured the render pipeline for all references to this built-in
             // variable (see `SkSL::Program::Interface::fUseFlipRTUniform`).
             return Builtin::kFrontFacing;
+        case SK_SAMPLEMASKIN_BUILTIN:
+            return Builtin::kSampleMaskIn;
+        case SK_SAMPLEMASK_BUILTIN:
+            return Builtin::kSampleMask;
         case SK_NUMWORKGROUPS_BUILTIN:
             return Builtin::kNumWorkgroups;
         case SK_WORKGROUPID_BUILTIN:

@@ -970,6 +970,7 @@ skia_filegroup(
         "shared/ReturnsValueOnEveryPathES2.sksl",
         "shared/ReturnsValueOnEveryPathES3.sksl",
         "shared/SampleLocations.vert",
+        "shared/SampleMask.sksl",
         "shared/ScalarConversionConstructorsES2.sksl",
         "shared/ScalarConversionConstructorsES3.sksl",
         "shared/ScopedSymbol.sksl",

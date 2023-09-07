@@ -3,6 +3,8 @@
 // See "enum SpvBuiltIn_" in ./spirv.h
 layout(builtin=15) in float4 sk_FragCoord;
 layout(builtin=17) in bool sk_Clockwise;  // Similar to gl_FrontFacing, but defined in device space.
+layout(builtin=20) in uint sk_SampleMaskIn;
+layout(builtin=10020) out uint sk_SampleMask;
 
 layout(location=0,index=0,builtin=10001) out half4 sk_FragColor;
 layout(builtin=10008) half4 sk_LastFragColor;

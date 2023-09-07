@@ -100,7 +100,8 @@ public:
         kFrontFacing,  // input
         kSampleIndex,  // input
         kFragDepth,    // output
-        kSampleMask,   // input, output
+        kSampleMaskIn, // input
+        kSampleMask,   // output
 
         // Compute stage:
         kLocalInvocationId,     // input
