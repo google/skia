@@ -25,10 +25,6 @@ const int $kColorSpaceXformFlagGamutTransform = 0x4;
 const int $kColorSpaceXformFlagEncode = 0x8;
 const int $kColorSpaceXformFlagPremul = 0x10;
 
-// Matches GrTextureEffect::kLinearInset, to make sure we don't touch an outer
-// row or column with a weight of 0 when linear filtering.
-const float $kLinearInset = 0.5 + 0.00001;
-
 $pure half4 sk_error() {
     return half4(1.0, 0.0, 1.0, 1.0);
 }
@@ -173,9 +169,9 @@ $pure half4 $sample_image(float2 pos,
     // texel boundaries.
     float4 insetClamp;
     if (filterMode == $kFilterModeNearest) {
-        insetClamp = float4(floor(subset.xy) + $kLinearInset, ceil(subset.zw) - $kLinearInset);
+        insetClamp = float4(floor(subset.xy) + 0.5, ceil(subset.zw) - 0.5);
     } else {
-        insetClamp = float4(subset.xy + $kLinearInset, subset.zw - $kLinearInset);
+        insetClamp = float4(subset.xy + 0.5, subset.zw - 0.5);
     }
     float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
     half4 color = sample(s, clampedPos / imgSize);
