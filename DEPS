@@ -9,6 +9,10 @@ vars = {
   # ninja CIPD package version.
   # https://chrome-infra-packages.appspot.com/p/infra/3pp/tools/ninja
   'ninja_version': 'version:2@1.8.2.chromium.3',
+
+  # googlefonts_testdata CIPD package version
+  # https://chrome-infra-packages.appspot.com/p/chromium/third_party/googlefonts_testdata/
+  'googlefonts_testdata_version': 'version:20230409',
 }
 
 # If you modify this file, you will need to regenerate the Bazel version of this file (bazel/deps.bzl).
