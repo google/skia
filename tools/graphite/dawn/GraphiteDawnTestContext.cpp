@@ -74,6 +74,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     if (adapter.HasFeature(wgpu::FeatureName::TransientAttachments)) {
         features.push_back(wgpu::FeatureName::TransientAttachments);
     }
+    if (adapter.HasFeature(wgpu::FeatureName::Norm16TextureFormats)) {
+        features.push_back(wgpu::FeatureName::Norm16TextureFormats);
+    }
 
     wgpu::DeviceDescriptor desc;
 #ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
