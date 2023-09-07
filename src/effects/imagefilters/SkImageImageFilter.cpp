@@ -32,7 +32,7 @@ public:
                        const SkRect& srcRect,
                        const SkRect& dstRect,
                        const SkSamplingOptions& sampling)
-            : SkImageFilter_Base(nullptr, 0, nullptr)
+            : SkImageFilter_Base(nullptr, 0)
             , fImage(std::move(image))
             , fSrcRect(srcRect)
             , fDstRect(dstRect)

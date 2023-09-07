@@ -30,6 +30,7 @@
 #include "src/core/SkWriteBuffer.h"
 
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -44,7 +45,7 @@ public:
                          std::string_view childShaderNames[],
                          const sk_sp<SkImageFilter> inputs[],
                          int inputCount)
-            : SkImageFilter_Base(inputs, inputCount, /*cropRect=*/nullptr)
+            : SkImageFilter_Base(inputs, inputCount)
             , fRuntimeEffectBuilder(builder)
             , fMaxSampleRadius(maxSampleRadius) {
         SkASSERT(maxSampleRadius >= 0.f);

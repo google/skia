@@ -119,7 +119,7 @@ protected:
 
 private:
     sk_sp<SkImageFilter>     fFilter;
-    SkImageFilters::CropRect fCropRect = skif::kNoCropRect;
+    SkImageFilters::CropRect fCropRect = std::nullopt;
 
     using INHERITED = Node;
 };

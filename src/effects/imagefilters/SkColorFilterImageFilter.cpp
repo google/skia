@@ -20,6 +20,7 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 
+#include <optional>
 #include <utility>
 
 namespace {
@@ -27,7 +28,7 @@ namespace {
 class SkColorFilterImageFilter final : public SkImageFilter_Base {
 public:
     SkColorFilterImageFilter(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input)
-            : SkImageFilter_Base(&input, 1, nullptr)
+            : SkImageFilter_Base(&input, 1)
             , fColorFilter(std::move(cf)) {}
 
     SkRect computeFastBounds(const SkRect& bounds) const override;

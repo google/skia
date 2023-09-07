@@ -109,9 +109,11 @@ ImageFilterEffect::~ImageFilterEffect() {
 SkRect ImageFilterEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     const auto content_bounds = this->INHERITED::onRevalidate(ic, ctm);
 
-    fImageFilter->setCropRect(fCropping == Cropping::kContent
-        ? content_bounds
-        : skif::kNoCropRect);
+    if (fCropping == Cropping::kContent) {
+        fImageFilter->setCropRect(content_bounds);
+    } else {
+        fImageFilter->setCropRect(std::nullopt);
+    }
 
     // FIXME: image filter effects should replace the descendents' damage!
     fImageFilter->revalidate(ic, ctm);
@@ -186,8 +188,7 @@ BlurImageFilter::~BlurImageFilter() = default;
 
 sk_sp<SkImageFilter> BlurImageFilter::onRevalidateFilter() {
     // Tile modes other than kDecal require an explicit crop rect.
-    SkASSERT(fTileMode == SkTileMode::kDecal ||
-             this->getCropRect() != SkImageFilters::CropRect(skif::kNoCropRect));
+    SkASSERT(fTileMode == SkTileMode::kDecal || this->getCropRect().has_value());
     return SkImageFilters::Blur(fSigma.x(), fSigma.y(), fTileMode, nullptr, this->getCropRect());
 }
 

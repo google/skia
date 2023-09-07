@@ -29,6 +29,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 
+#include <optional>
 #include <utility>
 
 struct SkISize;
@@ -158,7 +159,7 @@ struct Material {
 class SkLightingImageFilter final : public SkImageFilter_Base {
 public:
     SkLightingImageFilter(const Light& light, const Material& material, sk_sp<SkImageFilter> input)
-            : SkImageFilter_Base(&input, 1, nullptr)
+            : SkImageFilter_Base(&input, 1)
             , fLight(light)
             , fMaterial(material) {}
 

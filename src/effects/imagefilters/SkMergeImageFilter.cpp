@@ -17,6 +17,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 
+#include <optional>
 #include <utility>
 
 namespace {
@@ -24,7 +25,7 @@ namespace {
 class SkMergeImageFilter final : public SkImageFilter_Base {
 public:
     SkMergeImageFilter(sk_sp<SkImageFilter>* const filters, int count)
-            : SkImageFilter_Base(filters, count, nullptr) {
+            : SkImageFilter_Base(filters, count) {
         SkASSERT(filters && count > 0);
     }
 

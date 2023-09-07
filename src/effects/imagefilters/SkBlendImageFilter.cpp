@@ -47,7 +47,7 @@ public:
                        const std::optional<SkV4>& coefficients,
                        bool enforcePremul,
                        sk_sp<SkImageFilter> inputs[2])
-            : SkImageFilter_Base(inputs, 2, nullptr)
+            : SkImageFilter_Base(inputs, 2)
             , fBlender(std::move(blender))
             , fArithmeticCoefficients(coefficients)
             , fEnforcePremul(enforcePremul) {

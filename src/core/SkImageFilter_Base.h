@@ -143,47 +143,10 @@ public:
     Unflatten(SkReadBuffer& buffer);
 
 protected:
-    // DEPRECATED: Will be removed once cropping is handled by a standalone image filter
-    class CropRect {
-    public:
-        enum CropEdge {
-            kHasLeft_CropEdge   = 0x01,
-            kHasTop_CropEdge    = 0x02,
-            kHasWidth_CropEdge  = 0x04,
-            kHasHeight_CropEdge = 0x08,
-            kHasAll_CropEdge    = 0x0F,
-        };
-        CropRect() : fFlags(0) {}
-        explicit CropRect(const SkRect* rect)
-            : fRect(rect ? *rect : SkRect::MakeEmpty()), fFlags(rect ? kHasAll_CropEdge : 0x0) {}
-
-        // CropRect(const CropRect&) = default;
-
-        uint32_t flags() const { return fFlags; }
-        const SkRect& rect() const { return fRect; }
-
-        /**
-         *  Apply this cropRect to the imageBounds. If a given edge of the cropRect is not set, then
-         *  the corresponding edge from imageBounds will be used. If "embiggen" is true, the crop
-         *  rect is allowed to enlarge the size of the rect, otherwise it may only reduce the rect.
-         *  Filters that can affect transparent black should pass "true", while all other filters
-         *  should pass "false".
-         *
-         *  Note: imageBounds is in "device" space, as the output cropped rectangle will be, so the
-         *  matrix is ignored for those. It is only applied to the cropRect's bounds.
-         */
-        void applyTo(const SkIRect& imageBounds, const SkMatrix& matrix, bool embiggen,
-                     SkIRect* cropped) const;
-
-    private:
-        SkRect fRect;
-        uint32_t fFlags;
-    };
-
     class Common {
     public:
         /**
-         *  Attempt to unflatten the cropRect and the expected number of input filters.
+         *  Attempt to unflatten the expected number of input filters.
          *  If any number of input filters is valid, pass -1.
          *  If this fails (i.e. corrupt buffer or contents) then return false and common will
          *  be left uninitialized.
@@ -192,30 +155,23 @@ protected:
          */
         bool unflatten(SkReadBuffer&, int expectedInputs);
 
-        std::optional<SkRect> optionalCropRect() const {
-            if (fCropRect.flags()) {
-                return fCropRect.rect();
-            } else {
-                return {};
-            }
-        }
+        std::optional<SkRect> cropRect() const { return fCropRect; }
 
-        const SkRect* cropRect() const {
-            return fCropRect.flags() != 0x0 ? &fCropRect.rect() : nullptr;
-        }
         int inputCount() const { return fInputs.size(); }
         sk_sp<SkImageFilter>* inputs() { return fInputs.begin(); }
 
         sk_sp<SkImageFilter> getInput(int index) { return fInputs[index]; }
 
     private:
-        CropRect fCropRect;
+        // Old SKPs (version less than kRemoveDeprecatedCropRect may have this set).
+        std::optional<SkRect> fCropRect;
+
         // most filters accept at most 2 input-filters
         skia_private::STArray<2, sk_sp<SkImageFilter>, true> fInputs;
     };
 
     SkImageFilter_Base(sk_sp<SkImageFilter> const* inputs, int inputCount,
-                       const SkRect* cropRect, std::optional<bool> usesSrc = {});
+                       std::optional<bool> usesSrc = {});
 
     ~SkImageFilter_Base() override;
 
@@ -259,57 +215,6 @@ protected:
     skif::FilterResult getChildOutput(int index, const skif::Context& ctx) const;
 
     /**
-     *  Returns whether any edges of the crop rect have been set. The crop
-     *  rect is set at construction time, and determines which pixels from the
-     *  input image will be processed, and which pixels in the output image will be allowed.
-     *  The size of the crop rect should be
-     *  used as the size of the destination image. The origin of this rect
-     *  should be used to offset access to the input images, and should also
-     *  be added to the "offset" parameter in onFilterImage.
-     *
-     *  DEPRECATED - Remove once cropping is handled by a separate filter
-     */
-    bool cropRectIsSet() const { return fCropRect.flags() != 0x0; }
-
-    // DEPRECATED - Remove once cropping is handled by a separate filter
-    CropRect getCropRect() const { return fCropRect; }
-
-    // DEPRECATED - Remove once cropping is handled by a separate filter
-    const CropRect* getCropRectIfSet() const {
-        return this->cropRectIsSet() ? &fCropRect : nullptr;
-    }
-
-    /** Given a "srcBounds" rect, computes destination bounds for this filter.
-     *  "dstBounds" are computed by transforming the crop rect by the context's
-     *  CTM, applying it to the initial bounds, and intersecting the result with
-     *  the context's clip bounds.  "srcBounds" (if non-null) are computed by
-     *  intersecting the initial bounds with "dstBounds", to ensure that we never
-     *  sample outside of the crop rect (this restriction may be relaxed in the
-     *  future).
-     *
-     *  DEPRECATED - Remove once cropping is handled by a separate filter, although it may be
-     *  necessary to provide a similar convenience function to compute the output bounds given the
-     *  images returned by filterInput().
-     */
-    bool applyCropRect(const skif::Context&, const SkIRect& srcBounds, SkIRect* dstBounds) const;
-
-    /** A variant of the above call which takes the original source bitmap and
-     *  source offset. If the resulting crop rect is not entirely contained by
-     *  the source bitmap's bounds, it creates a new bitmap in "result" and
-     *  pads the edges with transparent black. In that case, the srcOffset is
-     *  modified to be the same as the bounds, since no further adjustment is
-     *  needed by the caller. This version should only be used by filters
-     *  which are not capable of processing a smaller source bitmap into a
-     *  larger destination.
-     *
-     *  DEPRECATED - Remove once cropping is handled by a separate filter.
-     */
-    sk_sp<SkSpecialImage> applyCropRectAndPad(const skif::Context&,
-                                              SkSpecialImage* src,
-                                              SkIPoint* srcOffset,
-                                              SkIRect* bounds) const;
-
-    /**
      *  Creates a modified Context for use when recursing up the image filter DAG.
      *  The clip bounds are adjusted to accommodate any margins that this
      *  filter requires by calling this node's
@@ -344,7 +249,7 @@ private:
 
     /**
      *  Return true (and returns a ref'd colorfilter) if this node in the DAG is just a colorfilter
-     *  w/o CropRect constraints.
+     *  w/o cropping constraints.
      */
     virtual bool onIsColorFilterNode(SkColorFilter** /*filterPtr*/) const { return false; }
 
@@ -432,7 +337,6 @@ private:
     skia_private::AutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
     bool fUsesSrcInput;
-    CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
 
     using INHERITED = SkImageFilter;

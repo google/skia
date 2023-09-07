@@ -28,7 +28,7 @@ class SkComposeImageFilter final : public SkImageFilter_Base {
 
 public:
     explicit SkComposeImageFilter(sk_sp<SkImageFilter> inputs[2])
-            : SkImageFilter_Base(inputs, 2, nullptr,
+            : SkImageFilter_Base(inputs, 2,
                                  // Compose only uses the source if the inner filter uses the source
                                  // image. Any outer reference to source is rebound to the result of
                                  // the inner.

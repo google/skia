@@ -22,6 +22,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 
+#include <optional>
 #include <utility>
 
 namespace {
@@ -29,7 +30,7 @@ namespace {
 class SkShaderImageFilter final : public SkImageFilter_Base {
 public:
     SkShaderImageFilter(sk_sp<SkShader> shader, SkImageFilters::Dither dither)
-            : SkImageFilter_Base(nullptr, 0, nullptr)
+            : SkImageFilter_Base(nullptr, 0)
             , fShader(std::move(shader))
             , fDither(dither) {
         SkASSERT(fShader);

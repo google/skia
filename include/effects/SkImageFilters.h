@@ -19,10 +19,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 
-// TODO(kjlubick) remove after cl/548357677 lands
-#include "include/core/SkData.h"  // IWYU pragma: keep
-
 #include <cstddef>
+#include <optional>
 #include <string_view>
 #include <utility>
 
@@ -36,11 +34,6 @@ struct SkISize;
 struct SkPoint3;
 struct SkSamplingOptions;
 
-namespace skif {
-  static constexpr SkRect kNoCropRect = {SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
-                                         SK_ScalarInfinity, SK_ScalarInfinity};
-}
-
 // A set of factory functions providing useful SkImageFilter effects. For image filters that take an
 // input filter, providing nullptr means it will automatically use the dynamic source image. This
 // source depends on how the filter is applied, but is either the contents of a saved layer when
@@ -51,21 +44,33 @@ public:
     // This is just a convenience type to allow passing SkIRects, SkRects, and optional pointers
     // to those types as a crop rect for the image filter factories. It's not intended to be used
     // directly.
-    struct CropRect {
-        CropRect() : fCropRect(skif::kNoCropRect) {}
+    struct CropRect : public std::optional<SkRect> {
+        CropRect() {}
         // Intentionally not explicit so callers don't have to use this type but can use SkIRect or
         // SkRect as desired.
-        CropRect(std::nullptr_t) : fCropRect(skif::kNoCropRect) {}
-        CropRect(const SkIRect& crop) : fCropRect(SkRect::Make(crop)) {}
-        CropRect(const SkRect& crop) : fCropRect(crop) {}
-        CropRect(const SkIRect* optionalCrop) : fCropRect(optionalCrop ? SkRect::Make(*optionalCrop)
-                                                                       : skif::kNoCropRect) {}
-        CropRect(const SkRect* optionalCrop) : fCropRect(optionalCrop ? *optionalCrop
-                                                                      : skif::kNoCropRect) {}
+        CropRect(const SkIRect& crop) : std::optional<SkRect>(SkRect::Make(crop)) {}
+        CropRect(const SkRect& crop) : std::optional<SkRect>(crop) {}
+        CropRect(const std::optional<SkRect>& crop) : std::optional<SkRect>(crop) {}
+        CropRect(const std::nullopt_t&) : std::optional<SkRect>() {}
 
-        operator const SkRect*() const { return fCropRect == skif::kNoCropRect ? nullptr : &fCropRect; }
+        // Backwards compatibility for when the APIs used to explicitly accept "const SkRect*"
+        CropRect(std::nullptr_t) {}
+        CropRect(const SkIRect* optionalCrop) {
+            if (optionalCrop) {
+                *this = SkRect::Make(*optionalCrop);
+            }
+        }
+        CropRect(const SkRect* optionalCrop) {
+            if (optionalCrop) {
+                *this = *optionalCrop;
+            }
+        }
 
-        SkRect fCropRect;
+        // std::optional doesn't define == when comparing to another optional...
+        bool operator==(const CropRect& o) const {
+            return this->has_value() == o.has_value() &&
+                   (!this->has_value() || this->value() == *o);
+        }
     };
 
     /**

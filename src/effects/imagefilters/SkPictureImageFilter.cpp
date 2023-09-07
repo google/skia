@@ -27,7 +27,7 @@ namespace {
 class SkPictureImageFilter final : public SkImageFilter_Base {
 public:
     SkPictureImageFilter(sk_sp<SkPicture> picture, const SkRect& cullRect)
-            : SkImageFilter_Base(nullptr, 0, nullptr)
+            : SkImageFilter_Base(nullptr, 0)
             , fPicture(std::move(picture))
             , fCullRect(cullRect) {
         // The external cullrect should already have been intersected with the internal cull rect

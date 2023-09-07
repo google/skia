@@ -27,7 +27,7 @@ namespace {
 class SkCropImageFilter final : public SkImageFilter_Base {
 public:
     SkCropImageFilter(const SkRect& cropRect, SkTileMode tileMode, sk_sp<SkImageFilter> input)
-            : SkImageFilter_Base(&input, 1, /*cropRect=*/nullptr)
+            : SkImageFilter_Base(&input, 1)
             , fCropRect(cropRect)
             , fTileMode(tileMode) {
         SkASSERT(cropRect.isFinite());

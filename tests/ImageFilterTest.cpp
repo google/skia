@@ -94,7 +94,7 @@ static constexpr GrSurfaceOrigin kTestSurfaceOrigin = kTopLeft_GrSurfaceOrigin;
 class MatrixTestImageFilter : public SkImageFilter_Base {
 public:
     MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
-            : SkImageFilter_Base(nullptr, 0, nullptr)
+            : SkImageFilter_Base(nullptr, 0)
             , fReporter(reporter)
             , fExpectedMatrix(expectedMatrix) {}
 
