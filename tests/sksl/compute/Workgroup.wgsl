@@ -10,7 +10,7 @@ struct outputs {
   out_data: array<f32>,
 };
 @group(0) @binding(1) var<storage, read_write> _storage1 : outputs;
-var<private> shared_data: array<f32, 512>;
+var<workgroup> shared_data: array<f32, 512>;
 fn store_vIf(i: u32, value: f32) {
   {
     shared_data[i] = value;

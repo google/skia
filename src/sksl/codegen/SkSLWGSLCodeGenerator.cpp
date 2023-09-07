@@ -430,6 +430,10 @@ std::string to_wgsl_type(const Context& context, const Type& type, const Layout*
         case Type::TypeKind::kScalar:
             return std::string(to_scalar_type(type));
 
+        case Type::TypeKind::kAtomic:
+            SkASSERT(type.matches(*context.fTypes.fAtomicUInt));
+            return "atomic<u32>";
+
         case Type::TypeKind::kVector: {
             std::string_view ct = to_scalar_type(type.componentType());
             return String::printf("vec%d<%.*s>", type.columns(), (int)ct.length(), ct.data());
@@ -2426,10 +2430,17 @@ std::string WGSLCodeGenerator::assembleSimpleIntrinsic(std::string_view intrinsi
     for (int index = 0; index < args.size(); ++index) {
         expr += separator();
 
-        // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skia:14385)
         std::string argument = this->assembleExpression(*args[index], Precedence::kSequence);
-        expr += (allConstant && index == 0) ? this->writeScratchLet(argument)
-                                            : argument;
+        if (args[index]->type().isAtomic()) {
+            // WGSL passes atomic values to intrinsics as pointers.
+            expr += '&';
+            expr += argument;
+        } else if (allConstant && index == 0) {
+            // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skia:14385)
+            expr += this->writeScratchLet(argument);
+        } else {
+            expr += argument;
+        }
     }
     expr.push_back(')');
 
@@ -2796,6 +2807,9 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_all_IntrinsicKind:
         case k_any_IntrinsicKind:
         case k_asin_IntrinsicKind:
+        case k_atomicAdd_IntrinsicKind:
+        case k_atomicLoad_IntrinsicKind:
+        case k_atomicStore_IntrinsicKind:
         case k_ceil_IntrinsicKind:
         case k_cos_IntrinsicKind:
         case k_cross_IntrinsicKind:
@@ -3638,7 +3652,6 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
         return;
     }
 
-    // TODO(skia:13092): Implement workgroup variable decoration
     std::string initializer;
     if (decl.value()) {
         // We assume here that the initial-value expression will not emit any helper statements.
@@ -3647,7 +3660,14 @@ void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d)
         initializer += " = ";
         initializer += this->assembleExpression(*decl.value(), Precedence::kAssignment);
     }
-    this->write(var.modifierFlags().isConst() ? "const " : "var<private> ");
+
+    if (var.modifierFlags().isConst()) {
+        this->write("const ");
+    } else if (var.modifierFlags().isWorkgroup()) {
+        this->write("var<workgroup> ");
+    } else {
+        this->write("var<private> ");
+    }
     this->write(this->assembleName(var.mangledName()));
     this->write(": " + to_wgsl_type(fContext, var.type(), &var.layout()));
     this->write(initializer);
