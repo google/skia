@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: :12:43 error: access mode 'write' is not valid for the 'storage' address space
-@group(0) @binding(1) var<storage, write> _storage1 : outputs;
-                                          ^^^^^^^^^
-
-
 diagnostic(off, derivative_uniformity);
 struct CSIn {
   @builtin(global_invocation_id) sk_GlobalInvocationID: vec3<u32>,
@@ -16,7 +9,7 @@ struct inputs {
 struct outputs {
   out_data: array<f32>,
 };
-@group(0) @binding(1) var<storage, write> _storage1 : outputs;
+@group(0) @binding(1) var<storage, read_write> _storage1 : outputs;
 var<private> shared_data: array<f32, 512>;
 fn store_vIf(i: u32, value: f32) {
   {
@@ -64,5 +57,3 @@ fn _skslMain(_stageIn: CSIn) {
 @compute @workgroup_size(256, 1, 1) fn main(_stageIn: CSIn) {
   _skslMain(_stageIn);
 }
-
-1 error

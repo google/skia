@@ -3899,13 +3899,7 @@ void WGSLCodeGenerator::writeUniformsAndBuffers() {
         } else if (ib.var()->modifierFlags().isBuffer()) {
             addressSpace = "storage";
             nativeLayout = MemoryLayout::Standard::kWGSLStorage_Base;
-            if (ib.var()->modifierFlags().isReadOnly()) {
-                accessMode = ", read";
-            } else if (ib.var()->modifierFlags().isWriteOnly()) {
-                accessMode = ", write";
-            } else {
-                accessMode = ", read_write";
-            }
+            accessMode = ib.var()->modifierFlags().isReadOnly() ? ", read" : ", read_write";
         } else {
             continue;
         }
