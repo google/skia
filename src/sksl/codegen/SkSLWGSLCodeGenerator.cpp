@@ -112,6 +112,7 @@ bool is_reserved_word(std::string_view word) {
             "FSOut",
             "VSIn",
             "VSOut",
+            "CSIn",
             "_globalUniforms",
             "_GlobalUniforms",
             "_return",
@@ -380,6 +381,9 @@ std::string_view pipeline_struct_prefix(ProgramKind kind) {
     if (ProgramConfig::IsFragment(kind)) {
         return "FS";
     }
+    if (ProgramConfig::IsCompute(kind)) {
+        return "CS";
+    }
     // Compute programs don't have stage-in/stage-out pipeline structs.
     return "";
 }
@@ -579,17 +583,27 @@ std::optional<WGSLCodeGenerator::Builtin> builtin_from_sksl_name(int builtin) {
         case SK_POSITION_BUILTIN:
             [[fallthrough]];
         case SK_FRAGCOORD_BUILTIN:
-            return {Builtin::kPosition};
+            return Builtin::kPosition;
         case SK_VERTEXID_BUILTIN:
-            return {Builtin::kVertexIndex};
+            return Builtin::kVertexIndex;
         case SK_INSTANCEID_BUILTIN:
-            return {Builtin::kInstanceIndex};
+            return Builtin::kInstanceIndex;
         case SK_CLOCKWISE_BUILTIN:
             // TODO(skia:13092): While `front_facing` is the corresponding built-in, it does not
             // imply a particular winding order. We correctly compute the face orientation based
             // on how Skia configured the render pipeline for all references to this built-in
             // variable (see `SkSL::Program::Interface::fUseFlipRTUniform`).
-            return {Builtin::kFrontFacing};
+            return Builtin::kFrontFacing;
+        case SK_NUMWORKGROUPS_BUILTIN:
+            return Builtin::kNumWorkgroups;
+        case SK_WORKGROUPID_BUILTIN:
+            return Builtin::kWorkgroupId;
+        case SK_LOCALINVOCATIONID_BUILTIN:
+            return Builtin::kLocalInvocationId;
+        case SK_GLOBALINVOCATIONID_BUILTIN:
+            return Builtin::kGlobalInvocationId;
+        case SK_LOCALINVOCATIONINDEX_BUILTIN:
+            return Builtin::kLocalInvocationIndex;
         default:
             break;
     }
@@ -708,22 +722,22 @@ WGSLCodeGenerator::ProgramRequirements resolve_program_requirements(const Progra
     return WGSLCodeGenerator::ProgramRequirements(std::move(dependencies));
 }
 
-int count_pipeline_inputs(const Program* program) {
-    int inputCount = 0;
+void collect_pipeline_io_vars(const Program* program,
+                              TArray<const Variable*>* ioVars,
+                              ModifierFlag ioType) {
     for (const ProgramElement* e : program->elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const Variable* v = e->as<GlobalVarDeclaration>().varDeclaration().var();
-            if (v->modifierFlags() & ModifierFlag::kIn) {
-                inputCount++;
+            if (v->modifierFlags() & ioType) {
+                ioVars->push_back(v);
             }
         } else if (e->is<InterfaceBlock>()) {
             const Variable* v = e->as<InterfaceBlock>().var();
-            if (v->modifierFlags() & ModifierFlag::kIn) {
-                inputCount++;
+            if (v->modifierFlags() & ioType) {
+                ioVars->push_back(v);
             }
         }
     }
-    return inputCount;
 }
 
 bool is_in_global_uniforms(const Variable& var) {
@@ -880,8 +894,8 @@ private:
 
 bool WGSLCodeGenerator::generateCode() {
     // The resources of a WGSL program are structured in the following way:
-    // - Vertex and fragment stage attribute inputs and outputs are bundled
-    //   inside synthetic structs called VSIn/VSOut/FSIn/FSOut.
+    // - Stage attribute inputs and outputs are bundled inside synthetic structs called
+    //   VSIn/VSOut/FSIn/FSOut/CSIn.
     // - All uniform and storage type resources are declared in global scope.
     this->preprocessProgram();
 
@@ -1135,7 +1149,8 @@ void WGSLCodeGenerator::writeUniformPolyfills() {
 
 void WGSLCodeGenerator::preprocessProgram() {
     fRequirements = resolve_program_requirements(&fProgram);
-    fPipelineInputCount = count_pipeline_inputs(&fProgram);
+    collect_pipeline_io_vars(&fProgram, &fPipelineInputs, ModifierFlag::kIn);
+    collect_pipeline_io_vars(&fProgram, &fPipelineOutputs, ModifierFlag::kOut);
 }
 
 void WGSLCodeGenerator::write(std::string_view s) {
@@ -1189,14 +1204,13 @@ void WGSLCodeGenerator::writePipelineIODeclaration(const Layout& layout,
                                                    const Type& type,
                                                    std::string_view name,
                                                    Delimiter delimiter) {
-    // In WGSL, an entry-point IO parameter is "one of either a built-in value or
-    // assigned a location". However, some SkSL declarations, specifically sk_FragColor, can
-    // contain both a location and a builtin modifier. In addition, WGSL doesn't have a built-in
-    // equivalent for sk_FragColor as it relies on the user-defined location for a render
-    // target.
+    // In WGSL, an entry-point IO parameter is "one of either a built-in value or assigned a
+    // location". However, some SkSL declarations, specifically sk_FragColor, can contain both a
+    // location and a builtin modifier. In addition, WGSL doesn't have a built-in equivalent for
+    // sk_FragColor as it relies on the user-defined location for a render target.
     //
-    // Instead of special-casing sk_FragColor, we just give higher precedence to a location
-    // modifier if a declaration happens to both have a location and it's a built-in.
+    // Instead of special-casing sk_FragColor, we just give higher precedence to a location modifier
+    // if a declaration happens to both have a location and it's a built-in.
     //
     // Also see:
     // https://www.w3.org/TR/WGSL/#input-output-locations
@@ -1371,9 +1385,10 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl
 
 void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     SkASSERT(main.declaration().isMain());
+    const ProgramKind programKind = fProgram.fConfig->fKind;
 
 #if defined(SKSL_STANDALONE)
-    if (ProgramConfig::IsRuntimeShader(fProgram.fConfig->fKind)) {
+    if (ProgramConfig::IsRuntimeShader(programKind)) {
         // Synthesize a basic entrypoint which just calls straight through to main.
         // This is only used by skslc and just needs to pass the WGSL validator; Skia won't ever
         // emit functions like this.
@@ -1388,39 +1403,41 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
 #endif
 
     // The input and output parameters for a vertex/fragment stage entry point function have the
-    // FSIn/FSOut/VSIn/VSOut struct types that have been synthesized in generateCode(). An entry
-    // point always has the same signature and acts as a trampoline to the user-defined main
-    // function.
-    std::string_view outputType;
-    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-        this->write("@vertex fn main(");
-        if (fPipelineInputCount > 0) {
-            this->write("_stageIn: VSIn");
-        }
-        this->writeLine(") -> VSOut {");
-        outputType = "VSOut";
-    } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-        this->write("@fragment fn main(");
-        if (fPipelineInputCount > 0) {
-            this->write("_stageIn: FSIn");
-        }
-        this->writeLine(") -> FSOut {");
-        outputType = "FSOut";
-    } else if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
-        // Compute programs don't have stage outputs, and stage inputs are not yet implemented.
+    // FSIn/FSOut/VSIn/VSOut/CSIn struct types that have been synthesized in generateCode(). An
+    // entrypoint always has a predictable signature and acts as a trampoline to the user-defined
+    // main function.
+    if (ProgramConfig::IsVertex(programKind)) {
+        this->write("@vertex");
+    } else if (ProgramConfig::IsFragment(programKind)) {
+        this->write("@fragment");
+    } else if (ProgramConfig::IsCompute(programKind)) {
         this->write("@compute @workgroup_size(");
         this->write(std::to_string(fLocalSizeX));
         this->write(", ");
         this->write(std::to_string(fLocalSizeY));
         this->write(", ");
         this->write(std::to_string(fLocalSizeZ));
-        this->write(") fn main(");
-        this->writeLine(") {");
+        this->write(")");
     } else {
         fContext.fErrors->error(Position(), "program kind not supported");
         return;
     }
 
+    this->write(" fn main(");
+    // The stage input struct is a parameter passed to main().
+    if (this->needsStageInputStruct()) {
+        this->write("_stageIn: ");
+        this->write(pipeline_struct_prefix(programKind));
+        this->write("In");
+    }
+    // The stage output struct is returned from main().
+    if (this->needsStageOutputStruct()) {
+        this->write(") -> ");
+        this->write(pipeline_struct_prefix(programKind));
+        this->writeLine("Out {");
+    } else {
+        this->writeLine(") {");
+    }
     // Initialize polyfilled matrix uniforms if any were used.
     fIndentation++;
     for (const auto& [field, info] : fFieldPolyfillMap) {
@@ -1429,16 +1446,15 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
             break;
         }
     }
-
-    if (!outputType.empty()) {
-        // Declare the stage output struct.
+    // Declare the stage output struct.
+    if (this->needsStageOutputStruct()) {
         this->write("var _stageOut: ");
-        this->write(outputType);
-        this->writeLine(";");
+        this->write(pipeline_struct_prefix(programKind));
+        this->writeLine("Out;");
     }
 
     // Generate assignment to sk_FragColor built-in if the user-defined main returns a color.
-    if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
+    if (ProgramConfig::IsFragment(programKind)) {
         if (main.declaration().returnType().matches(*fContext.fTypes.fHalf4)) {
             this->write("_stageOut.sk_FragColor = ");
         }
@@ -1463,7 +1479,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     if (const Variable* v = main.declaration().getMainCoordsParameter()) {
         // We are compiling a Runtime Effect as a fragment shader, for testing purposes.
         // We need to synthesize a coordinates parameter, but the coordinates don't matter.
-        SkASSERT(ProgramConfig::IsFragment(fProgram.fConfig->fKind));
+        SkASSERT(ProgramConfig::IsFragment(programKind));
         const Type& type = v->type();
         if (!type.matches(*fContext.fTypes.fFloat2)) {
             fContext.fErrors->error(main.fPosition, "main function has unsupported parameter: " +
@@ -1477,7 +1493,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
 
     this->writeLine(");");
 
-    if (!outputType.empty()) {
+    if (this->needsStageOutputStruct()) {
         // Return the stage output struct.
         this->writeLine("return _stageOut;");
     }
@@ -3721,44 +3737,33 @@ void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields, const MemoryLayo
     fIndentation--;
 }
 
+bool WGSLCodeGenerator::needsStageInputStruct() const {
+    // It is illegal to declare a struct with no members; we can't emit a placeholder empty stage
+    // input struct.
+    return !fPipelineInputs.empty();
+}
+
 void WGSLCodeGenerator::writeStageInputStruct() {
-    std::string_view structNamePrefix = pipeline_struct_prefix(fProgram.fConfig->fKind);
-    if (structNamePrefix.empty()) {
-        // There's no need to declare pipeline stage outputs.
+    if (!this->needsStageInputStruct()) {
         return;
     }
 
-    // It is illegal to declare a struct with no members.
-    if (fPipelineInputCount < 1) {
-        return;
-    }
+    std::string_view structNamePrefix = pipeline_struct_prefix(fProgram.fConfig->fKind);
+    SkASSERT(!structNamePrefix.empty());
 
     this->write("struct ");
     this->write(structNamePrefix);
     this->writeLine("In {");
     fIndentation++;
 
-    for (const ProgramElement* e : fProgram.elements()) {
-        if (e->is<GlobalVarDeclaration>()) {
-            const Variable* v = e->as<GlobalVarDeclaration>().declaration()
-                                 ->as<VarDeclaration>().var();
-            if (v->modifierFlags() & ModifierFlag::kIn) {
-                this->writePipelineIODeclaration(v->layout(), v->type(), v->mangledName(),
-                                                 Delimiter::kComma);
+    for (const Variable* v : fPipelineInputs) {
+        if (v->interfaceBlock()) {
+            for (const Field& f : v->type().fields()) {
+                this->writePipelineIODeclaration(f.fLayout, *f.fType, f.fName, Delimiter::kComma);
             }
-        } else if (e->is<InterfaceBlock>()) {
-            const Variable* v = e->as<InterfaceBlock>().var();
-            // Merge all the members of `in` interface blocks to the input struct, which are
-            // specified as either "builtin" or with a "layout(location=".
-            //
-            // TODO(armansito): Is it legal to have an interface block without a storage qualifier
-            // but with members that have individual storage qualifiers?
-            if (v->modifierFlags() & ModifierFlag::kIn) {
-                for (const auto& f : v->type().fields()) {
-                    this->writePipelineIODeclaration(f.fLayout, *f.fType, f.fName,
-                                                     Delimiter::kComma);
-                }
-            }
+        } else {
+            this->writePipelineIODeclaration(v->layout(), v->type(), v->mangledName(),
+                                             Delimiter::kComma);
         }
     }
 
@@ -3766,56 +3771,51 @@ void WGSLCodeGenerator::writeStageInputStruct() {
     this->writeLine("};");
 }
 
+bool WGSLCodeGenerator::needsStageOutputStruct() const {
+    // It is illegal to declare a struct with no members. However, vertex programs will _always_
+    // have an output stage in WGSL, because the spec requires them to emit `@builtin(position)`.
+    // So we always synthesize a reference to `sk_Position` even if the program doesn't need it.
+    return !fPipelineOutputs.empty() || ProgramConfig::IsVertex(fProgram.fConfig->fKind);
+}
+
 void WGSLCodeGenerator::writeStageOutputStruct() {
-    std::string_view structNamePrefix = pipeline_struct_prefix(fProgram.fConfig->fKind);
-    if (structNamePrefix.empty()) {
-        // There's no need to declare pipeline stage outputs.
+    if (!this->needsStageOutputStruct()) {
         return;
     }
+
+    std::string_view structNamePrefix = pipeline_struct_prefix(fProgram.fConfig->fKind);
+    SkASSERT(!structNamePrefix.empty());
 
     this->write("struct ");
     this->write(structNamePrefix);
     this->writeLine("Out {");
     fIndentation++;
 
-    // TODO(skia:13092): Remember all variables that are added to the output struct here so they
-    // can be referenced correctly when handling variable references.
     bool declaredPositionBuiltin = false;
     bool requiresPointSizeBuiltin = false;
-    for (const ProgramElement* e : fProgram.elements()) {
-        if (e->is<GlobalVarDeclaration>()) {
-            const Variable* v = e->as<GlobalVarDeclaration>().declaration()
-                                 ->as<VarDeclaration>().var();
-            if (v->modifierFlags() & ModifierFlag::kOut) {
-                this->writePipelineIODeclaration(v->layout(), v->type(), v->mangledName(),
-                                                 Delimiter::kComma);
-            }
-        } else if (e->is<InterfaceBlock>()) {
-            const Variable* v = e->as<InterfaceBlock>().var();
-            // Merge all the members of `out` interface blocks to the output struct, which are
-            // specified as either "builtin" or with a "layout(location=".
-            //
-            // TODO(armansito): Is it legal to have an interface block without a storage qualifier
-            // but with members that have individual storage qualifiers?
-            if (v->modifierFlags() & ModifierFlag::kOut) {
-                for (const auto& f : v->type().fields()) {
-                    this->writePipelineIODeclaration(f.fLayout, *f.fType, f.fName,
-                                                     Delimiter::kComma);
-                    if (f.fLayout.fBuiltin == SK_POSITION_BUILTIN) {
-                        declaredPositionBuiltin = true;
-                    } else if (f.fLayout.fBuiltin == SK_POINTSIZE_BUILTIN) {
-                        // sk_PointSize is explicitly not supported by `builtin_from_sksl_name` so
-                        // writePipelineIODeclaration will never write it. We mark it here if the
-                        // declaration is needed so we can synthesize it below.
-                        requiresPointSizeBuiltin = true;
-                    }
+    for (const Variable* v : fPipelineOutputs) {
+        if (v->interfaceBlock()) {
+            for (const auto& f : v->type().fields()) {
+                this->writePipelineIODeclaration(f.fLayout, *f.fType, f.fName, Delimiter::kComma);
+                if (f.fLayout.fBuiltin == SK_POSITION_BUILTIN) {
+                    declaredPositionBuiltin = true;
+                } else if (f.fLayout.fBuiltin == SK_POINTSIZE_BUILTIN) {
+                    // sk_PointSize is explicitly not supported by `builtin_from_sksl_name` so
+                    // writePipelineIODeclaration will never write it. We mark it here if the
+                    // declaration is needed so we can synthesize it below.
+                    requiresPointSizeBuiltin = true;
                 }
             }
+
+        } else {
+            this->writePipelineIODeclaration(v->layout(), v->type(), v->mangledName(),
+                                             Delimiter::kComma);
         }
     }
 
-    // A vertex program must include the `position` builtin in its entry point return type.
-    if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) && !declaredPositionBuiltin) {
+    // A vertex program must include the `position` builtin in its entrypoint's return type.
+    const bool positionBuiltinRequired = ProgramConfig::IsVertex(fProgram.fConfig->fKind);
+    if (positionBuiltinRequired && !declaredPositionBuiltin) {
         this->writeLine("@builtin(position) sk_Position: vec4<f32>,");
     }
 
@@ -3825,9 +3825,9 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     // In WebGPU/WGSL, the vertex stage does not support a point-size output and the size
     // of a point primitive is always 1 pixel (see https://github.com/gpuweb/gpuweb/issues/332).
     //
-    // There isn't anything we can do to emulate this correctly at this stage so we
-    // synthesize a placeholder variable that has no effect. Programs should not rely on
-    // sk_PointSize when using the Dawn backend.
+    // There isn't anything we can do to emulate this correctly at this stage so we synthesize a
+    // placeholder global variable that has no effect. Programs should not rely on sk_PointSize when
+    // using the Dawn backend.
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) && requiresPointSizeBuiltin) {
         this->writeLine("/* unsupported */ var<private> sk_PointSize: f32;");
     }
