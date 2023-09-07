@@ -23,7 +23,6 @@ skia_filegroup(
         "SkIDChangeListener.h",
         "SkJpegMetadataDecoder.h",
         "SkPathRef.h",
-        "SkShadowFlags.h",
         "SkWeakRefCnt.h",
         "SkXmp.h",
         ":sksl_private_hdrs",

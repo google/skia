@@ -241,7 +241,6 @@ BASE_SRCS_ALL = [
     "include/private/SkPathRef.h",
     "include/private/SkSLDefines.h",
     "include/private/SkSLSampleUsage.h",
-    "include/private/SkShadowFlags.h",
     "include/private/SkWeakRefCnt.h",
     "include/private/SkXmp.h",
     "include/private/base/SingleOwner.h",

@@ -14,7 +14,6 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkShadowFlags.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/base/SkVx.h"

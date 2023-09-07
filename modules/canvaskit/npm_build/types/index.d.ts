@@ -137,7 +137,7 @@ export interface CanvasKit {
      * @param lightPos - The 3D position of the light relative to the canvas plane. This is
      *                   independent of the canvas's current matrix.
      * @param lightRadius - The radius of the disc light.
-     * @param flags - See SkShadowFlags.h; 0 means use default options.
+     * @param flags - See SkShadowUtils.h; 0 means use default options.
      * @param dstRect - if provided, the bounds will be copied into this rect instead of allocating
      *                  a new one.
      * @returns The bounding rectangle or null if it could not be computed.
@@ -1565,7 +1565,7 @@ export interface Canvas extends EmbindObject<"Canvas"> {
      * @param lightRadius - The radius of the disc light.
      * @param ambientColor - The color of the ambient shadow.
      * @param spotColor -  The color of the spot shadow.
-     * @param flags - See SkShadowFlags.h; 0 means use default options.
+     * @param flags - See SkShadowUtils.h; 0 means use default options.
      */
     drawShadow(path: Path, zPlaneParams: InputVector3, lightPos: InputVector3, lightRadius: number,
                ambientColor: InputColor, spotColor: InputColor, flags: number): void;

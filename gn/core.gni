@@ -150,7 +150,6 @@ skia_core_sources = [
   "$_include/private/SkIDChangeListener.h",
   "$_include/private/SkJpegMetadataDecoder.h",
   "$_include/private/SkPathRef.h",
-  "$_include/private/SkShadowFlags.h",
   "$_include/private/SkWeakRefCnt.h",
   "$_include/private/SkXmp.h",
   "$_include/private/base/SingleOwner.h",
