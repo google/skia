@@ -1,0 +1,38 @@
+name: Archive release with depedencies
+
+on:
+  push:
+    tags:
+      - "**"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Prepare source code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+
+    - name: Install skia dependencies and prepare release folder
+      run: |
+        python3 tools/git-sync-deps
+        mkdir -p github-release
+        echo ${{ github.sha }} > COMMIT_ID
+
+    - name: Archive release
+      uses: thedoctor0/zip-release@0.7.1
+      with:
+        type: 'tar'
+        filename: 'github-release/skia-with-deps.tar.gz'
+        exclusions: 'github-release .git'
+
+    - name: Publish
+      uses: softprops/action-gh-release@v1
+      with:
+        files: github-release/skia-with-deps.tar.gz
