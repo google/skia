@@ -310,6 +310,7 @@ cc_defaults {
     ],
     cflags: [
         "-DSK_SHAPER_HARFBUZZ_AVAILABLE",
+        "-DSK_SHAPER_UNICODE_AVAILABLE",
         "-DSK_UNICODE_AVAILABLE",
         "-DSK_UNICODE_ICU_IMPLEMENTATION",
         "-Wno-implicit-fallthrough",
