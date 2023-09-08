@@ -69,12 +69,6 @@ struct SkIPoint;
 
 constexpr bool kRPEnableLiveTrace = false;
 
-#if defined(SK_BUILD_FOR_DEBUGGER)
-    #define SK_LENIENT_SKSL_DESERIALIZATION 1
-#else
-    #define SK_LENIENT_SKSL_DESERIALIZATION 0
-#endif
-
 using ChildType = SkRuntimeEffect::ChildType;
 
 static bool init_uniform_type(const SkSL::Context& ctx,

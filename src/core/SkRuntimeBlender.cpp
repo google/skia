@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -25,9 +26,9 @@
 using namespace skia_private;
 
 #if defined(SK_BUILD_FOR_DEBUGGER)
-    #define SK_LENIENT_SKSL_DESERIALIZATION 1
+    constexpr bool kLenientSkSLDeserialization = true;
 #else
-    #define SK_LENIENT_SKSL_DESERIALIZATION 0
+    constexpr bool kLenientSkSLDeserialization = false;
 #endif
 
 sk_sp<SkFlattenable> SkRuntimeBlender::CreateProc(SkReadBuffer& buffer) {
@@ -40,23 +41,23 @@ sk_sp<SkFlattenable> SkRuntimeBlender::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
 
     auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForBlender, std::move(sksl));
-#if !SK_LENIENT_SKSL_DESERIALIZATION
-    if (!buffer.validate(effect != nullptr)) {
-        return nullptr;
+    if constexpr (!kLenientSkSLDeserialization) {
+        if (!buffer.validate(effect != nullptr)) {
+            return nullptr;
+        }
     }
-#endif
 
     STArray<4, SkRuntimeEffect::ChildPtr> children;
     if (!SkRuntimeEffectPriv::ReadChildEffects(buffer, effect.get(), &children)) {
         return nullptr;
     }
 
-#if SK_LENIENT_SKSL_DESERIALIZATION
-    if (!effect) {
-        SkDebugf("Serialized SkSL failed to compile. Ignoring/dropping SkSL blender.\n");
-        return nullptr;
+    if constexpr (kLenientSkSLDeserialization) {
+        if (!effect) {
+            SkDebugf("Serialized SkSL failed to compile. Ignoring/dropping SkSL blender.\n");
+            return nullptr;
+        }
     }
-#endif
 
     return effect->makeBlender(std::move(uniforms), SkSpan(children));
 }

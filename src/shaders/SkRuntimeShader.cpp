@@ -32,6 +32,12 @@
 #include <string>
 #include <utility>
 
+#if defined(SK_BUILD_FOR_DEBUGGER)
+    constexpr bool kLenientSkSLDeserialization = true;
+#else
+    constexpr bool kLenientSkSLDeserialization = false;
+#endif
+
 class SkColorSpace;
 struct SkIPoint;
 
@@ -130,32 +136,33 @@ sk_sp<SkFlattenable> SkRuntimeShader::CreateProc(SkReadBuffer& buffer) {
     }
 
     auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForShader, std::move(sksl));
-#if !SK_LENIENT_SKSL_DESERIALIZATION
-    if (!buffer.validate(effect != nullptr)) {
-        return nullptr;
+    if constexpr (!kLenientSkSLDeserialization) {
+        if (!buffer.validate(effect != nullptr)) {
+            return nullptr;
+        }
     }
-#endif
 
     skia_private::STArray<4, SkRuntimeEffect::ChildPtr> children;
     if (!SkRuntimeEffectPriv::ReadChildEffects(buffer, effect.get(), &children)) {
         return nullptr;
     }
 
-#if SK_LENIENT_SKSL_DESERIALIZATION
-    if (!effect) {
-        // If any children were SkShaders, return the first one. This is a reasonable fallback.
-        for (int i = 0; i < children.size(); i++) {
-            if (children[i].shader()) {
-                SkDebugf("Serialized SkSL failed to compile. Replacing shader with child %d.\n", i);
-                return sk_ref_sp(children[i].shader());
+    if constexpr (kLenientSkSLDeserialization) {
+        if (!effect) {
+            // If any children were SkShaders, return the first one. This is a reasonable fallback.
+            for (int i = 0; i < children.size(); i++) {
+                if (children[i].shader()) {
+                    SkDebugf("Serialized SkSL failed to compile. Replacing shader with child %d.\n",
+                             i);
+                    return sk_ref_sp(children[i].shader());
+                }
             }
-        }
 
-        // We don't know what to do, so just return nullptr (but *don't* poison the buffer).
-        SkDebugf("Serialized SkSL failed to compile. Ignoring/dropping SkSL shader.\n");
-        return nullptr;
+            // We don't know what to do, so just return nullptr (but *don't* poison the buffer).
+            SkDebugf("Serialized SkSL failed to compile. Ignoring/dropping SkSL shader.\n");
+            return nullptr;
+        }
     }
-#endif
 
     return effect->makeShader(std::move(uniforms), SkSpan(children), localM.getMaybeNull());
 }

@@ -33,6 +33,12 @@
 #include <string>
 #include <utility>
 
+#if defined(SK_BUILD_FOR_DEBUGGER)
+    constexpr bool kLenientSkSLDeserialization = true;
+#else
+    constexpr bool kLenientSkSLDeserialization = false;
+#endif
+
 SkRuntimeColorFilter::SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect,
                                            sk_sp<const SkData> uniforms,
                                            SkSpan<const SkRuntimeEffect::ChildPtr> children)
@@ -84,23 +90,23 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
 
     auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, std::move(sksl));
-#if !SK_LENIENT_SKSL_DESERIALIZATION
-    if (!buffer.validate(effect != nullptr)) {
-        return nullptr;
+    if constexpr (!kLenientSkSLDeserialization) {
+        if (!buffer.validate(effect != nullptr)) {
+            return nullptr;
+        }
     }
-#endif
 
     skia_private::STArray<4, SkRuntimeEffect::ChildPtr> children;
     if (!SkRuntimeEffectPriv::ReadChildEffects(buffer, effect.get(), &children)) {
         return nullptr;
     }
 
-#if SK_LENIENT_SKSL_DESERIALIZATION
-    if (!effect) {
-        SkDebugf("Serialized SkSL failed to compile. Ignoring/dropping SkSL color filter.\n");
-        return nullptr;
+    if constexpr (kLenientSkSLDeserialization) {
+        if (!effect) {
+            SkDebugf("Serialized SkSL failed to compile. Ignoring/dropping SkSL color filter.\n");
+            return nullptr;
+        }
     }
-#endif
 
     return effect->makeColorFilter(std::move(uniforms), SkSpan(children));
 }
