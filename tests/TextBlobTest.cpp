@@ -33,7 +33,6 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <functional>
 #include <string>
 
 using namespace skia_private;

@@ -61,7 +61,6 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
-#include <functional>
 #include <memory>
 #include <utility>
 

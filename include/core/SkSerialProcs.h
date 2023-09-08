@@ -12,7 +12,6 @@
 #include "include/private/base/SkAPI.h"
 
 #include <cstddef>
-#include <functional>
 
 class SkData;
 class SkImage;
@@ -29,16 +28,15 @@ class SkTypeface;
  *  The default action for typefaces is to use Skia's internal format.
  */
 
-using SkSerialPictureProc = std::function<sk_sp<SkData>(SkPicture*, void* ctx)>;
-using SkSerialImageProc = std::function<sk_sp<SkData>(SkImage*, void* ctx)>;
-using SkSerialTypefaceProc = std::function<sk_sp<SkData>(SkTypeface*, void* ctx)>;
+using SkSerialPictureProc = sk_sp<SkData> (*)(SkPicture*, void* ctx);
+using SkSerialImageProc = sk_sp<SkData> (*)(SkImage*, void* ctx);
+using SkSerialTypefaceProc = sk_sp<SkData> (*)(SkTypeface*, void* ctx);
 
 /**
  *  Called with the encoded form of a picture (previously written with a custom
  *  SkSerialPictureProc proc). Return a picture object, or nullptr indicating failure.
  */
-using SkDeserialPictureProc =
-        std::function<sk_sp<SkPicture>(const void* data, size_t length, void* ctx)>;
+using SkDeserialPictureProc = sk_sp<SkPicture> (*)(const void* data, size_t length, void* ctx);
 
 /**
  *  Called with the encoded form of an image. The proc can return an image object, or if it
@@ -49,15 +47,13 @@ using SkDeserialPictureProc =
  *  Note that unlike SkDeserialPictureProc and SkDeserialTypefaceProc, return nullptr from this
  *  does not indicate failure, but is a signal for Skia to take its default action.
  */
-using SkDeserialImageProc =
-        std::function<sk_sp<SkImage>(const void* data, size_t length, void* ctx)>;
+using SkDeserialImageProc = sk_sp<SkImage> (*)(const void* data, size_t length, void* ctx);
 
 /**
  *  Called with the encoded form of a typeface (previously written with a custom
  *  SkSerialTypefaceProc proc). Return a typeface object, or nullptr indicating failure.
  */
-using SkDeserialTypefaceProc =
-        std::function<sk_sp<SkTypeface>(const void* data, size_t length, void* ctx)>;
+using SkDeserialTypefaceProc = sk_sp<SkTypeface> (*)(const void* data, size_t length, void* ctx);
 
 struct SK_API SkSerialProcs {
     SkSerialPictureProc fPictureProc = nullptr;

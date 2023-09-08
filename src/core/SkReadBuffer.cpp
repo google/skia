@@ -30,7 +30,6 @@
 #include "src/core/SkMipmapBuilder.h"
 #include "src/core/SkWriteBuffer.h"
 
-#include <functional>
 #include <memory>
 #include <optional>
 #include <utility>
