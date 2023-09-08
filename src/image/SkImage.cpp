@@ -296,28 +296,3 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
 sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
     return this->withMipmaps(nullptr);
 }
-
-#if !defined(SK_DISABLE_LEGACY_MAKEWITHFILTER)
-
-#if defined(SK_GANESH)
-#include "include/gpu/ganesh/SkImageGanesh.h"
-#endif
-
-sk_sp<SkImage> SkImage::makeWithFilter(GrRecordingContext* rContext,
-                                       const SkImageFilter* filter,
-                                       const SkIRect& subset,
-                                       const SkIRect& clipBounds,
-                                       SkIRect* outSubset,
-                                       SkIPoint* offset) const {
-#if defined(SK_GANESH)
-    if (rContext) {
-        return SkImages::MakeWithFilter(rContext, sk_ref_sp(this), filter, subset, clipBounds,
-                                        outSubset, offset);
-    }
-#endif
-
-    return SkImages::MakeWithFilter(sk_ref_sp(this), filter, subset, clipBounds,
-                                    outSubset, offset);
-}
-
-#endif // !defined(SK_DISABLE_LEGACY_MAKEWITHFILTER)

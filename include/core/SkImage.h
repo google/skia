@@ -811,18 +811,6 @@ public:
     }
 #endif
 
-#if !defined(SK_DISABLE_LEGACY_MAKEWITHFILTER)
-    /** DEPRECATED
-     * Please use the SkImages::MakeWithFilter factory functions
-     */
-    sk_sp<SkImage> makeWithFilter(GrRecordingContext* context,
-                                  const SkImageFilter* filter,
-                                  const SkIRect& subset,
-                                  const SkIRect& clipBounds,
-                                  SkIRect* outSubset,
-                                  SkIPoint* offset) const;
-#endif
-
     /** Deprecated.
      */
     enum LegacyBitmapMode {
