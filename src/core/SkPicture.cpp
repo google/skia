@@ -26,6 +26,7 @@
 
 #include <atomic>
 #include <cstring>
+#include <functional>
 #include <memory>
 
 // When we read/write the SkPictInfo via a stream, we have a sentinel byte right after the info.

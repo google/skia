@@ -33,6 +33,7 @@
 #include "tools/SkSharingProc.h"
 #include "tools/ToolUtils.h"
 
+#include <functional>
 #include <memory>
 #include <vector>
 

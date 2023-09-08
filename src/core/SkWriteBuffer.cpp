@@ -28,6 +28,7 @@
 #include "src/image/SkImage_Base.h"
 
 #include <cstring>
+#include <functional>
 #include <utility>
 
 class SkMatrix;
