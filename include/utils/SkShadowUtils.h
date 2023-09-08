@@ -20,7 +20,7 @@ class SkPath;
 struct SkPoint3;
 struct SkRect;
 
-enum SK_API SkShadowFlags {
+enum SkShadowFlags {
     kNone_ShadowFlag = 0x00,
     /** The occluding object is not opaque. Knowing that the occluder is opaque allows
     * us to cull shadow geometry behind it and improve performance. */
