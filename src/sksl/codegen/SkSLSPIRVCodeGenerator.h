@@ -508,8 +508,6 @@ private:
     void writeLabel(SpvId label, BranchingLabelType type, ConditionalOpCounts ops,
                     OutputStream& out);
 
-    bool isDead(const Variable& var) const;
-
     MemoryLayout memoryLayoutForStorageClass(SpvStorageClass_ storageClass);
     MemoryLayout memoryLayoutForVariable(const Variable&) const;
 
@@ -613,7 +611,6 @@ private:
     std::vector<const VarDeclaration*> fTopLevelUniforms;
     skia_private::THashMap<const Variable*, int>
             fTopLevelUniformMap;  // <var, UniformBuffer field index>
-    skia_private::THashSet<const Variable*> fSPIRVBonusVariables;
     SpvId fUniformBufferId = NA;
 
     friend class PointerLValue;
