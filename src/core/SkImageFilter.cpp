@@ -236,11 +236,13 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
         return result;
     }
 
-    uint32_t srcGenID = fUsesSrcInput ? context.sourceImage()->uniqueID() : 0;
-    const SkIRect srcSubset = fUsesSrcInput ? context.sourceImage()->subset()
+    uint32_t srcGenID = fUsesSrcInput ? context.source().image()->uniqueID() : 0;
+    const SkIRect srcSubset = fUsesSrcInput ? context.source().image()->subset()
                                             : SkIRect::MakeWH(0, 0);
 
-    SkImageFilterCacheKey key(fUniqueID, context.mapping().layerMatrix(), context.clipBounds(),
+    SkImageFilterCacheKey key(fUniqueID,
+                              context.mapping().layerMatrix(),
+                              SkIRect(context.desiredOutput()),
                               srcGenID, srcSubset);
     if (context.cache() && context.cache()->get(key, &result)) {
         return result;

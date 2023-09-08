@@ -1026,14 +1026,12 @@ public:
     // set to transform the layer space to the final device space (applied by the SkCanvas when
     // filtering is finished).
     const Mapping& mapping() const { return fInfo.fMapping; }
-    // DEPRECATED: Use mapping() and its coordinate-space types instead
-    const SkMatrix& ctm() const { return fInfo.fMapping.layerMatrix(); }
+
     // The bounds, in the layer space, that the filtered image will be clipped to. The output
     // from filterImage() must cover these clip bounds, except in areas where it will just be
     // transparent black, in which case a smaller output image can be returned.
     const LayerSpace<SkIRect>& desiredOutput() const { return fInfo.fDesiredOutput; }
-    // DEPRECATED: Use desiredOutput() instead
-    const SkIRect& clipBounds() const { return static_cast<const SkIRect&>(fInfo.fDesiredOutput); }
+
     // The cache to use when recursing through the filter DAG, in order to avoid repeated
     // calculations of the same image.
     SkImageFilterCache* cache() const { return fInfo.fCache; }
@@ -1054,8 +1052,6 @@ public:
     // exception is composing two image filters (via SkImageFilters::Compose), which must use
     // the output of the inner DAG as the "source" for the outer DAG.
     const FilterResult& source() const { return fInfo.fSource; }
-    // DEPRECATED: Use source() instead to get both the image and its origin.
-    const SkSpecialImage* sourceImage() const { return fInfo.fSource.image(); }
 
     // True if image filtering must occur on the GPU if possible.
     bool gpuBacked() const {
