@@ -139,7 +139,7 @@ private:
 
 class TextSlide_LongRTL1 : public Slide {
 public:
-    TextSlide_LongRTL1() { fName = "TextSlide_LongRTL"; }
+    TextSlide_LongRTL1() { fName = "TextSlide_LongRTL1"; }
 
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
@@ -166,7 +166,7 @@ private:
 
 class TextSlide_LongRTL2 : public Slide {
 public:
-    TextSlide_LongRTL2() { fName = "TextSlide_LongRTL"; }
+    TextSlide_LongRTL2() { fName = "TextSlide_LongRTL2"; }
 
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
