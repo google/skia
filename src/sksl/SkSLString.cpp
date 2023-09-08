@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLDefines.h"
 #include "src/base/SkStringView.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLString.h"
 
 #include <cerrno>

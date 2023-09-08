@@ -9,8 +9,8 @@
 #define SKSL_STRING
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
 #include "src/base/SkNoDestructor.h"
+#include "src/sksl/SkSLDefines.h"
 
 #include <stdarg.h>
 #include <string>

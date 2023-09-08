@@ -9,9 +9,9 @@
 #define SKSL_SPIRVCODEGENERATOR
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"

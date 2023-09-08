@@ -8,7 +8,7 @@
 #ifndef SKSL_BLOCK
 #define SKSL_BLOCK
 
-#include "include/private/SkSLDefines.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLStatement.h"

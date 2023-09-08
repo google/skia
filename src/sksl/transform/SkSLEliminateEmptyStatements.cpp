@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgramElement.h"

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLDefines.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"

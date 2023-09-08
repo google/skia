@@ -9,8 +9,8 @@
 #define SKSL_METALCODEGENERATOR
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLDefines.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"

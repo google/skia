@@ -38,7 +38,6 @@ _include = get_path_info("../include", "abspath")
 #  //src/sksl:core_hdrs
 #  //src/sksl:core_srcs
 skia_sksl_sources = [
-  "$_include/private/SkSLDefines.h",
   "$_include/private/SkSLSampleUsage.h",
   "$_include/sksl/SkSLDebugTrace.h",
   "$_include/sksl/SkSLVersion.h",
@@ -52,6 +51,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLConstantFolder.h",
   "$_src/sksl/SkSLContext.cpp",
   "$_src/sksl/SkSLContext.h",
+  "$_src/sksl/SkSLDefines.h",
   "$_src/sksl/SkSLErrorReporter.cpp",
   "$_src/sksl/SkSLErrorReporter.h",
   "$_src/sksl/SkSLFileOutputStream.h",

@@ -7,11 +7,11 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
-#include "include/private/SkSLDefines.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLInliner.h"
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLOutputStream.h"

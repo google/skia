@@ -8,7 +8,6 @@ exports_files_legacy()
 skia_filegroup(
     name = "sksl_private_hdrs",
     srcs = [
-        "SkSLDefines.h",
         "SkSLSampleUsage.h",
     ],
 )

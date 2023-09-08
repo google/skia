@@ -8,8 +8,8 @@
 #ifndef SKSL_PROGRAMSETTINGS
 #define SKSL_PROGRAMSETTINGS
 
-#include "include/private/SkSLDefines.h"
 #include "include/sksl/SkSLVersion.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLProgramKind.h"
 
 #include <vector>

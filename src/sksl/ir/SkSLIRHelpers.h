@@ -9,10 +9,10 @@
 #define SKSL_IRHELPERS
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"

@@ -9,10 +9,10 @@
 #define SKSL_WGSLCODEGENERATOR
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLDefines.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLStringStream.h"

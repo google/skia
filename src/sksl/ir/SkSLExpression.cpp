@@ -7,8 +7,8 @@
 
 #include "src/sksl/ir/SkSLExpression.h"
 
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
 

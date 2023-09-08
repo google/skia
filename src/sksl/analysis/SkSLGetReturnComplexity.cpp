@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
