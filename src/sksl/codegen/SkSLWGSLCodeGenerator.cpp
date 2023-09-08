@@ -1464,12 +1464,18 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         this->writeLine("Out;");
     }
 
-    // Generate assignment to sk_FragColor built-in if the user-defined main returns a color.
+#if defined(SKSL_STANDALONE)
+    // We are compiling a Runtime Effect as a fragment shader, for testing purposes. We assign the
+    // result from _skslMain into sk_FragColor if the user-defined main returns a color. This
+    // doesn't actually matter, but it is more indicative of what a real program would do.
+    // `addImplicitFragColorWrite` from Transform::FindAndDeclareBuiltinVariables has already
+    // injected sk_FragColor into our stage outputs even if it wasn't explicitly referenced.
     if (ProgramConfig::IsFragment(programKind)) {
         if (main.declaration().returnType().matches(*fContext.fTypes.fHalf4)) {
             this->write("_stageOut.sk_FragColor = ");
         }
     }
+#endif
 
     // Generate a function call to the user-defined main.
     this->write("_skslMain(");
