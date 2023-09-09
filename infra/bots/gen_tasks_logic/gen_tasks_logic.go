@@ -2166,6 +2166,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"android_pathops_test":            {"//tests:android_pathops_test", "tests"},
 	"android_cpu_only_test":           {"//tests:android_cpu_only_test", "tests"},
 	"android_discardable_memory_test": {"//tests:android_discardable_memory_test", "tests"},
+	"hello_bazel_world_android_test":  {"//gm:hello_bazel_world_android_test", "gm"},
 }
 
 // bazelBuild adds a task which builds the specified single-target label (//foo:bar) or
@@ -2258,8 +2259,13 @@ func (b *jobBuilder) bazelTest() {
 	}
 
 	// Expand task driver name to keep task names short.
+	isPrecompiledGM := false
 	if taskdriverName == "precompiled" {
 		taskdriverName = "bazel_test_precompiled"
+	}
+	if taskdriverName == "precompiled_gm" {
+		taskdriverName = "bazel_test_precompiled"
+		isPrecompiledGM = true
 	}
 	if taskdriverName == "gm" {
 		taskdriverName = "bazel_test_gm"
@@ -2322,6 +2328,18 @@ func (b *jobBuilder) bazelTest() {
 			cmd = append(cmd,
 				"--command="+command,
 				"--command_workdir="+commandWorkDir)
+
+			if isPrecompiledGM {
+				cmd = append(cmd,
+					"--gm",
+					"--test_label="+labelAndSavedOutputDir.label,
+					"--goldctl_path=./cipd_bin_packages/goldctl",
+					"--git_commit="+specs.PLACEHOLDER_REVISION,
+					"--changelist_id="+specs.PLACEHOLDER_ISSUE,
+					"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
+					"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
+				b.cipd(CIPD_PKGS_GOLDCTL)
+			}
 
 		case "bazel_test_gm":
 			cmd = append(cmd,

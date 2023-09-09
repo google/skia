@@ -34,7 +34,8 @@ import (
 //
 // TODO(lovisolo): Delete once migration is complete.
 var goldctlBazelLabelAllowList = map[string]bool{
-	"//gm:hello_bazel_world_test": true,
+	"//gm:hello_bazel_world_test":         true,
+	"//gm:hello_bazel_world_android_test": true,
 }
 
 // validLabelRegexps represent valid, fully-qualified Bazel labels.
@@ -83,18 +84,21 @@ type UploadToGoldArgs struct {
 }
 
 // UploadToGold uploads any GM results to Gold via goldctl.
-func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZipPath string) error {
+func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZIPOrDir string) error {
 	// TODO(lovisolo): Delete once migration is complete.
 	if !utgArgs.TestOnlyAllowAnyBazelLabel {
 		if _, ok := goldctlBazelLabelAllowList[utgArgs.BazelLabel]; !ok {
-			return nil
+			return skerr.Wrap(td.Do(ctx, td.Props(fmt.Sprintf("Bazel label %q is not allowlisted to upload to Gold; skipping goldctl steps", utgArgs.BazelLabel)), func(ctx context.Context) error {
+				return nil
+			}))
 		}
 	}
 
 	// Were there any undeclared test outputs?
-	if _, err := os.Stat(outputsZipPath); err != nil {
+	fileInfo, err := os.Stat(outputsZIPOrDir)
+	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return td.Do(ctx, td.Props("Test did not produce an undeclared test outputs ZIP file; nothing to upload to Gold"), func(ctx context.Context) error {
+			return td.Do(ctx, td.Props("Test did not produce an undeclared test outputs ZIP file or directory; nothing to upload to Gold"), func(ctx context.Context) error {
 				return nil
 			})
 		} else {
@@ -102,12 +106,18 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZipPath 
 		}
 	}
 
-	// Extract undeclared outputs ZIP archive.
-	outputsDir, err := extractOutputsZip(ctx, outputsZipPath)
-	if err != nil {
-		return skerr.Wrap(err)
+	// If the undeclared outputs ZIP file or directory is a ZIP file, extract it.
+	outputsDir := ""
+	if fileInfo.IsDir() {
+		outputsDir = outputsZIPOrDir
+	} else {
+		var err error
+		outputsDir, err = extractOutputsZip(ctx, outputsZIPOrDir)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		defer util.RemoveAll(outputsDir)
 	}
-	defer util.RemoveAll(outputsDir)
 
 	// Gather GM outputs.
 	gmOutputs, err := gatherGMOutputs(ctx, outputsDir)
@@ -115,7 +125,7 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZipPath 
 		return skerr.Wrap(err)
 	}
 	if len(gmOutputs) == 0 {
-		return td.Do(ctx, td.Props("Undeclared test outputs ZIP file contains no GM outputs; nothing to upload to Gold"), func(ctx context.Context) error {
+		return td.Do(ctx, td.Props("Undeclared test outputs ZIP file or directory contains no GM outputs; nothing to upload to Gold"), func(ctx context.Context) error {
 			return nil
 		})
 	}
@@ -203,7 +213,7 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZipPath 
 // returns the path to said directory.
 func extractOutputsZip(ctx context.Context, outputsZipPath string) (string, error) {
 	// Create extraction directory.
-	extractionDir, err := os.MkdirTemp("", "bazel-test-output-dir-*")
+	extractionDir, err := os_steps.TempDir(ctx, "", "bazel-test-output-dir-*")
 	if err != nil {
 		return "", skerr.Wrap(err)
 	}
@@ -219,7 +229,7 @@ func extractOutputsZip(ctx context.Context, outputsZipPath string) (string, erro
 		for _, file := range outputsZip.File {
 			// Skip directories. We assume all output files are at the root directory of the archive.
 			if file.FileInfo().IsDir() {
-				if err := td.Do(ctx, td.Props(fmt.Sprintf("Ignoring directory: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
+				if err := td.Do(ctx, td.Props(fmt.Sprintf("Not extracting subdirectory: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
 					return skerr.Wrap(err)
 				}
 				continue
@@ -227,7 +237,7 @@ func extractOutputsZip(ctx context.Context, outputsZipPath string) (string, erro
 
 			// Ignore anything that is not a PNG or JSON file.
 			if !strings.HasSuffix(strings.ToLower(file.Name), ".png") && !strings.HasSuffix(strings.ToLower(file.Name), ".json") {
-				if err := td.Do(ctx, td.Props(fmt.Sprintf("Ignoring non-PNG / non-JSON file: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
+				if err := td.Do(ctx, td.Props(fmt.Sprintf("Not extracting non-PNG / non-JSON file: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
 					return skerr.Wrap(err)
 				}
 				continue
@@ -386,6 +396,20 @@ func computeTaskSpecificGoldctlKeyValuePairs() map[string]string {
 		panic("only linux is supported at this time")
 	}
 	os := "linux"
+
+	// TODO(lovisolo): Delete this temporary hack.
+	if runtime.GOARCH == "arm" || runtime.GOARCH == "arm64" {
+		// As a temporary hack to be able to generate diferent traces for the same GM on Linux vs.
+		// Android, we assume that if the task driver is running on an ARM machine, then it's a
+		// Raspberry Pi connected to an Android phone. This is only for use while we experiment with
+		// Bazel-built GMs.
+		//
+		// Moving forward, we should try to derive the "os", "model" and "arch" keys from the
+		// BazelTest-* task's "host" component. A potential approach could be to use hosts such as
+		// "NUC9i7QN_Debian11". In this example, we can derive the "model" and "arch" keys from the
+		// "NUC9i7QN" part, and the "os" key would match the "Debian11" part.
+		os = "android"
+	}
 
 	// TODO(lovisolo): "arch" key ("arm", "arm64", "x86", "x86_64", etc.).
 	// TODO(lovisolo): "configuration" key ("Debug", "Release", "OptimizeForSize", etc.).

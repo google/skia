@@ -9,7 +9,6 @@ go_library(
     deps = [
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
-        "@org_skia_go_infra//go/exec",
         "@org_skia_go_infra//task_driver/go/td",
     ],
 )

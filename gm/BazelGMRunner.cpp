@@ -109,7 +109,7 @@ static std::string write_png_and_json_files(std::string name,
     keys.merge(surfaceGoldKeys);
     keys.merge(gmGoldKeys);
 
-    // Write JSON file with MD5 hash.
+    // Write JSON file with MD5 hash and Gold key-value pairs.
     SkFILEWStream jsonFile(jsonPath);
     SkJSONWriter jsonWriter(&jsonFile, SkJSONWriter::Mode::kPretty);
     jsonWriter.beginObject();  // Root object.

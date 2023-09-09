@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 
 go_library(
     name = "bazel_test_precompiled_lib",
@@ -6,8 +6,10 @@ go_library(
     importpath = "go.skia.org/skia/infra/bots/task_drivers/bazel_test_precompiled",
     visibility = ["//visibility:private"],
     deps = [
+        "//infra/bots/task_drivers/common",
         "@org_skia_go_infra//go/common",
         "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//go/skerr",
         "@org_skia_go_infra//task_driver/go/lib/os_steps",
         "@org_skia_go_infra//task_driver/go/td",
     ],
@@ -17,4 +19,20 @@ go_binary(
     name = "bazel_test_precompiled",
     embed = [":bazel_test_precompiled_lib"],
     visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "bazel_test_precompiled_test",
+    srcs = ["bazel_test_precompiled_test.go"],
+    embed = [":bazel_test_precompiled_lib"],
+    deps = [
+        "//infra/bots/task_drivers/common",
+        "//infra/bots/task_drivers/testutils",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//go/exec/testutils",
+        "@org_skia_go_infra//task_driver/go/lib/os_steps",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
 )

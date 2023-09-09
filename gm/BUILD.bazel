@@ -611,6 +611,14 @@ cc_test_with_flags(
     deps = [":tests_base"],
 )
 
+android_gm_test(
+    name = "hello_bazel_world_android_test",
+    srcs = ["hello_bazel_world.cpp"],
+    config = "8888",
+    requires_resources_dir = True,
+    deps = [":tests_base"],
+)
+
 [
     # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):
     #

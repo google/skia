@@ -9,36 +9,18 @@ import (
 	"archive/zip"
 	"bytes"
 	"os"
-	"regexp"
+	"path/filepath"
 	"sort"
 	"testing"
-
-	sk_exec "go.skia.org/infra/go/exec"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.skia.org/infra/task_driver/go/td"
 )
 
-// IgnoreCommandDir is a sentinel value that can be passed to AssertCommand to ignore the command's
-// working directory.
-const IgnoreCommandDir = ""
-
-// AssertCommand asserts that the given command matches the given working directory, command name
-// and arguments, which can be strings or regular expressions.
-//
-// Pass IgnoreCommandDir as the working directory to skip the working directory assertion.
-func AssertCommand(t *testing.T, cmd *sk_exec.Command, dir, name string, args ...any) {
-	if dir != IgnoreCommandDir {
-		assert.Equal(t, dir, cmd.Dir)
-	}
-	assert.Equal(t, name, cmd.Name)
-	AssertSliceMatchesStringsOrRegexps(t, cmd.Args, args...)
-}
-
-// AssertStepNamesMatchStringsOrRegexps flattens the names of the steps in the given report, then
-// asserts that they match the given strings or regular expressions.
-func AssertStepNamesMatchStringsOrRegexps(t *testing.T, report *td.StepReport, expectedStringsOrRegexps ...any) {
+// AssertStepNames flattens the names of the steps in the given report, then asserts that they
+// match the given list of strings.
+func AssertStepNames(t *testing.T, report *td.StepReport, expectedStepNames ...string) {
 	var actualStepNames []string
 	report.Recurse(func(sr *td.StepReport) bool {
 		if sr == report {
@@ -48,24 +30,7 @@ func AssertStepNamesMatchStringsOrRegexps(t *testing.T, report *td.StepReport, e
 		actualStepNames = append(actualStepNames, sr.Name)
 		return true
 	})
-
-	AssertSliceMatchesStringsOrRegexps(t, actualStepNames, expectedStringsOrRegexps...)
-}
-
-// AssertSliceMatchesStringsOrRegexps asserts that the elements in the given slice match the given
-// strings or regular expressions.
-func AssertSliceMatchesStringsOrRegexps(t *testing.T, actual []string, expectedStringsOrRegexps ...any) {
-	require.Len(t, actual, len(expectedStringsOrRegexps), "actual slice: %#v", actual)
-	for i, expected := range expectedStringsOrRegexps {
-		switch stringOrRegexp := expected.(type) {
-		case string:
-			assert.Equal(t, stringOrRegexp, actual[i], "offending item index: %d", i)
-		case *regexp.Regexp:
-			assert.Regexp(t, stringOrRegexp, actual[i], "offending item index: %d", i)
-		default:
-			assert.Fail(t, "expected item is neither a string nor a regular expression", "expected item index: %d", i)
-		}
-	}
+	assert.EqualValues(t, expectedStepNames, actualStepNames)
 }
 
 // MakeZIP creates a ZIP archive with the given contents, represented as a map from file paths to
@@ -90,4 +55,27 @@ func MakeZIP(t *testing.T, zipPath string, contents map[string]string) {
 
 	require.NoError(t, zipWriter.Close())
 	require.NoError(t, os.WriteFile(zipPath, buf.Bytes(), 0644))
+}
+
+// PopulateDir populates a directory with the given contents, represented as a map from file paths
+// to file contents.
+func PopulateDir(t *testing.T, dirPath string, contents map[string]string) {
+	for filePath, fileContents := range contents {
+		require.NoError(t, os.WriteFile(filepath.Join(dirPath, filePath), []byte(fileContents), 0644))
+	}
+}
+
+// MakeTempDirMockFn returns a function that can be used to mock os_steps.TempDir by setting the
+// os_steps.TempDirContextKey context key. It takes a list of directory paths, and returns the
+// first path on first call, then the second, and so on. If the function is called more times than
+// the number of directories, the test fails.
+func MakeTempDirMockFn(t *testing.T, dirs ...string) func(string, string) (string, error) {
+	require.NotEmpty(t, dirs)
+	i := 0
+	return func(string, string) (string, error) {
+		require.Less(t, i, len(dirs))
+		dir := dirs[i]
+		i++
+		return dir, nil
+	}
 }

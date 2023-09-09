@@ -115,6 +115,7 @@ test_suite(
         # Go tests in this list will be tested in CI. Please add any new Go tests to this suite.
         "//bazel/exporter:exporter_test",
         "//infra/bots/task_drivers/bazel_test_gm:bazel_test_gm_test",
+        "//infra/bots/task_drivers/bazel_test_precompiled:bazel_test_precompiled_test",
         "//infra/bots/task_drivers/codesize:codesize_test",
         "//infra/bots/task_drivers/common:common_test",
         "//infra/bots/task_drivers/perf_puppeteer_canvas:perf_puppeteer_canvas_test",
