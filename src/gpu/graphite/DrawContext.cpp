@@ -131,6 +131,7 @@ bool DrawContext::recordUpload(Recorder* recorder,
 }
 
 PathAtlas* DrawContext::getOrCreatePathAtlas(Recorder* recorder) {
+    // TODO: Determine whether to use SoftwarePathAtlas
     if (!fComputePathAtlas) {
         fComputePathAtlas = recorder->priv().atlasProvider()->createComputePathAtlas(recorder);
     }
@@ -254,6 +255,10 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
 }
 
 sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
+    if (fSoftwarePathAtlas) {
+        fSoftwarePathAtlas->recordUploads(fPendingUploads.get());
+    }
+
     if (!fPendingUploads || fPendingUploads->size() == 0) {
         return nullptr;
     }

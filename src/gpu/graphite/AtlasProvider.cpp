@@ -27,6 +27,10 @@ std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas(Recorder
     return nullptr;
 }
 
+std::unique_ptr<SoftwarePathAtlas> AtlasProvider::createSoftwarePathAtlas() const {
+    return std::make_unique<SoftwarePathAtlas>();
+}
+
 sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
                                                    uint32_t width,
                                                    uint32_t height) {

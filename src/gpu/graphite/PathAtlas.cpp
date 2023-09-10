@@ -30,6 +30,9 @@ namespace {
 // TODO: This is the maximum target dimension that vello can handle today
 constexpr uint32_t kComputeAtlasDim = 4096;
 
+// TODO: for now
+constexpr uint32_t kSoftwareAtlasDim = 4096;
+
 }  // namespace
 
 PathAtlas::PathAtlas(uint32_t width, uint32_t height) : fRectanizer(width, height) {}
@@ -181,5 +184,7 @@ void VelloComputePathAtlas::onAddShape(const Shape& shape,
 }
 
 #endif  // SK_ENABLE_VELLO_SHADERS
+
+SoftwarePathAtlas::SoftwarePathAtlas() : PathAtlas(kSoftwareAtlasDim, kSoftwareAtlasDim) {}
 
 }  // namespace skgpu::graphite
