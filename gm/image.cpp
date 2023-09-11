@@ -23,6 +23,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
@@ -37,6 +38,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/image/SkImage_Base.h"
 #include "tools/ToolUtils.h"
 
 #if defined(SK_GRAPHITE)
@@ -480,6 +482,13 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
         return nullptr;
     }
     SkBinaryWriteBuffer writer;
+
+    SkSerialProcs sProcs;
+    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
+    };
+    writer.setSerialProcs(sProcs);
+
     writer.writeImage(img);
     size_t length = writer.bytesWritten();
     auto data = SkData::MakeUninitialized(length);
@@ -516,6 +525,7 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
 
     canvas->drawImage(subset, 220, 10);
     subset = serial_deserial(subset.get());
+    SkASSERT(subset);
     canvas->drawImage(subset, 220+110, 10);
     return skiagm::DrawResult::kOk;
 }

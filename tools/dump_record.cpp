@@ -8,15 +8,19 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
+#include "include/encode/SkPngEncoder.h"
 #include "src/base/SkTime.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecorder.h"
+#include "src/image/SkImage_Base.h"
 #include "tools/flags/CommandLineFlags.h"
-#include <stdio.h>
+
+#include <cstdio>
 
 static DEFINE_string2(skps, r, "", ".SKPs to dump.");
 static DEFINE_string(match, "", "The usual filters on file names to dump.");
@@ -192,7 +196,11 @@ int main(int argc, char** argv) {
                          nullptr);
             sk_sp<SkPicture> dst(r.finishRecordingAsPicture());
             SkFILEWStream ostream(FLAGS_write[0]);
-            dst->serialize(&ostream);
+            SkSerialProcs sProcs;
+            sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+                return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
+            };
+            dst->serialize(&ostream, &sProcs);
         }
     }
 

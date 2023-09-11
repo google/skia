@@ -162,6 +162,10 @@ public:
         may be used to provide user context to procs->fPictureProc; procs->fPictureProc
         is called with a pointer to SkPicture and user context.
 
+        The default behavior for serializing SkImages is to encode a nullptr. Should
+        clients want to, for example, encode these SkImages as PNGs so they can be
+        deserialized, they must provide SkSerialProcs with the fImageProc set to do so.
+
         @param procs  custom serial data encoders; may be nullptr
         @return       storage containing serialized SkPicture
 
@@ -175,6 +179,10 @@ public:
         If procs->fPictureProc is nullptr, default encoding is used. procs->fPictureCtx
         may be used to provide user context to procs->fPictureProc; procs->fPictureProc
         is called with a pointer to SkPicture and user context.
+
+        The default behavior for serializing SkImages is to encode a nullptr. Should
+        clients want to, for example, encode these SkImages as PNGs so they can be
+        deserialized, they must provide SkSerialProcs with the fImageProc set to do so.
 
         @param stream  writable serial data stream
         @param procs   custom serial data encoders; may be nullptr

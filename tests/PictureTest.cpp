@@ -69,7 +69,7 @@ static void test_serializing_empty_picture() {
     recorder.beginRecording(0, 0);
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkDynamicMemoryWStream stream;
-    picture->serialize(&stream);
+    picture->serialize(&stream, nullptr);  // default SkSerialProcs
 }
 #endif
 
@@ -513,7 +513,7 @@ static void test_typeface(skiatest::Reporter* reporter) {
     canvas->drawString("Q", 0, 10, font, SkPaint());
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkDynamicMemoryWStream stream;
-    picture->serialize(&stream);
+    picture->serialize(&stream, nullptr);  // default SkSerialProcs
 }
 
 DEF_TEST(Picture, reporter) {
@@ -708,7 +708,7 @@ DEF_TEST(Picture_preserveCullRect, r) {
 
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkDynamicMemoryWStream wstream;
-    picture->serialize(&wstream);
+    picture->serialize(&wstream, nullptr);  // default SkSerialProcs
 
     std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
     sk_sp<SkPicture> deserializedPicture(SkPicture::MakeFromStream(rstream.get()));
@@ -785,7 +785,7 @@ DEF_TEST(Picture_empty_serial, reporter) {
     auto pic = rec.finishRecordingAsPicture();
     REPORTER_ASSERT(reporter, pic);
 
-    auto data = pic->serialize();
+    auto data = pic->serialize(); // explicitly testing the default SkSerialProcs
     REPORTER_ASSERT(reporter, data);
 
     auto pic2 = SkPicture::MakeFromData(data->data(), data->size());

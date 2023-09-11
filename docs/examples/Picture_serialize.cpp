@@ -11,7 +11,10 @@ void draw(SkCanvas* canvas) {
     paint.setColor(SK_ColorWHITE);
     pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
     sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
-    sk_sp<SkData> readableData = picture->serialize();
+    SkSerialProcs sProcs;
+    // One would override serialization behavior for images, typefaces, or even SkPictures
+    // themselves if desired by setting the fields on sProcs.
+    sk_sp<SkData> readableData = picture->serialize(&sProcs);
     sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());
     copy->playback(canvas);
 }

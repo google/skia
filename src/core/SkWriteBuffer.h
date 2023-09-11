@@ -86,11 +86,10 @@ public:
     virtual void writePaint(const SkPaint& paint) = 0;
 
     void setSerialProcs(const SkSerialProcs& procs) { fProcs = procs; }
+    const SkSerialProcs& serialProcs() const { return fProcs; }
 
 protected:
     SkSerialProcs   fProcs;
-
-    friend class SkPicturePriv; // fProcs
 };
 
 /**

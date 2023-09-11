@@ -278,7 +278,7 @@ static bool write_pad32(SkWStream* stream, const void* data, size_t size) {
 }
 
 // Private serialize.
-// SkPictureData::serialize makes a first pass on all subpictures, indicatewd by textBlobsOnly=true,
+// SkPictureData::serialize makes a first pass on all subpictures, indicated by textBlobsOnly=true,
 // to fill typefaceSet.
 void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procsPtr,
                           SkRefCntSet* typefaceSet, bool textBlobsOnly) const {
@@ -319,7 +319,7 @@ void SkPicturePriv::Flatten(const sk_sp<const SkPicture> picture, SkWriteBuffer&
     buffer.writeUInt(info.getVersion());
     buffer.writeRect(info.fCullRect);
 
-    if (auto custom = custom_serialize(picture.get(), buffer.fProcs)) {
+    if (auto custom = custom_serialize(picture.get(), buffer.serialProcs())) {
         int32_t size = SkToS32(custom->size());
         buffer.write32(-size);    // negative for custom format
         buffer.writePad32(custom->data(), size);

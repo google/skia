@@ -711,7 +711,6 @@
 #include "docs/examples/Path_transform_2.cpp"
 #include "docs/examples/Path_updateBoundsCache.cpp"
 #include "docs/examples/Path_writeToMemory.cpp"
-#include "docs/examples/Picture_008.cpp"
 #include "docs/examples/Picture_AbortCallback_abort.cpp"
 #include "docs/examples/Picture_MakeFromData.cpp"
 #include "docs/examples/Picture_MakeFromStream.cpp"
