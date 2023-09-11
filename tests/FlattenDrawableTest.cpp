@@ -26,7 +26,7 @@
 #include "tests/Test.h"
 
 #include <cstdint>
-#include <string>
+#include <cstring>
 
 class IntDrawable : public SkDrawable {
 public:

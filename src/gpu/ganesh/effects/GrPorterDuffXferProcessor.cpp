@@ -27,6 +27,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
+#include <cstring>
 #include <memory>
 #include <string>
 

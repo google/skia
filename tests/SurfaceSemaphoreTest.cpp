@@ -34,7 +34,7 @@
 #include "tools/gpu/ContextType.h"
 #include "tools/gpu/TestContext.h"
 
-#include <string>
+#include <cstring>
 #include <cstdint>
 #include <initializer_list>
 

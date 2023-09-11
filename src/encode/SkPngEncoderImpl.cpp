@@ -34,8 +34,8 @@
 #include <algorithm>
 #include <csetjmp>
 #include <cstdint>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 

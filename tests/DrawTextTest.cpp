@@ -24,8 +24,9 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cmath>
-#include <string>
+#include <cstring>
 
 static const SkColor bgColor = SK_ColorWHITE;
 

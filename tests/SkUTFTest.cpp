@@ -5,9 +5,10 @@
 #include "src/base/SkUTF.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstdint>
 #include <cstddef>
-#include <string>
+#include <cstring>
 
 DEF_TEST(SkUTF_UTF16, reporter) {
     // Test non-basic-multilingual-plane unicode.

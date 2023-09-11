@@ -36,6 +36,7 @@
 #include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
+#include <cstring>
 #include <string>
 #include <utility>
 

@@ -13,7 +13,7 @@
 #include "tests/Test.h"
 
 #include <cstdint>
-#include <string>
+#include <cstring>
 
 class TestBlitter : public SkBlitter {
 public:

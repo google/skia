@@ -18,9 +18,9 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <initializer_list>
-#include <string>
 #include <vulkan/vulkan_core.h>
 
 struct GrContextOptions;

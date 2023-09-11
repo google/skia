@@ -12,6 +12,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkTDArray.h"
 
+#include <cstring>
 #include <string>
 
 #define PATH_STR_SIZE 512

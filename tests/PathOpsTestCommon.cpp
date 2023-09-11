@@ -23,7 +23,7 @@
 #include "tests/PathOpsTestCommon.h"
 
 #include <cmath>
-#include <string>
+#include <cstring>
 #include <utility>
 
 using namespace skia_private;

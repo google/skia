@@ -12,8 +12,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <iterator>
-#include <string>
 
 static constexpr const char* gColorNames[] = {
     "aliceblue",

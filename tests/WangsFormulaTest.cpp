@@ -19,9 +19,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include <limits>
-#include <string>
 
 namespace skgpu::tess {
 

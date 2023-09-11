@@ -9,9 +9,10 @@
 #include "tests/Test.h"
 #include "tools/SkMetaData.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
-#include <string>
+#include <cstring>
 
 DEF_TEST(MetaData, reporter) {
     SkMetaData m1;

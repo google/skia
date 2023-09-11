@@ -34,10 +34,11 @@
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <utility>
 
 #if defined(SK_BUILD_FOR_WIN)
