@@ -9,6 +9,7 @@
 #define skgpu_ganesh_AtlasTextOp_DEFINED
 
 #include "src/gpu/AtlasTypes.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/text/gpu/TextBlob.h"
@@ -132,6 +133,7 @@ private:
                 int glyphCount,
                 SkRect deviceRect,
                 Geometry* geo,
+                const GrColorInfo& dstColorInfo,
                 GrPaint&& paint);
 
     AtlasTextOp(MaskType maskType,
@@ -253,6 +255,9 @@ private:
 #if !defined(SK_DISABLE_SDF_TEXT)
     static_assert(kInvalid_DistanceFieldEffectFlag <= (1 << 9), "DFGP Flags do not fit in 10 bits");
 #endif
+
+    // Only needed for color emoji
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     // Only used for distance fields; per-channel luminance for LCD, or gamma-corrected luminance
     // for single-channel distance fields.

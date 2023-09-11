@@ -9,14 +9,17 @@
 #define GrBitmapTextGeoProc_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/private/SkColorData.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 
 #include <memory>
+#include <utility>
 
 class GrSurfaceProxyView;
 struct GrShaderCaps;
@@ -39,6 +42,7 @@ public:
                                      const GrShaderCaps& caps,
                                      const SkPMColor4f& color,
                                      bool wideColor,
+                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
                                      const GrSurfaceProxyView* views,
                                      int numActiveViews,
                                      GrSamplerState p,
@@ -46,7 +50,8 @@ public:
                                      const SkMatrix& localMatrix,
                                      bool usesW) {
         return arena->make([&](void* ptr) {
-            return new (ptr) GrBitmapTextGeoProc(caps, color, wideColor, views, numActiveViews,
+            return new (ptr) GrBitmapTextGeoProc(caps, color, wideColor, std::move(colorSpaceXform),
+                                                 views, numActiveViews,
                                                  p, format, localMatrix, usesW);
         });
     }
@@ -65,6 +70,7 @@ private:
     class Impl;
 
     GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
+                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                         const GrSurfaceProxyView* views, int numViews, GrSamplerState params,
                         skgpu::MaskFormat format, const SkMatrix& localMatrix, bool usesW);
 
@@ -72,15 +78,16 @@ private:
 
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
-    SkPMColor4f      fColor;
-    SkMatrix         fLocalMatrix;
-    bool             fUsesW;
-    SkISize          fAtlasDimensions;  // dimensions for all textures used with fTextureSamplers[].
-    TextureSampler   fTextureSamplers[kMaxTextures];
-    Attribute        fInPosition;
-    Attribute        fInColor;
-    Attribute        fInTextureCoords;
-    skgpu::MaskFormat     fMaskFormat;
+    SkPMColor4f              fColor;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
+    SkMatrix                 fLocalMatrix;
+    bool                     fUsesW;
+    SkISize                  fAtlasDimensions;  // dims for all textures used with fTextureSamplers
+    TextureSampler           fTextureSamplers[kMaxTextures];
+    Attribute                fInPosition;
+    Attribute                fInColor;
+    Attribute                fInTextureCoords;
+    skgpu::MaskFormat        fMaskFormat;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

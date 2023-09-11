@@ -817,12 +817,14 @@ public:
                                                     sdc->arenaAlloc());
 
         GrRecordingContext* const rContext = sdc->recordingContext();
+
         GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
                                                  fVertexFiller.opMaskType(),
                                                  !integerTranslate,
                                                  this->glyphCount(),
                                                  subRunDeviceBounds,
                                                  geometry,
+                                                 sdc->colorInfo(),
                                                  std::move(grPaint));
         return {clip, std::move(op)};
     }
@@ -1005,6 +1007,7 @@ public:
                                                  this->glyphCount(),
                                                  deviceRect,
                                                  geometry,
+                                                 sdc->colorInfo(),
                                                  std::move(grPaint));
         return {clip, std::move(op)};
     }

@@ -14,6 +14,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -70,6 +71,7 @@ AtlasTextOp::AtlasTextOp(MaskType maskType,
                          int glyphCount,
                          SkRect deviceRect,
                          Geometry* geo,
+                         const GrColorInfo& dstColorInfo,
                          GrPaint&& paint)
         : INHERITED{ClassID()}
         , fProcessors(std::move(paint))
@@ -85,6 +87,10 @@ AtlasTextOp::AtlasTextOp(MaskType maskType,
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
+    if (maskType == MaskType::kColorBitmap) {
+        // We assume that color emoji use the sRGB colorspace
+        fColorSpaceXform = dstColorInfo.refColorSpaceXformFromSRGB();
+    }
 }
 
 AtlasTextOp::AtlasTextOp(MaskType maskType,
@@ -259,7 +265,8 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
         // color, so we can use the first's without worry.
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                 target->allocator(), *target->caps().shaderCaps(), fHead->fColor,
-                false, views, numActiveViews, filter, maskFormat, localMatrix, fHasPerspective);
+                /*wideColor=*/false, fColorSpaceXform, views, numActiveViews, filter,
+                maskFormat, localMatrix, fHasPerspective);
     }
 
     const int vertexStride = (int)flushInfo.fGeometryProcessor->vertexStride();
