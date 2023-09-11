@@ -74,8 +74,12 @@ static void check_pixels(skiatest::Reporter* reporter, const SkBitmap& bitmap,
 static void run_test(skiatest::Reporter* reporter,
                      GrDirectContext* context,
                      GrSurfaceOrigin origin) {
-    auto beTexture = context->createBackendTexture(8, 8, kRGBA_8888_SkColorType, GrMipmapped::kNo,
-                                                   GrRenderable::kYes, GrProtected::kNo);
+    auto beTexture = context->createBackendTexture(8,
+                                                   8,
+                                                   kRGBA_8888_SkColorType,
+                                                   skgpu::Mipmapped::kNo,
+                                                   GrRenderable::kYes,
+                                                   GrProtected::kNo);
     REPORTER_ASSERT(reporter, beTexture.isValid());
     if (!beTexture.isValid()) {
         return;

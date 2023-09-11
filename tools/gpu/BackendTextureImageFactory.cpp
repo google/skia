@@ -43,7 +43,7 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                        const SkImageInfo& info,
                                        SkColor4f color,
-                                       GrMipmapped mipmapped,
+                                       skgpu::Mipmapped mipmapped,
                                        GrRenderable renderable,
                                        GrSurfaceOrigin origin,
                                        GrProtected isProtected) {

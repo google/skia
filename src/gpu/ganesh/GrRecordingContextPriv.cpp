@@ -42,7 +42,7 @@ sk_sp<skgpu::ganesh::Device> GrRecordingContextPriv::createDevice(
         const SkImageInfo& ii,
         SkBackingFit fit,
         int sampleCount,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         const SkSurfaceProps& props,
@@ -126,7 +126,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceContext> GrRecordingContextPriv::makeSC(
         GrSurfaceOrigin origin,
         GrRenderable renderable,
         int sampleCount,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         skgpu::Budgeted budgeted) {
     SkASSERT(renderable == GrRenderable::kYes || sampleCount == 1);
@@ -162,7 +162,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceFillContext> GrRecordingContextPriv::makeS
         std::string_view label,
         SkBackingFit fit,
         int sampleCount,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         skgpu::Budgeted budgeted) {
@@ -214,7 +214,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceFillContext> GrRecordingContextPriv::makeS
         SkBackingFit fit,
         const GrBackendFormat& format,
         int sampleCount,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         skgpu::Swizzle readSwizzle,
         skgpu::Swizzle writeSwizzle,
@@ -268,7 +268,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceFillContext> GrRecordingContextPriv::makeS
         GrImageInfo info,
         SkBackingFit fit,
         int sampleCount,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         skgpu::Budgeted budgeted) {

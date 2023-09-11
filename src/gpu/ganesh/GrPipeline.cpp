@@ -108,7 +108,7 @@ void GrPipeline::visitProxies(const GrVisitProxyFunc& func) const {
         fp->visitProxies(func);
     }
     if (this->usesDstTexture()) {
-        func(this->dstProxyView().proxy(), GrMipmapped::kNo);
+        func(this->dstProxyView().proxy(), skgpu::Mipmapped::kNo);
     }
 }
 

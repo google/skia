@@ -79,7 +79,7 @@ public:
      * The bitmap is uploaded to the texture proxy assuming a kTopLeft_GrSurfaceOrigin.
      */
     sk_sp<GrTextureProxy> createProxyFromBitmap(const SkBitmap&,
-                                                GrMipmapped,
+                                                skgpu::Mipmapped,
                                                 SkBackingFit,
                                                 skgpu::Budgeted);
 
@@ -90,7 +90,7 @@ public:
                                       SkISize dimensions,
                                       GrRenderable,
                                       int renderTargetSampleCnt,
-                                      GrMipmapped,
+                                      skgpu::Mipmapped,
                                       SkBackingFit,
                                       skgpu::Budgeted,
                                       GrProtected,
@@ -103,7 +103,7 @@ public:
      */
     sk_sp<GrTextureProxy> createCompressedTextureProxy(SkISize dimensions,
                                                        skgpu::Budgeted,
-                                                       GrMipmapped,
+                                                       skgpu::Mipmapped,
                                                        GrProtected,
                                                        SkTextureCompressionType,
                                                        sk_sp<SkData> data);
@@ -151,7 +151,7 @@ public:
     using LazyInstantiateCallback = GrSurfaceProxy::LazyInstantiateCallback;
 
     struct TextureInfo {
-        GrMipmapped fMipmapped;
+        skgpu::Mipmapped fMipmapped;
         GrTextureType fTextureType;
     };
 
@@ -163,7 +163,7 @@ public:
                                                     LazyInstantiateCallback&&,
                                                     const GrBackendFormat&,
                                                     SkISize dimensions,
-                                                    GrMipmapped);
+                                                    skgpu::Mipmapped);
 
     /**
      * Creates a texture proxy that will be instantiated by a user-supplied callback during flush.
@@ -178,7 +178,7 @@ public:
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&,
                                           const GrBackendFormat&,
                                           SkISize dimensions,
-                                          GrMipmapped,
+                                          skgpu::Mipmapped,
                                           GrMipmapStatus,
                                           GrInternalSurfaceFlags,
                                           SkBackingFit,

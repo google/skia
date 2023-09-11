@@ -91,8 +91,14 @@ constexpr ProxyParams::Kind kFullyLazy = ProxyParams::Kind::kFullyLazy;
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                            const ProxyParams& p) {
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
-    return proxyProvider->createProxy(format, {p.fSize, p.fSize}, p.fRenderable, p.fSampleCnt,
-                                      GrMipmapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo,
+    return proxyProvider->createProxy(format,
+                                      {p.fSize, p.fSize},
+                                      p.fRenderable,
+                                      p.fSampleCnt,
+                                      skgpu::Mipmapped::kNo,
+                                      p.fFit,
+                                      p.fBudgeted,
+                                      GrProtected::kNo,
                                       /*label=*/"ResourceAllocatorTest_Deffered");
 }
 
@@ -103,7 +109,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext, const Proxy
     SkASSERT(SkColorType::kUnknown_SkColorType != skColorType);
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext, p.fSize, p.fSize, skColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            dContext, p.fSize, p.fSize, skColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
 
     if (!mbet) {
         return nullptr;
@@ -151,11 +157,17 @@ static sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrC
                                            /*label=*/"ResourceAllocatorTest_Lazy");
         return GrSurfaceProxy::LazyCallbackResult(std::move(tex));
     };
-    return proxyProvider->createLazyProxy(std::move(cb), format, {p.fSize, p.fSize},
-                                          GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
+    return proxyProvider->createLazyProxy(std::move(cb),
+                                          format,
+                                          {p.fSize, p.fSize},
+                                          skgpu::Mipmapped::kNo,
+                                          GrMipmapStatus::kNotAllocated,
                                           GrInternalSurfaceFlags::kNone,
-                                          p.fFit, p.fBudgeted, GrProtected::kNo,
-                                          GrSurfaceProxy::UseAllocator::kYes, /*label=*/{});
+                                          p.fFit,
+                                          p.fBudgeted,
+                                          GrProtected::kNo,
+                                          GrSurfaceProxy::UseAllocator::kYes,
+                                          /*label=*/{});
 }
 
 static sk_sp<GrSurfaceProxy> make_proxy(GrDirectContext* dContext, const ProxyParams& p) {

@@ -160,7 +160,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
             },
             backendFormat,
             {width, height},
-            GrMipmapped::kNo,
+            skgpu::Mipmapped::kNo,
             GrMipmapStatus::kNotAllocated,
             GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact,
@@ -177,16 +177,15 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
         GrRecordingContext* context,
         const SkImageInfo& info,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrImageTexGenPolicy texGenPolicy) {
-
     GrSurfaceProxyView texProxyView = this->makeView(context);
     if (!texProxyView.proxy()) {
         return {};
     }
     SkASSERT(texProxyView.asTextureProxy());
 
-    if (texGenPolicy == GrImageTexGenPolicy::kDraw && mipmapped == GrMipmapped::kNo) {
+    if (texGenPolicy == GrImageTexGenPolicy::kDraw && mipmapped == skgpu::Mipmapped::kNo) {
         // If we have the correct mip support, we're done
         return texProxyView;
     }

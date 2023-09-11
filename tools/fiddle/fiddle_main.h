@@ -37,26 +37,34 @@ extern double duration; // The total duration of the animation in seconds.
 extern double frame;    // A value in [0, 1] of where we are in the animation.
 
 struct DrawOptions {
-    DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool f16,
-                bool textOnly, const char* s,
-                GrMipmapped mipMapping,
+    DrawOptions(int w,
+                int h,
+                bool r,
+                bool g,
+                bool p,
+                bool k,
+                bool srgb,
+                bool f16,
+                bool textOnly,
+                const char* s,
+                skgpu::Mipmapped mipMapping,
                 int offScreenWidth,
                 int offScreenHeight,
-                int deprecated, // TODO(jcgregorio): remove
-                GrMipmapped offScreenMipMapping)
-        : size(SkISize::Make(w, h))
-        , raster(r)
-        , gpu(g)
-        , pdf(p)
-        , skp(k)
-        , srgb(srgb)
-        , f16(f16)
-        , textOnly(textOnly)
-        , source(s)
-        , fMipMapping(mipMapping)
-        , fOffScreenWidth(offScreenWidth)
-        , fOffScreenHeight(offScreenHeight)
-        , fOffScreenMipMapping(offScreenMipMapping) {
+                int deprecated,  // TODO(jcgregorio): remove
+                skgpu::Mipmapped offScreenMipMapping)
+            : size(SkISize::Make(w, h))
+            , raster(r)
+            , gpu(g)
+            , pdf(p)
+            , skp(k)
+            , srgb(srgb)
+            , f16(f16)
+            , textOnly(textOnly)
+            , source(s)
+            , fMipMapping(mipMapping)
+            , fOffScreenWidth(offScreenWidth)
+            , fOffScreenHeight(offScreenHeight)
+            , fOffScreenMipMapping(offScreenMipMapping) {
         // F16 mode is only valid for color correct backends.
         SkASSERT(srgb || !f16);
     }
@@ -74,14 +82,14 @@ struct DrawOptions {
     // In this case the resource is created with extra room to accommodate mipmaps.
     // TODO: The SkImage::makeTextureImage API would need to be widened to allow this to be true
     // for the non-backend gpu SkImages.
-    GrMipmapped fMipMapping;
+    skgpu::Mipmapped fMipMapping;
 
     // Parameters for an GPU offscreen resource exposed as a GrBackendRenderTarget
     int         fOffScreenWidth;
     int         fOffScreenHeight;
     // TODO: should we also expose stencilBits here? How about the config?
 
-    GrMipmapped fOffScreenMipMapping; // only applicable if the offscreen is also textureable
+    skgpu::Mipmapped fOffScreenMipMapping;  // only applicable if the offscreen is also textureable
 };
 
 extern DrawOptions GetDrawOptions();

@@ -282,7 +282,7 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
                                                                   SkSurfaceProps(),
                                                                   /*label=*/{},
                                                                   /* sampleCnt= */ 1,
-                                                                  GrMipmapped::kNo,
+                                                                  skgpu::Mipmapped::kNo,
                                                                   GrProtected::kNo,
                                                                   kTopLeft_GrSurfaceOrigin,
                                                                   skgpu::Budgeted::kYes)) {

@@ -274,7 +274,7 @@ public:
                                                              fSampleCount,
                                                              fColorType,
                                                              fColorSpace,
-                                                             GrMipmapped(fShouldCreateMipMaps),
+                                                             skgpu::Mipmapped(fShouldCreateMipMaps),
                                                              fIsProtected,
                                                              &fSurfaceProps);
         } else {
@@ -917,7 +917,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest,
                                                                     kSize,
                                                                     kSize,
                                                                     kRGBA_8888_SkColorType,
-                                                                    GrMipmapped::kNo,
+                                                                    skgpu::Mipmapped::kNo,
                                                                     GrRenderable::kNo,
                                                                     GrProtected::kNo);
     if (!mbet) {
@@ -1151,7 +1151,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush,
                 SkImages::PromiseTextureFrom(canvas->recordingContext()->threadSafeProxy(),
                                              format,
                                              SkISize::Make(32, 32),
-                                             GrMipmapped::kNo,
+                                             skgpu::Mipmapped::kNo,
                                              kTopLeft_GrSurfaceOrigin,
                                              kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType,
@@ -1262,7 +1262,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(DDLTextureFlagsTest, reporter, ctxInfo, CtsEnforc
     GrDeferredDisplayListRecorder recorder(characterization);
 
     for (GrGLenum target : { GR_GL_TEXTURE_EXTERNAL, GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_2D } ) {
-        for (auto mipmapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
+        for (auto mipmapped : {skgpu::Mipmapped::kNo, skgpu::Mipmapped::kYes}) {
             GrBackendFormat format = GrBackendFormats::MakeGL(GR_GL_RGBA8, target);
 
             sk_sp<SkImage> image = SkImages::PromiseTextureFrom(
@@ -1277,7 +1277,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(DDLTextureFlagsTest, reporter, ctxInfo, CtsEnforc
                     noop_fulfill_proc,
                     /*release proc*/ nullptr,
                     /*context*/ nullptr);
-            if (GR_GL_TEXTURE_2D != target && mipmapped == GrMipmapped::kYes) {
+            if (GR_GL_TEXTURE_2D != target && mipmapped == skgpu::Mipmapped::kYes) {
                 REPORTER_ASSERT(reporter, !image);
                 continue;
             }

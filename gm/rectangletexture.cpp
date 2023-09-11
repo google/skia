@@ -98,7 +98,7 @@ private:
         auto bet = dContext->createBackendTexture(content.width(),
                                                   content.height(),
                                                   format,
-                                                  GrMipmapped::kNo,
+                                                  skgpu::Mipmapped::kNo,
                                                   GrRenderable::kNo,
                                                   GrProtected::kNo,
                                                   /*label=*/"CreateRectangleTextureImage");

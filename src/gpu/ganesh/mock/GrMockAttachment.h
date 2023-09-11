@@ -20,8 +20,13 @@ public:
                      UsageFlags supportedUsages,
                      int sampleCnt,
                      std::string_view label)
-            : INHERITED(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
-                        skgpu::Protected::kNo, label) {
+            : INHERITED(gpu,
+                        dimensions,
+                        supportedUsages,
+                        sampleCnt,
+                        skgpu::Mipmapped::kNo,
+                        skgpu::Protected::kNo,
+                        label) {
         SkASSERT(supportedUsages == UsageFlags::kStencilAttachment);
         this->registerWithCache(skgpu::Budgeted::kYes);
     }

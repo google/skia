@@ -116,7 +116,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceContext> CreateSurfaceContext(
         GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
         GrRenderable = GrRenderable::kNo,
         int sampleCount = 1,
-        GrMipmapped = GrMipmapped::kNo,
+        skgpu::Mipmapped = skgpu::Mipmapped::kNo,
         GrProtected = GrProtected::kNo,
         skgpu::Budgeted = skgpu::Budgeted::kYes);
 

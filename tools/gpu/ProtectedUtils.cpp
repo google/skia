@@ -28,7 +28,7 @@ sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext* dContext,
                                                          1,
                                                          kRGBA_8888_SkColorType,
                                                          /* colorSpace= */ nullptr,
-                                                         GrMipmapped::kNo,
+                                                         skgpu::Mipmapped::kNo,
                                                          skgpu::Protected(isProtected),
                                                          &surfaceProps);
     } else {
@@ -90,7 +90,7 @@ sk_sp<SkImage> CreateProtectedSkImage(GrDirectContext* dContext,
     sk_sp<SkImage> image = sk_gpu_test::MakeBackendTextureImage(dContext,
                                                                 ii,
                                                                 color,
-                                                                GrMipmapped::kNo,
+                                                                skgpu::Mipmapped::kNo,
                                                                 GrRenderable::kNo,
                                                                 kTopLeft_GrSurfaceOrigin,
                                                                 skgpu::Protected(isProtected));

@@ -171,7 +171,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(RectangleTexture, reporter, ctxInfo, CtsEnforceme
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         auto format = GrBackendFormats::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         GrBackendTexture rectangleTex = dContext->createBackendTexture(
-                kWidth, kHeight, format, GrMipmapped::kNo, GrRenderable::kYes);
+                kWidth, kHeight, format, skgpu::Mipmapped::kNo, GrRenderable::kYes);
         if (!rectangleTex.isValid()) {
             continue;
         }
@@ -195,8 +195,8 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(RectangleTexture, reporter, ctxInfo, CtsEnforceme
             continue;
         }
 
-        SkASSERT(rectProxy->mipmapped() == GrMipmapped::kNo);
-        SkASSERT(rectProxy->peekTexture()->mipmapped() == GrMipmapped::kNo);
+        SkASSERT(rectProxy->mipmapped() == skgpu::Mipmapped::kNo);
+        SkASSERT(rectProxy->peekTexture()->mipmapped() == skgpu::Mipmapped::kNo);
 
         SkASSERT(rectProxy->textureType() == GrTextureType::kRectangle);
         SkASSERT(rectProxy->peekTexture()->textureType() == GrTextureType::kRectangle);

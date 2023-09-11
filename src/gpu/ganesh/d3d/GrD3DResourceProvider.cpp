@@ -169,8 +169,8 @@ D3D12_CPU_DESCRIPTOR_HANDLE GrD3DResourceProvider::findOrCreateCompatibleSampler
 
     D3D12_FILTER filter = d3d_filter(params);
     // We disable MIP filtering using maxLOD. Otherwise, we want the max LOD to be unbounded.
-    float maxLOD = params.mipmapped() == GrMipmapped::kYes ? std::numeric_limits<float>::max()
-                                                           : 0.f;
+    float maxLOD =
+            params.mipmapped() == skgpu::Mipmapped::kYes ? std::numeric_limits<float>::max() : 0.f;
     D3D12_TEXTURE_ADDRESS_MODE addressModeU = wrap_mode_to_d3d_address_mode(params.wrapModeX());
     D3D12_TEXTURE_ADDRESS_MODE addressModeV = wrap_mode_to_d3d_address_mode(params.wrapModeY());
     unsigned int maxAnisotropy = params.maxAniso();

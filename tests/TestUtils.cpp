@@ -110,7 +110,7 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
     auto copy = GrSurfaceProxy::Copy(dContext,
                                      std::move(proxy),
                                      origin,
-                                     GrMipmapped::kNo,
+                                     skgpu::Mipmapped::kNo,
                                      SkBackingFit::kExact,
                                      skgpu::Budgeted::kYes,
                                      /*label=*/"CopyFromSurface_Test");
@@ -285,7 +285,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceContext> CreateSurfaceContext(GrRecordingC
                                                                     GrSurfaceOrigin origin,
                                                                     GrRenderable renderable,
                                                                     int sampleCount,
-                                                                    GrMipmapped mipmapped,
+                                                                    skgpu::Mipmapped mipmapped,
                                                                     GrProtected isProtected,
                                                                     skgpu::Budgeted budgeted) {
     GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(info.colorType(),

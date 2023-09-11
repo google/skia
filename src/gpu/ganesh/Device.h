@@ -67,6 +67,7 @@ struct SkPoint;
 struct SkRSXform;
 namespace skgpu {
 enum class Budgeted : bool;
+enum class Mipmapped : bool;
 class TiledTextureUtils;
 }
 namespace sktext {
@@ -157,7 +158,7 @@ public:
                               const SkImageInfo&,
                               SkBackingFit,
                               int sampleCount,
-                              GrMipmapped,
+                              skgpu::Mipmapped,
                               GrProtected,
                               GrSurfaceOrigin,
                               const SkSurfaceProps&,

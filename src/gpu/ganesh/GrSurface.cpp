@@ -21,7 +21,7 @@
 size_t GrSurface::ComputeSize(const GrBackendFormat& format,
                               SkISize dimensions,
                               int colorSamplesPerPixel,
-                              GrMipmapped mipmapped,
+                              skgpu::Mipmapped mipmapped,
                               bool binSize) {
     // For external formats we do not actually know the real size of the resource so we just return
     // 0 here to indicate this.
@@ -37,8 +37,8 @@ size_t GrSurface::ComputeSize(const GrBackendFormat& format,
 
     SkTextureCompressionType compressionType = GrBackendFormatToCompressionType(format);
     if (compressionType != SkTextureCompressionType::kNone) {
-        colorSize = SkCompressedFormatDataSize(compressionType, dimensions,
-                                               mipmapped == GrMipmapped::kYes);
+        colorSize = SkCompressedFormatDataSize(
+                compressionType, dimensions, mipmapped == skgpu::Mipmapped::kYes);
     } else {
         colorSize = (size_t)dimensions.width() * dimensions.height() *
                     GrBackendFormatBytesPerPixel(format);
@@ -47,7 +47,7 @@ size_t GrSurface::ComputeSize(const GrBackendFormat& format,
 
     size_t finalSize = colorSamplesPerPixel * colorSize;
 
-    if (GrMipmapped::kYes == mipmapped) {
+    if (skgpu::Mipmapped::kYes == mipmapped) {
         // We don't have to worry about the mipmaps being a different dimensions than
         // we'd expect because we never change fDesc.fWidth/fHeight.
         finalSize += colorSize/3;

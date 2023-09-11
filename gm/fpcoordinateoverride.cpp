@@ -84,7 +84,7 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, canvas, 512, 512,
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(
-            rContext, bmp, /*label=*/"FpCoordinateOverride", GrMipmapped::kNo));
+            rContext, bmp, /*label=*/"FpCoordinateOverride", skgpu::Mipmapped::kNo));
     if (!view) {
         return;
     }

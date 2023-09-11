@@ -27,6 +27,10 @@
 
 class GrSurfaceProxy;
 
+namespace skgpu {
+enum class Mipmapped : bool;
+}
+
 /**
  *  divide, rounding up
  */
@@ -947,7 +951,7 @@ enum class GrDstSampleFlags {
 };
 GR_MAKE_BITFIELD_CLASS_OPS(GrDstSampleFlags)
 
-using GrVisitProxyFunc = std::function<void(GrSurfaceProxy*, GrMipmapped)>;
+using GrVisitProxyFunc = std::function<void(GrSurfaceProxy*, skgpu::Mipmapped)>;
 
 #if defined(SK_DEBUG) || defined(GR_TEST_UTILS) || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {

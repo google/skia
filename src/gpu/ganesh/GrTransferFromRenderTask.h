@@ -44,7 +44,7 @@ private:
 #endif
 #ifdef SK_DEBUG
     void visitProxies_debugOnly(const GrVisitProxyFunc& func) const override {
-        func(fSrcProxy.get(), GrMipmapped::kNo);
+        func(fSrcProxy.get(), skgpu::Mipmapped::kNo);
     }
 #endif
 

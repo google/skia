@@ -45,7 +45,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(clear_swizzle, rContext, canvas, errorMsg, 6*kSize, 2
                                         SkBackingFit::kExact,
                                         sfc->asSurfaceProxy()->backendFormat(),
                                         /* sample count*/ 1,
-                                        GrMipmapped::kNo,
+                                        skgpu::Mipmapped::kNo,
                                         sfc->asSurfaceProxy()->isProtected(),
                                         readSwizzle,
                                         writeSwizzle,

@@ -179,7 +179,7 @@ GrSurfaceProxyView make_src_image(GrRecordingContext* rContext,
     surf->getCanvas()->drawLine({7.f*w/8.f, 0.f}, {7.f*h/8.f, h}, paint);
 
     auto img = surf->makeImageSnapshot();
-    auto [src, ct] = skgpu::ganesh::AsView(rContext, img, GrMipmapped::kNo);
+    auto [src, ct] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo);
     return src;
 }
 

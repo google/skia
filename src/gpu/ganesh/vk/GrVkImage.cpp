@@ -221,7 +221,7 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                        dimensions,
                        supportedUsages,
                        info.fSampleCount,
-                       info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
+                       info.fLevelCount > 1 ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo,
                        info.fProtected,
                        label,
                        info.fAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag
@@ -252,7 +252,7 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                        dimensions,
                        supportedUsages,
                        info.fSampleCount,
-                       info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
+                       info.fLevelCount > 1 ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo,
                        info.fProtected,
                        label)
         , fInfo(info)

@@ -42,7 +42,7 @@ static sk_sp<GrTextureProxy> make_deferred(GrRecordingContext* rContext) {
                                       {kWidthHeight, kWidthHeight},
                                       GrRenderable::kYes,
                                       1,
-                                      GrMipmapped::kNo,
+                                      skgpu::Mipmapped::kNo,
                                       SkBackingFit::kApprox,
                                       skgpu::Budgeted::kYes,
                                       GrProtected::kNo,

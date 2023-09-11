@@ -41,10 +41,10 @@ class LazyYUVImage {
 public:
     // Returns null if the data could not be extracted into YUVA planes
     static std::unique_ptr<LazyYUVImage> Make(sk_sp<SkData> data,
-                                              GrMipmapped = GrMipmapped::kNo,
+                                              skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                               sk_sp<SkColorSpace> = nullptr);
     static std::unique_ptr<LazyYUVImage> Make(SkYUVAPixmaps,
-                                              GrMipmapped = GrMipmapped::kNo,
+                                              skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                               sk_sp<SkColorSpace> = nullptr);
 
     enum class Type { kFromPixmaps, kFromGenerator, kFromTextures, kFromImages };
@@ -60,7 +60,7 @@ private:
     // Decoded YUV data
     SkYUVAPixmaps fPixmaps;
 
-    GrMipmapped fMipmapped;
+    skgpu::Mipmapped fMipmapped;
 
     sk_sp<SkColorSpace> fColorSpace;
 
@@ -69,8 +69,8 @@ private:
 
     LazyYUVImage() = default;
 
-    bool reset(sk_sp<SkData> data, GrMipmapped, sk_sp<SkColorSpace>);
-    bool reset(SkYUVAPixmaps pixmaps, GrMipmapped, sk_sp<SkColorSpace>);
+    bool reset(sk_sp<SkData> data, skgpu::Mipmapped, sk_sp<SkColorSpace>);
+    bool reset(SkYUVAPixmaps pixmaps, skgpu::Mipmapped, sk_sp<SkColorSpace>);
 
     bool ensureYUVImage(GrRecordingContext* rContext, Type type);
 #if defined(SK_GRAPHITE)

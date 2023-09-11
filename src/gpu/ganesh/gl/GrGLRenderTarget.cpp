@@ -135,8 +135,10 @@ GrBackendFormat GrGLRenderTarget::backendFormat() const {
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {
-    return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                  fTotalMemorySamplesPerPixel, GrMipmapped::kNo);
+    return GrSurface::ComputeSize(this->backendFormat(),
+                                  this->dimensions(),
+                                  fTotalMemorySamplesPerPixel,
+                                  skgpu::Mipmapped::kNo);
 }
 
 void GrGLRenderTarget::onSetLabel() {
@@ -352,8 +354,10 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
         --numSamplesNotInTexture;  // GrGLTexture::dumpMemoryStatistics accounts for 1 sample.
     }
     if (numSamplesNotInTexture >= 1) {
-        size_t size = GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                             numSamplesNotInTexture, GrMipmapped::kNo);
+        size_t size = GrSurface::ComputeSize(this->backendFormat(),
+                                             this->dimensions(),
+                                             numSamplesNotInTexture,
+                                             skgpu::Mipmapped::kNo);
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer

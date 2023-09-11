@@ -182,10 +182,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FinishedAsyncProcWhenAbandonedTest,
     SkImageInfo info =
             SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(dContext,
-                                                                 info,
-                                                                 GrMipmapped::kNo,
-                                                                 GrRenderable::kYes);
+    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(
+            dContext, info, skgpu::Mipmapped::kNo, GrRenderable::kYes);
     if (!mbet) {
         return;
     }

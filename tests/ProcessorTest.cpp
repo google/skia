@@ -224,7 +224,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo, CtsEnforce
                                                    kDims,
                                                    GrRenderable::kNo,
                                                    1,
-                                                   GrMipmapped::kNo,
+                                                   skgpu::Mipmapped::kNo,
                                                    SkBackingFit::kExact,
                                                    skgpu::Budgeted::kYes,
                                                    GrProtected::kNo,

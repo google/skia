@@ -47,8 +47,10 @@ protected:
     }
     bool onIsProtected() const override;
 
-    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                         GrMipmapped mipmapped, GrImageTexGenPolicy) override;
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*,
+                                         const SkImageInfo&,
+                                         skgpu::Mipmapped mipmapped,
+                                         GrImageTexGenPolicy) override;
 
 private:
     GrBackendTextureImageGenerator(const SkColorInfo&,

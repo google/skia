@@ -109,7 +109,7 @@ bool SkImage_GaneshYUVA::setupMipmapsForPlanes(GrRecordingContext* context) cons
     sk_sp<GrSurfaceProxy> newProxies[4];
     for (int i = 0; i < n; ++i) {
         auto* t = fYUVAProxies.proxy(i)->asTextureProxy();
-        if (t->mipmapped() == GrMipmapped::kNo && (t->width() > 1 || t->height() > 1)) {
+        if (t->mipmapped() == skgpu::Mipmapped::kNo && (t->width() > 1 || t->height() > 1)) {
             auto newView = GrCopyBaseMipMapToView(context, fYUVAProxies.makeView(i));
             if (!newView) {
                 return false;
@@ -150,7 +150,7 @@ GrSemaphoresSubmitted SkImage_GaneshYUVA::flush(GrDirectContext* dContext,
 }
 
 bool SkImage_GaneshYUVA::onHasMipmaps() const {
-    return fYUVAProxies.mipmapped() == GrMipmapped::kYes;
+    return fYUVAProxies.mipmapped() == skgpu::Mipmapped::kYes;
 }
 
 bool SkImage_GaneshYUVA::onIsProtected() const {
@@ -198,8 +198,9 @@ sk_sp<SkImage> SkImage_GaneshYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> n
             new SkImage_GaneshYUVA(fContext, this, std::move(newCS), ColorSpaceMode::kReinterpret));
 }
 
-std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::asView(
-        GrRecordingContext* rContext, GrMipmapped mipmapped, GrImageTexGenPolicy) const {
+std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::asView(GrRecordingContext* rContext,
+                                                                       skgpu::Mipmapped mipmapped,
+                                                                       GrImageTexGenPolicy) const {
     if (!fContext->priv().matches(rContext)) {
         return {};
     }
@@ -241,13 +242,14 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GaneshYUVA::asFragmentProcessor(
     }
     // At least for now we do not attempt aniso filtering on YUVA images.
     if (sampling.isAniso()) {
-        sampling = SkSamplingPriv::AnisoFallback(fYUVAProxies.mipmapped() == GrMipmapped::kYes);
+        sampling =
+                SkSamplingPriv::AnisoFallback(fYUVAProxies.mipmapped() == skgpu::Mipmapped::kYes);
     }
 
     auto wmx = SkTileModeToWrapMode(tileModes[0]);
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
-    if (sampler.mipmapped() == GrMipmapped::kYes && !this->setupMipmapsForPlanes(context)) {
+    if (sampler.mipmapped() == skgpu::Mipmapped::kYes && !this->setupMipmapsForPlanes(context)) {
         sampler = GrSamplerState(sampler.wrapModeX(),
                                  sampler.wrapModeY(),
                                  sampler.filter(),
@@ -314,14 +316,14 @@ sk_sp<SkImage> TextureFromYUVATextures(GrRecordingContext* context,
 
 sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
                                       const SkYUVAPixmaps& pixmaps,
-                                      GrMipmapped buildMips,
+                                      skgpu::Mipmapped buildMips,
                                       bool limitToMaxTextureSize) {
     return TextureFromYUVAPixmaps(context, pixmaps, buildMips, limitToMaxTextureSize, nullptr);
 }
 
 sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
                                       const SkYUVAPixmaps& pixmaps,
-                                      GrMipmapped buildMips,
+                                      skgpu::Mipmapped buildMips,
                                       bool limitToMaxTextureSize,
                                       sk_sp<SkColorSpace> imageColorSpace) {
     if (!context) {
@@ -333,7 +335,7 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
     }
 
     if (!context->priv().caps()->mipmapSupport()) {
-        buildMips = GrMipmapped::kNo;
+        buildMips = skgpu::Mipmapped::kNo;
     }
 
     // Resize the pixmaps if necessary.
@@ -429,7 +431,7 @@ sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> threadSafe
                 SkImage_GaneshBase::MakePromiseImageLazyProxy(threadSafeProxy.get(),
                                                               planeDimensions[i],
                                                               backendTextureInfo.planeFormat(i),
-                                                              GrMipmapped::kNo,
+                                                              skgpu::Mipmapped::kNo,
                                                               textureFulfillProc,
                                                               std::move(releaseHelpers[i]));
         if (!proxies[i]) {

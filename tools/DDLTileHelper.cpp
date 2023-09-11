@@ -182,7 +182,7 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(
             SkImages::PromiseTextureFrom(std::move(threadSafeProxy),
                                          fCallbackContext->backendFormat(),
                                          this->paddedRectSize(),
-                                         GrMipmapped::kNo,
+                                         skgpu::Mipmapped::kNo,
                                          GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
                                          fPlaybackChar.colorType(),
                                          kPremul_SkAlphaType,
@@ -203,7 +203,7 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, Tile
             direct->createBackendTexture(c.width(),
                                          c.height(),
                                          c.colorType(),
-                                         GrMipmapped(c.isMipMapped()),
+                                         skgpu::Mipmapped(c.isMipMapped()),
                                          GrRenderable::kYes,
                                          GrProtected::kNo,
                                          /*label=*/"DDLTile_TileData_CreateBackendTexture");

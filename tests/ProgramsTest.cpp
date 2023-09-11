@@ -178,7 +178,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> random_surface_draw_co
                                                    SkSurfaceProps(),
                                                    /*label=*/{},
                                                    sampleCnt,
-                                                   GrMipmapped::kNo,
+                                                   skgpu::Mipmapped::kNo,
                                                    GrProtected::kNo,
                                                    origin);
 }
@@ -274,7 +274,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     GrProcessorTestData::ViewInfo views[2];
 
     // setup arbitrary textures
-    GrMipmapped mipmapped = GrMipmapped(caps->mipmapSupport());
+    skgpu::Mipmapped mipmapped = skgpu::Mipmapped(caps->mipmapSupport());
     {
         static constexpr SkISize kDims = {34, 18};
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,

@@ -337,10 +337,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
             backendFormats[i] = curImage.backendFormat(i);
             contexts[i] = curImage.refCallbackContext(i).release();
         }
-        GrYUVABackendTextureInfo yuvaBackendTextures(yuvaInfo,
-                                                     backendFormats,
-                                                     GrMipmapped::kNo,
-                                                     kTopLeft_GrSurfaceOrigin);
+        GrYUVABackendTextureInfo yuvaBackendTextures(
+                yuvaInfo, backendFormats, skgpu::Mipmapped::kNo, kTopLeft_GrSurfaceOrigin);
         image = SkImages::PromiseTextureFromYUVA(
                 procContext->fThreadSafeProxy,
                 yuvaBackendTextures,

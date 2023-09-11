@@ -20,7 +20,7 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
                                            const SkImageInfo& ii,
                                            GrSurfaceOrigin origin,
                                            int sampleCnt,
-                                           GrMipmapped mipmapped,
+                                           skgpu::Mipmapped mipmapped,
                                            GrProtected isProtected,
                                            const SkSurfaceProps* props) {
     if (ii.alphaType() == kUnpremul_SkAlphaType) {
@@ -53,7 +53,7 @@ sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
                                            int sampleCnt,
                                            SkColorType colorType,
                                            sk_sp<SkColorSpace> colorSpace,
-                                           GrMipmapped mipmapped,
+                                           skgpu::Mipmapped mipmapped,
                                            GrProtected isProtected,
                                            const SkSurfaceProps* props) {
     auto ii = SkImageInfo::Make(dimensions, colorType, kPremul_SkAlphaType, std::move(colorSpace));

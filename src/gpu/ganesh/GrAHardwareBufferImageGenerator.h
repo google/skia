@@ -44,8 +44,10 @@ private:
 
     bool onIsValid(GrRecordingContext*) const override;
 
-    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                         GrMipmapped, GrImageTexGenPolicy) override;
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*,
+                                         const SkImageInfo&,
+                                         skgpu::Mipmapped,
+                                         GrImageTexGenPolicy) override;
 
     GrSurfaceOrigin origin() const override { return fSurfaceOrigin; }
 

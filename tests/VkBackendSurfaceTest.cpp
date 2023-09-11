@@ -51,7 +51,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDRMModifierTest, reporter, ctxInfo, CtsEnfo
 
     // First make a normal backend texture with DRM
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext, 1, 1, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            dContext, 1, 1, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     if (!mbet) {
         ERRORF(reporter, "Could not create backend texture.");
         return;
@@ -84,7 +84,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDRMModifierTest, reporter, ctxInfo, CtsEnfo
     REPORTER_ASSERT(reporter, ok);
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(actual, drmBETex));
 
-    auto [view, _] = skgpu::ganesh::AsView(dContext, drmImage, GrMipmapped::kNo);
+    auto [view, _] = skgpu::ganesh::AsView(dContext, drmImage, skgpu::Mipmapped::kNo);
     REPORTER_ASSERT(reporter, view);
     const GrSurfaceProxy* proxy = view.proxy();
     REPORTER_ASSERT(reporter, proxy);
@@ -102,7 +102,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo, CtsEnfo
     auto dContext = ctxInfo.directContext();
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext, 1, 1, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            dContext, 1, 1, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     if (!mbet) {
         ERRORF(reporter, "Could not create backend texture.");
         return;
@@ -214,7 +214,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxI
 
     GrBackendTexture backendTex = dContext->createBackendTexture(
             1, 1, kRGBA_8888_SkColorType,
-            SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo);
+            SkColors::kTransparent, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     sk_sp<SkImage> image;
     // Make a backend texture with an external queue family and general layout.
     GrVkImageInfo vkInfo;

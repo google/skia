@@ -460,7 +460,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
                 otherContextInfo.directContext()->flushAndSubmit();
                 return otherContextImage;
             }};
-    for (auto mipmapped : {GrMipmapped::kNo, GrMipmapped::kYes}) {
+    for (auto mipmapped : {skgpu::Mipmapped::kNo, skgpu::Mipmapped::kYes}) {
         for (const auto& factory : imageFactories) {
             sk_sp<SkImage> image(factory());
             if (!image) {
@@ -471,8 +471,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
             bool origIsMippedTexture = false;
 
             if ((origProxy = sk_gpu_test::GetTextureImageProxy(image.get(), dContext))) {
-                REPORTER_ASSERT(reporter, (origProxy->mipmapped() == GrMipmapped::kYes) ==
-                                          image->hasMipmaps());
+                REPORTER_ASSERT(
+                        reporter,
+                        (origProxy->mipmapped() == skgpu::Mipmapped::kYes) == image->hasMipmaps());
                 origIsMippedTexture = image->hasMipmaps();
             }
             for (auto budgeted : {skgpu::Budgeted::kNo, skgpu::Budgeted::kYes}) {
@@ -494,13 +495,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
                                                                               dContext);
                 SkASSERT(copyProxy);
                 // Did we ask for MIPs on a context that supports them?
-                bool validRequestForMips = (mipmapped == GrMipmapped::kYes &&
+                bool validRequestForMips = (mipmapped == skgpu::Mipmapped::kYes &&
                                             dContext->priv().caps()->mipmapSupport());
                 // Do we expect the "copy" to have MIPs?
                 bool shouldBeMipped = origIsMippedTexture || validRequestForMips;
                 REPORTER_ASSERT(reporter, shouldBeMipped == texImage->hasMipmaps());
-                REPORTER_ASSERT(reporter,
-                                shouldBeMipped == (copyProxy->mipmapped() == GrMipmapped::kYes));
+                REPORTER_ASSERT(
+                        reporter,
+                        shouldBeMipped == (copyProxy->mipmapped() == skgpu::Mipmapped::kYes));
 
                 // We should only make a copy of an already texture-backed image if it didn't
                 // already have MIPs but we asked for MIPs and the context supports it.
@@ -569,7 +571,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage,
         bool can = dContext->colorTypeSupportedAsImage(colorType);
 
         auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-                dContext, kSize, kSize, colorType, GrMipmapped::kNo, GrRenderable::kNo);
+                dContext, kSize, kSize, colorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
         sk_sp<SkImage> img;
         if (mbet) {
             img = SkImages::BorrowTextureFrom(dContext,
@@ -935,7 +937,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(SkImage_NewFromTextureRelease,
                                                                     kWidth,
                                                                     kHeight,
                                                                     kRGBA_8888_SkColorType,
-                                                                    GrMipmapped::kNo,
+                                                                    skgpu::Mipmapped::kNo,
                                                                     GrRenderable::kNo,
                                                                     GrProtected::kNo);
     if (!mbet) {
@@ -1095,19 +1097,20 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             // Any context should be able to borrow the texture at this point
 
-            std::tie(view, std::ignore) = skgpu::ganesh::AsView(dContext, refImg, GrMipmapped::kNo);
+            std::tie(view, std::ignore) =
+                    skgpu::ganesh::AsView(dContext, refImg, skgpu::Mipmapped::kNo);
             REPORTER_ASSERT(reporter, view);
 
             // But once it's borrowed, no other context should be able to borrow
             otherTestContext->makeCurrent();
             std::tie(otherView, std::ignore) =
-                    skgpu::ganesh::AsView(otherCtx, refImg, GrMipmapped::kNo);
+                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo);
             REPORTER_ASSERT(reporter, !otherView);
 
             // Original context (that's already borrowing) should be okay
             testContext->makeCurrent();
             std::tie(viewSecondRef, std::ignore) =
-                    skgpu::ganesh::AsView(dContext, refImg, GrMipmapped::kNo);
+                    skgpu::ganesh::AsView(dContext, refImg, skgpu::Mipmapped::kNo);
             REPORTER_ASSERT(reporter, viewSecondRef);
 
             // Release first ref from the original context
@@ -1117,7 +1120,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             // a new context is still not able to borrow the texture.
             otherTestContext->makeCurrent();
             std::tie(otherView, std::ignore) =
-                    skgpu::ganesh::AsView(otherCtx, refImg, GrMipmapped::kNo);
+                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo);
             REPORTER_ASSERT(reporter, !otherView);
 
             // Release second ref from the original context
@@ -1127,7 +1130,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             // Now we should be able to borrow the texture from the other context
             otherTestContext->makeCurrent();
             std::tie(otherView, std::ignore) =
-                    skgpu::ganesh::AsView(otherCtx, refImg, GrMipmapped::kNo);
+                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo);
             REPORTER_ASSERT(reporter, otherView);
 
             // Release everything
@@ -1176,7 +1179,7 @@ DEF_GANESH_TEST(SkImage_CrossContextGrayAlphaConfigs,
             sk_sp<SkImage> image = SkImages::CrossContextTextureFromPixmap(dContext, pixmap, false);
             REPORTER_ASSERT(reporter, image);
 
-            auto [view, viewCT] = skgpu::ganesh::AsView(dContext, image, GrMipmapped::kNo);
+            auto [view, viewCT] = skgpu::ganesh::AsView(dContext, image, skgpu::Mipmapped::kNo);
             REPORTER_ASSERT(reporter, view);
             REPORTER_ASSERT(reporter, GrColorTypeToSkColorType(viewCT) == ct);
 

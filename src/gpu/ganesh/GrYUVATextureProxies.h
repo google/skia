@@ -47,7 +47,7 @@ public:
     GrSurfaceOrigin textureOrigin() const { return fTextureOrigin; }
 
     // Overall set of YUVA proxies is mip mapped if each plane is mip mapped.
-    GrMipmapped mipmapped() const { return fMipmapped; }
+    skgpu::Mipmapped mipmapped() const { return fMipmapped; }
 
     GrSurfaceProxy* proxy(int i) const { return fProxies[i].get(); }
 
@@ -69,7 +69,7 @@ private:
     std::array<sk_sp<GrSurfaceProxy>, SkYUVAInfo::kMaxPlanes> fProxies;
     SkYUVAInfo fYUVAInfo;
     GrSurfaceOrigin fTextureOrigin = kTopLeft_GrSurfaceOrigin;
-    GrMipmapped fMipmapped = GrMipmapped::kNo;
+    skgpu::Mipmapped fMipmapped = skgpu::Mipmapped::kNo;
     SkYUVAInfo::YUVALocations fYUVALocations = {};
 };
 

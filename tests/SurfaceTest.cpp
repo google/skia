@@ -876,7 +876,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(SurfaceClear_Gpu, reporter, ctxInfo, CtsEnforceme
     // Snaps an image from a surface and then makes a SurfaceContext from the image's texture.
     auto makeImageSurfaceContext = [dContext](SkSurface* surface) {
         sk_sp<SkImage> i(surface->makeImageSnapshot());
-        auto [view, ct] = skgpu::ganesh::AsView(dContext, i, GrMipmapped::kNo);
+        auto [view, ct] = skgpu::ganesh::AsView(dContext, i, skgpu::Mipmapped::kNo);
         GrColorInfo colorInfo(ct, i->alphaType(), i->refColorSpace());
         return dContext->priv().makeSC(view, std::move(colorInfo));
     };
@@ -1020,8 +1020,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceWrappedWithRelease_Gpu,
         if (useTexture) {
             SkImageInfo ii = SkImageInfo::Make(kWidth, kHeight, SkColorType::kRGBA_8888_SkColorType,
                                                kPremul_SkAlphaType);
-            mbet = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(ctx, ii, GrMipmapped::kNo,
-                                                                    GrRenderable::kYes);
+            mbet = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(
+                    ctx, ii, skgpu::Mipmapped::kNo, GrRenderable::kYes);
             if (!mbet) {
                 continue;
             }
@@ -1115,19 +1115,19 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture,
     for (int sampleCnt : {1, 2}) {
         auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
         auto mbet1 = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(
-                context, ii, GrMipmapped::kNo, GrRenderable::kYes);
+                context, ii, skgpu::Mipmapped::kNo, GrRenderable::kYes);
         if (!mbet1) {
             continue;
         }
         auto mbet2 = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(
-                context, ii, GrMipmapped::kNo, GrRenderable::kYes);
+                context, ii, skgpu::Mipmapped::kNo, GrRenderable::kYes);
         if (!mbet2) {
             ERRORF(reporter, "Expected to be able to make second texture");
             continue;
         }
         auto ii2 = ii.makeWH(8, 8);
         auto mbet3 = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(
-                context, ii2, GrMipmapped::kNo, GrRenderable::kYes);
+                context, ii2, skgpu::Mipmapped::kNo, GrRenderable::kYes);
         GrBackendTexture backendTexture3;
         if (!mbet3) {
             ERRORF(reporter, "Couldn't create different sized texture.");

@@ -95,9 +95,9 @@ protected:
             return DrawResult::kSkip;
         }
 
-        GrMipmapped mipmapped = (fMipmapMode != MipmapMode::kNone) ? GrMipmapped::kYes
-                                                                   : GrMipmapped::kNo;
-        if (mipmapped == GrMipmapped::kYes && !rContext->priv().caps()->mipmapSupport()) {
+        skgpu::Mipmapped mipmapped =
+                (fMipmapMode != MipmapMode::kNone) ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
+        if (mipmapped == skgpu::Mipmapped::kYes && !rContext->priv().caps()->mipmapSupport()) {
             return DrawResult::kSkip;
         }
         auto view = std::get<0>(GrMakeCachedBitmapProxyView(

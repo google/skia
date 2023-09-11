@@ -195,7 +195,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 
         auto fp = std::unique_ptr<GrFragmentProcessor>(new TestPatternEffect());
 #else
         auto view = std::get<0>(GrMakeCachedBitmapProxyView(
-                rContext, bmp, /*label=*/"FpSampleChaining", GrMipmapped::kNo));
+                rContext, bmp, /*label=*/"FpSampleChaining", skgpu::Mipmapped::kNo));
         auto fp = GrTextureEffect::Make(std::move(view), bmp.alphaType());
 #endif
         for (EffectType effectType : effects) {

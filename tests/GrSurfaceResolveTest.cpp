@@ -104,10 +104,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveTest,
 
     SkImageInfo info = SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    auto managedTex = ManagedBackendTexture::MakeFromInfo(dContext,
-                                                          info,
-                                                          GrMipmapped::kNo,
-                                                          GrRenderable::kYes);
+    auto managedTex = ManagedBackendTexture::MakeFromInfo(
+            dContext, info, skgpu::Mipmapped::kNo, GrRenderable::kYes);
     if (!managedTex) {
         return;
     }
@@ -245,7 +243,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(NonmippedDrawBeforeMippedDraw,
                                                                {64, 64},
                                                                renderable,
                                                                sampleCount,
-                                                               GrMipmapped::kYes,
+                                                               skgpu::Mipmapped::kYes,
                                                                SkBackingFit::kExact,
                                                                skgpu::Budgeted::kYes,
                                                                GrProtected::kNo,
@@ -271,7 +269,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(NonmippedDrawBeforeMippedDraw,
                                                                {64, 64},
                                                                GrRenderable::kNo,
                                                                1,
-                                                               GrMipmapped::kNo,
+                                                               skgpu::Mipmapped::kNo,
                                                                SkBackingFit::kExact,
                                                                skgpu::Budgeted::kYes,
                                                                GrProtected::kNo,

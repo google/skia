@@ -282,7 +282,7 @@ public:
     void visitProxies(const GrVisitProxyFunc& func) const override {
         bool mipped = (fMetadata.mipmapMode() != GrSamplerState::MipmapMode::kNone);
         for (unsigned p = 0; p <  fMetadata.fProxyCount; ++p) {
-            func(fViewCountPairs[p].fProxy.get(), GrMipmapped(mipped));
+            func(fViewCountPairs[p].fProxy.get(), skgpu::Mipmapped(mipped));
         }
         if (fDesc && fDesc->fProgramInfo) {
             fDesc->fProgramInfo->visitFPProxies(func);
@@ -530,7 +530,7 @@ private:
         for (int q = 0; q < cnt; ++q) {
             SkASSERT(mm == GrSamplerState::MipmapMode::kNone ||
                      (set[0].fProxyView.proxy()->asTextureProxy()->mipmapped() ==
-                      GrMipmapped::kYes));
+                      skgpu::Mipmapped::kYes));
             if (q == 0) {
                 // We do not placement new the first ViewCountPair since that one is allocated and
                 // initialized as part of the TextureOp creation.
@@ -1411,9 +1411,10 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     dims.fHeight = random->nextULessThan(90) + 10;
     dims.fWidth = random->nextULessThan(90) + 10;
     auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-    GrMipmapped mipmapped = random->nextBool() ? GrMipmapped::kYes : GrMipmapped::kNo;
+    skgpu::Mipmapped mipmapped =
+            random->nextBool() ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
     SkBackingFit fit = SkBackingFit::kExact;
-    if (mipmapped == GrMipmapped::kNo) {
+    if (mipmapped == skgpu::Mipmapped::kNo) {
         fit = random->nextBool() ? SkBackingFit::kApprox : SkBackingFit::kExact;
     }
     const GrBackendFormat format =
@@ -1442,7 +1443,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     GrSamplerState::Filter filter = (GrSamplerState::Filter)random->nextULessThan(
             static_cast<uint32_t>(GrSamplerState::Filter::kLast) + 1);
     GrSamplerState::MipmapMode mm = GrSamplerState::MipmapMode::kNone;
-    if (mipmapped == GrMipmapped::kYes) {
+    if (mipmapped == skgpu::Mipmapped::kYes) {
         mm = (GrSamplerState::MipmapMode)random->nextULessThan(
                 static_cast<uint32_t>(GrSamplerState::MipmapMode::kLast) + 1);
     }

@@ -10,7 +10,6 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
 
@@ -25,6 +24,10 @@ class GrPromiseImageTexture;
 class SkSurface;
 enum SkAlphaType : int;
 enum SkColorType : int;
+enum GrSurfaceOrigin : int;
+namespace skgpu {
+enum class Mipmapped : bool;
+}
 
 /*
  * This class is intended to be used as:
@@ -64,7 +67,7 @@ public:
     sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
                                       int width,
                                       int height,
-                                      GrMipmapped mipmapped,
+                                      skgpu::Mipmapped mipmapped,
                                       GrSurfaceOrigin origin,
                                       SkColorType colorType,
                                       SkAlphaType alphaType,

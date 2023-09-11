@@ -202,12 +202,12 @@ public:
 protected:
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext* rContext,
                                          const SkImageInfo& info,
-                                         GrMipmapped mipmapped,
+                                         skgpu::Mipmapped mipmapped,
                                          GrImageTexGenPolicy policy) override {
         SkASSERT(rContext);
         SkASSERT(rContext->priv().matches(fRContext.get()));
 
-        auto [view, _] = skgpu::ganesh::AsView(rContext, fImage, GrMipmapped::kNo);
+        auto [view, _] = skgpu::ganesh::AsView(rContext, fImage, skgpu::Mipmapped::kNo);
         if (!view) {
             return {};
         }
@@ -356,7 +356,7 @@ protected:
             // The gpu-backed images are drawn in this manner bc the generator backed images
             // aren't considered texture-backed
             auto [view, ct] =
-                    skgpu::ganesh::AsView(canvas->recordingContext(), image, GrMipmapped::kNo);
+                    skgpu::ganesh::AsView(canvas->recordingContext(), image, skgpu::Mipmapped::kNo);
             if (!view) {
                 // show placeholder if we have no texture
                 draw_placeholder(canvas, x, y, image->width(), image->height());

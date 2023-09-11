@@ -478,7 +478,7 @@ bool GrDrawOpAtlas::createPages(
                                                                  dims,
                                                                  GrRenderable::kNo,
                                                                  1,
-                                                                 GrMipmapped::kNo,
+                                                                 skgpu::Mipmapped::kNo,
                                                                  SkBackingFit::kExact,
                                                                  skgpu::Budgeted::kYes,
                                                                  GrProtected::kNo,

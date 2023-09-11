@@ -71,7 +71,7 @@ bool MakeBackendTextureFromImage(GrDirectContext* direct,
         return false;
     }
 
-    auto [view, ct] = skgpu::ganesh::AsView(direct, image, GrMipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(direct, image, skgpu::Mipmapped::kNo);
     if (!view) {
         return false;
     }
@@ -281,7 +281,7 @@ sk_sp<SkImage> TextureFromCompressedTextureData(GrDirectContext* direct,
                                                 int width,
                                                 int height,
                                                 SkTextureCompressionType type,
-                                                GrMipmapped mipmapped,
+                                                skgpu::Mipmapped mipmapped,
                                                 GrProtected isProtected) {
     if (!direct || !data) {
         return nullptr;
@@ -315,7 +315,7 @@ sk_sp<SkImage> TextureFromCompressedTextureData(GrDirectContext* direct,
 sk_sp<SkImage> PromiseTextureFrom(sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
                                   const GrBackendFormat& backendFormat,
                                   SkISize dimensions,
-                                  GrMipmapped mipmapped,
+                                  skgpu::Mipmapped mipmapped,
                                   GrSurfaceOrigin origin,
                                   SkColorType colorType,
                                   SkAlphaType alphaType,
@@ -401,7 +401,7 @@ sk_sp<SkImage> CrossContextTextureFromPixmap(GrDirectContext* dContext,
     // Turn the pixmap into a GrTextureProxy
     SkBitmap bmp;
     bmp.installPixels(*pixmap);
-    GrMipmapped mipmapped = buildMips ? GrMipmapped::kYes : GrMipmapped::kNo;
+    skgpu::Mipmapped mipmapped = buildMips ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
     auto [view, ct] = GrMakeUncachedBitmapProxyView(dContext, bmp, mipmapped);
     if (!view) {
         return RasterFromPixmapCopy(*pixmap);
@@ -434,7 +434,7 @@ sk_sp<SkImage> TextureFromImage(GrDirectContext* dContext,
     }
     auto ib = as_IB(img);
     if (!dContext->priv().caps()->mipmapSupport() || ib->dimensions().area() <= 1) {
-        mipmapped = GrMipmapped::kNo;
+        mipmapped = skgpu::Mipmapped::kNo;
     }
 
     if (ib->isGaneshBacked()) {
@@ -442,7 +442,7 @@ sk_sp<SkImage> TextureFromImage(GrDirectContext* dContext,
             return nullptr;
         }
 
-        if (mipmapped == GrMipmapped::kNo || ib->hasMipmaps()) {
+        if (mipmapped == skgpu::Mipmapped::kNo || ib->hasMipmaps()) {
             return sk_ref_sp(const_cast<SkImage_Base*>(ib));
         }
     }
@@ -455,8 +455,8 @@ sk_sp<SkImage> TextureFromImage(GrDirectContext* dContext,
         return nullptr;
     }
     SkASSERT(view.asTextureProxy());
-    SkASSERT(mipmapped == GrMipmapped::kNo ||
-             view.asTextureProxy()->mipmapped() == GrMipmapped::kYes);
+    SkASSERT(mipmapped == skgpu::Mipmapped::kNo ||
+             view.asTextureProxy()->mipmapped() == skgpu::Mipmapped::kYes);
     SkColorInfo colorInfo(GrColorTypeToSkColorType(ct), ib->alphaType(), ib->refColorSpace());
     return sk_make_sp<SkImage_Ganesh>(
             sk_ref_sp(dContext), ib->uniqueID(), std::move(view), std::move(colorInfo));

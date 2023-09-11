@@ -615,7 +615,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const GrDeferredDisplayList> ddl,
         newDest->markMSAADirty(nativeRect);
     }
     GrTextureProxy* newTextureProxy = newDest->asTextureProxy();
-    if (newTextureProxy && GrMipmapped::kYes == newTextureProxy->mipmapped()) {
+    if (newTextureProxy && skgpu::Mipmapped::kYes == newTextureProxy->mipmapped()) {
         newTextureProxy->markMipmapsDirty();
     }
 
@@ -832,10 +832,10 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
 
     const GrCaps& caps = *fContext->priv().caps();
 
-    // We always say GrMipmapped::kNo here since we are always just copying from the base layer. We
-    // don't need to make sure the whole mip map chain is valid.
-    task->addDependency(this, srcProxy.get(), GrMipmapped::kNo,
-                        GrTextureResolveManager(this), caps);
+    // We always say skgpu::Mipmapped::kNo here since we are always just copying from the base
+    // layer. We don't need to make sure the whole mip map chain is valid.
+    task->addDependency(
+            this, srcProxy.get(), skgpu::Mipmapped::kNo, GrTextureResolveManager(this), caps);
     task->makeClosed(fContext);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there
@@ -940,9 +940,10 @@ sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> ds
     this->appendTask(task);
 
     const GrCaps& caps = *fContext->priv().caps();
-    // We always say GrMipmapped::kNo here since we are always just copying from the base layer to
-    // another base layer. We don't need to make sure the whole mip map chain is valid.
-    task->addDependency(this, src.get(), GrMipmapped::kNo, GrTextureResolveManager(this), caps);
+    // We always say skgpu::Mipmapped::kNo here since we are always just copying from the base layer
+    // to another base layer. We don't need to make sure the whole mip map chain is valid.
+    task->addDependency(
+            this, src.get(), skgpu::Mipmapped::kNo, GrTextureResolveManager(this), caps);
     task->makeClosed(fContext);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there

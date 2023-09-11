@@ -21,7 +21,7 @@ skgpu::Mipmapped GrSurfaceProxyView::mipmapped() const {
     if (const GrTextureProxy* proxy = this->asTextureProxy()) {
         return proxy->mipmapped();
     }
-    return GrMipmapped::kNo;
+    return skgpu::Mipmapped::kNo;
 }
 
 GrTextureProxy* GrSurfaceProxyView::asTextureProxy() const {

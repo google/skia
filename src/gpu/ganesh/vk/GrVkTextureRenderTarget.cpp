@@ -192,8 +192,10 @@ size_t GrVkTextureRenderTarget::onGpuMemorySize() const {
     if (this->numSamples() > 1) {
         // Msaa attachment should have a valid size
         SkASSERT(this->colorAttachment()->gpuMemorySize() ==
-                 GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                        this->numSamples(), GrMipmapped::kNo));
+                 GrSurface::ComputeSize(this->backendFormat(),
+                                        this->dimensions(),
+                                        this->numSamples(),
+                                        skgpu::Mipmapped::kNo));
     }
 #endif
     return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),

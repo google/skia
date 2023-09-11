@@ -173,13 +173,14 @@ SK_API sk_sp<SkImage> TextureFromCompressedTexture(GrRecordingContext* context,
     @param isProtected do the contents of 'data' require DRM protection (on Vulkan)?
     @return            created SkImage, or nullptr
 */
-SK_API sk_sp<SkImage> TextureFromCompressedTextureData(GrDirectContext* direct,
-                                                       sk_sp<SkData> data,
-                                                       int width,
-                                                       int height,
-                                                       SkTextureCompressionType type,
-                                                       GrMipmapped mipmapped = GrMipmapped::kNo,
-                                                       GrProtected isProtected = GrProtected::kNo);
+SK_API sk_sp<SkImage> TextureFromCompressedTextureData(
+        GrDirectContext* direct,
+        sk_sp<SkData> data,
+        int width,
+        int height,
+        SkTextureCompressionType type,
+        skgpu::Mipmapped mipmapped = skgpu::Mipmapped::kNo,
+        GrProtected isProtected = GrProtected::kNo);
 
 /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
     compatible with SkSurface created with dstColorSpace. The returned SkImage respects
@@ -231,12 +232,12 @@ inline sk_sp<SkImage> TextureFromImage(GrDirectContext* ctx,
 */
 SK_API sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
                                              const SkYUVAPixmaps& pixmaps,
-                                             GrMipmapped buildMips,
+                                             skgpu::Mipmapped buildMips,
                                              bool limitToMaxTextureSize,
                                              sk_sp<SkColorSpace> imageColorSpace);
 SK_API sk_sp<SkImage> TextureFromYUVAPixmaps(GrRecordingContext* context,
                                              const SkYUVAPixmaps& pixmaps,
-                                             GrMipmapped buildMips = GrMipmapped::kNo,
+                                             skgpu::Mipmapped buildMips = skgpu::Mipmapped::kNo,
                                              bool limitToMaxTextureSize = false);
 
 /** Creates a GPU-backed SkImage from YUV[A] planar textures. This requires that the textures

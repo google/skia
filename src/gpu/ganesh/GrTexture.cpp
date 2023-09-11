@@ -105,7 +105,7 @@ void GrTexture::ComputeScratchKey(const GrCaps& caps,
                                   SkISize dimensions,
                                   GrRenderable renderable,
                                   int sampleCnt,
-                                  GrMipmapped mipmapped,
+                                  skgpu::Mipmapped mipmapped,
                                   GrProtected isProtected,
                                   skgpu::ScratchKey* key) {
     static const skgpu::ScratchKey::ResourceType kType = skgpu::ScratchKey::GenerateResourceType();

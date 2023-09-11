@@ -46,7 +46,7 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
     GrGpu* gpu = dContext->priv().getGpu();
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext, kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            dContext, kW, kH, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     if (!mbet) {
         ERRORF(reporter, "Could not create backend texture.");
         return;
@@ -153,7 +153,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
     GrGpu* gpu = dContext->priv().getGpu();
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext, kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kYes);
+            dContext, kW, kH, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kYes);
     if (!mbet) {
         ERRORF(reporter, "Could not create renderable backend texture.");
         return;

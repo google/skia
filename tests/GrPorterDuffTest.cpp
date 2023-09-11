@@ -1099,7 +1099,7 @@ DEF_GANESH_TEST(PorterDuffNoDualSourceBlending, reporter, options, CtsEnforcemen
     }
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            ctx, 100, 100, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            ctx, 100, 100, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     if (!mbet) {
         ERRORF(reporter, "Could not make texture.");
         return;

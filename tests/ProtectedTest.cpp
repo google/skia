@@ -63,7 +63,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
                                                                     16,
                                                                     kRGBA_8888_SkColorType,
                                                                     SkColors::kTransparent,
-                                                                    GrMipmapped::kNo,
+                                                                    skgpu::Mipmapped::kNo,
                                                                     GrRenderable(renderable),
                                                                     GrProtected(isProtected));
 

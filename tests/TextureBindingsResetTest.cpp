@@ -115,7 +115,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
                                   GrTextureType::k2D,
                                   GrRenderable::kNo,
                                   1,
-                                  GrMipmapped::kNo,
+                                  skgpu::Mipmapped::kNo,
                                   skgpu::Budgeted::kNo,
                                   GrProtected::kNo,
                                   /*label=*/"TextureBindingsResetTest");
@@ -147,7 +147,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
                                                                     10,
                                                                     kRGBA_8888_SkColorType,
                                                                     SkColors::kTransparent,
-                                                                    GrMipmapped::kNo,
+                                                                    skgpu::Mipmapped::kNo,
                                                                     GrRenderable::kNo,
                                                                     GrProtected::kNo);
         GrGLTextureInfo info2D;
@@ -161,7 +161,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
         REPORTER_ASSERT(reporter, infoExternal.fID);
         infoExternal.fProtected = info2D.fProtected;
         GrBackendTexture backendTexture =
-                GrBackendTextures::MakeGL(10, 10, GrMipmapped::kNo, infoExternal);
+                GrBackendTextures::MakeGL(10, 10, skgpu::Mipmapped::kNo, infoExternal);
         // Above texture creation will have messed with GL state and bindings.
         resetBindings();
         dContext->resetContext();
@@ -187,7 +187,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
     if (supportRectangle) {
         format = GrBackendFormats::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         GrBackendTexture rectangleTexture = dContext->createBackendTexture(
-                10, 10, format, GrMipmapped::kNo, GrRenderable::kNo);
+                10, 10, format, skgpu::Mipmapped::kNo, GrRenderable::kNo);
         if (rectangleTexture.isValid()) {
             img = SkImages::BorrowTextureFrom(dContext,
                                               rectangleTexture,

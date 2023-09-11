@@ -321,12 +321,15 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimens
     return combinedBufferSize;
 }
 
-void GrFillInCompressedData(SkTextureCompressionType type, SkISize dimensions,
-                            GrMipmapped mipmapped, char* dstPixels, const SkColor4f& colorf) {
+void GrFillInCompressedData(SkTextureCompressionType type,
+                            SkISize dimensions,
+                            skgpu::Mipmapped mipmapped,
+                            char* dstPixels,
+                            const SkColor4f& colorf) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     int numMipLevels = 1;
-    if (mipmapped == GrMipmapped::kYes) {
+    if (mipmapped == skgpu::Mipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 

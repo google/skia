@@ -22,6 +22,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -118,8 +119,13 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return nullptr;
     }
-    auto copy = GrSurfaceProxy::Copy(ctx, std::move(baseProxy), origin, GrMipmapped::kYes,
-                                     SkBackingFit::kExact, budgeted, label);
+    auto copy = GrSurfaceProxy::Copy(ctx,
+                                     std::move(baseProxy),
+                                     origin,
+                                     skgpu::Mipmapped::kYes,
+                                     SkBackingFit::kExact,
+                                     budgeted,
+                                     label);
     if (!copy) {
         return nullptr;
     }
@@ -139,11 +145,11 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
             swizzle};
 }
 
-static GrMipmapped adjust_mipmapped(GrMipmapped mipmapped,
-                                    const SkBitmap& bitmap,
-                                    const GrCaps* caps) {
+static skgpu::Mipmapped adjust_mipmapped(skgpu::Mipmapped mipmapped,
+                                         const SkBitmap& bitmap,
+                                         const GrCaps* caps) {
     if (!caps->mipmapSupport() || bitmap.dimensions().area() <= 1) {
-        return GrMipmapped::kNo;
+        return skgpu::Mipmapped::kNo;
     }
     return mipmapped;
 }
@@ -159,7 +165,7 @@ static GrColorType choose_bmp_texture_colortype(const GrCaps* caps, const SkBitm
 static sk_sp<GrTextureProxy> make_bmp_proxy(GrProxyProvider* proxyProvider,
                                             const SkBitmap& bitmap,
                                             GrColorType ct,
-                                            GrMipmapped mipmapped,
+                                            skgpu::Mipmapped mipmapped,
                                             SkBackingFit fit,
                                             skgpu::Budgeted budgeted) {
     SkBitmap bmpToUpload;
@@ -174,15 +180,16 @@ static sk_sp<GrTextureProxy> make_bmp_proxy(GrProxyProvider* proxyProvider,
         bmpToUpload = bitmap;
     }
     auto proxy = proxyProvider->createProxyFromBitmap(bmpToUpload, mipmapped, fit, budgeted);
-    SkASSERT(!proxy || mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
+    SkASSERT(!proxy || mipmapped == skgpu::Mipmapped::kNo ||
+             proxy->mipmapped() == skgpu::Mipmapped::kYes);
     return proxy;
 }
 
-std::tuple<GrSurfaceProxyView, GrColorType>
-GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
-                            const SkBitmap& bitmap,
-                            std::string_view label,
-                            GrMipmapped mipmapped) {
+std::tuple<GrSurfaceProxyView, GrColorType> GrMakeCachedBitmapProxyView(
+        GrRecordingContext* rContext,
+        const SkBitmap& bitmap,
+        std::string_view label,
+        skgpu::Mipmapped mipmapped) {
     if (!bitmap.peekPixels(nullptr)) {
         return {};
     }
@@ -211,12 +218,13 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
         if (!proxy) {
             return {};
         }
-        SkASSERT(mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
+        SkASSERT(mipmapped == skgpu::Mipmapped::kNo ||
+                 proxy->mipmapped() == skgpu::Mipmapped::kYes);
         installKey(proxy.get());
     }
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
-    if (mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes) {
+    if (mipmapped == skgpu::Mipmapped::kNo || proxy->mipmapped() == skgpu::Mipmapped::kYes) {
         return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
     }
 
@@ -245,7 +253,7 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
 std::tuple<GrSurfaceProxyView, GrColorType> GrMakeUncachedBitmapProxyView(
         GrRecordingContext* rContext,
         const SkBitmap& bitmap,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         SkBackingFit fit,
         skgpu::Budgeted budgeted) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
@@ -256,7 +264,8 @@ std::tuple<GrSurfaceProxyView, GrColorType> GrMakeUncachedBitmapProxyView(
 
     if (auto proxy = make_bmp_proxy(proxyProvider, bitmap, ct, mipmapped, fit, budgeted)) {
         skgpu::Swizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
-        SkASSERT(mipmapped == GrMipmapped::kNo || proxy->mipmapped() == GrMipmapped::kYes);
+        SkASSERT(mipmapped == skgpu::Mipmapped::kNo ||
+                 proxy->mipmapped() == skgpu::Mipmapped::kYes);
         return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
     }
     return {};
@@ -322,7 +331,7 @@ static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
     // Galaxy S20 FE     Mali-G77 MP11   600    165ms        360ms (2.18x)     260ms (1.58x)
     static const SkBitmap gLUT = skgpu::MakeDitherLUT();
     auto [tex, ct] = GrMakeCachedBitmapProxyView(
-            rContext, gLUT, /*label=*/"MakeDitherEffect", GrMipmapped::kNo);
+            rContext, gLUT, /*label=*/"MakeDitherEffect", skgpu::Mipmapped::kNo);
     if (!tex) {
         return inputFP;
     }

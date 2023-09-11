@@ -875,7 +875,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests,
                                                        SkSurfaceProps(),
                                                        /*label=*/{},
                                                        /* sampleCnt= */ 1,
-                                                       GrMipmapped::kNo,
+                                                       skgpu::Mipmapped::kNo,
                                                        GrProtected::kNo,
                                                        kTopLeft_GrSurfaceOrigin);
     if (!sdc) {

@@ -173,7 +173,7 @@ static GrBackendTexture make_gl_backend_texture(
     *updateProc = update_gl_texture;
     *imageCtx = new GLTextureHelper(texID, image, display, target);
 
-    return GrBackendTextures::MakeGL(width, height, GrMipmapped::kNo, textureInfo);
+    return GrBackendTextures::MakeGL(width, height, skgpu::Mipmapped::kNo, textureInfo);
 }
 
 static bool can_import_protected_content_eglimpl() {

@@ -303,7 +303,7 @@ GrBackendTexture::GrBackendTexture() : fIsValid(false) {}
 #ifdef SK_METAL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   GrMipmapped mipmapped,
+                                   skgpu::Mipmapped mipmapped,
                                    const GrMtlTextureInfo& mtlInfo,
                                    std::string_view label)
         : fIsValid(true)
@@ -337,7 +337,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fWidth(width)
         , fHeight(height)
         , fLabel(label)
-        , fMipmapped(GrMipmapped(d3dInfo.fLevelCount > 1))
+        , fMipmapped(skgpu::Mipmapped(d3dInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDirect3D)
         , fTextureType(GrTextureType::k2D)
         , fD3DInfo(d3dInfo, state.release()) {}
@@ -345,7 +345,7 @@ GrBackendTexture::GrBackendTexture(int width,
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   GrMipmapped mipmapped,
+                                   skgpu::Mipmapped mipmapped,
                                    const GrMockTextureInfo& mockInfo,
                                    std::string_view label)
         : fIsValid(true)

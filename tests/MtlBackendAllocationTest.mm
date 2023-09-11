@@ -18,23 +18,21 @@ using sk_gpu_test::ManagedBackendTexture;
 // In BackendAllocationTest.cpp
 void test_wrapping(GrDirectContext*,
                    skiatest::Reporter*,
-                   std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
-                                                              GrMipmapped,
-                                                              GrRenderable)> create,
+                   std::function<sk_sp<ManagedBackendTexture>(
+                           GrDirectContext*, skgpu::Mipmapped, GrRenderable)> create,
                    GrColorType,
-                   GrMipmapped,
+                   skgpu::Mipmapped,
                    GrRenderable);
 
-void test_color_init(GrDirectContext*,
-                     skiatest::Reporter*,
-                     std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
-                                                                const SkColor4f&,
-                                                                GrMipmapped,
-                                                                GrRenderable)> create,
-                     GrColorType,
-                     const SkColor4f&,
-                     GrMipmapped,
-                     GrRenderable);
+void test_color_init(
+        GrDirectContext*,
+        skiatest::Reporter*,
+        std::function<sk_sp<ManagedBackendTexture>(
+                GrDirectContext*, const SkColor4f&, skgpu::Mipmapped, GrRenderable)> create,
+        GrColorType,
+        const SkColor4f&,
+        skgpu::Mipmapped,
+        GrRenderable);
 
 void test_pixmap_init(GrDirectContext*,
                       skiatest::Reporter*,
@@ -45,7 +43,7 @@ void test_pixmap_init(GrDirectContext*,
                                                                  GrRenderable)> create,
                       SkColorType,
                       GrSurfaceOrigin,
-                      GrMipmapped,
+                      skgpu::Mipmapped,
                       GrRenderable);
 
 DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
@@ -110,8 +108,8 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        for (auto mipmapped : { GrMipmapped::kNo, GrMipmapped::kYes }) {
-            if (GrMipmapped::kYes == mipmapped && !mtlCaps->mipmapSupport()) {
+        for (auto mipmapped : {skgpu::Mipmapped::kNo, skgpu::Mipmapped::kYes}) {
+            if (skgpu::Mipmapped::kYes == mipmapped && !mtlCaps->mipmapSupport()) {
                 continue;
             }
 
@@ -128,7 +126,7 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
                 {
                     auto uninitCreateMtd = [format](GrDirectContext* dContext,
-                                                    GrMipmapped mipmapped,
+                                                    skgpu::Mipmapped mipmapped,
                                                     GrRenderable renderable) {
                         return ManagedBackendTexture::MakeWithoutData(dContext,
                                                                       32, 32,
@@ -168,7 +166,7 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
                     auto createWithColorMtd = [format, swizzle](GrDirectContext* dContext,
                                                                 const SkColor4f& color,
-                                                                GrMipmapped mipmapped,
+                                                                skgpu::Mipmapped mipmapped,
                                                                 GrRenderable renderable) {
                         auto swizzledColor = swizzle.applyTo(color);
                         return ManagedBackendTexture::MakeWithData(dContext,

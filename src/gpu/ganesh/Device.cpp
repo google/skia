@@ -247,7 +247,7 @@ sk_sp<Device> Device::Make(GrRecordingContext* rContext,
                            const SkImageInfo& ii,
                            SkBackingFit fit,
                            int sampleCount,
-                           GrMipmapped mipmapped,
+                           skgpu::Mipmapped mipmapped,
                            GrProtected isProtected,
                            GrSurfaceOrigin origin,
                            const SkSurfaceProps& props,
@@ -830,7 +830,8 @@ sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage* image) {
 
     SkPixmap pm;
     if (image->isTextureBacked()) {
-        auto [view, ct] = skgpu::ganesh::AsView(this->recordingContext(), image, GrMipmapped::kNo);
+        auto [view, ct] =
+                skgpu::ganesh::AsView(this->recordingContext(), image, skgpu::Mipmapped::kNo);
         SkASSERT(view);
 
         return SkSpecialImages::MakeDeferredFromGpu(
@@ -872,7 +873,7 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
         // texture that matches the device contents
         view = GrSurfaceProxyView::Copy(fContext.get(),
                                         std::move(view),
-                                        GrMipmapped::kNo,  // Don't auto generate mips
+                                        skgpu::Mipmapped::kNo,  // Don't auto generate mips
                                         subset,
                                         SkBackingFit::kApprox,
                                         skgpu::Budgeted::kYes,
@@ -1026,7 +1027,7 @@ void Device::drawImageLattice(const SkImage* image,
     ASSERT_SINGLE_OWNER
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
 
-    auto [view, ct] = skgpu::ganesh::AsView(this->recordingContext(), image, GrMipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(this->recordingContext(), image, skgpu::Mipmapped::kNo);
     if (view) {
         GrColorInfo colorInfo(ct, image->alphaType(), image->refColorSpace());
         this->drawViewLattice(std::move(view),
@@ -1352,7 +1353,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& cinfo, const SkPaint*) {
             cinfo.fInfo.dimensions(),
             props,
             fSurfaceDrawContext->numSamples(),
-            GrMipmapped::kNo,
+            skgpu::Mipmapped::kNo,
             fSurfaceDrawContext->asSurfaceProxy()->isProtected(),
             fSurfaceDrawContext->origin(),
             skgpu::Budgeted::kYes);

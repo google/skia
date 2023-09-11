@@ -29,7 +29,7 @@ DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
     // Otherwise we just draw the original again,
     if (auto* rContext = canvas->recordingContext(); rContext && !rContext->abandoned()) {
         auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(GetResourceAsData("images/ducky.jpg"),
-                                                       GrMipmapped::kYes);
+                                                       skgpu::Mipmapped::kYes);
         if (lazyYUV) {
             duckyFG[1] = lazyYUV->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
         }

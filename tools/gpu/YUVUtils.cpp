@@ -196,7 +196,7 @@ MakeYUVAPlanesAsA8(SkImage* src,
 }
 
 std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data,
-                                                 GrMipmapped mipmapped,
+                                                 skgpu::Mipmapped mipmapped,
                                                  sk_sp<SkColorSpace> cs) {
     std::unique_ptr<LazyYUVImage> image(new LazyYUVImage());
     if (image->reset(std::move(data), mipmapped, std::move(cs))) {
@@ -207,7 +207,7 @@ std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data,
 }
 
 std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(SkYUVAPixmaps pixmaps,
-                                                 GrMipmapped mipmapped,
+                                                 skgpu::Mipmapped mipmapped,
                                                  sk_sp<SkColorSpace> cs) {
     std::unique_ptr<LazyYUVImage> image(new LazyYUVImage());
     if (image->reset(std::move(pixmaps), mipmapped, std::move(cs))) {
@@ -239,7 +239,7 @@ sk_sp<SkImage> LazyYUVImage::refImage(skgpu::graphite::Recorder* recorder, Type 
 }
 #endif
 
-bool LazyYUVImage::reset(sk_sp<SkData> data, GrMipmapped mipmapped, sk_sp<SkColorSpace> cs) {
+bool LazyYUVImage::reset(sk_sp<SkData> data, skgpu::Mipmapped mipmapped, sk_sp<SkColorSpace> cs) {
     fMipmapped = mipmapped;
     auto codec = SkCodecImageGenerator::MakeFromEncodedCodec(data);
     if (!codec) {
@@ -265,7 +265,9 @@ bool LazyYUVImage::reset(sk_sp<SkData> data, GrMipmapped mipmapped, sk_sp<SkColo
     return true;
 }
 
-bool LazyYUVImage::reset(SkYUVAPixmaps pixmaps, GrMipmapped mipmapped, sk_sp<SkColorSpace> cs) {
+bool LazyYUVImage::reset(SkYUVAPixmaps pixmaps,
+                         skgpu::Mipmapped mipmapped,
+                         sk_sp<SkColorSpace> cs) {
     if (!pixmaps.isValid()) {
         return false;
     }
@@ -308,7 +310,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
             if (!rContext || rContext->abandoned()) {
                 return false;
             }
-            if (fMipmapped == GrMipmapped::kYes) {
+            if (fMipmapped == skgpu::Mipmapped::kYes) {
                 // If this becomes necessary we should invoke SkMipmapBuilder here to make mip
                 // maps from our src data (and then pass a pixmaps array to initialize the planar
                 // textures.

@@ -175,11 +175,11 @@ private:
             return fCallbackContexts[index];
         }
 
-        GrMipmapped mipmapped(int index) const {
+        skgpu::Mipmapped mipmapped(int index) const {
             if (this->isYUV()) {
-                return GrMipmapped::kNo;
+                return skgpu::Mipmapped::kNo;
             }
-            return fMipLevels ? GrMipmapped::kYes : GrMipmapped::kNo;
+            return fMipLevels ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
         }
         const GrBackendFormat& backendFormat(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVAInfo::kMaxPlanes : 1));

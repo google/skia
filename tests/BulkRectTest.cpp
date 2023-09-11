@@ -75,7 +75,7 @@ static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
                                                          kDimensions,
                                                          GrRenderable::kYes,
                                                          1,
-                                                         GrMipmapped::kNo,
+                                                         skgpu::Mipmapped::kNo,
                                                          SkBackingFit::kExact,
                                                          skgpu::Budgeted::kNo,
                                                          GrProtected::kNo,

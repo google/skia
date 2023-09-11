@@ -103,9 +103,8 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
             DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
     bool hasTextures = (programInfo.geomProc().numTextureSamplers() > 0);
     if (!hasTextures) {
-        programInfo.pipeline().visitProxies([&hasTextures](GrSurfaceProxy*, GrMipmapped) {
-            hasTextures = true;
-        });
+        programInfo.pipeline().visitProxies(
+                [&hasTextures](GrSurfaceProxy*, skgpu::Mipmapped) { hasTextures = true; });
     }
     fTextureBindingStatus = (hasTextures) ?
             DynamicStateStatus::kUninitialized : DynamicStateStatus::kDisabled;
@@ -144,11 +143,11 @@ void GrOpsRenderPass::bindTextures(const GrGeometryProcessor& geomProc,
 
         const GrTexture* tex = proxy->peekTexture();
         SkASSERT(tex);
-        if (sampler.samplerState().mipmapped() == GrMipmapped::kYes &&
+        if (sampler.samplerState().mipmapped() == skgpu::Mipmapped::kYes &&
             (tex->width() != 1 || tex->height() != 1)) {
             // There are some cases where we might be given a non-mipmapped texture with a mipmap
             // filter. See skbug.com/7094.
-            SkASSERT(tex->mipmapped() != GrMipmapped::kYes || !tex->mipmapsAreDirty());
+            SkASSERT(tex->mipmapped() != skgpu::Mipmapped::kYes || !tex->mipmapsAreDirty());
         }
     }
 #endif

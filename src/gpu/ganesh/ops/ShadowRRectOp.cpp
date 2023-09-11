@@ -645,7 +645,7 @@ private:
 #endif
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
-        func(fFalloffView.proxy(), GrMipmapped(false));
+        func(fFalloffView.proxy(), skgpu::Mipmapped(false));
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);
         }

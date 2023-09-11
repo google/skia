@@ -270,7 +270,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
                                                        texDims.height(),
                                                        kRGBA_8888_SkColorType,
                                                        SkColors::kBlue,
-                                                       GrMipmapped::kNo,
+                                                       skgpu::Mipmapped::kNo,
                                                        GrRenderable::kYes,
                                                        GrProtected::kNo);
 
@@ -285,7 +285,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
                                                   surfaceDims.height(),
                                                   kRGBA_8888_SkColorType,
                                                   SkColors::kRed,
-                                                  GrMipmapped::kNo,
+                                                  skgpu::Mipmapped::kNo,
                                                   GrRenderable::kYes,
                                                   GrProtected::kNo);
 
@@ -293,7 +293,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
                                                   surfaceDims.height(),
                                                   kRGBA_8888_SkColorType,
                                                   SkColors::kYellow,
-                                                  GrMipmapped::kNo,
+                                                  skgpu::Mipmapped::kNo,
                                                   GrRenderable::kYes,
                                                   GrProtected::kNo);
 

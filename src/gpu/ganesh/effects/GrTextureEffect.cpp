@@ -120,9 +120,9 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         bool needsShaderWrap = !canDoWrapInHW(dim.width(),  sampler.wrapModeX()) ||
                                !canDoWrapInHW(dim.height(), sampler.wrapModeY());
         if (needsShaderWrap || anisoSubset) {
-            MipmapMode newMM = proxy.asTextureProxy()->mipmapped() == GrMipmapped::kYes
-                                    ? MipmapMode::kLinear
-                                    : MipmapMode::kNone;
+            MipmapMode newMM = proxy.asTextureProxy()->mipmapped() == skgpu::Mipmapped::kYes
+                                       ? MipmapMode::kLinear
+                                       : MipmapMode::kNone;
             sampler = GrSamplerState(sampler.wrapModeX(),
                                      sampler.wrapModeY(),
                                      SkFilterMode::kLinear,
@@ -859,7 +859,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTest
 
     Filter filter = testData->fRandom->nextBool() ? Filter::kLinear : Filter::kNearest;
     MipmapMode mm = MipmapMode::kNone;
-    if (view.asTextureProxy()->mipmapped() == GrMipmapped::kYes) {
+    if (view.asTextureProxy()->mipmapped() == skgpu::Mipmapped::kYes) {
         mm = testData->fRandom->nextBool() ? MipmapMode::kLinear : MipmapMode::kNone;
     }
     GrSamplerState params(wrapModes, filter, mm);

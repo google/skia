@@ -123,8 +123,8 @@ public:
             // Add one to account for the resolve buffer.
             ++numColorSamples;
         }
-        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipmapped::kNo);
+        return GrSurface::ComputeSize(
+                this->backendFormat(), this->dimensions(), numColorSamples, skgpu::Mipmapped::kNo);
     }
 
     GrBackendRenderTarget getBackendRenderTarget() const override {

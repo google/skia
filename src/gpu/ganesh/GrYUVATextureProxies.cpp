@@ -52,7 +52,7 @@ GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
         SkASSERT(!this->isValid());
         return;
     }
-    fMipmapped = GrMipmapped::kYes;
+    fMipmapped = skgpu::Mipmapped::kYes;
     for (size_t i = 0; i < static_cast<size_t>(n); ++i) {
         if (!proxies[i]) {
             *this = {};
@@ -60,8 +60,8 @@ GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
             return;
         }
         SkASSERT(proxies[i]->asTextureProxy());
-        if (proxies[i]->asTextureProxy()->mipmapped() == GrMipmapped::kNo) {
-            fMipmapped = GrMipmapped::kNo;
+        if (proxies[i]->asTextureProxy()->mipmapped() == skgpu::Mipmapped::kNo) {
+            fMipmapped = skgpu::Mipmapped::kNo;
         }
         fProxies[i] = std::move(proxies[i]);
     }
@@ -79,7 +79,7 @@ GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
         SkASSERT(!this->isValid());
         return;
     }
-    fMipmapped = GrMipmapped::kYes;
+    fMipmapped = skgpu::Mipmapped::kYes;
     for (int i = 0; i < n; ++i) {
         pixmapChannelMasks[i] = GrColorTypeChannelFlags(colorTypes[i]);
         SkASSERT(num_channels(pixmapChannelMasks[i]) <=
@@ -89,8 +89,8 @@ GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
             SkASSERT(!this->isValid());
             return;
         }
-        if (views[i].proxy()->asTextureProxy()->mipmapped() == GrMipmapped::kNo) {
-            fMipmapped = GrMipmapped::kNo;
+        if (views[i].proxy()->asTextureProxy()->mipmapped() == skgpu::Mipmapped::kNo) {
+            fMipmapped = skgpu::Mipmapped::kNo;
         }
     }
     // Initial locations refer to the CPU pixmap channels.

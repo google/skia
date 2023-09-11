@@ -1339,7 +1339,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
                                                    origin,
                                                    renderable,
                                                    /*sample count*/ 1,
-                                                   GrMipmapped::kYes);
+                                                   skgpu::Mipmapped::kYes);
                     if (!sc) {
                         continue;
                     }

@@ -107,7 +107,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> new_SDC(GrRecordingCon
                                                    SkSurfaceProps(),
                                                    /* label= */ {},
                                                    /* sampleCnt= */ 1,
-                                                   GrMipmapped::kNo,
+                                                   skgpu::Mipmapped::kNo,
                                                    GrProtected::kNo,
                                                    kImageOrigin,
                                                    skgpu::Budgeted::kYes);
@@ -445,8 +445,11 @@ public:
         GrBackendFormat format = fDContext->defaultBackendFormat(kRGBA_8888_SkColorType,
                                                                  GrRenderable::kNo);
 
-        return GrSurface::ComputeSize(format, {wh, wh}, /*colorSamplesPerPixel=*/1,
-                                      GrMipmapped::kNo, /*binSize=*/false);
+        return GrSurface::ComputeSize(format,
+                                      {wh, wh},
+                                      /*colorSamplesPerPixel=*/1,
+                                      skgpu::Mipmapped::kNo,
+                                      /*binSize=*/false);
     }
 
 private:
@@ -687,7 +690,7 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(
-            create_bitmap(wh), GrMipmapped::kNo, SkBackingFit::kExact, skgpu::Budgeted::kYes);
+            create_bitmap(wh), skgpu::Mipmapped::kNo, SkBackingFit::kExact, skgpu::Budgeted::kYes);
     if (!proxy) {
         return {};
     }

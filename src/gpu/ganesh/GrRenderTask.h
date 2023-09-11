@@ -75,8 +75,11 @@ public:
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrDrawingManager*, GrSurfaceProxy* dependedOn, GrMipmapped,
-                       GrTextureResolveManager, const GrCaps& caps);
+    void addDependency(GrDrawingManager*,
+                       GrSurfaceProxy* dependedOn,
+                       skgpu::Mipmapped,
+                       GrTextureResolveManager,
+                       const GrCaps& caps);
 
     /*
      * Notify this GrRenderTask that it relies on the contents of all GrRenderTasks which otherTask
@@ -124,7 +127,7 @@ public:
     void visitTargetAndSrcProxies_debugOnly(const GrVisitProxyFunc& func) const {
         this->visitProxies_debugOnly(func);
         for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
-            func(target.get(), GrMipmapped::kNo);
+            func(target.get(), skgpu::Mipmapped::kNo);
         }
     }
 #endif

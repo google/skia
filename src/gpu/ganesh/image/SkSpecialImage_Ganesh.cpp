@@ -121,7 +121,7 @@ public:
 
             auto subsetView = GrSurfaceProxyView::Copy(fContext,
                                                        fView,
-                                                       GrMipmapped::kNo,
+                                                       skgpu::Mipmapped::kNo,
                                                        *subset,
                                                        SkBackingFit::kExact,
                                                        skgpu::Budgeted::kYes,
@@ -177,7 +177,7 @@ sk_sp<SkSpecialImage> MakeFromTextureImage(GrRecordingContext* rContext,
     SkASSERT(image->bounds().contains(subset));
 
     // This will work even if the image is a raster-backed image.
-    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, GrMipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo);
     return MakeDeferredFromGpu(rContext,
                                subset,
                                image->uniqueID(),
@@ -220,7 +220,7 @@ GrSurfaceProxyView AsView(GrRecordingContext* context, const SkSpecialImage* img
     SkBitmap bm;
     SkAssertResult(img->getROPixels(&bm));  // this should always succeed for raster images
     return std::get<0>(GrMakeCachedBitmapProxyView(
-            context, bm, /*label=*/"SpecialImageRaster_AsView", GrMipmapped::kNo));
+            context, bm, /*label=*/"SpecialImageRaster_AsView", skgpu::Mipmapped::kNo));
 }
 
 }  // namespace SkSpecialImages
@@ -238,7 +238,7 @@ sk_sp<SkSpecialSurface> MakeRenderTarget(GrRecordingContext* rContext,
                                                 ii,
                                                 SkBackingFit::kApprox,
                                                 1,
-                                                GrMipmapped::kNo,
+                                                skgpu::Mipmapped::kNo,
                                                 GrProtected::kNo,
                                                 surfaceOrigin,
                                                 {props.flags(), kUnknown_SkPixelGeometry},

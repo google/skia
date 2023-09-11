@@ -37,7 +37,10 @@ size_t GrComputeTightCombinedBufferSize(
         size_t bytesPerPixel, SkISize baseDimensions,
         skia_private::TArray<size_t>* individualMipOffsets, int mipLevelCount);
 
-void GrFillInCompressedData(SkTextureCompressionType, SkISize dimensions, GrMipmapped, char* dest,
+void GrFillInCompressedData(SkTextureCompressionType,
+                            SkISize dimensions,
+                            skgpu::Mipmapped,
+                            char* dest,
                             const SkColor4f& color);
 
 bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY = false);

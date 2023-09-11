@@ -128,8 +128,9 @@ GrMtlGpu* GrMtlTexture::getMtlGpu() const {
 }
 
 GrBackendTexture GrMtlTexture::getBackendTexture() const {
-    GrMipmapped mipmapped = fTexture->mtlTexture().mipmapLevelCount > 1 ? GrMipmapped::kYes
-                                                                        : GrMipmapped::kNo;
+    skgpu::Mipmapped mipmapped = fTexture->mtlTexture().mipmapLevelCount > 1
+                                         ? skgpu::Mipmapped::kYes
+                                         : skgpu::Mipmapped::kNo;
     GrMtlTextureInfo info;
     info.fTexture.reset(GrRetainPtrFromId(fTexture->mtlTexture()));
     return GrBackendTexture(this->width(), this->height(), mipmapped, info);

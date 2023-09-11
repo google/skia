@@ -53,7 +53,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
         sk_sp<SkImage> image = surf->makeImageSnapshot();
         GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image.get(),
                                                                   surf->recordingContext());
-        bool proxyIsMipmapped = proxy->mipmapped() == GrMipmapped::kYes;
+        bool proxyIsMipmapped = proxy->mipmapped() == skgpu::Mipmapped::kYes;
         REPORTER_ASSERT(reporter, proxyIsMipmapped == image->hasMipmaps());
         return image->hasMipmaps();
     };

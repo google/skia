@@ -137,7 +137,7 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
                                                  GrTextureType::k2D,
                                                  GrRenderable::kYes,
                                                  sampleCount,
-                                                 GrMipmapped::kNo,
+                                                 skgpu::Mipmapped::kNo,
                                                  budgeted,
                                                  GrProtected::kNo,
                                                  /*label=*/{}));
@@ -251,9 +251,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources,
     static const int kH = 100;
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            context, kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            context, kW, kH, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     GrBackendTexture unmbet = context->createBackendTexture(
-            kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            kW, kH, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     if (!mbet || !unmbet.isValid()) {
         ERRORF(reporter, "Could not create backend texture.");
         return;
@@ -1627,8 +1627,11 @@ static void test_free_texture_messages(skiatest::Reporter* reporter) {
     };
 
     for (int i = 0; i < 3; ++i) {
-        backends[i] = dContext->createBackendTexture(16, 16, SkColorType::kRGBA_8888_SkColorType,
-                                                     GrMipmapped::kNo, GrRenderable::kNo);
+        backends[i] = dContext->createBackendTexture(16,
+                                                     16,
+                                                     SkColorType::kRGBA_8888_SkColorType,
+                                                     skgpu::Mipmapped::kNo,
+                                                     GrRenderable::kNo);
         wrapped[i] = gpu->wrapBackendTexture(backends[i],
                                              GrWrapOwnership::kBorrow_GrWrapOwnership,
                                              (i < 2) ? GrWrapCacheable::kYes : GrWrapCacheable::kNo,
@@ -1696,7 +1699,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon,
     GrGpu* gpu = dContext->priv().getGpu();
 
     GrBackendTexture backend = dContext->createBackendTexture(
-            16, 16, SkColorType::kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+            16, 16, SkColorType::kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
     sk_sp<GrTexture> tex = gpu->wrapBackendTexture(backend,
                                                    GrWrapOwnership::kBorrow_GrWrapOwnership,
                                                    GrWrapCacheable::kYes,
@@ -1740,7 +1743,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                    GrTextureType::k2D,
                                    renderable,
                                    sampleCnt,
-                                   GrMipmapped::kNo,
+                                   skgpu::Mipmapped::kNo,
                                    skgpu::Budgeted::kYes,
                                    GrProtected::kNo,
                                    /*label=*/{});
@@ -1761,7 +1764,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrRecordingContext* rContext,
                                       dims,
                                       renderable,
                                       sampleCnt,
-                                      GrMipmapped::kYes,
+                                      skgpu::Mipmapped::kYes,
                                       SkBackingFit::kExact,
                                       skgpu::Budgeted::kYes,
                                       GrProtected::kNo,

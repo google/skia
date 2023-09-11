@@ -104,7 +104,7 @@ public:
         }
 
         void visitProxies(const GrVisitProxyFunc& func) const override {
-            func(fProxy.get(), GrMipmapped::kNo);
+            func(fProxy.get(), skgpu::Mipmapped::kNo);
         }
 
         void onExecute(GrOpFlushState*, const SkRect& chainBounds) override {
@@ -298,7 +298,7 @@ DEF_GANESH_TEST(LazyProxyReleaseTest, reporter, /* options */, CtsEnforcement::k
                                                              GrTextureType::k2D,
                                                              GrRenderable::kNo,
                                                              1,
-                                                             GrMipmapped::kNo,
+                                                             skgpu::Mipmapped::kNo,
                                                              skgpu::Budgeted::kNo,
                                                              GrProtected::kNo,
                                                              /*label=*/{});
@@ -344,7 +344,7 @@ DEF_GANESH_TEST(LazyProxyReleaseTest, reporter, /* options */, CtsEnforcement::k
                     proxyProvider->createLazyProxy(TestCallback(&testCount, releaseCallback, tex),
                                                    format,
                                                    {kSize, kSize},
-                                                   GrMipmapped::kNo,
+                                                   skgpu::Mipmapped::kNo,
                                                    GrMipmapStatus::kNotAllocated,
                                                    GrInternalSurfaceFlags::kNone,
                                                    SkBackingFit::kExact,
@@ -391,7 +391,7 @@ public:
     }
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
-        func(fLazyProxy.get(), GrMipmapped::kNo);
+        func(fLazyProxy.get(), skgpu::Mipmapped::kNo);
     }
 
 private:
@@ -426,7 +426,7 @@ private:
                 },
                 format,
                 dims,
-                GrMipmapped::kNo,
+                skgpu::Mipmapped::kNo,
                 GrMipmapStatus::kNotAllocated,
                 GrInternalSurfaceFlags::kNone,
                 SkBackingFit::kExact,

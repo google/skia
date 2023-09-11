@@ -614,9 +614,10 @@ void GrDirectContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) c
                                       this->getTextBlobRedrawCoordinator()->usedBytes());
 }
 
-GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
+GrBackendTexture GrDirectContext::createBackendTexture(int width,
+                                                       int height,
                                                        const GrBackendFormat& backendFormat,
-                                                       GrMipmapped mipmapped,
+                                                       skgpu::Mipmapped mipmapped,
                                                        GrRenderable renderable,
                                                        GrProtected isProtected,
                                                        std::string_view label) {
@@ -672,9 +673,10 @@ GrBackendTexture GrDirectContext::createBackendTexture(const SkPixmap srcData[],
                                       label);
 }
 
-GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
+GrBackendTexture GrDirectContext::createBackendTexture(int width,
+                                                       int height,
                                                        SkColorType skColorType,
-                                                       GrMipmapped mipmapped,
+                                                       skgpu::Mipmapped mipmapped,
                                                        GrRenderable renderable,
                                                        GrProtected isProtected,
                                                        std::string_view label) {
@@ -692,7 +694,7 @@ static GrBackendTexture create_and_clear_backend_texture(
         GrDirectContext* dContext,
         SkISize dimensions,
         const GrBackendFormat& backendFormat,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrRenderable renderable,
         GrProtected isProtected,
         sk_sp<skgpu::RefCntedCallback> finishedCallback,
@@ -755,10 +757,11 @@ static bool update_texture_with_pixmaps(GrDirectContext* context,
     return true;
 }
 
-GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
+GrBackendTexture GrDirectContext::createBackendTexture(int width,
+                                                       int height,
                                                        const GrBackendFormat& backendFormat,
                                                        const SkColor4f& color,
-                                                       GrMipmapped mipmapped,
+                                                       skgpu::Mipmapped mipmapped,
                                                        GrRenderable renderable,
                                                        GrProtected isProtected,
                                                        GrGpuFinishedProc finishedProc,
@@ -782,10 +785,11 @@ GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
                                             label);
 }
 
-GrBackendTexture GrDirectContext::createBackendTexture(int width, int height,
+GrBackendTexture GrDirectContext::createBackendTexture(int width,
+                                                       int height,
                                                        SkColorType skColorType,
                                                        const SkColor4f& color,
-                                                       GrMipmapped mipmapped,
+                                                       skgpu::Mipmapped mipmapped,
                                                        GrRenderable renderable,
                                                        GrProtected isProtected,
                                                        GrGpuFinishedProc finishedProc,
@@ -838,9 +842,9 @@ GrBackendTexture GrDirectContext::createBackendTexture(const SkPixmap srcData[],
 
     SkColorType colorType = srcData[0].colorType();
 
-    GrMipmapped mipmapped = GrMipmapped::kNo;
+    skgpu::Mipmapped mipmapped = skgpu::Mipmapped::kNo;
     if (numProvidedLevels > 1) {
-        mipmapped = GrMipmapped::kYes;
+        mipmapped = skgpu::Mipmapped::kYes;
     }
 
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
@@ -957,7 +961,7 @@ static GrBackendTexture create_and_update_compressed_backend_texture(
         GrDirectContext* dContext,
         SkISize dimensions,
         const GrBackendFormat& backendFormat,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         sk_sp<skgpu::RefCntedCallback> finishedCallback,
         const void* data,
@@ -979,10 +983,11 @@ static GrBackendTexture create_and_update_compressed_backend_texture(
 }
 
 GrBackendTexture GrDirectContext::createCompressedBackendTexture(
-        int width, int height,
+        int width,
+        int height,
         const GrBackendFormat& backendFormat,
         const SkColor4f& color,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         GrGpuFinishedProc finishedProc,
         GrGpuFinishedContext finishedContext) {
@@ -998,10 +1003,8 @@ GrBackendTexture GrDirectContext::createCompressedBackendTexture(
         return {};
     }
 
-    size_t size = SkCompressedDataSize(compression,
-                                       {width, height},
-                                       nullptr,
-                                       mipmapped == GrMipmapped::kYes);
+    size_t size = SkCompressedDataSize(
+            compression, {width, height}, nullptr, mipmapped == skgpu::Mipmapped::kYes);
     auto storage = std::make_unique<char[]>(size);
     GrFillInCompressedData(compression, {width, height}, mipmapped, storage.get(), color);
     return create_and_update_compressed_backend_texture(this,
@@ -1015,10 +1018,11 @@ GrBackendTexture GrDirectContext::createCompressedBackendTexture(
 }
 
 GrBackendTexture GrDirectContext::createCompressedBackendTexture(
-        int width, int height,
+        int width,
+        int height,
         SkTextureCompressionType compression,
         const SkColor4f& color,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         GrGpuFinishedProc finishedProc,
         GrGpuFinishedContext finishedContext) {
@@ -1030,11 +1034,12 @@ GrBackendTexture GrDirectContext::createCompressedBackendTexture(
 }
 
 GrBackendTexture GrDirectContext::createCompressedBackendTexture(
-        int width, int height,
+        int width,
+        int height,
         const GrBackendFormat& backendFormat,
         const void* compressedData,
         size_t dataSize,
-        GrMipmapped mipmapped,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         GrGpuFinishedProc finishedProc,
         GrGpuFinishedContext finishedContext) {
@@ -1056,10 +1061,12 @@ GrBackendTexture GrDirectContext::createCompressedBackendTexture(
 }
 
 GrBackendTexture GrDirectContext::createCompressedBackendTexture(
-        int width, int height,
+        int width,
+        int height,
         SkTextureCompressionType compression,
-        const void* data, size_t dataSize,
-        GrMipmapped mipmapped,
+        const void* data,
+        size_t dataSize,
+        skgpu::Mipmapped mipmapped,
         GrProtected isProtected,
         GrGpuFinishedProc finishedProc,
         GrGpuFinishedContext finishedContext) {

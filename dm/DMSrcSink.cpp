@@ -1513,7 +1513,7 @@ sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context, SkISize siz
                                                              info,
                                                              kTopLeft_GrSurfaceOrigin,
                                                              fSampleCount,
-                                                             GrMipmapped::kNo,
+                                                             skgpu::Mipmapped::kNo,
                                                              GrProtected::kNo,
                                                              &props);
             break;

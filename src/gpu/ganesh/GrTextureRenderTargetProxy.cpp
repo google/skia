@@ -26,7 +26,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        const GrBackendFormat& format,
                                                        SkISize dimensions,
                                                        int sampleCnt,
-                                                       GrMipmapped mipmapped,
+                                                       skgpu::Mipmapped mipmapped,
                                                        GrMipmapStatus mipmapStatus,
                                                        SkBackingFit fit,
                                                        skgpu::Budgeted budgeted,
@@ -68,7 +68,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        const GrBackendFormat& format,
                                                        SkISize dimensions,
                                                        int sampleCnt,
-                                                       GrMipmapped mipmapped,
+                                                       skgpu::Mipmapped mipmapped,
                                                        GrMipmapStatus mipmapStatus,
                                                        SkBackingFit fit,
                                                        skgpu::Budgeted budgeted,
@@ -221,8 +221,8 @@ GrSurfaceProxy::LazySurfaceDesc GrTextureRenderTargetProxy::callbackDesc() const
 void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version
     SkASSERT(surface->asTexture());
-    SkASSERT(GrMipmapped::kNo == this->proxyMipmapped() ||
-             GrMipmapped::kYes == surface->asTexture()->mipmapped());
+    SkASSERT(skgpu::Mipmapped::kNo == this->proxyMipmapped() ||
+             skgpu::Mipmapped::kYes == surface->asTexture()->mipmapped());
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
     SkASSERT(surface->asRenderTarget());

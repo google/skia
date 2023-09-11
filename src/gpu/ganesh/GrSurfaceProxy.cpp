@@ -126,8 +126,8 @@ GrSurfaceProxy::~GrSurfaceProxy() {
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
                                                    int sampleCnt,
                                                    GrRenderable renderable,
-                                                   GrMipmapped mipmapped) const {
-    SkASSERT(mipmapped == GrMipmapped::kNo || fFit == SkBackingFit::kExact);
+                                                   skgpu::Mipmapped mipmapped) const {
+    SkASSERT(mipmapped == skgpu::Mipmapped::kNo || fFit == SkBackingFit::kExact);
     SkASSERT(!this->isLazy());
     SkASSERT(!fTarget);
 
@@ -195,8 +195,10 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 #endif
 }
 
-bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     GrRenderable renderable, GrMipmapped mipmapped,
+bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider,
+                                     int sampleCnt,
+                                     GrRenderable renderable,
+                                     skgpu::Mipmapped mipmapped,
                                      const skgpu::UniqueKey* uniqueKey) {
     SkASSERT(!this->isLazy());
     if (fTarget) {
@@ -238,7 +240,7 @@ void GrSurfaceProxy::computeScratchKey(const GrCaps& caps, skgpu::ScratchKey* ke
     }
 
     const GrTextureProxy* tp = this->asTextureProxy();
-    GrMipmapped mipmapped = GrMipmapped::kNo;
+    skgpu::Mipmapped mipmapped = skgpu::Mipmapped::kNo;
     if (tp) {
         mipmapped = tp->mipmapped();
     }
@@ -280,7 +282,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                            sk_sp<GrSurfaceProxy> src,
                                            GrSurfaceOrigin origin,
-                                           GrMipmapped mipmapped,
+                                           skgpu::Mipmapped mipmapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
                                            skgpu::Budgeted budgeted,
@@ -357,7 +359,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            sk_sp<GrSurfaceProxy> src,
                                            GrSurfaceOrigin origin,
-                                           GrMipmapped mipmapped,
+                                           skgpu::Mipmapped mipmapped,
                                            SkBackingFit fit,
                                            skgpu::Budgeted budgeted,
                                            std::string_view label,

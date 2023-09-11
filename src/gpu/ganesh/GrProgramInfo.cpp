@@ -64,7 +64,7 @@ void GrProgramInfo::validate(bool flushTime) const {
 }
 
 void GrProgramInfo::checkAllInstantiated() const {
-    this->pipeline().visitProxies([](GrSurfaceProxy* proxy, GrMipmapped) {
+    this->pipeline().visitProxies([](GrSurfaceProxy* proxy, skgpu::Mipmapped) {
         SkASSERT(proxy->isInstantiated());
         return true;
     });
@@ -76,11 +76,11 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
         SkASSERT(tex);
 
         // Ensure mipmaps were all resolved ahead of time by the DAG.
-        if (te.samplerState().mipmapped() == GrMipmapped::kYes &&
+        if (te.samplerState().mipmapped() == skgpu::Mipmapped::kYes &&
             (tex->width() != 1 || tex->height() != 1)) {
             // There are some cases where we might be given a non-mipmapped texture with a
             // mipmap filter. See skbug.com/7094.
-            SkASSERT(tex->mipmapped() != GrMipmapped::kYes || !tex->mipmapsAreDirty());
+            SkASSERT(tex->mipmapped() != skgpu::Mipmapped::kYes || !tex->mipmapsAreDirty());
         }
     });
 }

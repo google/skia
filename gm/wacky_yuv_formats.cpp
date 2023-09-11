@@ -1077,9 +1077,8 @@ protected:
             int i = 0;
             for (sk_sp<SkColorSpace> cs : {sk_sp<SkColorSpace>(nullptr),
                                            SkColorSpace::MakeSRGB()}) {
-                auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(yuvaPixmaps,
-                                                               GrMipmapped::kNo,
-                                                               std::move(cs));
+                auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(
+                        yuvaPixmaps, skgpu::Mipmapped::kNo, std::move(cs));
                 fImages[opaque][i++] =
                         lazyYUV->refImage(context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
             }
@@ -1238,7 +1237,7 @@ protected:
             auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, pixmaps);
             auto img = SkImages::TextureFromYUVAPixmaps(canvas->recordingContext(),
                                                         yuvaPixmaps,
-                                                        GrMipmapped::kNo,
+                                                        skgpu::Mipmapped::kNo,
                                                         /* limit to max tex size */ false,
                                                         /* color space */ nullptr);
             if (img) {

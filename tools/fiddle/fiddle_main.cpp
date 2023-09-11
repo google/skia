@@ -192,7 +192,7 @@ static bool setup_backend_objects(GrDirectContext* dContext,
                                                 GrRenderable::kYes,
                                                 kSampleCnt,
                                                 skgpu::Budgeted::kNo,
-                                                GrMipmapped::kNo,
+                                                skgpu::Mipmapped::kNo,
                                                 GrProtected::kNo,
                                                 &level0,
                                                 /*label=*/"Fiddle_SetupBackendObjects");

@@ -24,9 +24,14 @@ GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  id<MTLTexture> texture,
                                  skgpu::Budgeted budgeted,
                                  std::string_view label)
-        : GrAttachment(gpu, dimensions, supportedUsages, texture.sampleCount,
-                       texture.mipmapLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
-                       GrProtected::kNo, label)
+        : GrAttachment(
+                  gpu,
+                  dimensions,
+                  supportedUsages,
+                  texture.sampleCount,
+                  texture.mipmapLevelCount > 1 ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo,
+                  GrProtected::kNo,
+                  label)
         , fTexture(texture) {
     this->registerWithCache(budgeted);
 }
@@ -37,9 +42,14 @@ GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  id<MTLTexture> texture,
                                  GrWrapCacheable cacheable,
                                  std::string_view label)
-        : GrAttachment(gpu, dimensions, supportedUsages, texture.sampleCount,
-                       texture.mipmapLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
-                       GrProtected::kNo, label)
+        : GrAttachment(
+                  gpu,
+                  dimensions,
+                  supportedUsages,
+                  texture.sampleCount,
+                  texture.mipmapLevelCount > 1 ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo,
+                  GrProtected::kNo,
+                  label)
         , fTexture(texture) {
     this->registerWithCacheWrapped(cacheable);
 }

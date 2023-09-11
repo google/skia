@@ -15,7 +15,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
@@ -83,7 +82,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(context,
                                                         bitmap,
                                                         /*label=*/"MakeColorTableEffect",
-                                                        GrMipmapped::kNo));
+                                                        skgpu::Mipmapped::kNo));
     if (!view) {
         return nullptr;
     }

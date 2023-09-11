@@ -177,7 +177,7 @@ public:
     const char* name() const override { return "NonAALatticeOp"; }
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
-        func(fView.proxy(), GrMipmapped::kNo);
+        func(fView.proxy(), skgpu::Mipmapped::kNo);
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);
         } else {
@@ -476,7 +476,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
                                                               dims,
                                                               GrRenderable::kNo,
                                                               1,
-                                                              GrMipmapped::kNo,
+                                                              skgpu::Mipmapped::kNo,
                                                               SkBackingFit::kExact,
                                                               skgpu::Budgeted::kYes,
                                                               GrProtected::kNo,

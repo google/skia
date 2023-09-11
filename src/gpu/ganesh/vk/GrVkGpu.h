@@ -222,12 +222,12 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            GrMipmapped,
+                                            skgpu::Mipmapped,
                                             GrProtected,
                                             std::string_view label) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      GrMipmapped,
+                                                      skgpu::Mipmapped,
                                                       GrProtected) override;
 
     bool onClearBackendTexture(const GrBackendTexture&,
@@ -258,7 +258,7 @@ private:
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
                                                skgpu::Budgeted,
-                                               GrMipmapped,
+                                               skgpu::Mipmapped,
                                                GrProtected,
                                                const void* data,
                                                size_t dataSize) override;
@@ -382,9 +382,13 @@ private:
                               GrColorType colorType,
                               const GrMipLevel texels[],
                               int mipLevelCount);
-    bool uploadTexDataCompressed(GrVkImage* tex, SkTextureCompressionType compression,
-                                 VkFormat vkFormat, SkISize dimensions, GrMipmapped mipmapped,
-                                 const void* data, size_t dataSize);
+    bool uploadTexDataCompressed(GrVkImage* tex,
+                                 SkTextureCompressionType compression,
+                                 VkFormat vkFormat,
+                                 SkISize dimensions,
+                                 skgpu::Mipmapped mipmapped,
+                                 const void* data,
+                                 size_t dataSize);
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
 
@@ -393,7 +397,7 @@ private:
                                         int sampleCnt,
                                         GrTexturable,
                                         GrRenderable,
-                                        GrMipmapped,
+                                        skgpu::Mipmapped,
                                         GrVkImageInfo*,
                                         GrProtected);
 

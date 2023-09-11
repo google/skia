@@ -72,7 +72,7 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, GrSamplerState samplerState,
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
-    bool useMipMaps = samplerState.mipmapped() == GrMipmapped::kYes;
+    bool useMipMaps = samplerState.mipmapped() == skgpu::Mipmapped::kYes;
     createInfo.maxLod = !useMipMaps ? 0.0f : 10000.0f;
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     createInfo.unnormalizedCoordinates = VK_FALSE;

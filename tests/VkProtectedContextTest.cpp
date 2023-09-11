@@ -88,9 +88,12 @@ DEF_GANESH_TEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext,
     const int kW = 8;
     const int kH = 8;
     GrBackendTexture backendTex =
-        protectedTestHelper->directContext()->createBackendTexture(
-            kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo,
-            GrProtected::kNo);
+            protectedTestHelper->directContext()->createBackendTexture(kW,
+                                                                       kH,
+                                                                       kRGBA_8888_SkColorType,
+                                                                       skgpu::Mipmapped::kNo,
+                                                                       GrRenderable::kNo,
+                                                                       GrProtected::kNo);
     REPORTER_ASSERT(reporter, !backendTex.isValid());
 }
 
@@ -110,7 +113,7 @@ DEF_GANESH_TEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext,
             protectedTestHelper->directContext()->createBackendTexture(kW,
                                                                        kH,
                                                                        kRGBA_8888_SkColorType,
-                                                                       GrMipmapped::kNo,
+                                                                       skgpu::Mipmapped::kNo,
                                                                        GrRenderable::kNo,
                                                                        GrProtected::kYes);
     REPORTER_ASSERT(reporter, !backendTex.isValid());

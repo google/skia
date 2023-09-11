@@ -115,7 +115,7 @@ static void test_path(
                                                        SkSurfaceProps(),
                                                        /*label=*/{},
                                                        /* sampleCnt= */ 1,
-                                                       GrMipmapped::kNo,
+                                                       skgpu::Mipmapped::kNo,
                                                        GrProtected::kNo,
                                                        kTopLeft_GrSurfaceOrigin);
     if (!sdc) {

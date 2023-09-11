@@ -73,7 +73,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLTextureParameters,
     GrBackendTexture backendTex = dContext->createBackendTexture(1,
                                                                  1,
                                                                  kRGBA_8888_SkColorType,
-                                                                 GrMipmapped::kNo,
+                                                                 skgpu::Mipmapped::kNo,
                                                                  GrRenderable::kNo,
                                                                  GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());

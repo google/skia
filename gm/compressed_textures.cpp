@@ -155,7 +155,7 @@ static sk_sp<SkImage> make_compressed_image(GrDirectContext* dContext,
                                                            dimensions.width(),
                                                            dimensions.height(),
                                                            compression,
-                                                           GrMipmapped::kYes);
+                                                           skgpu::Mipmapped::kYes);
     } else {
         image = SkImages::RasterFromCompressedTextureData(
                 std::move(tmp), dimensions.width(), dimensions.height(), compression);

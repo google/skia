@@ -62,7 +62,7 @@ public:
     int width() const { return fReadView.proxy()->width(); }
     int height() const { return fReadView.proxy()->height(); }
 
-    GrMipmapped mipmapped() const { return fReadView.mipmapped(); }
+    skgpu::Mipmapped mipmapped() const { return fReadView.mipmapped(); }
 
     const GrCaps* caps() const;
 

@@ -233,10 +233,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
         bm.setImmutable();
 
         std::tie(filteredMaskView, std::ignore) = GrMakeUncachedBitmapProxyView(
-                rContext,
-                bm,
-                GrMipmapped::kNo,
-                SkBackingFit::kApprox);
+                rContext, bm, skgpu::Mipmapped::kNo, SkBackingFit::kApprox);
         if (!filteredMaskView) {
             return {};
         }
@@ -284,7 +281,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> create_mask_GPU(
                                                                    approxSize,
                                                                    defaultSurfaceProps,
                                                                    sampleCnt,
-                                                                   GrMipmapped::kNo,
+                                                                   skgpu::Mipmapped::kNo,
                                                                    GrProtected::kNo,
                                                                    kMaskOrigin);
     if (!sdc) {
@@ -973,7 +970,7 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                                                 dimensions,
                                                                 defaultSurfaceProps,
                                                                 1,
-                                                                GrMipmapped::kNo,
+                                                                skgpu::Mipmapped::kNo,
                                                                 GrProtected::kNo,
                                                                 kBlurredRRectMaskOrigin);
     if (!sdc) {
@@ -2017,7 +2014,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian_2d(
             SkSurfaceProps(),
             /*label=*/"SurfaceDrawContext_ConvolveGaussian2d",
             /* sampleCnt= */ 1,
-            GrMipmapped::kNo,
+            skgpu::Mipmapped::kNo,
             srcView.proxy()->isProtected(),
             srcView.origin());
     if (!sdc) {
@@ -2094,7 +2091,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> convolve_gaussian(
                                                     SkSurfaceProps(),
                                                     /*label=*/"SurfaceDrawContext_ConvolveGaussian",
                                                     /* sampleCnt= */ 1,
-                                                    GrMipmapped::kNo,
+                                                    skgpu::Mipmapped::kNo,
                                                     srcView.proxy()->isProtected(),
                                                     srcView.origin());
     if (!dstSDC) {
@@ -2269,7 +2266,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> reexpand(
                                                           SkSurfaceProps(),
                                                           /*label=*/"SurfaceDrawContext_Reexpand",
                                                           /* sampleCnt= */ 1,
-                                                          GrMipmapped::kNo,
+                                                          skgpu::Mipmapped::kNo,
                                                           srcView.proxy()->isProtected(),
                                                           srcView.origin());
     if (!dstSDC) {
@@ -2499,7 +2496,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
                                                         SkSurfaceProps(),
                                                         /*label=*/"SurfaceDrawContext_GaussianBlur",
                                                         /* sampleCnt= */ 1,
-                                                        GrMipmapped::kNo,
+                                                        skgpu::Mipmapped::kNo,
                                                         srcView.proxy()->isProtected(),
                                                         srcView.origin());
         if (!result) {
@@ -2610,7 +2607,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
             SkSurfaceProps(),
             /*label=*/"RescaledSurfaceDrawContext",
             /* sampleCnt= */ 1,
-            GrMipmapped::kNo,
+            skgpu::Mipmapped::kNo,
             srcCtx->asSurfaceProxy()->isProtected(),
             srcCtx->origin());
     if (!rescaledSDC) {

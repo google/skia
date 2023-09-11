@@ -83,6 +83,7 @@ namespace skgpu {
 class RefCntedCallback;
 class Swizzle;
 enum class Budgeted : bool;
+enum class Mipmapped : bool;
 }
 
 class GrGLGpu final : public GrGpu {
@@ -280,13 +281,13 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            GrMipmapped,
+                                            skgpu::Mipmapped,
                                             GrProtected,
                                             std::string_view label) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      GrMipmapped,
+                                                      skgpu::Mipmapped,
                                                       GrProtected) override;
 
     bool onClearBackendTexture(const GrBackendTexture&,
@@ -316,7 +317,7 @@ private:
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
                                                skgpu::Budgeted,
-                                               GrMipmapped,
+                                               skgpu::Mipmapped,
                                                GrProtected,
                                                const void* data,
                                                size_t dataSize) override;
@@ -367,7 +368,7 @@ private:
     GrGLuint createCompressedTexture2D(SkISize dimensions,
                                        SkTextureCompressionType compression,
                                        GrGLFormat,
-                                       GrMipmapped,
+                                       skgpu::Mipmapped,
                                        GrProtected,
                                        GrGLTextureParameters::SamplerOverriddenState*);
 
@@ -566,9 +567,10 @@ private:
     bool uploadCompressedTexData(SkTextureCompressionType compressionType,
                                  GrGLFormat,
                                  SkISize dimensions,
-                                 GrMipmapped,
+                                 skgpu::Mipmapped,
                                  GrGLenum target,
-                                 const void* data, size_t dataSize);
+                                 const void* data,
+                                 size_t dataSize);
 
     // Calls one of various versions of renderBufferStorageMultisample.
     bool renderbufferStorageMSAA(const GrGLContext& ctx, int sampleCount, GrGLenum format,

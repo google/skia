@@ -745,7 +745,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPictureShader
             return nullptr;
         }
 
-        auto [v, ct] = skgpu::ganesh::AsView(ctx, image, GrMipmapped::kNo);
+        auto [v, ct] = skgpu::ganesh::AsView(ctx, image, skgpu::Mipmapped::kNo);
         view = std::move(v);
         provider->assignUniqueKeyToProxy(key, view.asTextureProxy());
     }

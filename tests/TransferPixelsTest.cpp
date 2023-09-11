@@ -151,7 +151,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
                                                            GrTextureType::k2D,
                                                            renderable,
                                                            1,
-                                                           GrMipmapped::kNo,
+                                                           skgpu::Mipmapped::kNo,
                                                            skgpu::Budgeted::kNo,
                                                            GrProtected::kNo,
                                                            /*label=*/{});
@@ -348,7 +348,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
                                                            renderable,
                                                            1,
                                                            skgpu::Budgeted::kNo,
-                                                           GrMipmapped::kNo,
+                                                           skgpu::Mipmapped::kNo,
                                                            GrProtected::kNo,
                                                            &data,
                                                            /*label=*/{});

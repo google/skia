@@ -200,7 +200,7 @@ public:
 #ifdef SK_METAL
     GrBackendTexture(int width,
                      int height,
-                     GrMipmapped,
+                     skgpu::Mipmapped,
                      const GrMtlTextureInfo& mtlInfo,
                      std::string_view label = {});
 #endif
@@ -214,7 +214,7 @@ public:
 
     GrBackendTexture(int width,
                      int height,
-                     GrMipmapped,
+                     skgpu::Mipmapped,
                      const GrMockTextureInfo& mockInfo,
                      std::string_view label = {});
 
@@ -228,8 +228,8 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     std::string_view getLabel() const { return fLabel; }
-    GrMipmapped mipmapped() const { return fMipmapped; }
-    bool hasMipmaps() const { return fMipmapped == GrMipmapped::kYes; }
+    skgpu::Mipmapped mipmapped() const { return fMipmapped; }
+    bool hasMipmaps() const { return fMipmapped == skgpu::Mipmapped::kYes; }
     /** deprecated alias of hasMipmaps(). */
     bool hasMipMaps() const { return this->hasMipmaps(); }
     GrBackendApi backend() const {return fBackend; }
@@ -329,7 +329,7 @@ private:
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     const std::string fLabel;
-    GrMipmapped fMipmapped;
+    skgpu::Mipmapped fMipmapped;
     GrBackendApi fBackend;
     GrTextureType fTextureType;
     AnyTextureData fTextureData;

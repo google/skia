@@ -83,8 +83,8 @@ protected:
             // Add one to account for the resolved VkImage.
             numColorSamples += 1;
         }
-        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipmapped::kNo);
+        return GrSurface::ComputeSize(
+                this->backendFormat(), this->dimensions(), numColorSamples, skgpu::Mipmapped::kNo);
     }
 
     void onSetLabel() override;

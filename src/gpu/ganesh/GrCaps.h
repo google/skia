@@ -43,6 +43,7 @@ struct SkISize;
 
 namespace skgpu {
     class KeyBuilder;
+    enum class Mipmapped : bool;
 }
 namespace GrTest {
     struct TestFormatColorTypeCombination;
@@ -452,8 +453,12 @@ public:
         return {};
     }
 
-    bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrRenderable renderable,
-                               int renderTargetSampleCnt, GrMipmapped, GrTextureType) const;
+    bool validateSurfaceParams(const SkISize&,
+                               const GrBackendFormat&,
+                               GrRenderable renderable,
+                               int renderTargetSampleCnt,
+                               skgpu::Mipmapped,
+                               GrTextureType) const;
 
     bool areColorTypeAndFormatCompatible(GrColorType grCT, const GrBackendFormat& format) const;
 

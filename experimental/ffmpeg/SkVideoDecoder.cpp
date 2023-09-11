@@ -181,7 +181,7 @@ static sk_sp<SkImage> make_yuv_420(GrRecordingContext* rContext,
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
 
     return SkImages::TextureFromYUVAPixmaps(
-            rContext, yuvaPixmaps, GrMipmapped::kNo, false, std::move(cs));
+            rContext, yuvaPixmaps, skgpu::Mipmapped::kNo, false, std::move(cs));
 }
 
 // Init with illegal values, so our first compare will fail, forcing us to compute

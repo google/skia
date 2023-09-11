@@ -44,7 +44,7 @@ sk_sp<SkSurface> WrapCAMetalLayer(GrRecordingContext* rContext,
     SkISize dims = {(int)metalLayer.drawableSize.width, (int)metalLayer.drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
-    texInfo.fMipmapped = GrMipmapped::kNo;
+    texInfo.fMipmapped = skgpu::Mipmapped::kNo;
     texInfo.fTextureType = GrTextureType::k2D;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
@@ -116,7 +116,7 @@ sk_sp<SkSurface> WrapMTKView(GrRecordingContext* rContext,
     SkISize dims = {(int)mtkView.drawableSize.width, (int)mtkView.drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
-    texInfo.fMipmapped = GrMipmapped::kNo;
+    texInfo.fMipmapped = skgpu::Mipmapped::kNo;
     texInfo.fTextureType = GrTextureType::k2D;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(

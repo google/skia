@@ -22,7 +22,7 @@ GrD3DAttachment::GrD3DAttachment(GrD3DGpu* gpu,
                        dimensions,
                        supportedUsages,
                        desc.SampleDesc.Count,
-                       GrMipmapped::kNo,
+                       skgpu::Mipmapped::kNo,
                        GrProtected::kNo,
                        label)
         , GrD3DTextureResource(info, state)
