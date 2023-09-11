@@ -88,10 +88,11 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, report
                 /*resources=*/{
                     // Input buffer:
                     {
+                        // TODO(b/299979165): Declare this binding as read-only.
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,
-                        /*sksl=*/"readonly inputBlock {\n"
+                        /*sksl=*/"inputBlock {\n"
                             "    float factor;\n"
                             "    layout(offset=16) float4 in_data[];\n"
                             "}",
@@ -220,10 +221,11 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
                 /*resources=*/{
                     // Input buffer:
                     {
+                        // TODO(b/299979165): Declare this binding as read-only.
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kMapped,  // mappable for read-back
-                        /*sksl=*/"readonly inputBlock {\n"
+                        /*sksl=*/"inputBlock {\n"
                             "    float factor;\n"
                             "    layout(offset=16) float4 in_data[];\n"
                             "}",
@@ -1538,10 +1540,11 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer, reporter, c
                 /*resources=*/{
                     // Zero initialized input buffer
                     {
+                        // TODO(b/299979165): Declare this binding as read-only.
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kPrivate,
                         /*policy=*/ResourcePolicy::kClear,
-                        /*sksl=*/"readonly inputBlock { uint4 in_data[]; }\n",
+                        /*sksl=*/"inputBlock { uint4 in_data[]; }\n",
                     },
                     // Output buffer:
                     {
