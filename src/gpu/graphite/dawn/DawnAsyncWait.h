@@ -30,10 +30,10 @@ public:
 
     // Marks this wait as resolved. Once called, all calls to `yieldAndCheck` and `busyWait` will
     // return true immediately.
-    void signal() { fSignaled.store(true); }
+    void signal() { fSignaled.store(true, std::memory_order_release); }
 
     // Resets this object into its unsignaled state.
-    void reset() { fSignaled.store(false); }
+    void reset() { fSignaled.store(false, std::memory_order_release); }
 
 private:
     wgpu::Device fDevice;

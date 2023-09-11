@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
@@ -531,10 +532,34 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
-    DawnErrorChecker errorChecker(device);
-    wgpu::RenderPipeline pipeline = device.CreateRenderPipeline(&descriptor);
-    SkASSERT(pipeline);
-    if (errorChecker.popErrorScopes() != DawnErrorType::kNoError) {
+    struct PipelineAsyncArg {
+        PipelineAsyncArg(const wgpu::Device& device) : sync(device) {}
+        DawnAsyncWait sync;
+        wgpu::RenderPipeline pipeline;
+    };
+    PipelineAsyncArg asyncArg(device);
+
+    device.CreateRenderPipelineAsync(
+            &descriptor,
+            [](WGPUCreatePipelineAsyncStatus status,
+               WGPURenderPipeline pipeline,
+               char const* message,
+               void* userdata) {
+                PipelineAsyncArg* arg = static_cast<PipelineAsyncArg*>(userdata);
+
+                if (status != WGPUCreatePipelineAsyncStatus_Success) {
+                    SKGPU_LOG_E("Failed to create render pipeline (%d): %s", status, message);
+                    arg->pipeline = nullptr;
+                } else {
+                    arg->pipeline = wgpu::RenderPipeline::Acquire(pipeline);
+                }
+                arg->sync.signal();
+            },
+            &asyncArg);
+
+    asyncArg.sync.busyWait();
+
+    if (asyncArg.pipeline == nullptr) {
         return {};
     }
 
@@ -553,7 +578,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     return sk_sp<DawnGraphicsPipeline>(
             new DawnGraphicsPipeline(sharedContext,
                                      pipelineInfoPtr,
-                                     std::move(pipeline),
+                                     std::move(asyncArg.pipeline),
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
                                      !step->uniforms().empty(),
