@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_src : packoffset(c0);
-    float4 _10_dst : packoffset(c1);
+    float4 _7_src : packoffset(c0);
+    float4 _7_dst : packoffset(c1);
 };
 
 
@@ -14,15 +14,15 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    float4 _32 = _10_src + (_10_dst * (1.0f - _10_src.w));
-    float4 _RESERVED_IDENTIFIER_FIXUP_0_a = _32;
-    float3 _47 = (_10_src.xyz * (1.0f - _10_dst.w)) + _10_dst.xyz;
-    float3 _RESERVED_IDENTIFIER_FIXUP_1_b = _47;
-    float3 _48 = min(_32.xyz, _47);
-    float4 _50 = _RESERVED_IDENTIFIER_FIXUP_0_a;
-    float4 _51 = float4(_48.x, _48.y, _48.z, _50.w);
-    _RESERVED_IDENTIFIER_FIXUP_0_a = _51;
-    sk_FragColor = _51;
+    float4 _29 = _7_src + (_7_dst * (1.0f - _7_src.w));
+    float4 _RESERVED_IDENTIFIER_FIXUP_0_a = _29;
+    float3 _44 = (_7_src.xyz * (1.0f - _7_dst.w)) + _7_dst.xyz;
+    float3 _RESERVED_IDENTIFIER_FIXUP_1_b = _44;
+    float3 _45 = min(_29.xyz, _44);
+    float4 _47 = _RESERVED_IDENTIFIER_FIXUP_0_a;
+    float4 _48 = float4(_45.x, _45.y, _45.z, _47.w);
+    _RESERVED_IDENTIFIER_FIXUP_0_a = _48;
+    sk_FragColor = _48;
 }
 
 SPIRV_Cross_Output main()

@@ -63,6 +63,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Rewrite matrix-vector multiply", fRewriteMatrixVectorMultiply);
     writer->appendBool("Rewrite matrix equality comparisons", fRewriteMatrixComparisons);
     writer->appendBool("Rounding fix required for Perlin noise", fPerlinNoiseRoundingFix);
+    writer->appendBool("Must declare fragment front-facing", fMustDeclareFragmentFrontFacing);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
@@ -113,6 +114,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fRewriteMatrixVectorMultiply);
         SkASSERT(!fRewriteMatrixComparisons);
         SkASSERT(!fPerlinNoiseRoundingFix);
+        SkASSERT(!fMustDeclareFragmentFrontFacing);
     }
     if (options.fReducedShaderVariations) {
         fReducedShaderMode = true;

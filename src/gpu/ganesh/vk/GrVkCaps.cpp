@@ -722,6 +722,9 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     GrShaderCaps* shaderCaps = fShaderCaps.get();
     shaderCaps->fVersionDeclString = "#version 330\n";
 
+    // Ganesh + Vulkan always emits `sk_Clockwise` to avoid some Adreno rendering errors.
+    shaderCaps->fMustDeclareFragmentFrontFacing = true;
+
     // Vulkan is based off ES 3.0 so the following should all be supported
     shaderCaps->fUsesPrecisionModifiers = true;
     shaderCaps->fFlatInterpolationSupport = true;

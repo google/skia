@@ -1,6 +1,6 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float _10_unknownInput : packoffset(c0);
+    float _7_unknownInput : packoffset(c0);
 };
 
 
@@ -13,7 +13,7 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    if (_10_unknownInput > 5.0f)
+    if (_7_unknownInput > 5.0f)
     {
         sk_FragColor = 0.75f.xxxx;
     }

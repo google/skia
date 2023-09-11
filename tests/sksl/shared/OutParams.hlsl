@@ -1,8 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _32_colorGreen : packoffset(c0);
-    float4 _32_colorRed : packoffset(c1);
-    float4 _32_colorWhite : packoffset(c2);
+    float4 _29_colorGreen : packoffset(c0);
+    float4 _29_colorRed : packoffset(c1);
+    float4 _29_colorWhite : packoffset(c2);
 };
 
 
@@ -13,307 +13,307 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-void out_half_vh(out float _47)
+void out_half_vh(out float _44)
 {
-    _47 = _32_colorWhite.x;
+    _44 = _29_colorWhite.x;
 }
 
-void out_half2_vh2(out float2 _56)
+void out_half2_vh2(out float2 _53)
 {
-    _56 = _32_colorWhite.y.xx;
+    _53 = _29_colorWhite.y.xx;
 }
 
-void out_half3_vh3(out float3 _65)
+void out_half3_vh3(out float3 _62)
 {
-    _65 = _32_colorWhite.z.xxx;
+    _62 = _29_colorWhite.z.xxx;
 }
 
-void out_half4_vh4(out float4 _73)
+void out_half4_vh4(out float4 _70)
 {
-    _73 = _32_colorWhite.w.xxxx;
+    _70 = _29_colorWhite.w.xxxx;
 }
 
-void out_half2x2_vh22(out float2x2 _82)
+void out_half2x2_vh22(out float2x2 _79)
 {
-    _82 = float2x2(float2(_32_colorWhite.x, 0.0f), float2(0.0f, _32_colorWhite.x));
+    _79 = float2x2(float2(_29_colorWhite.x, 0.0f), float2(0.0f, _29_colorWhite.x));
 }
 
-void out_half3x3_vh33(out float3x3 _93)
+void out_half3x3_vh33(out float3x3 _90)
 {
-    _93 = float3x3(float3(_32_colorWhite.y, 0.0f, 0.0f), float3(0.0f, _32_colorWhite.y, 0.0f), float3(0.0f, 0.0f, _32_colorWhite.y));
+    _90 = float3x3(float3(_29_colorWhite.y, 0.0f, 0.0f), float3(0.0f, _29_colorWhite.y, 0.0f), float3(0.0f, 0.0f, _29_colorWhite.y));
 }
 
-void out_half4x4_vh44(out float4x4 _105)
+void out_half4x4_vh44(out float4x4 _102)
 {
-    _105 = float4x4(float4(_32_colorWhite.z, 0.0f, 0.0f, 0.0f), float4(0.0f, _32_colorWhite.z, 0.0f, 0.0f), float4(0.0f, 0.0f, _32_colorWhite.z, 0.0f), float4(0.0f, 0.0f, 0.0f, _32_colorWhite.z));
+    _102 = float4x4(float4(_29_colorWhite.z, 0.0f, 0.0f, 0.0f), float4(0.0f, _29_colorWhite.z, 0.0f, 0.0f), float4(0.0f, 0.0f, _29_colorWhite.z, 0.0f), float4(0.0f, 0.0f, 0.0f, _29_colorWhite.z));
 }
 
-void out_int_vi(out int _117)
+void out_int_vi(out int _114)
 {
-    _117 = int(_32_colorWhite.x);
+    _114 = int(_29_colorWhite.x);
 }
 
-void out_int2_vi2(out int2 _126)
+void out_int2_vi2(out int2 _123)
 {
-    _126 = int(_32_colorWhite.y).xx;
+    _123 = int(_29_colorWhite.y).xx;
 }
 
-void out_int3_vi3(out int3 _136)
+void out_int3_vi3(out int3 _133)
 {
-    _136 = int(_32_colorWhite.z).xxx;
+    _133 = int(_29_colorWhite.z).xxx;
 }
 
-void out_int4_vi4(out int4 _146)
+void out_int4_vi4(out int4 _143)
 {
-    _146 = int(_32_colorWhite.w).xxxx;
+    _143 = int(_29_colorWhite.w).xxxx;
 }
 
-void out_float_vf(out float _153)
+void out_float_vf(out float _150)
 {
-    _153 = _32_colorWhite.x;
+    _150 = _29_colorWhite.x;
 }
 
-void out_float2_vf2(out float2 _158)
+void out_float2_vf2(out float2 _155)
 {
-    _158 = _32_colorWhite.y.xx;
+    _155 = _29_colorWhite.y.xx;
 }
 
-void out_float3_vf3(out float3 _164)
+void out_float3_vf3(out float3 _161)
 {
-    _164 = _32_colorWhite.z.xxx;
+    _161 = _29_colorWhite.z.xxx;
 }
 
-void out_float4_vf4(out float4 _170)
+void out_float4_vf4(out float4 _167)
 {
-    _170 = _32_colorWhite.w.xxxx;
+    _167 = _29_colorWhite.w.xxxx;
 }
 
-void out_float2x2_vf22(out float2x2 _176)
+void out_float2x2_vf22(out float2x2 _173)
 {
-    _176 = float2x2(float2(_32_colorWhite.x, 0.0f), float2(0.0f, _32_colorWhite.x));
+    _173 = float2x2(float2(_29_colorWhite.x, 0.0f), float2(0.0f, _29_colorWhite.x));
 }
 
-void out_float3x3_vf33(out float3x3 _184)
+void out_float3x3_vf33(out float3x3 _181)
 {
-    _184 = float3x3(float3(_32_colorWhite.y, 0.0f, 0.0f), float3(0.0f, _32_colorWhite.y, 0.0f), float3(0.0f, 0.0f, _32_colorWhite.y));
+    _181 = float3x3(float3(_29_colorWhite.y, 0.0f, 0.0f), float3(0.0f, _29_colorWhite.y, 0.0f), float3(0.0f, 0.0f, _29_colorWhite.y));
 }
 
-void out_float4x4_vf44(out float4x4 _193)
+void out_float4x4_vf44(out float4x4 _190)
 {
-    _193 = float4x4(float4(_32_colorWhite.z, 0.0f, 0.0f, 0.0f), float4(0.0f, _32_colorWhite.z, 0.0f, 0.0f), float4(0.0f, 0.0f, _32_colorWhite.z, 0.0f), float4(0.0f, 0.0f, 0.0f, _32_colorWhite.z));
+    _190 = float4x4(float4(_29_colorWhite.z, 0.0f, 0.0f, 0.0f), float4(0.0f, _29_colorWhite.z, 0.0f, 0.0f), float4(0.0f, 0.0f, _29_colorWhite.z, 0.0f), float4(0.0f, 0.0f, 0.0f, _29_colorWhite.z));
 }
 
-void out_bool_vb(out bool _205)
+void out_bool_vb(out bool _203)
 {
-    _205 = _32_colorWhite.x != 0.0f;
+    _203 = _29_colorWhite.x != 0.0f;
 }
 
-void out_bool2_vb2(out bool2 _214)
+void out_bool2_vb2(out bool2 _212)
 {
-    _214 = (_32_colorWhite.y != 0.0f).xx;
+    _212 = (_29_colorWhite.y != 0.0f).xx;
 }
 
-void out_bool3_vb3(out bool3 _224)
+void out_bool3_vb3(out bool3 _222)
 {
-    _224 = (_32_colorWhite.z != 0.0f).xxx;
+    _222 = (_29_colorWhite.z != 0.0f).xxx;
 }
 
-void out_bool4_vb4(out bool4 _234)
+void out_bool4_vb4(out bool4 _232)
 {
-    _234 = (_32_colorWhite.w != 0.0f).xxxx;
+    _232 = (_29_colorWhite.w != 0.0f).xxxx;
 }
 
-float4 main(float2 _242)
+float4 main(float2 _240)
 {
-    float _245 = 0.0f;
-    out_half_vh(_245);
-    float h = _245;
-    float2 _249 = 0.0f.xx;
-    out_half2_vh2(_249);
-    float2 h2 = _249;
-    float3 _253 = 0.0f.xxx;
-    out_half3_vh3(_253);
-    float3 h3 = _253;
-    float4 _257 = 0.0f.xxxx;
-    out_half4_vh4(_257);
-    float4 h4 = _257;
-    float _262 = 0.0f;
-    out_half_vh(_262);
-    h3.y = _262;
-    float2 _265 = 0.0f.xx;
-    out_half2_vh2(_265);
-    h3 = float3(_265.x, h3.y, _265.y);
-    float4 _270 = 0.0f.xxxx;
-    out_half4_vh4(_270);
-    h4 = float4(_270.z, _270.w, _270.x, _270.y);
-    float2x2 _276 = float2x2(0.0f.xx, 0.0f.xx);
-    out_half2x2_vh22(_276);
-    float2x2 h2x2 = _276;
-    float3x3 _280 = float3x3(0.0f.xxx, 0.0f.xxx, 0.0f.xxx);
-    out_half3x3_vh33(_280);
-    float3x3 h3x3 = _280;
-    float4x4 _284 = float4x4(0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx);
-    out_half4x4_vh44(_284);
-    float4x4 h4x4 = _284;
-    float3 _288 = 0.0f.xxx;
-    out_half3_vh3(_288);
-    h3x3[1] = _288;
-    float _294 = 0.0f;
-    out_half_vh(_294);
-    h4x4[3].w = _294;
-    float _300 = 0.0f;
-    out_half_vh(_300);
-    h2x2[0].x = _300;
-    int _304 = 0;
-    out_int_vi(_304);
-    int i = _304;
-    int2 _308 = int2(0, 0);
-    out_int2_vi2(_308);
-    int2 i2 = _308;
-    int3 _312 = int3(0, 0, 0);
-    out_int3_vi3(_312);
-    int3 i3 = _312;
-    int4 _316 = int4(0, 0, 0, 0);
-    out_int4_vi4(_316);
-    int4 i4 = _316;
-    int3 _319 = int3(0, 0, 0);
-    out_int3_vi3(_319);
-    i4 = int4(_319.x, _319.y, _319.z, i4.w);
-    int _325 = 0;
-    out_int_vi(_325);
-    i2.y = _325;
-    float _329 = 0.0f;
-    out_float_vf(_329);
-    float f = _329;
-    float2 _333 = 0.0f.xx;
-    out_float2_vf2(_333);
-    float2 f2 = _333;
-    float3 _337 = 0.0f.xxx;
-    out_float3_vf3(_337);
-    float3 f3 = _337;
-    float4 _341 = 0.0f.xxxx;
-    out_float4_vf4(_341);
-    float4 f4 = _341;
-    float2 _344 = 0.0f.xx;
-    out_float2_vf2(_344);
-    f3 = float3(_344.x, _344.y, f3.z);
-    float _350 = 0.0f;
-    out_float_vf(_350);
-    f2.x = _350;
-    float2x2 _354 = float2x2(0.0f.xx, 0.0f.xx);
-    out_float2x2_vf22(_354);
-    float2x2 f2x2 = _354;
-    float3x3 _358 = float3x3(0.0f.xxx, 0.0f.xxx, 0.0f.xxx);
-    out_float3x3_vf33(_358);
-    float3x3 f3x3 = _358;
-    float4x4 _362 = float4x4(0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx);
-    out_float4x4_vf44(_362);
-    float4x4 f4x4 = _362;
-    float _367 = 0.0f;
-    out_float_vf(_367);
-    f2x2[0].x = _367;
-    bool _371 = false;
-    out_bool_vb(_371);
-    bool b = _371;
-    bool2 _375 = bool2(false, false);
-    out_bool2_vb2(_375);
-    bool2 b2 = _375;
-    bool3 _379 = bool3(false, false, false);
-    out_bool3_vb3(_379);
-    bool3 b3 = _379;
-    bool4 _383 = bool4(false, false, false, false);
-    out_bool4_vb4(_383);
-    bool4 b4 = _383;
-    bool2 _386 = bool2(false, false);
-    out_bool2_vb2(_386);
-    b4 = bool4(_386.x, b4.y, b4.z, _386.y);
-    bool _392 = false;
-    out_bool_vb(_392);
-    b3.z = _392;
+    float _243 = 0.0f;
+    out_half_vh(_243);
+    float h = _243;
+    float2 _247 = 0.0f.xx;
+    out_half2_vh2(_247);
+    float2 h2 = _247;
+    float3 _251 = 0.0f.xxx;
+    out_half3_vh3(_251);
+    float3 h3 = _251;
+    float4 _255 = 0.0f.xxxx;
+    out_half4_vh4(_255);
+    float4 h4 = _255;
+    float _260 = 0.0f;
+    out_half_vh(_260);
+    h3.y = _260;
+    float2 _263 = 0.0f.xx;
+    out_half2_vh2(_263);
+    h3 = float3(_263.x, h3.y, _263.y);
+    float4 _268 = 0.0f.xxxx;
+    out_half4_vh4(_268);
+    h4 = float4(_268.z, _268.w, _268.x, _268.y);
+    float2x2 _274 = float2x2(0.0f.xx, 0.0f.xx);
+    out_half2x2_vh22(_274);
+    float2x2 h2x2 = _274;
+    float3x3 _278 = float3x3(0.0f.xxx, 0.0f.xxx, 0.0f.xxx);
+    out_half3x3_vh33(_278);
+    float3x3 h3x3 = _278;
+    float4x4 _282 = float4x4(0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx);
+    out_half4x4_vh44(_282);
+    float4x4 h4x4 = _282;
+    float3 _286 = 0.0f.xxx;
+    out_half3_vh3(_286);
+    h3x3[1] = _286;
+    float _292 = 0.0f;
+    out_half_vh(_292);
+    h4x4[3].w = _292;
+    float _298 = 0.0f;
+    out_half_vh(_298);
+    h2x2[0].x = _298;
+    int _302 = 0;
+    out_int_vi(_302);
+    int i = _302;
+    int2 _306 = int2(0, 0);
+    out_int2_vi2(_306);
+    int2 i2 = _306;
+    int3 _310 = int3(0, 0, 0);
+    out_int3_vi3(_310);
+    int3 i3 = _310;
+    int4 _314 = int4(0, 0, 0, 0);
+    out_int4_vi4(_314);
+    int4 i4 = _314;
+    int3 _317 = int3(0, 0, 0);
+    out_int3_vi3(_317);
+    i4 = int4(_317.x, _317.y, _317.z, i4.w);
+    int _323 = 0;
+    out_int_vi(_323);
+    i2.y = _323;
+    float _327 = 0.0f;
+    out_float_vf(_327);
+    float f = _327;
+    float2 _331 = 0.0f.xx;
+    out_float2_vf2(_331);
+    float2 f2 = _331;
+    float3 _335 = 0.0f.xxx;
+    out_float3_vf3(_335);
+    float3 f3 = _335;
+    float4 _339 = 0.0f.xxxx;
+    out_float4_vf4(_339);
+    float4 f4 = _339;
+    float2 _342 = 0.0f.xx;
+    out_float2_vf2(_342);
+    f3 = float3(_342.x, _342.y, f3.z);
+    float _348 = 0.0f;
+    out_float_vf(_348);
+    f2.x = _348;
+    float2x2 _352 = float2x2(0.0f.xx, 0.0f.xx);
+    out_float2x2_vf22(_352);
+    float2x2 f2x2 = _352;
+    float3x3 _356 = float3x3(0.0f.xxx, 0.0f.xxx, 0.0f.xxx);
+    out_float3x3_vf33(_356);
+    float3x3 f3x3 = _356;
+    float4x4 _360 = float4x4(0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx);
+    out_float4x4_vf44(_360);
+    float4x4 f4x4 = _360;
+    float _365 = 0.0f;
+    out_float_vf(_365);
+    f2x2[0].x = _365;
+    bool _369 = false;
+    out_bool_vb(_369);
+    bool b = _369;
+    bool2 _373 = bool2(false, false);
+    out_bool2_vb2(_373);
+    bool2 b2 = _373;
+    bool3 _377 = bool3(false, false, false);
+    out_bool3_vb3(_377);
+    bool3 b3 = _377;
+    bool4 _381 = bool4(false, false, false, false);
+    out_bool4_vb4(_381);
+    bool4 b4 = _381;
+    bool2 _384 = bool2(false, false);
+    out_bool2_vb2(_384);
+    b4 = bool4(_384.x, b4.y, b4.z, _384.y);
+    bool _390 = false;
+    out_bool_vb(_390);
+    b3.z = _390;
     bool ok = true;
-    bool _424 = false;
+    bool _422 = false;
     if (true)
     {
-        _424 = 1.0f == ((((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x);
+        _422 = 1.0f == ((((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x);
     }
     else
     {
-        _424 = false;
+        _422 = false;
     }
-    ok = _424;
-    bool _450 = false;
-    if (_424)
+    ok = _422;
+    bool _448 = false;
+    if (_422)
     {
-        _450 = 1.0f == ((((((f * f2.x) * f3.x) * f4.x) * f2x2[0].x) * f3x3[0].x) * f4x4[0].x);
-    }
-    else
-    {
-        _450 = false;
-    }
-    ok = _450;
-    bool _464 = false;
-    if (_450)
-    {
-        _464 = 1 == (((i * i2.x) * i3.x) * i4.x);
+        _448 = 1.0f == ((((((f * f2.x) * f3.x) * f4.x) * f2x2[0].x) * f3x3[0].x) * f4x4[0].x);
     }
     else
     {
-        _464 = false;
+        _448 = false;
     }
-    ok = _464;
-    bool _483 = false;
-    if (_464)
+    ok = _448;
+    bool _462 = false;
+    if (_448)
     {
-        bool _472 = false;
+        _462 = 1 == (((i * i2.x) * i3.x) * i4.x);
+    }
+    else
+    {
+        _462 = false;
+    }
+    ok = _462;
+    bool _481 = false;
+    if (_462)
+    {
+        bool _470 = false;
         if (b)
         {
-            _472 = b2.x;
+            _470 = b2.x;
         }
         else
         {
-            _472 = false;
+            _470 = false;
         }
-        bool _477 = false;
-        if (_472)
+        bool _475 = false;
+        if (_470)
         {
-            _477 = b3.x;
+            _475 = b3.x;
         }
         else
         {
-            _477 = false;
+            _475 = false;
         }
-        bool _482 = false;
-        if (_477)
+        bool _480 = false;
+        if (_475)
         {
-            _482 = b4.x;
+            _480 = b4.x;
         }
         else
         {
-            _482 = false;
+            _480 = false;
         }
-        _483 = _482;
+        _481 = _480;
     }
     else
     {
-        _483 = false;
+        _481 = false;
     }
-    ok = _483;
-    float4 _484 = 0.0f.xxxx;
-    if (_483)
+    ok = _481;
+    float4 _482 = 0.0f.xxxx;
+    if (_481)
     {
-        _484 = _32_colorGreen;
+        _482 = _29_colorGreen;
     }
     else
     {
-        _484 = _32_colorRed;
+        _482 = _29_colorRed;
     }
-    return _484;
+    return _482;
 }
 
 void frag_main()
 {
-    float2 _42 = 0.0f.xx;
-    sk_FragColor = main(_42);
+    float2 _39 = 0.0f.xx;
+    sk_FragColor = main(_39);
 }
 
 SPIRV_Cross_Output main()

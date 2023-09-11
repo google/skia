@@ -5,7 +5,7 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _21)
+float4 main(float2 _18)
 {
     bool3 B = bool3(false, false, false);
     B.x = true;
@@ -19,31 +19,31 @@ float4 main(float2 _21)
     I.x = 1;
     I.y = 1;
     I.z = 1;
-    bool _66 = false;
+    bool _64 = false;
     if (B.x)
     {
-        _66 = B.y;
+        _64 = B.y;
     }
     else
     {
-        _66 = false;
+        _64 = false;
     }
-    bool _71 = false;
-    if (_66)
+    bool _69 = false;
+    if (_64)
     {
-        _71 = B.z;
+        _69 = B.z;
     }
     else
     {
-        _71 = false;
+        _69 = false;
     }
-    return float4((F.x * F.y) * F.z, float(_71), 0.0f, float((I.x * I.y) * I.z));
+    return float4((F.x * F.y) * F.z, float(_69), 0.0f, float((I.x * I.y) * I.z));
 }
 
 void frag_main()
 {
-    float2 _17 = 0.0f.xx;
-    sk_FragColor = main(_17);
+    float2 _14 = 0.0f.xx;
+    sk_FragColor = main(_14);
 }
 
 SPIRV_Cross_Output main()

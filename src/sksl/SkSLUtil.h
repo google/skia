@@ -148,6 +148,10 @@ struct ShaderCaps {
     // On some Android devices colors aren't accurate enough for the double lookup in the
     // Perlin noise shader. This workaround aggressively snaps colors to multiples of 1/255.
     bool fPerlinNoiseRoundingFix = false;
+    // Vulkan requires certain builtin variables be present, even if they're unused. At one time,
+    // validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno) driver
+    // bugs that drop or corrupt draws if they're missing.
+    bool fMustDeclareFragmentFrontFacing = false;
 
     const char* fVersionDeclString = "";
 

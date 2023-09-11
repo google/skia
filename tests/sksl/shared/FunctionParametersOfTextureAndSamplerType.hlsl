@@ -15,14 +15,14 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 helpers_helper_h4ZT(Texture2D<float4> _23, SamplerState __23_sampler, RWTexture2D<unorm float4> _24)
+float4 helpers_helper_h4ZT(Texture2D<float4> _20, SamplerState __20_sampler, RWTexture2D<unorm float4> _21)
 {
-    return _23.Sample(__23_sampler, c);
+    return _20.Sample(__20_sampler, c);
 }
 
-float4 helper_h4TZ(RWTexture2D<unorm float4> _30, Texture2D<float4> _31, SamplerState __31_sampler)
+float4 helper_h4TZ(RWTexture2D<unorm float4> _27, Texture2D<float4> _28, SamplerState __28_sampler)
 {
-    return helpers_helper_h4ZT(_31, __31_sampler, _30);
+    return helpers_helper_h4ZT(_28, __28_sampler, _27);
 }
 
 void frag_main()

@@ -10,9 +10,9 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    float4 _19 = t.SampleLevel(_t_sampler, 0.0f.xx, 0.0f);
-    float4 c = _19;
-    sk_FragColor = _19 * t.SampleLevel(_t_sampler, 1.0f.xxx.xy / 1.0f.xxx.z, 0.0f);
+    float4 _16 = t.SampleLevel(_t_sampler, 0.0f.xx, 0.0f);
+    float4 c = _16;
+    sk_FragColor = _16 * t.SampleLevel(_t_sampler, 1.0f.xxx.xy / 1.0f.xxx.z, 0.0f);
 }
 
 SPIRV_Cross_Output main()

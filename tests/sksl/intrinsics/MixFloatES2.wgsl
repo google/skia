@@ -1,7 +1,4 @@
 diagnostic(off, derivative_uniformity);
-struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
-};
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
@@ -32,7 +29,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((((((((((((((all(_skTemp0 == vec4<f32>(0.0, 1.0, 0.0, 1.0)) && all(_skTemp1 == vec4<f32>(0.25, 0.75, 0.0, 1.0))) && all(_skTemp2 == vec4<f32>(0.75, 0.25, 0.0, 1.0))) && all(_skTemp3 == vec4<f32>(1.0, 0.0, 0.0, 1.0))) && (_skTemp4 == expectedBW.x)) && all(_skTemp5 == expectedBW.xy)) && all(_skTemp6 == expectedBW.xyz)) && all(_skTemp7 == expectedBW)) && (0.5 == expectedBW.x)) && all(vec2<f32>(0.5) == expectedBW.xy)) && all(vec3<f32>(0.5) == expectedBW.xyz)) && all(vec4<f32>(0.5, 0.5, 0.5, 1.0) == expectedBW)) && (_skTemp8 == expectedWT.x)) && all(_skTemp9 == expectedWT.xy)) && all(_skTemp10 == expectedWT.xyz)) && all(_skTemp11 == expectedWT)) && (1.0 == expectedWT.x)) && all(vec2<f32>(1.0, 0.5) == expectedWT.xy)) && all(vec3<f32>(1.0, 0.5, 1.0) == expectedWT.xyz)) && all(vec4<f32>(1.0, 0.5, 1.0, 2.25) == expectedWT)));
   }
 }
-@fragment fn main(_stageIn: FSIn) -> FSOut {
+@fragment fn main() -> FSOut {
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;

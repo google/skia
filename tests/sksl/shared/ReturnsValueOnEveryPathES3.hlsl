@@ -1,8 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _22_colorGreen : packoffset(c0);
-    float4 _22_colorRed : packoffset(c1);
-    float _22_unknownInput : packoffset(c2);
+    float4 _19_colorGreen : packoffset(c0);
+    float4 _19_colorRed : packoffset(c1);
+    float _19_unknownInput : packoffset(c2);
 };
 
 
@@ -15,7 +15,7 @@ struct SPIRV_Cross_Output
 
 bool inside_while_loop_b()
 {
-    while (_22_unknownInput == 123.0f)
+    while (_19_unknownInput == 123.0f)
     {
         return false;
     }
@@ -58,7 +58,7 @@ bool after_while_loop_b()
 
 bool switch_with_all_returns_b()
 {
-    switch (int(_22_unknownInput))
+    switch (int(_19_unknownInput))
     {
         case 1:
         {
@@ -77,7 +77,7 @@ bool switch_with_all_returns_b()
 
 bool switch_fallthrough_b()
 {
-    switch (int(_22_unknownInput))
+    switch (int(_19_unknownInput))
     {
         case 1:
         {
@@ -92,7 +92,7 @@ bool switch_fallthrough_b()
 
 bool switch_fallthrough_twice_b()
 {
-    switch (int(_22_unknownInput))
+    switch (int(_19_unknownInput))
     {
         default:
         {
@@ -103,7 +103,7 @@ bool switch_fallthrough_twice_b()
 
 bool switch_with_break_in_loop_b()
 {
-    switch (int(_22_unknownInput))
+    switch (int(_19_unknownInput))
     {
         case 1:
         {
@@ -122,7 +122,7 @@ bool switch_with_break_in_loop_b()
 
 bool switch_with_continue_in_loop_b()
 {
-    switch (int(_22_unknownInput))
+    switch (int(_19_unknownInput))
     {
         case 1:
         {
@@ -140,11 +140,11 @@ bool switch_with_continue_in_loop_b()
 
 bool switch_with_if_that_returns_b()
 {
-    switch (int(_22_unknownInput))
+    switch (int(_19_unknownInput))
     {
         case 1:
         {
-            if (_22_unknownInput == 123.0f)
+            if (_19_unknownInput == 123.0f)
             {
                 return false;
             }
@@ -163,11 +163,11 @@ bool switch_with_if_that_returns_b()
 
 bool switch_with_one_sided_if_then_fallthrough_b()
 {
-    switch (int(_22_unknownInput))
+    switch (int(_19_unknownInput))
     {
         case 1:
         {
-            if (_22_unknownInput == 123.0f)
+            if (_19_unknownInput == 123.0f)
             {
                 return false;
             }
@@ -180,123 +180,123 @@ bool switch_with_one_sided_if_then_fallthrough_b()
     }
 }
 
-float4 main(float2 _163)
+float4 main(float2 _161)
 {
-    bool _169 = false;
+    bool _167 = false;
     if (inside_while_loop_b())
     {
-        _169 = inside_infinite_do_loop_b();
+        _167 = inside_infinite_do_loop_b();
     }
     else
     {
-        _169 = false;
+        _167 = false;
     }
-    bool _173 = false;
-    if (_169)
+    bool _171 = false;
+    if (_167)
     {
-        _173 = inside_infinite_while_loop_b();
+        _171 = inside_infinite_while_loop_b();
     }
     else
     {
-        _173 = false;
+        _171 = false;
     }
-    bool _177 = false;
-    if (_173)
+    bool _175 = false;
+    if (_171)
     {
-        _177 = after_do_loop_b();
+        _175 = after_do_loop_b();
     }
     else
     {
-        _177 = false;
+        _175 = false;
     }
-    bool _181 = false;
-    if (_177)
+    bool _179 = false;
+    if (_175)
     {
-        _181 = after_while_loop_b();
+        _179 = after_while_loop_b();
     }
     else
     {
-        _181 = false;
+        _179 = false;
     }
-    bool _185 = false;
-    if (_181)
+    bool _183 = false;
+    if (_179)
     {
-        _185 = switch_with_all_returns_b();
+        _183 = switch_with_all_returns_b();
     }
     else
     {
-        _185 = false;
+        _183 = false;
     }
-    bool _189 = false;
-    if (_185)
+    bool _187 = false;
+    if (_183)
     {
-        _189 = switch_fallthrough_b();
+        _187 = switch_fallthrough_b();
     }
     else
     {
-        _189 = false;
+        _187 = false;
     }
-    bool _193 = false;
-    if (_189)
+    bool _191 = false;
+    if (_187)
     {
-        _193 = switch_fallthrough_twice_b();
+        _191 = switch_fallthrough_twice_b();
     }
     else
     {
-        _193 = false;
+        _191 = false;
     }
-    bool _197 = false;
-    if (_193)
+    bool _195 = false;
+    if (_191)
     {
-        _197 = switch_with_break_in_loop_b();
+        _195 = switch_with_break_in_loop_b();
     }
     else
     {
-        _197 = false;
+        _195 = false;
     }
-    bool _201 = false;
-    if (_197)
+    bool _199 = false;
+    if (_195)
     {
-        _201 = switch_with_continue_in_loop_b();
+        _199 = switch_with_continue_in_loop_b();
     }
     else
     {
-        _201 = false;
+        _199 = false;
     }
-    bool _205 = false;
-    if (_201)
+    bool _203 = false;
+    if (_199)
     {
-        _205 = switch_with_if_that_returns_b();
+        _203 = switch_with_if_that_returns_b();
     }
     else
     {
-        _205 = false;
+        _203 = false;
     }
-    bool _209 = false;
-    if (_205)
+    bool _207 = false;
+    if (_203)
     {
-        _209 = switch_with_one_sided_if_then_fallthrough_b();
+        _207 = switch_with_one_sided_if_then_fallthrough_b();
     }
     else
     {
-        _209 = false;
+        _207 = false;
     }
-    float4 _210 = 0.0f.xxxx;
-    if (_209)
+    float4 _208 = 0.0f.xxxx;
+    if (_207)
     {
-        _210 = _22_colorGreen;
+        _208 = _19_colorGreen;
     }
     else
     {
-        _210 = _22_colorRed;
+        _208 = _19_colorRed;
     }
-    return _210;
+    return _208;
 }
 
 void frag_main()
 {
-    float2 _32 = 0.0f.xx;
-    sk_FragColor = main(_32);
+    float2 _29 = 0.0f.xx;
+    sk_FragColor = main(_29);
 }
 
 SPIRV_Cross_Output main()

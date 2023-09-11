@@ -1,15 +1,15 @@
-float foo_ff(inout float _13[2])
+float foo_ff(inout float _10[2])
 {
-    float _18 = _13[1];
-    _13[0] = _18;
-    return _18;
+    float _15 = _10[1];
+    _10[0] = _15;
+    return _15;
 }
 
 void frag_main()
 {
     float y[2] = { 0.0f, 0.0f };
-    float _26[2] = y;
-    float _27 = foo_ff(_26);
+    float _23[2] = y;
+    float _24 = foo_ff(_23);
 }
 
 void main()

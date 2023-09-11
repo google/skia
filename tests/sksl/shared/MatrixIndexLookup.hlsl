@@ -1,9 +1,9 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _12_colorGreen : packoffset(c0);
-    float4 _12_colorRed : packoffset(c1);
-    row_major float3x3 _12_testMatrix3x3 : packoffset(c2);
-    row_major float4x4 _12_testMatrix4x4 : packoffset(c5);
+    float4 _9_colorGreen : packoffset(c0);
+    float4 _9_colorRed : packoffset(c1);
+    row_major float3x3 _9_testMatrix3x3 : packoffset(c2);
+    row_major float4x4 _9_testMatrix4x4 : packoffset(c5);
 };
 
 
@@ -16,7 +16,7 @@ struct SPIRV_Cross_Output
 
 bool test3x3_b()
 {
-    float3x3 _matrix = _12_testMatrix3x3;
+    float3x3 _matrix = _9_testMatrix3x3;
     float3 expected = float3(1.0f, 2.0f, 3.0f);
     for (int index = 0; index < 3; index++)
     {
@@ -31,7 +31,7 @@ bool test3x3_b()
 
 bool test4x4_b()
 {
-    float4x4 _matrix = _12_testMatrix4x4;
+    float4x4 _matrix = _9_testMatrix4x4;
     float4 expected = float4(1.0f, 2.0f, 3.0f, 4.0f);
     for (int index = 0; index < 4; index++)
     {
@@ -44,33 +44,33 @@ bool test4x4_b()
     return true;
 }
 
-float4 main(float2 _105)
+float4 main(float2 _103)
 {
-    bool _111 = false;
+    bool _109 = false;
     if (test3x3_b())
     {
-        _111 = test4x4_b();
+        _109 = test4x4_b();
     }
     else
     {
-        _111 = false;
+        _109 = false;
     }
-    float4 _112 = 0.0f.xxxx;
-    if (_111)
+    float4 _110 = 0.0f.xxxx;
+    if (_109)
     {
-        _112 = _12_colorGreen;
+        _110 = _9_colorGreen;
     }
     else
     {
-        _112 = _12_colorRed;
+        _110 = _9_colorRed;
     }
-    return _112;
+    return _110;
 }
 
 void frag_main()
 {
-    float2 _25 = 0.0f.xx;
-    sk_FragColor = main(_25);
+    float2 _22 = 0.0f.xx;
+    sk_FragColor = main(_22);
 }
 
 SPIRV_Cross_Output main()

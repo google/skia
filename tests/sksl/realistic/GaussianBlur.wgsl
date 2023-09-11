@@ -1,6 +1,5 @@
 diagnostic(off, derivative_uniformity);
 struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
   @location(0) vLocalCoord_Stage0: vec2<f32>,
 };
 struct FSOut {

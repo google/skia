@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _12_colorGreen : packoffset(c0);
-    float4 _12_colorRed : packoffset(c1);
+    float4 _9_colorGreen : packoffset(c0);
+    float4 _9_colorRed : packoffset(c1);
 };
 
 
@@ -12,51 +12,51 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-int out_param_func2_ih(out float _36)
+int out_param_func2_ih(out float _33)
 {
-    _36 = _12_colorRed.x;
-    return int(_12_colorRed.x);
+    _33 = _9_colorRed.x;
+    return int(_9_colorRed.x);
 }
 
-void out_param_func1_vh(out float _27)
+void out_param_func1_vh(out float _24)
 {
-    _27 = _12_colorGreen.y;
+    _24 = _9_colorGreen.y;
 }
 
-float4 main(float2 _44)
+float4 main(float2 _41)
 {
     float testArray[2] = { 0.0f, 0.0f };
-    float _51 = 0.0f;
-    int _52 = out_param_func2_ih(_51);
-    testArray[0] = _51;
-    float _56 = testArray[_52];
-    out_param_func1_vh(_56);
-    testArray[_52] = _56;
-    bool _69 = false;
+    float _48 = 0.0f;
+    int _49 = out_param_func2_ih(_48);
+    testArray[0] = _48;
+    float _53 = testArray[_49];
+    out_param_func1_vh(_53);
+    testArray[_49] = _53;
+    bool _67 = false;
     if (testArray[0] == 1.0f)
     {
-        _69 = testArray[1] == 1.0f;
+        _67 = testArray[1] == 1.0f;
     }
     else
     {
-        _69 = false;
+        _67 = false;
     }
-    float4 _70 = 0.0f.xxxx;
-    if (_69)
+    float4 _68 = 0.0f.xxxx;
+    if (_67)
     {
-        _70 = _12_colorGreen;
+        _68 = _9_colorGreen;
     }
     else
     {
-        _70 = _12_colorRed;
+        _68 = _9_colorRed;
     }
-    return _70;
+    return _68;
 }
 
 void frag_main()
 {
-    float2 _22 = 0.0f.xx;
-    sk_FragColor = main(_22);
+    float2 _19 = 0.0f.xx;
+    sk_FragColor = main(_19);
 }
 
 SPIRV_Cross_Output main()

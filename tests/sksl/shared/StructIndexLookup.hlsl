@@ -15,8 +15,8 @@ struct Root
 
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_colorGreen : packoffset(c0);
-    float4 _10_colorRed : packoffset(c1);
+    float4 _7_colorGreen : packoffset(c0);
+    float4 _7_colorRed : packoffset(c1);
 };
 
 
@@ -27,7 +27,7 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _24)
+float4 main(float2 _21)
 {
     Root data = { { { { { 0.0f.xxx }, { 0.0f.xxx }, { 0.0f.xxx } } }, { { { 0.0f.xxx }, { 0.0f.xxx }, { 0.0f.xxx } } }, { { { 0.0f.xxx }, { 0.0f.xxx }, { 0.0f.xxx } } } } };
     data.outer[0].inner[0].values = float3(1.0f, 10.0f, 100.0f);
@@ -44,29 +44,29 @@ float4 main(float2 _24)
     {
         for (int j = 0; j < 3; j++)
         {
-            float3 _104 = expected;
-            float3 _105 = _104 + float3(1.0f, 10.0f, 100.0f);
-            expected = _105;
-            if (any(bool3(data.outer[i].inner[j].values.x != _105.x, data.outer[i].inner[j].values.y != _105.y, data.outer[i].inner[j].values.z != _105.z)))
+            float3 _102 = expected;
+            float3 _103 = _102 + float3(1.0f, 10.0f, 100.0f);
+            expected = _103;
+            if (any(bool3(data.outer[i].inner[j].values.x != _103.x, data.outer[i].inner[j].values.y != _103.y, data.outer[i].inner[j].values.z != _103.z)))
             {
-                return _10_colorRed;
+                return _7_colorRed;
             }
             for (int k = 0; k < 3; k++)
             {
                 if (data.outer[i].inner[j].values[k] != expected[k])
                 {
-                    return _10_colorRed;
+                    return _7_colorRed;
                 }
             }
         }
     }
-    return _10_colorGreen;
+    return _7_colorGreen;
 }
 
 void frag_main()
 {
-    float2 _20 = 0.0f.xx;
-    sk_FragColor = main(_20);
+    float2 _17 = 0.0f.xx;
+    sk_FragColor = main(_17);
 }
 
 SPIRV_Cross_Output main()

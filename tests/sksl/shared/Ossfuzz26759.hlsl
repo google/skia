@@ -1,8 +1,8 @@
 void frag_main()
 {
     int i = 0;
-    int _12 = i;
-    i = _12 - 1;
+    int _9 = i;
+    i = _9 - 1;
 }
 
 void main()

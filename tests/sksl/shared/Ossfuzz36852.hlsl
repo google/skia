@@ -5,7 +5,7 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _21)
+float4 main(float2 _18)
 {
     float2x2 x = float2x2(float2(0.0f, 1.0f), float2(2.0f, 3.0f));
     float2 y = float4(0.0f, 1.0f, 2.0f, 3.0f).xy;
@@ -14,8 +14,8 @@ float4 main(float2 _21)
 
 void frag_main()
 {
-    float2 _17 = 0.0f.xx;
-    sk_FragColor = main(_17);
+    float2 _14 = 0.0f.xx;
+    sk_FragColor = main(_14);
 }
 
 SPIRV_Cross_Output main()

@@ -1,8 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_colorGreen : packoffset(c0);
-    float4 _10_colorRed : packoffset(c1);
-    float4 _10_testInputs : packoffset(c2);
+    float4 _7_colorGreen : packoffset(c0);
+    float4 _7_colorRed : packoffset(c1);
+    float4 _7_testInputs : packoffset(c2);
 };
 
 
@@ -25,39 +25,39 @@ float2 spvUnpackUnorm2x16(uint value)
     return float2(Packed) / 65535.0;
 }
 
-float4 main(float2 _24)
+float4 main(float2 _21)
 {
-    uint _29 = spvPackUnorm2x16(_10_testInputs.xy);
-    uint xy = _29;
-    uint _37 = spvPackUnorm2x16(_10_testInputs.zw);
-    uint zw = _37;
-    float2 _44 = abs(spvUnpackUnorm2x16(_29));
-    bool _59 = false;
-    if (all(bool2(_44.x < 0.015625f.xx.x, _44.y < 0.015625f.xx.y)))
+    uint _26 = spvPackUnorm2x16(_7_testInputs.xy);
+    uint xy = _26;
+    uint _34 = spvPackUnorm2x16(_7_testInputs.zw);
+    uint zw = _34;
+    float2 _42 = abs(spvUnpackUnorm2x16(_26));
+    bool _57 = false;
+    if (all(bool2(_42.x < 0.015625f.xx.x, _42.y < 0.015625f.xx.y)))
     {
-        float2 _53 = abs(spvUnpackUnorm2x16(_37) - float2(0.75f, 1.0f));
-        _59 = all(bool2(_53.x < 0.015625f.xx.x, _53.y < 0.015625f.xx.y));
+        float2 _51 = abs(spvUnpackUnorm2x16(_34) - float2(0.75f, 1.0f));
+        _57 = all(bool2(_51.x < 0.015625f.xx.x, _51.y < 0.015625f.xx.y));
     }
     else
     {
-        _59 = false;
+        _57 = false;
     }
-    float4 _60 = 0.0f.xxxx;
-    if (_59)
+    float4 _58 = 0.0f.xxxx;
+    if (_57)
     {
-        _60 = _10_colorGreen;
+        _58 = _7_colorGreen;
     }
     else
     {
-        _60 = _10_colorRed;
+        _58 = _7_colorRed;
     }
-    return _60;
+    return _58;
 }
 
 void frag_main()
 {
-    float2 _20 = 0.0f.xx;
-    sk_FragColor = main(_20);
+    float2 _17 = 0.0f.xx;
+    sk_FragColor = main(_17);
 }
 
 SPIRV_Cross_Output main()

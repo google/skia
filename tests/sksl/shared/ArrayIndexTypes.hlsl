@@ -7,8 +7,8 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    float _22[4] = { 1.0f, 2.0f, 3.0f, 4.0f };
-    float array[4] = _22;
+    float _19[4] = { 1.0f, 2.0f, 3.0f, 4.0f };
+    float array[4] = _19;
     int x = 0;
     uint y = 1u;
     int z = 2;

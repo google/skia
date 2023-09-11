@@ -10,11 +10,11 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    float4 _19 = tex.Sample(_tex_sampler, 0.0f.xx);
-    float4 a = _19;
-    float4 _25 = tex.Sample(_tex_sampler, 0.0f.xxx.xy / 0.0f.xxx.z);
-    float4 b = _25;
-    sk_FragColor = float4(_19.xy, _25.zw);
+    float4 _16 = tex.Sample(_tex_sampler, 0.0f.xx);
+    float4 a = _16;
+    float4 _22 = tex.Sample(_tex_sampler, 0.0f.xxx.xy / 0.0f.xxx.z);
+    float4 b = _22;
+    sk_FragColor = float4(_16.xy, _22.zw);
 }
 
 SPIRV_Cross_Output main()

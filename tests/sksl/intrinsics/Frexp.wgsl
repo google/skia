@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :19:20 error: no matching call to frexp(f32, i32)
+error: :16:20 error: no matching call to frexp(f32, i32)
 
 2 candidate functions:
   frexp(T) -> __frexp_result_T  where: T is abstract-float, f32 or f16
@@ -11,9 +11,6 @@ error: :19:20 error: no matching call to frexp(f32, i32)
 
 
 diagnostic(off, derivative_uniformity);
-struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
-};
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
@@ -44,7 +41,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp4));
   }
 }
-@fragment fn main(_stageIn: FSIn) -> FSOut {
+@fragment fn main() -> FSOut {
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;

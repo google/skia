@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_colorGreen : packoffset(c0);
-    float4 _10_colorRed : packoffset(c1);
+    float4 _7_colorGreen : packoffset(c0);
+    float4 _7_colorRed : packoffset(c1);
 };
 
 
@@ -12,200 +12,200 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _24)
+float4 main(float2 _21)
 {
     bool ok = true;
     int i = 5;
-    int _34 = 5 + 1;
-    i = _34;
-    bool _41 = false;
+    int _32 = 5 + 1;
+    i = _32;
+    bool _39 = false;
     if (true)
     {
-        i = _34 + 1;
-        _41 = _34 == 6;
+        i = _32 + 1;
+        _39 = _32 == 6;
     }
     else
     {
-        _41 = false;
+        _39 = false;
     }
-    ok = _41;
-    bool _47 = false;
-    if (_41)
+    ok = _39;
+    bool _45 = false;
+    if (_39)
     {
-        _47 = i == 7;
+        _45 = i == 7;
     }
     else
     {
-        _47 = false;
+        _45 = false;
     }
-    ok = _47;
-    bool _53 = false;
-    if (_47)
+    ok = _45;
+    bool _51 = false;
+    if (_45)
     {
-        int _50 = i;
-        i = _50 - 1;
-        _53 = _50 == 7;
+        int _48 = i;
+        i = _48 - 1;
+        _51 = _48 == 7;
     }
     else
     {
-        _53 = false;
+        _51 = false;
     }
-    ok = _53;
-    bool _58 = false;
-    if (_53)
+    ok = _51;
+    bool _56 = false;
+    if (_51)
     {
-        _58 = i == 6;
+        _56 = i == 6;
     }
     else
     {
-        _58 = false;
+        _56 = false;
     }
-    ok = _58;
-    int _59 = i;
-    int _60 = _59 - 1;
-    i = _60;
-    bool _64 = false;
-    if (_58)
+    ok = _56;
+    int _57 = i;
+    int _58 = _57 - 1;
+    i = _58;
+    bool _62 = false;
+    if (_56)
     {
-        _64 = _60 == 5;
+        _62 = _58 == 5;
     }
     else
     {
-        _64 = false;
+        _62 = false;
     }
-    ok = _64;
+    ok = _62;
     float f = 0.5f;
-    float _69 = 0.5f + 1.0f;
-    f = _69;
-    bool _75 = false;
-    if (_64)
+    float _67 = 0.5f + 1.0f;
+    f = _67;
+    bool _73 = false;
+    if (_62)
     {
-        f = _69 + 1.0f;
-        _75 = _69 == 1.5f;
+        f = _67 + 1.0f;
+        _73 = _67 == 1.5f;
     }
     else
     {
-        _75 = false;
+        _73 = false;
     }
-    ok = _75;
-    bool _81 = false;
-    if (_75)
+    ok = _73;
+    bool _79 = false;
+    if (_73)
     {
-        _81 = f == 2.5f;
+        _79 = f == 2.5f;
     }
     else
     {
-        _81 = false;
+        _79 = false;
     }
-    ok = _81;
-    bool _87 = false;
-    if (_81)
+    ok = _79;
+    bool _85 = false;
+    if (_79)
     {
-        float _84 = f;
-        f = _84 - 1.0f;
-        _87 = _84 == 2.5f;
+        float _82 = f;
+        f = _82 - 1.0f;
+        _85 = _82 == 2.5f;
     }
     else
     {
-        _87 = false;
+        _85 = false;
     }
-    ok = _87;
-    bool _92 = false;
-    if (_87)
+    ok = _85;
+    bool _90 = false;
+    if (_85)
     {
-        _92 = f == 1.5f;
+        _90 = f == 1.5f;
     }
     else
     {
-        _92 = false;
+        _90 = false;
     }
-    ok = _92;
-    float _93 = f;
-    float _94 = _93 - 1.0f;
-    f = _94;
-    bool _98 = false;
-    if (_92)
+    ok = _90;
+    float _91 = f;
+    float _92 = _91 - 1.0f;
+    f = _92;
+    bool _96 = false;
+    if (_90)
     {
-        _98 = _94 == 0.5f;
+        _96 = _92 == 0.5f;
     }
     else
     {
-        _98 = false;
+        _96 = false;
     }
-    ok = _98;
+    ok = _96;
     float2 f2 = 0.5f.xx;
     f2.x += 1.0f;
-    bool _112 = false;
+    bool _110 = false;
     if (ok)
     {
-        float _109 = f2.x;
-        f2.x = _109 + 1.0f;
-        _112 = _109 == 1.5f;
+        float _107 = f2.x;
+        f2.x = _107 + 1.0f;
+        _110 = _107 == 1.5f;
     }
     else
     {
-        _112 = false;
+        _110 = false;
     }
-    ok = _112;
-    bool _118 = false;
-    if (_112)
+    ok = _110;
+    bool _116 = false;
+    if (_110)
     {
-        _118 = f2.x == 2.5f;
+        _116 = f2.x == 2.5f;
     }
     else
     {
-        _118 = false;
+        _116 = false;
     }
-    ok = _118;
-    bool _125 = false;
-    if (_118)
+    ok = _116;
+    bool _123 = false;
+    if (_116)
     {
-        float _122 = f2.x;
-        f2.x = _122 - 1.0f;
-        _125 = _122 == 2.5f;
+        float _120 = f2.x;
+        f2.x = _120 - 1.0f;
+        _123 = _120 == 2.5f;
     }
     else
     {
-        _125 = false;
+        _123 = false;
     }
-    ok = _125;
-    bool _131 = false;
-    if (_125)
+    ok = _123;
+    bool _129 = false;
+    if (_123)
     {
-        _131 = f2.x == 1.5f;
+        _129 = f2.x == 1.5f;
     }
     else
     {
-        _131 = false;
+        _129 = false;
     }
-    ok = _131;
+    ok = _129;
     f2.x -= 1.0f;
-    bool _141 = false;
+    bool _139 = false;
     if (ok)
     {
-        _141 = f2.x == 0.5f;
+        _139 = f2.x == 0.5f;
     }
     else
     {
-        _141 = false;
+        _139 = false;
     }
-    ok = _141;
-    float4 _142 = 0.0f.xxxx;
-    if (_141)
+    ok = _139;
+    float4 _140 = 0.0f.xxxx;
+    if (_139)
     {
-        _142 = _10_colorGreen;
+        _140 = _7_colorGreen;
     }
     else
     {
-        _142 = _10_colorRed;
+        _140 = _7_colorRed;
     }
-    return _142;
+    return _140;
 }
 
 void frag_main()
 {
-    float2 _20 = 0.0f.xx;
-    sk_FragColor = main(_20);
+    float2 _17 = 0.0f.xx;
+    sk_FragColor = main(_17);
 }
 
 SPIRV_Cross_Output main()

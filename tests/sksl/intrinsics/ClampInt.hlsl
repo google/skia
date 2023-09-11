@@ -1,8 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_testInputs : packoffset(c0);
-    float4 _10_colorGreen : packoffset(c1);
-    float4 _10_colorRed : packoffset(c2);
+    float4 _7_testInputs : packoffset(c0);
+    float4 _7_colorGreen : packoffset(c1);
+    float4 _7_colorRed : packoffset(c2);
 };
 
 
@@ -13,171 +13,171 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _24)
+float4 main(float2 _21)
 {
-    float4 _35 = _10_testInputs * 100.0f;
-    int4 _44 = int4(int(_35.x), int(_35.y), int(_35.z), int(_35.w));
-    int4 intValues = _44;
+    float4 _32 = _7_testInputs * 100.0f;
+    int4 _41 = int4(int(_32.x), int(_32.y), int(_32.z), int(_32.w));
+    int4 intValues = _41;
     int4 expectedA = int4(-100, 0, 75, 100);
     int4 expectedB = int4(-100, 0, 50, 225);
-    int _56 = _44.x;
-    bool _69 = false;
-    if (clamp(_56, -100, 100) == (-100))
+    int _54 = _41.x;
+    bool _67 = false;
+    if (clamp(_54, -100, 100) == (-100))
     {
-        int2 _60 = clamp(_44.xy, int2(-100, -100), int2(100, 100));
-        _69 = all(bool2(_60.x == int4(-100, 0, 75, 100).xy.x, _60.y == int4(-100, 0, 75, 100).xy.y));
+        int2 _58 = clamp(_41.xy, int2(-100, -100), int2(100, 100));
+        _67 = all(bool2(_58.x == int4(-100, 0, 75, 100).xy.x, _58.y == int4(-100, 0, 75, 100).xy.y));
     }
     else
     {
-        _69 = false;
+        _67 = false;
     }
-    bool _81 = false;
-    if (_69)
+    bool _79 = false;
+    if (_67)
     {
-        int3 _72 = clamp(_44.xyz, int3(-100, -100, -100), int3(100, 100, 100));
-        _81 = all(bool3(_72.x == int4(-100, 0, 75, 100).xyz.x, _72.y == int4(-100, 0, 75, 100).xyz.y, _72.z == int4(-100, 0, 75, 100).xyz.z));
+        int3 _70 = clamp(_41.xyz, int3(-100, -100, -100), int3(100, 100, 100));
+        _79 = all(bool3(_70.x == int4(-100, 0, 75, 100).xyz.x, _70.y == int4(-100, 0, 75, 100).xyz.y, _70.z == int4(-100, 0, 75, 100).xyz.z));
     }
     else
     {
-        _81 = false;
+        _79 = false;
     }
-    bool _90 = false;
-    if (_81)
+    bool _88 = false;
+    if (_79)
     {
-        int4 _84 = clamp(_44, int4(-100, -100, -100, -100), int4(100, 100, 100, 100));
-        _90 = all(bool4(_84.x == int4(-100, 0, 75, 100).x, _84.y == int4(-100, 0, 75, 100).y, _84.z == int4(-100, 0, 75, 100).z, _84.w == int4(-100, 0, 75, 100).w));
+        int4 _82 = clamp(_41, int4(-100, -100, -100, -100), int4(100, 100, 100, 100));
+        _88 = all(bool4(_82.x == int4(-100, 0, 75, 100).x, _82.y == int4(-100, 0, 75, 100).y, _82.z == int4(-100, 0, 75, 100).z, _82.w == int4(-100, 0, 75, 100).w));
     }
     else
     {
-        _90 = false;
+        _88 = false;
     }
-    bool _94 = false;
-    if (_90)
+    bool _92 = false;
+    if (_88)
     {
-        _94 = true;
+        _92 = true;
     }
     else
     {
-        _94 = false;
+        _92 = false;
     }
-    bool _101 = false;
-    if (_94)
+    bool _99 = false;
+    if (_92)
     {
-        _101 = all(bool2(int2(-100, 0).x == int4(-100, 0, 75, 100).xy.x, int2(-100, 0).y == int4(-100, 0, 75, 100).xy.y));
+        _99 = all(bool2(int2(-100, 0).x == int4(-100, 0, 75, 100).xy.x, int2(-100, 0).y == int4(-100, 0, 75, 100).xy.y));
     }
     else
     {
-        _101 = false;
+        _99 = false;
     }
-    bool _108 = false;
-    if (_101)
+    bool _106 = false;
+    if (_99)
     {
-        _108 = all(bool3(int3(-100, 0, 75).x == int4(-100, 0, 75, 100).xyz.x, int3(-100, 0, 75).y == int4(-100, 0, 75, 100).xyz.y, int3(-100, 0, 75).z == int4(-100, 0, 75, 100).xyz.z));
+        _106 = all(bool3(int3(-100, 0, 75).x == int4(-100, 0, 75, 100).xyz.x, int3(-100, 0, 75).y == int4(-100, 0, 75, 100).xyz.y, int3(-100, 0, 75).z == int4(-100, 0, 75, 100).xyz.z));
     }
     else
     {
-        _108 = false;
+        _106 = false;
     }
-    bool _111 = false;
-    if (_108)
+    bool _109 = false;
+    if (_106)
     {
-        _111 = true;
+        _109 = true;
     }
     else
     {
-        _111 = false;
+        _109 = false;
     }
-    bool _116 = false;
-    if (_111)
+    bool _114 = false;
+    if (_109)
     {
-        _116 = clamp(_56, -100, 100) == (-100);
+        _114 = clamp(_54, -100, 100) == (-100);
     }
     else
     {
-        _116 = false;
+        _114 = false;
     }
-    bool _128 = false;
-    if (_116)
+    bool _126 = false;
+    if (_114)
     {
-        int2 _119 = clamp(_44.xy, int2(-100, -200), int2(100, 200));
-        _128 = all(bool2(_119.x == int4(-100, 0, 50, 225).xy.x, _119.y == int4(-100, 0, 50, 225).xy.y));
+        int2 _117 = clamp(_41.xy, int2(-100, -200), int2(100, 200));
+        _126 = all(bool2(_117.x == int4(-100, 0, 50, 225).xy.x, _117.y == int4(-100, 0, 50, 225).xy.y));
     }
     else
     {
-        _128 = false;
+        _126 = false;
     }
-    bool _138 = false;
-    if (_128)
+    bool _136 = false;
+    if (_126)
     {
-        int3 _131 = clamp(_44.xyz, int3(-100, -200, -200), int3(100, 200, 50));
-        _138 = all(bool3(_131.x == int4(-100, 0, 50, 225).xyz.x, _131.y == int4(-100, 0, 50, 225).xyz.y, _131.z == int4(-100, 0, 50, 225).xyz.z));
+        int3 _129 = clamp(_41.xyz, int3(-100, -200, -200), int3(100, 200, 50));
+        _136 = all(bool3(_129.x == int4(-100, 0, 50, 225).xyz.x, _129.y == int4(-100, 0, 50, 225).xyz.y, _129.z == int4(-100, 0, 50, 225).xyz.z));
     }
     else
     {
-        _138 = false;
+        _136 = false;
     }
-    bool _147 = false;
-    if (_138)
+    bool _145 = false;
+    if (_136)
     {
-        int4 _141 = clamp(_44, int4(-100, -200, -200, 100), int4(100, 200, 50, 300));
-        _147 = all(bool4(_141.x == int4(-100, 0, 50, 225).x, _141.y == int4(-100, 0, 50, 225).y, _141.z == int4(-100, 0, 50, 225).z, _141.w == int4(-100, 0, 50, 225).w));
+        int4 _139 = clamp(_41, int4(-100, -200, -200, 100), int4(100, 200, 50, 300));
+        _145 = all(bool4(_139.x == int4(-100, 0, 50, 225).x, _139.y == int4(-100, 0, 50, 225).y, _139.z == int4(-100, 0, 50, 225).z, _139.w == int4(-100, 0, 50, 225).w));
     }
     else
     {
-        _147 = false;
+        _145 = false;
     }
-    bool _150 = false;
-    if (_147)
+    bool _148 = false;
+    if (_145)
     {
-        _150 = true;
+        _148 = true;
     }
     else
     {
-        _150 = false;
+        _148 = false;
     }
-    bool _156 = false;
-    if (_150)
+    bool _154 = false;
+    if (_148)
     {
-        _156 = all(bool2(int2(-100, 0).x == int4(-100, 0, 50, 225).xy.x, int2(-100, 0).y == int4(-100, 0, 50, 225).xy.y));
+        _154 = all(bool2(int2(-100, 0).x == int4(-100, 0, 50, 225).xy.x, int2(-100, 0).y == int4(-100, 0, 50, 225).xy.y));
     }
     else
     {
-        _156 = false;
+        _154 = false;
     }
-    bool _163 = false;
-    if (_156)
+    bool _161 = false;
+    if (_154)
     {
-        _163 = all(bool3(int3(-100, 0, 50).x == int4(-100, 0, 50, 225).xyz.x, int3(-100, 0, 50).y == int4(-100, 0, 50, 225).xyz.y, int3(-100, 0, 50).z == int4(-100, 0, 50, 225).xyz.z));
+        _161 = all(bool3(int3(-100, 0, 50).x == int4(-100, 0, 50, 225).xyz.x, int3(-100, 0, 50).y == int4(-100, 0, 50, 225).xyz.y, int3(-100, 0, 50).z == int4(-100, 0, 50, 225).xyz.z));
     }
     else
     {
-        _163 = false;
+        _161 = false;
     }
-    bool _166 = false;
-    if (_163)
+    bool _164 = false;
+    if (_161)
     {
-        _166 = true;
+        _164 = true;
     }
     else
     {
-        _166 = false;
+        _164 = false;
     }
-    float4 _167 = 0.0f.xxxx;
-    if (_166)
+    float4 _165 = 0.0f.xxxx;
+    if (_164)
     {
-        _167 = _10_colorGreen;
+        _165 = _7_colorGreen;
     }
     else
     {
-        _167 = _10_colorRed;
+        _165 = _7_colorRed;
     }
-    return _167;
+    return _165;
 }
 
 void frag_main()
 {
-    float2 _20 = 0.0f.xx;
-    sk_FragColor = main(_20);
+    float2 _17 = 0.0f.xx;
+    sk_FragColor = main(_17);
 }
 
 SPIRV_Cross_Output main()

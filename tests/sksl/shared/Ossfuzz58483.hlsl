@@ -5,17 +5,17 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(inout float2 _21)
+float4 main(inout float2 _18)
 {
-    _21 *= 0.3333333432674407958984375f;
+    _18 *= 0.3333333432674407958984375f;
     return 1.0f.xxxx;
 }
 
 void frag_main()
 {
-    float2 _17 = 0.0f.xx;
-    float4 _19 = main(_17);
-    sk_FragColor = _19;
+    float2 _14 = 0.0f.xx;
+    float4 _16 = main(_14);
+    sk_FragColor = _16;
 }
 
 SPIRV_Cross_Output main()

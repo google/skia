@@ -1,6 +1,12 @@
+### Compilation failed:
+
+error: :2:1 error: structures must have at least one member
+struct FSIn {
+^^^^^^
+
+
 diagnostic(off, derivative_uniformity);
 struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
 };
 fn _skslMain() {
   {
@@ -9,3 +15,5 @@ fn _skslMain() {
 @fragment fn main(_stageIn: FSIn) {
   _skslMain();
 }
+
+1 error

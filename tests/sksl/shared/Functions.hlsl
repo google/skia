@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _12_colorGreen : packoffset(c0);
-    float4 _12_colorRed : packoffset(c1);
+    float4 _9_colorGreen : packoffset(c0);
+    float4 _9_colorRed : packoffset(c1);
 };
 
 
@@ -12,42 +12,42 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float foo_ff2(float2 _26)
+float foo_ff2(float2 _23)
 {
-    return _26.x * _26.y;
+    return _23.x * _23.y;
 }
 
-void bar_vf(inout float _35)
+void bar_vf(inout float _32)
 {
     float y[2] = { 0.0f, 0.0f };
-    y[0] = _35;
-    y[1] = _35 * 2.0f;
-    float2 _55 = float2(y[0], y[1]);
-    _35 = foo_ff2(_55);
+    y[0] = _32;
+    y[1] = _32 * 2.0f;
+    float2 _52 = float2(y[0], y[1]);
+    _32 = foo_ff2(_52);
 }
 
-float4 main(float2 _58)
+float4 main(float2 _55)
 {
     float x = 10.0f;
-    float _62 = 10.0f;
-    bar_vf(_62);
-    x = _62;
-    float4 _67 = 0.0f.xxxx;
-    if (_62 == 200.0f)
+    float _59 = 10.0f;
+    bar_vf(_59);
+    x = _59;
+    float4 _65 = 0.0f.xxxx;
+    if (_59 == 200.0f)
     {
-        _67 = _12_colorGreen;
+        _65 = _9_colorGreen;
     }
     else
     {
-        _67 = _12_colorRed;
+        _65 = _9_colorRed;
     }
-    return _67;
+    return _65;
 }
 
 void frag_main()
 {
-    float2 _22 = 0.0f.xx;
-    sk_FragColor = main(_22);
+    float2 _19 = 0.0f.xx;
+    sk_FragColor = main(_19);
 }
 
 SPIRV_Cross_Output main()

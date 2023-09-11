@@ -1,6 +1,5 @@
 diagnostic(off, derivative_uniformity);
 struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
   @location(2) @interpolate(flat) bufferIndex: i32,
 };
 struct FSOut {

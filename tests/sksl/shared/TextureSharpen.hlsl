@@ -10,11 +10,11 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    float4 _19 = s.SampleBias(_s_sampler, 0.0f.xx, -0.4749999940395355224609375f);
-    float4 a = _19;
-    float4 _26 = s.SampleBias(_s_sampler, 0.0f.xxx.xy / 0.0f.xxx.z, -0.4749999940395355224609375f);
-    float4 b = _26;
-    sk_FragColor = float4(_19.xy, _26.xy);
+    float4 _16 = s.SampleBias(_s_sampler, 0.0f.xx, -0.4749999940395355224609375f);
+    float4 a = _16;
+    float4 _23 = s.SampleBias(_s_sampler, 0.0f.xxx.xy / 0.0f.xxx.z, -0.4749999940395355224609375f);
+    float4 b = _23;
+    sk_FragColor = float4(_16.xy, _23.xy);
 }
 
 SPIRV_Cross_Output main()

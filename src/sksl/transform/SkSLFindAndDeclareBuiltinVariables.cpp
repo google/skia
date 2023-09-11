@@ -134,10 +134,9 @@ void FindAndDeclareBuiltinVariables(Program& program) {
         // Find main() in the program and check its return type.
         // If it's half4, we treat that as an implicit write to sk_FragColor and add a reference.
         scanner.addImplicitFragColorWrite(program.fOwnedElements);
+    }
 
-        // Vulkan requires certain builtin variables be present, even if they're unused. At one
-        // time, validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno)
-        // driver bugs that drop or corrupt draws if they're missing.
+    if (context.fCaps->fMustDeclareFragmentFrontFacing) {
         scanner.addDeclaringElement(symbols.findBuiltinSymbol("sk_Clockwise"));
     }
 

@@ -1,10 +1,10 @@
 ### Compilation failed:
 
-error: :11:14 error: uniform storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
+error: :8:14 error: uniform storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
   testArray: array<f32, 5>,
              ^^^^^^^^^^^^^
 
-:8:1 note: see layout of struct:
+:5:1 note: see layout of struct:
 /*            align(16) size(64) */ struct _GlobalUniforms {
 /* offset( 0) align(16) size(16) */   colorGreen : vec4<f32>;
 /* offset(16) align(16) size(16) */   colorRed : vec4<f32>;
@@ -14,15 +14,12 @@ error: :11:14 error: uniform storage requires that array elements are aligned to
 struct _GlobalUniforms {
 ^^^^^^
 
-:13:36 note: '_GlobalUniforms' used in address space 'uniform' here
+:10:36 note: '_GlobalUniforms' used in address space 'uniform' here
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
                                    ^^^^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
-struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
-};
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
@@ -44,7 +41,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((_skTemp0 == 5.0) && (_skTemp1 == 17.0)));
   }
 }
-@fragment fn main(_stageIn: FSIn) -> FSOut {
+@fragment fn main() -> FSOut {
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;

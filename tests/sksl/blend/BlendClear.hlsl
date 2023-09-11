@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_src : packoffset(c0);
-    float4 _10_dst : packoffset(c1);
+    float4 _7_src : packoffset(c0);
+    float4 _7_dst : packoffset(c1);
 };
 
 

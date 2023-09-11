@@ -1,8 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_testInputs : packoffset(c0);
-    float4 _10_colorGreen : packoffset(c1);
-    float4 _10_colorRed : packoffset(c2);
+    float4 _7_testInputs : packoffset(c0);
+    float4 _7_colorGreen : packoffset(c1);
+    float4 _7_colorRed : packoffset(c2);
 };
 
 
@@ -13,91 +13,91 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _24)
+float4 main(float2 _21)
 {
     float4 expected = float4(-1.0f, 0.0f, 1.0f, 3.0f);
-    bool _51 = false;
-    if (ceil(_10_testInputs.x) == (-1.0f))
+    bool _49 = false;
+    if (ceil(_7_testInputs.x) == (-1.0f))
     {
-        float2 _43 = ceil(_10_testInputs.xy);
-        _51 = all(bool2(_43.x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.x, _43.y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.y));
+        float2 _41 = ceil(_7_testInputs.xy);
+        _49 = all(bool2(_41.x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.x, _41.y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.y));
     }
     else
     {
-        _51 = false;
+        _49 = false;
     }
-    bool _63 = false;
-    if (_51)
+    bool _61 = false;
+    if (_49)
     {
-        float3 _54 = ceil(_10_testInputs.xyz);
-        _63 = all(bool3(_54.x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.x, _54.y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.y, _54.z == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.z));
+        float3 _52 = ceil(_7_testInputs.xyz);
+        _61 = all(bool3(_52.x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.x, _52.y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.y, _52.z == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.z));
     }
     else
     {
-        _63 = false;
+        _61 = false;
     }
-    bool _72 = false;
-    if (_63)
+    bool _70 = false;
+    if (_61)
     {
-        float4 _66 = ceil(_10_testInputs);
-        _72 = all(bool4(_66.x == float4(-1.0f, 0.0f, 1.0f, 3.0f).x, _66.y == float4(-1.0f, 0.0f, 1.0f, 3.0f).y, _66.z == float4(-1.0f, 0.0f, 1.0f, 3.0f).z, _66.w == float4(-1.0f, 0.0f, 1.0f, 3.0f).w));
+        float4 _64 = ceil(_7_testInputs);
+        _70 = all(bool4(_64.x == float4(-1.0f, 0.0f, 1.0f, 3.0f).x, _64.y == float4(-1.0f, 0.0f, 1.0f, 3.0f).y, _64.z == float4(-1.0f, 0.0f, 1.0f, 3.0f).z, _64.w == float4(-1.0f, 0.0f, 1.0f, 3.0f).w));
     }
     else
     {
-        _72 = false;
+        _70 = false;
     }
-    bool _76 = false;
-    if (_72)
+    bool _74 = false;
+    if (_70)
     {
-        _76 = true;
+        _74 = true;
     }
     else
     {
-        _76 = false;
+        _74 = false;
     }
-    bool _83 = false;
-    if (_76)
+    bool _81 = false;
+    if (_74)
     {
-        _83 = all(bool2(float2(-1.0f, 0.0f).x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.x, float2(-1.0f, 0.0f).y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.y));
+        _81 = all(bool2(float2(-1.0f, 0.0f).x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.x, float2(-1.0f, 0.0f).y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xy.y));
     }
     else
     {
-        _83 = false;
+        _81 = false;
     }
-    bool _90 = false;
-    if (_83)
+    bool _88 = false;
+    if (_81)
     {
-        _90 = all(bool3(float3(-1.0f, 0.0f, 1.0f).x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.x, float3(-1.0f, 0.0f, 1.0f).y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.y, float3(-1.0f, 0.0f, 1.0f).z == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.z));
+        _88 = all(bool3(float3(-1.0f, 0.0f, 1.0f).x == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.x, float3(-1.0f, 0.0f, 1.0f).y == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.y, float3(-1.0f, 0.0f, 1.0f).z == float4(-1.0f, 0.0f, 1.0f, 3.0f).xyz.z));
     }
     else
     {
-        _90 = false;
+        _88 = false;
     }
-    bool _93 = false;
-    if (_90)
+    bool _91 = false;
+    if (_88)
     {
-        _93 = true;
+        _91 = true;
     }
     else
     {
-        _93 = false;
+        _91 = false;
     }
-    float4 _94 = 0.0f.xxxx;
-    if (_93)
+    float4 _92 = 0.0f.xxxx;
+    if (_91)
     {
-        _94 = _10_colorGreen;
+        _92 = _7_colorGreen;
     }
     else
     {
-        _94 = _10_colorRed;
+        _92 = _7_colorRed;
     }
-    return _94;
+    return _92;
 }
 
 void frag_main()
 {
-    float2 _20 = 0.0f.xx;
-    sk_FragColor = main(_20);
+    float2 _17 = 0.0f.xx;
+    sk_FragColor = main(_17);
 }
 
 SPIRV_Cross_Output main()

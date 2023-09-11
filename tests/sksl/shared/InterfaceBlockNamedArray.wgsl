@@ -1,7 +1,4 @@
 diagnostic(off, derivative_uniformity);
-struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
-};
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
@@ -17,7 +14,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     (*_stageOut).sk_FragColor = vec4<f32>(f32(test[0].s), f32(_skUnpacked_test_m[1][1].x), f32(_skUnpacked_test_a[0][1]), f32(_skUnpacked_test_am[1][1][0].y));
   }
 }
-@fragment fn main(_stageIn: FSIn) -> FSOut {
+@fragment fn main() -> FSOut {
   _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
   _skslMain(&_stageOut);

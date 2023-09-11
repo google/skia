@@ -1,9 +1,9 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_I : packoffset(c0);
-    float4 _10_N : packoffset(c1);
-    float4 _10_colorGreen : packoffset(c2);
-    float4 _10_colorRed : packoffset(c3);
+    float4 _7_I : packoffset(c0);
+    float4 _7_N : packoffset(c1);
+    float4 _7_colorGreen : packoffset(c2);
+    float4 _7_colorRed : packoffset(c3);
 };
 
 
@@ -19,95 +19,95 @@ float spvReflect(float i, float n)
     return i - 2.0 * dot(n, i) * n;
 }
 
-float4 main(float2 _24)
+float4 main(float2 _21)
 {
     float expectedX = spvReflect(996878592.0f, -1.9999999580429535907214788975919e+34f);
     expectedX = -49.0f;
     float2 expectedXY = float2(-169.0f, 202.0f);
     float3 expectedXYZ = float3(-379.0f, 454.0f, -529.0f);
     float4 expectedXYZW = float4(-699.0f, 838.0f, -977.0f, 1116.0f);
-    bool _75 = false;
-    if (spvReflect(_10_I.x, _10_N.x) == (-49.0f))
+    bool _73 = false;
+    if (spvReflect(_7_I.x, _7_N.x) == (-49.0f))
     {
-        float2 _65 = reflect(_10_I.xy, _10_N.xy);
-        _75 = all(bool2(_65.x == float2(-169.0f, 202.0f).x, _65.y == float2(-169.0f, 202.0f).y));
+        float2 _63 = reflect(_7_I.xy, _7_N.xy);
+        _73 = all(bool2(_63.x == float2(-169.0f, 202.0f).x, _63.y == float2(-169.0f, 202.0f).y));
     }
     else
     {
-        _75 = false;
+        _73 = false;
     }
-    bool _88 = false;
-    if (_75)
+    bool _86 = false;
+    if (_73)
     {
-        float3 _78 = reflect(_10_I.xyz, _10_N.xyz);
-        _88 = all(bool3(_78.x == float3(-379.0f, 454.0f, -529.0f).x, _78.y == float3(-379.0f, 454.0f, -529.0f).y, _78.z == float3(-379.0f, 454.0f, -529.0f).z));
+        float3 _76 = reflect(_7_I.xyz, _7_N.xyz);
+        _86 = all(bool3(_76.x == float3(-379.0f, 454.0f, -529.0f).x, _76.y == float3(-379.0f, 454.0f, -529.0f).y, _76.z == float3(-379.0f, 454.0f, -529.0f).z));
     }
     else
     {
-        _88 = false;
+        _86 = false;
     }
-    bool _99 = false;
-    if (_88)
+    bool _97 = false;
+    if (_86)
     {
-        float4 _91 = reflect(_10_I, _10_N);
-        _99 = all(bool4(_91.x == float4(-699.0f, 838.0f, -977.0f, 1116.0f).x, _91.y == float4(-699.0f, 838.0f, -977.0f, 1116.0f).y, _91.z == float4(-699.0f, 838.0f, -977.0f, 1116.0f).z, _91.w == float4(-699.0f, 838.0f, -977.0f, 1116.0f).w));
+        float4 _89 = reflect(_7_I, _7_N);
+        _97 = all(bool4(_89.x == float4(-699.0f, 838.0f, -977.0f, 1116.0f).x, _89.y == float4(-699.0f, 838.0f, -977.0f, 1116.0f).y, _89.z == float4(-699.0f, 838.0f, -977.0f, 1116.0f).z, _89.w == float4(-699.0f, 838.0f, -977.0f, 1116.0f).w));
     }
     else
     {
-        _99 = false;
+        _97 = false;
     }
-    bool _103 = false;
-    if (_99)
+    bool _101 = false;
+    if (_97)
     {
-        _103 = true;
+        _101 = true;
     }
     else
     {
-        _103 = false;
+        _101 = false;
     }
-    bool _106 = false;
-    if (_103)
+    bool _104 = false;
+    if (_101)
     {
-        _106 = true;
+        _104 = true;
     }
     else
     {
-        _106 = false;
+        _104 = false;
     }
-    bool _109 = false;
-    if (_106)
+    bool _107 = false;
+    if (_104)
     {
-        _109 = true;
+        _107 = true;
     }
     else
     {
-        _109 = false;
+        _107 = false;
     }
-    bool _112 = false;
-    if (_109)
+    bool _110 = false;
+    if (_107)
     {
-        _112 = true;
+        _110 = true;
     }
     else
     {
-        _112 = false;
+        _110 = false;
     }
-    float4 _113 = 0.0f.xxxx;
-    if (_112)
+    float4 _111 = 0.0f.xxxx;
+    if (_110)
     {
-        _113 = _10_colorGreen;
+        _111 = _7_colorGreen;
     }
     else
     {
-        _113 = _10_colorRed;
+        _111 = _7_colorRed;
     }
-    return _113;
+    return _111;
 }
 
 void frag_main()
 {
-    float2 _20 = 0.0f.xx;
-    sk_FragColor = main(_20);
+    float2 _17 = 0.0f.xx;
+    sk_FragColor = main(_17);
 }
 
 SPIRV_Cross_Output main()

@@ -1,14 +1,11 @@
 ### Compilation failed:
 
-error: :16:20 error: unresolved call target 'packHalf2x16'
+error: :13:20 error: unresolved call target 'packHalf2x16'
     let _skTemp0 = packHalf2x16(_globalUniforms.testInputs.xy);
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
-struct FSIn {
-  @builtin(front_facing) sk_Clockwise: bool,
-};
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };
@@ -29,7 +26,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(all(_skTemp2 == vec2<f32>(-1.25, 0.0)) && all(_skTemp3 == vec2<f32>(0.75, 2.25))));
   }
 }
-@fragment fn main(_stageIn: FSIn) -> FSOut {
+@fragment fn main() -> FSOut {
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;

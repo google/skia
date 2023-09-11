@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float2 _10_a : packoffset(c0);
-    float4 _10_b : packoffset(c1);
+    float2 _7_a : packoffset(c0);
+    float4 _7_b : packoffset(c1);
 };
 
 
@@ -75,11 +75,11 @@ float2 spvUnpackSnorm2x16(uint value)
 
 void frag_main()
 {
-    sk_FragColor.x = float(spvPackHalf2x16(_10_a));
-    sk_FragColor.x = float(spvPackUnorm2x16(_10_a));
-    sk_FragColor.x = float(spvPackSnorm2x16(_10_a));
-    sk_FragColor.x = float(spvPackUnorm4x8(_10_b));
-    sk_FragColor.x = float(spvPackSnorm4x8(_10_b));
+    sk_FragColor.x = float(spvPackHalf2x16(_7_a));
+    sk_FragColor.x = float(spvPackUnorm2x16(_7_a));
+    sk_FragColor.x = float(spvPackSnorm2x16(_7_a));
+    sk_FragColor.x = float(spvPackUnorm4x8(_7_b));
+    sk_FragColor.x = float(spvPackSnorm4x8(_7_b));
 }
 
 SPIRV_Cross_Output main()
