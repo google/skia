@@ -143,22 +143,7 @@ public:
     virtual bool containsColorFontOrBitmap(SkTextBlob* textBlob) = 0;
 
     // Editing API
-
-    /* Finds the line number of the line that contains the given UTF-8 index.
-    *
-    * @param index         a UTF-8 TextIndex into the paragraph
-    * @return              the line number if the given offset is within the
-    *                      valid paragraph range, otherwise returns -1
-    */
     virtual int getLineNumberAt(TextIndex codeUnitIndex) const = 0;
-
-    /* Finds the line number of the line that contains the given UTF-16 index.
-    *
-    * @param index         a UTF-16 offset into the paragraph
-    * @return              the line number if the given offset is within the
-    *                      valid paragraph range, otherwise returns -1
-    */
-    virtual int getLineNumberAtUTF16Offset(size_t codeUnitIndex) = 0;
 
     /* Returns line metrics info for the line
      *
@@ -195,46 +180,11 @@ public:
      * @param dx              x coordinate
      * @param dy              y coordinate
      * @param glyphInfo       a glyph cluster info filled if not null
-     * @return                true if glyph cluster was found; false if not
-     *                        (which usually means the paragraph is empty)
+     * @return
      */
     virtual bool getClosestGlyphClusterAt(SkScalar dx,
                                           SkScalar dy,
                                           GlyphClusterInfo* glyphInfo) = 0;
-
-    // The glyph and grapheme cluster information assoicated with a unicode
-    // codepoint in the paragraph.
-    struct GlyphInfo {
-        SkRect fGraphemeLayoutBounds;
-        TextRange fGraphemeClusterTextRange;
-        TextDirection fDirection;
-        bool fIsEllipsis;
-    };
-
-    /** Retrives the information associated with the glyph located at the given
-     *  codeUnitIndex.
-     *
-     * @param codeUnitIndex   a UTF-16 offset into the paragraph
-     * @param glyphInfo       an optional GlyphInfo struct to hold the
-     *                        information associated with the glyph found at the
-     *                        given index
-     * @return                false only if the offset is out of bounds
-     */
-    virtual bool getGlyphInfoAtUTF16Offset(size_t codeUnitIndex, GlyphInfo* glyphInfo) = 0;
-
-    /** Finds the information associated with the closest glyph to the given
-     *  paragraph coordinates.
-     *
-     * @param dx              x coordinate
-     * @param dy              y coordinate
-     * @param glyphInfo       an optional GlyphInfo struct to hold the
-     *                        information associated with the glyph found. The
-     *                        text indices and text ranges are described using
-     *                        UTF-16 offsets
-     * @return                true if a graphme cluster was found; false if not
-     *                        (which usually means the paragraph is empty)
-     */
-    virtual bool getClosestUTF16GlyphInfoAt(SkScalar dx, SkScalar dy, GlyphInfo* glyphInfo) = 0;
 
     struct FontInfo {
         FontInfo(const SkFont font, const TextRange textRange)
@@ -251,13 +201,6 @@ public:
      * @return                font info or an empty font info if the text is not found
      */
     virtual SkFont getFontAt(TextIndex codeUnitIndex) const = 0;
-
-    /** Returns the font used to shape the text at the given UTF-16 offset.
-     *
-     * @param codeUnitIndex   a UTF-16 offset in the paragraph
-     * @return                font info or nullptr if the text is not found
-     */
-    virtual const SkFont* getFontAtUTF16Offset(size_t codeUnitIndex) = 0;
 
     /** Returns the information about all the fonts used to shape the paragraph text
      *
