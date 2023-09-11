@@ -2665,6 +2665,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             const Variable& var = *expr.as<VariableReference>().variable();
             int uniformIdx = this->findUniformFieldIndex(var);
             if (uniformIdx >= 0) {
+                // Access uniforms via an AccessChain into the uniform-buffer struct.
                 SpvId memberId = this->nextId(nullptr);
                 SpvId typeId = this->getPointerType(type, SpvStorageClassUniform);
                 SpvId uniformIdxId = this->writeLiteral((double)uniformIdx, *fContext.fTypes.fInt);
@@ -2678,9 +2679,32 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                         precision,
                         SpvStorageClassUniform);
             }
-            SpvId typeId = this->getType(type, var.layout(), this->memoryLayoutForVariable(var));
+
             SpvId* entry = fVariableMap.find(&var);
             SkASSERTF(entry, "%s", expr.description().c_str());
+
+            if (var.layout().fBuiltin == SK_SAMPLEMASKIN_BUILTIN ||
+                var.layout().fBuiltin == SK_SAMPLEMASK_BUILTIN) {
+                // Access sk_SampleMask and sk_SampleMaskIn via an array access, since Vulkan
+                // represents sample masks as an array of uints.
+                SpvStorageClass_ storageClass =
+                        get_storage_class_for_global_variable(var, SpvStorageClassPrivate);
+                SkASSERT(storageClass != SpvStorageClassPrivate);
+                SkASSERT(type.matches(*fContext.fTypes.fUInt));
+
+                SpvId accessId = this->nextId(nullptr);
+                SpvId typeId = this->getPointerType(type, storageClass);
+                SpvId indexId = this->writeLiteral(0.0, *fContext.fTypes.fInt);
+                this->writeInstruction(SpvOpAccessChain, typeId, accessId, *entry, indexId, out);
+                return std::make_unique<PointerLValue>(*this,
+                                                       accessId,
+                                                       /*isMemoryObjectPointer=*/true,
+                                                       this->getType(type),
+                                                       precision,
+                                                       storageClass);
+            }
+
+            SpvId typeId = this->getType(type, var.layout(), this->memoryLayoutForVariable(var));
             return std::make_unique<PointerLValue>(*this, *entry,
                                                    /*isMemoryObjectPointer=*/true,
                                                    typeId, precision, get_storage_class(expr));
@@ -3935,39 +3959,51 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
 SpvId SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind,
                                          SpvStorageClass_ storageClass,
                                          const Variable& var) {
-    if (var.layout().fBuiltin == SK_FRAGCOLOR_BUILTIN &&
-        !ProgramConfig::IsFragment(kind)) {
-        SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
-        return NA;
+    Layout layout = var.layout();
+    const ModifierFlags flags = var.modifierFlags();
+    const Type* type = &var.type();
+    switch (layout.fBuiltin) {
+        case SK_FRAGCOLOR_BUILTIN:
+            if (!ProgramConfig::IsFragment(kind)) {
+                SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
+                return NA;
+            }
+            break;
+
+        case SK_SAMPLEMASKIN_BUILTIN:
+        case SK_SAMPLEMASK_BUILTIN:
+            // SkSL exposes this as a `uint` but SPIR-V, like GLSL, uses an array of signed `uint`
+            // decorated with SpvBuiltinSampleMask.
+            type = fSynthetics.addArrayDimension(type, /*arraySize=*/1);
+            layout.fBuiltin = SpvBuiltInSampleMask;
+            break;
     }
 
     // Add this global to the variable map.
-    const Type& type = var.type();
-    SpvId id = this->nextId(&type);
+    SpvId id = this->nextId(type);
     fVariableMap.set(&var, id);
 
-    Layout layout = var.layout();
     if (layout.fSet < 0 && storageClass == SpvStorageClassUniformConstant) {
         layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
     }
 
-    SpvId typeId = this->getPointerType(type,
+    SpvId typeId = this->getPointerType(*type,
                                         layout,
                                         this->memoryLayoutForStorageClass(storageClass),
                                         storageClass);
     this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
     this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
     this->writeLayout(layout, id, var.fPosition);
-    if (var.modifierFlags() & ModifierFlag::kFlat) {
+    if (flags & ModifierFlag::kFlat) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationFlat, fDecorationBuffer);
     }
-    if (var.modifierFlags() & ModifierFlag::kNoPerspective) {
+    if (flags & ModifierFlag::kNoPerspective) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationNoPerspective,
                                fDecorationBuffer);
     }
-    if (var.modifierFlags().isWriteOnly()) {
+    if (flags.isWriteOnly()) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationNonReadable, fDecorationBuffer);
-    } else if (var.modifierFlags().isReadOnly()) {
+    } else if (flags.isReadOnly()) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationNonWritable, fDecorationBuffer);
     }
 
@@ -4620,8 +4656,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeCapabilities(out);
     this->writeInstruction(SpvOpExtInstImport, fGLSLExtendedInstructions, "GLSL.std.450", out);
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
-    this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().length() + 4) / 4) +
-                      (int32_t) interfaceVars.size(), out);
+    this->writeOpCode(SpvOpEntryPoint,
+                      (SpvId)(3 + (main->name().length() + 4) / 4) + (int32_t)interfaceVars.size(),
+                      out);
     if (ProgramConfig::IsVertex(program.fConfig->fKind)) {
         this->writeWord(SpvExecutionModelVertex, out);
     } else if (ProgramConfig::IsFragment(program.fConfig->fKind)) {
