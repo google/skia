@@ -28,8 +28,7 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
 
     if (!buffer) {
         GrResourceProvider* resourceProvider = fGpu->getContext()->priv().resourceProvider();
-        size_t minSize = fGpu->getContext()->priv().options().fMinimumStagingBufferSize;
-        size_t bufferSize = std::max(size, minSize);
+        size_t bufferSize = std::max(size, kMinStagingBufferSize);
         sk_sp<GrGpuBuffer> newBuffer = resourceProvider->createBuffer(
                 bufferSize,
                 GrGpuBufferType::kXferCpuToGpu,
