@@ -94,15 +94,15 @@ build:ck_full_webgl2_release --config=canvaskit_full --config=ck_webgl2 --config
 build:ck_full_webgl2_debug --config=canvaskit_full --config=ck_webgl2 --config=debug
 build:ck_full_cpu_release --config=canvaskit_full --config=ck_cpu --config=release
 build:ck_full_cpu_debug --config=canvaskit_full --config=ck_cpu --config=debug
-build:ck_full_webgl2_debug_debugger --config=canvaskit_full --config=ck_webgl2 \
-                                    --config=debug --config=ck_debugger
+build:ck_full_webgl2_release_debugger --config=canvaskit_full --config=ck_webgl2 \
+                                    --config=release --config=ck_debugger
 # TODO(kjlubick) We should be able to configure testing on Chrome or Firefox with this.
 build:ck_full_webgl2_release_chrome --config=ck_full_webgl2_release
 build:ck_full_cpu_release_chrome --config=ck_full_cpu_release
 
 # config when building //infra/debugger-app:debugger_container.
 # This is invoked in a Louhi flow.
-build:debugger_app_container --config=ck_full_webgl2_debug_debugger \
+build:debugger_app_container --config=ck_full_webgl2_release_debugger \
                              --workspace_status_command=bazel/get_workspace_status.sh
 
 # config when building //infra/jsfiddle:jsfiddle_container.
