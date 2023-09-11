@@ -10,6 +10,7 @@ cc_library(
         "include/vk_video/vulkan_video_codec_h264std_decode.h",
         "include/vk_video/vulkan_video_codec_h265std.h",
         "include/vk_video/vulkan_video_codec_h265std_decode.h",
+        "include/vk_video/vulkan_video_codecs_common.h",
     ],
     hdrs = [
         "include/vulkan/vk_platform.h",
