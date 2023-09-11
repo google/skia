@@ -1463,6 +1463,9 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("_out.sk_FragColor");
             break;
+        case SK_SAMPLEMASK_BUILTIN:
+            this->write("_out.sk_SampleMask");
+            break;
         case SK_SECONDARYFRAGCOLOR_BUILTIN:
             if (fContext.fCaps->fDualSourceBlendingSupport) {
                 this->write("_out.sk_SecondaryFragColor");
@@ -1472,6 +1475,9 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
+            break;
+        case SK_SAMPLEMASKIN_BUILTIN:
+            this->write("sk_SampleMaskIn");
             break;
         case SK_VERTEXID_BUILTIN:
             this->write("sk_VertexID");
@@ -2020,6 +2026,11 @@ void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration&
         this->write("_fragCoord");
         separator = ", ";
     }
+    if (requirements & kSampleMaskIn_Requirement) {
+        this->write(separator);
+        this->write("sk_SampleMaskIn");
+        separator = ", ";
+    }
     if (requirements & kVertexID_Requirement) {
         this->write(separator);
         this->write("sk_VertexID");
@@ -2065,6 +2076,11 @@ void MetalCodeGenerator::writeFunctionRequirementParams(const FunctionDeclaratio
         this->write("float4 _fragCoord");
         separator = ", ";
     }
+    if (requirements & kSampleMaskIn_Requirement) {
+        this->write(separator);
+        this->write("uint sk_SampleMaskIn");
+        separator = ", ";
+    }
     if (requirements & kVertexID_Requirement) {
         this->write(separator);
         this->write("uint sk_VertexID");
@@ -2099,16 +2115,15 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
     const char* separator = "";
     if (f.isMain()) {
         if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-            this->write("fragment Outputs fragmentMain");
+            this->write("fragment Outputs fragmentMain(");
         } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-            this->write("vertex Outputs vertexMain");
+            this->write("vertex Outputs vertexMain(");
         } else if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
-            this->write("kernel void computeMain");
+            this->write("kernel void computeMain(");
         } else {
             fContext.fErrors->error(Position(), "unsupported kind of program");
             return false;
         }
-        this->write("(");
         if (!ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
             this->write("Inputs _in [[stage_in]]");
             separator = ", ";
@@ -2160,26 +2175,21 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                         this->write(")]]");
                     }
                 } else if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
-                    std::string type, attr;
+                    std::string_view attr;
                     switch (var->layout().fBuiltin) {
                         case SK_NUMWORKGROUPS_BUILTIN:
-                            type = "uint3 ";
                             attr = " [[threadgroups_per_grid]]";
                             break;
                         case SK_WORKGROUPID_BUILTIN:
-                            type = "uint3 ";
                             attr = " [[threadgroup_position_in_grid]]";
                             break;
                         case SK_LOCALINVOCATIONID_BUILTIN:
-                            type = "uint3 ";
                             attr = " [[thread_position_in_threadgroup]]";
                             break;
                         case SK_GLOBALINVOCATIONID_BUILTIN:
-                            type = "uint3 ";
                             attr = " [[thread_position_in_grid]]";
                             break;
                         case SK_LOCALINVOCATIONINDEX_BUILTIN:
-                            type = "uint ";
                             attr = " [[thread_index_in_threadgroup]]";
                             break;
                         default:
@@ -2187,7 +2197,8 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                     }
                     if (!attr.empty()) {
                         this->write(separator);
-                        this->write(type);
+                        this->writeType(var->type());
+                        this->write(" ");
                         this->write(var->name());
                         this->write(attr);
                         separator = ", ";
@@ -2220,14 +2231,16 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 separator = ", ";
             }
             this->write(separator);
-            this->write("bool _frontFacing [[front_facing]]");
-            this->write(", float4 _fragCoord [[position]]");
+            this->write("bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]");
+            if (this->requirements(f) & kSampleMaskIn_Requirement) {
+                this->write(", uint sk_SampleMaskIn [[sample_mask]]");
+            }
             if (fProgram.fInterface.fUseLastFragColor) {
                 if (fContext.fCaps->fFBFetchSupport) {
                     this->write(", half4 " + std::string(fContext.fCaps->fFBFetchColorName) +
                                 " [[color(0)]]\n");
                 } else {
-                    fContext.fErrors->error({}, "framebuffer fetch not supported");
+                    fContext.fErrors->error(Position(), "framebuffer fetch not supported");
                 }
             }
             separator = ", ";
@@ -2806,6 +2819,10 @@ void MetalCodeGenerator::writeOutputStruct() {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = *decls.varDeclaration().var();
+            if (var.layout().fBuiltin == SK_SAMPLEMASK_BUILTIN) {
+                this->write("    uint sk_SampleMask [[sample_mask]];\n");
+                continue;
+            }
             if (is_output(var)) {
                 this->write("    ");
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
@@ -3174,6 +3191,10 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
 
                     if (var.layout().fBuiltin == SK_FRAGCOORD_BUILTIN) {
                         fRequirements |= kGlobals_Requirement | kFragCoord_Requirement;
+                    } else if (var.layout().fBuiltin == SK_SAMPLEMASKIN_BUILTIN) {
+                        fRequirements |= kSampleMaskIn_Requirement;
+                    } else if (var.layout().fBuiltin == SK_SAMPLEMASK_BUILTIN) {
+                        fRequirements |= kOutputs_Requirement;
                     } else if (var.layout().fBuiltin == SK_VERTEXID_BUILTIN) {
                         fRequirements |= kVertexID_Requirement;
                     } else if (var.layout().fBuiltin == SK_INSTANCEID_BUILTIN) {

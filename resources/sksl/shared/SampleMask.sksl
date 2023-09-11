@@ -1,4 +1,18 @@
+noinline half4 samplemaskin_as_color() {
+    return half4(sk_SampleMaskIn);
+}
+
+noinline void clear_samplemask() {
+    sk_SampleMask = 0;
+}
+
+noinline void reset_samplemask() {
+    sk_SampleMask = sk_SampleMaskIn;
+}
+
 void main() {
+    clear_samplemask();
+    reset_samplemask();
     sk_SampleMask = 0xFFFFFFFF;
-    sk_FragColor = half4(sk_SampleMaskIn) / 256.0;
+    sk_FragColor = samplemaskin_as_color() / 256.0;
 }

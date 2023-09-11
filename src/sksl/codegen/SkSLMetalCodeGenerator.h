@@ -82,16 +82,17 @@ public:
 protected:
     using Precedence = OperatorPrecedence;
 
-    typedef int Requirements;
-    inline static constexpr Requirements kNo_Requirements          = 0;
-    inline static constexpr Requirements kInputs_Requirement       = 1 << 0;
-    inline static constexpr Requirements kOutputs_Requirement      = 1 << 1;
-    inline static constexpr Requirements kUniforms_Requirement     = 1 << 2;
-    inline static constexpr Requirements kGlobals_Requirement      = 1 << 3;
-    inline static constexpr Requirements kFragCoord_Requirement    = 1 << 4;
-    inline static constexpr Requirements kVertexID_Requirement     = 1 << 5;
-    inline static constexpr Requirements kInstanceID_Requirement   = 1 << 6;
-    inline static constexpr Requirements kThreadgroups_Requirement = 1 << 7;
+    using Requirements =  int;
+    static constexpr Requirements kNo_Requirements          = 0;
+    static constexpr Requirements kInputs_Requirement       = 1 << 0;
+    static constexpr Requirements kOutputs_Requirement      = 1 << 1;
+    static constexpr Requirements kUniforms_Requirement     = 1 << 2;
+    static constexpr Requirements kGlobals_Requirement      = 1 << 3;
+    static constexpr Requirements kFragCoord_Requirement    = 1 << 4;
+    static constexpr Requirements kSampleMaskIn_Requirement = 1 << 5;
+    static constexpr Requirements kVertexID_Requirement     = 1 << 6;
+    static constexpr Requirements kInstanceID_Requirement   = 1 << 7;
+    static constexpr Requirements kThreadgroups_Requirement = 1 << 8;
 
     class GlobalStructVisitor;
     void visitGlobalStruct(GlobalStructVisitor* visitor);
