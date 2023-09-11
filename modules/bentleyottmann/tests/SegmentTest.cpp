@@ -174,8 +174,8 @@ DEF_TEST(BO_lessAtBasic, reporter) {
         REPORTER_ASSERT(reporter, !lessThanAt(s1, s0, 1));
     }
     { // Crossed lines
-        Segment s0 = {{-1, 1}, {-1, -1}},
-                s1 = {{-1, 1}, {1, -1}};
+        Segment s0 = {{-1, -1}, {1, 1}},
+                s1 = {{1, -1}, {-1, 1}};
 
         REPORTER_ASSERT(reporter, lessThanAt(s0, s1, -1));
         REPORTER_ASSERT(reporter, !lessThanAt(s1, s0, -1));
@@ -186,5 +186,18 @@ DEF_TEST(BO_lessAtBasic, reporter) {
 
         REPORTER_ASSERT(reporter, !lessThanAt(s0, s1, 1));
         REPORTER_ASSERT(reporter, lessThanAt(s1, s0, 1));
+    }
+    { // Near crossing
+        Segment s0 = {{0, -100}, {0, 100}},
+                s1 = {{-3, 98}, {3, 104}};
+
+        REPORTER_ASSERT(reporter, !lessThanAt(s0, s1, 98));
+        REPORTER_ASSERT(reporter, lessThanAt(s1, s0, 98));
+
+        REPORTER_ASSERT(reporter, !lessThanAt(s0, s1, 99));
+        REPORTER_ASSERT(reporter, lessThanAt(s1, s0, 99));
+
+        REPORTER_ASSERT(reporter, !lessThanAt(s0, s1, 100));
+        REPORTER_ASSERT(reporter, lessThanAt(s1, s0, 100));
     }
 }
