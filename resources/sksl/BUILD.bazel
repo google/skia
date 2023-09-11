@@ -1097,6 +1097,7 @@ skia_filegroup(
         "wgsl/MainHasVoidReturn.sksl",
         "wgsl/MatrixConstructorDiagonal.sksl",
         "wgsl/OutParams.sksl",
+        "wgsl/PixelLocalStorage.sksl",
         "wgsl/Sample.sksl",
         "wgsl/TextureIntrinsics.compute",
         "wgsl/UniformArrays.sksl",

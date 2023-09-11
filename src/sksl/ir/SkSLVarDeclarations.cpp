@@ -261,6 +261,11 @@ void VarDeclaration::ErrorCheck(const Context& context,
                 // Only non-opaque types allow `in` and `out`.
                 permitted |= ModifierFlag::kIn | ModifierFlag::kOut;
             }
+            if (ProgramConfig::IsFragment(context.fConfig->fKind) && baseType->isStruct() &&
+                !baseType->isInterfaceBlock()) {
+                // Only structs in fragment shaders allow `pixel_local`.
+                permitted |= ModifierFlag::kPixelLocal;
+            }
             if (ProgramConfig::IsCompute(context.fConfig->fKind)) {
                 // Only compute shaders allow `workgroup`.
                 if (!baseType->isOpaque() || baseType->isAtomic()) {
