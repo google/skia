@@ -72,8 +72,13 @@ std::string ModifierFlags::paddedDescription() const {
         result += "buffer ";
     }
 
-    // We're using a non-GLSL name for this one; the GLSL equivalent is "shared"
+    // We're using non-GLSL names for these.
+    if (*this & ModifierFlag::kPixelLocal) {
+        // Roughly equivalent to `__pixel_localEXT`.
+        result += "pixel_local ";
+    }
     if (*this & ModifierFlag::kWorkgroup) {
+        // Equivalent to `shared`.
         result += "workgroup ";
     }
 
@@ -110,6 +115,7 @@ bool ModifierFlags::checkPermittedFlags(const Context& context,
         { ModifierFlag::kReadOnly,       "readonly" },
         { ModifierFlag::kWriteOnly,      "writeonly" },
         { ModifierFlag::kBuffer,         "buffer" },
+        { ModifierFlag::kPixelLocal,     "pixel_local" },
     };
 
     bool success = true;

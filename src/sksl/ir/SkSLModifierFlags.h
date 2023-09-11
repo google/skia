@@ -33,14 +33,15 @@ enum class ModifierFlag : int {
     kReadOnly       = 1 <<  9,
     kWriteOnly      = 1 << 10,
     kBuffer         = 1 << 11,
+    kPixelLocal     = 1 << 12,
     // Corresponds to the GLSL 'shared' modifier. Only allowed in a compute program.
-    kWorkgroup      = 1 << 12,
+    kWorkgroup      = 1 << 13,
     // SkSL extensions, not present in GLSL
-    kExport         = 1 << 13,
-    kES3            = 1 << 14,
-    kPure           = 1 << 15,
-    kInline         = 1 << 16,
-    kNoInline       = 1 << 17,
+    kExport         = 1 << 14,
+    kES3            = 1 << 15,
+    kPure           = 1 << 16,
+    kInline         = 1 << 17,
+    kNoInline       = 1 << 18,
 };
 
 }  // namespace SkSL
@@ -66,17 +67,18 @@ public:
                              Position pos,
                              ModifierFlags permittedModifierFlags) const;
 
-    bool isConst() const     { return SkToBool(*this & ModifierFlag::kConst); }
-    bool isUniform() const   { return SkToBool(*this & ModifierFlag::kUniform); }
-    bool isReadOnly() const  { return SkToBool(*this & ModifierFlag::kReadOnly); }
-    bool isWriteOnly() const { return SkToBool(*this & ModifierFlag::kWriteOnly); }
-    bool isBuffer() const    { return SkToBool(*this & ModifierFlag::kBuffer); }
-    bool isWorkgroup() const { return SkToBool(*this & ModifierFlag::kWorkgroup); }
-    bool isExport() const    { return SkToBool(*this & ModifierFlag::kExport); }
-    bool isES3() const       { return SkToBool(*this & ModifierFlag::kES3); }
-    bool isPure() const      { return SkToBool(*this & ModifierFlag::kPure); }
-    bool isInline() const    { return SkToBool(*this & ModifierFlag::kInline); }
-    bool isNoInline() const  { return SkToBool(*this & ModifierFlag::kNoInline); }
+    bool isConst() const      { return SkToBool(*this & ModifierFlag::kConst); }
+    bool isUniform() const    { return SkToBool(*this & ModifierFlag::kUniform); }
+    bool isReadOnly() const   { return SkToBool(*this & ModifierFlag::kReadOnly); }
+    bool isWriteOnly() const  { return SkToBool(*this & ModifierFlag::kWriteOnly); }
+    bool isBuffer() const     { return SkToBool(*this & ModifierFlag::kBuffer); }
+    bool isPixelLocal() const { return SkToBool(*this & ModifierFlag::kPixelLocal); }
+    bool isWorkgroup() const  { return SkToBool(*this & ModifierFlag::kWorkgroup); }
+    bool isExport() const     { return SkToBool(*this & ModifierFlag::kExport); }
+    bool isES3() const        { return SkToBool(*this & ModifierFlag::kES3); }
+    bool isPure() const       { return SkToBool(*this & ModifierFlag::kPure); }
+    bool isInline() const     { return SkToBool(*this & ModifierFlag::kInline); }
+    bool isNoInline() const   { return SkToBool(*this & ModifierFlag::kNoInline); }
 };
 
 }  // namespace SkSL

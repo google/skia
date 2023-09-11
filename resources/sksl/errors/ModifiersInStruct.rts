@@ -7,6 +7,7 @@ struct S {
     readonly bool f;
     writeonly bool g;
     buffer int h;
+    pixel_local float i;
 };
 
 /*%%*
@@ -18,4 +19,5 @@ modifier 'flat' is not permitted on a struct field
 modifier 'noperspective' is not permitted on a struct field
 modifier 'inout' is not permitted on a struct field
 modifier 'buffer' is not permitted on a struct field
+modifier 'pixel_local' is not permitted on a struct field
 *%%*/

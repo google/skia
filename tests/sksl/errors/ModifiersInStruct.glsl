@@ -24,4 +24,7 @@ error: 6: modifier 'inout' is not permitted on a struct field
 error: 9: modifier 'buffer' is not permitted on a struct field
     buffer int h;
     ^^^^^^^^^^^^
-8 errors
+error: 10: modifier 'pixel_local' is not permitted on a struct field
+    pixel_local float i;
+    ^^^^^^^^^^^^^^^^^^^
+9 errors

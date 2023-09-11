@@ -96,6 +96,7 @@ static ModifierFlags parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_READONLY:       return ModifierFlag::kReadOnly;
         case Token::Kind::TK_WRITEONLY:      return ModifierFlag::kWriteOnly;
         case Token::Kind::TK_BUFFER:         return ModifierFlag::kBuffer;
+        case Token::Kind::TK_PIXELLOCAL:     return ModifierFlag::kPixelLocal;
         default:                             return ModifierFlag::kNone;
     }
 }

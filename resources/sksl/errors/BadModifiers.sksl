@@ -1,13 +1,13 @@
-const in out uniform flat noperspective $pure inline noinline readonly writeonly
+const in out uniform flat noperspective $pure inline noinline readonly writeonly pixel_local
 buffer void func1() {}
 
 void func2(const in out uniform flat noperspective $pure
-           inline noinline readonly writeonly buffer float test) {}
+           inline noinline readonly writeonly buffer pixel_local float test) {}
 
-const in out uniform flat noperspective $pure inline noinline readonly writeonly
+const in out uniform flat noperspective $pure inline noinline readonly writeonly pixel_local
 buffer float var;
 
-const in out uniform flat noperspective $pure inline noinline readonly writeonly
+const in out uniform flat noperspective $pure inline noinline readonly writeonly pixel_local
 buffer MyInterfaceBlock { float var; };
 
 /*%%*
@@ -20,6 +20,7 @@ type 'void' does not support qualifier 'readonly writeonly'
 'noperspective' is not permitted here
 '$pure' is not permitted here
 'buffer' is not permitted here
+'pixel_local' is not permitted here
 functions cannot be both 'inline' and 'noinline'
 type 'float' does not support qualifier 'readonly writeonly'
 'uniform' is not permitted here
@@ -29,6 +30,7 @@ type 'float' does not support qualifier 'readonly writeonly'
 'inline' is not permitted here
 'noinline' is not permitted here
 'buffer' is not permitted here
+'pixel_local' is not permitted here
 type 'float' does not support qualifier 'readonly writeonly'
 'in uniform' variables not permitted
 'uniform buffer' variables not permitted
@@ -36,10 +38,13 @@ type 'float' does not support qualifier 'readonly writeonly'
 'inline' is not permitted here
 'noinline' is not permitted here
 'buffer' is not permitted here
+'pixel_local' is not permitted here
+'const' variables must be initialized
 'in uniform' variables not permitted
 'readonly' and 'writeonly' qualifiers cannot be combined
 'uniform buffer' variables not permitted
 '$pure' is not permitted here
 'inline' is not permitted here
 'noinline' is not permitted here
+'pixel_local' is not permitted here
 *%%*/

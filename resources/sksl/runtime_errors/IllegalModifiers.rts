@@ -9,6 +9,7 @@ inline              float _inline;
 noinline            float _noinline;
 readonly            float _readonly;
 writeonly           float _writeonly;
+pixel_local         float _pixel_local;
 
 flat                void flat_fn() {}
 noperspective       void noperspective_fn() {}
@@ -20,6 +21,7 @@ $pure               void sk_pure_fn() {}
 readonly            void readonly_fn() {}
 writeonly           void writeonly_fn() {}
 buffer              void buffer_fn() {}
+pixel_local         void pixel_local_fn() {}
 
 float4 main(float2 xy) {
     return float4(1);
@@ -37,6 +39,7 @@ float4 main(float2 xy) {
 'noinline' is not permitted here
 type 'float' does not support qualifier 'readonly'
 type 'float' does not support qualifier 'writeonly'
+'pixel_local' is not permitted here
 'flat' is not permitted here
 'noperspective' is not permitted here
 'in' is not permitted here
@@ -47,4 +50,5 @@ type 'float' does not support qualifier 'writeonly'
 type 'void' does not support qualifier 'readonly'
 type 'void' does not support qualifier 'writeonly'
 'buffer' is not permitted here
+'pixel_local' is not permitted here
 *%%*/

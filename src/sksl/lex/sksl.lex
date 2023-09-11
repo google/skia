@@ -47,6 +47,7 @@ LOWP           = "lowp"
 ES3            = "$es3"
 EXPORT         = "$export"
 WORKGROUP      = "workgroup"
+PIXELLOCAL     = "pixel_local"
 RESERVED       = atomic|attribute|varying|precision|invariant|asm|class|union|enum|typedef|template|this|packed|goto|volatile|public|static|extern|external|interface|long|double|fixed|unsigned|superp|input|output|hvec[234]|dvec[234]|fvec[234]|sampler[13]D|sampler[12]DShadow|sampler3DRect|sampler2DRectShadow|samplerCube|sizeof|cast|namespace|using|gl_[0-9a-zA-Z_]*
 PRIVATE_IDENTIFIER = $[0-9a-zA-Z_]*
 IDENTIFIER     = [a-zA-Z_][0-9a-zA-Z_]*
