@@ -61,6 +61,36 @@ bool test_mat4() {
     return x == negated;
 }
 
+bool test_hmat2() {
+    const half2x2 negated = half2x2(-1, -2,
+                                    -3, -4);
+    half2x2 x = half2x2(testMatrix2x2);
+    x = +x;
+    x = -x;
+    return x == negated;
+}
+
+bool test_hmat3() {
+    const half3x3 negated = half3x3(-1, -2, -3,
+                                    -4, -5, -6,
+                                    -7, -8, -9);
+    half3x3 x = half3x3(testMatrix3x3);
+    x = +x;
+    x = -x;
+    return x == negated;
+}
+
+bool test_hmat4() {
+    const half4x4 negated = half4x4(-1,  -2,  -3,  -4,
+                                    -5,  -6,  -7,  -8,
+                                    -9,  -10, -11, -12,
+                                    -13, -14, -15, -16);
+    half4x4 x = half4x4(testMatrix4x4);
+    x = +x;
+    x = -x;
+    return x == negated;
+}
+
 half4 main(float2 coords) {
     return test_fscalar()
             && test_iscalar()
@@ -68,5 +98,8 @@ half4 main(float2 coords) {
             && test_ivec()
             && test_mat2()
             && test_mat3()
-            && test_mat4() ? colorGreen : colorRed;
+            && test_mat4()
+            && test_hmat2()
+            && test_hmat3()
+            && test_hmat4() ? colorGreen : colorRed;
 }

@@ -21,6 +21,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/ResourceKey.h"
@@ -219,7 +220,7 @@ static void basic_test(GrDirectContext* dContext,
 
     // Mega-purging it should remove it from both the hash and the cache
     proxy = nullptr;
-    cache->purgeUnlockedResources();
+    cache->purgeUnlockedResources(GrPurgeResourceOptions::kAllResources);
     if (!expectResourceToOutliveProxy) {
         expectedCacheCount -= cacheEntriesPerProxy;
     }
@@ -271,14 +272,13 @@ static void invalidation_test(GrDirectContext* dContext,
     // Some of our backends use buffers to do uploads that will live in our resource cache. So we
     // need to account for those extra resources here.
     int bufferResources = 0;
-    if (dContext->backend() == GrBackendApi::kDawn ||
-        dContext->backend() == GrBackendApi::kVulkan ||
+    if (dContext->backend() == GrBackendApi::kVulkan ||
         dContext->backend() == GrBackendApi::kDirect3D ||
         dContext->backend() == GrBackendApi::kMetal) {
         bufferResources = 1;
     }
 
-    sk_sp<SkImage> textureImg = rasterImg->makeTextureImage(dContext);
+    sk_sp<SkImage> textureImg = SkImages::TextureFromImage(dContext, rasterImg);
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, cacheEntriesPerProxy + bufferResources == cache->getResourceCount());
 
@@ -295,8 +295,9 @@ static void invalidation_test(GrDirectContext* dContext,
 
     // For backends that use buffers to upload lets make sure that work has been submit and done
     // before we try to purge all resources.
-    dContext->submit(true);
-    dContext->priv().getResourceCache()->purgeUnlockedResources();
+    dContext->submit(GrSyncCpu::kYes);
+    dContext->priv().getResourceCache()->purgeUnlockedResources(
+            GrPurgeResourceOptions::kAllResources);
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -339,7 +340,8 @@ static void invalidation_and_instantiation_test(GrDirectContext* dContext,
     REPORTER_ASSERT(reporter, cacheEntriesPerProxy == cache->getResourceCount());
 
     proxy = nullptr;
-    dContext->priv().getResourceCache()->purgeUnlockedResources();
+    dContext->priv().getResourceCache()->purgeUnlockedResources(
+            GrPurgeResourceOptions::kAllResources);
 
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -375,7 +377,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureProxyTest,
         }
 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
-        cache->purgeUnlockedResources();
+        cache->purgeUnlockedResources(GrPurgeResourceOptions::kAllResources);
     }
 
     basic_test(direct, reporter, create_wrapped_backend(direct), cacheEntriesPerProxy);

@@ -37,7 +37,7 @@ protected:
 
         // create a cpu-backed Surface
         SkImageInfo n32Info = SkImageInfo::MakeN32Premul(100, 100);
-        fRasterSurface = SkSurface::MakeRaster(n32Info);
+        fRasterSurface = SkSurfaces::Raster(n32Info);
     }
 
     void onPerCanvasPostDraw(SkCanvas*) override {

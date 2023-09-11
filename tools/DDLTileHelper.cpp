@@ -8,22 +8,26 @@
 #include "tools/DDLTileHelper.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
+#include "include/private/chromium/GrDeferredDisplayListRecorder.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
+#include "include/private/chromium/SkImageChromium.h"
 #include "src/base/SkRandom.h"
-#include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDeferredDisplayListPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "tools/DDLPromiseImageHelper.h"
 
 void DDLTileHelper::TileData::init(int id,
                                    GrDirectContext* direct,
-                                   const SkSurfaceCharacterization& dstSurfaceCharacterization,
+                                   const GrSurfaceCharacterization& dstSurfaceCharacterization,
                                    const SkIRect& clip,
                                    const SkIRect& paddingOutsets) {
     fID = id;
@@ -50,7 +54,7 @@ void DDLTileHelper::TileData::createDDL(const SkPicture* picture) {
     auto recordingChar = fPlaybackChar.createResized(fClip.width(), fClip.height());
     SkASSERT(recordingChar.isValid());
 
-    SkDeferredDisplayListRecorder recorder(recordingChar);
+    GrDeferredDisplayListRecorder recorder(recordingChar);
 
     // DDL TODO: the DDLRecorder's rContext isn't initialized until getCanvas is called.
     // Maybe set it up in the ctor?
@@ -70,7 +74,7 @@ void DDLTileHelper::TileData::createDDL(const SkPicture* picture) {
 void DDLTileHelper::createComposeDDL() {
     SkASSERT(!fComposeDDL);
 
-    SkDeferredDisplayListRecorder recorder(fDstCharacterization);
+    GrDeferredDisplayListRecorder recorder(fDstCharacterization);
 
     SkCanvas* recordingCanvas = recorder.getCanvas();
 
@@ -105,7 +109,7 @@ void DDLTileHelper::TileData::precompile(GrDirectContext* direct) {
 
     SkASSERT(fDisplayList);
 
-    SkDeferredDisplayList::ProgramIterator iter(direct, fDisplayList.get());
+    GrDeferredDisplayList::ProgramIterator iter(direct, fDisplayList.get());
     for (; !iter.done(); iter.next()) {
         iter.compile();
     }
@@ -119,16 +123,16 @@ sk_sp<SkSurface> DDLTileHelper::TileData::makeWrappedTileDest(GrRecordingContext
         return nullptr;
     }
 
-    // Here we are, unfortunately, aliasing the backend texture held by the SkPromiseImageTexture.
+    // Here we are, unfortunately, aliasing the backend texture held by the GrPromiseImageTexture.
     // Both the tile's destination surface and the promise image used to draw the tile will be
     // backed by the same backendTexture - unbeknownst to Ganesh.
-    return SkSurface::MakeFromBackendTexture(rContext,
-                                             promiseImageTexture->backendTexture(),
-                                             fPlaybackChar.origin(),
-                                             fPlaybackChar.sampleCount(),
-                                             fPlaybackChar.colorType(),
-                                             fPlaybackChar.refColorSpace(),
-                                             &fPlaybackChar.surfaceProps());
+    return SkSurfaces::WrapBackendTexture(rContext,
+                                          promiseImageTexture->backendTexture(),
+                                          fPlaybackChar.origin(),
+                                          fPlaybackChar.sampleCount(),
+                                          fPlaybackChar.colorType(),
+                                          fPlaybackChar.refColorSpace(),
+                                          &fPlaybackChar.surfaceProps());
 }
 
 void DDLTileHelper::TileData::drawSKPDirectly(GrDirectContext* dContext,
@@ -155,7 +159,7 @@ void DDLTileHelper::TileData::draw(GrDirectContext* direct) {
 
     fTileSurface = this->makeWrappedTileDest(direct);
     if (fTileSurface) {
-        fTileSurface->draw(fDisplayList, this->padOffset().x(), this->padOffset().y());
+        skgpu::ganesh::DrawDDL(fTileSurface, fDisplayList);
 
         // We can't snap an image here bc, since we're using wrapped backend textures for the
         // surfaces, that would incur a copy.
@@ -175,17 +179,17 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(
 
     // The promise image gets a ref on the promise callback context
     sk_sp<SkImage> promiseImage =
-                SkImage::MakePromiseTexture(std::move(threadSafeProxy),
-                                            fCallbackContext->backendFormat(),
-                                            this->paddedRectSize(),
-                                            GrMipmapped::kNo,
-                                            GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
-                                            fPlaybackChar.colorType(),
-                                            kPremul_SkAlphaType,
-                                            fPlaybackChar.refColorSpace(),
-                                            PromiseImageCallbackContext::PromiseImageFulfillProc,
-                                            PromiseImageCallbackContext::PromiseImageReleaseProc,
-                                            (void*)this->refCallbackContext().release());
+            SkImages::PromiseTextureFrom(std::move(threadSafeProxy),
+                                         fCallbackContext->backendFormat(),
+                                         this->paddedRectSize(),
+                                         GrMipmapped::kNo,
+                                         GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                                         fPlaybackChar.colorType(),
+                                         kPremul_SkAlphaType,
+                                         fPlaybackChar.refColorSpace(),
+                                         PromiseImageCallbackContext::PromiseImageFulfillProc,
+                                         PromiseImageCallbackContext::PromiseImageReleaseProc,
+                                         (void*)this->refCallbackContext().release());
     fCallbackContext->wasAddedToImage();
 
     return promiseImage;
@@ -194,7 +198,7 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImageForDst(
 void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, TileData* tile) {
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
 
-    const SkSurfaceCharacterization& c = tile->fPlaybackChar;
+    const GrSurfaceCharacterization& c = tile->fPlaybackChar;
     GrBackendTexture beTex =
             direct->createBackendTexture(c.width(),
                                          c.height(),
@@ -227,7 +231,7 @@ void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext* dContext, Ti
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
-                             const SkSurfaceCharacterization& dstChar,
+                             const GrSurfaceCharacterization& dstChar,
                              const SkIRect& viewport,
                              int numXDivisions, int numYDivisions,
                              bool addRandomPaddingToDst)

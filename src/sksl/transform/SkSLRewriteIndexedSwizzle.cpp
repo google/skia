@@ -5,18 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkSLDefines.h"
+#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
-#include <cstdint>
 #include <memory>
 #include <utility>
 
@@ -31,16 +30,16 @@ std::unique_ptr<Expression> Transform::RewriteIndexedSwizzle(const Context& cont
     const Swizzle& swizzle = indexExpr.base()->as<Swizzle>();
 
     // Convert the swizzle components to a literal array.
-    ExpressionArray vecArray;
-    vecArray.reserve(swizzle.components().size());
-    for (int8_t comp : swizzle.components()) {
-        vecArray.push_back(Literal::Make(indexExpr.fPosition, comp, context.fTypes.fInt.get()));
+    double vecArray[4];
+    for (int index = 0; index < swizzle.components().size(); ++index) {
+        vecArray[index] = swizzle.components()[index];
     }
 
     // Make a compound constructor with the literal array.
-    const Type& vecType = context.fTypes.fInt->toCompound(context, vecArray.size(), /*rows=*/1);
+    const Type& vecType =
+            context.fTypes.fInt->toCompound(context, swizzle.components().size(), /*rows=*/1);
     std::unique_ptr<Expression> vec =
-            ConstructorCompound::Make(context, indexExpr.fPosition, vecType, std::move(vecArray));
+            ConstructorCompound::MakeFromConstants(context, indexExpr.fPosition, vecType, vecArray);
 
     // Create a rewritten inner-expression corresponding to `vec(1,2,3)[originalIndex]`.
     std::unique_ptr<Expression> innerExpr = IndexExpression::Make(

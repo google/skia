@@ -1,4 +1,4 @@
-layout(binding=0) uniform sampler2D t;
+layout(binding=0) sampler2D t;
 void main()
 {
     half4 c = sampleLod(t, half2(0), 0);

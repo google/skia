@@ -1,0 +1,94 @@
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_LocalInvocationID
+               OpExecutionMode %main LocalSize 256 1 1
+               OpName %GlobalCounts "GlobalCounts"
+               OpMemberName %GlobalCounts 0 "firstHalfCount"
+               OpMemberName %GlobalCounts 1 "secondHalfCount"
+               OpName %ssbo "ssbo"
+               OpMemberName %ssbo 0 "globalCounts"
+               OpName %sk_LocalInvocationID "sk_LocalInvocationID"
+               OpName %localCounts "localCounts"
+               OpName %main "main"
+               OpName %idx "idx"
+               OpMemberDecorate %GlobalCounts 0 Offset 0
+               OpMemberDecorate %GlobalCounts 0 RelaxedPrecision
+               OpMemberDecorate %GlobalCounts 1 Offset 4
+               OpMemberDecorate %GlobalCounts 1 RelaxedPrecision
+               OpMemberDecorate %ssbo 0 Offset 0
+               OpMemberDecorate %ssbo 0 RelaxedPrecision
+               OpDecorate %ssbo BufferBlock
+               OpDecorate %3 Binding 0
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %sk_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %_arr_uint_int_2 ArrayStride 16
+       %uint = OpTypeInt 32 0
+%GlobalCounts = OpTypeStruct %uint %uint
+       %ssbo = OpTypeStruct %GlobalCounts
+%_ptr_Uniform_ssbo = OpTypePointer Uniform %ssbo
+          %3 = OpVariable %_ptr_Uniform_ssbo Uniform
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+        %int = OpTypeInt 32 1
+      %int_2 = OpConstant %int 2
+%_arr_uint_int_2 = OpTypeArray %uint %int_2
+%_ptr_Workgroup__arr_uint_int_2 = OpTypePointer Workgroup %_arr_uint_int_2
+%localCounts = OpVariable %_ptr_Workgroup__arr_uint_int_2 Workgroup
+       %void = OpTypeVoid
+         %17 = OpTypeFunction %void
+     %uint_0 = OpConstant %uint 0
+       %bool = OpTypeBool
+      %int_0 = OpConstant %int 0
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+     %uint_2 = OpConstant %uint 2
+      %int_1 = OpConstant %int 1
+   %uint_264 = OpConstant %uint 264
+%_ptr_Function_uint = OpTypePointer Function %uint
+   %uint_128 = OpConstant %uint 128
+     %uint_1 = OpConstant %uint 1
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+       %main = OpFunction %void None %17
+         %18 = OpLabel
+        %idx = OpVariable %_ptr_Function_uint Function
+         %19 = OpLoad %v3uint %sk_LocalInvocationID
+         %20 = OpCompositeExtract %uint %19 0
+         %22 = OpIEqual %bool %20 %uint_0
+               OpSelectionMerge %25 None
+               OpBranchConditional %22 %24 %25
+         %24 = OpLabel
+         %28 = OpAccessChain %_ptr_Workgroup_uint %localCounts %int_0
+               OpAtomicStore %28 %uint_2 %uint_0 %uint_0
+         %33 = OpAccessChain %_ptr_Workgroup_uint %localCounts %int_1
+               OpAtomicStore %33 %uint_2 %uint_0 %uint_0
+               OpBranch %25
+         %25 = OpLabel
+               OpControlBarrier %uint_2 %uint_2 %uint_264
+         %38 = OpLoad %v3uint %sk_LocalInvocationID
+         %39 = OpCompositeExtract %uint %38 0
+         %41 = OpULessThan %bool %39 %uint_128
+         %42 = OpSelect %int %41 %int_0 %int_1
+         %43 = OpBitcast %uint %42
+               OpStore %idx %43
+         %45 = OpAccessChain %_ptr_Workgroup_uint %localCounts %43
+         %44 = OpAtomicIAdd %uint %45 %uint_2 %uint_0 %uint_1
+               OpControlBarrier %uint_2 %uint_2 %uint_264
+         %48 = OpLoad %v3uint %sk_LocalInvocationID
+         %49 = OpCompositeExtract %uint %48 0
+         %50 = OpIEqual %bool %49 %uint_0
+               OpSelectionMerge %52 None
+               OpBranchConditional %50 %51 %52
+         %51 = OpLabel
+         %54 = OpAccessChain %_ptr_Uniform_uint %3 %int_0 %int_0
+         %57 = OpAccessChain %_ptr_Workgroup_uint %localCounts %int_0
+         %56 = OpAtomicLoad %uint %57 %uint_2 %uint_0
+         %53 = OpAtomicIAdd %uint %54 %uint_1 %uint_0 %56
+         %59 = OpAccessChain %_ptr_Uniform_uint %3 %int_0 %int_1
+         %61 = OpAccessChain %_ptr_Workgroup_uint %localCounts %int_1
+         %60 = OpAtomicLoad %uint %61 %uint_2 %uint_0
+         %58 = OpAtomicIAdd %uint %59 %uint_1 %uint_0 %60
+               OpBranch %52
+         %52 = OpLabel
+               OpReturn
+               OpFunctionEnd

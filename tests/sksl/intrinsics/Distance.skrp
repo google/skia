@@ -1,4 +1,56 @@
-### Compilation failed:
+48 instructions
 
-error: code is not supported
-1 error
+[immutable slots]
+i0 = 0x40400000 (3.0)
+i1 = 0x40400000 (3.0)
+i2 = 0x40A00000 (5.0)
+i3 = 0x41500000 (13.0)
+
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_uniform                   $0 = pos1(0)
+copy_uniform                   $1 = pos2(0)
+sub_float                      $0 -= $1
+bitwise_and_imm_int            $0 &= 0x7FFFFFFF
+cmpeq_imm_float                $0 = equal($0, 0x40400000 (3.0))
+copy_2_uniforms                $1..2 = pos1(0..1)
+copy_2_uniforms                $3..4 = pos2(0..1)
+sub_2_floats                   $1..2 -= $3..4
+copy_2_slots_unmasked          $3..4 = $1..2
+dot_2_floats                   $1 = dot($1..2, $3..4)
+sqrt_float                     $1 = sqrt($1)
+cmpeq_imm_float                $1 = equal($1, 0x40400000 (3.0))
+bitwise_and_int                $0 &= $1
+copy_3_uniforms                $1..3 = pos1(0..2)
+copy_3_uniforms                $4..6 = pos2(0..2)
+sub_3_floats                   $1..3 -= $4..6
+copy_3_slots_unmasked          $4..6 = $1..3
+dot_3_floats                   $1 = dot($1..3, $4..6)
+sqrt_float                     $1 = sqrt($1)
+cmpeq_imm_float                $1 = equal($1, 0x40A00000 (5.0))
+bitwise_and_int                $0 &= $1
+copy_4_uniforms                $1..4 = pos1
+copy_4_uniforms                $5..8 = pos2
+sub_4_floats                   $1..4 -= $5..8
+copy_4_slots_unmasked          $5..8 = $1..4
+dot_4_floats                   $1 = dot($1..4, $5..8)
+sqrt_float                     $1 = sqrt($1)
+cmpeq_imm_float                $1 = equal($1, 0x41500000 (13.0))
+bitwise_and_int                $0 &= $1
+copy_constant                  $1 = 0x40400000 (3.0)
+cmpeq_imm_float                $1 = equal($1, 0x40400000 (3.0))
+bitwise_and_int                $0 &= $1
+copy_constant                  $1 = 0x40400000 (3.0)
+cmpeq_imm_float                $1 = equal($1, 0x40400000 (3.0))
+bitwise_and_int                $0 &= $1
+copy_constant                  $1 = 0x40A00000 (5.0)
+cmpeq_imm_float                $1 = equal($1, 0x40A00000 (5.0))
+bitwise_and_int                $0 &= $1
+copy_constant                  $1 = 0x41500000 (13.0)
+cmpeq_imm_float                $1 = equal($1, 0x41500000 (13.0))
+bitwise_and_int                $0 &= $1
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_uniforms                $4..7 = colorRed
+copy_4_uniforms                $8..11 = colorGreen
+mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+load_src                       src.rgba = $0..3

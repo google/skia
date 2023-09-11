@@ -10,15 +10,15 @@
 #include "bench/Benchmark.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
-#include "include/core/SkSurfaceCharacterization.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/chromium/GrDeferredDisplayListRecorder.h"
+#include "include/private/chromium/GrSurfaceCharacterization.h"
 
-static SkSurfaceCharacterization create_characterization(GrDirectContext* direct) {
+static GrSurfaceCharacterization create_characterization(GrDirectContext* direct) {
     size_t maxResourceBytes = direct->getResourceCacheLimit();
 
     if (!direct->colorTypeSupportedAsSurface(kRGBA_8888_SkColorType)) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
     SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType,
@@ -27,12 +27,12 @@ static SkSurfaceCharacterization create_characterization(GrDirectContext* direct
     GrBackendFormat backendFormat = direct->defaultBackendFormat(kRGBA_8888_SkColorType,
                                                                  GrRenderable::kYes);
     if (!backendFormat.isValid()) {
-        return SkSurfaceCharacterization();
+        return GrSurfaceCharacterization();
     }
 
     SkSurfaceProps props(0x0, kUnknown_SkPixelGeometry);
 
-    SkSurfaceCharacterization c = direct->threadSafeProxy()->createCharacterization(
+    GrSurfaceCharacterization c = direct->threadSafeProxy()->createCharacterization(
                                                         maxResourceBytes, ii, backendFormat, 1,
                                                         kTopLeft_GrSurfaceOrigin, props, false);
     return c;
@@ -75,9 +75,9 @@ private:
             return;
         }
 
-        SkSurfaceCharacterization c = create_characterization(context);
+        GrSurfaceCharacterization c = create_characterization(context);
 
-        fRecorder = std::make_unique<SkDeferredDisplayListRecorder>(c);
+        fRecorder = std::make_unique<GrDeferredDisplayListRecorder>(c);
     }
 
     // We defer the clean up of the DDLs so it is done outside of the timing loop
@@ -85,8 +85,8 @@ private:
         fDDLs.clear();
     }
 
-    std::unique_ptr<SkDeferredDisplayListRecorder>      fRecorder = nullptr;
-    std::vector<sk_sp<SkDeferredDisplayList>>           fDDLs;
+    std::unique_ptr<GrDeferredDisplayListRecorder>      fRecorder = nullptr;
+    std::vector<sk_sp<GrDeferredDisplayList>>           fDDLs;
 
     using INHERITED = Benchmark;
 };

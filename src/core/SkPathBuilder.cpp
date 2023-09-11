@@ -10,10 +10,10 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRRect.h"
 #include "include/private/SkPathRef.h"
-#include "include/private/base/SkPathEnums.h"
 #include "include/private/base/SkSafe32.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 
 #include <algorithm>
@@ -73,8 +73,8 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
 }
 
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
-    fPts.reserve_back(  Sk32_sat_add(fPts.size(),   extraPtCount));
-    fVerbs.reserve_back(Sk32_sat_add(fVerbs.size(), extraVbCount));
+    fPts.reserve_exact(Sk32_sat_add(fPts.size(), extraPtCount));
+    fVerbs.reserve_exact(Sk32_sat_add(fVerbs.size(), extraVbCount));
 }
 
 SkRect SkPathBuilder::computeBounds() const {

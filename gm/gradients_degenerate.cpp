@@ -131,13 +131,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("degenerate_gradients");
-    }
+    SkString getName() const override { return SkString("degenerate_gradients"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(800, 800);
-    }
+    SkISize getISize() override { return SkISize::Make(800, 800); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(3 * TILE_GAP, 3 * TILE_GAP);

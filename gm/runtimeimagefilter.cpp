@@ -19,7 +19,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkRandom.h"
-#include "src/effects/imagefilters/SkRuntimeImageFilter.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -34,7 +33,10 @@ static sk_sp<SkImageFilter> make_filter() {
         }
     )")).effect;
     SkRuntimeShaderBuilder builder(std::move(effect));
-    return SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"", /*input=*/nullptr);
+    return SkImageFilters::RuntimeShader(builder,
+                                         /*sampleRadius=*/4,
+                                         /*childShaderName=*/"",
+                                         /*input=*/nullptr);
 }
 
 DEF_SIMPLE_GM_BG(rtif_distort, canvas, 500, 750, SK_ColorBLACK) {

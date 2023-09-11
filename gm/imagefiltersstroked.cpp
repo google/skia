@@ -31,14 +31,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("imagefiltersstroked"); }
 
-    SkString onShortName() override {
-        return SkString("imagefiltersstroked");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(860, 500);
-    }
+    SkISize getISize() override { return SkISize::Make(860, 500); }
 
     static void draw_circle(SkCanvas* canvas, const SkRect& r, const SkPaint& paint) {
         canvas->drawCircle(r.centerX(), r.centerY(),

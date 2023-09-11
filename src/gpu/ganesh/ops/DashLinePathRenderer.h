@@ -14,7 +14,7 @@ class GrGpu;
 
 namespace skgpu::ganesh {
 
-class DashLinePathRenderer final : public skgpu::v1::PathRenderer {
+class DashLinePathRenderer final : public skgpu::ganesh::PathRenderer {
 public:
     DashLinePathRenderer() = default;
 

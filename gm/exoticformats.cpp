@@ -12,14 +12,15 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuBase.h"
 #include "tools/Resources.h"
 #include "tools/gpu/ProxyUtils.h"
 
@@ -27,8 +28,8 @@ using namespace skia_private;
 
 //-------------------------------------------------------------------------------------------------
 struct ImageInfo {
-    SkISize           fDim;
-    GrMipmapped       fMipmapped;
+    SkISize fDim;
+    GrMipmapped fMipmapped;
     SkTextureCompressionType fCompressionType;
 };
 
@@ -310,16 +311,15 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
 static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
                                   const ImageInfo& info) {
     if (direct) {
-        return SkImage::MakeTextureFromCompressed(direct, std::move(data),
-                                                  info.fDim.fWidth,
-                                                  info.fDim.fHeight,
-                                                  info.fCompressionType,
-                                                  info.fMipmapped);
+        return SkImages::TextureFromCompressedTextureData(direct,
+                                                          std::move(data),
+                                                          info.fDim.fWidth,
+                                                          info.fDim.fHeight,
+                                                          info.fCompressionType,
+                                                          info.fMipmapped);
     } else {
-        return SkImage::MakeRasterFromCompressed(std::move(data),
-                                                 info.fDim.fWidth,
-                                                 info.fDim.fHeight,
-                                                 info.fCompressionType);
+        return SkImages::RasterFromCompressedTextureData(
+                std::move(data), info.fDim.fWidth, info.fDim.fHeight, info.fCompressionType);
     }
 }
 
@@ -334,11 +334,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("exoticformats");
-    }
+    SkString getName() const override { return SkString("exoticformats"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2*kImgWidthHeight + 3 * kPad, kImgWidthHeight + 2 * kPad);
     }
 

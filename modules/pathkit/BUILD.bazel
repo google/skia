@@ -1,0 +1,116 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "wasm_cc_binary")
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+BASE_LINKOPTS = [
+    #"-flto",  # https://github.com/emscripten-core/emsdk/issues/807
+    "--bind",  # Compiles the source code using the Embind bindings to connect C/C++ and JavaScript
+    "-fno-rtti",
+    "--no-entry",
+    "-sALLOW_MEMORY_GROWTH",
+    "-sUSE_PTHREADS=0",  # Disable pthreads
+    "-sMODULARIZE",
+    "-sDISABLE_EXCEPTION_CATCHING",  # Disable all exception catching
+    "-sNODEJS_CATCH_EXIT=0",  # We don't have a 'main' so disable exit() catching
+    "-sWASM",
+    "-sMAX_WEBGL_VERSION=2",
+    "-sUSE_WEBGL2=1",
+    "-sFORCE_FILESYSTEM=0",
+    "-sDYNAMIC_EXECUTION=0",
+    "-sERROR_ON_UNDEFINED_SYMBOLS=0",
+    "-sFILESYSTEM=0",
+    "-sEXPORTED_FUNCTIONS=['_malloc','_free']",
+]
+
+BASE_OPTS = [
+    "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
+    "-DSK_TRIVIAL_ABI=[[clang::trivial_abi]]",
+]
+
+RELEASE_OPTS = BASE_OPTS + [
+    "-Oz",
+    "--closure 1",
+    "-DSK_RELEASE",
+]
+
+DEBUG_OPTS = BASE_OPTS + [
+    "-O0",
+    "--js-opts",
+    "0",
+    "-sSAFE_HEAP=1",
+    "-sASSERTIONS=1",
+    "-g3",
+    "-DPATHKIT_TESTING",
+    "-DSK_DEBUG",
+]
+
+# Note: These are defines that only impact the _bindings.cpp files in this
+# folder. Any defines that need to effect the entire Skia build should go in
+# //bazel/BUILD.bazel
+CK_DEFINES = [
+    "CK_INCLUDE_PATHOPS",
+    "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",  # Allows us to compile with -fno-rtti
+]
+
+CK_RELEASE_OPTS = [
+    # Run the closure compiler
+    "--closure 1",
+    # pass the externs file in
+    "--closure-args=--externs=$(location externs.js)",
+]
+
+CK_LINKOPTS = BASE_LINKOPTS + [
+    "-sEXPORT_NAME=PathKitInit",
+    "-sINITIAL_MEMORY=32MB",
+    "--pre-js",
+    "modules/pathkit/chaining.js",
+    "--pre-js",
+    "modules/pathkit/helper.js",
+] + select({
+    "//bazel/common_config_settings:debug_build": DEBUG_OPTS,
+    "//conditions:default": RELEASE_OPTS + CK_RELEASE_OPTS,
+})
+
+# All JS files that could possibly be included via --pre-js or --post-js.
+# Whether they actually will be or not will be controlled above in the
+# construction of CK_LINKOPTS.
+JS_INTERFACE_FILES = [
+    "chaining.js",
+    "helper.js",
+]
+
+CK_SRCS = [
+    "pathkit_wasm_bindings.cpp",
+]
+
+CK_COPTS = [
+    "-Wno-header-hygiene",
+]
+
+cc_binary(
+    name = "pathkit.build",
+    srcs = CK_SRCS,
+    additional_linker_inputs = JS_INTERFACE_FILES + ["externs.js"],
+    copts = DEFAULT_COPTS + CK_COPTS,
+    linkopts = CK_LINKOPTS,
+    local_defines = CK_DEFINES,
+    # This target won't build successfully on its own because of missing
+    # emscripten headers etc. Therefore, we hide it from wildcards.
+    tags = ["manual"],
+    deps = [
+        "//:skia_public",
+    ],
+)
+
+wasm_cc_binary(
+    name = "pathkit",
+    # Whatever is before the dot will be the name of the output js and wasm, aka "the stem".
+    # https://github.com/emscripten-core/emsdk/blob/4a48a752e6a8bef6f222622f2b4926d5eb3bdeb3/bazel/emscripten_toolchain/wasm_cc_binary.bzl#L179
+    cc_target = ":pathkit.build",
+    visibility = [
+        "//infra/jsfiddle:__pkg__",
+    ],
+)

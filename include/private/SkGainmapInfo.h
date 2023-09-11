@@ -34,6 +34,8 @@
  *  In the above math, log() is a natural logarithm and exp() is natural exponentiation. Note,
  *  however, that the base used for the log() and exp() functions does not affect the results of
  *  the computation (it cancels out, as long as the same base is used throughout).
+ *
+ *  This product includes Gain Map technology under license by Adobe.
  */
 struct SkGainmapInfo {
     /**
@@ -69,15 +71,16 @@ struct SkGainmapInfo {
     };
     BaseImageType fBaseImageType = BaseImageType::kSDR;
 
-    // TODO(ccameron): Remove these parameters after the new parameters roll into Android.
-    SkColor4f fLogRatioMin = {0.f, 0.f, 0.f, 1.0};
-    SkColor4f fLogRatioMax = {1.f, 1.f, 1.f, 1.0};
-    float fHdrRatioMin = 1.f;
-    float fHdrRatioMax = 50.f;
+    inline bool operator==(const SkGainmapInfo& other) {
+        return fGainmapRatioMin == other.fGainmapRatioMin &&
+               fGainmapRatioMax == other.fGainmapRatioMax && fGainmapGamma == other.fGainmapGamma &&
+               fEpsilonSdr == other.fEpsilonSdr && fEpsilonHdr == other.fEpsilonHdr &&
+               fDisplayRatioSdr == other.fDisplayRatioSdr &&
+               fDisplayRatioHdr == other.fDisplayRatioHdr && fBaseImageType == other.fBaseImageType;
+    }
+    inline bool operator!=(const SkGainmapInfo& other) { return !(*this == other); }
 
-    /**
-     *  The type of file that created this gainmap.
-     */
+    // TODO(ccameron): Remove these parameters once we are certain they are not used in Android.
     enum class Type {
         kUnknown,
         kMultiPicture,
@@ -86,6 +89,10 @@ struct SkGainmapInfo {
         kJpegR_PQ,
         kHDRGM,
     };
+    SkColor4f fLogRatioMin = {0.f, 0.f, 0.f, 1.0};
+    SkColor4f fLogRatioMax = {1.f, 1.f, 1.f, 1.0};
+    float fHdrRatioMin = 1.f;
+    float fHdrRatioMax = 50.f;
     Type fType = Type::kUnknown;
 };
 

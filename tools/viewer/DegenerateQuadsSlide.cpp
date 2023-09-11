@@ -15,10 +15,10 @@
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
-using VertexSpec = skgpu::v1::QuadPerEdgeAA::VertexSpec;
-using ColorType = skgpu::v1::QuadPerEdgeAA::ColorType;
-using Subset = skgpu::v1::QuadPerEdgeAA::Subset;
-using IndexBufferOption = skgpu::v1::QuadPerEdgeAA::IndexBufferOption;
+using VertexSpec = skgpu::ganesh::QuadPerEdgeAA::VertexSpec;
+using ColorType = skgpu::ganesh::QuadPerEdgeAA::ColorType;
+using Subset = skgpu::ganesh::QuadPerEdgeAA::Subset;
+using IndexBufferOption = skgpu::ganesh::QuadPerEdgeAA::IndexBufferOption;
 
 // Draw a line through the two points, outset by a fixed length in screen space
 static void draw_extended_line(SkCanvas* canvas, const SkPaint paint,
@@ -429,7 +429,7 @@ private:
         GrQuad quad = GrQuad::MakeFromSkQuad(fCorners, SkMatrix::I());
 
         float vertices[56]; // 2 quads, with x, y, coverage, and geometry domain (7 floats x 8 vert)
-        skgpu::v1::QuadPerEdgeAA::Tessellator tessellator(kSpec, (char*) vertices);
+        skgpu::ganesh::QuadPerEdgeAA::Tessellator tessellator(kSpec, (char*)vertices);
         tessellator.append(&quad, nullptr, {1.f, 1.f, 1.f, 1.f},
                            SkRect::MakeEmpty(), flags);
 

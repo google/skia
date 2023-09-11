@@ -1,0 +1,191 @@
+# Copyright 2023 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+if (skia_use_dawn) {
+  import("//third_party/externals/dawn/scripts/dawn_features.gni")
+}
+
+config("public_config") {
+  defines = []
+  include_dirs = [ "." ]
+}
+
+skia_component("window") {
+  check_includes = false
+  testonly = true  # For access to gpu_tool_utils. TODO: clean up
+  public_configs = [ ":public_config" ]
+  public = [
+    "DisplayParams.h",
+    "WindowContext.h",
+  ]
+  sources = [
+    "DisplayParams.h",
+    "RasterWindowContext.h",
+    "WindowContext.cpp",
+    "WindowContext.h",
+  ]
+
+  libs = []
+  frameworks = []
+
+  if (is_android) {
+    sources += [
+      "android/RasterWindowContext_android.cpp",
+      "android/WindowContextFactory_android.h",
+    ]
+    libs += [ "android" ]
+  } else if (is_linux) {
+    sources += [
+      "unix/RasterWindowContext_unix.cpp",
+      "unix/WindowContextFactory_unix.h",
+    ]
+    libs += [
+      "GL",  # Used by raster window context, so cannot be behind skia_use_gl.
+      "X11",
+    ]
+  } else if (is_win) {
+    sources += [
+      "win/RasterWindowContext_win.cpp",
+      "win/WindowContextFactory_win.h",
+    ]
+  } else if (is_mac) {
+    sources += [ "mac/WindowContextFactory_mac.h" ]
+    frameworks += [
+      "QuartzCore.framework",
+      "Cocoa.framework",
+      "Foundation.framework",
+    ]
+  } else if (is_ios) {
+    sources += [ "ios/WindowContextFactory_ios.h" ]
+    frameworks += [ "QuartzCore.framework" ]
+  }
+
+  if (skia_use_gl) {
+    sources += [
+      "GLWindowContext.cpp",
+      "GLWindowContext.h",
+    ]
+    if (is_android) {
+      sources += [ "android/GLWindowContext_android.cpp" ]
+    } else if (is_linux) {
+      sources += [ "unix/GLWindowContext_unix.cpp" ]
+    } else if (is_win) {
+      sources += [ "win/GLWindowContext_win.cpp" ]
+      if (skia_use_angle) {
+        sources += [ "win/ANGLEWindowContext_win.cpp" ]
+      }
+    } else if (is_mac) {
+      sources += [
+        "mac/GLWindowContext_mac.mm",
+        "mac/RasterWindowContext_mac.mm",
+      ]
+    } else if (is_ios) {
+      sources += [
+        "ios/GLWindowContext_ios.mm",
+        "ios/RasterWindowContext_ios.mm",
+      ]
+    }
+  }
+
+  if (skia_use_vulkan) {
+    sources += [
+      "VulkanWindowContext.cpp",
+      "VulkanWindowContext.h",
+    ]
+    if (skia_enable_graphite) {
+      sources += [
+        "GraphiteVulkanWindowContext.cpp",
+        "GraphiteVulkanWindowContext.h",
+      ]
+    }
+    if (is_android) {
+      sources += [ "android/VulkanWindowContext_android.cpp" ]
+    } else if (is_linux) {
+      sources += [ "unix/VulkanWindowContext_unix.cpp" ]
+      if (skia_enable_graphite) {
+        sources += [ "unix/GraphiteVulkanWindowContext_unix.cpp" ]
+      }
+      libs += [ "X11-xcb" ]
+    } else if (is_win) {
+      sources += [ "win/VulkanWindowContext_win.cpp" ]
+      if (skia_enable_graphite) {
+        sources += [ "win/GraphiteVulkanWindowContext_win.cpp" ]
+      }
+    }
+  }
+
+  if (skia_use_metal) {
+    sources += [
+      "MetalWindowContext.h",
+      "MetalWindowContext.mm",
+    ]
+    if (skia_enable_graphite) {
+      sources += [
+        "GraphiteMetalWindowContext.h",
+        "GraphiteMetalWindowContext.mm",
+      ]
+    }
+    if (is_mac) {
+      sources += [ "mac/MetalWindowContext_mac.mm" ]
+      if (skia_enable_graphite) {
+        sources += [ "mac/GraphiteMetalWindowContext_mac.mm" ]
+      }
+    } else if (is_ios) {
+      sources += [ "ios/MetalWindowContext_ios.mm" ]
+    }
+  }
+
+  if (skia_use_direct3d) {
+    sources += [ "win/D3D12WindowContext_win.cpp" ]
+  }
+
+  if (skia_use_dawn) {
+    if (is_linux) {
+      if (dawn_enable_vulkan) {
+        defines = [ "VK_USE_PLATFORM_XCB_KHR" ]
+        libs += [ "X11-xcb" ]
+        if (skia_enable_graphite) {
+          sources += [
+            "GraphiteDawnWindowContext.cpp",
+            "GraphiteDawnWindowContext.h",
+            "unix/GraphiteDawnVulkanWindowContext_unix.cpp",
+          ]
+        }
+      }
+    } else if (is_win) {
+      if (dawn_enable_d3d12) {
+        if (skia_enable_graphite) {
+          sources += [
+            "GraphiteDawnWindowContext.cpp",
+            "GraphiteDawnWindowContext.h",
+            "win/GraphiteDawnD3D12WindowContext_win.cpp",
+          ]
+        }
+      }
+    } else if (is_mac) {
+      if (dawn_enable_metal) {
+        if (skia_enable_graphite) {
+          sources += [
+            "GraphiteDawnWindowContext.cpp",
+            "GraphiteDawnWindowContext.h",
+            "mac/GraphiteDawnMetalWindowContext_mac.mm",
+          ]
+        }
+      }
+    }
+  }
+
+  configs = [ "../../:skia_private" ]
+  deps = [
+    "../..:gpu_tool_utils",
+    "../..:skia",
+  ]
+
+  if (skia_use_gl && skia_use_angle) {
+    deps += [ "//third_party/angle2" ]
+  }
+}

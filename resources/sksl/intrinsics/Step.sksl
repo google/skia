@@ -4,8 +4,10 @@ uniform half4 colorGreen, colorRed;
 half4 main(float2 coords) {
     const half4 constVal   = half4(-1.25, 0, 0.75, 2.25);
     const half4 constGreen = half4(0, 1, 0, 1);
+    const half4 constRed   = half4(1, 0, 0, 1);
     half4 expectedA = half4(0, 0, 1, 1);
     half4 expectedB = half4(1, 1, 0, 0);
+    half4 expectedC = half4(0, 1, 1, 1);
 
     return (step(0.5, testInputs.x)                == expectedA.x     &&
             step(0.5, testInputs.xy)               == expectedA.xy    &&
@@ -22,5 +24,14 @@ half4 main(float2 coords) {
             step(constVal.x,      constGreen.x)    == expectedB.x     &&
             step(constVal.xy,     constGreen.xy)   == expectedB.xy    &&
             step(constVal.xyz,    constGreen.xyz)  == expectedB.xyz   &&
-            step(constVal.xyzw,   constGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
+            step(constVal.xyzw,   constGreen.xyzw) == expectedB.xyzw  &&
+            step(colorRed.x,      colorGreen.x)    == expectedC.x     &&
+            step(colorRed.xy,     colorGreen.xy)   == expectedC.xy    &&
+            step(colorRed.xyz,    colorGreen.xyz)  == expectedC.xyz   &&
+            step(colorRed.xyzw,   colorGreen.xyzw) == expectedC.xyzw  &&
+            step(constRed.x,      constGreen.x)    == expectedC.x     &&
+            step(constRed.xy,     constGreen.xy)   == expectedC.xy    &&
+            step(constRed.xyz,    constGreen.xyz)  == expectedC.xyz   &&
+            step(constRed.xyzw,   constGreen.xyzw) == expectedC.xyzw)
+            ? colorGreen : colorRed;
 }

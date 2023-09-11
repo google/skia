@@ -5,18 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include <memory>
-
-#include "include/core/SkData.h"
-#include "include/core/SkDrawable.h"
 #include "include/core/SkPictureRecorder.h"
+
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordOpts.h"
 #include "src/core/SkRecordedDrawable.h"
 #include "src/core/SkRecorder.h"
+
+#include <cstddef>
+#include <memory>
+#include <utility>
 
 using namespace skia_private;
 
@@ -76,11 +81,11 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture() {
     };
 
     if (fBBH) {
-        AutoTMalloc<SkRect> bounds(fRecord->count());
+        AutoTArray<SkRect> bounds(fRecord->count());
         AutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
-        SkRecordFillBounds(fCullRect, *fRecord, bounds, meta);
+        SkRecordFillBounds(fCullRect, *fRecord, bounds.data(), meta);
 
-        fBBH->insert(bounds, meta, fRecord->count());
+        fBBH->insert(bounds.data(), meta, fRecord->count());
 
         // Now that we've calculated content bounds, we can update fCullRect, often trimming it.
         SkRect bbhBound = SkRect::MakeEmpty();
@@ -131,10 +136,10 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable() {
     SkRecordOptimize(fRecord.get());
 
     if (fBBH) {
-        AutoTMalloc<SkRect> bounds(fRecord->count());
+        AutoTArray<SkRect> bounds(fRecord->count());
         AutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
-        SkRecordFillBounds(fCullRect, *fRecord, bounds, meta);
-        fBBH->insert(bounds, meta, fRecord->count());
+        SkRecordFillBounds(fCullRect, *fRecord, bounds.data(), meta);
+        fBBH->insert(bounds.data(), meta, fRecord->count());
     }
 
     sk_sp<SkDrawable> drawable =

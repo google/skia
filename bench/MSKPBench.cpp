@@ -34,7 +34,7 @@ void MSKPBench::onDraw(int loops, SkCanvas* canvas) {
 
 const char* MSKPBench::onGetName() { return fName.c_str(); }
 
-SkIPoint MSKPBench::onGetSize() {
+SkISize MSKPBench::onGetSize() {
     auto dims = fPlayer->maxDimensions();
     return {dims.width(), dims.height()};
 }

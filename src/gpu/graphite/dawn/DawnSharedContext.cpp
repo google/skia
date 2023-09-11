@@ -17,7 +17,7 @@ namespace {
 
 wgpu::ShaderModule CreateNoopFragment(const wgpu::Device& device) {
     wgpu::ShaderModuleWGSLDescriptor wgslDesc;
-    wgslDesc.source =
+    wgslDesc.code =
             "@fragment\n"
             "fn main() {}\n";
     wgpu::ShaderModuleDescriptor smDesc;
@@ -54,12 +54,19 @@ DawnSharedContext::DawnSharedContext(const DawnBackendContext& backendContext,
         , fQueue(backendContext.fQueue)
         , fNoopFragment(std::move(noopFragment)) {}
 
-DawnSharedContext::~DawnSharedContext() = default;
+DawnSharedContext::~DawnSharedContext() {
+    // need to clear out resources before any allocator is removed
+    this->globalCache()->deleteResources();
+}
 
 std::unique_ptr<ResourceProvider> DawnSharedContext::makeResourceProvider(
-        SingleOwner* singleOwner) {
-    return std::unique_ptr<ResourceProvider>(new DawnResourceProvider(this, singleOwner));
+        SingleOwner* singleOwner,
+        uint32_t recorderID,
+        size_t resourceBudget) {
+    return std::unique_ptr<ResourceProvider>(new DawnResourceProvider(this,
+                                                                      singleOwner,
+                                                                      recorderID,
+                                                                      resourceBudget));
 }
 
 } // namespace skgpu::graphite
-

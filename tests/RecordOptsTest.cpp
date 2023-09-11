@@ -390,8 +390,8 @@ static bool is_equal(SkSurface* a, SkSurface* b) {
 //
 static void do_savelayer_srcmode(skiatest::Reporter* r, SkColor color) {
     for (int doPicture = 0; doPicture <= 1; ++doPicture) {
-        sk_sp<SkSurface> surf0 = SkSurface::MakeRasterN32Premul(10, 10);
-        sk_sp<SkSurface> surf1 = SkSurface::MakeRasterN32Premul(10, 10);
+        sk_sp<SkSurface> surf0 = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10));
+        sk_sp<SkSurface> surf1 = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10));
         SkCanvas* c0 = surf0->getCanvas();
         SkCanvas* c1 = surf1->getCanvas();
 

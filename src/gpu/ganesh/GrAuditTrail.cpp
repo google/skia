@@ -8,6 +8,8 @@
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
+using namespace skia_private;
+
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
 void GrAuditTrail::addOp(const GrOp* op, GrRenderTargetProxy::UniqueID proxyID) {
@@ -98,7 +100,7 @@ void GrAuditTrail::copyOutFromOpsTask(OpInfo* outOpInfo, int opsTaskID) {
     }
 }
 
-void GrAuditTrail::getBoundsByClientID(SkTArray<OpInfo>* outInfo, int clientID) {
+void GrAuditTrail::getBoundsByClientID(TArray<OpInfo>* outInfo, int clientID) {
     Ops** opsLookup = fClientIDLookup.find(clientID);
     if (opsLookup) {
         // We track which oplistID we're currently looking at.  If it changes, then we need to push

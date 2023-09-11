@@ -9,9 +9,9 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
@@ -28,7 +28,7 @@ static std::unique_ptr<Expression> cast_constant_array(const Context& context,
     // Create a ConstructorArray(...) which typecasts each argument inside.
     auto inputArgs = constCtor->as<ConstructorArray>().argumentSpan();
     ExpressionArray typecastArgs;
-    typecastArgs.reserve_back(inputArgs.size());
+    typecastArgs.reserve_exact(inputArgs.size());
     for (std::unique_ptr<Expression>& arg : inputArgs) {
         Position argPos = arg->fPosition;
         if (arg->type().isScalar()) {

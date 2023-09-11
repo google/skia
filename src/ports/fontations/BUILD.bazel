@@ -1,0 +1,46 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "exports_files_legacy",
+    "skia_cc_deps",
+    "skia_cc_library",
+)
+load("@rules_rust//rust:defs.bzl", "rust_static_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+rust_cxx_bridge(
+    name = "fontations_ffi",
+    src = "src/ffi.rs",
+    deps = [":path_bridge_include"],
+)
+
+rust_static_library(
+    name = "bridge_rust_side",
+    srcs = ["src/ffi.rs"],
+    deps = [
+        "@cxx",
+        "@fontations//:font-types",
+        "@fontations//:read-fonts",
+        "@fontations//:skrifa",
+    ],
+)
+
+skia_cc_library(
+    name = "path_bridge_include",
+    hdrs = [
+        "src/skpath_bridge.h",
+    ],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//src/ports:__pkg__"],
+    deps = [
+        ":bridge_rust_side",
+        ":fontations_ffi",
+        ":path_bridge_include",
+    ],
+)

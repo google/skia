@@ -16,6 +16,7 @@
 #include "tools/viewer/ClickHandlerSlide.h"
 
 #include <stack>
+#include <vector>
 
 namespace {
 

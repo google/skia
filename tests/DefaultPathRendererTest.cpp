@@ -28,6 +28,7 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/gpu/ContextType.h"
 
 #include <memory>
 #include <utility>
@@ -37,9 +38,9 @@ static void only_allow_default(GrContextOptions* options) {
 }
 
 static SkBitmap read_back(GrDirectContext* dContext,
-                          skgpu::v1::SurfaceDrawContext* sdc,
-                          int width, int height) {
-
+                          skgpu::ganesh::SurfaceDrawContext* sdc,
+                          int width,
+                          int height) {
     SkImageInfo dstII = SkImageInfo::MakeN32Premul(width, height);
 
     SkBitmap bm;
@@ -82,10 +83,13 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     GrStyle style(SkStrokeRec::kFill_InitStyle);
 
     {
-        auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                       SkBackingFit::kApprox,
-                                                       {kBigSize/2 + 1, kBigSize/2 + 1},
-                                                       SkSurfaceProps(), /*label=*/{});
+        auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                           GrColorType::kRGBA_8888,
+                                                           nullptr,
+                                                           SkBackingFit::kApprox,
+                                                           {kBigSize / 2 + 1, kBigSize / 2 + 1},
+                                                           SkSurfaceProps(),
+                                                           /*label=*/{});
 
         sdc->clear(SK_PMColor4fBLACK);
 
@@ -101,9 +105,13 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     }
 
     {
-        auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                       SkBackingFit::kExact, {kBigSize, kBigSize},
-                                                       SkSurfaceProps(), /*label=*/{});
+        auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                           GrColorType::kRGBA_8888,
+                                                           nullptr,
+                                                           SkBackingFit::kExact,
+                                                           {kBigSize, kBigSize},
+                                                           SkSurfaceProps(),
+                                                           /*label=*/{});
 
         sdc->clear(SK_PMColor4fBLACK);
 
@@ -129,7 +137,7 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(DefaultPathRendererTest,
-                             sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             skgpu::IsRenderingContext,
                              reporter,
                              ctxInfo,
                              only_allow_default,

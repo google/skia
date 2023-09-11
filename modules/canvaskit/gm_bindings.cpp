@@ -20,6 +20,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "modules/canvaskit/WasmCommon.h"
@@ -31,6 +32,7 @@
 #include "tools/ResourceFactory.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/TestFontMgr.h"
+#include "tools/gpu/ContextType.h"
 
 using namespace emscripten;
 
@@ -42,18 +44,18 @@ using namespace emscripten;
 static JSArray ListGMs() {
     SkDebugf("Listing GMs\n");
     JSArray gms = emscripten::val::array();
-    for (skiagm::GMFactory fact : skiagm::GMRegistry::Range()) {
+    for (const skiagm::GMFactory& fact : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(fact());
-        SkDebugf("gm %s\n", gm->getName());
-        gms.call<void>("push", std::string(gm->getName()));
+        SkDebugf("gm %s\n", gm->getName().c_str());
+        gms.call<void>("push", std::string(gm->getName().c_str()));
     }
     return gms;
 }
 
 static std::unique_ptr<skiagm::GM> getGMWithName(std::string name) {
-    for (skiagm::GMFactory fact : skiagm::GMRegistry::Range()) {
+    for (const skiagm::GMFactory& fact : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm(fact());
-        if (gm->getName() == name) {
+        if (gm->getName().c_str() == name) {
             return gm;
         }
     }
@@ -124,7 +126,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     auto colorType = SkColorType::kN32_SkColorType;
     SkISize size = gm->getISize();
     SkImageInfo info = SkImageInfo::Make(size, colorType, alphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(
             ctx.get(), skgpu::Budgeted::kYes, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr, true));
     if (!surface) {
         SkDebugf("Could not make surface\n");
@@ -150,7 +152,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     } else if (drawResult == skiagm::DrawResult::kSkip) {
         return result;
     }
-    surface->flushAndSubmit(true);
+    ctx->flushAndSubmit(surface, true);
 
     // Based on GPUSink::readBack
     SkBitmap bitmap;
@@ -266,27 +268,24 @@ static JSObject RunTest(std::string name) {
 
 namespace skiatest {
 
-using ContextType = sk_gpu_test::GrContextFactory::ContextType;
+using ContextType = skgpu::ContextType;
 
-// These are the supported GrContextTypeFilterFn. They are defined in Test.h and implemented here.
-bool IsGLContextType(ContextType ct) {
-    return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(ct);
+// These are the supported ContextTypeFilterFn. They are defined in Test.h and implemented here.
+bool IsGLContextType(skgpu::ContextType ct) {
+    return skgpu::ganesh::ContextTypeBackend(ct) == GrBackendApi::kOpenGL;
 }
-bool IsRenderingGLContextType(ContextType ct) {
-    return IsGLContextType(ct) && sk_gpu_test::GrContextFactory::IsRenderingContext(ct);
-}
-bool IsMockContextType(ContextType ct) {
-    return ct == ContextType::kMock_ContextType;
+bool IsMockContextType(skgpu::ContextType ct) {
+    return ct == skgpu::ContextType::kMock;
 }
 // These are not supported
-bool IsVulkanContextType(ContextType) {return false;}
-bool IsMetalContextType(ContextType) {return false;}
-bool IsDirect3DContextType(ContextType) {return false;}
-bool IsDawnContextType(ContextType) {return false;}
+bool IsVulkanContextType(ContextType) { return false; }
+bool IsMetalContextType(ContextType) { return false; }
+bool IsDirect3DContextType(ContextType) { return false; }
+bool IsDawnContextType(ContextType) { return false; }
 
-void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* filter,
                                Reporter* reporter, const GrContextOptions& options) {
-    for (auto contextType : {ContextType::kGLES_ContextType, ContextType::kMock_ContextType}) {
+    for (auto contextType : {skgpu::ContextType::kGLES, skgpu::ContextType::kMock}) {
         if (filter && !(*filter)(contextType)) {
             continue;
         }

@@ -35,7 +35,7 @@ class GrGpuBuffer;
 class GrRenderTargetProxy;
 class OpsTaskTestingAccess;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -106,7 +106,7 @@ public:
     void visitProxies_debugOnly(const GrVisitProxyFunc&) const override;
 #endif
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void dump(const SkString& label,
               SkString indent,
               bool printDependencies,
@@ -267,7 +267,7 @@ private:
     // clearing can be done natively, in which case the op list's load ops are sufficient. In other
     // cases, draw ops must be used, which makes the SDC the best place for those decisions. This,
     // however, requires that the SDC be able to coordinate with the op list to achieve similar ends
-    friend class skgpu::v1::SurfaceDrawContext;
+    friend class skgpu::ganesh::SurfaceDrawContext;
 
     GrAuditTrail* fAuditTrail;
 
@@ -288,19 +288,19 @@ private:
     GrXferBarrierFlags fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
 
     // For ops/opsTask we have mean: 5 stdDev: 28
-    SkSTArray<25, OpChain> fOpChains;
+    skia_private::STArray<25, OpChain> fOpChains;
 
     sk_sp<GrArenas> fArenas;
     SkDEBUGCODE(int fNumClips;)
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
     // causing slow downs.
-    SkTArray<GrSurfaceProxy*, true> fSampledProxies;
+    skia_private::TArray<GrSurfaceProxy*, true> fSampledProxies;
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // OpsTask_DEFINED

@@ -37,7 +37,6 @@ skia_cc_binary_with_flags(
     name = "sksl_minify",
     srcs = ["SkSLMinify.cpp"],
     set_flags = {
-        "enable_sksl": ["True"],
         "enable_skslc": ["True"],
     },
     deps = [

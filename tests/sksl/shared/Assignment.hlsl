@@ -8,7 +8,7 @@ struct S
 
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _22_colorGreen : packoffset(c0);
+    float4 _23_colorGreen : packoffset(c0);
 };
 
 
@@ -22,19 +22,25 @@ struct SPIRV_Cross_Output
 static float4 globalVar = 0.0f.xxxx;
 static S globalStruct = { 0.0f, { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f }, 0.0f.xxxx, { 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx } };
 
-void keepAlive_vf(float _39)
+void assignToFunctionParameter_vif(out int _47, out float _48)
+{
+    _47 = 1;
+    _48 = 1.0f;
+}
+
+void keepAlive_vf(float _40)
 {
 }
 
-void keepAlive_vh(float _37)
+void keepAlive_vh(float _38)
 {
 }
 
-void keepAlive_vi(int _43)
+void keepAlive_vi(int _44)
 {
 }
 
-float4 main(float2 _46)
+float4 main(float2 _53)
 {
     int i = 0;
     int4 i4 = int4(1, 2, 3, 4);
@@ -58,50 +64,59 @@ float4 main(float2 _46)
     s.ah4[2] = float4(s.ah4[2].x, 5.0f.xx.x, s.ah4[2].z, 5.0f.xx.y);
     globalVar = 0.0f.xxxx;
     globalStruct.f = 0.0f;
+    int _121 = 0;
+    float _126 = f3x3[0].x;
+    assignToFunctionParameter_vif(_121, _126);
+    f3x3[0].x = _126;
     float l = 0.0f;
     ai[0] += ai4[0].x;
     s.f = 1.0f;
     s.af[0] = 2.0f;
     s.h4 = 1.0f.xxxx;
     s.ah4[0] = 2.0f.xxxx;
-    float _131 = af4[0].x;
-    keepAlive_vf(_131);
-    af4[0].x = _131;
-    float _138 = ah3x3[0][0].x;
-    keepAlive_vh(_138);
-    ah3x3[0][0].x = _138;
-    int _142 = i;
-    keepAlive_vi(_142);
-    i = _142;
-    int _147 = i4.y;
-    keepAlive_vi(_147);
-    i4.y = _147;
-    int _152 = ai[0];
-    keepAlive_vi(_152);
-    ai[0] = _152;
-    int _158 = ai4[0].x;
-    keepAlive_vi(_158);
-    ai4[0].x = _158;
-    float _163 = x.y;
-    keepAlive_vh(_163);
-    x.y = _163;
-    float _168 = s.f;
-    keepAlive_vf(_168);
-    s.f = _168;
-    float _172 = l;
-    keepAlive_vh(_172);
-    l = _172;
-    float _178 = f3x3[0].x;
-    keepAlive_vf(_178);
-    f3x3[0].x = _178;
-    return _22_colorGreen;
+    float repeat = 1.0f;
+    repeat = 1.0f;
+    float _145 = af4[0].x;
+    keepAlive_vf(_145);
+    af4[0].x = _145;
+    float _151 = ah3x3[0][0].x;
+    keepAlive_vh(_151);
+    ah3x3[0][0].x = _151;
+    int _155 = i;
+    keepAlive_vi(_155);
+    i = _155;
+    int _160 = i4.y;
+    keepAlive_vi(_160);
+    i4.y = _160;
+    int _165 = ai[0];
+    keepAlive_vi(_165);
+    ai[0] = _165;
+    int _171 = ai4[0].x;
+    keepAlive_vi(_171);
+    ai4[0].x = _171;
+    float _176 = x.y;
+    keepAlive_vh(_176);
+    x.y = _176;
+    float _181 = s.f;
+    keepAlive_vf(_181);
+    s.f = _181;
+    float _185 = l;
+    keepAlive_vh(_185);
+    l = _185;
+    float _191 = f3x3[0].x;
+    keepAlive_vf(_191);
+    f3x3[0].x = _191;
+    float _195 = repeat;
+    keepAlive_vf(_195);
+    repeat = _195;
+    return _23_colorGreen;
 }
 
 void frag_main()
 {
-    float2 _32 = 0.0f.xx;
-    float4 _34 = main(_32);
-    sk_FragColor = _34;
+    float2 _33 = 0.0f.xx;
+    float4 _35 = main(_33);
+    sk_FragColor = _35;
 }
 
 SPIRV_Cross_Output main()

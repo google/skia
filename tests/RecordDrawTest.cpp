@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -152,39 +153,14 @@ DEF_TEST(RecordDraw_BasicBounds, r) {
         recorder.drawRect(SkRect::MakeWH(320, 240), SkPaint());
     recorder.restore();
 
-    AutoTMalloc<SkRect> bounds(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, bounds);
+    AutoTArray<SkRect> bounds(record.count());
+    SkRecordFillBounds(SkRect::MakeWH(SkIntToScalar(W), SkIntToScalar(H)), record, bounds.data());
 
     for (int i = 0; i < record.count(); i++) {
         REPORTER_ASSERT(r, sloppy_rect_eq(SkRect::MakeWH(400, 480), bounds[i]));
     }
 }
 #endif
-
-// Base test to ensure start/stop range is respected
-DEF_TEST(RecordDraw_PartialStartStop, r) {
-    static const int kWidth = 10, kHeight = 10;
-
-    SkRect r1 = { 0, 0, kWidth,   kHeight };
-    SkRect r2 = { 0, 0, kWidth,   kHeight/2 };
-    SkRect r3 = { 0, 0, kWidth/2, kHeight };
-    SkPaint p;
-
-    SkRecord record;
-    SkRecorder recorder(&record, kWidth, kHeight);
-    recorder.drawRect(r1, p);
-    recorder.drawRect(r2, p);
-    recorder.drawRect(r3, p);
-
-    SkRecord rerecord;
-    SkRecorder canvas(&rerecord, kWidth, kHeight);
-    SkRecordPartialDraw(record, &canvas, nullptr, 0, 1, 2, SkM44()); // replay just drawRect of r2
-
-    REPORTER_ASSERT(r, 1 == count_instances_of_type<SkRecords::DrawRect>(rerecord));
-    int index = find_first_instances_of_type<SkRecords::DrawRect>(rerecord);
-    const SkRecords::DrawRect* drawRect = assert_type<SkRecords::DrawRect>(r, rerecord, index);
-    REPORTER_ASSERT(r, drawRect->rect == r2);
-}
 
 // A regression test for crbug.com/415468 and https://bug.skia.org/2957 .
 //
@@ -215,9 +191,9 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     // draw/clip (0,0,20,40) with the 20px offset drop shadow along the x-axis (20,0,40,40).
     // The saveLayer and restore match the output bounds of the drop shadow filter, instead of
     // expanding to fill the entire picture.
-    AutoTMalloc<SkRect> bounds(record.count());
+    AutoTArray<SkRect> bounds(record.count());
     AutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds.data(), meta);
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(0, 0, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(0, 0, 40, 40)));
@@ -240,9 +216,9 @@ DEF_TEST(RecordDraw_Metadata, r) {
         recorder.restore();
     recorder.restore();
 
-    AutoTMalloc<SkRect> bounds(record.count());
+    AutoTArray<SkRect> bounds(record.count());
     AutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds, meta);
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds.data(), meta);
 
     REPORTER_ASSERT(r, !meta[0].isDraw);  // saveLayer (not a draw, but its restore will be)
     REPORTER_ASSERT(r, !meta[1].isDraw);  //   clip
@@ -270,8 +246,8 @@ DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
     recorder.drawRect(SkRect::MakeLTRB(20, 20, 30, 30), SkPaint());
     recorder.restore();
 
-    AutoTMalloc<SkRect> bounds(record.count());
-    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds);
+    AutoTArray<SkRect> bounds(record.count());
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds.data());
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(10, 10, 40, 40)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(20, 20, 30, 30)));
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(10, 10, 40, 40)));
@@ -293,7 +269,7 @@ DEF_TEST(RecordDraw_drawImage, r){
         bool fDrawImageRectCalled;
     };
 
-    auto surface(SkSurface::MakeRasterN32Premul(10, 10));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10)));
     surface->getCanvas()->clear(SK_ColorGREEN);
     sk_sp<SkImage> image(surface->makeImageSnapshot());
 

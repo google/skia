@@ -11,15 +11,21 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
+#include "src/gpu/graphite/DescriptorTypes.h"
 
 namespace skgpu::graphite {
 
 class VulkanCommandBuffer;
+class VulkanDescriptorSet;
+class VulkanRenderPass;
 class VulkanSharedContext;
 
 class VulkanResourceProvider final : public ResourceProvider {
 public:
-    VulkanResourceProvider(SharedContext* sharedContext, SingleOwner*);
+    VulkanResourceProvider(SharedContext* sharedContext,
+                           SingleOwner*,
+                           uint32_t recorderID,
+                           size_t resourceBudget);
     ~VulkanResourceProvider() override;
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
@@ -33,7 +39,7 @@ private:
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
     sk_sp<Texture> createTexture(SkISize, const TextureInfo&, skgpu::Budgeted) override;
-    sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
+    sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) override;
 
     sk_sp<Sampler> createSampler(const SkSamplingOptions&,
                                  SkTileMode xTileMode,
@@ -41,6 +47,16 @@ private:
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override {}
+
+    sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
+    // Find or create a compatible (needed when creating a framebuffer and graphics pipeline) or
+    // full (needed when beginning a render pass from the command buffer) RenderPass.
+    sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&,
+                                                   bool compatibleOnly);
+    VkPipelineCache pipelineCache();
+
+    friend class VulkanCommandBuffer;
+    VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 };
 
 } // namespace skgpu::graphite

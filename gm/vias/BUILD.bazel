@@ -1,0 +1,42 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+load("//bazel:flags.bzl", "selects", "string_flag_with_values")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "vias",
+    testonly = True,
+    srcs = select({
+        # More complex vias should be defined in their own separate files.
+        ":needs_simple_vias": ["SimpleVias.cpp"],
+    }),
+    hdrs = ["Draw.h"],
+    visibility = ["//gm:__pkg__"],
+    deps = [
+        "//:skia_internal",
+        "//gm",
+    ],
+)
+
+string_flag_with_values(
+    name = "via",
+    default = "direct",
+    values = [
+        # The android_gm_test macro assumes that the below values and the --via flag values
+        # accepted by BazelGMRunner.cpp are the same, so they should be kept in sync.
+        "direct",
+        "picture",
+        "picture_serialization",
+    ],
+)
+
+selects.config_setting_group(
+    name = "needs_simple_vias",
+    match_any = [
+        ":direct",
+        ":picture",
+        ":picture_serialization",
+    ],
+)

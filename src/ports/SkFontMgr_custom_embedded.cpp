@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkStream.h"
+#include "include/ports/SkFontMgr_data.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/ports/SkFontMgr_custom.h"
 
@@ -110,9 +111,7 @@ sk_sp<SkFontMgr> SkFontMgr_New_Custom_Embedded(const SkEmbeddedResourceHeader* h
     return sk_make_sp<SkFontMgr_Custom>(EmbeddedSystemFontLoader(header));
 }
 
-// SkFontMgr_New_Custom_Data expects to be called with the data for n font files.
-sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(sk_sp<SkData>* datas, int n) {
-    SkASSERT(datas != nullptr);
-    SkASSERT(n > 0);
-    return sk_make_sp<SkFontMgr_Custom>(DataFontLoader(datas, n));
+sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(SkSpan<sk_sp<SkData>> datas) {
+    SkASSERT(!datas.empty());
+    return sk_make_sp<SkFontMgr_Custom>(DataFontLoader(datas.data(), datas.size()));
 }

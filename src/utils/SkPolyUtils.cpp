@@ -1279,7 +1279,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // build initial offset edge list
-    SkSTArray<64, OffsetEdge> edgeData(numEdges);
+    STArray<64, OffsetEdge> edgeData(numEdges);
     OffsetEdge* prevEdge = nullptr;
     for (int currIndex = 0, prevIndex = inputPolygonSize - 1;
          currIndex < inputPolygonSize;

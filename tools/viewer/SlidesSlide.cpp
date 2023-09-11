@@ -391,7 +391,6 @@ static void mesh_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "include/core/SkImageEncoder.h"
 
 static const SlideProc gProc[] = {
     patheffect_slide,
@@ -420,7 +419,7 @@ public:
             canvas.restore();
             SkString str;
             str.printf("/skimages/slide_%zu.png", i);
-            ToolUtils::EncodeImageToFile(str.c_str(), bm, SkEncodedImageFormat::kPNG, 100);
+            ToolUtils::EncodeImageToPngFile(str.c_str(), bm);
         }
     }
 

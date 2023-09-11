@@ -14,9 +14,9 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkSharedMutex.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkSharedMutex.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 struct SkAdvancedTypefaceMetrics;
@@ -58,7 +58,7 @@ protected:
                          SkSpan<SkColor> palette, SkCanvas*);
     bool drawSVGGlyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
                       SkSpan<SkColor> palette, SkCanvas*);
-    void generateGlyphImage(FT_Face, const SkGlyph&, const SkMatrix& bitmapTransform);
+    void generateGlyphImage(FT_Face, const SkGlyph&, void*, const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face, SkPath*);
     bool generateFacePath(FT_Face, SkGlyphID, uint32_t loadGlyphFlags, SkPath*);
 
@@ -94,7 +94,7 @@ public:
             SkFixed fDefault;
             SkFixed fMaximum;
         };
-        using AxisDefinitions = SkSTArray<4, AxisDefinition, true>;
+        using AxisDefinitions = skia_private::STArray<4, AxisDefinition, true>;
         bool recognizedFont(SkStreamAsset* stream, int* numFonts) const;
         bool scanFont(SkStreamAsset* stream, int ttcIndex,
                       SkString* name, SkFontStyle* style, bool* isFixedPitch,

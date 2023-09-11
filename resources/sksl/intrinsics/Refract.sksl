@@ -1,10 +1,15 @@
 uniform half a, b, c;
 uniform half4 d, e;
-void main() {
-    sk_FragColor.x = refract(a, b, c);
-    sk_FragColor = refract(d, e, c);
 
-    sk_FragColor.xy   = refract(half2(1,0),     half2(0,1),     0.5);
-    sk_FragColor.xyz  = refract(half3(1,0,0),   half3(0,0,1),   0.5);
-    sk_FragColor.xyzw = refract(half4(1,0,0,0), half4(0,0,0,1), 0.5);
+half4 main(float2) {
+    // Ensure that constant-evaluation is safe in the presence of very large values.
+    half4 result = refract(6e26, 2, 2).xxxx;
+
+    result.x = refract(a, b, c);
+    result = refract(d, e, c);
+
+    result.xy   = refract(half2(1,0),     half2(0,1),     0.5);
+    result.xyz  = refract(half3(1,0,0),   half3(0,0,1),   0.5);
+    result.xyzw = refract(half4(1,0,0,0), half4(0,0,0,1), 0.5);
+    return result;
 }

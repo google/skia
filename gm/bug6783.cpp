@@ -33,7 +33,7 @@
 // the bug were still present.  All stripes should now look roughly the same.
 
 DEF_SIMPLE_GM(bug6783, canvas, 500, 500) {
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
 
     SkPaint p;
     p.setColor(SK_ColorYELLOW);

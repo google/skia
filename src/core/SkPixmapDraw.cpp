@@ -11,7 +11,6 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -21,40 +20,11 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
-#include "src/core/SkDraw.h"
-#include "src/core/SkMatrixProvider.h"
-#include "src/core/SkRasterClip.h"
 #include "src/shaders/SkImageShader.h"
 
 #include <utility>
 
-class SkColorSpace;
 struct SkSamplingOptions;
-
-bool SkPixmap::erase(SkColor color, const SkIRect& subset) const {
-    return this->erase(SkColor4f::FromColor(color), &subset);
-}
-
-bool SkPixmap::erase(const SkColor4f& color, SkColorSpace* cs, const SkIRect* subset) const {
-    SkPaint paint;
-    paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setColor4f(color, cs);
-
-    SkIRect clip = this->bounds();
-    if (subset && !clip.intersect(*subset)) {
-        return false;
-    }
-    SkRasterClip rc{clip};
-
-    SkDraw draw;
-    SkMatrixProvider matrixProvider(SkMatrix::I());
-    draw.fDst            = *this;
-    draw.fMatrixProvider = &matrixProvider;
-    draw.fRC             = &rc;
-
-    draw.drawPaint(paint);
-    return true;
-}
 
 bool SkPixmap::scalePixels(const SkPixmap& actualDst, const SkSamplingOptions& sampling) const {
     // We may need to tweak how we interpret these just a little below, so we make copies.
@@ -102,9 +72,8 @@ bool SkPixmap::scalePixels(const SkPixmap& actualDst, const SkSamplingOptions& s
                                                  &scale,
                                                  clampAsIfUnpremul);
 
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterDirect(dst.info(),
-                                                           dst.writable_addr(),
-                                                           dst.rowBytes());
+    sk_sp<SkSurface> surface =
+            SkSurfaces::WrapPixels(dst.info(), dst.writable_addr(), dst.rowBytes());
     if (!shader || !surface) {
         return false;
     }

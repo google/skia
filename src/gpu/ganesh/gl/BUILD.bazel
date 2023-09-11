@@ -6,6 +6,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 CORE_FILES = [
+    "AHardwareBufferGL.cpp",
     "GrGLAssembleGLESInterfaceAutogen.cpp",
     "GrGLAssembleGLInterfaceAutogen.cpp",
     "GrGLAssembleHelpers.cpp",
@@ -19,8 +20,10 @@ CORE_FILES = [
     "GrGLCaps.h",
     "GrGLContext.cpp",
     "GrGLContext.h",
-    "GrGLDefines_impl.h",
+    "GrGLDefines.h",
     "GrGLExtensions.cpp",
+    "GrGLBackendSurface.cpp",
+    "GrGLBackendSurfacePriv.h",
     "GrGLGLSL.cpp",
     "GrGLGLSL.h",
     "GrGLGpu.cpp",
@@ -104,7 +107,7 @@ skia_filegroup(
 skia_cc_deps(
     name = "deps",
     linkopts = select({
-        "@platforms//os:android": ["-landroid"],
+        "@platforms//os:android": ["-lGLESv2"],
         "@platforms//os:linux": ["-lGL"],
         # TODO(kjlubick) need OpenGL32.lib for non-arm windows
         "//conditions:default": [],

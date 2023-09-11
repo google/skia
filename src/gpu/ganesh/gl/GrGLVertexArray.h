@@ -12,7 +12,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 class GrBuffer;
 class GrGLGpu;
@@ -87,7 +87,7 @@ private:
         int                       fDivisor;
     };
 
-    SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
+    skia_private::STArray<16, AttribArrayState, true> fAttribArrayStates;
     int fNumEnabledArrays;
     GrPrimitiveRestart fPrimitiveRestartEnabled;
     bool fEnableStateIsValid = false;

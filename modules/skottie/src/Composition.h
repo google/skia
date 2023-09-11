@@ -35,7 +35,7 @@ private:
     const SkSize              fSize;
 
     std::vector<LayerBuilder> fLayerBuilders;
-    SkTHashMap<int, size_t>   fLayerIndexMap; // Maps layer "ind" to layer builder index.
+    skia_private::THashMap<int, size_t>   fLayerIndexMap; // Maps layer "ind" to layer builder index.
 
     sk_sp<sksg::Transform>    fCameraTransform;
 

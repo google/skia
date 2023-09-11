@@ -9,9 +9,9 @@
 #define SKSL_SYMBOLTABLE
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkOpts_spi.h"
-#include "include/private/SkSLSymbol.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -198,7 +198,7 @@ private:
     };
 
     static SymbolKey MakeSymbolKey(std::string_view name) {
-        return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
+        return SymbolKey{name, SkChecksum::Hash32(name.data(), name.size())};
     }
 
     Symbol* lookup(const SymbolKey& key) const;
@@ -206,7 +206,7 @@ private:
     bool fBuiltin = false;
     bool fAtModuleBoundary = false;
     std::forward_list<std::string> fOwnedStrings;
-    SkTHashMap<SymbolKey, Symbol*, SymbolKey::Hash> fSymbols;
+    skia_private::THashMap<SymbolKey, Symbol*, SymbolKey::Hash> fSymbols;
 };
 
 }  // namespace SkSL

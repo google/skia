@@ -19,7 +19,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkDebug.h"
-#include "include/private/base/SkPathEnums.h"
+#include "src/core/SkPathEnums.h"
 
 #include <cstdint>
 #include <iterator>
@@ -420,6 +420,17 @@ public:
 
     static void ReverseAddPath(SkPathBuilder* builder, const SkPath& reverseMe) {
         builder->privateReverseAddPath(reverseMe);
+    }
+
+    static SkPath MakePath(const SkPathVerbAnalysis& analysis,
+                           const SkPoint points[],
+                           const uint8_t verbs[],
+                           int verbCount,
+                           const SkScalar conics[],
+                           SkPathFillType fillType,
+                           bool isVolatile) {
+        return SkPath::MakeInternal(analysis, points, verbs, verbCount, conics, fillType,
+                                    isVolatile);
     }
 };
 

@@ -131,6 +131,7 @@ skia_wasm_lib("canvaskit") {
   if (skia_canvaskit_enable_skottie) {
     sources += [
       "../../modules/skottie/utils/SkottieUtils.cpp",
+      "../../modules/skottie/utils/TextEditor.cpp",
       "skottie_bindings.cpp",
     ]
   }
@@ -159,8 +160,6 @@ skia_wasm_lib("canvaskit") {
       "-sASSERTIONS=1",
       "-sGL_ASSERTIONS=1",
       "-g3",
-      "--source-map-base",
-      "/node_modules/canvaskit/bin/",
       "--pre-js",
       rebase_path("debug.js"),
     ]
@@ -320,9 +319,7 @@ skia_wasm_lib("canvaskit") {
   ldflags += [
     "--pre-js",
     rebase_path("postamble.js"),
-    "-sLLD_REPORT_UNDEFINED",
     "-sALLOW_MEMORY_GROWTH",
-    "-sUSE_PTHREADS=0",
     "-sDISABLE_EXCEPTION_CATCHING",
     "-sNODEJS_CATCH_EXIT=0",
     "-sDYNAMIC_EXECUTION=0",
@@ -347,7 +344,7 @@ skia_wasm_lib("canvaskit") {
     defines += [ "SK_DISABLE_TRACING" ]
   }
   defines += [
-    "SK_DISABLE_AAA",
+    "SK_FORCE_AAA",
     "SK_FORCE_8_BYTE_ALIGNMENT",
     "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
     "SK_SHAPER_HARFBUZZ_AVAILABLE",
@@ -369,14 +366,6 @@ skia_wasm_lib("canvaskit") {
         "CK_ENABLE_WEBGL",
       ]
     }
-    if (skia_canvaskit_enable_webgpu) {
-      defines += [
-        "SK_DAWN",
-        "CK_ENABLE_WEBGPU",
-      ]
-    }
-  } else {
-    defines += [ "SK_ENABLE_SKSL" ]
   }
 
   if (skia_canvaskit_enable_pathops) {

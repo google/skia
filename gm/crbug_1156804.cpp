@@ -10,17 +10,24 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/effects/SkImageFilters.h"
+#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 static void drawOne(SkCanvas* canvas, SkRect rect, float saveBorder, float sigma, SkColor c) {
-    SkPaint sp;
-    sp.setImageFilter(SkImageFilters::Blur(sigma, sigma, SkTileMode::kClamp, nullptr));
+    SkRect borderRect = rect.makeOutset(saveBorder, saveBorder);
+
     SkPaint p;
     p.setColor(c);
+    p.setImageFilter(
+        SkImageFilters::Blur(sigma, sigma,
+            // The blur's input is forced to have transparent padding because 'borderRect' is outset
+            // from the non-transparent content ('rect') that's drawn into the layer.
+            SkMakeCropImageFilter(borderRect, SkTileMode::kClamp, nullptr),
+            // The blur's output crop visually won't affect the output because the transparent
+            // padding is blurred out by the edge of 3*sigma.
+            borderRect.makeOutset(3 * sigma, 3 * sigma)));
     p.setAntiAlias(true);
 
-    canvas->saveLayer(rect.makeOutset(saveBorder, saveBorder), &sp);
     canvas->drawRect(rect, p);
-    canvas->restore();
 }
 
 DEF_SIMPLE_GM(crbug_1156804, canvas, 250, 250) {

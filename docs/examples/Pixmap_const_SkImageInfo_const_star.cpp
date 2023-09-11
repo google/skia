@@ -6,9 +6,8 @@ REG_FIDDLE(Pixmap_const_SkImageInfo_const_star, 256, 256, true, 3) {
 void draw(SkCanvas* canvas) {
     SkDebugf("image alpha only = %s\n", image->isAlphaOnly() ? "true" : "false");
     SkPMColor pmColors = 0;
-    sk_sp<SkImage> copy = SkImage::MakeRasterCopy({SkImageInfo::MakeA8(1, 1),
-                                                  (uint8_t*)&pmColors,
-                                                  1});
+    sk_sp<SkImage> copy =
+            SkImages::RasterFromPixmapCopy({SkImageInfo::MakeA8(1, 1), (uint8_t*)&pmColors, 1});
     SkDebugf("copy alpha only = %s\n", copy->isAlphaOnly() ? "true" : "false");
 }
 }  // END FIDDLE

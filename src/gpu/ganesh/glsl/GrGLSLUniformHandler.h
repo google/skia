@@ -15,6 +15,7 @@
 // variable names beginning with this prefix will not be mangled
 #define GR_NO_MANGLE_PREFIX "sk_"
 
+class GrBackendFormat;
 class GrGLSLProgramBuilder;
 class GrGLSLShaderBuilder;
 class GrProcessor;
@@ -43,7 +44,7 @@ public:
 
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
 
-    GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle)
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of GrShaderFlag values indicating from which shaders the uniform

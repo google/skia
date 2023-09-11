@@ -8,10 +8,19 @@
 #ifndef SKSL_MODIFIERDECLARATION
 #define SKSL_MODIFIERDECLARATION
 
-#include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLProgramElement.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLLayout.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+
+#include <memory>
+#include <string>
 
 namespace SkSL {
+
+class Context;
+struct Modifiers;
 
 /**
  * A declaration that consists only of modifiers, e.g.:
@@ -22,24 +31,36 @@ class ModifiersDeclaration final : public ProgramElement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kModifiers;
 
-    ModifiersDeclaration(const Modifiers* modifiers)
-        : INHERITED(Position(), kIRNodeKind)
-        , fModifiers(modifiers) {}
+    ModifiersDeclaration(Position pos, const Layout& layout, ModifierFlags flags)
+            : INHERITED(pos, kIRNodeKind)
+            , fLayout(layout)
+            , fFlags(flags) {}
 
-    const Modifiers& modifiers() const {
-        return *fModifiers;
+    static std::unique_ptr<ModifiersDeclaration> Convert(const Context& context,
+                                                         const Modifiers& modifiers);
+
+    static std::unique_ptr<ModifiersDeclaration> Make(const Context& context,
+                                                      const Modifiers& modifiers);
+
+    const Layout& layout() const {
+        return fLayout;
+    }
+
+    ModifierFlags modifierFlags() const {
+        return fFlags;
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<ModifiersDeclaration>(&this->modifiers());
+        return std::make_unique<ModifiersDeclaration>(fPosition, fLayout, fFlags);
     }
 
     std::string description() const override {
-        return this->modifiers().description() + ";";
+        return fLayout.paddedDescription() + fFlags.description() + ';';
     }
 
 private:
-    const Modifiers* fModifiers;
+    Layout fLayout;
+    ModifierFlags fFlags;
 
     using INHERITED = ProgramElement;
 };

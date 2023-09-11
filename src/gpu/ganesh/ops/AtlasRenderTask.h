@@ -17,7 +17,7 @@
 
 struct SkIPoint16;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // Represents a GrRenderTask that draws paths into an atlas. This task gets added the DAG and left
 // open, lays out its atlas while future tasks call addPath(), and finally adds its internal draw
@@ -42,8 +42,8 @@ public:
 
     // Must be called at flush time. The texture proxy is instantiated with 'backingTexture', if
     // provided. See GrDynamicAtlas.
-    bool SK_WARN_UNUSED_RESULT instantiate(GrOnFlushResourceProvider* onFlushRP,
-                     sk_sp<GrTexture> backingTexture = nullptr) {
+    [[nodiscard]] bool instantiate(GrOnFlushResourceProvider* onFlushRP,
+                                   sk_sp<GrTexture> backingTexture = nullptr) {
         SkASSERT(this->isClosed());
         return fDynamicAtlas->instantiate(onFlushRP, std::move(backingTexture));
     }
@@ -92,6 +92,6 @@ private:
     AtlasPathList fEvenOddPathList;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // AtlasRenderTask_DEFINED

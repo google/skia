@@ -33,7 +33,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        auto surf = SkSurface::MakeRasterN32Premul(200, 200);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(200, 200));
         surf->getCanvas()->clear(0xFF00FF00);
         fImage = surf->makeImageSnapshot();
     }

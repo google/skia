@@ -29,14 +29,18 @@ struct GrContextOptions;
 
 static const int kSize = 64;
 
-static std::unique_ptr<skgpu::v1::SurfaceDrawContext> get_sdc(GrRecordingContext* rContext) {
-    return skgpu::v1::SurfaceDrawContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
-                                               SkBackingFit::kExact, {kSize, kSize},
-                                               SkSurfaceProps(), /*label=*/{});
+static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> get_sdc(GrRecordingContext* rContext) {
+    return skgpu::ganesh::SurfaceDrawContext::Make(rContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {kSize, kSize},
+                                                   SkSurfaceProps(),
+                                                   /*label=*/{});
 }
 
 static void check_instantiation_status(skiatest::Reporter* reporter,
-                                       skgpu::v1::SurfaceDrawContext* sdc,
+                                       skgpu::ganesh::SurfaceDrawContext* sdc,
                                        bool wrappedExpectation) {
     REPORTER_ASSERT(reporter, sdc->asRenderTargetProxy()->isInstantiated() == wrappedExpectation);
 

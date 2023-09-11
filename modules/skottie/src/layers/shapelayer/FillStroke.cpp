@@ -81,7 +81,7 @@ private:
 
     const ShaderType fShaderType;
 
-    VectorValue      fColor;
+    ColorValue       fColor;
     ScalarValue      fOpacity     = 100,
                      fStrokeWidth = 1;
 
@@ -151,18 +151,18 @@ sk_sp<sksg::PaintNode> ShapeBuilder::AttachStroke(const skjson::ObjectValue& jpa
 
 sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorFill(const skjson::ObjectValue& jpaint,
                                                      const AnimationBuilder* abuilder) {
-    auto color_node = sksg::Color::Make(SK_ColorBLACK);
+    auto color_node  = sksg::Color::Make(SK_ColorBLACK);
+    auto color_paint = AttachFill(jpaint, abuilder, color_node);
     abuilder->dispatchColorProperty(color_node);
-
-    return AttachFill(jpaint, abuilder, std::move(color_node));
+    return color_paint;
 }
 
 sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorStroke(const skjson::ObjectValue& jpaint,
                                                        const AnimationBuilder* abuilder) {
-    auto color_node = sksg::Color::Make(SK_ColorBLACK);
+    auto color_node  = sksg::Color::Make(SK_ColorBLACK);
+    auto color_paint = AttachStroke(jpaint, abuilder, color_node);
     abuilder->dispatchColorProperty(color_node);
-
-    return AttachStroke(jpaint, abuilder, std::move(color_node));
+    return color_paint;
 }
 
 std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AdjustStrokeGeometry(

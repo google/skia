@@ -19,7 +19,7 @@
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 namespace {
 
@@ -279,4 +279,4 @@ void PathWedgeTessellator::draw(GrOpFlushState* flushState) const {
     }
 }
 
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh

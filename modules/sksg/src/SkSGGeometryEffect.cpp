@@ -21,6 +21,8 @@
 
 #include <cmath>
 
+using namespace skia_private;
+
 namespace sksg {
 
 GeometryEffect::GeometryEffect(sk_sp<GeometryNode> child)
@@ -104,7 +106,7 @@ sk_sp<SkPathEffect> make_dash(const std::vector<float> intervals, float phase) {
     const auto* intervals_ptr   = intervals.data();
     auto        intervals_count = intervals.size();
 
-    SkSTArray<32, float, true> storage;
+    STArray<32, float, true> storage;
     if (intervals_count & 1) {
         intervals_count *= 2;
         storage.resize(intervals_count);

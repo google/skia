@@ -1,0 +1,32 @@
+layout(local_size_x = 1) in;
+
+layout(set = 0, binding = 1, rgba32f) writeonly texture2D rgba32fTex;
+layout(set = 0, binding = 2, r32f)    writeonly texture2D r32fTex;
+layout(set = 0, binding = 3, rgba8)   writeonly texture2D rgba8Tex;
+
+void takes_rgba32f(layout(rgba32f) writeonly texture2D tex) {}
+void takes_r32f   (layout(r32f)    writeonly texture2D tex) {}
+void takes_rgba8  (layout(rgba8)   writeonly texture2D tex) {}
+
+void test() {
+    takes_rgba32f(rgba32fTex);
+    takes_rgba32f(r32fTex);
+    takes_rgba32f(rgba8Tex);
+
+    takes_r32f(rgba32fTex);
+    takes_r32f(r32fTex);
+    takes_r32f(rgba8Tex);
+
+    takes_rgba8(rgba32fTex);
+    takes_rgba8(r32fTex);
+    takes_rgba8(rgba8Tex);
+}
+
+/*%%*
+expected argument of type 'layout (rgba32f) writeonlyTexture2D'
+expected argument of type 'layout (rgba32f) writeonlyTexture2D'
+expected argument of type 'layout (r32f) writeonlyTexture2D'
+expected argument of type 'layout (r32f) writeonlyTexture2D'
+expected argument of type 'layout (rgba8) writeonlyTexture2D'
+expected argument of type 'layout (rgba8) writeonlyTexture2D'
+*%%*/

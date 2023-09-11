@@ -96,7 +96,4 @@ const in out uniform flat noperspective $pure inline noinline readonly writeonly
 error: 10: 'noinline' is not permitted here
 const in out uniform flat noperspective $pure inline noinline readonly writeonly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
-error: 11: 'const' variables must be initialized
-buffer MyInterfaceBlock { float var; };
-       ^^^^^^^^^^^^^^^^
-33 errors
+32 errors

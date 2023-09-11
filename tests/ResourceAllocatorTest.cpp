@@ -18,6 +18,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -42,6 +43,8 @@
 #include <cstddef>
 #include <functional>
 #include <utility>
+
+using namespace skia_private;
 
 class GrRecordingContext;
 struct GrContextOptions;
@@ -357,7 +360,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest,
 static void draw(GrRecordingContext* rContext) {
     SkImageInfo ii = SkImageInfo::Make(1024, 1024, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(
             rContext, skgpu::Budgeted::kYes, ii, 1, kTopLeft_GrSurfaceOrigin, nullptr);
 
     SkCanvas* c = s->getCanvas();
@@ -395,9 +398,9 @@ struct TestCase {
     const char *          fName;
     bool                  fShouldFit;
     size_t                fBudget;
-    SkTArray<ProxyParams> fPurgeableResourcesInCache = {};
-    SkTArray<ProxyParams> fUnpurgeableResourcesInCache = {};
-    SkTArray<Interval>    fIntervals;
+    TArray<ProxyParams> fPurgeableResourcesInCache = {};
+    TArray<ProxyParams> fUnpurgeableResourcesInCache = {};
+    TArray<Interval>    fIntervals;
 };
 
 static void memory_budget_test(skiatest::Reporter* reporter,
@@ -410,7 +413,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
 
     // Add purgeable entries.
     size_t expectedPurgeableBytes = 0;
-    SkTArray<sk_sp<GrSurface>> purgeableSurfaces;
+    TArray<sk_sp<GrSurface>> purgeableSurfaces;
     for (auto& params : test.fPurgeableResourcesInCache) {
         SkASSERT(params.fKind == kInstantiated);
         sk_sp<GrSurfaceProxy> proxy = make_proxy(dContext, params);
@@ -424,7 +427,7 @@ static void memory_budget_test(skiatest::Reporter* reporter,
 
     // Add unpurgeable entries.
     size_t expectedUnpurgeableBytes = 0;
-    SkTArray<sk_sp<GrSurface>> unpurgeableSurfaces;
+    TArray<sk_sp<GrSurface>> unpurgeableSurfaces;
     for (auto& params : test.fUnpurgeableResourcesInCache) {
         SkASSERT(params.fKind == kInstantiated);
         sk_sp<GrSurfaceProxy> proxy = make_proxy(dContext, params);

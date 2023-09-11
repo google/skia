@@ -16,6 +16,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkBezierCurves.h"
 #include "src/base/SkCubics.h"
+#include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkPointPriv.h"
 
@@ -477,10 +478,10 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
         return;
     }
 
-    float2 p0 = skvx::bit_pun<float2>(src[0]);
-    float2 p1 = skvx::bit_pun<float2>(src[1]);
-    float2 p2 = skvx::bit_pun<float2>(src[2]);
-    float2 p3 = skvx::bit_pun<float2>(src[3]);
+    float2 p0 = sk_bit_cast<float2>(src[0]);
+    float2 p1 = sk_bit_cast<float2>(src[1]);
+    float2 p2 = sk_bit_cast<float2>(src[2]);
+    float2 p3 = sk_bit_cast<float2>(src[3]);
     float2 T = t;
 
     float2 ab = unchecked_mix(p0, p1, T);
@@ -490,13 +491,13 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     float2 bcd = unchecked_mix(bc, cd, T);
     float2 abcd = unchecked_mix(abc, bcd, T);
 
-    dst[0] = skvx::bit_pun<SkPoint>(p0);
-    dst[1] = skvx::bit_pun<SkPoint>(ab);
-    dst[2] = skvx::bit_pun<SkPoint>(abc);
-    dst[3] = skvx::bit_pun<SkPoint>(abcd);
-    dst[4] = skvx::bit_pun<SkPoint>(bcd);
-    dst[5] = skvx::bit_pun<SkPoint>(cd);
-    dst[6] = skvx::bit_pun<SkPoint>(p3);
+    dst[0] = sk_bit_cast<SkPoint>(p0);
+    dst[1] = sk_bit_cast<SkPoint>(ab);
+    dst[2] = sk_bit_cast<SkPoint>(abc);
+    dst[3] = sk_bit_cast<SkPoint>(abcd);
+    dst[4] = sk_bit_cast<SkPoint>(bcd);
+    dst[5] = sk_bit_cast<SkPoint>(cd);
+    dst[6] = sk_bit_cast<SkPoint>(p3);
 }
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
@@ -510,10 +511,10 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
 
     // Perform both chops in parallel using 4-lane SIMD.
     float4 p00, p11, p22, p33, T;
-    p00.lo = p00.hi = skvx::bit_pun<float2>(src[0]);
-    p11.lo = p11.hi = skvx::bit_pun<float2>(src[1]);
-    p22.lo = p22.hi = skvx::bit_pun<float2>(src[2]);
-    p33.lo = p33.hi = skvx::bit_pun<float2>(src[3]);
+    p00.lo = p00.hi = sk_bit_cast<float2>(src[0]);
+    p11.lo = p11.hi = sk_bit_cast<float2>(src[1]);
+    p22.lo = p22.hi = sk_bit_cast<float2>(src[2]);
+    p33.lo = p33.hi = sk_bit_cast<float2>(src[3]);
     T.lo = t0;
     T.hi = t1;
 
@@ -525,15 +526,15 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[10], float t0, float t1) {
     float4 abcd = unchecked_mix(abc, bcd, T);
     float4 middle = unchecked_mix(abc, bcd, skvx::shuffle<2,3,0,1>(T));
 
-    dst[0] = skvx::bit_pun<SkPoint>(p00.lo);
-    dst[1] = skvx::bit_pun<SkPoint>(ab.lo);
-    dst[2] = skvx::bit_pun<SkPoint>(abc.lo);
-    dst[3] = skvx::bit_pun<SkPoint>(abcd.lo);
+    dst[0] = sk_bit_cast<SkPoint>(p00.lo);
+    dst[1] = sk_bit_cast<SkPoint>(ab.lo);
+    dst[2] = sk_bit_cast<SkPoint>(abc.lo);
+    dst[3] = sk_bit_cast<SkPoint>(abcd.lo);
     middle.store(dst + 4);
-    dst[6] = skvx::bit_pun<SkPoint>(abcd.hi);
-    dst[7] = skvx::bit_pun<SkPoint>(bcd.hi);
-    dst[8] = skvx::bit_pun<SkPoint>(cd.hi);
-    dst[9] = skvx::bit_pun<SkPoint>(p33.hi);
+    dst[6] = sk_bit_cast<SkPoint>(abcd.hi);
+    dst[7] = sk_bit_cast<SkPoint>(bcd.hi);
+    dst[8] = sk_bit_cast<SkPoint>(cd.hi);
+    dst[9] = sk_bit_cast<SkPoint>(p33.hi);
 }
 
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
@@ -1396,6 +1397,7 @@ static SkScalar subdivide_w_value(SkScalar w) {
     return SkScalarSqrt(SK_ScalarHalf + w * SK_ScalarHalf);
 }
 
+#if defined(SK_SUPPORT_LEGACY_CONIC_CHOP)
 void SkConic::chop(SkConic * SK_RESTRICT dst) const {
     float2 scale = SkScalarInvert(SK_Scalar1 + fW);
     SkScalar newW = subdivide_w_value(fW);
@@ -1423,6 +1425,41 @@ void SkConic::chop(SkConic * SK_RESTRICT dst) const {
 
     dst[0].fW = dst[1].fW = newW;
 }
+#else
+void SkConic::chop(SkConic * SK_RESTRICT dst) const {
+
+    // Observe that scale will always be smaller than 1 because fW > 0.
+    const float scale = SkScalarInvert(SK_Scalar1 + fW);
+
+    // The subdivided control points below are the sums of the following three terms. Because the
+    // terms are multiplied by something <1, and the resulting control points lie within the
+    // control points of the original then the terms and the sums below will not overflow. Note
+    // that fW * scale approaches 1 as fW becomes very large.
+    float2 t0 = from_point(fPts[0]) * scale;
+    float2 t1 = from_point(fPts[1]) * (fW * scale);
+    float2 t2 = from_point(fPts[2]) * scale;
+
+    // Calculate the subdivided control points
+    const SkPoint p1 = to_point(t0 + t1);
+    const SkPoint p3 = to_point(t1 + t2);
+
+    // p2 = (t0 + 2*t1 + t2) / 2. Divide the terms by 2 before the sum to keep the sum for p2
+    // from overflowing.
+    const SkPoint p2 = to_point(0.5f * t0 + t1 + 0.5f * t2);
+
+    SkASSERT(p1.isFinite() && p2.isFinite() && p3.isFinite());
+
+    dst[0].fPts[0] = fPts[0];
+    dst[0].fPts[1] = p1;
+    dst[0].fPts[2] = p2;
+    dst[1].fPts[0] = p2;
+    dst[1].fPts[1] = p3;
+    dst[1].fPts[2] = fPts[2];
+
+    // Update w.
+    dst[0].fW = dst[1].fW = subdivide_w_value(fW);
+}
+#endif  // SK_SUPPORT_LEGACY_CONIC_CHOP
 
 /*
  *  "High order approximation of conic sections by quadratic splines"

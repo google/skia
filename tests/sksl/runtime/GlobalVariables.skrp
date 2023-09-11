@@ -1,13 +1,42 @@
-    1. store_src_rg                   xy = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  gInitialized = 0xBF800000 (-1.0)
-    4. copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
-    5. zero_slot_unmasked             gUninitialized = 0
-    6. copy_constant                  $0 = 0x3F800000 (1.0)
-    7. copy_slot_unmasked             gUninitialized = $0
-    8. label                          label 0x00000000
-    9. zero_slot_unmasked             $0 = 0
-   10. copy_slot_unmasked             $1 = gInitializedFromOther
-   11. zero_slot_unmasked             $2 = 0
-   12. copy_slot_unmasked             $3 = gUninitialized
-   13. load_src                       src.rgba = $0..3
+39 instructions
+
+store_device_xy01              $3..6 = DeviceCoords.xy01
+splat_2_constants              $5..6 = 0x3F000000 (0.5)
+cmpeq_2_floats                 $3..4 = equal($3..4, $5..6)
+bitwise_and_int                $3 &= $4
+store_src_rg                   xy = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  gInitialized = 0xBF800000 (-1.0)
+trace_var                      TraceVar(gInitialized) when $3 is true
+copy_constant                  gInitializedFromOther = 0x3F800000 (1.0)
+trace_var                      TraceVar(gInitializedFromOther) when $3 is true
+copy_constant                  gUninitialized = 0
+trace_var                      TraceVar(gUninitialized) when $3 is true
+trace_enter                    TraceEnter(float4 main(float2 xy)) when $3 is true
+trace_var                      TraceVar(xy) when $3 is true
+copy_constant                  $0 = 0
+copy_slot_unmasked             $1 = $3
+copy_slot_masked               $0 = Mask($1)
+trace_scope                    TraceScope(+1) when $0 is true
+trace_line                     TraceLine(12) when $3 is true
+trace_enter                    TraceEnter(void init_globals()) when $3 is true
+copy_constant                  $1 = 0
+copy_slot_unmasked             $2 = $3
+copy_slot_masked               $1 = Mask($2)
+trace_scope                    TraceScope(+1) when $1 is true
+trace_line                     TraceLine(8) when $3 is true
+copy_constant                  $2 = 0x3F800000 (1.0)
+copy_slot_unmasked             gUninitialized = $2
+trace_var                      TraceVar(gUninitialized) when $3 is true
+trace_scope                    TraceScope(-1) when $1 is true
+trace_exit                     TraceExit(void init_globals()) when $3 is true
+label                          label 0
+trace_line                     TraceLine(13) when $3 is true
+copy_constant                  [main].result(0) = 0
+copy_slot_unmasked             [main].result(1) = gInitializedFromOther
+copy_constant                  [main].result(2) = 0
+copy_slot_unmasked             [main].result(3) = gUninitialized
+trace_var                      TraceVar([main].result) when $3 is true
+trace_scope                    TraceScope(-1) when $0 is true
+trace_exit                     TraceExit(float4 main(float2 xy)) when $3 is true
+load_src                       src.rgba = [main].result

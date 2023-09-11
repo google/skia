@@ -63,10 +63,13 @@ private:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
     id<MTLLibrary> compileMtlShaderLibrary(const std::string& shader,
-                                           SkSL::Program::Inputs inputs,
+                                           SkSL::Program::Interface,
                                            GrContextOptions::ShaderErrorHandler* errorHandler);
-    void storeShadersInCache(const std::string shaders[], const SkSL::Program::Inputs inputs[],
-                             SkSL::ProgramSettings*, sk_sp<SkData>, bool isSkSL);
+    void storeShadersInCache(const std::string shaders[],
+                             const SkSL::Program::Interface[],
+                             SkSL::ProgramSettings*,
+                             sk_sp<SkData>,
+                             bool isSkSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }

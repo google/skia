@@ -10,9 +10,6 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 
-#include "include/core/SkSamplingOptions.h"
-#include "include/core/SkTileMode.h"
-
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include <array>
@@ -144,37 +141,6 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
     }
     SkUNREACHABLE;
 }
-
-/**
- * Struct used to describe how a Texture/TextureProxy/TextureProxyView is sampled.
- */
-struct SamplerDesc {
-    SkSamplingOptions fSamplingOptions;
-    SkTileMode fTileModes[2];
-
-    bool operator==(const SamplerDesc& o) const {
-        return fSamplingOptions == o.fSamplingOptions &&
-               fTileModes[0] == o.fTileModes[0] &&
-               fTileModes[1] == o.fTileModes[1];
-    }
-    bool operator!=(const SamplerDesc& o) const {
-        return !(*this == o);
-    }
-
-    uint32_t asKey() const {
-        static_assert(kSkTileModeCount <= 4 && kSkFilterModeCount <= 2);
-        // Cubic sampling is handled in a shader, with the actual texture sampled by with NN,
-        // but that is what a cubic SkSamplingOptions is set to if you ignore 'cubic', which let's
-        // us simplify how we construct SamplerDec's from the options passed to high-level draws.
-        SkASSERT(!fSamplingOptions.useCubic || (fSamplingOptions.filter == SkFilterMode::kNearest &&
-                                                fSamplingOptions.mipmap == SkMipmapMode::kNone));
-        // TODO: Add support for anisotropic filtering
-        return (static_cast<int>(fTileModes[0])           << 0) |
-               (static_cast<int>(fTileModes[1])           << 2) |
-               (static_cast<int>(fSamplingOptions.filter) << 4) |
-               (static_cast<int>(fSamplingOptions.mipmap) << 5);
-    }
-};
 
 enum class UniformSlot {
     // TODO: Want this?

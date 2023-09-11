@@ -8,11 +8,11 @@
 #include "src/sksl/ir/SkSLForStatement.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
-#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -89,8 +89,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
                                                  std::unique_ptr<Statement> initializer,
                                                  std::unique_ptr<Expression> test,
                                                  std::unique_ptr<Expression> next,
-                                                 std::unique_ptr<Statement> statement,
-                                                 std::shared_ptr<SymbolTable> symbolTable) {
+                                                 std::unique_ptr<Statement> statement) {
     bool isSimpleInitializer = is_simple_initializer(initializer.get());
     bool isVardeclBlockInitializer =
             !isSimpleInitializer && is_vardecl_block_initializer(initializer.get());
@@ -116,7 +115,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
     std::unique_ptr<LoopUnrollInfo> unrollInfo;
     if (context.fConfig->strictES2Mode()) {
         // In strict-ES2, loops must be unrollable or it's an error.
-        unrollInfo = Analysis::GetLoopUnrollInfo(pos, positions, initializer.get(), test.get(),
+        unrollInfo = Analysis::GetLoopUnrollInfo(context, pos, positions, initializer.get(), &test,
                                                  next.get(), statement.get(), context.fErrors);
         if (!unrollInfo) {
             return nullptr;
@@ -124,7 +123,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
     } else {
         // In ES3, loops don't have to be unrollable, but we can use the unroll information for
         // optimization purposes.
-        unrollInfo = Analysis::GetLoopUnrollInfo(pos, positions, initializer.get(), test.get(),
+        unrollInfo = Analysis::GetLoopUnrollInfo(context, pos, positions, initializer.get(), &test,
                                                  next.get(), statement.get(), /*errors=*/nullptr);
     }
 
@@ -145,24 +144,24 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
                                            std::move(test), std::move(next), std::move(statement),
                                            std::move(unrollInfo), /*symbolTable=*/nullptr));
         return Block::Make(pos, std::move(scope), Block::Kind::kBracedScope,
-                           std::move(symbolTable));
+                           context.fSymbolTable);
     }
 
     return ForStatement::Make(context, pos, positions, std::move(initializer), std::move(test),
                               std::move(next), std::move(statement), std::move(unrollInfo),
-                              std::move(symbolTable));
+                              context.fSymbolTable);
 }
 
-std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context, Position pos,
+std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context,
+                                                      Position pos,
                                                       std::unique_ptr<Expression> test,
-                                                      std::unique_ptr<Statement> statement,
-                                                      std::shared_ptr<SymbolTable> symbolTable) {
+                                                      std::unique_ptr<Statement> statement) {
     if (context.fConfig->strictES2Mode()) {
         context.fErrors->error(pos, "while loops are not supported");
         return nullptr;
     }
     return ForStatement::Convert(context, pos, ForLoopPositions(), /*initializer=*/nullptr,
-            std::move(test), /*next=*/nullptr, std::move(statement), std::move(symbolTable));
+                                 std::move(test), /*next=*/nullptr, std::move(statement));
 }
 
 std::unique_ptr<Statement> ForStatement::Make(const Context& context,

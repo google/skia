@@ -39,7 +39,7 @@ This process is:
     version or hash qualifiers. Also increment the appropriate VERSION variable in `Makefile`.
  2) Add any new packages or make any changes.
  3) Run `make build_linux_container` to build the image locally. One may verify it works by running
-    something like `docker run -it gcr.io/skia-public/rbe_linux:v2 /bin/bash`.
+    something like `docker run -it gcr.io/skia-public/rbe_linux:v3 /bin/bash`.
  4) Note the versions and base image hash that were used. Modify the Dockerfile to use these.
     1) `docker pull debian:bookworm-slim` is the easiest way to see the sha256 and get the latest.
     2) Versions can be found looking for logs like:
@@ -56,7 +56,7 @@ for SLSA purposes.
 
 Defining our own Bazel RBE platforms
 ------------------------------------
-While the generated files *do* have a platform we can use (e.g. 
+While the generated files *do* have a platform we can use (e.g.
 `//bazel/rbe/gce_linux/config:platform`), we do not use it because we cannot easily customize it
 without a risk that the changes will be lost when we update the image. Thankfully, we can specify
 our own platforms, which we do in `//bazel/platform`, which is where we put the exec_properties

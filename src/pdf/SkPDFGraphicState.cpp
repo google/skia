@@ -41,8 +41,8 @@ static int to_stroke_join(uint8_t join) {
     }
 }
 
-// If a SkXfermode is unsupported in PDF, this function returns
-// SrcOver, otherwise, it returns that Xfermode as a Mode.
+// If a SkBlendMode is unsupported in PDF, this function returns
+// SrcOver, otherwise, it returns the blend mode.
 static uint8_t pdf_blend_mode(SkBlendMode mode) {
     if (!SkPDFUtils::BlendModeName(mode)
         || SkBlendMode::kXor  == mode

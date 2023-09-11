@@ -7,19 +7,25 @@
 
 #include "tools/viewer/ImGuiLayer.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSwizzle.h"
-#include "include/core/SkTime.h"
 #include "include/core/SkVertices.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/base/SkTime.h"
+#include "tools/skui/InputState.h"
+#include "tools/skui/Key.h"
 
-#include "imgui.h"
-
-#include <stdlib.h>
-#include <map>
+#include <cstdint>
 
 using namespace sk_app;
 
@@ -30,7 +36,7 @@ static void build_ImFontAtlas(ImFontAtlas& atlas, SkPaint& fontPaint) {
     SkImageInfo info = SkImageInfo::MakeA8(w, h);
     SkPixmap pmap(info, pixels, info.minRowBytes());
     SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
-    auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
+    auto fontImage = SkImages::RasterFromPixmap(pmap, nullptr, nullptr);
     auto fontShader = fontImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear), localMatrix);
     fontPaint.setShader(fontShader);
     fontPaint.setColor(SK_ColorWHITE);
@@ -116,10 +122,10 @@ bool ImGuiLayer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey
     return io.WantCaptureMouse;
 }
 
-bool ImGuiLayer::onMouseWheel(float delta, skui::ModifierKey modifiers) {
+bool ImGuiLayer::onMouseWheel(float delta, int, int, skui::ModifierKey modifiers) {
     ImGuiIO& io = ImGui::GetIO();
     io.MouseWheel += delta;
-    return true;
+    return io.WantCaptureMouse;
 }
 
 void ImGuiLayer::skiaWidget(const ImVec2& size, SkiaWidgetFunc func) {

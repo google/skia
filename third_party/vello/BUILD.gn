@@ -1,0 +1,90 @@
+# Copyright 2023 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+import("../third_party.gni")
+
+# The following shells out to bazelisk to compile static library dependencies that bridge the
+# vello_cpp crate Rust code and its C++ FFI symbols. This produces a single static library target
+# that is reachable via the ":vello" target.
+#
+# Pre-compiled shader dependencies:
+#
+#   The vello_shaders crate bundles compute shaders that are pre-compiled into a target format based
+#   on the GPU backend. This is driven by build arguments defined in //gn/skia.gni.
+
+if (skia_enable_vello_shaders) {
+  bazel_args = []
+  if (is_mac) {
+    if (host_cpu == "arm64") {
+      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+    }
+    if (target_cpu == "arm64") {
+      bazel_args += [
+        "--platforms=//bazel/platform:mac_arm64_hermetic",
+        "--cc_output_directory_tag=mac_arm64",
+      ]
+    }
+  }
+  if (!is_debug) {
+    bazel_args += [ "--compilation_mode=opt" ]
+  }
+  if (skia_use_metal) {
+    bazel_args += [ "--define=VELLO_MSL_SHADERS=true" ]
+  }
+  if (skia_use_dawn) {
+    bazel_args += [ "--define=VELLO_WGSL_SHADERS=true" ]
+  }
+  action("compile_vello_ffi") {
+    script = "../../gn/bazel_build.py"
+    sources = [
+      "BUILD.bazel",
+      "src/lib.rs",
+    ]
+    outputs = [
+      "$root_out_dir/libvello_ffi.a",
+      "$root_out_dir/third_party/vello/src/lib.rs.h",
+    ]
+    args = [
+             "//third_party/vello:vello_ffi",
+             rebase_path("//bazel-bin/third_party/vello/libvello_ffi.a",
+                         root_build_dir),
+
+             # we want the header to not simply be copied into the output directory,
+             # but in the same path as the Bazel build uses.
+             rebase_path("//bazel-bin/third_party/vello/src/lib.rs.h",
+                         root_build_dir) + "=third_party/vello/src/lib.rs.h",
+           ] + bazel_args
+  }
+
+  action("compile_vello_rust") {
+    script = "../../gn/bazel_build.py"
+    sources = [
+      "BUILD.bazel",
+      "src/encoding.rs",
+      "src/lib.rs",
+      "src/shaders.rs",
+    ]
+    outputs = [ "$root_out_dir/libvello_rust.a" ]
+    args = [
+             "//third_party/vello:vello_rust",
+             rebase_path("//bazel-bin/third_party/vello/libvello_rust.a",
+                         root_build_dir),
+           ] + bazel_args
+  }
+}
+
+third_party("vello") {
+  # this is where third_party/vello/src/lib.rs.h was generated and exists.
+  public_include_dirs = [ "$root_out_dir" ]
+  libs = [
+    "$root_out_dir/libvello_ffi.a",
+    "$root_out_dir/libvello_rust.a",
+  ]
+  deps = [
+    ":compile_vello_ffi",
+    ":compile_vello_rust",
+  ]
+}

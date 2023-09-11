@@ -10,17 +10,22 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
+#include "include/encode/SkPngEncoder.h"
 
 namespace {
     sk_sp<SkData> collectNonTextureImagesProc(SkImage* img, void* ctx) {
         SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
         uint32_t originalId = img->uniqueID();
-        auto it = context->fNonTexMap.find(originalId);
-        if (it == context->fNonTexMap.end()) {
+        sk_sp<SkImage>* imageInMap = context->fNonTexMap.find(originalId);
+        if (!imageInMap) {
             context->fNonTexMap[originalId] = img->makeNonTextureImage();
         }
+
+        // This function implements a proc that is more generally for serialization, but
+        // we really only want to build our map. The output of this function is ignored.
         return SkData::MakeEmpty();
     }
 }
@@ -38,20 +43,19 @@ sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
     SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
     uint32_t id = img->uniqueID(); // get this process's id for the image. these are not hashes.
     // find out if we have already serialized this, and if so, what its in-file id is.
-    auto iter = context->fImageMap.find(id);
-    if (iter == context->fImageMap.end()) {
+    int* fid = context->fImageMap.find(id);
+    if (!fid) {
         // When not present, add its id to the map and return its usual serialized form.
-        context->fImageMap[id] = context->fImageMap.size(); // Next in-file id
+        context->fImageMap[id] = context->fImageMap.count(); // Next in-file id
         // encode the image or it's non-texture replacement if one was collected
-        auto iter2 = context->fNonTexMap.find(id);
-        if (iter2 != context->fNonTexMap.end()) {
-            img = iter2->second.get();
+        sk_sp<SkImage>* replacementImage = context->fNonTexMap.find(id);
+        if (replacementImage) {
+            img = replacementImage->get();
         }
-        return img->encodeToData();
+        return SkPngEncoder::Encode(nullptr, img, {});
     }
-    uint32_t fid = context->fImageMap[id];
     // if present, return only the in-file id we registered the first time we serialized it.
-    return SkData::MakeWithCopy(&fid, sizeof(fid));
+    return SkData::MakeWithCopy(fid, sizeof(*fid));
 }
 
 sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
@@ -78,7 +82,7 @@ sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
     // Otherwise, the data is an image, deserialise it, store it in our map at its fid.
     // TODO(nifong): make DeserialProcs accept sk_sp<SkData> so we don't have to copy this.
     sk_sp<SkData> dataView = SkData::MakeWithCopy(data, length);
-    const sk_sp<SkImage> image = SkImage::MakeFromEncoded(std::move(dataView));
+    const sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(dataView));
     context->fImages.push_back(image);
     return image;
 }

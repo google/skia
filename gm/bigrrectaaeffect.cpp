@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -57,16 +58,16 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("big_rrect_%s_aa_effect", fName);
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
+    SkISize getISize() override { return SkISize::Make(fWidth, fHeight); }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
         if (!sdc) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;
@@ -105,7 +106,7 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    sdc->addDrawOp(skgpu::v1::FillRectOp::MakeNonAARect(
+                    sdc->addDrawOp(skgpu::ganesh::FillRectOp::MakeNonAARect(
                             rContext, std::move(grPaint), SkMatrix::I(), bounds));
                 }
             canvas->restore();

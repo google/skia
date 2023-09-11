@@ -9,9 +9,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPathEffect.h" // IWYU pragma: keep
+#include "include/core/SkPathEffect.h"  // IWYU pragma: keep
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -112,7 +113,7 @@ DEF_TEST(DrawText_dashout, reporter) {
 // Test drawing text at some unusual coordinates.
 // We measure success by not crashing or asserting.
 DEF_TEST(DrawText_weirdCoordinates, r) {
-    auto surface = SkSurface::MakeRasterN32Premul(10,10);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10));
     auto canvas = surface->getCanvas();
 
     SkScalar oddballs[] = { 0.0f, (float)INFINITY, (float)NAN, 34359738368.0f };
@@ -130,7 +131,7 @@ DEF_TEST(DrawText_weirdCoordinates, r) {
 // Test drawing text with some unusual matricies.
 // We measure success by not crashing or asserting.
 DEF_TEST(DrawText_weirdMatricies, r) {
-    auto surface = SkSurface::MakeRasterN32Premul(100,100);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     auto canvas = surface->getCanvas();
 
     SkFont font;
@@ -167,7 +168,7 @@ DEF_TEST(DrawText_weirdMatricies, r) {
 // This produces no glyphs, and is to check that buffers from previous draws don't get
 // reused.
 DEF_TEST(DrawText_noglyphs, r) {
-    auto surface = SkSurface::MakeRasterN32Premul(100,100);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     auto canvas = surface->getCanvas();
     auto text = "Hamburgfons";
     {

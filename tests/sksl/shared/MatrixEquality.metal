@@ -1,5 +1,8 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wall"
+#endif
 using namespace metal;
 struct Uniforms {
     half4 colorGreen;
@@ -77,16 +80,16 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float _3_two = 2.0 * _2_one;
     float _4_nine = 9.0 * _2_one;
     _0_ok = _0_ok && float2x2(float2(_2_one, _1_zero), float2(_1_zero, _2_one)) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0));
-    _0_ok = _0_ok && !(float2x2(float2(_2_one, _1_zero), float2(_2_one)) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+    _0_ok = _0_ok && float2x2(float2(_2_one, _1_zero), float2(_2_one)) != float2x2(float2(1.0, 0.0), float2(0.0, 1.0));
     _0_ok = _0_ok && float2x2(_2_one) == float2x2(1.0);
-    _0_ok = _0_ok && !(float2x2(_2_one) == float2x2(0.0));
+    _0_ok = _0_ok && float2x2(_2_one) != float2x2(0.0);
     _0_ok = _0_ok && float2x2(-_2_one) == float2x2(-1.0);
     _0_ok = _0_ok && float2x2(_1_zero) == float2x2(-0.0);
     _0_ok = _0_ok && (-1.0 * float2x2(-_2_one)) == float2x2(1.0);
     _0_ok = _0_ok && (-1.0 * float2x2(_1_zero)) == float2x2(-0.0);
     _0_ok = _0_ok && float2x2(_2_one) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0));
-    _0_ok = _0_ok && !(float2x2(_3_two) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
-    _0_ok = _0_ok && !(float2x2(_2_one) != float2x2(1.0));
+    _0_ok = _0_ok && float2x2(_3_two) != float2x2(float2(1.0, 0.0), float2(0.0, 1.0));
+    _0_ok = _0_ok && float2x2(_2_one) == float2x2(1.0);
     _0_ok = _0_ok && float2x2(_2_one) != float2x2(0.0);
     _0_ok = _0_ok && float3x3(float3(_2_one, _1_zero, _1_zero), float3(_1_zero, _2_one, _1_zero), float3(_1_zero, _1_zero, _2_one)) == float3x3_from_float2x2(float2x2(1.0));
     _0_ok = _0_ok && float3x3(float3(_4_nine, _1_zero, _1_zero), float3(_1_zero, _4_nine, _1_zero), float3(_1_zero, _1_zero, _2_one)) == float3x3_from_float2x2(float2x2(9.0));

@@ -1,12 +1,14 @@
-layout(binding=0) writeonly texture2D dest;
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(rgba32f, binding=0) writeonly texture2D dest;
 
 void main () {
     half4 pixel = half4(0.0, 0.0, 0.0, 1.0);
 
     float max_x = 5.0;
     float max_y = 5.0;
-    float x = (float(sk_GlobalInvocationID.x * 2 - width(dest)) / float(width(dest)));
-    float y = (float(sk_GlobalInvocationID.y * 2 - height(dest)) / float(height(dest)));
+    float x = (float(sk_GlobalInvocationID.x * 2 - textureWidth(dest)) / float(textureWidth(dest)));
+    float y = (float(sk_GlobalInvocationID.y * 2 - textureHeight(dest)) / float(textureHeight(dest)));
     float3 ray_origin = float3(0.0, 0.0, -1.0);
     float3 ray_target = float3(x * max_x, y * max_y, 0.0);
 
@@ -22,5 +24,5 @@ void main () {
         pixel = half4(0.4, 0.4, 1.0, 1.0);
     }
 
-    write(dest, sk_GlobalInvocationID.xy, pixel);
+    textureWrite(dest, sk_GlobalInvocationID.xy, pixel);
 }

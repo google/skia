@@ -22,6 +22,8 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -65,17 +67,17 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextureMipMapInvalidationTest,
 
     auto info = SkImageInfo::MakeN32Premul(256, 256);
     for (auto allocateMips : {false, true}) {
-        auto surf1 = SkSurface::MakeRenderTarget(context,
-                                                 skgpu::Budgeted::kYes,
-                                                 info,
-                                                 0,
-                                                 kBottomLeft_GrSurfaceOrigin,
-                                                 nullptr,
-                                                 allocateMips);
-        auto surf2 = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, info);
+        auto surf1 = SkSurfaces::RenderTarget(context,
+                                              skgpu::Budgeted::kYes,
+                                              info,
+                                              0,
+                                              kBottomLeft_GrSurfaceOrigin,
+                                              nullptr,
+                                              allocateMips);
+        auto surf2 = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, info);
         // Draw something just in case we ever had a solid color optimization
         surf1->getCanvas()->drawCircle(128, 128, 50, SkPaint());
-        surf1->flushAndSubmit();
+        context->flushAndSubmit(surf1.get(), GrSyncCpu::kNo);
 
         // No mipmaps initially
         REPORTER_ASSERT(reporter, isMipped(surf1.get()) == allocateMips);
@@ -108,7 +110,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
         return;
     }
     static constexpr auto kCreateWithMipMaps = true;
-    auto surf = SkSurface::MakeRenderTarget(
+    auto surf = SkSurfaces::RenderTarget(
             dContext,
             skgpu::Budgeted::kYes,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
@@ -126,8 +128,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
     }
     surf.reset();
     GrBackendTexture btex;
-    SkImage::BackendTextureReleaseProc texRelease;
-    if (!SkImage::MakeBackendTextureFromSkImage(dContext, std::move(img), &btex, &texRelease)) {
+    SkImages::BackendTextureReleaseProc texRelease;
+    if (!SkImages::MakeBackendTextureFromImage(dContext, std::move(img), &btex, &texRelease)) {
         // Not all backends support stealing textures yet.
         // ERRORF(reporter, "Could not turn image into texture");
         return;
@@ -135,11 +137,15 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReimportImageTextureWithMipLevels,
     REPORTER_ASSERT(reporter, btex.hasMipmaps());
     // Reimport the texture as an image and perform a downsampling draw with medium quality which
     // should use the upper MIP levels.
-    img = SkImage::MakeFromTexture(dContext, btex, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                                   kPremul_SkAlphaType, nullptr);
+    img = SkImages::BorrowTextureFrom(dContext,
+                                      btex,
+                                      kTopLeft_GrSurfaceOrigin,
+                                      kRGBA_8888_SkColorType,
+                                      kPremul_SkAlphaType,
+                                      nullptr);
     const auto singlePixelInfo =
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    surf = SkSurface::MakeRenderTarget(
+    surf = SkSurfaces::RenderTarget(
             dContext, skgpu::Budgeted::kYes, singlePixelInfo, 1, kTopLeft_GrSurfaceOrigin, nullptr);
 
     surf->getCanvas()->drawImageRect(img, SkRect::MakeWH(1, 1),

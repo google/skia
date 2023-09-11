@@ -17,15 +17,15 @@ CORE_FILES = [
     "SkCodecImageGenerator.cpp",
     "SkCodecImageGenerator.h",
     "SkCodecPriv.h",
-    "SkColorTable.cpp",
-    "SkColorTable.h",
+    "SkColorPalette.cpp",
+    "SkColorPalette.h",
     "SkFrameHolder.h",
     "SkMaskSwizzler.cpp",
     "SkMaskSwizzler.h",
     "SkMasks.cpp",
     "SkMasks.h",
     "SkPixmapUtils.cpp",
-    "SkPixmapUtils.h",
+    "SkPixmapUtilsPriv.h",
     "SkSampler.cpp",
     "SkSampler.h",
     "SkSwizzler.cpp",
@@ -73,7 +73,6 @@ split_srcs_and_hdrs(
 DECODE_GIF_FILES = [
     "SkScalingCodec.h",
     "SkWuffsCodec.cpp",
-    "SkWuffsCodec.h",
 ]
 
 split_srcs_and_hdrs(
@@ -99,6 +98,21 @@ DECODE_JPEG_FILES = [
 split_srcs_and_hdrs(
     name = "decode_jpeg",
     files = DECODE_JPEG_FILES,
+)
+
+filegroup(
+    name = "xmp_srcs",
+    srcs = [
+        "SkXmp.cpp",
+    ],
+)
+
+split_srcs_and_hdrs(
+    name = "jpeg_xmp",
+    files = [
+        "SkJpegXmp.cpp",
+        "SkJpegXmp.h",
+    ],
 )
 
 DECODE_PNG_FILES = [
@@ -197,9 +211,10 @@ selects.config_setting_group(
 skia_filegroup(
     name = "srcs",
     srcs = [
+        ":core_srcs",
         ":decode_android_srcs",
         ":decode_bmp_srcs",
-        ":core_srcs",
+        ":xmp_srcs",  # TODO: Make this optional
     ] + select_multi(
         {
             ":avif_decode_codec": [":decode_avif_srcs"],
@@ -217,9 +232,9 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        ":core_hdrs",
         ":decode_android_hdrs",
         ":decode_bmp_hdrs",
-        ":core_hdrs",
     ] + select({
         ":needs_jpeg_priv": ["SkJpegPriv.h"],  # used by src/encode/SkJPEGWriteUtility
         "//conditions:default": [],

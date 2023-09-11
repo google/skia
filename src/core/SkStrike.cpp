@@ -8,20 +8,26 @@
 #include "src/core/SkStrike.h"
 
 #include "include/core/SkDrawable.h"
-#include "include/core/SkGraphics.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypeface.h"
-#include "src/core/SkDistanceFieldGen.h"
-#include "src/core/SkEnumerate.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkWriteBuffer.h"
 #include "src/text/StrikeForGPU.h"
 
-#if defined(SK_GANESH)
-    #include "src/text/gpu/StrikeCache.h"
-#endif
+#include <cctype>
+#include <new>
+#include <optional>
+#include <utility>
 
 using namespace skglyph;
 
@@ -75,6 +81,84 @@ void SkStrike::unlock() {
     const size_t memoryIncrease = fMemoryIncrease;
     fStrikeLock.release();
     this->updateMemoryUsage(memoryIncrease);
+}
+
+void
+SkStrike::FlattenGlyphsByType(SkWriteBuffer& buffer,
+                              SkSpan<SkGlyph> images,
+                              SkSpan<SkGlyph> paths,
+                              SkSpan<SkGlyph> drawables) {
+    SkASSERT_RELEASE(SkTFitsIn<int>(images.size()) &&
+                     SkTFitsIn<int>(paths.size()) &&
+                     SkTFitsIn<int>(drawables.size()));
+
+    buffer.writeInt(images.size());
+    for (SkGlyph& glyph : images) {
+        SkASSERT(SkMask::IsValidFormat(glyph.maskFormat()));
+        glyph.flattenMetrics(buffer);
+        glyph.flattenImage(buffer);
+    }
+
+    buffer.writeInt(paths.size());
+    for (SkGlyph& glyph : paths) {
+        SkASSERT(SkMask::IsValidFormat(glyph.maskFormat()));
+        glyph.flattenMetrics(buffer);
+        glyph.flattenPath(buffer);
+    }
+
+    buffer.writeInt(drawables.size());
+    for (SkGlyph& glyph : drawables) {
+        SkASSERT(SkMask::IsValidFormat(glyph.maskFormat()));
+        glyph.flattenMetrics(buffer);
+        glyph.flattenDrawable(buffer);
+    }
+}
+
+bool SkStrike::mergeFromBuffer(SkReadBuffer& buffer) {
+    // Read glyphs with images for the current strike.
+    const int imagesCount = buffer.readInt();
+    if (imagesCount == 0 && !buffer.isValid()) {
+        return false;
+    }
+
+    {
+        Monitor m{this};
+        for (int curImage = 0; curImage < imagesCount; ++curImage) {
+            if (!this->mergeGlyphAndImageFromBuffer(buffer)) {
+                return false;
+            }
+        }
+    }
+
+    // Read glyphs with paths for the current strike.
+    const int pathsCount = buffer.readInt();
+    if (pathsCount == 0 && !buffer.isValid()) {
+        return false;
+    }
+    {
+        Monitor m{this};
+        for (int curPath = 0; curPath < pathsCount; ++curPath) {
+            if (!this->mergeGlyphAndPathFromBuffer(buffer)) {
+                return false;
+            }
+        }
+    }
+
+    // Read glyphs with drawables for the current strike.
+    const int drawablesCount = buffer.readInt();
+    if (drawablesCount == 0 && !buffer.isValid()) {
+        return false;
+    }
+    {
+        Monitor m{this};
+        for (int curDrawable = 0; curDrawable < drawablesCount; ++curDrawable) {
+            if (!this->mergeGlyphAndDrawableFromBuffer(buffer)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 SkGlyph* SkStrike::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& fromGlyph) {
@@ -293,6 +377,56 @@ bool SkStrike::prepareForDrawable(SkGlyph* glyph) {
         fMemoryIncrease += increase;
     }
     return glyph->drawable() != nullptr;
+}
+
+SkGlyph* SkStrike::mergeGlyphFromBuffer(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isValid());
+    std::optional<SkGlyph> prototypeGlyph = SkGlyph::MakeFromBuffer(buffer);
+    if (!buffer.validate(prototypeGlyph.has_value())) {
+        return nullptr;
+    }
+
+    // Check if this glyph has already been seen.
+    SkGlyphDigest* digestPtr = fDigestForPackedGlyphID.find(prototypeGlyph->getPackedID());
+    if (digestPtr != nullptr) {
+        return fGlyphForIndex[digestPtr->index()];
+    }
+
+    // This is the first time. Allocate a new glyph.
+    SkGlyph* glyph = fAlloc.make<SkGlyph>(prototypeGlyph.value());
+    fMemoryIncrease += sizeof(SkGlyph);
+    this->addGlyphAndDigest(glyph);
+    return glyph;
+}
+
+bool SkStrike::mergeGlyphAndImageFromBuffer(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isValid());
+    SkGlyph* glyph = this->mergeGlyphFromBuffer(buffer);
+    if (!buffer.validate(glyph != nullptr)) {
+        return false;
+    }
+    fMemoryIncrease += glyph->addImageFromBuffer(buffer, &fAlloc);
+    return buffer.isValid();
+}
+
+bool SkStrike::mergeGlyphAndPathFromBuffer(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isValid());
+    SkGlyph* glyph = this->mergeGlyphFromBuffer(buffer);
+    if (!buffer.validate(glyph != nullptr)) {
+        return false;
+    }
+    fMemoryIncrease += glyph->addPathFromBuffer(buffer, &fAlloc);
+    return buffer.isValid();
+}
+
+bool SkStrike::mergeGlyphAndDrawableFromBuffer(SkReadBuffer& buffer) {
+    SkASSERT(buffer.isValid());
+    SkGlyph* glyph = this->mergeGlyphFromBuffer(buffer);
+    if (!buffer.validate(glyph != nullptr)) {
+        return false;
+    }
+    fMemoryIncrease += glyph->addDrawableFromBuffer(buffer, &fAlloc);
+    return buffer.isValid();
 }
 
 SkSpan<const SkGlyph*> SkStrike::internalPrepare(

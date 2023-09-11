@@ -42,7 +42,7 @@ void Transform::FindAndDeclareBuiltinFunctions(Program& program) {
             }
             if (fn->intrinsicKind() == k_dFdy_IntrinsicKind) {
                 // Programs that invoke the `dFdy` intrinsic will need the RTFlip input.
-                program.fInputs.fUseFlipRTUniform = !context.fConfig->fSettings.fForceNoRTFlip;
+                program.fInterface.fUseFlipRTUniform = !context.fConfig->fSettings.fForceNoRTFlip;
             }
             if (const FunctionDefinition* builtinDef = fn->definition()) {
                 // Make sure we only add a built-in function once. We rarely add more than a handful

@@ -8,6 +8,10 @@
 #ifndef SkRasterPipelineOpContexts_DEFINED
 #define SkRasterPipelineOpContexts_DEFINED
 
+#include <cstddef>
+
+namespace SkSL { class TraceHook; }
+
 // The largest number of pixels we handle at a time. We have a separate value for the largest number
 // of pixels we handle in the highp pipeline. Many of the context structs in this file are only used
 // by stages that have no lowp implementation. They can therefore use the (smaller) highp value to
@@ -113,6 +117,7 @@ struct SkRasterPipeline_RewindCtx {
     float dg[SkRasterPipeline_kMaxStride_highp];
     float db[SkRasterPipeline_kMaxStride_highp];
     float da[SkRasterPipeline_kMaxStride_highp];
+    std::byte* base;
     SkRasterPipelineStage* stage;
 };
 
@@ -148,20 +153,40 @@ struct SkRasterPipeline_TablesCtx {
     const uint8_t *r, *g, *b, *a;
 };
 
-struct SkRasterPipeline_BinaryOpCtx {
+using SkRPOffset = uint32_t;
+
+struct SkRasterPipeline_ConstantCtx {
+    float value;
+    SkRPOffset dst;
+};
+
+struct SkRasterPipeline_UniformCtx {
     float *dst;
     const float *src;
 };
 
+struct SkRasterPipeline_BinaryOpCtx {
+    SkRPOffset dst;
+    SkRPOffset src;
+};
+
 struct SkRasterPipeline_TernaryOpCtx {
-    float *dst;
-    const float *src0;
-    const float *src1;
+    SkRPOffset dst;
+    SkRPOffset delta;
+};
+
+struct SkRasterPipeline_MatrixMultiplyCtx {
+    SkRPOffset dst;
+    uint8_t leftColumns, leftRows, rightColumns, rightRows;
 };
 
 struct SkRasterPipeline_SwizzleCtx {
-    float *ptr;
-    uint16_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
+    // If we are processing more than 16 pixels at a time, an 8-bit offset won't be sufficient and
+    // `offsets` will need to use uint16_t (or dial down the premultiplication).
+    static_assert(SkRasterPipeline_kMaxStride_highp <= 16);
+
+    SkRPOffset dst;
+    uint8_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
 };
 
 struct SkRasterPipeline_ShuffleCtx {
@@ -194,12 +219,39 @@ struct SkRasterPipeline_BranchCtx {
 
 struct SkRasterPipeline_BranchIfEqualCtx : public SkRasterPipeline_BranchCtx {
     int value;
-    const int *ptr;
+    const int* ptr;
 };
 
 struct SkRasterPipeline_CaseOpCtx {
     int expectedValue;
-    int* ptr;  // points to a pair of adjacent I32s: {I32 actualValue, I32 defaultMask}
+    SkRPOffset offset;  // points to a pair of adjacent I32s: {I32 actualValue, I32 defaultMask}
+};
+
+struct SkRasterPipeline_TraceFuncCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int funcIdx;
+};
+
+struct SkRasterPipeline_TraceScopeCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int delta;
+};
+
+struct SkRasterPipeline_TraceLineCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int lineNumber;
+};
+
+struct SkRasterPipeline_TraceVarCtx {
+    const int* traceMask;
+    SkSL::TraceHook* traceHook;
+    int slotIdx, numSlots;
+    const int* data;
+    const uint32_t *indirectOffset;  // can be null; if set, an offset applied to `data`
+    uint32_t indirectLimit;          // the indirect offset is clamped to this upper bound
 };
 
 #endif  // SkRasterPipelineOpContexts_DEFINED

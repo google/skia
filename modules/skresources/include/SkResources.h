@@ -50,15 +50,27 @@ public:
      */
     virtual sk_sp<SkImage> getFrame(float t);
 
+    // Describes how the frame image is to be scaled to the animation-declared asset size.
+    enum class SizeFit {
+        // See SkMatrix::ScaleToFit
+        kFill   = SkMatrix::kFill_ScaleToFit,
+        kStart  = SkMatrix::kStart_ScaleToFit,
+        kCenter = SkMatrix::kCenter_ScaleToFit,
+        kEnd    = SkMatrix::kEnd_ScaleToFit,
+
+        // No scaling.
+        kNone,
+    };
+
     struct FrameData {
         // SkImage payload.
-        sk_sp<SkImage>       image;
+        sk_sp<SkImage>    image;
         // Resampling parameters.
-        SkSamplingOptions    sampling;
+        SkSamplingOptions sampling;
         // Additional image transform to be applied before AE scaling rules.
-        SkMatrix             matrix = SkMatrix::I();
-        // Scaling strategy for aspect ratio adjustments.
-        SkMatrix::ScaleToFit scaling = SkMatrix::kCenter_ScaleToFit;
+        SkMatrix          matrix = SkMatrix::I();
+        // Strategy for image size -> AE asset size scaling.
+        SizeFit           scaling = SizeFit::kCenter;
     };
 
     /**
@@ -213,7 +225,7 @@ protected:
     sk_sp<SkData> loadFont(const char[], const char[]) const override;
     sk_sp<ExternalTrackAsset> loadAudioAsset(const char[], const char[], const char[]) override;
 
-private:
+protected:
     const sk_sp<ResourceProvider> fProxy;
 };
 
@@ -229,8 +241,8 @@ private:
 
     sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
 
-    mutable SkMutex                                 fMutex;
-    mutable SkTHashMap<SkString, sk_sp<ImageAsset>> fImageCache;
+    mutable SkMutex                                             fMutex;
+    mutable skia_private::THashMap<SkString, sk_sp<ImageAsset>> fImageCache;
 
     using INHERITED = ResourceProviderProxyBase;
 };

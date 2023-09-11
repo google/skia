@@ -92,6 +92,11 @@ Add the following to `~/.bazelrc` if you have a `/dev/shm` partition that is 4+ 
 build --sandbox_base=/dev/shm
 ```
 
+Mac users should probably bypass sandboxing as [it is known to be slow](https://github.com/bazelbuild/bazel/issues/8230).
+```
+build --spawn_strategy=local
+```
+
 ### Authenticate to RBE on a Linux VM
 We are in the process of setting up Remote Build Execution (RBE) for Bazel. Some users have reported
 errors when trying to use RBE (via `--config=linux_rbe`) on Linux VMs such as:

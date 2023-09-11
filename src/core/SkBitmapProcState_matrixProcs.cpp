@@ -5,11 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkShader.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBitmapProcState.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
+
+#include <cstdint>
+#include <cstring>
 
 /*
  *  The decal_ functions require that

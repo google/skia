@@ -711,7 +711,7 @@ bool GrGLInterface::validate() const {
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
           fExtensions.has("GL_EXT_occlusion_query_boolean")))) {
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
         if (!fFunctions.fBeginQuery ||
             !fFunctions.fDeleteQueries ||
             !fFunctions.fEndQuery ||
@@ -794,10 +794,10 @@ bool GrGLInterface::validate() const {
     return true;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 void GrGLInterface::abandon() const {
     const_cast<GrGLInterface*>(this)->fFunctions = GrGLInterface::Functions();
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)

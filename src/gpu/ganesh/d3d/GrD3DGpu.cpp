@@ -11,11 +11,13 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/ganesh/d3d/GrD3DAMDMemoryAllocator.h"
@@ -29,7 +31,7 @@
 #include "src/gpu/ganesh/d3d/GrD3DUtil.h"
 #include "src/sksl/SkSLCompiler.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include <DXProgrammableCapture.h>
 #endif
 
@@ -91,7 +93,7 @@ GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptio
     GR_D3D_CALL_ERRCHECK(fDevice->CreateFence(fCurrentFenceValue, D3D12_FENCE_FLAG_NONE,
                                               IID_PPV_ARGS(&fFence)));
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     HRESULT getAnalysis = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&fGraphicsAnalysis));
     if (FAILED(getAnalysis)) {
         fGraphicsAnalysis = nullptr;
@@ -137,7 +139,7 @@ GrOpsRenderPass* GrD3DGpu::onGetOpsRenderPass(
         const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        const TArray<GrSurfaceProxy*, true>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass.reset(new GrD3DOpsRenderPass(this));
@@ -606,10 +608,16 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface,
     fDevice->GetCopyableFootprints(&desc, 0, 1, 0, &placedFootprint,
                                    nullptr, nullptr, &transferTotalBytes);
     SkASSERT(transferTotalBytes);
-    // TODO: implement some way of reusing buffers instead of making a new one every time.
-    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(transferTotalBytes,
-                                                           GrGpuBufferType::kXferGpuToCpu,
-                                                           kDynamic_GrAccessPattern);
+    GrResourceProvider* resourceProvider =
+        this->getContext()->priv().resourceProvider();
+    sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
+            transferTotalBytes,
+            GrGpuBufferType::kXferGpuToCpu,
+            kDynamic_GrAccessPattern,
+            GrResourceProvider::ZeroInit::kNo);
+    if (!transferBuffer) {
+        return false;
+    }
 
     this->readOrTransferPixels(texResource, rect, transferBuffer, placedFootprint);
     this->submitDirectCommandList(SyncQueue::kForce);
@@ -622,6 +630,9 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface,
     size_t tightRowBytes = bpp * rect.width();
 
     const void* mappedMemory = transferBuffer->map();
+    if (!mappedMemory) {
+        return false;
+    }
 
     SkRectMemcpy(buffer,
                  rowBytes,
@@ -1175,7 +1186,9 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
 
     // TODO: use linear vs. srgb shader based on texture format
     sk_sp<GrD3DPipeline> pipeline = this->resourceProvider().findOrCreateMipmapPipeline();
-    SkASSERT(pipeline);
+    if (!pipeline) {
+        return false;
+    }
     this->currentCommandList()->setPipelineState(std::move(pipeline));
 
     // set sampler
@@ -1631,7 +1644,7 @@ bool GrD3DGpu::compile(const GrProgramDesc&, const GrProgramInfo&) {
     return false;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kDirect3D == tex.backend());
 
@@ -1672,7 +1685,7 @@ void GrD3DGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
 
     GrD3DTextureResourceInfo info;
     if (rt.getD3DTextureResourceInfo(&info)) {
-        this->submitToGpu(true);
+        this->submitToGpu(GrSyncCpu::kYes);
         // Nothing else to do here, will get cleaned up when the GrBackendRenderTarget
         // is deleted.
     }
@@ -1712,13 +1725,12 @@ void GrD3DGpu::addBufferResourceBarriers(GrD3DBuffer* buffer,
     fCurrentDirectCommandList->addGrBuffer(sk_ref_sp<const GrBuffer>(buffer));
 }
 
-
 void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
         SkSpan<GrSurfaceProxy*> proxies,
-        SkSurface::BackendSurfaceAccess access,
+        SkSurfaces::BackendSurfaceAccess access,
         const skgpu::MutableTextureState* newState) {
     // prepare proxies by transitioning to PRESENT renderState
-    if (!proxies.empty() && access == SkSurface::BackendSurfaceAccess::kPresent) {
+    if (!proxies.empty() && access == SkSurfaces::BackendSurfaceAccess::kPresent) {
         GrD3DTextureResource* resource;
         for (GrSurfaceProxy* proxy : proxies) {
             SkASSERT(proxy->isInstantiated());
@@ -1738,15 +1750,15 @@ void GrD3DGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
     fCurrentDirectCommandList->addGrBuffer(std::move(buffer));
 }
 
-bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
-    if (syncCpu) {
+bool GrD3DGpu::onSubmitToGpu(GrSyncCpu sync) {
+    if (sync == GrSyncCpu::kYes) {
         return this->submitDirectCommandList(SyncQueue::kForce);
     } else {
         return this->submitDirectCommandList(SyncQueue::kSkip);
     }
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrD3DGpu::makeSemaphore(bool) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrD3DGpu::makeSemaphore(bool) {
     return GrD3DSemaphore::Make(this);
 }
 std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
@@ -1774,7 +1786,7 @@ void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
     fQueue->Wait(d3dSem->fence(), d3dSem->value());
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
+[[nodiscard]] GrFence GrD3DGpu::insertFence() {
     GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
     return fCurrentFenceValue;
 }

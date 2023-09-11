@@ -15,16 +15,14 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
-#include "src/core/SkMatrixProvider.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkEffectPriv.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkShaderBase.h"
-
-#define SK_BLITTER_TRACE_IS_RASTER_PIPELINE
-#include "src/utils/SkBlitterTrace.h"
 
 class SkRasterPipelineBlitter final : public SkBlitter {
 public:
@@ -285,7 +283,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // When we're drawing a constant color in Src mode, we can sometimes just memset.
     // (The previous two optimizations help find more opportunities for this one.)
-    if (is_constant && as_BB(blender)->asBlendMode() == SkBlendMode::kSrc) {
+    if (is_constant && as_BB(blender)->asBlendMode() == SkBlendMode::kSrc &&
+        dst.info().bytesPerPixel() <= static_cast<int>(sizeof(blitter->fMemsetColor))) {
         // Run our color pipeline all the way through to produce what we'd memset when we can.
         // Not all blits can memset, so we need to keep colorPipeline too.
         SkRasterPipeline_<256> p;
@@ -373,10 +372,6 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
 
 void SkRasterPipelineBlitter::blitRectWithTrace(int x, int y, int w, int h, bool trace) {
     if (fMemset2D) {
-        SK_BLITTER_TRACE_STEP(blitRectByMemset,
-                           trace,
-                           /*scanlines=*/h,
-                           /*pixels=*/w * h);
         fMemset2D(&fDst, x,y, w,h, fMemsetColor);
         return;
     }
@@ -410,7 +405,6 @@ void SkRasterPipelineBlitter::blitRectWithTrace(int x, int y, int w, int h, bool
         fBlitRect = p.compile();
     }
 
-    SK_BLITTER_TRACE_STEP(blitRect, trace, /*scanlines=*/h, /*pixels=*/w * h);
     fBlitRect(x,y,w,h);
 }
 
@@ -436,9 +430,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         fBlitAntiH = p.compile();
     }
 
-    SK_BLITTER_TRACE_STEP(blitAntiH, true, /*scanlines=*/1ul, /*pixels=*/0ul);
     for (int16_t run = *runs; run > 0; run = *runs) {
-        SK_BLITTER_TRACE_STEP_ACCUMULATE(blitAntiH, /*pixels=*/run);
         switch (*aa) {
             case 0x00:                                break;
             case 0xff:this->blitRectWithTrace(x,y,run, 1, false); break;
@@ -455,38 +447,22 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
 void SkRasterPipelineBlitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
     SkIRect clip = {x,y, x+2,y+1};
     uint8_t coverage[] = { (uint8_t)a0, (uint8_t)a1 };
-
-    SkMask mask;
-    mask.fImage    = coverage;
-    mask.fBounds   = clip;
-    mask.fRowBytes = 2;
-    mask.fFormat   = SkMask::kA8_Format;
-
+    SkMask mask(coverage, clip, 2, SkMask::kA8_Format);
     this->blitMask(mask, clip);
 }
 
 void SkRasterPipelineBlitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
     SkIRect clip = {x,y, x+1,y+2};
     uint8_t coverage[] = { (uint8_t)a0, (uint8_t)a1 };
-
-    SkMask mask;
-    mask.fImage    = coverage;
-    mask.fBounds   = clip;
-    mask.fRowBytes = 1;
-    mask.fFormat   = SkMask::kA8_Format;
-
+    SkMask mask(coverage, clip, 1, SkMask::kA8_Format);
     this->blitMask(mask, clip);
 }
 
 void SkRasterPipelineBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     SkIRect clip = {x,y, x+1,y+height};
-
-    SkMask mask;
-    mask.fImage    = &alpha;
-    mask.fBounds   = clip;
-    mask.fRowBytes = 0;     // so we reuse the 1 "row" for all of height
-    mask.fFormat   = SkMask::kA8_Format;
-
+    SkMask mask(&alpha, clip,
+                0,     // so we reuse the 1 "row" for all of height
+                SkMask::kA8_Format);
     this->blitMask(mask, clip);
 }
 
@@ -598,9 +574,5 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     }
 
     SkASSERT(blitter);
-    SK_BLITTER_TRACE_STEP(blitMask,
-                       true,
-                       /*scanlines=*/clip.height(),
-                       /*pixels=*/clip.width() * clip.height());
     (*blitter)(clip.left(),clip.top(), clip.width(),clip.height());
 }

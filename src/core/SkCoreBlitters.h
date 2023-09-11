@@ -8,15 +8,25 @@
 #ifndef SkCoreBlitters_DEFINED
 #define SkCoreBlitters_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkBlitter_A8.h"
-#include "src/core/SkXfermodePriv.h"
-#include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 
+#include <cstdint>
+
+class SkArenaAlloc;
+class SkMatrix;
+class SkRasterPipeline;
+class SkShader;
 class SkSurfaceProps;
+struct SkIRect;
+struct SkMask;
 
 class SkRasterBlitter : public SkBlitter {
 public:
@@ -41,10 +51,8 @@ public:
     ~SkShaderBlitter() override;
 
 protected:
-    uint32_t                fShaderFlags;
-    const SkShader*         fShader;
+    sk_sp<SkShader>         fShader;
     SkShaderBase::Context*  fShaderContext;
-    bool                    fConstInY;
 
 private:
     // illegal
@@ -63,7 +71,6 @@ public:
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
     void blitMask(const SkMask&, const SkIRect&) override;
-    const SkPixmap* justAnOpaqueColor(uint32_t*) override;
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
 
@@ -116,7 +123,6 @@ public:
     void blitMask(const SkMask&, const SkIRect&) override;
 
 private:
-    SkXfermode*         fXfermode;
     SkPMColor*          fBuffer;
     SkBlitRow::Proc32   fProc32;
     SkBlitRow::Proc32   fProc32Blend;

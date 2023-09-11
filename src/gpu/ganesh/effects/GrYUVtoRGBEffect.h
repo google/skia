@@ -8,12 +8,22 @@
 #ifndef GrYUVtoRGBEffect_DEFINED
 #define GrYUVtoRGBEffect_DEFINED
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkString.h"
 #include "include/core/SkYUVAInfo.h"
-#include "src/core/SkYUVAInfoLocation.h"
+#include "src/core/SkYUVAInfoLocation.h" // IWYU pragma: keep
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+
+#include <memory>
 
 class GrYUVATextureProxies;
+enum SkYUVColorSpace : int;
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
+struct SkRect;
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
@@ -36,7 +46,7 @@ private:
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
 

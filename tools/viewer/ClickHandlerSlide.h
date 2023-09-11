@@ -11,6 +11,10 @@
 #include "tools/SkMetaData.h"
 #include "tools/viewer/Slide.h"
 
+#include "include/core/SkPoint.h"
+
+#include <functional>
+
 /**
  * Provides a higher level abstraction for click handling than the Slide base class. A Click object
  * is is used to track the state of the mouse over time.

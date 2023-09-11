@@ -7,11 +7,18 @@
 
 #include "src/gpu/ganesh/GrXferProcessor.h"
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkString.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/effects/GrCustomXfermode.h"
+#include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+
+#include <cstdint>
+
+enum class GrClampType;
 
 GrXferProcessor::GrXferProcessor(ClassID classID)
         : INHERITED(classID)
@@ -90,6 +97,17 @@ sk_sp<const GrXferProcessor> GrXPFactory::MakeXferProcessor(const GrXPFactory* f
     } else {
         return GrPorterDuffXPFactory::MakeSrcOverXferProcessor(color, coverage, caps);
     }
+}
+
+const GrXPFactory* GrXPFactory::FromBlendMode(SkBlendMode mode) {
+    if (SkBlendMode_AsCoeff(mode, nullptr, nullptr)) {
+        const GrXPFactory* result = GrPorterDuffXPFactory::Get(mode);
+        SkASSERT(result);
+        return result;
+    }
+
+    SkASSERT(GrCustomXfermode::IsSupportedMode(mode));
+    return GrCustomXfermode::Get(mode);
 }
 
 //////////////////////////////////////////////////////////////////////////////

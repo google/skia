@@ -9,9 +9,10 @@
 #define SKSL_INTERFACEBLOCK
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/sksl/SkSLPosition.h"
+#include "include/private/base/SkTArray.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -24,6 +25,7 @@
 namespace SkSL {
 
 class Context;
+struct Modifiers;
 class SymbolTable;
 
 /**
@@ -59,8 +61,11 @@ public:
     // (if it is named) or each of the interface block fields (if it is anonymous).
     static std::unique_ptr<InterfaceBlock> Convert(const Context& context,
                                                    Position pos,
-                                                   Variable* variable,
-                                                   std::shared_ptr<SymbolTable> symbols);
+                                                   const Modifiers& modifiers,
+                                                   std::string_view typeName,
+                                                   skia_private::TArray<Field> fields,
+                                                   std::string_view varName,
+                                                   int arraySize);
 
     // Returns an InterfaceBlock; errors are reported via SkASSERT.
     // The caller is responsible for adding the InterfaceBlock to the program elements.
@@ -71,8 +76,7 @@ public:
     static std::unique_ptr<InterfaceBlock> Make(const Context& context,
                                                 Position pos,
                                                 Variable* variable,
-                                                std::optional<int> rtAdjustIndex,
-                                                std::shared_ptr<SymbolTable> symbols);
+                                                std::optional<int> rtAdjustIndex);
 
     Variable* var() const {
         return fVariable;

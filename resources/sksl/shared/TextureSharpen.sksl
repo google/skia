@@ -1,6 +1,6 @@
 /*#pragma settings Sharpen*/
 
-layout(binding=0) uniform sampler2D s;
+layout(binding=0) sampler2D s;
 
 void main() {
     float4 a = sample(s, float2(0));

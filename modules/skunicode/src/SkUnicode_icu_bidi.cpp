@@ -17,6 +17,79 @@
 #include <utility>
 #include <vector>
 
+#ifdef SK_UNICODE_ICU_IMPLEMENTATION
+
+#include "modules/skunicode/src/SkUnicode_icu.h"
+
+const char* SkUnicode_IcuBidi::errorName(UErrorCode status) {
+    return SkGetICULib()->f_u_errorName(status);
+}
+
+void SkUnicode_IcuBidi::bidi_close(UBiDi* bidi) {
+    SkGetICULib()->f_ubidi_close(bidi);
+}
+UBiDiDirection SkUnicode_IcuBidi::bidi_getDirection(const UBiDi* bidi) {
+    return SkGetICULib()->f_ubidi_getDirection(bidi);
+}
+SkBidiIterator::Position SkUnicode_IcuBidi::bidi_getLength(const UBiDi* bidi) {
+    return SkGetICULib()->f_ubidi_getLength(bidi);
+}
+SkBidiIterator::Level SkUnicode_IcuBidi::bidi_getLevelAt(const UBiDi* bidi, int pos) {
+    return SkGetICULib()->f_ubidi_getLevelAt(bidi, pos);
+}
+UBiDi* SkUnicode_IcuBidi::bidi_openSized(int32_t maxLength, int32_t maxRunCount, UErrorCode* pErrorCode) {
+    return SkGetICULib()->f_ubidi_openSized(maxLength, maxRunCount, pErrorCode);
+}
+void SkUnicode_IcuBidi::bidi_setPara(UBiDi* bidi,
+                         const UChar* text,
+                         int32_t length,
+                         UBiDiLevel paraLevel,
+                         UBiDiLevel* embeddingLevels,
+                         UErrorCode* status) {
+    return SkGetICULib()->f_ubidi_setPara(bidi, text, length, paraLevel, embeddingLevels, status);
+}
+void SkUnicode_IcuBidi::bidi_reorderVisual(const SkUnicode::BidiLevel runLevels[],
+                               int levelsCount,
+                               int32_t logicalFromVisual[]) {
+    SkGetICULib()->f_ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
+}
+
+#else  // SK_UNICODE_ICU_IMPLEMENTATION
+
+const char* SkUnicode_IcuBidi::errorName(UErrorCode status) {
+    return u_errorName_skia(status);
+}
+void SkUnicode_IcuBidi::bidi_close(UBiDi* bidi) {
+    ubidi_close_skia(bidi);
+}
+UBiDiDirection SkUnicode_IcuBidi::bidi_getDirection(const UBiDi* bidi) {
+    return ubidi_getDirection_skia(bidi);
+}
+SkBidiIterator::Position SkUnicode_IcuBidi::bidi_getLength(const UBiDi* bidi) {
+    return ubidi_getLength_skia(bidi);
+}
+SkBidiIterator::Level SkUnicode_IcuBidi::bidi_getLevelAt(const UBiDi* bidi, int pos) {
+    return ubidi_getLevelAt_skia(bidi, pos);
+}
+UBiDi* SkUnicode_IcuBidi::bidi_openSized(int32_t maxLength, int32_t maxRunCount, UErrorCode* pErrorCode) {
+    return ubidi_openSized_skia(maxLength, maxRunCount, pErrorCode);
+}
+void SkUnicode_IcuBidi::bidi_setPara(UBiDi* bidi,
+                         const UChar* text,
+                         int32_t length,
+                         UBiDiLevel paraLevel,
+                         UBiDiLevel* embeddingLevels,
+                         UErrorCode* status) {
+    return ubidi_setPara_skia(bidi, text, length, paraLevel, embeddingLevels, status);
+}
+void SkUnicode_IcuBidi::bidi_reorderVisual(const SkUnicode::BidiLevel runLevels[],
+                               int levelsCount,
+                               int32_t logicalFromVisual[]) {
+    ubidi_reorderVisual_skia(runLevels, levelsCount, logicalFromVisual);
+}
+
+#endif  // SK_UNICODE_ICU_IMPLEMENTATION
+
 namespace {
 using SkUnicodeBidi = std::unique_ptr<UBiDi, SkFunctionObject<SkUnicode_IcuBidi::bidi_close>>;
 
@@ -33,9 +106,9 @@ private:
 };
 }  // namespace
 
-std::unique_ptr<SkBidiIterator> SkUnicode::makeBidiIterator(const uint16_t utf16[],
-                                                            int utf16Units,
-                                                            SkBidiIterator::Direction dir) {
+std::unique_ptr<SkBidiIterator> SkUnicode_IcuBidi::MakeIterator(const uint16_t utf16[],
+                                                                int utf16Units,
+                                                                SkBidiIterator::Direction dir) {
     UErrorCode status = U_ZERO_ERROR;
     SkUnicodeBidi bidi(SkUnicode_IcuBidi::bidi_openSized(utf16Units, 0, &status));
     if (U_FAILURE(status)) {
@@ -54,9 +127,9 @@ std::unique_ptr<SkBidiIterator> SkUnicode::makeBidiIterator(const uint16_t utf16
     return std::unique_ptr<SkBidiIterator>(new SkBidiIterator_icu(std::move(bidi)));
 }
 
-std::unique_ptr<SkBidiIterator> SkUnicode::makeBidiIterator(const char utf8[],
-                                                            int utf8Units,
-                                                            SkBidiIterator::Direction dir) {
+std::unique_ptr<SkBidiIterator> SkUnicode_IcuBidi::MakeIterator(const char utf8[],
+                                                                int utf8Units,
+                                                                SkBidiIterator::Direction dir) {
     // Convert utf8 into utf16 since ubidi only accepts utf16
     if (!SkTFitsIn<int32_t>(utf8Units)) {
         SkDEBUGF("Bidi error: text too long");
@@ -73,7 +146,7 @@ std::unique_ptr<SkBidiIterator> SkUnicode::makeBidiIterator(const char utf8[],
     SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16.get(), utf16Units, utf8, utf8Units);
     SkASSERT(dstLen == utf16Units);
 
-    return makeBidiIterator(utf16.get(), utf16Units, dir);
+    return MakeIterator(utf16.get(), utf16Units, dir);
 }
 
 /** Replaces invalid utf-8 sequences with REPLACEMENT CHARACTER U+FFFD. */
@@ -82,10 +155,10 @@ static inline SkUnichar utf8_next(const char** ptr, const char* end) {
     return val < 0 ? 0xFFFD : val;
 }
 
-bool SkUnicode::extractBidi(const char utf8[],
-                                   int utf8Units,
-                                   TextDirection dir,
-                                   std::vector<BidiRegion>* bidiRegions) {
+bool SkUnicode_IcuBidi::ExtractBidi(const char utf8[],
+                                    int utf8Units,
+                                    SkUnicode::TextDirection dir,
+                                    std::vector<SkUnicode::BidiRegion>* bidiRegions) {
     // Convert to UTF16 since for now bidi iterator only operates on utf16
     auto utf16 = SkUnicode::convertUtf8ToUtf16(utf8, utf8Units);
 
@@ -97,7 +170,7 @@ bool SkUnicode::extractBidi(const char utf8[],
         return false;
     }
     SkASSERT(bidi);
-    uint8_t bidiLevel = (dir == TextDirection::kLTR) ? UBIDI_LTR : UBIDI_RTL;
+    uint8_t bidiLevel = (dir == SkUnicode::TextDirection::kLTR) ? UBIDI_LTR : UBIDI_RTL;
     // The required lifetime of utf16 isn't well documented.
     // It appears it isn't used after ubidi_setPara except through ubidi_getText.
     SkUnicode_IcuBidi::bidi_setPara(bidi.get(), (const UChar*)utf16.c_str(), utf16.size(), bidiLevel, nullptr,
@@ -110,11 +183,11 @@ bool SkUnicode::extractBidi(const char utf8[],
     // Iterate through bidi regions and the result positions into utf8
     const char* start8 = utf8;
     const char* end8 = utf8 + utf8Units;
-    BidiLevel currentLevel = 0;
+    SkUnicode::BidiLevel currentLevel = 0;
 
-    Position pos8 = 0;
-    Position pos16 = 0;
-    Position end16 = SkUnicode_IcuBidi::bidi_getLength(bidi.get());
+    SkUnicode::Position pos8 = 0;
+    SkUnicode::Position pos16 = 0;
+    SkUnicode::Position end16 = SkUnicode_IcuBidi::bidi_getLength(bidi.get());
 
     if (end16 == 0) {
         return true;
@@ -130,7 +203,7 @@ bool SkUnicode::extractBidi(const char utf8[],
         if (pos16 == 0) {
             currentLevel = level;
         } else if (level != currentLevel) {
-            Position end = start8 - utf8;
+            SkUnicode::Position end = start8 - utf8;
             bidiRegions->emplace_back(pos8, end, currentLevel);
             currentLevel = level;
             pos8 = end;
@@ -138,7 +211,7 @@ bool SkUnicode::extractBidi(const char utf8[],
         SkUnichar u = utf8_next(&start8, end8);
         pos16 += SkUTF::ToUTF16(u);
     }
-    Position end = start8 - utf8;
+    SkUnicode::Position end = start8 - utf8;
     if (end != pos8) {
         bidiRegions->emplace_back(pos8, end, currentLevel);
     }

@@ -1,0 +1,50 @@
+int arrUnsized[];
+int arrFloat[1.];
+int arrBool[true];
+
+struct S {
+    int inStructVariable[];
+};
+S arrOfStruct[];
+
+int unsized_in_expression_a() { return int[](0)[0]; }
+S   unsized_in_expression_b() { return S(int[](0)); }
+
+struct AnotherStruct {
+    int[] inStructType;
+};
+
+void unsized_in_parameter_a(int x[]) {}
+void unsized_in_parameter_b(int[] x) {}
+void unsized_in_parameter_c(int[]) {}
+void unsized_in_parameter_d(S x[]) {}
+void unsized_in_parameter_e(S[] x) {}
+void unsized_in_parameter_f(S[]) {}
+
+int[] unsized_in_return_type_a() {}
+S[]   unsized_in_return_type_b() {}
+
+/*%%*
+unsized arrays are not permitted here
+array size must be an integer
+array size must be an integer
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+missing index in '[]'
+missing index in '[]'
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+unsized arrays are not permitted here
+functions may not return type 'int[]'
+functions may not return type 'S[]'
+*%%*/

@@ -8,9 +8,16 @@
 #ifndef GrGrModulateAtlasCoverageEffect_DEFINED
 #define GrGrModulateAtlasCoverageEffect_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
+#include <memory>
+
 class GrSurfaceProxyView;
+class SkMatrix;
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
 
 // Multiplies 'inputFP' by the coverage value in an atlas, optionally inverting or clamping to 0.
 class GrModulateAtlasCoverageEffect : public GrFragmentProcessor {

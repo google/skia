@@ -122,7 +122,7 @@ protected:
         return "";
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         if (kRect_Clip == fClip && !fAntiAlias) {
             return SkString("complexclip2");
         }
@@ -134,7 +134,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(SkScalarRoundToInt(fTotalWidth),
                              SkScalarRoundToInt(fTotalHeight));
     }

@@ -246,6 +246,7 @@ struct SimpleParagraphStyle {
     para::TextHeightBehavior textHeightBehavior;
     SimpleTextStyle textStyle;
     SimpleStrutStyle strutStyle;
+    bool applyRoundingHack;
 };
 
 para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
@@ -271,6 +272,7 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     if (s.maxLines != 0) {
         ps.setMaxLines(s.maxLines);
     }
+    ps.setApplyRoundingHack(s.applyRoundingHack);
     ps.setTextHeightBehavior(s.textHeightBehavior);
     ps.setReplaceTabCharacters(s.replaceTabCharacters);
     return ps;
@@ -447,6 +449,14 @@ std::vector<SkUnicode::Position> convertArrayU32(WASMPointerU32 array, size_t co
     return vec;
 }
 
+JSArray UnresolvedCodepoints(para::Paragraph& self) {
+    JSArray result = emscripten::val::array();
+    for (auto cp : self.unresolvedCodepoints()) {
+        result.call<void>("push", cp);
+    }
+    return result;
+}
+
 EMSCRIPTEN_BINDINGS(Paragraph) {
 
     class_<para::Paragraph>("Paragraph")
@@ -464,7 +474,8 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("_getRectsForRange", &GetRectsForRange)
         .function("getShapedLines", &GetShapedLines)
         .function("getWordBoundary", &para::Paragraph::getWordBoundary)
-        .function("layout", &para::Paragraph::layout);
+        .function("layout", &para::Paragraph::layout)
+        .function("unresolvedCodepoints", &UnresolvedCodepoints);
 
     class_<para::ParagraphBuilderImpl>("ParagraphBuilder")
             .class_function(
@@ -490,6 +501,17 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                         fc->enableFontFallback();
                         auto ps = toParagraphStyle(style);
                         auto pb = para::ParagraphBuilderImpl::make(ps, fc);
+                        return std::unique_ptr<para::ParagraphBuilderImpl>(
+                                static_cast<para::ParagraphBuilderImpl*>(pb.release()));
+                    }),
+                    allow_raw_pointers())
+            .class_function(
+                    "_MakeFromFontCollection",
+                    optional_override([](SimpleParagraphStyle style,
+                                         sk_sp<para::FontCollection> fontCollection)
+                                              -> std::unique_ptr<para::ParagraphBuilderImpl> {
+                        auto ps = toParagraphStyle(style);
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fontCollection);
                         return std::unique_ptr<para::ParagraphBuilderImpl>(
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
@@ -659,6 +681,16 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
           self.registerTypeface(typeface, fStr);
       }), allow_raw_pointers());
 
+    class_<para::FontCollection>("FontCollection")
+      .smart_ptr<sk_sp<para::FontCollection>>("sk_sp<FontCollection>")
+      .class_function("Make", optional_override([]()-> sk_sp<para::FontCollection> {
+          return sk_make_sp<para::FontCollection>();
+      }))
+      .function("setDefaultFontManager", optional_override([](para::FontCollection& self,
+                                                              const sk_sp<para::TypefaceFontProvider>& fontManager) {
+        self.setDefaultFontManager(fontManager);
+      }), allow_raw_pointers())
+      .function("enableFontFallback", &para::FontCollection::enableFontFallback);
 
     // These value objects make it easier to send data across the wire.
     value_object<para::PositionWithAffinity>("PositionWithAffinity")
@@ -681,7 +713,8 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("textDirection",        &SimpleParagraphStyle::textDirection)
         .field("textHeightBehavior",   &SimpleParagraphStyle::textHeightBehavior)
         .field("textStyle",            &SimpleParagraphStyle::textStyle)
-        .field("strutStyle",           &SimpleParagraphStyle::strutStyle);
+        .field("strutStyle",           &SimpleParagraphStyle::strutStyle)
+        .field("applyRoundingHack",    &SimpleParagraphStyle::applyRoundingHack);
 
     value_object<SimpleStrutStyle>("StrutStyle")
         .field("_fontFamiliesPtr", &SimpleStrutStyle::fontFamiliesPtr)

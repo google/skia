@@ -279,10 +279,10 @@ protected:
     // SkFontMgr overrides.
     int onCountFamilies() const override;
     void onGetFamilyName(int index, SkString* familyName) const override;
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const override;
-    SkFontStyleSet* onCreateStyleSet(int index) const override;
-    SkTypeface* onMatchFamilyStyle(const char familyName[], const SkFontStyle&) const override;
-    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override;
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override;
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[], const SkFontStyle&) const override;
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                             const char* bcp47[], int bcp47Count,
                                             SkUnichar character) const override;
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
@@ -328,7 +328,7 @@ public:
         if (styleName) styleName->reset();
     }
 
-    SkTypeface* createTypeface(int index) override {
+    sk_sp<SkTypeface> createTypeface(int index) override {
         SkASSERT(index >= 0 && index < static_cast<int>(fStyles.size()));
 
         if (fTypefaces.empty()) fTypefaces.resize(fStyles.size());
@@ -340,10 +340,12 @@ public:
                     /*allow_fallback=*/false, /*exact_style_match=*/true);
         }
 
-        return SkSafeRef(fTypefaces[index].get());
+        return fTypefaces[index];
     }
 
-    SkTypeface* matchStyle(const SkFontStyle& pattern) override { return matchStyleCSS3(pattern); }
+    sk_sp<SkTypeface> matchStyle(const SkFontStyle& pattern) override {
+        return matchStyleCSS3(pattern);
+    }
 
 private:
     sk_sp<SkFontMgr_Fuchsia> fFontManager;
@@ -367,12 +369,12 @@ void SkFontMgr_Fuchsia::onGetFamilyName(int index, SkString* familyName) const {
     familyName->reset();
 }
 
-SkFontStyleSet* SkFontMgr_Fuchsia::onCreateStyleSet(int index) const {
+sk_sp<SkFontStyleSet> SkFontMgr_Fuchsia::onCreateStyleSet(int index) const {
     // Family enumeration is not supported.
     return nullptr;
 }
 
-SkFontStyleSet* SkFontMgr_Fuchsia::onMatchFamily(const char familyName[]) const {
+sk_sp<SkFontStyleSet> SkFontMgr_Fuchsia::onMatchFamily(const char familyName[]) const {
     fuchsia::fonts::FamilyName typedFamilyName;
     typedFamilyName.name = familyName;
 
@@ -386,26 +388,23 @@ SkFontStyleSet* SkFontMgr_Fuchsia::onMatchFamily(const char familyName[]) const 
                                      FuchsiaToSkSlant(style.slant())));
     }
 
-    return new SkFontStyleSet_Fuchsia(sk_ref_sp(this), familyInfo.name().name, std::move(styles));
+    return sk_sp<SkFontStyleSet>(
+        new SkFontStyleSet_Fuchsia(sk_ref_sp(this), familyInfo.name().name, std::move(styles)));
 }
 
-SkTypeface* SkFontMgr_Fuchsia::onMatchFamilyStyle(const char familyName[],
-                                                  const SkFontStyle& style) const {
-    sk_sp<SkTypeface> typeface =
-            FetchTypeface(familyName, style, /*bcp47=*/nullptr,
-                          /*bcp47Count=*/0, /*character=*/0,
-                          /*allow_fallback=*/false, /*exact_style_match=*/false);
-    return typeface.release();
+sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMatchFamilyStyle(const char familyName[],
+                                                        const SkFontStyle& style) const {
+    return FetchTypeface(familyName, style, /*bcp47=*/nullptr, /*bcp47Count=*/0, /*character=*/0,
+                         /*allow_fallback=*/false, /*exact_style_match=*/false);
 }
 
-SkTypeface* SkFontMgr_Fuchsia::onMatchFamilyStyleCharacter(const char familyName[],
-                                                           const SkFontStyle& style,
-                                                           const char* bcp47[], int bcp47Count,
-                                                           SkUnichar character) const {
-    sk_sp<SkTypeface> typeface =
-            FetchTypeface(familyName, style, bcp47, bcp47Count, character, /*allow_fallback=*/true,
-                          /*exact_style_match=*/false);
-    return typeface.release();
+sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMatchFamilyStyleCharacter(
+    const char familyName[], const SkFontStyle& style,
+    const char* bcp47[], int bcp47Count,
+    SkUnichar character) const
+{
+    return FetchTypeface(familyName, style, bcp47, bcp47Count, character,
+                         /*allow_fallback=*/true, /*exact_style_match=*/false);
 }
 
 sk_sp<SkTypeface> SkFontMgr_Fuchsia::onMakeFromData(sk_sp<SkData> data, int ttcIndex) const {

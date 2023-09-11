@@ -76,7 +76,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return std::move(interface);
+    return interface;
 }
 #endif
 `
@@ -143,7 +143,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return std::move(interface);
+    return interface;
 }
 #endif
 `
@@ -215,7 +215,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     interface->fStandard = kWebGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
-    return std::move(interface);
+    return interface;
 }
 #endif
 `
@@ -313,11 +313,11 @@ bool GrGLInterface::validate() const {
     return true;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 void GrGLInterface::abandon() const {
     const_cast<GrGLInterface*>(this)->fFunctions = GrGLInterface::Functions();
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 `

@@ -9,15 +9,17 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
-#include <functional>
-#include "include/private/SkChecksum.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/gl/GrGLAttachment.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
+
+#include <functional>
 
 class GrGLContextInfo;
 class GrGLRenderTarget;
@@ -112,6 +114,12 @@ public:
                        // WEBGL_draw_instanced_base_vertex_base_instance
     };
 
+    enum class RegenerateMipmapType {
+        kBaseLevel,
+        kBasePlusMaxLevel,
+        kBasePlusSync
+    };
+
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
@@ -133,12 +141,13 @@ public:
 
     int getRenderTargetSampleCount(int requestedCount,
                                    const GrBackendFormat& format) const override {
-        return this->getRenderTargetSampleCount(requestedCount, format.asGLFormat());
+        return this->getRenderTargetSampleCount(requestedCount,
+                                                GrBackendFormats::AsGLFormat(format));
     }
     int getRenderTargetSampleCount(int requestedCount, GrGLFormat) const;
 
     int maxRenderTargetSampleCount(const GrBackendFormat& format) const override {
-        return this->maxRenderTargetSampleCount(format.asGLFormat());
+        return this->maxRenderTargetSampleCount(GrBackendFormats::AsGLFormat(format));
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 
@@ -195,7 +204,7 @@ public:
     * to be supported by the driver but are legal GLenum names given the GL
     * version and extensions supported.
     */
-    const SkTArray<GrGLFormat, true>& stencilFormats() const {
+    const skia_private::TArray<GrGLFormat, true>& stencilFormats() const {
         return fStencilFormats;
     }
 
@@ -308,6 +317,9 @@ public:
 
     /// How are multi draws implemented (if at all)?
     MultiDrawType multiDrawType() const { return fMultiDrawType; }
+
+    /// How is restricting sampled miplevels in onRegenerateMipmapLevels implemented?
+    RegenerateMipmapType regenerateMipmapType() const { return fRegenerateMipmapType; }
 
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
@@ -482,8 +494,6 @@ public:
      */
     bool skipErrorChecks() const { return fSkipErrorChecks; }
 
-    bool supportsProtected() const { return fSupportsProtected; }
-
     bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
 
     GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
@@ -496,7 +506,7 @@ public:
                            const GrProgramInfo&,
                            ProgramDescOverrideFlags) const override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     GrGLStandard standard() const { return fStandard; }
 
     std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
@@ -560,8 +570,8 @@ private:
 
     GrGLStandard fStandard = kNone_GrGLStandard;
 
-    SkTArray<GrGLFormat, true> fStencilFormats;
-    SkTArray<GrGLenum, true> fProgramBinaryFormats;
+    skia_private::TArray<GrGLFormat, true> fStencilFormats;
+    skia_private::TArray<GrGLenum, true> fProgramBinaryFormats;
 
     int fMaxFragmentUniformVectors = 0;
     float fMaxTextureMaxAnisotropy = 1.f;
@@ -573,6 +583,7 @@ private:
     TransferBufferType   fTransferBufferType   = TransferBufferType::kNone;
     FenceType            fFenceType            = FenceType::kNone;
     MultiDrawType        fMultiDrawType        = MultiDrawType::kNone;
+    RegenerateMipmapType fRegenerateMipmapType = RegenerateMipmapType::kBaseLevel;
 
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
@@ -599,7 +610,6 @@ private:
     bool fSRGBWriteControl : 1;
     bool fSkipErrorChecks : 1;
     bool fClientCanDisableMultisample : 1;
-    bool fSupportsProtected : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;
@@ -612,6 +622,7 @@ private:
     bool fNeverDisableColorWrites : 1;
     bool fMustSetAnyTexParameterToEnableMipmapping : 1;
     bool fAllowBGRA8CopyTexSubImage : 1;
+    bool fAllowSRGBCopyTexSubImage : 1;
     bool fDisallowDynamicMSAA : 1;
     bool fMustResetBlendFuncBetweenDualSourceAndDisable : 1;
     bool fBindTexture0WhenChangingTextureFBOMultisampleCount : 1;

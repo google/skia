@@ -9,31 +9,30 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
-#include "include/sksl/DSLCore.h"
-#include "include/sksl/DSLExpression.h"
-#include "include/sksl/DSLType.h"
-#include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLOperator.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLIntrinsicList.h"
+#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
+#include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -46,7 +45,6 @@
 #include <cstring>
 #include <optional>
 #include <string_view>
-#include <vector>
 
 namespace SkSL {
 
@@ -80,19 +78,6 @@ void type_check_expression<bool>(const Expression& expr) {
     SkASSERT(expr.type().componentType().isBoolean());
 }
 
-static std::unique_ptr<Expression> assemble_compound(const Context& context,
-                                                     Position pos,
-                                                     const Type& returnType,
-                                                     double value[]) {
-    int numSlots = returnType.slotCount();
-    ExpressionArray array;
-    array.reserve_back(numSlots);
-    for (int index = 0; index < numSlots; ++index) {
-        array.push_back(Literal::Make(pos, value[index], &returnType.componentType()));
-    }
-    return ConstructorCompound::Make(context, pos, returnType, std::move(array));
-}
-
 using CoalesceFn = double (*)(double, double, double);
 using FinalizeFn = double (*)(double);
 
@@ -111,7 +96,7 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     //     scalar = finalize(scalar);
     //
     // If an argument is null, zero is passed to the coalesce function. If the arguments are a mix
-    // of scalars and vectors, the scalars is interpreted as a vector containing the same value for
+    // of scalars and vectors, the scalars are interpreted as a vector containing the same value for
     // every component.
 
     Position pos = arg0->fPosition;
@@ -213,7 +198,7 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     }
 
     const Type& bvecType = context.fTypes.fBool->toCompound(context, type.columns(), /*rows=*/1);
-    return assemble_compound(context, left->fPosition, bvecType, array);
+    return ConstructorCompound::MakeFromConstants(context, left->fPosition, bvecType, array);
 }
 
 using EvaluateFn = double (*)(double, double, double);
@@ -272,7 +257,7 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
         }
     }
 
-    return assemble_compound(context, arg0->fPosition, returnType, array);
+    return ConstructorCompound::MakeFromConstants(context, arg0->fPosition, returnType, array);
 }
 
 template <typename T>
@@ -413,8 +398,13 @@ double evaluate_inversesqrt(double a, double, double) {
     return sk_ieee_double_divide(1.0, std::sqrt(a));
 }
 
+double evaluate_add(double a, double b, double)        { return a + b; }
+double evaluate_sub(double a, double b, double)        { return a - b; }
+double evaluate_mul(double a, double b, double)        { return a * b; }
+double evaluate_div(double a, double b, double)        { return sk_ieee_double_divide(a, b); }
 double evaluate_abs(double a, double, double)          { return std::abs(a); }
 double evaluate_sign(double a, double, double)         { return (a > 0) - (a < 0); }
+double evaluate_opposite_sign(double a,double, double) { return (a < 0) - (a > 0); }
 double evaluate_floor(double a, double, double)        { return std::floor(a); }
 double evaluate_ceil(double a, double, double)         { return std::ceil(a); }
 double evaluate_fract(double a, double, double)        { return a - std::floor(a); }
@@ -451,6 +441,187 @@ double evaluate_floatBitsToUint(double a, double, double) { return pun_value<flo
 double evaluate_intBitsToFloat(double a, double, double)  { return pun_value<int32_t,  float>(a); }
 double evaluate_uintBitsToFloat(double a, double, double) { return pun_value<uint32_t, float>(a); }
 
+std::unique_ptr<Expression> evaluate_length(const IntrinsicArguments& arguments) {
+    return coalesce_vector<float>(arguments, /*startingState=*/0,
+                                  arguments[0]->type().componentType(),
+                                  coalesce_length,
+                                  finalize_length);
+}
+
+std::unique_ptr<Expression> evaluate_distance(const IntrinsicArguments& arguments) {
+    return coalesce_pairwise_vectors<float>(arguments, /*startingState=*/0,
+                                            arguments[0]->type().componentType(),
+                                            coalesce_distance,
+                                            finalize_distance);
+}
+std::unique_ptr<Expression> evaluate_dot(const IntrinsicArguments& arguments) {
+    return coalesce_pairwise_vectors<float>(arguments, /*startingState=*/0,
+                                            arguments[0]->type().componentType(),
+                                            coalesce_dot,
+                                            /*finalize=*/nullptr);
+}
+
+std::unique_ptr<Expression> evaluate_sign(const Context& context,
+                                          const IntrinsicArguments& arguments) {
+    return evaluate_intrinsic_numeric(context, arguments, arguments[0]->type(),
+                                      evaluate_sign);
+}
+
+std::unique_ptr<Expression> evaluate_opposite_sign(const Context& context,
+                                                   const IntrinsicArguments& arguments) {
+    return evaluate_intrinsic_numeric(context, arguments, arguments[0]->type(),
+                                      evaluate_opposite_sign);
+}
+
+std::unique_ptr<Expression> evaluate_add(const Context& context,
+                                         const IntrinsicArguments& arguments) {
+    return evaluate_pairwise_intrinsic(context, arguments, arguments[0]->type(),
+                                       evaluate_add);
+}
+
+std::unique_ptr<Expression> evaluate_sub(const Context& context,
+                                         const IntrinsicArguments& arguments) {
+    return evaluate_pairwise_intrinsic(context, arguments, arguments[0]->type(),
+                                       evaluate_sub);
+}
+
+std::unique_ptr<Expression> evaluate_mul(const Context& context,
+                                         const IntrinsicArguments& arguments) {
+    return evaluate_pairwise_intrinsic(context, arguments, arguments[0]->type(),
+                                       evaluate_mul);
+}
+
+std::unique_ptr<Expression> evaluate_div(const Context& context,
+                                         const IntrinsicArguments& arguments) {
+    return evaluate_pairwise_intrinsic(context, arguments, arguments[0]->type(),
+                                       evaluate_div);
+}
+
+std::unique_ptr<Expression> evaluate_normalize(const Context& context,
+                                               const IntrinsicArguments& arguments) {
+    // normalize(v): v / length(v)
+    std::unique_ptr<Expression> length = Intrinsics::evaluate_length(arguments);
+    if (!length) { return nullptr; }
+
+    const IntrinsicArguments divArgs = {arguments[0], length.get(), nullptr};
+    return Intrinsics::evaluate_div(context, divArgs);
+}
+
+std::unique_ptr<Expression> evaluate_faceforward(const Context& context,
+                                                 const IntrinsicArguments& arguments) {
+    const Expression* N = arguments[0];     // vector
+    const Expression* I = arguments[1];     // vector
+    const Expression* NRef = arguments[2];  // vector
+
+    // faceforward(N,I,NRef): N * -sign(dot(I, NRef))
+    const IntrinsicArguments dotArgs = {I, NRef, nullptr};
+    std::unique_ptr<Expression> dotExpr = Intrinsics::evaluate_dot(dotArgs);
+    if (!dotExpr) { return nullptr; }
+
+    const IntrinsicArguments signArgs = {dotExpr.get(), nullptr, nullptr};
+    std::unique_ptr<Expression> signExpr = Intrinsics::evaluate_opposite_sign(context, signArgs);
+    if (!signExpr) { return nullptr; }
+
+    const IntrinsicArguments mulArgs = {N, signExpr.get(), nullptr};
+    return Intrinsics::evaluate_mul(context, mulArgs);
+}
+
+std::unique_ptr<Expression> evaluate_reflect(const Context& context,
+                                             const IntrinsicArguments& arguments) {
+    const Expression* I = arguments[0];  // vector
+    const Expression* N = arguments[1];  // vector
+
+    // reflect(I,N): temp = (N * dot(N, I)); reflect = I - (temp + temp)
+    const IntrinsicArguments dotArgs = {N, I, nullptr};
+    std::unique_ptr<Expression> dotExpr = Intrinsics::evaluate_dot(dotArgs);
+    if (!dotExpr) { return nullptr; }
+
+    const IntrinsicArguments mulArgs = {N, dotExpr.get(), nullptr};
+    std::unique_ptr<Expression> mulExpr = Intrinsics::evaluate_mul(context, mulArgs);
+    if (!mulExpr) { return nullptr; }
+
+    const IntrinsicArguments addArgs = {mulExpr.get(), mulExpr.get(), nullptr};
+    std::unique_ptr<Expression> addExpr = Intrinsics::evaluate_add(context, addArgs);
+    if (!addExpr) { return nullptr; }
+
+    const IntrinsicArguments subArgs = {I, addExpr.get(), nullptr};
+    return Intrinsics::evaluate_sub(context, subArgs);
+}
+
+std::unique_ptr<Expression> evaluate_refract(const Context& context,
+                                             const IntrinsicArguments& arguments) {
+    const Expression* I = arguments[0];    // vector
+    const Expression* N = arguments[1];    // vector
+    const Expression* Eta = arguments[2];  // scalar
+
+    // K = 1.0 - Eta^2 * (1.0 - Dot(N, I)^2);
+
+    // DotNI = Dot(N, I)
+    const IntrinsicArguments DotNIArgs = {N, I, nullptr};
+    std::unique_ptr<Expression> DotNIExpr = Intrinsics::evaluate_dot(DotNIArgs);
+    if (!DotNIExpr) { return nullptr; }
+
+    // DotNI2 = DotNI * DotNI
+    const IntrinsicArguments DotNI2Args = {DotNIExpr.get(), DotNIExpr.get(), nullptr};
+    std::unique_ptr<Expression> DotNI2Expr = Intrinsics::evaluate_mul(context, DotNI2Args);
+    if (!DotNI2Expr) { return nullptr; }
+
+    // OneMinusDot = 1 - DotNI2
+    Literal oneLiteral{Position{}, 1.0, &DotNI2Expr->type()};
+    const IntrinsicArguments OneMinusDotArgs = {&oneLiteral, DotNI2Expr.get(), nullptr};
+    std::unique_ptr<Expression> OneMinusDotExpr= Intrinsics::evaluate_sub(context, OneMinusDotArgs);
+    if (!OneMinusDotExpr) { return nullptr; }
+
+    // Eta2 = Eta * Eta
+    const IntrinsicArguments Eta2Args = {Eta, Eta, nullptr};
+    std::unique_ptr<Expression> Eta2Expr = Intrinsics::evaluate_mul(context, Eta2Args);
+    if (!Eta2Expr) { return nullptr; }
+
+    // Eta2xDot = Eta2 * OneMinusDot
+    const IntrinsicArguments Eta2xDotArgs = {Eta2Expr.get(), OneMinusDotExpr.get(), nullptr};
+    std::unique_ptr<Expression> Eta2xDotExpr = Intrinsics::evaluate_mul(context, Eta2xDotArgs);
+    if (!Eta2xDotExpr) { return nullptr; }
+
+    // K = 1.0 - Eta2xDot
+    const IntrinsicArguments KArgs = {&oneLiteral, Eta2xDotExpr.get(), nullptr};
+    std::unique_ptr<Expression> KExpr = Intrinsics::evaluate_sub(context, KArgs);
+    if (!KExpr || !KExpr->is<Literal>()) { return nullptr; }
+
+    // When K < 0, Refract(I, N, Eta) = vec(0)
+    double kValue = KExpr->as<Literal>().value();
+    if (kValue < 0) {
+        constexpr double kZero[4] = {};
+        return ConstructorCompound::MakeFromConstants(context, I->fPosition, I->type(), kZero);
+    }
+
+    // When K ≥ 0, Refract(I, N, Eta) = (I * Eta) - N * (Eta * Dot(N,I) + Sqrt(K))
+
+    // EtaDot = Eta * DotNI
+    const IntrinsicArguments EtaDotArgs = {Eta, DotNIExpr.get(), nullptr};
+    std::unique_ptr<Expression> EtaDotExpr = Intrinsics::evaluate_mul(context, EtaDotArgs);
+    if (!EtaDotExpr) { return nullptr; }
+
+    // EtaDotSqrt = EtaDot + Sqrt(K)
+    Literal sqrtKLiteral{Position{}, std::sqrt(kValue), &Eta->type()};
+    const IntrinsicArguments EtaDotSqrtArgs = {EtaDotExpr.get(), &sqrtKLiteral, nullptr};
+    std::unique_ptr<Expression> EtaDotSqrtExpr = Intrinsics::evaluate_add(context, EtaDotSqrtArgs);
+    if (!EtaDotSqrtExpr) { return nullptr; }
+
+    // NxEDS = N * EtaDotSqrt
+    const IntrinsicArguments NxEDSArgs = {N, EtaDotSqrtExpr.get(), nullptr};
+    std::unique_ptr<Expression> NxEDSExpr = Intrinsics::evaluate_mul(context, NxEDSArgs);
+    if (!NxEDSExpr) { return nullptr; }
+
+    // IEta = I * Eta
+    const IntrinsicArguments IEtaArgs = {I, Eta, nullptr};
+    std::unique_ptr<Expression> IEtaExpr = Intrinsics::evaluate_mul(context, IEtaArgs);
+    if (!IEtaExpr) { return nullptr; }
+
+    // Refract = IEta - NxEDS
+    const IntrinsicArguments RefractArgs = {IEtaExpr.get(), NxEDSExpr.get(), nullptr};
+    return Intrinsics::evaluate_sub(context, RefractArgs);
+}
+
 }  // namespace
 }  // namespace Intrinsics
 
@@ -477,7 +648,6 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         return *arguments[idx]->getConstantValue(col);
     };
 
-    using namespace SkSL::dsl;
     switch (intrinsic) {
         // 8.1 : Angle and Trigonometry Functions
         case k_radians_IntrinsicKind:
@@ -555,8 +725,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return evaluate_intrinsic_numeric(context, arguments, returnType,
                                               Intrinsics::evaluate_abs);
         case k_sign_IntrinsicKind:
-            return evaluate_intrinsic_numeric(context, arguments, returnType,
-                                              Intrinsics::evaluate_sign);
+            return Intrinsics::evaluate_sign(context, arguments);
+
         case k_floor_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments, returnType,
                                              Intrinsics::evaluate_floor);
@@ -638,58 +808,67 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                 float x = Get(0, n);
                 return (int)std::round(Intrinsics::evaluate_clamp(x, 0.0, 1.0) * 65535.0);
             };
-            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
-                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+            const double packed = ((Pack(0) << 0)  & 0x0000FFFF) |
+                                  ((Pack(1) << 16) & 0xFFFF0000);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fUInt, &packed);
         }
         case k_packSnorm2x16_IntrinsicKind: {
             auto Pack = [&](int n) -> unsigned int {
                 float x = Get(0, n);
                 return (int)std::round(Intrinsics::evaluate_clamp(x, -1.0, 1.0) * 32767.0);
             };
-            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
-                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+            const double packed = ((Pack(0) << 0)  & 0x0000FFFF) |
+                                  ((Pack(1) << 16) & 0xFFFF0000);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fUInt, &packed);
         }
         case k_packHalf2x16_IntrinsicKind: {
             auto Pack = [&](int n) -> unsigned int {
                 return SkFloatToHalf(Get(0, n));
             };
-            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
-                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+            const double packed = ((Pack(0) << 0)  & 0x0000FFFF) |
+                                  ((Pack(1) << 16) & 0xFFFF0000);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fUInt, &packed);
         }
         case k_unpackUnorm2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
             uint16_t a = ((x >> 0)  & 0x0000FFFF);
             uint16_t b = ((x >> 16) & 0x0000FFFF);
-            return Float2(double(a) / 65535.0,
-                          double(b) / 65535.0).release();
+            const double unpacked[2] = {double(a) / 65535.0,
+                                        double(b) / 65535.0};
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fFloat2, unpacked);
         }
         case k_unpackSnorm2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
             int16_t a = ((x >> 0)  & 0x0000FFFF);
             int16_t b = ((x >> 16) & 0x0000FFFF);
-            return Float2(Intrinsics::evaluate_clamp(double(a) / 32767.0, -1.0, 1.0),
-                          Intrinsics::evaluate_clamp(double(b) / 32767.0, -1.0, 1.0)).release();
+            const double unpacked[2] = {Intrinsics::evaluate_clamp(double(a) / 32767.0, -1.0, 1.0),
+                                        Intrinsics::evaluate_clamp(double(b) / 32767.0, -1.0, 1.0)};
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fFloat2, unpacked);
         }
         case k_unpackHalf2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
             uint16_t a = ((x >> 0)  & 0x0000FFFF);
             uint16_t b = ((x >> 16) & 0x0000FFFF);
-            return Float2(SkHalfToFloat(a),
-                          SkHalfToFloat(b)).release();
+            const double unpacked[2] = {SkHalfToFloat(a),
+                                        SkHalfToFloat(b)};
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          *context.fTypes.fFloat2, unpacked);
         }
         // 8.5 : Geometric Functions
         case k_length_IntrinsicKind:
-            return coalesce_vector<float>(arguments, /*startingState=*/0, returnType,
-                                          Intrinsics::coalesce_length,
-                                          Intrinsics::finalize_length);
+            return Intrinsics::evaluate_length(arguments);
+
         case k_distance_IntrinsicKind:
-            return coalesce_pairwise_vectors<float>(arguments, /*startingState=*/0, returnType,
-                                                    Intrinsics::coalesce_distance,
-                                                    Intrinsics::finalize_distance);
+            return Intrinsics::evaluate_distance(arguments);
+
         case k_dot_IntrinsicKind:
-            return coalesce_pairwise_vectors<float>(arguments, /*startingState=*/0, returnType,
-                                                    Intrinsics::coalesce_dot,
-                                                    /*finalize=*/nullptr);
+            return Intrinsics::evaluate_dot(arguments);
+
         case k_cross_IntrinsicKind: {
             auto X = [&](int n) -> float { return Get(0, n); };
             auto Y = [&](int n) -> float { return Get(1, n); };
@@ -698,43 +877,20 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             double vec[3] = {X(1) * Y(2) - Y(1) * X(2),
                              X(2) * Y(0) - Y(2) * X(0),
                              X(0) * Y(1) - Y(0) * X(1)};
-            return assemble_compound(context, arguments[0]->fPosition, returnType, vec);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          returnType, vec);
         }
-        case k_normalize_IntrinsicKind: {
-            auto Vec  = [&] { return DSLExpression{arguments[0]->clone()}; };
-            return (Vec() / Length(Vec())).release();
-        }
-        case k_faceforward_IntrinsicKind: {
-            auto N    = [&] { return DSLExpression{arguments[0]->clone()}; };
-            auto I    = [&] { return DSLExpression{arguments[1]->clone()}; };
-            auto NRef = [&] { return DSLExpression{arguments[2]->clone()}; };
-            return (N() * Select(Dot(NRef(), I()) < 0, 1, -1)).release();
-        }
-        case k_reflect_IntrinsicKind: {
-            auto I    = [&] { return DSLExpression{arguments[0]->clone()}; };
-            auto N    = [&] { return DSLExpression{arguments[1]->clone()}; };
-            return (I() - 2.0 * Dot(N(), I()) * N()).release();
-        }
-        case k_refract_IntrinsicKind: {
-            // Refract uses its arguments out-of-order in such a way that we end up trying to create
-            // an invalid Position range, so we rewrite the arguments' positions to avoid that here.
-            auto clone = [&](const Expression* expr) {
-                return DSLExpression(expr->clone(pos));
-            };
-            auto I    = [&] { return clone(arguments[0]); };
-            auto N    = [&] { return clone(arguments[1]); };
-            auto Eta  = [&] { return clone(arguments[2]); };
+        case k_normalize_IntrinsicKind:
+            return Intrinsics::evaluate_normalize(context, arguments);
 
-            std::unique_ptr<Expression> k =
-                    (1 - Pow(Eta(), 2) * (1 - Pow(Dot(N(), I()), 2))).release();
-            if (!k->is<Literal>()) {
-                return nullptr;
-            }
-            double kValue = k->as<Literal>().value();
-            return ((kValue < 0) ?
-                       (0 * I()) :
-                       (Eta() * I() - (Eta() * Dot(N(), I()) + std::sqrt(kValue)) * N())).release();
-        }
+        case k_faceforward_IntrinsicKind:
+            return Intrinsics::evaluate_faceforward(context, arguments);
+
+        case k_reflect_IntrinsicKind:
+            return Intrinsics::evaluate_reflect(context, arguments);
+
+        case k_refract_IntrinsicKind:
+            return Intrinsics::evaluate_refract(context, arguments);
 
         // 8.6 : Matrix Functions
         case k_matrixCompMult_IntrinsicKind:
@@ -748,7 +904,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     mat[index++] = Get(0, (returnType.columns() * r) + c);
                 }
             }
-            return assemble_compound(context, arguments[0]->fPosition, returnType, mat);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          returnType, mat);
         }
         case k_outerProduct_IntrinsicKind: {
             double mat[16];
@@ -758,7 +915,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     mat[index++] = Get(0, r) * Get(1, c);
                 }
             }
-            return assemble_compound(context, arguments[0]->fPosition, returnType, mat);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                          returnType, mat);
         }
         case k_determinant_IntrinsicKind: {
             float mat[16];
@@ -806,7 +964,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
             double dmat[16];
             std::copy(mat, mat + std::size(mat), dmat);
-            return assemble_compound(context, arguments[0]->fPosition, returnType, dmat);
+            return ConstructorCompound::MakeFromConstants(context, arguments[0]->fPosition,
+                                                         returnType, dmat);
         }
         // 8.7 : Vector Relational Functions
         case k_lessThan_IntrinsicKind:
@@ -859,26 +1018,66 @@ std::string FunctionCall::description(OperatorPrecedence) const {
     return result;
 }
 
+static bool argument_and_parameter_flags_match(const Expression& argument,
+                                               const Variable& parameter) {
+    // If the function parameter has a pixel format, the argument being passed in must have a
+    // matching pixel format.
+    LayoutFlags paramPixelFormat = parameter.layout().fFlags & LayoutFlag::kAllPixelFormats;
+    if (paramPixelFormat != LayoutFlag::kNone) {
+        // The only SkSL type that supports pixel-format qualifiers is a storage texture.
+        if (parameter.type().isStorageTexture()) {
+            // Storage textures are opaquely typed, so there's no way to specify one other than by
+            // directly accessing a variable.
+            if (!argument.is<VariableReference>()) {
+                return false;
+            }
+
+            // The variable's pixel-format flags must match. (Only one pixel-format bit can be set.)
+            const Variable& var = *argument.as<VariableReference>().variable();
+            if ((var.layout().fFlags & LayoutFlag::kAllPixelFormats) != paramPixelFormat) {
+                return false;
+            }
+        }
+    }
+
+    // The only other supported parameter flags are `const` and `in/out`, which do not allow
+    // multiple overloads.
+    return true;
+}
+
 /**
- * Determines the cost of coercing the arguments of a function to the required types. Cost has no
- * particular meaning other than "lower costs are preferred". Returns CoercionCost::Impossible() if
- * the call is not valid.
+ * Used to determine the best overload for a function call by calculating the cost of coercing the
+ * arguments of the function to the required types. Cost has no particular meaning other than "lower
+ * costs are preferred". Returns CoercionCost::Impossible() if the call is not valid. This is never
+ * called for functions with only one definition.
  */
 static CoercionCost call_cost(const Context& context,
                               const FunctionDeclaration& function,
                               const ExpressionArray& arguments) {
-    if (context.fConfig->strictES2Mode() &&
-        (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
+    // Strict-ES2 programs can never call an `$es3` function.
+    if (context.fConfig->strictES2Mode() && function.modifierFlags().isES3()) {
         return CoercionCost::Impossible();
     }
+    // Functions with the wrong number of parameters are never a match.
     if (function.parameters().size() != SkToSizeT(arguments.size())) {
         return CoercionCost::Impossible();
     }
+    // If the arguments cannot be coerced to the parameter types, the function is never a match.
     FunctionDeclaration::ParamTypes types;
     const Type* ignored;
     if (!function.determineFinalTypes(arguments, &types, &ignored)) {
         return CoercionCost::Impossible();
     }
+    // If the arguments do not match the parameter types due to mismatched modifiers, the function
+    // is never a match.
+    for (int i = 0; i < arguments.size(); i++) {
+        const Expression& arg = *arguments[i];
+        const Variable& param = *function.parameters()[i];
+        if (!argument_and_parameter_flags_match(arg, param)) {
+            return CoercionCost::Impossible();
+        }
+    }
+    // Return the sum of coercion costs of each argument.
     CoercionCost total = CoercionCost::Free();
     for (int i = 0; i < arguments.size(); i++) {
         total = total + arguments[i]->coercionCost(*types[i]);
@@ -967,7 +1166,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                                                   const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
     // Reject ES3 function calls in strict ES2 mode.
-    if (context.fConfig->strictES2Mode() && (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
+    if (context.fConfig->strictES2Mode() && function.modifierFlags().isES3()) {
         context.fErrors->error(pos, "call to '" + function.description() + "' is not supported");
         return nullptr;
     }
@@ -982,6 +1181,20 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         msg += ", but found " + std::to_string(arguments.size());
         context.fErrors->error(pos, msg);
         return nullptr;
+    }
+
+    // If the arguments do not match the parameter types due to mismatched modifiers, reject the
+    // function call.
+    for (int i = 0; i < arguments.size(); i++) {
+        const Expression& arg = *arguments[i];
+        const Variable& param = *function.parameters()[i];
+        if (!argument_and_parameter_flags_match(arg, param)) {
+            context.fErrors->error(arg.position(), "expected argument of type '" +
+                                                   param.layout().paddedDescription() +
+                                                   param.modifierFlags().paddedDescription() +
+                                                   param.type().description() + "'");
+            return nullptr;
+        }
     }
 
     // Resolve generic types.
@@ -1001,17 +1214,15 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
             return nullptr;
         }
         // Update the refKind on out-parameters, and ensure that they are actually assignable.
-        const Modifiers& paramModifiers = function.parameters()[i]->modifiers();
-        if (paramModifiers.fFlags & Modifiers::kOut_Flag) {
-            const VariableRefKind refKind = paramModifiers.fFlags & Modifiers::kIn_Flag
+        ModifierFlags paramFlags = function.parameters()[i]->modifierFlags();
+        if (paramFlags & ModifierFlag::kOut) {
+            const VariableRefKind refKind = (paramFlags & ModifierFlag::kIn)
                                                     ? VariableReference::RefKind::kReadWrite
                                                     : VariableReference::RefKind::kPointer;
             if (!Analysis::UpdateVariableRefKind(arguments[i].get(), refKind, context.fErrors)) {
                 return nullptr;
             }
         }
-        // TODO(skia:13609): Make sure that we don't pass writeonly objects to readonly parameters,
-        // or vice-versa.
     }
 
     if (function.isMain()) {

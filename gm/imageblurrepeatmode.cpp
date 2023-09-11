@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
+#include "src/effects/imagefilters/SkCropImageFilter.h"
 #include "tools/ToolUtils.h"
 
 #include <initializer_list>
@@ -81,36 +82,35 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("imageblurrepeatmode"); }
 
-    SkString onShortName() override {
-        return SkString("imageblurrepeatmode");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(850, 920);
-    }
+    SkISize getISize() override { return SkISize::Make(850, 920); }
 
     bool runAsBench() const override { return true; }
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> image[] =
                 { make_image(canvas, 1), make_image(canvas, 2), make_image(canvas, 3) };
+        sk_sp<SkImageFilter> filter;
 
         canvas->translate(0, 30);
         // Test different kernel size, including the one to launch 2d Gaussian
         // blur.
         for (auto sigma: { 0.6f, 3.0f, 8.0f, 20.0f }) {
+            // FIXME crops
             canvas->save();
-            sk_sp<SkImageFilter> filter(
-                  SkImageFilters::Blur(sigma, 0.0f, SkTileMode::kRepeat, nullptr));
+            filter = SkImageFilters::Blur(
+                    sigma, 0.0f, SkTileMode::kRepeat, nullptr, image[0]->bounds());
             draw_image(canvas, image[0], std::move(filter));
             canvas->translate(image[0]->width() + 20, 0);
 
-            filter = SkImageFilters::Blur(0.0f, sigma, SkTileMode::kRepeat, nullptr);
+            filter = SkImageFilters::Blur(
+                    0.0f, sigma, SkTileMode::kRepeat, nullptr, image[1]->bounds());
             draw_image(canvas, image[1], std::move(filter));
             canvas->translate(image[1]->width() + 20, 0);
 
-            filter = SkImageFilters::Blur(sigma, sigma, SkTileMode::kRepeat, nullptr);
+            filter = SkImageFilters::Blur(
+                    sigma, sigma, SkTileMode::kRepeat, nullptr, image[2]->bounds());
             draw_image(canvas, image[2], std::move(filter));
             canvas->translate(image[2]->width() + 20, 0);
 
@@ -149,20 +149,31 @@ DEF_SIMPLE_GM(imageblurrepeatunclipped, canvas, 256, 128) {
     bmp.eraseArea(SkIRect::MakeXYWH(0, 10, 100, 10), SK_ColorBLUE);
 
     auto img = bmp.asImage();
-    auto filter = SkImageFilters::Blur(0, 10, SkTileMode::kRepeat, nullptr);
+    // The blur filter uses a repeat crop applied to the image bounds to define the tiling geometry,
+    // but the crop IF is created directly since the tilemode factory for ::Blur also adds a kDecal
+    // post-crop that is undesired for this GM.
+    auto filter = SkImageFilters::Blur(0, 10,
+            SkMakeCropImageFilter(SkRect::Make(img->bounds()), SkTileMode::kRepeat, nullptr));
     SkPaint paint;
     paint.setImageFilter(std::move(filter));
 
-    // Draw the blurred image once
+    // Draw the blurred image once with a clip that shows the repeat is tiled several times.
+    // 3xsigma is used to match the historic, but underspecified behavior for when kRepeat was used
+    // with no crop rect (which must now be provided or kRepeat is ignored).
     canvas->translate(0, 50);
-    canvas->drawImage(img, 0, 0, SkSamplingOptions(), &paint);
+    canvas->save();
+        canvas->clipIRect(img->bounds().makeOutset(0, 30));
+        canvas->drawImage(img, 0, 0, SkSamplingOptions(), &paint);
+    canvas->restore();
 
     // Draw the blurred image with a clip positioned such that the draw would be excluded except
-    // that the image filter causes it to intersect with the clip. Ideally should look like the
-    // left image, but clipped to the debug-black rectangle (Narrator: it does not look like that).
+    // that the image filter causes it to intersect with the clip. It should look like the
+    // left image, but clipped to the debug-black rectangle.
     canvas->translate(110, 0);
-    canvas->clipRect(SkRect::MakeXYWH(0, -30, 100, 10));
-    canvas->drawImage(img, 0, 0, SkSamplingOptions(), &paint);
+    canvas->save();
+        canvas->clipIRect(SkIRect::MakeXYWH(0, -30, 100, 10));
+        canvas->drawImage(img, 0, 0, SkSamplingOptions(), &paint);
+    canvas->restore();
 
     // Visualize the clip
     SkPaint line;

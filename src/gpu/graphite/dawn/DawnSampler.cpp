@@ -11,6 +11,8 @@
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
+#include <cfloat>
+
 namespace skgpu::graphite {
 
 namespace {
@@ -25,19 +27,18 @@ wgpu::FilterMode filter_mode_to_dawn_filter_mode(SkFilterMode mode) {
     SkUNREACHABLE;
 }
 
-wgpu::FilterMode mipmap_mode_to_dawn_filter_mode(SkMipmapMode mode) {
+wgpu::MipmapFilterMode mipmap_mode_to_dawn_filter_mode(SkMipmapMode mode) {
     switch (mode) {
         case SkMipmapMode::kNone:
             // Dawn doesn't have none filter mode.
-            return wgpu::FilterMode::Nearest;
+            return wgpu::MipmapFilterMode::Nearest;
         case SkMipmapMode::kNearest:
-            return wgpu::FilterMode::Nearest;
+            return wgpu::MipmapFilterMode::Nearest;
         case SkMipmapMode::kLinear:
-            return wgpu::FilterMode::Linear;
+            return wgpu::MipmapFilterMode::Linear;
     }
     SkUNREACHABLE;
 }
-
 }
 
 DawnSampler::DawnSampler(const DawnSharedContext* sharedContext,
@@ -71,7 +72,12 @@ sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
     desc.minFilter     = desc.magFilter;
     desc.mipmapFilter  = mipmap_mode_to_dawn_filter_mode(samplingOptions.mipmap);
     desc.lodMinClamp   = 0.0f;
-    desc.lodMaxClamp   = FLT_MAX;
+    if (samplingOptions.mipmap == SkMipmapMode::kNone) {
+        // Disabling mipmap by clamping max lod to first level only.
+        desc.lodMaxClamp = 0.0f;
+    } else {
+        desc.lodMaxClamp = FLT_MAX;
+    }
     desc.maxAnisotropy = 1;
     desc.compare       = wgpu::CompareFunction::Undefined;
 

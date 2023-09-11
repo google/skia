@@ -11,7 +11,7 @@ layout(binding=1) uniform bufferFive { float q; };
 // Should not generate any errors despite overlap with above.
 // TODO(skia:13664): Graphite currently generates programs with overlapping indices across interface
 // blocks and texture/sampler types. WGSL requires this to become an error.
-layout(set=0, binding=0) uniform texture2D t;
+layout(set=0, binding=0, rgba32f) readonly texture2D t;
 
 void main() {
 }

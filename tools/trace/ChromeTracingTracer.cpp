@@ -15,6 +15,8 @@
 
 #include <chrono>
 
+using namespace skia_private;
+
 namespace {
 
 /**
@@ -101,8 +103,8 @@ SkEventTracer::Handle ChromeTracingTracer::addTraceEvent(char            phase,
 
     size = SkAlign8(size);
 
-    SkSTArray<128, uint8_t, true> storage;
-    uint8_t*                      storagePtr = storage.push_back_n(size);
+    STArray<128, uint8_t, true> storage;
+    uint8_t* storagePtr = storage.push_back_n(size);
 
     TraceEvent* traceEvent  = reinterpret_cast<TraceEvent*>(storagePtr);
     traceEvent->fPhase      = phase;
@@ -184,10 +186,10 @@ struct TraceEventSerializationState {
         return shortID;
     }
 
-    uint64_t                          fClockOffset;
-    SkTHashMap<uint64_t, const char*> fBaseTypeResolver;
-    int                               fNextThreadID;
-    SkTHashMap<SkThreadID, int>       fShortThreadIDMap;
+    uint64_t                        fClockOffset;
+    THashMap<uint64_t, const char*> fBaseTypeResolver;
+    int                             fNextThreadID;
+    THashMap<SkThreadID, int>       fShortThreadIDMap;
 };
 
 }  // namespace

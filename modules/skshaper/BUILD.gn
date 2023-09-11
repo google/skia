@@ -16,8 +16,11 @@ if (skia_enable_skshaper) {
     if (skia_use_fonthost_mac) {
       defines += [ "SK_SHAPER_CORETEXT_AVAILABLE" ]
     }
-    if (skia_use_harfbuzz && skia_enable_skunicode) {
+    if (skia_use_harfbuzz) {
       defines += [ "SK_SHAPER_HARFBUZZ_AVAILABLE" ]
+    }
+    if (skia_enable_skunicode) {
+      defines += [ "SK_SHAPER_UNICODE_AVAILABLE" ]
     }
   }
 

@@ -76,7 +76,6 @@ public:
     bool endSheet();
     bool endPortfolio();
 
-protected:
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count,
                     const SkPoint[], const SkPaint& paint) override;
@@ -93,11 +92,13 @@ protected:
                        const SkRect* srcOrNull, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint& paint,
                        SkCanvas::SrcRectConstraint) override;
-    void onDrawGlyphRunList(
-            SkCanvas*, const sktext::GlyphRunList&, const SkPaint&, const SkPaint&) override;
+
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
-    void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override;
+
+    void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override;
+
+    sk_sp<SkDevice> createDevice(const CreateInfo&, const SkPaint*) override;
 
 private:
     class TypefaceUse {
@@ -114,6 +115,9 @@ private:
     };
     friend HRESULT subset_typeface(const TypefaceUse& current);
 
+    void onDrawGlyphRunList(
+            SkCanvas*, const sktext::GlyphRunList&, const SkPaint&, const SkPaint&) override;
+
     bool createCanvasForLayer();
 
     SkTScopedComPtr<IXpsOMObjectFactory> fXpsFactory;
@@ -126,8 +130,8 @@ private:
     SkVector fCurrentUnitsPerMeter;
     SkVector fCurrentPixelsPerMeter;
 
-    SkTArray<TypefaceUse, true> fTypefaces;
-    SkTArray<TypefaceUse, true>* fTopTypefaces;
+    skia_private::TArray<TypefaceUse, true> fTypefaces;
+    skia_private::TArray<TypefaceUse, true>* fTopTypefaces;
 
     /** Creates a GUID based id and places it into buffer.
         buffer should have space for at least GUID_ID_LEN wide characters.
@@ -166,7 +170,7 @@ private:
         IXpsOMBrush** xpsBrush);
 
     HRESULT createXpsImageBrush(
-        const SkBitmap& bitmap,
+        const SkPixmap& bitmap,
         const SkMatrix& localMatrix,
         const SkTileMode (&xy)[2],
         const SkAlpha alpha,
@@ -269,13 +273,9 @@ private:
         const SkVector& ppuScale,
         IXpsOMPath* shadedPath);
 
-    SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
-
     // Disable the default copy and assign implementation.
     SkXPSDevice(const SkXPSDevice&);
     void operator=(const SkXPSDevice&);
-
-    using INHERITED = SkClipStackDevice;
 };
 
 #endif  // SK_BUILD_FOR_WIN

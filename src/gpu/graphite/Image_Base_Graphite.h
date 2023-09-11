@@ -10,10 +10,6 @@
 
 #include "src/image/SkImage_Base.h"
 
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#endif
-
 namespace skgpu::graphite {
 
 class Context;
@@ -32,13 +28,18 @@ public:
                       int srcY,
                       CachingHint) const override { return false; }
 
+    // From SkImage.h
+    // TODO(egdaniel) This feels wrong. Re-think how this method is used and works.
+    bool isValid(GrRecordingContext*) const override { return true; }
+
+    // From SkImage_Base.h
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
+
     bool getROPixels(GrDirectContext*,
                      SkBitmap*,
                      CachingHint = kAllow_CachingHint) const override { return false; }
 
-    sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
-
-    bool onIsValid(GrRecordingContext*) const override { return true; }
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
                                                 sk_sp<SkColorSpace>,
@@ -52,6 +53,7 @@ public:
                                      ReadPixelsContext) const override;
 
     void onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+                                           bool readAlpha,
                                            sk_sp<SkColorSpace>,
                                            SkIRect srcRect,
                                            SkISize dstSize,
@@ -60,28 +62,12 @@ public:
                                            ReadPixelsCallback,
                                            ReadPixelsContext) const override;
 
+    virtual sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const = 0;
+
 protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID)
         : SkImage_Base(info, uniqueID) {}
 
-private:
-
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(
-            GrRecordingContext*,
-            SkSamplingOptions,
-            const SkTileMode[2],
-            const SkMatrix&,
-            const SkRect* subset,
-            const SkRect* domain) const override;
-
-    std::tuple<GrSurfaceProxyView, GrColorType> onAsView(
-            GrRecordingContext*,
-            GrMipmapped,
-            GrImageTexGenPolicy policy) const override {
-        return {};
-    }
-#endif
 };
 
 } // namespace skgpu::graphite

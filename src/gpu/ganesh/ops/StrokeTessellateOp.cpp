@@ -15,7 +15,7 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/tessellate/GrStrokeTessellationShader.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 StrokeTessellateOp::StrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
                                        const SkPath& path, const SkStrokeRec& stroke,
@@ -238,4 +238,4 @@ void StrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     }
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

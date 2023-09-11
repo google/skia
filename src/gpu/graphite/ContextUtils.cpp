@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/ContextUtils.h"
 
 #include <string>
-#include "include/private/SkSLString.h"
 #include "src/core/SkBlenderBase.h"
+#include "src/gpu/BlendFormula.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -21,6 +21,9 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/gpu/graphite/compute/ComputeStep.h"
+#include "src/sksl/SkSLString.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::graphite {
 
@@ -31,28 +34,32 @@ ExtractPaintData(Recorder* recorder,
                  const Layout layout,
                  const SkM44& local2Dev,
                  const PaintParams& p,
+                 sk_sp<TextureProxy> dstTexture,
+                 SkIPoint dstOffset,
                  const SkColorInfo& targetColorInfo) {
     SkDEBUGCODE(builder->checkReset());
 
     gatherer->resetWithNewLayout(layout);
 
-    KeyContext keyContext(recorder, local2Dev, targetColorInfo, p.color());
+    KeyContext keyContext(
+            recorder, local2Dev, targetColorInfo, p.color(), std::move(dstTexture), dstOffset);
     p.toKey(keyContext, builder, gatherer);
 
-    auto dict = recorder->priv().shaderCodeDictionary();
-    UniformDataCache* uniformDataCache = recorder->priv().uniformDataCache();
-    TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
+    UniquePaintParamsID paintID = recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
+    const UniformDataBlock* uniforms = nullptr;
+    const TextureDataBlock* textures = nullptr;
+    if (paintID.isValid()) {
+        if (gatherer->hasUniforms()) {
+            UniformDataCache* uniformDataCache = recorder->priv().uniformDataCache();
+            uniforms = uniformDataCache->insert(gatherer->finishUniformDataBlock());
+        }
+        if (gatherer->hasTextures()) {
+            TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
+            textures = textureDataCache->insert(gatherer->textureDataBlock());
+        }
+    }
 
-    auto entry = dict->findOrCreate(builder);
-
-    const UniformDataBlock* uniforms =
-            gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
-                                    : nullptr;
-    const TextureDataBlock* textures =
-            gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
-                                    : nullptr;
-
-    return { entry->uniqueID(), uniforms, textures };
+    return { paintID, uniforms, textures };
 }
 
 std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepData(
@@ -75,7 +82,29 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
     return { uniforms, textures };
 }
 
+DstReadRequirement GetDstReadRequirement(const Caps* caps,
+                                         std::optional<SkBlendMode> blendMode,
+                                         Coverage coverage) {
+    // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
+    // do a dst read.
+    if (!blendMode || *blendMode > SkBlendMode::kLastCoeffMode) {
+        return caps->getDstReadRequirement();
+    }
+
+    const bool isLCD = coverage == Coverage::kLCD;
+    const bool hasCoverage = coverage != Coverage::kNone;
+    BlendFormula blendFormula = isLCD ? skgpu::GetLCDBlendFormula(*blendMode)
+                                      : skgpu::GetBlendFormula(false, hasCoverage, *blendMode);
+    if ((blendFormula.hasSecondaryOutput() && !caps->shaderCaps()->fDualSourceBlendingSupport) ||
+        (coverage == Coverage::kLCD && blendMode != SkBlendMode::kSrcOver)) {
+        return caps->getDstReadRequirement();
+    }
+
+    return DstReadRequirement::kNone;
+}
+
 namespace {
+
 std::string get_uniform_header(int bufferID, const char* name) {
     std::string result;
 
@@ -112,22 +141,81 @@ std::string get_uniforms(Layout layout,
     *offset = offsetter.size();
     return result;
 }
+
+std::string get_node_uniforms(Layout layout, const ShaderNode* node, int* offset) {
+    std::string result;
+    SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
+
+    if (!uniforms.empty()) {
+        SkSL::String::appendf(&result, "// %d - %s uniforms\n",
+                              node->keyIndex(), node->entry()->fName);
+        result += get_uniforms(layout, uniforms, offset, node->keyIndex());
+    }
+
+    for (const ShaderNode* child : node->children()) {
+        result += get_node_uniforms(layout, child, offset);
+    }
+    return result;
+}
+
+std::string get_node_ssbo_fields(const ShaderNode* node) {
+    std::string result;
+    SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
+
+    if (!uniforms.empty()) {
+        SkSL::String::appendf(&result, "// %d - %s uniforms\n",
+                              node->keyIndex(), node->entry()->fName);
+
+        for (const Uniform& u : uniforms) {
+            SkSL::String::appendf(
+                    &result, "    %s %s_%d", SkSLTypeString(u.type()), u.name(), node->keyIndex());
+            if (u.count()) {
+                SkSL::String::appendf(&result, "[%u]", u.count());
+            }
+            result.append(";\n");
+        }
+    }
+
+    for (const ShaderNode* child : node->children()) {
+        result += get_node_ssbo_fields(child);
+    }
+    return result;
+}
+
+std::string get_node_texture_samplers(const ResourceBindingRequirements& bindingReqs,
+                                      const ShaderNode* node,
+                                      int* binding) {
+    std::string result;
+    SkSpan<const TextureAndSampler> samplers = node->entry()->fTexturesAndSamplers;
+
+    if (!samplers.empty()) {
+        SkSL::String::appendf(&result, "// %d - %s samplers\n",
+                              node->keyIndex(), node->entry()->fName);
+
+        for (const TextureAndSampler& t : samplers) {
+            result += EmitSamplerLayout(bindingReqs, binding);
+            SkSL::String::appendf(&result, " sampler2D %s_%d;\n",
+                                  t.name(), node->keyIndex());
+        }
+    }
+
+    for (const ShaderNode* child : node->children()) {
+        result += get_node_texture_samplers(bindingReqs, child, binding);
+    }
+    return result;
+}
+
 }  // anonymous namespace
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
                                     const Layout layout,
-                                    const std::vector<PaintParamsKey::BlockReader>& readers) {
+                                    SkSpan<const ShaderNode*> nodes) {
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
-    for (int i = 0; i < (int) readers.size(); ++i) {
-        SkSpan<const Uniform> uniforms = readers[i].entry()->fUniforms;
-
-        if (!uniforms.empty()) {
-            SkSL::String::appendf(&result, "// %s uniforms\n", readers[i].entry()->fName);
-            result += get_uniforms(layout, uniforms, &offset, i);
-        }
+    for (const ShaderNode* n : nodes) {
+        result += get_node_uniforms(layout, n, &offset);
     }
     result.append("};\n\n");
 
@@ -151,25 +239,12 @@ std::string EmitPaintParamsStorageBuffer(
         int bufferID,
         const char* bufferTypePrefix,
         const char* bufferNamePrefix,
-        const std::vector<PaintParamsKey::BlockReader>& readers) {
+        SkSpan<const ShaderNode*> nodes) {
 
     std::string result;
     SkSL::String::appendf(&result, "struct %sUniformData {\n", bufferTypePrefix);
-    for (int i = 0; i < (int)readers.size(); ++i) {
-        SkSpan<const Uniform> uniforms = readers[i].entry()->fUniforms;
-        if (uniforms.empty()) {
-            continue;
-        }
-        SkSL::String::appendf(&result, "// %s uniforms\n", readers[i].entry()->fName);
-        int manglingSuffix = i;
-        for (const Uniform& u : uniforms) {
-            SkSL::String::appendf(
-                    &result, "    %s %s_%d", SkSLTypeString(u.type()), u.name(), manglingSuffix);
-            if (u.count()) {
-                SkSL::String::appendf(&result, "[%u]", u.count());
-            }
-            result.append(";\n");
-        }
+    for (const ShaderNode* n : nodes) {
+        result += get_node_ssbo_fields(n);
     }
     result.append("};\n\n");
 
@@ -191,22 +266,12 @@ std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
 }
 
 std::string EmitTexturesAndSamplers(const ResourceBindingRequirements& bindingReqs,
-                                    const std::vector<PaintParamsKey::BlockReader>& readers,
+                                    SkSpan<const ShaderNode*> nodes,
                                     int* binding) {
     std::string result;
-    for (int i = 0; i < (int) readers.size(); ++i) {
-        SkSpan<const TextureAndSampler> samplers = readers[i].entry()->fTexturesAndSamplers;
-
-        if (!samplers.empty()) {
-            SkSL::String::appendf(&result, "// %s samplers\n", readers[i].entry()->fName);
-
-            for (const TextureAndSampler& t : samplers) {
-                result += EmitSamplerLayout(bindingReqs, binding);
-                SkSL::String::appendf(&result, " uniform sampler2D %s_%d;\n", t.name(), i);
-            }
-        }
+    for (const ShaderNode* n : nodes) {
+        result += get_node_texture_samplers(bindingReqs, n, binding);
     }
-
     return result;
 }
 
@@ -216,20 +281,20 @@ std::string EmitSamplerLayout(const ResourceBindingRequirements& bindingReqs, in
     // If fDistinctIndexRanges is false, then texture and sampler indices may clash with other
     // resource indices. Graphite assumes that they will be placed in descriptor set (Vulkan) and
     // bind group (Dawn) index 1.
+    const char* distinctIndexRange = bindingReqs.fDistinctIndexRanges ? "" : "set=1, ";
+
     if (bindingReqs.fSeparateTextureAndSamplerBinding) {
         int samplerIndex = (*binding)++;
         int textureIndex = (*binding)++;
-        SkSL::String::appendf(&result,
-                              "layout(wgsl, %ssampler=%d, texture=%d)",
-                              bindingReqs.fDistinctIndexRanges ? "" : "set=1, ",
-                              samplerIndex,
-                              textureIndex);
+        result = SkSL::String::printf("layout(webgpu, %ssampler=%d, texture=%d)",
+                                      distinctIndexRange,
+                                      samplerIndex,
+                                      textureIndex);
     } else {
-        SkSL::String::appendf(&result,
-                              "layout(%sbinding=%d)",
-                              bindingReqs.fDistinctIndexRanges ? "" : "set=1, ",
-                              *binding);
-        (*binding)++;
+        int samplerIndex = (*binding)++;
+        result = SkSL::String::printf("layout(%sbinding=%d)",
+                                      distinctIndexRange,
+                                      samplerIndex);
     }
     return result;
 }
@@ -270,7 +335,7 @@ std::string EmitVaryings(const RenderStep* step,
 
     if (emitShadingSsboIndexVarying) {
         SkSL::String::appendf(&result,
-                              "    layout(location=%d) %s int shadingSsboIndexVar;\n",
+                              "    layout(location=%d) %s flat int shadingSsboIndexVar;\n",
                               location++,
                               direction);
     }
@@ -290,10 +355,10 @@ std::string EmitVaryings(const RenderStep* step,
     return result;
 }
 
-std::string GetSkSLVS(const ResourceBindingRequirements& bindingReqs,
-                      const RenderStep* step,
-                      bool defineShadingSsboIndexVarying,
-                      bool defineLocalCoordsVarying) {
+std::string BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
+                            const RenderStep* step,
+                            bool defineShadingSsboIndexVarying,
+                            bool defineLocalCoordsVarying) {
     // TODO: To more completely support end-to-end rendering, this will need to be updated so that
     // the RenderStep shader snippet can produce a device coord, a local coord, and depth.
     // If the paint combination doesn't need the local coord it can be ignored, otherwise we need
@@ -347,12 +412,13 @@ std::string GetSkSLVS(const ResourceBindingRequirements& bindingReqs,
     return sksl;
 }
 
-FragSkSLInfo GetSkSLFS(const ResourceBindingRequirements& bindingReqs,
-                      const ShaderCodeDictionary* dict,
-                      const RuntimeEffectDictionary* rteDict,
-                      const RenderStep* step,
-                      UniquePaintParamsID paintID,
-                      bool useStorageBuffers) {
+FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
+                               const ShaderCodeDictionary* dict,
+                               const RuntimeEffectDictionary* rteDict,
+                               const RenderStep* step,
+                               UniquePaintParamsID paintID,
+                               bool useStorageBuffers,
+                               skgpu::Swizzle writeSwizzle) {
     if (!paintID.isValid()) {
         // TODO: we should return the error shader code here
         return {};
@@ -361,22 +427,83 @@ FragSkSLInfo GetSkSLFS(const ResourceBindingRequirements& bindingReqs,
     FragSkSLInfo result;
 
     const char* shadingSsboIndexVar = useStorageBuffers ? "shadingSsboIndexVar" : nullptr;
-    ShaderInfo shaderInfo(rteDict, shadingSsboIndexVar);
-
-    dict->getShaderInfo(paintID, &shaderInfo);
-    result.fBlendInfo = shaderInfo.blendInfo();
-    result.fRequiresLocalCoords = shaderInfo.needsLocalCoords();
+    ShaderInfo shaderInfo(paintID, dict, rteDict, shadingSsboIndexVar);
 
     // Extra RenderStep uniforms are always backed by a UBO. Uniforms for the PaintParams are either
     // UBO or SSBO backed based on `useStorageBuffers`.
-    result.fSkSL =
-            shaderInfo.toSkSL(bindingReqs,
-                              step,
-                              useStorageBuffers,
-                              /*defineLocalCoordsVarying=*/result.fRequiresLocalCoords,
-                              /*numTexturesAndSamplersUsed=*/&result.fNumTexturesAndSamplers);
+    result.fSkSL = shaderInfo.toSkSL(caps,
+                                     step,
+                                     useStorageBuffers,
+                                     /*numTexturesAndSamplersUsed=*/&result.fNumTexturesAndSamplers,
+                                     writeSwizzle);
+
+    // Extract blend info after integrating the RenderStep into the final fragment shader in case
+    // that changes the HW blending choice to handle analytic coverage.
+    result.fBlendInfo = shaderInfo.blendInfo();
+    result.fRequiresLocalCoords = shaderInfo.needsLocalCoords();
 
     return result;
+}
+
+std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {
+    std::string sksl =
+            SkSL::String::printf("layout(local_size_x=%u, local_size_y=%u, local_size_z=%u) in;\n",
+                                 step->localDispatchSize().fWidth,
+                                 step->localDispatchSize().fHeight,
+                                 step->localDispatchSize().fDepth);
+
+    const auto& bindingReqs = caps->resourceBindingRequirements();
+    bool distinctRanges = bindingReqs.fDistinctIndexRanges;
+    bool separateSampler = bindingReqs.fSeparateTextureAndSamplerBinding;
+
+    int index = 0;
+    int texIdx = 0;
+    // NOTE: SkSL Metal codegen always assigns the same binding index to a texture and its sampler.
+    // TODO: This could cause sampler indices to not be tightly packed if the sampler2D declaration
+    // comes after 1 or more storage texture declarations (which don't have samplers). An optional
+    // "layout(msl, sampler=T, texture=T)" syntax to count them separately (like we do for WGSL)
+    // could come in handy here but it's not supported in MSL codegen yet.
+
+    for (const ComputeStep::ResourceDesc& r : step->resources()) {
+        using Type = ComputeStep::ResourceType;
+        switch (r.fType) {
+            case Type::kUniformBuffer:
+                SkSL::String::appendf(&sksl, "layout(binding=%d) uniform ", index++);
+                sksl += r.fSkSL;
+                break;
+            case Type::kStorageBuffer:
+                SkSL::String::appendf(&sksl, "layout(binding=%d) buffer ", index++);
+                sksl += r.fSkSL;
+                break;
+            case Type::kWriteOnlyStorageTexture:
+                SkSL::String::appendf(&sksl, "layout(binding=%d, rgba8) writeonly texture2D ",
+                                      distinctRanges ? texIdx++ : index++);
+                sksl += r.fSkSL;
+                break;
+            case Type::kReadOnlyTexture:
+                SkSL::String::appendf(&sksl, "layout(binding=%d, rgba8) readonly texture2D ",
+                                      distinctRanges ? texIdx++ : index++);
+                sksl += r.fSkSL;
+                break;
+            case Type::kSampledTexture:
+                if (distinctRanges) {
+                    SkSL::String::appendf(&sksl, "layout(metal, binding=%d) ", texIdx++);
+                } else if (separateSampler) {
+                    SkSL::String::appendf(
+                            &sksl, "layout(webgpu, sampler=%d, texture=%d) ", index, index + 1);
+                    index += 2;
+                } else {
+                    SkSL::String::appendf(&sksl, "layout(binding=%d) ", index++);
+                }
+                sksl += "sampler2D ";
+                sksl += r.fSkSL;
+                break;
+        }
+        sksl += ";\n";
+    }
+
+    sksl += step->computeSkSL();
+    return sksl;
 }
 
 } // namespace skgpu::graphite

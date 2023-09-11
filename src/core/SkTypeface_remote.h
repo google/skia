@@ -30,10 +30,9 @@ public:
                          sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override;
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
-    void generateImage(const SkGlyph& glyph) override;
-    bool generatePath(const SkGlyph& glyphID, SkPath* path) override;
+    GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
+    void generateImage(const SkGlyph&, void*) override;
+    bool generatePath(const SkGlyph& glyph, SkPath* path) override;
     sk_sp<SkDrawable> generateDrawable(const SkGlyph&) override;
     void generateFontMetrics(SkFontMetrics* metrics) override;
     SkTypefaceProxy* getProxyTypeface() const;

@@ -24,7 +24,7 @@
 class SkCanvas;
 class SkSVGLength;
 
-class SkSVGLengthContext {
+class SK_API SkSVGLengthContext {
 public:
     SkSVGLengthContext(const SkSize& viewport, SkScalar dpi = 90)
         : fViewport(viewport), fDPI(dpi) {}
@@ -47,18 +47,18 @@ private:
     SkScalar fDPI;
 };
 
-struct SkSVGPresentationContext {
+struct SK_API SkSVGPresentationContext {
     SkSVGPresentationContext();
     SkSVGPresentationContext(const SkSVGPresentationContext&)            = default;
     SkSVGPresentationContext& operator=(const SkSVGPresentationContext&) = default;
 
-    const SkTHashMap<SkString, SkSVGColorType>* fNamedColors = nullptr;
+    const skia_private::THashMap<SkString, SkSVGColorType>* fNamedColors = nullptr;
 
     // Inherited presentation attributes, computed for the current node.
     SkSVGPresentationAttributes fInherited;
 };
 
-class SkSVGRenderContext {
+class SK_API SkSVGRenderContext {
 public:
     // Captures data required for object bounding box resolution.
     struct OBBScope {

@@ -46,9 +46,9 @@ public:
     FilterBugGM() { this->setBGColor(SK_ColorRED); }
 
 protected:
-    SkString onShortName() override { return SkString("filterbug"); }
+    SkString getName() const override { return SkString("filterbug"); }
 
-    SkISize onISize() override { return SkISize::Make(150, 150); }
+    SkISize getISize() override { return SkISize::Make(150, 150); }
 
     void onOnceBeforeDraw() override {
         // The top texture has 5 black rows on top and then 22 white rows on the bottom

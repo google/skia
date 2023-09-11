@@ -14,6 +14,11 @@ noinline void keepAlive(inout half h) {}
 noinline void keepAlive(inout float f) {}
 noinline void keepAlive(inout int i) {}
 
+void assignToFunctionParameter(int x, inout float y) {
+    x = 1;
+    y = 1;
+}
+
 half4 main(float2 coords) {
     /* assign to scalar */               int i; i = 0;
     /* assign to vector */               int4 i4; i4 = int4(1,2,3,4);
@@ -32,6 +37,8 @@ half4 main(float2 coords) {
     /* assign to global var */           globalVar = half4(0);
     /* assign to global struct */        globalStruct.f = 0;
 
+    /* assign to function parameter */   assignToFunctionParameter(0, f3x3[0][0]);
+
 // Not allowed in ES2
 //  /* assign to array idx by lookup */  ai[0] = 0; ai[ai[0]] = 0;
 
@@ -40,6 +47,8 @@ half4 main(float2 coords) {
     /* assign to unary plus */           +ai[0] += +ai4[0][0];
     /* assign to struct unary plus */    +s.f = 1; +s.af[0] = 2;
                                          +s.h4 = half4(1); +s.ah4[0] = half4(2);
+
+    /* repeat assignment */              float repeat; repeat = repeat = 1.0;
 
     keepAlive(af4[0][0]);
     keepAlive(ah3x3[0][0][0]);
@@ -51,6 +60,7 @@ half4 main(float2 coords) {
     keepAlive(s.f);
     keepAlive(l);
     keepAlive(f3x3[0][0]);
+    keepAlive(repeat);
 
     return colorGreen;
 }

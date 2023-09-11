@@ -163,7 +163,7 @@ private:
 #endif
     size_t fBytesInUse = 0;
 
-    SkTArray<BufferBlock> fBlocks;
+    skia_private::TArray<BufferBlock> fBlocks;
     sk_sp<CpuBufferCache> fCpuBufferCache;
     sk_sp<GrCpuBuffer> fCpuStagingBuffer;
     GrGpu* fGpu;

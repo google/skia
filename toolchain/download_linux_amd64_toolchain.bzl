@@ -151,6 +151,12 @@ debs_to_install = [
         "sha256": "479736c235af0537c1af8df4befc32e638a4e979961fdb02f366501298c50526",
         "url": "https://ftp.debian.org/debian/pool/main/libg/libglu/libglu1-mesa_9.0.1-1_amd64.deb",
     },
+    # These are needed for rustc to link executables
+    {
+        # https://packages.debian.org/bullseye/amd64/libgcc-s1/download
+        "sha256": "e478f2709d8474165bb664de42e16950c391f30eaa55bc9b3573281d83a29daf",
+        "url": "https://ftp.debian.org/debian/pool/main/g/gcc-10/libgcc-s1_10.2.1-6_amd64.deb",
+    },
 ]
 
 def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):
@@ -193,6 +199,9 @@ def _download_linux_amd64_toolchain_impl(ctx):
             deb["sha256"],
             ".",
         )
+
+    # Make -lgcc_s work
+    ctx.symlink("lib/x86_64-linux-gnu/libgcc_s.so.1", "lib/x86_64-linux-gnu/libgcc_s.so")
 
     # This list of files lines up with _make_default_flags() in linux_amd64_toolchain_config.bzl
     # It is all locations that our toolchain could find a system header.
@@ -271,6 +280,15 @@ filegroup(
         ],
         allow_empty = False,
     ),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "link_libs",
+    srcs = [
+        "lib/x86_64-unknown-linux-gnu/libc++.a",
+        "lib/x86_64-unknown-linux-gnu/libc++abi.a",
+],
     visibility = ["//visibility:public"],
 )
 """,

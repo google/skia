@@ -29,6 +29,8 @@ T ParseDefault(const skjson::Value& v, const T& defaultValue) {
     return res;
 }
 
+const skjson::StringValue* ParseSlotID(const skjson::ObjectValue* jobj);
+
 } // namespace skottie
 
 #endif // SkottieJson_DEFINED

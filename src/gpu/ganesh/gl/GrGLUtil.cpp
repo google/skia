@@ -14,6 +14,8 @@
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include <stdio.h>
 
+using namespace skia_private;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_GL_LOG_CALLS
@@ -175,6 +177,9 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     int n = sscanf(rendererString, "PowerVR SGX 54%d", &lastDigit);
     if (1 == n && lastDigit >= 0 && lastDigit <= 9) {
         return GrGLRenderer::kPowerVR54x;
+    }
+    if (strstr(rendererString, "PowerVR B-Series")) {
+        return GrGLRenderer::kPowerVRBSeries;
     }
     // certain iOS devices also use PowerVR54x GPUs
     static const char kAppleA4Str[] = "Apple A4";
@@ -589,7 +594,7 @@ static std::tuple<GrGLVendor, GrGLRenderer, GrGLDriver, GrGLDriverVersion>
 get_angle_gl_vendor_and_renderer(
         const char* innerString,
         const GrGLExtensions& extensions) {
-    SkTArray<SkString> parts;
+    TArray<SkString> parts;
     SkStrSplit(innerString, ",", &parts);
     // This would need some fixing if we have substrings that contain commas.
     if (parts.size() != 3) {

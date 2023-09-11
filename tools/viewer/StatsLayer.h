@@ -13,6 +13,8 @@
 #include "include/private/base/SkTArray.h"
 #include "tools/sk_app/Window.h"
 
+class SkSurface;
+
 class StatsLayer : public sk_app::Window::Layer {
 public:
     StatsLayer();

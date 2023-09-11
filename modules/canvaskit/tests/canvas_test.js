@@ -20,6 +20,7 @@ describe('Canvas Behavior', () => {
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setDither(false);
 
         canvas.drawLine(3, 10, 30, 15, paint);
         const rrect = CanvasKit.RRectXY([5, 35, 45, 80], 15, 10);

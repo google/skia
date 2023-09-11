@@ -18,7 +18,9 @@ import sys
 import traceback
 
 
-RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.txt'
+RELEASE_NOTES_DIR = 'relnotes'
+RELEASE_NOTES_FILE_NAME = 'RELEASE_NOTES.md'
+RELEASE_NOTES_README = '//relnotes/README.md'
 
 GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
@@ -292,7 +294,8 @@ def _CheckBazelBUILDFiles(input_api, output_api):
     excluded_paths = ["infra/", "bazel/rbe/", "bazel/external/", "bazel/common_config_settings/",
                       "modules/canvaskit/go/", "experimental/", "bazel/platform", "third_party/",
                       "tests/", "resources/", "bazel/deps_parser/", "bazel/exporter_tool/",
-                      "tools/gpu/gl/interface/", "bazel/utils/"]
+                      "tools/gpu/gl/interface/", "bazel/utils/", "include/config/",
+                      "bench/", "example/external_client/"]
     is_excluded = any(affected_file_path.startswith(n) for n in excluded_paths)
     if is_bazel and not is_excluded:
       with open(affected_file_path, 'r') as file:
@@ -414,7 +417,9 @@ def _CheckBuildifier(input_api, output_api):
   for affected_file in input_api.AffectedFiles(include_deletes=False):
     affected_file_path = affected_file.LocalPath()
     if affected_file_path.endswith('BUILD.bazel') or affected_file_path.endswith('.bzl'):
-      if not affected_file_path.endswith('public.bzl') and not affected_file_path.endswith('go_repositories.bzl'):
+      if not affected_file_path.endswith('public.bzl') and \
+        not affected_file_path.endswith('go_repositories.bzl') and \
+        not "bazel/rbe/gce_linux/" in affected_file_path:  # Skip generated files.
         files.append(affected_file_path)
   if not files:
     return []
@@ -448,8 +453,8 @@ def _CheckBannedAPIs(input_api, output_api):
 
   # These defines are either there or not, and using them with just an #if is a
   # subtle, frustrating bug.
-  existence_defines = ['SK_GANESH', 'SK_GRAPHITE', 'SK_GL', 'SK_VULKAN', 'SK_DAWN',
-                       'SK_METAL', 'SK_DIRECT3D', 'SK_DEBUG']
+  existence_defines = ['SK_GANESH', 'SK_GRAPHITE', 'SK_GL', 'SK_VULKAN', 'SK_DAWN', 'SK_METAL',
+                       'SK_DIRECT3D', 'SK_DEBUG', 'GR_TEST_UTILS', 'GRAPHITE_TEST_UTILS']
   for d in existence_defines:
     banned_replacements.append(('#if {}'.format(d),
                                 '#if defined({})'.format(d)))
@@ -554,6 +559,7 @@ def CheckChangeOnUpload(input_api, output_api):
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage or Go installed.
   results.extend(_InfraTests(input_api, output_api))
+  results.extend(_CheckTopReleaseNotesChanged(input_api, output_api))
   results.extend(_CheckReleaseNotesForPublicAPI(input_api, output_api))
   # Only check public.bzl on upload because new files are likely to be a source
   # of false positives and we don't want to unnecessarily block commits.
@@ -600,7 +606,7 @@ class CodeReview(object):
 
 
 def _CheckReleaseNotesForPublicAPI(input_api, output_api):
-  """Checks to see if release notes file is updated with public API changes."""
+  """Checks to see if a release notes file is added or edited with public API changes."""
   results = []
   public_api_changed = False
   release_file_changed = False
@@ -613,13 +619,43 @@ def _CheckReleaseNotesForPublicAPI(input_api, output_api):
         file_path.split(os.path.sep)[0] == 'include' and
         'private' not in file_path):
       public_api_changed = True
-    elif affected_file_path == RELEASE_NOTES_FILE_NAME:
+    elif os.path.dirname(file_path) == RELEASE_NOTES_DIR:
       release_file_changed = True
 
   if public_api_changed and not release_file_changed:
     results.append(output_api.PresubmitPromptWarning(
-        'If this change affects a client API, please add a summary line '
-        'to the %s file.' % RELEASE_NOTES_FILE_NAME))
+        'If this change affects a client API, please add a new summary '
+        'file in the %s directory. More information can be found in '
+        '%s.' % (RELEASE_NOTES_DIR, RELEASE_NOTES_README)))
+  return results
+
+
+def _CheckTopReleaseNotesChanged(input_api, output_api):
+  """Warns if the top level release notes file was changed.
+
+  The top level file is now auto-edited, and new release notes should
+  be added to the RELEASE_NOTES_DIR directory"""
+  results = []
+  top_relnotes_changed = False
+  release_file_changed = False
+  for affected_file in input_api.AffectedFiles():
+    affected_file_path = affected_file.LocalPath()
+    file_path, file_ext = os.path.splitext(affected_file_path)
+    if affected_file_path == RELEASE_NOTES_FILE_NAME:
+      top_relnotes_changed = True
+    elif os.path.dirname(file_path) == RELEASE_NOTES_DIR:
+      release_file_changed = True
+  # When relnotes_util is run it will modify RELEASE_NOTES_FILE_NAME
+  # and delete the individual note files in RELEASE_NOTES_DIR.
+  # So, if both paths are modified do not emit a warning.
+  if top_relnotes_changed and not release_file_changed:
+    results.append(output_api.PresubmitPromptWarning(
+        'Do not edit %s directly. %s is automatically edited during the '
+        'release process. Release notes should be added as new files in '
+        'the %s directory. More information can be found in %s.' % (RELEASE_NOTES_FILE_NAME,
+                                                                    RELEASE_NOTES_FILE_NAME,
+                                                                    RELEASE_NOTES_DIR,
+                                                                    RELEASE_NOTES_README)))
   return results
 
 

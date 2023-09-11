@@ -1,6 +1,5 @@
-/*#pragma settings SPIRVDawnCompatMode*/
-layout(wgsl, set=1, texture=2, sampler=3) uniform sampler2D aSampler;
-layout(wgsl, set=1, texture=4, sampler=5) uniform sampler2D anotherSampler;
+layout(webgpu, set=1, texture=2, sampler=3) sampler2D aSampler;
+layout(webgpu, set=1, texture=4, sampler=5) sampler2D anotherSampler;
 
 noinline half4 helpers_helper(sampler2D s) {
     return sample(s, float2(1));

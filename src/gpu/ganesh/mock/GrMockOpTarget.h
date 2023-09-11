@@ -35,7 +35,7 @@ public:
         return fMockContext->priv().resourceProvider();
     }
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
-    skgpu::v1::SmallPathAtlasMgr* smallPathAtlasManager() const override { return nullptr; }
+    skgpu::ganesh::SmallPathAtlasMgr* smallPathAtlasManager() const override { return nullptr; }
 #endif
     void resetAllocator() { fAllocator.reset(); }
     SkArenaAlloc* allocator() override { return &fAllocator; }
@@ -112,7 +112,7 @@ public:
     UNIMPL(bool usesMSAASurface() const)
     UNIMPL(sktext::gpu::StrikeCache* strikeCache() const)
     UNIMPL(GrAtlasManager* atlasManager() const)
-    UNIMPL(SkTArray<GrSurfaceProxy*, true>* sampledProxyArray())
+    UNIMPL(skia_private::TArray<GrSurfaceProxy*, true>* sampledProxyArray())
     UNIMPL(GrDeferredUploadTarget* deferredUploadTarget())
 #undef UNIMPL
 

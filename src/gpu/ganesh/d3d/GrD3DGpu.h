@@ -21,7 +21,7 @@ struct GrD3DBackendContext;
 class GrD3DOpsRenderPass;
 struct GrD3DOptions;
 class GrPipeline;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 struct IDXGraphicsAnalysis;
 #endif
 
@@ -59,7 +59,7 @@ public:
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
@@ -99,11 +99,11 @@ public:
                                    int numBarriers,
                                    D3D12_RESOURCE_TRANSITION_BARRIER* barriers) const;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    [[nodiscard]] GrFence insertFence() override;
     bool waitFence(GrFence) override;
     void deleteFence(GrFence) override {}
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                                       GrSemaphoreWrapType,
                                                       GrWrapOwnership) override;
@@ -216,22 +216,23 @@ private:
                          GrGpuFinishedContext finishedContext) override;
     void addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback);
 
-    GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
-                                        bool useMSAASurface,
-                                        GrAttachment*,
-                                        GrSurfaceOrigin,
-                                        const SkIRect&,
-                                        const GrOpsRenderPass::LoadAndStoreInfo&,
-                                        const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                                        GrXferBarrierFlags renderPassXferBarriers) override;
+    GrOpsRenderPass* onGetOpsRenderPass(
+            GrRenderTarget*,
+            bool useMSAASurface,
+            GrAttachment*,
+            GrSurfaceOrigin,
+            const SkIRect&,
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const skia_private::TArray<GrSurfaceProxy*, true>& sampledProxies,
+            GrXferBarrierFlags renderPassXferBarriers) override;
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
             SkSpan<GrSurfaceProxy*> proxies,
-            SkSurface::BackendSurfaceAccess access,
+            SkSurfaces::BackendSurfaceAccess access,
             const skgpu::MutableTextureState* newState) override;
 
-    bool onSubmitToGpu(bool syncCpu) override;
+    bool onSubmitToGpu(GrSyncCpu sync) override;
 
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
@@ -313,7 +314,7 @@ private:
     std::unique_ptr<GrD3DDirectCommandList> fCurrentDirectCommandList;
     // One-off special-case descriptors created directly for the mipmap compute shader
     // and hence aren't tracked by the normal path.
-    SkSTArray<32, GrD3DDescriptorHeap::CPUHandle> fMipmapCPUDescriptors;
+    skia_private::STArray<32, GrD3DDescriptorHeap::CPUHandle> fMipmapCPUDescriptors;
 
     struct OutstandingCommandList {
         OutstandingCommandList(std::unique_ptr<GrD3DDirectCommandList> commandList,
@@ -328,7 +329,7 @@ private:
 
     std::unique_ptr<GrD3DOpsRenderPass> fCachedOpsRenderPass;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     IDXGraphicsAnalysis* fGraphicsAnalysis;
 #endif
 

@@ -109,22 +109,25 @@ bool CopyTextureToBufferTask::addCommands(Context*,
 sk_sp<CopyTextureToTextureTask> CopyTextureToTextureTask::Make(sk_sp<TextureProxy> srcProxy,
                                                                SkIRect srcRect,
                                                                sk_sp<TextureProxy> dstProxy,
-                                                               SkIPoint dstPoint) {
+                                                               SkIPoint dstPoint,
+                                                               int dstLevel) {
     return sk_sp<CopyTextureToTextureTask>(new CopyTextureToTextureTask(std::move(srcProxy),
                                                                         srcRect,
                                                                         std::move(dstProxy),
-                                                                        dstPoint));
+                                                                        dstPoint,
+                                                                        dstLevel));
 }
 
 CopyTextureToTextureTask::CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,
                                                    SkIRect srcRect,
                                                    sk_sp<TextureProxy> dstProxy,
-                                                   SkIPoint dstPoint)
+                                                   SkIPoint dstPoint,
+                                                   int dstLevel)
         : fSrcProxy(std::move(srcProxy))
         , fSrcRect(srcRect)
         , fDstProxy(std::move(dstProxy))
-        , fDstPoint(dstPoint) {
-}
+        , fDstPoint(dstPoint)
+        , fDstLevel(dstLevel) {}
 
 CopyTextureToTextureTask::~CopyTextureToTextureTask() {}
 
@@ -155,7 +158,8 @@ bool CopyTextureToTextureTask::addCommands(Context*,
     return commandBuffer->copyTextureToTexture(fSrcProxy->refTexture(),
                                                fSrcRect,
                                                fDstProxy->refTexture(),
-                                               fDstPoint);
+                                               fDstPoint,
+                                               fDstLevel);
 }
 
 } // namespace skgpu::graphite

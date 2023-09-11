@@ -41,12 +41,12 @@ private:
     void lineTo();
     bool matchedLast(const SkOpPtT*) const;
     void moveTo();
-    const SkTArray<SkPath>& partials() const { return fPartials; }
+    const skia_private::TArray<SkPath>& partials() const { return fPartials; }
     bool someAssemblyRequired();
     SkPoint update(const SkOpPtT* pt);
 
     SkPath fCurrent;  // contour under construction
-    SkTArray<SkPath> fPartials;   // contours with mismatched starts and ends
+    skia_private::TArray<SkPath> fPartials;   // contours with mismatched starts and ends
     SkTDArray<const SkOpPtT*> fEndPtTs;  // possible pt values for partial starts and ends
     SkPath* fPathPtr;  // closed contours are written here
     const SkOpPtT* fDefer[2];  // [0] deferred move, [1] deferred line

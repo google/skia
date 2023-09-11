@@ -22,7 +22,7 @@ public:
     static sk_sp<Buffer> Make(const DawnSharedContext*,
                               size_t size,
                               BufferType type,
-                              PrioritizeGpuReads);
+                              AccessPattern);
 
     const wgpu::Buffer& dawnBuffer() const { return fBuffer; }
 

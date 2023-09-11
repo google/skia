@@ -89,6 +89,7 @@ echo "Compiling bitcode"
   ] \
   is_debug=false \
   is_official_build=true \
+  is_trivial_abi=true \
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" "
@@ -104,6 +105,7 @@ ${EMCXX} $RELEASE_CONF -std=c++17 \
 --pre-js $BASE_DIR/helper.js \
 --pre-js $BASE_DIR/chaining.js \
 -fno-rtti -fno-exceptions -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
+"-DSK_TRIVIAL_ABI=[[clang::trivial_abi]]" \
 $WASM_CONF \
 -sERROR_ON_UNDEFINED_SYMBOLS=1 \
 -sEXPORT_NAME="PathKitInit" \

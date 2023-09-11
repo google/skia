@@ -32,6 +32,7 @@ struct SkScalerContextRec;
    behind the NTDDI_VERSION are forward (backward?) declared here in case dwrite_3.h did not declare
    them. */
 interface IDWriteFontFace4;
+interface IDWriteFontFace7;
 
 static SkFontStyle get_style(IDWriteFont* font) {
     int weight = font->GetWeight();
@@ -90,6 +91,15 @@ public:
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
     SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
+    // Once WDK 10.0.25357.0 or newer is required to build, fDWriteFontFace7 can be a smart pointer.
+    // If a smart pointer is used then ~DWriteFontTypeface must call the smart pointer's destructor,
+    // which must include code to Release the IDWriteFontFace7, but there may be no IDWriteFontFace7
+    // other than the forward declaration. Skia should never declare an IDWriteFontFace7 (other than
+    // copying the entire interface) for ODR reasons. This header cannot detect if there will be a
+    // full declaration of IDWriteFontFace7 at the ~DWriteFontTypeface implementation because of
+    // NTDDI_VERSION shenanigains, otherwise this defintition could just be ifdef'ed.
+    //SkTScopedComPtr<IDWriteFontFace7> fDWriteFontFace7;
+    IDWriteFontFace7* fDWriteFontFace7 = nullptr;
     bool fIsColorFont;
 
     std::unique_ptr<SkFontArguments::Palette::Override> fRequestedPaletteEntryOverrides;
@@ -97,6 +107,7 @@ public:
 
     size_t fPaletteEntryCount;
     std::unique_ptr<SkColor[]> fPalette;
+    std::unique_ptr<DWRITE_COLOR_F[]> fDWPalette;
 
     static sk_sp<DWriteFontTypeface> Make(
         IDWriteFactory* factory,

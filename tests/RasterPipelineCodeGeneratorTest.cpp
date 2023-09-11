@@ -7,17 +7,17 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLProgramKind.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/tracing/SkRPDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -51,7 +51,7 @@ static void test(skiatest::Reporter* r,
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     SkRasterPipeline pipeline(&alloc);
     pipeline.append_constant_color(&alloc, startingColor);
-    SkSL::SkRPDebugTrace debugTrace;
+    SkSL::DebugTracePriv debugTrace;
     std::unique_ptr<SkSL::RP::Program> rasterProg =
             SkSL::MakeRasterPipelineProgram(*program, *main->definition(), &debugTrace);
     if (!rasterProg && !expectedResult.has_value()) {
@@ -145,32 +145,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorTernaryTest, r) {
-    // Add in your SkSL here.
-    test(r,
-         R"__SkSL__(
-             half4 main(half4 colorWhite) {
-                 half4 colorBlue  = colorWhite.00ba,
-                       colorGreen = colorWhite.0g0a,
-                       colorRed   = colorWhite.r00a;
-                 // This ternary matches the initial if-else block inside IfElseTest.
-                 half4 result;
-                 result = (colorWhite != colorBlue)                              // TRUE
-                            ? (colorGreen == colorRed ? colorRed : colorGreen)   // FALSE
-                            : (colorRed != colorGreen ? colorBlue : colorWhite); // in false branch
-
-                 // This ternary matches the second portion of IfElseTest.
-                 return colorRed == colorBlue  ? colorWhite :
-                        colorRed != colorGreen ? result :     // TRUE
-                        colorRed == colorWhite ? colorBlue :
-                                                 colorRed;
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{1.0, 1.0, 1.0, 1.0},
-         /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
-}
-
 DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
     // Add in your SkSL here.
     test(r,
@@ -230,12 +204,20 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIdentitySwizzle, r) {
                                           1.0, 0.0, 0.0, 1.0};
     test(r,
          R"__SkSL__(
-            uniform half4 colorGreen, colorRed;
-            half4 main(vec4 color) {
-                return (color.r   == 0.5             &&
-                        color.rg  == half2(0.5, 1.0) &&
-                        color.rgb == half3(0.5, 1.0, 0.0)) ? colorGreen : colorRed;
-            }
+
+uniform half4 colorGreen, colorRed;
+
+const int SEVEN = 7, TEN = 10;
+const half4x4 MATRIXFIVE = half4x4(5);
+
+noinline bool verify_const_globals(int seven, int ten, half4x4 matrixFive) {
+    return seven == 7 && ten == 10 && matrixFive == half4x4(5);
+}
+
+half4 main(float4) {
+    return verify_const_globals(SEVEN, TEN, MATRIXFIVE) ? colorGreen : colorRed;
+}
+
          )__SkSL__",
          kUniforms,
          /*startingColor=*/SkColor4f{0.5, 1.0, 0.0, 0.25},

@@ -8,17 +8,16 @@
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
-#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstddef>
+#include <iterator>
 #include <optional>
 
 namespace SkSL {
@@ -55,8 +54,8 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
     size_t numSlots = destType.slotCount();
     SkASSERT(numSlots == constCtor->type().slotCount());
 
-    ExpressionArray typecastArgs;
-    typecastArgs.reserve_back(numSlots);
+    double typecastArgs[16];
+    SkASSERT(numSlots <= std::size(typecastArgs));
     for (size_t index = 0; index < numSlots; ++index) {
         std::optional<double> slotVal = constCtor->getConstantValue(index);
         if (scalarType.checkForOutOfRangeLiteral(context, *slotVal, constCtor->fPosition)) {
@@ -64,10 +63,10 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
             // the value to avoid a cascade of errors.
             *slotVal = 0.0;
         }
-        typecastArgs.push_back(Literal::Make(pos, *slotVal, &scalarType));
+        typecastArgs[index] = *slotVal;
     }
 
-    return ConstructorCompound::Make(context, pos, destType, std::move(typecastArgs));
+    return ConstructorCompound::MakeFromConstants(context, pos, destType, typecastArgs);
 }
 
 std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context,

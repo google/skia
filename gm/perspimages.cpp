@@ -26,7 +26,8 @@ using namespace skia_private;
 static sk_sp<SkImage> make_image1() { return GetResourceAsImage("images/mandrill_128.png"); }
 
 static sk_sp<SkImage> make_image2() {
-    return GetResourceAsImage("images/brickwork-texture.jpg")->makeSubset({0, 0, 128, 128});
+    return GetResourceAsImage("images/brickwork-texture.jpg")->
+            makeSubset(nullptr, {0, 0, 128, 128});
 }
 
 namespace skiagm {
@@ -36,9 +37,9 @@ public:
     PerspImages() = default;
 
 protected:
-    SkString onShortName() override { return SkString("persp_images"); }
+    SkString getName() const override { return SkString("persp_images"); }
 
-    SkISize onISize() override { return SkISize::Make(1150, 1280); }
+    SkISize getISize() override { return SkISize::Make(1150, 1280); }
 
     void onOnceBeforeDraw() override {
         fImages.push_back(make_image1());

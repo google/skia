@@ -5,34 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/Device_v1.h"
+#include "src/gpu/ganesh/Device.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
-#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/base/SkTPin.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/gpu/TiledTextureUtils.h"
 #include "src/gpu/ganesh/GrBlurUtils.h"
-#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
+#include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrRect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 
 using namespace skia_private;
 
@@ -104,226 +103,7 @@ bool can_ignore_linear_filtering_subset(const SkRect& srcSubset,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-//  Helper functions for tiling a large SkBitmap
-
-static const int kBmpSmallTileSize = 1 << 10;
-
-inline size_t get_tile_count(const SkIRect& srcRect, int tileSize)  {
-    int tilesX = (srcRect.fRight / tileSize) - (srcRect.fLeft / tileSize) + 1;
-    int tilesY = (srcRect.fBottom / tileSize) - (srcRect.fTop / tileSize) + 1;
-    // We calculate expected tile count before we read the bitmap's pixels, so hypothetically we can
-    // have lazy images with excessive dimensions that would cause (tilesX*tilesY) to overflow int.
-    // In these situations we also later fail to allocate a bitmap to store the lazy image, so there
-    // isn't really a performance concern around one image turning into millions of tiles.
-    return SkSafeMath::Mul(tilesX, tilesY);
-}
-
-int determine_tile_size(const SkIRect& src, int maxTileSize) {
-    if (maxTileSize <= kBmpSmallTileSize) {
-        return maxTileSize;
-    }
-
-    size_t maxTileTotalTileSize = get_tile_count(src, maxTileSize);
-    size_t smallTotalTileSize = get_tile_count(src, kBmpSmallTileSize);
-
-    maxTileTotalTileSize *= maxTileSize * maxTileSize;
-    smallTotalTileSize *= kBmpSmallTileSize * kBmpSmallTileSize;
-
-    if (maxTileTotalTileSize > 2 * smallTotalTileSize) {
-        return kBmpSmallTileSize;
-    } else {
-        return maxTileSize;
-    }
-}
-
-// Given a bitmap, an optional src rect, and a context with a clip and matrix determine what
-// pixels from the bitmap are necessary.
-SkIRect determine_clipped_src_rect(int width, int height,
-                                   const GrClip* clip,
-                                   const SkMatrix& viewMatrix,
-                                   const SkMatrix& srcToDstRect,
-                                   const SkISize& imageDimensions,
-                                   const SkRect* srcRectPtr) {
-    SkIRect clippedSrcIRect = clip ? clip->getConservativeBounds()
-                                   : SkIRect::MakeWH(width, height);
-    SkMatrix inv = SkMatrix::Concat(viewMatrix, srcToDstRect);
-    if (!inv.invert(&inv)) {
-        return SkIRect::MakeEmpty();
-    }
-    SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
-    inv.mapRect(&clippedSrcRect);
-    if (srcRectPtr) {
-        if (!clippedSrcRect.intersect(*srcRectPtr)) {
-            return SkIRect::MakeEmpty();
-        }
-    }
-    clippedSrcRect.roundOut(&clippedSrcIRect);
-    SkIRect bmpBounds = SkIRect::MakeSize(imageDimensions);
-    if (!clippedSrcIRect.intersect(bmpBounds)) {
-        return SkIRect::MakeEmpty();
-    }
-
-    return clippedSrcIRect;
-}
-
-// tileSize and clippedSubset are valid if true is returned
-bool should_tile_image_id(GrRecordingContext* context,
-                          SkISize rtSize,
-                          const GrClip* clip,
-                          uint32_t imageID,
-                          const SkISize& imageSize,
-                          const SkMatrix& ctm,
-                          const SkMatrix& srcToDst,
-                          const SkRect* src,
-                          int maxTileSize,
-                          int* tileSize,
-                          SkIRect* clippedSubset) {
-    // if it's larger than the max tile size, then we have no choice but tiling.
-    if (imageSize.width() > maxTileSize || imageSize.height() > maxTileSize) {
-        *clippedSubset = determine_clipped_src_rect(rtSize.width(), rtSize.height(), clip, ctm,
-                                                    srcToDst, imageSize, src);
-        *tileSize = determine_tile_size(*clippedSubset, maxTileSize);
-        return true;
-    }
-
-    // If the image would only produce 4 tiles of the smaller size, don't bother tiling it.
-    const size_t area = imageSize.width() * imageSize.height();
-    if (area < 4 * kBmpSmallTileSize * kBmpSmallTileSize) {
-        return false;
-    }
-
-    // At this point we know we could do the draw by uploading the entire bitmap as a texture.
-    // However, if the texture would be large compared to the cache size and we don't require most
-    // of it for this draw then tile to reduce the amount of upload and cache spill.
-    // NOTE: if the context is not a direct context, it doesn't have access to the resource cache,
-    // and theoretically, the resource cache's limits could be being changed on another thread, so
-    // even having access to just the limit wouldn't be a reliable test during recording here.
-    // Instead, we will just upload the entire image to be on the safe side and not tile.
-    auto direct = context->asDirectContext();
-    if (!direct) {
-        return false;
-    }
-
-    // assumption here is that sw bitmap size is a good proxy for its size as
-    // a texture
-    size_t bmpSize = area * sizeof(SkPMColor);  // assume 32bit pixels
-    size_t cacheSize = direct->getResourceCacheLimit();
-    if (bmpSize < cacheSize / 2) {
-        return false;
-    }
-
-    // Figure out how much of the src we will need based on the src rect and clipping. Reject if
-    // tiling memory savings would be < 50%.
-    *clippedSubset = determine_clipped_src_rect(rtSize.width(), rtSize.height(), clip, ctm,
-                                                srcToDst, imageSize, src);
-    *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
-    size_t usedTileBytes = get_tile_count(*clippedSubset, kBmpSmallTileSize) *
-                           kBmpSmallTileSize * kBmpSmallTileSize *
-                           sizeof(SkPMColor);  // assume 32bit pixels;
-
-    return usedTileBytes * 2 < bmpSize;
-}
-
-// This method outsets 'iRect' by 'outset' all around and then clamps its extents to
-// 'clamp'. 'offset' is adjusted to remain positioned over the top-left corner
-// of 'iRect' for all possible outsets/clamps.
-inline void clamped_outset_with_offset(SkIRect* iRect, int outset, SkPoint* offset,
-                                       const SkIRect& clamp) {
-    iRect->outset(outset, outset);
-
-    int leftClampDelta = clamp.fLeft - iRect->fLeft;
-    if (leftClampDelta > 0) {
-        offset->fX -= outset - leftClampDelta;
-        iRect->fLeft = clamp.fLeft;
-    } else {
-        offset->fX -= outset;
-    }
-
-    int topClampDelta = clamp.fTop - iRect->fTop;
-    if (topClampDelta > 0) {
-        offset->fY -= outset - topClampDelta;
-        iRect->fTop = clamp.fTop;
-    } else {
-        offset->fY -= outset;
-    }
-
-    if (iRect->fRight > clamp.fRight) {
-        iRect->fRight = clamp.fRight;
-    }
-    if (iRect->fBottom > clamp.fBottom) {
-        iRect->fBottom = clamp.fBottom;
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//  Helper functions for drawing an image with v1::SurfaceDrawContext
-
-enum class ImageDrawMode {
-    // Src and dst have been restricted to the image content. May need to clamp, no need to decal.
-    kOptimized,
-    // Src and dst are their original sizes, requires use of a decal instead of plain clamping.
-    // This is used when a dst clip is provided and extends outside of the optimized dst rect.
-    kDecal,
-    // Src or dst are empty, or do not intersect the image content so don't draw anything.
-    kSkip
-};
-
-/**
- * Optimize the src rect sampling area within an image (sized 'width' x 'height') such that
- * 'outSrcRect' will be completely contained in the image's bounds. The corresponding rect
- * to draw will be output to 'outDstRect'. The mapping between src and dst will be cached in
- * 'srcToDst'. Outputs are not always updated when kSkip is returned.
- *
- * If 'origSrcRect' is null, implicitly use the image bounds. If 'origDstRect' is null, use the
- * original src rect. 'dstClip' should be null when there is no additional clipping.
- */
-ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* origSrcRect,
-                                   const SkRect* origDstRect, const SkPoint dstClip[4],
-                                   SkRect* outSrcRect, SkRect* outDstRect,
-                                   SkMatrix* srcToDst) {
-    SkRect srcBounds = SkRect::MakeIWH(image.fWidth, image.fHeight);
-
-    SkRect src = origSrcRect ? *origSrcRect : srcBounds;
-    SkRect dst = origDstRect ? *origDstRect : src;
-
-    if (src.isEmpty() || dst.isEmpty()) {
-        return ImageDrawMode::kSkip;
-    }
-
-    if (outDstRect) {
-        *srcToDst = SkMatrix::RectToRect(src, dst);
-    } else {
-        srcToDst->setIdentity();
-    }
-
-    if (origSrcRect && !srcBounds.contains(src)) {
-        if (!src.intersect(srcBounds)) {
-            return ImageDrawMode::kSkip;
-        }
-        srcToDst->mapRect(&dst, src);
-
-        // Both src and dst have gotten smaller. If dstClip is provided, confirm it is still
-        // contained in dst, otherwise cannot optimize the sample area and must use a decal instead
-        if (dstClip) {
-            for (int i = 0; i < 4; ++i) {
-                if (!dst.contains(dstClip[i].fX, dstClip[i].fY)) {
-                    // Must resort to using a decal mode restricted to the clipped 'src', and
-                    // use the original dst rect (filling in src bounds as needed)
-                    *outSrcRect = src;
-                    *outDstRect = (origDstRect ? *origDstRect
-                                               : (origSrcRect ? *origSrcRect : srcBounds));
-                    return ImageDrawMode::kDecal;
-                }
-            }
-        }
-    }
-
-    // The original src and dst were fully contained in the image, or there was no dst clip to
-    // worry about, or the clip was still contained in the restricted dst rect.
-    *outSrcRect = src;
-    *outDstRect = dst;
-    return ImageDrawMode::kOptimized;
-}
+//  Helper functions for drawing an image with ganesh::SurfaceDrawContext
 
 /**
  * Checks whether the paint is compatible with using SurfaceDrawContext::drawTexture. It is more
@@ -347,7 +127,7 @@ SkPMColor4f texture_color(SkColor4f paintColor, float entryAlpha, GrColorType sr
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy
-void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
+void draw_texture(skgpu::ganesh::SurfaceDrawContext* sdc,
                   const GrClip* clip,
                   const SkMatrix& ctm,
                   const SkPaint& paint,
@@ -416,34 +196,51 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
     }
 }
 
-// Assumes srcRect and dstRect have already been optimized to fit the proxy.
-void draw_image(GrRecordingContext* rContext,
-                skgpu::v1::SurfaceDrawContext* sdc,
-                const GrClip* clip,
-                const SkMatrixProvider& matrixProvider,
-                const SkPaint& paint,
-                const SkImage_Base& image,
-                const SkRect& src,
-                const SkRect& dst,
-                const SkPoint dstClip[4],
-                const SkMatrix& srcToDst,
-                GrQuadAAFlags aaFlags,
-                SkCanvas::SrcRectConstraint constraint,
-                SkSamplingOptions sampling,
-                SkTileMode tm = SkTileMode::kClamp) {
-    const SkMatrix& ctm(matrixProvider.localToDevice());
-    if (tm == SkTileMode::kClamp && !image.isYUVA() && can_use_draw_texture(paint, sampling)) {
+SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
+    SkFilterMode filter = sampling.filter;
+    if (sampling.isAniso() || sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
+        // if we were "fancier" than just bilerp, only do bilerp
+        filter = SkFilterMode::kLinear;
+    }
+    return filter;
+}
+
+} // anonymous namespace
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::ganesh {
+
+void Device::drawEdgeAAImage(const SkImage* image,
+                             const SkRect& src,
+                             const SkRect& dst,
+                             const SkPoint dstClip[4],
+                             SkCanvas::QuadAAFlags canvasAAFlags,
+                             const SkMatrix& localToDevice,
+                             const SkSamplingOptions& sampling,
+                             const SkPaint& paint,
+                             SkCanvas::SrcRectConstraint constraint,
+                             const SkMatrix& srcToDst,
+                             SkTileMode tm) {
+    GrRecordingContext* rContext = fContext.get();
+    SurfaceDrawContext* sdc = fSurfaceDrawContext.get();
+    const GrClip* clip = this->clip();
+
+    GrQuadAAFlags aaFlags = SkToGrQuadAAFlags(canvasAAFlags);
+    auto ib = as_IB(image);
+    if (tm == SkTileMode::kClamp && !ib->isYUVA() && can_use_draw_texture(paint, sampling)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto [view, ct] = image.asView(rContext, GrMipmapped::kNo);
+        auto [view, ct] = skgpu::ganesh::AsView(rContext, image, GrMipmapped::kNo);
         if (!view) {
             return;
         }
-        GrColorInfo info(image.imageInfo().colorInfo());
+        GrColorInfo info(image->imageInfo().colorInfo());
         info = info.makeColorType(ct);
         draw_texture(sdc,
                      clip,
-                     ctm,
+                     localToDevice,
                      paint,
                      sampling.filter,
                      src,
@@ -461,13 +258,13 @@ void draw_image(GrRecordingContext* rContext,
     // The shader expects proper local coords, so we can't replace local coords with texture coords
     // if the shader will be used. If we have a mask filter we will change the underlying geometry
     // that is rendered.
-    bool canUseTextureCoordsAsLocalCoords = !use_shader(image.isAlphaOnly(), paint) && !mf;
+    bool canUseTextureCoordsAsLocalCoords = !use_shader(image->isAlphaOnly(), paint) && !mf;
 
     // Specifying the texture coords as local coordinates is an attempt to enable more GrDrawOp
     // combining by not baking anything about the srcRect, dstRect, or ctm, into the texture
     // FP. In the future this should be an opaque optimization enabled by the combination of
     // GrDrawOp/GP and FP.
-    if (mf && as_MFB(mf)->hasFragmentProcessor()) {
+    if (GrFragmentProcessors::IsSupported(mf)) {
         mf = nullptr;
     }
 
@@ -480,15 +277,11 @@ void draw_image(GrRecordingContext* rContext,
 
     // Check for optimization to drop the src rect constraint when using linear filtering.
     // TODO: Just rely on image to handle this.
-    if (sampling.isAniso()                       &&
-        !sampling.useCubic                       &&
-        sampling.filter == SkFilterMode::kLinear &&
-        restrictToSubset                         &&
-        sampling.mipmap == SkMipmapMode::kNone   &&
-        coordsAllInsideSrcRect                   &&
-        !image.isYUVA()) {
+    if (sampling.isAniso() && !sampling.useCubic && sampling.filter == SkFilterMode::kLinear &&
+        restrictToSubset && sampling.mipmap == SkMipmapMode::kNone && coordsAllInsideSrcRect &&
+        !ib->isYUVA()) {
         SkMatrix combinedMatrix;
-        combinedMatrix.setConcat(ctm, srcToDst);
+        combinedMatrix.setConcat(localToDevice, srcToDst);
         if (can_ignore_linear_filtering_subset(src, combinedMatrix, sdc->numSamples())) {
             restrictToSubset = false;
         }
@@ -505,20 +298,16 @@ void draw_image(GrRecordingContext* rContext,
     const SkRect* subset = restrictToSubset       ? &src : nullptr;
     const SkRect* domain = coordsAllInsideSrcRect ? &src : nullptr;
     SkTileMode tileModes[] = {tm, tm};
-    std::unique_ptr<GrFragmentProcessor> fp = image.asFragmentProcessor(rContext,
-                                                                        sampling,
-                                                                        tileModes,
-                                                                        textureMatrix,
-                                                                        subset,
-                                                                        domain);
-    fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                       image.imageInfo().colorInfo(),
-                                       sdc->colorInfo());
-    if (image.isAlphaOnly()) {
+    std::unique_ptr<GrFragmentProcessor> fp = skgpu::ganesh::AsFragmentProcessor(
+            rContext, image, sampling, tileModes, textureMatrix, subset, domain);
+    fp = GrColorSpaceXformEffect::Make(
+            std::move(fp), image->imageInfo().colorInfo(), sdc->colorInfo());
+    if (image->isAlphaOnly()) {
         if (const auto* shader = as_SB(paint.getShader())) {
-            auto shaderFP = shader->asRootFragmentProcessor(
+            auto shaderFP = GrFragmentProcessors::Make(
+                    shader,
                     GrFPArgs(rContext, &sdc->colorInfo(), sdc->surfaceProps()),
-                    matrixProvider.localToDevice());
+                    localToDevice);
             if (!shaderFP) {
                 return;
             }
@@ -534,7 +323,7 @@ void draw_image(GrRecordingContext* rContext,
     if (!SkPaintToGrPaintReplaceShader(rContext,
                                        sdc->colorInfo(),
                                        paint,
-                                       ctm,
+                                       localToDevice,
                                        std::move(fp),
                                        sdc->surfaceProps(),
                                        &grPaint)) {
@@ -551,10 +340,11 @@ void draw_image(GrRecordingContext* rContext,
                 GrMapRectPoints(dst, src, dstClip, srcClipPoints, 4);
                 srcClip = srcClipPoints;
             }
-            sdc->fillQuadWithEdgeAA(clip, std::move(grPaint), aaFlags, ctm, dstClip, srcClip);
+            sdc->fillQuadWithEdgeAA(clip, std::move(grPaint), aaFlags, localToDevice,
+                                    dstClip, srcClip);
         } else {
             // Provide explicit texture coords when possible, otherwise rely on texture matrix
-            sdc->fillRectWithEdgeAA(clip, std::move(grPaint), aaFlags, ctm, dst,
+            sdc->fillRectWithEdgeAA(clip, std::move(grPaint), aaFlags, localToDevice, dst,
                                     canUseTextureCoordsAsLocalCoords ? &src : nullptr);
         }
     } else {
@@ -571,153 +361,17 @@ void draw_image(GrRecordingContext* rContext,
             shape = GrStyledShape(dst);
         }
 
-        GrBlurUtils::drawShapeWithMaskFilter(
-                rContext, sdc, clip, shape, std::move(grPaint), ctm, mf);
+        GrBlurUtils::DrawShapeWithMaskFilter(
+                rContext, sdc, clip, shape, std::move(grPaint), localToDevice, mf);
     }
 }
-
-void draw_tiled_bitmap(GrRecordingContext* rContext,
-                       skgpu::v1::SurfaceDrawContext* sdc,
-                       const GrClip* clip,
-                       const SkBitmap& bitmap,
-                       int tileSize,
-                       const SkMatrixProvider& matrixProvider,
-                       const SkMatrix& srcToDst,
-                       const SkRect& srcRect,
-                       const SkIRect& clippedSrcIRect,
-                       const SkPaint& paint,
-                       GrQuadAAFlags origAAFlags,
-                       SkCanvas::SrcRectConstraint constraint,
-                       SkSamplingOptions sampling,
-                       SkTileMode tileMode) {
-    if (sampling.isAniso()) {
-        sampling = SkSamplingPriv::AnisoFallback(/*imageIsMipped=*/false);
-    }
-    SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
-
-    int nx = bitmap.width() / tileSize;
-    int ny = bitmap.height() / tileSize;
-
-    for (int x = 0; x <= nx; x++) {
-        for (int y = 0; y <= ny; y++) {
-            SkRect tileR;
-            tileR.setLTRB(SkIntToScalar(x * tileSize),       SkIntToScalar(y * tileSize),
-                          SkIntToScalar((x + 1) * tileSize), SkIntToScalar((y + 1) * tileSize));
-
-            if (!SkRect::Intersects(tileR, clippedSrcRect)) {
-                continue;
-            }
-
-            if (!tileR.intersect(srcRect)) {
-                continue;
-            }
-
-            SkIRect iTileR;
-            tileR.roundOut(&iTileR);
-            SkVector offset = SkPoint::Make(SkIntToScalar(iTileR.fLeft),
-                                            SkIntToScalar(iTileR.fTop));
-            SkRect rectToDraw = tileR;
-            srcToDst.mapRect(&rectToDraw);
-            if (sampling.filter != SkFilterMode::kNearest || sampling.useCubic) {
-                SkIRect iClampRect;
-
-                if (SkCanvas::kFast_SrcRectConstraint == constraint) {
-                    // In bleed mode we want to always expand the tile on all edges
-                    // but stay within the bitmap bounds
-                    iClampRect = SkIRect::MakeWH(bitmap.width(), bitmap.height());
-                } else {
-                    // In texture-domain/clamp mode we only want to expand the
-                    // tile on edges interior to "srcRect" (i.e., we want to
-                    // not bleed across the original clamped edges)
-                    srcRect.roundOut(&iClampRect);
-                }
-                int outset = sampling.useCubic ? GrBicubicEffect::kFilterTexelPad : 1;
-                clamped_outset_with_offset(&iTileR, outset, &offset, iClampRect);
-            }
-
-            // We must subset as a bitmap and then turn into an SkImage if we want caching to work.
-            // Image subsets always make a copy of the pixels and lose the association with the
-            // original's SkPixelRef.
-            if (SkBitmap subsetBmp; bitmap.extractSubset(&subsetBmp, iTileR)) {
-                auto image = SkMakeImageFromRasterBitmap(subsetBmp, kNever_SkCopyPixelsMode);
-                // We should have already handled bitmaps larger than the max texture size.
-                SkASSERT(image->width()  <= rContext->priv().caps()->maxTextureSize() &&
-                         image->height() <= rContext->priv().caps()->maxTextureSize());
-
-                GrQuadAAFlags aaFlags = GrQuadAAFlags::kNone;
-                // Preserve the original edge AA flags for the exterior tile edges.
-                if (tileR.fLeft <= srcRect.fLeft && (origAAFlags & GrQuadAAFlags::kLeft)) {
-                    aaFlags |= GrQuadAAFlags::kLeft;
-                }
-                if (tileR.fRight >= srcRect.fRight && (origAAFlags & GrQuadAAFlags::kRight)) {
-                    aaFlags |= GrQuadAAFlags::kRight;
-                }
-                if (tileR.fTop <= srcRect.fTop && (origAAFlags & GrQuadAAFlags::kTop)) {
-                    aaFlags |= GrQuadAAFlags::kTop;
-                }
-                if (tileR.fBottom >= srcRect.fBottom && (origAAFlags & GrQuadAAFlags::kBottom)) {
-                    aaFlags |= GrQuadAAFlags::kBottom;
-                }
-
-                // now offset it to make it "local" to our tmp bitmap
-                tileR.offset(-offset.fX, -offset.fY);
-                SkMatrix offsetSrcToDst = srcToDst;
-                offsetSrcToDst.preTranslate(offset.fX, offset.fY);
-                draw_image(rContext,
-                           sdc,
-                           clip,
-                           matrixProvider,
-                           paint,
-                           *as_IB(image.get()),
-                           tileR,
-                           rectToDraw,
-                           nullptr,
-                           offsetSrcToDst,
-                           aaFlags,
-                           constraint,
-                           sampling,
-                           tileMode);
-            }
-        }
-    }
-}
-
-SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
-    SkFilterMode filter = sampling.filter;
-    if (sampling.isAniso() || sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
-        // if we were "fancier" than just bilerp, only do bilerp
-        filter = SkFilterMode::kLinear;
-    }
-    return filter;
-}
-
-bool can_disable_mipmap(const SkMatrix& viewM, const SkMatrix& localM) {
-    SkMatrix matrix;
-    matrix.setConcat(viewM, localM);
-    // We bias mipmap lookups by -0.5. That means our final LOD is >= 0 until
-    // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
-    // 0.5?
-    //
-    // Want:  0       = log2(1/s) - 0.5
-    //        0.5     = log2(1/s)
-    //        2^0.5   = 1/s
-    //        1/2^0.5 = s
-    //        2^0.5/2 = s
-    return matrix.getMinScale() >= SK_ScalarRoot2Over2;
-}
-
-} // anonymous namespace
-
-//////////////////////////////////////////////////////////////////////////////
-
-namespace skgpu::v1 {
 
 void Device::drawSpecial(SkSpecialImage* special,
                          const SkMatrix& localToDevice,
                          const SkSamplingOptions& origSampling,
                          const SkPaint& paint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
-    SkASSERT(special->isTextureBacked());
+    SkASSERT(special->isGaneshBacked());
 
     SkRect src = SkRect::Make(special->subset());
     SkRect dst = SkRect::MakeWH(special->width(), special->height());
@@ -725,46 +379,46 @@ void Device::drawSpecial(SkSpecialImage* special,
 
     SkSamplingOptions sampling = SkSamplingOptions(downgrade_to_filter(origSampling));
     GrAA aa = fSurfaceDrawContext->chooseAA(paint);
-    GrQuadAAFlags aaFlags = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+    SkCanvas::QuadAAFlags aaFlags = (aa == GrAA::kYes) ? SkCanvas::kAll_QuadAAFlags
+                                                       : SkCanvas::kNone_QuadAAFlags;
 
-    GrSurfaceProxyView view = special->view(this->recordingContext());
-    SkImage_Gpu image(sk_ref_sp(special->getContext()),
-                      special->uniqueID(),
-                      std::move(view),
-                      special->colorInfo());
+    GrSurfaceProxyView view = SkSpecialImages::AsView(this->recordingContext(), special);
+    SkImage_Ganesh image(sk_ref_sp(special->getContext()),
+                         special->uniqueID(),
+                         std::move(view),
+                         special->colorInfo());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
-    SkMatrixProvider matrixProvider(localToDevice);
-    draw_image(fContext.get(),
-               fSurfaceDrawContext.get(),
-               this->clip(),
-               matrixProvider,
-               paint,
-               image,
-               src,
-               dst,
-               nullptr,
-               srcToDst,
-               aaFlags,
-               SkCanvas::kStrict_SrcRectConstraint,
-               sampling);
+    this->drawEdgeAAImage(&image,
+                          src,
+                          dst,
+                          /* dstClip= */nullptr,
+                          aaFlags,
+                          localToDevice,
+                          sampling,
+                          paint,
+                          SkCanvas::kStrict_SrcRectConstraint,
+                          srcToDst,
+                          SkTileMode::kClamp);
 }
 
-void Device::drawImageQuad(const SkImage* image,
-                           const SkRect* srcRect,
-                           const SkRect* dstRect,
-                           const SkPoint dstClip[4],
-                           GrQuadAAFlags aaFlags,
-                           const SkMatrix* preViewMatrix,
-                           const SkSamplingOptions& origSampling,
-                           const SkPaint& paint,
-                           SkCanvas::SrcRectConstraint constraint) {
+void Device::drawImageQuadDirect(const SkImage* image,
+                                 const SkRect& srcRect,
+                                 const SkRect& dstRect,
+                                 const SkPoint dstClip[4],
+                                 SkCanvas::QuadAAFlags aaFlags,
+                                 const SkMatrix* preViewMatrix,
+                                 const SkSamplingOptions& origSampling,
+                                 const SkPaint& paint,
+                                 SkCanvas::SrcRectConstraint constraint) {
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
-    ImageDrawMode mode = optimize_sample_area(SkISize::Make(image->width(), image->height()),
-                                              srcRect, dstRect, dstClip, &src, &dst, &srcToDst);
-    if (mode == ImageDrawMode::kSkip) {
+    auto mode = TiledTextureUtils::OptimizeSampleArea(SkISize::Make(image->width(),
+                                                                    image->height()),
+                                                      srcRect, dstRect, dstClip,
+                                                      &src, &dst, &srcToDst);
+    if (mode == TiledTextureUtils::ImageDrawMode::kSkip) {
         return;
     }
 
@@ -772,80 +426,32 @@ void Device::drawImageQuad(const SkImage* image,
         constraint = SkCanvas::kFast_SrcRectConstraint;
     }
     // Depending on the nature of image, it can flow through more or less optimal pipelines
-    SkTileMode tileMode = mode == ImageDrawMode::kDecal ? SkTileMode::kDecal : SkTileMode::kClamp;
+    SkTileMode tileMode = mode == TiledTextureUtils::ImageDrawMode::kDecal ? SkTileMode::kDecal
+                                                                           : SkTileMode::kClamp;
 
     // Get final CTM matrix
-    SkPreConcatMatrixProvider matrixProvider(this->asMatrixProvider(),
-                                             preViewMatrix ? *preViewMatrix : SkMatrix::I());
-    const SkMatrix& ctm(matrixProvider.localToDevice());
+    SkMatrix ctm = this->localToDevice();
+    if (preViewMatrix) {
+        ctm.preConcat(*preViewMatrix);
+    }
 
     SkSamplingOptions sampling = origSampling;
-    if (sampling.mipmap != SkMipmapMode::kNone && can_disable_mipmap(ctm, srcToDst)) {
+    if (sampling.mipmap != SkMipmapMode::kNone &&
+        TiledTextureUtils::CanDisableMipmap(ctm, srcToDst)) {
         sampling = SkSamplingOptions(sampling.filter);
     }
-    auto clip = this->clip();
 
-    if (!image->isTextureBacked() && !as_IB(image)->isPinnedOnContext(fContext.get())) {
-        int tileFilterPad;
-        if (sampling.useCubic) {
-            tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-        } else if (sampling.filter == SkFilterMode::kLinear || sampling.isAniso()) {
-            // Aniso will fallback to linear filtering in the tiling case.
-            tileFilterPad = 1;
-        } else {
-            tileFilterPad = 0;
-        }
-        int maxTileSize = fContext->priv().caps()->maxTextureSize() - 2*tileFilterPad;
-        int tileSize;
-        SkIRect clippedSubset;
-        if (should_tile_image_id(fContext.get(),
-                                 fSurfaceDrawContext->dimensions(),
-                                 clip,
-                                 image->unique(),
-                                 image->dimensions(),
-                                 ctm,
-                                 srcToDst,
-                                 &src,
-                                 maxTileSize,
-                                 &tileSize,
-                                 &clippedSubset)) {
-            // Extract pixels on the CPU, since we have to split into separate textures before
-            // sending to the GPU if tiling.
-            if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
-                // This is the funnel for all paths that draw tiled bitmaps/images.
-                draw_tiled_bitmap(fContext.get(),
-                                  fSurfaceDrawContext.get(),
-                                  clip,
-                                  bm,
-                                  tileSize,
-                                  matrixProvider,
-                                  srcToDst,
-                                  src,
-                                  clippedSubset,
-                                  paint,
-                                  aaFlags,
-                                  constraint,
-                                  sampling,
-                                  tileMode);
-                return;
-            }
-        }
-    }
-
-    draw_image(fContext.get(),
-               fSurfaceDrawContext.get(),
-               clip,
-               matrixProvider,
-               paint,
-               *as_IB(image),
-               src,
-               dst,
-               dstClip,
-               srcToDst,
-               aaFlags,
-               constraint,
-               sampling);
-    return;
+    this->drawEdgeAAImage(image,
+                          src,
+                          dst,
+                          dstClip,
+                          aaFlags,
+                          ctm,
+                          sampling,
+                          paint,
+                          constraint,
+                          srcToDst,
+                          tileMode);
 }
 
 void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
@@ -866,10 +472,10 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 auto paintAlpha = paint.getAlphaf();
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
-            this->drawImageQuad(
-                    set[i].fImage.get(), &set[i].fSrcRect, &set[i].fDstRect,
+            this->drawImageQuadDirect(
+                    set[i].fImage.get(), set[i].fSrcRect, set[i].fDstRect,
                     set[i].fHasClip ? dstClips + dstClipIndex : nullptr,
-                    SkToGrQuadAAFlags(set[i].fAAFlags),
+                    static_cast<SkCanvas::QuadAAFlags>(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
                     sampling, *entryPaint, constraint);
             dstClipIndex += 4 * set[i].fHasClip;
@@ -916,7 +522,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         const SkPoint* clip = set[i].fHasClip ? dstClips + dstClipIndex : nullptr;
         dstClipIndex += 4 * set[i].fHasClip;
 
-        // The default SkBaseDevice implementation is based on drawImageRect which does not allow
+        // The default SkDevice implementation is based on drawImageRect which does not allow
         // non-sorted src rects. TODO: Decide this is OK or make sure we handle it.
         if (!set[i].fSrcRect.isSorted()) {
             draw(i + 1);
@@ -928,7 +534,8 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // Extract view from image, but skip YUV images so they get processed through
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
-            std::tie(view, std::ignore) = image->asView(this->recordingContext(), GrMipmapped::kNo);
+            std::tie(view, std::ignore) =
+                    skgpu::ganesh::AsView(this->recordingContext(), image, GrMipmapped::kNo);
             if (image->isAlphaOnly()) {
                 skgpu::Swizzle swizzle = skgpu::Swizzle::Concat(view.swizzle(),
                                                                 skgpu::Swizzle("aaaa"));
@@ -945,9 +552,9 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 auto paintAlpha = paint.getAlphaf();
                 entryPaint.writable()->setAlphaf(paintAlpha * set[i].fAlpha);
             }
-            this->drawImageQuad(
-                    image, &set[i].fSrcRect, &set[i].fDstRect, clip,
-                    SkToGrQuadAAFlags(set[i].fAAFlags),
+            this->drawImageQuadDirect(
+                    image, set[i].fSrcRect, set[i].fDstRect, clip,
+                    static_cast<SkCanvas::QuadAAFlags>(set[i].fAAFlags),
                     set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex,
                     sampling, *entryPaint, constraint);
             continue;
@@ -986,4 +593,4 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
     draw(count);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

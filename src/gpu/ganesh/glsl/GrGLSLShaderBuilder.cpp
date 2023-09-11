@@ -16,6 +16,8 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+using namespace skia_private;
+
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     : fProgramBuilder(program)
     , fInputs(GrGLSLProgramBuilder::kVarsPerBlock)
@@ -85,7 +87,7 @@ void GrGLSLShaderBuilder::emitFunctionPrototype(SkSLType returnType,
 }
 
 void GrGLSLShaderBuilder::emitFunctionPrototype(const char* declaration) {
-    this->functions().appendf("%s;\n", declaration);
+    this->functions().appendf("%s\n", declaration);
 }
 
 static inline void append_texture_swizzle(SkString* out, skgpu::Swizzle swizzle) {
@@ -150,19 +152,19 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform,
                           skcms_TFType tfType) {
-        const GrShaderVar gTFArgs[] = { GrShaderVar("x", SkSLType::kHalf) };
+        const GrShaderVar gTFArgs[] = { GrShaderVar("x", SkSLType::kFloat) };
         const char* coeffs = uniformHandler->getUniformCStr(uniform);
         SkString body;
         // Temporaries to make evaluation line readable. We always use the sRGBish names, so the
         // PQ and HLG math is confusing.
-        body.appendf("half G = %s[0];", coeffs);
-        body.appendf("half A = %s[1];", coeffs);
-        body.appendf("half B = %s[2];", coeffs);
-        body.appendf("half C = %s[3];", coeffs);
-        body.appendf("half D = %s[4];", coeffs);
-        body.appendf("half E = %s[5];", coeffs);
-        body.appendf("half F = %s[6];", coeffs);
-        body.append("half s = sign(x);");
+        body.appendf("float G = %s[0];", coeffs);
+        body.appendf("float A = %s[1];", coeffs);
+        body.appendf("float B = %s[2];", coeffs);
+        body.appendf("float C = %s[3];", coeffs);
+        body.appendf("float D = %s[4];", coeffs);
+        body.appendf("float E = %s[5];", coeffs);
+        body.appendf("float F = %s[6];", coeffs);
+        body.append("float s = sign(x);");
         body.append("x = abs(x);");
         switch (tfType) {
             case skcms_TFType_sRGBish:
@@ -183,7 +185,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         }
         body.append("return s * x;");
         SkString funcName = this->getMangledFunctionName(name);
-        this->emitFunction(SkSLType::kHalf, funcName.c_str(), {gTFArgs, std::size(gTFArgs)},
+        this->emitFunction(SkSLType::kFloat, funcName.c_str(), {gTFArgs, std::size(gTFArgs)},
                            body.c_str());
         return funcName;
     };
@@ -202,42 +204,35 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
 
     SkString gamutXformFuncName;
     if (colorXformHelper->applyGamutXform()) {
-        const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", SkSLType::kHalf4) };
+        const GrShaderVar gGamutXformArgs[] = { GrShaderVar("color", SkSLType::kFloat4) };
         const char* xform = uniformHandler->getUniformCStr(colorXformHelper->gamutXformUniform());
         SkString body;
         body.appendf("color.rgb = (%s * color.rgb);", xform);
         body.append("return color;");
         gamutXformFuncName = this->getMangledFunctionName("gamut_xform");
-        this->emitFunction(SkSLType::kHalf4, gamutXformFuncName.c_str(),
+        this->emitFunction(SkSLType::kFloat4, gamutXformFuncName.c_str(),
                            {gGamutXformArgs, std::size(gGamutXformArgs)}, body.c_str());
     }
 
     // Now define a wrapper function that applies all the intermediate steps
     {
-        // Some GPUs require full float to get results that are as accurate as expected/required.
-        // Most GPUs work just fine with half float. Strangely, the GPUs that have this bug
-        // (Mali G series) only require us to promote the type of a few temporaries here --
-        // the helper functions above can always be written to use half.
-        bool useFloat = fProgramBuilder->shaderCaps()->fColorSpaceMathNeedsFloat;
-
-        const GrShaderVar gColorXformArgs[] = {
-                GrShaderVar("color", useFloat ? SkSLType::kFloat4 : SkSLType::kHalf4)};
+        const GrShaderVar gColorXformArgs[] = { GrShaderVar("color", SkSLType::kFloat4) };
         SkString body;
         if (colorXformHelper->applyUnpremul()) {
             body.append("color = unpremul(color);");
         }
         if (colorXformHelper->applySrcTF()) {
-            body.appendf("color.r = %s(half(color.r));", srcTFFuncName.c_str());
-            body.appendf("color.g = %s(half(color.g));", srcTFFuncName.c_str());
-            body.appendf("color.b = %s(half(color.b));", srcTFFuncName.c_str());
+            body.appendf("color.r = %s(color.r);", srcTFFuncName.c_str());
+            body.appendf("color.g = %s(color.g);", srcTFFuncName.c_str());
+            body.appendf("color.b = %s(color.b);", srcTFFuncName.c_str());
         }
         if (colorXformHelper->applyGamutXform()) {
-            body.appendf("color = %s(half4(color));", gamutXformFuncName.c_str());
+            body.appendf("color = %s(color);", gamutXformFuncName.c_str());
         }
         if (colorXformHelper->applyDstTF()) {
-            body.appendf("color.r = %s(half(color.r));", dstTFFuncName.c_str());
-            body.appendf("color.g = %s(half(color.g));", dstTFFuncName.c_str());
-            body.appendf("color.b = %s(half(color.b));", dstTFFuncName.c_str());
+            body.appendf("color.r = %s(color.r);", dstTFFuncName.c_str());
+            body.appendf("color.g = %s(color.g);", dstTFFuncName.c_str());
+            body.appendf("color.b = %s(color.b);", dstTFFuncName.c_str());
         }
         if (colorXformHelper->applyPremul()) {
             body.append("color.rgb *= color.a;");
@@ -286,7 +281,7 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
     };
 
     for (int interface = 0; interface <= kLastInterfaceQualifier; ++interface) {
-        const SkTArray<SkString>& params = fLayoutParams[interface];
+        const TArray<SkString>& params = fLayoutParams[interface];
         if (params.empty()) {
             continue;
         }

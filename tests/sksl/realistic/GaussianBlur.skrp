@@ -1,0 +1,354 @@
+### Compilation failed:
+
+error: 1: invalid type
+layout(binding=0) sampler2D uTextureSampler_0_Stage1;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 2: interface blocks are not allowed in this kind of program
+layout (binding=0) uniform uniformBuffer
+                           ^^^^^^^^^^^^^
+error: 12: 'in' is not permitted here
+layout(location = 0) in float2 vLocalCoord_Stage0;
+^^^^^^^^^^^^^^^^^^^^^^^
+error: 12: layout qualifier 'location' is not permitted here
+layout(location = 0) in float2 vLocalCoord_Stage0;
+^^^^^^^^^^^^^^^^^^^^^^^
+error: 17: unknown identifier 'unorm_Stage1_c0_c0_c0'
+    inCoord *= unorm_Stage1_c0_c0_c0.xy;
+               ^^^^^^^^^^^^^^^^^^^^^
+error: 23: unknown identifier 'sample'
+    half4 textureColor = sample(uTextureSampler_0_Stage1, (clampedCoord) * unorm_Stage1_c0_c0_c0.zw);
+                         ^^^^^^
+error: 23: unknown identifier 'uTextureSampler_0_Stage1'
+    half4 textureColor = sample(uTextureSampler_0_Stage1, (clampedCoord) * unorm_Stage1_c0_c0_c0.zw);
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
+error: 23: unknown identifier 'unorm_Stage1_c0_c0_c0'
+    half4 textureColor = sample(uTextureSampler_0_Stage1, (clampedCoord) * unorm_Stage1_c0_c0_c0.zw);
+                                                                           ^^^^^^^^^^^^^^^^^^^^^
+error: 25: unknown identifier 'usubset_Stage1_c0_c0_c0'
+    if (snappedX < usubset_Stage1_c0_c0_c0.x || snappedX > usubset_Stage1_c0_c0_c0.z)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+error: 25: unknown identifier 'usubset_Stage1_c0_c0_c0'
+    if (snappedX < usubset_Stage1_c0_c0_c0.x || snappedX > usubset_Stage1_c0_c0_c0.z)
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^
+error: 27: unknown identifier 'textureColor'
+        textureColor = uborder_Stage1_c0_c0_c0;
+        ^^^^^^^^^^^^
+error: 27: unknown identifier 'uborder_Stage1_c0_c0_c0'
+        textureColor = uborder_Stage1_c0_c0_c0;
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+error: 29: unknown identifier 'textureColor'
+    return textureColor;
+           ^^^^^^^^^^^^
+error: 34: unknown identifier 'umatrix_Stage1_c0_c0'
+    return TextureEffect_Stage1_c0_c0_c0(_input, ((umatrix_Stage1_c0_c0) * _coords.xy1).xy);
+                                                   ^^^^^^^^^^^^^^^^^^^^
+error: 40: unknown identifier 'uIncrement_Stage1_c0'
+    float2 coord = vLocalCoord_Stage0 - 12.0 * uIncrement_Stage1_c0;
+                                               ^^^^^^^^^^^^^^^^^^^^
+error: 42: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 43: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[0].x;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 44: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 44: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 45: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 46: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[0].y;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 47: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 47: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 48: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 49: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[0].z;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 50: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 50: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 51: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 52: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[0].w;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 53: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 53: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 54: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 55: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[1].x;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 56: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 56: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 57: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 58: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[1].y;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 59: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 59: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 60: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 61: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[1].z;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 62: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 62: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 63: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 64: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[1].w;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 65: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 65: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 66: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 67: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[2].x;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 68: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 68: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 69: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 70: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[2].y;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 71: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 71: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 72: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 73: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[2].z;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 74: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 74: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 75: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 76: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[2].w;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 77: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 77: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 78: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 79: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[3].x;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 80: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 80: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 81: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 82: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[3].y;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 83: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 83: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 84: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 85: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[3].z;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 86: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 86: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 87: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 88: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[3].w;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 89: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 89: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 90: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 91: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[4].x;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 92: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 92: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 93: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 94: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[4].y;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 95: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 95: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 96: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 97: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[4].z;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 98: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 98: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 99: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 100: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[4].w;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 101: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 101: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 102: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 103: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[5].x;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 104: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 104: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 105: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 106: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[5].y;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 107: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 107: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 108: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 109: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[5].z;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 110: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 110: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 111: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 112: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[5].w;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 113: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 113: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 114: unknown identifier 'coord'
+    coordSampled = coord;
+                   ^^^^^
+error: 115: unknown identifier 'uKernel_Stage1_c0'
+    _output += MatrixEffect_Stage1_c0_c0(_input, coordSampled) * uKernel_Stage1_c0[6].x;
+                                                                 ^^^^^^^^^^^^^^^^^
+error: 116: unknown identifier 'coord'
+    coord += uIncrement_Stage1_c0;
+    ^^^^^
+error: 116: unknown identifier 'uIncrement_Stage1_c0'
+    coord += uIncrement_Stage1_c0;
+             ^^^^^^^^^^^^^^^^^^^^
+error: 120: 'main' must return: 'vec4', 'float4', or 'half4'
+void main()
+^^^^^^^^^^^
+error: 133: unknown identifier 'sk_FragColor'
+        sk_FragColor = output_Stage1 * outputCoverage_Stage0;
+        ^^^^^^^^^^^^
+117 errors

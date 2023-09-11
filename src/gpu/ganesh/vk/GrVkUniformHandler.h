@@ -155,7 +155,7 @@ private:
 
     UniformInfoArray         fUniforms;
     UniformInfoArray         fSamplers;
-    SkTArray<skgpu::Swizzle> fSamplerSwizzles;
+    skia_private::TArray<skgpu::Swizzle> fSamplerSwizzles;
     UniformInfo              fInputUniform;
     skgpu::Swizzle           fInputSwizzle;
     mutable bool             fUsePushConstants;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLOperator.h"
 
 #include "include/core/SkTypes.h"
 #include "src/base/SkStringView.h"
@@ -124,6 +124,10 @@ bool Operator::isAssignment() const {
         default:
             return false;
     }
+}
+
+bool Operator::isCompoundAssignment() const {
+    return this->isAssignment() && this->kind() != Kind::EQ;
 }
 
 Operator Operator::removeAssignment() const {

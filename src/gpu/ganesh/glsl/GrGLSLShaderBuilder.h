@@ -9,12 +9,12 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/SkSLStatement.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/sksl/SkSLString.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <stdarg.h>
 
@@ -258,7 +258,7 @@ protected:
 
     GrGLSLProgramBuilder* fProgramBuilder;
     std::string fCompilerString;
-    SkSTArray<kPrealloc, SkString> fShaderStrings;
+    skia_private::STArray<kPrealloc, SkString> fShaderStrings;
     SkString fCode;
     SkString fFunctions;
     SkString fExtensions;
@@ -268,7 +268,7 @@ protected:
     VarArray fInputs;
     VarArray fOutputs;
     uint32_t fFeaturesAddedMask;
-    SkSTArray<1, SkString> fLayoutParams[kLastInterfaceQualifier + 1];
+    skia_private::STArray<1, SkString> fLayoutParams[kLastInterfaceQualifier + 1];
     int fCodeIndex;
     bool fFinalized;
 

@@ -27,9 +27,31 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-namespace skgpu::v1::FillRRectOp {
+using namespace skia_private;
+
+namespace skgpu::ganesh::FillRRectOp {
 
 namespace {
+
+// Note: Just checking m.restStaysRect is not sufficient
+bool skews_are_relevant(const SkMatrix& m) {
+    SkASSERT(!m.hasPerspective());
+
+    if (m[SkMatrix::kMSkewX] == 0.0f && m[SkMatrix::kMSkewY] == 0.0f) {
+        return false;
+    }
+
+    static constexpr float kTol = SK_ScalarNearlyZero;
+    float absScaleX = SkScalarAbs(m[SkMatrix::kMScaleX]);
+    float absSkewX  = SkScalarAbs(m[SkMatrix::kMSkewX]);
+    float absScaleY = SkScalarAbs(m[SkMatrix::kMScaleY]);
+    float absSkewY  = SkScalarAbs(m[SkMatrix::kMSkewY]);
+
+    // The maximum absolute column sum norm of the upper left 2x2
+    float norm = std::max(absScaleX + absSkewY, absSkewX + absScaleY);
+
+    return absSkewX > kTol * norm || absSkewY > kTol * norm;
+}
 
 class FillRRectOpImpl final : public GrMeshDrawOp {
 private:
@@ -65,7 +87,7 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    ClipResult clipToShape(skgpu::v1::SurfaceDrawContext*,
+    ClipResult clipToShape(skgpu::ganesh::SurfaceDrawContext*,
                            SkClipOp,
                            const SkMatrix& clipMatrix,
                            const GrShape&,
@@ -73,6 +95,10 @@ public:
 
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
+
+#if defined(GR_TEST_UTILS)
+    SkString onDumpInfo() const override;
+#endif
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
         if (fProgramInfo) {
@@ -226,7 +252,7 @@ FillRRectOpImpl::FillRRectOpImpl(GrProcessorSet* processorSet,
                     GrOp::IsHairline::kNo);
 }
 
-GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::v1::SurfaceDrawContext* sdc,
+GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::ganesh::SurfaceDrawContext* sdc,
                                                   SkClipOp clipOp,
                                                   const SkMatrix& clipMatrix,
                                                   const GrShape& shape,
@@ -257,8 +283,8 @@ GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::v1::SurfaceDrawContext*
             }
             clipToView.preConcat(clipMatrix);
             SkASSERT(!clipToView.hasPerspective());
-            if (!SkScalarNearlyZero(clipToView.getSkewX()) ||
-                !SkScalarNearlyZero(clipToView.getSkewY())) {
+
+            if (skews_are_relevant(clipToView)) {
                 // A rect in "clipMatrix" space is not a rect in "viewMatrix" space.
                 return ClipResult::kFail;
             }
@@ -303,13 +329,16 @@ GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::v1::SurfaceDrawContext*
 
         if (fHeadInstance->fLocalCoords.fType == LocalCoords::Type::kRect) {
             // Update the local rect.
-            auto rect = skvx::bit_pun<skvx::float4>(fHeadInstance->fRRect.rect());
-            auto local = skvx::bit_pun<skvx::float4>(fHeadInstance->fLocalCoords.fRect);
-            auto isect = skvx::bit_pun<skvx::float4>(isectRRect.rect());
+            auto rect = sk_bit_cast<skvx::float4>(fHeadInstance->fRRect.rect());
+            auto local = sk_bit_cast<skvx::float4>(fHeadInstance->fLocalCoords.fRect);
+            auto isect = sk_bit_cast<skvx::float4>(isectRRect.rect());
             auto rectToLocalSize = (local - skvx::shuffle<2,3,0,1>(local)) /
                                    (rect - skvx::shuffle<2,3,0,1>(rect));
-            fHeadInstance->fLocalCoords.fRect =
-                    skvx::bit_pun<SkRect>((isect - rect) * rectToLocalSize + local);
+            auto localCoordsRect = (isect - rect) * rectToLocalSize + local;
+            fHeadInstance->fLocalCoords.fRect.setLTRB(localCoordsRect.x(),
+                                                      localCoordsRect.y(),
+                                                      localCoordsRect.z(),
+                                                      localCoordsRect.w());
         }
 
         // Update the round rect.
@@ -352,6 +381,24 @@ GrOp::CombineResult FillRRectOpImpl::onCombineIfPossible(GrOp* op,
     fInstanceCount += that->fInstanceCount;
     return CombineResult::kMerged;
 }
+
+#if defined(GR_TEST_UTILS)
+SkString FillRRectOpImpl::onDumpInfo() const {
+    SkString str = SkStringPrintf("# instances: %u\n", fInstanceCount);
+    str += fHelper.dumpInfo();
+    int i = 0;
+    for (Instance* tmp = fHeadInstance; tmp; tmp = tmp->fNext, ++i) {
+        str.appendf("%d: Color: [%.2f, %.2f, %.2f, %.2f] ",
+                    i, tmp->fColor.fR, tmp->fColor.fG, tmp->fColor.fB, tmp->fColor.fA);
+        SkMatrix m = tmp->fViewMatrix;
+        str.appendf("ViewMatrix: [%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f] ",
+                    m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+        SkRect r = tmp->fRRect.rect();
+        str.appendf("Rect: [%f %f %f %f]\n", r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
+    return str;
+}
+#endif
 
 class FillRRectOpImpl::Processor final : public GrGeometryProcessor {
 public:
@@ -407,7 +454,7 @@ private:
     const ProcessorFlags fFlags;
 
     constexpr static int kMaxInstanceAttribs = 6;
-    SkSTArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
+    STArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
     const Attribute* fColorAttrib;
 };
 
@@ -920,9 +967,9 @@ GrOp::Owner Make(GrRecordingContext* ctx,
     return FillRRectOpImpl::Make(ctx, arena, std::move(paint), viewMatrix, rrect, localMatrix, aa);
 }
 
-} // namespace skgpu::v1::FillRRectOp
+}  // namespace skgpu::ganesh::FillRRectOp
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 
@@ -939,13 +986,8 @@ GR_DRAW_OP_TEST_DEFINE(FillRRectOp) {
     // TODO: test out other rrect configurations
     rrect.setNinePatch(rect, w / 3.0f, h / 4.0f, w / 5.0f, h / 6.0);
 
-    return skgpu::v1::FillRRectOp::Make(context,
-                                        &arena,
-                                        std::move(paint),
-                                        viewMatrix,
-                                        rrect,
-                                        rrect.rect(),
-                                        aa);
+    return skgpu::ganesh::FillRRectOp::Make(
+            context, &arena, std::move(paint), viewMatrix, rrect, rrect.rect(), aa);
 }
 
 #endif

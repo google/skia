@@ -9,14 +9,17 @@
 #define SkTHash_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkChecksum.h"
-#include "include/private/base/SkTemplates.h"
+#include "src/core/SkChecksum.h"
 
 #include <initializer_list>
+#include <memory>
 #include <new>
+#include <type_traits>
 #include <utility>
 
-// Before trying to use SkTHashTable, look below to see if SkTHashMap or SkTHashSet works for you.
+namespace skia_private {
+
+// Before trying to use THashTable, look below to see if THashMap or THashSet works for you.
 // They're easier to use, usually perform the same, and have fewer sharp edges.
 
 // T and K are treated as ordinary copyable C++ types.
@@ -26,19 +29,19 @@
 // If the key is large and stored inside T, you may want to make K a const&.
 // Similarly, if T is large you might want it to be a pointer.
 template <typename T, typename K, typename Traits = T>
-class SkTHashTable {
+class THashTable {
 public:
-    SkTHashTable()  = default;
-    ~SkTHashTable() = default;
+    THashTable()  = default;
+    ~THashTable() = default;
 
-    SkTHashTable(const SkTHashTable&  that) { *this = that; }
-    SkTHashTable(      SkTHashTable&& that) { *this = std::move(that); }
+    THashTable(const THashTable&  that) { *this = that; }
+    THashTable(      THashTable&& that) { *this = std::move(that); }
 
-    SkTHashTable& operator=(const SkTHashTable& that) {
+    THashTable& operator=(const THashTable& that) {
         if (this != &that) {
             fCount     = that.fCount;
             fCapacity  = that.fCapacity;
-            fSlots.reset(that.fCapacity);
+            fSlots.reset(new Slot[that.fCapacity]);
             for (int i = 0; i < fCapacity; i++) {
                 fSlots[i] = that.fSlots[i];
             }
@@ -46,7 +49,7 @@ public:
         return *this;
     }
 
-    SkTHashTable& operator=(SkTHashTable&& that) {
+    THashTable& operator=(THashTable&& that) {
         if (this != &that) {
             fCount    = that.fCount;
             fCapacity = that.fCapacity;
@@ -58,7 +61,7 @@ public:
     }
 
     // Clear the table.
-    void reset() { *this = SkTHashTable(); }
+    void reset() { *this = THashTable(); }
 
     // How many entries are in the table?
     int count() const { return fCount; }
@@ -75,7 +78,7 @@ public:
     // If you change an entry so that it no longer has the same key, all hell
     // will break loose.  Do not do that!
     //
-    // Please prefer to use SkTHashMap or SkTHashSet, which do not have this danger.
+    // Please prefer to use THashMap or THashSet, which do not have this danger.
 
     // The pointers returned by set() and find() are valid only until the next call to set().
     // The pointers you receive in foreach() are only valid for its duration.
@@ -145,8 +148,8 @@ public:
 
         fCount = 0;
         fCapacity = capacity;
-        skia_private::AutoTArray<Slot> oldSlots = std::move(fSlots);
-        fSlots = skia_private::AutoTArray<Slot>(capacity);
+        std::unique_ptr<Slot[]> oldSlots = std::move(fSlots);
+        fSlots.reset(new Slot[capacity]);
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];
@@ -178,12 +181,12 @@ public:
     }
 
     // A basic iterator-like class which disallows mutation; sufficient for range-based for loops.
-    // Intended for use by SkTHashMap and SkTHashSet via begin() and end().
+    // Intended for use by THashMap and THashSet via begin() and end().
     // Adding or removing elements may invalidate all iterators.
     template <typename SlotVal>
     class Iter {
     public:
-        using TTable = SkTHashTable<T, K, Traits>;
+        using TTable = THashTable<T, K, Traits>;
 
         Iter(const TTable* table, int slot) : fTable(table), fSlot(slot) {}
 
@@ -411,22 +414,22 @@ private:
 
     int fCount    = 0,
         fCapacity = 0;
-    skia_private::AutoTArray<Slot> fSlots;
+    std::unique_ptr<Slot[]> fSlots;
 };
 
-// Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
+// Maps K->V.  A more user-friendly wrapper around THashTable, suitable for most use cases.
 // K and V are treated as ordinary copyable C++ types, with no assumed relationship between the two.
 template <typename K, typename V, typename HashK = SkGoodHash>
-class SkTHashMap {
+class THashMap {
 public:
     // Allow default construction and assignment.
-    SkTHashMap() = default;
+    THashMap() = default;
 
-    SkTHashMap(SkTHashMap<K, V, HashK>&& that) = default;
-    SkTHashMap(const SkTHashMap<K, V, HashK>& that) = default;
+    THashMap(THashMap<K, V, HashK>&& that) = default;
+    THashMap(const THashMap<K, V, HashK>& that) = default;
 
-    SkTHashMap<K, V, HashK>& operator=(SkTHashMap<K, V, HashK>&& that) = default;
-    SkTHashMap<K, V, HashK>& operator=(const SkTHashMap<K, V, HashK>& that) = default;
+    THashMap<K, V, HashK>& operator=(THashMap<K, V, HashK>&& that) = default;
+    THashMap<K, V, HashK>& operator=(const THashMap<K, V, HashK>& that) = default;
 
     // Construct with an initializer list of key-value pairs.
     struct Pair : public std::pair<K, V> {
@@ -435,7 +438,7 @@ public:
         static auto Hash(const K& key) { return HashK()(key); }
     };
 
-    SkTHashMap(std::initializer_list<Pair> pairs) {
+    THashMap(std::initializer_list<Pair> pairs) {
         fTable.resize(pairs.size() * 5 / 3);
         for (const Pair& p : pairs) {
             fTable.set(p);
@@ -486,19 +489,28 @@ public:
     }
 
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.
-    template <typename Fn>  // f(K, V*) or f(const K&, V*)
+    template <typename Fn,  // f(K, V*) or f(const K&, V*)
+              std::enable_if_t<std::is_invocable_v<Fn, K, V*>>* = nullptr>
     void foreach(Fn&& fn) {
-        fTable.foreach([&fn](Pair* p){ fn(p->first, &p->second); });
+        fTable.foreach([&fn](Pair* p) { fn(p->first, &p->second); });
     }
 
     // Call fn on every key/value pair in the table.  You may not mutate anything.
-    template <typename Fn>  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
+    template <typename Fn,  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
+              std::enable_if_t<std::is_invocable_v<Fn, K, V>>* = nullptr>
     void foreach(Fn&& fn) const {
-        fTable.foreach([&fn](const Pair& p){ fn(p.first, p.second); });
+        fTable.foreach([&fn](const Pair& p) { fn(p.first, p.second); });
+    }
+
+    // Call fn on every key/value pair in the table.  You may not mutate anything.
+    template <typename Fn,  // f(Pair), or f(const Pair&)
+              std::enable_if_t<std::is_invocable_v<Fn, Pair>>* = nullptr>
+    void foreach(Fn&& fn) const {
+        fTable.foreach([&fn](const Pair& p) { fn(p); });
     }
 
     // Dereferencing an iterator gives back a key-value pair, suitable for structured binding.
-    using Iter = typename SkTHashTable<Pair, K>::template Iter<std::pair<K, V>>;
+    using Iter = typename THashTable<Pair, K>::template Iter<std::pair<K, V>>;
 
     Iter begin() const {
         return Iter::MakeBegin(&fTable);
@@ -509,24 +521,24 @@ public:
     }
 
 private:
-    SkTHashTable<Pair, K> fTable;
+    THashTable<Pair, K> fTable;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
 template <typename T, typename HashT = SkGoodHash>
-class SkTHashSet {
+class THashSet {
 public:
     // Allow default construction and assignment.
-    SkTHashSet() = default;
+    THashSet() = default;
 
-    SkTHashSet(SkTHashSet<T, HashT>&& that) = default;
-    SkTHashSet(const SkTHashSet<T, HashT>& that) = default;
+    THashSet(THashSet<T, HashT>&& that) = default;
+    THashSet(const THashSet<T, HashT>& that) = default;
 
-    SkTHashSet<T, HashT>& operator=(SkTHashSet<T, HashT>&& that) = default;
-    SkTHashSet<T, HashT>& operator=(const SkTHashSet<T, HashT>& that) = default;
+    THashSet<T, HashT>& operator=(THashSet<T, HashT>&& that) = default;
+    THashSet<T, HashT>& operator=(const THashSet<T, HashT>& that) = default;
 
     // Construct with an initializer list of Ts.
-    SkTHashSet(std::initializer_list<T> vals) {
+    THashSet(std::initializer_list<T> vals) {
         fTable.resize(vals.size() * 5 / 3);
         for (const T& val : vals) {
             fTable.set(val);
@@ -574,7 +586,7 @@ private:
     };
 
 public:
-    using Iter = typename SkTHashTable<T, T, Traits>::template Iter<T>;
+    using Iter = typename THashTable<T, T, Traits>::template Iter<T>;
 
     Iter begin() const {
         return Iter::MakeBegin(&fTable);
@@ -585,7 +597,9 @@ public:
     }
 
 private:
-    SkTHashTable<T, T, Traits> fTable;
+    THashTable<T, T, Traits> fTable;
 };
 
-#endif//SkTHash_DEFINED
+}  // namespace skia_private
+
+#endif  // SkTHash_DEFINED

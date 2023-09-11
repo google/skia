@@ -8,17 +8,18 @@ It is based off of https://github.com/bazelbuild/examples/tree/main/rules/starla
 
 """
 
-load("//bazel:copts.bzl", "DEFAULT_COPTS")
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
+load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 
 _bool_flags = [
     "//bazel/common_config_settings:use_harfbuzz",
+    "//bazel/common_config_settings:use_fontations",
     "//bazel/common_config_settings:use_icu",
     "//src/gpu/ganesh/vk:enable_secondary_draw_context",
     "//src/gpu:enable_gpu_test_utils",
     "//src/lazy:enable_discardable_memory",
     "//src/lazy:use_default_global_memory_pool",
     "//src/pdf:enable_pdf_backend",
-    "//src/sksl:enable_sksl",
     "//src/sksl:enable_sksl_tracing",
     "//src/sksl:enable_skslc",
     "//src/svg:enable_svg_canvas",
@@ -27,6 +28,7 @@ _bool_flags = [
 _string_flags = [
     "//bazel/common_config_settings:fontmgr_factory",
     "//src/gpu:with_gl_standard",
+    "//gm/vias:via",
 ]
 
 _string_list_flags = [
@@ -95,7 +97,7 @@ def _transition_rule_impl(ctx):
     return [
         DefaultInfo(
             executable = outfile,
-            data_runfiles = actual_binary[DefaultInfo].data_runfiles,
+            runfiles = actual_binary[DefaultInfo].default_runfiles,
         ),
     ]
 
@@ -131,7 +133,7 @@ transition_rule = rule(
     executable = True,
 )
 
-def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
+def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwargs):
     """Builds a cc_binary as if set_flags were set on the CLI.
 
     Args:
@@ -140,6 +142,8 @@ def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
         set_flags: dictionary of string to list of strings. The keys should be the name of the
             flag, and the values should be the desired valid settings for that flag.
         copts: a list of strings or select statements that control the compiler flags.
+            It has a sensible list of defaults.
+        linkopts: a list of strings or select statements that control the linker flags.
             It has a sensible list of defaults.
         **kwargs: Any flags that a cc_binary normally takes.
     """
@@ -156,5 +160,6 @@ def cc_binary_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
     native.cc_binary(
         name = cc_binary_name,
         copts = copts,
+        linkopts = linkopts,
         **kwargs
     )

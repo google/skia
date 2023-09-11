@@ -1,5 +1,8 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wall"
+#endif
 using namespace metal;
 struct Uniforms {
     half4 colorRed;
@@ -125,8 +128,7 @@ bool test_matrix_op_matrix_half_b() {
     {
         const half3x3 splat_4 = half3x3(half3(4.0h, 4.0h, 4.0h), half3(4.0h, 4.0h, 4.0h), half3(4.0h, 4.0h, 4.0h));
         const half3x3 splat_2 = half3x3(half3(2.0h, 2.0h, 2.0h), half3(2.0h, 2.0h, 2.0h), half3(2.0h, 2.0h, 2.0h));
-        half3x3 m;
-        m = half3x3(2.0h);
+        half3x3 m = half3x3(2.0h);
         m += splat_4;
         ok = ok && m == half3x3(half3(6.0h, 4.0h, 4.0h), half3(4.0h, 6.0h, 4.0h), half3(4.0h, 4.0h, 6.0h));
         m = half3x3(2.0h);
@@ -179,8 +181,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     {
         const float3x3 _1_splat_4 = float3x3(float3(4.0, 4.0, 4.0), float3(4.0, 4.0, 4.0), float3(4.0, 4.0, 4.0));
         const float3x3 _2_splat_2 = float3x3(float3(2.0, 2.0, 2.0), float3(2.0, 2.0, 2.0), float3(2.0, 2.0, 2.0));
-        float3x3 _3_m;
-        _3_m = float3x3(2.0);
+        float3x3 _3_m = float3x3(2.0);
         _3_m += _1_splat_4;
         _0_ok = _0_ok && _3_m == float3x3(float3(6.0, 4.0, 4.0), float3(4.0, 6.0, 4.0), float3(4.0, 4.0, 6.0));
         _3_m = float3x3(2.0);

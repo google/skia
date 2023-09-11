@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/RuntimeBlendUtils.h"
@@ -100,7 +101,7 @@ static void test_blend(skiatest::Reporter* r, SkSurface* surface) {
 
 DEF_TEST(SkRuntimeBlender_CPU, r) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
-    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
 
     test_blend(r, surface.get());
 }
@@ -111,6 +112,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_GPU,
                                        CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
     sk_sp<SkSurface> surface(
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
+            SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     test_blend(r, surface.get());
 }

@@ -21,10 +21,12 @@
 #include <cstddef>
 #include <utility>
 
-typedef void (*CreateGraphPF)(SkTArray<sk_sp<GrMockRenderTask>>* graph,
-                              SkTArray<sk_sp<GrMockRenderTask>>* expected);
+using namespace skia_private;
 
-static void make_proxies(int count, SkTArray<sk_sp<GrSurfaceProxy>>* proxies) {
+typedef void (*CreateGraphPF)(TArray<sk_sp<GrMockRenderTask>>* graph,
+                              TArray<sk_sp<GrMockRenderTask>>* expected);
+
+static void make_proxies(int count, TArray<sk_sp<GrSurfaceProxy>>* proxies) {
     proxies->reset(count);
     for (int i = 0; i < count; i++) {
         auto name = SkStringPrintf("%c", 'A' + i);
@@ -33,7 +35,7 @@ static void make_proxies(int count, SkTArray<sk_sp<GrSurfaceProxy>>* proxies) {
     }
 }
 
-static void make_tasks(int count, SkTArray<sk_sp<GrMockRenderTask>>* tasks) {
+static void make_tasks(int count, TArray<sk_sp<GrMockRenderTask>>* tasks) {
     tasks->reset(count);
     for (int i = 0; i < count; i++) {
         tasks->at(i) = sk_make_sp<GrMockRenderTask>();
@@ -44,9 +46,9 @@ static void make_tasks(int count, SkTArray<sk_sp<GrMockRenderTask>>* tasks) {
  * In:  A1 B1 A2
  * Out: B1 A1 A2
  */
-static void create_graph0(SkTArray<sk_sp<GrMockRenderTask>>* graph,
-                          SkTArray<sk_sp<GrMockRenderTask>>* expected) {
-    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
+static void create_graph0(TArray<sk_sp<GrMockRenderTask>>* graph,
+                          TArray<sk_sp<GrMockRenderTask>>* expected) {
+    TArray<sk_sp<GrSurfaceProxy>> proxies;
     make_proxies(2, &proxies);
     make_tasks(3, graph);
 
@@ -64,9 +66,9 @@ static void create_graph0(SkTArray<sk_sp<GrMockRenderTask>>* graph,
  * In:  A1 B1 A2 C1 A3
  * Out: B1 C1 A1 A2 A3
  */
-static void create_graph1(SkTArray<sk_sp<GrMockRenderTask>>* graph,
-                          SkTArray<sk_sp<GrMockRenderTask>>* expected) {
-    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
+static void create_graph1(TArray<sk_sp<GrMockRenderTask>>* graph,
+                          TArray<sk_sp<GrMockRenderTask>>* expected) {
+    TArray<sk_sp<GrSurfaceProxy>> proxies;
     make_proxies(3, &proxies);
     make_tasks(5, graph);
 
@@ -88,9 +90,9 @@ static void create_graph1(SkTArray<sk_sp<GrMockRenderTask>>* graph,
  * Srcs: A1->B1, B1->A2.
  * Out:  A1 B1 A2. Can't reorder.
  */
-static void create_graph2(SkTArray<sk_sp<GrMockRenderTask>>* graph,
-                          SkTArray<sk_sp<GrMockRenderTask>>* expected) {
-    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
+static void create_graph2(TArray<sk_sp<GrMockRenderTask>>* graph,
+                          TArray<sk_sp<GrMockRenderTask>>* expected) {
+    TArray<sk_sp<GrSurfaceProxy>> proxies;
     make_proxies(2, &proxies);
     make_tasks(3, graph);
 
@@ -111,9 +113,9 @@ static void create_graph2(SkTArray<sk_sp<GrMockRenderTask>>* graph,
  * Used: B1(A), B2(A)
  * Out:  Can't reorder.
  */
-static void create_graph3(SkTArray<sk_sp<GrMockRenderTask>>* graph,
-                          SkTArray<sk_sp<GrMockRenderTask>>* expected) {
-    SkTArray<sk_sp<GrSurfaceProxy>> proxies;
+static void create_graph3(TArray<sk_sp<GrMockRenderTask>>* graph,
+                          TArray<sk_sp<GrMockRenderTask>>* expected) {
+    TArray<sk_sp<GrSurfaceProxy>> proxies;
     make_proxies(2, &proxies);
     make_tasks(4, graph);
 
@@ -140,8 +142,8 @@ DEF_TEST(GrRenderTaskCluster, reporter) {
     };
 
     for (size_t i = 0; i < std::size(tests); ++i) {
-        SkTArray<sk_sp<GrMockRenderTask>> graph;
-        SkTArray<sk_sp<GrMockRenderTask>> expectedOutput;
+        TArray<sk_sp<GrMockRenderTask>> graph;
+        TArray<sk_sp<GrMockRenderTask>> expectedOutput;
 
         (tests[i])(&graph, &expectedOutput);
 

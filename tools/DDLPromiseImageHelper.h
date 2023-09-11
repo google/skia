@@ -9,15 +9,15 @@
 #define PromiseImageHelper_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
-#include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/chromium/GrPromiseImageTexture.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkCachedData.h"
 
+class GrContextThreadSafeProxy;
 class GrDirectContext;
 class SkImage;
 class SkMipmap;
@@ -45,7 +45,7 @@ public:
 
     void destroyBackendTexture();
 
-    sk_sp<SkPromiseImageTexture> fulfill() {
+    sk_sp<GrPromiseImageTexture> fulfill() {
         ++fTotalFulfills;
         return fPromiseImageTexture;
     }
@@ -57,11 +57,11 @@ public:
 
     void wasAddedToImage() { fNumImages++; }
 
-    const SkPromiseImageTexture* promiseImageTexture() const {
+    const GrPromiseImageTexture* promiseImageTexture() const {
         return fPromiseImageTexture.get();
     }
 
-    static sk_sp<SkPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
+    static sk_sp<GrPromiseImageTexture> PromiseImageFulfillProc(void* textureContext) {
         auto callbackContext = static_cast<PromiseImageCallbackContext*>(textureContext);
         return callbackContext->fulfill();
     }
@@ -75,7 +75,7 @@ public:
 private:
     GrDirectContext*             fContext;
     GrBackendFormat              fBackendFormat;
-    sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
+    sk_sp<GrPromiseImageTexture> fPromiseImageTexture;
     int                          fNumImages = 0;
     int                          fTotalFulfills = 0;
     int                          fDoneCnt = 0;
@@ -185,7 +185,7 @@ private:
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVAInfo::kMaxPlanes : 1));
             return fCallbackContexts[index]->backendFormat();
         }
-        const SkPromiseImageTexture* promiseTexture(int index) const {
+        const GrPromiseImageTexture* promiseTexture(int index) const {
             SkASSERT(index >= 0 && index < (this->isYUV() ? SkYUVAInfo::kMaxPlanes : 1));
             return fCallbackContexts[index]->promiseImageTexture();
         }

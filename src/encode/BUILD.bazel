@@ -20,7 +20,7 @@ skia_filegroup(
     name = "jpeg_encode_srcs",
     srcs = [
         "SkJPEGWriteUtility.cpp",
-        "SkJpegEncoder.cpp",
+        "SkJpegEncoderImpl.cpp",
     ],
 )
 
@@ -28,29 +28,57 @@ skia_filegroup(
     name = "jpeg_encode_hdrs",
     srcs = [
         "SkJPEGWriteUtility.h",
+        "SkJpegEncoderImpl.h",
     ],
 )
 
 skia_filegroup(
+    name = "no_jpeg_encode_srcs",
+    srcs = ["SkJpegEncoder_none.cpp"],
+)
+
+skia_filegroup(
+    name = "png_encode_hdrs",
+    srcs = ["SkPngEncoderImpl.h"],
+)
+
+skia_filegroup(
     name = "png_encode_srcs",
-    srcs = ["SkPngEncoder.cpp"],
+    srcs = ["SkPngEncoderImpl.cpp"],
+)
+
+skia_filegroup(
+    name = "no_png_encode_srcs",
+    srcs = ["SkPngEncoder_none.cpp"],
 )
 
 skia_filegroup(
     name = "webp_encode_srcs",
-    srcs = ["SkWebpEncoder.cpp"],
+    srcs = ["SkWebpEncoderImpl.cpp"],
+)
+
+skia_filegroup(
+    name = "no_webp_encode_srcs",
+    srcs = ["SkWebpEncoder_none.cpp"],
 )
 
 skia_filegroup(
     name = "srcs",
     srcs = [
         "SkEncoder.cpp",
-        "SkImageEncoder.cpp",
-    ] + select_multi({
-        ":jpeg_encode_codec": [":jpeg_encode_srcs"],
-        ":png_encode_codec": [":png_encode_srcs"],
-        ":webp_encode_codec": [":webp_encode_srcs"],
-    }),
+        "SkICC.cpp",
+    ] + select_multi(
+        default_cases = {
+            ":jpeg_encode_codec": [":no_jpeg_encode_srcs"],
+            ":png_encode_codec": [":no_png_encode_srcs"],
+            ":webp_encode_codec": [":no_webp_encode_srcs"],
+        },
+        values_map = {
+            ":jpeg_encode_codec": [":jpeg_encode_srcs"],
+            ":png_encode_codec": [":png_encode_srcs"],
+            ":webp_encode_codec": [":webp_encode_srcs"],
+        },
+    ),
     visibility = ["//src:__pkg__"],
 )
 
@@ -59,9 +87,10 @@ skia_filegroup(
     srcs = [
         "SkImageEncoderFns.h",
         "SkImageEncoderPriv.h",
-    ] + select({
+        "SkICCPriv.h",
+    ] + select_multi({
+        ":png_encode_codec": [":png_encode_hdrs"],
         ":jpeg_encode_codec": [":jpeg_encode_hdrs"],
-        "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
 )

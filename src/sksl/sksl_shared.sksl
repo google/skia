@@ -131,8 +131,8 @@ $pure $es3 $genBType isnan($genType  x);
 $pure $es3 $genBType isnan($genHType x);
 $pure $es3 $genBType isinf($genType  x);
 $pure $es3 $genBType isinf($genHType x);
-$pure $es3 $genType  modf($genType  x, out $genType  i);
-$pure $es3 $genHType modf($genHType x, out $genHType i);
+      $es3 $genType  modf($genType  x, out $genType  i);
+      $es3 $genHType modf($genHType x, out $genHType i);
 
 // 8.4 : Floating-Point Pack and Unpack Functions (GLSL ES 3.0)
 $pure $es3 uint packUnorm2x16(float2 v);

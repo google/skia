@@ -122,13 +122,9 @@ protected:
             SkTileMode::kClamp);
     }
 
-    SkString onShortName() override {
-        return SkString("highcontrastfilter");
-    }
+    SkString getName() const override { return SkString("highcontrastfilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(800, 420);
-    }
+    SkISize getISize() override { return SkISize::Make(800, 420); }
 
     void onDraw(SkCanvas* canvas) override {
         SkHighContrastConfig configs[] = {

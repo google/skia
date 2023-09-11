@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/FactoryFunctions.h"
 
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -30,10 +31,15 @@ private:
                   PaintParamsKeyBuilder* builder) const override {
         SkASSERT(desiredCombination == 0); // The blend mode blender only ever has one combination
 
-        // The blend mode is used in this BeginBlock! It is used to choose between fixed function
-        // and shader-based blending
-        BlendModeBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr, fBlendMode);
-        builder->endBlock();
+        SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(fBlendMode);
+        if (!coeffs.empty()) {
+            CoeffBlenderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr, coeffs);
+            builder->endBlock();
+        } else {
+            BlendModeBlenderBlock::BeginBlock(
+                    keyContext, builder, /* gatherer= */ nullptr, fBlendMode);
+            builder->endBlock();
+        }
     }
 
 
@@ -144,12 +150,10 @@ private:
         int desiredBlendCombination = remainingCombinations;
         SkASSERT(desiredBlendCombination < fNumBlenderCombos);
 
-        if (desiredBlendCombination == fPorterDuffIndex) {
-            PorterDuffBlendShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
-                                                   {}); // Porter/Duff coeffs aren't used
-        } else if (desiredBlendCombination == fSeparableModeIndex) {
-            BlendShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
-                                         { SkBlendMode::kOverlay }); // the blendmode is unused
+        if (desiredBlendCombination == fPorterDuffIndex ||
+            desiredBlendCombination == fSeparableModeIndex) {
+            BlendShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr);
+
         } else {
             // TODO: share this with the copy over in SkComposeShader.cpp. For now, the block ID is
             // determined by a hash of the code so both copies will generate the same key and
@@ -157,27 +161,35 @@ private:
             // sync.
             static SkRuntimeEffect* sBlendEffect = SkMakeRuntimeEffect(
                     SkRuntimeEffect::MakeForShader,
+                    "uniform shader s, d;"
                     "uniform blender b;"
-                    "uniform shader d, s;"
                     "half4 main(float2 xy) {"
                         "return b.eval(s.eval(xy), d.eval(xy));"
                     "}"
             );
-
             RuntimeEffectBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
                                            { sk_ref_sp(sBlendEffect) });
-
             SkASSERT(desiredBlendCombination >= fBlenderIndex);
             desiredBlendCombination -= fBlenderIndex;
+        }
 
+        AddToKey<PrecompileShader>(keyContext, builder, fSrcOptions, desiredSrcCombination);
+        AddToKey<PrecompileShader>(keyContext, builder, fDstOptions, desiredDstCombination);
+
+        if (desiredBlendCombination == fPorterDuffIndex) {
+            CoeffBlenderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                          {}); // coeffs aren't used
+            builder->endBlock();
+        } else if (desiredBlendCombination == fSeparableModeIndex) {
+            BlendModeBlenderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                              SkBlendMode::kOverlay); // the blendmode is unused
+            builder->endBlock();
+        } else {
             AddToKey<PrecompileBlender>(keyContext, builder, fRuntimeBlendEffects,
                                         desiredBlendCombination);
         }
 
-        AddToKey<PrecompileShader>(keyContext, builder, fDstOptions, desiredDstCombination);
-        AddToKey<PrecompileShader>(keyContext, builder, fSrcOptions, desiredSrcCombination);
-
-        builder->endBlock();
+        builder->endBlock();  // BlendShaderBlock or RuntimeEffectBlock
     }
 
     std::vector<sk_sp<PrecompileBlender>> fRuntimeBlendEffects;
@@ -209,7 +221,8 @@ sk_sp<PrecompileShader> PrecompileShaders::Blend(
         } else if (b->asBlendMode().has_value()) {
             SkBlendMode bm = b->asBlendMode().value();
 
-            if (bm <= SkBlendMode::kLastCoeffMode) {
+            SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(bm);
+            if (!coeffs.empty()) {
                 needsPorterDuffBased = true;
             } else {
                 needsBlendModeBased = true;
@@ -260,13 +273,20 @@ public:
     PrecompileImageShader() {}
 
 private:
+    int numIntrinsicCombinations() const override {
+        return 2; // cubic and non-cubic sampling
+    }
+
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
-        SkASSERT(desiredCombination == 0);
-
-        ImageShaderBlock::BeginBlock(keyContext, builder,
-                                     /* gatherer= */ nullptr, /* imgData= */ nullptr);
+        if (desiredCombination == 0) {
+            ImageShaderBlock::BeginBlock(keyContext, builder,
+                                        /* gatherer= */ nullptr, /* imgData= */ nullptr);
+        } else {
+            ImageShaderBlock::BeginCubicBlock(keyContext, builder,
+                                              /* gatherer= */ nullptr, /* imgData= */ nullptr);
+        }
         builder->endBlock();
     }
 };
@@ -441,11 +461,7 @@ private:
                   PaintParamsKeyBuilder* builder) const override {
         SkASSERT(desiredCombination == 0);
 
-        BlendColorFilterBlock::BeginBlock(keyContext,
-                                          builder,
-                                          /* gatherer= */ nullptr,
-                                          /* blendCFData= */ nullptr);
-        builder->endBlock();
+        AddColorBlendBlock(keyContext, builder, /* gatherer= */ nullptr, SkBlendMode::kSrcOver, {});
     }
 };
 
@@ -608,15 +624,14 @@ void add_children_to_key(const KeyContext& keyContext,
                 case ChildType::kShader:
                 case ChildType::kColorFilter:
                     // A "passthrough" shader returns the input color as-is.
-                    PassthroughShaderBlock::BeginBlock(keyContext, builder,
-                                                       /* gatherer= */ nullptr);
+                    PriorOutputBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr);
                     builder->endBlock();
                     break;
 
                 case ChildType::kBlender:
                     // A "passthrough" blender performs `blend_src_over(src, dest)`.
-                    PassthroughBlenderBlock::BeginBlock(keyContext, builder,
-                                                        /* gatherer= */ nullptr);
+                    BlendModeBlenderBlock::BeginBlock(
+                            keyContext, builder, /* gatherer= */ nullptr, SkBlendMode::kSrcOver);
                     builder->endBlock();
                     break;
             }

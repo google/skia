@@ -58,7 +58,6 @@
     SKSL_INTRINSIC(fwidth)           \
     SKSL_INTRINSIC(greaterThanEqual) \
     SKSL_INTRINSIC(greaterThan)      \
-    SKSL_INTRINSIC(height)           \
     SKSL_INTRINSIC(intBitsToFloat)   \
     SKSL_INTRINSIC(inversesqrt)      \
     SKSL_INTRINSIC(inverse)          \
@@ -70,7 +69,6 @@
     SKSL_INTRINSIC(lessThan)         \
     SKSL_INTRINSIC(log2)             \
     SKSL_INTRINSIC(log)              \
-    SKSL_INTRINSIC(makeSampler2D)    \
     SKSL_INTRINSIC(matrixCompMult)   \
     SKSL_INTRINSIC(matrixInverse)    \
     SKSL_INTRINSIC(max)              \
@@ -90,7 +88,6 @@
     SKSL_INTRINSIC(packUnorm4x8)     \
     SKSL_INTRINSIC(pow)              \
     SKSL_INTRINSIC(radians)          \
-    SKSL_INTRINSIC(read)             \
     SKSL_INTRINSIC(reflect)          \
     SKSL_INTRINSIC(refract)          \
     SKSL_INTRINSIC(roundEven)        \
@@ -109,6 +106,10 @@
     SKSL_INTRINSIC(subpassLoad)      \
     SKSL_INTRINSIC(tanh)             \
     SKSL_INTRINSIC(tan)              \
+    SKSL_INTRINSIC(textureHeight)    \
+    SKSL_INTRINSIC(textureRead)      \
+    SKSL_INTRINSIC(textureWidth)     \
+    SKSL_INTRINSIC(textureWrite)     \
     SKSL_INTRINSIC(toLinearSrgb)     \
     SKSL_INTRINSIC(transpose)        \
     SKSL_INTRINSIC(trunc)            \
@@ -119,9 +120,7 @@
     SKSL_INTRINSIC(unpackSnorm4x8)   \
     SKSL_INTRINSIC(unpackUnorm2x16)  \
     SKSL_INTRINSIC(unpackUnorm4x8)   \
-    SKSL_INTRINSIC(width)            \
-    SKSL_INTRINSIC(workgroupBarrier) \
-    SKSL_INTRINSIC(write)
+    SKSL_INTRINSIC(workgroupBarrier)
 
 namespace SkSL {
 
@@ -134,7 +133,7 @@ enum IntrinsicKind : int8_t {
 #undef SKSL_INTRINSIC
 
 // Returns a map which allows IntrinsicKind values to be looked up by name.
-using IntrinsicMap = SkTHashMap<std::string_view, IntrinsicKind>;
+using IntrinsicMap = skia_private::THashMap<std::string_view, IntrinsicKind>;
 const IntrinsicMap& GetIntrinsicMap();
 
 // Looks up intrinsic functions by name.

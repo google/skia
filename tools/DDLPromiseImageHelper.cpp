@@ -7,19 +7,21 @@
 
 #include "tools/DDLPromiseImageHelper.h"
 
-#include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrYUVABackendTextures.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/private/chromium/SkImageChromium.h"
 #include "src/codec/SkCodecImageGenerator.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuYUVA.h"
 
 DDLPromiseImageHelper::PromiseImageInfo::PromiseImageInfo(int index,
                                                           uint32_t originalUniqueID,
@@ -81,7 +83,7 @@ PromiseImageCallbackContext::~PromiseImageCallbackContext() {
 void PromiseImageCallbackContext::setBackendTexture(const GrBackendTexture& backendTexture) {
     SkASSERT(!fPromiseImageTexture);
     SkASSERT(fBackendFormat == backendTexture.getBackendFormat());
-    fPromiseImageTexture = SkPromiseImageTexture::Make(backendTexture);
+    fPromiseImageTexture = GrPromiseImageTexture::Make(backendTexture);
 }
 
 void PromiseImageCallbackContext::destroyBackendTexture() {
@@ -339,13 +341,13 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
                                                      backendFormats,
                                                      GrMipmapped::kNo,
                                                      kTopLeft_GrSurfaceOrigin);
-        image = SkImage::MakePromiseYUVATexture(
-                                            procContext->fThreadSafeProxy,
-                                            yuvaBackendTextures,
-                                            curImage.refOverallColorSpace(),
-                                            PromiseImageCallbackContext::PromiseImageFulfillProc,
-                                            PromiseImageCallbackContext::PromiseImageReleaseProc,
-                                            contexts);
+        image = SkImages::PromiseTextureFromYUVA(
+                procContext->fThreadSafeProxy,
+                yuvaBackendTextures,
+                curImage.refOverallColorSpace(),
+                PromiseImageCallbackContext::PromiseImageFulfillProc,
+                PromiseImageCallbackContext::PromiseImageReleaseProc,
+                contexts);
         if (!image) {
             return nullptr;
         }
@@ -357,17 +359,17 @@ sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
         const GrBackendFormat& backendFormat = curImage.backendFormat(0);
         SkASSERT(backendFormat.isValid());
 
-        image = SkImage::MakePromiseTexture(procContext->fThreadSafeProxy,
-                                            backendFormat,
-                                            curImage.overallDimensions(),
-                                            curImage.mipmapped(0),
-                                            GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                            curImage.overallColorType(),
-                                            curImage.overallAlphaType(),
-                                            curImage.refOverallColorSpace(),
-                                            PromiseImageCallbackContext::PromiseImageFulfillProc,
-                                            PromiseImageCallbackContext::PromiseImageReleaseProc,
-                                            (void*)curImage.refCallbackContext(0).release());
+        image = SkImages::PromiseTextureFrom(procContext->fThreadSafeProxy,
+                                             backendFormat,
+                                             curImage.overallDimensions(),
+                                             curImage.mipmapped(0),
+                                             GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                             curImage.overallColorType(),
+                                             curImage.overallAlphaType(),
+                                             curImage.refOverallColorSpace(),
+                                             PromiseImageCallbackContext::PromiseImageFulfillProc,
+                                             PromiseImageCallbackContext::PromiseImageReleaseProc,
+                                             (void*)curImage.refCallbackContext(0).release());
         curImage.callbackContext(0)->wasAddedToImage();
     }
     helper->fPromiseImages.push_back(image);

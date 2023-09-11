@@ -1,9 +1,27 @@
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_objc_library")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# All the mm files from the Skia library are rolled up to this objc library since cc_library
+# ignores mm files. This private library is then deps'ed into the public and internal versions
+# of the SKia library below. The Skia library Objective-C code requires ARC, while non-library code
+# does not.
+skia_objc_library(
+    name = "skia_objc",
+    srcs = [
+        "//src:objc_srcs",
+    ],
+    copts = DEFAULT_OBJC_COPTS + ["-fobjc-arc"],
+    defines = DEFAULT_DEFINES,
+    deps = [
+        "//src:deps",
+        "@skia_user_config//:user_config",
+    ],
+)
 
 # This target exposes the Skia public API. It is what external clients should use.
 skia_cc_library(
@@ -20,7 +38,11 @@ skia_cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src:deps",
-    ],
+        "@skia_user_config//:user_config",
+    ] + select({
+        "//src/gpu:metal_ganesh": ["//:skia_objc"],
+        "//conditions:default": [],
+    }),
 )
 
 # This target exposes headers beyond the public, supported API. It is intended to be
@@ -40,13 +62,18 @@ skia_cc_library(
     local_defines = DEFAULT_LOCAL_DEFINES,
     visibility = [
         "//dm:__subpackages__",
+        "//gm:__subpackages__",
         "//modules:__subpackages__",
         "//tests:__subpackages__",
         "//tools:__subpackages__",
     ],
     deps = [
         "//src:deps",
-    ],
+        "@skia_user_config//:user_config",
+    ] + select({
+        "//src/gpu:metal_ganesh": ["//:skia_objc"],
+        "//conditions:default": [],
+    }),
 )
 
 ####################################################################
@@ -54,25 +81,19 @@ skia_cc_library(
 
 alias(
     name = "core",
-    actual = "//src:core",
+    actual = "//src/core:core",
     visibility = ["//visibility:public"],
 )
 
 alias(
     name = "pathops",
-    actual = "//src:pathops",
+    actual = "//src/pathops:pathops",
     visibility = ["//visibility:public"],
 )
 
 alias(
     name = "default_malloc",
     actual = "//src/ports:default_malloc",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "default_logging",
-    actual = "//src/ports:default_logging",
     visibility = ["//visibility:public"],
 )
 
@@ -86,4 +107,19 @@ alias(
     name = "gazelle",
     actual = "//infra:gazelle",
     visibility = ["//visibility:public"],
+)
+
+test_suite(
+    name = "all_go_tests",
+    tests = [
+        # Go tests in this list will be tested in CI. Please add any new Go tests to this suite.
+        "//bazel/exporter:exporter_test",
+        "//infra/bots/task_drivers/bazel_test_gm:bazel_test_gm_test",
+        "//infra/bots/task_drivers/bazel_test_precompiled:bazel_test_precompiled_test",
+        "//infra/bots/task_drivers/codesize:codesize_test",
+        "//infra/bots/task_drivers/common:common_test",
+        "//infra/bots/task_drivers/perf_puppeteer_canvas:perf_puppeteer_canvas_test",
+        "//infra/bots/task_drivers/perf_puppeteer_render_skps:perf_puppeteer_render_skps_test",
+        "//infra/bots/task_drivers/perf_puppeteer_skottie_frames:perf_puppeteer_skottie_frames_test",
+    ],
 )

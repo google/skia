@@ -1,0 +1,27 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_static_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+
+rust_binary(
+    name = "rust_hello_world",
+    srcs = ["hello-world.rs"],
+)
+
+rust_cxx_bridge(
+    name = "hype_bridge",
+    src = "hype-bridge.rs",
+)
+
+cc_binary(
+    name = "cpp_with_rust",
+    srcs = ["main.cpp"],
+    deps = [
+        ":hype_bridge",
+        ":hype_lib",
+    ],
+)
+
+rust_static_library(
+    name = "hype_lib",
+    srcs = ["hype-bridge.rs"],
+    deps = ["@cxx"],
+)

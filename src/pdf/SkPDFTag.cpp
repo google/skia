@@ -8,6 +8,8 @@
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFTag.h"
 
+using namespace skia_private;
+
 // The struct parent tree consists of one entry per page, followed by
 // entries for individual struct tree nodes corresponding to
 // annotations.  Each entry is a key/value pair with an integer key
@@ -38,7 +40,7 @@ struct SkPDFTagNode {
         unsigned fPageIndex;
         int fMarkId;
     };
-    SkTArray<MarkedContentInfo> fMarkedContent;
+    TArray<MarkedContentInfo> fMarkedContent;
     int fNodeId;
     SkString fTypeString;
     SkString fAlt;
@@ -130,7 +132,7 @@ SkPDFTagTree::~SkPDFTagTree() = default;
 void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
                         SkPDFTagNode* dst,
                         SkArenaAlloc* arena,
-                        SkTHashMap<int, SkPDFTagNode*>* nodeMap) {
+                        THashMap<int, SkPDFTagNode*>* nodeMap) {
     nodeMap->set(node.fNodeId, dst);
     for (int nodeId : node.fAdditionalNodeIds) {
         SkASSERT(!nodeMap->find(nodeId));
@@ -172,7 +174,7 @@ int SkPDFTagTree::createMarkIdForNodeId(int nodeId, unsigned pageIndex) {
     while (SkToUInt(fMarksPerPage.size()) < pageIndex + 1) {
         fMarksPerPage.push_back();
     }
-    SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[pageIndex];
+    TArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[pageIndex];
     int markId = pageMarks.size();
     tag->fMarkedContent.push_back({pageIndex, markId});
     pageMarks.push_back(tag);
@@ -310,7 +312,7 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
     // First, one entry per page.
     SkASSERT(SkToUInt(fMarksPerPage.size()) <= pageCount);
     for (int j = 0; j < fMarksPerPage.size(); ++j) {
-        const SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[j];
+        const TArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[j];
         SkPDFArray markToTagArray;
         for (SkPDFTagNode* mark : pageMarks) {
             SkASSERT(mark->fRef);

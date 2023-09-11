@@ -8,12 +8,12 @@
 #include "src/gpu/graphite/mtl/MtlComputePipeline.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
-#include "include/private/SkSLProgramKind.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 namespace skgpu::graphite {

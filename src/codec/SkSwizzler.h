@@ -227,4 +227,5 @@ private:
     int onSetSampleX(int) override;
 
 };
+
 #endif // SkSwizzler_DEFINED

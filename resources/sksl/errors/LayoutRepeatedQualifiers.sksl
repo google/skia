@@ -10,9 +10,13 @@ layout (
     set = 1,
     builtin = 1,
     input_attachment_index = 1,
-    spirv,
+    vulkan,
     metal,
-    gl,
+    webgpu,
+    direct3d,
+    rgba8,
+    rgba32f,
+    r32f,
 
     origin_upper_left,
     push_constant,
@@ -25,9 +29,13 @@ layout (
     set = 2,
     builtin = 2,
     input_attachment_index = 2,
-    spirv,
+    vulkan,
     metal,
-    gl
+    webgpu,
+    direct3d,
+    rgba8,
+    rgba32f,
+    r32f
 ) float x;
 
 /*%%*
@@ -42,12 +50,21 @@ layout qualifier 'index' appears more than once
 layout qualifier 'set' appears more than once
 layout qualifier 'builtin' appears more than once
 layout qualifier 'input_attachment_index' appears more than once
-layout qualifier 'spirv' appears more than once
+layout qualifier 'vulkan' appears more than once
 layout qualifier 'metal' appears more than once
-layout qualifier 'gl' appears more than once
+layout qualifier 'webgpu' appears more than once
+layout qualifier 'direct3d' appears more than once
+layout qualifier 'rgba8' appears more than once
+layout qualifier 'rgba32f' appears more than once
+layout qualifier 'r32f' appears more than once
 'layout(color)' is only permitted in runtime effects
 'layout(color)' is only permitted on 'uniform' variables
 'layout(color)' is not permitted on variables of type 'float'
 only one backend qualifier can be used
+only one pixel format qualifier can be used
+layout qualifier 'push_constant' is not permitted here
 layout qualifier 'set' is not permitted here
+layout qualifier 'rgba8' is not permitted here
+layout qualifier 'rgba32f' is not permitted here
+layout qualifier 'r32f' is not permitted here
 *%%*/

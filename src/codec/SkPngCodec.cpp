@@ -7,12 +7,13 @@
 
 #include "src/codec/SkPngCodec.h"
 
+#include "include/codec/SkPngChunkReader.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkPngChunkReader.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
@@ -22,10 +23,11 @@
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkColorTable.h"
+#include "src/codec/SkColorPalette.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
+#include "src/core/SkSwizzlePriv.h"
 
 #include <csetjmp>
 #include <algorithm>
@@ -161,6 +163,7 @@ static inline bool process_data(png_structp png_ptr, png_infop info_ptr,
 }
 
 bool AutoCleanPng::decodeBounds() {
+    SkASSERT(fStream);
     if (setjmp(PNG_JMPBUF(fPng_ptr))) {
         return false;
     }
@@ -268,7 +271,7 @@ static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedA
     return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
 }
 
-// Note: SkColorTable claims to store SkPMColors, which is not necessarily the case here.
+// Note: SkColorPalette claims to store SkPMColors, which is not necessarily the case here.
 bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
 
     int numColors;
@@ -330,7 +333,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
         SkOpts::memset32(colorTable + numColors, lastColor, maxColors - numColors);
     }
 
-    fColorTable.reset(new SkColorTable(colorTable, maxColors));
+    fColorTable.reset(new SkColorPalette(colorTable, maxColors));
     return true;
 }
 
@@ -1212,6 +1215,11 @@ SkCodec::Result SkPngCodec::onIncrementalDecode(int* rowsDecoded) {
 
 std::unique_ptr<SkCodec> SkPngCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                     Result* result, SkPngChunkReader* chunkReader) {
+    SkASSERT(result);
+    if (!stream) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
     SkCodec* outCodec = nullptr;
     *result = read_header(stream.get(), chunkReader, &outCodec, nullptr, nullptr);
     if (kSuccess == *result) {
@@ -1221,3 +1229,35 @@ std::unique_ptr<SkCodec> SkPngCodec::MakeFromStream(std::unique_ptr<SkStream> st
     }
     return std::unique_ptr<SkCodec>(outCodec);
 }
+
+namespace SkPngDecoder {
+bool IsPng(const void* data, size_t len) {
+    return SkPngCodec::IsPng(data, len);
+}
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext ctx) {
+    SkCodec::Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+    SkPngChunkReader* chunkReader = nullptr;
+    if (ctx) {
+        chunkReader = static_cast<SkPngChunkReader*>(ctx);
+    }
+    return SkPngCodec::MakeFromStream(std::move(stream), outResult, chunkReader);
+}
+
+std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext ctx) {
+    if (!data) {
+        if (outResult) {
+            *outResult = SkCodec::kInvalidInput;
+        }
+        return nullptr;
+    }
+    return Decode(SkMemoryStream::Make(std::move(data)), outResult, ctx);
+}
+}  // namespace SkPngDecoder

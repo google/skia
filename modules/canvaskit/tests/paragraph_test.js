@@ -99,7 +99,7 @@ describe('Paragraph Behavior', function() {
         expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(21.377, 3);
         expect(paragraph.getHeight()).toEqual(240);
         expect(paragraph.getIdeographicBaseline()).toBeCloseTo(27.236, 3);
-        expect(paragraph.getLongestLine()).toBeCloseTo(193.820, 3);
+        expect(paragraph.getLongestLine()).toBeCloseTo(199.482, 3);
         expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(1444.250, 3);
         expect(paragraph.getMaxWidth()).toEqual(200);
         expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(172.360, 3);
@@ -128,6 +128,9 @@ describe('Paragraph Behavior', function() {
         expect(flm.width).toBeCloseTo(172.360, 3);
         expect(flm.left).toBeCloseTo(13.818, 3);
         expect(flm.baseline).toBeCloseTo(21.141, 3);
+
+        const unresolvedGlyphs = paragraph.unresolvedCodepoints();
+        expect(unresolvedGlyphs.length).toEqual(0, unresolvedGlyphs);
 
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
         canvas.drawParagraph(paragraph, 10, 10);
@@ -704,6 +707,35 @@ describe('Paragraph Behavior', function() {
         fontMgr.delete();
     });
 
+    it('paragraph_rounding_hack', () => {
+        const paraStyleDefault = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Light,
+                }
+            },
+            textDirection: CanvasKit.TextDirection.RTL,
+            disableHinting: true,
+        });
+        expect(paraStyleDefault.applyRoundingHack).toEqual(true);
+
+        const paraStyleOverride = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Light,
+                }
+            },
+            textDirection: CanvasKit.TextDirection.RTL,
+            disableHinting: true,
+            applyRoundingHack: false,
+        });
+        expect(paraStyleOverride.applyRoundingHack).toEqual(false);
+    });
+
     gm('paragraph_font_provider', (canvas) => {
         const paint = new CanvasKit.Paint();
 
@@ -751,6 +783,42 @@ describe('Paragraph Behavior', function() {
         paragraph.layout(wrapTo);
 
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        paint.delete();
+        paragraph.delete();
+        builder.delete();
+        fontSrc.delete();
+    });
+
+    gm('paragraph_font_collection', (canvas) => {
+        const paint = new CanvasKit.Paint();
+
+        paint.setColor(CanvasKit.RED);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        // Register Noto Serif as 'sans-serif'.
+        const fontSrc = CanvasKit.TypefaceFontProvider.Make();
+        fontSrc.registerFont(notoSerifFontBuffer, 'sans-serif');
+        const fontCollection = CanvasKit.FontCollection.Make();
+        fontCollection.setDefaultFontManager(fontSrc);
+
+        const wrapTo = 250;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontFamilies: ['sans-serif'],
+                fontSize: 20,
+            },
+            disableHinting: true,
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.MakeFromFontCollection(
+	    paraStyle, fontCollection);
+        builder.addText('ABC DEF GHI');
+
+        const paragraph = builder.build();
+        paragraph.layout(wrapTo);
         canvas.drawParagraph(paragraph, 10, 10);
 
         paint.delete();

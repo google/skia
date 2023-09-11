@@ -1,0 +1,19 @@
+/*#pragma settings NoInline*/
+
+uniform half4 colorGreen, colorRed;
+
+half2 swizzle_lvalue(half x, half y, inout half2 color, half z) {
+    color.yx = color.xy;
+    return half2(x + y, z);
+}
+
+void func(inout half4 color) {
+    half2 t = swizzle_lvalue(1, 2, color.rb, 5);
+    color.ga = t;
+}
+
+half4 main(float2 coords) {
+    half4 result = half4(0, 1, 2, 3);
+    func(result);
+    return result == half4(2, 3, 0, 5) ? colorGreen : colorRed;
+}

@@ -7,19 +7,19 @@ without needing to download a bunch of unnecessary dependencies
 in their WORKSPACE.bazel file.
 """
 
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS", "DEFAULT_OBJC_COPTS")
+load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
-load("//bazel:copts.bzl", "DEFAULT_COPTS", "DEFAULT_OBJC_COPTS")
 load(
     "//bazel:generate_cpp_files_for_headers.bzl",
     _generate_cpp_files_for_header_list = "generate_cpp_files_for_header_list",
     _generate_cpp_files_for_headers = "generate_cpp_files_for_headers",
 )
-load("//bazel:linkopts.bzl", "DEFAULT_LINKOPTS")
 
 generate_cpp_files_for_headers = _generate_cpp_files_for_headers
 generate_cpp_files_for_header_list = _generate_cpp_files_for_header_list
 
-def select_multi(values_map):
+def select_multi(values_map, default_cases = None):
     """select() but allowing multiple matches of the keys.
 
     select_multi works around a restriction in native select() that prevents multiple
@@ -49,6 +49,8 @@ def select_multi(values_map):
 
     Args:
         values_map: dictionary of labels to a list of labels, just like select()
+        default_cases: dictionary of labels to a list of labels to be used in the default case.
+                       If not provided or a key is not mentioned, an empty list will be used.
 
     Returns:
         A list of values that is filled in by the generated select statements.
@@ -56,10 +58,12 @@ def select_multi(values_map):
     if len(values_map) == 0:
         return []
     rv = []
+    if not default_cases:
+        default_cases = {}
     for key, value in values_map.items():
         rv += select({
             key: value,
-            "//conditions:default": [],
+            "//conditions:default": default_cases.get(key, []),
         })
     return rv
 
@@ -73,10 +77,10 @@ def skia_cc_binary(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **k
     Args:
         name: the name of the underlying executable.
         copts: Flags which should be passed to the C++ compiler. By default, we use DEFAULT_COPTS
-            from //bazel/copts.bzl.
+            from @skia_user_config//:copts.bzl.
         linkopts: Global flags which should be passed to the C++ linker. By default, we use
-            DEFAULT_LINKOPTS from //bazel/linkopts.bzl. Other linker flags will be passed in
-            via deps (see deps_and_linkopts below).
+            DEFAULT_LINKOPTS from  @skia_user_config//:linkopts.bzl. Other linker flags will be
+            passed in via deps (see deps_and_linkopts below).
         **kwargs: All the normal arguments that cc_binary takes.
     """
     native.cc_binary(name = name, copts = copts, linkopts = linkopts, **kwargs)
@@ -109,7 +113,7 @@ def skia_cc_library(name, copts = DEFAULT_COPTS, **kwargs):
     Args:
         name: the name of the underlying library.
         copts: Flags which should be passed to the C++ compiler. By default, we use DEFAULT_COPTS
-            from //bazel/copts.bzl.
+            from @skia_user_config//:copts.bzl.
         **kwargs: All the normal arguments that cc_library takes.
     """
     native.cc_library(name = name, copts = copts, **kwargs)
@@ -149,7 +153,7 @@ def skia_filegroup(**kwargs):
     native.filegroup(**kwargs)
 
 def skia_objc_library(name, copts = DEFAULT_OBJC_COPTS, **kwargs):
-    """A wrapper around cc_library for Skia Objective C libraries.
+    """A wrapper around objc_library for Skia Objective C libraries.
 
     This lets us provide compiler flags (copts) consistently to the Skia build (e.g. //:skia_public)
     and builds which depend on those targets (e.g. things in //tools or //modules).
@@ -158,7 +162,7 @@ def skia_objc_library(name, copts = DEFAULT_OBJC_COPTS, **kwargs):
     Args:
         name: the name of the underlying target.
         copts: Flags which should be passed to the C++ compiler. By default, we use
-            DEFAULT_OBJC_COPTS from //bazel/copts.bzl.
+            DEFAULT_OBJC_COPTS from @skia_user_config//:copts.bzl.
         **kwargs: Normal arguments to objc_library
     """
 

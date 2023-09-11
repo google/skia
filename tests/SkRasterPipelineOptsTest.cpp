@@ -77,7 +77,7 @@ DEF_TEST(SkRasterPipelineOpts_Sin, r) {
     using F = SK_OPTS_NS::F;
 
     constexpr float Pi = SK_ScalarPI;
-    constexpr float kTolerance = 0.00175f;
+    constexpr float kTolerance = 0.000875f;
     for (float rad = -5*Pi; rad <= 5*Pi; rad += 0.1f) {
         F result = SK_OPTS_NS::sin_(rad);
         F expected = sk_float_sin(rad);
@@ -91,7 +91,7 @@ DEF_TEST(SkRasterPipelineOpts_Cos, r) {
     using F = SK_OPTS_NS::F;
 
     constexpr float Pi = SK_ScalarPI;
-    constexpr float kTolerance = 0.00175f;
+    constexpr float kTolerance = 0.000875f;
     for (float rad = -5*Pi; rad <= 5*Pi; rad += 0.1f) {
         F result = SK_OPTS_NS::cos_(rad);
         F expected = sk_float_cos(rad);
@@ -122,6 +122,32 @@ DEF_TEST(SkRasterPipelineOpts_Tan, r) {
     }
 }
 
+DEF_TEST(SkRasterPipelineOpts_Asin, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.00175f;
+    for (float x = -1; x <= 1; x += 1.0f/64) {
+        F result = SK_OPTS_NS::asin_(x);
+        F expected = asinf(x);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+}
+
+DEF_TEST(SkRasterPipelineOpts_Acos, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.00175f;
+    for (float x = -1; x <= 1; x += 1.0f/64) {
+        F result = SK_OPTS_NS::acos_(x);
+        F expected = acosf(x);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+}
+
 DEF_TEST(SkRasterPipelineOpts_Atan, r) {
     using F = SK_OPTS_NS::F;
 
@@ -148,4 +174,33 @@ DEF_TEST(SkRasterPipelineOpts_Atan2, r) {
             REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
         }
     }
+}
+
+DEF_TEST(SkRasterPipelineOpts_Log2, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.001f;
+    for (float value : {0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f}) {
+        F result = SK_OPTS_NS::approx_log2(value);
+        F expected = std::log2(value);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+}
+
+DEF_TEST(SkRasterPipelineOpts_Pow2, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.001f;
+    for (float value : {-80, -5, -2, -1, 0, 1, 2, 3, 5}) {
+        F result = SK_OPTS_NS::approx_pow2(value);
+        F expected = std::pow(2.0, value);
+        F delta = SK_OPTS_NS::abs_(expected - result);
+
+        REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+    }
+
+    F result = SK_OPTS_NS::approx_pow2(160);
+    REPORTER_ASSERT(r, SK_OPTS_NS::all(result == INFINITY));
 }

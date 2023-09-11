@@ -87,12 +87,6 @@ if [[ $@ == *no_pathops* ]] ; then
   ENABLE_PATHOPS="false"
 fi
 
-ENABLE_RT_SHADER="true"
-if [[ $@ == *no_rt_shader* ]] ; then
-  echo "Omitting runtime shaders"
-  ENABLE_RT_SHADER="false"
-fi
-
 ENABLE_SKSL_TRACE="true"
 if [[ $@ == *no_sksl_trace* ]] ; then
   echo "Omitting SkSl trace"
@@ -152,7 +146,7 @@ if [[ $@ == *enable_debugger* ]]; then
   DEBUGGER_ENABLED="true"
 fi
 
-GN_SHAPER="skia_use_icu=true skia_use_client_icu=false skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
+GN_SHAPER="skia_use_icu=true skia_use_client_icu=false skia_use_libgrapheme=false skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 if [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Using the primitive shaper instead of the harfbuzz/icu one"
   GN_SHAPER="skia_use_icu=false skia_use_harfbuzz=false"
@@ -168,24 +162,33 @@ DO_DECODE="true"
 if [[ $@ == *no_codecs* ]]; then
   echo "Omitting codecs"
   DO_DECODE="false"
-  ENCODE_PNG="false"
   ENCODE_JPEG="false"
+  ENCODE_PNG="false"
   ENCODE_WEBP="false"
+  NO_ENCODE_JPEG="true"
+  NO_ENCODE_PNG="true"
+  NO_ENCODE_WEBP="true"
 else
 
   ENCODE_PNG="true"
+  NO_ENCODE_PNG="false"
   if [[ $@ == *no_encode_png* ]]; then
     ENCODE_PNG="false"
+    NO_ENCODE_PNG="true"
   fi
 
   ENCODE_JPEG="true"
+  NO_ENCODE_JPEG="false"
   if [[ $@ == *no_encode_jpeg* ]]; then
     ENCODE_JPEG="false"
+    NO_ENCODE_JPEG="true"
   fi
 
   ENCODE_WEBP="true"
+  NO_ENCODE_WEBP="false"
   if [[ $@ == *no_encode_webp* ]]; then
     ENCODE_WEBP="false"
+    NO_ENCODE_WEBP="true"
   fi
 
 fi # no_codecs
@@ -199,6 +202,7 @@ echo "Compiling"
   --args="is_debug=${IS_DEBUG} \
   is_official_build=${IS_OFFICIAL_BUILD} \
   is_component_build=false \
+  is_trivial_abi=true \
   werror=true \
   target_cpu=\"wasm\" \
   \
@@ -213,10 +217,13 @@ echo "Compiling"
   skia_use_libheif=false \
   skia_use_libjpeg_turbo_decode=${DO_DECODE} \
   skia_use_libjpeg_turbo_encode=${ENCODE_JPEG} \
+  skia_use_no_jpeg_encode=${NO_ENCODE_JPEG} \
   skia_use_libpng_decode=${DO_DECODE} \
   skia_use_libpng_encode=${ENCODE_PNG} \
+  skia_use_no_png_encode=${NO_ENCODE_PNG} \
   skia_use_libwebp_decode=${DO_DECODE} \
   skia_use_libwebp_encode=${ENCODE_WEBP} \
+  skia_use_no_webp_encode=${NO_ENCODE_WEBP} \
   skia_use_lua=false \
   skia_use_piex=false \
   skia_use_system_freetype2=false \
@@ -238,6 +245,7 @@ echo "Compiling"
   skia_enable_skshaper=true \
   skia_enable_skparagraph=true \
   skia_enable_pdf=false \
+  skia_canvaskit_enable_rt_shader=true \
   skia_canvaskit_force_tracing=${FORCE_TRACING} \
   skia_canvaskit_profile_build=${PROFILE_BUILD} \
   skia_canvaskit_enable_skp_serialization=${SERIALIZE_SKP} \
@@ -245,7 +253,6 @@ echo "Compiling"
   skia_canvaskit_enable_skottie=${ENABLE_SKOTTIE} \
   skia_canvaskit_include_viewer=${INCLUDE_VIEWER} \
   skia_canvaskit_enable_pathops=${ENABLE_PATHOPS} \
-  skia_canvaskit_enable_rt_shader=${ENABLE_RT_SHADER} \
   skia_canvaskit_enable_matrix_helper=${ENABLE_MATRIX} \
   skia_canvaskit_enable_canvas_bindings=${ENABLE_CANVAS} \
   skia_canvaskit_enable_font=${ENABLE_FONT} \

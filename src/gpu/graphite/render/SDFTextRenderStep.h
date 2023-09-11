@@ -16,7 +16,7 @@ namespace skgpu::graphite {
 
 class SDFTextRenderStep final : public RenderStep {
 public:
-    SDFTextRenderStep(bool isA8);
+    SDFTextRenderStep(bool isLCD);
 
     ~SDFTextRenderStep() override;
 

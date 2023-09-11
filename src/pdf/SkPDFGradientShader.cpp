@@ -7,8 +7,9 @@
 
 #include "src/pdf/SkPDFGradientShader.h"
 
+#include "include/core/SkTileMode.h"
 #include "include/docs/SkPDFDocument.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkChecksum.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFormXObject.h"
 #include "src/pdf/SkPDFGraphicState.h"
@@ -21,25 +22,25 @@ using namespace skia_private;
 static uint32_t hash(const SkShaderBase::GradientInfo& v) {
     uint32_t buffer[] = {
         (uint32_t)v.fColorCount,
-        SkOpts::hash(v.fColors, v.fColorCount * sizeof(SkColor)),
-        SkOpts::hash(v.fColorOffsets, v.fColorCount * sizeof(SkScalar)),
-        SkOpts::hash(v.fPoint, 2 * sizeof(SkPoint)),
-        SkOpts::hash(v.fRadius, 2 * sizeof(SkScalar)),
+        SkChecksum::Hash32(v.fColors, v.fColorCount * sizeof(SkColor)),
+        SkChecksum::Hash32(v.fColorOffsets, v.fColorCount * sizeof(SkScalar)),
+        SkChecksum::Hash32(v.fPoint, 2 * sizeof(SkPoint)),
+        SkChecksum::Hash32(v.fRadius, 2 * sizeof(SkScalar)),
         (uint32_t)v.fTileMode,
         v.fGradientFlags,
     };
-    return SkOpts::hash(buffer, sizeof(buffer));
+    return SkChecksum::Hash32(buffer, sizeof(buffer));
 }
 
 static uint32_t hash(const SkPDFGradientShader::Key& k) {
     uint32_t buffer[] = {
         (uint32_t)k.fType,
         hash(k.fInfo),
-        SkOpts::hash(&k.fCanvasTransform, sizeof(SkMatrix)),
-        SkOpts::hash(&k.fShaderTransform, sizeof(SkMatrix)),
-        SkOpts::hash(&k.fBBox, sizeof(SkIRect))
+        SkChecksum::Hash32(&k.fCanvasTransform, sizeof(SkMatrix)),
+        SkChecksum::Hash32(&k.fShaderTransform, sizeof(SkMatrix)),
+        SkChecksum::Hash32(&k.fBBox, sizeof(SkIRect))
     };
-    return SkOpts::hash(buffer, sizeof(buffer));
+    return SkChecksum::Hash32(buffer, sizeof(buffer));
 }
 
 static void unit_to_points_matrix(const SkPoint pts[2], SkMatrix* matrix) {
@@ -758,7 +759,6 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
                 transformPoints[1] = transformPoints[0];
                 transformPoints[1].fX += SK_Scalar1;
                 break;
-            case SkShaderBase::GradientType::kColor:
             case SkShaderBase::GradientType::kNone:
             default:
                 return SkPDFIndirectReference();

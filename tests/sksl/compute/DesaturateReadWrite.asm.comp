@@ -1,0 +1,94 @@
+               OpCapability ImageQuery
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
+               OpExecutionMode %main LocalSize 16 16 1
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
+               OpName %texIn "texIn"
+               OpName %texOut "texOut"
+               OpName %main "main"
+               OpName %_0_color "_0_color"
+               OpName %gray "gray"
+               OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %texIn Binding 0
+               OpDecorate %texIn DescriptorSet 0
+               OpDecorate %texOut Binding 1
+               OpDecorate %texOut DescriptorSet 0
+               OpDecorate %22 RelaxedPrecision
+               OpDecorate %30 RelaxedPrecision
+               OpDecorate %_0_color RelaxedPrecision
+               OpDecorate %39 RelaxedPrecision
+               OpDecorate %42 RelaxedPrecision
+               OpDecorate %43 RelaxedPrecision
+               OpDecorate %49 RelaxedPrecision
+               OpDecorate %50 RelaxedPrecision
+               OpDecorate %51 RelaxedPrecision
+               OpDecorate %gray RelaxedPrecision
+               OpDecorate %54 RelaxedPrecision
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+      %float = OpTypeFloat 32
+          %9 = OpTypeImage %float 2D 0 0 0 2 Rgba32f
+%_ptr_UniformConstant_9 = OpTypePointer UniformConstant %9
+      %texIn = OpVariable %_ptr_UniformConstant_9 UniformConstant
+     %texOut = OpVariable %_ptr_UniformConstant_9 UniformConstant
+       %void = OpTypeVoid
+         %13 = OpTypeFunction %void
+       %bool = OpTypeBool
+      %false = OpConstantFalse %bool
+     %v2uint = OpTypeVector %uint 2
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+    %v3float = OpTypeVector %float 3
+%float_0_219999999 = OpConstant %float 0.219999999
+%float_0_670000017 = OpConstant %float 0.670000017
+%float_0_109999999 = OpConstant %float 0.109999999
+         %48 = OpConstantComposite %v3float %float_0_219999999 %float_0_670000017 %float_0_109999999
+       %main = OpFunction %void None %13
+         %14 = OpLabel
+   %_0_color = OpVariable %_ptr_Function_v4float Function
+       %gray = OpVariable %_ptr_Function_v4float Function
+         %17 = OpLoad %v3uint %sk_GlobalInvocationID
+         %18 = OpCompositeExtract %uint %17 0
+         %22 = OpLoad %9 %texIn
+         %21 = OpImageQuerySize %v2uint %22
+         %19 = OpCompositeExtract %uint %21 0
+         %23 = OpULessThan %bool %18 %19
+               OpSelectionMerge %25 None
+               OpBranchConditional %23 %24 %25
+         %24 = OpLabel
+         %26 = OpLoad %v3uint %sk_GlobalInvocationID
+         %27 = OpCompositeExtract %uint %26 1
+         %30 = OpLoad %9 %texIn
+         %29 = OpImageQuerySize %v2uint %30
+         %28 = OpCompositeExtract %uint %29 1
+         %31 = OpULessThan %bool %27 %28
+               OpBranch %25
+         %25 = OpLabel
+         %32 = OpPhi %bool %false %14 %31 %24
+               OpSelectionMerge %34 None
+               OpBranchConditional %32 %33 %34
+         %33 = OpLabel
+         %39 = OpLoad %9 %texIn
+         %40 = OpLoad %v3uint %sk_GlobalInvocationID
+         %41 = OpVectorShuffle %v2uint %40 %40 0 1
+         %38 = OpImageRead %v4float %39 %41
+               OpStore %_0_color %38
+         %43 = OpVectorShuffle %v3float %38 %38 0 1 2
+         %42 = OpDot %float %43 %48
+         %49 = OpCompositeConstruct %v3float %42 %42 %42
+         %50 = OpLoad %v4float %_0_color
+         %51 = OpVectorShuffle %v4float %50 %49 4 5 6 3
+               OpStore %_0_color %51
+               OpStore %gray %51
+         %54 = OpLoad %9 %texOut
+         %55 = OpLoad %v3uint %sk_GlobalInvocationID
+         %56 = OpVectorShuffle %v2uint %55 %55 0 1
+               OpImageWrite %54 %56 %51
+               OpBranch %34
+         %34 = OpLabel
+               OpReturn
+               OpFunctionEnd

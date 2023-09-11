@@ -61,7 +61,7 @@ static bool sk_ino(FILE* a, SkFILEID* id) {
     if (fd < 0) {
         return 0;
     }
-    struct stat status;
+    struct stat status = {};
     if (0 != fstat(fd, &status)) {
         return 0;
     }
@@ -82,7 +82,7 @@ void sk_fmunmap(const void* addr, size_t length) {
 }
 
 void* sk_fdmmap(int fd, size_t* size) {
-    struct stat status;
+    struct stat status = {};
     if (0 != fstat(fd, &status)) {
         return nullptr;
     }
@@ -189,7 +189,7 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir) {
         dirent* entry;
 
         while ((entry = ::readdir(self.fDIR)) != nullptr) {
-            struct stat s;
+            struct stat s = {};
             SkString str(self.fPath);
 
             if (!str.endsWith("/") && !str.endsWith("\\")) {

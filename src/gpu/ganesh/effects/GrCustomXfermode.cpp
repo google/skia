@@ -7,18 +7,26 @@
 
 #include "src/gpu/ganesh/effects/GrCustomXfermode.h"
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkRandom.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrPipeline.h"
-#include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorAnalysis.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLBlend.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+#include <memory>
+#include <string>
+
+class GrGLSLProgramDataManager;
+enum class GrClampType;
 
 bool GrCustomXfermode::IsSupportedMode(SkBlendMode mode) {
     return (int)mode  > (int)SkBlendMode::kLastCoeffMode &&
@@ -357,7 +365,7 @@ GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
 }
 
 GR_DEFINE_XP_FACTORY_TEST(CustomXPFactory)
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 const GrXPFactory* CustomXPFactory::TestGet(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU((int)SkBlendMode::kLastCoeffMode + 1,
                                       (int)SkBlendMode::kLastSeparableMode);

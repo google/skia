@@ -219,7 +219,7 @@ private:
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_T) {
+                                       CtsEnforcement::kApiLevel_U) {
     if (!ctxInfo.directContext()->priv().caps()->transferFromBufferToBufferSupport()) {
         return;
     }
@@ -301,13 +301,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest,
         return vb;
     };
 
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dc,
-                                                   GrColorType::kRGBA_8888,
-                                                   nullptr,
-                                                   SkBackingFit::kExact,
-                                                   {1, 1},
-                                                   SkSurfaceProps{},
-                                                   std::string_view{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dc,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kExact,
+                                                       {1, 1},
+                                                       SkSurfaceProps{},
+                                                       std::string_view{});
     if (!sdc) {
         ERRORF(reporter, "Could not create draw context");
         return;
@@ -372,7 +372,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrGpuBufferTransferTest,
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrGpuBufferUpdateDataTest,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_T) {
+                                       CtsEnforcement::kApiLevel_U) {
     GrDirectContext* dc = ctxInfo.directContext();
 
     GrGpu* gpu = ctxInfo.directContext()->priv().getGpu();
@@ -380,13 +380,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrGpuBufferUpdateDataTest,
     static constexpr SkPoint kUnitQuad[] {{0, 0}, {0, 1}, {1, 0},
                                           {1, 0}, {0, 1}, {1, 1}};
 
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dc,
-                                                   GrColorType::kRGBA_8888,
-                                                   nullptr,
-                                                   SkBackingFit::kExact,
-                                                   {1, 1},
-                                                   SkSurfaceProps{},
-                                                   std::string_view{});
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dc,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kExact,
+                                                       {1, 1},
+                                                       SkSurfaceProps{},
+                                                       std::string_view{});
     if (!sdc) {
         ERRORF(reporter, "Could not create draw context");
         return;

@@ -27,14 +27,9 @@ public:
     BitmapImageGM() {}
 
 protected:
+    SkString getName() const override { return SkString("bitmap-image-srgb-legacy"); }
 
-    SkString onShortName() override {
-        return SkString("bitmap-image-srgb-legacy");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(2*kSize, 2*kSize);
-    }
+    SkISize getISize() override { return SkISize::Make(2 * kSize, 2 * kSize); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         // Create image.

@@ -8,13 +8,13 @@
 #include "include/android/SkAnimatedImage.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPixelRef.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkPixmapUtils.h"
+#include "src/codec/SkPixmapUtilsPriv.h"
 #include "src/core/SkImagePriv.h"
 
 #include <limits.h>

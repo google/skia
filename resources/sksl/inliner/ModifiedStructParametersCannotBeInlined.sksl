@@ -1,0 +1,23 @@
+uniform half4 colorGreen, colorRed;
+
+struct S {
+    float a, b, c;
+};
+
+float sumStruct(S s) {
+    float sum = s.a;
+    sum += s.b;
+    sum += s.c;
+    return sum;
+}
+
+float sumStructMutating(S s) {
+    s.a += s.b;
+    s.a += s.c;
+    return s.a;
+}
+
+half4 main(float2 coords) {
+    S s = S(1, 2, 3);
+    return sumStruct(s) == sumStructMutating(s) ? colorGreen : colorRed;
+}

@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
+PYTHON_VERSION_COMPATIBILITY = 'PY3'
 
 DEPS = [
   'build',
@@ -27,10 +27,6 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Build-Debian10-GCC-x86-Debug-Docker',
-  'Build-Debian10-GCC-x86_64-Debug-Docker',
-  'Build-Debian10-GCC-x86_64-Release-NoGPU_Docker',
-  'Build-Debian10-GCC-x86_64-Release-Shared_Docker',
   'Build-Debian10-Clang-arm-Release-Android_API26',
   'Build-Debian10-Clang-arm-Release-Android_ASAN',
   'Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch',
@@ -44,6 +40,7 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Debug-AVIF',
   'Build-Debian10-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian10-Clang-x86_64-Debug-Coverage',
+  'Build-Debian10-Clang-x86_64-Debug-Fontations',
   'Build-Debian10-Clang-x86_64-Debug-MSAN',
   'Build-Debian10-Clang-x86_64-Debug-SK_CPU_LIMIT_SSE41',
   'Build-Debian10-Clang-x86_64-Debug-SafeStack',
@@ -69,16 +66,21 @@ TEST_BUILDERS = [
   'Build-Debian10-EMCC-wasm-Debug-PathKit',
   'Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU',
   'Build-Debian10-EMCC-wasm-Release-PathKit',
+  'Build-Debian11-GCC-x86-Debug-Docker',
+  'Build-Debian11-GCC-x86_64-Debug-Docker',
+  'Build-Debian11-GCC-x86_64-Release-NoGPU_Docker',
+  'Build-Debian11-GCC-x86_64-Release-Shared_Docker',
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-arm64-Debug-iOS',
-  "Build-Mac-Clang-arm64-Debug-Graphite_Dawn",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoGpu",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoPrecompile",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Metal",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoGpu",
-  "Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoPrecompile",
-  "Build-Mac-Clang-arm64-Release-Graphite_Metal",
-  "Build-Mac-Clang-arm64-Release-Graphite_Dawn",
+  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoGpu',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoPrecompile',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Metal',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoGpu',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoPrecompile',
+  'Build-Mac-Clang-arm64-Release-Graphite_Metal',
+  'Build-Mac-Clang-arm64-Release-Graphite_Dawn',
+  'Build-Mac-Clang-x86_64-Release-Graphite_Metal_Vello',
   'Build-Mac-Xcode11.4.1-arm64-Debug-iOS',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
   'Build-Mac-Clang-x86_64-Debug-Metal',
@@ -88,7 +90,6 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Release-Graphite_Vulkan',
   'Build-Win-Clang-x86_64-Release-Direct3D',
   'Build-Win-Clang-x86_64-Release-Shared',
-  "Build-Win-Clang-x86_64-Release-Dawn",
   'Build-Win-Clang-x86_64-Release-Vulkan',
 ]
 

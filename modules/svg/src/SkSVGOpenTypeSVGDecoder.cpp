@@ -22,6 +22,8 @@
 
 #include <memory>
 
+using namespace skia_private;
+
 namespace {
 class DataResourceProvider final : public skresources::ResourceProvider {
 public:
@@ -112,7 +114,7 @@ bool SkSVGOpenTypeSVGDecoder::render(SkCanvas& canvas, int upem, SkGlyphID glyph
     SkSVGPresentationContext pctx;
     pctx.fInherited.fColor.set(foregroundColor);
 
-    SkTHashMap<SkString, SkSVGColorType> namedColors;
+    THashMap<SkString, SkSVGColorType> namedColors;
     if (palette.size()) {
         for (auto&& [i, color] : SkMakeEnumerate(palette)) {
             constexpr const size_t colorStringLen = sizeof("color") - 1;

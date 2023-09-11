@@ -1,0 +1,45 @@
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1);
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) out;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) inout;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) const;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) uniform;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) buffer;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) workgroup;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) highp;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) mediump;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) lowp;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) flat;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) noperspective;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) readonly;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) writeonly;
+
+layout(local_size_x = 16) out;
+layout(local_size_y = 16) out;
+layout(local_size_z = 16) out;
+
+layout(local_size_x = 0) in;
+layout(local_size_y = 0) in;
+layout(local_size_z = 0) in;
+
+/*%%*
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size layout qualifiers must be defined using an 'in' declaration
+local size qualifiers cannot be zero
+local size qualifiers cannot be zero
+local size qualifiers cannot be zero
+*%%*/

@@ -28,6 +28,7 @@
 #include "include/gpu/GrBackendDrawableInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -35,6 +36,7 @@
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/gpu/ContextType.h"
 
 #include <vulkan/vulkan_core.h>
 #include <cstdint>
@@ -171,7 +173,7 @@ public:
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
         // buffers and the imported secondary command buffer.
         sk_sp<SkSurface> surf =
-                SkSurface::MakeRenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
+                SkSurfaces::RenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
         surf->getCanvas()->clear(SK_ColorRED);
 
         SkRect dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
@@ -244,7 +246,7 @@ void draw_drawable_test(skiatest::Reporter* reporter,
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+    sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(
             dContext, skgpu::Budgeted::kNo, ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);
@@ -291,16 +293,14 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo, CtsEnforce
 }
 
 DEF_GANESH_TEST(VkDrawableImportTest, reporter, options, CtsEnforcement::kApiLevel_T) {
-    for (int typeInt = 0; typeInt < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++typeInt) {
-        sk_gpu_test::GrContextFactory::ContextType contextType =
-                (sk_gpu_test::GrContextFactory::ContextType) typeInt;
-        if (contextType != sk_gpu_test::GrContextFactory::kVulkan_ContextType) {
+    for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
+        skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
+        if (contextType != skgpu::ContextType::kVulkan) {
             continue;
         }
         sk_gpu_test::GrContextFactory factory(options);
         sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
-        skiatest::ReporterContext ctx(
-                   reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
+        skiatest::ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
         if (ctxInfo.directContext()) {
             sk_gpu_test::ContextInfo child =
                     factory.getSharedContextInfo(ctxInfo.directContext(), 0);

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<title>Mesh2D Demo</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas {
+    width: 1024px;
+    height: 1024px;
+    background-color: #ccc;
+    display: none;
+  }
+
+  .root {
+    display: flex;
+  }
+
+  .controls {
+    display: flex;
+  }
+  .controls-left  { width: 50%; }
+  .controls-right { width: 50%; }
+  .controls-right select { width: 100%; }
+
+  #loader {
+    width: 1024px;
+    height: 1024px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f2f3;
+    font: bold 2em monospace;
+    color: #85a2b6;
+  }
+</style>
+
+<div class="root">
+  <div id="loader">
+    <img src="BeanEater-1s-200px.gif">
+    <div>Fetching <a href="https://skia.org/docs/user/modules/canvaskit/">CanvasKit</a>...</div>
+  </div>
+
+  <canvas id="canvas2d" width="1024" height="1024"></canvas>
+  <canvas id="canvas3d" width="1024" height="1024"></canvas>
+
+  <div class="controls">
+    <div class="controls-left">
+      <div>Show mesh</div>
+      <div>Level of detail</div>
+      <div>Animator</div>
+      <div>Renderer</div>
+    </div>
+    <div class="controls-right">
+      <div>
+        <input type="checkbox" id="show_mesh"/>
+      </div>
+      <div>
+        <select id="lod">
+          <option value="4">4x4</option>
+          <option value="8" selected>8x8</option>
+          <option value="16">16x16</option>
+          <option value="32">32x32</option>
+          <option value="64">64x64</option>
+          <option value="128">128x128</option>
+          <option value="255">255x255</option>
+        </select>
+      </div>
+      <div>
+        <select id="animator">
+          <option value="">None</option>
+          <option value="squircleAnimator" selected>Squircle</option>
+          <option value="twirlAnimator">Twirl</option>
+          <option value="wiggleAnimator">Wiggle</option>
+          <option value="cylinderAnimator">Cylinder</option>
+        </select>
+      </div>
+      <div>
+        <select id="renderer" disabled>
+          <option value="ckRenderer" selected>CanvasKit (polyfill)</option>
+          <option value="nativeRenderer">Canvas2D (native)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.38.2/bin/full/canvaskit.js"></script>
+
+<script type="text/javascript">
+  class MeshData {
+    constructor(size, renderer) {
+      const vertex_count = size*size;
+
+      // 2 floats per point, 4 bytes per float
+      this.verts          = new Float32Array(vertex_count*4);
+      this.animated_verts = new Float32Array(vertex_count*4);
+      this.uvs            = new Float32Array(vertex_count*4);
+
+      let i = 0;
+      for (let y = 0; y < size; ++y) {
+        for (let x = 0; x < size; ++x) {
+          // To keep things simple, all vertices are normalized.
+          this.verts[i + 0] = this.uvs[i + 0] = x / (size - 1);
+          this.verts[i + 1] = this.uvs[i + 1] = y / (size - 1);
+
+          i += 2;
+        }
+      }
+
+      // 2 triangles per LOD square, 3 indices per triangle
+      this.indices = new Uint16Array((size - 1)*(size - 1)*6);
+      i = 0;
+      for (let y = 0; y < size - 1; ++y) {
+        for (let x = 0; x < size - 1; ++x) {
+          const vidx0 = x + y*size;
+          const vidx1 = vidx0 + size;
+
+          this.indices[i++] = vidx0;
+          this.indices[i++] = vidx0 + 1;
+          this.indices[i++] = vidx1 + 1;
+
+          this.indices[i++] = vidx0;
+          this.indices[i++] = vidx1;
+          this.indices[i++] = vidx1 + 1;
+        }
+      }
+
+      // These can be cached upfront (constant during animation).
+      this.uvBuffer    = renderer.makeUVBuffer(this.uvs);
+      this.indexBuffer = renderer.makeIndexBuffer(this.indices);
+    }
+
+    animate(animator) {
+      function bezier(t, p0, p1, p2, p3){
+        return (1 - t)*(1 - t)*(1 - t)*p0 +
+                   3*(1 - t)*(1 - t)*t*p1 +
+                         3*(1 - t)*t*t*p2 +
+                                 t*t*t*p3;
+      }
+
+      // Tuned for non-linear transition.
+      function ease(t) { return bezier(t, 0, 0.4, 1, 1); }
+
+      if (!animator) {
+        return;
+      }
+
+      const ms = Date.now() - timeBase;
+      const  t = Math.abs((ms / 1000) % 2 - 1);
+
+      animator(this.verts, this.animated_verts, t);
+    }
+
+    generateTriangles(func) {
+      for (let i = 0; i < this.indices.length; i += 3) {
+        const i0 = 2*this.indices[i + 0];
+        const i1 = 2*this.indices[i + 1];
+        const i2 = 2*this.indices[i + 2];
+
+        func(this.animated_verts[i0 + 0], this.animated_verts[i0 + 1],
+             this.animated_verts[i1 + 0], this.animated_verts[i1 + 1],
+             this.animated_verts[i2 + 0], this.animated_verts[i2 + 1]);
+      }
+    }
+  }
+
+  class CKRenderer {
+    constructor(ck, img, canvasElement) {
+      this.ck = ck;
+      this.surface = ck.MakeCanvasSurface(canvasElement);
+      this.meshPaint = new ck.Paint();
+
+      // UVs are normalized, so we scale the image shader down to 1x1.
+      const skimg = ck.MakeImageFromCanvasImageSource(img);
+      const localMatrix = [1/skimg.width(),  0, 0,
+                           0, 1/skimg.height(), 0,
+                           0,                0, 1];
+
+      this.meshPaint.setShader(skimg.makeShaderOptions(ck.TileMode.Decal,
+                                                       ck.TileMode.Decal,
+                                                       ck.FilterMode.Linear,
+                                                       ck.MipmapMode.None,
+                                                       localMatrix));
+
+      this.gridPaint = new ck.Paint();
+      this.gridPaint.setColor(ck.BLUE);
+      this.gridPaint.setAntiAlias(true);
+      this.gridPaint.setStyle(ck.PaintStyle.Stroke);
+    }
+
+    // Unlike the native renderer, CK drawVertices() takes typed arrays directly - so
+    // we don't need to allocate separate buffers.
+    makeVertexBuffer(buf) { return buf; }
+    makeUVBuffer    (buf) { return buf; }
+    makeIndexBuffer (buf) { return buf; }
+
+    meshPath(mesh) {
+      // 4 commands per triangle, 3 floats per cmd
+      const cmds = new Float32Array(mesh.indices.length*12);
+      let ci = 0;
+      mesh.generateTriangles((x0, y0, x1, y1, x2, y2) => {
+        cmds[ci++] = this.ck.MOVE_VERB; cmds[ci++] = x0; cmds[ci++] = y0;
+        cmds[ci++] = this.ck.LINE_VERB; cmds[ci++] = x1; cmds[ci++] = y1;
+        cmds[ci++] = this.ck.LINE_VERB; cmds[ci++] = x2; cmds[ci++] = y2;
+        cmds[ci++] = this.ck.LINE_VERB; cmds[ci++] = x0; cmds[ci++] = y0;
+      });
+      return this.ck.Path.MakeFromCmds(cmds);
+    }
+
+    drawMesh(mesh) {
+      const vertices = this.ck.MakeVertices(this.ck.VertexMode.Triangles,
+                                            this.makeVertexBuffer(mesh.animated_verts),
+                                            mesh.uvBuffer, null, mesh.indexBuffer, false);
+
+      const canvas = this.surface.getCanvas();
+      const w = this.surface.width(),
+            h = this.surface.height();
+
+      canvas.save();
+        canvas.translate(w*(1-meshScale)*0.5, h*(1-meshScale)*0.5);
+        canvas.scale(w*meshScale, h*meshScale);
+
+        canvas.drawVertices(vertices, this.ck.BlendMode.Dst, this.meshPaint);
+
+        if (showMeshUI.checked) {
+          canvas.drawPath(this.meshPath(mesh), this.gridPaint);
+        }
+      canvas.restore();
+      this.surface.flush();
+    }
+  }
+
+  class NativeRenderer {
+    constructor(img, canvasElement) {
+      this.img = img;
+      this.ctx = canvasElement.getContext("2d");
+    }
+
+    // New Mesh2D API: https://github.com/fserb/canvas2D/blob/master/spec/mesh2d.md#mesh2d-api
+    makeVertexBuffer(buf) { return new Mesh2DVertexBuffer(buf); }
+    makeUVBuffer(buf) {
+        // Temp workaround for lack of uv normalization support in the current prototype.
+        for (let i = 0; i < buf.length; i+= 2) {
+          buf[i + 0] *= this.img.width;
+          buf[i + 1] *= this.img.height;
+        }
+        return new Mesh2DVertexBuffer(buf);
+    }
+    makeIndexBuffer(buf)  { return new Mesh2DIndexBuffer(buf); }
+
+    meshPath(mesh) {
+      const path = new Path2D();
+      mesh.generateTriangles((x0, y0, x1, y1, x2, y2) => {
+        path.moveTo(x0, y0);
+        path.lineTo(x1, y1);
+        path.lineTo(x2, y2);
+        path.lineTo(x0, y0);
+      });
+      return path;
+    }
+
+    drawMesh(mesh) {
+      const vbuf = new Mesh2DVertexBuffer(mesh.animated_verts);
+      const w = canvas2d.width,
+            h = canvas2d.height;
+
+      this.ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+      this.ctx.save();
+        this.ctx.translate(w*(1-meshScale)*0.5, h*(1-meshScale)*0.5);
+        this.ctx.scale(w*meshScale, h*meshScale);
+
+        this.ctx.drawMesh(vbuf, mesh.uvBuffer, mesh.indexBuffer, this.img);
+
+        if (showMeshUI.checked) {
+          this.ctx.strokeStyle = "blue";
+          this.ctx.lineWidth = 0.001;
+          this.ctx.stroke(this.meshPath(mesh));
+        }
+      this.ctx.restore();
+    }
+  }
+
+  function squircleAnimator(verts, animated_verts, t) {
+    function lerp(a, b, t) { return a + t*(b - a); }
+
+    for (let i = 0; i < verts.length; i += 2) {
+      const uvx = verts[i + 0] - 0.5,
+            uvy = verts[i + 1] - 0.5,
+              d = Math.sqrt(uvx*uvx + uvy*uvy)*0.5/Math.max(Math.abs(uvx), Math.abs(uvy)),
+              s = d > 0 ? lerp(1, (0.5/ d), t) : 1;
+      animated_verts[i + 0] = uvx*s + 0.5;
+      animated_verts[i + 1] = uvy*s + 0.5;
+    }
+  }
+
+  function twirlAnimator(verts, animated_verts, t) {
+    const kMaxRotate = Math.PI*4;
+
+    for (let i = 0; i < verts.length; i += 2) {
+      const uvx = verts[i + 0] - 0.5,
+            uvy = verts[i + 1] - 0.5,
+              r = Math.sqrt(uvx*uvx + uvy*uvy),
+              a = kMaxRotate * r * t;
+      animated_verts[i + 0] = uvx*Math.cos(a) - uvy*Math.sin(a) + 0.5;
+      animated_verts[i + 1] = uvy*Math.cos(a) + uvx*Math.sin(a) + 0.5;
+    }
+  }
+
+  function wiggleAnimator(verts, animated_verts, t) {
+    const radius = t*0.2/(Math.sqrt(verts.length/2) - 1);
+
+    for (let i = 0; i < verts.length; i += 2) {
+      const phase = i*Math.PI*0.1505;
+      const angle = phase + t*Math.PI*2;
+      animated_verts[i + 0] = verts[i + 0] + radius*Math.cos(angle);
+      animated_verts[i + 1] = verts[i + 1] + radius*Math.sin(angle);
+    }
+  }
+
+  function cylinderAnimator(verts, animated_verts, t) {
+    const kCylRadius = .2;
+    const cyl_pos = t;
+
+    for (let i = 0; i < verts.length; i += 2) {
+      const uvx = verts[i + 0],
+            uvy = verts[i + 1];
+
+      if (uvx <= cyl_pos) {
+        animated_verts[i + 0] = uvx;
+        animated_verts[i + 1] = uvy;
+        continue;
+      }
+
+      const arc_len = uvx - cyl_pos,
+            arc_ang = arc_len/kCylRadius;
+
+      animated_verts[i + 0] = cyl_pos + Math.sin(arc_ang)*kCylRadius;
+      animated_verts[i + 1] = uvy;
+    }
+  }
+
+  function drawFrame() {
+    meshData.animate(animator);
+    currentRenderer.drawMesh(meshData);
+    requestAnimationFrame(drawFrame);
+  }
+
+  function switchRenderer(renderer) {
+    currentRenderer = renderer;
+    meshData = new MeshData(parseInt(lodSelectUI.value), currentRenderer);
+
+    const showCanvas = renderer == ckRenderer ? canvas3d : canvas2d;
+    const hideCanvas = renderer == ckRenderer ? canvas2d : canvas3d;
+    showCanvas.style.display = 'block';
+    hideCanvas.style.display = 'none';
+  }
+
+  const canvas2d = document.getElementById("canvas2d");
+  const canvas3d = document.getElementById("canvas3d");
+  const hasMesh2DAPI = 'drawMesh' in CanvasRenderingContext2D.prototype;
+  const showMeshUI = document.getElementById("show_mesh");
+  const lodSelectUI = document.getElementById("lod");
+  const animatorSelectUI = document.getElementById("animator");
+  const rendererSelectUI = document.getElementById("renderer");
+
+  const meshScale = 0.75;
+
+  const loadCK = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.38.2/bin/full/' + file });
+  const loadImage = new Promise(resolve => {
+    const image = new Image();
+    image.addEventListener('load', () => { resolve(image); });
+    image.src = 'baby_tux.png';
+  });
+
+  var ckRenderer;
+  var nativeRenderer;
+  var currentRenderer;
+  var meshData;
+  var image;
+
+  const timeBase = Date.now();
+
+  var animator = window[animatorSelectUI.value];;
+
+  Promise.all([loadCK, loadImage]).then(([ck, img]) => {
+    ckRenderer = new CKRenderer(ck, img, canvas3d);
+    nativeRenderer = 'drawMesh' in CanvasRenderingContext2D.prototype
+        ? new NativeRenderer(img, canvas2d)
+        : null;
+
+    rendererSelectUI.disabled = !nativeRenderer;
+    rendererSelectUI.value = nativeRenderer ? "nativeRenderer" : "ckRenderer";
+
+    document.getElementById('loader').style.display = 'none';
+    switchRenderer(nativeRenderer ? nativeRenderer : ckRenderer);
+
+    requestAnimationFrame(drawFrame);
+  });
+
+  lodSelectUI.onchange      = () => { switchRenderer(currentRenderer); }
+  animatorSelectUI.onchange = () => { animator = window[animatorSelectUI.value]; }
+  rendererSelectUI.onchange = () => { switchRenderer(window[rendererSelectUI.value]); }
+</script>

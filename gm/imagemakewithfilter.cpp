@@ -25,13 +25,18 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-
 #include "include/effects/SkImageFilters.h"
-
-#include "include/gpu/GrDirectContext.h"
-
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Image.h"
+#endif
 
 #include <utility>
 
@@ -87,19 +92,22 @@ static sk_sp<SkImageFilter> erode_factory(sk_sp<SkImage> auxImage, const SkIRect
 }
 
 static sk_sp<SkImageFilter> displacement_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
-    sk_sp<SkImageFilter> displacement = SkImageFilters::Image(std::move(auxImage));
+    sk_sp<SkImageFilter> displacement = SkImageFilters::Image(std::move(auxImage),
+                                                              SkFilterMode::kLinear);
     return SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kG, 40.f,
                                            std::move(displacement), nullptr, cropRect);
 }
 
 static sk_sp<SkImageFilter> arithmetic_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
-    sk_sp<SkImageFilter> background = SkImageFilters::Image(std::move(auxImage));
+    sk_sp<SkImageFilter> background = SkImageFilters::Image(std::move(auxImage),
+                                                            SkFilterMode::kLinear);
     return SkImageFilters::Arithmetic(0.0f, .6f, 1.f, 0.f, false, std::move(background),
                                       nullptr, cropRect);
 }
 
 static sk_sp<SkImageFilter> blend_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
-    sk_sp<SkImageFilter> background = SkImageFilters::Image(std::move(auxImage));
+    sk_sp<SkImageFilter> background = SkImageFilters::Image(std::move(auxImage),
+                                                            SkFilterMode::kLinear);
     return SkImageFilters::Blend(
             SkBlendMode::kModulate, std::move(background), nullptr, cropRect);
 }
@@ -121,15 +129,6 @@ static sk_sp<SkImageFilter> matrix_factory(sk_sp<SkImage> auxImage, const SkIRec
 
     // This doesn't support a cropRect
     return SkImageFilters::MatrixTransform(matrix, SkSamplingOptions(SkFilterMode::kLinear), nullptr);
-}
-
-static sk_sp<SkImageFilter> alpha_threshold_factory(sk_sp<SkImage> auxImage,
-                                                    const SkIRect* cropRect) {
-    // Centered cross with higher opacity
-    SkRegion region(SkIRect::MakeLTRB(30, 45, 70, 55));
-    region.op(SkIRect::MakeLTRB(45, 30, 55, 70), SkRegion::kUnion_Op);
-
-    return SkImageFilters::AlphaThreshold(region, 1.f, .2f, nullptr, cropRect);
 }
 
 static sk_sp<SkImageFilter> lighting_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
@@ -173,7 +172,7 @@ static sk_sp<SkImageFilter> tile_factory(sk_sp<SkImage> auxImage, const SkIRect*
 
 namespace {
     enum class Strategy {
-        // Uses makeWithFilter, passing in subset and clip directly
+        // Uses MakeWithFilter, passing in subset and clip directly
         kMakeWithFilter,
         // Uses saveLayer after clipRect() to filter on the restore (i.e. reference image)
         kSaveLayer
@@ -181,7 +180,7 @@ namespace {
 }  // namespace
 
 // In this GM, we're going to feed the inner portion of a 100x100 mandrill (i.e., strip off a
-// 25-wide border) through the makeWithFilter method. We'll then draw the appropriate subset of the
+// 25-wide border) through the MakeWithFilter factory. We'll then draw the appropriate subset of the
 // result to the screen at the given offset. Some filters rely on a secondary image, which will be a
 // 100x100 checkerboard. The original image is drawn in the background so that alignment is clear
 // when drawing the result at its reported offset.
@@ -194,7 +193,7 @@ public:
             , fAuxImage(nullptr) {}
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name = SkString("imagemakewithfilter");
 
         if (fFilterWithCropRect) {
@@ -206,11 +205,11 @@ protected:
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(1980, 860); }
+    SkISize getISize() override { return SkISize::Make(1840, 860); }
 
     void onOnceBeforeDraw() override {
         SkImageInfo info = SkImageInfo::MakeN32(100, 100, kUnpremul_SkAlphaType);
-        auto surface = SkSurface::MakeRaster(info, nullptr);
+        auto surface = SkSurfaces::Raster(info, nullptr);
 
         sk_sp<SkImage> colorImage = GetResourceAsImage("images/mandrill_128.png");
         // Resize to 100x100
@@ -237,7 +236,6 @@ protected:
             blend_factory,
             convolution_factory,
             matrix_factory,
-            alpha_threshold_factory,
             lighting_factory,
             tile_factory
         };
@@ -250,10 +248,9 @@ protected:
             "Erode",
             "Displacement",
             "Arithmetic",
-            "Xfer Mode", // "blend"
+            "Blend",
             "Convolution",
             "Matrix Xform",
-            "Alpha Threshold",
             "Lighting",
             "Tile"
         };
@@ -348,7 +345,7 @@ private:
                              const SkIRect& subset, SkIRect* dstRect) {
         // When creating the filter with a crop rect equal to the clip, we should expect to see no
         // difference from a filter without a crop rect. However, if the CTM isn't managed properly
-        // by makeWithFilter, then the final result will be the incorrect intersection of the clip
+        // by MakeWithFilter, then the final result will be the incorrect intersection of the clip
         // and the transformed crop rect.
         sk_sp<SkImageFilter> filter = filterFactory(auxImage,
                                                     fFilterWithCropRect ? &clip : nullptr);
@@ -375,9 +372,23 @@ private:
             SkIRect outSubset;
             SkIPoint offset;
 
-            auto rContext = canvas->recordingContext();
-            result = mainImage->makeWithFilter(rContext, filter.get(), subset, clip,
-                                               &outSubset, &offset);
+#if defined(SK_GANESH)
+            if (auto rContext = canvas->recordingContext()) {
+                result = SkImages::MakeWithFilter(rContext, mainImage, filter.get(),
+                                                  subset, clip, &outSubset, &offset);
+            } else
+#endif
+#if defined(SK_GRAPHITE)
+            if (auto recorder = canvas->recorder()){
+                result = SkImages::MakeWithFilter(recorder, mainImage, filter.get(),
+                                                  subset, clip, &outSubset, &offset);
+            } else
+#endif
+            {
+                result = SkImages::MakeWithFilter(mainImage, filter.get(),
+                                                  subset, clip, &outSubset, &offset);
+            }
+
             if (!result) {
                 return;
             }
@@ -396,7 +407,7 @@ private:
 };
 // The different strategies should all look the same, with the exception of filters that affect
 // transparent black (i.e. the lighting filter). In the save layer case, the filter affects the
-// transparent pixels outside of the drawn subset, whereas the makeWithFilter is restricted. This
+// transparent pixels outside of the drawn subset, whereas the MakeWithFilter is restricted. This
 // works as intended.
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kMakeWithFilter); )
 DEF_GM( return new ImageMakeWithFilterGM(Strategy::kSaveLayer); )

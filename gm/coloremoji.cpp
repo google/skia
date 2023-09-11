@@ -79,11 +79,9 @@ protected:
         emojiFont.text     = ToolUtils::emoji_sample_text();
     }
 
-    SkString onShortName() override {
-        return SkString("coloremoji");
-    }
+    SkString getName() const override { return SkString("coloremoji"); }
 
-    SkISize onISize() override { return SkISize::Make(650, 1200); }
+    SkISize getISize() override { return SkISize::Make(650, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
 

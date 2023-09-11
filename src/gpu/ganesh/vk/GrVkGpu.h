@@ -8,6 +8,7 @@
 #ifndef GrVkGpu_DEFINED
 #define GrVkGpu_DEFINED
 
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -32,9 +33,11 @@ class GrVkSecondaryCommandBuffer;
 class GrVkTexture;
 enum class SkTextureCompressionType;
 
-namespace skgpu { struct VulkanInterface; }
-
-namespace skgpu { class VulkanMemoryAllocator; }
+namespace skgpu {
+class VulkanMemoryAllocator;
+class VulkanMutableTextureState;
+struct VulkanInterface;
+}
 
 class GrVkGpu : public GrGpu {
 public:
@@ -95,7 +98,7 @@ public:
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
@@ -113,7 +116,7 @@ public:
                                               SkISize dimensions, int numStencilSamples) override;
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
-        return GrBackendFormat::MakeVk(this->vkCaps().preferredStencilFormat());
+        return GrBackendFormats::MakeVk(this->vkCaps().preferredStencilFormat());
     }
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
@@ -151,11 +154,11 @@ public:
 
     void submit(GrOpsRenderPass*) override;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    [[nodiscard]] GrFence insertFence() override;
     bool waitFence(GrFence) override;
     void deleteFence(GrFence) override;
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                                       GrSemaphoreWrapType,
                                                       GrWrapOwnership) override;
@@ -330,15 +333,15 @@ private:
                                         const SkIRect&,
                                         const GrOpsRenderPass::LoadAndStoreInfo&,
                                         const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                        const skia_private::TArray<GrSurfaceProxy*, true>& sampledProxies,
                                         GrXferBarrierFlags renderPassXferBarriers) override;
 
     void prepareSurfacesForBackendAccessAndStateUpdates(
             SkSpan<GrSurfaceProxy*> proxies,
-            SkSurface::BackendSurfaceAccess access,
+            SkSurfaces::BackendSurfaceAccess access,
             const skgpu::MutableTextureState* newState) override;
 
-    bool onSubmitToGpu(bool syncCpu) override;
+    bool onSubmitToGpu(GrSyncCpu sync) override;
 
     void onReportSubmitHistograms() override;
 
@@ -414,10 +417,10 @@ private:
     // just a raw pointer; object's lifespan is managed by fCmdPool
     GrVkPrimaryCommandBuffer*                             fMainCmdBuffer;
 
-    SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToWaitOn;
-    SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToSignal;
+    skia_private::STArray<1, GrVkSemaphore::Resource*>    fSemaphoresToWaitOn;
+    skia_private::STArray<1, GrVkSemaphore::Resource*>    fSemaphoresToSignal;
 
-    SkTArray<std::unique_ptr<SkDrawable::GpuDrawHandler>> fDrawables;
+    skia_private::TArray<std::unique_ptr<SkDrawable::GpuDrawHandler>> fDrawables;
 
     VkPhysicalDeviceProperties                            fPhysDevProps;
     VkPhysicalDeviceMemoryProperties                      fPhysDevMemProps;

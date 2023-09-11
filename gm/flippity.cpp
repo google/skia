@@ -29,8 +29,8 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/ProxyUtils.h"
 
@@ -97,7 +97,7 @@ static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
     const SkMatrix mat = SkMatrix::RectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize));
 
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kLabelSize, kLabelSize);
-    sk_sp<SkSurface> surf = SkSurface::MakeRaster(ii);
+    sk_sp<SkSurface> surf = SkSurfaces::Raster(ii);
 
     SkCanvas* canvas = surf->getCanvas();
 
@@ -143,13 +143,11 @@ static sk_sp<SkImage> make_reference_image(SkCanvas* mainCanvas,
             return nullptr;
         }
 
-        return sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
-                                       kNeedNewImageUniqueID,
-                                       std::move(view),
-                                       ii.colorInfo());
+        return sk_make_sp<SkImage_Ganesh>(
+                sk_ref_sp(dContext), kNeedNewImageUniqueID, std::move(view), ii.colorInfo());
     }
 
-    return SkImage::MakeFromBitmap(bm);
+    return SkImages::RasterFromBitmap(bm);
 }
 
 // Here we're converting from a matrix that is intended for UVs to a matrix that is intended
@@ -179,13 +177,9 @@ public:
     }
 
 private:
-    SkString onShortName() override {
-        return SkString("flippity");
-    }
+    SkString getName() const override { return SkString("flippity"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kGMWidth, kGMHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
 
     // Draw the reference image and the four corner labels in the matrix's coordinate space
     void drawImageWithMatrixAndLabels(SkCanvas* canvas, SkImage* image, int matIndex,

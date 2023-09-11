@@ -1,0 +1,48 @@
+41 instructions
+
+[immutable slots]
+i0 = 0
+i1 = 0x3F2AAAAB (0.6666667)
+i2 = 0x3EAAAAAB (0.333333343)
+
+store_src                      hsl = src.rgba
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  $0 = 0x3F800000 (1.0)
+copy_slot_unmasked             $1 = hsl(2)
+mul_imm_float                  $1 *= 0x40000000 (2.0)
+add_imm_float                  $1 += 0xBF800000 (-1.0)
+bitwise_and_imm_int            $1 &= 0x7FFFFFFF
+sub_float                      $0 -= $1
+copy_slot_unmasked             $1 = hsl(1)
+mul_float                      $0 *= $1
+copy_slot_unmasked             C = $0
+copy_4_slots_unmasked          $0..3 = hsl
+swizzle_3                      $0..2 = ($0..2).xxx
+copy_3_immutables_unmasked     $3..5 = i0..2 [0, 0x3F2AAAAB (0.6666667), 0x3EAAAAAB (0.333333343)]
+add_3_floats                   $0..2 += $3..5
+copy_3_slots_unmasked          p = $0..2
+copy_3_slots_unmasked          $3..5 = $0..2
+floor_3_floats                 $3..5 = floor($3..5)
+sub_3_floats                   $0..2 -= $3..5
+splat_3_constants              $3..5 = 0x40C00000 (6.0)
+mul_3_floats                   $0..2 *= $3..5
+splat_3_constants              $3..5 = 0x40400000 (3.0)
+sub_3_floats                   $0..2 -= $3..5
+bitwise_and_imm_3_ints         $0..2 &= 0x7FFFFFFF
+splat_3_constants              $3..5 = 0x3F800000 (1.0)
+sub_3_floats                   $0..2 -= $3..5
+splat_3_constants              $3..5 = 0
+max_3_floats                   $0..2 = max($0..2, $3..5)
+splat_3_constants              $3..5 = 0x3F800000 (1.0)
+min_3_floats                   $0..2 = min($0..2, $3..5)
+copy_3_slots_unmasked          q = $0..2
+splat_3_constants              $3..5 = 0x3F000000 (0.5)
+sub_3_floats                   $0..2 -= $3..5
+copy_slot_unmasked             $3 = C
+swizzle_3                      $3..5 = ($3..5).xxx
+mul_3_floats                   $0..2 *= $3..5
+copy_slot_unmasked             $3 = hsl(2)
+swizzle_3                      $3..5 = ($3..5).xxx
+add_3_floats                   $0..2 += $3..5
+copy_constant                  $3 = 0x3F800000 (1.0)
+load_src                       src.rgba = $0..3

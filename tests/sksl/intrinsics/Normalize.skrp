@@ -1,4 +1,82 @@
-### Compilation failed:
+69 instructions
 
-error: code is not supported
-1 error
+[immutable slots]
+i0 = 0x3F800000 (1.0)
+i1 = 0
+i2 = 0
+i3 = 0
+i4 = 0
+i5 = 0x3F800000 (1.0)
+i6 = 0
+i7 = 0x3F800000 (1.0)
+i8 = 0
+
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_uniform                   $0 = inputVal(0)
+copy_slot_unmasked             $1 = $0
+bitwise_and_imm_int            $1 &= 0x7FFFFFFF
+div_float                      $0 /= $1
+cmpeq_imm_float                $0 = equal($0, 0x3F800000 (1.0))
+copy_2_uniforms                $1..2 = inputVal(0..1)
+copy_2_slots_unmasked          $3..4 = $1..2
+copy_2_slots_unmasked          $5..6 = $3..4
+dot_2_floats                   $3 = dot($3..4, $5..6)
+sqrt_float                     $3 = sqrt($3)
+copy_slot_unmasked             $4 = $3
+div_2_floats                   $1..2 /= $3..4
+copy_2_immutables_unmasked     $3..4 = i0..1 [0x3F800000 (1.0), 0]
+cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
+bitwise_and_int                $1 &= $2
+bitwise_and_int                $0 &= $1
+copy_3_uniforms                $1..3 = inputVal(0..2)
+copy_3_slots_unmasked          $4..6 = $1..3
+copy_3_slots_unmasked          $7..9 = $4..6
+dot_3_floats                   $4 = dot($4..6, $7..9)
+sqrt_float                     $4 = sqrt($4)
+swizzle_3                      $4..6 = ($4..6).xxx
+div_3_floats                   $1..3 /= $4..6
+copy_3_immutables_unmasked     $4..6 = i0..2 [0x3F800000 (1.0), 0, 0]
+cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+bitwise_and_int                $2 &= $3
+bitwise_and_int                $1 &= $2
+bitwise_and_int                $0 &= $1
+copy_4_uniforms                $1..4 = inputVal
+copy_4_slots_unmasked          $5..8 = $1..4
+copy_4_slots_unmasked          $9..12 = $5..8
+dot_4_floats                   $5 = dot($5..8, $9..12)
+sqrt_float                     $5 = sqrt($5)
+swizzle_4                      $5..8 = ($5..8).xxxx
+div_4_floats                   $1..4 /= $5..8
+copy_4_immutables_unmasked     $5..8 = i0..3 [0x3F800000 (1.0), 0, 0, 0]
+cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
+bitwise_and_2_ints             $1..2 &= $3..4
+bitwise_and_int                $1 &= $2
+bitwise_and_int                $0 &= $1
+copy_constant                  $1 = 0x3F800000 (1.0)
+cmpeq_imm_float                $1 = equal($1, 0x3F800000 (1.0))
+bitwise_and_int                $0 &= $1
+copy_2_immutables_unmasked     $1..2 = i4..5 [0, 0x3F800000 (1.0)]
+copy_4_immutables_unmasked     $3..6 = i0..3 [0x3F800000 (1.0), 0, 0, 0]
+swizzle_2                      $3..4 = ($3..4).yx
+cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
+bitwise_and_int                $1 &= $2
+bitwise_and_int                $0 &= $1
+copy_3_immutables_unmasked     $1..3 = i6..8 [0, 0x3F800000 (1.0), 0]
+copy_4_immutables_unmasked     $4..7 = i0..3 [0x3F800000 (1.0), 0, 0, 0]
+swizzle_3                      $4..6 = ($4..6).zxy
+cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+bitwise_and_int                $2 &= $3
+bitwise_and_int                $1 &= $2
+bitwise_and_int                $0 &= $1
+copy_4_immutables_unmasked     $1..4 = i0..3 [0x3F800000 (1.0), 0, 0, 0]
+copy_4_immutables_unmasked     $5..8 = i0..3 [0x3F800000 (1.0), 0, 0, 0]
+cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
+bitwise_and_2_ints             $1..2 &= $3..4
+bitwise_and_int                $1 &= $2
+bitwise_and_int                $0 &= $1
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_uniforms                $4..7 = colorRed
+copy_4_uniforms                $8..11 = colorGreen
+mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+load_src                       src.rgba = $0..3

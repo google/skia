@@ -24,16 +24,22 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 namespace skgpu::ganesh::StrokeRectOp {
 
 namespace {
 
-// We support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
+// This emits line primitives for hairlines, so only support hairlines if allowed by caps. Otherwise
+// we support all hairlines, bevels, and miters, but not round joins. Also, check whether the miter
 // limit makes a miter join effectively beveled. If the miter is effectively beveled, it is only
 // supported when using an AA stroke.
-inline bool allowed_stroke(const SkStrokeRec& stroke, GrAA aa, bool* isMiter) {
+inline bool allowed_stroke(const GrCaps* caps, const SkStrokeRec& stroke, GrAA aa, bool* isMiter) {
     SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style ||
              stroke.getStyle() == SkStrokeRec::kHairline_Style);
+    if (caps->avoidLineDraws() && stroke.isHairlineStyle()) {
+        return false;
+    }
     // For hairlines, make bevel and round joins appear the same as mitered ones.
     if (!stroke.getWidth()) {
         *isMiter = true;
@@ -109,7 +115,7 @@ public:
                             const SkStrokeRec& stroke,
                             GrAAType aaType) {
         bool isMiter;
-        if (!allowed_stroke(stroke, GrAA::kNo, &isMiter)) {
+        if (!allowed_stroke(context->priv().caps(), stroke, GrAA::kNo, &isMiter)) {
             return nullptr;
         }
         Helper::InputFlags inputFlags = Helper::InputFlags::kNone;
@@ -248,7 +254,7 @@ private:
         flushState->drawMesh(*fMesh);
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                               "StrokeWidth: %.2f\n%s",
@@ -445,7 +451,7 @@ public:
             return nullptr;
         }
         bool isMiter;
-        if (!allowed_stroke(stroke, GrAA::kYes, &isMiter)) {
+        if (!allowed_stroke(context->priv().caps(), stroke, GrAA::kYes, &isMiter)) {
             return nullptr;
         }
         RectInfo info;
@@ -527,7 +533,7 @@ private:
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (const auto& info : fRects) {
@@ -573,7 +579,7 @@ private:
                                       bool usesMSAASurface) const;
 
     Helper         fHelper;
-    SkSTArray<1, RectInfo, true> fRects;
+    STArray<1, RectInfo, true> fRects;
     SkMatrix       fViewMatrix;
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -976,7 +982,7 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
         }
         DrawQuad quad{GrQuad::MakeFromRect(rects[0], viewMatrix), GrQuad(rects[0]),
                       GrQuadAAFlags::kAll};
-        return v1::FillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
+        return ganesh::FillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
     }
 
     return AAStrokeRectOp::Make(context, std::move(paint), viewMatrix, devOutside,
@@ -985,7 +991,7 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
 
 } // namespace skgpu::ganesh::StrokeRectOp
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 

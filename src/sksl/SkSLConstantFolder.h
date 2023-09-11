@@ -10,8 +10,8 @@
 
 #include <memory>
 
-#include "include/private/SkSLDefines.h"
-#include "include/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLOperator.h"
 
 namespace SkSL {
 
@@ -27,14 +27,14 @@ class Type;
 class ConstantFolder {
 public:
     /**
-     * If value is an int literal or const int variable with a known value, returns true and stores
-     * the value in out. Otherwise returns false.
+     * If `value` is an int literal or const int variable with a known value, returns true and
+     * stores the value in `out`. Otherwise, returns false.
      */
     static bool GetConstantInt(const Expression& value, SKSL_INT* out);
 
     /**
-     * If value is a literal or const scalar variable with a known value, returns true and stores
-     * the value in out. Otherwise returns false.
+     * If `value` is a literal or const scalar variable with a known value, returns true and stores
+     * the value in `out`. Otherwise, returns false.
      */
     static bool GetConstantValue(const Expression& value, double* out);
 
@@ -45,10 +45,13 @@ public:
     static const Expression* GetConstantValueForVariable(const Expression& value);
 
     /**
-     * If the expression is a const variable with a known compile-time-constant value, returns that
-     * value. If not, returns null.
+     * If the expression can be replaced by a compile-time-constant value, returns that value.
+     * If not, returns null.
      */
-    static const Expression* GetConstantValueOrNullForVariable(const Expression& value);
+    static const Expression* GetConstantValueOrNull(const Expression& value);
+
+    /** Returns true if the expression contains `value` in every slot. */
+    static bool IsConstantSplat(const Expression& expr, double value);
 
     /**
      * If the expression is a const variable with a known compile-time-constant value, returns a

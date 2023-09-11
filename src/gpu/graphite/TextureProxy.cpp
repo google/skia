@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureUtils.h"
 
 namespace skgpu::graphite {
 
@@ -66,6 +67,9 @@ bool TextureProxy::isVolatile() const {
     return fVolatile == Volatile::kYes;
 }
 
+size_t TextureProxy::uninstantiatedGpuMemorySize() const {
+    return ComputeSize(fDimensions, fInfo);
+}
 
 bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
     SkASSERT(!this->isLazy());
@@ -122,32 +126,45 @@ const Texture* TextureProxy::texture() const {
 
 sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
                                        SkISize dimensions,
+                                       const TextureInfo& textureInfo,
+                                       skgpu::Budgeted budgeted) {
+    if (dimensions.width() < 1 || dimensions.height() < 1 ||
+        dimensions.width() > caps->maxTextureSize() ||
+        dimensions.height() > caps->maxTextureSize() ||
+        !textureInfo.isValid()) {
+        return nullptr;
+    }
+
+    return sk_sp<TextureProxy>(new TextureProxy(dimensions, textureInfo, budgeted));
+}
+
+sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
+                                       SkISize dimensions,
                                        SkColorType colorType,
                                        Mipmapped mipmapped,
                                        Protected isProtected,
                                        Renderable renderable,
                                        skgpu::Budgeted budgeted) {
-    if (dimensions.width() < 1 || dimensions.height() < 1) {
-        return nullptr;
-    }
-
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(colorType,
                                                                  mipmapped,
                                                                  isProtected,
                                                                  renderable);
-    if (!textureInfo.isValid()) {
-        return nullptr;
-    }
 
-    return sk_make_sp<TextureProxy>(dimensions, textureInfo, budgeted);
+    return Make(caps, dimensions, textureInfo, budgeted);
 }
 
-sk_sp<TextureProxy> TextureProxy::MakeLazy(SkISize dimensions,
+sk_sp<TextureProxy> TextureProxy::MakeLazy(const Caps* caps,
+                                           SkISize dimensions,
                                            const TextureInfo& textureInfo,
                                            skgpu::Budgeted budgeted,
                                            Volatile isVolatile,
                                            LazyInstantiateCallback&& callback) {
     SkASSERT(textureInfo.isValid());
+    if (dimensions.width() < 1 || dimensions.height() < 1 ||
+        dimensions.width() > caps->maxTextureSize() ||
+        dimensions.height() > caps->maxTextureSize()) {
+        return nullptr;
+    }
 
     return sk_sp<TextureProxy>(new TextureProxy(dimensions, textureInfo, budgeted,
                                                 isVolatile, std::move(callback)));
@@ -157,13 +174,32 @@ sk_sp<TextureProxy> TextureProxy::MakeFullyLazy(const TextureInfo& textureInfo,
                                                 skgpu::Budgeted budgeted,
                                                 Volatile isVolatile,
                                                 LazyInstantiateCallback&& callback) {
-    return MakeLazy(SkISize::Make(-1, -1), textureInfo, budgeted, isVolatile, std::move(callback));
+    SkASSERT(textureInfo.isValid());
+
+    return sk_sp<TextureProxy>(new TextureProxy(
+            SkISize::Make(-1, -1), textureInfo, budgeted, isVolatile, std::move(callback)));
+}
+
+sk_sp<TextureProxy> TextureProxy::MakeStorage(const Caps* caps,
+                                              SkISize dimensions,
+                                              SkColorType colorType,
+                                              skgpu::Budgeted budgeted) {
+    TextureInfo textureInfo = caps->getDefaultStorageTextureInfo(colorType);
+
+    return Make(caps, dimensions, textureInfo, budgeted);
+}
+
+sk_sp<TextureProxy> TextureProxy::Wrap(sk_sp<Texture> texture) {
+    return sk_sp<TextureProxy>(new TextureProxy(std::move(texture)));
 }
 
 #ifdef SK_DEBUG
 void TextureProxy::validateTexture(const Texture* texture) {
     SkASSERT(this->isFullyLazy() || fDimensions == texture->dimensions());
-    SkASSERT(fInfo == texture->textureInfo());
+    SkASSERTF(fInfo.isCompatible(texture->textureInfo()),
+              "proxy->fInfo[%s] incompatible with texture->fInfo[%s]",
+              fInfo.toString().c_str(),
+              texture->textureInfo().toString().c_str());
 }
 #endif
 

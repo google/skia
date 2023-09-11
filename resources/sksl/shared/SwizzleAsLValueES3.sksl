@@ -1,0 +1,22 @@
+uniform half4 colorGreen, colorRed;
+int gAccessCount = 0;
+
+noinline int Z() {
+    ++gAccessCount;
+    return 0;
+}
+
+half4 main(float2) {
+    float4 array[1];
+
+    // Test swizzled-lvalue assignment on an array element with a side-effecting index expression.
+    array[Z()]       = float4(colorGreen) * 0.5;                        // 0,    0.5, 0,    0.5
+    array[Z()].a     = 2.0;                                             // 0,    0.5, 0,    2
+    array[Z()].g    /= 0.25;                                            // 0,    2,   0,    2
+    array[Z()].gba  *= float3x3(0.5);                                   // 0,    1,   0,    1
+    array[Z()].bgar += float4(0.25, 0.0, 0.0, 0.75);                    // 0.75, 1,   0.25, 1
+    array[Z()].r    += array[Z()].a <= 1.0 ? array[Z()].b : float(Z()); // 1,    1,   0.25, 1
+
+    return (gAccessCount == 8 && array[0] == float4(1, 1, 0.25, 1)) ? colorGreen
+                                                                    : colorRed;
+}

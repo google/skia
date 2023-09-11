@@ -21,8 +21,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		args = append(args, "--gpuStatsDump", "true")
 	}
 
-	args = append(args, "--scales", "1.0", "1.1")
-
 	configs := []string{}
 	if b.cpu() {
 		args = append(args, "--nogpu")
@@ -49,11 +47,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		sampleCount := 8
 		if b.matchOs("Android") || b.os("iOS") {
 			sampleCount = 4
-			// The NVIDIA_Shield has a regular OpenGL implementation. We bench that
-			// instead of ES.
-			if !b.model("NVIDIA_Shield") {
-				glPrefix = "gles"
-			}
+			glPrefix = "gles"
 			// iOS crashes with MSAA (skia:6399)
 			// Nexus7 (Tegra3) does not support MSAA.
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
@@ -204,9 +198,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~patch_grid") // skia:2847
 		match = append(match, "~desk_carsvg")
 	}
-	if b.matchModel("Nexus5") {
-		match = append(match, "~keymobi_shop_mobileweb_ebay_com.skp") // skia:5178
-	}
 	if b.os("iOS") {
 		match = append(match, "~blurroundrect")
 		match = append(match, "~patch_grid") // skia:2847
@@ -253,10 +244,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// floor2int_undef benches undefined behavior, so ASAN correctly complains.
 		match = append(match, "~^floor2int_undef$")
 	}
-	if b.model("AcerChromebook13_CB5_311") && b.gpu() {
-		// skia:7551
-		match = append(match, "~^shapes_rrect_inner_rrect_50_500x500$")
-	}
 	if b.model("Pixel3a") {
 		// skia:9413
 		match = append(match, "~^path_text$")
@@ -277,8 +264,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		args = append(args, "--dontReduceOpsTaskSplitting", "true")
 	}
-	if b.model("NUC7i5BNK") {
-		args = append(args, "--gpuResourceCacheLimit", "16777216")
+	if (!b.isLinux() && b.extraConfig("Vulkan") && b.gpu("QuadroP400")) {
+		// skia:14302 (desk_carsvg.skp hangs indefinitely on Windows QuadroP400 vkdmsaa configs)
+		match = append(match, "~desk_carsvg.skp")
 	}
 
 	if b.extraConfig("DMSAAStats") {

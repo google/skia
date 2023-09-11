@@ -9,10 +9,10 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/chromium/GrDeferredDisplayList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
@@ -27,9 +27,9 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 using namespace  skia_private;
@@ -41,10 +41,10 @@ using MaskFormat = skgpu::MaskFormat;
 #define RETURN_VALUE_IF_ABANDONED(value) if (this->context()->abandoned()) { return (value); }
 
 GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
-                                                    SkSpan<GrSurfaceProxy*> proxies,
-                                                    SkSurface::BackendSurfaceAccess access,
-                                                    const GrFlushInfo& info,
-                                                    const skgpu::MutableTextureState* newState) {
+        SkSpan<GrSurfaceProxy*> proxies,
+        SkSurfaces::BackendSurfaceAccess access,
+        const GrFlushInfo& info,
+        const skgpu::MutableTextureState* newState) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", this->context());
 
@@ -67,10 +67,9 @@ GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
     return this->context()->drawingManager()->flushSurfaces(proxies, access, info, newState);
 }
 
-void GrDirectContextPriv::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
-                                        sk_sp<GrRenderTargetProxy> newDest,
-                                        SkIPoint offset) {
-    this->context()->drawingManager()->createDDLTask(std::move(ddl), std::move(newDest), offset);
+void GrDirectContextPriv::createDDLTask(sk_sp<const GrDeferredDisplayList> ddl,
+                                        sk_sp<GrRenderTargetProxy> newDest) {
+    this->context()->drawingManager()->createDDLTask(std::move(ddl), std::move(newDest));
 }
 
 bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
@@ -84,7 +83,7 @@ bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo
 
 
 //////////////////////////////////////////////////////////////////////////////
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 void GrDirectContextPriv::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
@@ -92,8 +91,8 @@ void GrDirectContextPriv::dumpCacheStats(SkString* out) const {
 #endif
 }
 
-void GrDirectContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                                      SkTArray<double>* values) const {
+void GrDirectContextPriv::dumpCacheStatsKeyValuePairs(TArray<SkString>* keys,
+                                                      TArray<double>* values) const {
 #if GR_CACHE_STATS
     this->context()->fResourceCache->dumpStatsKeyValuePairs(keys, values);
 #endif
@@ -121,8 +120,8 @@ void GrDirectContextPriv::dumpGpuStats(SkString* out) const {
 #endif
 }
 
-void GrDirectContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                                    SkTArray<double>* values) const {
+void GrDirectContextPriv::dumpGpuStatsKeyValuePairs(TArray<SkString>* keys,
+                                                    TArray<double>* values) const {
 #if GR_GPU_STATS
     this->context()->fGpu->stats()->dumpKeyValuePairs(keys, values);
     if (auto builder = this->context()->fGpu->pipelineBuilder()) {
@@ -150,8 +149,8 @@ void GrDirectContextPriv::dumpContextStats(SkString* out) const {
 #endif
 }
 
-void GrDirectContextPriv::dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys,
-                                                        SkTArray<double>* values) const {
+void GrDirectContextPriv::dumpContextStatsKeyValuePairs(TArray<SkString>* keys,
+                                                        TArray<double>* values) const {
 #if GR_GPU_STATS
     this->context()->stats()->dumpKeyValuePairs(keys, values);
 #endif
@@ -179,10 +178,10 @@ sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(MaskFormat for
 
     SkColorType colorType = skgpu::MaskFormatToColorType(format);
     SkASSERT(views[index].proxy()->priv().isExact());
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(this->context()),
-                                   kNeedNewImageUniqueID,
-                                   views[index],
-                                   SkColorInfo(colorType, kPremul_SkAlphaType, nullptr));
+    return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(this->context()),
+                                      kNeedNewImageUniqueID,
+                                      views[index],
+                                      SkColorInfo(colorType, kPremul_SkAlphaType, nullptr));
 }
 
 void GrDirectContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(

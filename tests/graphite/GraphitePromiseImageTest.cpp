@@ -12,7 +12,9 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/RecordingPriv.h"
@@ -219,24 +221,25 @@ void setup_test_context(Context* context,
                                        kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
 
-    testCtx->fImg = SkImage::MakeGraphitePromiseTexture(testCtx->fRecorder.get(),
-                                                        dimensions,
-                                                        textureInfo,
-                                                        ii.colorInfo(),
-                                                        isVolatile,
-                                                        PromiseTextureChecker::Fulfill,
-                                                        PromiseTextureChecker::ImageRelease,
-                                                        PromiseTextureChecker::TextureRelease,
-                                                        &testCtx->fPromiseChecker);
+    testCtx->fImg = SkImages::PromiseTextureFrom(testCtx->fRecorder.get(),
+                                                 dimensions,
+                                                 textureInfo,
+                                                 ii.colorInfo(),
+                                                 isVolatile,
+                                                 PromiseTextureChecker::Fulfill,
+                                                 PromiseTextureChecker::ImageRelease,
+                                                 PromiseTextureChecker::TextureRelease,
+                                                 &testCtx->fPromiseChecker);
 
-    testCtx->fSurface = SkSurface::MakeGraphite(testCtx->fRecorder.get(), ii);
+    testCtx->fSurface = SkSurfaces::RenderTarget(testCtx->fRecorder.get(), ii);
 }
 
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -319,7 +322,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillFailureTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -389,7 +393,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageCreationFailureTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     // Note: these dimensions are invalid and will cause MakeGraphitePromiseTexture to fail
     constexpr SkISize kDimensions { 0, 0 };
 
@@ -407,7 +412,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageCreation
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -499,7 +505,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFailureTest,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -570,7 +577,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFail
 // Test out dropping the Recorder prior to inserting the Recording
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorderLoss,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions{ 16, 16 };
 
     for (Volatile isVolatile : { Volatile::kNo, Volatile::kYes }) {
@@ -605,7 +613,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorderLoss,
 // previous instantiations don't impact the Recording's collection of PromiseImages.
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageMultipleImgUses,
                                          reporter,
-                                         context) {
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
     constexpr SkISize kDimensions{ 16, 16 };
 
     static constexpr int kNumRecordings = 3;

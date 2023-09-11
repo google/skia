@@ -1,0 +1,75 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+cc_binary_with_flags(
+    name = "viewer",
+    testonly = True,
+    srcs = [
+        "AnimTimer.h",
+        "BisectSlide.cpp",
+        "BisectSlide.h",
+        "GMSlide.cpp",
+        "GMSlide.h",
+        "ImGuiLayer.cpp",
+        "ImGuiLayer.h",
+        "ImageSlide.cpp",
+        "ImageSlide.h",
+        "MSKPSlide.cpp",
+        "MSKPSlide.h",
+        "SKPSlide.cpp",
+        "SKPSlide.h",
+        "SkSLDebuggerSlide.cpp",
+        "SkSLDebuggerSlide.h",
+        "SkSLSlide.cpp",
+        "SkSLSlide.h",
+        "Slide.h",
+        "SlideDir.cpp",
+        "SlideDir.h",
+        "StatsLayer.cpp",
+        "StatsLayer.h",
+        "SvgSlide.cpp",
+        "SvgSlide.h",
+        "TouchGesture.cpp",
+        "TouchGesture.h",
+        "Viewer.cpp",
+        "Viewer.h",
+        "//bench:gpu_tools",
+        "//gm:gm_subset",
+        "//tools/flags",
+        "//tools/flags:common_flags",
+        "//tools/fonts:test_font_manager_srcs",
+        "//tools/trace",
+    ],
+    set_flags = {
+        # Use the GL backend with the normal GL standard (as opposed to WebGL or GLES)
+        "gpu_backend": [
+            "gl_ganesh",
+        ],
+        "with_gl_standard": [
+            "gl_standard",
+        ],
+        "fontmgr_factory": [
+            "custom_directory_fontmgr_factory",
+        ],
+        "enable_gpu_test_utils": ["True"],
+        "enable_svg_canvas": ["True"],
+        "enable_sksl_tracing": ["True"],
+    },
+    deps = [
+        "//:skia_internal",
+        "//gm",
+        "//modules/sksg",
+        "//tools:mskp_player",
+        "//tools:registry",
+        "//tools:runtime_blend_utils",
+        "//tools:tool_utils",
+        "//tools/gpu:utils",
+        "//tools/sk_app",
+        "//tools/skui",
+        "@imgui",
+    ],
+)

@@ -11,26 +11,10 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/SharedContext.h"
+#include "src/gpu/graphite/TextureUtils.h"
 
 namespace skgpu::graphite {
 
-// TODO: Make this computed size more generic to handle compressed textures
-size_t compute_size(const SharedContext* sharedContext,
-                    SkISize dimensions,
-                    const TextureInfo& info) {
-    // TODO: Should we make sure the backends return zero here if the TextureInfo is for a
-    // memoryless texture?
-    size_t bytesPerPixel = sharedContext->caps()->bytesPerPixel(info);
-
-    size_t colorSize = (size_t)dimensions.width() * dimensions.height() * bytesPerPixel;
-
-    size_t finalSize = colorSize * info.numSamples();
-
-    if (info.mipmapped() == Mipmapped::kYes) {
-        finalSize += colorSize/3;
-    }
-    return finalSize;
-}
 
 Texture::Texture(const SharedContext* sharedContext,
                  SkISize dimensions,
@@ -38,9 +22,7 @@ Texture::Texture(const SharedContext* sharedContext,
                  sk_sp<MutableTextureStateRef> mutableState,
                  Ownership ownership,
                  skgpu::Budgeted budgeted)
-        : Resource(sharedContext, ownership, budgeted, compute_size(sharedContext,
-                                                                    dimensions,
-                                                                    info))
+        : Resource(sharedContext, ownership, budgeted, ComputeSize(dimensions, info))
         , fDimensions(dimensions)
         , fInfo(info)
         , fMutableState(std::move(mutableState)) {}

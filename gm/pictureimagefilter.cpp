@@ -66,11 +66,9 @@ public:
     PictureImageFilterGM() { }
 
 protected:
-    SkString onShortName() override {
-        return SkString("pictureimagefilter");
-    }
+    SkString getName() const override { return SkString("pictureimagefilter"); }
 
-    SkISize onISize() override { return SkISize::Make(600, 300); }
+    SkISize getISize() override { return SkISize::Make(600, 300); }
 
     void onOnceBeforeDraw() override {
         fPicture = make_picture();
@@ -79,8 +77,8 @@ protected:
 
     sk_sp<SkImageFilter> make(sk_sp<SkPicture> pic, SkRect r, const SkSamplingOptions& sampling) {
         SkISize dim = { SkScalarRoundToInt(r.width()), SkScalarRoundToInt(r.height()) };
-        auto img = SkImage::MakeFromPicture(pic, dim, nullptr, nullptr,
-                                            SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
+        auto img = SkImages::DeferredFromPicture(
+                pic, dim, nullptr, nullptr, SkImages::BitDepth::kU8, SkColorSpace::MakeSRGB());
         return SkImageFilters::Image(img, r, r, sampling);
     }
     sk_sp<SkImageFilter> make(const SkSamplingOptions& sampling) {

@@ -21,7 +21,7 @@ void draw(SkCanvas* canvas) {
     };
     for (unsigned index = 0; index < std::size(samplings); ++index) {
         image->scalePixels(pixmap, samplings[index]);
-        sk_sp<SkImage> filtered = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
+        sk_sp<SkImage> filtered = SkImages::RasterFromPixmap(pixmap, nullptr, nullptr);
         canvas->drawImage(filtered, 16 * index, 0);
     }
 }

@@ -10,7 +10,9 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/vk/VulkanImageView.h"
 
 #include <utility>
 
@@ -50,11 +52,11 @@ public:
 
     VkImage vkImage() const { return fImage; }
 
-   void setImageLayout(VulkanCommandBuffer* buffer,
-                       VkImageLayout newLayout,
-                       VkAccessFlags dstAccessMask,
-                       VkPipelineStageFlags dstStageMask,
-                       bool byRegion) {
+    void setImageLayout(VulkanCommandBuffer* buffer,
+                        VkImageLayout newLayout,
+                        VkAccessFlags dstAccessMask,
+                        VkPipelineStageFlags dstStageMask,
+                        bool byRegion) const {
         this->setImageLayoutAndQueueIndex(buffer, newLayout, dstAccessMask, dstStageMask, byRegion,
                                           VK_QUEUE_FAMILY_IGNORED);
     }
@@ -64,10 +66,12 @@ public:
                                      VkAccessFlags dstAccessMask,
                                      VkPipelineStageFlags dstStageMask,
                                      bool byRegion,
-                                     uint32_t newQueueFamilyIndex);
+                                     uint32_t newQueueFamilyIndex) const;
 
     VkImageLayout currentLayout() const;
     uint32_t currentQueueFamilyIndex() const;
+
+    const VulkanImageView* getImageView(VulkanImageView::Usage) const;
 
     // Helpers to use for setting the layout of the VkImage
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
@@ -87,6 +91,8 @@ private:
 
     VkImage fImage;
     VulkanAlloc fMemoryAlloc;
+
+    mutable skia_private::STArray<2, std::unique_ptr<const VulkanImageView>> fImageViews;
 };
 
 } // namespace skgpu::graphite

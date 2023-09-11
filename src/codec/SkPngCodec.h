@@ -8,7 +8,7 @@
 #define SkPngCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkEncodedImageFormat.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTemplates.h"
 
@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <memory>
 
-class SkColorTable;
+class SkColorPalette;
 class SkPngChunkReader;
 class SkSampler;
 class SkStream;
@@ -87,7 +87,7 @@ protected:
     voidp                       fInfo_ptr;
 
     // These are stored here so they can be used both by normal decoding and scanline decoding.
-    sk_sp<SkColorTable>         fColorTable;    // May be unpremul.
+    sk_sp<SkColorPalette>       fColorTable;    // May be unpremul.
     std::unique_ptr<SkSwizzler> fSwizzler;
     skia_private::AutoTMalloc<uint8_t>      fStorage;
     void*                       fColorXformSrcRow;

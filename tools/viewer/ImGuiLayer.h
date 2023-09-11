@@ -8,13 +8,29 @@
 #ifndef ImGuiLayer_DEFINED
 #define ImGuiLayer_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "tools/sk_app/Window.h"
 
+#include <algorithm>
+#include <functional>
+
 #include "imgui.h"
+
+class SkCanvas;
+class SkSurface;
+
+namespace skui {
+enum class InputState;
+enum class Key;
+enum class ModifierKey;
+}  // namespace skui
 
 namespace ImGui {
 
@@ -102,7 +118,7 @@ struct DragCanvas {
     ImVec2 fSize;
 
     // Screen coordinates of points (for additional user drawing)
-    SkSTArray<4, ImVec2, true> fScreenPoints;
+    skia_private::STArray<4, ImVec2, true> fScreenPoints;
 
     // To simplify dragPoint
     SkMatrix fLocalToScreen;
@@ -128,7 +144,7 @@ public:
     void onPrePaint() override;
     void onPaint(SkSurface*) override;
     bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) override;
-    bool onMouseWheel(float delta, skui::ModifierKey modifiers) override;
+    bool onMouseWheel(float delta, int x, int y, skui::ModifierKey modifiers) override;
     bool onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
 

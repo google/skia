@@ -7,15 +7,13 @@
 
 #include "include/effects/SkHighContrastFilter.h"
 
-#include "include/core/SkColorFilter.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_SKSL
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skcms/skcms.h"
@@ -55,19 +53,19 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
                 "return half3(h,s,l);"
             "}"
             "half4 main(half4 inColor) {"
-                "half4 c = inColor;"  // linear unpremul RGBA in dst gamut
+                "half3 c = inColor.rgb;"
                 "if (grayscale == 1) {"
-                    "c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;"
+                    "c = dot(half3(0.2126, 0.7152, 0.0722), c).rrr;"
                 "}"
                 "if (invertStyle == 1) {"  // brightness
-                    "c.rgb = 1 - c.rgb;"
+                    "c = 1 - c;"
                 "} else if (invertStyle == 2) {"  // lightness
-                    "c.rgb = rgb_to_hsl(c.rgb);"
+                    "c = rgb_to_hsl(c);"
                     "c.b = 1 - c.b;"
-                    "c.rgb = $hsl_to_rgb(c.rgb);"
+                    "c = $hsl_to_rgb(c);"
                 "}"
-                "c.rgb = mix(half3(0.5), c.rgb, contrast);"
-                "return half4(saturate(c.rgb), c.a);"
+                "c = mix(half3(0.5), c, contrast);"
+                "return half4(saturate(c), inColor.a);"
             "}";
 
     static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
@@ -95,10 +93,3 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
             effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms))),
             &linear, nullptr/*use dst gamut*/, &unpremul);
 }
-#else // SK_ENABLE_SKSL
-sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
-    // TODO(skia:12197)
-    return nullptr;
-}
-#endif
-

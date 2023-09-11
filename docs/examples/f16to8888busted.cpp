@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkImageInfo info = SkImageInfo::Make(100, 100, SkColorType::kRGBA_F16_SkColorType,
                                          SkAlphaType::kPremul_SkAlphaType, colorSpace);
 
-    sk_sp<SkSurface> offscreen = SkSurface::MakeRaster(info);
+    sk_sp<SkSurface> offscreen = SkSurfaces::Raster(info);
     SkPaint paint;
     offscreen->getCanvas()->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), paint);
 

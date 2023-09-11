@@ -9,23 +9,25 @@
 #define SKSL_VARDECLARATIONS
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace SkSL {
 
 class Context;
+struct Layout;
+struct Modifiers;
 class Position;
 class Type;
-
-struct Modifiers;
 
 /**
  * A single variable declaration statement. Multiple variables declared together are expanded to
@@ -59,18 +61,34 @@ public:
     // errors if needed. This method is implicitly called during Convert(), but is also explicitly
     // called while processing interface block fields.
     static void ErrorCheck(const Context& context, Position pos, Position modifiersPosition,
-            const Modifiers& modifiers, const Type* type, Variable::Storage storage);
+                           const Layout& layout, ModifierFlags modifierFlags, const Type* type,
+                           const Type* baseType, Variable::Storage storage);
 
-    // Does proper error checking and type coercion; reports errors via ErrorReporter.
-    static std::unique_ptr<Statement> Convert(const Context& context, std::unique_ptr<Variable> var,
-            std::unique_ptr<Expression> value, bool addToSymbolTable = true);
+    // For use when no Variable yet exists. The newly-created variable will be added to the active
+    // symbol table. Performs proper error checking and type coercion; reports errors via
+    // ErrorReporter.
+    static std::unique_ptr<VarDeclaration> Convert(const Context& context,
+                                                   Position overallPos,
+                                                   const Modifiers& modifiers,
+                                                   const Type& type,
+                                                   Position namePos,
+                                                   std::string_view name,
+                                                   VariableStorage storage,
+                                                   std::unique_ptr<Expression> value);
 
-    // Reports errors via ASSERT.
-    static std::unique_ptr<Statement> Make(const Context& context,
-                                           Variable* var,
-                                           const Type* baseType,
-                                           int arraySize,
-                                           std::unique_ptr<Expression> value);
+    // For use when a Variable already exists. The passed-in variable will be added to the active
+    // symbol table. Performs proper error checking and type coercion; reports errors via
+    // ErrorReporter.
+    static std::unique_ptr<VarDeclaration> Convert(const Context& context,
+                                                   std::unique_ptr<Variable> var,
+                                                   std::unique_ptr<Expression> value);
+
+    // The symbol table is left as-is. Reports errors via ASSERT.
+    static std::unique_ptr<VarDeclaration> Make(const Context& context,
+                                                Variable* var,
+                                                const Type* baseType,
+                                                int arraySize,
+                                                std::unique_ptr<Expression> value);
     const Type& baseType() const {
         return fBaseType;
     }
@@ -102,6 +120,7 @@ public:
 private:
     static bool ErrorCheckAndCoerce(const Context& context,
                                     const Variable& var,
+                                    const Type* baseType,
                                     std::unique_ptr<Expression>& value);
 
     Variable* fVar;

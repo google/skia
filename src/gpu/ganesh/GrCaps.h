@@ -36,10 +36,10 @@ class GrRenderTarget;
 class GrRenderTargetProxy;
 class GrSurface;
 class SkJSONWriter;
+enum class SkTextureCompressionType;
 struct GrContextOptions;
 struct SkIRect;
 struct SkISize;
-enum class SkTextureCompressionType;
 
 namespace skgpu {
     class KeyBuilder;
@@ -408,6 +408,8 @@ public:
         return fDynamicStateArrayGeometryProcessorTextureSupport;
     }
 
+    bool supportsProtectedContent() const { return fSupportsProtectedContent; }
+
     // Not all backends support clearing with a scissor test (e.g. Metal), this will always
     // return true if performColorClearsAsDraws() returns true.
     bool performPartialClearsAsDraws() const {
@@ -534,6 +536,9 @@ public:
         return fDisablePerspectiveSDFText;
     }
 
+    // anglebug.com/7796
+    bool avoidLineDraws() const { return fAvoidLineDraws; }
+
     /**
      * Checks whether the passed color type is renderable. If so, the same color type is passed
      * back along with the default format used for the color type. If not, provides an alternative
@@ -543,7 +548,7 @@ public:
     std::tuple<GrColorType, GrBackendFormat> getFallbackColorTypeAndFormat(GrColorType,
                                                                            int sampleCount) const;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     virtual std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const = 0;
 #endif
 
@@ -604,6 +609,7 @@ protected:
     bool fAvoidReorderingRenderTasks                 : 1;
     bool fAvoidDithering                             : 1;
     bool fDisablePerspectiveSDFText                  : 1;
+    bool fAvoidLineDraws                             : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
@@ -616,6 +622,8 @@ protected:
 
     // Not (yet) implemented in VK backend.
     bool fDynamicStateArrayGeometryProcessorTextureSupport : 1;
+
+    bool fSupportsProtectedContent                   : 1;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqDisableFlags;

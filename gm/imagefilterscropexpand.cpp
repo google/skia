@@ -42,7 +42,8 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
     sk_sp<SkImage> gradientCircle(make_gradient_circle(64, 64));
     auto checkerboard = make_checkerboard();
 
-    sk_sp<SkImageFilter> gradientCircleSource(SkImageFilters::Image(std::move(gradientCircle)));
+    sk_sp<SkImageFilter> gradientCircleSource(SkImageFilters::Image(std::move(gradientCircle),
+                                                                    SkFilterMode::kLinear));
     sk_sp<SkImageFilter> noopCropped(SkImageFilters::Offset(0, 0, nullptr, &cropRect));
     // This color matrix saturates the green component but only partly increases the opacity.
     // For the opaque checkerboard, the opacity boost doesn't matter but it does impact the
@@ -105,7 +106,7 @@ DEF_SIMPLE_GM(imagefilterscropexpand, canvas, 730, 650) {
 
 namespace {
     sk_sp<SkImage> make_checkerboard() {
-        auto surf = SkSurface::MakeRasterN32Premul(64, 64);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64));
         auto canvas = surf->getCanvas();
         canvas->clear(0xFFFF0000);
         SkPaint darkPaint;
@@ -130,7 +131,7 @@ namespace {
         SkScalar x = SkIntToScalar(width / 2);
         SkScalar y = SkIntToScalar(height / 2);
         SkScalar radius = std::min(x, y) * 0.8f;
-        auto surface(SkSurface::MakeRasterN32Premul(width, height));
+        auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height)));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(0x00000000);
         SkColor colors[2];
@@ -146,20 +147,23 @@ namespace {
 
     void draw(SkCanvas* canvas, sk_sp<SkImage> image, const SkIRect& layerRect,
                      sk_sp<SkImageFilter> filter) {
-        // Convert SkIRect to SkRect since that's what saveLayer and drawRect need
-        SkRect rect = SkRect::Make(layerRect);
+          SkPaint paint;
+          paint.setImageFilter(std::move(filter));
 
-        SkPaint paint;
-        paint.setImageFilter(std::move(filter));
-        canvas->saveLayer(&rect, &paint);
-        canvas->drawImage(image, 0, 0);
-        canvas->restore();
+          // We don't pass 'layerRect' in as the saveLayer bounds hint because that is not the
+          // pre-filtering local bounds (which would be image->dimensions()). We could clip before
+          // the saveLayer but every 'filter' should have been constructed with a crop rect equal
+          // to 'layerRect', so do an unclipped saveLayer to ensure that the crop rect itself is
+          // what restricts the output of the filter.
+          canvas->saveLayer(nullptr, &paint);
+          canvas->drawImage(image, 0, 0);
+          canvas->restore();
 
-        SkPaint strokePaint;
-        strokePaint.setColor(0xFFFF0000);
-        strokePaint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawRect(rect, strokePaint);
+          SkPaint strokePaint;
+          strokePaint.setColor(0xFFFF0000);
+          strokePaint.setStyle(SkPaint::kStroke_Style);
+          canvas->drawRect(SkRect::Make(layerRect), strokePaint);
 
-        canvas->translate(SkIntToScalar(80), 0);
+          canvas->translate(SkIntToScalar(80), 0);
     }
 }  // namespace

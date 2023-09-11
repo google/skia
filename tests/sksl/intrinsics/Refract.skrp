@@ -1,21 +1,40 @@
-### Compilation failed:
+27 instructions
 
-error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
-void main() {
-^^^^^^^^^^^
-error: 4: unknown identifier 'sk_FragColor'
-    sk_FragColor.x = refract(a, b, c);
-    ^^^^^^^^^^^^
-error: 5: unknown identifier 'sk_FragColor'
-    sk_FragColor = refract(d, e, c);
-    ^^^^^^^^^^^^
-error: 7: unknown identifier 'sk_FragColor'
-    sk_FragColor.xy   = refract(half2(1,0),     half2(0,1),     0.5);
-    ^^^^^^^^^^^^
-error: 8: unknown identifier 'sk_FragColor'
-    sk_FragColor.xyz  = refract(half3(1,0,0),   half3(0,0,1),   0.5);
-    ^^^^^^^^^^^^
-error: 9: unknown identifier 'sk_FragColor'
-    sk_FragColor.xyzw = refract(half4(1,0,0,0), half4(0,0,0,1), 0.5);
-    ^^^^^^^^^^^^
-6 errors
+[immutable slots]
+i0 = 0x3F000000 (0.5)
+i1 = 0xBF5DB3D7 (-0.8660254)
+i2 = 0x3F000000 (0.5)
+i3 = 0
+i4 = 0xBF5DB3D7 (-0.8660254)
+i5 = 0x3F000000 (0.5)
+i6 = 0
+i7 = 0
+i8 = 0xBF5DB3D7 (-0.8660254)
+
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  $0 = 0x6BF82779 (6e+26)
+splat_3_constants              $1..3 = 0
+copy_constant                  $4 = 0x40000000 (2.0)
+splat_3_constants              $5..7 = 0
+copy_constant                  $8 = 0x40000000 (2.0)
+refract_4_floats               $0..3 = refract($0..3, $4..7, $8)
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_slots_unmasked          result = $0..3
+copy_uniform                   $0 = a
+splat_3_constants              $1..3 = 0
+copy_uniform                   $4 = b
+splat_3_constants              $5..7 = 0
+copy_uniform                   $8 = c
+refract_4_floats               $0..3 = refract($0..3, $4..7, $8)
+copy_slot_unmasked             result(0) = $0
+copy_4_uniforms                $0..3 = d
+copy_4_uniforms                $4..7 = e
+copy_uniform                   $8 = c
+refract_4_floats               $0..3 = refract($0..3, $4..7, $8)
+copy_4_slots_unmasked          result = $0..3
+copy_2_immutables_unmasked     result(0..1) = i0..1 [0x3F000000 (0.5), 0xBF5DB3D7 (-0.8660254)]
+copy_3_immutables_unmasked     result(0..2) = i2..4 [0x3F000000 (0.5), 0, 0xBF5DB3D7 (-0.8660254)]
+copy_4_immutables_unmasked     result = i5..8 [0x3F000000 (0.5), 0, 0, 0xBF5DB3D7 (-0.8660254)]
+copy_4_slots_unmasked          $0..3 = result
+load_src                       src.rgba = $0..3

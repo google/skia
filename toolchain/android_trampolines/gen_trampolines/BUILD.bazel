@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+go_library(
+    name = "gen_trampolines_lib",
+    srcs = ["gen_trampolines.go"],
+    importpath = "go.skia.org/skia/toolchain/android_trampolines/gen_trampolines",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "gen_trampolines",
+    embed = [":gen_trampolines_lib"],
+    visibility = ["//visibility:public"],
+)

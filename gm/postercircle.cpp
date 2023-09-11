@@ -31,14 +31,9 @@ public:
     PosterCircleGM() : fTime(0.f) {}
 
 protected:
+    SkString getName() const override { return SkString("poster_circle"); }
 
-    SkString onShortName() override {
-        return SkString("poster_circle");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(kStageWidth, kStageHeight + 50);
-    }
+    SkISize getISize() override { return SkISize::Make(kStageWidth, kStageHeight + 50); }
 
     bool onAnimate(double nanos) override {
         fTime = TimeUtils::Scaled(1e-9 * nanos, 0.5f);
@@ -51,7 +46,8 @@ protected:
         font.setEmbolden(true);
         font.setSize(24.f);
 
-        sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(kPosterSize, kPosterSize);
+        sk_sp<SkSurface> surface =
+                SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kPosterSize, kPosterSize));
         for (int i = 0; i < kNumAngles; ++i) {
             SkCanvas* canvas = surface->getCanvas();
 

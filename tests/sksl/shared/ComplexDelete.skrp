@@ -1,8 +1,8 @@
 ### Compilation failed:
 
 error: 2: invalid type
-layout(binding=0) uniform sampler2D s;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(binding=0) sampler2D s;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 4: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
@@ -12,4 +12,7 @@ error: 6: unknown identifier 'sk_FragColor'
 error: 8: unknown identifier 'sample'
             (tmpColor = sample(s, float2(1)),
                         ^^^^^^
-4 errors
+error: 8: unknown identifier 's'
+            (tmpColor = sample(s, float2(1)),
+                               ^
+5 errors

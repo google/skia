@@ -7,14 +7,20 @@
 #ifndef SkPictureFlat_DEFINED
 #define SkPictureFlat_DEFINED
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkPicture.h"
-#include "include/private/SkChecksum.h"
-#include "src/core/SkPtrRecorder.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkTDynamicHash.h"
-#include "src/core/SkWriteBuffer.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+enum class SkClipOp;
 
 /*
  * Note: While adding new DrawTypes, it is necessary to add to the end of this list
@@ -95,7 +101,7 @@ enum DrawType {
     DRAW_REGION,
     DRAW_VERTICES_OBJECT,
 
-    FLUSH,
+    FLUSH,  // no-op
 
     DRAW_EDGEAA_IMAGE_SET,
 

@@ -1,0 +1,77 @@
+68 instructions
+
+[immutable slots]
+i0 = 0x40000000 (2.0)
+i1 = 0x40A00000 (5.0)
+i2 = 0x41100000 (9.0)
+
+store_src_rg                   fragcoord = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+splat_3_constants              $0..2 = 0x3F000000 (0.5)
+copy_2_slots_unmasked          $3..4 = fragcoord
+copy_constant                  $5 = 0x3F800000 (1.0)
+copy_uniform                   $6 = iResolution(1)
+swizzle_3                      $6..8 = ($6..8).xxx
+div_3_floats                   $3..5 /= $6..8
+sub_3_floats                   $0..2 -= $3..5
+copy_3_slots_unmasked          d = $0..2
+splat_4_constants              p, i = 0
+label                          label 0x00000001
+copy_3_slots_unmasked          _0_p = p
+copy_slot_unmasked             $0 = _0_p(2)
+copy_uniform                   $1 = iTime
+mul_imm_float                  $1 *= 0x41200000 (10.0)
+sub_float                      $0 -= $1
+copy_slot_unmasked             _0_p(2) = $0
+mul_imm_float                  $0 *= 0x3DCCCCCD (0.1)
+copy_slot_unmasked             _1_a = $0
+copy_2_slots_unmasked          $2..3 = _0_p(0..1)
+copy_slot_unmasked             $4 = _1_a
+cos_float                      $4 = cos($4)
+copy_slot_unmasked             $5 = _1_a
+sin_float                      $5 = sin($5)
+copy_slot_unmasked             $6 = _1_a
+sin_float                      $6 = sin($6)
+bitwise_xor_imm_int            $6 ^= 0x80000000
+copy_slot_unmasked             $7 = _1_a
+cos_float                      $7 = cos($7)
+matrix_multiply_2              mat2x1($0..1) = mat2x1($2..3) * mat2x2($4..7)
+copy_2_slots_unmasked          _0_p(0..1) = $0..1
+copy_3_slots_unmasked          $0..2 = p
+copy_constant                  $3 = 0x3DCCCCCD (0.1)
+copy_2_slots_unmasked          $4..5 = _0_p(0..1)
+cos_float                      $4 = cos($4)
+cos_float                      $5 = cos($5)
+copy_2_slots_unmasked          $6..7 = _0_p(1..2)
+sin_float                      $6 = sin($6)
+sin_float                      $7 = sin($7)
+add_2_floats                   $4..5 += $6..7
+copy_2_slots_unmasked          $6..7 = $4..5
+dot_2_floats                   $4 = dot($4..5, $6..7)
+sqrt_float                     $4 = sqrt($4)
+sub_float                      $3 -= $4
+swizzle_3                      $3..5 = ($3..5).xxx
+copy_3_slots_unmasked          $6..8 = d
+mul_3_floats                   $3..5 *= $6..8
+add_3_floats                   $0..2 += $3..5
+copy_3_slots_unmasked          p = $0..2
+add_imm_int                    i += 0x00000001
+copy_slot_unmasked             $0 = i
+cmplt_imm_int                  $0 = lessThan($0, 0x00000020)
+stack_rewind
+branch_if_no_active_lanes_eq   branch -43 (label 1 at #12) if no lanes of $0 == 0
+label                          label 0
+copy_3_slots_unmasked          $0..2 = p
+sin_float                      $0 = sin($0)
+sin_float                      $1 = sin($1)
+sin_float                      $2 = sin($2)
+copy_3_immutables_unmasked     $3..5 = i0..2 [0x40000000 (2.0), 0x40A00000 (5.0), 0x41100000 (9.0)]
+add_3_floats                   $0..2 += $3..5
+copy_3_slots_unmasked          $3..5 = p
+copy_3_slots_unmasked          $6..8 = $3..5
+dot_3_floats                   $3 = dot($3..5, $6..8)
+sqrt_float                     $3 = sqrt($3)
+swizzle_3                      $3..5 = ($3..5).xxx
+div_3_floats                   $0..2 /= $3..5
+copy_constant                  $3 = 0x3F800000 (1.0)
+load_src                       src.rgba = $0..3

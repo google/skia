@@ -11,34 +11,36 @@
 #include <memory>
 
 #include "include/core/SkTypes.h"
+#include "src/base/SkArenaAlloc.h"
 
-#if defined(SK_GANESH)
-
-#include "src/gpu/ganesh/GrMemoryPool.h"
-
-namespace SkSL {
-using MemoryPool = ::GrMemoryPool;
-}
-
-#else
-
-// When Ganesh is disabled, GrMemoryPool is not linked in. We include a minimal class which mimics
-// the GrMemoryPool interface but simply redirects to the system allocator.
 namespace SkSL {
 
 class MemoryPool {
 public:
-    static std::unique_ptr<MemoryPool> Make(size_t, size_t) {
+    static std::unique_ptr<MemoryPool> Make() {
         return std::make_unique<MemoryPool>();
     }
-    void resetScratchSpace() {}
-    void reportLeaks() const {}
-    bool isEmpty() const { return true; }
-    void* allocate(size_t size) { return ::operator new(size); }
-    void release(void* p) { ::operator delete(p); }
+    void* allocate(size_t size) {
+        return fArena.makeBytesAlignedTo(size, kAlignment);
+    }
+    void release(void*) {
+        // SkArenaAlloc does not ever attempt to reclaim space.
+    }
+
+private:
+#ifdef SK_FORCE_8_BYTE_ALIGNMENT
+    // https://github.com/emscripten-core/emscripten/issues/10072
+    // Since Skia does not use "long double" (16 bytes), we should be ok to force it back to 8 bytes
+    // until emscripten is fixed.
+    static constexpr size_t kAlignment = 8;
+#else
+    // Guaranteed alignment of pointer returned by allocate().
+    static constexpr size_t kAlignment = alignof(std::max_align_t);
+#endif
+
+    SkSTArenaAlloc<65536> fArena{/*firstHeapAllocation=*/32768};
 };
 
 }  // namespace SkSL
 
-#endif // defined(SK_GANESH)
 #endif // SKSL_MEMORYPOOL

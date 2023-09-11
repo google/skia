@@ -45,7 +45,7 @@ private:
     const SkStrokeRec fStroke;
 
     constexpr static int kMaxAttribCount = 6;
-    SkSTArray<kMaxAttribCount, Attribute> fAttribs;
+    skia_private::STArray<kMaxAttribCount, Attribute> fAttribs;
 
     class Impl;
 };

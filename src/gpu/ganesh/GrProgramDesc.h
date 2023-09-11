@@ -96,12 +96,12 @@ protected:
                         kMaxPreallocProcessors * kIntsPerProcessor,
     };
 
-    using KeyType = SkSTArray<kPreAllocSize, uint32_t, true>;
+    using KeyType = skia_private::STArray<kPreAllocSize, uint32_t, true>;
 
     KeyType* key() { return &fKey; }
 
 private:
-    SkSTArray<kPreAllocSize, uint32_t, true> fKey;
+    skia_private::STArray<kPreAllocSize, uint32_t, true> fKey;
     uint32_t fInitialKeyLength = 0;
 };
 

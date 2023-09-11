@@ -30,13 +30,9 @@ public:
     BlurQuickRejectGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("blurquickreject");
-    }
+    SkString getName() const override { return SkString("blurquickreject"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr SkScalar kBlurRadius = SkIntToScalar(20);

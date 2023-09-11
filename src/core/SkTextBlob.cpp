@@ -10,6 +10,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTypeface.h"
 #include "src/base/SkSafeMath.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -18,14 +19,11 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/GlyphRun.h"
+#include "src/text/TextBlobMailbox.h"
 
 #include <atomic>
 #include <limits>
 #include <new>
-
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-#include "src/text/gpu/TextBlobRedrawCoordinator.h"
-#endif
 
 using namespace skia_private;
 
@@ -150,11 +148,9 @@ SkTextBlob::SkTextBlob(const SkRect& bounds)
     , fCacheID(SK_InvalidUniqueID) {}
 
 SkTextBlob::~SkTextBlob() {
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
     if (SK_InvalidUniqueID != fCacheID.load()) {
-        sktext::gpu::TextBlobRedrawCoordinator::PostPurgeBlobMessage(fUniqueID, fCacheID);
+        sktext::PostPurgeBlobMessage(fUniqueID, fCacheID);
     }
-#endif
 
     const auto* run = RunRecord::First(this);
     do {

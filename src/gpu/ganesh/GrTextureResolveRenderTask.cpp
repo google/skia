@@ -114,7 +114,7 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
 void GrTextureResolveRenderTask::visitProxies_debugOnly(const GrVisitProxyFunc&) const {}
 #endif
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrSurfaceProxy::ResolveFlags
 GrTextureResolveRenderTask::flagsForProxy(sk_sp<GrSurfaceProxy> proxy) const {
     if (auto found = std::find(fTargets.begin(), fTargets.end(), proxy);

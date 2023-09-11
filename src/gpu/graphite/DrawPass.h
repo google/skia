@@ -12,12 +12,13 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkEnumBitMask.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/TextureProxy.h"
 
 #include <memory>
 
@@ -35,7 +36,6 @@ class ResourceProvider;
 class RuntimeEffectDictionary;
 class Sampler;
 class TextureDataBlock;
-class TextureProxy;
 class Texture;
 enum class UniformSlot;
 
@@ -94,6 +94,8 @@ public:
     const Texture* getTexture(size_t index) const;
     const Sampler* getSampler(size_t index) const;
 
+    skia_private::TArray<sk_sp<TextureProxy>> sampledTextures() const { return fSampledTextures; }
+
     void addResourceRefs(CommandBuffer*) const;
 
 private:
@@ -116,13 +118,13 @@ private:
 
     // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
     // an array of actual GraphicsPipelines.
-    SkTArray<GraphicsPipelineDesc> fPipelineDescs;
-    SkTArray<SamplerDesc> fSamplerDescs;
+    skia_private::TArray<GraphicsPipelineDesc> fPipelineDescs;
+    skia_private::TArray<SamplerDesc> fSamplerDescs;
 
     // These resources all get instantiated during prepareResources.
-    SkTArray<sk_sp<GraphicsPipeline>> fFullPipelines;
-    SkTArray<sk_sp<TextureProxy>> fSampledTextures;
-    SkTArray<sk_sp<Sampler>> fSamplers;
+    skia_private::TArray<sk_sp<GraphicsPipeline>> fFullPipelines;
+    skia_private::TArray<sk_sp<TextureProxy>> fSampledTextures;
+    skia_private::TArray<sk_sp<Sampler>> fSamplers;
 };
 
 } // namespace skgpu::graphite

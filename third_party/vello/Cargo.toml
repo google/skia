@@ -1,0 +1,30 @@
+# This is the canonical cargo manifest definition for the vello_cpp crate. This file should be kept
+# in sync with the BUILD.bazel file.
+
+[package]
+name = "vello_cpp"
+version = "0.0.1"
+description = "C++ bindings for https://github.com/linebender/vello"
+edition = "2021"
+license = "BSD"
+publish = false
+
+[lib]
+crate-type = ["staticlib"]
+
+[profile.release]
+panic = "abort"
+
+[features]
+msl = ["vello_shaders/msl"]
+wgsl = ["vello_shaders/wgsl"]
+
+[dependencies]
+bytemuck = "1.12.1"
+cxx = "1.0"
+peniko = { git = "https://github.com/linebender/peniko", rev = "cafdac9a211a0fb2fec5656bd663d1ac770bcc81" }
+vello_encoding = { path = "../externals/vello/crates/encoding", default_features = false }
+vello_shaders = { path = "../externals/vello/crates/shaders", default_features = false }
+
+[build-dependencies]
+cxx-build = "1.0"

@@ -20,6 +20,8 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+using namespace skia_private;
+
 namespace {
 
 class DrawAtlasOpImpl final : public GrMeshDrawOp {
@@ -61,7 +63,7 @@ private:
 
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
 
@@ -74,10 +76,10 @@ private:
 
     struct Geometry {
         SkPMColor4f fColor;
-        SkTArray<uint8_t, true> fVerts;
+        TArray<uint8_t, true> fVerts;
     };
 
-    SkSTArray<1, Geometry, true> fGeoData;
+    STArray<1, Geometry, true> fGeoData;
     Helper fHelper;
     SkMatrix fViewMatrix;
     SkPMColor4f fColor;
@@ -186,7 +188,7 @@ DrawAtlasOpImpl::DrawAtlasOpImpl(GrProcessorSet* processorSet, const SkPMColor4f
     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsHairline::kNo);
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 SkString DrawAtlasOpImpl::onDumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {
@@ -307,7 +309,7 @@ GrProcessorSet::Analysis DrawAtlasOpImpl::finalize(const GrCaps& caps,
 
 } // anonymous namespace
 
-namespace skgpu::v1::DrawAtlasOp {
+namespace skgpu::ganesh::DrawAtlasOp {
 
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
@@ -323,9 +325,9 @@ GrOp::Owner Make(GrRecordingContext* context,
                                                                     rects, colors);
 }
 
-} // namespace skgpu::v1::DrawAtlasOp
+}  // namespace skgpu::ganesh::DrawAtlasOp
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 
 static SkRSXform random_xform(SkRandom* random) {
@@ -357,8 +359,8 @@ static SkRect random_texRect(SkRandom* random) {
     return texRect;
 }
 
-static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXform>* xforms,
-                             SkTArray<SkRect>* texRects, SkTArray<GrColor>* colors,
+static void randomize_params(uint32_t count, SkRandom* random, TArray<SkRSXform>* xforms,
+                             TArray<SkRect>* texRects, TArray<GrColor>* colors,
                              bool hasColors) {
     for (uint32_t v = 0; v < count; v++) {
         xforms->push_back(random_xform(random));
@@ -372,9 +374,9 @@ static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXfor
 GR_DRAW_OP_TEST_DEFINE(DrawAtlasOp) {
     uint32_t spriteCount = random->nextRangeU(1, 100);
 
-    SkTArray<SkRSXform> xforms(spriteCount);
-    SkTArray<SkRect> texRects(spriteCount);
-    SkTArray<GrColor> colors;
+    TArray<SkRSXform> xforms(spriteCount);
+    TArray<SkRect> texRects(spriteCount);
+    TArray<GrColor> colors;
 
     bool hasColors = random->nextBool();
 
@@ -386,9 +388,14 @@ GR_DRAW_OP_TEST_DEFINE(DrawAtlasOp) {
         aaType = GrAAType::kMSAA;
     }
 
-    return skgpu::v1::DrawAtlasOp::Make(context, std::move(paint), viewMatrix, aaType, spriteCount,
-                                        xforms.begin(), texRects.begin(),
-                                        hasColors ? colors.begin() : nullptr);
+    return skgpu::ganesh::DrawAtlasOp::Make(context,
+                                            std::move(paint),
+                                            viewMatrix,
+                                            aaType,
+                                            spriteCount,
+                                            xforms.begin(),
+                                            texRects.begin(),
+                                            hasColors ? colors.begin() : nullptr);
 }
 
 #endif

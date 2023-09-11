@@ -231,8 +231,8 @@ bool AnimationBuilder::resolveNativeTypefaces() {
         }
 
         if (!finfo->fTypeface) {
-            finfo->fTypeface.reset(fmgr->matchFamilyStyle(finfo->fFamily.c_str(),
-                                                          FontStyle(this, finfo->fStyle.c_str())));
+            finfo->fTypeface = fmgr->matchFamilyStyle(finfo->fFamily.c_str(),
+                                                      FontStyle(this, finfo->fStyle.c_str()));
 
             if (!finfo->fTypeface) {
                 this->log(Logger::Level::kError, nullptr, "Could not create typeface for %s|%s.",

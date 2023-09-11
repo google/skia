@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 
 static SkYUVColorSpace get_yuvspace(AVColorSpace space) {
     // this is pretty incomplete -- TODO: look to convert more AVColorSpaces
@@ -179,7 +180,7 @@ static sk_sp<SkImage> make_yuv_420(GrRecordingContext* rContext,
     pixmaps[2].reset(SkImageInfo::MakeA8(w, h), data[2], strides[2]);
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
 
-    return SkImage::MakeFromYUVAPixmaps(
+    return SkImages::TextureFromYUVAPixmaps(
             rContext, yuvaPixmaps, GrMipmapped::kNo, false, std::move(cs));
 }
 
@@ -253,7 +254,7 @@ sk_sp<SkImage> SkVideoDecoder::convertFrame(const AVFrame* frame) {
 
     bm.setImmutable();
 
-    return SkImage::MakeFromBitmap(bm);
+    return SkImages::RasterFromBitmap(bm);
 }
 
 sk_sp<SkImage> SkVideoDecoder::nextImage(double* timeStamp) {

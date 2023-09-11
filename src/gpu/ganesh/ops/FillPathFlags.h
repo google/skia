@@ -10,7 +10,7 @@
 
 #include "include/gpu/GrTypes.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // We send these flags to the internal path filling Ops to control how a path gets rendered.
 enum class FillPathFlags {
@@ -21,6 +21,6 @@ enum class FillPathFlags {
 
 GR_MAKE_BITFIELD_CLASS_OPS(FillPathFlags)
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // FillPathFlags_DEFINED

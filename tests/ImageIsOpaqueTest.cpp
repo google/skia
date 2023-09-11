@@ -11,12 +11,14 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -24,7 +26,6 @@
 #include <cstdint>
 #include <initializer_list>
 
-class SkPicture;
 struct GrContextOptions;
 
 static void check_isopaque(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
@@ -35,11 +36,11 @@ static void check_isopaque(skiatest::Reporter* reporter, const sk_sp<SkSurface>&
 
 DEF_TEST(ImageIsOpaqueTest, reporter) {
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
-    auto surfaceTransparent(SkSurface::MakeRaster(infoTransparent));
+    auto surfaceTransparent(SkSurfaces::Raster(infoTransparent));
     check_isopaque(reporter, surfaceTransparent, false);
 
     SkImageInfo infoOpaque = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
-    auto surfaceOpaque(SkSurface::MakeRaster(infoOpaque));
+    auto surfaceOpaque(SkSurfaces::Raster(infoOpaque));
     check_isopaque(reporter, surfaceOpaque, true);
 }
 
@@ -50,11 +51,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu,
     auto context = ctxInfo.directContext();
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
     auto surfaceTransparent(
-            SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, infoTransparent));
+            SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, infoTransparent));
     check_isopaque(reporter, surfaceTransparent, false);
 
     SkImageInfo infoOpaque = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
-    auto surfaceOpaque(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, infoOpaque));
+    auto surfaceOpaque(SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, infoOpaque));
 
     check_isopaque(reporter, surfaceOpaque, true);
 }
@@ -77,17 +78,21 @@ DEF_TEST(Image_isAlphaOnly, reporter) {
         sizeof(pmColors)
     };
     for (auto& image : {
-        SkImage::MakeRasterCopy(pmap),
-        GetResourceAsImage("images/mandrill_128.png"),
-        GetResourceAsImage("images/color_wheel.jpg"),
-        SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr,
-                                 SkImage::BitDepth::kU8,
-                                 SkColorSpace::MakeSRGB()),
-    })
-    {
+                 SkImages::RasterFromPixmapCopy(pmap),
+                 GetResourceAsImage("images/mandrill_128.png"),
+                 GetResourceAsImage("images/color_wheel.jpg"),
+                 SkImages::DeferredFromPicture(make_picture(),
+                                               {10, 10},
+                                               nullptr,
+                                               nullptr,
+                                               SkImages::BitDepth::kU8,
+                                               SkColorSpace::MakeSRGB()),
+         }) {
         REPORTER_ASSERT(reporter, image->isAlphaOnly() == false);
     }
 
-    REPORTER_ASSERT(reporter, SkImage::MakeRasterCopy({
-        SkImageInfo::MakeA8(1, 1), (uint8_t*)&pmColors, 1})->isAlphaOnly() == true);
+    REPORTER_ASSERT(
+            reporter,
+            SkImages::RasterFromPixmapCopy({SkImageInfo::MakeA8(1, 1), (uint8_t*)&pmColors, 1})
+                            ->isAlphaOnly() == true);
 }

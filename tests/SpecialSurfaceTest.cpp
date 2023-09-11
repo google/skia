@@ -18,6 +18,7 @@
 #include "include/gpu/GrTypes.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
+#include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -55,7 +56,7 @@ static void test_surface(const sk_sp<SkSpecialSurface>& surf,
 DEF_TEST(SpecialSurface_Raster, reporter) {
 
     SkImageInfo info = SkImageInfo::MakeN32(kSurfaceSize, kSurfaceSize, kOpaque_SkAlphaType);
-    sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRaster(info, SkSurfaceProps()));
+    sk_sp<SkSpecialSurface> surf(SkSpecialSurfaces::MakeRaster(info, SkSurfaceProps()));
 
     test_surface(surf, reporter, 0);
 }
@@ -74,8 +75,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1,
         SkImageInfo ii = SkImageInfo::Make({ kSurfaceSize, kSurfaceSize }, colorType,
                                            kPremul_SkAlphaType);
 
-        auto surf(SkSpecialSurface::MakeRenderTarget(dContext, ii, SkSurfaceProps(),
-                                                     kTopLeft_GrSurfaceOrigin));
+        auto surf(SkSpecialSurfaces::MakeRenderTarget(dContext, ii, SkSurfaceProps(),
+                                                      kTopLeft_GrSurfaceOrigin));
         test_surface(surf, reporter, 0);
     }
 }
@@ -86,8 +87,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1,
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/SpecialImage_Graphite.h"
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Graphite, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Graphite, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     using namespace skgpu::graphite;
 
     auto caps = context->priv().caps();
@@ -105,7 +108,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Graphite, reporter, cont
         SkImageInfo ii = SkImageInfo::Make({ kSurfaceSize, kSurfaceSize }, colorType,
                                            kPremul_SkAlphaType);
 
-        auto surf(SkSpecialSurface::MakeGraphite(recorder.get(), ii, SkSurfaceProps()));
+        auto surf(SkSpecialSurfaces::MakeGraphite(recorder.get(), ii, SkSurfaceProps()));
         test_surface(surf, reporter, 0);
     }
 }

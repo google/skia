@@ -3,7 +3,7 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(shader_alphaimage, 256, 256, false, 0) {
 sk_sp<SkImage> alpha_image() {
-    auto s = SkSurface::MakeRaster(SkImageInfo::MakeA8(128, 128));
+    auto s = SkSurfaces::Raster(SkImageInfo::MakeA8(128, 128));
     s->getCanvas()->clear(SkColorSetARGB(0xF0, 0x00, 0x00, 0x00));
     return s->makeImageSnapshot();
 }

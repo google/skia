@@ -12,9 +12,19 @@
 #include <unicode/umachine.h>
 #include <unicode/utypes.h>
 #include <cstdint>
+#include <memory>
+#include <vector>
 
 class SkUnicode_IcuBidi {
 public:
+    static std::unique_ptr<SkBidiIterator> MakeIterator(const uint16_t utf16[], int utf16Units,
+                                                        SkBidiIterator::Direction dir);
+    static std::unique_ptr<SkBidiIterator> MakeIterator(const char utf8[],
+                                                        int utf8Units,
+                                                        SkBidiIterator::Direction dir);
+    static bool ExtractBidi(const char utf8[], int utf8Units, SkUnicode::TextDirection dir,
+                            std::vector<SkUnicode::BidiRegion>* bidiRegions);
+
     static const char* errorName(UErrorCode status);
     static void bidi_close(UBiDi* bidi);
     static UBiDiDirection bidi_getDirection(const UBiDi* bidi);

@@ -9,10 +9,12 @@
 #ifdef SK_ENABLE_NDK_IMAGES
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/encode/SkWebpEncoder.h"
 #include "include/private/base/SkMalloc.h"
-#include "src/encode/SkImageEncoderPriv.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -40,7 +42,27 @@ static const struct {
 
 static sk_sp<SkData> encode_ndk(const SkPixmap& pmap, SkEncodedImageFormat format, int quality) {
     SkDynamicMemoryWStream stream;
-    return SkEncodeImageWithNDK(&stream, pmap, format, quality) ? stream.detachAsData() : nullptr;
+    SkDynamicMemoryWStream buf;
+    switch (format) {
+        case SkEncodedImageFormat::kPNG: {
+            bool success = SkPngEncoder::Encode(&buf, pmap, {});
+            return success ? buf.detachAsData() : nullptr;
+        }
+        case SkEncodedImageFormat::kJPEG: {
+            SkJpegEncoder::Options opts;
+            opts.fQuality = quality;
+            bool success = SkJpegEncoder::Encode(&buf, pmap, opts);
+            return success ? buf.detachAsData() : nullptr;
+        }
+        case SkEncodedImageFormat::kWEBP: {
+            SkWebpEncoder::Options opts;
+            opts.fQuality = quality;
+            bool success = SkWebpEncoder::Encode(&buf, pmap, opts);
+            return success ? buf.detachAsData() : nullptr;
+        }
+        default:
+            SkUNREACHABLE;
+    }
 }
 
 DEF_TEST(NdkEncode, r) {
@@ -56,7 +78,7 @@ DEF_TEST(NdkEncode, r) {
                 ERRORF(r, "Failed to encode %s to %s\n", ToolUtils::colortype_name(ct), rec.name);
                 continue;
             }
-            auto gen = SkImageGenerator::MakeFromEncoded(std::move(encoded));
+            auto gen = SkImageGenerators::MakeFromEncoded(std::move(encoded));
             if (!gen) {
                 ERRORF(r, "Failed to decode from %s as %s\n", ToolUtils::colortype_name(ct),
                        rec.name);
@@ -287,7 +309,7 @@ DEF_TEST(NdkEncode_ColorSpace, r) {
             for (const auto& rec : gRecs) {
                 auto encoded = encode_ndk(bm.pixmap(), rec.format, rec.quality);
                 REPORTER_ASSERT(r, encoded);
-                auto gen = SkImageGenerator::MakeFromEncoded(std::move(encoded));
+                auto gen = SkImageGenerators::MakeFromEncoded(std::move(encoded));
                 REPORTER_ASSERT(r, gen);
 
                 auto  expected = colorSpace.cs ? colorSpace.cs : SkColorSpace::MakeSRGB();

@@ -10,16 +10,17 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"
+#include "src/base/SkTime.h"
 #include "src/utils/SkOSPath.h"
 
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
 
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 
 static DEFINE_string2(input, i, "", "skottie animation to render");
 static DEFINE_string2(output, o, "", "mp4 file to create");
@@ -52,7 +53,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    auto contextType = sk_gpu_test::GrContextFactory::kGL_ContextType;
+    auto contextType = skgpu::ContextType::kGL;
     GrContextOptions grCtxOptions;
     sk_gpu_test::GrContextFactory factory(grCtxOptions);
 
@@ -110,18 +111,18 @@ int main(int argc, char** argv) {
         if (!surf) {
             if (FLAGS_gpu) {
                 grctx = factory.getContextInfo(contextType).directContext();
-                surf = SkSurface::MakeRenderTarget(grctx,
-                                                   skgpu::Budgeted::kNo,
-                                                   info,
-                                                   0,
-                                                   GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                                   nullptr);
+                surf = SkSurfaces::RenderTarget(grctx,
+                                                skgpu::Budgeted::kNo,
+                                                info,
+                                                0,
+                                                GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                                nullptr);
                 if (!surf) {
                     grctx = nullptr;
                 }
             }
             if (!surf) {
-                surf = SkSurface::MakeRaster(info);
+                surf = SkSurfaces::Raster(info);
             }
             surf->getCanvas()->scale(scale, scale);
         }

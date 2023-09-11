@@ -10,6 +10,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/private/base/SkAssert.h"
+
+#include <utility>
 
 ImageSlide::ImageSlide(const SkString& name, const SkString& path) : fPath(path) {
     fName = name;
@@ -34,7 +37,7 @@ void ImageSlide::load(SkScalar, SkScalar) {
         SkASSERT(fImage);
     } else {
         sk_sp<SkData> encoded = SkData::MakeFromFileName(fPath.c_str());
-        fImage = SkImage::MakeFromEncoded(encoded);
+        fImage = SkImages::DeferredFromEncodedData(encoded);
     }
 }
 

@@ -22,7 +22,7 @@ How to build and run the SkQP tests
     -   Install the [Android NDK](https://developer.android.com/ndk/downloads/).
 
             ( cd ~; unzip ~/Downloads/android-ndk-*.zip )
-            ANDROID_NDK=$(ls -d ~/android-ndk-*)   # Or wherever you installed the Android NDK.
+            ANDROID_NDK_HOME=$(ls -d ~/android-ndk-*)   # Or wherever you installed the Android NDK.
 
     -   Install the [Android SDK](https://developer.android.com/studio/#command-tools).
         Set the `ANDROID_HOME` environment variable.

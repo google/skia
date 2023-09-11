@@ -4,6 +4,7 @@
 #include "src/core/SkTextBlobTrace.h"
 
 #include "include/core/SkTextBlob.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkPtrRecorder.h"
 #include "src/core/SkReadBuffer.h"

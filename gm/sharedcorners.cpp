@@ -36,11 +36,9 @@ public:
     SharedCornersGM() { this->setBGColor(ToolUtils::color_to_565(0xFF1A65D7)); }
 
 protected:
-    SkString onShortName() override {
-        return SkString("sharedcorners");
-    }
+    SkString getName() const override { return SkString("sharedcorners"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         constexpr int numRows = 3 * 2;
         constexpr int numCols = (1 + std::size(kJitters)) * 2;
         return SkISize::Make(numCols * (kBoxSize + kPadSize) + kPadSize,

@@ -4,7 +4,7 @@
 // HASH=1ce28351444b41ab2b8e3128a4b9b9c2
 REG_FIDDLE(Canvas_makeSurface, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(5, 6);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(5, 6));
     SkCanvas* smallCanvas = surface->getCanvas();
     SkImageInfo imageInfo = SkImageInfo::MakeN32Premul(3, 4);
     sk_sp<SkSurface> compatible = smallCanvas->makeSurface(imageInfo);

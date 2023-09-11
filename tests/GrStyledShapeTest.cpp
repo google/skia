@@ -61,7 +61,7 @@ bool GrStyledShape::testingOnly_isNonVolatilePath() const {
     return fShape.isPath() && !fShape.path().isVolatile();
 }
 
-using Key = SkTArray<uint32_t>;
+using Key = TArray<uint32_t>;
 
 static bool make_key(Key* key, const GrStyledShape& shape) {
     int size = shape.unstyledKeySize();
@@ -91,7 +91,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     static constexpr int kTol = 2;
     static_assert(kRes % 4 == 0);
     SkImageInfo info = SkImageInfo::MakeA8(kRes, kRes);
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(info);
     surface->getCanvas()->clear(0x0);
     SkRect clip = SkRect::MakeXYWH(kRes/4, kRes/4, kRes/2, kRes/2);
     SkMatrix matrix = SkMatrix::RectToRect(bounds, clip);
@@ -2167,8 +2167,8 @@ DEF_TEST(GrStyledShape_short_path_keys, r) {
 }
 
 DEF_TEST(GrStyledShape, reporter) {
-    SkTArray<std::unique_ptr<Geo>> geos;
-    SkTArray<std::unique_ptr<RRectPathGeo>> rrectPathGeos;
+    TArray<std::unique_ptr<Geo>> geos;
+    TArray<std::unique_ptr<RRectPathGeo>> rrectPathGeos;
 
     for (auto r : { SkRect::MakeWH(10, 20),
                     SkRect::MakeWH(-10, -20),
@@ -2318,7 +2318,7 @@ DEF_TEST(GrStyledShape_arcs, reporter) {
     static constexpr SkScalar kIntervals[] = {1, 2};
     auto dash = SkDashPathEffect::Make(kIntervals, std::size(kIntervals), 1.5f);
 
-    SkTArray<GrStyle> styles;
+    TArray<GrStyle> styles;
     styles.push_back(GrStyle::SimpleFill());
     styles.push_back(GrStyle::SimpleHairline());
     styles.push_back(GrStyle(roundStroke, nullptr));

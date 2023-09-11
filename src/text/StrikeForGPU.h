@@ -8,9 +8,8 @@
 #ifndef sktext_StrikeForGPU_DEFINED
 #define sktext_StrikeForGPU_DEFINED
 
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkPoint.h"
-#include "include/core/SkSpan.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkGlyph.h"
 
@@ -19,16 +18,13 @@
 #include <variant>
 
 class SkDescriptor;
-class SkDrawableGlyphBuffer;
+class SkDrawable;
 class SkReadBuffer;
-class SkSourceGlyphBuffer;
 class SkStrike;
 class SkStrikeCache;
 class SkStrikeClient;
 class SkStrikeSpec;
 class SkWriteBuffer;
-struct SkGlyphPositionRoundingSpec;
-struct SkScalerContextEffects;
 
 namespace sktext {
 // -- SkStrikePromise ------------------------------------------------------------------------------
@@ -51,6 +47,7 @@ public:
     explicit SkStrikePromise(sk_sp<SkStrike>&& strike);
     explicit SkStrikePromise(const SkStrikeSpec& spec);
 
+    // This only works when the GPU code is compiled in.
     static std::optional<SkStrikePromise> MakeFromBuffer(SkReadBuffer& buffer,
                                                          const SkStrikeClient* client,
                                                          SkStrikeCache* strikeCache);

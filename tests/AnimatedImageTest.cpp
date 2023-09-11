@@ -259,7 +259,7 @@ DEF_TEST(AnimatedImage_copyOnWrite, r) {
             bm.eraseColor(SK_ColorTRANSPARENT);
             SkCanvas canvas(bm);
 
-            pictures[i].reset(animatedImage->newPictureSnapshot());
+            pictures[i] = animatedImage->makePictureSnapshot();
             canvas.drawPicture(pictures[i]);
 
             const auto duration = animatedImage->decodeNextFrame();

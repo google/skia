@@ -81,6 +81,7 @@ struct ShaderCaps {
 
     SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k330;
 
+    bool fDualSourceBlendingSupport = false;
     bool fShaderDerivativeSupport = false;
     /** Enables sampleGrad and sampleLod functions that don't rely on implicit derivatives */
     bool fExplicitTextureLodSupport = false;
@@ -106,6 +107,7 @@ struct ShaderCaps {
     bool fBuiltinDeterminantSupport = true;
 
     // Used for specific driver bug work arounds
+    bool fCanUseVoidInSequenceExpressions = true;
     bool fCanUseMinAndAbsTogether = true;
     bool fCanUseFractForNegativeValues = true;
     bool fMustForceNegatedAtanParamToFloat = false;
@@ -143,6 +145,9 @@ struct ShaderCaps {
     bool fRewriteMatrixComparisons = false;
     // Strips const from function parameters in the GLSL code generator. (skia:13858)
     bool fRemoveConstFromFunctionParameters = false;
+    // On some Android devices colors aren't accurate enough for the double lookup in the
+    // Perlin noise shader. This workaround aggressively snaps colors to multiples of 1/255.
+    bool fPerlinNoiseRoundingFix = false;
 
     const char* fVersionDeclString = "";
 

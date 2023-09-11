@@ -9,8 +9,10 @@
 #define skgpu_graphite_ClipStack_DEFINED
 
 #include "include/core/SkClipOp.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkTBlockList.h"
 #include "src/gpu/graphite/DrawOrder.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
@@ -20,9 +22,9 @@ class SkStrokeRec;
 namespace skgpu::graphite {
 
 class BoundsManager;
-class Clip;
 class Device;
 class Geometry;
+class Renderer;
 
 // TODO: Port over many of the unit tests for skgpu/v1/ClipStack defined in GrClipStackTest since
 // those tests do a thorough job of enumerating the different element combinations.
@@ -66,27 +68,43 @@ public:
     void clipShape(const Transform& localToDevice, const Shape& shape, SkClipOp op);
     void clipShader(sk_sp<SkShader> shader);
 
-    // Apply the clip stack to the draw described by the provided transform, shape, and stroke.
-    // The provided 'z' value is the depth value that the draw will use if it's not clipped out
-    // entirely. Applying clips to a draw is a mostly lazy operation except for what is returned:
+    // Compute the bounds and the effective elements of the clip stack when applied to the draw
+    // described by the provided transform, shape, and stroke.
+    //
+    // Applying clips to a draw is a mostly lazy operation except for what is returned:
     //  - The Clip's scissor is set to 'conservativeBounds()'.
     //  - The Clip stores the draw's clipped bounds, taking into account its transform, styling, and
     //    the above scissor.
-    //  - The CompressedPaintersOrder is the largest order that will be used by any of the clip
-    //    elements that affect the draw.
+    //  - The Clip also stores the draw's fill-style invariant clipped bounds which is used in atlas
+    //    draws and may differ from the draw bounds.
     //
-    // In addition to computing these values, the clip stack updates per-clip element state for
-    // later rendering. Clip shapes that affect draws are later recorded into the Device's
-    // DrawContext with their own painter's order chosen to sort earlier than all affected draws
-    // but using a Z value greater than affected draws. This ensures that the draws fail the depth
-    // test for clipped-out pixels.
+    // All clip elements that affect the draw will be returned in `outEffectiveElements` alongside
+    // the bounds. This method does not have any side-effects and the per-clip element state has to
+    // be explicitly updated by calling `updateClipStateForDraw()` which prepares the clip stack for
+    // later rendering.
     //
-    // If the draw is clipped out, the returned draw bounds will be empty.
-    std::pair<Clip, CompressedPaintersOrder> applyClipToDraw(const BoundsManager*,
-                                                             const Transform&,
-                                                             const Geometry&,
-                                                             const SkStrokeRec&,
-                                                             PaintersDepth z);
+    // The returned clip element list will be empty if the shape is clipped out or if the draw is
+    // unaffected by any of the clip elements.
+    using ElementList = skia_private::STArray<4, const Element*>;
+    Clip visitClipStackForDraw(const Transform&,
+                               const Geometry&,
+                               const SkStrokeRec&,
+                               const Renderer&,
+                               ElementList* outEffectiveElements) const;
+
+    // Update the per-clip element state for later rendering using pre-computed clip state data for
+    // a particular draw. The provided 'z' value is the depth value that the draw will use if it's
+    // not clipped out entirely.
+    //
+    // The returned CompressedPaintersOrder is the largest order that will be used by any of the
+    // clip elements that affect the draw.
+    //
+    // If the provided `clipState` indicates that the draw will be clipped out, then this method has
+    // no effect and returns DrawOrder::kNoIntersection.
+    CompressedPaintersOrder updateClipStateForDraw(const Clip& clip,
+                                                   const ElementList& effectiveElements,
+                                                   const BoundsManager*,
+                                                   PaintersDepth z);
 
     void recordDeferredClipDraws();
 
@@ -120,7 +138,7 @@ private:
     static SimplifyResult Simplify(const TransformedShape& a, const TransformedShape& b);
 
     // Wraps the geometric Element data with logic for containment and bounds testing.
-    class RawElement : private Element {
+    class RawElement : public Element {
     public:
         using Stack = SkTBlockList<RawElement, 1>;
 
@@ -142,15 +160,13 @@ private:
 
         operator TransformedShape() const;
 
-        const Element& asElement()      const { return *this;                                }
-        bool           hasPendingDraw() const { return fOrder != DrawOrder::kNoIntersection; }
-
-        const Shape&     shape()         const { return fShape;         }
-        const Transform& localToDevice() const { return fLocalToDevice; }
-        const Rect&      outerBounds()   const { return fOuterBounds;   }
-        const Rect&      innerBounds()   const { return fInnerBounds;   }
-        SkClipOp         op()            const { return fOp;            }
-        ClipState        clipType()      const;
+        bool             hasPendingDraw() const { return fOrder != DrawOrder::kNoIntersection; }
+        const Shape&     shape()          const { return fShape;         }
+        const Transform& localToDevice()  const { return fLocalToDevice; }
+        const Rect&      outerBounds()    const { return fOuterBounds;   }
+        const Rect&      innerBounds()    const { return fInnerBounds;   }
+        SkClipOp         op()             const { return fOp;            }
+        ClipState        clipType()       const;
 
         // As new elements are pushed on to the stack, they may make older elements redundant.
         // The old elements are marked invalid so they are skipped during clip application, but may
@@ -173,15 +189,27 @@ private:
         // is handled by modifying 'added'.
         void updateForElement(RawElement* added, const SaveRecord& current);
 
+        // Returns how this element affects the draw after more detailed analysis.
+        enum class DrawInfluence {
+            kNone,       // The element does not affect the draw
+            kClipOut,    // The element causes the draw shape to be entirely clipped out
+            kIntersect,  // The element intersects the draw shape in a complex way
+        };
+        DrawInfluence testForDraw(const TransformedShape& draw) const;
+
         // Updates usage tracking to incorporate the bounds and Z value for the new draw call.
         // If this element hasn't affected any prior draws, it will use the bounds manager to
         // assign itself a compressed painters order for later rendering.
         //
-        // Returns whether or not this element clips out the draw with more detailed analysis, and
-        // if not, returns the painters order the draw must sort after.
-        std::pair<bool, CompressedPaintersOrder> updateForDraw(const BoundsManager* boundsManager,
-                                                               const TransformedShape& draw,
-                                                               PaintersDepth drawZ);
+        // This method assumes that this element affects the draw in a complex way, such that
+        // calling `testForDraw()` on the same draw would return `DrawInfluence::kIntersect`. It is
+        // assumed that `testForDraw()` was called beforehand to ensure that this is the case.
+        //
+        // Assuming that this element does not clip out the draw, returns the painters order the
+        // draw must sort after.
+        CompressedPaintersOrder updateForDraw(const BoundsManager* boundsManager,
+                                              const Rect& drawBounds,
+                                              PaintersDepth drawZ);
 
         // Record a depth-only draw to the given device, restricted to the portion of the clip that
         // is actually required based on prior recorded draws. Resets usage tracking for subsequent
@@ -319,7 +347,7 @@ public:
         return o.fItem != fItem && o.fRemaining != fRemaining;
     }
 
-    const Element& operator*() const { return (*fItem).asElement(); }
+    const Element& operator*() const { return *fItem; }
 
     ElementIter& operator++() {
         // Skip over invalidated elements

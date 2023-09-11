@@ -66,17 +66,12 @@ public:
 
 private:
     DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
+                         PipelineInfo* pipelineInfo,
                          wgpu::RenderPipeline renderPipeline,
                          PrimitiveType primitiveType,
                          uint32_t refValue,
                          bool hasStepUniforms,
-                         bool hasFragment)
-        : GraphicsPipeline(sharedContext)
-        , fRenderPipeline(std::move(renderPipeline))
-        , fPrimitiveType(primitiveType)
-        , fStencilReferenceValue(refValue)
-        , fHasStepUniforms(hasStepUniforms)
-        , fHasFragment(hasFragment) {}
+                         bool hasFragment);
 
     void freeGpuData() override;
 

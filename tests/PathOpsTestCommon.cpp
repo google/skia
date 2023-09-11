@@ -26,6 +26,8 @@
 #include <string>
 #include <utility>
 
+using namespace skia_private;
+
 static double calc_t_div(const SkDCubic& cubic, double precision, double start) {
     const double adjust = sqrt(3.) / 36;
     SkDCubic sub;
@@ -49,7 +51,7 @@ static double calc_t_div(const SkDCubic& cubic, double precision, double start) 
     return t;
 }
 
-static bool add_simple_ts(const SkDCubic& cubic, double precision, SkTArray<double, true>* ts) {
+static bool add_simple_ts(const SkDCubic& cubic, double precision, TArray<double, true>* ts) {
     double tDiv = calc_t_div(cubic, precision, 0);
     if (tDiv >= 1) {
         return true;
@@ -62,7 +64,7 @@ static bool add_simple_ts(const SkDCubic& cubic, double precision, SkTArray<doub
 }
 
 static void addTs(const SkDCubic& cubic, double precision, double start, double end,
-        SkTArray<double, true>* ts) {
+        TArray<double, true>* ts) {
     double tDiv = calc_t_div(cubic, precision, 0);
     double parts = ceil(1.0 / tDiv);
     for (double index = 0; index < parts; ++index) {
@@ -73,7 +75,7 @@ static void addTs(const SkDCubic& cubic, double precision, double start, double 
     }
 }
 
-static void toQuadraticTs(const SkDCubic* cubic, double precision, SkTArray<double, true>* ts) {
+static void toQuadraticTs(const SkDCubic* cubic, double precision, TArray<double, true>* ts) {
     SkReduceOrder reducer;
     int order = reducer.reduce(*cubic, SkReduceOrder::kAllow_Quadratics);
     if (order < 3) {
@@ -143,8 +145,8 @@ static void toQuadraticTs(const SkDCubic* cubic, double precision, SkTArray<doub
     addTs(*cubic, precision, 0, 1, ts);
 }
 
-void CubicToQuads(const SkDCubic& cubic, double precision, SkTArray<SkDQuad, true>& quads) {
-    SkTArray<double, true> ts;
+void CubicToQuads(const SkDCubic& cubic, double precision, TArray<SkDQuad, true>& quads) {
+    TArray<double, true> ts;
     toQuadraticTs(&cubic, precision, &ts);
     if (ts.empty()) {
         SkDQuad quad = cubic.toQuad();
@@ -176,7 +178,7 @@ void CubicToQuads(const SkDCubic& cubic, double precision, SkTArray<SkDQuad, tru
 void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
     quadPath->reset();
     SkDCubic cubic;
-    SkTArray<SkDQuad, true> quads;
+    TArray<SkDQuad, true> quads;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(cubicPath)) {
         switch (verb) {
             case SkPathVerb::kMove:

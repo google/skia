@@ -24,7 +24,7 @@
 #include "src/effects/SkEmbossMaskFilter.h"
 
 static sk_sp<SkImage> make_bm() {
-    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -38,13 +38,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("emboss");
-    }
+    SkString getName() const override { return SkString("emboss"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 120);
-    }
+    SkISize getISize() override { return SkISize::Make(600, 120); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

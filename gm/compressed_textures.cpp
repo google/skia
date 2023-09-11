@@ -24,14 +24,15 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuBase.h"
 #include "third_party/etc1/etc1.h"
 #include "tools/gpu/ProxyUtils.h"
 
@@ -149,15 +150,15 @@ static sk_sp<SkImage> make_compressed_image(GrDirectContext* dContext,
 
     sk_sp<SkImage> image;
     if (dContext) {
-        image = SkImage::MakeTextureFromCompressed(dContext, std::move(tmp),
-                                                   dimensions.width(),
-                                                   dimensions.height(),
-                                                   compression, GrMipmapped::kYes);
+        image = SkImages::TextureFromCompressedTextureData(dContext,
+                                                           std::move(tmp),
+                                                           dimensions.width(),
+                                                           dimensions.height(),
+                                                           compression,
+                                                           GrMipmapped::kYes);
     } else {
-        image = SkImage::MakeRasterFromCompressed(std::move(tmp),
-                                                  dimensions.width(),
-                                                  dimensions.height(),
-                                                  compression);
+        image = SkImages::RasterFromCompressedTextureData(
+                std::move(tmp), dimensions.width(), dimensions.height(), compression);
     }
     return image;
 }
@@ -200,7 +201,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("compressed_textures");
 
         if (fType == Type::kNonPowerOfTwo) {
@@ -212,7 +213,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2*kCellWidth + 3*kPad, 2*kBaseTexHeight + 3*kPad);
     }
 

@@ -6,6 +6,7 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -14,9 +15,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkDataTable.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
@@ -165,7 +164,7 @@ DEF_TEST(Encode_JPG, r) {
                      kRGBA_F16_SkColorType }) {
         for (auto at : { kPremul_SkAlphaType, kUnpremul_SkAlphaType, kOpaque_SkAlphaType }) {
             auto info = SkImageInfo::Make(image->width(), image->height(), ct, at);
-            auto surface = SkSurface::MakeRaster(info);
+            auto surface = SkSurfaces::Raster(info);
             auto canvas = surface->getCanvas();
             canvas->drawImage(image, 0, 0);
 
@@ -223,9 +222,9 @@ DEF_TEST(Encode_JpegDownsample, r) {
     REPORTER_ASSERT(r, data1->size() < data2->size());
 
     SkBitmap bm0, bm1, bm2;
-    SkImage::MakeFromEncoded(data0)->asLegacyBitmap(&bm0);
-    SkImage::MakeFromEncoded(data1)->asLegacyBitmap(&bm1);
-    SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2);
+    SkImages::DeferredFromEncodedData(data0)->asLegacyBitmap(&bm0);
+    SkImages::DeferredFromEncodedData(data1)->asLegacyBitmap(&bm1);
+    SkImages::DeferredFromEncodedData(data2)->asLegacyBitmap(&bm2);
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 60));
     REPORTER_ASSERT(r, almost_equals(bm1, bm2, 60));
 }
@@ -337,9 +336,9 @@ DEF_TEST(Encode_PngOptions, r) {
     REPORTER_ASSERT(r, data1->size() < data2->size());
 
     SkBitmap bm0, bm1, bm2;
-    SkImage::MakeFromEncoded(data0)->asLegacyBitmap(&bm0);
-    SkImage::MakeFromEncoded(data1)->asLegacyBitmap(&bm1);
-    SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2);
+    SkImages::DeferredFromEncodedData(data0)->asLegacyBitmap(&bm0);
+    SkImages::DeferredFromEncodedData(data1)->asLegacyBitmap(&bm1);
+    SkImages::DeferredFromEncodedData(data2)->asLegacyBitmap(&bm2);
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 0));
 }
@@ -350,8 +349,17 @@ DEF_TEST(Encode_WebpQuality, r) {
     bm.allocN32Pixels(100, 100);
     bm.eraseColor(SK_ColorBLUE);
 
-    auto dataLossy    = SkEncodeBitmap(bm, SkEncodedImageFormat::kWEBP, 99);
-    auto dataLossLess = SkEncodeBitmap(bm, SkEncodedImageFormat::kWEBP, 100);
+    SkWebpEncoder::Options opts;
+    opts.fCompression = SkWebpEncoder::Compression::kLossless;
+    SkDynamicMemoryWStream stream;
+    SkASSERT_RELEASE(SkWebpEncoder::Encode(&stream, bm.pixmap(), opts));
+    auto dataLossLess = stream.detachAsData();
+
+    opts.fCompression = SkWebpEncoder::Compression::kLossy;
+    opts.fQuality = 99;
+    stream.reset();
+    SkASSERT_RELEASE(SkWebpEncoder::Encode(&stream, bm.pixmap(), opts));
+    auto dataLossy = stream.detachAsData();
 
     enum Format {
         kMixed    = 0,
@@ -436,10 +444,10 @@ DEF_TEST(Encode_WebpOptions, r) {
     REPORTER_ASSERT(r, data2->size() > data3->size());
 
     SkBitmap bm0, bm1, bm2, bm3;
-    SkImage::MakeFromEncoded(data0)->asLegacyBitmap(&bm0);
-    SkImage::MakeFromEncoded(data1)->asLegacyBitmap(&bm1);
-    SkImage::MakeFromEncoded(data2)->asLegacyBitmap(&bm2);
-    SkImage::MakeFromEncoded(data3)->asLegacyBitmap(&bm3);
+    SkImages::DeferredFromEncodedData(data0)->asLegacyBitmap(&bm0);
+    SkImages::DeferredFromEncodedData(data1)->asLegacyBitmap(&bm1);
+    SkImages::DeferredFromEncodedData(data2)->asLegacyBitmap(&bm2);
+    SkImages::DeferredFromEncodedData(data3)->asLegacyBitmap(&bm3);
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 90));
     REPORTER_ASSERT(r, almost_equals(bm2, bm3, 50));
@@ -530,13 +538,24 @@ DEF_TEST(Encode_Alpha, r) {
             SkBitmap bm;
             bm.allocPixels(SkImageInfo::Make(10, 10, ct, kPremul_SkAlphaType));
             sk_bzero(bm.getPixels(), bm.computeByteSize());
-            auto data = SkEncodeBitmap(bm, format, 100);
+            SkDynamicMemoryWStream stream;
+            bool success = false;
+            if (format == SkEncodedImageFormat::kJPEG) {
+                success = SkJpegEncoder::Encode(&stream, bm.pixmap(), {});
+            } else if (format == SkEncodedImageFormat::kPNG) {
+                success = SkPngEncoder::Encode(&stream, bm.pixmap(), {});
+            } else {
+                success = SkWebpEncoder::Encode(&stream, bm.pixmap(), {});
+            }
+
             if ((format == SkEncodedImageFormat::kJPEG || format == SkEncodedImageFormat::kPNG) &&
                 ct == kAlpha_8_SkColorType) {
                 // We support encoding alpha8 to png and jpeg with our own private meaning.
-                REPORTER_ASSERT(r, data != nullptr);
+                REPORTER_ASSERT(r, success);
+                REPORTER_ASSERT(r, stream.bytesWritten() > 0);
             } else {
-                REPORTER_ASSERT(r, data == nullptr);
+                REPORTER_ASSERT(r, !success);
+                REPORTER_ASSERT(r, stream.bytesWritten() == 0);
             }
         }
     }

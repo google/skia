@@ -32,6 +32,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
@@ -62,6 +63,7 @@
 #include <optional>
 #include <vector>
 
+using namespace skia_private;
 using Slug = sktext::gpu::Slug;
 
 class DiscardableManager : public SkStrikeServer::DiscardableHandleManager,
@@ -115,7 +117,7 @@ public:
         fLockedHandles.reset();
         fLastDeletedHandleId = fNextHandleId;
     }
-    const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const {
+    const THashSet<SkDiscardableHandleId>& lockedHandles() const {
         SkAutoMutexExclusive l(fMutex);
 
         return fLockedHandles;
@@ -151,7 +153,7 @@ private:
 
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
-    SkTHashSet<SkDiscardableHandleId> fLockedHandles;
+    THashSet<SkDiscardableHandleId> fLockedHandles;
     int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
 };
 
@@ -200,7 +202,7 @@ static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
 sk_sp<SkSurface> MakeSurface(int width, int height, GrRecordingContext* rContext) {
     const SkImageInfo info =
             SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
-    return SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info);
+    return SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kNo, info);
 }
 
 SkSurfaceProps FindSurfaceProps(GrRecordingContext* rContext) {
@@ -304,7 +306,7 @@ static void use_padding_options(GrContextOptions* options) {
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationSlug,
-                             sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             skgpu::IsRenderingContext,
                              reporter,
                              ctxInfo,
                              use_padding_options,
@@ -348,7 +350,7 @@ DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationSlug,
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationSlugForcePath,
-                             sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             skgpu::IsRenderingContext,
                              reporter,
                              ctxInfo,
                              use_padding_options,
@@ -392,7 +394,7 @@ DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationSlugForcePath
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization,
-                             sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             skgpu::IsRenderingContext,
                              reporter,
                              ctxInfo,
                              use_padding_options,

@@ -24,6 +24,11 @@ enum class BackendApi : unsigned {
     kMetal,
     kVulkan,
     kMock,
+
+    /**
+     * Graphite doesn't support some context types (e.g. Direct3D) and will return Unsupported.
+     */
+    kUnsupported,
 };
 
 /** Indicates whether an allocation should count against a cache budget. */
@@ -38,7 +43,7 @@ enum class Budgeted : bool {
  * specific callbacks and are documented with the callback itself.
  */
 enum class CallbackResult : bool {
-    kFailed = true,
+    kFailed = false,
     kSuccess = true,
 };
 
@@ -64,6 +69,14 @@ enum class Protected : bool {
 enum class Renderable : bool {
     kNo = false,
     kYes = true,
+};
+
+/**
+ * What is the logical origin of a BackendTexture passed into Skia
+ */
+enum class Origin : unsigned {
+    kTopLeft,
+    kBottomLeft,
 };
 
 } // namespace skgpu

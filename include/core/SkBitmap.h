@@ -33,7 +33,7 @@ class SkPixelRef;
 class SkShader;
 enum SkColorType : int;
 enum class SkTileMode;
-struct SkMask;
+struct SkMaskBuilder;
 
 /** \class SkBitmap
     SkBitmap describes a two-dimensional raster pixel array. SkBitmap is built on
@@ -440,7 +440,7 @@ public:
         @param flags  kZeroPixels_AllocFlag, or zero
         @return       true if pixels allocation is successful
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags);
+    [[nodiscard]] bool tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags);
 
     /** Sets SkImageInfo to info following the rules in setInfo() and allocates pixel
         memory. Memory is zeroed.
@@ -478,7 +478,7 @@ public:
         @param rowBytes  size of pixel row or larger; may be zero
         @return          true if pixel storage is allocated
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, size_t rowBytes);
+    [[nodiscard]] bool tryAllocPixels(const SkImageInfo& info, size_t rowBytes);
 
     /** Sets SkImageInfo to info following the rules in setInfo() and allocates pixel
         memory. rowBytes must equal or exceed info.width() times info.bytesPerPixel(),
@@ -514,7 +514,7 @@ public:
         @param info  contains width, height, SkAlphaType, SkColorType, SkColorSpace
         @return      true if pixel storage is allocated
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info) {
+    [[nodiscard]] bool tryAllocPixels(const SkImageInfo& info) {
         return this->tryAllocPixels(info, info.minRowBytes());
     }
 
@@ -553,7 +553,7 @@ public:
         @param isOpaque  true if pixels do not have transparency
         @return          true if pixel storage is allocated
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocN32Pixels(int width, int height, bool isOpaque = false);
+    [[nodiscard]] bool tryAllocN32Pixels(int width, int height, bool isOpaque = false);
 
     /** Sets SkImageInfo to width, height, and the native color type; and allocates
         pixel memory. If isOpaque is true, sets SkImageInfo to kOpaque_SkAlphaType;
@@ -637,7 +637,7 @@ public:
 
     /** Deprecated.
     */
-    bool installMaskPixels(const SkMask& mask);
+    bool installMaskPixels(SkMaskBuilder& mask);
 
     /** Replaces SkPixelRef with pixels, preserving SkImageInfo and rowBytes().
         Sets SkPixelRef origin to (0, 0).
@@ -661,7 +661,7 @@ public:
 
         @return  true if the allocation succeeds
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels() {
+    [[nodiscard]] bool tryAllocPixels() {
         return this->tryAllocPixels((Allocator*)nullptr);
     }
 
@@ -685,7 +685,7 @@ public:
         @param allocator  instance of SkBitmap::Allocator instantiation
         @return           true if custom allocator reports success
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator);
+    [[nodiscard]] bool tryAllocPixels(Allocator* allocator);
 
     /** Allocates pixel memory with allocator, and replaces existing SkPixelRef.
         The allocation size is determined by SkImageInfo width, height, and SkColorType.
@@ -774,11 +774,10 @@ public:
         treated as opaque. If colorType() is kAlpha_8_SkColorType, then RGB is ignored.
 
         @param c            unpremultiplied color
-        @param colorSpace   SkColorSpace of c
 
         example: https://fiddle.skia.org/c/@Bitmap_eraseColor
     */
-    void eraseColor(SkColor4f c, SkColorSpace* colorSpace = nullptr) const;
+    void eraseColor(SkColor4f) const;
 
     /** Replaces pixel values with c, interpreted as being in the sRGB SkColorSpace.
         All pixels contained by bounds() are affected. If the colorType() is
@@ -818,11 +817,9 @@ public:
 
         @param c            unpremultiplied color
         @param area         rectangle to fill
-        @param colorSpace   SkColorSpace of c
 
         example: https://fiddle.skia.org/c/@Bitmap_erase
     */
-    void erase(SkColor4f c, SkColorSpace* colorSpace, const SkIRect& area) const;
     void erase(SkColor4f c, const SkIRect& area) const;
 
     /** Replaces pixel values inside area with c. interpreted as being in the sRGB

@@ -135,7 +135,7 @@ static skiagm::DrawResult draw_zero_length_capped_paths(SkCanvas* canvas, bool a
     SkImageInfo info = canvas->imageInfo().makeWH(kCellWidth, kCellHeight);
     auto surface = canvas->makeSurface(info);
     if (!surface) {
-        surface = SkSurface::MakeRasterN32Premul(kCellWidth, kCellHeight);
+        surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kCellWidth, kCellHeight));
     }
 
     SkPaint paint;
@@ -201,7 +201,7 @@ static skiagm::DrawResult draw_zero_length_capped_paths_dbl_contour(SkCanvas* ca
     SkImageInfo info = canvas->imageInfo().makeWH(kCellWidth, kCellHeight);
     auto surface = canvas->makeSurface(info);
     if (!surface) {
-        surface = SkSurface::MakeRasterN32Premul(kCellWidth, kCellHeight);
+        surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kCellWidth, kCellHeight));
     }
 
     SkPaint paint;

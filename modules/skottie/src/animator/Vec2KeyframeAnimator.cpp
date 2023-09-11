@@ -8,6 +8,7 @@
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkPathBuilder.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
@@ -246,6 +247,11 @@ bool AnimatablePropertyContainer::bindAutoOrientable(const AnimationBuilder& abu
                                                      Vec2Value* v, float* orientation) {
     if (!jprop) {
         return false;
+    }
+
+    if (const auto* sid = ParseSlotID(jprop)) {
+        fHasSlotID = true;
+        abuilder.fSlotManager->trackVec2Value(SkString(sid->begin()), v, sk_ref_sp(this));
     }
 
     if (!ParseDefault<bool>((*jprop)["s"], false)) {

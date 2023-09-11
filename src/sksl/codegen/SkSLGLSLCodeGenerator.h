@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 
 #include <cstdint>
 #include <string>
@@ -32,6 +33,7 @@ class FunctionCall;
 class FunctionDeclaration;
 class FunctionDefinition;
 class FunctionPrototype;
+class GlobalVarDeclaration;
 class IfStatement;
 class IndexExpression;
 class InterfaceBlock;
@@ -52,17 +54,16 @@ class Variable;
 class VariableReference;
 enum class OperatorPrecedence : uint8_t;
 struct Layout;
-struct Modifiers;
 struct Program;
 struct ShaderCaps;
 
 /**
  * Converts a Program into GLSL code.
  */
-class GLSLCodeGenerator : public CodeGenerator {
+class GLSLCodeGenerator final : public CodeGenerator {
 public:
     GLSLCodeGenerator(const Context* context, const Program* program, OutputStream* out)
-    : INHERITED(context, program, out) {}
+            : INHERITED(context, program, out) {}
 
     bool generateCode() override;
 
@@ -75,13 +76,13 @@ protected:
 
     void finishLine();
 
-    virtual void writeHeader();
+    void writeHeader();
 
     bool usesPrecisionModifiers() const;
 
     void writeIdentifier(std::string_view identifier);
 
-    virtual std::string getTypeName(const Type& type);
+    std::string getTypeName(const Type& type);
 
     void writeStructDefinition(const StructDefinition& s);
 
@@ -95,25 +96,27 @@ protected:
 
     void writeFunctionPrototype(const FunctionPrototype& f);
 
-    virtual void writeFunction(const FunctionDefinition& f);
+    void writeFunction(const FunctionDefinition& f);
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Modifiers& modifiers, bool globalContext);
+    void writeModifiers(const Layout& layout, ModifierFlags flags, bool globalContext);
 
-    virtual void writeInputVars();
+    void writeInputVars();
 
-    virtual void writeVarInitializer(const Variable& var, const Expression& value);
+    void writeVarInitializer(const Variable& var, const Expression& value);
 
     const char* getTypePrecision(const Type& type);
 
     void writeTypePrecision(const Type& type);
 
+    void writeGlobalVarDeclaration(const GlobalVarDeclaration& e);
+
     void writeVarDeclaration(const VarDeclaration& var, bool global);
 
     void writeFragCoord();
 
-    virtual void writeVariableReference(const VariableReference& ref);
+    void writeVariableReference(const VariableReference& ref);
 
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
 
@@ -131,41 +134,41 @@ protected:
 
     void writeMatrixComparisonWorkaround(const BinaryExpression& x);
 
-    virtual void writeFunctionCall(const FunctionCall& c);
+    void writeFunctionCall(const FunctionCall& c);
 
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
 
     void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
                                         Precedence parentPrecedence);
 
-    virtual void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+    void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
-    virtual void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+    void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
-    virtual void writeFieldAccess(const FieldAccess& f);
+    void writeFieldAccess(const FieldAccess& f);
 
-    virtual void writeSwizzle(const Swizzle& swizzle);
+    void writeSwizzle(const Swizzle& swizzle);
 
-    virtual void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
+    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
 
     void writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence);
 
-    virtual void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
+    void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
 
-    virtual void writeIndexExpression(const IndexExpression& expr);
+    void writeIndexExpression(const IndexExpression& expr);
 
     void writePrefixExpression(const PrefixExpression& p, Precedence parentPrecedence);
 
     void writePostfixExpression(const PostfixExpression& p, Precedence parentPrecedence);
 
-    virtual void writeLiteral(const Literal& l);
+    void writeLiteral(const Literal& l);
 
     void writeStatement(const Statement& s);
 
     void writeBlock(const Block& b);
 
-    virtual void writeIfStatement(const IfStatement& stmt);
+    void writeIfStatement(const IfStatement& stmt);
 
     void writeForStatement(const ForStatement& f);
 
@@ -173,13 +176,15 @@ protected:
 
     void writeExpressionStatement(const ExpressionStatement& s);
 
-    virtual void writeSwitchStatement(const SwitchStatement& s);
+    void writeSwitchStatement(const SwitchStatement& s);
 
-    virtual void writeReturnStatement(const ReturnStatement& r);
+    void writeReturnStatement(const ReturnStatement& r);
 
-    virtual void writeProgramElement(const ProgramElement& e);
+    void writeProgramElement(const ProgramElement& e);
 
     const ShaderCaps& caps() const { return *fContext.fCaps; }
+
+    bool shouldRewriteVoidTypedFunctions(const FunctionDeclaration* func) const;
 
     StringStream fExtensions;
     StringStream fGlobals;
@@ -188,6 +193,8 @@ protected:
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
+
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
     bool fFoundExternalSamplerDecl = false;

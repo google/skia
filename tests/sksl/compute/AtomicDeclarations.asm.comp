@@ -1,0 +1,77 @@
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 64 1 1
+               OpName %S "S"
+               OpMemberName %S 0 "structMemberAtomic"
+               OpMemberName %S 1 "structMemberAtomicArray"
+               OpName %NestedS "NestedS"
+               OpMemberName %NestedS 0 "nestedStructWithAtomicMember"
+               OpName %ssbo "ssbo"
+               OpMemberName %ssbo 0 "ssboAtomic"
+               OpMemberName %ssbo 1 "ssboAtomicArray"
+               OpMemberName %ssbo 2 "ssboStructWithAtomicMember"
+               OpMemberName %ssbo 3 "ssboStructWithAtomicMemberArray"
+               OpMemberName %ssbo 4 "ssboNestedStructWithAtomicMember"
+               OpName %wgAtomic "wgAtomic"
+               OpName %wgAtomicArray "wgAtomicArray"
+               OpName %wgNestedStructWithAtomicMember "wgNestedStructWithAtomicMember"
+               OpName %main "main"
+               OpDecorate %_arr_uint_int_2 ArrayStride 16
+               OpMemberDecorate %S 0 Offset 0
+               OpMemberDecorate %S 0 RelaxedPrecision
+               OpMemberDecorate %S 1 Offset 16
+               OpMemberDecorate %S 1 RelaxedPrecision
+               OpDecorate %_arr_S_int_2 ArrayStride 48
+               OpMemberDecorate %NestedS 0 Offset 0
+               OpMemberDecorate %NestedS 0 RelaxedPrecision
+               OpMemberDecorate %ssbo 0 Offset 0
+               OpMemberDecorate %ssbo 0 RelaxedPrecision
+               OpMemberDecorate %ssbo 1 Offset 16
+               OpMemberDecorate %ssbo 1 RelaxedPrecision
+               OpMemberDecorate %ssbo 2 Offset 48
+               OpMemberDecorate %ssbo 2 RelaxedPrecision
+               OpMemberDecorate %ssbo 3 Offset 96
+               OpMemberDecorate %ssbo 3 RelaxedPrecision
+               OpMemberDecorate %ssbo 4 Offset 192
+               OpMemberDecorate %ssbo 4 RelaxedPrecision
+               OpDecorate %ssbo BufferBlock
+               OpDecorate %3 Binding 0
+               OpDecorate %3 DescriptorSet 0
+       %uint = OpTypeInt 32 0
+        %int = OpTypeInt 32 1
+      %int_2 = OpConstant %int 2
+%_arr_uint_int_2 = OpTypeArray %uint %int_2
+          %S = OpTypeStruct %uint %_arr_uint_int_2
+%_arr_S_int_2 = OpTypeArray %S %int_2
+    %NestedS = OpTypeStruct %S
+       %ssbo = OpTypeStruct %uint %_arr_uint_int_2 %S %_arr_S_int_2 %NestedS
+%_ptr_Uniform_ssbo = OpTypePointer Uniform %ssbo
+          %3 = OpVariable %_ptr_Uniform_ssbo Uniform
+%_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
+   %wgAtomic = OpVariable %_ptr_Workgroup_uint Workgroup
+%_ptr_Workgroup__arr_uint_int_2 = OpTypePointer Workgroup %_arr_uint_int_2
+%wgAtomicArray = OpVariable %_ptr_Workgroup__arr_uint_int_2 Workgroup
+%_ptr_Workgroup_NestedS = OpTypePointer Workgroup %NestedS
+%wgNestedStructWithAtomicMember = OpVariable %_ptr_Workgroup_NestedS Workgroup
+       %void = OpTypeVoid
+         %20 = OpTypeFunction %void
+      %int_1 = OpConstant %int 1
+     %uint_2 = OpConstant %uint 2
+     %uint_0 = OpConstant %uint 0
+      %int_0 = OpConstant %int 0
+     %uint_1 = OpConstant %uint 1
+       %main = OpFunction %void None %20
+         %21 = OpLabel
+         %24 = OpAccessChain %_ptr_Workgroup_uint %wgAtomicArray %int_1
+         %27 = OpAtomicLoad %uint %wgAtomic %uint_2 %uint_0
+         %22 = OpAtomicIAdd %uint %24 %uint_2 %uint_0 %27
+         %30 = OpAccessChain %_ptr_Workgroup_uint %wgAtomicArray %int_0
+         %32 = OpAccessChain %_ptr_Workgroup_uint %wgAtomicArray %int_1
+         %31 = OpAtomicLoad %uint %32 %uint_2 %uint_0
+         %28 = OpAtomicIAdd %uint %30 %uint_2 %uint_0 %31
+         %34 = OpAccessChain %_ptr_Workgroup_uint %wgNestedStructWithAtomicMember %int_0 %int_0
+         %33 = OpAtomicIAdd %uint %34 %uint_2 %uint_0 %uint_1
+               OpReturn
+               OpFunctionEnd

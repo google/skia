@@ -1,0 +1,21 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "GrExternalTextureGenerator.h",
+        "SkImageGanesh.h",
+        "SkMeshGanesh.h",
+        "SkSurfaceGanesh.h",
+    ] + select_multi(
+        {
+            "//src/gpu:gl_ganesh": ["//include/gpu/ganesh/gl:public_hdrs"],
+            "//src/gpu:vulkan_ganesh": ["//include/gpu/ganesh/vk:public_hdrs"],
+        },
+    ),
+    visibility = ["//include/gpu:__pkg__"],
+)

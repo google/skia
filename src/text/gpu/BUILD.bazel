@@ -15,6 +15,9 @@ GPU_FILES = [
     "SDFTControl.cpp",
     "SDFTControl.h",
     "Slug.cpp",
+    "SlugImpl.cpp",
+    "SlugImpl.h",
+    "SkChromeRemoteGlyphCache.cpp",
     "StrikeCache.cpp",
     "StrikeCache.h",
     "SubRunAllocator.cpp",
@@ -25,6 +28,8 @@ GPU_FILES = [
     "TextBlob.h",
     "TextBlobRedrawCoordinator.cpp",
     "TextBlobRedrawCoordinator.h",
+    "VertexFiller.cpp",
+    "VertexFiller.h",
 ]
 
 split_srcs_and_hdrs(

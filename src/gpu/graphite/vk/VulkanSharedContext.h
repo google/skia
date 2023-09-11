@@ -38,7 +38,9 @@ public:
     VkDevice device() const { return fDevice; }
     uint32_t  queueIndex() const { return fQueueIndex; }
 
-    std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) override;
+    std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
+                                                           uint32_t recorderID,
+                                                           size_t resourceBudget) override;
 
     bool checkVkResult(VkResult result) const;
 
@@ -58,4 +60,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_VulkanSharedContext_DEFINED
-

@@ -11,7 +11,7 @@
 #include "src/gpu/ganesh/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/LinearTolerances.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // An adapter around GrVertexChunkBuilder that fits the API requirements of
 // skgpu::tess::PatchWriter's PatchAllocator template parameter.
@@ -39,6 +39,6 @@ private:
     GrVertexChunkBuilder    fBuilder;
 };
 
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // VertexChunkPatchAllocator_DEFINED

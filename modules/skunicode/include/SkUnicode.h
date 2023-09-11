@@ -9,8 +9,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkBitmaskEnum.h" // IWYU pragma: keep
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
 
 #include <cstddef>
@@ -38,6 +38,10 @@
         #define SKUNICODE_API
     #endif
 #endif
+
+namespace sknonstd {
+template <typename T> struct is_bitmask_enum;
+}
 
 class SKUNICODE_API SkBidiIterator {
 public:
@@ -85,6 +89,9 @@ class SKUNICODE_API SkUnicode {
             kControl = 0x20,
             kTabulation = 0x40,
             kGlyphClusterStart = 0x80,
+            kIdeographic = 0x100,
+            kEmoji = 0x200,
+            kWordBreak = 0x400,
         };
         enum class TextDirection {
             kLTR,
@@ -120,6 +127,14 @@ class SKUNICODE_API SkUnicode {
 
         virtual SkString toUpper(const SkString&) = 0;
 
+        virtual bool isControl(SkUnichar utf8) = 0;
+        virtual bool isWhitespace(SkUnichar utf8) = 0;
+        virtual bool isSpace(SkUnichar utf8) = 0;
+        virtual bool isTabulation(SkUnichar utf8) = 0;
+        virtual bool isHardBreak(SkUnichar utf8) = 0;
+        virtual bool isEmoji(SkUnichar utf8) = 0;
+        virtual bool isIdeographic(SkUnichar utf8) = 0;
+
         // Methods used in SkShaper and SkText
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
             (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
@@ -130,12 +145,13 @@ class SKUNICODE_API SkUnicode {
         virtual std::unique_ptr<SkBreakIterator> makeBreakIterator(BreakType type) = 0;
 
         // Methods used in SkParagraph
-        static bool isTabulation(SkUnicode::CodeUnitFlags flags);
-        static bool isHardLineBreak(SkUnicode::CodeUnitFlags flags);
-        static bool isSoftLineBreak(SkUnicode::CodeUnitFlags flags);
-        static bool isGraphemeStart(SkUnicode::CodeUnitFlags flags);
-        static bool isControl(SkUnicode::CodeUnitFlags flags);
-        static bool isPartOfWhiteSpaceBreak(SkUnicode::CodeUnitFlags flags);
+        static bool hasTabulationFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasHardLineBreakFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasSoftLineBreakFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasGraphemeStartFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasControlFlag(SkUnicode::CodeUnitFlags flags);
+        static bool hasPartOfWhiteSpaceBreakFlag(SkUnicode::CodeUnitFlags flags);
+
         static bool extractBidi(const char utf8[],
                                 int utf8Units,
                                 TextDirection dir,
@@ -146,10 +162,12 @@ class SKUNICODE_API SkUnicode {
                                     std::vector<BidiRegion>* results) = 0;
         virtual bool getWords(const char utf8[], int utf8Units, const char* locale,
                               std::vector<Position>* results) = 0;
-        virtual bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
-                                      SkTArray<SkUnicode::CodeUnitFlags, true>* results) = 0;
-        virtual bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,
-                                      SkTArray<SkUnicode::CodeUnitFlags, true>* results) = 0;
+        virtual bool computeCodeUnitFlags(
+                char utf8[], int utf8Units, bool replaceTabs,
+                skia_private::TArray<SkUnicode::CodeUnitFlags, true>* results) = 0;
+        virtual bool computeCodeUnitFlags(
+                char16_t utf16[], int utf16Units, bool replaceTabs,
+                skia_private::TArray<SkUnicode::CodeUnitFlags, true>* results) = 0;
 
         static SkString convertUtf16ToUtf8(const char16_t * utf16, int utf16Units);
         static SkString convertUtf16ToUtf8(const std::u16string& utf16);
@@ -164,11 +182,11 @@ class SKUNICODE_API SkUnicode {
             auto end = utf8.end();
             while (ptr < end) {
 
-                size_t index = ptr - utf8.begin();
+                size_t index = SkToSizeT(ptr - utf8.begin());
                 SkUnichar u = SkUTF::NextUTF8(&ptr, end);
 
                 // All UTF8 code units refer to the same codepoint
-                size_t next = ptr - utf8.begin();
+                size_t next = SkToSizeT(ptr - utf8.begin());
                 for (auto i = index; i < next; ++i) {
                     //fUTF16IndexForUTF8Index.emplace_back(fUTF8IndexForUTF16Index.size());
                     appender16(size8);
@@ -277,9 +295,12 @@ class SKUNICODE_API SkUnicode {
                 std::vector<SkUnicode::Position> words,
                 std::vector<SkUnicode::Position> graphemeBreaks,
                 std::vector<SkUnicode::LineBreakBefore> lineBreaks);
+
+        static std::unique_ptr<SkUnicode> MakeLibgraphemeBasedUnicode();
 };
 
 namespace sknonstd {
-    template <> struct is_bitmask_enum<SkUnicode::CodeUnitFlags> : std::true_type {};
+template <> struct is_bitmask_enum<SkUnicode::CodeUnitFlags> : std::true_type {};
 }  // namespace sknonstd
+
 #endif // SkUnicode_DEFINED

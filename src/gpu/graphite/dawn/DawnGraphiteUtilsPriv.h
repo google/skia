@@ -9,8 +9,8 @@
 #define skgpu_graphite_DawnGraphiteUtilsPriv_DEFINED
 
 #include "include/core/SkImageInfo.h"
-#include "include/private/SkSLProgramKind.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 #include "webgpu/webgpu_cpp.h"
@@ -33,17 +33,16 @@ bool DawnFormatIsStencil(wgpu::TextureFormat);
 
 wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
 
-bool SkSLToSPIRV(SkSL::Compiler*,
-                 const std::string& sksl,
-                 SkSL::ProgramKind kind,
-                 const SkSL::ProgramSettings& settings,
-                 std::string* spirv,
-                 SkSL::Program::Inputs* outInputs,
-                 ShaderErrorHandler* errorHandler);
+bool DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
+                                  const std::string& spirv,
+                                  wgpu::ShaderModule* module,
+                                  ShaderErrorHandler*);
 
-wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
-                                                const std::string& spirv,
-                                                ShaderErrorHandler* errorHandler);
+bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
+                                 const std::string& wgsl,
+                                 wgpu::ShaderModule* module,
+                                 ShaderErrorHandler*);
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DawnGraphiteUtilsPriv_DEFINED

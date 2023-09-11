@@ -64,21 +64,32 @@ private:
 class Clip {
 public:
     Clip() = default;
-    Clip(const Rect& drawBounds, const SkIRect& scissor)
-            : fDrawBounds(drawBounds)
-            , fScissor(scissor) {}
+    Clip(const Rect& drawBounds, const Rect& shapeBounds, const SkIRect& scissor)
+            : fDrawBounds(drawBounds), fTransformedShapeBounds(shapeBounds), fScissor(scissor) {}
 
-    const Rect&    drawBounds() const { return fDrawBounds; }
-    const SkIRect& scissor()    const { return fScissor;    }
+    // Tight bounds of the draw, including any padding/outset for stroking and expansion due to
+    // inverse fill and intersected with the scissor.
+    const Rect& drawBounds() const { return fDrawBounds; }
+
+    // The scissor rectangle obtained by restricting the bounds of the clip stack that affects the
+    // draw to the device bounds. The scissor must contain drawBounds() and must already be
+    // intersected with the device bounds.
+    const SkIRect& scissor() const { return fScissor; }
+
+    // Clipped bounds of the shape in device space, including any padding/outset for stroking,
+    // intersected with the scissor and ignoring the fill rule. For a regular fill this is identical
+    // to drawBounds(). For an inverse fill, this is a subset of drawBounds().
+    const Rect& transformedShapeBounds() const { return fTransformedShapeBounds; }
+
+    bool isClippedOut() const { return fDrawBounds.isEmptyNegativeOrNaN(); }
 
 private:
-    // Draw bounds represent the tight bounds of the draw, including any padding/outset for stroking
-    // and intersected with the scissor.
-    // - DrawList assumes the DrawBounds are correct for a given shape, transform, and style. They
-    //   are provided to the DrawList to avoid re-calculating the same bounds.
+    // DrawList assumes the DrawBounds are correct for a given shape, transform, and style. They
+    // are provided to the DrawList to avoid re-calculating the same bounds.
     Rect    fDrawBounds;
-    // The scissor must contain fDrawBounds, and must already be intersected with the device bounds.
+    Rect    fTransformedShapeBounds;
     SkIRect fScissor;
+
     // TODO: If we add more complex analytic shapes for clipping, e.g. coverage rrect, it should
     // go here.
 };

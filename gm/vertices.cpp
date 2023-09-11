@@ -124,7 +124,7 @@ protected:
         fColorFilter = make_color_filter();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("vertices");
         if (fShaderScale != 1) {
             name.append("_scaled_shader");
@@ -132,9 +132,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(975, 1175);
-    }
+    SkISize getISize() override { return SkISize::Make(975, 1175); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkBlendMode modes[] = {

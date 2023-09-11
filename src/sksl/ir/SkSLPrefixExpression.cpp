@@ -8,13 +8,14 @@
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
-#include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
@@ -22,6 +23,8 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+
+#include <optional>
 
 namespace SkSL {
 
@@ -105,7 +108,7 @@ static ExpressionArray negate_operands(const Context& context,
                                        Position pos,
                                        const ExpressionArray& array) {
     ExpressionArray replacement;
-    replacement.reserve_back(array.size());
+    replacement.reserve_exact(array.size());
     for (const std::unique_ptr<Expression>& expr : array) {
         // The logic below is very similar to `negate_operand`, but with different ownership rules.
         if (std::unique_ptr<Expression> simplified = simplify_negation(context, pos, *expr)) {
@@ -147,6 +150,25 @@ static std::unique_ptr<Expression> logical_not_operand(const Context& context,
             if (prefix.getOperator().kind() == Operator::Kind::LOGICALNOT) {
                 prefix.operand()->fPosition = pos;
                 return std::move(prefix.operand());
+            }
+            break;
+        }
+        case Expression::Kind::kBinary: {
+            BinaryExpression& binary = operand->as<BinaryExpression>();
+            std::optional<Operator> replacement;
+            switch (binary.getOperator().kind()) {
+                case OperatorKind::EQEQ: replacement = OperatorKind::NEQ;  break;
+                case OperatorKind::NEQ:  replacement = OperatorKind::EQEQ; break;
+                case OperatorKind::LT:   replacement = OperatorKind::GTEQ; break;
+                case OperatorKind::LTEQ: replacement = OperatorKind::GT;   break;
+                case OperatorKind::GT:   replacement = OperatorKind::LTEQ; break;
+                case OperatorKind::GTEQ: replacement = OperatorKind::LT;   break;
+                default:                                                   break;
+            }
+            if (replacement.has_value()) {
+                return BinaryExpression::Make(context, pos, std::move(binary.left()),
+                                              *replacement, std::move(binary.right()),
+                                              &binary.type());
             }
             break;
         }

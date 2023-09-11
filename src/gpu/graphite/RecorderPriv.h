@@ -11,6 +11,8 @@
 #include <functional>
 
 #include "include/gpu/graphite/Recorder.h"
+#include "src/gpu/graphite/ResourceCache.h"
+#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 
 class SkBitmap;
@@ -52,18 +54,25 @@ public:
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }
     UploadBufferManager* uploadBufferManager() { return fRecorder->fUploadBufferManager.get(); }
 
-    AtlasManager* atlasManager() { return fRecorder->fAtlasManager.get(); }
+    AtlasProvider* atlasProvider() { return fRecorder->fAtlasProvider.get(); }
     TokenTracker* tokenTracker() { return fRecorder->fTokenTracker.get(); }
     sktext::gpu::StrikeCache* strikeCache() { return fRecorder->fStrikeCache.get(); }
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache() {
         return fRecorder->fTextBlobCache.get();
     }
+    ProxyCache* proxyCache() { return this->resourceProvider()->proxyCache(); }
 
-    static sk_sp<SkImage> CreateCachedImage(Recorder*,
-                                            const SkBitmap&,
-                                            Mipmapped = skgpu::Mipmapped::kNo);
+    static sk_sp<TextureProxy> CreateCachedProxy(Recorder*,
+                                                 const SkBitmap&,
+                                                 Mipmapped = skgpu::Mipmapped::kNo);
 
-#if GRAPHITE_TEST_UTILS
+    uint32_t recorderID() const { return fRecorder->fRecorderID; }
+
+    size_t getResourceCacheLimit() const;
+
+#if defined(GRAPHITE_TEST_UTILS)
+    bool deviceIsRegistered(Device*);
+    ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }
     // used by the Context that created this Recorder to set a back pointer
     void setContext(Context*);
     Context* context() { return fRecorder->fContext; }

@@ -15,13 +15,14 @@ void keepAlive_vf(inout float f) {
 }
 void keepAlive_vi(inout int i) {
 }
+void assignToFunctionParameter_vif(int x, inout float y) {
+    x = 1;
+    y = 1.0;
+}
 vec4 main() {
-    int i;
-    i = 0;
-    ivec4 i4;
-    i4 = ivec4(1, 2, 3, 4);
-    mat3 f3x3;
-    f3x3 = mat3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    int i = 0;
+    ivec4 i4 = ivec4(1, 2, 3, 4);
+    mat3 f3x3 = mat3(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
     vec4 x;
     x.w = 0.0;
     x.yx = vec2(0.0);
@@ -41,6 +42,7 @@ vec4 main() {
     s.ah4[2].yw = vec2(5.0);
     globalVar = vec4(0.0);
     globalStruct.f = 0.0;
+    assignToFunctionParameter_vif(0, f3x3[0].x);
     float l;
     l = 0.0;
     ai[0] += ai4[0].x;
@@ -48,6 +50,8 @@ vec4 main() {
     s.af[0] = 2.0;
     s.h4 = vec4(1.0);
     s.ah4[0] = vec4(2.0);
+    float repeat;
+    repeat = (repeat = 1.0);
     keepAlive_vf(af4[0].x);
     keepAlive_vh(ah3x3[0][0].x);
     keepAlive_vi(i);
@@ -58,5 +62,6 @@ vec4 main() {
     keepAlive_vf(s.f);
     keepAlive_vh(l);
     keepAlive_vf(f3x3[0].x);
+    keepAlive_vf(repeat);
     return colorGreen;
 }

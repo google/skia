@@ -8,27 +8,47 @@
 #ifndef SKSL_EXTENSION
 #define SKSL_EXTENSION
 
-#include "include/private/SkSLProgramElement.h"
+#include "src/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+
+#include <memory>
+#include <string>
+#include <string_view>
 
 namespace SkSL {
 
+class Context;
+
 /**
- * An extension declaration.
+ * #extension <name> : enable
  */
 class Extension final : public ProgramElement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kExtension;
 
     Extension(Position pos, std::string_view name)
-        : INHERITED(pos, kIRNodeKind)
-        , fName(name) {}
+            : INHERITED(pos, kIRNodeKind)
+            , fName(name) {}
 
     std::string_view name() const {
         return fName;
     }
 
+    // Reports errors via ErrorReporter. This may return null even if no error occurred;
+    // in particular, if the behavior text is `disabled`, no ProgramElement is necessary.
+    static std::unique_ptr<Extension> Convert(const Context& context,
+                                              Position pos,
+                                              std::string_view name,
+                                              std::string_view behaviorText);
+
+    // Asserts if an error is detected.
+    static std::unique_ptr<Extension> Make(const Context& context,
+                                           Position pos,
+                                           std::string_view name);
+
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Extension(fPosition, this->name()));
+        return std::make_unique<Extension>(fPosition, fName);
     }
 
     std::string description() const override {

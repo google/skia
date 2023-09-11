@@ -1,4 +1,4 @@
-layout(binding=0) uniform sampler2D tex;
+layout(binding=0) sampler2D tex;
 
 void main() {
     float4 a = sample(tex, float2(0));

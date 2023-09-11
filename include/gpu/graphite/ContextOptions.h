@@ -8,6 +8,9 @@
 #ifndef skgpu_graphite_ContextOptions_DEFINED
 #define skgpu_graphite_ContextOptions_DEFINED
 
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkMath.h"
+
 namespace skgpu { class ShaderErrorHandler; }
 
 namespace skgpu::graphite {
@@ -27,6 +30,14 @@ struct SK_API ContextOptions {
      * via SkDebugf and assert.
      */
     skgpu::ShaderErrorHandler* fShaderErrorHandler = nullptr;
+
+    /**
+     * Specifies the number of samples Graphite should use when performing internal draws with MSAA
+     * (hardware capabilities permitting).
+     *
+     * If <= 1, Graphite will disable internal code paths that use multisampling.
+     */
+    int fInternalMultisampleCount = 4;
 
     /**
      * Will the client make sure to only ever be executing one thread that uses the Context and all
@@ -64,10 +75,25 @@ struct SK_API ContextOptions {
     bool fAllowMultipleGlyphCacheTextures = true;
     bool fSupportBilerpFromGlyphAtlas = false;
 
-#if GRAPHITE_TEST_UTILS
+    /**
+     * In the Dawn backend, controls SkSL compilation to native code. When false, we emit SPIR-V and
+     * rely on Tint's SPIR-V Reader. When true, we emit native WGSL.
+     * TODO(b/40044196): once WGSL is stable, remove this flag and always emit WGSL.
+     */
+    bool fEnableWGSL = true;
+
+    static constexpr size_t kDefaultContextBudget = 256 * (1 << 20);
+    /**
+     * What is the budget for GPU resources allocated and held by the Context.
+     */
+    size_t fGpuBudgetInBytes = kDefaultContextBudget;
+
+#if defined(GRAPHITE_TEST_UTILS)
     /**
      * Private options that are only meant for testing within Skia's tools.
      */
+
+    int  fMaxTextureSizeOverride = SK_MaxS32;
 
     /**
      * Maximum width and height of internal texture atlases.

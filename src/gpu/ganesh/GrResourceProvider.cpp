@@ -454,7 +454,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferT
                                                                     const void* staticData,
                                                                     const skgpu::UniqueKey& key) {
     if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(key)) {
-        return std::move(buffer);
+        return buffer;
     }
 
     auto buffer = this->createBuffer(staticData, size, intendedType, kStatic_GrAccessPattern);
@@ -468,7 +468,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferT
 
     buffer->resourcePriv().setUniqueKey(key);
 
-    return std::move(buffer);
+    return buffer;
 }
 
 sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
@@ -477,7 +477,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
         const skgpu::UniqueKey& uniqueKey,
         InitializeBufferFn initializeBufferFn) {
     if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(uniqueKey)) {
-        return std::move(buffer);
+        return buffer;
     }
 
     auto buffer = this->createBuffer(size,
@@ -510,7 +510,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
         buffer->updateData(stagingBuffer, /*offset=*/0, size, /*preserve=*/false);
     }
 
-    return std::move(buffer);
+    return buffer;
 }
 
 sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(
@@ -552,7 +552,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(
         SkASSERT(key->isValid());
         this->assignUniqueKeyToResource(*key, buffer.get());
     }
-    return std::move(buffer);
+    return buffer;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -832,8 +832,7 @@ sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensi
     return nullptr;
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(
-        bool isOwned) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrResourceProvider::makeSemaphore(bool isOwned) {
     return this->isAbandoned() ? nullptr : fGpu->makeSemaphore(isOwned);
 }
 

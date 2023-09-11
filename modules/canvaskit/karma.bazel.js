@@ -41,6 +41,7 @@ module.exports = function(config) {
   //  - browsers
   //  - basePath
   //  - singleRun
+  //  - plugins
   BAZEL_APPLY_SETTINGS(cfg);
 
   config.set(cfg);

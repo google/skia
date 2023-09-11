@@ -1,6 +1,4 @@
-"""
-This file contains macros that generate multiple test targets, one per file.
-"""
+"""This module contains macros to generate C++ test targets."""
 
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 
@@ -11,7 +9,8 @@ def skia_cpu_tests(
         resources = [],
         flags = {},
         extra_deps = [],
-        limit_to = []):
+        limit_to = [],
+        tags = None):
     """Defines tests that should run only with --config=cpu
 
     This macro will create one cc_test_with_flags rule for each file in tests.
@@ -47,8 +46,11 @@ def skia_cpu_tests(
                   restrict where this test will be compiled and ran. If the list is empty, it will
                   run anywhere. If it is non-empty, it will only run on platforms which match the
                   entire set of constraints. See https://github.com/bazelbuild/platforms for these.
+        tags: Added to all the generated test targets
     """
     test_targets = []
+    if not tags:
+        tags = []
     for filename in tests:
         new_target = filename[:-4]  # trim .cpp
         test_targets.append(new_target)
@@ -74,6 +76,7 @@ def skia_cpu_tests(
             data = resources,
             set_flags = flags,
             target_compatible_with = limit_to,
+            tags = tags,
         )
 
     # https://bazel.build/reference/be/general#test_suite
@@ -89,7 +92,8 @@ def skia_ganesh_tests(
         resources = [],
         flags = {},
         extra_deps = [],
-        limit_to = []):
+        limit_to = [],
+        tags = None):
     """Defines tests that should run only when a Ganesh GPU backend is compiled in, e.g --config=gl
 
     This macro will create one cc_test_with_flags rule for each file in tests.
@@ -132,8 +136,11 @@ def skia_ganesh_tests(
                   restrict where this test will be compiled and ran. If the list is empty, it will
                   run anywhere. If it is non-empty, it will only run on platforms which match the
                   entire set of constraints. See https://github.com/bazelbuild/platforms for these.
+        tags: Added to all the generated test targets
     """
     test_targets = []
+    if not tags:
+        tags = []
     for filename in tests:
         new_target = filename[:-4]  # trim .cpp
         test_targets.append(new_target)
@@ -141,7 +148,7 @@ def skia_ganesh_tests(
             name = new_target,
             size = "small",
             srcs = select({
-                "//src/gpu:has_gpu_backend": [
+                "//src/gpu:has_ganesh_backend": [
                     "BazelTestRunner.cpp",
                     filename,
                 ],
@@ -150,7 +157,7 @@ def skia_ganesh_tests(
             }),
             deps = select({
                 # Only build and apply deps if we have a no-op test.
-                "//src/gpu:has_gpu_backend": [
+                "//src/gpu:has_ganesh_backend": [
                     harness,
                     "//:skia_internal",
                 ] + extra_deps,
@@ -159,7 +166,7 @@ def skia_ganesh_tests(
             data = resources,
             set_flags = flags,
             target_compatible_with = limit_to,
-            tags = [
+            tags = tags + [
                 # We currently have no RBE machines with GPUs, so we cannot run these remotely.
                 "no-remote",
             ],

@@ -17,7 +17,7 @@
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/utils/SkDashPathPriv.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 static const SkMatrix& test_matrix(SkRandom* random,
                                    bool includeNonPerspective,

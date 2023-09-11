@@ -10,8 +10,8 @@ CORE_SKSLC_FILES = [
     "SkParse.cpp",
     "SkOSPath.h",
     "SkOSPath.cpp",
-    "SkVMVisualizer.cpp",
-    "SkVMVisualizer.h",
+    "SkShaderUtils.cpp",
+    "SkShaderUtils.h",
 ]
 
 split_srcs_and_hdrs(
@@ -23,8 +23,6 @@ CORE_FILES = [
     "SkAnimCodecPlayer.cpp",
     "SkBase64.cpp",
     "SkBitSet.h",
-    "SkBlitterTrace.h",
-    "SkBlitterTraceCommon.h",
     "SkCallableTraits.h",
     "SkCamera.cpp",
     "SkCanvasStack.cpp",
@@ -35,14 +33,12 @@ CORE_FILES = [
     "SkClipStackUtils.cpp",
     "SkClipStackUtils.h",
     "SkCustomTypeface.cpp",
-    "SkCycles.h",
     "SkDashPath.cpp",
     "SkDashPathPriv.h",
     "SkEventTracer.cpp",
     "SkFloatToDecimal.cpp",
     "SkFloatToDecimal.h",
     "SkFloatUtils.h",
-    "SkGaussianColorFilter.cpp",
     "SkMatrix22.cpp",
     "SkMatrix22.h",
     "SkMultiPictureDocument.cpp",
@@ -57,16 +53,27 @@ CORE_FILES = [
     "SkPatchUtils.h",
     "SkPolyUtils.cpp",
     "SkPolyUtils.h",
+    "SkShaderUtils.cpp",
+    "SkShaderUtils.h",
     "SkShadowTessellator.cpp",
     "SkShadowTessellator.h",
     "SkShadowUtils.cpp",
-    "SkTestCanvas.h",
     "SkTextUtils.cpp",
 ]
 
 split_srcs_and_hdrs(
     name = "core",
     files = CORE_FILES,
+)
+
+GPU_ONLY_FILES = [
+    "SkTestCanvas.h",
+    "SkTestCanvas.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "gpu",
+    files = GPU_ONLY_FILES,
 )
 
 skia_filegroup(
@@ -76,6 +83,7 @@ skia_filegroup(
         "SkJSONWriter.h",
     ],
     visibility = [
+        "//gm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tools/debugger:__pkg__",
     ],
@@ -88,6 +96,7 @@ skia_filegroup(
         "SkJSONWriter.cpp",
     ],
     visibility = [
+        "//gm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tools/debugger:__pkg__",
     ],
@@ -96,19 +105,9 @@ skia_filegroup(
 selects.config_setting_group(
     name = "needs_json",
     match_any = [
+        "//src/gpu:enable_gpu_test_utils_true",
         "//src/sksl:enable_sksl_tracing_true",
     ],
-)
-
-# In separate group to avoid exporting to a *.gni file.
-SKSL_FILES = [
-    "SkShaderUtils.cpp",
-    "SkShaderUtils.h",
-]
-
-split_srcs_and_hdrs(
-    name = "sksl",
-    files = SKSL_FILES,
 )
 
 skia_filegroup(
@@ -124,13 +123,13 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":core_srcs",
         ":core_skslc_srcs",
+        ":core_srcs",
     ] + select({
-        "//src/sksl:needs_sksl": [":sksl_srcs"],
+        ":needs_json": [":json_srcs"],
         "//conditions:default": [],
     }) + select({
-        ":needs_json": [":json_srcs"],
+        "//src/gpu:has_ganesh_backend": [":gpu_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
@@ -143,10 +142,10 @@ skia_filegroup(
         ":core_hdrs",
         ":core_skslc_hdrs",
     ] + select({
-        "//src/sksl:needs_sksl": [":sksl_hdrs"],
+        ":needs_json": [":json_hdrs"],
         "//conditions:default": [],
     }) + select({
-        ":needs_json": [":json_hdrs"],
+        "//src/gpu:has_ganesh_backend": [":gpu_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],

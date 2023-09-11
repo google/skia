@@ -36,12 +36,12 @@ constexpr SkScalar kDiameter = 40.f;
 constexpr SkRect kRect = {0.f, 0.f, kDiameter, kDiameter};
 constexpr int kW = 1000;
 constexpr int kH = 1000;
-constexpr SkScalar kPad = 20.f;
 
 void draw_arcs(SkCanvas* canvas, std::function<void(SkPaint*)> configureStyle) {
     // Draws grid of arcs with different start/sweep angles in red and their complement arcs in
     // blue.
     auto drawGrid = [canvas, &configureStyle] (SkScalar x, SkScalar y, bool useCenter, bool aa) {
+        constexpr SkScalar kPad = 20.f;
         SkPaint p0;
         p0.setColor(SK_ColorRED);
         p0.setAntiAlias(aa);
@@ -198,6 +198,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     constexpr SkScalar kDashIntervals[] = {kS / 15, 2 * kS / 15};
     paints.back().setPathEffect(SkDashPathEffect::Make(kDashIntervals, 2, 0.f));
 
+    constexpr SkScalar kPad = 20.f;
     canvas->translate(kPad, kPad);
     // This loop should draw nothing.
     for (auto arc : noDrawArcs) {

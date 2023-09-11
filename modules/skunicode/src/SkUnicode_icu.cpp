@@ -7,7 +7,6 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkBitmaskEnum.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkOnce.h"
@@ -17,6 +16,7 @@
 #include "modules/skunicode/include/SkUnicode.h"
 #include "modules/skunicode/src/SkUnicode_icu.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
+#include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkTHash.h"
 #include <unicode/umachine.h>
@@ -31,7 +31,7 @@
 
 using namespace skia_private;
 
-static const SkICULib* ICULib() {
+const SkICULib* SkGetICULib() {
     static const auto gICU = SkLoadICULib();
 
     return gICU.get();
@@ -41,47 +41,14 @@ static const SkICULib* ICULib() {
 #define SKICU_FUNC(funcname)                                                                \
     template <typename... Args>                                                             \
     auto sk_##funcname(Args&&... args) -> decltype(funcname(std::forward<Args>(args)...)) { \
-        return ICULib()->f_##funcname(std::forward<Args>(args)...);                         \
+        return SkGetICULib()->f_##funcname(std::forward<Args>(args)...);                    \
     }                                                                                       \
 
 SKICU_EMIT_FUNCS
 #undef SKICU_FUNC
 
-const char* SkUnicode_IcuBidi::errorName(UErrorCode status) {
-    return sk_u_errorName(status);
-}
-
-void SkUnicode_IcuBidi::bidi_close(UBiDi* bidi) {
-    sk_ubidi_close(bidi);
-}
-UBiDiDirection SkUnicode_IcuBidi::bidi_getDirection(const UBiDi* bidi) {
-    return sk_ubidi_getDirection(bidi);
-}
-SkBidiIterator::Position SkUnicode_IcuBidi::bidi_getLength(const UBiDi* bidi) {
-    return sk_ubidi_getLength(bidi);
-}
-SkBidiIterator::Level SkUnicode_IcuBidi::bidi_getLevelAt(const UBiDi* bidi, int pos) {
-    return sk_ubidi_getLevelAt(bidi, pos);
-}
-UBiDi* SkUnicode_IcuBidi::bidi_openSized(int32_t maxLength, int32_t maxRunCount, UErrorCode* pErrorCode) {
-    return sk_ubidi_openSized(maxLength, maxRunCount, pErrorCode);
-}
-void SkUnicode_IcuBidi::bidi_setPara(UBiDi* bidi,
-                         const UChar* text,
-                         int32_t length,
-                         UBiDiLevel paraLevel,
-                         UBiDiLevel* embeddingLevels,
-                         UErrorCode* status) {
-    return sk_ubidi_setPara(bidi, text, length, paraLevel, embeddingLevels, status);
-}
-void SkUnicode_IcuBidi::bidi_reorderVisual(const SkUnicode::BidiLevel runLevels[],
-                               int levelsCount,
-                               int32_t logicalFromVisual[]) {
-    sk_ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
-}
-
 static inline UBreakIterator* sk_ubrk_clone(const UBreakIterator* bi, UErrorCode* status) {
-    const auto* icu = ICULib();
+    const auto* icu = SkGetICULib();
     SkASSERT(icu->f_ubrk_clone_ || icu->f_ubrk_safeClone_);
     return icu->f_ubrk_clone_
         ? icu->f_ubrk_clone_(bi, status)
@@ -164,7 +131,7 @@ class SkBreakIterator_icu : public SkBreakIterator {
 };
 
 class SkIcuBreakIteratorCache {
-    SkTHashMap<SkUnicode::BreakType, ICUBreakIterator> fBreakCache;
+    THashMap<SkUnicode::BreakType, ICUBreakIterator> fBreakCache;
     SkMutex fBreakCacheMutex;
 
  public:
@@ -281,7 +248,7 @@ class SkUnicode_icu : public SkUnicode {
             const char* ch = utf8;
             while (ch < end) {
                 auto unichar = utf8_next(&ch, end);
-                if (isHardLineBreak(unichar)) {
+                if (SkUnicode_icu::isHardLineBreak(unichar)) {
                     setBreak(ch - utf8, UBRK_LINE_HARD);
                 }
             }
@@ -289,23 +256,36 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool isControl(SkUnichar utf8) {
+    bool isControl(SkUnichar utf8) override {
         return sk_u_iscntrl(utf8);
     }
 
-    static bool isWhitespace(SkUnichar utf8) {
+    bool isWhitespace(SkUnichar utf8) override {
         return sk_u_isWhitespace(utf8);
     }
 
-    static bool isSpace(SkUnichar utf8) {
+    bool isSpace(SkUnichar utf8) override {
         return sk_u_isspace(utf8);
     }
 
-    static bool isTabulation(SkUnichar utf8) {
+    bool isHardBreak(SkUnichar utf8) override {
+        return SkUnicode_icu::isHardLineBreak(utf8);
+    }
+
+    bool isEmoji(SkUnichar unichar) override {
+        return sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI) ||
+               sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI_COMPONENT);
+    }
+
+    bool isIdeographic(SkUnichar unichar) override {
+        return sk_u_hasBinaryProperty(unichar, UCHAR_IDEOGRAPHIC);
+    }
+
+    bool isTabulation(SkUnichar utf8) override {
         return utf8 == '\t';
     }
 
-    static bool isHardBreak(SkUnichar utf8) {
+    static bool isHardLineBreak(SkUnichar utf8) {
         auto property = sk_u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
         return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
     }
@@ -314,12 +294,12 @@ public:
     ~SkUnicode_icu() override { }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
                                                      SkBidiIterator::Direction dir) override {
-        return SkUnicode::makeBidiIterator(text, count, dir);
+        return SkUnicode_IcuBidi::MakeIterator(text, count, dir);
     }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const char text[],
                                                      int count,
                                                      SkBidiIterator::Direction dir) override {
-        return SkUnicode::makeBidiIterator(text, count, dir);
+        return SkUnicode_IcuBidi::MakeIterator(text, count, dir);
     }
     std::unique_ptr<SkBreakIterator> makeBreakIterator(const char locale[],
                                                        BreakType breakType) override {
@@ -334,11 +314,6 @@ public:
     }
     std::unique_ptr<SkBreakIterator> makeBreakIterator(BreakType breakType) override {
         return makeBreakIterator(sk_uloc_getDefault(), breakType);
-    }
-
-    static bool isHardLineBreak(SkUnichar utf8) {
-        auto property = sk_u_getIntPropertyValue(utf8, UCHAR_LINE_BREAK);
-        return property == U_LB_LINE_FEED || property == U_LB_MANDATORY_BREAK;
     }
 
     SkString toUpper(const SkString& str) override {
@@ -367,7 +342,7 @@ public:
                         int utf8Units,
                         TextDirection dir,
                         std::vector<BidiRegion>* results) override {
-        return SkUnicode::extractBidi(utf8, utf8Units, dir, results);
+        return SkUnicode_IcuBidi::ExtractBidi(utf8, utf8Units, dir, results);
     }
 
     bool getWords(const char utf8[], int utf8Units, const char* locale, std::vector<Position>* results) override {
@@ -378,7 +353,7 @@ public:
     }
 
     bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
-                          SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+                          TArray<SkUnicode::CodeUnitFlags, true>* results) override {
         results->clear();
         results->push_back_n(utf8Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
 
@@ -401,7 +376,7 @@ public:
             SkUnichar unichar = SkUTF::NextUTF8(&current, end);
             if (unichar < 0) unichar = 0xFFFD;
             auto after = current - utf8;
-            if (replaceTabs && SkUnicode_icu::isTabulation(unichar)) {
+            if (replaceTabs && this->isTabulation(unichar)) {
                 results->at(before) |= SkUnicode::kTabulation;
                 if (replaceTabs) {
                     unichar = ' ';
@@ -409,14 +384,17 @@ public:
                 }
             }
             for (auto i = before; i < after; ++i) {
-                if (SkUnicode_icu::isSpace(unichar)) {
+                if (this->isSpace(unichar)) {
                     results->at(i) |= SkUnicode::kPartOfIntraWordBreak;
                 }
-                if (SkUnicode_icu::isWhitespace(unichar)) {
+                if (this->isWhitespace(unichar)) {
                     results->at(i) |= SkUnicode::kPartOfWhiteSpaceBreak;
                 }
-                if (SkUnicode_icu::isControl(unichar)) {
+                if (this->isControl(unichar)) {
                     results->at(i) |= SkUnicode::kControl;
+                }
+                if (this->isIdeographic(unichar)) {
+                    results->at(i) |= SkUnicode::kIdeographic;
                 }
             }
         }
@@ -425,28 +403,28 @@ public:
     }
 
     bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,
-                          SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
+                          TArray<SkUnicode::CodeUnitFlags, true>* results) override {
         results->clear();
         results->push_back_n(utf16Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
 
         // Get white spaces
         this->forEachCodepoint((char16_t*)&utf16[0], utf16Units,
-           [results, replaceTabs, &utf16](SkUnichar unichar, int32_t start, int32_t end) {
+           [this, results, replaceTabs, &utf16](SkUnichar unichar, int32_t start, int32_t end) {
                 for (auto i = start; i < end; ++i) {
-                    if (replaceTabs && SkUnicode_icu::isTabulation(unichar)) {
+                    if (replaceTabs && this->isTabulation(unichar)) {
                         results->at(i) |= SkUnicode::kTabulation;
                     if (replaceTabs) {
                             unichar = ' ';
                             utf16[start] = ' ';
                         }
                     }
-                    if (SkUnicode_icu::isSpace(unichar)) {
+                    if (this->isSpace(unichar)) {
                         results->at(i) |= SkUnicode::kPartOfIntraWordBreak;
                     }
-                    if (SkUnicode_icu::isWhitespace(unichar)) {
+                    if (this->isWhitespace(unichar)) {
                         results->at(i) |= SkUnicode::kPartOfWhiteSpaceBreak;
                     }
-                    if (SkUnicode_icu::isControl(unichar)) {
+                    if (this->isControl(unichar)) {
                         results->at(i) |= SkUnicode::kControl;
                     }
                 }
@@ -493,7 +471,7 @@ std::unique_ptr<SkUnicode> SkUnicode::MakeIcuBasedUnicode() {
     }
     #endif
 
-    return ICULib()
+    return SkGetICULib()
         ? std::make_unique<SkUnicode_icu>()
         : nullptr;
 }

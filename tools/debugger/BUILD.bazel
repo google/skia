@@ -20,7 +20,10 @@ skia_cc_library(
         "DrawCommand.h",
         "JsonWriteBuffer.h",
     ],
-    visibility = ["//tests:__subpackages__"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
     deps = [
         "//:skia_internal",
         "//tools:sk_sharing_proc",

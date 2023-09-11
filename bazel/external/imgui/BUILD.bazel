@@ -1,0 +1,24 @@
+# This file will be copied into //third_party/externals/imgui via the new_git_repository
+# rule in //bazel/deps.bzl, so all files should be relative to that path.
+
+cc_library(
+    name = "imgui",
+    srcs = [
+        "imconfig.h",
+        "imgui.cpp",
+        "imgui.h",
+        "imgui_demo.cpp",
+        "imgui_draw.cpp",
+        "imgui_internal.h",
+        "imgui_tables.cpp",
+        "imgui_widgets.cpp",
+        "imstb_rectpack.h",
+        "imstb_textedit.h",
+        "imstb_truetype.h",
+        "misc/cpp/imgui_stdlib.cpp",
+        "misc/cpp/imgui_stdlib.h",
+    ],
+    hdrs = ["imgui.h"],
+    defines = ["IMGUI_ENABLE_OSX_DEFAULT_CLIPBOARD_FUNCTIONS"],
+    visibility = ["//visibility:public"],
+)

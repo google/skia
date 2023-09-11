@@ -17,7 +17,7 @@
 
 namespace skgpu::ganesh {
 
-skgpu::v1::PathRenderer::CanDrawPath DashLinePathRenderer::onCanDrawPath(
+skgpu::ganesh::PathRenderer::CanDrawPath DashLinePathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     SkPoint pts[2];
     bool inverted;

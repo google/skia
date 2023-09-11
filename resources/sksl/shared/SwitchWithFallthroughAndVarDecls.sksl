@@ -1,0 +1,19 @@
+/*#pragma settings RewriteSwitchStatements*/
+
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    bool ok;
+
+    switch (int(colorGreen.g)) {
+        case 0:  bool a;             // `a` should be declared above the switch.
+        case 1:  const int ONE = 1;  // a const-declaration can also move above the switch safely.
+        case 2:  int b = ONE, c;     // declarations for `b` and `c` should be moved upwards;
+                                     // an assignment-statement `b = ONE` should be here instead.
+        case 3:  { float d = float(b); c = int(d); }  // no changes expected
+        case 4:  a = bool(c);                         //  "      "       "
+        case 5:  ok = a;                              //  "      "       "
+    }
+
+    return ok ? colorGreen : colorRed;
+}

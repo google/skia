@@ -9,10 +9,10 @@
 #define SKSL_SWIZZLE
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstdint>
@@ -82,6 +82,9 @@ public:
     }
 
     std::string description(OperatorPrecedence) const override;
+
+    // Converts an array of swizzle components into a string.
+    static std::string MaskString(const ComponentArray& inComponents);
 
 private:
     Swizzle(Position pos, const Type* type, std::unique_ptr<Expression> base,

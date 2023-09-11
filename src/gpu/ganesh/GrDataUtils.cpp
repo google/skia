@@ -12,11 +12,11 @@
 #include "include/private/base/SkTPin.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/base/SkTLazy.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkTraceEvent.h"
@@ -25,6 +25,8 @@
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
+
+using namespace skia_private;
 
 struct ETC1Block {
     uint32_t fHigh;
@@ -239,7 +241,7 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
     }
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 // Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
 void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
@@ -285,7 +287,7 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
 #endif
 
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
-                                        SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
+                                        TArray<size_t>* individualMipOffsets, int mipLevelCount) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->size());
     SkASSERT(mipLevelCount >= 1);
 

@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
@@ -50,7 +51,7 @@ private:
     void makeBitmap() {
         int W = 400;
         int H = 400;
-        auto surf = SkSurface::MakeRasterN32Premul(W, H);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(W, H));
 
         SkPaint paint;
         SkPoint pts[] = { {0, 0}, {SkIntToScalar(W), SkIntToScalar(H)} };

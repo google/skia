@@ -102,7 +102,7 @@ static SkPMColor convert_to_pmcolor(SkColorType ct, SkAlphaType at, const uint32
             r = static_cast<U8CPU>(c[0]);
             g = static_cast<U8CPU>(c[1]);
             b = static_cast<U8CPU>(c[2]);
-            // We set this even when for kRGB_888x because our caller will validate that it is 0xff.
+            // We set this even for kRGB_888x because our caller will validate that it is 0xff.
             a = static_cast<U8CPU>(c[3]);
             break;
         default:
@@ -394,7 +394,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
 
 DEF_TEST(ReadPixels, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     test_readpixels(reporter, surface, info);
 }
 
@@ -462,7 +462,7 @@ static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
 
     const void* srcPixels = five_reference_pixels(srcInfo.colorType());
     SkPixmap srcPixmap(srcInfo, srcPixels, srcInfo.minRowBytes());
-    sk_sp<SkImage> src = SkImage::MakeFromRaster(srcPixmap, nullptr, nullptr);
+    sk_sp<SkImage> src = SkImages::RasterFromPixmap(srcPixmap, nullptr, nullptr);
     REPORTER_ASSERT(r, src);
 
     // Enough space for 5 pixels when color type is F16, more than enough space in other cases.
@@ -538,7 +538,7 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
 
 DEF_TEST(ReadPixels_InvalidRowBytes, reporter) {
     auto srcII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRaster(srcII);
+    auto surf = SkSurfaces::Raster(srcII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
         auto colorType = static_cast<SkColorType>(ct);
         size_t bpp = SkColorTypeBytesPerPixel(colorType);

@@ -29,14 +29,9 @@ public:
     BigTextGM() {}
 
 protected:
+    SkString getName() const override { return SkString("bigtext"); }
 
-    SkString onShortName() override {
-        return SkString("bigtext");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 480);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;

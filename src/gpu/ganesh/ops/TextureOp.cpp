@@ -30,6 +30,7 @@
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
@@ -45,7 +46,7 @@
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #endif
 
@@ -53,9 +54,9 @@ using namespace skgpu::ganesh;
 
 namespace {
 
-using Subset = skgpu::v1::QuadPerEdgeAA::Subset;
-using VertexSpec = skgpu::v1::QuadPerEdgeAA::VertexSpec;
-using ColorType = skgpu::v1::QuadPerEdgeAA::ColorType;
+using Subset = skgpu::ganesh::QuadPerEdgeAA::Subset;
+using VertexSpec = skgpu::ganesh::QuadPerEdgeAA::VertexSpec;
+using ColorType = skgpu::ganesh::QuadPerEdgeAA::ColorType;
 
 // Extracts lengths of vertical and horizontal edges of axis-aligned quad. "width" is the edge
 // between v0 and v2 (or v1 and v3), "height" is the edge between v0 and v1 (or v2 and v3).
@@ -304,7 +305,7 @@ public:
         SkASSERT(fMetadata.colorType() == ColorType::kNone);
         auto iter = fQuads.metadata();
         while(iter.next()) {
-            auto colorType = skgpu::v1::QuadPerEdgeAA::MinColorType(iter->fColor);
+            auto colorType = skgpu::ganesh::QuadPerEdgeAA::MinColorType(iter->fColor);
             colorType = std::max(static_cast<ColorType>(fMetadata.fColorType),
                                  colorType);
             if (caps.reducedShaderMode()) {
@@ -397,7 +398,7 @@ private:
 
         static_assert(GrSamplerState::kFilterCount <= 4);
         static_assert(kGrAATypeCount <= 4);
-        static_assert(skgpu::v1::QuadPerEdgeAA::kColorTypeCount <= 4);
+        static_assert(skgpu::ganesh::QuadPerEdgeAA::kColorTypeCount <= 4);
     };
     static_assert(sizeof(Metadata) == 8);
 
@@ -683,9 +684,15 @@ private:
             GrSamplerState samplerState = GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                          fMetadata.filter());
 
-            gp = skgpu::v1::QuadPerEdgeAA::MakeTexturedProcessor(
-                    arena, fDesc->fVertexSpec, *caps->shaderCaps(), backendFormat, samplerState,
-                    fMetadata.fSwizzle, std::move(fTextureColorSpaceXform), fMetadata.saturate());
+            gp = skgpu::ganesh::QuadPerEdgeAA::MakeTexturedProcessor(
+                    arena,
+                    fDesc->fVertexSpec,
+                    *caps->shaderCaps(),
+                    backendFormat,
+                    samplerState,
+                    fMetadata.fSwizzle,
+                    std::move(fTextureColorSpaceXform),
+                    fMetadata.saturate());
 
             SkASSERT(fDesc->fVertexSpec.vertexSize() == gp->vertexStride());
         }
@@ -725,12 +732,12 @@ private:
                                char* vertexData) {
         SkASSERT(vertexData);
 
-        SkDEBUGCODE(int totQuadsSeen = 0;)
-        SkDEBUGCODE(int totVerticesSeen = 0;)
-        SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize();)
-        SkDEBUGCODE(auto startMark{vertexData};)
+        SkDEBUGCODE(int totQuadsSeen = 0;) SkDEBUGCODE(int totVerticesSeen = 0;)
+                SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize();)
+                        SkDEBUGCODE(auto startMark{vertexData};)
 
-        skgpu::v1::QuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec, vertexData);
+                                skgpu::ganesh::QuadPerEdgeAA::Tessellator tessellator(
+                                        desc->fVertexSpec, vertexData);
         for (const auto& op : ChainRange<TextureOpImpl>(texOp)) {
             auto iter = op.fQuads.iterator();
             for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
@@ -805,7 +812,7 @@ private:
 
 #endif
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     int numQuads() const final { return this->totNumQuads(); }
 #endif
 
@@ -849,14 +856,15 @@ private:
 
         SkASSERT(!CombinedQuadCountWillOverflow(overallAAType, false, desc->fNumTotalQuads));
 
-        auto indexBufferOption = skgpu::v1::QuadPerEdgeAA::CalcIndexBufferOption(overallAAType,
-                                                                                 maxQuadsPerMesh);
+        auto indexBufferOption =
+                skgpu::ganesh::QuadPerEdgeAA::CalcIndexBufferOption(overallAAType, maxQuadsPerMesh);
 
         desc->fVertexSpec = VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true,
                                        subset, overallAAType, /* alpha as coverage */ true,
                                        indexBufferOption);
 
-        SkASSERT(desc->fNumTotalQuads <= skgpu::v1::QuadPerEdgeAA::QuadLimit(indexBufferOption));
+        SkASSERT(desc->fNumTotalQuads <=
+                 skgpu::ganesh::QuadPerEdgeAA::QuadLimit(indexBufferOption));
     }
 
     int totNumQuads() const {
@@ -910,7 +918,7 @@ private:
         }
 
         if (fDesc->fVertexSpec.needsIndexBuffer()) {
-            fDesc->fIndexBuffer = skgpu::v1::QuadPerEdgeAA::GetIndexBuffer(
+            fDesc->fIndexBuffer = skgpu::ganesh::QuadPerEdgeAA::GetIndexBuffer(
                     target, fDesc->fVertexSpec.indexBufferOption());
             if (!fDesc->fIndexBuffer) {
                 SkDebugf("Could not allocate indices\n");
@@ -952,9 +960,13 @@ private:
                 flushState->bindTextures(fDesc->fProgramInfo->geomProc(),
                                          *op.fViewCountPairs[p].fProxy,
                                          fDesc->fProgramInfo->pipeline());
-                skgpu::v1::QuadPerEdgeAA::IssueDraw(flushState->caps(), flushState->opsRenderPass(),
-                                                    fDesc->fVertexSpec, totQuadsSeen, quadCnt,
-                                                    fDesc->totalNumVertices(), fDesc->fBaseVertex);
+                skgpu::ganesh::QuadPerEdgeAA::IssueDraw(flushState->caps(),
+                                                        flushState->opsRenderPass(),
+                                                        fDesc->fVertexSpec,
+                                                        totQuadsSeen,
+                                                        quadCnt,
+                                                        fDesc->totalNumVertices(),
+                                                        fDesc->fBaseVertex);
                 totQuadsSeen += quadCnt;
                 SkDEBUGCODE(++numDraws;)
             }
@@ -1078,7 +1090,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
         auto iter = fQuads.iterator();
@@ -1128,7 +1140,7 @@ private:
 
 namespace skgpu::ganesh {
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 uint32_t TextureOp::ClassID() {
     return TextureOpImpl::ClassID();
 }
@@ -1170,7 +1182,7 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClamp, filter, mm);
         GrPaint paint;
         paint.setColor4f(color);
-        paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
+        paint.setXPFactory(GrXPFactory::FromBlendMode(blendMode));
 
         std::unique_ptr<GrFragmentProcessor> fp;
         const auto& caps = *context->priv().caps();
@@ -1193,14 +1205,14 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
             fp = GrFragmentProcessor::ClampOutput(std::move(fp));
         }
         paint.setColorFragmentProcessor(std::move(fp));
-        return v1::FillRectOp::Make(context, std::move(paint), aaType, quad);
+        return ganesh::FillRectOp::Make(context, std::move(paint), aaType, quad);
     }
 }
 
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
 class TextureOp::BatchSizeLimiter {
 public:
-    BatchSizeLimiter(v1::SurfaceDrawContext* sdc,
+    BatchSizeLimiter(ganesh::SurfaceDrawContext* sdc,
                      const GrClip* clip,
                      GrRecordingContext* rContext,
                      int numEntries,
@@ -1245,7 +1257,7 @@ public:
     int baseIndex() const { return fNumClumped; }
 
 private:
-    v1::SurfaceDrawContext*     fSDC;
+    ganesh::SurfaceDrawContext* fSDC;
     const GrClip*               fClip;
     GrRecordingContext*         fContext;
     GrSamplerState::Filter      fFilter;
@@ -1260,7 +1272,7 @@ private:
 };
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
-void TextureOp::AddTextureSetOps(v1::SurfaceDrawContext* sdc,
+void TextureOp::AddTextureSetOps(ganesh::SurfaceDrawContext* sdc,
                                  const GrClip* clip,
                                  GrRecordingContext* context,
                                  GrTextureSetEntry set[],
@@ -1390,7 +1402,7 @@ void TextureOp::AddTextureSetOps(v1::SurfaceDrawContext* sdc,
 
 } // namespace skgpu::ganesh
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     SkISize dims;
     dims.fHeight = random->nextULessThan(90) + 10;
@@ -1458,4 +1470,4 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
                            useSubset ? &srcRect : nullptr);
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)

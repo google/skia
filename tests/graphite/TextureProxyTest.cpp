@@ -7,9 +7,14 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -19,7 +24,8 @@
 
 namespace skgpu::graphite {
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     const Caps* caps = context->priv().caps();
     constexpr SkISize kValidSize = SkISize::Make(1, 1);
     constexpr SkISize kInvalidSize = SkISize::MakeEmpty();
@@ -87,7 +93,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context) 
 
     // Lazy, non-volatile TextureProxy, unsuccessful instantiation.
     textureProxy = TextureProxy::MakeLazy(
-            kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kNo, nullCallback);
+            caps, kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kNo, nullCallback);
     REPORTER_ASSERT(reporter, textureProxy->isLazy());
     REPORTER_ASSERT(reporter, !textureProxy->isFullyLazy());
     REPORTER_ASSERT(reporter, !textureProxy->isVolatile());
@@ -98,7 +104,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context) 
 
     // Lazy, non-volatile TextureProxy, successful instantiation.
     textureProxy = TextureProxy::MakeLazy(
-            kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kNo, callback);
+            caps, kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kNo, callback);
 
     instantiateSuccess = textureProxy->lazyInstantiate(resourceProvider);
     REPORTER_ASSERT(reporter, instantiateSuccess);
@@ -106,7 +112,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context) 
 
     // Lazy, volatile TextureProxy, unsuccessful instantiation.
     textureProxy = TextureProxy::MakeLazy(
-            kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kYes, nullCallback);
+            caps, kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kYes, nullCallback);
     REPORTER_ASSERT(reporter, textureProxy->isLazy());
     REPORTER_ASSERT(reporter, !textureProxy->isFullyLazy());
     REPORTER_ASSERT(reporter, textureProxy->isVolatile());
@@ -117,7 +123,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context) 
 
     // Lazy, volatile TextureProxy, successful instantiation.
     textureProxy = TextureProxy::MakeLazy(
-            kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kYes, callback);
+            caps, kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kYes, callback);
 
     instantiateSuccess = textureProxy->lazyInstantiate(resourceProvider);
     REPORTER_ASSERT(reporter, instantiateSuccess);
@@ -164,9 +170,84 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context) 
     REPORTER_ASSERT(reporter, instantiateSuccess);
 
     textureProxy = TextureProxy::MakeLazy(
-            kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kNo, nullCallback);
+            caps, kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kNo, nullCallback);
     instantiateSuccess = TextureProxy::InstantiateIfNotLazy(resourceProvider, textureProxy.get());
     REPORTER_ASSERT(reporter, instantiateSuccess);
+}
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureTooLargeTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    const Caps* caps = context->priv().caps();
+
+    // Try to create a texture that is too large for the backend.
+    SkBitmap bitmap;
+    SkISize dimensions = SkISize::Make(caps->maxTextureSize() + 1, 1);
+    bitmap.allocPixels(SkImageInfo::Make(
+            dimensions, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType));
+    sk_sp<SkImage> rasterImage = SkImages::RasterFromBitmap(bitmap);
+    sk_sp<SkImage> graphiteImage =
+            SkImages::TextureFromImage(recorder.get(), rasterImage.get(), /*requiredProps=*/{});
+
+    // Image creation should have failed.
+    REPORTER_ASSERT(reporter, !graphiteImage);
+
+    // Snapping should still succeed, no texture upload should actually be attempted.
+    REPORTER_ASSERT(reporter, recorder->snap());
+}
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteLazyTextureInvalidDimensions, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
+    class FulfillContext {
+    public:
+        FulfillContext(BackendTexture backendTexture) : fBackendTexture(backendTexture) {}
+
+        static std::tuple<BackendTexture, void*> Fulfill(void* ctx) {
+            FulfillContext* self = reinterpret_cast<FulfillContext*>(ctx);
+            return {self->fBackendTexture, nullptr};
+        }
+
+        BackendTexture fBackendTexture;
+    };
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    const Caps* caps = context->priv().caps();
+
+    // Try to create textures with invalid dimensions.
+    SkISize largeDimensions = SkISize::Make(caps->maxTextureSize() + 1, 1);
+    SkISize negativeDimensions = SkISize::Make(-1, -1);
+
+    for (const SkISize& dimensions : {largeDimensions, negativeDimensions}) {
+        SkImageInfo imageInfo = SkImageInfo::Make(
+                dimensions, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
+        TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(
+                imageInfo.colorInfo().colorType(), Mipmapped::kNo, Protected::kNo, Renderable::kNo);
+
+        // The created BackendTexture should be invalid, so an invalid texture would be used to
+        // fulfill the promise image created later, if we were to attempt to draw it.
+        BackendTexture backendTexture =
+                recorder->createBackendTexture(imageInfo.dimensions(), textureInfo);
+        FulfillContext fulfillContext(backendTexture);
+        REPORTER_ASSERT(reporter, !backendTexture.isValid());
+
+        // Drawing should still succeed, as no image draw should actually be attempted with this
+        // texture.
+        SkImageInfo surfaceImageInfo = SkImageInfo::Make(
+                1, 1, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
+        sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), surfaceImageInfo);
+        sk_sp<SkImage> promiseImage = SkImages::PromiseTextureFrom(recorder.get(),
+                                                                   imageInfo.dimensions(),
+                                                                   textureInfo,
+                                                                   imageInfo.colorInfo(),
+                                                                   Volatile::kNo,
+                                                                   FulfillContext::Fulfill,
+                                                                   nullptr,
+                                                                   nullptr,
+                                                                   &fulfillContext);
+        surface->getCanvas()->drawImage(promiseImage, 0.0f, 0.0f);
+        std::unique_ptr<Recording> recording = recorder->snap();
+        REPORTER_ASSERT(reporter, context->insertRecording({recording.get()}));
+    }
 }
 
 }  // namespace skgpu::graphite

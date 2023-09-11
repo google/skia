@@ -15,7 +15,6 @@
 #include "include/private/base/SkTPin.h"
 
 #include "src/base/SkMathPriv.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
@@ -24,6 +23,8 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UploadTask.h"
+
+using namespace skia_private;
 
 namespace skgpu::graphite {
 
@@ -171,6 +172,7 @@ bool DrawAtlas::addToPage(unsigned int pageIdx, int width, int height, const voi
 
 bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder, bool useCachedUploads) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TokenTracker* tokenTracker = recorder->priv().tokenTracker();
     for (uint32_t pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
         PlotList::Iter plotIter;
         plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
@@ -179,18 +181,32 @@ bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder, bool useCached
                 TextureProxy* proxy = fProxies[pageIdx].get();
                 SkASSERT(proxy);
 
+                // Need to grab this before it gets reset by prepareForUpload()
+                bool setUploadToken = plot->needsUpload();
+
                 const void* dataPtr;
                 SkIRect dstRect;
                 std::tie(dataPtr, dstRect) = plot->prepareForUpload(useCachedUploads);
                 if (dstRect.isEmpty()) {
                     continue;
                 }
+                // We don't want to set the uploadToken for the conditional uploads
+                // we create at the start of a Recording -- if we do then each time we snap
+                // a new Recording it will update the token and effectively consider those
+                // uploads to take precedence over the ones that originally set up that
+                // state. Then when we play the Recording back it will overwrite those
+                // Plots even though they already contain the necessary glyphs. The Plots
+                // should keep the token value for the non-conditional uploads that
+                // originally set that state.
+                if (setUploadToken) {
+                    plot->setLastUploadToken(tokenTracker->nextFlushToken());
+                }
 
                 std::vector<MipLevel> levels;
                 levels.push_back({dataPtr, fBytesPerPixel*fPlotWidth});
 
-                plot->setLastUploadToken(recorder->priv().tokenTracker()->nextFlushToken());
-
+                // We need a conditional context for all uploads to ensure that they are
+                // registered in the PlotUploadTracker.
                 auto uploadContext = PlotUploadContext::Make(plot->plotLocator(),
                                                              plot->lastUploadToken(),
                                                              fAtlasID);
@@ -310,7 +326,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
     if (atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
-        SkTArray<Plot*> availablePlots;
+        TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
         // For all plots but the last one, update number of flushes since used, and check to see
@@ -456,13 +472,13 @@ bool DrawAtlas::activateNewPage(Recorder* recorder) {
     SkASSERT(fNumActivePages < this->maxPages());
     SkASSERT(!fProxies[fNumActivePages]);
 
-    auto textureInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(
-            fColorType,
-            /*mipmapped=*/Mipmapped::kNo,
-            Protected::kNo,
-            Renderable::kNo);
-    fProxies[fNumActivePages].reset(
-            new TextureProxy({fTextureWidth, fTextureHeight}, textureInfo, skgpu::Budgeted::kYes));
+    const Caps* caps = recorder->priv().caps();
+    auto textureInfo = caps->getDefaultSampledTextureInfo(fColorType,
+                                                          /*mipmapped=*/Mipmapped::kNo,
+                                                          Protected::kNo,
+                                                          Renderable::kNo);
+    fProxies[fNumActivePages] = TextureProxy::Make(
+            caps, {fTextureWidth, fTextureHeight}, textureInfo, skgpu::Budgeted::kYes);
     if (!fProxies[fNumActivePages]) {
         return false;
     }
@@ -501,17 +517,6 @@ inline void DrawAtlas::deactivateLastPage() {
     // remove ref to the texture proxy
     fProxies[lastPageIndex].reset();
     --fNumActivePages;
-}
-
-void DrawAtlas::evictAllPlots() {
-    PlotList::Iter plotIter;
-    for (uint32_t pageIndex = 0; pageIndex < fNumActivePages; ++pageIndex) {
-        plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
-        while (Plot* plot = plotIter.get()) {
-            this->processEvictionAndResetRects(plot);
-            plotIter.next();
-        }
-    }
 }
 
 DrawAtlasConfig::DrawAtlasConfig(int maxTextureSize, size_t maxBytes) {

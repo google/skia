@@ -8,7 +8,7 @@
 #ifndef SKSL_NOP
 #define SKSL_NOP
 
-#include "include/private/SkSLStatement.h"
+#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 namespace SkSL {

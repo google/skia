@@ -18,6 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
@@ -35,15 +36,15 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
     }
 
     sk_sp<SkImage> images[3];
-    images[0] = SkImage::MakeFromEncoded(encodedData);
+    images[0] = SkImages::DeferredFromEncodedData(encodedData);
 
     SkBitmap bmp;
     SkPixmap pixmap;
     SkAssertResult(images[0]->asLegacyBitmap(&bmp) &&
                    bmp.peekPixels(&pixmap));
 
-    images[1] = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, false);
-    images[2] = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, true);
+    images[1] = SkImages::CrossContextTextureFromPixmap(dContext, pixmap, false);
+    images[2] = SkImages::CrossContextTextureFromPixmap(dContext, pixmap, true);
 
     canvas->translate(10, 10);
 
@@ -53,8 +54,9 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
         canvas->drawImage(images[i], 0, 0);
         canvas->translate(0, 256 + 10);
 
-        canvas->drawImage(images[i]->makeSubset(SkIRect::MakeXYWH(64, 64, 128, 128), dContext),
-                          0, 0);
+        auto subset = images[i]->makeSubset(dContext, SkIRect::MakeXYWH(64, 64, 128, 128));
+        SkASSERTF(subset, "subset was null");
+        canvas->drawImage(subset, 0, 0);
         canvas->translate(128, 0);
 
         canvas->drawImageRect(images[i], SkRect::MakeWH(128, 128),

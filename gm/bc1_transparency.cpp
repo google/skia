@@ -11,11 +11,12 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_GpuBase.h"
 #include "tools/gpu/ProxyUtils.h"
 
 constexpr int kImgWidth  = 16;
@@ -105,16 +106,11 @@ static sk_sp<SkData> make_compressed_data() {
 static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
                                   SkTextureCompressionType compression) {
     if (direct) {
-        return SkImage::MakeTextureFromCompressed(direct, std::move(data),
-                                                  kImgWidth,
-                                                  kImgHeight,
-                                                  compression,
-                                                  GrMipmapped::kNo);
+        return SkImages::TextureFromCompressedTextureData(
+                direct, std::move(data), kImgWidth, kImgHeight, compression, GrMipmapped::kNo);
     } else {
-        return SkImage::MakeRasterFromCompressed(std::move(data),
-                                                 kImgWidth,
-                                                 kImgHeight,
-                                                 compression);
+        return SkImages::RasterFromCompressedTextureData(
+                std::move(data), kImgWidth, kImgHeight, compression);
     }
 }
 
@@ -168,12 +164,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("bc1_transparency"); }
 
-    SkString onShortName() override {
-        return SkString("bc1_transparency");
-    }
-
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(kImgWidth + 2 * kPad, 2 * kImgHeight + 3 * kPad);
     }
 

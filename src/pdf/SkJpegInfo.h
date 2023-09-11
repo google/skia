@@ -8,8 +8,11 @@
 #define SkJpegInfo_DEFINED
 
 #include "include/codec/SkEncodedOrigin.h"
-#include "include/core/SkSize.h"
 #include "include/private/SkEncodedInfo.h"
+
+#include <cstddef>
+
+struct SkISize;
 
 /** Returns true if the data seems to be a valid JPEG image with a known colorType.
 

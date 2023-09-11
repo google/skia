@@ -117,7 +117,8 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
                 case SkPath::kClose_Verb:
                     b.close();
                     break;
-                default: SkDEBUGFAIL("bad verb"); return;
+                default:
+                    SK_ABORT("bad verb");
             }
         }
         fPaths[index] = b.detach();
@@ -127,13 +128,11 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
 TestTypeface::TestTypeface(sk_sp<SkTestFont> testFont, const SkFontStyle& style)
         : SkTypeface(style, false), fTestFont(std::move(testFont)) {}
 
-void TestTypeface::getAdvance(SkGlyph* glyph) {
-    SkGlyphID glyphID = glyph->getGlyphID();
-    glyphID           = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
+SkVector TestTypeface::getAdvance(SkGlyphID glyphID) const {
+    glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
 
     // TODO(benjaminwagner): Update users to use floats.
-    glyph->fAdvanceX = SkFixedToFloat(fTestFont->fWidths[glyphID]);
-    glyph->fAdvanceY = 0;
+    return {SkFixedToFloat(fTestFont->fWidths[glyphID]), 0};
 }
 
 void TestTypeface::getFontMetrics(SkFontMetrics* metrics) { *metrics = fTestFont->fMetrics; }
@@ -260,23 +259,20 @@ protected:
         return static_cast<TestTypeface*>(this->getTypeface());
     }
 
-    bool generateAdvance(SkGlyph* glyph) override {
-        this->getTestTypeface()->getAdvance(glyph);
+    GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
+        GlyphMetrics mx(glyph.maskFormat());
 
-        const SkVector advance =
-                fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX), SkFloatToScalar(glyph->fAdvanceY));
-        glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-        glyph->fAdvanceY = SkScalarToFloat(advance.fY);
-        return true;
-    }
+        auto advance = this->getTestTypeface()->getAdvance(glyph.getGlyphID());
 
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override {
-        glyph->zeroMetrics();
-        this->generateAdvance(glyph);
+        mx.advance = fMatrix.mapXY(advance.fX, advance.fY);
+        return mx;
+
         // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
     }
 
-    void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }
+    void generateImage(const SkGlyph&, void*) override {
+        SK_ABORT("Should have generated from path.");
+    }
 
     bool generatePath(const SkGlyph& glyph, SkPath* path) override {
         *path = this->getTestTypeface()->getPath(glyph.getGlyphID()).makeTransform(fMatrix);

@@ -36,22 +36,23 @@ std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection, std::unique_ptr<SkUnicode> unicode)
-        : ParagraphBuilder(style, fontCollection)
+        : ParagraphBuilder()
         , fUtf8()
         , fFontCollection(std::move(fontCollection))
         , fParagraphStyle(style)
         , fUnicode(std::move(unicode))
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
         , fTextIsFinalized(false)
         , fUsingClientInfo(false)
 #endif
 {
+    SkASSERT(fFontCollection);
     startStyledBlock();
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilderImpl(style, fontCollection, SkUnicode::Make())
+        : ParagraphBuilderImpl(style, std::move(fontCollection), SkUnicode::Make())
 { }
 
 ParagraphBuilderImpl::~ParagraphBuilderImpl() = default;
@@ -91,7 +92,7 @@ TextStyle ParagraphBuilderImpl::peekStyle() {
 }
 
 void ParagraphBuilderImpl::addText(const std::u16string& text) {
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     auto utf8 = SkUnicode::convertUtf16ToUtf8(text);
@@ -99,29 +100,31 @@ void ParagraphBuilderImpl::addText(const std::u16string& text) {
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     fUtf8.append(text);
 }
 
 void ParagraphBuilderImpl::addText(const char* text, size_t len) {
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     fUtf8.append(text, len);
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle) {
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     addPlaceholder(placeholderStyle, false);
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne) {
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-    SkASSERT(!fTextIsFinalized);
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+    // The very last placeholder is added automatically
+    // and only AFTER finalize() is called
+    SkASSERT(!fTextIsFinalized || lastOne);
 #endif
     if (!fUtf8.isEmpty() && !lastOne) {
         // We keep the very last text style
@@ -162,7 +165,7 @@ void ParagraphBuilderImpl::startStyledBlock() {
 }
 
 void ParagraphBuilderImpl::finalize() {
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     if (fTextIsFinalized) {
         return;
     }
@@ -170,28 +173,29 @@ void ParagraphBuilderImpl::finalize() {
     if (!fUtf8.isEmpty()) {
         this->endRunIfNeeded();
     }
-    // Add one fake placeholder with the rest of the text
-    this->addPlaceholder(PlaceholderStyle(), true);
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     fTextIsFinalized = true;
 #endif
 }
 
 std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     this->finalize();
-    addPlaceholder(PlaceholderStyle(), true);
+    // Add one fake placeholder with the rest of the text
+    this->addPlaceholder(PlaceholderStyle(), true);
 
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-    SkASSERT(fUsingClientInfo);
-    fUTF8IndexForUTF16Index.clear();
-    fUTF16IndexForUTF8Index.clear();
-
-    // This is the place where SkUnicode is paired with SkParagraph
-    fUnicode = SkUnicode::MakeClientBasedUnicode(this->getText(),
-                                                 std::move(fWordsUtf16),
-                                                 std::move(fGraphemeBreaksUtf8),
-                                                 std::move(fLineBreaksUtf8));
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+    if (fUsingClientInfo && !fUnicode) {
+        fUTF8IndexForUTF16Index.clear();
+        fUTF16IndexForUTF8Index.clear();
+        // This is the place where SkUnicode is paired with SkParagraph
+        fUnicode = SkUnicode::MakeClientBasedUnicode(this->getText(),
+                                                    std::move(fWordsUtf16),
+                                                    std::move(fGraphemeBreaksUtf8),
+                                                    std::move(fLineBreaksUtf8));
+    }
 #endif
+
     SkASSERT(fUnicode);
     return std::make_unique<ParagraphImpl>(
             fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, fUnicode);
@@ -215,7 +219,7 @@ void ParagraphBuilderImpl::ensureUTF16Mapping() {
     });
 }
 
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
 void ParagraphBuilderImpl::setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) {
     ensureUTF16Mapping();
     std::vector<SkUnicode::Position> wordsUtf16;
@@ -290,7 +294,7 @@ void ParagraphBuilderImpl::Reset() {
     fUtf8.reset();
     fStyledBlocks.clear();
     fPlaceholders.clear();
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     fUTF8IndexForUTF16Index.clear();
     fUTF16IndexForUTF8Index.clear();
     fWordsUtf16.clear();
@@ -302,7 +306,7 @@ void ParagraphBuilderImpl::Reset() {
 }
 
 bool ParagraphBuilderImpl::RequiresClientICU() {
-#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     return true;
 #else
     return false;

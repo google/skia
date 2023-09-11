@@ -79,7 +79,7 @@ public:
             return surface;
         }
         // serialize-8888 returns null from makeSurface; fallback to a raster surface.
-        return SkSurface::MakeRaster(info);
+        return SkSurfaces::Raster(info);
     }
 
     void draw(SkCanvas* canvas, sk_sp<SkImage> input, int blurRadius) {
@@ -115,7 +115,6 @@ public:
         canvas->drawImage(drawSurface->makeImageSnapshot(), input->width() / 4, 0,
                           SkSamplingOptions());
         canvas->translate(input->width() / 4, input->height() * 0.75);
-        drawSurface->flush();
 
         // And now we'll ping pong between our surfaces, to accumulate the result of various
         // offsets.
@@ -174,8 +173,8 @@ private:
 class KawaseBlurRT : public skiagm::GM {
 public:
     KawaseBlurRT() {}
-    SkString onShortName() override { return SkString("kawase_blur_rt"); }
-    SkISize onISize() override { return {1280, 768}; }
+    SkString getName() const override { return SkString("kawase_blur_rt"); }
+    SkISize getISize() override { return {1280, 768}; }
 
     void onOnceBeforeDraw() override {
         fMandrill = GetResourceAsImage("images/mandrill_256.png");

@@ -5,18 +5,31 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
+
+#include "include/core/SkSamplingOptions.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/effects/GrAtlasedShaderHelpers.h"
-#include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
+
+#include <algorithm>
 
 #if !defined(SK_DISABLE_SDF_TEXT)
 
@@ -285,7 +298,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldA8TextGeoProc::
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomAlphaOnlyView();
 
@@ -539,7 +552,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldPathGeoProc::ma
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomAlphaOnlyView();
 
@@ -852,7 +865,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldLCDTextGeoProc:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();
 

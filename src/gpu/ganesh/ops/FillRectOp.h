@@ -22,7 +22,7 @@ struct GrUserStencilSettings;
 class SkMatrix;
 struct SkRect;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -64,7 +64,7 @@ public:
                                int quadCount,
                                const GrUserStencilSettings* = nullptr);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     static uint32_t ClassID();
 #endif
 
@@ -81,6 +81,6 @@ private:
                               int* numConsumed);
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // FillRectOp_DEFINED

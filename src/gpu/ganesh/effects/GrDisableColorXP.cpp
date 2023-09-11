@@ -7,12 +7,17 @@
 
 #include "src/gpu/ganesh/effects/GrDisableColorXP.h"
 
-#include "src/gpu/ganesh/GrPipeline.h"
-#include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+
+#include <memory>
+
+namespace skgpu {
+class KeyBuilder;
+class Swizzle;
+}
 
 /**
  * This xfer processor disables color writing. Thus color and coverage and ignored and no blending
@@ -66,7 +71,7 @@ sk_sp<const GrXferProcessor> GrDisableColorXPFactory::MakeXferProcessor() {
 
 GR_DEFINE_XP_FACTORY_TEST(GrDisableColorXPFactory)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 const GrXPFactory* GrDisableColorXPFactory::TestGet(GrProcessorTestData*) {
     return GrDisableColorXPFactory::Get();
 }

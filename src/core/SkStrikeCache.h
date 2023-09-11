@@ -8,17 +8,23 @@
 #ifndef SkStrikeCache_DEFINED
 #define SkStrikeCache_DEFINED
 
-#include "include/core/SkDrawable.h"
-#include "include/private/SkSpinlock.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkLoadUserConfig.h" // IWYU pragma: keep
 #include "include/private/base/SkMutex.h"
-#include "src/core/SkDescriptor.h"
-#include "src/core/SkStrikeSpec.h"
+#include "include/private/base/SkThreadAnnotations.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkTHash.h"
 #include "src/text/StrikeForGPU.h"
 
-class SkStrike;
-class SkStrikePinner;
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <memory>
+
+class SkDescriptor;
+class SkStrikeSpec;
 class SkTraceMemoryDump;
+struct SkFontMetrics;
 
 //  SK_DEFAULT_FONT_CACHE_COUNT_LIMIT and SK_DEFAULT_FONT_CACHE_LIMIT can be set using -D on your
 //  compiler commandline, or by using the defines in SkUserConfig.h
@@ -58,6 +64,7 @@ public:
     static void DumpMemoryStatistics(SkTraceMemoryDump* dump);
 
     void purgeAll() SK_EXCLUDES(fLock); // does not change budget
+    void purgePinned(size_t minBytesNeeded = 0) SK_EXCLUDES(fLock);
 
     int getCacheCountLimit() const SK_EXCLUDES(fLock);
     int setCacheCountLimit(int limit) SK_EXCLUDES(fLock);
@@ -83,7 +90,7 @@ private:
     // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
     // and attempt to purge caches to match.
     // Returns number of bytes freed.
-    size_t internalPurge(size_t minBytesNeeded = 0) SK_REQUIRES(fLock);
+    size_t internalPurge(size_t minBytesNeeded = 0, bool checkPinners = false) SK_REQUIRES(fLock);
 
     // A simple accounting of what each glyph cache reports and the strike cache total.
     void validate() const SK_REQUIRES(fLock);
@@ -97,12 +104,14 @@ private:
         static const SkDescriptor& GetKey(const sk_sp<SkStrike>& strike);
         static uint32_t Hash(const SkDescriptor& descriptor);
     };
-    SkTHashTable<sk_sp<SkStrike>, SkDescriptor, StrikeTraits> fStrikeLookup SK_GUARDED_BY(fLock);
+    skia_private::THashTable<sk_sp<SkStrike>, SkDescriptor, StrikeTraits> fStrikeLookup
+            SK_GUARDED_BY(fLock);
 
     size_t  fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
     size_t  fTotalMemoryUsed SK_GUARDED_BY(fLock) {0};
     int32_t fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};
     int32_t fCacheCount SK_GUARDED_BY(fLock) {0};
+    int32_t fPinnerCount SK_GUARDED_BY(fLock) {0};
 };
 
 #endif  // SkStrikeCache_DEFINED

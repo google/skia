@@ -89,7 +89,7 @@ static void draw_colorspace_gm(Strategy strategy, SkCanvas* canvas) {
 
             switch (strategy) {
                 case SkImage_makeColorSpace: {
-                    canvas->drawImage(img->makeColorSpace(midCS), 0,0);
+                    canvas->drawImage(img->makeColorSpace(nullptr, midCS), 0,0);
                 } break;
 
                 case SkCanvas_makeSurface: {

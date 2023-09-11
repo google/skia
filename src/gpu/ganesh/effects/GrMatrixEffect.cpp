@@ -7,11 +7,16 @@
 
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 
-#include "src/gpu/ganesh/GrTexture.h"
+#include "include/core/SkString.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
-#include "src/sksl/SkSLUtil.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
 
 std::unique_ptr<GrFragmentProcessor> GrMatrixEffect::Make(
         const SkMatrix& matrix, std::unique_ptr<GrFragmentProcessor> child) {

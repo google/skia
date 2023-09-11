@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/private/gpu/ganesh/GrVkTypesPriv.h"
@@ -82,10 +83,10 @@ public:
                 this->vkImageInfo().fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
         if (fResource && this->ycbcrConversionInfo().isValid()) {
             SkASSERT(this->imageFormat() == this->ycbcrConversionInfo().fFormat);
-            return GrBackendFormat::MakeVk(this->ycbcrConversionInfo(), usesDRMModifier);
+            return GrBackendFormats::MakeVk(this->ycbcrConversionInfo(), usesDRMModifier);
         }
         SkASSERT(this->imageFormat() != VK_FORMAT_UNDEFINED);
-        return GrBackendFormat::MakeVk(this->imageFormat(), usesDRMModifier);
+        return GrBackendFormats::MakeVk(this->imageFormat(), usesDRMModifier);
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
     const GrVkYcbcrConversionInfo& ycbcrConversionInfo() const {
@@ -206,7 +207,7 @@ public:
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
     static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void setCurrentQueueFamilyToGraphicsQueue(GrVkGpu* gpu);
 #endif
 

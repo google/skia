@@ -13,6 +13,7 @@
 #if defined(SK_GANESH)
 
 #include "include/core/SkImageInfo.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrTypes.h"
 
@@ -21,9 +22,9 @@
 class GrBackendFormat;
 class GrCaps;
 class GrContextThreadSafeProxyPriv;
+class GrSurfaceCharacterization;
 class GrThreadSafeCache;
 class GrThreadSafePipelineBuilder;
-class SkSurfaceCharacterization;
 class SkSurfaceProps;
 enum class SkTextureCompressionType;
 
@@ -84,7 +85,7 @@ public:
      *                                         willUseGLFBO0 = false
      *                                         vkRTSupportsInputAttachment = false
      */
-    SkSurfaceCharacterization createCharacterization(
+    GrSurfaceCharacterization createCharacterization(
                                   size_t cacheMaxResourceBytes,
                                   const SkImageInfo& ii,
                                   const GrBackendFormat& backendFormat,
@@ -101,7 +102,7 @@ public:
     /*
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
      * It is guaranteed that this backend format will be the one used by the following
-     * SkColorType and SkSurfaceCharacterization-based createBackendTexture methods.
+     * SkColorType and GrSurfaceCharacterization-based createBackendTexture methods.
      *
      * The caller should check that the returned format is valid.
      */

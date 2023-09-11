@@ -6,15 +6,16 @@ package main
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.skia.org/infra/bazel/go/bazel"
 
 	"go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/gcs"
@@ -22,6 +23,7 @@ import (
 	"go.skia.org/infra/go/gerrit"
 	gerrit_testutils "go.skia.org/infra/go/gerrit/testutils"
 	"go.skia.org/infra/go/git"
+	"go.skia.org/infra/go/git/git_common"
 	git_testutils "go.skia.org/infra/go/git/testutils"
 	"go.skia.org/infra/go/gitiles"
 	gitiles_testutils "go.skia.org/infra/go/gitiles/testutils"
@@ -335,6 +337,11 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
 		ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
 		ctx = td.WithExecRunFn(ctx, commandCollector.Run)
+		// Be in a temporary directory
+		require.NoError(t, os.Chdir(t.TempDir()))
+		// Create a file to simulate the result of copying and stripping the binary
+		createTestFile(t, filepath.Join("build", "dm_stripped"), "This has 17 bytes")
+		createTestFile(t, filepath.Join("build_nopatch", "dm_stripped"), "This has 23 bytes total")
 
 		err := runSteps(ctx, args)
 		assert.NoError(t, err)
@@ -402,20 +409,21 @@ func setupMockGit(t *testing.T, repoState types.RepoState) (*gerrit_testutils.Mo
 	commitTimestamp := time.Date(2022, time.January, 30, 23, 59, 0, 0, time.UTC)
 
 	// Seed a fake Git repository.
-	gitBuilder := git_testutils.GitInit(t, context.Background())
+	ctx := context.Background()
+	if bazel.InBazelTest() && runtime.GOOS == "linux" {
+		ctx = git_common.WithGitFinder(context.Background(), func() (string, error) {
+			return filepath.Join(bazel.RunfilesDir(), "external", "git_linux_amd64", "bin", "git"), nil
+		})
+	}
+	gitBuilder := git_testutils.GitInit(t, ctx)
 	t.Cleanup(func() {
 		gitBuilder.Cleanup()
 	})
-	gitBuilder.Add(context.Background(), "README.md", "I'm a fake repository.")
-	repoState.Revision = gitBuilder.CommitMsgAt(context.Background(), "Fake commit subject", commitTimestamp)
+	gitBuilder.Add(ctx, "README.md", "I'm a fake repository.")
+	repoState.Revision = gitBuilder.CommitMsgAt(ctx, "Fake commit subject", commitTimestamp)
 
 	// Mock a Gerrit client.
-	tmp, err := ioutil.TempDir("", "")
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		testutils.RemoveAll(t, tmp)
-	})
-	mockGerrit := gerrit_testutils.NewGerrit(t, tmp)
+	mockGerrit := gerrit_testutils.NewGerrit(t)
 	mockGerrit.MockGetIssueProperties(&gerrit.ChangeInfo{
 		Issue: 12345,
 		Owner: &gerrit.Person{
@@ -447,7 +455,7 @@ func setupMockGit(t *testing.T, repoState types.RepoState) (*gerrit_testutils.Mo
 	// Mock a Gitiles client.
 	urlMock := mockhttpclient.NewURLMock()
 	mockRepo := gitiles_testutils.NewMockRepo(t, gitBuilder.RepoUrl(), git.GitDir(gitBuilder.Dir()), urlMock)
-	mockRepo.MockGetCommit(context.Background(), repoState.Revision)
+	mockRepo.MockGetCommit(ctx, repoState.Revision)
 	mockGitiles := gitiles.NewRepo(gitBuilder.RepoUrl(), urlMock.Client())
 	return mockGerrit, mockGitiles, repoState
 }

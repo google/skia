@@ -8,23 +8,24 @@
 #ifndef SkDrawBase_DEFINED
 #define SkDrawBase_DEFINED
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/base/SkAttributes.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
+#include <cstddef>
 
 class SkArenaAlloc;
 class SkBitmap;
 class SkBlitter;
+class SkDevice;
 class SkGlyph;
 class SkMaskFilter;
 class SkMatrix;
-class SkMatrixProvider;
 class SkPath;
 class SkRRect;
 class SkRasterClip;
@@ -68,9 +69,12 @@ public:
     void drawPathCoverage(const SkPath& src, const SkPaint& paint,
                           SkBlitter* customBlitter = nullptr) const {
         bool isHairline = paint.getStyle() == SkPaint::kStroke_Style &&
-                          paint.getStrokeWidth() > 0;
+                          paint.getStrokeWidth() == 0;
         this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
+
+    void drawDevicePoints(SkCanvas::PointMode, size_t count, const SkPoint[], const SkPaint&,
+                          SkDevice*) const;
 
     static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
                                   const SkMaskFilter* filter, const SkMatrix* filterMatrix,
@@ -83,7 +87,7 @@ public:
     */
     static bool DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
                            const SkMaskFilter*, const SkMatrix* filterMatrix,
-                           SkMask* mask, SkMask::CreateMode mode,
+                           SkMaskBuilder* dst, SkMaskBuilder::CreateMode mode,
                            SkStrokeRec::InitStyle style);
 
     enum RectType {
@@ -141,12 +145,12 @@ private:
      *  If the matrix cannot be inverted, or the current clip is empty, return
      *  false and ignore bounds parameter.
      */
-    bool SK_WARN_UNUSED_RESULT computeConservativeLocalClipBounds(SkRect* bounds) const;
+    [[nodiscard]] bool computeConservativeLocalClipBounds(SkRect* bounds) const;
 
 public:
     SkPixmap                fDst;
     BlitterChooser*         fBlitterChooser{nullptr};  // required
-    const SkMatrixProvider* fMatrixProvider{nullptr};  // required
+    const SkMatrix*         fCTM{nullptr};             // required
     const SkRasterClip*     fRC{nullptr};              // required
     const SkSurfaceProps*   fProps{nullptr};           // optional
 

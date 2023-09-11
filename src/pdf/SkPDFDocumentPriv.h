@@ -12,7 +12,9 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/base/SkMutex.h"
 #include "src/core/SkTHash.h"
+#include "src/pdf/SkPDFGraphicState.h"
 #include "src/pdf/SkPDFMetadata.h"
+#include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTag.h"
 
 #include <atomic>
@@ -24,9 +26,6 @@ class SkPDFDevice;
 class SkPDFFont;
 struct SkAdvancedTypefaceMetrics;
 struct SkBitmapKey;
-struct SkPDFFillGraphicState;
-struct SkPDFImageShaderKey;
-struct SkPDFStrokeGraphicState;
 
 namespace SkPDFGradientShader {
 struct Key;
@@ -141,18 +140,25 @@ public:
     const SkMatrix& currentPageTransform() const;
 
     // Canonicalized objects
-    SkTHashMap<SkPDFImageShaderKey, SkPDFIndirectReference> fImageShaderMap;
-    SkTHashMap<SkPDFGradientShader::Key, SkPDFIndirectReference, SkPDFGradientShader::KeyHash>
-        fGradientPatternMap;
-    SkTHashMap<SkBitmapKey, SkPDFIndirectReference> fPDFBitmapMap;
-    SkTHashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
-    SkTHashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
-    SkTHashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
-    SkTHashMap<uint32_t, SkPDFIndirectReference> fFontDescriptors;
-    SkTHashMap<uint32_t, SkPDFIndirectReference> fType3FontDescriptors;
-    SkTHashMap<uint64_t, SkPDFFont> fFontMap;
-    SkTHashMap<SkPDFStrokeGraphicState, SkPDFIndirectReference> fStrokeGSMap;
-    SkTHashMap<SkPDFFillGraphicState, SkPDFIndirectReference> fFillGSMap;
+    skia_private::THashMap<SkPDFImageShaderKey,
+                           SkPDFIndirectReference,
+                           SkPDFImageShaderKey::Hash> fImageShaderMap;
+    skia_private::THashMap<SkPDFGradientShader::Key,
+                           SkPDFIndirectReference,
+                           SkPDFGradientShader::KeyHash> fGradientPatternMap;
+    skia_private::THashMap<SkBitmapKey, SkPDFIndirectReference> fPDFBitmapMap;
+    skia_private::THashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
+    skia_private::THashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
+    skia_private::THashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
+    skia_private::THashMap<uint32_t, SkPDFIndirectReference> fFontDescriptors;
+    skia_private::THashMap<uint32_t, SkPDFIndirectReference> fType3FontDescriptors;
+    skia_private::THashMap<uint64_t, SkPDFFont> fFontMap;
+    skia_private::THashMap<SkPDFStrokeGraphicState,
+                           SkPDFIndirectReference,
+                           SkPDFStrokeGraphicState::Hash> fStrokeGSMap;
+    skia_private::THashMap<SkPDFFillGraphicState,
+                           SkPDFIndirectReference,
+                           SkPDFFillGraphicState::Hash> fFillGSMap;
     SkPDFIndirectReference fInvertFunction;
     SkPDFIndirectReference fNoSmaskGraphicState;
     std::vector<std::unique_ptr<SkPDFLink>> fCurrentPageLinks;

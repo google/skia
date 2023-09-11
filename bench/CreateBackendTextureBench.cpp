@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 
 using namespace skia_private;
@@ -30,7 +31,7 @@ private:
     void onDraw(int loops, SkCanvas* canvas) override {
         auto context = canvas->recordingContext()->asDirectContext();
 
-        fBackendTextures.reserve_back(loops);
+        fBackendTextures.reserve_exact(fBackendTextures.size() + loops);
 
         static const int kSize = 16;
         for (int i = 0; i < loops; ++i) {
@@ -52,7 +53,7 @@ private:
         auto context = canvas->recordingContext()->asDirectContext();
 
         context->flush();
-        context->submit(true);
+        context->submit(GrSyncCpu::kYes);
 
         for (int i = 0; i < fBackendTextures.size(); ++i) {
             if (fBackendTextures[i].isValid()) {

@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "bench/GpuTools.h"
 #include "bench/SKPBench.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpu.h"
 #include "tools/flags/CommandLineFlags.h"
 
 using namespace skia_private;
@@ -64,7 +67,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     int xTiles = SkScalarCeilToInt(bounds.width()  / SkIntToScalar(tileW));
     int yTiles = SkScalarCeilToInt(bounds.height() / SkIntToScalar(tileH));
 
-    fSurfaces.reserve_back(xTiles * yTiles);
+    fSurfaces.reserve_exact(fSurfaces.size() + (xTiles * yTiles));
     fTileRects.reserve(xTiles * yTiles);
 
     SkImageInfo ii = canvas->imageInfo().makeWH(tileW, tileH);
@@ -104,8 +107,8 @@ bool SKPBench::isSuitableFor(Backend backend) {
     return backend != kNonRendering_Backend;
 }
 
-SkIPoint SKPBench::onGetSize() {
-    return SkIPoint::Make(fClip.width(), fClip.height());
+SkISize SKPBench::onGetSize() {
+    return SkISize::Make(fClip.width(), fClip.height());
 }
 
 void SKPBench::onDraw(int loops, SkCanvas* canvas) {
@@ -137,11 +140,10 @@ void SKPBench::drawPicture() {
     }
 
     for (int j = 0; j < fTileRects.size(); ++j) {
-        fSurfaces[j]->flush();
+        skgpu::Flush(fSurfaces[j].get());
     }
 }
 
-#include "src/gpu/ganesh/GrGpu.h"
 static void draw_pic_for_stats(SkCanvas* canvas,
                                GrDirectContext* dContext,
                                const SkPicture* picture,

@@ -11,6 +11,7 @@
 #include "include/core/SkVertices.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
+#include "src/gpu/graphite/render/AtlasShapeRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
@@ -50,9 +51,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                          DrawTypeFlags::kShape);
     fTessellatedStrokes = makeFromStep(
             std::make_unique<TessellateStrokesRenderStep>(infinitySupport), DrawTypeFlags::kShape);
-    fBitmapText = makeFromStep(std::make_unique<BitmapTextRenderStep>(),
-                               DrawTypeFlags::kText);
+    fAtlasShape = makeFromStep(std::make_unique<AtlasShapeRenderStep>(), DrawTypeFlags::kShape);
     for (bool lcd : {false, true}) {
+        fBitmapText[lcd] = makeFromStep(std::make_unique<BitmapTextRenderStep>(lcd),
+                                        DrawTypeFlags::kText);
         fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd),
                                      DrawTypeFlags::kText);
     }
@@ -123,6 +125,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
             fRenderers.push_back(&r);
         }
     }
+
+#ifdef SK_ENABLE_VELLO_SHADERS
+    fVelloRenderer = std::make_unique<VelloRenderer>(caps);
+#endif
 }
 
 const RenderStep* RendererProvider::lookup(uint32_t uniqueID) const {

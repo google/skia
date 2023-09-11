@@ -194,7 +194,7 @@ public:
     }
 
     /** Used for spewing information about ops when debugging. */
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     virtual SkString dumpInfo() const final {
         return SkStringPrintf("%s\nOpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
                               this->onDumpInfo().c_str(), fBounds.fLeft, fBounds.fTop,
@@ -317,7 +317,7 @@ private:
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.
     virtual void onExecute(GrOpFlushState*, const SkRect& chainBounds) = 0;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     virtual SkString onDumpInfo() const { return SkString(); }
 #endif
 

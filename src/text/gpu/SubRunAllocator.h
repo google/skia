@@ -9,13 +9,22 @@
 #define sktext_gpu_SubRunAllocator_DEFINED
 
 #include "include/core/SkSpan.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMath.h"
+#include "include/private/base/SkTLogic.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 
 #include <algorithm>
+#include <array>
 #include <climits>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <limits>
 #include <memory>
+#include <new>
 #include <tuple>
 #include <utility>
 
@@ -121,9 +130,9 @@ private:
     // kAllocationAlignment accounts for this difference. For more information see:
     // https://github.com/emscripten-core/emscripten/issues/10072
     #if !defined(SK_FORCE_8_BYTE_ALIGNMENT)
-        inline static constexpr int kAllocationAlignment = alignof(std::max_align_t);
+        static constexpr int kAllocationAlignment = alignof(std::max_align_t);
     #else
-        inline static constexpr int kAllocationAlignment = 8;
+        static constexpr int kAllocationAlignment = 8;
     #endif
 
     static constexpr size_t AlignUp(int size, int alignment) {

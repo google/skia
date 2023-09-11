@@ -13,7 +13,6 @@
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/gpu/BufferWriter.h"
@@ -32,11 +31,13 @@
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
 
+using namespace skia_private;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 using MaskFormat = skgpu::MaskFormat;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 namespace {
 
@@ -219,7 +220,7 @@ private:
         for (int i = 0; i < instanceCount; i++) {
             const Entry& args = fShapes[i];
 
-            skgpu::v1::SmallPathShapeData* shapeData;
+            skgpu::ganesh::SmallPathShapeData* shapeData;
             if (fUsesDistanceField) {
                 // get mip level
                 SkScalar maxScale;
@@ -314,10 +315,13 @@ private:
 
     bool addToAtlasWithRetry(GrMeshDrawTarget* target,
                              FlushInfo* flushInfo,
-                             skgpu::v1::SmallPathAtlasMgr* atlasMgr,
-                             int width, int height, const void* image,
-                             const SkRect& bounds, int srcInset,
-                             skgpu::v1::SmallPathShapeData* shapeData) const {
+                             skgpu::ganesh::SmallPathAtlasMgr* atlasMgr,
+                             int width,
+                             int height,
+                             const void* image,
+                             const SkRect& bounds,
+                             int srcInset,
+                             skgpu::ganesh::SmallPathShapeData* shapeData) const {
         auto resourceProvider = target->resourceProvider();
         auto uploadTarget = target->deferredUploadTarget();
 
@@ -342,12 +346,11 @@ private:
 
     bool addDFPathToAtlas(GrMeshDrawTarget* target,
                           FlushInfo* flushInfo,
-                          skgpu::v1::SmallPathAtlasMgr* atlasMgr,
-                          skgpu::v1::SmallPathShapeData* shapeData,
+                          skgpu::ganesh::SmallPathAtlasMgr* atlasMgr,
+                          skgpu::ganesh::SmallPathShapeData* shapeData,
                           const GrStyledShape& shape,
                           uint32_t dimension,
                           SkScalar scale) const {
-
         const SkRect& bounds = shape.bounds();
 
         // generate bounding rect for bitmap draw
@@ -413,8 +416,7 @@ private:
             SkRasterClip rasterClip;
             rasterClip.setRect(devPathBounds);
             draw.fRC = &rasterClip;
-            SkMatrixProvider matrixProvider(drawMatrix);
-            draw.fMatrixProvider = &matrixProvider;
+            draw.fCTM = &drawMatrix;
             draw.fDst = dst;
 
             draw.drawPathCoverage(path, paint);
@@ -438,8 +440,8 @@ private:
 
     bool addBMPathToAtlas(GrMeshDrawTarget* target,
                           FlushInfo* flushInfo,
-                          skgpu::v1::SmallPathAtlasMgr* atlasMgr,
-                          skgpu::v1::SmallPathShapeData* shapeData,
+                          skgpu::ganesh::SmallPathAtlasMgr* atlasMgr,
+                          skgpu::ganesh::SmallPathShapeData* shapeData,
                           const GrStyledShape& shape,
                           const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
@@ -491,10 +493,9 @@ private:
 
         SkRasterClip rasterClip;
         rasterClip.setRect(devPathBounds);
-        draw.fRC = &rasterClip;
         drawMatrix.postTranslate(translateX, translateY);
-        SkMatrixProvider matrixProvider(drawMatrix);
-        draw.fMatrixProvider = &matrixProvider;
+        draw.fRC = &rasterClip;
+        draw.fCTM = &drawMatrix;
         draw.fDst = dst;
 
         draw.drawPathCoverage(path, paint);
@@ -509,7 +510,7 @@ private:
     void writePathVertices(VertexWriter& vertices,
                            const VertexColor& color,
                            const SkMatrix& ctm,
-                           const skgpu::v1::SmallPathShapeData* shapeData) const {
+                           const skgpu::ganesh::SmallPathShapeData* shapeData) const {
         SkRect translatedBounds(shapeData->fBounds);
         if (!fUsesDistanceField) {
             translatedBounds.offset(SkScalarFloorToScalar(ctm.get(SkMatrix::kMTransX)),
@@ -633,7 +634,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
@@ -652,7 +653,7 @@ private:
         SkMatrix      fViewMatrix;
     };
 
-    SkSTArray<1, Entry> fShapes;
+    STArray<1, Entry> fShapes;
     Helper fHelper;
     bool fGammaCorrect;
     bool fWideColor;
@@ -726,9 +727,9 @@ bool SmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
@@ -736,10 +737,14 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
 
     // This path renderer only allows fill styles.
     GrStyledShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
-    return skgpu::v1::SmallPathOp::Make(context, std::move(paint), shape, viewMatrix, gammaCorrect,
-                                        GrGetRandomStencil(random, context));
+    return skgpu::ganesh::SmallPathOp::Make(context,
+                                            std::move(paint),
+                                            shape,
+                                            viewMatrix,
+                                            gammaCorrect,
+                                            GrGetRandomStencil(random, context));
 }
 
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

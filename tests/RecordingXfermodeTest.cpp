@@ -34,7 +34,7 @@ namespace {
 class Drawer {
  public:
     explicit Drawer() : fImageInfo(SkImageInfo::MakeN32Premul(200, 100)) {
-        auto surf = SkSurface::MakeRasterN32Premul(100, 100);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
         surf->getCanvas()->clear(0xffffffff);
         SkPaint circlePaint;
         circlePaint.setColor(0xff000000);
@@ -170,7 +170,7 @@ DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
 #else
         if (0 != memcmp(goldenBM.getPixels(), pictureBM.getPixels(), pixelsSize)) {
             numErrors++;
-            errors.appendf("For SkXfermode %d %s:    SkPictureRecorder bitmap is wrong\n",
+            errors.appendf("For SkBlendMode %d %s:    SkPictureRecorder bitmap is wrong\n",
                            iMode, SkBlendMode_Name(mode));
         }
 #endif

@@ -1,0 +1,7 @@
+half4 main(float2 xy)
+{
+	half4 color = child_0.eval(_coords);
+	color.xyz = toLinearSrgb(color.xyz);
+	color.zx = color.xz * 0.75;
+	return half4(half4(fromLinearSrgb(color.xyz), color.w));
+}

@@ -32,6 +32,7 @@ def executeWorklist(input, worklist):
     except subprocess.CalledProcessError as err:
         if err.returncode != 1:
             print("### " + input + " skslc error:\n")
+            #print("$ lldb out/Debug/skslc -- " + worklist.name + "\n\n")
             print("\n".join(err.output.decode('utf-8', errors='ignore').splitlines()))
             sys.exit(err.returncode)
         pass  # Compile errors (exit code 1) are expected and normal in test code
@@ -40,6 +41,8 @@ def executeWorklist(input, worklist):
     os.remove(worklist.name)
 
 def extensionForSpirvAsm(ext):
+    if (ext == '.compute'):
+        return '.comp'
     return ext if (ext == '.frag' or ext == '.vert') else '.frag'
 
 if settings != "--settings" and settings != "--nosettings":
@@ -83,10 +86,6 @@ for input in inputs:
         worklist.write(input + "\n")
         worklist.write(target + ".skrp\n")
         worklist.write(settings + "\n\n")
-    elif lang == "--skvm":
-        worklist.write(input + "\n")
-        worklist.write(target + ".skvm\n")
-        worklist.write(settings + "\n\n")
     elif lang == "--stage":
         worklist.write(input + "\n")
         worklist.write(target + ".stage\n")
@@ -97,7 +96,7 @@ for input in inputs:
         worklist.write(settings + "\n\n")
     else:
         sys.exit("### Expected one of: --glsl --metal --hlsl --spirv --skrp " +
-                 "--skvm --stage --wgsl, got " + lang)
+                 "--stage --wgsl, got " + lang)
 
     # Compile items one at a time.
     if not batchCompile:

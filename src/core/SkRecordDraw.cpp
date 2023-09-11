@@ -5,14 +5,40 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBBHFactory.h"
-#include "include/core/SkImage.h"
-#include "include/private/base/SkTDArray.h"
-#include "src/core/SkCanvasPriv.h"
-#include "src/core/SkColorFilterBase.h"
-#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRecordDraw.h"
+
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkMesh.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
+#include "include/core/SkVertices.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/chromium/Slug.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkDrawShadowInfo.h"
+#include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/utils/SkPatchUtils.h"
+
+#include <algorithm>
+#include <optional>
+#include <vector>
 
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
@@ -59,26 +85,12 @@ void SkRecordDraw(const SkRecord& record,
     }
 }
 
-void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
-                         SkPicture const* const drawablePicts[], int drawableCount,
-                         int start, int stop,
-                         const SkM44& initialCTM) {
-    SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
-
-    stop = std::min(stop, record.count());
-    SkRecords::Draw draw(canvas, drawablePicts, nullptr, drawableCount, &initialCTM);
-    for (int i = start; i < stop; i++) {
-        record.visit(i, draw);
-    }
-}
-
 namespace SkRecords {
 
 // NoOps draw nothing.
 template <> void Draw::draw(const NoOp&) {}
 
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
-DRAW(Flush, flush())
 DRAW(Restore, restore())
 DRAW(Save, save())
 DRAW(SaveLayer, saveLayer(SkCanvasPriv::ScaledBackdropLayer(r.bounds,
@@ -139,21 +151,11 @@ DRAW(DrawRRect, drawRRect(r.rrect, r.paint))
 DRAW(DrawRect, drawRect(r.rect, r.paint))
 DRAW(DrawRegion, drawRegion(r.region, r.paint))
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint))
-#if defined(SK_GANESH)
 DRAW(DrawSlug, drawSlug(r.slug.get()))
-#else
-// Turn draw into a nop.
-template <> void Draw::draw(const DrawSlug&) {}
-#endif
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
                           r.cull, r.paint))
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))
-#ifdef SK_ENABLE_SKSL
 DRAW(DrawMesh, drawMesh(r.mesh, r.blender, r.paint))
-#else
-// Turn draw into a nop.
-template <> void Draw::draw(const DrawMesh&) {}
-#endif
 DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec))
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()))
 
@@ -398,8 +400,6 @@ private:
         }
     }
 
-    Bounds bounds(const Flush&) const { return fCullRect; }
-
     Bounds bounds(const DrawPaint&) const { return fCullRect; }
     Bounds bounds(const DrawBehind&) const { return fCullRect; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
@@ -453,11 +453,7 @@ private:
         return this->adjustAndMap(op.vertices->bounds(), &op.paint);
     }
     Bounds bounds(const DrawMesh& op) const {
-#ifdef SK_ENABLE_SKSL
         return this->adjustAndMap(op.mesh.bounds(), &op.paint);
-#else
-        return SkRect::MakeEmpty();
-#endif
     }
     Bounds bounds(const DrawAtlas& op) const {
         if (op.cull) {
@@ -487,16 +483,10 @@ private:
         return this->adjustAndMap(dst, &op.paint);
     }
 
-#if defined(SK_GANESH)
     Bounds bounds(const DrawSlug& op) const {
         SkRect dst = op.slug->sourceBoundsWithOrigin();
         return this->adjustAndMap(dst, &op.slug->initialPaint());
     }
-#else
-    Bounds bounds(const DrawSlug& op) const {
-        return SkRect::MakeEmpty();
-    }
-#endif
 
     Bounds bounds(const DrawDrawable& op) const {
         return this->adjustAndMap(op.worstCaseBounds, nullptr);

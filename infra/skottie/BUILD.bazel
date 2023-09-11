@@ -1,0 +1,23 @@
+load("//bazel:skia_app_container.bzl", "skia_app_container")
+
+# Layer the CanvasKit component on top of the skottie-base Docker
+# Image to create the final Docker image.
+skia_app_container(
+    name = "skottie_container",
+    base_image = "@skottie-base//image",
+    dirs = {
+        "/usr/local/share/skottie/": [
+            [
+                # This brings in all the CanvasKit build files.
+                "//modules/canvaskit:canvaskit",
+                "0644",
+            ],
+            [
+                "//modules/canvaskit:version.js",
+                "0644",
+            ],
+        ],
+    },
+    entrypoint = "/usr/local/bin/skottie",
+    repository = "skia-public/skottie-final",
+)

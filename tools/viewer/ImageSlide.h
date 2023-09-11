@@ -9,8 +9,13 @@
 #define ImageSlide_DEFINED
 
 #include "include/core/SkImage.h"
-#include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "tools/viewer/Slide.h"
+
+class SkCanvas;
 
 class ImageSlide : public Slide {
 public:

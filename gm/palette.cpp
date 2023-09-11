@@ -92,12 +92,12 @@ protected:
                 GetResourceAsStream(kColrCpalTestFontPath), paletteArguments);
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString gm_name = SkStringPrintf("font_palette_%s", fName.c_str());
         return gm_name;
     }
 
-    SkISize onISize() override { return SkISize::Make(1000, 400); }
+    SkISize getISize() override { return SkISize::Make(1000, 400); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->drawColor(SK_ColorWHITE);

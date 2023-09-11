@@ -11,6 +11,7 @@
 
 #include "include/android/SkImageAndroid.h"
 
+#include "include/android/GrAHardwareBufferUtils.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
@@ -28,6 +29,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -36,7 +38,6 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
-#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -60,32 +61,35 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkImage_Gpu.h"
 
 #include <algorithm>
 #include <cstddef>
 #include <utility>
 
-namespace sk_image_factory {
+#include <android/hardware_buffer.h>
 
-sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at) {
+namespace SkImages {
+
+sk_sp<SkImage> DeferredFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at) {
     auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, nullptr,
                                                      kTopLeft_GrSurfaceOrigin);
-    return SkImage::MakeFromGenerator(std::move(gen));
+    return DeferredFromGenerator(std::move(gen));
 }
 
-sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at,
-                                                sk_sp<SkColorSpace> cs,
-                                                GrSurfaceOrigin surfaceOrigin) {
+sk_sp<SkImage> DeferredFromAHardwareBuffer(AHardwareBuffer* graphicBuffer,
+                                           SkAlphaType at,
+                                           sk_sp<SkColorSpace> cs,
+                                           GrSurfaceOrigin surfaceOrigin) {
     auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, cs, surfaceOrigin);
-    return SkImage::MakeFromGenerator(std::move(gen));
+    return DeferredFromGenerator(std::move(gen));
 }
 
-sk_sp<SkImage> MakeFromAHardwareBufferWithData(GrDirectContext* dContext,
-                                                        const SkPixmap& pixmap,
-                                                        AHardwareBuffer* hardwareBuffer,
-                                                        GrSurfaceOrigin surfaceOrigin) {
+sk_sp<SkImage> TextureFromAHardwareBufferWithData(GrDirectContext* dContext,
+                                                  const SkPixmap& pixmap,
+                                                  AHardwareBuffer* hardwareBuffer,
+                                                  GrSurfaceOrigin surfaceOrigin) {
     AHardwareBuffer_Desc bufferDesc;
     AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
 
@@ -142,10 +146,8 @@ sk_sp<SkImage> MakeFromAHardwareBufferWithData(GrDirectContext* dContext,
     skgpu::Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView framebufferView(std::move(proxy), surfaceOrigin, swizzle);
     SkColorInfo colorInfo = pixmap.info().colorInfo().makeColorType(colorType);
-    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
-                                                   kNeedNewImageUniqueID,
-                                                   framebufferView,
-                                                   std::move(colorInfo));
+    sk_sp<SkImage> image = sk_make_sp<SkImage_Ganesh>(
+            sk_ref_sp(dContext), kNeedNewImageUniqueID, framebufferView, std::move(colorInfo));
     if (!image) {
         return nullptr;
     }
@@ -155,47 +157,17 @@ sk_sp<SkImage> MakeFromAHardwareBufferWithData(GrDirectContext* dContext,
         return nullptr;
     }
 
-    skgpu::v1::SurfaceContext surfaceContext(
-            dContext, std::move(framebufferView),image->imageInfo().colorInfo());
+    skgpu::ganesh::SurfaceContext surfaceContext(
+            dContext, std::move(framebufferView), image->imageInfo().colorInfo());
 
     surfaceContext.writePixels(dContext, pixmap, {0, 0});
 
     GrSurfaceProxy* p[1] = {surfaceContext.asSurfaceProxy()};
-    drawingManager->flush(p, SkSurface::BackendSurfaceAccess::kNoAccess, {}, nullptr);
+    drawingManager->flush(p, SkSurfaces::BackendSurfaceAccess::kNoAccess, {}, nullptr);
 
     return image;
 }
 
-} // namespace sk_image_factory
-
-#if !defined(SK_DISABLE_LEGACY_IMAGE_FACTORIES)
-
-sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(
-        AHardwareBuffer* hardwareBuffer,
-        SkAlphaType alphaType) {
-    return sk_image_factory::MakeFromAHardwareBuffer(hardwareBuffer, alphaType);
-}
-
-sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(
-        AHardwareBuffer* hardwareBuffer,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        GrSurfaceOrigin surfaceOrigin) {
-    return sk_image_factory::MakeFromAHardwareBuffer(hardwareBuffer, alphaType,
-                                                     colorSpace, surfaceOrigin);
-}
-
-sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(
-        GrDirectContext* context,
-        const SkPixmap& pixmap,
-        AHardwareBuffer* hardwareBuffer,
-        GrSurfaceOrigin surfaceOrigin) {
-    return sk_image_factory::MakeFromAHardwareBufferWithData(context,
-                                                             pixmap,
-                                                             hardwareBuffer,
-                                                             surfaceOrigin);
-}
-
-#endif // SK_DISABLE_LEGACY_IMAGE_FACTORIES
+}  // namespace SkImages
 
 #endif // defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26

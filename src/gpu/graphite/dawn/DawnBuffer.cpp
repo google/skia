@@ -30,7 +30,7 @@ static const char* kBufferTypeNames[kBufferTypeCount] = {
 sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                                size_t size,
                                BufferType type,
-                               PrioritizeGpuReads prioritizeGpuReads) {
+                               AccessPattern) {
     if (size <= 0) {
         return nullptr;
     }
@@ -53,7 +53,8 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst;
         break;
     case BufferType::kStorage:
-        usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+        usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst |
+                wgpu::BufferUsage::CopySrc;
         break;
     case BufferType::kIndirect:
         usage = wgpu::BufferUsage::Indirect | wgpu::BufferUsage::Storage;

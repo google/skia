@@ -12,9 +12,18 @@ SHARED_FILES = [
     "AtlasTypes.h",
     "Blend.cpp",
     "Blend.h",
+    "BlendFormula.cpp",
+    "BlendFormula.h",
+    "BlurUtils.cpp",
+    "BlurUtils.h",
     "BufferWriter.h",
+    "DitherUtils.cpp",
+    "DitherUtils.h",
+    "GpuTypesPriv.h",
     "KeyBuilder.h",
     "MutableTextureStateRef.h",
+    "PipelineUtils.cpp",
+    "PipelineUtils.h",
     "Rectanizer.h",
     "RectanizerPow2.cpp",
     "RectanizerPow2.h",
@@ -26,6 +35,8 @@ SHARED_FILES = [
     "SkBackingFit.h",
     "Swizzle.cpp",
     "Swizzle.h",
+    "TiledTextureUtils.cpp",
+    "TiledTextureUtils.h",
 ]
 
 split_srcs_and_hdrs(
@@ -34,8 +45,6 @@ split_srcs_and_hdrs(
 )
 
 CORE_FILES = [
-    "GrAHardwareBufferUtils.h",
-    "GrRectanizer.h",
     "ShaderErrorHandler.cpp",
     "SkRenderEngineAbortf.h",
 ]
@@ -49,9 +58,12 @@ string_flag_with_values(
     name = "gpu_backend",
     multiple = True,
     values = [
-        "gl_backend",
-        "vulkan_backend",
-        "dawn_backend",
+        "gl_ganesh",
+        "metal_ganesh",
+        "vulkan_ganesh",
+        "dawn_graphite",
+        "metal_graphite",
+        "vulkan_graphite",
     ],
 )
 
@@ -65,11 +77,21 @@ string_flag_with_values(
 )
 
 selects.config_setting_group(
-    name = "has_gpu_backend",
+    name = "has_ganesh_backend",
     match_any = [
-        ":gl_backend",
-        ":dawn_backend",
-        ":vulkan_backend",
+        ":gl_ganesh",
+        ":metal_ganesh",
+        ":vulkan_ganesh",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "has_graphite_backend",
+    match_any = [
+        ":dawn_graphite",
+        ":metal_graphite",
+        ":vulkan_graphite",
     ],
     visibility = ["//:__subpackages__"],
 )
@@ -77,7 +99,7 @@ selects.config_setting_group(
 selects.config_setting_group(
     name = "vulkan_with_vma",
     match_all = [
-        ":vulkan_backend",
+        ":vulkan_ganesh",
         ":use_vulkan_memory_allocator_true",
     ],
     visibility = ["//:__subpackages__"],
@@ -94,6 +116,29 @@ bool_flag(
     default = False,
 )
 
+selects.config_setting_group(
+    name = "has_dawn",
+    match_any = [
+        ":dawn_graphite",
+    ],
+)
+
+selects.config_setting_group(
+    name = "has_metal",
+    match_any = [
+        ":metal_ganesh",
+        ":metal_graphite",
+    ],
+)
+
+selects.config_setting_group(
+    name = "has_vulkan",
+    match_any = [
+        ":vulkan_ganesh",
+        ":vulkan_graphite",
+    ],
+)
+
 skia_filegroup(
     name = "srcs",
     srcs = [
@@ -103,10 +148,19 @@ skia_filegroup(
         "//src/gpu/tessellate:srcs",
     ] + select_multi(
         {
-            "//src/gpu:dawn_backend": ["//src/gpu/dawn:srcs"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/vk:srcs"],
+            ":has_dawn": ["//src/gpu/dawn:srcs"],
+            ":has_vulkan": ["//src/gpu/vk:srcs"],
         },
     ),
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "objc_srcs",
+    srcs = [
+        "//src/gpu/ganesh:objc_srcs",
+        "//src/gpu/mtl:shared_objc_srcs",
+    ],
     visibility = ["//src:__pkg__"],
 )
 
@@ -119,8 +173,9 @@ skia_filegroup(
         "//src/gpu/tessellate:private_hdrs",
     ] + select_multi(
         {
-            "//src/gpu:dawn_backend": ["//src/gpu/dawn:private_hdrs"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/vk:private_hdrs"],
+            ":has_dawn": ["//src/gpu/dawn:private_hdrs"],
+            ":has_vulkan": ["//src/gpu/vk:private_hdrs"],
+            ":has_metal": ["//src/gpu/mtl:private_hdrs"],
         },
     ),
     visibility = ["//src:__pkg__"],
@@ -133,7 +188,7 @@ skia_cc_deps(
         "//src/gpu/ganesh:deps",
     ] + select_multi(
         {
-            "//src/gpu:vulkan_backend": ["//src/gpu/vk:deps"],
+            ":has_vulkan": ["//src/gpu/vk:deps"],
         },
     ),
 )

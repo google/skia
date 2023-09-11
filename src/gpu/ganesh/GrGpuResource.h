@@ -11,12 +11,17 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 
 class GrDirectContext;
 class GrGpu;
 class GrResourceCache;
 class SkTraceMemoryDump;
+
+#if defined(GR_TEST_UTILS)
+class GrSurface;
+#endif
 
 /**
  * Base class for GrGpuResource. Provides the hooks for resources to interact with the cache.
@@ -64,7 +69,7 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     int32_t testingOnly_getRefCnt() const { return this->getRefCnt(); }
 #endif
 
@@ -221,6 +226,10 @@ public:
 
     static uint32_t CreateUniqueID();
 
+#if defined(GR_TEST_UTILS)
+    virtual const GrSurface* asSurface() const { return nullptr; }
+#endif
+
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
     // fully initialized (i.e. only from the constructors of the final class).
@@ -308,7 +317,7 @@ private:
     // This value reflects how recently this resource was accessed in the cache. This is maintained
     // by the cache.
     uint32_t fTimestamp;
-    GrStdSteadyClock::time_point fTimeWhenBecamePurgeable;
+    skgpu::StdSteadyClock::time_point fTimeWhenBecamePurgeable;
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     skgpu::ScratchKey fScratchKey;

@@ -19,37 +19,6 @@
 // To keep Skia resistant to timing attacks, it's important not to branch on pixel data.
 // In particular, don't be tempted to [v]ptest, pmovmskb, etc. to branch on the source alpha.
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
-    #include <immintrin.h>
-
-    static inline __m512i SkPMSrcOver_SKX(const __m512i& src, const __m512i& dst) {
-        // Detailed explanations in SkPMSrcOver_AVX2
-        // b = s + (d*(256-srcA)) >> 8
-
-        // Shuffle each pixel's srcA to the low byte of each 16-bit half of the pixel.
-        const uint8_t _ = -1;   // fills a literal 0 byte.
-        const uint8_t mask[64] = { 3, _,3, _, 7, _,7, _, 11,_,11,_, 15,_,15,_,
-                                   19,_,19,_, 23,_,23,_, 27,_,27,_, 31,_,31,_,
-                                   35,_,35,_, 39,_,39,_, 43,_,43,_, 47,_,47,_,
-                                   51,_,51,_, 55,_,55,_, 59,_,59,_, 63,_,63,_ };
-        __m512i srcA_x2 = _mm512_shuffle_epi8(src, _mm512_loadu_si512(mask));
-        __m512i scale_x2 = _mm512_sub_epi16(_mm512_set1_epi16(256),
-                                            srcA_x2);
-
-        // Scale red and blue, leaving results in the low byte of each 16-bit lane.
-        __m512i rb = _mm512_and_si512(_mm512_set1_epi32(0x00ff00ff), dst);
-        rb = _mm512_mullo_epi16(rb, scale_x2);
-        rb = _mm512_srli_epi16(rb, 8);
-
-        // Scale green and alpha, leaving results in the high byte, masking off the low bits.
-        __m512i ga = _mm512_srli_epi16(dst, 8);
-        ga = _mm512_mullo_epi16(ga, scale_x2);
-        ga = _mm512_andnot_si512(_mm512_set1_epi32(0x00ff00ff), ga);
-
-        return _mm512_adds_epu8(src, _mm512_or_si512(rb, ga));
-    }
-#endif
-
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #include <immintrin.h>
 
@@ -154,17 +123,6 @@ inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, 
     SkASSERT(alpha == 0xFF);
     sk_msan_assert_initialized(src, src+len);
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
-    while (len >= 16) {
-        _mm512_storeu_si512((__m512*)dst,
-                            SkPMSrcOver_SKX(_mm512_loadu_si512((const __m512i*)src),
-                                            _mm512_loadu_si512((const __m512i*)dst)));
-        src += 16;
-        dst += 16;
-        len -= 16;
-    }
-#endif
-
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     while (len >= 8) {
         _mm256_storeu_si256((__m256i*)dst,
@@ -218,9 +176,9 @@ inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, 
     }
 }
 
-// Blend constant color over count src pixels, writing into dst.
+// Blend constant color over count dst pixels
 /*not static*/
-inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
+inline void blit_row_color32(SkPMColor* dst, int count, SkPMColor color) {
     constexpr int N = 4;  // 8, 16 also reasonable choices
     using U32 = skvx::Vec<  N, uint32_t>;
     using U16 = skvx::Vec<4*N, uint16_t>;
@@ -233,21 +191,21 @@ inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, Sk
 
         // (src * invA + (color << 8) + 128) >> 8
         // Should all fit in 16 bits.
-        U8 s = skvx::bit_pun<U8>(src),
+        U8 s = sk_bit_cast<U8>(src),
            a = U8(invA);
-        U16 c = skvx::cast<uint16_t>(skvx::bit_pun<U8>(U32(color))),
+        U16 c = skvx::cast<uint16_t>(sk_bit_cast<U8>(U32(color))),
             d = (mull(s,a) + (c << 8) + 128)>>8;
-        return skvx::bit_pun<U32>(skvx::cast<uint8_t>(d));
+        return sk_bit_cast<U32>(skvx::cast<uint8_t>(d));
     };
 
     while (count >= N) {
-        kernel(U32::Load(src)).store(dst);
-        src   += N;
+        kernel(U32::Load(dst)).store(dst);
         dst   += N;
         count -= N;
     }
     while (count --> 0) {
-        *dst++ = kernel(U32{*src++})[0];
+        *dst = kernel(U32{*dst})[0];
+        dst++;
     }
 }
 

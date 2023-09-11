@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFeatures.h"
 #include "include/private/base/SkLoadUserConfig.h"
 
@@ -22,4 +23,4 @@ void SkDebugf(const char format[], ...) {
 #pragma GCC diagnostic pop
     va_end(args);
 }
-#endif//!defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_ANDROID)
+#endif  // !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_ANDROID)

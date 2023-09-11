@@ -1,0 +1,10 @@
+layout(local_size_x = 1) in;
+
+void overloaded_function(layout(rgba32f) writeonly texture2D tex) {}
+void overloaded_function(layout(r32f)    writeonly texture2D tex) {}
+void overloaded_function(layout(rgba8)   writeonly texture2D tex) {}
+
+/*%%*
+modifiers on parameter 1 differ between declaration and definition
+modifiers on parameter 1 differ between declaration and definition
+*%%*/

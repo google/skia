@@ -6,6 +6,7 @@
  */
 
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
@@ -108,6 +109,10 @@ template <>
 bool AnimatablePropertyContainer::bind<ScalarValue>(const AnimationBuilder& abuilder,
                                                     const skjson::ObjectValue* jprop,
                                                     ScalarValue* v) {
+    if (const auto* sid = ParseSlotID(jprop)) {
+        fHasSlotID = true;
+        abuilder.fSlotManager->trackScalarValue(SkString(sid->begin()), v, sk_ref_sp(this));
+    }
     ScalarAnimatorBuilder builder(v);
 
     return this->bindImpl(abuilder, jprop, builder);

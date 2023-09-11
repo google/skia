@@ -203,6 +203,9 @@ class DefaultFlavor(object):
       env['LLVM_PROFILE_FILE'] = self.m.path.join(self.m.vars.swarming_out_dir,
                                                   profname)
 
+    if 'DWriteCore' in extra_tokens:
+      path.append(workdir.join('dwritecore', 'bin'))
+
     if path:
       env['PATH'] = self.m.path.pathsep.join(
           ['%(PATH)s'] + ['%s' % p for p in path])

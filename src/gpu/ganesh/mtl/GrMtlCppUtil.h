@@ -32,7 +32,7 @@ SkTextureCompressionType GrMtlBackendFormatToCompressionType(const GrBackendForm
  */
 int GrMtlTextureInfoSampleCount(const GrMtlTextureInfo&);
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat);
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat);
 #endif

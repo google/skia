@@ -1,6 +1,6 @@
-/*
- * This file houses functions that deal with color.
- */
+//
+// This file houses functions that deal with color.
+//
 
 // Constructs a Color with the same API as CSS's rgba(), that is
 // r,g,b are 0-255, and a is 0.0 to 1.0.

@@ -9,45 +9,36 @@
 #define SKSL_PARSER
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLDefines.h"
-#include "include/private/base/SkTArray.h"
-#include "include/sksl/DSLCore.h"
-#include "include/sksl/DSLExpression.h"
-#include "include/sksl/DSLLayout.h"
-#include "include/sksl/DSLModifiers.h"
-#include "include/sksl/DSLStatement.h"
-#include "include/sksl/DSLType.h"
-#include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLOperator.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLLayout.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
-#include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 
 namespace SkSL {
 
 class Compiler;
-class SymbolTable;
-enum class ProgramKind : int8_t;
+class ErrorReporter;
+class Expression;
+class FunctionDeclaration;
 struct Module;
 struct Program;
-
-namespace dsl {
-class DSLBlock;
-class DSLCase;
-class DSLGlobalVar;
-class DSLParameter;
-class DSLVarBase;
-}
+enum class ProgramKind : int8_t;
+class Statement;
+class SymbolTable;
+class Type;
+class VarDeclaration;
+class Variable;
 
 /**
- * Consumes .sksl text and invokes DSL functions to instantiate the program.
+ * Consumes .sksl text and converts it into an IR tree, encapsulated in a Program.
  */
 class Parser {
 public:
@@ -64,6 +55,7 @@ public:
 private:
     class AutoDepth;
     class AutoSymbolTable;
+    class Checkpoint;
 
     /**
      * Return the next token, including whitespace tokens, from the parse stream.
@@ -147,130 +139,165 @@ private:
 
     void directive(bool allowVersion);
 
+    void extensionDirective(Position start);
+
+    void versionDirective(Position start, bool allowVersion);
+
     bool declaration();
 
     bool functionDeclarationEnd(Position start,
-                                dsl::DSLModifiers& modifiers,
-                                dsl::DSLType type,
+                                Modifiers& modifiers,
+                                const Type* returnType,
                                 const Token& name);
+
+    bool prototypeFunction(SkSL::FunctionDeclaration* decl);
+
+    bool defineFunction(SkSL::FunctionDeclaration* decl);
 
     struct VarDeclarationsPrefix {
         Position fPosition;
-        dsl::DSLModifiers fModifiers;
-        dsl::DSLType fType = dsl::DSLType(dsl::kVoid_Type);
+        Modifiers fModifiers;
+        const Type* fType;
         Token fName;
     };
 
     bool varDeclarationsPrefix(VarDeclarationsPrefix* prefixData);
 
-    dsl::DSLStatement varDeclarationsOrExpressionStatement();
+    std::unique_ptr<Statement> varDeclarationsOrExpressionStatement();
 
-    dsl::DSLStatement varDeclarations();
+    std::unique_ptr<Statement> varDeclarations();
 
-    dsl::DSLType structDeclaration();
+    const Type* structDeclaration();
 
-    SkTArray<dsl::DSLGlobalVar> structVarDeclaration(Position start,
-                                                     const dsl::DSLModifiers& modifiers);
+    void structVarDeclaration(Position start, const Modifiers& modifiers);
 
     bool allowUnsizedArrays() {
         return ProgramConfig::IsCompute(fKind) || ProgramConfig::IsFragment(fKind) ||
                ProgramConfig::IsVertex(fKind);
     }
 
-    bool parseArrayDimensions(Position pos, dsl::DSLType* type);
+    const Type* arrayType(const Type* base, int count, Position pos);
 
-    bool parseInitializer(Position pos, dsl::DSLExpression* initializer);
+    const Type* unsizedArrayType(const Type* base, Position pos);
 
-    void globalVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
-            dsl::DSLType baseType, Token name);
+    bool parseArrayDimensions(Position pos, const Type** type);
 
-    dsl::DSLStatement localVarDeclarationEnd(Position position, const dsl::DSLModifiers& mods,
-            dsl::DSLType baseType, Token name);
+    bool parseInitializer(Position pos, std::unique_ptr<Expression>* initializer);
 
-    std::optional<dsl::DSLParameter> parameter(size_t paramIndex);
+    void addGlobalVarDeclaration(std::unique_ptr<SkSL::VarDeclaration> decl);
+
+    void globalVarDeclarationEnd(Position position, const Modifiers& mods,
+                                 const Type* baseType, Token name);
+
+    std::unique_ptr<Statement> localVarDeclarationEnd(Position position,
+                                                      const Modifiers& mods,
+                                                      const Type* baseType,
+                                                      Token name);
+
+    bool modifiersDeclarationEnd(const Modifiers& mods);
+
+    bool parameter(std::unique_ptr<SkSL::Variable>* outParam);
 
     int layoutInt();
 
     std::string_view layoutIdentifier();
 
-    dsl::DSLLayout layout();
+    SkSL::Layout layout();
 
-    dsl::DSLModifiers modifiers();
+    Modifiers modifiers();
 
-    dsl::DSLStatement statement();
+    std::unique_ptr<Statement> statementOrNop(Position pos, std::unique_ptr<Statement> stmt);
 
-    dsl::DSLType type(dsl::DSLModifiers* modifiers);
+    std::unique_ptr<Statement> statement();
 
-    bool interfaceBlock(const dsl::DSLModifiers& mods);
+    const Type* findType(Position pos, Modifiers* modifiers, std::string_view name);
 
-    dsl::DSLStatement ifStatement();
+    const Type* type(Modifiers* modifiers);
 
-    dsl::DSLStatement doStatement();
+    bool interfaceBlock(const Modifiers& mods);
 
-    dsl::DSLStatement whileStatement();
+    std::unique_ptr<Statement> ifStatement();
 
-    dsl::DSLStatement forStatement();
+    std::unique_ptr<Statement> doStatement();
 
-    std::optional<dsl::DSLCase> switchCase();
+    std::unique_ptr<Statement> whileStatement();
 
-    dsl::DSLStatement switchStatement();
+    std::unique_ptr<Statement> forStatement();
 
-    dsl::DSLStatement returnStatement();
+    bool switchCaseBody(ExpressionArray* values,
+                        StatementArray* caseBlocks,
+                        std::unique_ptr<Expression> value);
 
-    dsl::DSLStatement breakStatement();
+    bool switchCase(ExpressionArray* values, StatementArray* caseBlocks);
 
-    dsl::DSLStatement continueStatement();
+    std::unique_ptr<Statement> switchStatement();
 
-    dsl::DSLStatement discardStatement();
+    std::unique_ptr<Statement> returnStatement();
 
-    std::optional<dsl::DSLBlock> block();
+    std::unique_ptr<Statement> breakStatement();
 
-    dsl::DSLStatement expressionStatement();
+    std::unique_ptr<Statement> continueStatement();
 
-    using BinaryParseFn = dsl::DSLExpression (Parser::*)();
-    bool SK_WARN_UNUSED_RESULT operatorRight(AutoDepth& depth, Operator::Kind op,
-                                             BinaryParseFn rightFn, dsl::DSLExpression& result);
+    std::unique_ptr<Statement> discardStatement();
 
-    dsl::DSLExpression expression();
+    std::unique_ptr<Statement> block();
 
-    dsl::DSLExpression assignmentExpression();
+    std::unique_ptr<Statement> expressionStatement();
 
-    dsl::DSLExpression ternaryExpression();
+    using BinaryParseFn = std::unique_ptr<Expression> (Parser::*)();
+    [[nodiscard]] bool operatorRight(AutoDepth& depth,
+                                     Operator::Kind op,
+                                     BinaryParseFn rightFn,
+                                     std::unique_ptr<Expression>& expr);
 
-    dsl::DSLExpression logicalOrExpression();
+    std::unique_ptr<Expression> poison(Position pos);
 
-    dsl::DSLExpression logicalXorExpression();
+    std::unique_ptr<Expression> expressionOrPoison(Position pos, std::unique_ptr<Expression> expr);
 
-    dsl::DSLExpression logicalAndExpression();
+    std::unique_ptr<Expression> expression();
 
-    dsl::DSLExpression bitwiseOrExpression();
+    std::unique_ptr<Expression> assignmentExpression();
 
-    dsl::DSLExpression bitwiseXorExpression();
+    std::unique_ptr<Expression> ternaryExpression();
 
-    dsl::DSLExpression bitwiseAndExpression();
+    std::unique_ptr<Expression> logicalOrExpression();
 
-    dsl::DSLExpression equalityExpression();
+    std::unique_ptr<Expression> logicalXorExpression();
 
-    dsl::DSLExpression relationalExpression();
+    std::unique_ptr<Expression> logicalAndExpression();
 
-    dsl::DSLExpression shiftExpression();
+    std::unique_ptr<Expression> bitwiseOrExpression();
 
-    dsl::DSLExpression additiveExpression();
+    std::unique_ptr<Expression> bitwiseXorExpression();
 
-    dsl::DSLExpression multiplicativeExpression();
+    std::unique_ptr<Expression> bitwiseAndExpression();
 
-    dsl::DSLExpression unaryExpression();
+    std::unique_ptr<Expression> equalityExpression();
 
-    dsl::DSLExpression postfixExpression();
+    std::unique_ptr<Expression> relationalExpression();
 
-    dsl::DSLExpression swizzle(Position pos, dsl::DSLExpression base,
-            std::string_view swizzleMask, Position maskPos);
+    std::unique_ptr<Expression> shiftExpression();
 
-    dsl::DSLExpression call(Position pos, dsl::DSLExpression base, ExpressionArray args);
+    std::unique_ptr<Expression> additiveExpression();
 
-    dsl::DSLExpression suffix(dsl::DSLExpression base);
+    std::unique_ptr<Expression> multiplicativeExpression();
 
-    dsl::DSLExpression term();
+    std::unique_ptr<Expression> unaryExpression();
+
+    std::unique_ptr<Expression> postfixExpression();
+
+    std::unique_ptr<Expression> swizzle(Position pos,
+                                        std::unique_ptr<Expression> base,
+                                        std::string_view swizzleMask,
+                                        Position maskPos);
+
+    std::unique_ptr<Expression> call(Position pos,
+                                     std::unique_ptr<Expression> base,
+                                     ExpressionArray args);
+
+    std::unique_ptr<Expression> suffix(std::unique_ptr<Expression> base);
+
+    std::unique_ptr<Expression> term();
 
     bool intLiteral(SKSL_INT* dest);
 
@@ -281,75 +308,6 @@ private:
     bool identifier(std::string_view* dest);
 
     std::shared_ptr<SymbolTable>& symbolTable();
-
-    void addToSymbolTable(dsl::DSLVarBase& var, Position pos = {});
-
-    class Checkpoint {
-    public:
-        Checkpoint(Parser* p) : fParser(p) {
-            fPushbackCheckpoint = fParser->fPushback;
-            fLexerCheckpoint = fParser->fLexer.getCheckpoint();
-            fOldErrorReporter = &dsl::GetErrorReporter();
-            fOldEncounteredFatalError = fParser->fEncounteredFatalError;
-            SkASSERT(fOldErrorReporter);
-            dsl::SetErrorReporter(&fErrorReporter);
-        }
-
-        ~Checkpoint() {
-            SkASSERTF(!fOldErrorReporter,
-                      "Checkpoint was not accepted or rewound before destruction");
-        }
-
-        void accept() {
-            this->restoreErrorReporter();
-            // Parser errors should have been fatal, but we can encounter other errors like type
-            // mismatches despite accepting the parse. Forward those messages to the actual error
-            // handler now.
-            fErrorReporter.forwardErrors();
-        }
-
-        void rewind() {
-            this->restoreErrorReporter();
-            fParser->fPushback = fPushbackCheckpoint;
-            fParser->fLexer.rewindToCheckpoint(fLexerCheckpoint);
-            fParser->fEncounteredFatalError = fOldEncounteredFatalError;
-        }
-
-    private:
-        class ForwardingErrorReporter : public ErrorReporter {
-        public:
-            void handleError(std::string_view msg, Position pos) override {
-                fErrors.push_back({std::string(msg), pos});
-            }
-
-            void forwardErrors() {
-                for (Error& error : fErrors) {
-                    dsl::GetErrorReporter().error(error.fPos, error.fMsg);
-                }
-            }
-
-        private:
-            struct Error {
-                std::string fMsg;
-                Position fPos;
-            };
-
-            SkTArray<Error> fErrors;
-        };
-
-        void restoreErrorReporter() {
-            SkASSERT(fOldErrorReporter);
-            dsl::SetErrorReporter(fOldErrorReporter);
-            fOldErrorReporter = nullptr;
-        }
-
-        Parser* fParser;
-        Token fPushbackCheckpoint;
-        SkSL::Lexer::Checkpoint fLexerCheckpoint;
-        ForwardingErrorReporter fErrorReporter;
-        ErrorReporter* fOldErrorReporter;
-        bool fOldEncounteredFatalError;
-    };
 
     Compiler& fCompiler;
     ProgramSettings fSettings;

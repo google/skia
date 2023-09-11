@@ -1,0 +1,7 @@
+MyInterfaceBlock {
+    float data[50000];
+} array[10];
+
+/*%%*
+array size is too large
+*%%*/

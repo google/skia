@@ -11,6 +11,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
@@ -25,7 +26,7 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
@@ -33,12 +34,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define DRAW_OP_TEST_EXTERN(Op)                                                                 \
-    extern GrOp::Owner Op##__Test(GrPaint&&,                                                    \
-                                  SkRandom*,                                                    \
-                                  GrRecordingContext*,                                          \
-                                  skgpu::v1::SurfaceDrawContext*,                               \
-                                  int)
+#define DRAW_OP_TEST_EXTERN(Op)    \
+    extern GrOp::Owner Op##__Test( \
+            GrPaint&&, SkRandom*, GrRecordingContext*, skgpu::ganesh::SurfaceDrawContext*, int)
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
@@ -73,13 +71,13 @@ DRAW_OP_TEST_EXTERN(TextureOpImpl);
 DRAW_OP_TEST_EXTERN(TriangulatingPathOp);
 #endif
 
-void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPaint&& paint) {
+void GrDrawRandomOp(SkRandom* random, skgpu::ganesh::SurfaceDrawContext* sdc, GrPaint&& paint) {
     auto rContext = sdc->recordingContext();
-    using MakeDrawOpFn = GrOp::Owner (GrPaint&&,
-                                      SkRandom*,
-                                      GrRecordingContext*,
-                                      skgpu::v1::SurfaceDrawContext*,
-                                      int numSamples);
+    using MakeDrawOpFn = GrOp::Owner(GrPaint&&,
+                                     SkRandom*,
+                                     GrRecordingContext*,
+                                     skgpu::ganesh::SurfaceDrawContext*,
+                                     int numSamples);
     static constexpr MakeDrawOpFn* gFactories[] = {
             DRAW_OP_TEST_ENTRY(AAConvexPathOp),
             DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),

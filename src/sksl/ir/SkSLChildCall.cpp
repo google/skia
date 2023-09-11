@@ -8,13 +8,15 @@
 #include "src/sksl/ir/SkSLChildCall.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTArray.h"
-#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
+
+using namespace skia_private;
 
 namespace SkSL {
 
@@ -40,7 +42,7 @@ std::string ChildCall::description(OperatorPrecedence) const {
     const Type* half4 = context.fTypes.fHalf4.get();
     const Type* float2 = context.fTypes.fFloat2.get();
 
-    auto params = [&]() -> SkSTArray<2, const Type*> {
+    auto params = [&]() -> STArray<2, const Type*> {
         switch (child.type().typeKind()) {
             case Type::TypeKind::kBlender:     return { half4, half4 };
             case Type::TypeKind::kColorFilter: return { half4 };

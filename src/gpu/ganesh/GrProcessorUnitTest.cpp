@@ -14,7 +14,9 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
-#if GR_TEST_UTILS
+using namespace skia_private;
+
+#if defined(GR_TEST_UTILS)
 
 class GrGeometryProcessor;
 
@@ -126,19 +128,19 @@ const GrXPFactory* GrXPFactoryTestFactory::Get(GrProcessorTestData* data) {
  * problems on android.
  */
 template <>
-SkTArray<GrFragmentProcessorTestFactory*, true>* GrFragmentProcessorTestFactory::GetFactories() {
-    static SkTArray<GrFragmentProcessorTestFactory*, true> gFactories;
+TArray<GrFragmentProcessorTestFactory*, true>* GrFragmentProcessorTestFactory::GetFactories() {
+    static TArray<GrFragmentProcessorTestFactory*, true> gFactories;
     return &gFactories;
 }
 
 template <>
-SkTArray<GrGeometryProcessorTestFactory*, true>* GrGeometryProcessorTestFactory::GetFactories() {
-    static SkTArray<GrGeometryProcessorTestFactory*, true> gFactories;
+TArray<GrGeometryProcessorTestFactory*, true>* GrGeometryProcessorTestFactory::GetFactories() {
+    static TArray<GrGeometryProcessorTestFactory*, true> gFactories;
     return &gFactories;
 }
 
-SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() {
-    static SkTArray<GrXPFactoryTestFactory*, true> gFactories;
+TArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() {
+    static TArray<GrXPFactoryTestFactory*, true> gFactories;
     return &gFactories;
 }
 
@@ -147,7 +149,7 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static constexpr int kFPFactoryCount = 16;
+static constexpr int kFPFactoryCount = 10;
 static constexpr int kGPFactoryCount = 14;
 static constexpr int kXPFactoryCount = 4;
 

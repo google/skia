@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "bench/Benchmark.h"
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
@@ -40,7 +41,7 @@ public:
     }
 
     const char* onGetName() override { return fName.c_str(); }
-    SkIPoint onGetSize() override { return SkIPoint::Make(1024,1024); }
+    SkISize onGetSize() override { return SkISize::Make(1024,1024); }
 
     void onDelayedSetup() override {
         std::unique_ptr<SkBBHFactory> factory;

@@ -1,0 +1,14 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# TODO(kjlubick) include metal build in Bazel
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "SkSurfaceMetal.h",
+    ],
+    visibility = ["//include/gpu/ganesh:__pkg__"],
+)

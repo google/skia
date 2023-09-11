@@ -5,24 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkColor.h"
+#include "include/effects/SkImageFilters.h"
+
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/core/SkScalar.h"
-#include "include/effects/SkImageFilters.h"
+#include "include/private/base/SkAssert.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <utility>
@@ -31,35 +28,47 @@ namespace {
 
 class SkImageImageFilter final : public SkImageFilter_Base {
 public:
-    SkImageImageFilter(sk_sp<SkImage> image, const SkRect& srcRect, const SkRect& dstRect,
+    SkImageImageFilter(sk_sp<SkImage> image,
+                       const SkRect& srcRect,
+                       const SkRect& dstRect,
                        const SkSamplingOptions& sampling)
-            : INHERITED(nullptr, 0, nullptr)
+            : SkImageFilter_Base(nullptr, 0)
             , fImage(std::move(image))
             , fSrcRect(srcRect)
             , fDstRect(dstRect)
-            , fSampling(sampling) {}
+            , fSampling(sampling) {
+        // The dst rect should be non-empty
+        SkASSERT(fImage && !dstRect.isEmpty());
+    }
 
-    SkRect computeFastBounds(const SkRect& src) const override;
+    SkRect computeFastBounds(const SkRect&) const override { return SkRect(fDstRect); }
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
-
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
-                               MapDirection, const SkIRect* inputRect) const override;
-
-    MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
 
 private:
     friend void ::SkRegisterImageImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkImageImageFilter)
 
-    sk_sp<SkImage>    fImage;
-    SkRect            fSrcRect, fDstRect;
-    SkSamplingOptions fSampling;
+    MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
 
-    using INHERITED = SkImageFilter_Base;
+    skif::FilterResult onFilterImage(const skif::Context&) const override;
+
+    skif::LayerSpace<SkIRect> onGetInputLayerBounds(
+            const skif::Mapping&,
+            const skif::LayerSpace<SkIRect>& desiredOutput,
+            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+
+    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+            const skif::Mapping&,
+            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+
+    sk_sp<SkImage> fImage;
+    // The src rect is relative to the image's contents, so is not technically in the parameter
+    // coordinate space that responds to the layer matrix (unlike fDstRect).
+    SkRect fSrcRect;
+    skif::ParameterSpace<SkRect> fDstRect;
+    SkSamplingOptions fSampling;
 };
 
 } // end namespace
@@ -68,12 +77,27 @@ sk_sp<SkImageFilter> SkImageFilters::Image(sk_sp<SkImage> image,
                                            const SkRect& srcRect,
                                            const SkRect& dstRect,
                                            const SkSamplingOptions& sampling) {
-    if (!image || srcRect.width() <= 0.0f || srcRect.height() <= 0.0f) {
-        return nullptr;
-    }
+    if (srcRect.isEmpty() || dstRect.isEmpty() || !image) {
+        // There is no content to draw, so the filter should produce transparent black
+        return SkImageFilters::Empty();
+    } else {
+        SkRect imageBounds = SkRect::Make(image->dimensions());
+        if (imageBounds.contains(srcRect)) {
+            // No change to srcRect and dstRect needed
+            return sk_sp<SkImageFilter>(new SkImageImageFilter(
+                    std::move(image), srcRect, dstRect, sampling));
+        } else {
+            SkMatrix srcToDst = SkMatrix::RectToRect(srcRect, dstRect);
+            if (!imageBounds.intersect(srcRect)) {
+                // No overlap, so draw empty
+                return SkImageFilters::Empty();
+            }
 
-    return sk_sp<SkImageFilter>(new SkImageImageFilter(
-            std::move(image), srcRect, dstRect, sampling));
+            // Adjust dstRect to match the updated src (which is stored in imageBounds)
+            return sk_sp<SkImageFilter>(new SkImageImageFilter(
+                    std::move(image), imageBounds, srcToDst.mapRect(imageBounds), sampling));
+        }
+    }
 }
 
 void SkRegisterImageImageFilterFlattenable() {
@@ -105,79 +129,27 @@ sk_sp<SkFlattenable> SkImageImageFilter::CreateProc(SkReadBuffer& buffer) {
 void SkImageImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeSampling(fSampling);
     buffer.writeRect(fSrcRect);
-    buffer.writeRect(fDstRect);
+    buffer.writeRect(SkRect(fDstRect));
     buffer.writeImage(fImage.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkSpecialImage> SkImageImageFilter::onFilterImage(const Context& ctx,
-                                                        SkIPoint* offset) const {
-    const SkRect dstBounds = ctx.ctm().mapRect(fDstRect);
-    const SkIRect dstIBounds = dstBounds.roundOut();
-
-    // Quick check to see if we can return the image directly, which can be done if the transform
-    // ends up being an integer translate and sampling would have no effect on the output.
-    // TODO: This currently means cubic sampling can be skipped, even though it would change results
-    // for integer translation draws.
-    // TODO: This is prone to false negatives due to the floating point math; we could probably
-    // get away with dimensions and translates being epsilon close to integers.
-    const bool passthroughTransform = ctx.ctm().isScaleTranslate() &&
-                                      ctx.ctm().getScaleX() > 0.f &&
-                                      ctx.ctm().getScaleY() > 0.f;
-    const bool passthroughSrcOffsets = SkScalarIsInt(fSrcRect.fLeft) &&
-                                       SkScalarIsInt(fSrcRect.fTop);
-    const bool passthroughDstOffsets = SkScalarIsInt(dstBounds.fLeft) &&
-                                       SkScalarIsInt(dstBounds.fTop);
-    const bool passthroughDims =
-            SkScalarIsInt(fSrcRect.width()) && fSrcRect.width() == dstBounds.width() &&
-            SkScalarIsInt(fSrcRect.height()) && fSrcRect.height() == dstBounds.height();
-
-    if (passthroughTransform && passthroughSrcOffsets && passthroughDstOffsets && passthroughDims) {
-        // Can pass through fImage directly, applying the dst's location to 'offset'. If fSrcRect
-        // extends outside of the image, we adjust dst to match since those areas would have been
-        // transparent black anyways.
-        SkIRect srcIBounds = fSrcRect.roundOut();
-        SkIPoint srcOffset = srcIBounds.topLeft();
-        if (!srcIBounds.intersect(SkIRect::MakeWH(fImage->width(), fImage->height()))) {
-            return nullptr;
-        }
-
-        *offset = dstIBounds.topLeft() + srcIBounds.topLeft() - srcOffset;
-        return SkSpecialImage::MakeFromImage(ctx.getContext(), srcIBounds, fImage,
-                                             ctx.surfaceProps());
-    }
-
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(dstIBounds.size()));
-    if (!surf) {
-        return nullptr;
-    }
-
-    SkCanvas* canvas = surf->getCanvas();
-    // Subtract off the integer component of the translation (will be applied in offset, below).
-    canvas->translate(-dstIBounds.fLeft, -dstIBounds.fTop);
-    canvas->concat(ctx.ctm());
-    // TODO(skbug.com/5075): Canvases from GPU special surfaces come with unitialized content
-    canvas->clear(SK_ColorTRANSPARENT);
-    canvas->drawImageRect(fImage.get(), fSrcRect, fDstRect, fSampling, nullptr,
-                          SkCanvas::kStrict_SrcRectConstraint);
-
-    *offset = dstIBounds.topLeft();
-    return surf->makeImageSnapshot();
+skif::FilterResult SkImageImageFilter::onFilterImage(const skif::Context& ctx) const {
+    return skif::FilterResult::MakeFromImage(ctx, fImage, fSrcRect, fDstRect, fSampling);
 }
 
-SkRect SkImageImageFilter::computeFastBounds(const SkRect& src) const {
-    return fDstRect;
+skif::LayerSpace<SkIRect> SkImageImageFilter::onGetInputLayerBounds(
+        const skif::Mapping&,
+        const skif::LayerSpace<SkIRect>&,
+        const skif::LayerSpace<SkIRect>&) const {
+    // This is a leaf filter, it requires no input and no further recursion
+    return skif::LayerSpace<SkIRect>::Empty();
 }
 
-SkIRect SkImageImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                               MapDirection direction,
-                                               const SkIRect* inputRect) const {
-    if (kReverse_MapDirection == direction) {
-        return INHERITED::onFilterNodeBounds(src, ctm, direction, inputRect);
-    }
-
-    SkRect dstRect = fDstRect;
-    ctm.mapRect(&dstRect);
-    return dstRect.roundOut();
+skif::LayerSpace<SkIRect> SkImageImageFilter::onGetOutputLayerBounds(
+        const skif::Mapping& mapping,
+        const skif::LayerSpace<SkIRect>&) const {
+    // The output is the transformed bounds of the image.
+    return mapping.paramToLayer(fDstRect).roundOut();
 }

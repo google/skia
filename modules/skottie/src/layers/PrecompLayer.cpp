@@ -14,7 +14,6 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "modules/sksg/include/SkSGScene.h"
 #include "src/base/SkTLazy.h"
 #include "src/utils/SkJSON.h"
 
@@ -159,7 +158,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachExternalPrecompLayer(
 
     fCurrentAnimatorScope->push_back(sk_make_sp<AnimatorAdapter>(sg_adapter, fFrameRate));
 
-    return std::move(sg_adapter);
+    return sg_adapter;
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::ObjectValue& jlayer,

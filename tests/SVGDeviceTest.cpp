@@ -17,6 +17,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/private/base/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
@@ -184,7 +185,7 @@ DEF_TEST(SVGDevice_whitespace_pos, reporter) {
 
 void SetImageShader(SkPaint* paint, int imageWidth, int imageHeight, SkTileMode xTile,
                     SkTileMode yTile) {
-    auto surface = SkSurface::MakeRasterN32Premul(imageWidth, imageHeight);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(imageWidth, imageHeight));
     paint->setShader(surface->makeImageSnapshot()->makeShader(xTile, yTile, SkSamplingOptions()));
 }
 

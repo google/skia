@@ -3,10 +3,7 @@ out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 bool flatten_known_if_b() {
-    int value;
-    {
-        value = 1;
-    }
+    int value = 1;
     return value == 1;
 }
 bool eliminate_empty_if_else_b() {

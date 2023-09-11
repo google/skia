@@ -8,7 +8,7 @@
 #define SkIcoCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkEncodedImageFormat.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
@@ -94,10 +94,11 @@ private:
      * Constructor called by NewFromStream
      * @param embeddedCodecs codecs for the embedded images, takes ownership
      */
-    SkIcoCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream>,
-               SkTArray<std::unique_ptr<SkCodec>, true>* embeddedCodecs);
+    SkIcoCodec(SkEncodedInfo&& info,
+               std::unique_ptr<SkStream>,
+               std::unique_ptr<skia_private::TArray<std::unique_ptr<SkCodec>>> embeddedCodecs);
 
-    std::unique_ptr<SkTArray<std::unique_ptr<SkCodec>, true>> fEmbeddedCodecs;
+    std::unique_ptr<skia_private::TArray<std::unique_ptr<SkCodec>>> fEmbeddedCodecs;
 
     // fCurrCodec is owned by this class, but should not be an
     // std::unique_ptr.  It will be deleted by the destructor of fEmbeddedCodecs.

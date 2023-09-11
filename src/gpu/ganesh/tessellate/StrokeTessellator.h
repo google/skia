@@ -20,7 +20,7 @@ class GrGpuBuffer;
 class GrMeshDrawTarget;
 class GrOpFlushState;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // Prepares GPU data for, and then draws a stroke's tessellated geometry. Renders strokes as
 // fixed-count triangle strip instances. Any extra triangles not needed by the instance are emitted
@@ -63,6 +63,6 @@ protected:
     sk_sp<const GrGpuBuffer> fVertexBufferIfNoIDSupport;
 };
 
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif  // StrokeTessellator_DEFINED

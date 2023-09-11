@@ -28,10 +28,11 @@
 namespace skgpu::graphite {
 
 ResourceProvider::ResourceProvider(SharedContext* sharedContext,
-                                   SingleOwner* singleOwner)
+                                   SingleOwner* singleOwner,
+                                   uint32_t recorderID,
+                                   size_t resourceBudget)
         : fSharedContext(sharedContext)
-        , fResourceCache(ResourceCache::Make(singleOwner))
-        , fCompiler(std::make_unique<SkSL::Compiler>(fSharedContext->caps()->shaderCaps())) {}
+        , fResourceCache(ResourceCache::Make(singleOwner, recorderID, resourceBudget)) {}
 
 ResourceProvider::~ResourceProvider() {
     fResourceCache->shutdown();
@@ -192,7 +193,7 @@ sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SkSamplingO
 
 sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
                                                    BufferType type,
-                                                   PrioritizeGpuReads prioritizeGpuReads) {
+                                                   AccessPattern accessPattern) {
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
 #ifdef SK_DEBUG
@@ -221,11 +222,11 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         static const int kKeyNum32DataCnt =  kSizeKeyNum32DataCnt + 1;
 
         SkASSERT(static_cast<uint32_t>(type) < (1u << 4));
-        SkASSERT(static_cast<uint32_t>(prioritizeGpuReads) < (1u << 1));
+        SkASSERT(static_cast<uint32_t>(accessPattern) < (1u << 1));
 
         GraphiteResourceKey::Builder builder(&key, kType, kKeyNum32DataCnt, Shareable::kNo);
         builder[0] = (static_cast<uint32_t>(type) << 0) |
-                     (static_cast<uint32_t>(prioritizeGpuReads) << 4);
+                     (static_cast<uint32_t>(accessPattern) << 4);
         size_t szKey = size;
         for (int i = 0; i < kSizeKeyNum32DataCnt; ++i) {
             builder[i + 1] = (uint32_t) szKey;
@@ -242,7 +243,7 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }
-    auto buffer = this->createBuffer(size, type, prioritizeGpuReads);
+    auto buffer = this->createBuffer(size, type, accessPattern);
     if (!buffer) {
         return nullptr;
     }
@@ -270,6 +271,18 @@ void ResourceProvider::deleteBackendTexture(BackendTexture& texture) {
     this->onDeleteBackendTexture(texture);
     // Invalidate the texture;
     texture = BackendTexture();
+}
+
+void ResourceProvider::freeGpuResources() {
+    // TODO: Are there Resources that are ref'd by the ResourceProvider or its subclasses that need
+    // be released? If we ever find that we're holding things directly on the ResourceProviders we
+    // call down into the subclasses to allow them to release things.
+
+    fResourceCache->purgeResources();
+}
+
+void ResourceProvider::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
+    fResourceCache->purgeResourcesNotUsedSince(purgeTime);
 }
 
 }  // namespace skgpu::graphite

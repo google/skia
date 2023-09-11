@@ -9,8 +9,8 @@
 #define GrThreadSafeCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkSpinlock.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkSpinlock.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
@@ -68,7 +68,7 @@ public:
     GrThreadSafeCache();
     ~GrThreadSafeCache();
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     int numEntries() const  SK_EXCLUDES(fSpinLock);
 
     size_t approxBytesUsedForHash() const  SK_EXCLUDES(fSpinLock);
@@ -81,7 +81,8 @@ public:
     void dropUniqueRefs(GrResourceCache* resourceCache)  SK_EXCLUDES(fSpinLock);
 
     // Drop uniquely held refs that were last accessed before 'purgeTime'
-    void dropUniqueRefsOlderThan(GrStdSteadyClock::time_point purgeTime)  SK_EXCLUDES(fSpinLock);
+    void dropUniqueRefsOlderThan(
+            skgpu::StdSteadyClock::time_point purgeTime)  SK_EXCLUDES(fSpinLock);
 
     SkDEBUGCODE(bool has(const skgpu::UniqueKey&)  SK_EXCLUDES(fSpinLock);)
 
@@ -268,7 +269,7 @@ private:
         }
 
         // The thread-safe cache gets to directly manipulate the llist and last-access members
-        GrStdSteadyClock::time_point fLastAccess;
+        skgpu::StdSteadyClock::time_point fLastAccess;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
 
         // for SkTDynamicHash

@@ -8,28 +8,30 @@
 #ifndef SkGlyphRun_DEFINED
 #define SkGlyphRun_DEFINED
 
-#include <functional>
-#include <optional>
-#include <vector>
-
 #include "include/core/SkFont.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkRSXform.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkZip.h"
 
-class SkBaseDevice;
-class SkCanvas;
-class SkGlyph;
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <iterator>
+#include <optional>
+#include <tuple>
+#include <vector>
+
+class SkPaint;
 class SkTextBlob;
-class SkTextBlobRunIterator;
+struct SkRSXform;
 
 namespace sktext {
 class GlyphRunBuilder;
-class GlyphRunList;
 
 class GlyphRun {
 public:

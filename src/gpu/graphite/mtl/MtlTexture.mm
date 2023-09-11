@@ -38,6 +38,10 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* shared
         return nullptr;
     }
 
+    if (mtlSpec.fUsage & MTLTextureUsageShaderWrite && !caps->isStorage(info)) {
+        return nullptr;
+    }
+
     int numMipLevels = 1;
     if (info.mipmapped() == Mipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
@@ -75,6 +79,9 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* shared
                 }
             }
         }
+    } else if (mtlSpec.fUsage & MTLTextureUsageShaderWrite) {
+        SkASSERT(mtlSpec.fUsage & MTLTextureUsageShaderRead);
+        (*texture).label = @"StorageTexture";
     } else {
         SkASSERT(mtlSpec.fUsage & MTLTextureUsageShaderRead);
         (*texture).label = @"SampledTexture";

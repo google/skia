@@ -1,6 +1,8 @@
 // Copyright 2021 Google LLC.
 #include "experimental/sktext/src/Paint.h"
 
+using namespace skia_private;
+
 namespace skia {
 namespace text {
 
@@ -106,7 +108,7 @@ namespace text {
         fXY = xy;
         fDecoratedBlocks = decoratedBlocks;
 
-        SkTArray<size_t> chunks;
+        TArray<size_t> chunks;
         chunks.resize(decoratedBlocks.size());
         size_t index = 0;
         for (size_t i = 0; i < decoratedBlocks.size(); ++i) {

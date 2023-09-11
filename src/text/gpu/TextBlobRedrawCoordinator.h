@@ -9,16 +9,25 @@
 #define sktext_gpu_TextBlobRedrawCoordinator_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkThreadAnnotations.h"
+#include "src/base/SkSpinlock.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkTHash.h"
-#include "src/core/SkTextBlobPriv.h"
+#include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlob.h"
 
-#include <functional>
+#include <cstddef>
+#include <cstdint>
 
 class GrTextBlobTestingPeer;
+class SkCanvas;
+class SkMatrix;
+class SkPaint;
+struct SkStrikeDeviceInfo;
+
+namespace sktext { class GlyphRunList; }
 
 namespace sktext::gpu {
 
@@ -32,23 +41,13 @@ namespace sktext::gpu {
 class TextBlobRedrawCoordinator {
 public:
     TextBlobRedrawCoordinator(uint32_t messageBusID);
-#if defined(SK_GANESH)
-    void drawGlyphRunList(SkCanvas* canvas,
-                          const GrClip* clip,
-                          const SkMatrixProvider& viewMatrix,
-                          const GlyphRunList& glyphRunList,
-                          const SkPaint& paint,
-                          SkStrikeDeviceInfo strikeDeviceInfo,
-                          skgpu::v1::SurfaceDrawContext* sdc);
-#endif
-#if defined(SK_GRAPHITE)
+
     void drawGlyphRunList(SkCanvas* canvas,
                           const SkMatrix& viewMatrix,
                           const GlyphRunList& glyphRunList,
                           const SkPaint& paint,
                           SkStrikeDeviceInfo strikeDeviceInfo,
-                          skgpu::graphite::Device* device);
-#endif
+                          AtlasDrawDelegate);
 
     void freeAll() SK_EXCLUDES(fSpinLock);
 
@@ -59,8 +58,6 @@ public:
         uint32_t fBlobID;
         uint32_t fContextID;
     };
-
-    static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);
 
     void purgeStaleBlobs() SK_EXCLUDES(fSpinLock);
 
@@ -89,10 +86,10 @@ private:
         uint32_t fID;
         // Current clients don't generate multiple GrAtlasTextBlobs per SkTextBlob, so an array w/
         // linear search is acceptable.  If usage changes, we should re-evaluate this structure.
-        SkSTArray<1, sk_sp<TextBlob>> fBlobs;
+        skia_private::STArray<1, sk_sp<TextBlob>> fBlobs;
     };
 
-    sk_sp<TextBlob> findOrCreateBlob(const SkMatrixProvider& viewMatrix,
+    sk_sp<TextBlob> findOrCreateBlob(const SkMatrix& positionMatrix,
                                      const GlyphRunList& glyphRunList,
                                      const SkPaint& paint,
                                      SkStrikeDeviceInfo strikeDeviceInfo);
@@ -118,7 +115,7 @@ private:
 
     mutable SkSpinlock fSpinLock;
     TextBlobList fBlobList SK_GUARDED_BY(fSpinLock);
-    SkTHashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fSpinLock);
+    skia_private::THashMap<uint32_t, BlobIDCacheEntry> fBlobIDCache SK_GUARDED_BY(fSpinLock);
     size_t fSizeBudget SK_GUARDED_BY(fSpinLock);
     size_t fCurrentSize SK_GUARDED_BY(fSpinLock) {0};
 

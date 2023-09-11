@@ -39,17 +39,24 @@ namespace skgpu { class KeyBuilder; }
 struct GrContextOptions;
 struct GrShaderCaps;
 
-static void run_test(skiatest::Reporter*, GrDirectContext*,
-                     skgpu::v1::SurfaceDrawContext*, SkVector a,
-                     SkVector b, float expectedCrossProduct);
+static void run_test(skiatest::Reporter*,
+                     GrDirectContext*,
+                     skgpu::ganesh::SurfaceDrawContext*,
+                     SkVector a,
+                     SkVector b,
+                     float expectedCrossProduct);
 
 // This is a GPU test that ensures the SkSL 2d cross() intrinsic returns the correct sign (negative,
 // positive, or zero).
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkSLCross, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     GrDirectContext* dContext = ctxInfo.directContext();
-    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                                   SkBackingFit::kExact, {1, 1}, SkSurfaceProps(),
-                                                   /*label=*/"SkSLCross_Test");
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kExact,
+                                                       {1, 1},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/"SkSLCross_Test");
     if (!sdc) {
         ERRORF(reporter, "could not create render target context.");
         return;
@@ -118,8 +125,11 @@ private:
 
 }  // namespace
 
-static void run_test(skiatest::Reporter* reporter, GrDirectContext* directContext,
-                     skgpu::v1::SurfaceDrawContext* sdc, SkVector a, SkVector b,
+static void run_test(skiatest::Reporter* reporter,
+                     GrDirectContext* directContext,
+                     skgpu::ganesh::SurfaceDrawContext* sdc,
+                     SkVector a,
+                     SkVector b,
                      float expectedCrossProduct) {
     SkASSERT(sdc->width() == 1);
     SkASSERT(sdc->height() == 1);

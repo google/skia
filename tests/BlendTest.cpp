@@ -19,7 +19,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTemplates.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -86,10 +89,10 @@ DEF_TEST(Blend_byte_multiply, r) {
 }
 
 // Tests blending to a surface with no texture available.
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(ES2BlendWithNoTexture,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     static constexpr SkISize kDimensions{10, 10};
     const SkColorType kColorType = kRGBA_8888_SkColorType;
@@ -172,4 +175,43 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture,
         REPORTER_ASSERT(reporter, bitmap.getColor(inPoint.x(), inPoint.y()) ==
                                           SkColorSetRGB(0x80, 0xFF, 0x80));
     }
+}
+
+// Test that dst reads when large coordinates read the correct pixels.
+// When we use half-width floats for dst read coordinates, we can end up reading the wrong pixel
+// from dst and consequently writing the wrong blended color (skbug.com/14347).
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlendRequiringDstReadWithLargeCoordinates,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kNextRelease) {
+    static constexpr SkColorType kColorType = kRGBA_8888_SkColorType;
+
+    GrDirectContext* context = contextInfo.directContext();
+    SkImageInfo imageInfo =
+            SkImageInfo::Make(SkISize::Make(1200, 1), kColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, imageInfo);
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->clear(SK_ColorBLACK);
+
+    // Draw a red rectangle at x=1100.
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    canvas->drawIRect(SkIRect::MakeXYWH(1100, 0, 5, 1), paint);
+
+    // Draw a rectangle with a blend mode that requires a dst read, over the drawn red rectangle.
+    SkPaint blendPaint;
+    blendPaint.setBlendMode(SkBlendMode::kSoftLight);
+    canvas->drawIRect(SkIRect::MakeXYWH(1090, 0, 20, 1), blendPaint);
+
+    // Check the pixels at the edge of the left intersection between the two rectangles.
+    SkBitmap bitmap;
+    REPORTER_ASSERT(reporter,
+                    bitmap.tryAllocPixels(SkImageInfo::Make(
+                            SkISize::Make(2, 1), kColorType, kPremul_SkAlphaType)));
+    REPORTER_ASSERT(
+            reporter,
+            surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), 1099, 0));
+
+    REPORTER_ASSERT(reporter, bitmap.getColor(0, 0) == SK_ColorBLACK);
+    REPORTER_ASSERT(reporter, bitmap.getColor(1, 0) == SK_ColorRED);
 }

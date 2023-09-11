@@ -13,6 +13,7 @@
 //SK_CPU_LENDIAN allows 32 bit <=> 8 bit conversions without copies (if alligned).
 //SK_CPU_FAST_UNALIGNED_ACCESS allows 32 bit <=> 8 bit conversions without copies if SK_CPU_LENDIAN.
 
+#include "src/base/SkUtils.h"
 #include "src/core/SkMD5.h"
 
 #include "include/private/base/SkFeatures.h"
@@ -95,6 +96,24 @@ SkMD5::Digest SkMD5::finish() {
     memset(this, 0, sizeof(*this));
 #endif
     return digest;
+}
+
+static SkString to_hex_string(const uint8_t* data, const char* hexDigits) {
+    SkString hexString(2 * sizeof(SkMD5::Digest::data));
+    for (size_t i = 0; i < sizeof(SkMD5::Digest::data); ++i) {
+        uint8_t byte = data[i];
+        hexString[2 * i + 0] = hexDigits[byte >> 4];
+        hexString[2 * i + 1] = hexDigits[byte & 0xF];
+    }
+    return hexString;
+}
+
+SkString SkMD5::Digest::toHexString() const {
+    return to_hex_string(data, SkHexadecimalDigits::gUpper);
+}
+
+SkString SkMD5::Digest::toLowercaseHexString() const {
+    return to_hex_string(data, SkHexadecimalDigits::gLower);
 }
 
 struct F { uint32_t operator()(uint32_t x, uint32_t y, uint32_t z) {

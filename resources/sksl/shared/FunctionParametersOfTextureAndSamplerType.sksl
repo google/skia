@@ -1,13 +1,13 @@
-layout(set = 0, binding = 1) uniform texture2D aTexture;
-layout(set = 0, binding = 2) uniform sampler2D aSampledTexture;
+layout(set = 0, binding = 1, rgba8) readonly texture2D aTexture;
+layout(set = 0, binding = 2) sampler2D aSampledTexture;
 
 layout(location = 1) in float2 c;
 
-noinline half4 helpers_helper(sampler2D s, texture2D t) {
+noinline half4 helpers_helper(sampler2D s, layout(rgba8) readonly texture2D t) {
     return sample(s, c);
 }
 
-noinline half4 helper(texture2D t, sampler2D s) {
+noinline half4 helper(layout(rgba8) readonly texture2D t, sampler2D s) {
     return helpers_helper(s, t);
 }
 

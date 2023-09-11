@@ -13,7 +13,7 @@
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 class SkMatrix;
 
@@ -151,6 +151,7 @@ enum class GrGLRenderer {
     kTegra,        // Tegra with the same architecture as NVIDIA desktop GPUs (K1+).
 
     kPowerVR54x,
+    kPowerVRBSeries,
     kPowerVRRogue,
 
     kAdreno3xx,
@@ -616,7 +617,7 @@ static constexpr bool GrGLFormatIsSRGB(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
     switch (glFormat) {
         case GR_GL_RGBA8:                return "RGBA8";

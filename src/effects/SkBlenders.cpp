@@ -10,7 +10,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkBlenders.h"
 
-#ifdef SK_ENABLE_SKSL
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkData.h"
 #include "include/core/SkScalar.h"
@@ -45,16 +44,14 @@ sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
     }
 
     // If we get here, we need the actual blender effect.
-
     static SkRuntimeEffect* gArithmeticEffect = []{
         const char prog[] =
             "uniform half4 k;"
             "uniform half pmClamp;"
 
             "half4 main(half4 src, half4 dst) {"
-                "half4 c = k.x * src * dst + k.y * src + k.z * dst + k.w;"
+                "half4 c = saturate(k.x * src * dst + k.y * src + k.z * dst + k.w);"
                 "c.rgb = min(c.rgb, max(c.a, pmClamp));"
-                // rely on skia to saturate our alpha
                 "return c;"
             "}"
         ;
@@ -69,10 +66,3 @@ sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
     };
     return gArithmeticEffect->makeBlender(SkData::MakeWithCopy(array, sizeof(array)));
 }
-#else // SK_ENABLE_SKSL
-sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
-                                        bool enforcePremul) {
-    // TODO(skia:12197)
-    return nullptr;
-}
-#endif

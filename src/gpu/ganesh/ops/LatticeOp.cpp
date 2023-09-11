@@ -26,7 +26,9 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-namespace skgpu::v1::LatticeOp {
+using namespace skia_private;
+
+namespace skgpu::ganesh::LatticeOp {
 
 namespace {
 
@@ -358,7 +360,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str;
 
@@ -381,7 +383,7 @@ private:
     };
 
     Helper fHelper;
-    SkSTArray<1, Patch, true> fPatches;
+    STArray<1, Patch, true> fPatches;
     GrSurfaceProxyView fView;
     SkAlphaType fAlphaType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
@@ -409,9 +411,9 @@ GrOp::Owner MakeNonAA(GrRecordingContext* context,
                                 std::move(colorSpaceXform), filter, std::move(iter), dst);
 }
 
-}  // namespace skgpu::v1::LatticeOp
+}  // namespace skgpu::ganesh::LatticeOp
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -531,10 +533,15 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
             std::move(proxy), origin,
             context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888));
 
-    return skgpu::v1::LatticeOp::NonAALatticeOp::Make(context, std::move(paint), viewMatrix,
-                                                      std::move(view), kPremul_SkAlphaType,
-                                                      std::move(csxf), filter, std::move(iter),
-                                                      dst);
+    return skgpu::ganesh::LatticeOp::NonAALatticeOp::Make(context,
+                                                          std::move(paint),
+                                                          viewMatrix,
+                                                          std::move(view),
+                                                          kPremul_SkAlphaType,
+                                                          std::move(csxf),
+                                                          filter,
+                                                          std::move(iter),
+                                                          dst);
 }
 
 #endif

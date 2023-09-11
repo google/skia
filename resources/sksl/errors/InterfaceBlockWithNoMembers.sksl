@@ -2,6 +2,6 @@ const S {};
 testBlock {} x[2];
 
 /*%%*
-interface block 'S' must contain at least one member
-interface block 'testBlock' must contain at least one member
+interface block 'S' must contain at least one field
+interface block 'testBlock' must contain at least one field
 *%%*/

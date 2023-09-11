@@ -420,10 +420,10 @@ private:
     AutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
     AutoSTMalloc<64, SkPoint>            fLinePos;
     AutoSTMalloc<64, uint32_t>           fLineClusters;
-    SkSTArray<16, skottie::Shaper::RunRec> fLineRuns;
+    STArray<16, skottie::Shaper::RunRec> fLineRuns;
     size_t                                 fLineGlyphCount = 0;
 
-    SkSTArray<64, float, true>             fAdvanceBuffer;
+    STArray<64, float, true> fAdvanceBuffer;
 
     SkPoint  fCurrentPosition{ 0, 0 };
     SkPoint  fOffset{ 0, 0 };

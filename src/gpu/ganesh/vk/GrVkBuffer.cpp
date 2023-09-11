@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/vk/GrVkBuffer.h"
 
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/base/SkDebug.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"
@@ -135,11 +136,14 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
         return nullptr;
     }
 
-    auto checkResult = [gpu](VkResult result) {
+    bool shouldPersistentlyMapCpuToGpu = gpu->vkCaps().shouldPersistentlyMapCpuToGpuBuffers();
+    auto checkResult = [gpu, allocUsage, shouldPersistentlyMapCpuToGpu](VkResult result) {
+        GR_VK_LOG_IF_NOT_SUCCESS(gpu, result, "skgpu::VulkanMemory::AllocBufferMemory "
+                                 "(allocUsage:%d, shouldPersistentlyMapCpuToGpu:%d)",
+                                 (int)allocUsage, (int)shouldPersistentlyMapCpuToGpu);
         return gpu->checkVkResult(result);
     };
     auto allocator = gpu->memoryAllocator();
-    bool shouldPersistentlyMapCpuToGpu = gpu->vkCaps().shouldPersistentlyMapCpuToGpuBuffers();
     if (!skgpu::VulkanMemory::AllocBufferMemory(allocator,
                                                 buffer,
                                                 allocUsage,
@@ -189,19 +193,26 @@ void GrVkBuffer::vkMap(size_t readOffset, size_t readSize) {
         SkASSERT(fAlloc.fSize >= readOffset + readSize);
 
         GrVkGpu* gpu = this->getVkGpu();
-        auto checkResult = [gpu](VkResult result) {
+        auto checkResult_mapAlloc = [gpu](VkResult result) {
+            GR_VK_LOG_IF_NOT_SUCCESS(gpu, result, "skgpu::VulkanMemory::MapAlloc");
             return gpu->checkVkResult(result);
         };
         auto allocator = gpu->memoryAllocator();
-        fMapPtr = skgpu::VulkanMemory::MapAlloc(allocator, fAlloc, checkResult);
+        fMapPtr = skgpu::VulkanMemory::MapAlloc(allocator, fAlloc, checkResult_mapAlloc);
         if (fMapPtr && readSize != 0) {
+            auto checkResult_invalidateMapAlloc = [gpu, readOffset, readSize](VkResult result) {
+                GR_VK_LOG_IF_NOT_SUCCESS(gpu, result, "skgpu::VulkanMemory::InvalidateMappedAlloc "
+                                         "(readOffset:%zu, readSize:%zu)",
+                                         readOffset, readSize);
+                return gpu->checkVkResult(result);
+            };
             // "Invalidate" here means make device writes visible to the host. That is, it makes
             // sure any GPU writes are finished in the range we might read from.
             skgpu::VulkanMemory::InvalidateMappedAlloc(allocator,
                                                        fAlloc,
                                                        readOffset,
                                                        readSize,
-                                                       checkResult);
+                                                       checkResult_invalidateMapAlloc);
         }
     }
 }
@@ -213,7 +224,10 @@ void GrVkBuffer::vkUnmap(size_t flushOffset, size_t flushSize) {
     SkASSERT(fAlloc.fSize >= flushOffset + flushSize);
 
     GrVkGpu* gpu = this->getVkGpu();
-    auto checkResult = [gpu](VkResult result) {
+    auto checkResult = [gpu, flushOffset, flushSize](VkResult result) {
+        GR_VK_LOG_IF_NOT_SUCCESS(gpu, result, "skgpu::VulkanMemory::FlushMappedAlloc "
+                                 "(flushOffset:%zu, flushSize:%zu)",
+                                 flushOffset, flushSize);
         return gpu->checkVkResult(result);
     };
     auto allocator = this->getVkGpu()->memoryAllocator();

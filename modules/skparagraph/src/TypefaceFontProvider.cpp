@@ -16,10 +16,10 @@ void TypefaceFontProvider::onGetFamilyName(int index, SkString* familyName) cons
     familyName->set(fFamilyNames[index]);
 }
 
-SkFontStyleSet* TypefaceFontProvider::onMatchFamily(const char familyName[]) const {
+sk_sp<SkFontStyleSet> TypefaceFontProvider::onMatchFamily(const char familyName[]) const {
     auto found = fRegisteredFamilies.find(SkString(familyName));
     if (found) {
-      return SkRef((*found).get());
+      return *found;
     }
     return nullptr;
 }
@@ -66,12 +66,12 @@ void TypefaceFontStyleSet::getStyle(int index, SkFontStyle* style, SkString* nam
     }
 }
 
-SkTypeface* TypefaceFontStyleSet::createTypeface(int index) {
+sk_sp<SkTypeface> TypefaceFontStyleSet::createTypeface(int index) {
     SkASSERT(index < fStyles.size());
-    return SkRef(fStyles[index].get());
+    return fStyles[index];
 }
 
-SkTypeface* TypefaceFontStyleSet::matchStyle(const SkFontStyle& pattern) {
+sk_sp<SkTypeface> TypefaceFontStyleSet::matchStyle(const SkFontStyle& pattern) {
     return this->matchStyleCSS3(pattern);
 }
 

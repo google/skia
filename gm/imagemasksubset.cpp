@@ -18,7 +18,12 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Surface.h"
+#endif
 
 namespace {
 
@@ -42,7 +47,7 @@ public:
             surfaceInfo = surfaceInfo.makeColorSpace(nullptr);
         }
 
-        make_mask(SkSurface::MakeRasterDirect(surfaceInfo, pixels, rowBytes));
+        make_mask(SkSurfaces::WrapPixels(surfaceInfo, pixels, rowBytes));
         return true;
     }
 
@@ -52,29 +57,29 @@ private:
 
 using MakerT = sk_sp<SkImage>(*)(SkCanvas*, const SkImageInfo&);
 const MakerT makers[] = {
-    // SkImage_Raster
-    [](SkCanvas*, const SkImageInfo& info) -> sk_sp<SkImage> {
-        return make_mask(SkSurface::MakeRaster(info));
-    },
+        // SkImage_Raster
+        [](SkCanvas*, const SkImageInfo& info) -> sk_sp<SkImage> {
+            return make_mask(SkSurfaces::Raster(info));
+        },
 
-    // SkImage_Gpu
-    [](SkCanvas* c, const SkImageInfo& info) -> sk_sp<SkImage> {
-        sk_sp<SkSurface> surface;
-        if (c->recordingContext()) {
-            surface = SkSurface::MakeRenderTarget(c->recordingContext(),
-                                                  skgpu::Budgeted::kNo, info);
-        } else {
+        // SkImage_Ganesh
+        [](SkCanvas* c, const SkImageInfo& info) -> sk_sp<SkImage> {
+            sk_sp<SkSurface> surface;
+            if (c->recordingContext()) {
+                surface =
+                        SkSurfaces::RenderTarget(c->recordingContext(), skgpu::Budgeted::kNo, info);
+            } else {
 #if defined(SK_GRAPHITE)
-            surface = SkSurface::MakeGraphite(c->recorder(), info);
+                surface = SkSurfaces::RenderTarget(c->recorder(), info);
 #endif
-        }
-        return make_mask(surface ? surface : SkSurface::MakeRaster(info));
-    },
+            }
+            return make_mask(surface ? surface : SkSurfaces::Raster(info));
+        },
 
-    // SkImage_Lazy
-    [](SkCanvas*, const SkImageInfo& info) -> sk_sp<SkImage> {
-        return SkImage::MakeFromGenerator(std::make_unique<MaskGenerator>(info));
-    },
+        // SkImage_Lazy
+        [](SkCanvas*, const SkImageInfo& info) -> sk_sp<SkImage> {
+            return SkImages::DeferredFromGenerator(std::make_unique<MaskGenerator>(info));
+        },
 };
 
 }  // namespace
@@ -94,10 +99,10 @@ DEF_SIMPLE_GM(imagemasksubset, canvas, 480, 480) {
             sk_sp<SkImage> subset;
 
             if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
-                subset = image->makeSubset(kSubset, direct);
+                subset = image->makeSubset(direct, kSubset);
             } else {
 #if defined(SK_GRAPHITE)
-                subset = image->makeSubset(kSubset, canvas->recorder());
+                subset = image->makeSubset(canvas->recorder(), kSubset, {});
 #endif
             }
 

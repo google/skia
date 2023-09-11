@@ -48,11 +48,11 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkAnnotationKeys.h"
-#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -308,9 +308,11 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                                     bool shouldSucceed,
                                     skiatest::Reporter* reporter) {
     sk_sp<SkImage> validImage(validBitmap.asImage());
-    sk_sp<SkImageFilter> validBitmapSource(SkImageFilters::Image(std::move(validImage)));
+    sk_sp<SkImageFilter> validBitmapSource(SkImageFilters::Image(std::move(validImage),
+                                                                 SkFilterMode::kNearest));
     sk_sp<SkImage> invalidImage(invalidBitmap.asImage());
-    sk_sp<SkImageFilter> invalidBitmapSource(SkImageFilters::Image(std::move(invalidImage)));
+    sk_sp<SkImageFilter> invalidBitmapSource(SkImageFilters::Image(std::move(invalidImage),
+                                                                   SkFilterMode::kNearest));
     sk_sp<SkImageFilter> xfermodeImageFilter(
         SkImageFilters::Blend(SkBlendMode::kSrcOver,
                               std::move(invalidBitmapSource),
@@ -623,8 +625,8 @@ static void draw_something(SkCanvas* canvas) {
 }
 
 static sk_sp<SkImage> render(const SkPicture& p) {
-    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(p.cullRect().width()),
-                                               SkScalarRoundToInt(p.cullRect().height()));
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(
+            SkScalarRoundToInt(p.cullRect().width()), SkScalarRoundToInt(p.cullRect().height())));
     if (!surf) {
         return nullptr; // bounds are empty?
     }

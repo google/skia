@@ -19,9 +19,9 @@
 #include "modules/skcms/skcms.h"
 
 // TODO(kjlubick, bungeman) Replace these includes with forward declares
+#include "include/codec/SkEncodedImageFormat.h" // IWYU pragma: keep
 #include "include/core/SkAlphaType.h" // IWYU pragma: keep
 #include "include/core/SkColorType.h" // IWYU pragma: keep
-#include "include/core/SkEncodedImageFormat.h" // IWYU pragma: keep
 
 #include <cstddef>
 #include <memory>

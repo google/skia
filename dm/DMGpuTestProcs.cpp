@@ -26,42 +26,68 @@ using sk_gpu_test::GLTestContext;
 
 namespace skiatest {
 
-bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kOpenGL == GrContextFactory::ContextTypeBackend(type);
-}
-bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kVulkan == GrContextFactory::ContextTypeBackend(type);
-}
-bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kMetal == GrContextFactory::ContextTypeBackend(type);
-}
-bool IsDirect3DContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kDirect3D == GrContextFactory::ContextTypeBackend(type);
-}
-bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kDawn == GrContextFactory::ContextTypeBackend(type);
-}
-bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
-}
-bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == GrContextFactory::kMock_ContextType;
+bool IsGLContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kOpenGL;
+#else
+    return false;
+#endif
 }
 
-void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+bool IsVulkanContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kVulkan;
+#elif defined(SK_GRAPHITE)
+    return skgpu::graphite::ContextTypeBackend(type) == BackendApi::kVulkan;
+#else
+    return false;
+#endif
+}
+
+bool IsMetalContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kMetal;
+#elif defined(SK_GRAPHITE)
+    return skgpu::graphite::ContextTypeBackend(type) == BackendApi::kMetal;
+#else
+    return false;
+#endif
+}
+
+bool IsDirect3DContextType(skgpu::ContextType type) {
+#if defined(SK_GANESH)
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kDirect3D;
+#else
+    return false;
+#endif
+}
+
+bool IsDawnContextType(skgpu::ContextType type) {
+#if defined(SK_GRAPHITE)
+    return skgpu::graphite::ContextTypeBackend(type) == skgpu::BackendApi::kDawn;
+#else
+    return false;
+#endif
+}
+
+bool IsMockContextType(skgpu::ContextType type) {
+    return type == skgpu::ContextType::kMock;
+}
+
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* filter,
                                Reporter* reporter, const GrContextOptions& options) {
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-    static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
+    static constexpr auto kNativeGLType = skgpu::ContextType::kGL;
 #else
-    static constexpr auto kNativeGLType = GrContextFactory::kGLES_ContextType;
+    static constexpr auto kNativeGLType = skgpu::ContextType::kGLES;
 #endif
 
-    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
-        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+    for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
+        skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
         // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
         // desktop since tests do not account for not fixing http://skbug.com/2809
-        if (contextType == GrContextFactory::kGL_ContextType ||
-            contextType == GrContextFactory::kGLES_ContextType) {
+        if (contextType == skgpu::ContextType::kGL ||
+            contextType == skgpu::ContextType::kGLES) {
             if (contextType != kNativeGLType) {
                 continue;
             }
@@ -76,14 +102,14 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
             continue;
         }
 
-        ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
+        ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
         if (ctxInfo.directContext()) {
             (*testFn)(reporter, ctxInfo);
             // In case the test changed the current context make sure we move it back before
             // calling flush.
             ctxInfo.testContext()->makeCurrent();
             // Sync so any release/finished procs get called.
-            ctxInfo.directContext()->flushAndSubmit(/*sync*/true);
+            ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
         }
     }
 }
@@ -92,11 +118,13 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
 
 namespace graphite {
 
-void RunWithGraphiteTestContexts(GraphiteTestFn* test, GrContextTypeFilterFn* filter,
-                                 Reporter* reporter) {
-    ContextFactory factory;
-    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
-        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+void RunWithGraphiteTestContexts(GraphiteTestFn* test,
+                                 ContextTypeFilterFn* filter,
+                                 Reporter* reporter,
+                                 const skgpu::graphite::ContextOptions& ctxOptions) {
+    ContextFactory factory(ctxOptions);
+    for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
+        skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
         if (filter && !(*filter)(contextType)) {
             continue;
         }
@@ -106,7 +134,7 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test, GrContextTypeFilterFn* fi
             continue;
         }
 
-        ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
+        ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
         (*test)(reporter, context);
     }
 }

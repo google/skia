@@ -1,0 +1,34 @@
+32 instructions
+
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  ok = 0xFFFFFFFF
+copy_uniform                   $0 = colorGreen(0)
+cast_to_uint_from_float        $0 = FloatToUint($0)
+copy_slot_unmasked             val = $0
+copy_slot_unmasked             $1 = val
+bitwise_xor_imm_int            $1 ^= 0xFFFFFFFF
+copy_2_slots_unmasked          mask = $0..1
+splat_2_constants              $2..3 = 0xFFFFFFFF
+bitwise_xor_2_ints             $0..1 ^= $2..3
+copy_2_slots_unmasked          imask = $0..1
+copy_2_slots_unmasked          $0..1 = mask
+splat_2_constants              $2..3 = 0xFFFFFFFF
+bitwise_xor_2_ints             $0..1 ^= $2..3
+copy_2_slots_unmasked          $2..3 = imask
+splat_2_constants              $4..5 = 0xFFFFFFFF
+bitwise_xor_2_ints             $2..3 ^= $4..5
+bitwise_and_2_ints             $0..1 &= $2..3
+copy_2_slots_unmasked          mask = $0..1
+copy_slot_unmasked             $0 = ok
+copy_2_slots_unmasked          $1..2 = mask
+splat_2_constants              $3..4 = 0
+cmpeq_2_ints                   $1..2 = equal($1..2, $3..4)
+bitwise_and_int                $1 &= $2
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             ok = $0
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_uniforms                $4..7 = colorRed
+copy_4_uniforms                $8..11 = colorGreen
+mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+load_src                       src.rgba = $0..3

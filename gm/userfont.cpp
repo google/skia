@@ -102,9 +102,9 @@ public:
 
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override { return SkString("user_typeface"); }
+    SkString getName() const override { return SkString("user_typeface"); }
 
-    SkISize onISize() override { return {810, 452}; }
+    SkISize getISize() override { return {810, 452}; }
 
     void onDraw(SkCanvas* canvas) override {
         auto waterfall = [&](sk_sp<SkTypeface> tf) {

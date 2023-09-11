@@ -6,11 +6,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `ImageFilter.getOutputBounds` returns the adjusted bounds of a rect after
+   applying the `ImageFilter`.
+- `Picture.cullRect` which gives approximate bounds of the draw commands in the
+  picture.
+- `Picture.approximateBytesUsed` which returns an approximation of the bytes
+  used to store this picture. This size does not include large objects like
+  images.
+ - `FontMgr.matchFamilyStyle` finds the closest matching typeface to the specified familyName and style.
+- `Paint.setBlender` Sets the current blender.
+- `Blender.Mode` Create a blender that implements the specified BlendMode.
+- `RuntimeEffect.MakeForBlender` Compiles a RuntimeEffect from the given blender code.
+- `ManagedAnimation` getters and setters for lottie slots exported by Essential Graphics in AE.
+   Color, scalar, vec2, and image slot types are supported.
+- `ManagedAnimation` WYSIWYG editor API: `attachEditor`, `enableEditor`, `dispatchEditorKey`,
+  `dispatchEditorPointer`.
+- `InputState` and `ModifierKey` enums.
+
+### Fixed
+ - `EmbindObject` has been updated to allow TypeScript to differentiate between opaque
+   types such as Shader, ColorFilter, et cetera.
+
+### Changed
+- `MakeSWCanvasSurface` now allows passing an `OffscreenCanvas` element.
+- `Picture.beginRecording` takes an optional `computeBounds` boolean argument
+   which, when true, will cause the resulting recorded picture to compute a
+   more accurate `cullRect` when it is created.
+
+## [0.38.2] - 2023-06-09
+
+### Added
+ - `Paragraph.unresolvedCodepoints` which allows clients to identify gaps in font coverage
+    more easily.
+
+### Fixed
+ - `.wasm` files are now exported in the npm package.json
+
+## [0.38.1] - 2023-05-02
+
 ### Removed
  - Particles have been removed.
 
 ### Added
  - Skottie TransformValue accessors for dynamic layer transforms.
+ - Added `CanvasKit.FontCollection`, which wraps SkParagraph's FontCollection.
+   A FontCollection instance contains a cache of fonts used by SkParagraph and
+   a cache of paragraph layouts.
+ - Added `CanvasKit.ParagraphBuilder.MakeFromFontCollection` to make a
+   `ParagraphBuilder` that uses a given `FontCollection`.
+ - `Paint.setDither` is exposed.
+ - Documentation has been improved.
 
 ### Changed
  - `Image.encodeToData` now makes use of the GPU context more consistently.

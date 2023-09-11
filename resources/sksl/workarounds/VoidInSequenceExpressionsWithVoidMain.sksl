@@ -1,0 +1,18 @@
+/*#pragma settings CannotUseVoidInSequenceExpressions*/
+
+uniform half4 colorGreen;
+
+void setGreen(inout half4 c) {
+    c.g = 1.0;
+}
+
+void setAlpha(inout half4 c) {
+    c.a = 1.0;
+    return;
+}
+
+void main() {
+    half4 color = half4(0);
+    sk_FragColor = (setGreen(color), setAlpha(color), color);
+    return;
+}

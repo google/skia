@@ -30,6 +30,9 @@ public:
                                              Protected,
                                              Renderable) const override;
 
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                             Mipmapped mipmapped) const override;
+
     TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                           Discardable discardable) const override;
 
@@ -37,21 +40,25 @@ public:
                                                   uint32_t sampleCount,
                                                   Protected) const override;
 
+    TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
+
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
-                                      const RenderPassDesc&) const override { return {}; }
+                                      const RenderPassDesc&) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
 
     uint32_t channelMask(const TextureInfo&) const override;
 
-    bool isRenderable(const TextureInfo&) const override { return false; }
+    bool isRenderable(const TextureInfo&) const override;
+    bool isStorage(const TextureInfo&) const override {
+        // TODO: support storage textures
+        return false;
+    }
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
                             ResourceType,
                             Shareable,
-                            GraphiteResourceKey*) const override {}
-
-    size_t bytesPerPixel(const TextureInfo&) const override;
+                            GraphiteResourceKey*) const override;
 
     bool shouldAlwaysUseDedicatedImageMemory() const {
         return fShouldAlwaysUseDedicatedImageMemory;
@@ -69,6 +76,15 @@ public:
     bool shouldPersistentlyMapCpuToGpuBuffers() const {
         return fShouldPersistentlyMapCpuToGpuBuffers;
     }
+
+    bool supportsInlineUniformBlocks() const { return fSupportsInlineUniformBlocks; }
+
+    uint32_t maxVertexAttributes() const {
+        return fMaxVertexAttributes;
+    }
+    uint64_t maxUniformBufferRange() const { return fMaxUniformBufferRange; }
+
+    uint64_t getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const;
 
 private:
     enum VkVendor {
@@ -96,25 +112,20 @@ private:
                                      VkPhysicalDevice,
                                      const VkPhysicalDeviceProperties&);
 
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override {
-        return nullptr;
-    }
+    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
 
-    bool onIsTexturable(const TextureInfo&) const override { return false; }
+    bool onIsTexturable(const TextureInfo&) const override;
 
-    bool supportsWritePixels(const TextureInfo&) const override { return false; }
-    bool supportsReadPixels(const TextureInfo&) const override { return false; }
+    bool supportsWritePixels(const TextureInfo&) const override;
+    bool supportsReadPixels(const TextureInfo&) const override;
 
     SkColorType supportedWritePixelsColorType(SkColorType dstColorType,
                                               const TextureInfo& dstTextureInfo,
-                                              SkColorType srcColorType) const override {
-        return kUnknown_SkColorType;
-    }
+                                              SkColorType srcColorType) const override;
     SkColorType supportedReadPixelsColorType(SkColorType srcColorType,
                                              const TextureInfo& srcTextureInfo,
-                                             SkColorType dstColorType) const override {
-        return kUnknown_SkColorType;
-    }
+                                             SkColorType dstColorType) const override;
+
     // Struct that determines and stores which sample count quantities a VkFormat supports.
     struct SupportedSampleCounts {
         void initSampleCounts(const skgpu::VulkanInterface*,
@@ -147,6 +158,7 @@ private:
 
         bool isTexturable(VkImageTiling) const;
         bool isRenderable(VkImageTiling, uint32_t sampleCount) const;
+        bool isStorage(VkImageTiling) const;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
@@ -160,6 +172,7 @@ private:
     private:
         bool isTexturable(VkFormatFeatureFlags) const;
         bool isRenderable(VkFormatFeatureFlags) const;
+        bool isStorage(VkFormatFeatureFlags) const;
     };
 
     // Map SkColorType to VkFormat.
@@ -198,12 +211,16 @@ private:
     DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat);
     const DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat) const;
 
+    uint32_t fMaxVertexAttributes;
+    uint64_t fMaxUniformBufferRange;
+
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;
     bool fSupportsYcbcrConversion = false; // TODO: Determine & assign real value.
     bool fShouldAlwaysUseDedicatedImageMemory = false;
     bool fGpuOnlyBuffersMorePerformant = false;
     bool fShouldPersistentlyMapCpuToGpuBuffers = true;
+    bool fSupportsInlineUniformBlocks = false;
 };
 
 } // namespace skgpu::graphite

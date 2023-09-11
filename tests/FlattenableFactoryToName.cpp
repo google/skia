@@ -10,9 +10,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkRegion.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkImageFilters.h"
@@ -33,13 +31,8 @@ static void test_flattenable(skiatest::Reporter* r,
 }
 
 DEF_TEST(FlattenableFactoryToName, r) {
-    SkIRect rects[2];
-    rects[0] = SkIRect::MakeXYWH(0, 150, 500, 200);
-    rects[1] = SkIRect::MakeXYWH(150, 0, 200, 500);
-    SkRegion region;
-    region.setRects(rects, 2);
-    sk_sp<SkImageFilter> filter(SkImageFilters::AlphaThreshold(region, 0.2f, 0.7f, nullptr));
-    test_flattenable(r, filter.get(), "SkImageFilters::AlphaThreshold()");
+    sk_sp<SkImageFilter> filter(SkImageFilters::Blur(0.2f, 0.7f, nullptr));
+    test_flattenable(r, filter.get(), "SkImageFilters::Blur()");
 
     SkBitmap bm;
     bm.allocN32Pixels(8, 8);

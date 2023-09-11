@@ -18,9 +18,10 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/base/SkPathEnums.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkNoDestructor.h"
 #include "src/core/SkPathEffectBase.h"
+#include "src/core/SkPathEnums.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkOpPE.h"
@@ -194,8 +195,8 @@ sk_sp<SkFlattenable> SkStrokePE::CreateProc(SkReadBuffer& buffer) {
 #include "src/core/SkPathPriv.h"
 
 sk_sp<SkPathEffect> SkStrokeAndFillPathEffect::Make() {
-    static SkPathEffect* strokeAndFill = new SkStrokeAndFillPE;
-    return sk_ref_sp(strokeAndFill);
+    static SkNoDestructor<SkStrokeAndFillPE> strokeAndFill;
+    return sk_ref_sp(strokeAndFill.get());
 }
 
 void SkStrokeAndFillPE::flatten(SkWriteBuffer&) const {}

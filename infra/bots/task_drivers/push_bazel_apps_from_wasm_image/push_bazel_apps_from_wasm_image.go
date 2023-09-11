@@ -120,18 +120,6 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	if err := buildPush(ctx, "debugger-app", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	if err := buildPush(ctx, "jsfiddle", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	if err := buildPush(ctx, "shaders", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
-		td.Fatal(ctx, err)
-	}
-
 	if err := buildPush(ctx, "skottie", wasmProductsDir, checkoutDir, *skiaRevision, topic); err != nil {
 		td.Fatal(ctx, err)
 	}

@@ -7,8 +7,12 @@
 #ifndef SkTextCoordShader_DEFINED
 #define SkTextCoordShader_DEFINED
 
-#include "src/core/SkVM.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
 #include "src/shaders/SkShaderBase.h"
+
+class SkMatrix;
+struct SkStageRec;
 
 // SkTransformShader applies a matrix transform to the shader coordinates, like a local matrix
 // shader. The difference with a typical local matrix shader is that this shader's matrix is
@@ -20,24 +24,14 @@ class SkTransformShader : public SkShaderBase {
 public:
     explicit SkTransformShader(const SkShaderBase& shader, bool allowPerspective);
 
-    // Adds instructions to use the mapping stored in the uniforms represented by fMatrix. After
-    // generating a new skvm::Coord, it passes the mapped coordinates to fShader's program
-    // along with the identity matrix.
-    skvm::Color program(skvm::Builder* b,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color color,
-                        const MatrixRec& mRec,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc* alloc) const override;
-
     // Adds a pipestage to multiply the incoming coords in 'r' and 'g' by the matrix. The child
     // shader is called with no pending local matrix and the total transform as unknowable.
-    bool appendStages(const SkStageRec& rec, const MatrixRec&) const override;
+    bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const override;
 
-    // Change the matrix used by the generated SkRasterpipeline or SkVM.
+    // Change the matrix used by the generated SkRasterPipeline.
     bool update(const SkMatrix& matrix);
+
+    ShaderType type() const override { return ShaderType::kTransform; }
 
     // These are never serialized/deserialized
     Factory getFactory() const override {

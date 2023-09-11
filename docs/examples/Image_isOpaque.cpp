@@ -5,7 +5,7 @@
 REG_FIDDLE(Image_isOpaque, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto check_isopaque = [](const SkImageInfo& imageInfo) -> void {
-        auto surface(SkSurface::MakeRaster(imageInfo));
+        auto surface(SkSurfaces::Raster(imageInfo));
         auto image(surface->makeImageSnapshot());
         SkDebugf("isOpaque = %s\n", image->isOpaque() ? "true" : "false");
     };

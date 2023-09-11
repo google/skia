@@ -1,0 +1,5 @@
+layout (push_constant) in s { int x; };
+
+half4 main(float2) {
+    return half4(0);
+}

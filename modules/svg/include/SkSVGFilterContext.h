@@ -61,7 +61,7 @@ private:
 
     SkSVGObjectBoundingBoxUnits fPrimitiveUnits;
 
-    SkTHashMap<SkSVGStringType, Result> fResults;
+    skia_private::THashMap<SkSVGStringType, Result> fResults;
 
     Result fPreviousResult;
 };

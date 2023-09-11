@@ -1,0 +1,40 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+SURFACE_FILES = [
+    "SkSurface_Ganesh.cpp",
+    "SkSurface_Ganesh.h",
+]
+
+split_srcs_and_hdrs(
+    name = "surface",
+    files = SURFACE_FILES,
+)
+
+# File group use to export to //gn/gpu.gni:skia_metal_sources.
+skia_filegroup(
+    name = "mtl_objc_srcs",
+    srcs = ["SkSurface_GaneshMtl.mm"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+skia_filegroup(
+    name = "android_srcs",
+    srcs = ["SkSurface_AndroidFactories.cpp"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [":surface_srcs"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [":surface_hdrs"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+)

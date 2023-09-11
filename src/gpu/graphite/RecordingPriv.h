@@ -25,15 +25,18 @@ public:
     bool hasNonVolatileLazyProxies() const;
     bool instantiateNonVolatileLazyProxies(ResourceProvider*);
 
-#if GRAPHITE_TEST_UTILS
+    void setFailureResultForFinishedProcs();
+
+    bool addCommands(Context*, CommandBuffer*, Surface* targetSurface, SkIVector targetTranslation);
+    void addResourceRef(sk_sp<Resource> resource);
+    void addTask(sk_sp<Task> task);
+
+#if defined(GRAPHITE_TEST_UTILS)
+    bool isTargetProxyInstantiated() const;
     int numVolatilePromiseImages() const;
     int numNonVolatilePromiseImages() const;
     bool hasTasks() const;
 #endif
-
-    bool addCommands(Context*, CommandBuffer*, Surface* replaySurface, SkIVector replayTranslation);
-    void addResourceRef(sk_sp<Resource> resource);
-    void addTask(sk_sp<Task> task);
 
 private:
     explicit RecordingPriv(Recording* recorder) : fRecording(recorder) {}

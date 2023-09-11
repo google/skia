@@ -8,18 +8,30 @@
 #include "src/sksl/ir/SkSLTypeReference.h"
 
 #include "include/core/SkTypes.h"
-#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 namespace SkSL {
+
+bool TypeReference::VerifyType(const Context& context, const SkSL::Type* type, Position pos) {
+    if (!context.fConfig->fIsBuiltinCode && type) {
+        if (type->isGeneric() || type->isLiteral()) {
+            context.fErrors->error(pos, "type '" + std::string(type->name()) + "' is generic");
+            return false;
+        }
+        if (!type->isAllowedInES2(context)) {
+            context.fErrors->error(pos, "type '" + std::string(type->name()) +"' is not supported");
+            return false;
+        }
+    }
+    return true;
+}
 
 std::unique_ptr<TypeReference> TypeReference::Convert(const Context& context,
                                                       Position pos,
                                                       const Type* type) {
-    if (!type->isAllowedInES2(context)) {
-        context.fErrors->error(pos, "type '" + type->displayName() + "' is not supported");
-        return nullptr;
-    }
-    return TypeReference::Make(context, pos, type);
+    return VerifyType(context, type, pos) ? TypeReference::Make(context, pos, type)
+                                          : nullptr;
 }
 
 std::unique_ptr<TypeReference> TypeReference::Make(const Context& context,

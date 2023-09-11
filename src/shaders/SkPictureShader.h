@@ -8,13 +8,28 @@
 #ifndef SkPictureShader_DEFINED
 #define SkPictureShader_DEFINED
 
-#include "include/core/SkTileMode.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "src/shaders/SkShaderBase.h"
-#include <atomic>
 
 class SkArenaAlloc;
-class SkBitmap;
-class SkPicture;
+class SkColorSpace;
+class SkImage;
+class SkReadBuffer;
+class SkShader;
+class SkSurface;
+class SkWriteBuffer;
+enum SkColorType : int;
+enum class SkFilterMode;
+enum class SkTileMode;
+struct SkStageRec;
 
 /*
  * An SkPictureShader can be used to draw SkPicture-based patterns.
@@ -27,31 +42,37 @@ public:
     static sk_sp<SkShader> Make(sk_sp<SkPicture>, SkTileMode, SkTileMode, SkFilterMode,
                                 const SkMatrix*, const SkRect*);
 
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&,
-                                                             const MatrixRec&) const override;
-#endif
-#if defined(SK_GRAPHITE)
-    void addToKey(const skgpu::graphite::KeyContext&,
-                  skgpu::graphite::PaintParamsKeyBuilder*,
-                  skgpu::graphite::PipelineDataGatherer*) const override;
-#endif
-
     SkPictureShader(sk_sp<SkPicture>, SkTileMode, SkTileMode, SkFilterMode, const SkRect*);
+
+    ShaderType type() const override { return ShaderType::kPicture; }
+
+    sk_sp<SkPicture> picture() const { return fPicture; }
+    SkRect tile() const { return fTile; }
+    SkTileMode tileModeX() const { return fTmx; }
+    SkTileMode tileModeY() const { return fTmy; }
+    SkFilterMode filter() const { return fFilter; }
+
+    struct CachedImageInfo {
+        bool success;
+        SkSize tileScale;        // Additional scale factors to apply when sampling image.
+        SkMatrix matrixForDraw;  // Matrix used to produce an image from the picture
+        SkImageInfo imageInfo;
+        SkSurfaceProps props;
+
+        static CachedImageInfo Make(const SkRect& bounds,
+                                    const SkMatrix& totalM,
+                                    SkColorType dstColorType,
+                                    SkColorSpace* dstColorSpace,
+                                    const int maxTextureSize,
+                                    const SkSurfaceProps& propsIn);
+
+        sk_sp<SkImage> makeImage(sk_sp<SkSurface> surf, const SkPicture* pict) const;
+    };
 
 protected:
     SkPictureShader(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
-    skvm::Color program(skvm::Builder*,
-                        skvm::Coord device,
-                        skvm::Coord local,
-                        skvm::Color paint,
-                        const MatrixRec&,
-                        const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms,
-                        SkArenaAlloc* alloc) const override;
-
+    bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
 #endif
@@ -67,9 +88,7 @@ private:
     sk_sp<SkPicture>    fPicture;
     SkRect              fTile;
     SkTileMode          fTmx, fTmy;
-    SkFilterMode        fFilter;
-
-    using INHERITED = SkShaderBase;
+    SkFilterMode fFilter;
 };
 
 #endif // SkPictureShader_DEFINED

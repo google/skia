@@ -24,12 +24,15 @@ class SkNullSurface : public SkSurface_Base {
 public:
     SkNullSurface(int width, int height) : SkSurface_Base(width, height, nullptr) {}
 
+    // From SkSurface_Base.h
+    SkSurface_Base::Type type() const override { return SkSurface_Base::Type::kNull; }
+
 protected:
     SkCanvas* onNewCanvas() override {
         return new SkNoDrawCanvas(this->width(), this->height());
     }
     sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) override {
-        return MakeNull(info.width(), info.height());
+        return SkSurfaces::Null(info.width(), info.height());
     }
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subsetOrNull) override { return nullptr; }
     void onWritePixels(const SkPixmap&, int x, int y) override {}
@@ -44,9 +47,13 @@ protected:
     }
 };
 
-sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
+namespace SkSurfaces {
+
+sk_sp<SkSurface> Null(int width, int height) {
     if (width < 1 || height < 1) {
         return nullptr;
     }
     return sk_sp<SkSurface>(new SkNullSurface(width, height));
+}
+
 }

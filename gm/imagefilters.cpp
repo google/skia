@@ -28,6 +28,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -151,8 +152,8 @@ static void draw_set(SkCanvas* canvas, sk_sp<SkImageFilter> filters[], int count
 class SaveLayerWithBackdropGM : public skiagm::GM {
 protected:
     bool runAsBench() const override { return true; }
-    SkString onShortName() override { return SkString("savelayer_with_backdrop"); }
-    SkISize onISize() override { return SkISize::Make(830, 550); }
+    SkString getName() const override { return SkString("savelayer_with_backdrop"); }
+    SkISize getISize() override { return SkISize::Make(830, 550); }
 
     void onDraw(SkCanvas* canvas) override {
         SkColorMatrix cm;
@@ -202,7 +203,7 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_256.png"));
     auto direct = GrAsDirectContext(canvas->recordingContext());
     if (direct) {
-        if (sk_sp<SkImage> gpuImage = image->makeTextureImage(direct)) {
+        if (sk_sp<SkImage> gpuImage = SkImages::TextureFromImage(direct, image)) {
             image = std::move(gpuImage);
         }
     }
@@ -257,7 +258,7 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     // image; otherwise the mask filter will apply late (incorrectly) and none of the original
     // image will be visible.
     sk_sp<SkImageFilter> edgeBlend = SkImageFilters::Blend(SkBlendMode::kSrcOver,
-            SkImageFilters::Image(image), edgeDetector);
+            SkImageFilters::Image(image, SkFilterMode::kNearest), edgeDetector);
 
     SkPaint testMaskPaint;
     testMaskPaint.setMaskFilter(maskFilter);

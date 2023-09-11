@@ -8,10 +8,10 @@
 #ifndef SKSL_FORSTATEMENT
 #define SKSL_FORSTATEMENT
 
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLStatement.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <memory>
 #include <string>
@@ -64,14 +64,13 @@ public:
                                               std::unique_ptr<Statement> initializer,
                                               std::unique_ptr<Expression> test,
                                               std::unique_ptr<Expression> next,
-                                              std::unique_ptr<Statement> statement,
-                                              std::shared_ptr<SymbolTable> symbolTable);
+                                              std::unique_ptr<Statement> statement);
 
     // Creates an SkSL while loop; handles type-coercion and uses the ErrorReporter for errors.
-    static std::unique_ptr<Statement> ConvertWhile(const Context& context, Position pos,
+    static std::unique_ptr<Statement> ConvertWhile(const Context& context,
+                                                   Position pos,
                                                    std::unique_ptr<Expression> test,
-                                                   std::unique_ptr<Statement> statement,
-                                                   std::shared_ptr<SymbolTable> symbolTable);
+                                                   std::unique_ptr<Statement> statement);
 
     // Creates an SkSL for/while loop. Assumes properly coerced types and reports errors via assert.
     static std::unique_ptr<Statement> Make(const Context& context,

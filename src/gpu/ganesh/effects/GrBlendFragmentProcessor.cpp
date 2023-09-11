@@ -7,14 +7,22 @@
 
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "src/base/SkRandom.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
-#include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/glsl/GrGLSLBlend.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+
+#include <string>
+
+class GrGLSLProgramDataManager;
+struct GrShaderCaps;
 
 // Some of the CPU implementations of blend modes differ from the GPU enough that
 // we can't use the CPU implementation to implement constantOutputForConstantInput.
@@ -60,7 +68,7 @@ private:
             , fMode(that.fMode)
             , fShareBlendLogic(that.fShareBlendLogic) {}
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("(fMode=%s)", SkBlendMode_Name(fMode));
     }
@@ -193,7 +201,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::TestCreate(GrProcessorTestData* d) {
     // Create one or two random fragment processors.
     std::unique_ptr<GrFragmentProcessor> src(GrProcessorUnitTest::MakeOptionalChildFP(d));

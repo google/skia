@@ -488,9 +488,9 @@ private:
         fShader = ToolUtils::create_checkerboard_shader(0xFFCCCCCC, 0xFFFFFFFF, zoom);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-        fMinSurface = SkSurface::MakeRaster(info);
+        fMinSurface = SkSurfaces::Raster(info);
         info = info.makeWH(width * zoom, height * zoom);
-        fMaxSurface = SkSurface::MakeRaster(info);
+        fMaxSurface = SkSurfaces::Raster(info);
     }
 
     void draw_points(SkCanvas* canvas, const SkPath& path, SkColor color,

@@ -29,6 +29,8 @@
 #include <cfloat>
 #include <cmath>
 
+using namespace skia_private;
+
 static bool gPathOpsAngleIdeasVerbose = false;
 static bool gPathOpsAngleIdeasEnableBruteCheck = false;
 
@@ -88,7 +90,7 @@ static double testArc(skiatest::Reporter* reporter, const SkDQuad& quad, const S
 }
 
 static void orderQuads(skiatest::Reporter* reporter, const SkDQuad& quad, double radius,
-        SkTArray<double, false>* tArray) {
+        TArray<double, false>* tArray) {
     double r = radius;
     double s = r * SK_ScalarTanPIOver8;
     double m = r * SK_ScalarRoot2Over2;
@@ -243,7 +245,7 @@ static bool radianBetween(double start, double test, double end) {
 
 static bool orderTRange(skiatest::Reporter* reporter, const SkDQuad& quad1, const SkDQuad& quad2,
         double r, TRange* result) {
-    SkTArray<double, false> t1Array, t2Array;
+    TArray<double, false> t1Array, t2Array;
     orderQuads(reporter, quad1, r, &t1Array);
     orderQuads(reporter,quad2, r, &t2Array);
     if (t1Array.empty() || t2Array.empty()) {

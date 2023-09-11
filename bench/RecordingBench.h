@@ -18,7 +18,7 @@ public:
 protected:
     const char* onGetName() override;
     bool isSuitableFor(Backend) override;
-    SkIPoint onGetSize() override;
+    SkISize onGetSize() override;
 
 protected:
     sk_sp<const SkPicture> fSrc;
@@ -47,7 +47,7 @@ public:
 protected:
     const char* onGetName() override;
     bool isSuitableFor(Backend) override;
-    SkIPoint onGetSize() override;
+    SkISize onGetSize() override;
     void onDraw(int loops, SkCanvas*) override;
 
 private:

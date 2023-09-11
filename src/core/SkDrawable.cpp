@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -17,8 +18,6 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-
-class SkPicture;
 
 static int32_t next_generation_id() {
     static std::atomic<int32_t> nextID{1};
@@ -58,8 +57,8 @@ void SkDrawable::draw(SkCanvas* canvas, SkScalar x, SkScalar y) {
     this->draw(canvas, &matrix);
 }
 
-SkPicture* SkDrawable::newPictureSnapshot() {
-    return this->onNewPictureSnapshot();
+sk_sp<SkPicture> SkDrawable::makePictureSnapshot() {
+    return this->onMakePictureSnapshot();
 }
 
 uint32_t SkDrawable::getGenerationID() {
@@ -86,7 +85,7 @@ void SkDrawable::notifyDrawingChanged() {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-SkPicture* SkDrawable::onNewPictureSnapshot() {
+sk_sp<SkPicture> SkDrawable::onMakePictureSnapshot() {
     SkPictureRecorder recorder;
 
     const SkRect bounds = this->getBounds();
@@ -95,5 +94,5 @@ SkPicture* SkDrawable::onNewPictureSnapshot() {
     if ((false)) {
         draw_bbox(canvas, bounds);
     }
-    return recorder.finishRecordingAsPicture().release();
+    return recorder.finishRecordingAsPicture();
 }

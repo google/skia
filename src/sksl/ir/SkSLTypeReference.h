@@ -8,11 +8,11 @@
 #ifndef SKSL_TYPEREFERENCE
 #define SKSL_TYPEREFERENCE
 
-#include "include/private/SkSLIRNode.h"
-#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstdint>
@@ -32,7 +32,12 @@ public:
     inline static constexpr Kind kIRNodeKind = Kind::kTypeReference;
 
     TypeReference(const Context& context, Position pos, const Type* value)
-        : TypeReference(pos, value, context.fTypes.fInvalid.get()) {}
+            : TypeReference(pos, value, context.fTypes.fInvalid.get()) {}
+
+    // Reports an error and returns false if the type is generic or, in a strict-ES2 program, if the
+    // type is not allowed in ES2. Otherwise, returns true. (These are the same checks performed by
+    // Convert.)
+    static bool VerifyType(const Context& context, const SkSL::Type* type, Position pos);
 
     // Creates a reference to an SkSL type; uses the ErrorReporter to report errors.
     static std::unique_ptr<TypeReference> Convert(const Context& context,

@@ -25,6 +25,8 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/Resources.h"
@@ -91,14 +93,12 @@ protected:
         fBlob = builder.make();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("textblobmixedsizes%s",
                               fUseDFT ? "_df" : "");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* inputCanvas) override {
         SkCanvas* canvas = inputCanvas;
@@ -106,7 +106,7 @@ protected:
         if (fUseDFT) {
             // Create a new Canvas to enable DFT
             auto ctx = inputCanvas->recordingContext();
-            SkISize size = onISize();
+            SkISize size = getISize();
             sk_sp<SkColorSpace> colorSpace = inputCanvas->imageInfo().refColorSpace();
             SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),
                                                     kPremul_SkAlphaType, colorSpace);
@@ -115,7 +115,7 @@ protected:
             SkSurfaceProps props(
                     SkSurfaceProps::kUseDeviceIndependentFonts_Flag | inputProps.flags(),
                     inputProps.pixelGeometry());
-            surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
+            surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
             canvas = surface ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());

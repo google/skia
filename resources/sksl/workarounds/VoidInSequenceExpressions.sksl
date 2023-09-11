@@ -1,0 +1,17 @@
+/*#pragma settings CannotUseVoidInSequenceExpressions*/
+
+uniform half4 colorGreen;
+
+void setGreen(inout half4 c) {
+    c.g = 1.0;
+}
+
+void setAlpha(inout half4 c) {
+    c.a = 1.0;
+    return;
+}
+
+half4 main(float2) {
+    half4 color = half4(0);
+    return setGreen(color), setAlpha(color), color;
+}

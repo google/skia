@@ -10,6 +10,8 @@
 
 #include <memory>
 
+#include "include/private/base/SkAPI.h"
+
 namespace skgpu::graphite {
 
 class Context;
@@ -17,7 +19,7 @@ struct ContextOptions;
 struct DawnBackendContext;
 
 namespace ContextFactory {
-std::unique_ptr<Context> MakeDawn(const DawnBackendContext&, const ContextOptions&);
+SK_API std::unique_ptr<Context> MakeDawn(const DawnBackendContext&, const ContextOptions&);
 } // namespace ContextFactory
 
 } // namespace skgpu::graphite

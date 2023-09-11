@@ -8,17 +8,21 @@
 #ifndef sktext_gpu_Slug_DEFINED
 #define sktext_gpu_Slug_DEFINED
 
-#include "include/core/SkData.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
+
+#include <cstddef>
+#include <cstdint>
 
 class SkCanvas;
-class SkMatrix;
+class SkData;
 class SkPaint;
-class SkTextBlob;
 class SkReadBuffer;
 class SkStrikeClient;
+class SkTextBlob;
 class SkWriteBuffer;
+struct SkPoint;
 
 namespace sktext::gpu {
 // Slug encapsulates an SkTextBlob at a specific origin, using a specific paint. It can be

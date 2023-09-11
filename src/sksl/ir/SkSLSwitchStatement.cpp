@@ -8,30 +8,33 @@
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTArray.h"
-#include "include/sksl/SkSLErrorReporter.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 #include <forward_list>
 #include <iterator>
 
+using namespace skia_private;
+
 namespace SkSL {
 
 std::unique_ptr<Statement> SwitchStatement::clone() const {
     StatementArray cases;
-    cases.reserve_back(this->cases().size());
+    cases.reserve_exact(this->cases().size());
     for (const std::unique_ptr<Statement>& stmt : this->cases()) {
         cases.push_back(stmt->clone());
     }
@@ -54,7 +57,7 @@ std::string SwitchStatement::description() const {
 static std::forward_list<const SwitchCase*> find_duplicate_case_values(
         const StatementArray& cases) {
     std::forward_list<const SwitchCase*> duplicateCases;
-    SkTHashSet<SKSL_INT> intValues;
+    THashSet<SKSL_INT> intValues;
     bool foundDefault = false;
 
     for (const std::unique_ptr<Statement>& stmt : cases) {
@@ -85,7 +88,7 @@ static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray*
             Block& block = stmt->as<Block>();
 
             StatementArray blockStmts;
-            blockStmts.reserve_back(block.children().size());
+            blockStmts.reserve_exact(block.children().size());
             for (std::unique_ptr<Statement>& blockStmt : block.children()) {
                 move_all_but_break(blockStmt, &blockStmts);
             }
@@ -142,7 +145,7 @@ std::unique_ptr<Statement> SwitchStatement::BlockForCase(StatementArray* cases,
     // We fell off the bottom of the switch or encountered a break. We know the range of statements
     // that we need to move over, and we know it's safe to do so.
     StatementArray caseStmts;
-    caseStmts.reserve_back(std::distance(startIter, iter) + 1);
+    caseStmts.reserve_exact(std::distance(startIter, iter) + 1);
 
     // We can move over most of the statements as-is.
     while (startIter != iter) {
@@ -166,8 +169,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
                                                     Position pos,
                                                     std::unique_ptr<Expression> value,
                                                     ExpressionArray caseValues,
-                                                    StatementArray caseStatements,
-                                                    std::shared_ptr<SymbolTable> symbolTable) {
+                                                    StatementArray caseStatements) {
     SkASSERT(caseValues.size() == caseStatements.size());
 
     value = context.fTypes.fInt->coerceExpression(std::move(value), context);
@@ -206,14 +208,14 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
                 context.fErrors->error(sc->fPosition, "duplicate default case");
             } else {
                 context.fErrors->error(sc->fPosition, "duplicate case value '" +
-                                                  std::to_string(sc->value()) + "'");
+                                                      std::to_string(sc->value()) + "'");
             }
         }
         return nullptr;
     }
 
-    return SwitchStatement::Make(
-            context, pos, std::move(value), std::move(cases), std::move(symbolTable));
+    return SwitchStatement::Make(context, pos, std::move(value), std::move(cases),
+                                 context.fSymbolTable);
 }
 
 std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
@@ -268,8 +270,14 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
     }
 
     // The switch couldn't be optimized away; emit it normally.
-    return std::make_unique<SwitchStatement>(
-            pos, std::move(value), std::move(cases), std::move(symbolTable));
+    auto stmt = std::make_unique<SwitchStatement>(pos, std::move(value), std::move(cases),
+                                                  std::move(symbolTable));
+
+    // If a switch-case has variable declarations at its top level, we want to create a scoped block
+    // around the switch, then move the variable declarations out of the switch body and into the
+    // outer scope. This prevents scoping issues in backends which don't offer a native switch.
+    // (skia:14375)
+    return Transform::HoistSwitchVarDeclarationsAtTopLevel(context, std::move(stmt));
 }
 
 }  // namespace SkSL

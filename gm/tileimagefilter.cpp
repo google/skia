@@ -38,13 +38,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("tileimagefilter");
-    }
+    SkString getName() const override { return SkString("tileimagefilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(WIDTH, HEIGHT);
-    }
+    SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onOnceBeforeDraw() override {
         fBitmap = ToolUtils::create_string_image(50, 50, 0xD000D000, 10, 45, 50, "e");
@@ -74,7 +70,7 @@ protected:
                                                   SkIntToScalar(i * 4),
                                                   SkIntToScalar(image->width() - i * 12),
                                                   SkIntToScalar(image->height()) - i * 12);
-                sk_sp<SkImageFilter> tileInput(SkImageFilters::Image(image));
+                sk_sp<SkImageFilter> tileInput(SkImageFilters::Image(image, SkFilterMode::kLinear));
                 sk_sp<SkImageFilter> filter(SkImageFilters::Tile(srcRect, dstRect,
                                                                  std::move(tileInput)));
                 canvas->save();

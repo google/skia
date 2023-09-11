@@ -9,7 +9,7 @@ To build with GN, you need to have followed the instructions to download Skia an
 <https://skia.org/user/download>.
 
 To compile CanvasKit, you will first need to [download and activate `emscripten`][1] using the
-script in `//bin/activate-emsdk` (or `//bin/git-sync-deps` which also calls activate-emsdk).
+script in `//bin/activate-emsdk` (or `//tools/git-sync-deps` which also calls activate-emsdk).
 This places the associated files in `//third_party/externals/emsdk` and the GN[2] build scripts
 will use those by default.
 The compile.sh script automates the default GN settings; users are free to set their own. If users
@@ -49,6 +49,13 @@ any of the "extras", one might run:
     ./compile.sh no_skottie no_font
 
 Such a stripped-down version is about half the size of the default release build.
+
+If CanvasKit fails to build and you are getting compile errors that don't look like Skia code,
+you may need to do a fresh install of the npm modules. You can do this by finding the .dts file
+mentioned in the error message, deleting it, and rerunning `npm ci`.
+
+If you're using the correct modules plus the latest supported typescript and it still fails,
+the module versions listed in package.json may need to be updated as well.
 
 # Unit tests, performance tests, and coverage.
 

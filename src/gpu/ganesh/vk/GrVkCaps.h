@@ -164,9 +164,6 @@ public:
         return 3;
     }
 
-    // Returns true if the device supports protected memory.
-    bool supportsProtectedMemory() const { return fSupportsProtectedMemory; }
-
     // Returns true if the VK_EXT_image_drm_format_modifier is enabled.
     bool supportsDRMFormatModifiers() const { return fSupportsDRMFormatModifiers; }
 
@@ -272,7 +269,7 @@ public:
 
     bool supportsMemorylessAttachments() const { return fSupportsMemorylessAttachments; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
 
@@ -428,7 +425,7 @@ private:
 
     VkFormat fPreferredStencilFormat;
 
-    SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
+    skia_private::STArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
 
     bool fMustSyncCommandBuffersWithQueue = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
@@ -449,8 +446,6 @@ private:
     bool fSupportsAndroidHWBExternalMemory = false;
 
     bool fSupportsYcbcrConversion = false;
-
-    bool fSupportsProtectedMemory = false;
 
     bool fSupportsDRMFormatModifiers = false;
 

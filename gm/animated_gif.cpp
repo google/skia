@@ -79,11 +79,9 @@ public:
     , fTotalFrames (-1) {}
 
 private:
-    SkString onShortName() override {
-        return SkString("animatedGif");
-    }
+    SkString getName() const override { return SkString("animatedGif"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         if (this->initCodec()) {
             SkISize dim = fCodec->getInfo().dimensions();
             // Wide enough to display all the frames.
@@ -174,8 +172,7 @@ private:
         return true;
     }
 };
-DEF_GM(return new AnimatedGifGM);
-
+DEF_GM(return new AnimatedGifGM;)
 
 static std::unique_ptr<SkCodec> load_codec(const char filename[]) {
     return SkCodec::MakeFromData(SkData::MakeFromFileName(filename));
@@ -202,13 +199,9 @@ public:
     }
 
 private:
-    SkString onShortName() override {
-        return SkString("AnimCodecPlayer");
-    }
+    SkString getName() const override { return SkString("AnimCodecPlayer"); }
 
-    SkISize onISize() override {
-        return { 1024, 768 };
-    }
+    SkISize getISize() override { return {1024, 768}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(0.25f, 0.25f);
@@ -228,7 +221,7 @@ private:
         return true;
     }
 };
-DEF_GM(return new AnimCodecPlayerGM);
+DEF_GM(return new AnimCodecPlayerGM;)
 
 class AnimCodecPlayerExifGM : public skiagm::GM {
     const char* fPath;
@@ -259,11 +252,11 @@ class AnimCodecPlayerExifGM : public skiagm::GM {
         }
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("AnimCodecPlayerExif_%s", strrchr(fPath, '/') + 1);
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         this->init();
         return fSize;
     }

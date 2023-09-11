@@ -33,6 +33,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -117,13 +118,9 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
 // (in particular its matrix vs. bounds semantics).
 class PictureGeneratorGM : public skiagm::GM {
 protected:
-    SkString onShortName() override {
-        return SkString("pictureimagegenerator");
-    }
+    SkString getName() const override { return SkString("pictureimagegenerator"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(1160, 860);
-    }
+    SkISize getISize() override { return SkISize::Make(1160, 860); }
 
     void onOnceBeforeDraw() override {
         const SkRect rect = SkRect::MakeWH(kPictureWidth, kPictureHeight);
@@ -176,9 +173,12 @@ protected:
                 m.postTranslate(0, SkIntToScalar(configs[i].size.height()));
             }
             std::unique_ptr<SkImageGenerator> gen =
-                SkImageGenerator::MakeFromPicture(configs[i].size, fPicture, &m,
-                                                 p.getAlpha() != 255 ? &p : nullptr,
-                                                 SkImage::BitDepth::kU8, srgbColorSpace);
+                    SkImageGenerators::MakeFromPicture(configs[i].size,
+                                                       fPicture,
+                                                       &m,
+                                                       p.getAlpha() != 255 ? &p : nullptr,
+                                                       SkImages::BitDepth::kU8,
+                                                       srgbColorSpace);
 
             SkImageInfo bmInfo = gen->getInfo().makeColorSpace(canvas->imageInfo().refColorSpace());
 

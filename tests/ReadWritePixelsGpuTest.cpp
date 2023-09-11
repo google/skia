@@ -32,10 +32,12 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -55,6 +57,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
+#include "tools/gpu/ContextType.h"
 
 #include <algorithm>
 #include <array>
@@ -64,6 +67,8 @@
 #include <memory>
 #include <utility>
 #include <vector>
+
+using namespace skia_private;
 
 struct GrContextOptions;
 
@@ -195,6 +200,10 @@ struct GpuReadPixelTestRules {
     bool fAllowUnpremulSrc = true;
     // Are reads that are overlapping but not contained by the src bounds expected to succeed?
     bool fUncontainedRectSucceeds = true;
+    // Skip SRGB src colortype?
+    bool fSkipSRGBCT = false;
+    // Skip 16-bit src colortypes?
+    bool fSkip16BitCT = false;
 };
 
 // Makes a src populated with the pixmap. The src should get its image info (or equivalent) from
@@ -234,8 +243,12 @@ SkPixmap make_pixmap_have_valid_alpha_type(SkPixmap pm) {
 
 static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaque) {
     SkAutoPixmapStorage result;
-    result.alloc(info);
-    auto surface = SkSurface::MakeRasterDirect(make_pixmap_have_valid_alpha_type(result));
+    if (info.alphaType() == kUnknown_SkAlphaType) {
+        result.alloc(info.makeAlphaType(kUnpremul_SkAlphaType));
+    } else {
+        result.alloc(info);
+    }
+    auto surface = SkSurfaces::WrapPixels(result);
     if (!surface) {
         return result;
     }
@@ -357,7 +370,9 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             }
             int rgbBits = std::min({min_rgb_channel_bits(readCT), min_rgb_channel_bits(srcCT), 8});
             float tol = numer / (1 << rgbBits);
-            float alphaTol = 0;
+            // Swiftshader is producing alpha errors with 16-bit UNORM. We choose to always allow
+            // a small tolerance:
+            float alphaTol = 1.f / (1 << 10);
             if (readAT != kOpaque_SkAlphaType && srcAT != kOpaque_SkAlphaType) {
                 // Alpha can also get squashed down to 8 bits going through an intermediate
                 // color format.
@@ -446,13 +461,22 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
     // and full complement of alpha types with one successful read in the loop.
     std::array<bool, kLastEnum_SkColorType + 1> srcCTTestedThoroughly  = {},
                                                 readCTTestedThoroughly = {};
-    for (int sat = 0; sat < kLastEnum_SkAlphaType; ++sat) {
+    for (int sat = 0; sat <= kLastEnum_SkAlphaType; ++sat) {
         const auto srcAT = static_cast<SkAlphaType>(sat);
         if (srcAT == kUnpremul_SkAlphaType && !rules.fAllowUnpremulSrc) {
             continue;
         }
         for (int sct = 0; sct <= kLastEnum_SkColorType; ++sct) {
             const auto srcCT = static_cast<SkColorType>(sct);
+            if (rules.fSkipSRGBCT && srcCT == kSRGBA_8888_SkColorType) {
+                continue;
+            }
+            if (rules.fSkip16BitCT &&
+                (srcCT == kR16G16_unorm_SkColorType ||
+                 srcCT == kR16G16B16A16_unorm_SkColorType)) {
+                continue;
+            }
+
             // We always make our ref data as F32
             auto refInfo = SkImageInfo::Make(kW, kH,
                                              kRGBA_F32_SkColorType,
@@ -466,7 +490,23 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             bool forceOpaque = srcAT == kPremul_SkAlphaType &&
                     (srcCT == kRGBA_1010102_SkColorType || srcCT == kBGRA_1010102_SkColorType);
 
-            SkAutoPixmapStorage srcPixels = make_ref_data(refInfo, forceOpaque);
+            SkAutoPixmapStorage refPixels = make_ref_data(refInfo, forceOpaque);
+            // Convert the ref data to our desired src color type.
+            const auto srcInfo = SkImageInfo::Make(kW, kH, srcCT, srcAT, SkColorSpace::MakeSRGB());
+            SkAutoPixmapStorage srcPixels;
+            srcPixels.alloc(srcInfo);
+            {
+                SkPixmap readPixmap = srcPixels;
+                // Spoof the alpha type to kUnpremul so the read will succeed without doing any
+                // conversion (because we made our surface also use kUnpremul).
+                if (srcAT == kUnknown_SkAlphaType) {
+                    readPixmap.reset(srcPixels.info().makeAlphaType(kUnpremul_SkAlphaType),
+                                     srcPixels.addr(),
+                                     srcPixels.rowBytes());
+                }
+                refPixels.readPixels(readPixmap, 0, 0);
+            }
+
             auto src = srcFactory(srcPixels);
             if (!src) {
                 continue;
@@ -526,7 +566,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
-    using Surface = std::unique_ptr<skgpu::v1::SurfaceContext>;
+    using Surface = std::unique_ptr<skgpu::ganesh::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [direct](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -534,7 +574,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels,
                     return Result::kSuccess;
                 } else {
                     // Reading from a non-renderable format is not guaranteed to work on GL.
-                    // We'd have to be able to force a copy or draw draw to a renderable format.
+                    // We'd have to be able to force a copy or draw to a renderable format.
                     const auto& caps = *direct->priv().caps();
                     if (direct->backend() == GrBackendApi::kOpenGL &&
                         !caps.isFormatRenderable(surface->asSurfaceProxy()->backendFormat(), 1)) {
@@ -569,7 +609,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ReadPixels_InvalidRowBytes_Gpu,
                                  ctxInfo,
                                  CtsEnforcement::kApiLevel_T) {
     auto srcII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, srcII);
+    auto surf = SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, srcII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
         auto colorType = static_cast<SkColorType>(ct);
         size_t bpp = SkColorTypeBytesPerPixel(colorType);
@@ -588,7 +628,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(WritePixels_InvalidRowBytes_Gpu,
                                  ctxInfo,
                                  CtsEnforcement::kApiLevel_T) {
     auto dstII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, dstII);
+    auto surf = SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kYes, dstII);
     for (int ct = 0; ct < kLastEnum_SkColorType + 1; ++ct) {
         auto colorType = static_cast<SkColorType>(ct);
         size_t bpp = SkColorTypeBytesPerPixel(colorType);
@@ -655,16 +695,17 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = false;
     rules.fUncontainedRectSucceeds = false;
+    // TODO: some mobile GPUs have issues reading back sRGB src data with GLES -- skip for now
+    // b/296440036
+    if (ctxInfo.type() == skgpu::ContextType::kGLES) {
+        rules.fSkipSRGBCT = true;
+    }
 
     for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto factory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
-                    auto surf = SkSurface::MakeRenderTarget(context,
-                                                            skgpu::Budgeted::kYes,
-                                                            src.info(),
-                                                            1,
-                                                            origin,
-                                                            nullptr);
+                    auto surf = SkSurfaces::RenderTarget(
+                            context, skgpu::Budgeted::kYes, src.info(), 1, origin, nullptr);
                     if (surf) {
                         surf->writePixels(src, 0, 0);
                     }
@@ -674,11 +715,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
         gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
         auto backendRTFactory = std::function<GpuSrcFactory<Surface>>(
                 [context = ctxInfo.directContext(), origin](const SkPixmap& src) {
-                    // Dawn backend implementation of backend render targets doesn't support
-                    // reading.
-                    if (context->backend() == GrBackendApi::kDawn) {
-                        return Surface();
-                    }
                     auto surf = sk_gpu_test::MakeBackendRenderTargetSurface(context,
                                                                             src.info(),
                                                                             origin,
@@ -693,10 +729,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
     }
 }
 
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels,
-                                       reporter,
-                                       ctxInfo,
-                                       CtsEnforcement::kApiLevel_T) {
+// Manually parameterized by GrRenderable and GrSurfaceOrigin to reduce per-test run time.
+static void image_async_read_pixels(GrRenderable renderable,
+                                    GrSurfaceOrigin origin,
+                                    skiatest::Reporter* reporter,
+                                    const sk_gpu_test::ContextInfo& ctxInfo) {
     using Image = sk_sp<SkImage>;
     auto context = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Image>>([context](const Image& image,
@@ -733,17 +770,56 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels,
     GpuReadPixelTestRules rules;
     rules.fAllowUnpremulSrc = true;
     rules.fUncontainedRectSucceeds = false;
-
-    for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-            auto factory = std::function<GpuSrcFactory<Image>>([&](const SkPixmap& src) {
-                return sk_gpu_test::MakeBackendTextureImage(ctxInfo.directContext(), src,
-                                                            renderable, origin);
-            });
-            auto label = SkStringPrintf("Renderable: %d, Origin: %d", (int)renderable, origin);
-            gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
-        }
+    // TODO: some mobile GPUs have issues reading back sRGB src data with GLES -- skip for now
+    // b/296440036
+    if (ctxInfo.type() == skgpu::ContextType::kGLES) {
+        rules.fSkipSRGBCT = true;
     }
+    // TODO: D3D on Intel has issues reading back 16-bit src data -- skip for now
+    // b/296440036
+    if (ctxInfo.type() == skgpu::ContextType::kDirect3D) {
+        rules.fSkip16BitCT = true;
+    }
+
+    auto factory = std::function<GpuSrcFactory<Image>>([&](const SkPixmap& src) {
+        return sk_gpu_test::MakeBackendTextureImage(ctxInfo.directContext(), src,
+                                                    renderable, origin,
+                                                    GrProtected::kNo);
+    });
+    auto label = SkStringPrintf("Renderable: %d, Origin: %d", (int)renderable, origin);
+    gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_NonRenderable_TopLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    image_async_read_pixels(GrRenderable::kNo, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                            reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_NonRenderable_BottomLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    image_async_read_pixels(GrRenderable::kNo, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                            reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_Renderable_TopLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    image_async_read_pixels(GrRenderable::kYes, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                            reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_Renderable_BottomLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    image_async_read_pixels(GrRenderable::kYes, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                            reporter, ctxInfo);
 }
 
 DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcement::kApiLevel_T) {
@@ -759,8 +835,8 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
         kReleaseAndAbandon_DestroyContext_FreeResult,
         kAbandon_DestroyContext_FreeResult,
     };
-    for (int t = 0; t < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++t) {
-        auto type = static_cast<sk_gpu_test::GrContextFactory::ContextType>(t);
+    for (int t = 0; t < skgpu::kContextTypeCount; ++t) {
+        auto type = static_cast<skgpu::ContextType>(t);
         for (auto sequence : {ShutdownSequence::kFreeResult_DestroyContext,
                               ShutdownSequence::kDestroyContext_FreeResult,
                               ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext,
@@ -771,8 +847,7 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                               ShutdownSequence::kAbandon_DestroyContext_FreeResult}) {
             // Vulkan and D3D context abandoning without resource release has issues outside of the
             // scope of this test.
-            if ((type == sk_gpu_test::GrContextFactory::kVulkan_ContextType ||
-                 type == sk_gpu_test::GrContextFactory::kDirect3D_ContextType) &&
+            if ((type == skgpu::ContextType::kVulkan || type == skgpu::ContextType::kDirect3D) &&
                 (sequence == ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext ||
                  sequence == ShutdownSequence::kFreeResult_Abandon_DestroyContext ||
                  sequence == ShutdownSequence::kReleaseAndAbandon_FreeResult_DestroyContext ||
@@ -781,7 +856,12 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                  sequence == ShutdownSequence::kAbandon_DestroyContext_FreeResult)) {
                 continue;
             }
-            for (bool yuv : {false, true}) {
+            enum class ReadType {
+                kRGBA,
+                kYUV,
+                kYUVA
+            };
+            for (ReadType readType : {ReadType::kRGBA, ReadType::kYUV, ReadType::kYUVA}) {
                 sk_gpu_test::GrContextFactory factory(options);
                 auto direct = factory.get(type);
                 if (!direct) {
@@ -792,29 +872,45 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                 if (!direct->priv().caps()->transferFromSurfaceToBufferSupport()) {
                     continue;
                 }
-                auto surf = SkSurface::MakeRenderTarget(direct, skgpu::Budgeted::kYes, ii, 1,
-                                                        nullptr);
+                auto surf = SkSurfaces::RenderTarget(direct, skgpu::Budgeted::kYes, ii, 1, nullptr);
                 if (!surf) {
                     continue;
                 }
                 AsyncContext cbContext;
-                if (yuv) {
-                    surf->asyncRescaleAndReadPixelsYUV420(
-                            kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
-                            ii.dimensions(), SkImage::RescaleGamma::kSrc,
-                            SkImage::RescaleMode::kNearest, &async_callback, &cbContext);
-                } else {
-                    surf->asyncRescaleAndReadPixels(ii, ii.bounds(), SkImage::RescaleGamma::kSrc,
-                                                    SkImage::RescaleMode::kNearest, &async_callback,
-                                                    &cbContext);
+                switch (readType) {
+                    case ReadType::kRGBA:
+                        surf->asyncRescaleAndReadPixels(ii, ii.bounds(),
+                                                        SkImage::RescaleGamma::kSrc,
+                                                        SkImage::RescaleMode::kNearest,
+                                                        &async_callback, &cbContext);
+                        break;
+                    case ReadType::kYUV:
+                        surf->asyncRescaleAndReadPixelsYUV420(
+                                kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
+                                ii.dimensions(), SkImage::RescaleGamma::kSrc,
+                                SkImage::RescaleMode::kNearest, &async_callback, &cbContext);
+                        break;
+                    case ReadType::kYUVA:
+                        surf->asyncRescaleAndReadPixelsYUVA420(
+                                kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(), ii.bounds(),
+                                ii.dimensions(), SkImage::RescaleGamma::kSrc,
+                                SkImage::RescaleMode::kNearest, &async_callback, &cbContext);
+                        break;
                 }
+
                 direct->submit();
                 while (!cbContext.fCalled) {
                     direct->checkAsyncWorkCompletion();
                 }
                 if (!cbContext.fResult) {
-                    ERRORF(reporter, "Callback failed on %s. is YUV: %d",
-                           sk_gpu_test::GrContextFactory::ContextTypeName(type), yuv);
+                    const char* readTypeStr;
+                    switch (readType) {
+                        case ReadType::kRGBA: readTypeStr = "rgba"; break;
+                        case ReadType::kYUV:  readTypeStr = "yuv";  break;
+                        case ReadType::kYUVA: readTypeStr = "yuva"; break;
+                    }
+                    ERRORF(reporter, "Callback failed on %s. read type is: %s",
+                           skgpu::ContextTypeName(type), readTypeStr);
                     continue;
                 }
                 // For vulkan we need to release all refs to the GrDirectContext before trying to
@@ -1117,11 +1213,12 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels,
-                                       reporter,
-                                       ctxInfo,
-                                       CtsEnforcement::kApiLevel_T) {
-    using Surface = std::unique_ptr<skgpu::v1::SurfaceContext>;
+// Manually parameterized by GrRenderable and GrSurfaceOrigin to reduce per-test run time.
+static void surface_context_write_pixels(GrRenderable renderable,
+                                         GrSurfaceOrigin origin,
+                                         skiatest::Reporter* reporter,
+                                         const sk_gpu_test::ContextInfo& ctxInfo) {
+    using Surface = std::unique_ptr<skgpu::ganesh::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto writer = std::function<GpuWriteDstFn<Surface>>(
             [direct](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -1146,20 +1243,48 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels,
         return result;
     });
 
-    for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
-        for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-            auto factory = std::function<GpuDstFactory<Surface>>(
-                    [direct, origin, renderable](const SkImageInfo& info) {
-                        return CreateSurfaceContext(direct,
-                                                    info,
-                                                    SkBackingFit::kExact,
-                                                    origin,
-                                                    renderable);
-                    });
+    auto factory = std::function<GpuDstFactory<Surface>>(
+            [direct, origin, renderable](const SkImageInfo& info) {
+                return CreateSurfaceContext(direct,
+                                            info,
+                                            SkBackingFit::kExact,
+                                            origin,
+                                            renderable);
+            });
 
-            gpu_write_pixels_test_driver(reporter, factory, writer, reader);
-        }
-    }
+    gpu_write_pixels_test_driver(reporter, factory, writer, reader);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_NonRenderable_TopLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    surface_context_write_pixels(GrRenderable::kNo, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                 reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_NonRenderable_BottomLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    surface_context_write_pixels(GrRenderable::kNo, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                                 reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_Renderable_TopLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    surface_context_write_pixels(GrRenderable::kYes, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                                 reporter, ctxInfo);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels_Renderable_BottomLeft,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
+    surface_context_write_pixels(GrRenderable::kYes, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                                 reporter, ctxInfo);
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
@@ -1192,7 +1317,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
         }
         SkAlphaType at = GrColorTypeHasAlpha(ct) ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
         GrImageInfo info(ct, at, nullptr, kW, kH);
-        SkTArray<GrCPixmap> levels;
+        TArray<GrCPixmap> levels;
         const auto& ref = at == kPremul_SkAlphaType ? refP : refO;
         for (int w = kW, h = kH; w || h; w/=2, h/=2) {
             auto level = GrPixmap::Allocate(info.makeWH(std::max(w, 1), std::max(h, 1)));
@@ -1312,15 +1437,15 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
 // Tests a bug found in OOP-R canvas2d in Chrome. The GPU backend would incorrectly not bind
 // buffer 0 to GL_PIXEL_PACK_BUFFER before a glReadPixels() that was supposed to read into
 // client memory if a GrDirectContext::resetContext() occurred.
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(GLReadPixelsUnbindPBO,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(GLReadPixelsUnbindPBO,
+                               reporter,
+                               ctxInfo,
+                               CtsEnforcement::kApiLevel_T) {
     // Start with a async read so that we bind to GL_PIXEL_PACK_BUFFER.
     auto info = SkImageInfo::Make(16, 16, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAutoPixmapStorage pmap = make_ref_data(info, /*forceOpaque=*/false);
-    auto image = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-    image = image->makeTextureImage(ctxInfo.directContext());
+    auto image = SkImages::RasterFromPixmap(pmap, nullptr, nullptr);
+    image = SkImages::TextureFromImage(ctxInfo.directContext(), image);
     if (!image) {
         ERRORF(reporter, "Couldn't make texture image.");
         return;
@@ -1335,7 +1460,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(GLReadPixelsUnbindPBO,
                                      &asyncContext);
 
     // This will force the async readback to finish.
-    ctxInfo.directContext()->flushAndSubmit(true);
+    ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
     if (!asyncContext.fCalled) {
         ERRORF(reporter, "async_callback not called.");
     }

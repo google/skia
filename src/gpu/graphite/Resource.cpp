@@ -71,7 +71,10 @@ void Resource::internalDispose() {
 }
 
 bool Resource::isPurgeable() const {
-    return !this->hasAnyRefs();
+    // For being purgeable we don't care if there are cacheRefs on the object since the cacheRef
+    // will always be greater than 1 since we add one on insert and don't remove that ref until
+    // the Resource is removed from the cache.
+    return !(this->hasUsageRef() || this->hasCommandBufferRef());
 }
 
 } // namespace skgpu::graphite

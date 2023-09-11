@@ -6,8 +6,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
 #include "modules/skottie/include/Skottie.h"
+#include "src/base/SkTime.h"
 
 #include <cmath>
 

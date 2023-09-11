@@ -26,13 +26,15 @@ public:
 
     ~GrMtlEvent() override {}
 
-    id<MTLEvent> mtlEvent() const SK_API_AVAILABLE(macos(10.14), ios(12.0)) { return fMtlEvent; }
+    id<MTLEvent> mtlEvent() const SK_API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0)) {
+        return fMtlEvent;
+    }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** output a human-readable dump of this resource's information
      */
     void dumpInfo() const override {
-        if (@available(macOS 10.14, iOS 12.0, *)) {
+        if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
             SkDebugf("GrMtlEvent: %p (%ld refs)\n", fMtlEvent,
                      CFGetRetainCount((CFTypeRef)fMtlEvent));
         }
@@ -40,16 +42,16 @@ public:
 #endif
 
     void freeGPUData() const override {
-        if (@available(macOS 10.14, iOS 12.0, *)) {
+        if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
             fMtlEvent = nil;
         }
     }
 
 private:
-    GrMtlEvent(id<MTLEvent> mtlEvent) SK_API_AVAILABLE(macos(10.14), ios(12.0))
+    GrMtlEvent(id<MTLEvent> mtlEvent) SK_API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0))
         : fMtlEvent(mtlEvent) {}
 
-    mutable id<MTLEvent> fMtlEvent SK_API_AVAILABLE(macos(10.14), ios(12.0));
+    mutable id<MTLEvent> fMtlEvent SK_API_AVAILABLE(macos(10.14), ios(12.0), tvos(12.0));
 };
 
 class GrMtlSemaphore : public GrSemaphore {

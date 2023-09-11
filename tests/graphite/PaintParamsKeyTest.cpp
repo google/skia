@@ -20,8 +20,11 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -34,6 +37,7 @@
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PublicPrecompile.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -207,7 +211,7 @@ sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
     sk_sp<SkImage> img = bitmap.asImage();
 
     // TODO: fuzz mipmappedness
-    return img->makeTextureImage(recorder, { skgpu::Mipmapped::kNo });
+    return SkImages::TextureFromImage(recorder, img, {false});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,8 +257,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
             o = PrecompileShaders::TwoPointConicalGradient();
             break;
         case SkShaderBase::GradientType::kNone:
-        case SkShaderBase::GradientType::kColor:
-            SkASSERT(0);
+            SkDEBUGFAIL("Gradient shader says its type is none");
             break;
     }
 
@@ -555,8 +558,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
 #ifdef SK_DEBUG
 void dump(ShaderCodeDictionary* dict, UniquePaintParamsID id) {
-    auto entry = dict->lookup(id);
-    entry->paintParamsKey().dump(dict);
+    dict->lookup(id).dump(dict);
 }
 #endif
 
@@ -594,7 +596,7 @@ void check_draw(skiatest::Reporter* reporter,
                                            kRGBA_8888_SkColorType,
                                            kPremul_SkAlphaType);
 
-        sk_sp<SkSurface> surf = SkSurface::MakeGraphite(recorder, ii);
+        sk_sp<SkSurface> surf = SkSurfaces::RenderTarget(recorder, ii);
         SkCanvas* canvas = surf->getCanvas();
 
         switch (dt) {
@@ -633,17 +635,30 @@ void check_draw(skiatest::Reporter* reporter,
 //    and via the pre-compilation system
 //
 // TODO: keep this as a smoke test but add a fuzzer that reuses all the helpers
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     auto recorder = context->makeRecorder();
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     SkColorInfo ci = SkColorInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                  SkColorSpace::MakeSRGB());
 
-    KeyContext extractPaintKeyContext(recorder.get(), {}, ci, SkColors::kBlack);
-
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
-    KeyContext precompileKeyContext(dict, rtDict.get(), ci);
+    KeyContext precompileKeyContext(recorder->priv().caps(),
+                                    dict,
+                                    rtDict.get(),
+                                    ci,
+                                    /* dstTexture= */ nullptr,
+                                    /* dstOffset= */ {0, 0});
+
+    sk_sp<TextureProxy> fakeDstTexture = TextureProxy::Make(recorder->priv().caps(),
+                                                            SkISize::Make(1, 1),
+                                                            kRGBA_8888_SkColorType,
+                                                            skgpu::Mipmapped::kNo,
+                                                            skgpu::Protected::kNo,
+                                                            skgpu::Renderable::kYes,
+                                                            skgpu::Budgeted::kNo);
+    constexpr SkIPoint fakeDstOffset = SkIPoint::Make(0, 0);
 
     SkFont font(ToolUtils::create_portable_typeface(), 16);
     const char text[] = "hambur";
@@ -667,23 +682,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(Layout::kMetal);
 
-    for (auto s : { ShaderType::kNone,
-                    ShaderType::kSolidColor,
-                    ShaderType::kLinearGradient,
+    for (auto s : { ShaderType::kSolidColor,
                     ShaderType::kRadialGradient,
-                    ShaderType::kSweepGradient,
-                    ShaderType::kConicalGradient,
-                    ShaderType::kLocalMatrix,
                     ShaderType::kImage,
                     ShaderType::kBlend  }) {
-        for (auto bm : { BlenderType::kNone,
-                         BlenderType::kPorterDuff,
+        for (auto bm : { BlenderType::kPorterDuff,
                          BlenderType::kShaderBased,
                          BlenderType::kRuntime }) {
             for (auto cf : { ColorFilterType::kNone,
                              ColorFilterType::kBlend,
-                             ColorFilterType::kMatrix,
-                             ColorFilterType::kHSLAMatrix }) {
+                             ColorFilterType::kMatrix }) {
 
                 auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 
@@ -703,16 +711,33 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                             primitiveBlender = SkBlender::Mode(SkBlendMode::kSrcOver);
                         }
 
+                        constexpr Coverage coverageOptions[3] = {
+                                Coverage::kNone, Coverage::kSingleChannel, Coverage::kLCD};
+                        Coverage coverage = coverageOptions[rand.nextULessThan(3)];
+
+                        DstReadRequirement dstReadReq = DstReadRequirement::kNone;
+                        const SkBlenderBase* blender = as_BB(paint.getBlender());
+                        if (blender) {
+                            dstReadReq = GetDstReadRequirement(recorder->priv().caps(),
+                                                               blender->asBlendMode(),
+                                                               coverage);
+                        }
+                        bool needsDstSample = dstReadReq == DstReadRequirement::kTextureCopy ||
+                                              dstReadReq == DstReadRequirement::kTextureSample;
+                        sk_sp<TextureProxy> curDst = needsDstSample ? fakeDstTexture : nullptr;
+
                         auto [paintID, uData, tData] = ExtractPaintData(
                                 recorder.get(), &gatherer, &builder, Layout::kMetal, {},
                                 PaintParams(paint,
                                             std::move(primitiveBlender),
+                                            dstReadReq,
                                             /* skipColorXform= */ false),
-                                extractPaintKeyContext.dstColorInfo());
+                                curDst, fakeDstOffset, ci);
 
                         std::vector<UniquePaintParamsID> precompileIDs;
                         paintOptions.priv().buildCombinations(precompileKeyContext,
                                                               withPrimitiveBlender,
+                                                              coverage,
                                                               [&](UniquePaintParamsID id) {
                                                                   precompileIDs.push_back(id);
                                                               });

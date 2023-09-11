@@ -34,7 +34,7 @@ in the extension browser and install it, the thing you want comes from
 https://github.com/WebFreak001/code-debug if you’re unsure.
 
 In your VS Code project’s `launch.json`, add an entry that looks like the following. You'll need to
-replace <NDK_BUNDLE> with the path to your NDK bundle (ie $ANDROID_NDK_ROOT):
+replace <NDK_BUNDLE> with the path to your NDK bundle (ie $ANDROID_NDK_HOME):
 
 ~~~
 {

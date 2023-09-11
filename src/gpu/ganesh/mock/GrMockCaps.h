@@ -28,6 +28,7 @@ public:
         fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
         fMaxVertexAttributes = options.fMaxVertexAttributes;
         fSampleLocationsSupport = true;
+        fSupportsProtectedContent = true;
 
         fShaderCaps = std::make_unique<GrShaderCaps>();
         fShaderCaps->fIntegerSupport = options.fIntegerSupport;
@@ -122,8 +123,9 @@ public:
         return {surfaceColorType, 1};
     }
 
-    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
-        return SurfaceReadPixelsSupport::kSupported;
+    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface* surface) const override {
+        return surface->isProtected() ? SurfaceReadPixelsSupport::kUnsupported
+                                      : SurfaceReadPixelsSupport::kSupported;
     }
 
     GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override {
@@ -141,7 +143,7 @@ public:
                            const GrProgramInfo&,
                            ProgramDescOverrideFlags) const override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
 
@@ -149,6 +151,9 @@ private:
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
                           const GrSurfaceProxy* src, const SkIRect& srcRect) const override {
+        if (src->isProtected() == GrProtected::kYes && dst->isProtected() != GrProtected::kYes) {
+            return false;
+        }
         return true;
     }
     GrBackendFormat onGetDefaultBackendFormat(GrColorType ct) const override {

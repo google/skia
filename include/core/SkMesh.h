@@ -8,23 +8,24 @@
 #ifndef SkMesh_DEFINED
 #define SkMesh_DEFINED
 
-#include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_SKSL
-#include "include/core/SkAlphaType.h"
+#include "include/core/SkData.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkAPI.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
 class GrDirectContext;
 class SkColorSpace;
-class SkData;
+enum SkAlphaType : int;
 
 namespace SkSL { struct Program; }
 
@@ -292,48 +293,6 @@ public:
     SkMesh& operator=(const SkMesh&);
     SkMesh& operator=(SkMesh&&);
 
-    /**
-     * Makes an index buffer to be used with SkMeshes. The buffer may be CPU- or GPU-backed
-     * depending on whether GrDirectContext* is nullptr.
-     *
-     * @param  GrDirectContext*  If nullptr a CPU-backed object is returned. Otherwise, the data is
-     *                           uploaded to the GPU and a GPU-backed buffer is returned. It may
-     *                           only be used to draw into SkSurfaces that are backed by the passed
-     *                           GrDirectContext.
-     * @param  data              The data used to populate the buffer, or nullptr to create a zero-
-     *                           initialized buffer.
-     * @param  size              Both the size of the data in 'data' and the size of the resulting
-     *                           buffer.
-     */
-    static sk_sp<IndexBuffer> MakeIndexBuffer(GrDirectContext*, const void* data, size_t size);
-
-    /**
-     * Makes a copy of an index buffer. The implementation currently only supports a CPU-backed
-     * source buffer.
-     */
-    static sk_sp<IndexBuffer> CopyIndexBuffer(GrDirectContext*, sk_sp<IndexBuffer>);
-
-    /**
-     * Makes a vertex buffer to be used with SkMeshes. The buffer may be CPU- or GPU-backed
-     * depending on whether GrDirectContext* is nullptr.
-     *
-     * @param  GrDirectContext*  If nullptr a CPU-backed object is returned. Otherwise, the data is
-     *                           uploaded to the GPU and a GPU-backed buffer is returned. It may
-     *                           only be used to draw into SkSurfaces that are backed by the passed
-     *                           GrDirectContext.
-     * @param  data              The data used to populate the buffer, or nullptr to create a zero-
-     *                           initialized buffer.
-     * @param  size              Both the size of the data in 'data' and the size of the resulting
-     *                           buffer.
-     */
-    static sk_sp<VertexBuffer> MakeVertexBuffer(GrDirectContext*, const void*, size_t size);
-
-    /**
-     * Makes a copy of a vertex buffer. The implementation currently only supports a CPU-backed
-     * source buffer.
-     */
-    static sk_sp<VertexBuffer> CopyVertexBuffer(GrDirectContext*, sk_sp<VertexBuffer>);
-
     enum class Mode { kTriangles, kTriangleStrip };
 
     struct Result;
@@ -394,8 +353,6 @@ public:
     bool isValid() const;
 
 private:
-    friend struct SkMeshPriv;
-
     std::tuple<bool, SkString> validate() const;
 
     sk_sp<SkMeshSpecification> fSpec;
@@ -418,6 +375,36 @@ private:
 
 struct SkMesh::Result { SkMesh mesh; SkString error; };
 
-#endif  // SK_ENABLE_SKSL
+namespace SkMeshes {
+/**
+ * Makes a CPU-backed index buffer to be used with SkMeshes.
+ *
+ * @param  data              The data used to populate the buffer, or nullptr to create a zero-
+ *                           initialized buffer.
+ * @param  size              Both the size of the data in 'data' and the size of the resulting
+ *                           buffer.
+ */
+SK_API sk_sp<SkMesh::IndexBuffer> MakeIndexBuffer(const void* data, size_t size);
+
+/**
+ * Makes a copy of an index buffer. The copy will be CPU-backed.
+ */
+SK_API sk_sp<SkMesh::IndexBuffer> CopyIndexBuffer(sk_sp<SkMesh::IndexBuffer>);
+
+/**
+ * Makes a CPU-backed vertex buffer to be used with SkMeshes.
+ *
+ * @param  data              The data used to populate the buffer, or nullptr to create a zero-
+ *                           initialized buffer.
+ * @param  size              Both the size of the data in 'data' and the size of the resulting
+ *                           buffer.
+ */
+SK_API sk_sp<SkMesh::VertexBuffer> MakeVertexBuffer(const void*, size_t size);
+
+/**
+ * Makes a copy of a vertex buffer.  The copy will be CPU-backed.
+ */
+SK_API sk_sp<SkMesh::VertexBuffer> CopyVertexBuffer(sk_sp<SkMesh::VertexBuffer>);
+}  // namespace SkMeshes
 
 #endif

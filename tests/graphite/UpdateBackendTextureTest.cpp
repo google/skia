@@ -10,7 +10,9 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -89,11 +91,11 @@ sk_sp<SkImage> wrap_backend_texture(skiatest::Reporter* reporter,
                                     const skgpu::graphite::BackendTexture& backendTex,
                                     SkColorType ct,
                                     bool withMips) {
-    sk_sp<SkImage> image = SkImage::MakeGraphiteFromBackendTexture(recorder,
-                                                                   backendTex,
-                                                                   ct,
-                                                                   kPremul_SkAlphaType,
-                                                                   /* colorSpace= */ nullptr);
+    sk_sp<SkImage> image = SkImages::AdoptTextureFrom(recorder,
+                                                      backendTex,
+                                                      ct,
+                                                      kPremul_SkAlphaType,
+                                                      /* colorSpace= */ nullptr);
     REPORTER_ASSERT(reporter, image);
     REPORTER_ASSERT(reporter, image->hasMipmaps() == withMips);
 
@@ -113,7 +115,7 @@ void check_levels(skiatest::Reporter* reporter,
                                  : SkSamplingOptions(SkFilterMode::kNearest);
 
     SkImageInfo surfaceII = SkImageInfo::Make(kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surf = SkSurface::MakeGraphite(recorder, surfaceII, Mipmapped::kNo);
+    sk_sp<SkSurface> surf = SkSurfaces::RenderTarget(recorder, surfaceII, Mipmapped::kNo);
     SkCanvas* canvas = surf->getCanvas();
 
     for (int i = 0, drawSize = kSize.width(); i < numLevels; ++i, drawSize /= 2) {
@@ -158,7 +160,8 @@ void check_levels(skiatest::Reporter* reporter,
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
     // TODO: Remove this check once Vulkan supports creating default TexutreInfo from caps and we
     // implement createBackendTexture.
     if (context->backend() == BackendApi::kVulkan) {

@@ -14,6 +14,6 @@
 class SkString;
 class SkSVGNode;
 
-using SkSVGIDMapper = SkTHashMap<SkString, sk_sp<SkSVGNode>>;
+using SkSVGIDMapper = skia_private::THashMap<SkString, sk_sp<SkSVGNode>>;
 
 #endif // SkSVGIDMapper_DEFINED

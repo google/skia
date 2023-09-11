@@ -9,8 +9,11 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/private/SkColorData.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"
@@ -22,6 +25,9 @@
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/gradients/GrGradientBitmapCache.h"
+#include "src/shaders/gradients/SkGradientBaseShader.h"
+
+using namespace skia_private;
 
 using Vec4 = skvx::Vec<4, float>;
 
@@ -35,13 +41,15 @@ static const int kGradientTextureSize = 256;
 
 // NOTE: signature takes raw pointers to the color/pos arrays and a count to make it easy for
 // MakeColorizer to transparently take care of hard stops at the end points of the gradient.
-// TODO(skia:13108): This code is totally wrong when using a non-destination interpolation space.
-// We need to plumb the interpolation information to the gradient cache, and actually do the work
-// to convert back to destination space before filling out the bitmap (otherwise we might have
-// values that don't fit in 8888). This will also mean that the top-level colorizer factory will
-// need to return whether or not the interpolated -> dst transform is still necessary.
-static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMColor4f* colors,
-        const SkScalar* positions, int count, bool premul, const GrFPArgs& args) {
+static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(
+        const SkPMColor4f* colors,
+        const SkScalar* positions,
+        int count,
+        bool colorsAreOpaque,
+        const SkGradientShader::Interpolation& interpolation,
+        const SkColorSpace* intermediateColorSpace,
+        const SkColorSpace* dstColorSpace,
+        const GrFPArgs& args) {
     static GrGradientBitmapCache gCache(kMaxNumCachedGradientBitmaps, kGradientTextureSize);
 
     // Use 8888 or F16, depending on the destination config.
@@ -54,10 +62,20 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
             colorType = kRGBA_F16_SkColorType;
         }
     }
-    SkAlphaType alphaType = premul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
+    SkAlphaType alphaType = static_cast<bool>(interpolation.fInPremul) ? kPremul_SkAlphaType
+                                                                       : kUnpremul_SkAlphaType;
 
     SkBitmap bitmap;
-    gCache.getGradient(colors, positions, count, colorType, alphaType, &bitmap);
+    gCache.getGradient(colors,
+                       positions,
+                       count,
+                       colorsAreOpaque,
+                       interpolation,
+                       intermediateColorSpace,
+                       dstColorSpace,
+                       colorType,
+                       alphaType,
+                       &bitmap);
     SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
     SkASSERT(bitmap.isImmutable());
 
@@ -71,7 +89,6 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
     auto m = SkMatrix::Scale(view.width(), 1.f);
     return GrTextureEffect::Make(std::move(view), alphaType, m, GrSamplerState::Filter::kLinear);
 }
-
 
 static std::unique_ptr<GrFragmentProcessor> make_single_interval_colorizer(const SkPMColor4f& start,
                                                                            const SkPMColor4f& end) {
@@ -438,17 +455,17 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_binary_colorizer(const 
 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent
 // the gradient.
-static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* colors,
-                                                           const SkScalar* positions,
-                                                           int count,
-                                                           bool premul,
-                                                           const GrFPArgs& args) {
+static std::unique_ptr<GrFragmentProcessor> make_uniform_colorizer(const SkPMColor4f* colors,
+                                                                   const SkScalar* positions,
+                                                                   int count,
+                                                                   bool premul,
+                                                                   const GrFPArgs& args) {
     // If there are hard stops at the beginning or end, the first and/or last color should be
     // ignored by the colorizer since it should only be used in a clamped border color. By detecting
     // and removing these stops at the beginning, it makes optimizing the remaining color stops
     // simpler.
 
-    // SkGradientShaderBase guarantees that pos[0] == 0 by adding a default value.
+    // SkGradientBaseShader guarantees that pos[0] == 0 by adding a default value.
     bool bottomHardStop = SkScalarNearlyEqual(positions[0], positions[1]);
     // The same is true for pos[end] == 1
     bool topHardStop = SkScalarNearlyEqual(positions[count - 2], positions[count - 1]);
@@ -527,9 +544,9 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
         }
     }
 
-    // Otherwise fall back to a rasterized gradient sampled by a texture, which can handle
-    // arbitrary gradients. (This has limited sampling resolution, and always blurs hard-stops.)
-    return make_textured_colorizer(colors, positions, count, premul, args);
+    // This gradient is too complex for our uniform colorizers. The calling code will fall back to
+    // creating a textured colorizer, instead.
+    return nullptr;
 }
 
 // This top-level effect implements clamping on the layout coordinate and requires specifying the
@@ -731,7 +748,7 @@ static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
     //    Our final goal is to emit premul colors, but under certain conditions we don't need to do
     //    anything to achieve that: i.e. its interpolating already premul colors (inputPremul) or
     //    all the colors have a = 1, in which case premul is a no op. Note that this allOpaque check
-    //    is more permissive than SkGradientShaderBase's isOpaque(), since we can optimize away the
+    //    is more permissive than SkGradientBaseShader's isOpaque(), since we can optimize away the
     //    make-premul op for two point conical gradients (which report false for isOpaque).
     SkAlphaType intermediateAlphaType = inputPremul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
     SkAlphaType dstAlphaType = kPremul_SkAlphaType;
@@ -750,11 +767,29 @@ static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
 
 namespace GrGradientShader {
 
+/**
+ * Produces an FP that muls its input coords by the inverse of the pending matrix and then
+ * samples the passed FP with those coordinates. 'postInv' is an additional matrix to
+ * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
+ * GrFPResult's bool will be false and the passed FP will be returned to the caller in the
+ * GrFPResult.
+ */
+static GrFPResult apply_matrix(std::unique_ptr<GrFragmentProcessor> fp,
+                               const SkShaders::MatrixRec& rec,
+                               const SkMatrix& postInv) {
+    auto [total, ok] = rec.applyForFragmentProcessor(postInv);
+    if (!ok) {
+        return {false, std::move(fp)};
+    }
+    // GrMatrixEffect returns 'fp' if total worked out to identity.
+    return {true, GrMatrixEffect::Make(total, std::move(fp))};
+}
+
 // Combines the colorizer and layout with an appropriately configured top-level effect based on the
 // gradient's tile mode
-std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& shader,
+std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& shader,
                                                     const GrFPArgs& args,
-                                                    const SkShaderBase::MatrixRec& mRec,
+                                                    const SkShaders::MatrixRec& mRec,
                                                     std::unique_ptr<GrFragmentProcessor> layout,
                                                     const SkMatrix* overrideMatrix) {
     // No shader is possible if a layout couldn't be created, e.g. a layout-specific Make() returned
@@ -764,12 +799,12 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     }
 
     // Some two-point conical gradients use a custom matrix here. Otherwise, use
-    // SkGradientShaderBase's matrix;
+    // SkGradientBaseShader's matrix;
     if (!overrideMatrix) {
         overrideMatrix = &shader.getGradientMatrix();
     }
     bool success;
-    std::tie(success, layout) = mRec.apply(std::move(layout), *overrideMatrix);
+    std::tie(success, layout) = apply_matrix(std::move(layout), mRec, *overrideMatrix);
     if (!success) {
         return nullptr;
     }
@@ -790,12 +825,12 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     // SkGradientShader stores positions implicitly when they are evenly spaced, but the getPos()
     // implementation performs a branch for every position index. Since the shader conversion
     // requires lots of position tests, calculate all of the positions up front if needed.
-    SkTArray<SkScalar, true> implicitPos;
+    TArray<SkScalar, true> implicitPos;
     SkScalar* positions;
     if (shader.fPositions) {
         positions = shader.fPositions;
     } else {
-        implicitPos.reserve_back(shader.fColorCount);
+        implicitPos.reserve_exact(shader.fColorCount);
         SkScalar posScale = SK_Scalar1 / (shader.fColorCount - 1);
         for (int i = 0 ; i < shader.fColorCount; i++) {
             implicitPos.push_back(SkIntToScalar(i) * posScale);
@@ -804,11 +839,40 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     }
 
     // All gradients are colorized the same way, regardless of layout
-    std::unique_ptr<GrFragmentProcessor> colorizer = make_colorizer(
-            colors, positions, shader.fColorCount, inputPremul, args);
+    std::unique_ptr<GrFragmentProcessor> colorizer =
+            make_uniform_colorizer(colors, positions, shader.fColorCount, inputPremul, args);
+
+    if (colorizer) {
+        // If we made a uniform colorizer, wrap it in a conversion from interpolated space to
+        // destination. This also applies any final premultiplication.
+        colorizer = make_interpolated_to_dst(std::move(colorizer),
+                                             shader.fInterpolation,
+                                             xformedColors.fIntermediateColorSpace.get(),
+                                             *args.fDstColorInfo,
+                                             allOpaque);
+    } else {
+        // If we failed to make a uniform colorizer, we need to rasterize the gradient to a
+        // texture (which can handle arbitrarily complex gradients). This method directly encodes
+        // the result of the interpolated-to-dst into the texture, so we skip the wrapper FP above.
+        //
+        // Also, note that the texture technique has limited sampling resolution, and always blurs
+        // hard-stops.)
+        colorizer = make_textured_colorizer(colors,
+                                            positions,
+                                            shader.fColorCount,
+                                            allOpaque,
+                                            shader.fInterpolation,
+                                            xformedColors.fIntermediateColorSpace.get(),
+                                            args.fDstColorInfo->colorSpace(),
+                                            args);
+    }
+
     if (colorizer == nullptr) {
         return nullptr;
     }
+
+    // If interpolation space is different than destination, wrap the colorizer in a conversion.
+    // This also handles any final premultiplication, etc.
 
     // All tile modes are supported (unless something was added to SkShader)
     std::unique_ptr<GrFragmentProcessor> gradient;
@@ -821,15 +885,34 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
             gradient = make_tiled_gradient(args, std::move(colorizer), std::move(layout),
                                            /* mirror */ true, allOpaque);
             break;
-        case SkTileMode::kClamp:
+        case SkTileMode::kClamp: {
             // For the clamped mode, the border colors are the first and last colors, corresponding
-            // to t=0 and t=1, because SkGradientShaderBase enforces that by adding color stops as
+            // to t=0 and t=1, because SkGradientBaseShader enforces that by adding color stops as
             // appropriate. If there is a hard stop, this grabs the expected outer colors for the
             // border.
+
+            // However, we need to finish converting to destination color space. (These are still
+            // in the interpolated color space).
+            SkPMColor4f borderColors[2] = { colors[0], colors[shader.fColorCount - 1] };
+            SkArenaAlloc alloc(/*firstHeapAllocation=*/0);
+            SkRasterPipeline p(&alloc);
+            SkRasterPipeline_MemoryCtx ctx = { borderColors, 0 };
+
+            p.append(SkRasterPipelineOp::load_f32, &ctx);
+            SkGradientBaseShader::AppendInterpolatedToDstStages(
+                    &p,
+                    &alloc,
+                    allOpaque,
+                    shader.fInterpolation,
+                    xformedColors.fIntermediateColorSpace.get(),
+                    args.fDstColorInfo->colorSpace());
+            p.append(SkRasterPipelineOp::store_f32, &ctx);
+            p.run(0, 0, 2, 1);
+
             gradient = make_clamped_gradient(std::move(colorizer), std::move(layout),
-                                             colors[0], colors[shader.fColorCount - 1],
-                                             allOpaque);
+                                             borderColors[0], borderColors[1], allOpaque);
             break;
+        }
         case SkTileMode::kDecal:
             // Even if the gradient colors are opaque, the decal borders are transparent so
             // disable that optimization
@@ -839,18 +922,12 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
             break;
     }
 
-    // If interpolation space is different than destination, wrap the colorizer in a conversion.
-    // This also handles any final premultiplication, etc.
-    return make_interpolated_to_dst(std::move(gradient),
-                                    shader.fInterpolation,
-                                    xformedColors.fIntermediateColorSpace.get(),
-                                    *args.fDstColorInfo,
-                                    allOpaque);
+    return gradient;
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
                                                 const GrFPArgs& args,
-                                                const SkShaderBase::MatrixRec& mRec) {
+                                                const SkShaders::MatrixRec& mRec) {
     // We add a tiny delta to t. When gradient stops are set up so that a hard stop in a vertically
     // or horizontally oriented gradient falls exactly at a column or row of pixel centers we can
     // get slightly different interpolated t values along the column/row. By adding the delta
@@ -869,7 +946,7 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
     return MakeGradientFP(shader, args, mRec, std::move(fp));
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 RandomParams::RandomParams(SkRandom* random) {
     // Set color count to min of 2 so that we don't trigger the const color optimization and make
     // a non-gradient processor.

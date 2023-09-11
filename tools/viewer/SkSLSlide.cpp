@@ -8,18 +8,33 @@
 #include "tools/viewer/SkSLSlide.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkPerlinNoiseShader.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/sksl/SkSLDebugTrace.h"
-#include "src/core/SkEnumerate.h"
 #include "tools/Resources.h"
+#include "tools/sk_app/Application.h"
 #include "tools/viewer/Viewer.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
+#include <string>
+#include <string_view>
+
 #include "imgui.h"
 
 using namespace sk_app;
@@ -320,11 +335,11 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     canvas->restore();
 
     if (debugTrace && writeTrace) {
-        SkFILEWStream traceFile("SkVMDebugTrace.json");
+        SkFILEWStream traceFile("SkSLDebugTrace.json");
         debugTrace->writeTrace(&traceFile);
     }
     if (debugTrace && writeDump) {
-        SkFILEWStream dumpFile("SkVMDebugTrace.dump.txt");
+        SkFILEWStream dumpFile("SkSLDebugTrace.dump.txt");
         debugTrace->dump(&dumpFile);
     }
 }

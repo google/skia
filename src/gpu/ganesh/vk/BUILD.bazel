@@ -6,6 +6,9 @@ licenses(["notice"])
 exports_files_legacy()
 
 VK_FILES = [
+    "AHardwareBufferVk.cpp",
+    "GrVkBackendSurface.cpp",
+    "GrVkBackendSurfacePriv.h",
     "GrVkBuffer.cpp",
     "GrVkBuffer.h",
     "GrVkCaps.cpp",

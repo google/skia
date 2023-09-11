@@ -41,8 +41,8 @@ class WindowRectanglesGM : public GM {
 private:
     DrawResult coverClipStack(const SkClipStack&, SkCanvas*, SkString* errorMsg);
 
-    SkISize onISize() override { return SkISize::Make(kDeviceRect.width(), kDeviceRect.height()); }
-    SkString onShortName() override { return SkString("windowrectangles"); }
+    SkISize getISize() override { return SkISize::Make(kDeviceRect.width(), kDeviceRect.height()); }
+    SkString getName() const override { return SkString("windowrectangles"); }
     DrawResult onDraw(SkCanvas*, SkString* errorMsg) override;
 };
 

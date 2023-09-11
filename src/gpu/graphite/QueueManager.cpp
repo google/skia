@@ -74,6 +74,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         if (callback) {
             callback->setFailureResult();
         }
+        info.fRecording->priv().setFailureResultForFinishedProcs();
         SKGPU_LOG_E("Target surface passed into addRecording call is not graphite-backed");
         return false;
     }
@@ -83,6 +84,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         if (callback) {
             callback->setFailureResult();
         }
+        info.fRecording->priv().setFailureResultForFinishedProcs();
         SKGPU_LOG_E("CommandBuffer creation failed");
         return false;
     }
@@ -92,6 +94,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
             if (callback) {
                 callback->setFailureResult();
             }
+            info.fRecording->priv().setFailureResultForFinishedProcs();
             SKGPU_LOG_E("Non-volatile PromiseImage instantiation has failed");
             return false;
         }
@@ -102,12 +105,14 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
             if (callback) {
                 callback->setFailureResult();
             }
+            info.fRecording->priv().setFailureResultForFinishedProcs();
             info.fRecording->priv().deinstantiateVolatileLazyProxies();
             SKGPU_LOG_E("Volatile PromiseImage instantiation has failed");
             return false;
         }
     }
 
+    fCurrentCommandBuffer->addWaitSemaphores(info.fNumWaitSemaphores, info.fWaitSemaphores);
     if (!info.fRecording->priv().addCommands(context,
                                              fCurrentCommandBuffer.get(),
                                              static_cast<Surface*>(info.fTargetSurface),
@@ -115,9 +120,15 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         if (callback) {
             callback->setFailureResult();
         }
+        info.fRecording->priv().setFailureResultForFinishedProcs();
         info.fRecording->priv().deinstantiateVolatileLazyProxies();
         SKGPU_LOG_E("Adding Recording commands to the CommandBuffer has failed");
         return false;
+    }
+    fCurrentCommandBuffer->addSignalSemaphores(info.fNumSignalSemaphores, info.fSignalSemaphores);
+    if (info.fTargetTextureState) {
+        fCurrentCommandBuffer->prepareSurfaceForStateUpdate(info.fTargetSurface,
+                                                            info.fTargetTextureState);
     }
 
     if (callback) {
@@ -176,13 +187,13 @@ bool QueueManager::submitToGpu() {
         // We warn because this probably representative of a bad client state, where they don't
         // need to submit but didn't notice, but technically the submit itself is fine (no-op), so
         // we return true.
-        SKGPU_LOG_W("Submit called with no active command buffer!");
+        SKGPU_LOG_D("Submit called with no active command buffer!");
         return true;
     }
 
 #ifdef SK_DEBUG
     if (!fCurrentCommandBuffer->hasWork()) {
-        SKGPU_LOG_W("Submitting empty command buffer!");
+        SKGPU_LOG_D("Submitting empty command buffer!");
     }
 #endif
 

@@ -55,7 +55,7 @@ bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize) {
         }
     }
 
-    auto surface = SkSurface::MakeRasterN32Premul(size.width(), size.height());
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(size.width(), size.height()));
     if (!surface) {
         // May return nullptr in memory-constrained fuzzing environments
         return false;

@@ -37,12 +37,12 @@ public:
     }
     bool onExecute(GrOpFlushState*) override { return true; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     const char* name() const final { return "Mock"; }
 #endif
 
 private:
-    SkTArray<sk_sp<GrSurfaceProxy>> fUsed;
+    skia_private::TArray<sk_sp<GrSurfaceProxy>> fUsed;
 };
 
 #endif

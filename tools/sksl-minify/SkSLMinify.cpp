@@ -7,16 +7,14 @@
 
 #define SK_OPTS_NS sksl_minify_standalone
 #include "include/core/SkStream.h"
-#include "include/private/SkSLProgramKind.h"
 #include "src/base/SkStringView.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
-#include "src/opts/SkChecksum_opts.h"
-#include "src/opts/SkVM_opts.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModuleLoader.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
@@ -45,8 +43,6 @@ void SkDebugf(const char format[], ...) {
 }
 
 namespace SkOpts {
-    decltype(hash_fn) hash_fn = SK_OPTS_NS::hash_fn;
-    decltype(interpret_skvm) interpret_skvm = SK_OPTS_NS::interpret_skvm;
     size_t raster_pipeline_highp_stride = 1;
 }
 
@@ -117,24 +113,20 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
 
         const SkSL::Module* parent = modules.empty() ? SkSL::ModuleLoader::Get().rootModule()
                                                      : modules.front().get();
-        std::unique_ptr<SkSL::Module> m =
-                compiler.compileModule(kind,
-                                       modulePath->c_str(),
-                                       std::move(moduleSource),
-                                       parent,
-                                       SkSL::ModuleLoader::Get().coreModifiers(),
-                                       /*shouldInline=*/false);
+        std::unique_ptr<SkSL::Module> m = compiler.compileModule(kind,
+                                                                 modulePath->c_str(),
+                                                                 std::move(moduleSource),
+                                                                 parent,
+                                                                 /*shouldInline=*/false);
         if (!m) {
             return {};
         }
-        if (!gUnoptimized) {
-            // We need to optimize every module in the chain. We rename private functions at global
-            // scope, and we need to make sure there are no name collisions between nested modules.
-            // (i.e., if module A claims names `$a` and `$b` at global scope, module B will need to
-            // start at `$c`. The most straightforward way to handle this is to actually perform the
-            // renames.)
-            compiler.optimizeModuleBeforeMinifying(kind, *m);
-        }
+        // We need to optimize every module in the chain. We rename private functions at global
+        // scope, and we need to make sure there are no name collisions between nested modules.
+        // (i.e., if module A claims names `$a` and `$b` at global scope, module B will need to
+        // start at `$c`. The most straightforward way to handle this is to actually perform the
+        // renames.)
+        compiler.optimizeModuleBeforeMinifying(kind, *m, /*shrinkSymbols=*/!gUnoptimized);
         modules.push_front(std::move(m));
     }
     // Return all of the modules to transfer their ownership to the caller.

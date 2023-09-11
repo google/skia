@@ -5,12 +5,41 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_filegroup(
-    name = "public_hdrs",
+    name = "encode_hdrs",
     srcs = [
         "SkEncoder.h",
+        "SkICC.h",
+    ],
+)
+
+skia_filegroup(
+    name = "jpeg_hdrs",
+    srcs = [
         "SkJpegEncoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "png_hdrs",
+    srcs = [
         "SkPngEncoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "webp_hdrs",
+    srcs = [
         "SkWebpEncoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        ":encode_hdrs",
+        ":jpeg_hdrs",
+        ":png_hdrs",
+        ":webp_hdrs",
     ],
     visibility = ["//include:__pkg__"],
 )

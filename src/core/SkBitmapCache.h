@@ -9,15 +9,18 @@
 #define SkBitmapCache_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+
+#include <cstdint>
 #include <memory>
 
 class SkBitmap;
 class SkImage;
 class SkImage_Base;
-struct SkImageInfo;
 class SkMipmap;
 class SkPixmap;
 class SkResourceCache;
+struct SkImageInfo;
 
 uint64_t SkMakeResourceCacheSharedIDForBitmap(uint32_t bitmapGenID);
 

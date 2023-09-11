@@ -34,7 +34,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     std::string vertShaderText;
     vertShaderText.append(
-            "layout(spirv, set=0, binding=0) uniform vertexUniformBuffer {"
+            "layout(vulkan, set=0, binding=0) uniform vertexUniformBuffer {"
             "half4 uPosXform;"
             "};"
 
@@ -47,7 +47,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     std::string fragShaderText;
     fragShaderText.append(
-            "layout(spirv, input_attachment_index=0, set=2, binding=0) uniform subpassInput uInput;"
+            "layout(vulkan, input_attachment_index=0, set=2, binding=0) subpassInput uInput;"
 
             "// MSAA Load Program FS\n"
             "void main() {"
@@ -56,22 +56,22 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
 
     SkSL::ProgramSettings settings;
     std::string spirv;
-    SkSL::Program::Inputs inputs;
+    SkSL::Program::Interface interface;
     if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,
                                  &fVertShaderModule, &fShaderStageInfo[0], settings, &spirv,
-                                 &inputs)) {
+                                 &interface)) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs == SkSL::Program::Inputs());
+    SkASSERT(interface == SkSL::Program::Interface());
 
     if (!GrCompileVkShaderModule(gpu, fragShaderText, VK_SHADER_STAGE_FRAGMENT_BIT,
                                  &fFragShaderModule, &fShaderStageInfo[1], settings, &spirv,
-                                 &inputs)) {
+                                 &interface)) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs == SkSL::Program::Inputs());
+    SkASSERT(interface == SkSL::Program::Interface());
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
 

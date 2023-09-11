@@ -16,7 +16,7 @@ class SkMatrix;
 class SkSVGRenderContext;
 class SkSVGStop;
 
-class SkSVGGradient : public SkSVGHiddenContainer {
+class SK_API SkSVGGradient : public SkSVGHiddenContainer {
 public:
     SVG_ATTR(Href, SkSVGIRI, SkSVGIRI())
     SVG_ATTR(GradientTransform, SkSVGTransformType, SkSVGTransformType(SkMatrix::I()))
@@ -37,8 +37,8 @@ protected:
                                          SkTileMode, const SkMatrix& localMatrix) const = 0;
 
 private:
-    using StopPositionArray = SkSTArray<2, SkScalar , true>;
-    using    StopColorArray = SkSTArray<2, SkColor4f, true>;
+    using StopPositionArray = skia_private::STArray<2, SkScalar , true>;
+    using    StopColorArray = skia_private::STArray<2, SkColor4f, true>;
     void collectColorStops(const SkSVGRenderContext&, StopPositionArray*, StopColorArray*) const;
     SkColor4f resolveStopColor(const SkSVGRenderContext&, const SkSVGStop&) const;
 

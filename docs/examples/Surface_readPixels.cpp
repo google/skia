@@ -5,7 +5,7 @@
 // HASH=9f454fb93bca6482598d198b4121f0a6
 REG_FIDDLE(Surface_readPixels, 256, 32, false, 0) {
 void draw(SkCanvas* canvas) {
-    sk_sp<SkSurface> surf(SkSurface::MakeRasterN32Premul(64, 64));
+    sk_sp<SkSurface> surf(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64)));
     auto surfCanvas = surf->getCanvas();
     surfCanvas->clear(SK_ColorRED);
     SkPaint paint;

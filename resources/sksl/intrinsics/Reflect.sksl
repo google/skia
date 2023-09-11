@@ -2,10 +2,13 @@ uniform half4 I, N;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 xy) {
+    // Ensure that constant-evaluation is safe even when the expression cannot be optimized.
+    half expectedX = reflect(2245222*222*2, -2e34);
+
     const half4 constI    = half4(1, -2, 3, -4);
     const half4 constN    = half4(-5, 6, -7, 8);
 
-    half  expectedX    = half (-49);
+          expectedX    = half (-49);
     half2 expectedXY   = half2(-169, 202);
     half3 expectedXYZ  = half3(-379, 454, -529);
     half4 expectedXYZW = half4(-699, 838, -977, 1116);

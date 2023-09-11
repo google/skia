@@ -1,3 +1,5 @@
+layout(local_size_x = 64) in;
+
 layout(metal, binding = 0) buffer outputs {
     uint outputBuffer[];
 };

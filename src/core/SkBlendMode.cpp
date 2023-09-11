@@ -5,10 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkBlendModePriv.h"
+#include "include/core/SkBlendMode.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/private/SkColorData.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
+
+#include <optional>
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
     // The most important things we do here are:
@@ -154,4 +162,80 @@ SkPMColor4f SkBlendMode_Apply(SkBlendMode mode, const SkPMColor4f& src, const Sk
     p.append(SkRasterPipelineOp::store_f32, &res_ctx);
     p.run(0,0, 1,1);
     return res_storage;
+}
+
+const char* SkBlendMode_Name(SkBlendMode bm) {
+    switch (bm) {
+        case SkBlendMode::kClear:      return "Clear";
+        case SkBlendMode::kSrc:        return "Src";
+        case SkBlendMode::kDst:        return "Dst";
+        case SkBlendMode::kSrcOver:    return "SrcOver";
+        case SkBlendMode::kDstOver:    return "DstOver";
+        case SkBlendMode::kSrcIn:      return "SrcIn";
+        case SkBlendMode::kDstIn:      return "DstIn";
+        case SkBlendMode::kSrcOut:     return "SrcOut";
+        case SkBlendMode::kDstOut:     return "DstOut";
+        case SkBlendMode::kSrcATop:    return "SrcATop";
+        case SkBlendMode::kDstATop:    return "DstATop";
+        case SkBlendMode::kXor:        return "Xor";
+        case SkBlendMode::kPlus:       return "Plus";
+        case SkBlendMode::kModulate:   return "Modulate";
+        case SkBlendMode::kScreen:     return "Screen";
+
+        case SkBlendMode::kOverlay:    return "Overlay";
+        case SkBlendMode::kDarken:     return "Darken";
+        case SkBlendMode::kLighten:    return "Lighten";
+        case SkBlendMode::kColorDodge: return "ColorDodge";
+        case SkBlendMode::kColorBurn:  return "ColorBurn";
+        case SkBlendMode::kHardLight:  return "HardLight";
+        case SkBlendMode::kSoftLight:  return "SoftLight";
+        case SkBlendMode::kDifference: return "Difference";
+        case SkBlendMode::kExclusion:  return "Exclusion";
+        case SkBlendMode::kMultiply:   return "Multiply";
+
+        case SkBlendMode::kHue:        return "Hue";
+        case SkBlendMode::kSaturation: return "Saturation";
+        case SkBlendMode::kColor:      return "Color";
+        case SkBlendMode::kLuminosity: return "Luminosity";
+    }
+    SkUNREACHABLE;
+}
+
+static bool just_solid_color(const SkPaint& p) {
+    return SK_AlphaOPAQUE == p.getAlpha() && !p.getColorFilter() && !p.getShader();
+}
+
+SkBlendFastPath CheckFastPath(const SkPaint& paint, bool dstIsOpaque) {
+    const auto bm = paint.asBlendMode();
+    if (!bm) {
+        return SkBlendFastPath::kNormal;
+    }
+    switch (bm.value()) {
+        case SkBlendMode::kSrcOver:
+            return SkBlendFastPath::kSrcOver;
+        case SkBlendMode::kSrc:
+            if (just_solid_color(paint)) {
+                return SkBlendFastPath::kSrcOver;
+            }
+            return SkBlendFastPath::kNormal;
+        case SkBlendMode::kDst:
+            return SkBlendFastPath::kSkipDrawing;
+        case SkBlendMode::kDstOver:
+            if (dstIsOpaque) {
+                return SkBlendFastPath::kSkipDrawing;
+            }
+            return SkBlendFastPath::kNormal;
+        case SkBlendMode::kSrcIn:
+            if (dstIsOpaque && just_solid_color(paint)) {
+                return SkBlendFastPath::kSrcOver;
+            }
+            return SkBlendFastPath::kNormal;
+        case SkBlendMode::kDstIn:
+            if (just_solid_color(paint)) {
+                return SkBlendFastPath::kSkipDrawing;
+            }
+            return SkBlendFastPath::kNormal;
+        default:
+            return SkBlendFastPath::kNormal;
+    }
 }

@@ -14,11 +14,12 @@
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/ops/FillRectOp.h"
 #include "src/gpu/ganesh/ops/PathStencilCoverOp.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 AtlasRenderTask::AtlasRenderTask(GrRecordingContext* rContext,
                                  sk_sp<GrArenas> arenas,
@@ -154,7 +155,7 @@ void AtlasRenderTask::stencilAtlasRect(GrRecordingContext* rContext, const SkRec
                                        const GrUserStencilSettings* stencil) {
     GrPaint paint;
     paint.setColor4f(color);
-    paint.setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
+    paint.setXPFactory(GrXPFactory::FromBlendMode(SkBlendMode::kSrc));
     GrQuad quad(rect);
     DrawQuad drawQuad{quad, quad, GrQuadAAFlags::kAll};
     auto op = FillRectOp::Make(rContext, std::move(paint), GrAAType::kMSAA, &drawQuad, stencil);
@@ -192,4 +193,4 @@ bool AtlasRenderTask::onExecute(GrOpFlushState* flushState) {
     return true;
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

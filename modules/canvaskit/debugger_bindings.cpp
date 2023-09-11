@@ -14,6 +14,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/utils/SkBase64.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/utils/SkJSONWriter.h"
@@ -35,6 +36,7 @@
 #ifdef CK_ENABLE_WEBGL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -95,7 +97,11 @@ class SkpDebugPlayer {
       } else {
         SkDebugf("Try reading as single-frame skp\n");
         // TODO(nifong): Rely on SkPicture's return errors once it provides some.
-        frames.push_back(loadSingleFrame(&stream));
+        std::unique_ptr<DebugCanvas> canvas = loadSingleFrame(&stream);
+        if (!canvas) {
+          return "Error loading single frame";
+        }
+        frames.push_back(std::move(canvas));
       }
       return "";
     }
@@ -120,7 +126,9 @@ class SkpDebugPlayer {
         // otherwise, its a frame at the top level.
         frames[fp]->drawTo(surface->getCanvas(), index);
       }
-      surface->flush();
+#ifdef CK_ENABLE_WEBGL
+      skgpu::ganesh::Flush(surface);
+#endif
     }
 
     // Draws to the end of the current frame.
@@ -128,7 +136,9 @@ class SkpDebugPlayer {
       auto* canvas = surface->getCanvas();
       canvas->clear(SK_ColorTRANSPARENT);
       frames[fp]->draw(surface->getCanvas());
-      surface->getCanvas()->flush();
+#ifdef CK_ENABLE_WEBGL
+      skgpu::ganesh::Flush(surface);
+#endif
     }
 
     // Gets the bounds for the given frame
@@ -161,31 +171,31 @@ class SkpDebugPlayer {
     // However, there's not a simple way to make the debugcanvases pull settings from a central
     // location so we set it on all of them at once.
     void setOverdrawVis(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setOverdrawViz(on);
       }
       fLayerManager->setOverdrawViz(on);
     }
     void setGpuOpBounds(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setDrawGpuOpBounds(on);
       }
       fLayerManager->setDrawGpuOpBounds(on);
     }
     void setClipVizColor(JSColor color) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setClipVizColor(SkColor(color));
       }
       fLayerManager->setClipVizColor(SkColor(color));
     }
     void setAndroidClipViz(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setAndroidClipViz(on);
       }
       // doesn't matter in layers
     }
     void setOriginVisible(bool on) {
-      for (int i=0; i < frames.size(); i++) {
+      for (size_t i=0; i < frames.size(); i++) {
         frames[i]->setOriginVisible(on);
       }
     }
@@ -255,7 +265,7 @@ class SkpDebugPlayer {
     // filenames like "\\1" in DrawImage commands.
     // Return type is the PNG data as a base64 encoded string with prepended URI.
     std::string getImageResource(int index) {
-      sk_sp<SkData> pngData = fImages[index]->encodeToData();
+      sk_sp<SkData> pngData = SkPngEncoder::Encode(nullptr, fImages[index].get(), {});
       size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
       SkString dst;
       dst.resize(len);

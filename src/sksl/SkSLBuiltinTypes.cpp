@@ -95,12 +95,12 @@ BuiltinTypes::BuiltinTypes()
         , fMat4x2(Type::MakeAliasType("mat4x2", *fFloat4x2))
         , fMat4x3(Type::MakeAliasType("mat4x3", *fFloat4x3))
         , fMat4x4(Type::MakeAliasType("mat4x4", *fFloat4x4))
-        , fTexture2D(Type::MakeTextureType("texture2D",
-                                           SpvDim2D,
-                                           /*isDepth=*/false,
-                                           /*isArrayedTexture=*/false,
-                                           /*isMultisampled=*/false,
-                                           Type::TextureAccess::kSample))
+        , fTexture2D_sample(Type::MakeTextureType("$texture2D_sample",
+                                                  SpvDim2D,
+                                                  /*isDepth=*/false,
+                                                  /*isArrayedTexture=*/false,
+                                                  /*isMultisampled=*/false,
+                                                  Type::TextureAccess::kSample))
         , fTextureExternalOES(Type::MakeTextureType("textureExternalOES",
                                                     SpvDim2D,
                                                     /*isDepth=*/false,
@@ -113,12 +113,12 @@ BuiltinTypes::BuiltinTypes()
                                                /*isArrayedTexture=*/false,
                                                /*isMultisampled=*/false,
                                                Type::TextureAccess::kSample))
-        , fReadWriteTexture2D(Type::MakeTextureType("readWriteTexture2D",
-                                                    SpvDim2D,
-                                                    /*isDepth=*/false,
-                                                    /*isArrayedTexture=*/false,
-                                                    /*isMultisampled=*/false,
-                                                    Type::TextureAccess::kReadWrite))
+        , fTexture2D(Type::MakeTextureType("texture2D",
+                                           SpvDim2D,
+                                           /*isDepth=*/false,
+                                           /*isArrayedTexture=*/false,
+                                           /*isMultisampled=*/false,
+                                           Type::TextureAccess::kReadWrite))
         , fReadOnlyTexture2D(Type::MakeTextureType("readonlyTexture2D",
                                                    SpvDim2D,
                                                    /*isDepth=*/false,
@@ -134,16 +134,19 @@ BuiltinTypes::BuiltinTypes()
         , fGenTexture2D(Type::MakeGenericType("$genTexture2D",
                                               {fReadOnlyTexture2D.get(),
                                                fWriteOnlyTexture2D.get(),
-                                               fReadWriteTexture2D.get()}))
+                                               fTexture2D.get()},
+                                              fTexture2D.get()))
         , fReadableTexture2D(Type::MakeGenericType("$readableTexture2D",
                                                    {fReadOnlyTexture2D.get(),
                                                     fInvalid.get(),
-                                                    fReadWriteTexture2D.get()}))
+                                                    fTexture2D.get()},
+                                                   fTexture2D.get()))
         , fWritableTexture2D(Type::MakeGenericType("$writableTexture2D",
                                                    {fInvalid.get(),
                                                     fWriteOnlyTexture2D.get(),
-                                                    fReadWriteTexture2D.get()}))
-        , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
+                                                    fTexture2D.get()},
+                                                   fTexture2D.get()))
+        , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D_sample))
         , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
         , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
 
@@ -162,40 +165,43 @@ BuiltinTypes::BuiltinTypes()
                                                 /*isMultisampled=*/true,
                                                 Type::TextureAccess::kRead))
         , fGenType(Type::MakeGenericType("$genType", {fFloat.get(), fFloat2.get(), fFloat3.get(),
-                                                      fFloat4.get()}))
+                                                      fFloat4.get()}, fFloat.get()))
         , fGenHType(Type::MakeGenericType("$genHType", {fHalf.get(), fHalf2.get(), fHalf3.get(),
-                                                        fHalf4.get()}))
+                                                        fHalf4.get()}, fHalf.get()))
         , fGenIType(Type::MakeGenericType("$genIType", {fInt.get(), fInt2.get(), fInt3.get(),
-                                                        fInt4.get()}))
+                                                        fInt4.get()}, fInt.get()))
         , fGenUType(Type::MakeGenericType("$genUType", {fUInt.get(), fUInt2.get(), fUInt3.get(),
-                                                        fUInt4.get()}))
+                                                        fUInt4.get()}, fUInt.get()))
         , fGenBType(Type::MakeGenericType("$genBType", {fBool.get(), fBool2.get(), fBool3.get(),
-                                                        fBool4.get()}))
+                                                        fBool4.get()}, fBool.get()))
         , fMat(Type::MakeGenericType("$mat", {fFloat2x2.get(), fFloat2x3.get(), fFloat2x4.get(),
                                               fFloat3x2.get(), fFloat3x3.get(), fFloat3x4.get(),
-                                              fFloat4x2.get(), fFloat4x3.get(), fFloat4x4.get()}))
-        , fHMat(Type::MakeGenericType(
-                  "$hmat",
-                  {fHalf2x2.get(), fHalf2x3.get(), fHalf2x4.get(), fHalf3x2.get(), fHalf3x3.get(),
-                   fHalf3x4.get(), fHalf4x2.get(), fHalf4x3.get(), fHalf4x4.get()}))
+                                              fFloat4x2.get(), fFloat4x3.get(), fFloat4x4.get()},
+                                             fFloat.get()))
+        , fHMat(Type::MakeGenericType("$hmat", {fHalf2x2.get(), fHalf2x3.get(), fHalf2x4.get(),
+                                                fHalf3x2.get(), fHalf3x3.get(), fHalf3x4.get(),
+                                                fHalf4x2.get(), fHalf4x3.get(), fHalf4x4.get()},
+                                               fHalf.get()))
         , fSquareMat(Type::MakeGenericType("$squareMat", {fInvalid.get(), fFloat2x2.get(),
-                                                          fFloat3x3.get(), fFloat4x4.get()}))
+                                                          fFloat3x3.get(), fFloat4x4.get()},
+                                                         fFloat.get()))
         , fSquareHMat(Type::MakeGenericType("$squareHMat", {fInvalid.get(), fHalf2x2.get(),
-                                                            fHalf3x3.get(), fHalf4x4.get()}))
+                                                            fHalf3x3.get(), fHalf4x4.get()},
+                                                           fHalf.get()))
         , fVec(Type::MakeGenericType("$vec", {fInvalid.get(), fFloat2.get(), fFloat3.get(),
-                                              fFloat4.get()}))
+                                              fFloat4.get()}, fFloat.get()))
         , fHVec(Type::MakeGenericType("$hvec", {fInvalid.get(), fHalf2.get(), fHalf3.get(),
-                                                fHalf4.get()}))
+                                                fHalf4.get()}, fHalf.get()))
         , fIVec(Type::MakeGenericType("$ivec", {fInvalid.get(), fInt2.get(), fInt3.get(),
-                                                fInt4.get()}))
+                                                fInt4.get()}, fInt.get()))
         , fUVec(Type::MakeGenericType("$uvec", {fInvalid.get(), fUInt2.get(), fUInt3.get(),
-                                                fUInt4.get()}))
+                                                fUInt4.get()}, fUInt.get()))
         , fSVec(Type::MakeGenericType("$svec", {fInvalid.get(), fShort2.get(), fShort3.get(),
-                                                fShort4.get()}))
+                                                fShort4.get()}, fShort.get()))
         , fUSVec(Type::MakeGenericType("$usvec", {fInvalid.get(), fUShort2.get(), fUShort3.get(),
-                                                  fUShort4.get()}))
+                                                  fUShort4.get()}, fUShort.get()))
         , fBVec(Type::MakeGenericType("$bvec", {fInvalid.get(), fBool2.get(), fBool3.get(),
-                                                fBool4.get()}))
+                                                fBool4.get()}, fBool.get()))
         , fSkCaps(Type::MakeSpecialType("$sk_Caps", "O", Type::TypeKind::kOther))
         , fColorFilter(Type::MakeSpecialType("colorFilter", "CF", Type::TypeKind::kColorFilter))
         , fShader(Type::MakeSpecialType("shader", "SH", Type::TypeKind::kShader))

@@ -129,31 +129,28 @@ static void writeCPP(const DFA& dfa, const char* lexer, const char* token, const
     // input.
     SkASSERT(startChar < 18);
     out << "static constexpr uint8_t kInvalidChar = 18;";
-    out << "static constexpr int8_t kMappings[" << dfa.fCharMappings.size() - startChar << "] = {\n"
-           "    ";
-    const char* separator = "";
+    out << "static constexpr uint8_t kMappings[" << dfa.fCharMappings.size() - startChar << "] = {";
     for (size_t index = startChar; index < dfa.fCharMappings.size(); ++index) {
-        out << separator << std::to_string(dfa.fCharMappings[index]);
-        separator = ", ";
+        out << std::to_string(dfa.fCharMappings[index]) << ", ";
     }
-    out << "\n};\n";
+    out << "};\n";
 
     WriteTransitionTable(out, dfa, states);
 
-    out << "static const int8_t kAccepts[" << states << "] = {";
+    out << "static const uint8_t kAccepts[" << states << "] = {";
     for (size_t i = 0; i < states; ++i) {
-        if (i < dfa.fAccepts.size()) {
+        if (i < dfa.fAccepts.size() && dfa.fAccepts[i] != INVALID) {
             out << " " << dfa.fAccepts[i] << ",";
         } else {
-            out << " " << INVALID << ",";
+            out << " 255,";
         }
     }
-    out << " };\n";
+    out << "};\n";
     out << "\n";
 
     out << token << " " << lexer << "::next() {";
     out << R"(
-    // note that we cheat here: normally a lexer needs to worry about the case
+    // Note that we cheat here: normally a lexer needs to worry about the case
     // where a token has a prefix which is not itself a valid token - for instance,
     // maybe we have a valid token 'while', but 'w', 'wh', etc. are not valid
     // tokens. Our grammar doesn't have this property, so we can simplify the logic
@@ -162,7 +159,7 @@ static void writeCPP(const DFA& dfa, const char* lexer, const char* token, const
     State   state = 1;
     for (;;) {
         if (fOffset >= (int32_t)fText.length()) {
-            if (startOffset == (int32_t)fText.length() || kAccepts[state] == -1) {
+            if (startOffset == (int32_t)fText.length() || kAccepts[state] == 255) {
                 return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
             }
             break;

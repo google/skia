@@ -8,10 +8,10 @@
 #ifndef SKSL_CHILDCALL
 #define SKSL_CHILDCALL
 
-#include "include/private/SkSLDefines.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 
 #include <cstdint>
 #include <memory>

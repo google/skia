@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto surface = SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height));
 
     svg_dom->setContainerSize(SkSize::Make(FLAGS_width, FLAGS_height));
     svg_dom->render(surface->getCanvas());

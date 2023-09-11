@@ -1,0 +1,48 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+# A real client should download a pinned version of Skia such as:
+# git_repository(
+#     name = "skia",
+#     commit = "8b051126be8ae6c3e718bd3817eebb867b2fd612",
+#     remote = "https://skia.googlesource.com/skia",
+# )
+# We use local_repository to allow us to test Skia at head as if it were checked
+# out via git_repository.
+local_repository(
+    name = "skia",
+    path = "../..",
+)
+
+# Clients need to define a target here named "skia_user_config" that points to a
+# Bazel workspace with:
+#   - a user_config cc_library rule that has SkiaUserConfig.h available and
+#     the SK_USE_BAZEL_CONFIG_HEADER define set.
+#   - A copts.bzl file with at least two string lists: DEFAULT_COPTS, DEFAULT_OBJC_COPTS
+#     These lists can be empty if you want to use the toolchain's default.
+#   - a linkopts.bzl file with at least the string list DEFAULT_LINKOPTS
+#     This list can be empty if you want to use the toolchain's default.
+local_repository(
+    name = "skia_user_config",
+    path = "custom_skia_config",
+)
+
+# These two workspace functions will add dependencies for Skia's Bazel rules
+# (e.g. @bazel_skylib) and the C++ dependencies (e.g. @libpng)
+load("@skia//bazel:deps.bzl", "bazel_deps", "c_plus_plus_deps")
+# Be sure to call the functions.
+bazel_deps()
+# TODO(kjlubick) add in the call to the c_plus_plus_deps() functions once there
+# is a sample rule that makes use of codecs or similar
+
+##############################################################################
+# Everything below here is not required for Skia, but is required for the sample
+# rules based on Skia.
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# https://github.com/bazelbuild/rules_cc
+http_archive(
+    name = "rules_cc",
+    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.8/rules_cc-0.0.8.tar.gz"],
+    sha256 = "ae46b722a8b8e9b62170f83bfb040cbf12adb732144e689985a66b26410a7d6f",
+    strip_prefix = "rules_cc-0.0.8",
+)

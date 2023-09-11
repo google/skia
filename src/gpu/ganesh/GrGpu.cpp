@@ -35,6 +35,8 @@
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/sksl/SkSLCompiler.h"
 
+using namespace skia_private;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGpu::GrGpu(GrDirectContext* direct) : fResetBits(kAll_GrBackendState), fContext(direct) {}
@@ -679,7 +681,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 }
 
 void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
-                             SkSurface::BackendSurfaceAccess access,
+                             SkSurfaces::BackendSurfaceAccess access,
                              const GrFlushInfo& info,
                              const skgpu::MutableTextureState* newState) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -722,7 +724,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
     // time we have multiple proxies is if we are flushing a yuv SkImage which won't have state
     // updates anyways.
     SkASSERT(!newState || proxies.size() == 1);
-    SkASSERT(!newState || access == SkSurface::BackendSurfaceAccess::kNoAccess);
+    SkASSERT(!newState || access == SkSurfaces::BackendSurfaceAccess::kNoAccess);
     this->prepareSurfacesForBackendAccessAndStateUpdates(proxies, access, newState);
 }
 
@@ -734,7 +736,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
         const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        const TArray<GrSurfaceProxy*, true>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
 #if SK_HISTOGRAMS_ENABLED
     fCurrentSubmitRenderPassCount++;
@@ -744,7 +746,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
                                     colorInfo, stencilInfo, sampledProxies, renderPassXferBarriers);
 }
 
-bool GrGpu::submitToGpu(bool syncCpu) {
+bool GrGpu::submitToGpu(GrSyncCpu sync) {
     this->stats()->incNumSubmitToGpus();
 
     if (auto manager = this->stagingBufferManager()) {
@@ -755,7 +757,7 @@ bool GrGpu::submitToGpu(bool syncCpu) {
         uniformsBuffer->startSubmit(this);
     }
 
-    bool submitted = this->onSubmitToGpu(syncCpu);
+    bool submitted = this->onSubmitToGpu(sync);
 
     this->callSubmittedProcs(submitted);
 
@@ -810,7 +812,7 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const {
 void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
 #endif
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 #if GR_GPU_STATS
 
@@ -844,7 +846,7 @@ void GrGpu::Stats::dump(SkString* out) {
 #endif
 }
 
-void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) {
+void GrGpu::Stats::dumpKeyValuePairs(TArray<SkString>* keys, TArray<double>* values) {
     keys->push_back(SkString("render_passes"));
     values->push_back(fRenderPasses);
     keys->push_back(SkString("reordered_dags_over_budget"));
@@ -852,7 +854,7 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 }
 
 #endif // GR_GPU_STATS
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 
 bool GrGpu::CompressedDataIsCorrect(SkISize dimensions,
                                     SkTextureCompressionType compressionType,

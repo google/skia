@@ -34,14 +34,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("filltypes"); }
 
-    SkString onShortName() override {
-        return SkString("filltypes");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(835, 840);
-    }
+    SkISize getISize() override { return SkISize::Make(835, 840); }
 
     void showPath(SkCanvas* canvas, int x, int y, SkPathFillType ft,
                   SkScalar scale, const SkPaint& paint) {

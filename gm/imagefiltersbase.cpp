@@ -35,67 +35,6 @@
 
 class SkReadBuffer;
 
-class FailImageFilter : public SkImageFilter_Base {
-public:
-    static sk_sp<SkImageFilter> Make() {
-        return sk_sp<SkImageFilter>(new FailImageFilter);
-    }
-
-    SK_FLATTENABLE_HOOKS(FailImageFilter)
-protected:
-    FailImageFilter() : INHERITED(nullptr, 0, nullptr) {}
-
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override {
-        return nullptr;
-    }
-
-private:
-
-    using INHERITED = SkImageFilter_Base;
-};
-
-sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
-    return FailImageFilter::Make();
-}
-
-class IdentityImageFilter : public SkImageFilter_Base {
-public:
-    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> input) {
-        return sk_sp<SkImageFilter>(new IdentityImageFilter(std::move(input)));
-    }
-
-
-    SK_FLATTENABLE_HOOKS(IdentityImageFilter)
-protected:
-    sk_sp<SkSpecialImage> onFilterImage(const Context& ctx, SkIPoint* offset) const override {
-        offset->set(0, 0);
-        return sk_ref_sp<SkSpecialImage>(ctx.sourceImage());
-    }
-
-private:
-    IdentityImageFilter(sk_sp<SkImageFilter> input) : INHERITED(&input, 1, nullptr) {}
-
-    using INHERITED = SkImageFilter_Base;
-};
-
-// Register these image filters as deserializable before main().
-namespace {
-    static struct Initializer {
-        Initializer() {
-            SK_REGISTER_FLATTENABLE(IdentityImageFilter);
-            SK_REGISTER_FLATTENABLE(FailImageFilter);
-        }
-    } initializer;
-}  // namespace
-
-sk_sp<SkFlattenable> IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    return IdentityImageFilter::Make(common.getInput(0));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static void draw_paint(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setImageFilter(std::move(imf));
@@ -202,11 +141,9 @@ public:
     ImageFiltersBaseGM () {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagefiltersbase");
-    }
+    SkString getName() const override { return SkString("imagefiltersbase"); }
 
-    SkISize onISize() override { return SkISize::Make(700, 500); }
+    SkISize getISize() override { return SkISize::Make(700, 500); }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {
         SkPaint paint;
@@ -229,8 +166,8 @@ protected:
         auto cf = SkColorFilters::Blend(SK_ColorRED, SkBlendMode::kSrcIn);
         sk_sp<SkImageFilter> filters[] = {
             nullptr,
-            IdentityImageFilter::Make(nullptr),
-            FailImageFilter::Make(),
+            SkImageFilters::Offset(0.f, 0.f, nullptr), // "identity"
+            SkImageFilters::Empty(),
             SkImageFilters::ColorFilter(std::move(cf), nullptr),
             // The strange 0.29 value tickles an edge case where crop rect calculates
             // a small border, but the blur really needs no border. This tickles
@@ -291,13 +228,13 @@ public:
     ImageFiltersTextBaseGM(const char suffix[]) : fSuffix(suffix) {}
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("%s_%s", "textfilter", fSuffix.c_str());
         return name;
     }
 
-    SkISize onISize() override { return SkISize::Make(512, 342); }
+    SkISize getISize() override { return SkISize::Make(512, 342); }
 
     void drawWaterfall(SkCanvas* canvas, const SkPaint& paint) {
         static const SkFont::Edging kEdgings[3] = {

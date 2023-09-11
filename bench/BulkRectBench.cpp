@@ -11,8 +11,10 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
@@ -51,7 +53,8 @@ public:
 
     bool isSuitableFor(Backend backend) override {
         if (kDrawMode == DrawMode::kBatch && kImageMode == ImageMode::kNone) {
-            // Currently the bulk color quad API is only available on skgpu::v1::SurfaceDrawContext
+            // Currently the bulk color quad API is only available on
+            // skgpu::ganesh::SurfaceDrawContext
             return backend == kGPU_Backend;
         } else {
             return this->INHERITED::isSuitableFor(backend);
@@ -146,7 +149,7 @@ protected:
         paint.setColor(SK_ColorWHITE);
         paint.setAntiAlias(true);
 
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
         SkMatrix view = canvas->getLocalToDeviceAs3x3();
         SkSurfaceProps props;
         GrPaint grPaint;
@@ -224,7 +227,11 @@ protected:
             bm.eraseColor(fColors[i].toSkColor());
             auto image = bm.asImage();
 
-            fImages[i] = direct ? image->makeTextureImage(direct) : std::move(image);
+            if (direct) {
+                fImages[i] = SkImages::TextureFromImage(direct, image);
+            } else {
+                fImages[i] = std::move(image);
+            }
         }
     }
 
@@ -255,7 +262,7 @@ protected:
         }
     }
 
-    SkIPoint onGetSize() override {
+    SkISize onGetSize() override {
         return { kWidth, kHeight };
     }
 

@@ -88,8 +88,8 @@ protected:
         paint.setBlendMode(fMode);
         SkColor color = start_color(fColorType);
 
-        int w = this->getSize().x();
-        int h = this->getSize().y();
+        int w = this->getSize().width();
+        int h = this->getSize().height();
 
         static const SkScalar kRectW = 25.1f;
         static const SkScalar kRectH = 25.9f;

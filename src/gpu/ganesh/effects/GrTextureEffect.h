@@ -8,14 +8,26 @@
 #ifndef GrTextureEffect_DEFINED
 #define GrTextureEffect_DEFINED
 
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSamplingOptions.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
+
+#include <cstdint>
+#include <memory>
+
+class GrGLSLProgramDataManager;
+class GrTexture;
+enum SkAlphaType : int;
+namespace skgpu { class KeyBuilder; }
+struct GrShaderCaps;
 
 class GrTextureEffect : public GrFragmentProcessor {
 public:

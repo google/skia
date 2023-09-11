@@ -25,17 +25,18 @@ constexpr SkScalar SH = SkIntToScalar(H);
 
 class StrokeRectsGM : public GM {
 public:
-    StrokeRectsGM() {}
+    StrokeRectsGM(bool rotated) : fRotated(rotated) {}
 
 protected:
-
-    SkString onShortName() override {
-        return SkString("strokerects");
+    SkString getName() const override {
+        if (fRotated) {
+            return SkString("strokerects_rotated");
+        } else {
+            return SkString("strokerects");
+        }
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(W*2, H*2);
-    }
+    SkISize getISize() override { return SkISize::Make(W * 2, H * 2); }
 
     static void rnd_rect(SkRect* r, SkRandom& rand) {
         SkScalar x = rand.nextUScalar1() * W;
@@ -50,6 +51,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (fRotated) {
+            canvas->rotate(45.f, SW, SH);
+        }
+
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
 
@@ -76,11 +81,12 @@ protected:
     }
 
 private:
-    using INHERITED = GM;
+    bool fRotated;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new StrokeRectsGM; )
+DEF_GM( return new StrokeRectsGM(false); )
+DEF_GM( return new StrokeRectsGM(true); )
 
 }  // namespace skiagm

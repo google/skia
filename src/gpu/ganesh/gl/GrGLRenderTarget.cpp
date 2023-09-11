@@ -9,6 +9,7 @@
 
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
@@ -28,9 +29,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    int sampleCount,
                                    const IDs& ids,
                                    sk_sp<GrGLAttachment> stencil,
+                                   skgpu::Protected isProtected,
                                    std::string_view label)
-        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
-        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, label, std::move(stencil)) {
+        : GrSurface(gpu, dimensions, isProtected, label)
+        , GrRenderTarget(gpu, dimensions, sampleCount, isProtected, label, std::move(stencil)) {
     this->init(format, ids);
     this->setFlags(gpu->glCaps(), ids);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -41,9 +43,10 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    GrGLFormat format,
                                    int sampleCount,
                                    const IDs& ids,
+                                   skgpu::Protected isProtected,
                                    std::string_view label)
-        : GrSurface(gpu, dimensions, GrProtected::kNo, label)
-        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, label) {
+        : GrSurface(gpu, dimensions, isProtected, label)
+        , GrRenderTarget(gpu, dimensions, sampleCount, isProtected, label) {
     this->init(format, ids);
     this->setFlags(gpu->glCaps(), ids);
 }
@@ -85,6 +88,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       int sampleCount,
                                                       const IDs& idDesc,
                                                       int stencilBits,
+                                                      skgpu::Protected isProtected,
                                                       std::string_view label) {
     sk_sp<GrGLAttachment> sb;
     if (stencilBits) {
@@ -106,7 +110,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                      sFmt);
     }
     return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(
-            gpu, dimensions, format, sampleCount, idDesc, std::move(sb), label));
+            gpu, dimensions, format, sampleCount, idDesc, std::move(sb), isProtected, label));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
@@ -114,19 +118,20 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     GrGLFramebufferInfo fbi;
     fbi.fFBOID = (useMultisampleFBO) ? fMultisampleFBOID : fSingleSampleFBOID;
     fbi.fFormat = GrGLFormatToEnum(this->format());
+    fbi.fProtected = skgpu::Protected(this->isProtected());
     int numStencilBits = 0;
     if (GrAttachment* stencil = this->getStencilAttachment(useMultisampleFBO)) {
         numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
     }
 
-    return GrBackendRenderTarget(
+    return GrBackendRenderTargets::MakeGL(
             this->width(), this->height(), this->numSamples(), numStencilBits, fbi);
 }
 
 GrBackendFormat GrGLRenderTarget::backendFormat() const {
     // We should never have a GrGLRenderTarget (even a textureable one with a target that is not
     // texture 2D.
-    return GrBackendFormat::MakeGL(GrGLFormatToEnum(fRTFormat), GR_GL_TEXTURE_2D);
+    return GrBackendFormats::MakeGL(GrGLFormatToEnum(fRTFormat), GR_GL_TEXTURE_2D);
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {

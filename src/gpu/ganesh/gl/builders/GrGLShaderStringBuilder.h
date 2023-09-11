@@ -14,13 +14,6 @@
 #include "src/gpu/ganesh/gl/GrGLContext.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 
-std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLGpu* gpu,
-                                            SkSL::ProgramKind programKind,
-                                            const std::string& sksl,
-                                            const SkSL::ProgramSettings& settings,
-                                            std::string* glsl,
-                                            GrContextOptions::ShaderErrorHandler* errorHandler);
-
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,

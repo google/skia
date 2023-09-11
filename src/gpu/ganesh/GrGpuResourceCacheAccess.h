@@ -73,13 +73,13 @@ private:
 
     void setTimeWhenResourceBecomePurgeable() {
         SkASSERT(fResource->isPurgeable());
-        fResource->fTimeWhenBecamePurgeable = GrStdSteadyClock::now();
+        fResource->fTimeWhenBecamePurgeable = skgpu::StdSteadyClock::now();
     }
     /**
      * Called by the cache to determine whether this resource should be purged based on the length
      * of time it has been available for purging.
      */
-    GrStdSteadyClock::time_point timeWhenResourceBecamePurgeable() {
+    skgpu::StdSteadyClock::time_point timeWhenResourceBecamePurgeable() {
         SkASSERT(fResource->isPurgeable());
         return fResource->fTimeWhenBecamePurgeable;
     }

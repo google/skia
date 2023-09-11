@@ -43,6 +43,7 @@ cxx = "clang++"  \n\
 skia_use_egl = true  \n\
 is_debug = false  \n\
 skia_use_system_freetype2 = false  \n\
+link_pool_depth=2  \n\
 extra_cflags = [  \n\
   "-I/tmp/swiftshader/include",  \n\
   "-DGR_EGL_TRY_GLES3_THEN_GLES2",  \n\
@@ -54,14 +55,14 @@ extra_ldflags = [  \n\
   "-Wl,/usr/local/lib"  \n\
 ] ' > /tmp/skia/skia/out/Static/args.gn
 
+WORKDIR /tmp/skia/skia
 # Build Skia.
-RUN cd /tmp/skia/skia \
-  && ./bin/gn gen out/Static \
-  && git rev-parse HEAD > VERSION \
-  && ./bin/ninja -C out/Static \
-  && chown -R skia:skia . \
-  # obj is readable only by the skia user. It needs additional
-  # permissions to be accessible for CI (see https://review.skia.org/487217).
-  && chmod 755 -R out/Static/obj \
-  # Cleanup .git directories because they are not needed and take up space.
-  && find . -name .git -print0 | xargs -0 rm -rf
+RUN ./bin/gn gen out/Static
+RUN git rev-parse HEAD > VERSION
+RUN ./bin/ninja -C out/Static
+# Cleanup .git directories because they are not needed and take up space.
+RUN find . -name .git -print0 | xargs -0 rm -rf
+RUN chown -R skia:skia .
+# obj is readable only by the skia user. It needs additional
+# permissions to be accessible for CI (see https://review.skia.org/487217).
+RUN chmod 755 -R out/Static/obj

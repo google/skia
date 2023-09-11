@@ -74,9 +74,9 @@ class SrcModeGM : public skiagm::GM {
 
     void onOnceBeforeDraw() override { this->setBGColor(SK_ColorBLACK); }
 
-    SkString onShortName() override { return SkString("srcmode"); }
+    SkString getName() const override { return SkString("srcmode"); }
 
-    SkISize onISize() override { return {640, 760}; }
+    SkISize getISize() override { return {640, 760}; }
 
     void drawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
@@ -124,7 +124,7 @@ class SrcModeGM : public skiagm::GM {
         sk_sp<SkSurface> surface = canvas->makeSurface(info);
         if (nullptr == surface) {
             // picture canvas will return null, so fall-back to raster
-            surface = SkSurface::MakeRaster(info);
+            surface = SkSurfaces::Raster(info);
         }
         return surface;
     }

@@ -8,30 +8,81 @@
 #ifndef GrGLGpu_DEFINED
 #define GrGLGpu_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
+#include "src/gpu/Blend.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrNativeRect.h"
+#include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrScissorState.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/ganesh/GrWindowRectsState.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
-#include "src/gpu/ganesh/gl/GrGLAttachment.h"
+#include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLContext.h"
-#include "src/gpu/ganesh/gl/GrGLProgram.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "src/gpu/ganesh/gl/GrGLVertexArray.h"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string_view>
+
+class GrAttachment;
+class GrBackendSemaphore;
+class GrBuffer;
+class GrDirectContext;
 class GrGLBuffer;
 class GrGLOpsRenderPass;
-class GrPipeline;
+class GrGLProgram;
+class GrGpuBuffer;
+class GrProgramInfo;
+class GrRenderTarget;
+class GrSemaphore;
+class GrStagingBufferManager;
+class GrSurface;
+class GrSurfaceProxy;
+class GrTexture;
+class SkData;
 enum class SkTextureCompressionType;
+struct GrContextOptions;
+struct SkIPoint;
+struct SkIRect;
+struct SkISize;
+
+namespace SkSL { enum class GLSLGeneration; }
 
 namespace skgpu {
+class RefCntedCallback;
 class Swizzle;
+enum class Budgeted : bool;
 }
 
 class GrGLGpu final : public GrGpu {
@@ -169,7 +220,7 @@ public:
         return fProgramCache->precompileShader(this->getContext(), key, data);
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
@@ -187,11 +238,11 @@ public:
 
     void submit(GrOpsRenderPass* renderPass) override;
 
-    GrFence SK_WARN_UNUSED_RESULT insertFence() override;
+    [[nodiscard]] GrFence insertFence() override;
     bool waitFence(GrFence) override;
     void deleteFence(GrFence) override;
 
-    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                                       GrSemaphoreWrapType,
                                                       GrWrapOwnership) override;
@@ -290,12 +341,12 @@ private:
     int getCompatibleStencilIndex(GrGLFormat format);
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat& format) override {
-        int idx = this->getCompatibleStencilIndex(format.asGLFormat());
+        int idx = this->getCompatibleStencilIndex(GrBackendFormats::AsGLFormat(format));
         if (idx < 0) {
             return {};
         }
-        return GrBackendFormat::MakeGL(GrGLFormatToEnum(this->glCaps().stencilFormats()[idx]),
-                                       GR_GL_TEXTURE_NONE);
+        return GrBackendFormats::MakeGL(GrGLFormatToEnum(this->glCaps().stencilFormats()[idx]),
+                                        GR_GL_TEXTURE_NONE);
     }
 
     void onFBOChanged();
@@ -317,6 +368,7 @@ private:
                                        SkTextureCompressionType compression,
                                        GrGLFormat,
                                        GrMipmapped,
+                                       GrProtected,
                                        GrGLTextureParameters::SamplerOverriddenState*);
 
     bool onReadPixels(GrSurface*,
@@ -385,17 +437,18 @@ private:
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;
 
-    GrOpsRenderPass* onGetOpsRenderPass(GrRenderTarget*,
-                                        bool useMultisampleFBO,
-                                        GrAttachment*,
-                                        GrSurfaceOrigin,
-                                        const SkIRect&,
-                                        const GrOpsRenderPass::LoadAndStoreInfo&,
-                                        const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                                        GrXferBarrierFlags renderPassXferBarriers) override;
+    GrOpsRenderPass* onGetOpsRenderPass(
+            GrRenderTarget*,
+            bool useMultisampleFBO,
+            GrAttachment*,
+            GrSurfaceOrigin,
+            const SkIRect&,
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const skia_private::TArray<GrSurfaceProxy*, true>& sampledProxies,
+            GrXferBarrierFlags renderPassXferBarriers) override;
 
-    bool onSubmitToGpu(bool syncCpu) override;
+    bool onSubmitToGpu(GrSyncCpu sync) override;
 
     bool waitSync(GrGLsync, uint64_t timeout, bool flush);
 
@@ -431,7 +484,7 @@ private:
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
-                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+                return SkChecksum::Hash32(desc.asKey(), desc.keyLength());
             }
         };
 

@@ -1,4 +1,7 @@
-layout(binding=0) texture2D tex;
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(binding=0, rgba32f) readonly texture2D texIn;
+layout(binding=1, rgba32f) writeonly texture2D texOut;
 
 half4 desaturate(half4 color) {
     color.rgb = half3(dot(color.rgb, half3(0.22, 0.67, 0.11)));
@@ -6,7 +9,9 @@ half4 desaturate(half4 color) {
 }
 
 void main() {
-    if (sk_GlobalInvocationID.x < width(tex) && sk_GlobalInvocationID.y < height(tex)) {
-        write(tex, sk_GlobalInvocationID.xy, desaturate(read(tex, sk_GlobalInvocationID.xy)));
+    if (sk_GlobalInvocationID.x < textureWidth(texIn) &&
+        sk_GlobalInvocationID.y < textureHeight(texIn)) {
+        half4 gray = desaturate(textureRead(texIn, sk_GlobalInvocationID.xy));
+        textureWrite(texOut, sk_GlobalInvocationID.xy, gray);
     }
 }

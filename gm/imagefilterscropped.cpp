@@ -62,7 +62,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
     SkIRect bounds;
     r.roundOut(&bounds);
 
-    auto surf = SkSurface::MakeRasterN32Premul(bounds.width(), bounds.height());
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()));
     draw_path(surf->getCanvas(), r, nullptr);
 
     paint.setImageFilter(std::move(imf));
@@ -76,14 +76,12 @@ public:
     ImageFiltersCroppedGM () {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagefilterscropped");
-    }
+    SkString getName() const override { return SkString("imagefilterscropped"); }
 
-    SkISize onISize() override { return SkISize::Make(400, 960); }
+    SkISize getISize() override { return SkISize::Make(400, 960); }
 
     void make_checkerboard() {
-        auto surf = SkSurface::MakeRasterN32Premul(80, 80);
+        auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(80, 80));
         auto canvas = surf->getCanvas();
         SkPaint darkPaint;
         darkPaint.setColor(0xFF404040);
@@ -128,8 +126,10 @@ protected:
 
         sk_sp<SkImageFilter> cfOffset(SkImageFilters::ColorFilter(cf, std::move(offset)));
 
-        sk_sp<SkImageFilter> erodeX(SkImageFilters::Erode(8, 0, nullptr, &cropRect));
-        sk_sp<SkImageFilter> erodeY(SkImageFilters::Erode(0, 8, nullptr, &cropRect));
+        // These are composed with an outer erode along the other axis, so don't add a cropRect to
+        // them or it will interfere with the second filter evaluation.
+        sk_sp<SkImageFilter> erodeX(SkImageFilters::Erode(8, 0, nullptr));
+        sk_sp<SkImageFilter> erodeY(SkImageFilters::Erode(0, 8, nullptr));
 
         sk_sp<SkImageFilter> filters[] = {
             nullptr,

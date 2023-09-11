@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
+#include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/image/SkImage_Base.h"
 
 #if defined(SK_GANESH)
@@ -41,7 +42,7 @@ GrTextureProxy* GetTextureImageProxy(SkImage* image, GrRecordingContext* rContex
             return nullptr;
         }
     }
-    auto [view, ct] = as_IB(image)->asView(rContext, GrMipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, GrMipmapped::kNo);
     if (!view) {
         // With the above checks we expect this to succeed unless there is a context mismatch.
         SkASSERT(!image->isValid(rContext));

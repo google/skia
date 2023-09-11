@@ -13,6 +13,10 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+// Given a src rect in texels to be filtered, this number of surrounding texels are needed by
+// the kernel in x and y.
+static constexpr int kBicubicFilterTexelPad = 2;
+
 // Private copy of SkFilterQuality, just for legacy deserialization
 // Matches values in SkFilterQuality
 enum SkLegacyFQ {

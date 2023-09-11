@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBBHFactory.h"
 #include "src/core/SkBigPicture.h"
+
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkCanvas.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
-#include "src/core/SkTraceEvent.h"
+#include "src/core/SkRecords.h"
+
+#include <utility>
 
 SkBigPicture::SkBigPicture(const SkRect& cull,
                            sk_sp<SkRecord> record,
@@ -36,20 +41,6 @@ void SkBigPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
                  this->drawableCount(),
                  useBBH ? fBBH.get() : nullptr,
                  callback);
-}
-
-void SkBigPicture::partialPlayback(SkCanvas* canvas,
-                                   int start,
-                                   int stop,
-                                   const SkM44& initialCTM) const {
-    SkASSERT(canvas);
-    SkRecordPartialDraw(*fRecord,
-                        canvas,
-                        this->drawablePicts(),
-                        this->drawableCount(),
-                        start,
-                        stop,
-                        initialCTM);
 }
 
 struct NestedApproxOpCounter {

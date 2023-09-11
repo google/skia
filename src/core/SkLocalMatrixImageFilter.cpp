@@ -12,27 +12,28 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 
-sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
+sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localMatrix,
                                                     sk_sp<SkImageFilter> input) {
     if (!input) {
         return nullptr;
     }
-    if (localM.isIdentity()) {
+    if (localMatrix.isIdentity()) {
         return input;
     }
+
     MatrixCapability inputCapability = as_IFB(input)->getCTMCapability();
-    if ((inputCapability == MatrixCapability::kTranslate && !localM.isTranslate()) ||
-        (inputCapability == MatrixCapability::kScaleTranslate && !localM.isScaleTranslate())) {
+    if ((inputCapability == MatrixCapability::kTranslate && !localMatrix.isTranslate()) ||
+        (inputCapability == MatrixCapability::kScaleTranslate && !localMatrix.isScaleTranslate())) {
         // Nothing we can do at this point
         return nullptr;
     }
-    return sk_sp<SkImageFilter>(new SkLocalMatrixImageFilter(localM, input));
-}
 
-SkLocalMatrixImageFilter::SkLocalMatrixImageFilter(const SkMatrix& localM,
-                                                   sk_sp<SkImageFilter> input)
-    : INHERITED(&input, 1, nullptr)
-    , fLocalM(localM) {
+    SkMatrix invLocal;
+    if (!localMatrix.invert(&invLocal)) {
+        return nullptr;
+    }
+
+    return sk_sp<SkImageFilter>(new SkLocalMatrixImageFilter(localMatrix, invLocal, input));
 }
 
 sk_sp<SkFlattenable> SkLocalMatrixImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -43,31 +44,50 @@ sk_sp<SkFlattenable> SkLocalMatrixImageFilter::CreateProc(SkReadBuffer& buffer) 
 }
 
 void SkLocalMatrixImageFilter::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writeMatrix(fLocalM);
+    this->SkImageFilter_Base::flatten(buffer);
+    buffer.writeMatrix(fLocalMatrix);
+    // fInvLocalMatrix will be reconstructed
 }
 
-sk_sp<SkSpecialImage> SkLocalMatrixImageFilter::onFilterImage(const Context& ctx,
-                                                              SkIPoint* offset) const {
-    skif::Mapping newMapping = ctx.mapping();
-    newMapping.concatLocal(fLocalM);
-    Context localCtx = ctx.withNewMapping(newMapping);
-    return this->filterInput(0, localCtx, offset);
+///////////////////////////////////////////////////////////////////////////////
+
+skif::Mapping SkLocalMatrixImageFilter::localMapping(const skif::Mapping& mapping) const {
+    skif::Mapping localMapping = mapping;
+    localMapping.concatLocal(fLocalMatrix);
+    return localMapping;
 }
 
-SkIRect SkLocalMatrixImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                 MapDirection dir, const SkIRect* inputRect) const {
-    return this->getInput(0)->filterBounds(src, SkMatrix::Concat(ctm, fLocalM), dir, inputRect);
+skif::FilterResult SkLocalMatrixImageFilter::onFilterImage(const skif::Context& ctx) const {
+    skif::Mapping localMapping = this->localMapping(ctx.mapping());
+    return this->getChildOutput(0, ctx.withNewMapping(localMapping));
+}
+
+skif::LayerSpace<SkIRect> SkLocalMatrixImageFilter::onGetInputLayerBounds(
+        const skif::Mapping& mapping,
+        const skif::LayerSpace<SkIRect>& desiredOutput,
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
+    // The local matrix changes 'mapping' by adjusting the parameter space of the image filter, but
+    // both 'desiredOutput' and 'contentBounds' have already been transformed to the consistent
+    // layer space. They remain unchanged with the new mapping.
+    return this->getChildInputLayerBounds(0, this->localMapping(mapping),
+                                          desiredOutput, contentBounds);
+}
+
+skif::LayerSpace<SkIRect> SkLocalMatrixImageFilter::onGetOutputLayerBounds(
+        const skif::Mapping& mapping,
+        const skif::LayerSpace<SkIRect>& contentBounds) const {
+    return this->getChildOutputLayerBounds(0, this->localMapping(mapping), contentBounds);
 }
 
 SkRect SkLocalMatrixImageFilter::computeFastBounds(const SkRect& bounds) const {
-    // In order to match the behavior of onFilterBounds, we map 'bounds' by the inverse of our
-    // local matrix, pass that to our child, and then map the result by our local matrix.
-    SkMatrix localInv;
-    if (!fLocalM.invert(&localInv)) {
-        return this->getInput(0)->computeFastBounds(bounds);
-    }
-
-    SkRect localBounds = localInv.mapRect(bounds);
-    return fLocalM.mapRect(this->getInput(0)->computeFastBounds(localBounds));
+    // In onGet[Input|Output]LayerBounds, there is a Mapping that can be adjusted by the
+    // local matrix, so their layer-space parameters do not need to be modified. Since
+    // computeFastBounds() takes no matrix, it always operates as if it has the identity mapping.
+    //
+    // In order to match the behavior of onGetInputLayerBounds, we map 'bounds' by the inverse of
+    // the local matrix, pass that to the child, and then map the result by the local matrix.
+    // TODO: Implementing computeFastBounds in terms of onGetOutputLayerBounds() trivially removes
+    // this complexity.
+    SkRect localBounds = fInvLocalMatrix.mapRect(bounds);
+    return fLocalMatrix.mapRect(this->getInput(0)->computeFastBounds(localBounds));
 }

@@ -180,7 +180,7 @@ private:
      * child would be substage 0 of stage 1. If that FP also has three children then its third child
      * would be substage 2 of stubstage 0 of stage 1 and would be mangled as "_S1_c0_c2".
      */
-    SkTArray<int> fSubstageIndices;
+    skia_private::TArray<int> fSubstageIndices;
 };
 
 #endif

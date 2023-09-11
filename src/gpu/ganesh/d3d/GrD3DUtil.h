@@ -133,7 +133,7 @@ static constexpr int GrDxgiFormatStencilBits(DXGI_FORMAT format) {
     }
 }
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 static constexpr const char* GrDxgiFormatToStr(DXGI_FORMAT dxgiFormat) {
     switch (dxgiFormat) {
         case DXGI_FORMAT_R8G8B8A8_UNORM:           return "R8G8B8A8_UNORM";

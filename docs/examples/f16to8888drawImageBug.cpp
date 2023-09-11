@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
 
     SkImageInfo imageInfo =
             SkImageInfo::Make(100, 100, kRGBA_F16_SkColorType, kPremul_SkAlphaType, colorSpace);
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(imageInfo);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(imageInfo);
     SkPaint p;
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(20, 20, 40, 40), p);
 
@@ -16,7 +16,7 @@ void draw(SkCanvas* canvas) {
 
     SkImageInfo imageInfo2 =
             SkImageInfo::Make(100, 100, kN32_SkColorType, kPremul_SkAlphaType, colorSpace2);
-    sk_sp<SkSurface> surface2 = SkSurface::MakeRaster(imageInfo2);
+    sk_sp<SkSurface> surface2 = SkSurfaces::Raster(imageInfo2);
     surface2->getCanvas()->drawImage(surface->makeImageSnapshot(), 0, 0);
 
     canvas->drawImage(surface->makeImageSnapshot(), 0, 0);

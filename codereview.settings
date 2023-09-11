@@ -2,7 +2,7 @@
 CODE_REVIEW_SERVER: codereview.chromium.org
 VIEW_VC: https://skia.googlesource.com/skia/+/
 CC_LIST: reviews@skia.org
-BUG_PREFIX: skia:
+BUG_PREFIX: b/
 TRYSERVER_SVN_URL: https://skia-try.googlecode.com/svn
 PROJECT: skia
 GERRIT_HOST: True

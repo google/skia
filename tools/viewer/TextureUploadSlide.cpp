@@ -10,6 +10,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 
@@ -92,7 +93,7 @@ private:
             SkSurfaceProps surfaceProps(0, kRGB_H_SkPixelGeometry);
             SkImageInfo imageInfo = SkImageInfo::Make(size, size, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
-            fSurface = SkSurface::MakeRenderTarget(
+            fSurface = SkSurfaces::RenderTarget(
                     direct, skgpu::Budgeted::kNo, imageInfo, 0, &surfaceProps);
         }
 
@@ -130,7 +131,7 @@ private:
     SkScalar fActiveTileIndex = 0;
 
     sk_sp<SkSurface> getFilledRasterSurface(SkColor color, int size) {
-        sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(size, size));
+        sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(size, size)));
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(color);
         return surface;

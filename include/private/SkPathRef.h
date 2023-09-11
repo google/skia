@@ -55,9 +55,9 @@ class SK_API SkPathRef final : public SkNVRefCnt<SkPathRef> {
 public:
     // See https://bugs.chromium.org/p/skia/issues/detail?id=13817 for how these sizes were
     // determined.
-    using PointsArray = SkSTArray<4, SkPoint>;
-    using VerbsArray = SkSTArray<4, uint8_t>;
-    using ConicWeightsArray = SkSTArray<2, SkScalar>;
+    using PointsArray = skia_private::STArray<4, SkPoint>;
+    using VerbsArray = skia_private::STArray<4, uint8_t>;
+    using ConicWeightsArray = skia_private::STArray<2, SkScalar>;
 
     SkPathRef(PointsArray points, VerbsArray verbs, ConicWeightsArray weights,
               unsigned segmentMask)
@@ -360,10 +360,12 @@ private:
         // The next two values don't matter unless fIsOval or fIsRRect are true.
         fRRectOrOvalIsCCW = false;
         fRRectOrOvalStartIdx = 0xAC;
-        if (numPoints > 0)
-            fPoints.reserve_back(numPoints);
-        if (numVerbs > 0)
-            fVerbs.reserve_back(numVerbs);
+        if (numPoints > 0) {
+            fPoints.reserve_exact(numPoints);
+        }
+        if (numVerbs > 0) {
+            fVerbs.reserve_exact(numVerbs);
+        }
         SkDEBUGCODE(fEditorsAttached.store(0);)
         SkDEBUGCODE(this->validate();)
     }
@@ -378,7 +380,7 @@ private:
     // called, if dirty, by getBounds()
     void computeBounds() const {
         SkDEBUGCODE(this->validate();)
-        // TODO(mtklein): remove fBoundsIsDirty and fIsFinite,
+        // TODO: remove fBoundsIsDirty and fIsFinite,
         // using an inverted rect instead of fBoundsIsDirty and always recalculating fIsFinite.
         SkASSERT(fBoundsIsDirty);
 
@@ -424,18 +426,14 @@ private:
      *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
     void resetToSize(int verbCount, int pointCount, int conicCount,
                      int reserveVerbs = 0, int reservePoints = 0) {
-        commonReset();
-        // Use reserve_back() so the arrays are sized to exactly fit the data.
-        const int pointDelta = pointCount + reservePoints - fPoints.size();
-        if (pointDelta > 0) {
-            fPoints.reserve_back(pointDelta);
-        }
+        this->commonReset();
+        // Use reserve_exact() so the arrays are sized to exactly fit the data.
+        fPoints.reserve_exact(pointCount + reservePoints);
         fPoints.resize_back(pointCount);
-        const int verbDelta = verbCount + reserveVerbs - fVerbs.size();
-        if (verbDelta > 0) {
-            fVerbs.reserve_back(verbDelta);
-        }
+
+        fVerbs.reserve_exact(verbCount + reserveVerbs);
         fVerbs.resize_back(verbCount);
+
         fConicWeights.resize_back(conicCount);
         SkDEBUGCODE(this->validate();)
     }

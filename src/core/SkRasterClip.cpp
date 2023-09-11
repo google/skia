@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkPath.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRegionPriv.h"

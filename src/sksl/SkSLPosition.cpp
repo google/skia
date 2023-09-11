@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLPosition.h"
 
 #include <algorithm>
 

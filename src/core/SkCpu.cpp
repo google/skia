@@ -72,85 +72,10 @@
         }
         return features;
     }
-
-#elif defined(SK_CPU_ARM64) && __has_include(<sys/auxv.h>)
-    #include <sys/auxv.h>
-
-    static uint32_t read_cpu_features() {
-        const uint32_t kHWCAP_CRC32   = (1<< 7),
-                       kHWCAP_ASIMDHP = (1<<10);
-
-        uint32_t features = 0;
-        uint32_t hwcaps = getauxval(AT_HWCAP);
-        if (hwcaps & kHWCAP_CRC32  ) { features |= SkCpu::CRC32; }
-        if (hwcaps & kHWCAP_ASIMDHP) { features |= SkCpu::ASIMDHP; }
-
-        // The Samsung Mongoose 3 core sets the ASIMDHP bit but doesn't support it.
-        for (int core = 0; features & SkCpu::ASIMDHP; core++) {
-            // These /sys files contain the core's MIDR_EL1 register, the source of
-            // CPU {implementer, variant, part, revision} you'd see in /proc/cpuinfo.
-            SkString path =
-                SkStringPrintf("/sys/devices/system/cpu/cpu%d/regs/identification/midr_el1", core);
-
-            // Can't use SkData::MakeFromFileName() here, I think because /sys can't be mmap()'d.
-            SkFILEStream midr_el1(path.c_str());
-            if (!midr_el1.isValid()) {
-                // This is our ordinary exit path.
-                // If we ask for MIDR_EL1 from a core that doesn't exist, we've checked all cores.
-                if (core == 0) {
-                    // On the other hand, if we can't read MIDR_EL1 from any core, assume the worst.
-                    features &= ~(SkCpu::ASIMDHP);
-                }
-                break;
-            }
-
-            const char kMongoose3[] = "0x00000000531f0020";  // 53 == Samsung.
-            char buf[std::size(kMongoose3) - 1];  // No need for the terminating \0.
-
-            if (std::size(buf) != midr_el1.read(buf, std::size(buf))
-                          || 0 == memcmp(kMongoose3, buf, std::size(buf))) {
-                features &= ~(SkCpu::ASIMDHP);
-            }
-        }
-        return features;
-    }
-
-#elif defined(SK_CPU_ARM32) && __has_include(<sys/auxv.h>) && \
-    (!defined(__ANDROID_API__) || __ANDROID_API__ >= 18)
-    // sys/auxv.h will always be present in the Android NDK due to unified
-    //headers, but getauxval is only defined for API >= 18.
-    #include <sys/auxv.h>
-
-    static uint32_t read_cpu_features() {
-        const uint32_t kHWCAP_NEON  = (1<<12);
-        const uint32_t kHWCAP_VFPv4 = (1<<16);
-
-        uint32_t features = 0;
-        uint32_t hwcaps = getauxval(AT_HWCAP);
-        if (hwcaps & kHWCAP_NEON ) {
-            features |= SkCpu::NEON;
-            if (hwcaps & kHWCAP_VFPv4) { features |= SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
-        }
-        return features;
-    }
-
-#elif defined(SK_CPU_ARM32) && __has_include(<cpu-features.h>)
-    #include <cpu-features.h>
-
-    static uint32_t read_cpu_features() {
-        uint32_t features = 0;
-        uint64_t cpu_features = android_getCpuFeatures();
-        if (cpu_features & ANDROID_CPU_ARM_FEATURE_NEON)     { features |= SkCpu::NEON; }
-        if (cpu_features & ANDROID_CPU_ARM_FEATURE_NEON_FMA) { features |= SkCpu::NEON_FMA; }
-        if (cpu_features & ANDROID_CPU_ARM_FEATURE_VFP_FP16) { features |= SkCpu::VFP_FP16; }
-        return features;
-    }
-
 #else
     static uint32_t read_cpu_features() {
         return 0;
     }
-
 #endif
 
 uint32_t SkCpu::gCachedFeatures = 0;

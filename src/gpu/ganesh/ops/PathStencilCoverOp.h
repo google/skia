@@ -13,7 +13,7 @@
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // Draws paths using a standard Redbook "stencil then cover" method. Curves get linearized by either
 // GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it requires
@@ -115,6 +115,6 @@ private:
     friend class GrOp;  // For ctor.
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // PathStencilCoverOp_DEFINED

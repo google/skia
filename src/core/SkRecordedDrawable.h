@@ -7,9 +7,22 @@
 #ifndef SkRecordedDrawable_DEFINED
 #define SkRecordedDrawable_DEFINED
 
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecorder.h"
+
+#include <cstddef>
+#include <memory>
+#include <utility>
+
+class SkCanvas;
+class SkPicture;
+class SkReadBuffer;
+class SkWriteBuffer;
 
 class SkRecordedDrawable : public SkDrawable {
 public:
@@ -29,7 +42,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override;
 
-    SkPicture* onNewPictureSnapshot() override;
+    sk_sp<SkPicture> onMakePictureSnapshot() override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkRecordedDrawable)

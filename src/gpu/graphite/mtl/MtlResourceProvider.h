@@ -22,7 +22,10 @@ class MtlSharedContext;
 
 class MtlResourceProvider final : public ResourceProvider {
 public:
-    MtlResourceProvider(SharedContext* sharedContext, SingleOwner*);
+    MtlResourceProvider(SharedContext* sharedContext,
+                        SingleOwner*,
+                        uint32_t recorderID,
+                        size_t resourceBudget);
     ~MtlResourceProvider() override {}
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
@@ -38,7 +41,7 @@ private:
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
     sk_sp<Texture> createTexture(SkISize, const TextureInfo&, skgpu::Budgeted) override;
-    sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
+    sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) override;
 
     sk_sp<Sampler> createSampler(const SkSamplingOptions&,
                                  SkTileMode xTileMode,
@@ -50,8 +53,9 @@ private:
     sk_cfp<id<MTLDepthStencilState>> findOrCreateCompatibleDepthStencilState(
             const DepthStencilSettings&);
 
-    SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
-    SkTHashMap<uint64_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
+    skia_private::THashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>>
+            fDepthStencilStates;
+    skia_private::THashMap<uint64_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
 };
 
 } // namespace skgpu::graphite

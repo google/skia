@@ -19,13 +19,8 @@
 
 namespace skgpu {
 class RefCntedCallback;
+class MutableTextureState;
 }
-
-#ifdef SK_ENABLE_PIET_GPU
-namespace skgpu::piet {
-class Scene;
-}
-#endif
 
 namespace skgpu::graphite {
 
@@ -41,8 +36,8 @@ class TextureProxy;
 
 class CommandBuffer {
 public:
-    using DrawPassList = SkTArray<std::unique_ptr<DrawPass>>;
-    using DispatchGroupList = SkTArray<std::unique_ptr<DispatchGroup>>;
+    using DrawPassList = skia_private::TArray<std::unique_ptr<DrawPass>>;
+    using DispatchGroupList = skia_private::TArray<std::unique_ptr<DispatchGroup>>;
 
     virtual ~CommandBuffer();
 
@@ -59,6 +54,13 @@ public:
 
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
     void callFinishedProcs(bool success);
+
+    virtual void addWaitSemaphores(size_t numWaitSemaphores,
+                                   const BackendSemaphore* waitSemaphores) {}
+    virtual void addSignalSemaphores(size_t numWaitSemaphores,
+                                     const BackendSemaphore* signalSemaphores) {}
+    virtual void prepareSurfaceForStateUpdate(SkSurface* targetSurface,
+                                              const MutableTextureState* newState) {}
 
     bool addRenderPass(const RenderPassDesc&,
                        sk_sp<Texture> colorTexture,
@@ -89,13 +91,10 @@ public:
     bool copyTextureToTexture(sk_sp<Texture> src,
                               SkIRect srcRect,
                               sk_sp<Texture> dst,
-                              SkIPoint dstPoint);
+                              SkIPoint dstPoint,
+                              int mipLevel);
     bool synchronizeBufferToCpu(sk_sp<Buffer>);
     bool clearBuffer(const Buffer* buffer, size_t offset, size_t size);
-
-#ifdef SK_ENABLE_PIET_GPU
-    void renderPietScene(const skgpu::piet::Scene& scene, sk_sp<Texture> target);
-#endif
 
     // This sets a translation to be applied to any subsequently added command, assuming these
     // commands are part of a translated replay of a Graphite recording.
@@ -140,21 +139,18 @@ private:
     virtual bool onCopyTextureToTexture(const Texture* src,
                                         SkIRect srcRect,
                                         const Texture* dst,
-                                        SkIPoint dstPoint) = 0;
+                                        SkIPoint dstPoint,
+                                        int mipLevel) = 0;
     virtual bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) = 0;
     virtual bool onClearBuffer(const Buffer*, size_t offset, size_t size) = 0;
-
-#ifdef SK_ENABLE_PIET_GPU
-    virtual void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) = 0;
-#endif
 
 #ifdef SK_DEBUG
     bool fHasWork = false;
 #endif
 
     inline static constexpr int kInitialTrackedResourcesCount = 32;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
-    SkTArray<sk_sp<RefCntedCallback>> fFinishedProcs;
+    skia_private::STArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
+    skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
 };
 
 } // namespace skgpu::graphite

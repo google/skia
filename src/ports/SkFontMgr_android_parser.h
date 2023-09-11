@@ -74,7 +74,8 @@ struct FontFileInfo {
     int fIndex;
     int fWeight;
     enum class Style { kAuto, kNormal, kItalic } fStyle;
-    SkTArray<SkFontArguments::VariationPosition::Coordinate, true> fVariationDesignPosition;
+    skia_private::TArray<SkFontArguments::VariationPosition::Coordinate, true>
+            fVariationDesignPosition;
 };
 
 /**
@@ -92,10 +93,10 @@ struct FontFamily {
         , fBasePath(basePath)
     { }
 
-    SkTArray<SkString, true> fNames;
-    SkTArray<FontFileInfo, true> fFonts;
-    SkTArray<SkLanguage, true> fLanguages;
-    SkTHashMap<SkString, std::unique_ptr<FontFamily>> fallbackFamilies;
+    skia_private::TArray<SkString, true> fNames;
+    skia_private::TArray<FontFileInfo, true> fFonts;
+    skia_private::TArray<SkLanguage, true> fLanguages;
+    skia_private::THashMap<SkString, std::unique_ptr<FontFamily>> fallbackFamilies;
     FontVariant fVariant;
     int fOrder; // internal to the parser, not useful to users.
     bool fIsFallbackFont;

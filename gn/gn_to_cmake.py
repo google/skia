@@ -296,7 +296,7 @@ def WriteActionForEach(out, target, project, sources, synthetic_dependencies):
   all_outputs = target.properties.get('outputs', [])
   inputs = target.properties.get('sources', [])
   # TODO: consider expanding 'output_patterns' instead.
-  outputs_per_input = len(all_outputs) / len(inputs)
+  outputs_per_input = int(len(all_outputs) / len(inputs))
   for count, source in enumerate(inputs):
     source_abs_path = project.GetAbsolutePath(source)
 
@@ -697,9 +697,11 @@ def WriteProject(project):
   out.write('file(READ "')
   gn_deps_file = posixpath.join(project.build_path, 'build.ninja.d')
   out.write(CMakeStringEscape(gn_deps_file))
-  out.write('" "gn_deps_string" OFFSET ')
-  out.write(str(len('build.ninja: ')))
-  out.write(')\n')
+  out.write('" "gn_deps_file_content")\n')
+
+  out.write('string(REGEX REPLACE "^[^:]*: " "" ')
+  out.write('gn_deps_string ${gn_deps_file_content})\n')
+
   # One would think this would need to worry about escaped spaces
   # but gn doesn't escape spaces here (it generates invalid .d files).
   out.write('string(REPLACE " " ";" "gn_deps" ${gn_deps_string})\n')

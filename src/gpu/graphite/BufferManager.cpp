@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ClearBuffersTask.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/Log.h"
@@ -164,7 +165,16 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_
     return {UniformWriter(ptr, requiredBytes), bindInfo};
 }
 
-std::tuple<void*, BindBufferInfo> DrawBufferManager::getMappedStorage(size_t requiredBytes) {
+std::tuple<void*, BindBufferInfo> DrawBufferManager::getUniformPointer(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    auto& info = fCurrentBuffers[kUniformBufferIndex];
+    return this->prepareMappedBindBuffer(&info, requiredBytes);
+}
+
+std::tuple<void*, BindBufferInfo> DrawBufferManager::getStoragePointer(size_t requiredBytes) {
     if (!requiredBytes) {
         return {};
     }
@@ -173,13 +183,13 @@ std::tuple<void*, BindBufferInfo> DrawBufferManager::getMappedStorage(size_t req
     return this->prepareMappedBindBuffer(&info, requiredBytes);
 }
 
-BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes) {
+BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes, ClearBuffer cleared) {
     if (!requiredBytes) {
         return {};
     }
 
     auto& info = fCurrentBuffers[kGpuOnlyStorageBufferIndex];
-    return this->prepareBindBuffer(&info, requiredBytes);
+    return this->prepareBindBuffer(&info, requiredBytes, /*supportCpuUpload=*/false, cleared);
 }
 
 BindBufferInfo DrawBufferManager::getVertexStorage(size_t requiredBytes) {
@@ -210,6 +220,10 @@ BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes) {
 }
 
 void DrawBufferManager::transferToRecording(Recording* recording) {
+    if (!fClearList.empty()) {
+        recording->priv().addTask(ClearBuffersTask::Make(std::move(fClearList)));
+    }
+
     bool useTransferBuffer = !fCaps->drawBufferCanBeMapped();
     for (auto& [buffer, transferBuffer] : fUsedBuffers) {
         if (useTransferBuffer) {
@@ -255,7 +269,7 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
 
 std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(BufferInfo* info,
                                                                             size_t requiredBytes) {
-    auto bindInfo = this->prepareBindBuffer(info, requiredBytes, /*mappable=*/true);
+    auto bindInfo = this->prepareBindBuffer(info, requiredBytes, /*supportCpuUpload=*/true);
     if (!bindInfo) {
         return {nullptr, {}};
     }
@@ -267,11 +281,13 @@ std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(Buff
 
 BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
                                                     size_t requiredBytes,
-                                                    bool mappable) {
+                                                    bool supportCpuUpload,
+                                                    ClearBuffer cleared) {
     SkASSERT(info);
     SkASSERT(requiredBytes);
 
-    bool useTransferBuffer = mappable && !fCaps->drawBufferCanBeMapped();
+    // A transfer buffer is not necessary if the caller does not intend to upload CPU data to it.
+    bool useTransferBuffer = supportCpuUpload && !fCaps->drawBufferCanBeMapped();
 
     if (info->fBuffer &&
         !can_fit(requiredBytes, info->fBuffer.get(), info->fOffset, info->fStartAlignment)) {
@@ -280,11 +296,15 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     }
 
     if (!info->fBuffer) {
+        // This buffer can be GPU-only if
+        //     a) the caller does not intend to ever upload CPU data to the buffer; or
+        //     b) CPU data will get uploaded to fBuffer only via a transfer buffer
+        AccessPattern accessPattern = (useTransferBuffer || !supportCpuUpload)
+                                              ? AccessPattern::kGpuOnly
+                                              : AccessPattern::kHostVisible;
         size_t bufferSize = sufficient_block_size(requiredBytes, info->fBlockSize);
-        info->fBuffer = fResourceProvider->findOrCreateBuffer(
-                bufferSize,
-                info->fType,
-                useTransferBuffer ? PrioritizeGpuReads::kYes : PrioritizeGpuReads::kNo);
+        info->fBuffer =
+                fResourceProvider->findOrCreateBuffer(bufferSize, info->fType, accessPattern);
         info->fOffset = 0;
         if (!info->fBuffer) {
             return {};
@@ -293,9 +313,7 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
 
     if (useTransferBuffer && !info->fTransferBuffer) {
         info->fTransferBuffer = fResourceProvider->findOrCreateBuffer(
-                info->fBuffer->size(),
-                BufferType::kXferCpuToGpu,
-                PrioritizeGpuReads::kNo);
+                info->fBuffer->size(), BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
         SkASSERT(info->fBuffer->size() == info->fTransferBuffer->size());
         SkASSERT(info->fOffset == 0);
         if (!info->fTransferBuffer) {
@@ -306,6 +324,10 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     info->fOffset = SkAlignTo(info->fOffset, info->fStartAlignment);
     BindBufferInfo bindInfo{info->fBuffer.get(), info->fOffset};
     info->fOffset += requiredBytes;
+
+    if (cleared == ClearBuffer::kYes) {
+        fClearList.push_back({bindInfo.fBuffer, bindInfo.fOffset, requiredBytes});
+    }
 
     return bindInfo;
 }
@@ -359,9 +381,7 @@ void* StaticBufferManager::prepareStaticData(BufferInfo* info,
     if (!fCurrentTransferBuffer) {
         size_t bufferSize = sufficient_block_size(size, kStaticTransferBufferSize);
         fCurrentTransferBuffer = fResourceProvider->findOrCreateBuffer(
-                bufferSize,
-                BufferType::kXferCpuToGpu,
-                PrioritizeGpuReads::kNo);
+                bufferSize, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
         fCurrentOffset = 0;
     }
 
@@ -385,9 +405,7 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
     }
 
     sk_sp<Buffer> staticBuffer = resourceProvider->findOrCreateBuffer(
-            fTotalRequiredBytes,
-            fBufferType,
-            PrioritizeGpuReads::kYes);
+            fTotalRequiredBytes, fBufferType, AccessPattern::kGpuOnly);
     if (!staticBuffer) {
         SKGPU_LOG_E("Failed to create static buffer for type %d of size %zu bytes.\n",
                     (int) fBufferType, fTotalRequiredBytes);

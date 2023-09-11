@@ -22,7 +22,9 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkLumaColorFilter.h"
+#include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "tools/Resources.h"
@@ -69,7 +71,6 @@ static sk_sp<SkColorFilter> MakeTintColorFilter(SkColor lo, SkColor hi, bool use
             half4 main(half4 c) { return outer.eval(inner.eval(c)); }
         )"));
         SkASSERT(effect);
-        SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect.get()));
         sk_sp<SkColorFilter> children[] = { inner, outer };
         return effect->makeColorFilter(nullptr, children, std::size(children));
     } else {
@@ -99,5 +100,48 @@ DEF_SIMPLE_GM(composeCF, canvas, 200, 200) {
 
         canvas->restore();
         canvas->translate(0, 100);
+    }
+}
+
+DEF_SIMPLE_GM(composeCFIF, canvas, 604, 200) {
+    // This GM draws a ::Shader image filter composed with a ::ColorFilter image filter in two
+    // ways (direct and via ::Compose). This ensures the use (or non-use in this case) of the source
+    // image is the same across both means of composition.
+    auto cf = MakeTintColorFilter(0xff300000, 0xffa00000, /*useSkSL=*/false);
+    auto shader = SkShaders::MakeTurbulence(0.01f, 0.01f, 2, 0.f);
+
+    auto shaderIF = SkImageFilters::Shader(shader, SkImageFilters::Dither::kNo);
+    auto directCompose = SkImageFilters::ColorFilter(cf, shaderIF);
+    auto indirectCompose = SkImageFilters::Compose(
+            /*outer=*/SkImageFilters::ColorFilter(cf, nullptr),
+            /*inner=*/shaderIF);
+
+    { // Directly draw the shader composed with the color filter
+        canvas->save();
+            canvas->clipRect({0, 0, 200, 200});
+            SkPaint p;
+            p.setShader(shader);
+            p.setColorFilter(cf);
+            canvas->drawPaint(p);
+        canvas->restore();
+    }
+    canvas->translate(202, 0);
+    { // Draw with the directly composed image filter
+        canvas->save();
+            canvas->clipRect({0, 0, 200, 200});
+            SkPaint p;
+            p.setImageFilter(directCompose);
+            canvas->drawPaint(p);
+        canvas->restore();
+    }
+    canvas->translate(202, 0);
+    {
+        // Draw with the indirectly composed image filter
+        canvas->save();
+            canvas->clipRect({0, 0, 200, 200});
+            SkPaint p;
+            p.setImageFilter(indirectCompose);
+            canvas->drawPaint(p);
+        canvas->restore();
     }
 }

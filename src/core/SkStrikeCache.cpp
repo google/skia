@@ -7,19 +7,21 @@
 
 #include "src/core/SkStrikeCache.h"
 
-#include <cctype>
-
 #include "include/core/SkGraphics.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/core/SkTypeface.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
-#include "include/private/base/SkTemplates.h"
+#include "src/core/SkDescriptor.h"
 #include "src/core/SkStrike.h"
+#include "src/core/SkStrikeSpec.h"
 
-#if defined(SK_GANESH)
-#include "src/text/gpu/StrikeCache.h"
-#endif
+#include <algorithm>
+#include <utility>
+
+class SkScalerContext;
+struct SkFontMetrics;
 
 using namespace sktext;
 
@@ -139,9 +141,14 @@ auto SkStrikeCache::internalCreateStrike(
     return strike;
 }
 
+void SkStrikeCache::purgePinned(size_t minBytesNeeded) {
+    SkAutoMutexExclusive ac(fLock);
+    this->internalPurge(minBytesNeeded, /* checkPinners= */ true);
+}
+
 void SkStrikeCache::purgeAll() {
     SkAutoMutexExclusive ac(fLock);
-    this->internalPurge(fTotalMemoryUsed);
+    this->internalPurge(fTotalMemoryUsed, /* checkPinners= */ true);
 }
 
 size_t SkStrikeCache::getTotalMemoryUsed() const {
@@ -196,7 +203,15 @@ void SkStrikeCache::forEachStrike(std::function<void(const SkStrike&)> visitor) 
     }
 }
 
-size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
+size_t SkStrikeCache::internalPurge(size_t minBytesNeeded, bool checkPinners) {
+#ifndef SK_STRIKE_CACHE_DOESNT_AUTO_CHECK_PINNERS
+    // Temporarily default to checking pinners, for staging.
+    checkPinners = true;
+#endif
+
+    if (fPinnerCount == fCacheCount && !checkPinners)
+        return 0;
+
     size_t bytesNeeded = 0;
     if (fTotalMemoryUsed > fCacheSizeLimit) {
         bytesNeeded = fTotalMemoryUsed - fCacheSizeLimit;
@@ -229,7 +244,7 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
         SkStrike* prev = strike->fPrev;
 
         // Only delete if the strike is not pinned.
-        if (strike->fPinner == nullptr || strike->fPinner->canDelete()) {
+        if (strike->fPinner == nullptr || (checkPinners && strike->fPinner->canDelete())) {
             bytesFreed += strike->fMemoryUsed;
             countFreed += 1;
             this->internalRemoveStrike(strike);
@@ -256,6 +271,7 @@ void SkStrikeCache::internalAttachToHead(sk_sp<SkStrike> strike) {
     SkASSERT(nullptr == strikePtr->fPrev && nullptr == strikePtr->fNext);
 
     fCacheCount += 1;
+    fPinnerCount += strikePtr->fPinner != nullptr ? 1 : 0;
     fTotalMemoryUsed += strikePtr->fMemoryUsed;
 
     if (fHead != nullptr) {
@@ -273,6 +289,7 @@ void SkStrikeCache::internalAttachToHead(sk_sp<SkStrike> strike) {
 void SkStrikeCache::internalRemoveStrike(SkStrike* strike) {
     SkASSERT(fCacheCount > 0);
     fCacheCount -= 1;
+    fPinnerCount -= strike->fPinner != nullptr ? 1 : 0;
     fTotalMemoryUsed -= strike->fMemoryUsed;
 
     if (strike->fPrev) {

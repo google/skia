@@ -10,17 +10,19 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
+#include "src/gpu/graphite/dawn/DawnComputePipeline.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
+#include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
 
 namespace {
 wgpu::ShaderModule create_shader_module(const wgpu::Device& device, const char* source) {
     wgpu::ShaderModuleWGSLDescriptor wgslDesc;
-    wgslDesc.source = source;
+    wgslDesc.code = source;
     wgpu::ShaderModuleDescriptor descriptor;
     descriptor.nextInChain = &wgslDesc;
     return device.CreateShaderModule(&descriptor);
@@ -81,8 +83,10 @@ wgpu::RenderPipeline create_blit_render_pipeline(const wgpu::Device& device,
 }
 
 DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
-                                           SingleOwner* singleOwner)
-        : ResourceProvider(sharedContext, singleOwner) {}
+                                           SingleOwner* singleOwner,
+                                           uint32_t recorderID,
+                                           size_t resourceBudget)
+        : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget) {}
 
 DawnResourceProvider::~DawnResourceProvider() = default;
 
@@ -138,8 +142,9 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
 }
 
 sk_sp<Texture> DawnResourceProvider::createWrappedTexture(const BackendTexture& texture) {
-    wgpu::Texture dawnTexture         = texture.getDawnTexture();
-    wgpu::TextureView dawnTextureView = texture.getDawnTextureView();
+    // Convert to smart pointers. wgpu::Texture* constructor will increment the ref count.
+    wgpu::Texture dawnTexture         = texture.getDawnTexturePtr();
+    wgpu::TextureView dawnTextureView = texture.getDawnTextureViewPtr();
     SkASSERT(!dawnTexture || !dawnTextureView);
 
     if (!dawnTexture && !dawnTextureView) {
@@ -163,10 +168,19 @@ sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
         SkISize dimensions, const TextureInfo& msaaInfo) {
     SkASSERT(msaaInfo.isValid());
 
+    // Derive the load texture's info from MSAA texture's info.
     DawnTextureInfo dawnMsaaLoadTextureInfo;
     msaaInfo.getDawnTextureInfo(&dawnMsaaLoadTextureInfo);
     dawnMsaaLoadTextureInfo.fSampleCount = 1;
     dawnMsaaLoadTextureInfo.fUsage |= wgpu::TextureUsage::TextureBinding;
+
+    // MSAA texture can be transient attachment (memoryless) but the load texture cannot be.
+    // This is because the load texture will need to have its content retained between two passes
+    // loading:
+    // - first pass: the resolve texture is blitted to the load texture.
+    // - 2nd pass: the actual render pass is started and the load texture is blitted to the MSAA
+    // texture.
+    dawnMsaaLoadTextureInfo.fUsage &= (~wgpu::TextureUsage::TransientAttachment);
 
     auto texture = this->findOrCreateDiscardableMSAAAttachment(dimensions, dawnMsaaLoadTextureInfo);
 
@@ -177,16 +191,17 @@ sk_sp<GraphicsPipeline> DawnResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
+    SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
     return DawnGraphicsPipeline::Make(this->dawnSharedContext(),
-                                      this->skslCompiler(),
+                                      &skslCompiler,
                                       runtimeDict,
                                       pipelineDesc,
                                       renderPassDesc);
 }
 
-sk_sp<ComputePipeline> DawnResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
-    SkASSERT(false);
-    return nullptr;
+sk_sp<ComputePipeline> DawnResourceProvider::createComputePipeline(
+        const ComputePipelineDesc& desc) {
+    return DawnComputePipeline::Make(this->dawnSharedContext(), desc);
 }
 
 sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions,
@@ -197,8 +212,8 @@ sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions,
 
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,
                                                  BufferType type,
-                                                 PrioritizeGpuReads prioritizeGpuReads) {
-    return DawnBuffer::Make(this->dawnSharedContext(), size, type, prioritizeGpuReads);
+                                                 AccessPattern accessPattern) {
+    return DawnBuffer::Make(this->dawnSharedContext(), size, type, accessPattern);
 }
 
 sk_sp<Sampler> DawnResourceProvider::createSampler(const SkSamplingOptions& options,
@@ -216,15 +231,17 @@ BackendTexture DawnResourceProvider::onCreateBackendTexture(SkISize dimensions,
         return {};
     }
 
-    return BackendTexture(std::move(texture));
+    return BackendTexture(texture.MoveToCHandle());
 }
 
 void DawnResourceProvider::onDeleteBackendTexture(BackendTexture& texture) {
     SkASSERT(texture.isValid());
     SkASSERT(texture.backend() == BackendApi::kDawn);
 
-    // Nothing to be done here as all the the cleanup of Dawn's resources will be done inside
-    // BackendTexture::~BackendTexture().
+    // Automatically release the pointers in wgpu::TextureView & wgpu::Texture's dtor.
+    // Acquire() won't increment the ref count.
+    wgpu::TextureView::Acquire(texture.getDawnTextureViewPtr());
+    wgpu::Texture::Acquire(texture.getDawnTexturePtr());
 }
 
 const DawnSharedContext* DawnResourceProvider::dawnSharedContext() const {

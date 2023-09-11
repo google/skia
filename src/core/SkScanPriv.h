@@ -12,6 +12,13 @@
 #include "src/core/SkBlitter.h"
 #include "src/core/SkScan.h"
 
+#if defined(SK_DISABLE_AAA) && defined(SK_FORCE_AAA)
+// Oops, this is bad. If we accidentally enable both of these, we'll have no AA scan converter.
+// Although our end goal is FORCE_AAA, we'll favor DISABLE_AAA, so it's an explicit choice that
+// clients can veto until we're ready to rebaseline tests in their repo. (https://skbug.com/14232)
+#undef SK_FORCE_AAA
+#endif
+
 // controls how much we super-sample (when we use that scan convertion)
 #define SK_SUPERSAMPLE_SHIFT    2
 
@@ -78,23 +85,6 @@ EdgeType* backward_insert_start(EdgeType* prev, SkFixed x) {
         prev = prev->fPrev;
     }
     return prev;
-}
-
-// Check if the path is a rect and fat enough after clipping; if so, blit it.
-static inline bool TryBlitFatAntiRect(SkBlitter* blitter, const SkPath& path, const SkIRect& clip) {
-    SkRect rect;
-    if (!path.isRect(&rect)) {
-        return false; // not rect
-    }
-    if (!rect.intersect(SkRect::Make(clip))) {
-        return true; // The intersection is empty. Hence consider it done.
-    }
-    SkIRect bounds = rect.roundOut();
-    if (bounds.width() < 3) {
-        return false; // not fat
-    }
-    blitter->blitFatAntiRect(rect);
-    return true;
 }
 
 #endif

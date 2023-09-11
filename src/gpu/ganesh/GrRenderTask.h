@@ -19,7 +19,11 @@ class GrMockRenderTask;
 class GrOpFlushState;
 class GrResourceAllocator;
 class GrTextureResolveRenderTask;
-namespace skgpu { namespace v1 { class OpsTask; }}
+namespace skgpu {
+namespace ganesh {
+class OpsTask;
+}
+}  // namespace skgpu
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's
@@ -99,9 +103,9 @@ public:
     /*
      * Safely cast this GrRenderTask to a OpsTask (if possible).
      */
-    virtual skgpu::v1::OpsTask* asOpsTask() { return nullptr; }
+    virtual skgpu::ganesh::OpsTask* asOpsTask() { return nullptr; }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     /*
      * Dump out the GrRenderTask dependency DAG
      */
@@ -145,7 +149,7 @@ public:
     // Used by GrRenderTaskCluster.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrRenderTask);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     const GrTextureResolveRenderTask* resolveTask() const { return fTextureResolveTask; }
 #endif
 protected:
@@ -172,12 +176,12 @@ protected:
     // targetUpdateBounds must not extend beyond the proxy bounds.
     virtual ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) = 0;
 
-    SkSTArray<1, sk_sp<GrSurfaceProxy>> fTargets;
+    skia_private::STArray<1, sk_sp<GrSurfaceProxy>> fTargets;
 
     // List of texture proxies whose contents are being prepared on a worker thread
     // TODO: this list exists so we can fire off the proper upload when an renderTask begins
     // executing. Can this be replaced?
-    SkTArray<GrTextureProxy*, true> fDeferredProxies;
+    skia_private::TArray<GrTextureProxy*, true> fDeferredProxies;
 
     enum Flags {
         kClosed_Flag           = 0x01,   //!< This task can't accept any more dependencies.
@@ -266,9 +270,9 @@ private:
     uint32_t               fFlags;
 
     // 'this' GrRenderTask relies on the output of the GrRenderTasks in 'fDependencies'
-    SkSTArray<1, GrRenderTask*, true> fDependencies;
+    skia_private::STArray<1, GrRenderTask*, true> fDependencies;
     // 'this' GrRenderTask's output is relied on by the GrRenderTasks in 'fDependents'
-    SkSTArray<1, GrRenderTask*, true> fDependents;
+    skia_private::STArray<1, GrRenderTask*, true> fDependents;
 
     // For performance reasons, we should perform texture resolves back-to-back as much as possible.
     // (http://skbug.com/9406). To accomplish this, we make and reuse one single resolve task for

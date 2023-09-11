@@ -16,7 +16,8 @@
 
 using namespace skgpu::graphite;
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(Shader_FindOrCreateSnippetForRuntimeEffect, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(Shader_FindOrCreateSnippetForRuntimeEffect, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
@@ -42,7 +43,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(Shader_FindOrCreateSnippetForRuntimeEffect, r
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ColorFilter_FindOrCreateSnippetForRuntimeEffect,
                                    reporter,
-                                   context) {
+                                   context,
+                                   CtsEnforcement::kNextRelease) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(
@@ -68,7 +70,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ColorFilter_FindOrCreateSnippetForRuntimeEffe
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderUniforms_FindOrCreateSnippetForRuntimeEffect,
-                                   reporter, context) {
+                                   reporter, context, CtsEnforcement::kNextRelease) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
@@ -111,7 +113,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderUniforms_FindOrCreateSnippetForRuntimeE
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ColorFilterUniforms_FindOrCreateSnippetForRuntimeEffect,
-                                   reporter, context) {
+                                   reporter, context, CtsEnforcement::kNextRelease) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(

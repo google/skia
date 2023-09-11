@@ -10,26 +10,31 @@
 
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkDescriptor.h"
-#include "src/text/StrikeForGPU.h"
+#include "src/core/SkScalerContext.h"
 
+#include <memory>
 #include <tuple>
 
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-#include "src/text/gpu/SDFTControl.h"
-
-namespace sktext::gpu {
-class StrikeCache;
-class TextStrike;
-}
-#endif
-
 class SkFont;
+class SkGlyph;
+class SkMatrix;
 class SkPaint;
 class SkStrike;
 class SkStrikeCache;
 class SkSurfaceProps;
+struct SkPackedGlyphID;
+namespace sktext {
+class StrikeForGPU;
+class StrikeForGPUCacheInterface;
+}
 
 class SkStrikeSpec {
 public:
@@ -76,17 +81,6 @@ public:
     // Make a strike spec for PDF Vector strikes
     static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);
 
-#if (defined(SK_GANESH) || defined(SK_GRAPHITE)) && !defined(SK_DISABLE_SDF_TEXT)
-    // Create a strike spec for scaled distance field text.
-    static std::tuple<SkStrikeSpec, SkScalar, sktext::gpu::SDFTMatrixRange> MakeSDFT(
-            const SkFont& font,
-            const SkPaint& paint,
-            const SkSurfaceProps& surfaceProps,
-            const SkMatrix& deviceMatrix,
-            const SkPoint& textLocation,
-            const sktext::gpu::SDFTControl& control);
-#endif
-
     sk_sp<sktext::StrikeForGPU> findOrCreateScopedStrike(
             sktext::StrikeForGPUCacheInterface* cache) const;
 
@@ -121,6 +115,7 @@ private:
 class SkBulkGlyphMetrics {
 public:
     explicit SkBulkGlyphMetrics(const SkStrikeSpec& spec);
+    ~SkBulkGlyphMetrics();
     SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
     const SkGlyph* glyph(SkGlyphID glyphID);
 

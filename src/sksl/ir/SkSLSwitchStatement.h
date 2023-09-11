@@ -8,11 +8,11 @@
 #ifndef SKSL_SWITCHSTATEMENT
 #define SKSL_SWITCHSTATEMENT
 
-#include "include/private/SkSLDefines.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLStatement.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <memory>
 #include <string>
@@ -31,12 +31,14 @@ class SwitchStatement final : public Statement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kSwitch;
 
-    SwitchStatement(Position pos, std::unique_ptr<Expression> value,
-                    StatementArray cases, std::shared_ptr<SymbolTable> symbols)
-        : INHERITED(pos, kIRNodeKind)
-        , fValue(std::move(value))
-        , fCases(std::move(cases))
-        , fSymbols(std::move(symbols)) {}
+    SwitchStatement(Position pos,
+                    std::unique_ptr<Expression> value,
+                    StatementArray cases,
+                    std::shared_ptr<SymbolTable> symbols)
+            : INHERITED(pos, kIRNodeKind)
+            , fValue(std::move(value))
+            , fCases(std::move(cases))
+            , fSymbols(std::move(symbols)) {}
 
     // Create a `switch` statement with an array of case-values and case-statements.
     // Coerces case values to the proper type and reports an error if cases are duplicated.
@@ -45,8 +47,7 @@ public:
                                               Position pos,
                                               std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
-                                              StatementArray caseStatements,
-                                              std::shared_ptr<SymbolTable> symbolTable);
+                                              StatementArray caseStatements);
 
     // Create a `switch` statement with an array of SwitchCases. The array of SwitchCases must
     // already contain non-overlapping, correctly-typed case values. Reports errors via ASSERT.

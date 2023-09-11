@@ -6,10 +6,10 @@
  */
 
 #include "gm/gm.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
@@ -24,38 +24,18 @@
 #include "include/encode/SkWebpEncoder.h"
 #include "tools/Resources.h"
 
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_WIN) \
- || defined(SK_ENABLE_NDK_IMAGES)
-#include "src/encode/SkImageEncoderPriv.h"
-#endif
-
 namespace {
 
 static const struct {
     SkEncodedImageFormat format;
     int                  quality;
 } gRecs[] = {
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kJPEG, 100},
-    { SkEncodedImageFormat::kGIF,  100},
-    { SkEncodedImageFormat::kBMP,  100},
-    { SkEncodedImageFormat::kICO,  100},
-#elif defined(SK_BUILD_FOR_WIN)
-    // Our WIC encoder does not support GIF, BMP, or ICO.
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kJPEG, 100},
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kPNG,  100},
-    { SkEncodedImageFormat::kPNG,  100},
-#else
     // We don't support GIF, BMP, or ICO. This applies to both NDK and SkEncoder.
     { SkEncodedImageFormat::kPNG,  100},
     { SkEncodedImageFormat::kJPEG, 100},
     { SkEncodedImageFormat::kWEBP, 100}, // Lossless
     { SkEncodedImageFormat::kWEBP,  80}, // Lossy
     { SkEncodedImageFormat::kPNG,  100},
-#endif
 };
 
 } // anonymous namespace
@@ -66,30 +46,26 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
         return nullptr;
     }
     SkDynamicMemoryWStream buf;
-    #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        return SkEncodeImageWithCG(&buf, src, type) ? buf.detachAsData() : nullptr;
-    #elif defined(SK_BUILD_FOR_WIN)
-        return SkEncodeImageWithWIC(&buf, src, type, quality) ? buf.detachAsData() : nullptr;
-    #elif defined(SK_ENABLE_NDK_IMAGES)
-        return SkEncodeImageWithNDK(&buf, src, type, quality) ? buf.detachAsData() : nullptr;
-    #else
-        switch (type) {
-            case SkEncodedImageFormat::kPNG: {
-                bool success = SkPngEncoder::Encode(&buf, src, SkPngEncoder::Options());
-                return success ? buf.detachAsData() : nullptr;
-            }
-            case SkEncodedImageFormat::kJPEG: {
-                bool success = SkJpegEncoder::Encode(&buf, src, SkJpegEncoder::Options());
-                return success ? buf.detachAsData() : nullptr;
-            }
-            case SkEncodedImageFormat::kWEBP: {
-                bool success = SkWebpEncoder::Encode(&buf, src, SkWebpEncoder::Options());
-                return success ? buf.detachAsData() : nullptr;
-            }
-            default:
-                SkUNREACHABLE;
+    switch (type) {
+        case SkEncodedImageFormat::kPNG: {
+            bool success = SkPngEncoder::Encode(&buf, src, {});
+            return success ? buf.detachAsData() : nullptr;
         }
-    #endif
+        case SkEncodedImageFormat::kJPEG: {
+            SkJpegEncoder::Options opts;
+            opts.fQuality = quality;
+            bool success = SkJpegEncoder::Encode(&buf, src, opts);
+            return success ? buf.detachAsData() : nullptr;
+        }
+        case SkEncodedImageFormat::kWEBP: {
+            SkWebpEncoder::Options opts;
+            opts.fQuality = quality;
+            bool success = SkWebpEncoder::Encode(&buf, src, opts);
+            return success ? buf.detachAsData() : nullptr;
+        }
+        default:
+            SkUNREACHABLE;
+    }
 }
 
 namespace skiagm {
@@ -99,13 +75,9 @@ public:
     EncodePlatformGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("encode-platform");
-    }
+    SkString getName() const override { return SkString("encode-platform"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(256 * std::size(gRecs), 256 * 3);
-    }
+    SkISize getISize() override { return SkISize::Make(256 * std::size(gRecs), 256 * 3); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBitmap opaqueBm, premulBm, unpremulBm;
@@ -128,9 +100,9 @@ protected:
 
         for (const auto& rec : gRecs) {
             auto fmt = rec.format; int q = rec.quality;
-            auto opaqueImage   = SkImage::MakeFromEncoded(encode_data(fmt, opaqueBm,   q));
-            auto premulImage   = SkImage::MakeFromEncoded(encode_data(fmt, premulBm,   q));
-            auto unpremulImage = SkImage::MakeFromEncoded(encode_data(fmt, unpremulBm, q));
+            auto opaqueImage = SkImages::DeferredFromEncodedData(encode_data(fmt, opaqueBm, q));
+            auto premulImage = SkImages::DeferredFromEncodedData(encode_data(fmt, premulBm, q));
+            auto unpremulImage = SkImages::DeferredFromEncodedData(encode_data(fmt, unpremulBm, q));
 
             canvas->drawImage(opaqueImage.get(), 0.0f, 0.0f);
             canvas->drawImage(premulImage.get(), 0.0f, 256.0f);

@@ -10,9 +10,8 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkStream.h"
+#include "include/encode/SkPngEncoder.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -39,7 +38,7 @@ inline void write_bm(const char* name, const SkBitmap& bm) {
     SkString filename = SkOSPath::Join(FLAGS_codecWritePath[0], name);
     filename.appendf(".png");
     SkFILEWStream file(filename.c_str());
-    if (!SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkPngEncoder::Encode(&file, bm.pixmap(), {})) {
         SkDebugf("failed to write '%s'\n", filename.c_str());
     }
 }

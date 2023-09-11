@@ -9,7 +9,7 @@ make_gn() {
     cat << EOF
     target_cpu = "$ARCH"
     is_debug = false
-    ndk = "$ANDROID_NDK"
+    ndk = "$ANDROID_NDK_HOME"
     ndk_api = 26
 EOF
 }
@@ -18,7 +18,7 @@ main() {
     APP="$1"
     LIB="$2"
 
-    ANDROID_NDK="$(cd "$ANDROID_NDK"; pwd)"
+    ANDROID_NDK_HOME="$(cd "$ANDROID_NDK_HOME"; pwd)"
     ANDROID_HOME="$(cd "$ANDROID_HOME"; pwd)"
 
     cd "$(dirname "$0")/../../.."
@@ -58,10 +58,10 @@ main() {
 
 usage() {
     cat >&2 <<EOM
-The environment variables ANDROID_NDK and ANDROID_HOME must be set to the
+The environment variables ANDROID_NDK_HOME and ANDROID_HOME must be set to the
 locations of the Android NDK and SDK.  Current values:
 
-    ANDROID_NDK="$ANDROID_NDK"
+    ANDROID_NDK_HOME="$ANDROID_NDK_HOME"
     ANDROID_HOME="$ANDROID_HOME"
 
 Additionally, \`python\` and \`ninja\` should be in your path.
@@ -70,7 +70,7 @@ EOM
     exit 1
 }
 
-[ -d "$ANDROID_NDK"  ] || usage
+[ -d "$ANDROID_NDK_HOME"  ] || usage
 [ -d "$ANDROID_HOME" ] || usage
 command -v ninja  > /dev/null || usage
 command -v python > /dev/null || usage

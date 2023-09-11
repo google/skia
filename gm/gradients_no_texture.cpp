@@ -99,12 +99,11 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkString(fDither ? "gradients_no_texture" : "gradients_no_texture_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(640, 615); }
+    SkISize getISize() override { return SkISize::Make(640, 615); }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr SkPoint kPts[2] = { { 0, 0 },
@@ -237,12 +236,11 @@ public:
     GradientsManyColorsGM(bool dither) : fDither(dither) {}
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkString(fDither ? "gradients_many" : "gradients_many_nodither");
     }
 
-    SkISize onISize() override { return SkISize::Make(880, 400); }
+    SkISize getISize() override { return SkISize::Make(880, 400); }
 
     void onDraw(SkCanvas* canvas) override {
         const Proc procs[] = {

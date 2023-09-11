@@ -1,6 +1,0 @@
-### Compilation failed:
-
-error: 1: name 'sampler1D' is reserved
-int sampler1D;
-    ^^^^^^^^^
-1 error

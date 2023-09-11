@@ -1,0 +1,138 @@
+               OpCapability ImageQuery
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
+               OpExecutionMode %main LocalSize 16 16 1
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
+               OpName %dest "dest"
+               OpName %main "main"
+               OpName %pixel "pixel"
+               OpName %max_x "max_x"
+               OpName %max_y "max_y"
+               OpName %x "x"
+               OpName %y "y"
+               OpName %ray_origin "ray_origin"
+               OpName %ray_target "ray_target"
+               OpName %sphere_center "sphere_center"
+               OpName %sphere_radius "sphere_radius"
+               OpName %t_minus_c "t_minus_c"
+               OpName %b "b"
+               OpName %c "c"
+               OpName %bsqmc "bsqmc"
+               OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %dest Binding 0
+               OpDecorate %dest DescriptorSet 0
+               OpDecorate %pixel RelaxedPrecision
+               OpDecorate %32 RelaxedPrecision
+               OpDecorate %37 RelaxedPrecision
+               OpDecorate %46 RelaxedPrecision
+               OpDecorate %51 RelaxedPrecision
+               OpDecorate %85 RelaxedPrecision
+               OpDecorate %88 RelaxedPrecision
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+      %float = OpTypeFloat 32
+          %9 = OpTypeImage %float 2D 0 0 0 2 Rgba32f
+%_ptr_UniformConstant_9 = OpTypePointer UniformConstant %9
+       %dest = OpVariable %_ptr_UniformConstant_9 UniformConstant
+       %void = OpTypeVoid
+         %12 = OpTypeFunction %void
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+    %float_0 = OpConstant %float 0
+    %float_1 = OpConstant %float 1
+         %19 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_1
+%_ptr_Function_float = OpTypePointer Function %float
+    %float_5 = OpConstant %float 5
+     %uint_2 = OpConstant %uint 2
+     %v2uint = OpTypeVector %uint 2
+    %v3float = OpTypeVector %float 3
+%_ptr_Function_v3float = OpTypePointer Function %v3float
+   %float_n1 = OpConstant %float -1
+         %58 = OpConstantComposite %v3float %float_0 %float_0 %float_n1
+  %float_n10 = OpConstant %float -10
+         %65 = OpConstantComposite %v3float %float_0 %float_0 %float_n10
+       %bool = OpTypeBool
+%float_0_400000006 = OpConstant %float 0.400000006
+         %83 = OpConstantComposite %v4float %float_0_400000006 %float_0_400000006 %float_1 %float_1
+       %main = OpFunction %void None %12
+         %13 = OpLabel
+      %pixel = OpVariable %_ptr_Function_v4float Function
+      %max_x = OpVariable %_ptr_Function_float Function
+      %max_y = OpVariable %_ptr_Function_float Function
+          %x = OpVariable %_ptr_Function_float Function
+          %y = OpVariable %_ptr_Function_float Function
+ %ray_origin = OpVariable %_ptr_Function_v3float Function
+ %ray_target = OpVariable %_ptr_Function_v3float Function
+%sphere_center = OpVariable %_ptr_Function_v3float Function
+%sphere_radius = OpVariable %_ptr_Function_float Function
+  %t_minus_c = OpVariable %_ptr_Function_v3float Function
+          %b = OpVariable %_ptr_Function_float Function
+          %c = OpVariable %_ptr_Function_float Function
+      %bsqmc = OpVariable %_ptr_Function_float Function
+               OpStore %pixel %19
+               OpStore %max_x %float_5
+               OpStore %max_y %float_5
+         %25 = OpLoad %v3uint %sk_GlobalInvocationID
+         %26 = OpCompositeExtract %uint %25 0
+         %28 = OpIMul %uint %26 %uint_2
+         %32 = OpLoad %9 %dest
+         %31 = OpImageQuerySize %v2uint %32
+         %29 = OpCompositeExtract %uint %31 0
+         %33 = OpISub %uint %28 %29
+         %34 = OpConvertUToF %float %33
+         %37 = OpLoad %9 %dest
+         %36 = OpImageQuerySize %v2uint %37
+         %35 = OpCompositeExtract %uint %36 0
+         %38 = OpConvertUToF %float %35
+         %39 = OpFDiv %float %34 %38
+               OpStore %x %39
+         %41 = OpLoad %v3uint %sk_GlobalInvocationID
+         %42 = OpCompositeExtract %uint %41 1
+         %43 = OpIMul %uint %42 %uint_2
+         %46 = OpLoad %9 %dest
+         %45 = OpImageQuerySize %v2uint %46
+         %44 = OpCompositeExtract %uint %45 1
+         %47 = OpISub %uint %43 %44
+         %48 = OpConvertUToF %float %47
+         %51 = OpLoad %9 %dest
+         %50 = OpImageQuerySize %v2uint %51
+         %49 = OpCompositeExtract %uint %50 1
+         %52 = OpConvertUToF %float %49
+         %53 = OpFDiv %float %48 %52
+               OpStore %y %53
+               OpStore %ray_origin %58
+         %60 = OpFMul %float %39 %float_5
+         %61 = OpFMul %float %53 %float_5
+         %62 = OpCompositeConstruct %v3float %60 %61 %float_0
+               OpStore %ray_target %62
+               OpStore %sphere_center %65
+               OpStore %sphere_radius %float_1
+         %68 = OpFSub %v3float %62 %65
+               OpStore %t_minus_c %68
+         %70 = OpDot %float %58 %68
+               OpStore %b %70
+         %72 = OpDot %float %68 %68
+         %73 = OpFMul %float %float_1 %float_1
+         %74 = OpFSub %float %72 %73
+               OpStore %c %74
+         %76 = OpFMul %float %70 %70
+         %77 = OpFSub %float %76 %74
+               OpStore %bsqmc %77
+         %78 = OpFOrdGreaterThanEqual %bool %77 %float_0
+               OpSelectionMerge %81 None
+               OpBranchConditional %78 %80 %81
+         %80 = OpLabel
+               OpStore %pixel %83
+               OpBranch %81
+         %81 = OpLabel
+         %85 = OpLoad %9 %dest
+         %86 = OpLoad %v3uint %sk_GlobalInvocationID
+         %87 = OpVectorShuffle %v2uint %86 %86 0 1
+         %88 = OpLoad %v4float %pixel
+               OpImageWrite %85 %87 %88
+               OpReturn
+               OpFunctionEnd

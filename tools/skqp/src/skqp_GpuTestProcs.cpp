@@ -30,23 +30,20 @@ using sk_gpu_test::GLTestContext;
 
 namespace skiatest {
 
-bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kOpenGL == GrContextFactory::ContextTypeBackend(type);
+bool IsGLContextType(skgpu::ContextType type) {
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kOpenGL;
 }
-bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return GrBackendApi::kVulkan == GrContextFactory::ContextTypeBackend(type);
+bool IsVulkanContextType(skgpu::ContextType type) {
+    return skgpu::ganesh::ContextTypeBackend(type) == GrBackendApi::kVulkan;
 }
-bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
-}
-bool IsMockContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return type == GrContextFactory::kMock_ContextType;
+bool IsMockContextType(skgpu::ContextType type) {
+    return type == skgpu::ContextType::kMock;
 }
 
 // These are not supported
-bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) { return false; }
-bool IsDirect3DContextType(sk_gpu_test::GrContextFactory::ContextType type) { return false; }
-bool IsDawnContextType(sk_gpu_test::GrContextFactory::ContextType type) { return false; }
+bool IsMetalContextType(skgpu::ContextType type) { return false; }
+bool IsDirect3DContextType(skgpu::ContextType type) { return false; }
+bool IsDawnContextType(skgpu::ContextType type) { return false; }
 
 static bool vk_has_physical_devices() {
     static bool supported = false;
@@ -67,19 +64,18 @@ static bool vk_has_physical_devices() {
 
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
 // Used for testing on desktop machines.
-static constexpr auto kNativeGLType = GrContextFactory::kGL_ContextType;
+static constexpr auto kNativeGLType = skgpu::ContextType::kGL;
 #else
-static constexpr auto kNativeGLType = GrContextFactory::kGLES_ContextType;
+static constexpr auto kNativeGLType = skgpu::ContextType::kGLES;
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
-static_assert(kNativeGLType == GrContextFactory::kGLES_ContextType, "CTS requires GLES");
+static_assert(kNativeGLType == skgpu::ContextType::kGLES, "CTS requires GLES");
 #endif
 
-static bool skip_context(GrContextFactory::ContextType contextType) {
+static bool skip_context(skgpu::ContextType contextType) {
     // Use "native" instead of explicitly trying both OpenGL and OpenGL ES.
-    if (contextType == GrContextFactory::kGL_ContextType ||
-        contextType == GrContextFactory::kGLES_ContextType) {
+    if (contextType == skgpu::ContextType::kGL || contextType == skgpu::ContextType::kGLES) {
         if (contextType != kNativeGLType) {
             return true;
         }
@@ -88,18 +84,18 @@ static bool skip_context(GrContextFactory::ContextType contextType) {
     // The Android CDD (https://source.android.com/compatibility/12/android-12-cdd.pdf) does not
     // require Vulkan, but if it enumerates at least one VkPhysicalDevice then it is expected that
     // Vulkan is supported
-    if (contextType == GrContextFactory::kVulkan_ContextType && !vk_has_physical_devices()) {
+    if (contextType == skgpu::ContextType::kVulkan && !vk_has_physical_devices()) {
         return true;
     }
     return false;
 }
 
 void RunWithGaneshTestContexts(GrContextTestFn* testFn,
-                               GrContextTypeFilterFn* filter,
+                               ContextTypeFilterFn* filter,
                                Reporter* reporter,
                                const GrContextOptions& options) {
-    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
-        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType)typeInt;
+    for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
+        skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
         if (skip_context(contextType)) {
             continue;
         }
@@ -112,12 +108,12 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn,
         sk_gpu_test::GrContextFactory factory(options);
         sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
 
-        ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
+        ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
         if (ctxInfo.directContext()) {
             ctxInfo.testContext()->makeCurrent();
             (*testFn)(reporter, ctxInfo);
             // Sync so any release/finished procs get called.
-            ctxInfo.directContext()->flushAndSubmit(/*sync*/ true);
+            ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
         }
     }
 }
@@ -127,8 +123,11 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn,
 namespace graphite {
 
 void RunWithGraphiteTestContexts(GraphiteTestFn* test,
-                                 GrContextTypeFilterFn* filter,
-                                 Reporter* reporter) { SK_ABORT(); }
+                                 ContextTypeFilterFn* filter,
+                                 Reporter* reporter,
+                                 const skgpu::graphite::ContextOptions&) {
+    SK_ABORT();
+}
 
 }  // namespace graphite
 
@@ -141,23 +140,22 @@ void SkQP::printBackendInfo(const char* dstPath) {
     SkFILEWStream out(dstPath);
     out.writeText("[\n");
 
-    GrContextFactory::ContextType contextsToDump[] = {skiatest::kNativeGLType,
-                                                      GrContextFactory::kVulkan_ContextType};
+    skgpu::ContextType contextsToDump[] = {skiatest::kNativeGLType, skgpu::ContextType::kVulkan};
 
     for (auto contextType : contextsToDump) {
         std::unique_ptr<TestContext> testCtx;
         switch (contextType) {
 #ifdef SK_GL
-            case GrContextFactory::kGL_ContextType:
+            case skgpu::ContextType::kGL:
                 testCtx.reset(sk_gpu_test::CreatePlatformGLTestContext(kGL_GrGLStandard, nullptr));
                 break;
-            case GrContextFactory::kGLES_ContextType:
+            case skgpu::ContextType::kGLES:
                 testCtx.reset(
                         sk_gpu_test::CreatePlatformGLTestContext(kGLES_GrGLStandard, nullptr));
                 break;
 #endif
 #ifdef SK_VULKAN
-            case GrContextFactory::kVulkan_ContextType:
+            case skgpu::ContextType::kVulkan:
                 testCtx.reset(sk_gpu_test::CreatePlatformVkTestContext(nullptr));
                 break;
 #endif

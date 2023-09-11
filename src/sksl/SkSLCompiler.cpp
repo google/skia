@@ -7,31 +7,31 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
-#include "include/private/SkSLDefines.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLProgramKind.h"
-#include "include/private/SkSLSymbol.h"
 #include "include/private/base/SkDebug.h"
-#include "include/sksl/DSLCore.h"
-#include "include/sksl/DSLModifiers.h"
-#include "include/sksl/DSLType.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLInliner.h"
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLParser.h"
+#include "src/sksl/SkSLPool.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFieldSymbol.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -63,8 +63,6 @@
 #endif
 
 namespace SkSL {
-
-class ModifiersPool;
 
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
 Compiler::OverrideFlag Compiler::sOptimizer = OverrideFlag::kDefault;
@@ -117,21 +115,6 @@ public:
 
     Context* fContext;
     const ShaderCaps* fOldCaps;
-};
-
-class AutoModifiersPool {
-public:
-    AutoModifiersPool(std::shared_ptr<Context>& context, ModifiersPool* modifiersPool)
-            : fContext(context.get()) {
-        SkASSERT(!fContext->fModifiersPool);
-        fContext->fModifiersPool = modifiersPool;
-    }
-
-    ~AutoModifiersPool() {
-        fContext->fModifiersPool = nullptr;
-    }
-
-    Context* fContext;
 };
 
 Compiler::Compiler(const ShaderCaps* caps) : fErrorReporter(this), fCaps(caps) {
@@ -205,7 +188,6 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
                                                 const char* moduleName,
                                                 std::string moduleSource,
                                                 const Module* parent,
-                                                ModifiersPool& modifiersPool,
                                                 bool shouldInline) {
     SkASSERT(parent);
     SkASSERT(!moduleSource.empty());
@@ -213,7 +195,6 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
 
     // Modules are shared and cannot rely on shader caps.
     AutoShaderCaps autoCaps(fContext, nullptr);
-    AutoModifiersPool autoPool(fContext, &modifiersPool);
 
     // Compile the module from source, using default program settings.
     ProgramSettings settings;
@@ -246,41 +227,60 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     return Parser(this, settings, kind, std::move(text)).program();
 }
 
+std::unique_ptr<SkSL::Program> Compiler::releaseProgram(std::unique_ptr<std::string> source) {
+    ThreadContext& instance = ThreadContext::Instance();
+    Pool* pool = instance.fPool.get();
+    auto result = std::make_unique<SkSL::Program>(std::move(source),
+                                                  std::move(instance.fConfig),
+                                                  fContext,
+                                                  std::move(instance.fProgramElements),
+                                                  std::move(instance.fSharedElements),
+                                                  std::move(fContext->fSymbolTable),
+                                                  std::move(instance.fPool),
+                                                  instance.fInterface);
+    bool success = this->finalize(*result) &&
+                   this->optimize(*result);
+    if (pool) {
+        pool->detachFromThread();
+    }
+    SkASSERT(instance.fProgramElements.empty());
+    SkASSERT(!fContext->fSymbolTable);
+    return success ? std::move(result) : nullptr;
+}
+
 std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {
-    const Symbol* result = fSymbolTable->find(name);
+    const Symbol* result = this->symbolTable()->find(name);
     if (!result) {
         this->errorReporter().error(pos, "unknown identifier '" + std::string(name) + "'");
         return nullptr;
     }
     switch (result->kind()) {
-        case Symbol::Kind::kFunctionDeclaration: {
+        case Symbol::Kind::kFunctionDeclaration:
             return std::make_unique<FunctionReference>(*fContext, pos,
                                                        &result->as<FunctionDeclaration>());
-        }
+
         case Symbol::Kind::kVariable: {
             const Variable* var = &result->as<Variable>();
             // default to kRead_RefKind; this will be corrected later if the variable is written to
             return VariableReference::Make(pos, var, VariableReference::RefKind::kRead);
         }
         case Symbol::Kind::kField: {
-            const Field* field = &result->as<Field>();
+            const FieldSymbol* field = &result->as<FieldSymbol>();
             auto base = VariableReference::Make(pos, &field->owner(),
                                                 VariableReference::RefKind::kRead);
             return FieldAccess::Make(*fContext, pos, std::move(base), field->fieldIndex(),
                                      FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
         }
-        case Symbol::Kind::kType: {
-            // go through DSLType so we report errors on private types
-            dsl::DSLModifiers modifiers;
-            dsl::DSLType dslType(result->name(), &modifiers, pos);
-            return TypeReference::Convert(*fContext, pos, &dslType.skslType());
-        }
+        case Symbol::Kind::kType:
+            return TypeReference::Convert(*fContext, pos, &result->as<Type>());
+
         default:
-            SK_ABORT("unsupported symbol type %d\n", (int) result->kind());
+            SkDEBUGFAILF("unsupported symbol type %d\n", (int)result->kind());
+            return nullptr;
     }
 }
 
-bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module) {
+bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module, bool shrinkSymbols) {
     SkASSERT(this->errorCount() == 0);
 
     auto m = SkSL::ModuleLoader::Get();
@@ -290,15 +290,17 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module) {
     config.fIsBuiltinCode = true;
     config.fKind = kind;
     AutoProgramConfig autoConfig(this->context(), &config);
-    AutoModifiersPool autoPool(fContext, &m.coreModifiers());
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
-    // Assign shorter names to symbols as long as it won't change the external meaning of the code.
-    Transform::RenamePrivateSymbols(this->context(), module, usage.get(), kind);
+    if (shrinkSymbols) {
+        // Assign shorter names to symbols as long as it won't change the external meaning of the
+        // code.
+        Transform::RenamePrivateSymbols(this->context(), module, usage.get(), kind);
 
-    // Replace constant variables with their literal values to save space.
-    Transform::ReplaceConstVarsWithLiterals(module, usage.get());
+        // Replace constant variables with their literal values to save space.
+        Transform::ReplaceConstVarsWithLiterals(module, usage.get());
+    }
 
     // Remove any unreachable code.
     Transform::EliminateUnreachableCode(module, usage.get());
@@ -396,6 +398,15 @@ bool Compiler::optimize(Program& program) {
     return this->errorCount() == 0;
 }
 
+void Compiler::runInliner(Program& program) {
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+    AutoProgramConfig autoConfig(this->context(), program.fConfig.get());
+    AutoShaderCaps autoCaps(fContext, fCaps);
+    Inliner inliner(fContext.get());
+    this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, program.fUsage.get());
+#endif
+}
+
 bool Compiler::runInliner(Inliner* inliner,
                           const std::vector<std::unique_ptr<ProgramElement>>& elements,
                           std::shared_ptr<SymbolTable> symbols,
@@ -403,20 +414,14 @@ bool Compiler::runInliner(Inliner* inliner,
 #ifdef SK_ENABLE_OPTIMIZE_SIZE
     return true;
 #else
-    // The program's SymbolTable was taken out of fSymbolTable when the program was bundled, but
-    // the inliner relies (indirectly) on having a valid SymbolTable.
-    // In particular, inlining can turn a non-optimizable expression like `normalize(myVec)` into
-    // `normalize(vec2(7))`, which is now optimizable. The optimizer can use DSL to simplify this
-    // expression--e.g., in the case of normalize, using DSL's Length(). The DSL relies on
-    // convertIdentifier() to look up `length`. convertIdentifier() needs a valid symbol table to
-    // find the declaration of `length`. To allow this chain of events to succeed, we re-insert the
-    // program's symbol table temporarily.
-    SkASSERT(!fSymbolTable);
-    fSymbolTable = symbols;
+    // The program's SymbolTable was taken out of the context when the program was bundled, but
+    // the inliner creates IR objects which may expect the context to hold a valid SymbolTable.
+    SkASSERT(!fContext->fSymbolTable);
+    fContext->fSymbolTable = symbols;
 
     bool result = inliner->analyze(elements, symbols, usage);
 
-    fSymbolTable = nullptr;
+    fContext->fSymbolTable = nullptr;
     return result;
 #endif
 }
@@ -477,7 +482,9 @@ static bool validate_spirv(ErrorReporter& reporter, std::string_view program) {
 #if defined(SKSL_STANDALONE)
         // Convert the string-stream to a SPIR-V disassembly.
         std::string disassembly;
-        if (tools.Disassemble(programData, programSize, &disassembly)) {
+        uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
+        options |= SPV_BINARY_TO_TEXT_OPTION_INDENT;
+        if (tools.Disassemble(programData, programSize, &disassembly, options)) {
             errors.append(disassembly);
         }
         reporter.error(Position(), errors);
@@ -495,9 +502,9 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     AutoShaderCaps autoCaps(fContext, fCaps);
     ProgramSettings settings;
     settings.fUseMemoryPool = false;
-    dsl::Start(this, program.fConfig->fKind, settings);
-    dsl::SetErrorReporter(&fErrorReporter);
-    fSymbolTable = program.fSymbols;
+    ThreadContext::Start(this, program.fConfig->fKind, settings);
+    ThreadContext::SetErrorReporter(&fErrorReporter);
+    fContext->fSymbolTable = program.fSymbols;
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     SPIRVCodeGenerator cg(fContext.get(), &program, &buffer);
@@ -512,17 +519,17 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     SPIRVCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
 #endif
-    dsl::End();
+    ThreadContext::End();
     return result;
 }
 
 bool Compiler::toSPIRV(Program& program, std::string* out) {
     StringStream buffer;
-    bool result = this->toSPIRV(program, buffer);
-    if (result) {
-        *out = buffer.str();
+    if (!this->toSPIRV(program, buffer)) {
+        return false;
     }
-    return result;
+    *out = buffer.str();
+    return true;
 }
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
@@ -536,11 +543,11 @@ bool Compiler::toGLSL(Program& program, OutputStream& out) {
 
 bool Compiler::toGLSL(Program& program, std::string* out) {
     StringStream buffer;
-    bool result = this->toGLSL(program, buffer);
-    if (result) {
-        *out = buffer.str();
+    if (!this->toGLSL(program, buffer)) {
+        return false;
     }
-    return result;
+    *out = buffer.str();
+    return true;
 }
 
 bool Compiler::toHLSL(Program& program, OutputStream& out) {
@@ -578,26 +585,38 @@ bool Compiler::toMetal(Program& program, OutputStream& out) {
 
 bool Compiler::toMetal(Program& program, std::string* out) {
     StringStream buffer;
-    bool result = this->toMetal(program, buffer);
-    if (result) {
-        *out = buffer.str();
+    if (!this->toMetal(program, buffer)) {
+        return false;
     }
-    return result;
+    *out = buffer.str();
+    return true;
 }
 
 #if defined(SK_ENABLE_WGSL_VALIDATION)
-static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl) {
+static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std::string* warnings) {
+    // Verify that the WGSL we produced is valid.
     tint::Source::File srcFile("", wgsl);
-    tint::Program program(tint::reader::wgsl::Parse(&srcFile));
-    if (program.Diagnostics().count() > 0) {
+    tint::Program program(tint::wgsl::reader::Parse(&srcFile));
+
+    if (program.Diagnostics().contains_errors()) {
+        // The program isn't valid WGSL. In debug, report the error via SkDEBUGFAIL. We also append
+        // the generated program for ease of debugging.
         tint::diag::Formatter diagFormatter;
         std::string diagOutput = diagFormatter.format(program.Diagnostics());
+        diagOutput += "\n";
+        diagOutput += wgsl;
 #if defined(SKSL_STANDALONE)
         reporter.error(Position(), diagOutput);
 #else
         SkDEBUGFAILF("%s", diagOutput.c_str());
 #endif
         return false;
+    }
+
+    if (!program.Diagnostics().empty()) {
+        // The program contains warnings. Report them as-is.
+        tint::diag::Formatter diagFormatter;
+        *warnings = diagFormatter.format(program.Diagnostics());
     }
     return true;
 }
@@ -606,13 +625,20 @@ static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl) {
 bool Compiler::toWGSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toWGSL");
     AutoSource as(this, *program.fSource);
+    AutoShaderCaps autoCaps(fContext, fCaps);
 #ifdef SK_ENABLE_WGSL_VALIDATION
     StringStream wgsl;
     WGSLCodeGenerator cg(fContext.get(), &program, &wgsl);
     bool result = cg.generateCode();
     if (result) {
         std::string wgslString = wgsl.str();
-        result = validate_wgsl(this->errorReporter(), wgslString);
+        std::string warnings;
+        result = validate_wgsl(this->errorReporter(), wgslString, &warnings);
+        if (!warnings.empty()) {
+            out.writeText("/*\n\n");
+            out.writeString(warnings);
+            out.writeText("*/\n\n");
+        }
         out.writeString(wgslString);
     }
 #else
@@ -620,6 +646,15 @@ bool Compiler::toWGSL(Program& program, OutputStream& out) {
     bool result = cg.generateCode();
 #endif
     return result;
+}
+
+bool Compiler::toWGSL(Program& program, std::string* out) {
+    StringStream buffer;
+    if (!this->toWGSL(program, buffer)) {
+        return false;
+    }
+    *out = buffer.str();
+    return true;
 }
 
 #endif // defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)

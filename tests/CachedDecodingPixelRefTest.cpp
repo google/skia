@@ -16,7 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMemset.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
@@ -41,7 +41,7 @@ public:
 
     TestImageGenerator(TestType type, skiatest::Reporter* reporter,
                        SkColorType colorType = kN32_SkColorType)
-    : INHERITED(GetMyInfo(colorType)), fType(type), fReporter(reporter) {
+    : SkImageGenerator(GetMyInfo(colorType)), fType(type), fReporter(reporter) {
         SkASSERT((fType <= kLast_TestType) && (fType >= 0));
     }
     ~TestImageGenerator() override {}
@@ -87,8 +87,6 @@ protected:
 private:
     const TestType fType;
     skiatest::Reporter* const fReporter;
-
-    using INHERITED = SkImageGenerator;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +104,7 @@ DEF_TEST(Image_NewFromGenerator, r) {
         TestImageGenerator::TestType test = testTypes[i];
         for (const SkColorType testColorType : testColorTypes) {
             auto gen = std::make_unique<TestImageGenerator>(test, r, testColorType);
-            sk_sp<SkImage> image(SkImage::MakeFromGenerator(std::move(gen)));
+            sk_sp<SkImage> image(SkImages::DeferredFromGenerator(std::move(gen)));
             if (nullptr == image) {
                 ERRORF(r, "SkImage::NewFromGenerator unexpecedly failed [%zu]", i);
                 continue;

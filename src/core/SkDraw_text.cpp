@@ -20,7 +20,6 @@
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSurfacePriv.h"
 
@@ -54,7 +53,7 @@ void SkDraw::paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& 
     // The size used for a typical blitter.
     SkSTArenaAlloc<3308> alloc;
     SkBlitter* blitter = SkBlitter::Choose(fDst,
-                                           fMatrixProvider->localToDevice(),
+                                           *fCTM,
                                            paint,
                                            &alloc,
                                            false,
@@ -77,8 +76,9 @@ void SkDraw::paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& 
                     if (SkMask::kARGB32_Format == mask.fFormat) {
                         SkBitmap bm;
                         bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
-                                         mask.fImage,
+                                         const_cast<uint8_t*>(mask.fImage),
                                          mask.fRowBytes);
+                        bm.setImmutable();
                         this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
                     } else {
                         const SkIRect& cr = clipper.rect();
@@ -111,8 +111,9 @@ void SkDraw::paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& 
                 if (SkMask::kARGB32_Format == mask.fFormat) {
                     SkBitmap bm;
                     bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.size()),
-                                     mask.fImage,
+                                     const_cast<uint8_t*>(mask.fImage),
                                      mask.fRowBytes);
+                    bm.setImmutable();
                     this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
                 } else {
                     blitter->blitMask(mask, *bounds);
@@ -133,8 +134,7 @@ void SkDraw::drawGlyphRunList(SkCanvas* canvas,
         return;
     }
 
-    glyphPainter->drawForBitmapDevice(canvas, this, glyphRunList, paint,
-                                      fMatrixProvider->localToDevice());
+    glyphPainter->drawForBitmapDevice(canvas, this, glyphRunList, paint, *fCTM);
 }
 
 #if defined _WIN32

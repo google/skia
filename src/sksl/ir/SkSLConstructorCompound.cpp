@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <algorithm>
@@ -122,7 +123,7 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
         // be flattened out.
         if (fields > args.size()) {
             ExpressionArray flattened;
-            flattened.reserve_back(fields);
+            flattened.reserve_exact(fields);
             for (std::unique_ptr<Expression>& arg : args) {
                 // For non-ConstructorCompound fields, move them over as-is.
                 if (!arg->is<ConstructorCompound>()) {
@@ -153,6 +154,19 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
     }
 
     return std::make_unique<ConstructorCompound>(pos, type, std::move(args));
+}
+
+std::unique_ptr<Expression> ConstructorCompound::MakeFromConstants(const Context& context,
+                                                                   Position pos,
+                                                                   const Type& returnType,
+                                                                   const double value[]) {
+    int numSlots = returnType.slotCount();
+    ExpressionArray array;
+    array.reserve_exact(numSlots);
+    for (int index = 0; index < numSlots; ++index) {
+        array.push_back(Literal::Make(pos, value[index], &returnType.componentType()));
+    }
+    return ConstructorCompound::Make(context, pos, returnType, std::move(array));
 }
 
 }  // namespace SkSL

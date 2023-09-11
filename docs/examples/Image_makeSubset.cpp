@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     const int height = 64;
     for (int y = 0; y < 512; y += height ) {
         for (int x = 0; x < 512; x += width ) {
-            sk_sp<SkImage> subset(image->makeSubset({x, y, x + width, y + height}));
+            sk_sp<SkImage> subset(image->makeSubset(nullptr, {x, y, x + width, y + height}));
             canvas->drawImage(subset, x * 3 / 2, y * 3 / 2);
         }
     }

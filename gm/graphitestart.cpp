@@ -12,6 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -58,7 +59,7 @@ sk_sp<SkShader> create_image_shader(SkCanvas* destCanvas, SkTileMode tmX, SkTile
         bitmap.setImmutable();
     }
 
-    sk_sp<SkImage> img = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkImage> img = SkImages::RasterFromBitmap(bitmap);
     img = ToolUtils::MakeTextureImage(destCanvas, std::move(img));
     if (img) {
         return img->makeShader(tmX, tmY, SkSamplingOptions());
@@ -264,13 +265,9 @@ protected:
     static constexpr int kHeight = 3 * kTileHeight;
     static constexpr int kClipInset = 4;
 
-    SkString onShortName() override {
-        return SkString("graphitestart");
-    }
+    SkString getName() const override { return SkString("graphitestart"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
 

@@ -1,4 +1,6 @@
 ### Compilation failed:
 
-error: program does not contain a main() function
+error: 2: unsized arrays are not permitted here
+    int[]h;
+    ^^^^^^
 1 error

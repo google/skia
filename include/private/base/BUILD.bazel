@@ -17,6 +17,7 @@ IWYU_HDRS = [
     "SkAPI.h",
     "SkAlign.h",
     "SkAlignedStorage.h",
+    "SkAnySubclass.h",
     "SkAssert.h",
     "SkAttributes.h",
     "SkCPUTypes.h",
@@ -30,7 +31,7 @@ IWYU_HDRS = [
     "SkMutex.h",
     "SkNoncopyable.h",
     "SkOnce.h",
-    "SkPathEnums.h",
+    "SkPoint_impl.h",
     "SkSafe32.h",
     "SkSpan_impl.h",
     "SkTArray.h",
@@ -59,7 +60,7 @@ filegroup(
         ":generated_base_header_cpps1",
         ":generated_base_header_cpps2",
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = ["//src/base:__pkg__"],
 )
 
 skia_filegroup(
@@ -76,6 +77,6 @@ skia_filegroup(
     ],
     visibility = [
         "//include/private:__pkg__",
-        "//src:__pkg__",
+        "//src/base:__pkg__",
     ],
 )

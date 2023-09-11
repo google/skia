@@ -28,7 +28,7 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
 // OpsTask to be picked up and added to by SurfaceFillContext lower in the call
@@ -265,4 +265,4 @@ void SurfaceFillContext::onValidate() const {
 }
 #endif
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

@@ -65,7 +65,7 @@ private:
 };
 
 /**
- * Concrete SkModeColorFilter Effect node.
+ * Concrete SkBlendModeColorFilter Effect node.
  */
 class ModeColorFilter final : public ColorFilter {
 public:

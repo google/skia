@@ -39,15 +39,14 @@ protected:
     }
     void onDraw(int loops, SkCanvas* canvas) override {
         SkRandom rand;
-        AutoTMalloc<SkRect> rects(NUM_BUILD_RECTS);
+        AutoTArray<SkRect> rects(NUM_BUILD_RECTS);
         for (int i = 0; i < NUM_BUILD_RECTS; ++i) {
             rects[i] = fProc(rand, i, NUM_BUILD_RECTS);
         }
 
         for (int i = 0; i < loops; ++i) {
             SkRTree tree;
-            tree.insert(rects.get(), NUM_BUILD_RECTS);
-            SkASSERT(rects != nullptr);  // It'd break this bench if the tree took ownership of rects.
+            tree.insert(rects.data(), NUM_BUILD_RECTS);
         }
     }
 private:
@@ -72,11 +71,11 @@ protected:
     }
     void onDelayedSetup() override {
         SkRandom rand;
-        AutoTMalloc<SkRect> rects(NUM_QUERY_RECTS);
+        AutoTArray<SkRect> rects(NUM_QUERY_RECTS);
         for (int i = 0; i < NUM_QUERY_RECTS; ++i) {
             rects[i] = fProc(rand, i, NUM_QUERY_RECTS);
         }
-        fTree.insert(rects.get(), NUM_QUERY_RECTS);
+        fTree.insert(rects.data(), NUM_QUERY_RECTS);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {

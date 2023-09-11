@@ -130,7 +130,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         // Set the color table
-        fColorTable.reset(new SkColorTable(colorTable, maxColors));
+        fColorTable.reset(new SkColorPalette(colorTable, maxColors));
     }
 
     // Bmp-in-Ico files do not use an offset to indicate where the pixel data

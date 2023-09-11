@@ -8,39 +8,33 @@
 #ifndef sktext_gpu_TextBlob_DEFINED
 #define sktext_gpu_TextBlob_DEFINED
 
-#include <algorithm>
-#include <limits>
-
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/chromium/Slug.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
-class SkMatrixProvider;
-class SkStrikeClient;
-class SkSurfaceProps;
-class SkTextBlob;
-class SkTextBlobRunIterator;
+#include <cstddef>
+#include <cstdint>
+#include <tuple>
+
+class SkCanvas;
+struct SkPoint;
+struct SkStrikeDeviceInfo;
 
 namespace sktext {
 class GlyphRunList;
-    namespace gpu {
-    class Glyph;
-    class StrikeCache;
-    }
+class StrikeForGPUCacheInterface;
 }
 
-#if defined(SK_GANESH)  // Ganesh support
-#include "src/gpu/ganesh/GrColor.h"
-#include "src/gpu/ganesh/ops/GrOp.h"
-class GrAtlasManager;
-class GrDeferredUploadTarget;
-class GrMeshDrawTarget;
-namespace skgpu::v1 { class SurfaceDrawContext; }
-#endif
-
 namespace sktext::gpu {
+class Slug;
 
 // -- TextBlob -----------------------------------------------------------------------------------
 // A TextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
@@ -118,20 +112,11 @@ public:
     const Key& key() const;
     size_t size() const { return SkTo<size_t>(fSize); }
 
-#if defined(SK_GANESH)
-    void draw(SkCanvas*,
-              const GrClip* clip,
-              const SkMatrixProvider& viewMatrix,
-              SkPoint drawOrigin,
-              const SkPaint& paint,
-              skgpu::v1::SurfaceDrawContext* sdc);
-#endif
-#if defined(SK_GRAPHITE)
     void draw(SkCanvas*,
               SkPoint drawOrigin,
               const SkPaint& paint,
-              skgpu::graphite::Device* device);
-#endif
+              AtlasDrawDelegate);
+
     const AtlasSubRun* testingOnlyFirstSubRun() const;
 
 private:
@@ -149,14 +134,11 @@ private:
     Key fKey;
 };
 
-}  // namespace sktext::gpu
-
-namespace skgpu::v1 {
-sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrixProvider& drawMatrix,
+sk_sp<sktext::gpu::Slug> MakeSlug(const SkMatrix& drawMatrix,
                                   const sktext::GlyphRunList& glyphRunList,
                                   const SkPaint& initialPaint,
                                   const SkPaint& drawingPaint,
                                   SkStrikeDeviceInfo strikeDeviceInfo,
                                   sktext::StrikeForGPUCacheInterface* strikeCache);
-}  // namespace skgpu::v1
+}  // namespace sktext::gpu
 #endif  // sktext_gpu_TextBlob_DEFINED

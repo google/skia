@@ -13,7 +13,7 @@
 namespace skgpu::graphite {
 
 // The maximum number of shared resource binding slots permitted for ComputeSteps of a DispatchGroup
-constexpr int kMaxComputeDataFlowSlots = 16;
+constexpr int kMaxComputeDataFlowSlots = 25;
 
 /**
  * Defines the space that a compute shader operates on. A problem space is logically divided into
@@ -44,6 +44,8 @@ struct WorkgroupSize {
             , fHeight(height)
             , fDepth(depth) {}
 
+    uint32_t scalarSize() const { return fWidth * fHeight * fDepth; }
+
     uint32_t fWidth = 1;
     uint32_t fHeight = 1;
     uint32_t fDepth = 1;
@@ -65,15 +67,6 @@ struct ComputePassDesc {
     // problem is divided between the global and local sizes. Which approach is more optimal depends
     // on the problem.
     WorkgroupSize fLocalDispatchSize;
-};
-
-// TODO(armansito): These types aren't specific to compute and could share definitions with render
-// pipeline stack.
-using BindingIndex = uint32_t;
-
-struct ResourceBinding {
-    BindingIndex fIndex;
-    BindBufferInfo fBuffer;
 };
 
 }  // namespace skgpu::graphite

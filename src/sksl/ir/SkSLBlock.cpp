@@ -68,9 +68,38 @@ std::unique_ptr<Block> Block::MakeBlock(Position pos,
     return std::make_unique<Block>(pos, std::move(statements), kind, std::move(symbols));
 }
 
+std::unique_ptr<Statement> Block::MakeCompoundStatement(std::unique_ptr<Statement> existing,
+                                                        std::unique_ptr<Statement> additional) {
+    // If either of the two Statements is empty, return the other.
+    if (!existing || existing->isEmpty()) {
+        return additional;
+    }
+    if (!additional || additional->isEmpty()) {
+        return existing;
+    }
+
+    // If the existing statement is a compound-statement Block, append the additional statement.
+    if (existing->is<Block>()) {
+        SkSL::Block& block = existing->as<Block>();
+        if (block.blockKind() == Block::Kind::kCompoundStatement) {
+            block.children().push_back(std::move(additional));
+            return existing;
+        }
+    }
+
+    // The existing statement was not a compound-statement Block; create one, and put both
+    // statements inside of it.
+    Position pos = existing->fPosition.rangeThrough(additional->fPosition);
+    StatementArray stmts;
+    stmts.reserve_exact(2);
+    stmts.push_back(std::move(existing));
+    stmts.push_back(std::move(additional));
+    return Block::Make(pos, std::move(stmts), Block::Kind::kCompoundStatement);
+}
+
 std::unique_ptr<Statement> Block::clone() const {
     StatementArray cloned;
-    cloned.reserve_back(this->children().size());
+    cloned.reserve_exact(this->children().size());
     for (const std::unique_ptr<Statement>& stmt : this->children()) {
         cloned.push_back(stmt->clone());
     }

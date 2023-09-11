@@ -24,6 +24,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkFontPriv.h"
@@ -32,8 +34,10 @@
 #include <cstring>
 
 #if defined(SK_GRAPHITE)
+#include "include/core/SkTiledImageUtils.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/ImageProvider.h"
-#include <unordered_map>
+#include "src/core/SkLRUCache.h"
 #endif
 
 #if defined(SK_ENABLE_SVG)
@@ -45,6 +49,7 @@
 #if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #endif
@@ -167,7 +172,7 @@ SkBitmap create_checkerboard_bitmap(int w, int h, SkColor c1, SkColor c2, int ch
 }
 
 sk_sp<SkImage> create_checkerboard_image(int w, int h, SkColor c1, SkColor c2, int checkSize) {
-    auto surf = SkSurface::MakeRasterN32Premul(w, h);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h));
     ToolUtils::draw_checkerboard(surf->getCanvas(), c1, c2, checkSize);
     return surf->makeImageSnapshot();
 }
@@ -521,7 +526,7 @@ sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
                              const SkSurfaceProps* props) {
     auto surf = canvas->makeSurface(info, props);
     if (!surf) {
-        surf = SkSurface::MakeRaster(info, props);
+        surf = SkSurfaces::Raster(info, props);
     }
     return surf;
 }
@@ -566,12 +571,12 @@ void sniff_paths(const char filepath[], std::function<PathSniffCallback> callbac
     }
 }
 
-#if defined(SK_GANESH)
 sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig) {
     if (!orig) {
         return nullptr;
     }
 
+#if defined(SK_GANESH)
     if (canvas->recordingContext() && canvas->recordingContext()->asDirectContext()) {
         GrDirectContext* dContext = canvas->recordingContext()->asDirectContext();
         const GrCaps* caps = dContext->priv().caps();
@@ -583,17 +588,16 @@ sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig) {
             return orig;
         }
 
-        return orig->makeTextureImage(dContext);
-    }
-#if defined(SK_GRAPHITE)
-    else if (canvas->recorder()) {
-        return orig->makeTextureImage(canvas->recorder());
+        return SkImages::TextureFromImage(dContext, orig);
     }
 #endif
-
+#if defined(SK_GRAPHITE)
+    if (canvas->recorder()) {
+        return SkImages::TextureFromImage(canvas->recorder(), orig, {false});
+    }
+#endif
     return orig;
 }
-#endif
 
 VariationSliders::VariationSliders(SkTypeface* typeface,
                                    SkFontArguments::VariationPosition variationPosition) {
@@ -687,44 +691,78 @@ SkSpan<const SkFontArguments::VariationPosition::Coordinate> VariationSliders::g
 // TODO: add testing of a single ImageProvider passed to multiple recorders
 class TestingImageProvider : public skgpu::graphite::ImageProvider {
 public:
+    TestingImageProvider() : fCache(kDefaultNumCachedImages) {}
     ~TestingImageProvider() override {}
 
     sk_sp<SkImage> findOrCreate(skgpu::graphite::Recorder* recorder,
                                 const SkImage* image,
-                                SkImage::RequiredImageProperties requiredProps) override {
-        if (requiredProps.fMipmapped == skgpu::Mipmapped::kNo) {
+                                SkImage::RequiredProperties requiredProps) override {
+        if (!requiredProps.fMipmapped) {
             // If no mipmaps are required, check to see if we have a mipmapped version anyway -
             // since it can be used in that case.
             // TODO: we could get fancy and, if ever a mipmapped key eclipsed a non-mipmapped
             // key, we could remove the hidden non-mipmapped key/image from the cache.
-            uint64_t mipMappedKey = ((uint64_t)image->uniqueID() << 32) | 0x1;
+            ImageKey mipMappedKey(image, /* mipmapped= */ true);
             auto result = fCache.find(mipMappedKey);
-            if (result != fCache.end()) {
-                return result->second;
+            if (result) {
+                return *result;
             }
         }
 
-        uint64_t key = ((uint64_t)image->uniqueID() << 32) |
-                       (requiredProps.fMipmapped == skgpu::Mipmapped::kYes ? 0x1 : 0x0);
+        ImageKey key(image, requiredProps.fMipmapped);
 
         auto result = fCache.find(key);
-        if (result != fCache.end()) {
-            return result->second;
+        if (result) {
+            return *result;
         }
 
-        sk_sp<SkImage> newImage = image->makeTextureImage(recorder, requiredProps);
+        sk_sp<SkImage> newImage = SkImages::TextureFromImage(recorder, image, requiredProps);
         if (!newImage) {
             return nullptr;
         }
 
-        auto [iter, success] = fCache.insert({ key, newImage });
-        SkASSERT(success);
+        result = fCache.insert(key, std::move(newImage));
+        SkASSERT(result);
 
-        return iter->second;
+        return *result;
     }
 
 private:
-    std::unordered_map<uint64_t, sk_sp<SkImage>> fCache;
+    static constexpr int kDefaultNumCachedImages = 256;
+
+    class ImageKey {
+    public:
+        ImageKey(const SkImage* image, bool mipmapped) {
+            uint32_t flags = mipmapped ? 0x1 : 0x0;
+            SkTiledImageUtils::GetImageKeyValues(image, &fValues[1]);
+            fValues[kNumValues-1] = flags;
+            fValues[0] = SkChecksum::Hash32(&fValues[1], (kNumValues-1) * sizeof(uint32_t));
+        }
+
+        uint32_t hash() const { return fValues[0]; }
+
+        bool operator==(const ImageKey& other) const {
+            for (int i = 0; i < kNumValues; ++i) {
+                if (fValues[i] != other.fValues[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        bool operator!=(const ImageKey& other) const { return !(*this == other); }
+
+    private:
+        static const int kNumValues = SkTiledImageUtils::kNumImageKeyValues + 2;
+
+        uint32_t fValues[kNumValues];
+    };
+
+    struct ImageHash {
+        size_t operator()(const ImageKey& key) const { return key.hash(); }
+    };
+
+    SkLRUCache<ImageKey, sk_sp<SkImage>, ImageHash> fCache;
 };
 
 skgpu::graphite::RecorderOptions CreateTestingRecorderOptions() {
@@ -736,5 +774,167 @@ skgpu::graphite::RecorderOptions CreateTestingRecorderOptions() {
 }
 
 #endif // SK_GRAPHITE
+
+bool EncodeImageToPngFile(const char* path, const SkBitmap& src) {
+    SkFILEWStream file(path);
+    return file.isValid() && SkPngEncoder::Encode(&file, src.pixmap(), {});
+}
+
+bool EncodeImageToPngFile(const char* path, const SkPixmap& src) {
+    SkFILEWStream file(path);
+    return file.isValid() && SkPngEncoder::Encode(&file, src, {});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+HilbertGenerator::HilbertGenerator(float desiredSize, float desiredLineWidth, int desiredDepth)
+        : fDesiredSize(desiredSize)
+        , fDesiredDepth(desiredDepth)
+        , fSegmentLength(fDesiredSize / ((0x1 << fDesiredDepth) - 1.0f))
+        , fDesiredLineWidth(desiredLineWidth)
+        , fActualBounds(SkRect::MakeEmpty())
+        , fCurPos(SkPoint::Make(0.0f, 0.0f))
+        , fCurDir(0)
+        , fExpectedLen(fSegmentLength * ((0x1 << (2*fDesiredDepth)) - 1.0f))
+        , fCurLen(0.0f) {
+}
+
+void HilbertGenerator::draw(SkCanvas* canvas) {
+    this->recursiveDraw(canvas, /* curDepth= */ 0, /* turnLeft= */ true);
+
+    SkScalarNearlyEqual(fExpectedLen, fCurLen, 0.01f);
+    SkScalarNearlyEqual(fDesiredSize, fActualBounds.width(), 0.01f);
+    SkScalarNearlyEqual(fDesiredSize, fActualBounds.height(), 0.01f);
+}
+
+void HilbertGenerator::turn90(bool turnLeft) {
+    fCurDir += turnLeft ? 90 : -90;
+    if (fCurDir >= 360) {
+        fCurDir = 0;
+    } else if (fCurDir < 0) {
+        fCurDir = 270;
+    }
+
+    SkASSERT(fCurDir == 0 || fCurDir == 90 || fCurDir == 180 || fCurDir == 270);
+}
+
+void HilbertGenerator::line(SkCanvas* canvas) {
+
+    SkPoint before = fCurPos;
+
+    SkRect r;
+    switch (fCurDir) {
+        case 0:
+            r.fLeft = fCurPos.fX;
+            r.fTop = fCurPos.fY - fDesiredLineWidth / 2.0f;
+            r.fRight = fCurPos.fX + fSegmentLength;
+            r.fBottom = fCurPos.fY + fDesiredLineWidth / 2.0f;
+            fCurPos.fX += fSegmentLength;
+            break;
+        case 90:
+            r.fLeft = fCurPos.fX - fDesiredLineWidth / 2.0f;
+            r.fTop = fCurPos.fY - fSegmentLength;
+            r.fRight = fCurPos.fX + fDesiredLineWidth / 2.0f;
+            r.fBottom = fCurPos.fY;
+            fCurPos.fY -= fSegmentLength;
+            break;
+        case 180:
+            r.fLeft = fCurPos.fX - fSegmentLength;
+            r.fTop = fCurPos.fY - fDesiredLineWidth / 2.0f;
+            r.fRight = fCurPos.fX;
+            r.fBottom = fCurPos.fY + fDesiredLineWidth / 2.0f;
+            fCurPos.fX -= fSegmentLength;
+            break;
+        case 270:
+            r.fLeft = fCurPos.fX - fDesiredLineWidth / 2.0f;
+            r.fTop = fCurPos.fY;
+            r.fRight = fCurPos.fX + fDesiredLineWidth / 2.0f;
+            r.fBottom = fCurPos.fY + fSegmentLength;
+            fCurPos.fY += fSegmentLength;
+            break;
+        default:
+            return;
+    }
+
+    SkPoint pts[2] = { before, fCurPos };
+
+    SkColor4f colors[2] = {
+            this->getColor(fCurLen),
+            this->getColor(fCurLen + fSegmentLength),
+    };
+
+    fCurLen += fSegmentLength;
+    if (fActualBounds.isEmpty()) {
+        fActualBounds = r;
+    } else {
+        fActualBounds.join(r);
+    }
+
+    SkPaint paint;
+    paint.setShader(SkGradientShader::MakeLinear(pts, colors, /* colorSpace= */ nullptr,
+                                                 /* pos= */ nullptr, 2, SkTileMode::kClamp));
+    canvas->drawRect(r, paint);
+}
+
+void HilbertGenerator::recursiveDraw(SkCanvas* canvas, int curDepth, bool turnLeft) {
+    if (curDepth >= fDesiredDepth) {
+        return;
+    }
+
+    this->turn90(turnLeft);
+    this->recursiveDraw(canvas, curDepth + 1, !turnLeft);
+    this->line(canvas);
+    this->turn90(!turnLeft);
+    this->recursiveDraw(canvas, curDepth + 1, turnLeft);
+    this->line(canvas);
+    this->recursiveDraw(canvas, curDepth + 1, turnLeft);
+    this->turn90(!turnLeft);
+    this->line(canvas);
+    this->recursiveDraw(canvas, curDepth + 1, !turnLeft);
+    this->turn90(turnLeft);
+}
+
+SkColor4f HilbertGenerator::getColor(float curLen) {
+    static const SkColor4f kColors[] = {
+            SkColors::kBlack,
+            SkColors::kBlue,
+            SkColors::kCyan,
+            SkColors::kGreen,
+            SkColors::kYellow,
+            SkColors::kRed,
+            SkColors::kWhite,
+    };
+
+    static const float kStops[] = {
+            0.0f,
+            1.0f/6.0f,
+            2.0f/6.0f,
+            0.5f,
+            4.0f/6.0f,
+            5.0f/6.0f,
+            1.0f,
+    };
+    static_assert(std::size(kColors) == std::size(kStops));
+
+    float t = curLen / fExpectedLen;
+    if (t <= 0.0f) {
+        return kColors[0];
+    } else if (t >= 1.0f) {
+        return kColors[std::size(kColors)-1];
+    }
+
+    for (unsigned int i = 0; i < std::size(kColors)-1; ++i) {
+        if (kStops[i] <= t && t <= kStops[i+1]) {
+            t = (t - kStops[i]) / (kStops[i+1] - kStops[i]);
+            SkASSERT(0.0f <= t && t <= 1.0f);
+            return { kColors[i].fR * (1 - t) + kColors[i+1].fR * t,
+                     kColors[i].fG * (1 - t) + kColors[i+1].fG * t,
+                     kColors[i].fB * (1 - t) + kColors[i+1].fB * t,
+                     kColors[i].fA * (1 - t) + kColors[i+1].fA * t };
+
+        }
+    }
+
+    return SkColors::kBlack;
+}
 
 }  // namespace ToolUtils

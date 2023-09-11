@@ -5,19 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "src/codec/SkWuffsCodec.h"
-
+#include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
+#include "include/codec/SkEncodedImageFormat.h"
+#include "include/codec/SkGifDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
@@ -31,13 +33,13 @@
 #include "src/codec/SkSampler.h"
 #include "src/codec/SkScalingCodec.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStreamPriv.h"
 
 #include <climits>
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -117,6 +119,45 @@ static SkCodecAnimation::DisposalMethod wuffs_disposal_to_skia_disposal(
     }
 }
 
+static bool wuffs_status_means_incomplete_input(const char* status) {
+    if (status == wuffs_base__suspension__short_read) {
+        return true;
+    }
+#if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT >= 3390
+    // Commit count 3390 is Wuffs v0.3.1, which added "truncated input" errors
+    // to fix https://github.com/google/wuffs/issues/96
+#if 0
+    if ((status == wuffs_lzw__error__truncated_input) ||
+        (status == wuffs_gif__error__truncated_input)) {
+        return true;
+    }
+#else
+    // TODO: remove this workaround (and re-enable the "#if 0" code above)
+    // after https://skia-review.googlesource.com/c/skia/+/723597 "Roll
+    // third_party/wuffs to version 0.3.3" lands. The Mac and Linux commit
+    // queue is happy with 723597 but the Windows build-bots are not. They fail
+    // because, for some unknown reason only on Windows, upgrading
+    // third_party/wuffs picks up the wuffs_gif__error__truncated_input
+    // *declaration* (and the higher WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT
+    // value when "wuffs-v0.3.c" is included above 'as a .h file') but not its
+    // *definition* (when "wuffs-v0.3.c" is separately built 'as a .c file').
+    //
+    // The Windows build-bots fail at link time with "lld-link: error: undefined
+    // symbol: char const *const wuffs_lzw__error__truncated_input", even though
+    // they're perfectly happy with wuffs_base__suspension__short_read used
+    // earlier in this function, a "const char[]" declared and defined in
+    // exactly the same way as wuffs_lzw__error__truncated_input. Maybe it's a
+    // clean versus incremental build issue, but that's just a guess.
+    if (status && (status[0] == '#') &&
+        (!strcmp(status, "#lzw: truncated input") ||
+         !strcmp(status, "#gif: truncated input"))) {
+        return true;
+    }
+#endif
+#endif
+    return false;
+}
+
 static SkAlphaType to_alpha_type(bool opaque) {
     return opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
 }
@@ -141,7 +182,7 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
         status = decoder->decode_image_config(imgcfg, b);
         if (status.repr == nullptr) {
             break;
-        } else if (status.repr != wuffs_base__suspension__short_read) {
+        } else if (!wuffs_status_means_incomplete_input(status.repr)) {
             SkCodecPrintf("decode_image_config: %s", status.message());
             return SkCodec::kErrorInInput;
         } else if (!fill_buffer(b, s)) {
@@ -436,7 +477,7 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     }
 
     const char* status = this->decodeFrameConfig();
-    if (status == wuffs_base__suspension__short_read) {
+    if (wuffs_status_means_incomplete_input(status)) {
         return SkCodec::kIncompleteInput;
     } else if (status != nullptr) {
         SkCodecPrintf("decodeFrameConfig: %s", status);
@@ -600,7 +641,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
 SkCodec::Result SkWuffsCodec::onIncrementalDecodeOnePass() {
     const char* status = this->decodeFrame();
     if (status != nullptr) {
-        if (status == wuffs_base__suspension__short_read) {
+        if (wuffs_status_means_incomplete_input(status)) {
             return SkCodec::kIncompleteInput;
         } else {
             SkCodecPrintf("decodeFrame: %s", status);
@@ -625,7 +666,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         alphaType = to_alpha_type(f->reportedAlpha() == SkEncodedInfo::kOpaque_Alpha);
     }
     if (status != nullptr) {
-        if (status == wuffs_base__suspension__short_read) {
+        if (wuffs_status_means_incomplete_input(status)) {
             result = SkCodec::kIncompleteInput;
         } else {
             SkCodecPrintf("decodeFrame: %s", status);
@@ -704,8 +745,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         draw.fDst.reset(dstInfo(), fIncrDecDst, fIncrDecRowBytes);
         SkMatrix matrix = SkMatrix::RectToRect(SkRect::Make(this->dimensions()),
                                                SkRect::Make(this->dstInfo().dimensions()));
-        SkMatrixProvider matrixProvider(matrix);
-        draw.fMatrixProvider = &matrixProvider;
+        draw.fCTM = &matrix;
         SkRasterClip rc(SkIRect::MakeSize(this->dstInfo().dimensions()));
         draw.fRC = &rc;
 
@@ -927,16 +967,21 @@ void SkWuffsCodec::updateNumFullyReceivedFrames() {
     }
 }
 
-// -------------------------------- SkWuffsCodec.h functions
+namespace SkGifDecoder {
 
-bool SkWuffsCodec_IsFormat(const void* buf, size_t bytesRead) {
+bool IsGif(const void* buf, size_t bytesRead) {
     constexpr const char* gif_ptr = "GIF8";
     constexpr size_t      gif_len = 4;
     return (bytesRead >= gif_len) && (memcmp(buf, gif_ptr, gif_len) == 0);
 }
 
-std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                     SkCodec::Result*          result) {
+std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream> stream,
+                                        SkCodec::Result*          result) {
+    SkASSERT(result);
+    if (!stream) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
     // Some clients (e.g. Android) need to be able to seek the stream, but may
     // not provide a seekable stream. Copy the stream to one that can seek.
     if (!stream->hasPosition() || !stream->hasLength()) {
@@ -1020,3 +1065,27 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
                                                      std::move(decoder), std::move(workbuf_ptr),
                                                      workbuf_len, imgcfg, iobuf));
 }
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    SkCodec::Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+    return MakeFromStream(std::move(stream), outResult);
+}
+
+std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    if (!data) {
+        if (outResult) {
+            *outResult = SkCodec::kInvalidInput;
+        }
+        return nullptr;
+    }
+    return Decode(SkMemoryStream::Make(std::move(data)), outResult, nullptr);
+}
+}  // namespace SkGifDecoder
+

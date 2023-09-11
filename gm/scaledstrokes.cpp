@@ -19,14 +19,9 @@ public:
     ScaledStrokesGM() {}
 
 protected:
+    SkString getName() const override { return SkString("scaledstrokes"); }
 
-    SkString onShortName() override {
-        return SkString("scaledstrokes");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 320);
-    }
+    SkISize getISize() override { return SkISize::Make(640, 320); }
 
     static void draw_path(SkScalar size, SkCanvas* canvas, SkPaint paint) {
         SkScalar c = 0.551915024494f * size;

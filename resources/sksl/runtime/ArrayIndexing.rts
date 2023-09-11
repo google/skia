@@ -1,4 +1,4 @@
-/*#pragma settings SkVMDebugTrace*/
+/*#pragma settings DebugTrace*/
 
 uniform float u1[4];
 float index_by_literal() {

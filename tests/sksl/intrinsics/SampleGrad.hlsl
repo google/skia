@@ -15,7 +15,7 @@ struct SPIRV_Cross_Output
 
 float4 main(float2 _25)
 {
-    return t.SampleGrad(_t_sampler, _25, ddx(_25), ddy(_25) * _34_u_skRTFlip.y.xx);
+    return t.SampleGrad(_t_sampler, _25, ddx(_25), ddy(_25) * _34_u_skRTFlip.yy);
 }
 
 void frag_main()

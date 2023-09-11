@@ -8,6 +8,7 @@
 #include "src/codec/SkJpegxlCodec.h"
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkJpegxlDecoder.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
@@ -20,8 +21,8 @@
 #include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkFrameHolder.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/core/SkSwizzlePriv.h"
 
 #include "jxl/codestream_header.h"
 #include "jxl/decode.h"
@@ -84,6 +85,11 @@ SkJpegxlCodec::SkJpegxlCodec(std::unique_ptr<SkJpegxlCodecPriv> codec,
 
 std::unique_ptr<SkCodec> SkJpegxlCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                        Result* result) {
+    SkASSERT(result);
+    if (!stream) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
     *result = kInternalError;
     // Either wrap or copy stream data.
     sk_sp<SkData> data = nullptr;
@@ -459,3 +465,31 @@ const SkFrameHolder* SkJpegxlCodec::getFrameHolder() const {
 
 // TODO(eustas): implement
 // SkSampler* SkJpegxlCodec::getSampler(bool /*createIfNecessary*/) { return nullptr; }
+
+namespace SkJpegxlDecoder {
+bool IsJpegxl(const void* data, size_t len) {
+    return SkJpegxlCodec::IsJpegxl(data, len);
+}
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    SkCodec::Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+    return SkJpegxlCodec::MakeFromStream(std::move(stream), outResult);
+}
+
+std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                SkCodec::Result* outResult,
+                                SkCodecs::DecodeContext) {
+    if (!data) {
+        if (outResult) {
+            *outResult = SkCodec::kInvalidInput;
+        }
+        return nullptr;
+    }
+    return Decode(SkMemoryStream::Make(std::move(data)), outResult, nullptr);
+}
+}  // namespace SkJpegDecoder

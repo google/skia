@@ -6,16 +6,15 @@
  */
 
 #include "gm/gm.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
@@ -29,15 +28,27 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkJpegEncoder.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tools/ToolUtils.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Surface.h"
+#endif
+
 #include <functional>
 #include <utility>
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Image.h"
+#endif
 
 const SkSamplingOptions gSamplings[] = {
     SkSamplingOptions(SkFilterMode::kNearest),
@@ -134,13 +145,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("image-surface");
-    }
+    SkString getName() const override { return SkString("image-surface"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(960, 1200);
-    }
+    SkISize getISize() override { return SkISize::Make(960, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->scale(2, 2);
@@ -165,10 +172,10 @@ protected:
         sk_bzero(fBuffer, fBufferSize);
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
-        sk_sp<SkSurface> surf0(SkSurface::MakeRasterDirect(info, fBuffer, RB));
-        sk_sp<SkSurface> surf1(SkSurface::MakeRaster(info));
-        sk_sp<SkSurface> surf2(SkSurface::MakeRenderTarget(
-                canvas->recordingContext(), skgpu::Budgeted::kNo, info));
+        sk_sp<SkSurface> surf0(SkSurfaces::WrapPixels(info, fBuffer, RB));
+        sk_sp<SkSurface> surf1(SkSurfaces::Raster(info));
+        sk_sp<SkSurface> surf2(
+                SkSurfaces::RenderTarget(canvas->recordingContext(), skgpu::Budgeted::kNo, info));
 
         test_surface(canvas, surf0.get(), true);
         canvas->translate(80, 0);
@@ -229,7 +236,7 @@ static void draw_contents(SkCanvas* canvas) {
 static sk_sp<SkImage> make_raster(const SkImageInfo& info,
                                   GrRecordingContext*,
                                   void (*draw)(SkCanvas*)) {
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     draw(surface->getCanvas());
     return surface->makeImageSnapshot();
 }
@@ -239,16 +246,19 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info,
                                    void (*draw)(SkCanvas*)) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
-    return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                    info.dimensions(), nullptr, nullptr, SkImage::BitDepth::kU8,
-                                    SkColorSpace::MakeSRGB());
+    return SkImages::DeferredFromPicture(recorder.finishRecordingAsPicture(),
+                                         info.dimensions(),
+                                         nullptr,
+                                         nullptr,
+                                         SkImages::BitDepth::kU8,
+                                         SkColorSpace::MakeSRGB());
 }
 
 static sk_sp<SkImage> make_codec(const SkImageInfo& info,
                                  GrRecordingContext*,
                                  void (*draw)(SkCanvas*)) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw));
-    return SkImage::MakeFromEncoded(image->encodeToData());
+    return SkImages::DeferredFromEncodedData(SkPngEncoder::Encode(nullptr, image.get(), {}));
 }
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
@@ -258,7 +268,7 @@ static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
         return nullptr;
     }
 
-    auto surface(SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info));
+    auto surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
     if (!surface) {
         return nullptr;
     }
@@ -276,13 +286,9 @@ public:
     ScalePixelsGM() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("scale-pixels");
-    }
+    SkString getName() const override { return SkString("scale-pixels"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(960, 1200);
-    }
+    SkISize getISize() override { return SkISize::Make(960, 1200); }
 
     void onDraw(SkCanvas* canvas) override {
         const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
@@ -348,13 +354,15 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
             [&] { return bmp.asImage(); },
             // Create encoded image.
             [&] {
-                auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kPNG, 100);
-                return SkImage::MakeFromEncoded(std::move(src));
+                SkDynamicMemoryWStream stream;
+                SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, bmp.pixmap(), {}));
+                return SkImages::DeferredFromEncodedData(stream.detachAsData());
             },
             // Create YUV encoded image.
             [&] {
-                auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
-                return SkImage::MakeFromEncoded(std::move(src));
+                SkDynamicMemoryWStream stream;
+                SkASSERT_RELEASE(SkJpegEncoder::Encode(&stream, bmp.pixmap(), {}));
+                return SkImages::DeferredFromEncodedData(stream.detachAsData());
             },
             // Create a picture image.
             [&] {
@@ -363,21 +371,21 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
                         recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
                 render_image(canvas);
                 sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
-                return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                                SkISize::Make(kSize, kSize),
-                                                nullptr,
-                                                nullptr,
-                                                SkImage::BitDepth::kU8,
-                                                srgbColorSpace);
+                return SkImages::DeferredFromPicture(recorder.finishRecordingAsPicture(),
+                                                     SkISize::Make(kSize, kSize),
+                                                     nullptr,
+                                                     nullptr,
+                                                     SkImages::BitDepth::kU8,
+                                                     srgbColorSpace);
             },
             // Create a texture image
             [&]() -> sk_sp<SkImage> {
                 sk_sp<SkSurface> surface;
                 if (dContext) {
-                    surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kYes, ii);
+                    surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, ii);
                 } else {
 #if defined(SK_GRAPHITE)
-                    surface = SkSurface::MakeGraphite(recorder, ii);
+                    surface = SkSurfaces::RenderTarget(recorder, ii);
 #endif
                 }
 
@@ -396,14 +404,14 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
             for (auto mm : { false, true }) {
                 sk_sp<SkImage> texImage;
                 if (dContext) {
-                    texImage = image->makeTextureImage(dContext,
-                                                       mm ? GrMipmapped::kYes : GrMipmapped::kNo);
+                    texImage = SkImages::TextureFromImage(dContext,
+                                                          image,
+                                                          mm ? skgpu::Mipmapped::kYes
+                                                             : skgpu::Mipmapped::kNo);
                 } else {
 #if defined(SK_GRAPHITE)
-                    texImage = image->makeTextureImage(recorder,
-                                                       { mm ? skgpu::Mipmapped::kYes
-                                                            : skgpu::Mipmapped::kNo });
- #endif
+                    texImage = SkImages::TextureFromImage(recorder, image, {mm});
+#endif
                 }
                 if (texImage) {
                     canvas->drawImage(texImage, 0, mm ? kSize + kPad : 0);
@@ -417,7 +425,7 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
 }
 
 static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pm, SkScalar x, SkScalar y) {
-    canvas->drawImage(SkImage::MakeRasterCopy(pm), x, y);
+    canvas->drawImage(SkImages::RasterFromPixmapCopy(pm), x, y);
 }
 
 static void slam_ff(const SkPixmap& pm) {
@@ -459,9 +467,12 @@ static sk_sp<SkImage> make_lazy_image() {
         picture = recorder.finishRecordingAsPicture();
     }
 
-    return SkImage::MakeFromPicture(std::move(picture), { 200, 200 },
-                                    /* matrix= */ nullptr, /* paint= */ nullptr,
-                                    SkImage::BitDepth::kU8, SkColorSpace::MakeSRGB());
+    return SkImages::DeferredFromPicture(std::move(picture),
+                                         {200, 200},
+                                         /* matrix= */ nullptr,
+                                         /* paint= */ nullptr,
+                                         SkImages::BitDepth::kU8,
+                                         SkColorSpace::MakeSRGB());
 }
 
 static sk_sp<SkImage> serial_deserial(SkImage* img) {
@@ -496,11 +507,11 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
 
 #if defined(SK_GRAPHITE)
     if (recorder) {
-        subset = img->makeSubset({100, 100, 200, 200}, recorder);
+        subset = img->makeSubset(recorder, {100, 100, 200, 200}, {});
     } else
 #endif
     {
-        subset = img->makeSubset({100, 100, 200, 200}, dContext);
+        subset = img->makeSubset(dContext, {100, 100, 200, 200});
     }
 
     canvas->drawImage(subset, 220, 10);

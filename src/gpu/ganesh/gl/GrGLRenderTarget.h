@@ -11,8 +11,9 @@
 
 #include "include/core/SkScalar.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 class GrGLCaps;
 class GrGLGpu;
@@ -41,6 +42,7 @@ public:
                                                int sampleCount,
                                                const IDs&,
                                                int stencilBits,
+                                               skgpu::Protected,
                                                std::string_view label);
 
     bool isFBO0(bool multisample) const {
@@ -100,6 +102,7 @@ protected:
                      GrGLFormat,
                      int sampleCount,
                      const IDs&,
+                     skgpu::Protected,
                      std::string_view label);
 
     void init(GrGLFormat, const IDs&);
@@ -120,6 +123,7 @@ private:
                      int sampleCount,
                      const IDs&,
                      sk_sp<GrGLAttachment> stencil,
+                     skgpu::Protected,
                      std::string_view label);
 
     void setFlags(const GrGLCaps&, const IDs&);

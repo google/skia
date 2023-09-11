@@ -11,6 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
 
+class GrDeferredDisplayList;
 class GrRenderTargetProxy;
 
 /**
@@ -23,8 +24,7 @@ class GrDDLTask final : public GrRenderTask {
 public:
     GrDDLTask(GrDrawingManager*,
               sk_sp<GrRenderTargetProxy> ddlTarget,
-              sk_sp<const SkDeferredDisplayList>,
-              SkIPoint offset);
+              sk_sp<const GrDeferredDisplayList>);
 
     ~GrDDLTask() override;
 
@@ -54,7 +54,7 @@ private:
 
     bool onExecute(GrOpFlushState*) override;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void dump(const SkString& label,
               SkString indent,
               bool printDependencies,
@@ -65,9 +65,8 @@ private:
     void visitProxies_debugOnly(const GrVisitProxyFunc&) const override {}
 #endif
 
-    sk_sp<const SkDeferredDisplayList> fDDL;
+    sk_sp<const GrDeferredDisplayList> fDDL;
     sk_sp<GrRenderTargetProxy>         fDDLTarget;
-    SkIPoint                           fOffset;
 
     typedef GrRenderTask INHERITED;
 };

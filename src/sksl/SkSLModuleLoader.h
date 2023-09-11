@@ -14,7 +14,6 @@
 namespace SkSL {
 
 class Compiler;
-class ModifiersPool;
 struct Module;
 class Type;
 
@@ -37,9 +36,6 @@ public:
     // They are created when the ModuleLoader is instantiated and never change.
     const BuiltinTypes& builtinTypes();
     const Module* rootModule();
-
-    // This ModifiersPool is shared by every built-in module.
-    ModifiersPool& coreModifiers();
 
     // These modules are loaded on demand; once loaded, they are kept for the lifetime of the
     // process.

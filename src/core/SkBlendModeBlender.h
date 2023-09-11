@@ -8,33 +8,33 @@
 #ifndef SkBlendModeBlender_DEFINED
 #define SkBlendModeBlender_DEFINED
 
+#include "include/core/SkFlattenable.h"
 #include "src/core/SkBlenderBase.h"
+
+#include <optional>
+
+class SkReadBuffer;
+class SkWriteBuffer;
+enum class SkBlendMode;
+struct SkStageRec;
 
 class SkBlendModeBlender : public SkBlenderBase {
 public:
     SkBlendModeBlender(SkBlendMode mode) : fMode(mode) {}
 
-    std::optional<SkBlendMode> asBlendMode() const final { return fMode; }
-
-#if defined(SK_GANESH)
-    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            std::unique_ptr<GrFragmentProcessor> srcFP,
-            std::unique_ptr<GrFragmentProcessor> dstFP,
-            const GrFPArgs& fpArgs) const override;
-#endif
+    BlenderType type() const override { return BlenderType::kBlendMode; }
+    SkBlendMode mode() const { return fMode; }
 
     SK_FLATTENABLE_HOOKS(SkBlendModeBlender)
 
 private:
     using INHERITED = SkBlenderBase;
 
+    std::optional<SkBlendMode> asBlendMode() const final { return fMode; }
+
     void flatten(SkWriteBuffer& buffer) const override;
 
-    bool appendStages(const SkStageRec& rec) const override;
-
-    skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
-                          const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
-                          SkArenaAlloc* alloc) const override;
+    bool onAppendStages(const SkStageRec& rec) const override;
 
     SkBlendMode fMode;
 };

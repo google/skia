@@ -65,7 +65,7 @@ private:
                              fHiColorNode;
     const sk_sp<sksg::GradientColorFilter> fCF;
 
-    VectorValue fLoColor,
+    ColorValue  fLoColor,
                 fMiColor,
                 fHiColor;
     ScalarValue fWeight = 0;

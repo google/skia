@@ -1,5 +1,5 @@
-layout(metal, spirv, wgsl, gl, binding = 0) uniform ubo { float f; };  // multiple backends
-layout(texture=0, sampler=0) uniform sampler2D s;  // invalid (requires backend)
+layout(metal, vulkan, webgpu, direct3d, binding = 0) uniform ubo { float f; }; // multiple backends
+layout(texture=0, sampler=0) sampler2D s;                                      // missing backend
 
 /*%%*
 only one backend qualifier can be used

@@ -9,6 +9,7 @@
 #ifndef SkJpegPriv_DEFINED
 #define SkJpegPriv_DEFINED
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkStream.h"
 #include "include/private/base/SkTArray.h"
 
@@ -41,7 +42,11 @@ struct skjpeg_error_mgr : jpeg_error_mgr {
         jmp_buf fJmpBuf;
     };
 
-    SkSTArray<4, jmp_buf*> fJmpBufStack;
+    skia_private::STArray<4, jmp_buf*> fJmpBufStack;
 };
+
+namespace SkJpegPriv {
+SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo);
+}
 
 #endif

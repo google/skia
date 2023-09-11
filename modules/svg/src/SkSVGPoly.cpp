@@ -21,7 +21,7 @@ bool SkSVGPoly::parseAndSetAttribute(const char* n, const char* v) {
     if (this->setPoints(SkSVGAttributeParser::parse<SkSVGPointsType>("points", n, v))) {
         // TODO: we can likely just keep the points array and create the SkPath when needed.
         fPath = SkPath::Polygon(
-                fPoints.begin(), fPoints.size(),
+                fPoints.data(), fPoints.size(),
                 this->tag() == SkSVGTag::kPolygon);  // only polygons are auto-closed
     }
 

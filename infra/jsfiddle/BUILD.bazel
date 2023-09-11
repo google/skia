@@ -1,0 +1,28 @@
+load("//bazel:skia_app_container.bzl", "skia_app_container")
+
+# Layer the CanvasKit and PathKit components on top of the jsfiddle-base Docker
+# Image to create the final Docker image.
+skia_app_container(
+    name = "jsfiddle_container",
+    base_image = "@jsfiddle-base//image",
+    dirs = {
+        "/usr/local/share/jsfiddle/dist/": [
+            [
+                # This brings in all the CanvasKit build files.
+                "//modules/canvaskit:canvaskit",
+                "0644",
+            ],
+            [
+                # This brings in all the PathKit build files.
+                "//modules/pathkit:pathkit",
+                "0644",
+            ],
+            [
+                "//modules/canvaskit:version.js",
+                "0644",
+            ],
+        ],
+    },
+    entrypoint = "/usr/local/bin/jsfiddle",
+    repository = "skia-public/jsfiddle-final",
+)

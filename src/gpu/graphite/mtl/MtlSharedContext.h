@@ -35,7 +35,9 @@ public:
 
     const MtlCaps& mtlCaps() const { return static_cast<const MtlCaps&>(*this->caps()); }
 
-    std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) override;
+    std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
+                                                           uint32_t recorderID,
+                                                           size_t resourceBudget) override;
 
 private:
 

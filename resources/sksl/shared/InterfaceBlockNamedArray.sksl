@@ -1,7 +1,10 @@
 layout(binding=123) uniform testBlock {
-    float x;
+    layout (offset=0)  float s;
+    layout (offset=16) float2x2 m;
+    layout (offset=48) float a[2];
+    layout (offset=80) float2x2 am[2];
 } test[2];
 
 void main() {
-    sk_FragColor = half4(half(test[1].x));
+    sk_FragColor = half4(test[0].s, test[1].m[1][0], test[0].a[1], test[1].am[1][0][1]);
 }

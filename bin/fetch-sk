@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2021 Google Inc.
 #
@@ -15,10 +15,8 @@ import sys
 import tempfile
 import zipfile
 
-if sys.version_info[0] < 3:
-  from urllib2 import urlopen
-else:
-  from urllib.request import urlopen
+from urllib.request import urlopen
+
 
 def sha256sum(path):
   try:

@@ -10,6 +10,8 @@
 
 #include "include/gpu/vk/VulkanTypes.h"
 
+#include "include/core/SkColor.h"
+
 namespace skgpu {
 
 static constexpr uint32_t VkFormatChannels(VkFormat vkFormat) {
@@ -76,6 +78,27 @@ static constexpr size_t VkFormatBytesPerBlock(VkFormat vkFormat) {
     }
 }
 
+static constexpr int VkFormatIsStencil(VkFormat format) {
+    switch (format) {
+        case VK_FORMAT_S8_UINT:
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static constexpr int VkFormatIsDepth(VkFormat format) {
+    switch (format) {
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static constexpr int VkFormatStencilBits(VkFormat format) {
     switch (format) {
         case VK_FORMAT_S8_UINT:
@@ -134,7 +157,7 @@ static constexpr bool VkFormatIsCompressed(VkFormat vkFormat) {
 }
 
 
-#if defined(SK_DEBUG) || GR_TEST_UTILS
+#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
     switch (vkFormat) {
         case VK_FORMAT_R8G8B8A8_UNORM:           return "R8G8B8A8_UNORM";
@@ -165,7 +188,7 @@ static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
         default:                                 return "Unknown";
     }
 }
-#endif // defined(SK_DEBUG) || GR_TEST_UTILS
+#endif // defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 
 }  // namespace skgpu
 

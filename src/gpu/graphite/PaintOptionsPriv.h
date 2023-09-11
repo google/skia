@@ -26,8 +26,10 @@ public:
     void buildCombinations(
             const KeyContext& keyContext,
             bool addPrimitiveBlender,
+            Coverage coverage,
             const std::function<void(UniquePaintParamsID)>& processCombination) const {
-        fPaintOptions->buildCombinations(keyContext, addPrimitiveBlender, processCombination);
+        fPaintOptions->buildCombinations(
+                keyContext, addPrimitiveBlender, coverage, processCombination);
     }
 
 private:

@@ -42,7 +42,7 @@ static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     SkScalar y = SkIntToScalar(height / 2);
     SkScalar radius = std::min(x, y) * 0.8f;
 
-    auto surface(SkSurface::MakeRasterN32Premul(width, height));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height)));
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->clear(0x00000000);
@@ -64,10 +64,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("imagefilterstransformed"); }
 
-    SkString onShortName() override { return SkString("imagefilterstransformed"); }
-
-    SkISize onISize() override { return SkISize::Make(420, 240); }
+    SkISize getISize() override { return SkISize::Make(420, 240); }
 
     void onOnceBeforeDraw() override {
         fCheckerboard =
@@ -76,8 +75,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
-        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle,
+                                                            SkFilterMode::kLinear));
+        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard,
+                                                                SkFilterMode::kLinear));
         sk_sp<SkImageFilter> filters[] = {
             SkImageFilters::Blur(12, 0, nullptr),
             SkImageFilters::DropShadow(0, 15, 8, 0, SK_ColorGREEN, nullptr),
@@ -172,13 +173,9 @@ public:
     ImageFilterMatrixWLocalMatrix() : fDegrees(132.f) {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagefilter_matrix_localmatrix");
-    }
+    SkString getName() const override { return SkString("imagefilter_matrix_localmatrix"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(512, 512);
-    }
+    SkISize getISize() override { return SkISize::Make(512, 512); }
 
     bool onAnimate(double nanos) override {
         // Animate the rotation angle to ensure the local matrix bounds modifications work
@@ -225,13 +222,9 @@ public:
     ImageFilterComposedTransform() : fDegrees(70.f) {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("imagefilter_composed_transform");
-    }
+    SkString getName() const override { return SkString("imagefilter_composed_transform"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(512, 512);
-    }
+    SkISize getISize() override { return SkISize::Make(512, 512); }
 
     bool onAnimate(double nanos) override {
         // Animate the rotation angle to test a variety of transformations
@@ -319,7 +312,7 @@ DEF_GM(return new ImageFilterComposedTransform();)
 // Tests SkImageFilters::Image under tricky matrices (mirrors and perspective)
 DEF_SIMPLE_GM(imagefilter_transformed_image, canvas, 256, 256) {
     sk_sp<SkImage> image = GetResourceAsImage("images/color_wheel.png");
-    sk_sp<SkImageFilter> imageFilter = SkImageFilters::Image(image);
+    sk_sp<SkImageFilter> imageFilter = SkImageFilters::Image(image, SkFilterMode::kLinear);
 
     const SkRect imageRect = SkRect::MakeIWH(image->width(), image->height());
 

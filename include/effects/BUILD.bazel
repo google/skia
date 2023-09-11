@@ -36,7 +36,6 @@ skia_filegroup(
         "SkRuntimeEffect.h",
         "SkShaderMaskFilter.h",
         "SkStrokeAndFillPathEffect.h",
-        "SkTableColorFilter.h",
         "SkTableMaskFilter.h",
         "SkTrimPathEffect.h",
         ":public_imagefilters_hdrs",

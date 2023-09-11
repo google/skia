@@ -11,8 +11,6 @@ PDF_FILES = [
     "SkClusterator.h",
     "SkDeflate.cpp",
     "SkDeflate.h",
-    "SkJpegInfo.cpp",
-    "SkJpegInfo.h",
     "SkKeyedImage.cpp",
     "SkKeyedImage.h",
     "SkPDFBitmap.cpp",
@@ -40,6 +38,7 @@ PDF_FILES = [
     "SkPDFMetadata.h",
     "SkPDFResourceDict.cpp",
     "SkPDFResourceDict.h",
+    "SkJpegInfo.h",
     "SkPDFShader.cpp",
     "SkPDFShader.h",
     "SkPDFSubsetFont.cpp",
@@ -62,10 +61,23 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
+    name = "jpeg_info_libjpeg",
+    srcs = ["SkJpegInfo_libjpegturbo.cpp"],
+)
+
+skia_filegroup(
+    name = "jpeg_info_none",
+    srcs = ["SkJpegInfo_none.cpp"],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":pdf_srcs",
-    ],
+    ] + select({
+        "//src/codec:jpeg_decode_codec": [":jpeg_info_libjpeg"],
+        "//conditions:default": [":jpeg_info_none"],
+    }),
     visibility = ["//src:__pkg__"],
 )
 
@@ -88,14 +100,6 @@ bool_flag(
 )
 
 selects.config_setting_group(
-    name = "uses_jpeg",
-    match_any = [
-        "//src/encode:jpeg_encode_codec",
-        "//src/codec:jpeg_decode_codec",
-    ],
-)
-
-selects.config_setting_group(
     name = "uses_harfbuzz",
     match_all = [
         "//bazel/common_config_settings:use_icu_true",
@@ -110,9 +114,6 @@ skia_cc_deps(
     name = "deps",
     visibility = ["//src:__pkg__"],
     deps = ["@zlib_skia//:zlib"] + select({
-        ":uses_jpeg": ["@libjpeg_turbo"],
-        "//conditions:default": [],
-    }) + select({
         ":uses_harfbuzz": ["@harfbuzz"],
         "//conditions:default": [],
     }),

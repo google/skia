@@ -41,13 +41,6 @@ struct SkCpu {
 
         ERMS       = 1 << 20,
     };
-    enum {
-        NEON     = 1 << 0,
-        NEON_FMA = 1 << 1,
-        VFP_FP16 = 1 << 2,
-        CRC32    = 1 << 3,
-        ASIMDHP  = 1 << 4,
-    };
 
     static void CacheRuntimeFeatures();
     static bool Supports(uint32_t);
@@ -99,19 +92,6 @@ inline bool SkCpu::Supports(uint32_t mask) {
     features &= (SSE1 | SSE2 | SSE3 | SSSE3 | SSE41);
     #elif defined(SK_CPU_LIMIT_SSE2)
     features &= (SSE1 | SSE2);
-    #endif
-
-#else
-    #if defined(SK_ARM_HAS_NEON)
-    features |= NEON;
-    #endif
-
-    #if defined(SK_CPU_ARM64)
-    features |= NEON|NEON_FMA|VFP_FP16;
-    #endif
-
-    #if defined(SK_ARM_HAS_CRC32)
-    features |= CRC32;
     #endif
 
 #endif

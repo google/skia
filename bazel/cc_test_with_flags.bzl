@@ -12,7 +12,8 @@ https://github.com/bazelbuild/examples/blob/7fc3f8b587ee415ff02ce358caa960f9533a
 
 """
 
-load("//bazel:copts.bzl", "DEFAULT_COPTS")
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
+load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 load("//bazel:cc_binary_with_flags.bzl", "with_flags_transition")
 
 def _transition_rule_impl(ctx):
@@ -57,7 +58,7 @@ transition_test = rule(
     test = True,
 )
 
-def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
+def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, args = [], **kwargs):
     """Builds a cc_test as if set_flags were set on the CLI.
 
     Args:
@@ -67,6 +68,9 @@ def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
             flag, and the values should be the desired valid settings for that flag.
         copts: a list of strings or select statements that control the compiler flags.
             It has a sensible list of defaults.
+        linkopts: a list of strings or select statements that control the linker flags.
+            It has a sensible list of defaults.
+        args: A list of strings with any command-line arguments to pass to the binary.
         **kwargs: Any flags that a cc_binary normally takes.
     """
     cc_test_name = name + "_native_test"
@@ -74,6 +78,7 @@ def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
         name = name,
         actual_test = ":%s" % cc_test_name,
         set_flags = set_flags,
+        args = args,
         testonly = True,
     )
     tags = kwargs.get("tags", [])
@@ -82,5 +87,6 @@ def cc_test_with_flags(name, set_flags = {}, copts = DEFAULT_COPTS, **kwargs):
     native.cc_test(
         name = cc_test_name,
         copts = copts,
+        linkopts = linkopts,
         **kwargs
     )

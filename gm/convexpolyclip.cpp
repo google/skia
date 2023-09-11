@@ -28,7 +28,7 @@
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_img(int w, int h) {
-    auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32(w, h, kOpaque_SkAlphaType));
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32(w, h, kOpaque_SkAlphaType));
     auto canvas = surf->getCanvas();
 
     SkScalar wScalar = SkIntToScalar(w);
@@ -97,11 +97,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("convex_poly_clip");
-    }
+    SkString getName() const override { return SkString("convex_poly_clip"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         // When benchmarking the saveLayer set of draws is skipped.
         int w = 435;
         if (kBench_Mode != this->getMode()) {

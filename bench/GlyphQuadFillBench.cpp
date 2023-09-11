@@ -17,6 +17,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/text/GlyphRun.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlob.h"
 #include "src/utils/SkTestCanvas.h"
@@ -28,7 +29,7 @@ static const char* gText =
 class FillBench {};
 template <> class SkTestCanvas<FillBench> {
 public:
-    static SkBaseDevice* GetDevice(SkCanvas* canvas) {
+    static SkDevice* GetDevice(SkCanvas* canvas) {
         return canvas->topDevice();
     }
 };

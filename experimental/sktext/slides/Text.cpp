@@ -10,7 +10,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkTime.h"
+#include "src/base/SkTime.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
@@ -139,7 +139,7 @@ private:
 
 class TextSlide_LongRTL1 : public Slide {
 public:
-    TextSlide_LongRTL1() { fName = "TextSlide_LongRTL"; }
+    TextSlide_LongRTL1() { fName = "TextSlide_LongRTL1"; }
 
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
@@ -166,7 +166,7 @@ private:
 
 class TextSlide_LongRTL2 : public Slide {
 public:
-    TextSlide_LongRTL2() { fName = "TextSlide_LongRTL"; }
+    TextSlide_LongRTL2() { fName = "TextSlide_LongRTL2"; }
 
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);

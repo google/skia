@@ -35,27 +35,12 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(bool inverseFill)
 CoverBoundsRenderStep::~CoverBoundsRenderStep() {}
 
 std::string CoverBoundsRenderStep::vertexSkSL() const {
-    return R"(
-        float3x3 matrix = float3x3(mat0, mat1, mat2);
-        float2 corner = float2(float(sk_VertexID / 2), float(sk_VertexID % 2));
-
-        float4 devPosition;
-        if (bounds.L <= bounds.R && bounds.T <= bounds.B) {
-            // A regular fill
-            corner = (1.0 - corner) * bounds.LT + corner * bounds.RB;
-            float3 devCorner = matrix * corner.xy1;
-            devPosition = float4(devCorner.xy, depth, devCorner.z);
-            stepLocalCoords = corner;
-        } else {
-            // An inverse fill
-            corner = corner * bounds.LT + (1.0 - corner) * bounds.RB;
-            devPosition = float4(corner, depth, 1.0);
-            // TODO: Support float3 local coordinates if the matrix has perspective so that W
-            // is interpolated correctly to the fragment shader.
-            float3 localCoords = matrix * corner.xy1;
-            stepLocalCoords = localCoords.xy / localCoords.z;
-        }
-    )";
+    // Returns the body of a vertex function, which must define a float4 devPosition variable and
+    // must write to an already-defined float2 stepLocalCoords variable.
+    return "float4 devPosition = cover_bounds_vertex_fn("
+                                         "float2(sk_VertexID / 2, sk_VertexID % 2), "
+                                         "bounds, depth, float3x3(mat0, mat1, mat2), "
+                                         "stepLocalCoords);\n";
 }
 
 void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,

@@ -7,16 +7,16 @@
 
 #include "src/sksl/ir/SkSLConstructorStruct.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLString.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
-#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <string>
-#include <vector>
 
 namespace SkSL {
 
@@ -48,7 +48,7 @@ std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,
     // Convert each constructor argument to the struct's field type.
     for (int index=0; index<args.size(); ++index) {
         std::unique_ptr<Expression>& argument = args[index];
-        const Type::Field& field = type.fields()[index];
+        const Field& field = type.fields()[index];
 
         argument = field.fType->coerceExpression(std::move(argument), context);
         if (!argument) {
@@ -65,7 +65,7 @@ std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,
 
     for (int index = 0; index < args.size(); ++index) {
         const std::unique_ptr<Expression>& argument = args[index];
-        const Type::Field& field = type.fields()[index];
+        const Field& field = type.fields()[index];
         if (!argument->type().matches(*field.fType)) {
             return false;
         }

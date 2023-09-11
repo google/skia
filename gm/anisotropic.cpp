@@ -17,6 +17,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 
 namespace skiagm {
 
@@ -41,7 +43,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name("anisotropic_image_scale_");
         switch (fMode) {
             case Mode::kLinear:
@@ -57,7 +59,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(2*kImageSize + 3*kSpacer,
                              kNumVertImages*kImageSize + (kNumVertImages+1)*kSpacer);
     }
@@ -69,7 +71,7 @@ protected:
         constexpr int kInnerOffset = 10;
 
         auto info = SkImageInfo::MakeN32(kImageSize, kImageSize, kOpaque_SkAlphaType);
-        auto surf = SkSurface::MakeRaster(info);
+        auto surf = SkSurfaces::Raster(info);
         auto canvas = surf->getCanvas();
 
         canvas->clear(SK_ColorWHITE);
@@ -158,9 +160,9 @@ public:
     AnisoMipsGM() = default;
 
 protected:
-    SkString onShortName() override { return SkString("anisomips"); }
+    SkString getName() const override { return SkString("anisomips"); }
 
-    SkISize onISize() override { return SkISize::Make(520, 260); }
+    SkISize getISize() override { return SkISize::Make(520, 260); }
 
     sk_sp<SkImage> updateImage(SkSurface* surf, SkColor color) {
         surf->getCanvas()->clear(color);
@@ -189,13 +191,13 @@ protected:
         // texture.
         sk_sp<SkSurface> surface;
         if (auto rc = canvas->recordingContext()) {
-            surface = SkSurface::MakeRenderTarget(rc,
-                                                  skgpu::Budgeted::kYes,
-                                                  ii,
-                                                  1,
-                                                  kTopLeft_GrSurfaceOrigin,
-                                                  /*surfaceProps=*/nullptr,
-                                                  /*shouldCreateWithMips=*/true);
+            surface = SkSurfaces::RenderTarget(rc,
+                                               skgpu::Budgeted::kYes,
+                                               ii,
+                                               /* sampleCount= */ 1,
+                                               kTopLeft_GrSurfaceOrigin,
+                                               /*surfaceProps=*/nullptr,
+                                               /*shouldCreateWithMips=*/true);
             if (!surface) {
                 // We could be in an abandoned context situation.
                 return;
@@ -203,7 +205,7 @@ protected:
         } else {
             surface = canvas->makeSurface(ii);
             if (!surface) {  // could be a recording canvas.
-                surface = SkSurface::MakeRaster(ii);
+                surface = SkSurfaces::Raster(ii);
             }
         }
 

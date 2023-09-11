@@ -104,7 +104,7 @@ private:
 
     const Type fType;
 
-    VectorValue fColor;
+    ColorValue  fColor;
     ScalarValue fOpacity  = 100, // percentage
                 fAngle    =   0, // degrees
                 fSize     =   0,

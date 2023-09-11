@@ -8,7 +8,7 @@
 #ifndef SkRecordOpts_DEFINED
 #define SkRecordOpts_DEFINED
 
-#include "src/core/SkRecord.h"
+class SkRecord;
 
 // Run all optimizations in recommended order.
 void SkRecordOptimize(SkRecord*);
@@ -25,8 +25,5 @@ void SkRecordNoopSaveLayerDrawRestores(SkRecord*);
 // For SVG generated SaveLayer-Save-ClipRect-SaveLayer-3xRestore patterns, merge
 // the alpha of the first SaveLayer to the second SaveLayer.
 void SkRecordMergeSvgOpacityAndFilterLayers(SkRecord*);
-
-// Experimental optimizers
-void SkRecordOptimize2(SkRecord*);
 
 #endif//SkRecordOpts_DEFINED

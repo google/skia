@@ -11,11 +11,9 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -26,21 +24,27 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/chromium/GrDeferredDisplayListRecorder.h"
+#include "include/private/chromium/GrPromiseImageTexture.h"
+#include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrTexture.h"
-#include "src/image/SkImage_Gpu.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/gpu/ContextType.h"
 #include "tools/gpu/FenceSync.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #include <cstddef>
 #include <functional>
 #include <utility>
+
+using namespace skia_private;
 
 struct GrContextOptions;
 
@@ -52,14 +56,14 @@ struct PromiseTextureChecker {
     explicit PromiseTextureChecker(const GrBackendTexture& tex,
                                    skiatest::Reporter* reporter,
                                    bool shared)
-            : fTexture(SkPromiseImageTexture::Make(tex)), fReporter(reporter), fShared(shared) {}
-    sk_sp<SkPromiseImageTexture> fTexture;
+            : fTexture(GrPromiseImageTexture::Make(tex)), fReporter(reporter), fShared(shared) {}
+    sk_sp<GrPromiseImageTexture> fTexture;
     skiatest::Reporter* fReporter;
     bool fShared;
     int fFulfillCount = 0;
     int fReleaseCount = 0;
 
-    static sk_sp<SkPromiseImageTexture> Fulfill(void* self) {
+    static sk_sp<GrPromiseImageTexture> Fulfill(void* self) {
         auto checker = static_cast<PromiseTextureChecker*>(self);
         checker->fFulfillCount++;
         return checker->fTexture;
@@ -164,42 +168,42 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTest,
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(ctx->threadSafeProxy(),
-                                                          backendFormat,
-                                                          {kWidth, kHeight},
-                                                          GrMipmapped::kNo,
-                                                          texOrigin,
-                                                          kRGBA_8888_SkColorType,
-                                                          kPremul_SkAlphaType,
-                                                          nullptr,
-                                                          PromiseTextureChecker::Fulfill,
-                                                          PromiseTextureChecker::Release,
-                                                          &promiseChecker));
+    sk_sp<SkImage> refImg(SkImages::PromiseTextureFrom(ctx->threadSafeProxy(),
+                                                       backendFormat,
+                                                       {kWidth, kHeight},
+                                                       GrMipmapped::kNo,
+                                                       texOrigin,
+                                                       kRGBA_8888_SkColorType,
+                                                       kPremul_SkAlphaType,
+                                                       nullptr,
+                                                       PromiseTextureChecker::Fulfill,
+                                                       PromiseTextureChecker::Release,
+                                                       &promiseChecker));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->drawImage(refImg, 0, 0);
     check_unfulfilled(promiseChecker, reporter);
 
-    surface->flushAndSubmit();
+    ctx->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     // We still own the image so we should not have called Release or Done.
     check_only_fulfilled(reporter, promiseChecker);
 
-    ctx->submit(true);
+    ctx->submit(GrSyncCpu::kYes);
     check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
     canvas->drawImage(refImg, 0, 0);
 
-    surface->flushAndSubmit(true);
+    ctx->flushAndSubmit(surface.get(), GrSyncCpu::kYes);
 
     // Image should still be fulfilled from the first time we drew/flushed it.
     check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
-    surface->flushAndSubmit();
+    ctx->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     check_only_fulfilled(reporter, promiseChecker);
 
     canvas->drawImage(refImg, 0, 0);
@@ -207,11 +211,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTest,
     // We no longer own the image but the last draw is still unflushed.
     check_only_fulfilled(reporter, promiseChecker);
 
-    surface->flushAndSubmit();
+    ctx->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     // Flushing should have called Release. Depending on the backend and timing it may have called
     // done.
     check_all_flushed_but_not_synced(reporter, promiseChecker, ctx->backend());
-    ctx->submit(true);
+    ctx->submit(GrSyncCpu::kYes);
     // Now Done should definitely have been called.
     check_all_done(reporter, promiseChecker);
 
@@ -235,14 +239,13 @@ DEF_GANESH_TEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::
         dContext->releaseResourcesAndAbandonContext();
     };
 
-    for (int type = 0; type < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++type) {
-        auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(type);
+    for (int type = 0; type < skgpu::kContextTypeCount; ++type) {
+        auto contextType = static_cast<skgpu::ContextType>(type);
         // These tests are difficult to get working with Vulkan. See http://skbug.com/8705
         // and http://skbug.com/8275
-        // Also problematic on Dawn; see http://skbug.com/10326
         // And Direct3D, for similar reasons.
-        GrBackendApi api = sk_gpu_test::GrContextFactory::ContextTypeBackend(contextType);
-        if (api == GrBackendApi::kVulkan || api == GrBackendApi::kDawn ||
+        GrBackendApi api = skgpu::ganesh::ContextTypeBackend(contextType);
+        if (api == GrBackendApi::kUnsupported || api == GrBackendApi::kVulkan ||
             api == GrBackendApi::kDirect3D) {
             continue;
         }
@@ -267,21 +270,21 @@ DEF_GANESH_TEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
-            sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info);
+            sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
             SkCanvas* canvas = surface->getCanvas();
 
             PromiseTextureChecker promiseChecker(mbet->texture(), reporter, false);
-            sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(ctx->threadSafeProxy(),
-                                                                 mbet->texture().getBackendFormat(),
-                                                                 {kWidth, kHeight},
-                                                                 GrMipmapped::kNo,
-                                                                 kTopLeft_GrSurfaceOrigin,
-                                                                 kAlpha_8_SkColorType,
-                                                                 kPremul_SkAlphaType,
-                                                                 /*color space*/ nullptr,
-                                                                 PromiseTextureChecker::Fulfill,
-                                                                 PromiseTextureChecker::Release,
-                                                                 &promiseChecker));
+            sk_sp<SkImage> image(SkImages::PromiseTextureFrom(ctx->threadSafeProxy(),
+                                                              mbet->texture().getBackendFormat(),
+                                                              {kWidth, kHeight},
+                                                              GrMipmapped::kNo,
+                                                              kTopLeft_GrSurfaceOrigin,
+                                                              kAlpha_8_SkColorType,
+                                                              kPremul_SkAlphaType,
+                                                              /*color space*/ nullptr,
+                                                              PromiseTextureChecker::Fulfill,
+                                                              PromiseTextureChecker::Release,
+                                                              &promiseChecker));
             REPORTER_ASSERT(reporter, image);
 
             canvas->drawImage(image, 0, 0);
@@ -318,28 +321,28 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
 
     SkImageInfo info =
             SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
 
     PromiseTextureChecker promiseChecker(backendTex, reporter, false);
-    sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(dContext->threadSafeProxy(),
-                                                         backendTex.getBackendFormat(),
-                                                         {kWidth, kHeight},
-                                                         GrMipmapped::kNo,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         kAlpha_8_SkColorType,
-                                                         kPremul_SkAlphaType,
-                                                         nullptr,
-                                                         PromiseTextureChecker::Fulfill,
-                                                         PromiseTextureChecker::Release,
-                                                         &promiseChecker));
+    sk_sp<SkImage> image(SkImages::PromiseTextureFrom(dContext->threadSafeProxy(),
+                                                      backendTex.getBackendFormat(),
+                                                      {kWidth, kHeight},
+                                                      GrMipmapped::kNo,
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      kAlpha_8_SkColorType,
+                                                      kPremul_SkAlphaType,
+                                                      nullptr,
+                                                      PromiseTextureChecker::Fulfill,
+                                                      PromiseTextureChecker::Release,
+                                                      &promiseChecker));
     REPORTER_ASSERT(reporter, image);
 
     // Make the cache full. This tests that we don't preemptively purge cached textures for
     // fulfillment due to cache pressure.
     static constexpr int kMaxBytes = 1;
     dContext->setResourceCacheLimit(kMaxBytes);
-    SkTArray<sk_sp<GrTexture>> textures;
+    TArray<sk_sp<GrTexture>> textures;
     for (int i = 0; i < 5; ++i) {
         auto format = dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                        GrRenderable::kNo);
@@ -364,20 +367,20 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
     // Relying on the asserts in the promiseImageChecker to ensure that fulfills and releases are
     // properly ordered.
     canvas->drawImage(image, 0, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     canvas->drawImage(image, 1, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     canvas->drawImage(image, 2, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     canvas->drawImage(image, 3, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     canvas->drawImage(image, 4, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     canvas->drawImage(image, 5, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     // Must call these to ensure that all callbacks are performed before the checker is destroyed.
     image.reset();
-    dContext->flushAndSubmit(true);
+    dContext->flushAndSubmit(GrSyncCpu::kYes);
 
     dContext->deleteBackendTexture(backendTex);
 }
@@ -403,28 +406,28 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
         int fFulfillCount = 0;
         int fReleaseCount = 0;
     } counts;
-    auto fulfill = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto fulfill = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fFulfillCount;
-        return sk_sp<SkPromiseImageTexture>();
+        return sk_sp<GrPromiseImageTexture>();
     };
-    auto release = [](SkDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto release = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fReleaseCount;
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;
-    sk_sp<SkImage> refImg(SkImage_Gpu::MakePromiseTexture(dContext->threadSafeProxy(),
-                                                          backendFormat,
-                                                          {kWidth, kHeight},
-                                                          GrMipmapped::kNo,
-                                                          texOrigin,
-                                                          kRGBA_8888_SkColorType,
-                                                          kPremul_SkAlphaType,
-                                                          nullptr,
-                                                          fulfill,
-                                                          release,
-                                                          &counts));
+    sk_sp<SkImage> refImg(SkImages::PromiseTextureFrom(dContext->threadSafeProxy(),
+                                                       backendFormat,
+                                                       {kWidth, kHeight},
+                                                       GrMipmapped::kNo,
+                                                       texOrigin,
+                                                       kRGBA_8888_SkColorType,
+                                                       kPremul_SkAlphaType,
+                                                       nullptr,
+                                                       fulfill,
+                                                       release,
+                                                       &counts));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info);
     SkCanvas* canvas = surface->getCanvas();
     // Draw the image a few different ways.
     canvas->drawImage(refImg, 0, 0);
@@ -437,7 +440,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
     canvas->drawRect(SkRect::MakeWH(1,1), paint);
     paint.setShader(nullptr);
     refImg.reset();
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
     // We should only call each callback once and we should have made all the calls by this point.
     REPORTER_ASSERT(reporter, counts.fFulfillCount == 1);
     REPORTER_ASSERT(reporter, counts.fReleaseCount == 1);

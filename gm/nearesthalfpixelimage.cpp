@@ -45,7 +45,7 @@ DEF_SIMPLE_GM_CAN_FAIL(nearest_half_pixel_image, canvas, errorMsg, 264, 235) {
                                     kPremul_SkAlphaType),
                   colors,
                   sizeof(colors[0]));
-    images[0] = {SkImage::MakeRasterCopy(cpmx), SkImage::MakeRasterCopy(cpmy)};
+    images[0] = {SkImages::RasterFromPixmapCopy(cpmx), SkImages::RasterFromPixmapCopy(cpmy)};
 
     uint8_t alphas[] {0xFF, 0xAA};
     SkPixmap apmx(SkImageInfo::Make({2, 1},
@@ -58,7 +58,7 @@ DEF_SIMPLE_GM_CAN_FAIL(nearest_half_pixel_image, canvas, errorMsg, 264, 235) {
                                     kPremul_SkAlphaType),
                   alphas,
                   sizeof(alphas[0]));
-    images[1] = {SkImage::MakeRasterCopy(apmx), SkImage::MakeRasterCopy(apmy)};
+    images[1] = {SkImages::RasterFromPixmapCopy(apmx), SkImages::RasterFromPixmapCopy(apmy)};
 
     // We draw offscreen and then zoom that up to make the result clear.
     auto surf = canvas->makeSurface(canvas->imageInfo().makeWH(80, 80));
@@ -78,7 +78,7 @@ DEF_SIMPLE_GM_CAN_FAIL(nearest_half_pixel_image, canvas, errorMsg, 264, 235) {
         SkPaint paint;
         paint.setAlpha(alpha);
         if (shader) {
-            paint.setShader(image->makeShader(SkSamplingOptions{}));
+            paint.setShader(image->makeShader(SkFilterMode::kNearest));
         }
         if (doX) {
             c->scale(mirror ? -1 : 1, kOffAxisScale);
@@ -91,7 +91,7 @@ DEF_SIMPLE_GM_CAN_FAIL(nearest_half_pixel_image, canvas, errorMsg, 264, 235) {
         if (shader) {
             c->drawRect(SkRect::Make(image->dimensions()), paint);
         } else {
-            c->drawImage(image, 0, 0, SkSamplingOptions{}, &paint);
+            c->drawImage(image, 0, 0, SkFilterMode::kNearest, &paint);
         }
         c->restore();
     };

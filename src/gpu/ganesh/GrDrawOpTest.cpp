@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext_Base* context) {
     if (context->priv().caps()->avoidStencilBuffers()) {

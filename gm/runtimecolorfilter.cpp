@@ -90,13 +90,9 @@ public:
     RuntimeColorFilterGM() = default;
 
 protected:
-    SkString onShortName() override {
-        return SkString("runtimecolorfilter");
-    }
+    SkString getName() const override { return SkString("runtimecolorfilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(256 * 3, 256 * 2);
-    }
+    SkISize getISize() override { return SkISize::Make(256 * 3, 256 * 2); }
 
     void onOnceBeforeDraw() override {
         fImg = GetResourceAsImage("images/mandrill_256.png");
@@ -142,7 +138,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
                                   kRGBA_8888_SkColorType,
                                   kPremul_SkAlphaType,
                                   canvas->imageInfo().refColorSpace());
-    auto surf = SkSurface::MakeRaster(info);
+    auto surf = SkSurfaces::Raster(info);
     surf->getCanvas()->drawVertices(verts, SkBlendMode::kDst, SkPaint());
     auto atlas = surf->makeImageSnapshot();
     auto xform = SkRSXform::Make(1, 0, 0, 0);
@@ -169,7 +165,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
     auto makePaint = [&](bool useCF, bool useShader) {
         SkPaint paint;
         paint.setColorFilter(useCF ? colorfilter : nullptr);
-        paint.setShader(useShader ? atlas->makeShader(SkSamplingOptions{}) : nullptr);
+        paint.setShader(useShader ? atlas->makeShader(SkFilterMode::kNearest) : nullptr);
         return paint;
     };
 
@@ -192,7 +188,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
                           &kColor,
                           1,
                           SkBlendMode::kModulate,
-                          SkSamplingOptions{},
+                          SkFilterMode::kNearest,
                           nullptr,
                           &paint);
     };

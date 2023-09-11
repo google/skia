@@ -589,7 +589,7 @@ static bool validate_rec(const SkDrawShadowRec& rec) {
            SkScalarIsFinite(rec.fLightRadius);
 }
 
-void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
+void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     if (!validate_rec(rec)) {
         return;
     }

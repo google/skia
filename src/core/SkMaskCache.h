@@ -11,6 +11,7 @@
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkResourceCache.h"
@@ -24,10 +25,10 @@ public:
      * On failure, return nullptr.
      */
     static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style,
-                                    const SkRRect& rrect, SkMask* mask,
+                                    const SkRRect& rrect, SkTLazy<SkMask>* mask,
                                     SkResourceCache* localCache = nullptr);
     static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style,
-                                    const SkRect rects[], int count, SkMask* mask,
+                                    const SkRect rects[], int count, SkTLazy<SkMask>* mask,
                                     SkResourceCache* localCache = nullptr);
 
     /**

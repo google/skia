@@ -34,13 +34,11 @@ public:
     Xfermodes2GM(bool grayscale) : fGrayscale(grayscale) {}
 
 protected:
-    SkString onShortName() override {
+    SkString getName() const override {
         return fGrayscale ? SkString("xfermodes2_gray") : SkString("xfermodes2");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(455, 475);
-    }
+    SkISize getISize() override { return SkISize::Make(455, 475); }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));

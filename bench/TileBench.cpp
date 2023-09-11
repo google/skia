@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 
 static void create_gradient(SkBitmap* bm) {
     SkASSERT(1 == bm->width());

@@ -213,7 +213,6 @@ gm_sources = [
   "$_gm/image.cpp",
   "$_gm/image_pict.cpp",
   "$_gm/image_shader.cpp",
-  "$_gm/imagealphathreshold.cpp",
   "$_gm/imageblur.cpp",
   "$_gm/imageblur2.cpp",
   "$_gm/imageblurclampmode.cpp",
@@ -317,6 +316,7 @@ gm_sources = [
   "$_gm/recordopts.cpp",
   "$_gm/repeated_bitmap.cpp",
   "$_gm/resizeimagefilter.cpp",
+  "$_gm/rippleshadergm.cpp",
   "$_gm/roundrects.cpp",
   "$_gm/rrect.cpp",
   "$_gm/rrectclipdrawpaint.cpp",
@@ -330,15 +330,16 @@ gm_sources = [
   "$_gm/savelayer.cpp",
   "$_gm/scaledemoji.cpp",
   "$_gm/scaledemoji_rendering.cpp",
+  "$_gm/scaledrects.cpp",
   "$_gm/scaledstrokes.cpp",
   "$_gm/shadermaskfilter.cpp",
+  "$_gm/shaderpath.cpp",
   "$_gm/shadertext3.cpp",
   "$_gm/shadowutils.cpp",
   "$_gm/shallowgradient.cpp",
   "$_gm/shapes.cpp",
   "$_gm/sharedcorners.cpp",
   "$_gm/showmiplevels.cpp",
-  "$_gm/simple_magnification.cpp",
   "$_gm/simpleaaclip.cpp",
   "$_gm/simplerect.cpp",
   "$_gm/skbug1719.cpp",
@@ -413,6 +414,8 @@ gm_sources = [
 ]
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
+
+fontations_gm_sources = [ "$_gm/fontations.cpp" ]
 
 ganesh_gm_sources = [
   "$_gm/aarecteffect.cpp",

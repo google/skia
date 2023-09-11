@@ -20,6 +20,8 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+using namespace skia_private;
+
 static void do_font_stuff(SkFont* font) {
     SkPaint defaultPaint;
     for (SkScalar i = 8; i < 64; i++) {
@@ -170,7 +172,7 @@ public:
         fLockedHandles.reset();
         fLastDeletedHandleId = fNextHandleId;
     }
-    const SkTHashSet<SkDiscardableHandleId>& lockedHandles() const {
+    const THashSet<SkDiscardableHandleId>& lockedHandles() const {
         SkAutoMutexExclusive l(fMutex);
 
         return fLockedHandles;
@@ -206,7 +208,7 @@ private:
 
     SkDiscardableHandleId fNextHandleId = 0u;
     SkDiscardableHandleId fLastDeletedHandleId = 0u;
-    SkTHashSet<SkDiscardableHandleId> fLockedHandles;
+    THashSet<SkDiscardableHandleId> fLockedHandles;
     int fCacheMissCount[SkStrikeClient::CacheMissType::kLast + 1u];
 };
 

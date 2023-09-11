@@ -210,6 +210,20 @@ func (b *taskBuilder) asset(assets ...string) {
 	b.cipd(pkgs...)
 }
 
+// usesCCache adds attributes to tasks which need bazel (via bazelisk).
+func (b *taskBuilder) usesBazel(hostOSArch string) {
+	archToPkg := map[string]string{
+		"linux_x64": "bazelisk_linux_amd64",
+		"mac_x64": "bazelisk_mac_amd64",
+	}
+	pkg, ok := archToPkg[hostOSArch]
+	if (!ok) {
+		panic("Unsupported osAndArch for bazelisk: "+hostOSArch)
+	}
+	b.cipd(b.MustGetCipdPackageFromAsset(pkg))
+	b.addToPATH(pkg)
+}
+
 // usesCCache adds attributes to tasks which use ccache.
 func (b *taskBuilder) usesCCache() {
 	b.cache(CACHES_CCACHE...)
@@ -286,6 +300,14 @@ func (b *taskBuilder) usesDocker() {
 func (b *taskBuilder) usesGSUtil() {
 	b.asset("gsutil")
 	b.addToPATH("gsutil/gsutil")
+}
+
+// needsFontsForParagraphTests downloads the skparagraph CIPD package to
+// a subdirectory of the Skia checkout: resources/extra_fonts
+func (b *taskBuilder) needsFontsForParagraphTests() {
+	pkg := b.MustGetCipdPackageFromAsset("skparagraph")
+	pkg.Path = "skia/resources/extra_fonts"
+	b.cipd(pkg)
 }
 
 // recipeProp adds the given recipe property key/value pair. Panics if

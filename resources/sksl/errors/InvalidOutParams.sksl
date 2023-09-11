@@ -1,0 +1,19 @@
+void inc1(out float x)  { x++; }
+void inc4(out float4 x) { x += half4(1); }
+
+void test_a() { inc1(0); }
+void test_b() { inc4(float4(0)); }
+void test_c() { inc1(sqrt(1)); }
+
+// $pure isn't allowed outside of module code, but the test still does its job; it just reports an
+// additional error as well ('$pure' is not permitted here).
+$pure void pure_function_with_out_param  (out float x)   { x = 1; }
+$pure void pure_function_with_inout_param(inout float x) { x += 1; }
+
+/*%%*
+cannot assign to this expression
+cannot assign to this expression
+cannot assign to this expression
+pure functions cannot have out parameters
+pure functions cannot have out parameters
+*%%*/

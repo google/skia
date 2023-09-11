@@ -23,6 +23,8 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 
 #include <initializer_list>
@@ -80,11 +82,11 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 2, 0));
 }
 
-DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::kNever) {
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {1, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
-            auto surface(SkSurface::MakeRenderTarget(
+            auto surface(SkSurfaces::RenderTarget(
                     ctxInfo.directContext(), skgpu::Budgeted::kNo, info, sampleCount, nullptr));
             if (!surface) {
                 continue;
@@ -102,7 +104,8 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath,
     // path to be accepted by AAConvexPathRenderer, then be transformed to something without a
     // computable first direction by a perspective matrix.
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
+    auto dContext = ctxInfo.directContext();
+    auto surface(SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -119,7 +122,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath,
              -8.94321693e-06f, -0.00173384184f, 0.998692870f);
     surface->getCanvas()->setMatrix(m);
     surface->getCanvas()->drawPath(path, paint);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
 }
 
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
@@ -129,7 +132,8 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
     // AAHairlinePathRenderer chops this path to quads that include infinities (and then NaNs).
     // It used to trigger asserts, now the degenerate quad segments should cause it to be rejected.
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
+    auto dContext = ctxInfo.directContext();
+    auto surface(SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -140,5 +144,5 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
     path.cubicTo(0, 3.40282e+38f, 0, 3.40282e+38f, 0, 0);
 
     surface->getCanvas()->drawPath(path, paint);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
 }

@@ -1,0 +1,19 @@
+uniform half4 colorGreen;
+
+inline half4 inner() {
+    return half4(distance(colorGreen.ra, colorGreen.ra),
+                 distance(colorGreen.ra, colorGreen.ga),
+                 distance(colorGreen.ra, colorGreen.ba),
+                 distance(colorGreen.ra, colorGreen.aa));
+}
+
+noinline half4 outer() {
+    // The `distance` variable should not interfere with the `distance` intrinsic.
+    half distance = colorGreen.a;
+    half4 color = inner();
+    return color * distance;
+}
+
+half4 main(float2 coords) {
+    return outer();
+}

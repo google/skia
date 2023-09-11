@@ -17,7 +17,7 @@ describe('Core canvas behavior', () => {
     gm('picture_test', (canvas) => {
         const spr = new CanvasKit.PictureRecorder();
         const bounds = CanvasKit.LTRBRect(0, 0, 400, 120);
-        const rcanvas = spr.beginRecording(bounds);
+        const rcanvas = spr.beginRecording(bounds, true);
         const paint = new CanvasKit.Paint();
         paint.setStrokeWidth(2.0);
         paint.setAntiAlias(true);
@@ -29,6 +29,13 @@ describe('Core canvas behavior', () => {
         const font = new CanvasKit.Font(null, 20);
         rcanvas.drawText('this picture has a round rect', 5, 100, paint, font);
         const pic = spr.finishRecordingAsPicture();
+        const cullRect = pic.cullRect();
+        const approxBytesUsed = pic.approximateBytesUsed();
+        expect(approxBytesUsed).toBeGreaterThan(0);
+        expect(cullRect[0]).toBeCloseTo(0);
+        expect(cullRect[1]).toBeCloseTo(31);
+        expect(cullRect[2]).toBeCloseTo(357.84);
+        expect(cullRect[3]).toBeCloseTo(109.42);
         spr.delete();
         paint.delete();
 
@@ -726,6 +733,15 @@ describe('Core canvas behavior', () => {
         cgs45.delete();
         strokePaint.delete();
         paint.delete();
+    });
+
+    it('can compute ImageFilter filterBounds', () => {
+      const blurIF = CanvasKit.ImageFilter.MakeBlur(5, 10, CanvasKit.TileMode.Clamp, null);
+      const updatedBounds = blurIF.getOutputBounds(CanvasKit.LTRBRect(50, 50, 100, 100));
+      expect(updatedBounds[0]).toEqual(35);
+      expect(updatedBounds[1]).toEqual(20);
+      expect(updatedBounds[2]).toEqual(115);
+      expect(updatedBounds[3]).toEqual(130);
     });
 
     gm('blur_filters', (canvas) => {

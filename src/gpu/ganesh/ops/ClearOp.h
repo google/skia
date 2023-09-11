@@ -15,7 +15,7 @@
 class GrOpFlushState;
 class GrRecordingContext;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class ClearOp final : public GrOp {
 public:
@@ -59,7 +59,7 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string("Scissor [ ");
         if (fScissor.enabled()) {
@@ -81,6 +81,6 @@ private:
 
 GR_MAKE_BITFIELD_CLASS_OPS(ClearOp::Buffer)
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // ClearOp_DEFINED

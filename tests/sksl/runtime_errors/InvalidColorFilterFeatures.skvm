@@ -1,6 +1,0 @@
-### Compilation failed:
-
-error: 6: unknown identifier 'sk_FragCoord'
-    return sk_FragCoord.xy01;
-           ^^^^^^^^^^^^
-1 error

@@ -18,7 +18,21 @@ GlobalCache::GlobalCache()
         : fGraphicsPipelineCache(256) // TODO: find a good value for these limits
         , fComputePipelineCache(16) {}
 
-GlobalCache::~GlobalCache() = default;
+GlobalCache::~GlobalCache() {
+    // These should have been cleared out earlier by deleteResources().
+    SkDEBUGCODE(SkAutoSpinlock lock{ fSpinLock });
+    SkASSERT(fGraphicsPipelineCache.count() == 0);
+    SkASSERT(fComputePipelineCache.count() == 0);
+    SkASSERT(fStaticResource.size() == 0);
+}
+
+void GlobalCache::deleteResources() {
+    SkAutoSpinlock lock{ fSpinLock };
+
+    fGraphicsPipelineCache.reset();
+    fComputePipelineCache.reset();
+    fStaticResource.clear();
+}
 
 sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(const UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
@@ -41,7 +55,7 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
     return *entry;
 }
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
 int GlobalCache::numGraphicsPipelines() const {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -53,7 +67,16 @@ void GlobalCache::resetGraphicsPipelines() {
 
     fGraphicsPipelineCache.reset();
 }
-#endif // GRAPHITE_TEST_UTILS
+
+void GlobalCache::forEachGraphicsPipeline(
+        const std::function<void(const UniqueKey&, const GraphicsPipeline*)>& fn) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    fGraphicsPipelineCache.foreach([&](const UniqueKey* k, const sk_sp<GraphicsPipeline>* v) {
+        fn(*k, v->get());
+    });
+}
+#endif // defined(GRAPHITE_TEST_UTILS)
 
 sk_sp<ComputePipeline> GlobalCache::findComputePipeline(const UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};

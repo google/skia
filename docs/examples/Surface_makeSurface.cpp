@@ -4,7 +4,7 @@
 // HASH=a9889b519a26896b900da0444e423c61
 REG_FIDDLE(Surface_makeSurface, 256, 96, false, 0) {
 void draw(SkCanvas* canvas) {
-    sk_sp<SkSurface> big(SkSurface::MakeRasterN32Premul(64, 64));
+    sk_sp<SkSurface> big(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64)));
     sk_sp<SkSurface> lil(big->makeSurface(SkImageInfo::MakeN32(32, 32, kPremul_SkAlphaType)));
     big->getCanvas()->clear(SK_ColorRED);
     lil->getCanvas()->clear(SK_ColorBLACK);

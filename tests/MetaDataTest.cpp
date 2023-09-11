@@ -9,11 +9,12 @@
 #include "tests/Test.h"
 #include "tools/SkMetaData.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
 DEF_TEST(MetaData, reporter) {
-    SkMetaData  m1;
+    SkMetaData m1;
 
     REPORTER_ASSERT(reporter, !m1.findS32("int"));
     REPORTER_ASSERT(reporter, !m1.findScalar("scalar"));
@@ -26,8 +27,8 @@ DEF_TEST(MetaData, reporter) {
     m1.setBool("true", true);
     m1.setBool("false", false);
 
-    int32_t     n;
-    SkScalar    s;
+    int32_t n;
+    SkScalar s;
 
     m1.setScalar("scalar", SK_Scalar1/2);
 
@@ -51,9 +52,9 @@ DEF_TEST(MetaData, reporter) {
         { "false",  SkMetaData::kBool_Type,     1 }
     };
 
-    int                 loop = 0;
+    size_t loop = 0;
     int count;
-    SkMetaData::Type    t;
+    SkMetaData::Type t;
     while ((name = iter.next(&t, &count)) != nullptr)
     {
         int match = 0;

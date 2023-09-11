@@ -7,12 +7,10 @@
 
 #include "src/codec/SkJpegSourceMgr.h"
 
-#include "include/core/SkTypes.h"
-
-#ifdef SK_CODEC_DECODES_JPEG
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 #include "src/codec/SkCodecPriv.h"
 
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
@@ -439,15 +437,3 @@ std::unique_ptr<SkJpegSourceMgr> SkJpegSourceMgr::Make(SkStream* stream, size_t 
 SkJpegSourceMgr::SkJpegSourceMgr(SkStream* stream) : fStream(stream) {}
 
 SkJpegSourceMgr::~SkJpegSourceMgr() = default;
-
-#else // SK_CODEC_DECODES_JPEG
-
-std::unique_ptr<SkJpegSourceMgr> SkJpegSourceMgr::Make(SkStream* stream, size_t bufferSize) {
-    return nullptr;
-}
-
-SkJpegSourceMgr::SkJpegSourceMgr(SkStream* stream): fStream(nullptr) {}
-
-SkJpegSourceMgr::~SkJpegSourceMgr() = default;
-
-#endif

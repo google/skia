@@ -16,7 +16,7 @@
 // //include/private/base/SkTDArray.h:382:26:
 //   runtime error: signed integer overflow: 2147483644 + 4 cannot be represented in type 'int'
 
-static SK_UNUSED void path_measure_explosion(SkCanvas* canvas) {
+[[maybe_unused]] static void path_measure_explosion(SkCanvas* canvas) {
     SkPaint p;
     p.setAntiAlias(false);
     float intervals[] = { 0, 10e9f };

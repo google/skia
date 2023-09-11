@@ -8,15 +8,18 @@
 #ifndef skgpu_graphite_Caps_DEFINED
 #define skgpu_graphite_Caps_DEFINED
 
+#include <optional>
+
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAlign.h"
-#include "src/core/SkEnumBitMask.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/text/gpu/SDFTControl.h"
 
+enum class SkBlendMode;
 class SkCapabilities;
 
 namespace SkSL { struct ShaderCaps; }
@@ -50,6 +53,13 @@ struct ResourceBindingRequirements {
     bool fDistinctIndexRanges = false;
 };
 
+enum class DstReadRequirement {
+    kNone,
+    kTextureCopy,
+    kTextureSample,
+    kFramebufferFetch,
+};
+
 class Caps {
 public:
     virtual ~Caps();
@@ -63,12 +73,17 @@ public:
                                                      Protected,
                                                      Renderable) const = 0;
 
+    virtual TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                                     Mipmapped mipmapped) const = 0;
+
     virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                   Discardable discardable) const = 0;
 
     virtual TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
                                                           uint32_t sampleCount,
                                                           Protected) const = 0;
+
+    virtual TextureInfo getDefaultStorageTextureInfo(SkColorType) const = 0;
 
     virtual UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                               const RenderPassDesc&) const = 0;
@@ -79,17 +94,16 @@ public:
 
     bool isTexturable(const TextureInfo&) const;
     virtual bool isRenderable(const TextureInfo&) const = 0;
+    virtual bool isStorage(const TextureInfo&) const = 0;
 
     int maxTextureSize() const { return fMaxTextureSize; }
+    int defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
 
     virtual void buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo&,
                                     ResourceType,
                                     Shareable,
                                     GraphiteResourceKey*) const = 0;
-
-    // Returns the number of bytes for the backend format in the TextureInfo
-    virtual size_t bytesPerPixel(const TextureInfo&) const = 0;
 
     const ResourceBindingRequirements& resourceBindingRequirements() const {
         return fResourceBindingReqs;
@@ -146,9 +160,19 @@ public:
                                                      const TextureInfo& srcTextureInfo,
                                                      SkColorType dstColorType) const = 0;
 
+    /**
+     * Checks whether the passed color type is renderable. If so, the same color type is passed
+     * back. If not, provides an alternative (perhaps lower bit depth and/or unorm instead of float)
+     * color type that is supported or kUnknown if there no renderable fallback format.
+     */
+    SkColorType getRenderableColorType(SkColorType) const;
+
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
     bool protectedSupport() const { return fProtectedSupport; }
+
+    // Supports BackendSemaphores
+    bool semaphoreSupport() const { return fSemaphoreSupport; }
 
     // Returns whether storage buffers are supported.
     bool storageBufferSupport() const { return fStorageBufferSupport; }
@@ -160,6 +184,12 @@ public:
     // Returns whether a draw buffer can be mapped.
     bool drawBufferCanBeMapped() const { return fDrawBufferCanBeMapped; }
 
+    // Returns whether multisampled render to single sampled is supported.
+    bool msaaRenderToSingleSampledSupport() const { return fMSAARenderToSingleSampledSupport; }
+
+    // Returns whether compute shaders are supported.
+    bool computeSupport() const { return fComputeSupport; }
+
     // Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
     // passed in SkColorType and TextureInfo.
     skgpu::Swizzle getReadSwizzle(SkColorType, const TextureInfo&) const;
@@ -169,6 +199,9 @@ public:
     skgpu::Swizzle getWriteSwizzle(SkColorType, const TextureInfo&) const;
 
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
+
+    // Returns what method of dst read is required for a draw using the dst color.
+    DstReadRequirement getDstReadRequirement() const;
 
     float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
     float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }
@@ -186,9 +219,6 @@ protected:
     // Subclasses must call this at the end of their init method in order to do final processing on
     // the caps.
     void finishInitialization(const ContextOptions&);
-
-    // TODO: This value should be set by some context option. For now just making it 4.
-    uint32_t defaultMSAASamples() const { return 4; }
 
     // There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
     // options instead of the actual sample value.
@@ -227,6 +257,7 @@ protected:
     };
 
     int fMaxTextureSize = 0;
+    int fDefaultMSAASamples = 4;
     size_t fRequiredUniformBufferAlignment = 0;
     size_t fRequiredStorageBufferAlignment = 0;
     size_t fRequiredTransferBufferAlignment = 0;
@@ -236,9 +267,13 @@ protected:
 
     bool fClampToBorderSupport = true;
     bool fProtectedSupport = false;
+    bool fSemaphoreSupport = false;
     bool fStorageBufferSupport = false;
     bool fStorageBufferPreferred = false;
     bool fDrawBufferCanBeMapped = true;
+    bool fMSAARenderToSingleSampledSupport = false;
+
+    bool fComputeSupport = false;
 
     ResourceBindingRequirements fResourceBindingReqs;
 
@@ -251,7 +286,7 @@ protected:
      */
     ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
     int  fMaxTextureAtlasSize = 2048;
 #endif
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;

@@ -43,7 +43,7 @@ uint64_t GrMockCaps::computeFormatKey(const GrBackendFormat& format) const {
     return (uint64_t)ct;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 std::vector<GrTest::TestFormatColorTypeCombination> GrMockCaps::getTestingCombinations() const {
     // TODO: need to add compressed formats to this list
     std::vector<GrTest::TestFormatColorTypeCombination> combos = {

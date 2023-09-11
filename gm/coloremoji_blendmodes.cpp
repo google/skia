@@ -65,13 +65,9 @@ protected:
                                             kOpaque_SkAlphaType), gData, 4);
     }
 
-    SkString onShortName() override {
-        return SkString("coloremoji_blendmodes");
-    }
+    SkString getName() const override { return SkString("coloremoji_blendmodes"); }
 
-    SkISize onISize() override {
-        return {400, 640};
-    }
+    SkISize getISize() override { return {400, 640}; }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));

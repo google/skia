@@ -1,0 +1,45 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("//bazel:flags.bzl", "string_flag_with_values")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+go_library(
+    name = "adb_test_runner_lib",
+    srcs = ["adb_test_runner.go"],
+    importpath = "go.skia.org/skia/bazel/adb_test_runner",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "adb_test_runner",
+    embed = [":adb_test_runner_lib"],
+    visibility = ["//visibility:public"],
+)
+
+# This flag controls the platform for which the adb_test_runner Go program gets compiled when
+# building an adb_test target. This allows us to build an Android test from an x86_64 Linux machine
+# on GCE and switch the adb_test_runner platform to linux_arm64 so it can be executed from a
+# Raspberry Pi in a subsequent CI task.
+string_flag_with_values(
+    name = "adb_platform",
+    values = [
+        # These are shorthand for rules_go platforms, e.g.
+        # @io_bazel_rules_go//go/toolchain:linux_amd64.
+        #
+        # To make the CPU part more readable, we replace "amd64" with "x86", which makes it more
+        # visually distinct from "arm64". We map the CPU dimension back to GOARCH style in
+        # adb_test.bzl.
+        #
+        # We can add more platforms as needed. The source of truth for rules_go platforms is
+        # https://github.com/bazelbuild/rules_go/blob/5933b6ed063488472fc14ceca232b3115e8bc39f/go/private/platforms.bzl.
+        "linux_x86",
+        "linux_arm64",
+        "darwin_x86",
+        "darwin_arm64",
+        "windows_x86",
+        "windows_arm64",
+    ],
+)

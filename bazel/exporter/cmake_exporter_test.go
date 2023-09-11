@@ -205,6 +205,26 @@ else()
 endif()
 
 
+# //src/apps:hello
+add_executable(src_apps_hello "")
+target_sources(src_apps_hello
+  PRIVATE
+    # Sources:
+    "${CMAKE_SOURCE_DIR}/src/apps/hello-world.cpp"
+)
+set_target_properties(src_apps_hello PROPERTIES COMPILE_FLAGS
+  "${DEFAULT_COMPILE_FLAGS} -O1"
+)
+set_target_properties(src_apps_hello PROPERTIES LINK_FLAGS
+  "-L/app/dir"
+)
+set_target_properties(src_apps_hello PROPERTIES COMPILE_DEFINITIONS
+  "APPDEF;SUMDEF"
+)
+set_target_properties(src_apps_hello PROPERTIES INCLUDE_DIRECTORIES
+  "${CMAKE_SOURCE_DIR}/src/libs;${CMAKE_SOURCE_DIR}"
+)
+
 # //src/libs:sum
 add_library(src_libs_sum "")
 target_sources(src_libs_sum
@@ -226,27 +246,8 @@ set_target_properties(src_libs_sum PROPERTIES COMPILE_DEFINITIONS
 set_target_properties(src_libs_sum PROPERTIES INCLUDE_DIRECTORIES
   "${CMAKE_SOURCE_DIR}/src/libs;${CMAKE_SOURCE_DIR}"
 )
-
-# //src/apps:hello
-add_executable(src_apps_hello "")
-target_sources(src_apps_hello
-  PRIVATE
-    # Sources:
-    "${CMAKE_SOURCE_DIR}/src/apps/hello-world.cpp"
-)
-set_target_properties(src_apps_hello PROPERTIES COMPILE_FLAGS
-  "${DEFAULT_COMPILE_FLAGS} -O1"
-)
-set_target_properties(src_apps_hello PROPERTIES LINK_FLAGS
-  "-L/app/dir"
-)
-set_target_properties(src_apps_hello PROPERTIES COMPILE_DEFINITIONS
-  "APPDEF;SUMDEF"
-)
-set_target_properties(src_apps_hello PROPERTIES INCLUDE_DIRECTORIES
-  "${CMAKE_SOURCE_DIR}/src/libs;${CMAKE_SOURCE_DIR}"
-)
 `
+
 	assert.Equal(t, expected, contents.String())
 }
 

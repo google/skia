@@ -8,10 +8,15 @@
 #ifndef SkAnalyticEdge_DEFINED
 #define SkAnalyticEdge_DEFINED
 
-#include "include/private/base/SkTo.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkSafe32.h"
 #include "src/core/SkEdge.h"
 
-#include <utility>
+#include <cstdint>
+
+struct SkPoint;
 
 struct SkAnalyticEdge {
     // Similar to SkEdge, the conic edges will be converted to quadratic edges
@@ -135,71 +140,6 @@ struct SkAnalyticCubicEdge : public SkAnalyticEdge {
         SkASSERT(SkAbs32(fX - SkFixedMul(fDX, fY - SnapY(fCEdge.fCy)) - fCEdge.fCx) < SK_Fixed1);
         fCEdge.fCx = fX;
         fSnappedY = fY;
-    }
-};
-
-struct SkBezier {
-    int fCount; // 2 line, 3 quad, 4 cubic
-    SkPoint fP0;
-    SkPoint fP1;
-
-    // See if left shift, covert to SkFDot6, and round has the same top and bottom y.
-    // If so, the edge will be empty.
-    static inline bool IsEmpty(SkScalar y0, SkScalar y1, int shift = 2) {
-#ifdef SK_RASTERIZE_EVEN_ROUNDING
-        return SkScalarRoundToFDot6(y0, shift) == SkScalarRoundToFDot6(y1, shift);
-#else
-        SkScalar scale = (1 << (shift + 6));
-        return SkFDot6Round(int(y0 * scale)) == SkFDot6Round(int(y1 * scale));
-#endif
-    }
-};
-
-struct SkLine : public SkBezier {
-    bool set(const SkPoint pts[2]){
-        if (IsEmpty(pts[0].fY, pts[1].fY)) {
-            return false;
-        }
-        fCount = 2;
-        fP0 = pts[0];
-        fP1 = pts[1];
-        return true;
-    }
-};
-
-struct SkQuad : public SkBezier {
-    SkPoint fP2;
-
-    bool set(const SkPoint pts[3]){
-        if (IsEmpty(pts[0].fY, pts[2].fY)) {
-            return false;
-        }
-        fCount = 3;
-        fP0 = pts[0];
-        fP1 = pts[1];
-        fP2 = pts[2];
-        return true;
-    }
-};
-
-struct SkCubic : public SkBezier {
-    SkPoint fP2;
-    SkPoint fP3;
-
-    bool set(const SkPoint pts[4]){
-        // We do not chop at y extrema for cubics so pts[0], pts[1], pts[2], pts[3] may not be
-        // monotonic. Therefore, we have to check the emptiness for all three pairs, instead of just
-        // checking IsEmpty(pts[0].fY, pts[3].fY).
-        if (IsEmpty(pts[0].fY, pts[1].fY) && IsEmpty(pts[1].fY, pts[2].fY) &&
-                IsEmpty(pts[2].fY, pts[3].fY)) {
-            return false;
-        }
-        fCount = 4;
-        fP0 = pts[0];
-        fP1 = pts[1];
-        fP2 = pts[2];
-        fP3 = pts[3];
-        return true;
     }
 };
 

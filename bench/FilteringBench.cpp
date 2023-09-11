@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 #include "tools/Resources.h"
 
 class FilteringBench : public Benchmark {

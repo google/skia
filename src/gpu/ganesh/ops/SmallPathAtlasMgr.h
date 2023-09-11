@@ -17,7 +17,7 @@
 
 class GrStyledShape;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SmallPathShapeData;
 class SmallPathShapeDataKey;
@@ -53,7 +53,7 @@ public:
 
     // GrOnFlushCallbackObject overrides
     bool preFlush(GrOnFlushResourceProvider* onFlushRP) override {
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
         if (onFlushRP->failFlushTimeCallbacks()) {
             return false;
         }
@@ -95,7 +95,7 @@ private:
     ShapeDataList                  fShapeList;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE
 

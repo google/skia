@@ -37,14 +37,9 @@ public:
     }
 
 private:
+    SkString getName() const override { return SkString("fontscalerdistortable"); }
 
-    SkString onShortName() override {
-        return SkString("fontscalerdistortable");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(550, 700);
-    }
+    SkISize getISize() override { return SkISize::Make(550, 700); }
 
     bool fDirty = true;
     bool fOverride = false;

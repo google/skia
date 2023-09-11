@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include <algorithm>
+#include "tools/viewer/TouchGesture.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkTime.h"
-#include "tools/viewer/TouchGesture.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkTime.h"
+
+#include <algorithm>
+#include <cmath>
 
 #define DISCRETIZE_TRANSLATE_TO_AVOID_FLICKER   true
 

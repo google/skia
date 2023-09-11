@@ -10,7 +10,6 @@
 
 #include "include/core/SkAlphaType.h"
 #include "modules/skcms/skcms.h"
-#include "src/core/SkVM.h"
 #include <stdint.h>
 
 class SkColorSpace;
@@ -45,7 +44,6 @@ struct SkColorSpaceXformSteps {
 
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*) const;
-    skvm::Color program(skvm::Builder*, skvm::Uniforms*, skvm::Color) const;
 
     Flags flags;
 

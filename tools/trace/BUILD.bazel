@@ -1,0 +1,19 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "trace",
+    testonly = True,
+    srcs = [
+        "ChromeTracingTracer.cpp",
+        "ChromeTracingTracer.h",
+        "EventTracingPriv.cpp",
+        "EventTracingPriv.h",
+        "SkDebugfTracer.cpp",
+        "SkDebugfTracer.h",
+    ],
+    visibility = ["//tools/viewer:__pkg__"],
+)

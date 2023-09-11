@@ -11,6 +11,7 @@
 #include "modules/skplaintexteditor/src/shape.h"
 
 #include <algorithm>
+#include <cfloat>
 
 using namespace SkPlainTextEditor;
 

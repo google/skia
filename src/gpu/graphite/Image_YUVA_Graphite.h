@@ -9,7 +9,13 @@
 #define skgpu_graphite_Image_YUVA_Graphite_DEFINED
 
 #include "src/gpu/graphite/Image_Base_Graphite.h"
+
+#include "include/gpu/graphite/Image.h"
 #include "src/gpu/graphite/YUVATextureProxies.h"
+
+namespace skgpu {
+    class RefCntedCallback;
+}
 
 namespace skgpu::graphite {
 
@@ -25,28 +31,47 @@ public:
 
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphiteYUVA; }
 
+    size_t textureSize() const override;
+
     bool onHasMipmaps() const override {
         // TODO: Add mipmap support
         return false;
     }
 
-    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override {
-        return nullptr;
+    bool onIsProtected() const override {
+        // TODO: add protected content support
+        return false;
     }
 
+    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
+
+    const YUVATextureProxies& yuvaProxies() const {
+        return fYUVAProxies;
+    }
+
+    static sk_sp<TextureProxy> MakePromiseImageLazyProxy(
+            const Caps*,
+            SkISize dimensions,
+            TextureInfo,
+            Volatile,
+            SkImages::GraphitePromiseImageYUVAFulfillProc,
+            sk_sp<RefCntedCallback>,
+            SkImages::GraphitePromiseTextureContext,
+            SkImages::GraphitePromiseTextureReleaseProc);
+
 private:
-    sk_sp<SkImage> onMakeTextureImage(Recorder*, RequiredImageProperties) const override {
+    sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const override {
         return nullptr;
     }
     using Image_Base::onMakeSubset;
-    sk_sp<SkImage> onMakeSubset(const SkIRect&, Recorder*, RequiredImageProperties) const override {
+    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredProperties) const override {
         return nullptr;
     }
     using Image_Base::onMakeColorTypeAndColorSpace;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType targetCT,
-                                                sk_sp<SkColorSpace> targetCS,
-                                                Recorder*,
-                                                RequiredImageProperties) const override {
+    sk_sp<SkImage> makeColorTypeAndColorSpace(Recorder*,
+                                              SkColorType targetCT,
+                                              sk_sp<SkColorSpace> targetCS,
+                                              RequiredProperties) const override {
         return nullptr;
     }
 

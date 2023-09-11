@@ -33,8 +33,8 @@ public:
         return fName.c_str();
     }
 
-    SkIPoint onGetSize() override {
-        return SkIPoint::Make(kSize, kSize);
+    SkISize onGetSize() override {
+        return SkISize::Make(kSize, kSize);
     }
 
     void onPreDraw(SkCanvas* canvas) override {

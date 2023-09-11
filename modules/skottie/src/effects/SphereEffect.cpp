@@ -9,7 +9,9 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -19,10 +21,7 @@
 #include <array>
 
 namespace skottie::internal {
-
-#ifdef SK_ENABLE_SKSL
-
-namespace  {
+namespace {
 
 // This shader maps its child shader onto a sphere.  To simplify things, we set it up such that:
 //
@@ -402,7 +401,7 @@ private:
                 fRotOrder = 1,
                 fRender   = 1;
 
-    VectorValue fLightColor;
+    ColorValue  fLightColor;
     ScalarValue fLightIntensity =   0,
                 fLightHeight    =   0,
                 fLightDirection =   0,
@@ -416,18 +415,11 @@ private:
 
 } // namespace
 
-#endif  // SK_ENABLE_SKSL
-
 sk_sp<sksg::RenderNode> EffectBuilder::attachSphereEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
-#ifdef SK_ENABLE_SKSL
     auto sphere = sk_make_sp<SphereNode>(std::move(layer), fLayerSize);
 
     return fBuilder->attachDiscardableAdapter<SphereAdapter>(jprops, fBuilder, std::move(sphere));
-#else
-    // TODO(skia:12197)
-    return layer;
-#endif
 }
 
 } // namespace skottie::internal

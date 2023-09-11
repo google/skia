@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/geom/Geometry.h"
+#include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
 #include <limits>
@@ -79,6 +80,11 @@ public:
     int drawCount() const { return fDraws.count(); }
     int renderStepCount() const { return fRenderStepCount; }
 
+    // Bounds for a dst copy required by this DrawList.
+    const Rect& dstCopyBounds() const { return fDstCopyBounds; }
+
+    SkDEBUGCODE(bool hasAtlasDraws() const { return fAtlasShapeDrawCount > 0; })
+
 private:
     friend class DrawPass;
 
@@ -103,6 +109,13 @@ private:
 
     // Running total of RenderSteps for all draws, assuming nothing is culled
     int fRenderStepCount;
+
+#if defined(SK_DEBUG)
+    // The number of AtlasShape draws that have been recorded. Used in debugging.
+    int fAtlasShapeDrawCount = 0;
+#endif
+
+    Rect fDstCopyBounds = Rect::InfiniteInverted();
 };
 
 } // namespace skgpu::graphite

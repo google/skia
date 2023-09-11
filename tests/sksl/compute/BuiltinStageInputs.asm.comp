@@ -1,0 +1,66 @@
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID %sk_LocalInvocationID %sk_LocalInvocationIndex %sk_NumWorkgroups %sk_WorkgroupID
+               OpExecutionMode %main LocalSize 64 1 1
+               OpName %outputs "outputs"
+               OpMemberName %outputs 0 "outputBuffer"
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
+               OpName %sk_LocalInvocationID "sk_LocalInvocationID"
+               OpName %sk_LocalInvocationIndex "sk_LocalInvocationIndex"
+               OpName %sk_NumWorkgroups "sk_NumWorkgroups"
+               OpName %sk_WorkgroupID "sk_WorkgroupID"
+               OpName %helper_I "helper_I"
+               OpName %main "main"
+               OpDecorate %_runtimearr_uint ArrayStride 16
+               OpMemberDecorate %outputs 0 Offset 0
+               OpDecorate %outputs BufferBlock
+               OpDecorate %4 Binding 0
+               OpDecorate %4 DescriptorSet 0
+               OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
+               OpDecorate %sk_LocalInvocationID BuiltIn LocalInvocationId
+               OpDecorate %sk_LocalInvocationIndex BuiltIn LocalInvocationIndex
+               OpDecorate %sk_NumWorkgroups BuiltIn NumWorkgroups
+               OpDecorate %sk_WorkgroupID BuiltIn WorkgroupId
+       %uint = OpTypeInt 32 0
+%_runtimearr_uint = OpTypeRuntimeArray %uint
+    %outputs = OpTypeStruct %_runtimearr_uint
+%_ptr_Uniform_outputs = OpTypePointer Uniform %outputs
+          %4 = OpVariable %_ptr_Uniform_outputs Uniform
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%sk_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%_ptr_Input_uint = OpTypePointer Input %uint
+%sk_LocalInvocationIndex = OpVariable %_ptr_Input_uint Input
+%sk_NumWorkgroups = OpVariable %_ptr_Input_v3uint Input
+%sk_WorkgroupID = OpVariable %_ptr_Input_v3uint Input
+         %17 = OpTypeFunction %uint
+       %void = OpTypeVoid
+         %31 = OpTypeFunction %void
+        %int = OpTypeInt 32 1
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_uint = OpTypePointer Uniform %uint
+   %helper_I = OpFunction %uint None %17
+         %18 = OpLabel
+         %19 = OpLoad %v3uint %sk_NumWorkgroups
+         %20 = OpCompositeExtract %uint %19 0
+         %21 = OpLoad %v3uint %sk_WorkgroupID
+         %22 = OpCompositeExtract %uint %21 0
+         %23 = OpIAdd %uint %20 %22
+         %24 = OpLoad %v3uint %sk_LocalInvocationID
+         %25 = OpCompositeExtract %uint %24 0
+         %26 = OpIAdd %uint %23 %25
+         %27 = OpLoad %v3uint %sk_GlobalInvocationID
+         %28 = OpCompositeExtract %uint %27 0
+         %29 = OpIAdd %uint %26 %28
+               OpReturnValue %29
+               OpFunctionEnd
+       %main = OpFunction %void None %31
+         %32 = OpLabel
+         %33 = OpFunctionCall %uint %helper_I
+         %36 = OpLoad %uint %sk_LocalInvocationIndex
+         %37 = OpAccessChain %_ptr_Uniform_uint %4 %int_0 %36
+               OpStore %37 %33
+               OpReturn
+               OpFunctionEnd

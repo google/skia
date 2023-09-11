@@ -9,6 +9,7 @@
 // assembled by the fiddler program to compile into a fiddle: an
 // implementation of the GetDrawOptions() and draw() functions.
 
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/fiddle/fiddle_main.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
@@ -30,27 +31,28 @@ void draw(SkCanvas* canvas) {
     SkDebugf("This is text output: %d", 2);
 
     if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
-        sk_sp<SkImage> tmp = SkImage::MakeFromTexture(dContext,
-                                                      backEndTexture,
-                                                      kTopLeft_GrSurfaceOrigin,
-                                                      kRGBA_8888_SkColorType,
-                                                      kOpaque_SkAlphaType,
-                                                      nullptr);
+        sk_sp<SkImage> tmp = SkImages::BorrowTextureFrom(dContext,
+                                                         backEndTexture,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
+                                                         kOpaque_SkAlphaType,
+                                                         nullptr);
 
         constexpr int kSampleCnt = 0;
-        sk_sp<SkSurface> tmp2 = SkSurface::MakeFromBackendTexture(
-                                                            dContext,
-                                                            backEndTextureRenderTarget,
-                                                            kTopLeft_GrSurfaceOrigin,
-                                                            kSampleCnt,
-                                                            kRGBA_8888_SkColorType,
-                                                            nullptr, nullptr);
+        sk_sp<SkSurface> tmp2 = SkSurfaces::WrapBackendTexture(dContext,
+                                                               backEndTextureRenderTarget,
+                                                               kTopLeft_GrSurfaceOrigin,
+                                                               kSampleCnt,
+                                                               kRGBA_8888_SkColorType,
+                                                               nullptr,
+                                                               nullptr);
 
         // Note: this surface should only be renderable (i.e., not textureable)
-        sk_sp<SkSurface> tmp3 = SkSurface::MakeFromBackendRenderTarget(dContext,
-                                                                       backEndRenderTarget,
-                                                                       kTopLeft_GrSurfaceOrigin,
-                                                                       kRGBA_8888_SkColorType,
-                                                                       nullptr, nullptr);
+        sk_sp<SkSurface> tmp3 = SkSurfaces::WrapBackendRenderTarget(dContext,
+                                                                    backEndRenderTarget,
+                                                                    kTopLeft_GrSurfaceOrigin,
+                                                                    kRGBA_8888_SkColorType,
+                                                                    nullptr,
+                                                                    nullptr);
     }
 }

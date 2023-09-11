@@ -8,10 +8,14 @@
 #ifndef SkRecord_DEFINED
 #define SkRecord_DEFINED
 
-#include "include/private/base/SkTLogic.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRecords.h"
+
+#include <cstddef>
+#include <type_traits>
 
 // SkRecord represents a sequence of SkCanvas calls, saved for future use.
 // These future uses may include: replay, optimization, serialization, or combinations of those.

@@ -7,43 +7,49 @@
 
 #include "include/core/SkMesh.h"
 
-#ifdef SK_ENABLE_SKSL
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/private/SkOpts_spi.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLProgramKind.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMath.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrStagingBufferManager.h"
-#endif  // defined(SK_GANESH)
-
+#include <algorithm>
 #include <locale>
 #include <string>
 #include <tuple>
-#include <type_traits>
 #include <utility>
+
+using namespace skia_private;
 
 using Attribute = SkMeshSpecification::Attribute;
 using Varying   = SkMeshSpecification::Varying;
@@ -82,7 +88,7 @@ gather_uniforms_and_check_for_main(const SkSL::Program& program,
             const SkSL::GlobalVarDeclaration& global = elem->as<SkSL::GlobalVarDeclaration>();
             const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
             const SkSL::Variable& var = *varDecl.var();
-            if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
+            if (var.modifierFlags().isUniform()) {
                 auto iter = find_uniform(*uniforms, var.name());
                 const auto& context = *program.fContext;
                 if (iter == uniforms->end()) {
@@ -318,7 +324,7 @@ int check_for_passthrough_local_coords_and_dead_varyings(const SkSL::Program& fs
                 // and mark the returned field as used.
                 return false;
             }
-            const Type::Field& field = fVaryings->type().fields()[fa.fieldIndex()];
+            const Field& field = fVaryings->type().fields()[fa.fieldIndex()];
             if (!field.fType->matches(*fContext.fTypes.fFloat2)) {
                 this->passthroughFailed();
                 return ProgramVisitor::visitStatement(s);
@@ -413,7 +419,7 @@ SkMeshSpecification::Result SkMeshSpecification::Make(SkSpan<const Attribute> at
         }
     }
 
-    SkSTArray<kMaxVaryings, Varying> tempVaryings;
+    STArray<kMaxVaryings, Varying> tempVaryings;
     if (!userProvidedPositionVarying) {
         // Even though we check the # of varyings in MakeFromSourceWithStructs we check here, too,
         // to avoid overflow with + 1.
@@ -594,24 +600,24 @@ SkMeshSpecification::SkMeshSpecification(
         , fColorType(ct)
         , fColorSpace(std::move(cs))
         , fAlphaType(at) {
-    fHash = SkOpts::hash_fn(fVS->fSource->c_str(), fVS->fSource->size(), 0);
-    fHash = SkOpts::hash_fn(fFS->fSource->c_str(), fFS->fSource->size(), fHash);
+    fHash = SkChecksum::Hash32(fVS->fSource->c_str(), fVS->fSource->size(), 0);
+    fHash = SkChecksum::Hash32(fFS->fSource->c_str(), fFS->fSource->size(), fHash);
 
     // The attributes and varyings SkSL struct declarations are included in the program source.
     // However, the attribute offsets and types need to be included, the latter because the SkSL
     // struct definition has the GPU type but not the CPU data format.
     for (const auto& a : fAttributes) {
-        fHash = SkOpts::hash_fn(&a.offset, sizeof(a.offset), fHash);
-        fHash = SkOpts::hash_fn(&a.type,   sizeof(a.type),   fHash);
+        fHash = SkChecksum::Hash32(&a.offset, sizeof(a.offset), fHash);
+        fHash = SkChecksum::Hash32(&a.type,   sizeof(a.type),   fHash);
     }
 
-    fHash = SkOpts::hash_fn(&stride, sizeof(stride), fHash);
+    fHash = SkChecksum::Hash32(&stride, sizeof(stride), fHash);
 
     uint64_t csHash = fColorSpace ? fColorSpace->hash() : 0;
-    fHash = SkOpts::hash_fn(&csHash, sizeof(csHash), fHash);
+    fHash = SkChecksum::Hash32(&csHash, sizeof(csHash), fHash);
 
     auto atInt = static_cast<uint32_t>(fAlphaType);
-    fHash = SkOpts::hash_fn(&atInt, sizeof(atInt), fHash);
+    fHash = SkChecksum::Hash32(&atInt, sizeof(atInt), fHash);
 }
 
 size_t SkMeshSpecification::uniformSize() const {
@@ -650,52 +656,6 @@ SkMesh::SkMesh(SkMesh&&)      = default;
 
 SkMesh& SkMesh::operator=(const SkMesh&) = default;
 SkMesh& SkMesh::operator=(SkMesh&&)      = default;
-
-sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, const void* data, size_t size) {
-    if (!dc) {
-        return SkMeshPriv::CpuIndexBuffer::Make(data, size);
-    }
-#if defined(SK_GANESH)
-    return SkMeshPriv::GpuIndexBuffer::Make(dc, data, size);
-#else
-    return nullptr;
-#endif
-}
-
-sk_sp<IndexBuffer> SkMesh::CopyIndexBuffer(GrDirectContext* dc, sk_sp<IndexBuffer> src) {
-    if (!src) {
-        return nullptr;
-    }
-    auto* ib = static_cast<SkMeshPriv::IB*>(src.get());
-    const void* data = ib->peek();
-    if (!data) {
-        return nullptr;
-    }
-    return MakeIndexBuffer(dc, data, ib->size());
-}
-
-sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, const void* data, size_t size) {
-    if (!dc) {
-        return SkMeshPriv::CpuVertexBuffer::Make(data, size);
-    }
-#if defined(SK_GANESH)
-    return SkMeshPriv::GpuVertexBuffer::Make(dc, data, size);
-#else
-    return nullptr;
-#endif
-}
-
-sk_sp<VertexBuffer> SkMesh::CopyVertexBuffer(GrDirectContext* dc, sk_sp<VertexBuffer> src) {
-    if (!src) {
-        return nullptr;
-    }
-    auto* vb = static_cast<SkMeshPriv::VB*>(src.get());
-    const void* data = vb->peek();
-    if (!data) {
-        return nullptr;
-    }
-    return MakeVertexBuffer(dc, data, vb->size());
-}
 
 SkMesh::Result SkMesh::Make(sk_sp<SkMeshSpecification> spec,
                             Mode mode,
@@ -868,58 +828,36 @@ bool SkMesh::VertexBuffer::update(GrDirectContext* dc,
     return check_update(data, offset, size, this->size()) && this->onUpdate(dc, data, offset, size);
 }
 
-#if defined(SK_GANESH)
-bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
-                                 sk_sp<GrGpuBuffer> buffer,
-                                 const void* data,
-                                 size_t offset,
-                                 size_t size) {
-    if (!dc || dc != buffer->getContext()) {
-        return false;
-    }
-    SkASSERT(!dc->abandoned()); // If dc is abandoned then buffer->getContext() should be null.
-
-    if (!dc->priv().caps()->transferFromBufferToBufferSupport()) {
-        auto ownedData = SkData::MakeWithCopy(data, size);
-        dc->priv().drawingManager()->newBufferUpdateTask(std::move(ownedData),
-                                                         std::move(buffer),
-                                                         offset);
-        return true;
-    }
-
-    sk_sp<GrGpuBuffer> tempBuffer;
-    size_t tempOffset = 0;
-    if (auto* sbm = dc->priv().getGpu()->stagingBufferManager()) {
-        auto alignment = dc->priv().caps()->transferFromBufferToBufferAlignment();
-        auto [sliceBuffer, sliceOffset, ptr] = sbm->allocateStagingBufferSlice(size, alignment);
-        if (sliceBuffer) {
-            std::memcpy(ptr, data, size);
-            tempBuffer.reset(SkRef(sliceBuffer));
-            tempOffset = sliceOffset;
-        }
-    }
-
-    if (!tempBuffer) {
-        tempBuffer = dc->priv().resourceProvider()->createBuffer(size,
-                                                                 GrGpuBufferType::kXferCpuToGpu,
-                                                                 kDynamic_GrAccessPattern,
-                                                                 GrResourceProvider::ZeroInit::kNo);
-        if (!tempBuffer) {
-            return false;
-        }
-        if (!tempBuffer->updateData(data, 0, size, /*preserve=*/false)) {
-            return false;
-        }
-    }
-
-    dc->priv().drawingManager()->newBufferTransferTask(std::move(tempBuffer),
-                                                       tempOffset,
-                                                       std::move(buffer),
-                                                       offset,
-                                                       size);
-
-    return true;
+namespace SkMeshes {
+sk_sp<IndexBuffer> MakeIndexBuffer(const void* data, size_t size) {
+    return SkMeshPriv::CpuIndexBuffer::Make(data, size);
 }
-#endif  // defined(SK_GANESH)
 
-#endif  // SK_ENABLE_SKSL
+sk_sp<IndexBuffer> CopyIndexBuffer(sk_sp<IndexBuffer> src) {
+    if (!src) {
+        return nullptr;
+    }
+    auto* ib = static_cast<SkMeshPriv::IB*>(src.get());
+    const void* data = ib->peek();
+    if (!data) {
+        return nullptr;
+    }
+    return MakeIndexBuffer(data, ib->size());
+}
+
+sk_sp<VertexBuffer> MakeVertexBuffer(const void* data, size_t size) {
+    return SkMeshPriv::CpuVertexBuffer::Make(data, size);
+}
+
+sk_sp<VertexBuffer> CopyVertexBuffer(sk_sp<VertexBuffer> src) {
+    if (!src) {
+        return nullptr;
+    }
+    auto* vb = static_cast<SkMeshPriv::VB*>(src.get());
+    const void* data = vb->peek();
+    if (!data) {
+        return nullptr;
+    }
+    return MakeVertexBuffer(data, vb->size());
+}
+}  // namespace SkMeshes

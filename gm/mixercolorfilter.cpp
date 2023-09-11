@@ -71,11 +71,9 @@ public:
         , fTileCount(tileCount) {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("mixerCF");
-    }
+    SkString getName() const override { return SkString("mixerCF"); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         return SkISize::Make(fTileSize.width()  * 1.2f * fTileCount,
                              fTileSize.height() * 1.2f * 3);         // 3 rows
     }

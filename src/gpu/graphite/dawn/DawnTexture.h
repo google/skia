@@ -40,21 +40,24 @@ public:
     ~DawnTexture() override {}
 
     const wgpu::Texture& dawnTexture() const { return fTexture; }
-    const wgpu::TextureView& dawnTextureView() const { return fTextureView; }
+    const wgpu::TextureView& sampleTextureView() const { return fSampleTextureView; }
+    const wgpu::TextureView& renderTextureView() const { return fRenderTextureView; }
 
 private:
-    DawnTexture(const DawnSharedContext* sharedContext,
+    DawnTexture(const DawnSharedContext*,
                 SkISize dimensions,
-                const TextureInfo& info,
+                const TextureInfo&,
                 wgpu::Texture,
-                wgpu::TextureView,
+                wgpu::TextureView sampleTextureView,
+                wgpu::TextureView renderTextureView,
                 Ownership,
                 skgpu::Budgeted);
 
     void freeGpuData() override;
 
     wgpu::Texture     fTexture;
-    wgpu::TextureView fTextureView;
+    wgpu::TextureView fSampleTextureView;
+    wgpu::TextureView fRenderTextureView;
 };
 
 } // namepsace skgpu::graphite

@@ -51,7 +51,7 @@ public:
                  ProgramUsage* usage);
 
 private:
-    using VariableRewriteMap = SkTHashMap<const Variable*, std::unique_ptr<Expression>>;
+    using VariableRewriteMap = skia_private::THashMap<const Variable*, std::unique_ptr<Expression>>;
 
     const ProgramSettings& settings() const { return fContext->fConfig->fSettings; }
 
@@ -79,12 +79,16 @@ private:
     static const Variable* RemapVariable(const Variable* variable,
                                          const VariableRewriteMap* varMap);
 
-    using InlinabilityCache = SkTHashMap<const FunctionDeclaration*, bool>;
+    using InlinabilityCache = skia_private::THashMap<const FunctionDeclaration*, bool>;
     bool candidateCanBeInlined(const InlineCandidate& candidate,
                                const ProgramUsage& usage,
                                InlinabilityCache* cache);
 
-    using FunctionSizeCache = SkTHashMap<const FunctionDeclaration*, int>;
+    bool functionCanBeInlined(const FunctionDeclaration& funcDecl,
+                              const ProgramUsage& usage,
+                              InlinabilityCache* cache);
+
+    using FunctionSizeCache = skia_private::THashMap<const FunctionDeclaration*, int>;
     int getFunctionSize(const FunctionDeclaration& fnDecl, FunctionSizeCache* cache);
 
     /**

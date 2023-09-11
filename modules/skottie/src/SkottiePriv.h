@@ -8,15 +8,16 @@
 #ifndef SkottiePriv_DEFINED
 #define SkottiePriv_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "modules/skottie/include/Skottie.h"
 
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/Font.h"
-#include "modules/sksg/include/SkSGScene.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkTHash.h"
 
@@ -46,8 +47,19 @@ static constexpr float kBlurSizeToSigma = 0.3f;
 class TextAdapter;
 class TransformAdapter2D;
 class TransformAdapter3D;
+class OpacityAdapter;
+
 
 using AnimatorScope = std::vector<sk_sp<Animator>>;
+
+class SceneGraphRevalidator final : public SkNVRefCnt<SceneGraphRevalidator> {
+public:
+    void revalidate();
+    void setRoot(sk_sp<sksg::RenderNode>);
+
+private:
+    sk_sp<sksg::RenderNode> fRoot;
+};
 
 class AnimationBuilder final : public SkNoncopyable {
 public:
@@ -58,8 +70,9 @@ public:
                      float duration, float framerate, uint32_t flags);
 
     struct AnimationInfo {
-        std::unique_ptr<sksg::Scene> fScene;
-        AnimatorScope                fAnimators;
+        sk_sp<sksg::RenderNode> fSceneRoot;
+        AnimatorScope           fAnimators;
+        sk_sp<SlotManager>      fSlotManager;
     };
 
     AnimationInfo parse(const skjson::ObjectValue&);
@@ -173,15 +186,21 @@ public:
 
     bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
     bool dispatchOpacityProperty(const sk_sp<sksg::OpacityEffect>&) const;
-    bool dispatchTextProperty(const sk_sp<TextAdapter>&) const;
+    bool dispatchTextProperty(const sk_sp<TextAdapter>&,
+                              const skjson::ObjectValue* jtext) const;
     bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
     sk_sp<ExpressionManager> expression_manager() const;
+
+    const skjson::ObjectValue* getSlotsRoot() const {
+        return fSlotsRoot;
+    }
 
 private:
     friend class CompositionBuilder;
     friend class CustomFont;
     friend class LayerBuilder;
+    friend class AnimatablePropertyContainer;
 
     struct AttachLayerContext;
     struct AttachShapeContext;
@@ -235,21 +254,23 @@ private:
         sk_sp<SkFontMgr> fFontMgr;
     };
 
-    sk_sp<ResourceProvider>    fResourceProvider;
-    LazyResolveFontMgr         fLazyFontMgr;
-    sk_sp<PropertyObserver>    fPropertyObserver;
-    sk_sp<Logger>              fLogger;
-    sk_sp<MarkerObserver>      fMarkerObserver;
-    sk_sp<PrecompInterceptor>  fPrecompInterceptor;
-    sk_sp<ExpressionManager>   fExpressionManager;
-    Animation::Builder::Stats* fStats;
-    const SkSize               fCompSize;
-    const float                fDuration,
-                               fFrameRate;
-    const uint32_t             fFlags;
-    mutable AnimatorScope*     fCurrentAnimatorScope;
-    mutable const char*        fPropertyObserverContext;
-    mutable bool               fHasNontrivialBlending : 1;
+    sk_sp<ResourceProvider>      fResourceProvider;
+    LazyResolveFontMgr           fLazyFontMgr;
+    sk_sp<PropertyObserver>      fPropertyObserver;
+    sk_sp<Logger>                fLogger;
+    sk_sp<MarkerObserver>        fMarkerObserver;
+    sk_sp<PrecompInterceptor>    fPrecompInterceptor;
+    sk_sp<ExpressionManager>     fExpressionManager;
+    sk_sp<SceneGraphRevalidator> fRevalidator;
+    sk_sp<SlotManager>           fSlotManager;
+    Animation::Builder::Stats*   fStats;
+    const SkSize                 fCompSize;
+    const float                  fDuration,
+                                 fFrameRate;
+    const uint32_t               fFlags;
+    mutable AnimatorScope*       fCurrentAnimatorScope;
+    mutable const char*          fPropertyObserverContext = nullptr;
+    mutable bool                 fHasNontrivialBlending : 1;
 
     struct LayerInfo {
         SkSize      fSize;
@@ -285,10 +306,13 @@ private:
         const AssetInfo* fInfo = nullptr;
     };
 
-    SkTHashMap<SkString, AssetInfo>                fAssets;
-    SkTHashMap<SkString, FontInfo>                 fFonts;
-    sk_sp<CustomFont::GlyphCompMapper>             fCustomGlyphMapper;
-    mutable SkTHashMap<SkString, FootageAssetInfo> fImageAssetCache;
+    skia_private::THashMap<SkString, AssetInfo>                fAssets;
+    skia_private::THashMap<SkString, FontInfo>                 fFonts;
+    sk_sp<CustomFont::GlyphCompMapper>                         fCustomGlyphMapper;
+    mutable skia_private::THashMap<SkString, FootageAssetInfo> fImageAssetCache;
+
+    // Handle to "slots" JSON Object, used to grab slot values while building
+    const skjson::ObjectValue* fSlotsRoot;
 
     using INHERITED = SkNoncopyable;
 };

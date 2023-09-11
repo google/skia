@@ -81,7 +81,8 @@ func TestBenchSkottieFrames_CPUHasNoUseGPUFlag(t *testing.T) {
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
 			"--input_lottie", filepath.Join(lotties, "animation_1", "data.json"),
 			"--assets", filepath.Join(lotties, "animation_1", "images"),
-			"--output", "/fake/path/to/perf-puppeteer/out/animation_1.json"}, cmd.Args)
+			"--output", "/fake/path/to/perf-puppeteer/out/animation_1.json",
+			"--timeout=90"}, cmd.Args)
 		return nil
 	})
 	require.Empty(t, res.Errors)

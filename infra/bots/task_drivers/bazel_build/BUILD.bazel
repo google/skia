@@ -10,6 +10,7 @@ go_library(
     deps = [
         "@org_skia_go_infra//go/common",
         "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//go/skerr",
         "@org_skia_go_infra//task_driver/go/lib/bazel",
         "@org_skia_go_infra//task_driver/go/lib/os_steps",
         "@org_skia_go_infra//task_driver/go/td",

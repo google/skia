@@ -18,6 +18,6 @@ void draw(SkCanvas* canvas) {
             }
         }
     }
-    canvas->drawImage(SkImage::MakeRasterCopy(pixmap), 0, 0);
+    canvas->drawImage(SkImages::RasterFromPixmapCopy(pixmap), 0, 0);
 }
 }  // END FIDDLE

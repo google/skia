@@ -7,7 +7,6 @@ exports_files_legacy()
 selects.config_setting_group(
     name = "use_harfbuzz_shaper",
     match_all = [
-        "//bazel/common_config_settings:use_icu_true",
         "//bazel/common_config_settings:use_harfbuzz_true",
     ],
 )
@@ -18,17 +17,26 @@ skia_cc_library(
     name = "skshaper",
     srcs = ["//modules/skshaper/src:srcs"],
     hdrs = ["//modules/skshaper/include:hdrs"],
-    defines = ["SKSHAPER_IMPLEMENTATION=1"] + select({
+    defines = ["SK_SHAPER_UNICODE_AVAILABLE"] + select({
         ":use_harfbuzz_shaper": ["SK_SHAPER_HARFBUZZ_AVAILABLE"],
         "//conditions:default": [],
     }),
+    local_defines = ["SKSHAPER_IMPLEMENTATION=1"],
     visibility = ["//:__subpackages__"],
+    # TODO(kjlubick,bungeman) someday implementation_deps will be available
+    #implementation_deps = ["//modules/skunicode"] + select({
+    #    ":use_harfbuzz_shaper": [
+    #        "@harfbuzz",
+    #    ],
+    #    "//conditions:default": [],
+    #}),
+    #deps = ["//:skia_internal"]
     deps = [
         "//:skia_internal",
+        "//modules/skunicode",
     ] + select({
         ":use_harfbuzz_shaper": [
             "@harfbuzz",
-            "//modules/skunicode",
         ],
         "//conditions:default": [],
     }),

@@ -1,4 +1,50 @@
-### Compilation failed:
+42 instructions
 
-error: code is not supported
-1 error
+[immutable slots]
+i0 = 0x3F800000 (1.0)
+i1 = 0x40000000 (2.0)
+i2 = 0x40400000 (3.0)
+i3 = 0x40800000 (4.0)
+
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  _0_x = 0x3F800000 (1.0)
+bitwise_and_imm_int            _0_x &= 0x7FFFFFFF
+copy_slot_unmasked             $0 = _0_x
+add_imm_float                  $0 += 0xC0000000 (-2.0)
+bitwise_and_imm_int            $0 &= 0x7FFFFFFF
+copy_slot_unmasked             _0_x = $0
+copy_constant                  $1 = 0x40000000 (2.0)
+mul_float                      $0 *= $1
+copy_slot_unmasked             _0_x = $0
+copy_slot_unmasked             $1 = $0
+bitwise_and_imm_int            $1 &= 0x7FFFFFFF
+div_float                      $0 /= $1
+copy_slot_unmasked             _0_x = $0
+copy_2_immutables_unmasked     _1_x = i0..1 [0x3F800000 (1.0), 0x40000000 (2.0)]
+copy_2_slots_unmasked          $0..1 = _1_x
+copy_2_slots_unmasked          $2..3 = $0..1
+dot_2_floats                   $0 = dot($0..1, $2..3)
+sqrt_float                     $0 = sqrt($0)
+copy_slot_unmasked             $1 = $0
+copy_2_slots_unmasked          _1_x = $0..1
+copy_2_immutables_unmasked     $2..3 = i2..3 [0x40400000 (3.0), 0x40800000 (4.0)]
+sub_2_floats                   $0..1 -= $2..3
+copy_2_slots_unmasked          $2..3 = $0..1
+dot_2_floats                   $0 = dot($0..1, $2..3)
+sqrt_float                     $0 = sqrt($0)
+copy_slot_unmasked             $1 = $0
+copy_2_slots_unmasked          _1_x = $0..1
+copy_2_immutables_unmasked     $2..3 = i2..3 [0x40400000 (3.0), 0x40800000 (4.0)]
+dot_2_floats                   $0 = dot($0..1, $2..3)
+copy_slot_unmasked             $1 = $0
+copy_2_slots_unmasked          _1_x = $0..1
+copy_2_slots_unmasked          $2..3 = $0..1
+copy_2_slots_unmasked          $4..5 = $2..3
+dot_2_floats                   $2 = dot($2..3, $4..5)
+sqrt_float                     $2 = sqrt($2)
+copy_slot_unmasked             $3 = $2
+div_2_floats                   $0..1 /= $2..3
+copy_2_slots_unmasked          _1_x = $0..1
+copy_4_uniforms                $0..3 = colorGreen
+load_src                       src.rgba = $0..3

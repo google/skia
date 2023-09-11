@@ -11,7 +11,8 @@ layout (binding = 0, set = 0) readonly buffer storageBuffer {
 layout (binding = 1, set = 0) buffer outputBuffer {
     SomeData[] outputData;
 };
+layout (location = 2) flat in int bufferIndex;
 vec4 main() {
     outputData[offset] = inputData[offset];
-    return inputData[offset].a * inputData[offset].b.x;
+    return inputData[bufferIndex].a * inputData[bufferIndex].b.x;
 }

@@ -6,71 +6,91 @@
  */
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
-#include "include/private/SkChecksum.h"
+#include "include/core/SkString.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkMD5.h"
-#include "src/core/SkOpts.h"
+
+#include <memory>
 
 enum ChecksumType {
     kMD5_ChecksumType,
-    kHash_ChecksumType,
+    kWyhash_ChecksumType,
 };
 
 class ComputeChecksumBench : public Benchmark {
-    enum {
-        U32COUNT  = 256,
-        SIZE      = U32COUNT * 4,
-    };
-    uint32_t    fData[U32COUNT];
-    ChecksumType fType;
-
 public:
-    ComputeChecksumBench(ChecksumType type) : fType(type) {
-        SkRandom rand;
-        for (int i = 0; i < U32COUNT; ++i) {
-            fData[i] = rand.nextU();
-        }
-    }
+    // All instances of this benchmark compute a checksum over 64K (or slightly less, if the
+    // block size doesn't divide evenly).
+    constexpr static size_t kBufferSize = 64 * 1024;
 
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
-    }
+    ChecksumType fType;
+    size_t fBlockSize;
+    SkString fName;
+    std::unique_ptr<uint8_t[]> fData;
 
-protected:
-    const char* onGetName() override {
+    ComputeChecksumBench(ChecksumType type, size_t blockSize) : fType(type), fBlockSize(blockSize) {
+        SkASSERT(blockSize <= kBufferSize);
+
         switch (fType) {
-            case kMD5_ChecksumType: return "compute_md5";
-            case kHash_ChecksumType: return "compute_hash";
-
-            default: SK_ABORT("Invalid Type");
+            case kMD5_ChecksumType: fName = "compute_md5"; break;
+            case kWyhash_ChecksumType: fName = "compute_wyhash"; break;
         }
+        fName.appendf("_%d", static_cast<int>(fBlockSize));
+    }
+
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    const char* onGetName() override { return fName.c_str(); }
+
+    void onPreDraw(SkCanvas*) override {
+        fData.reset(new uint8_t[kBufferSize]);
+
+        SkRandom rand;
+        for (size_t i = 0; i < kBufferSize; ++i) {
+            fData[i] = rand.nextBits(8);
+        }
+    }
+
+    void onPostDraw(SkCanvas*) override {
+        fData.reset();
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        switch (fType) {
-            case kMD5_ChecksumType: {
-                for (int i = 0; i < loops; i++) {
-                    SkMD5 md5;
-                    md5.write(fData, sizeof(fData));
-                    (void)md5.finish();
+        volatile uint32_t result = 0;
+        const size_t blockCount = kBufferSize / fBlockSize;
+        const uint8_t* bufEnd = fData.get() + (blockCount * fBlockSize);
+        for (int i = 0; i < loops; i++) {
+            for (const uint8_t* buf = fData.get(); buf < bufEnd; buf += fBlockSize) {
+                switch (fType) {
+                    case kMD5_ChecksumType: {
+                        SkMD5 md5;
+                        md5.write(buf, fBlockSize);
+                        (void)md5.finish();
+                        break;
+                    }
+                    case kWyhash_ChecksumType:
+                        result = SkChecksum::Hash32(buf, fBlockSize);
+                        break;
                 }
-            } break;
-            case kHash_ChecksumType: {
-                for (int i = 0; i < loops; i++) {
-                    volatile uint32_t result = SkOpts::hash(fData, sizeof(fData));
-                    sk_ignore_unused_variable(result);
-                }
-            }break;
+            }
         }
-
+        sk_ignore_unused_variable(result);
     }
-
-private:
-    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new ComputeChecksumBench(kMD5_ChecksumType); )
-DEF_BENCH( return new ComputeChecksumBench(kHash_ChecksumType); )
+DEF_BENCH( return new ComputeChecksumBench(kMD5_ChecksumType, 1024); )
+
+#define DEF_CHECKSUM_BENCH(T) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 4); ) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 8); ) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 15); ) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 16); ) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 31); ) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 32); ) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 96); ) \
+    DEF_BENCH( return new ComputeChecksumBench(T, 1024); )
+
+DEF_CHECKSUM_BENCH(kWyhash_ChecksumType)

@@ -17,8 +17,9 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkAlign.h"
-#include "include/private/base/SkPathEnums.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
+#include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 
@@ -252,7 +253,10 @@ public:
         }
 
         fPathLength = pathLength;
-        fTangent.scale(SkScalarInvert(pathLength));
+        fTangent.scale(sk_ieee_float_divide(1.0f, pathLength));
+        if (!SkScalarsAreFinite(fTangent.fX, fTangent.fY)) {
+            return false;
+        }
         SkPointPriv::RotateCCW(fTangent, &fNormal);
         fNormal.scale(SkScalarHalf(rec->getWidth()));
 

@@ -553,7 +553,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             }
         }
 
-        SkTypeface* createTypeface(int index) override {
+        sk_sp<SkTypeface> createTypeface(int index) override {
             if (index < 0 || fFontSet->nfont <= index) {
                 return nullptr;
             }
@@ -562,10 +562,10 @@ class SkFontMgr_fontconfig : public SkFontMgr {
                 FcPatternReference(fFontSet->fonts[index]);
                 return fFontSet->fonts[index];
             }());
-            return fFontMgr->createTypefaceFromFcPattern(std::move(match)).release();
+            return fFontMgr->createTypefaceFromFcPattern(std::move(match));
         }
 
-        SkTypeface* matchStyle(const SkFontStyle& style) override {
+        sk_sp<SkTypeface> matchStyle(const SkFontStyle& style) override {
             SkAutoFcPattern match([this, &style]() {
                 FCLocker lock;
 
@@ -581,7 +581,7 @@ class SkFontMgr_fontconfig : public SkFontMgr {
                                       pattern, &result);
 
             }());
-            return fFontMgr->createTypefaceFromFcPattern(std::move(match)).release();
+            return fFontMgr->createTypefaceFromFcPattern(std::move(match));
         }
 
     private:
@@ -695,7 +695,7 @@ protected:
         familyName->set(fFamilyNames->atStr(index));
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const override {
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override {
         return this->onMatchFamily(fFamilyNames->atStr(index));
     }
 
@@ -782,7 +782,7 @@ protected:
         return false;
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override {
         if (!familyName) {
             return nullptr;
         }
@@ -823,11 +823,11 @@ protected:
             }
         }
 
-        return new StyleSet(sk_ref_sp(this), std::move(matches));
+        return sk_sp<SkFontStyleSet>(new StyleSet(sk_ref_sp(this), std::move(matches)));
     }
 
-    SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle& style) const override
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                         const SkFontStyle& style) const override
     {
         SkAutoFcPattern font([this, &familyName, &style]() {
             FCLocker lock;
@@ -863,14 +863,14 @@ protected:
             }
             return font;
         }());
-        return createTypefaceFromFcPattern(std::move(font)).release();
+        return createTypefaceFromFcPattern(std::move(font));
     }
 
-    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
-                                            const SkFontStyle& style,
-                                            const char* bcp47[],
-                                            int bcp47Count,
-                                            SkUnichar character) const override
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[],
+                                                  const SkFontStyle& style,
+                                                  const char* bcp47[],
+                                                  int bcp47Count,
+                                                  SkUnichar character) const override
     {
         SkAutoFcPattern font([&](){
             FCLocker lock;
@@ -907,7 +907,7 @@ protected:
             }
             return font;
         }());
-        return createTypefaceFromFcPattern(std::move(font)).release();
+        return createTypefaceFromFcPattern(std::move(font));
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,

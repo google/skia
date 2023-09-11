@@ -22,7 +22,7 @@ namespace skgpu::graphite {
 sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendContext& context,
                                                              const ContextOptions& options) {
     // TODO: This was taken from GrMtlGpu.mm's Make, does graphite deserve a higher version?
-    if (@available(macOS 10.14, iOS 11.0, *)) {
+    if (@available(macOS 10.14, iOS 11.0, tvOS 11.0, *)) {
         // no warning needed
     } else {
         SKGPU_LOG_E("Skia's Graphite backend no longer supports this OS version.");
@@ -58,10 +58,17 @@ MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
         , fDevice(std::move(device)) {}
 
 MtlSharedContext::~MtlSharedContext() {
+    // need to clear out resources before the allocator (if any) is removed
+    this->globalCache()->deleteResources();
 }
 
-std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(SingleOwner* singleOwner) {
-    return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this, singleOwner));
+std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(SingleOwner* singleOwner,
+                                                                         uint32_t recorderID,
+                                                                         size_t resourceBudget) {
+    return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this,
+                                                                     singleOwner,
+                                                                     recorderID,
+                                                                     resourceBudget));
 }
 
 } // namespace skgpu::graphite

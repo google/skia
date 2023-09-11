@@ -10,10 +10,12 @@
 #include "src/base/SkTSearch.h"
 #include "src/base/SkTSort.h"
 
+using namespace skia_private;
+
 namespace skgpu {
 
 // finds the index of ext in infos or a negative result if ext is not found.
-static int find_info(const SkTArray<VulkanExtensions::Info>& infos, const char ext[]) {
+static int find_info(const TArray<VulkanExtensions::Info>& infos, const char ext[]) {
     if (infos.empty()) {
         return -1;
     }

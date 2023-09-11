@@ -7,10 +7,12 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
@@ -221,7 +223,7 @@ public:
     }
 #else
     static std::unique_ptr<FrameGenerator> Make(FrameSink* sink, const SkMatrix& matrix) {
-        auto surface = SkSurface::MakeRasterN32Premul(FLAGS_width, FLAGS_height);
+        auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height));
         if (!surface) {
             SkDebugf("Could not allocate a %d x %d surface.\n", FLAGS_width, FLAGS_height);
             return nullptr;
@@ -301,7 +303,7 @@ public:
 
     ~GPUGenerator() override {
         // ensure all pending reads are completed
-        fCtx->flushAndSubmit(true);
+        fCtx->flushAndSubmit(GrSyncCpu::kYes);
     }
 
     void generateFrame(const skottie::Animation* anim, size_t frame_index) override {
@@ -322,10 +324,8 @@ private:
     GPUGenerator(FrameSink* sink, const SkMatrix& matrix)
         : FrameGenerator(sink)
     {
-        fCtx = fFactory.getContextInfo(sk_gpu_test::GrContextFactory::kGL_ContextType)
-                           .directContext();
-        fSurface =
-                SkSurface::MakeRenderTarget(fCtx,
+        fCtx = fFactory.getContextInfo(skgpu::ContextType::kGL).directContext();
+        fSurface = SkSurfaces::RenderTarget(fCtx,
                                             skgpu::Budgeted::kNo,
                                             SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height),
                                             0,
@@ -354,12 +354,13 @@ private:
             SkPixmap pm(SkImageInfo::MakeN32Premul(FLAGS_width, FLAGS_height),
                         result->data(0), result->rowBytes(0));
 
-            auto release_proc = [](const void*, SkImage::ReleaseContext ctx) {
+            auto release_proc = [](const void*, SkImages::ReleaseContext ctx) {
                 std::unique_ptr<const SkSurface::AsyncReadResult>
                         adopted(reinterpret_cast<const SkSurface::AsyncReadResult*>(ctx));
             };
 
-            auto frame_image = SkImage::MakeFromRaster(pm, release_proc, (void*)result.release());
+            auto frame_image =
+                    SkImages::RasterFromPixmap(pm, release_proc, (void*)result.release());
 
             rec->sink->writeFrame(std::move(frame_image), rec->index);
         }
@@ -423,7 +424,7 @@ extern bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperiment
 int main(int argc, char** argv) {
     gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = true;
     CommandLineFlags::Parse(argc, argv);
-    SkAutoGraphics ag;
+    SkGraphics::Init();
 
     if (FLAGS_input.isEmpty() || FLAGS_writePath.isEmpty()) {
         SkDebugf("Missing required 'input' and 'writePath' args.\n");

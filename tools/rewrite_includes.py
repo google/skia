@@ -24,7 +24,6 @@ roots = [
   'bench',
   'dm',
   'docs',
-  'example',
   'experimental',
   'fuzz',
   'gm',
@@ -46,6 +45,15 @@ ignorelist = [
   # Some node_modules/ files (used by CanvasKit et al) have c++ code which we should ignore.
   'node_modules',
   'include/third_party/skcms',
+  # Used by Jetski and Graphite
+  'Surface.h',
+  # Used by Ganesh and Graphite
+  'Device.h',
+  # Temporary shims
+  'SkEncodedImageFormat.h',
+  'SkICC.h',
+  # Transitional
+  'tools/window',
 ]
 
 assert '/' in [os.sep, os.altsep]
@@ -82,7 +90,13 @@ for file_path in to_rewrite():
       'tests/sksl/' in file_path or
       'third_party/skcms' in file_path or
       'modules/skcms' in file_path or
-      file_path.startswith('bazel/rbe')):
+      # transitional
+      'jetski' in file_path or
+      'tools/window' in file_path or
+      file_path.startswith('bazel/rbe') or
+      'example/external_client/' in file_path or
+      # We intentionally list SkUserConfig.h not from the root in this file.
+      file_path == 'include/private/base/SkLoadUserConfig.h'):
     continue
   if (file_path.endswith('.h') or
       file_path.endswith('.c') or
@@ -127,5 +141,5 @@ if need_rewriting:
   for path in need_rewriting:
     print('\t' + path)
   print('To do this automatically, run')
-  print('python tools/rewrite_includes.py ' + ' '.join(need_rewriting))
+  print('python3 tools/rewrite_includes.py ' + ' '.join(need_rewriting))
   sys.exit(1)

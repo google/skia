@@ -12,6 +12,10 @@
 #include "include/core/SkVertices.h"
 #include "src/gpu/graphite/Renderer.h"
 
+#ifdef SK_ENABLE_VELLO_SHADERS
+#include "src/gpu/graphite/compute/VelloRenderer.h"
+#endif
+
 #include <vector>
 
 namespace skgpu::graphite {
@@ -43,8 +47,11 @@ public:
     const Renderer* convexTessellatedWedges() const { return &fConvexTessellatedWedges; }
     const Renderer* tessellatedStrokes() const { return &fTessellatedStrokes; }
 
+    // Atlas'ed path rendering
+    const Renderer* atlasShape() const { return &fAtlasShape; }
+
     // Atlas'ed text rendering
-    const Renderer* bitmapText() const { return &fBitmapText; }
+    const Renderer* bitmapText(bool useLCDText) const { return &fBitmapText[useLCDText]; }
     const Renderer* sdfText(bool useLCDText) const { return &fSDFText[useLCDText]; }
 
     // Mesh rendering
@@ -67,6 +74,11 @@ public:
     }
 
     const RenderStep* lookup(uint32_t uniqueID) const;
+
+#ifdef SK_ENABLE_VELLO_SHADERS
+    // Compute shader-based path renderer and compositor.
+    const VelloRenderer* velloRenderer() const { return fVelloRenderer.get(); }
+#endif
 
 private:
     static constexpr int kPathTypeCount = 4;
@@ -91,7 +103,9 @@ private:
     Renderer fConvexTessellatedWedges;
     Renderer fTessellatedStrokes;
 
-    Renderer fBitmapText;
+    Renderer fAtlasShape;
+
+    Renderer fBitmapText[2];  // bool isLCD
     Renderer fSDFText[2]; // bool isLCD
 
     Renderer fAnalyticRRect;
@@ -100,6 +114,10 @@ private:
 
     // Aggregate of all enabled Renderers for convenient iteration when pre-compiling
     std::vector<const Renderer*> fRenderers;
+
+#ifdef SK_ENABLE_VELLO_SHADERS
+    std::unique_ptr<VelloRenderer> fVelloRenderer;
+#endif
 };
 
 }  // namespace skgpu::graphite

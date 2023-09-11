@@ -7,33 +7,27 @@
 
 #include "include/core/SkGraphics.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkMatrix.h"
-#include "include/core/SkOpenTypeSVGDecoder.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkPathEffect.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkShader.h"
-#include "include/core/SkStream.h"
-#include "include/core/SkTime.h"
-#include "include/private/base/SkMath.h"
-#include "src/base/SkTSearch.h"
-#include "src/core/SkBlitter.h"
+#include "src/core/SkBitmapProcState.h"
+#include "src/core/SkBlitMask.h"
+#include "src/core/SkBlitRow.h"
 #include "src/core/SkCpu.h"
-#include "src/core/SkGeometry.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMemset.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkResourceCache.h"
-#include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "src/core/SkTypefaceCache.h"
-
-#include <stdlib.h>
 
 void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
     SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
+    SkOpts::Init_BitmapProcState();
+    SkOpts::Init_BlitMask();
+    SkOpts::Init_BlitRow();
+    SkOpts::Init_Memset();
+    SkOpts::Init_Swizzler();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,6 +74,10 @@ void SkGraphics::PurgeFontCache() {
     SkTypefaceCache::PurgeAll();
 }
 
+void SkGraphics::PurgePinnedFontCache() {
+    SkStrikeCache::GlobalStrikeCache()->purgePinned();
+}
+
 static SkGraphics::OpenTypeSVGDecoderFactory gSVGDecoderFactory = nullptr;
 
 SkGraphics::OpenTypeSVGDecoderFactory
@@ -91,10 +89,4 @@ SkGraphics::SetOpenTypeSVGDecoderFactory(OpenTypeSVGDecoderFactory svgDecoderFac
 
 SkGraphics::OpenTypeSVGDecoderFactory SkGraphics::GetOpenTypeSVGDecoderFactory() {
     return gSVGDecoderFactory;
-}
-
-extern bool gSkVMAllowJIT;
-
-void SkGraphics::AllowJIT() {
-    gSkVMAllowJIT = true;
 }

@@ -48,12 +48,16 @@ struct skcms_TransferFunction;
 // Raster pipeline programs are stored as a contiguous array of SkRasterPipelineStages.
 SK_BEGIN_REQUIRE_DENSE
 struct SkRasterPipelineStage {
-    // A function pointer from `stages_lowp` or `stages_highp`. The exact function pointer type
-    // varies depending on architecture (specifically, see `Stage` in SkRasterPipeline_opts.h).
+    // `fn` holds a function pointer from `ops_lowp` or `ops_highp` in SkOpts.cpp. These functions
+    // correspond to operations from the SkRasterPipelineOp enum in SkRasterPipelineOpList.h. The
+    // exact function pointer type varies depending on architecture (specifically, look for `using
+    // Stage =` in SkRasterPipeline_opts.h).
     void (*fn)();
 
-    // Data used by the stage function. Most context structures are declared at the top of
-    // SkRasterPipeline.h, and have names ending in Ctx (e.g. "SkRasterPipeline_SamplerCtx").
+    // `ctx` holds data used by the stage function.
+    // Most context structures are declared in SkRasterPipelineOpContexts.h, and have names ending
+    // in Ctx (e.g. "SkRasterPipeline_SamplerCtx"). Some Raster Pipeline stages pack non-pointer
+    // data into this field using `SkRPCtxUtils::Pack`.
     void* ctx;
 };
 SK_END_REQUIRE_DENSE

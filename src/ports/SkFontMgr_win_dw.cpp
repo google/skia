@@ -15,8 +15,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTPin.h"
+#include "src/base/SkEndian.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkEndian.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/ports/SkTypeface_win_dw.h"
@@ -114,13 +114,13 @@ public:
 protected:
     int onCountFamilies() const override;
     void onGetFamilyName(int index, SkString* familyName) const override;
-    SkFontStyleSet* onCreateStyleSet(int index) const override;
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const override;
-    SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle& fontstyle) const override;
-    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                            const char* bcp47[], int bcp47Count,
-                                            SkUnichar character) const override;
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override;
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override;
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                         const SkFontStyle& fontstyle) const override;
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                  const char* bcp47[], int bcp47Count,
+                                                  SkUnichar character) const override;
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>, const SkFontArguments&) const override;
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
@@ -161,8 +161,8 @@ public:
 
     int count() override;
     void getStyle(int index, SkFontStyle* fs, SkString* styleName) override;
-    SkTypeface* createTypeface(int index) override;
-    SkTypeface* matchStyle(const SkFontStyle& pattern) override;
+    sk_sp<SkTypeface> createTypeface(int index) override;
+    sk_sp<SkTypeface> matchStyle(const SkFontStyle& pattern) override;
 
 private:
     sk_sp<const SkFontMgr_DirectWrite> fFontMgr;
@@ -321,14 +321,14 @@ void SkFontMgr_DirectWrite::onGetFamilyName(int index, SkString* familyName) con
     sk_get_locale_string(familyNames.get(), fLocaleName.get(), familyName);
 }
 
-SkFontStyleSet* SkFontMgr_DirectWrite::onCreateStyleSet(int index) const {
+sk_sp<SkFontStyleSet> SkFontMgr_DirectWrite::onCreateStyleSet(int index) const {
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
     HRNM(fFontCollection->GetFontFamily(index, &fontFamily), "Could not get requested family.");
 
-    return new SkFontStyleSet_DirectWrite(this, fontFamily.get());
+    return sk_sp<SkFontStyleSet>(new SkFontStyleSet_DirectWrite(this, fontFamily.get()));
 }
 
-SkFontStyleSet* SkFontMgr_DirectWrite::onMatchFamily(const char familyName[]) const {
+sk_sp<SkFontStyleSet> SkFontMgr_DirectWrite::onMatchFamily(const char familyName[]) const {
     if (!familyName) {
         return nullptr;
     }
@@ -347,8 +347,8 @@ SkFontStyleSet* SkFontMgr_DirectWrite::onMatchFamily(const char familyName[]) co
     return this->onCreateStyleSet(index);
 }
 
-SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyle(const char familyName[],
-                                                      const SkFontStyle& fontstyle) const {
+sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMatchFamilyStyle(const char familyName[],
+                                                            const SkFontStyle& fontstyle) const {
     sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
     return sset->matchStyle(fontstyle);
 }
@@ -588,10 +588,11 @@ private:
     IDWriteNumberSubstitution* fNumberSubstitution;
 };
 
-SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char familyName[],
-                                                               const SkFontStyle& style,
-                                                               const char* bcp47[], int bcp47Count,
-                                                               SkUnichar character) const {
+sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(
+    const char familyName[], const SkFontStyle& style,
+    const char* bcp47[], int bcp47Count,
+    SkUnichar character) const
+{
     DWriteStyle dwStyle(style);
 
     const WCHAR* dwFamilyName = nullptr;
@@ -614,11 +615,11 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
     }
 
     if (fFontFallback) {
-        return this->fallback(dwFamilyName, dwStyle, dwBcp47->get(), character).release();
+        return this->fallback(dwFamilyName, dwStyle, dwBcp47->get(), character);
     }
 
     // LayoutFallback may use the system font collection for fallback.
-    return this->layoutFallback(dwFamilyName, dwStyle, dwBcp47->get(), character).release();
+    return this->layoutFallback(dwFamilyName, dwStyle, dwBcp47->get(), character);
 }
 
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::fallback(const WCHAR* dwFamilyName,
@@ -829,14 +830,14 @@ int SkFontStyleSet_DirectWrite::count() {
     return fFontFamily->GetFontCount();
 }
 
-SkTypeface* SkFontStyleSet_DirectWrite::createTypeface(int index) {
+sk_sp<SkTypeface> SkFontStyleSet_DirectWrite::createTypeface(int index) {
     SkTScopedComPtr<IDWriteFont> font;
     HRNM(fFontFamily->GetFont(index, &font), "Could not get font.");
 
     SkTScopedComPtr<IDWriteFontFace> fontFace;
     HRNM(font->CreateFontFace(&fontFace), "Could not create font face.");
 
-    return fFontMgr->makeTypefaceFromDWriteFont(fontFace.get(), font.get(), fFontFamily.get()).release();
+    return fFontMgr->makeTypefaceFromDWriteFont(fontFace.get(), font.get(), fFontFamily.get());
 }
 
 void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* styleName) {
@@ -855,7 +856,7 @@ void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* 
     }
 }
 
-SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
+sk_sp<SkTypeface> SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
     SkTScopedComPtr<IDWriteFont> font;
     DWriteStyle dwStyle(pattern);
 
@@ -865,8 +866,7 @@ SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
     SkTScopedComPtr<IDWriteFontFace> fontFace;
     HRNM(font->CreateFontFace(&fontFace), "Could not create font face.");
 
-    return fFontMgr->makeTypefaceFromDWriteFont(fontFace.get(), font.get(),
-                                                fFontFamily.get()).release();
+    return fFontMgr->makeTypefaceFromDWriteFont(fontFace.get(), font.get(), fFontFamily.get());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

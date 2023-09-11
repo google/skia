@@ -11,7 +11,7 @@
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkChecksum.h"
 
 #include <cinttypes>
 
@@ -50,7 +50,7 @@ public:
         return ycbcrConversion.fKey;
     }
     static uint32_t Hash(const Key& key) {
-        return SkOpts::hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key));
+        return SkChecksum::Hash32(&key, sizeof(Key));
     }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES

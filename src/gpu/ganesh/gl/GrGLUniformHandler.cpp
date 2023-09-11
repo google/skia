@@ -69,8 +69,11 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
 }
 
 GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
-        const GrBackendFormat& backendFormat, GrSamplerState, const skgpu::Swizzle& swizzle,
-        const char* name, const GrShaderCaps* shaderCaps) {
+        const GrBackendFormat& backendFormat,
+        GrSamplerState,
+        const skgpu::Swizzle& swizzle,
+        const char* name,
+        const GrShaderCaps* shaderCaps) {
     SkASSERT(name && strlen(name));
 
     constexpr char prefix = 'u';
@@ -80,8 +83,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
 
     GLUniformInfo tempInfo;
     tempInfo.fVariable = GrShaderVar{std::move(mangleName),
-                                     SkSLCombinedSamplerTypeForTextureType(type),
-                                     GrShaderVar::TypeModifier::Uniform};
+                                     SkSLCombinedSamplerTypeForTextureType(type)};
 
     tempInfo.fVisibility = kFragment_GrShaderFlag;
     tempInfo.fOwner      = nullptr;

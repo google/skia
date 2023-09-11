@@ -1,14 +1,13 @@
-/*#pragma settings SPIRVDawnCompatMode*/
-layout(set = 0, binding = 1) uniform texture2D aTexture;
-layout(wgsl, set = 0, texture = 2, sampler = 3) uniform sampler2D aSampledTexture;
+layout(set = 0, binding = 1, r32f) readonly texture2D aTexture;
+layout(webgpu, set = 0, texture = 2, sampler = 3) sampler2D aSampledTexture;
 
 layout(location = 1) in float2 c;
 
-noinline half4 helpers_helper(sampler2D s, texture2D t) {
+noinline half4 helpers_helper(sampler2D s, layout(r32f) readonly texture2D t) {
     return sample(s, c);
 }
 
-noinline half4 helper(texture2D t, sampler2D s) {
+noinline half4 helper(layout(r32f) readonly texture2D t, sampler2D s) {
     return helpers_helper(s, t);
 }
 

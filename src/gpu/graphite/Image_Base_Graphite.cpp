@@ -8,15 +8,12 @@
 #include "src/gpu/graphite/Image_Base_Graphite.h"
 
 #include "include/core/SkColorSpace.h"
+#include "include/gpu/graphite/Image.h"
 #include "src/gpu/graphite/Log.h"
-
-#if defined(SK_GANESH)
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#endif
 
 namespace skgpu::graphite {
 
-sk_sp<SkImage> Image_Base::onMakeSubset(const SkIRect&, GrDirectContext*) const {
+sk_sp<SkImage> Image_Base::onMakeSubset(GrDirectContext*, const SkIRect&) const {
     SKGPU_LOG_W("Cannot convert Graphite-backed image to Ganesh");
     return nullptr;
 }
@@ -39,6 +36,7 @@ void Image_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
 }
 
 void Image_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                   bool readAlpha,
                                                    sk_sp<SkColorSpace> dstColorSpace,
                                                    const SkIRect srcRect,
                                                    const SkISize dstSize,
@@ -50,45 +48,4 @@ void Image_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace
     callback(context, nullptr);
 }
 
-#if defined(SK_GANESH)
-std::unique_ptr<GrFragmentProcessor> Image_Base::onAsFragmentProcessor(
-        GrRecordingContext*,
-        SkSamplingOptions,
-        const SkTileMode[2],
-        const SkMatrix&,
-        const SkRect* subset,
-        const SkRect* domain) const {
-    return nullptr;
-}
-#endif
-
 } // namespace skgpu::graphite
-
-using namespace skgpu::graphite;
-
-sk_sp<SkImage> SkImage::makeTextureImage(Recorder* recorder,
-                                         RequiredImageProperties requiredProps) const {
-    if (!recorder) {
-        return nullptr;
-    }
-    if (this->dimensions().area() <= 1) {
-        requiredProps.fMipmapped = skgpu::Mipmapped::kNo;
-    }
-
-    return as_IB(this)->onMakeTextureImage(recorder, requiredProps);
-}
-
-sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset,
-                                   skgpu::graphite::Recorder* recorder,
-                                   RequiredImageProperties requiredProps) const {
-    if (subset.isEmpty()) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    if (!bounds.contains(subset)) {
-        return nullptr;
-    }
-
-    return as_IB(this)->onMakeSubset(subset, recorder, requiredProps);
-}

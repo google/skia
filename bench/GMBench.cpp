@@ -13,7 +13,7 @@
 GMBench::GMBench(std::unique_ptr<skiagm::GM> gm) : fGM(std::move(gm)) {
     fGM->setMode(skiagm::GM::kBench_Mode);
 
-    fName.printf("GM_%s", fGM->getName());
+    fName.printf("GM_%s", fGM->getName().c_str());
 }
 
 const char* GMBench::onGetName() {
@@ -51,7 +51,6 @@ void GMBench::onDraw(int loops, SkCanvas* canvas) {
     }
 }
 
-SkIPoint GMBench::onGetSize() {
-    SkISize size = fGM->getISize();
-    return SkIPoint::Make(size.fWidth, size.fHeight);
+SkISize GMBench::onGetSize() {
+    return fGM->getISize();
 }

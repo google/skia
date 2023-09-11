@@ -19,7 +19,7 @@
 #include "tools/ToolUtils.h"
 #include <vector>
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
 constexpr static int kNumCubicsInChalkboard = 47182;
@@ -378,4 +378,4 @@ DEF_BENCH(return new TessPrepareBench(
         "GrStrokeFixedCountTessellator_motionmark");
 )
 
-}  // namespace skgpu::v1
+}  // namespace skgpu::ganesh

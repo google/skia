@@ -1,0 +1,9 @@
+layout(webgpu, set=0, binding=0) sampler2D aSampler;
+
+void main() {
+    sk_FragColor = sample(aSampler, float2(0));
+}
+
+/*%%*
+selected backend requires separate texture and sampler indices
+*%%*/

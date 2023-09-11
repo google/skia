@@ -6,11 +6,11 @@ layout(builtin=27) in uint3 sk_LocalInvocationID;
 layout(builtin=28) in uint3 sk_GlobalInvocationID;
 layout(builtin=29) in uint sk_LocalInvocationIndex;
 
-$pure half4 read($readableTexture2D t, uint2 pos);
-void write($writableTexture2D t, uint2 pos, half4 color);
+$pure half4 textureRead($readableTexture2D t, uint2 pos);
+void textureWrite($writableTexture2D t, uint2 pos, half4 color);
 
-$pure uint width($genTexture2D t);
-$pure uint height($genTexture2D t);
+$pure uint textureWidth($genTexture2D t);
+$pure uint textureHeight($genTexture2D t);
 
 // Control-barrier with memory-ordering constraints applied to
 // workgroup shared memory only.

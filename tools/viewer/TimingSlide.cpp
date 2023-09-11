@@ -17,7 +17,7 @@ public:
     TimingSlide() { fName = "Timing";}
 
     void load(SkScalar w, SkScalar h) override {
-        sk_sp<SkSurface> surf = SkSurface::MakeRasterN32Premul(W,H);
+        sk_sp<SkSurface> surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(W, H));
         surf->getCanvas()->drawString("abc", 2,H-4, SkFont{}, SkPaint{});
         fImg = surf->makeImageSnapshot();
     }

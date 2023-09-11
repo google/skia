@@ -8,28 +8,38 @@
 #ifndef SkRecords_DEFINED
 #define SkRecords_DEFINED
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkData.h"
-#include "include/core/SkDrawable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkMesh.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRRect.h"
-#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/chromium/Slug.h"
 #include "src/core/SkDrawShadowInfo.h"
 
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
+#include <cstdint>
+
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkPoint;
+struct SkRSXform;
 
 namespace SkRecords {
 
@@ -45,7 +55,6 @@ namespace SkRecords {
 // you keep them semantically grouped, especially the Draws.  It's also nice to leave NoOp at 0.
 #define SK_RECORD_TYPES(M)                                          \
     M(NoOp)                                                         \
-    M(Flush)                                                        \
     M(Restore)                                                      \
     M(Save)                                                         \
     M(SaveLayer)                                                    \
@@ -151,6 +160,8 @@ enum Tags {
     kHasImage_Tag  = 2,   // Contains an SkImage or SkBitmap.
     kHasText_Tag   = 4,   // Contains text.
     kHasPaint_Tag  = 8,   // May have an SkPaint field, at least optionally.
+    kMultiDraw_Tag = 16,  // Drawing operations that render multiple independent primitives.
+                          //   These draws are capable of blending with themselves.
 
     kDrawWithPaint_Tag = kDraw_Tag | kHasPaint_Tag,
 };
@@ -164,7 +175,6 @@ struct T {                              \
 };
 
 RECORD(NoOp, 0)
-RECORD(Flush, 0)
 RECORD(Restore, 0,
         TypedMatrix matrix)
 RECORD(Save, 0)
@@ -281,7 +291,7 @@ RECORD(DrawPicture, kDraw_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkPicture> picture;
         TypedMatrix matrix)
-RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
+RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
         SkPaint paint;
         SkCanvas::PointMode mode;
         unsigned count;
@@ -300,19 +310,15 @@ RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         sk_sp<const SkTextBlob> blob;
         SkScalar x;
         SkScalar y)
-#if defined(SK_GANESH)
 RECORD(DrawSlug, kDraw_Tag|kHasText_Tag,
        sk_sp<const sktext::gpu::Slug> slug)
-#else
-RECORD(DrawSlug, 0)
-#endif
 RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<SkPoint> cubics;
         PODArray<SkColor> colors;
         PODArray<SkPoint> texCoords;
         SkBlendMode bmode)
-RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag|kMultiDraw_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> atlas;
         PODArray<SkRSXform> xforms;
@@ -322,18 +328,14 @@ RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         SkBlendMode mode;
         SkSamplingOptions sampling;
         Optional<SkRect> cull)
-RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
+RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
         SkPaint paint;
         sk_sp<SkVertices> vertices;
         SkBlendMode bmode)
-#ifdef SK_ENABLE_SKSL
-RECORD(DrawMesh, kDraw_Tag|kHasPaint_Tag,
+RECORD(DrawMesh, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
        SkPaint paint;
        SkMesh mesh;
        sk_sp<SkBlender> blender)
-#else
-RECORD(DrawMesh, 0)
-#endif
 RECORD(DrawShadowRec, kDraw_Tag,
        PreCachedPath path;
        SkDrawShadowRec rec)
@@ -347,7 +349,7 @@ RECORD(DrawEdgeAAQuad, kDraw_Tag,
        SkCanvas::QuadAAFlags aa;
        SkColor4f color;
        SkBlendMode mode)
-RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
+RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag|kMultiDraw_Tag,
        Optional<SkPaint> paint;
        skia_private::AutoTArray<SkCanvas::ImageSetEntry> set;
        int count;

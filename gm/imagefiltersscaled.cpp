@@ -37,7 +37,7 @@ static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     SkScalar x = SkIntToScalar(width / 2);
     SkScalar y = SkIntToScalar(height / 2);
     SkScalar radius = std::min(x, y) * 4 / 5;
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(width, height));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0x00000000);
     SkColor colors[2];
@@ -61,14 +61,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("imagefiltersscaled"); }
 
-    SkString onShortName() override {
-        return SkString("imagefiltersscaled");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(1428, 500);
-    }
+    SkISize getISize() override { return SkISize::Make(1428, 500); }
 
     void onOnceBeforeDraw() override {
         fCheckerboard = ToolUtils::create_checkerboard_image(64, 64, 0xFFA0A0A0, 0xFF404040, 8);
@@ -78,8 +73,10 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorBLACK);
 
-        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
-        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
+        sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle,
+                                                            SkFilterMode::kLinear));
+        sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard,
+                                                                SkFilterMode::kLinear));
 
         SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
         SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10),
@@ -95,19 +92,28 @@ protected:
         resizeMatrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
 
         sk_sp<SkImageFilter> filters[] = {
-            SkImageFilters::Blur(SkIntToScalar(4), SkIntToScalar(4), nullptr),
-            SkImageFilters::DropShadow(5, 10, 3, 3, SK_ColorYELLOW, nullptr),
-            SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kR, 12,
-                                            std::move(gradient), checkerboard),
-            SkImageFilters::Dilate(1, 1, checkerboard),
-            SkImageFilters::Erode(1, 1, checkerboard),
-            SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
-            SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
-            SkImageFilters::Shader(SkPerlinNoiseShader::MakeFractalNoise(
-                    SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
-            SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
-            SkImageFilters::SpotLitDiffuse(spotLocation, spotTarget, spotExponent,
-                                           cutoffAngle, white, surfaceScale, kd, nullptr),
+                SkImageFilters::Blur(SkIntToScalar(4), SkIntToScalar(4), nullptr),
+                SkImageFilters::DropShadow(5, 10, 3, 3, SK_ColorYELLOW, nullptr),
+                SkImageFilters::DisplacementMap(SkColorChannel::kR,
+                                                SkColorChannel::kR,
+                                                12,
+                                                std::move(gradient),
+                                                checkerboard),
+                SkImageFilters::Dilate(1, 1, checkerboard),
+                SkImageFilters::Erode(1, 1, checkerboard),
+                SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
+                SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
+                SkImageFilters::Shader(SkShaders::MakeFractalNoise(
+                        SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
+                SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
+                SkImageFilters::SpotLitDiffuse(spotLocation,
+                                               spotTarget,
+                                               spotExponent,
+                                               cutoffAngle,
+                                               white,
+                                               surfaceScale,
+                                               kd,
+                                               nullptr),
         };
 
         SkVector scales[] = {

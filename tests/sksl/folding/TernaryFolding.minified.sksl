@@ -1,1 +1,1 @@
-uniform half4 colorRed;uniform half4 colorGreen;bool a(out bool b){b=true;return false;}half4 main(float2 b){bool c;c=true;half4 d=colorGreen;half4 e=colorRed;bool f=false;bool g=(a(f),true);return(c&&f)&&g?d:e;}
+uniform half4 colorRed;uniform half4 colorGreen;bool a(out bool b){b=true;return false;}half4 main(float2 b){bool c=true;half4 d=colorGreen;half4 e=colorRed;bool f=false;bool g=(a(f),true);return(c&&f)&&g?d:e;}

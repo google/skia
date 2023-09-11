@@ -11,7 +11,7 @@ script.  For example:
 
     python make_universal_apk.py arm x86
 
-The environment variables ANDROID_NDK and ANDROID_HOME must be set to the
+The environment variables ANDROID_NDK_HOME and ANDROID_HOME must be set to the
 locations of the Android NDK and SDK.
 
 Additionally, `ninja` should be in your path.

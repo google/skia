@@ -22,13 +22,21 @@ class Recorder;
  * return a Graphite-backed version of the provided SkImage that meets the specified
  * requirements.
  *
- * Skia requires that 'findOrCreate' return a Graphite-backed image that preserves the dimensions,
- * number of channels and alpha type of the original image. The bit depth of the
- * individual channels can change (e.g., 4444 -> 8888 is allowed).
+ * Skia requires that 'findOrCreate' return a Graphite-backed image that preserves the
+ * dimensions and alpha type of the original image. The bit depth of the
+ * individual channels can change (e.g., 4444 -> 8888 is allowed) as well as the channels - as
+ * long as the returned image has a superset of the original image's channels
+ * (e.g., 565 -> 8888 opaque is allowed).
+ *
  * Wrt mipmapping, the returned image can have different mipmap settings than requested. If
  * mipmapping was requested but not returned, the sampling level will be reduced to linear.
  * If the requirements are not met by the returned image (modulo the flexibility wrt mipmapping)
  * Graphite will drop the draw.
+ *
+ * All returned images must be backed by textures that have a TopLeft origin. If Skia is used to
+ * create the texture (e.g. using makeTextureImage) then this is always guaranteed. If the client
+ * returns a texture they created themselves and wrapped in Skia, they must ensure that texture has
+ * a TopLeft origin.
  *
  * Note: by default, Graphite will not perform any caching of images
  *
@@ -52,7 +60,7 @@ public:
     // which could then be cached.
     virtual sk_sp<SkImage> findOrCreate(Recorder* recorder,
                                         const SkImage* image,
-                                        SkImage::RequiredImageProperties) = 0;
+                                        SkImage::RequiredProperties) = 0;
 };
 
 } // namespace skgpu::graphite

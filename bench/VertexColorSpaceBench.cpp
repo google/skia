@@ -310,10 +310,14 @@ public:
         const int kDrawsPerLoop = 32;
 
         for (int i = 0; i < loops; ++i) {
-            auto sdc = skgpu::v1::SurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, p3,
-                                                           SkBackingFit::kApprox, {100, 100},
-                                                           SkSurfaceProps(),
-                                                           /*label=*/"DrawVertexColorSpaceBench");
+            auto sdc =
+                    skgpu::ganesh::SurfaceDrawContext::Make(context,
+                                                            GrColorType::kRGBA_8888,
+                                                            p3,
+                                                            SkBackingFit::kApprox,
+                                                            {100, 100},
+                                                            SkSurfaceProps(),
+                                                            /*label=*/"DrawVertexColorSpaceBench");
             SkASSERT(sdc);
 
             for (int j = 0; j < kDrawsPerLoop; ++j) {

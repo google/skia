@@ -423,11 +423,11 @@ private:
         // Setting this to 8 will let SkBlockAllocator properly correct for the pointer address if
         // a 16-byte aligned allocation is requested in wasm (unlikely since we don't use long
         // doubles).
-        inline static constexpr size_t kAddressAlign = 8;
+        static constexpr size_t kAddressAlign = 8;
     #else
         // The alignment Block addresses will be at when created using operator new
         // (spec-compliant is pointers are aligned to max_align_t).
-        inline static constexpr size_t kAddressAlign = alignof(std::max_align_t);
+        static constexpr size_t kAddressAlign = alignof(std::max_align_t);
     #endif
 
     // Calculates the size of a new Block required to store a kMaxAllocationSize request for the

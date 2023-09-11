@@ -20,7 +20,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkHalf.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkSwizzlePriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     #include "include/android/SkAndroidFrameworkUtils.h"
@@ -934,6 +934,7 @@ std::unique_ptr<SkSwizzler> SkSwizzler::Make(const SkEncodedInfo& encodedInfo,
                     switch (dstInfo.colorType()) {
                         case kRGBA_8888_SkColorType:
                         case kBGRA_8888_SkColorType:
+                        case kBGR_101010x_XR_SkColorType:
                             if (SkCodec::kYes_ZeroInitialized == zeroInit) {
                                 proc = &swizzle_index_to_n32_skipZ;
                             } else {

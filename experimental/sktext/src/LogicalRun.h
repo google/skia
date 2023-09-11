@@ -75,11 +75,11 @@ class LogicalRun {
     TextRange fUtf16Range;
     TextIndex fRunStart;
     SkScalar  fRunOffset;
-    SkSTArray<128, SkGlyphID, true> fGlyphs;
-    SkSTArray<128, SkPoint, true> fPositions;
-    SkSTArray<128, SkPoint, true> fOffsets;
-    SkSTArray<128, uint32_t, true> fClusters;
-    SkSTArray<128, SkRect, true> fBounds;
+    skia_private::STArray<128, SkGlyphID, true> fGlyphs;
+    skia_private::STArray<128, SkPoint, true> fPositions;
+    skia_private::STArray<128, SkPoint, true> fOffsets;
+    skia_private::STArray<128, uint32_t, true> fClusters;
+    skia_private::STArray<128, SkRect, true> fBounds;
 
     uint8_t fBidiLevel;
 };

@@ -9,7 +9,17 @@ skia_filegroup(
     srcs = [
         "SkAndroidFrameworkUtils.h",
         "SkAnimatedImage.h",
+    ],
+    visibility = ["//include:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "GrAHardwareBufferUtils.h",
+        "SkCanvasAndroid.h",
         "SkImageAndroid.h",
+        "SkSurfaceAndroid.h",
     ],
     visibility = ["//include:__pkg__"],
 )

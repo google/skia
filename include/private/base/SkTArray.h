@@ -12,6 +12,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkAttributes.h"
 #include "include/private/base/SkContainers.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkSpan_impl.h"
@@ -45,10 +46,9 @@ public:
     TArray() : fOwnMemory(true), fCapacity{0} {}
 
     /**
-     * Creates an empty array that will preallocate space for reserveCount
-     * elements.
+     * Creates an empty array that will preallocate space for reserveCount elements.
      */
-    explicit TArray(int reserveCount) : TArray() { this->reserve_back(reserveCount); }
+    explicit TArray(int reserveCount) : TArray() { this->reserve_exact(reserveCount); }
 
     /**
      * Copies one array to another. The new array will be heap allocated.
@@ -149,7 +149,9 @@ public:
     }
 
     /**
-     * Ensures there is enough reserved space for n elements.
+     * Ensures there is enough reserved space for at least n elements. This is guaranteed at least
+     * until the array size grows above n and subsequently shrinks below n, any version of reset()
+     * is called, or reserve() is called again.
      */
     void reserve(int n) {
         SkASSERT(n >= 0);
@@ -159,14 +161,13 @@ public:
     }
 
     /**
-     * Ensures there is enough reserved space for n additional elements. The is guaranteed at least
-     * until the array size grows above n and subsequently shrinks below n, any version of reset()
-     * is called, or reserve_back() is called again.
+     * Ensures there is enough reserved space for exactly n elements. The same capacity guarantees
+     * as above apply.
      */
-    void reserve_back(int n) {
+    void reserve_exact(int n) {
         SkASSERT(n >= 0);
-        if (n > 0) {
-            this->checkRealloc(n, kExactFit);
+        if (n > this->size()) {
+            this->checkRealloc(n - this->size(), kExactFit);
         }
     }
 
@@ -277,7 +278,7 @@ public:
      * Removes the last element. Not safe to call when size() == 0.
      */
     void pop_back() {
-        SkASSERT(fSize > 0);
+        sk_collection_not_empty(this->empty());
         --fSize;
         fData[fSize].~T();
     }
@@ -386,15 +387,11 @@ public:
      * Get the i^th element.
      */
     T& operator[] (int i) {
-        SkASSERT(i < this->size());
-        SkASSERT(i >= 0);
-        return fData[i];
+        return fData[sk_collection_check_bounds(i, this->size())];
     }
 
     const T& operator[] (int i) const {
-        SkASSERT(i < this->size());
-        SkASSERT(i >= 0);
-        return fData[i];
+        return fData[sk_collection_check_bounds(i, this->size())];
     }
 
     T& at(int i) { return (*this)[i]; }
@@ -403,30 +400,38 @@ public:
     /**
      * equivalent to operator[](0)
      */
-    T& front() { SkASSERT(fSize > 0); return fData[0];}
+    T& front() {
+        sk_collection_not_empty(this->empty());
+        return fData[0];
+    }
 
-    const T& front() const { SkASSERT(fSize > 0); return fData[0];}
+    const T& front() const {
+        sk_collection_not_empty(this->empty());
+        return fData[0];
+    }
 
     /**
      * equivalent to operator[](size() - 1)
      */
-    T& back() { SkASSERT(fSize); return fData[fSize - 1];}
+    T& back() {
+        sk_collection_not_empty(this->empty());
+        return fData[fSize - 1];
+    }
 
-    const T& back() const { SkASSERT(fSize > 0); return fData[fSize - 1];}
+    const T& back() const {
+        sk_collection_not_empty(this->empty());
+        return fData[fSize - 1];
+    }
 
     /**
      * equivalent to operator[](size()-1-i)
      */
     T& fromBack(int i) {
-        SkASSERT(i >= 0);
-        SkASSERT(i < this->size());
-        return fData[fSize - i - 1];
+        return (*this)[fSize - i - 1];
     }
 
     const T& fromBack(int i) const {
-        SkASSERT(i >= 0);
-        SkASSERT(i < this->size());
-        return fData[fSize - i - 1];
+        return (*this)[fSize - i - 1];
     }
 
     bool operator==(const TArray<T, MEM_MOVE>& right) const {
@@ -514,7 +519,7 @@ private:
     // unpredictable location in memory. Of course, TArray won't actually use fItemArray in this
     // way, and we don't want to construct a T before the user requests one. There's no real risk
     // here, so disable CFI when doing these casts.
-    SK_NO_SANITIZE("cfi")
+    SK_CLANG_NO_SANITIZE("cfi")
     static T* TCast(void* buffer) {
         return (T*)buffer;
     }
@@ -632,61 +637,63 @@ template <typename T, bool M> static inline void swap(TArray<T, M>& a, TArray<T,
     a.swap(b);
 }
 
-}  // namespace skia_private
-
-/**
- * Subclass of TArray that contains a preallocated memory block for the array.
- */
+// Subclass of TArray that contains a pre-allocated memory block for the array.
 template <int N, typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
-class SkSTArray : private SkAlignedSTStorage<N,T>, public skia_private::TArray<T, MEM_MOVE> {
-private:
+class STArray : private SkAlignedSTStorage<N,T>, public TArray<T, MEM_MOVE> {
     static_assert(N > 0);
-    using STORAGE   = SkAlignedSTStorage<N,T>;
-    using INHERITED = skia_private::TArray<T, MEM_MOVE>;
+    using Storage = SkAlignedSTStorage<N,T>;
 
 public:
-    SkSTArray()
-        : STORAGE{}, INHERITED(static_cast<STORAGE*>(this)) {}
+    STArray()
+        : Storage{}
+        , TArray<T, MEM_MOVE>(this) {}  // Must use () to avoid confusion with initializer_list
+                                        // when T=bool because * are convertable to bool.
 
-    SkSTArray(const T* array, int count)
-        : STORAGE{}, INHERITED(array, count, static_cast<STORAGE*>(this)) {}
+    STArray(const T* array, int count)
+        : Storage{}
+        , TArray<T, MEM_MOVE>{array, count, this} {}
 
-    SkSTArray(std::initializer_list<T> data) : SkSTArray(data.begin(), SkToInt(data.size())) {}
+    STArray(std::initializer_list<T> data)
+        : STArray{data.begin(), SkToInt(data.size())} {}
 
-    explicit SkSTArray(int reserveCount) : SkSTArray() {
-        this->reserve_back(reserveCount);
-    }
+    explicit STArray(int reserveCount)
+        : STArray() { this->reserve_exact(reserveCount); }
 
-    SkSTArray         (const SkSTArray&  that) : SkSTArray() { *this = that; }
-    explicit SkSTArray(const INHERITED&  that) : SkSTArray() { *this = that; }
-    SkSTArray         (      SkSTArray&& that) : SkSTArray() { *this = std::move(that); }
-    explicit SkSTArray(      INHERITED&& that) : SkSTArray() { *this = std::move(that); }
+    STArray(const STArray& that)
+        : STArray() { *this = that; }
 
-    SkSTArray& operator=(const SkSTArray& that) {
-        INHERITED::operator=(that);
+    explicit STArray(const TArray<T, MEM_MOVE>& that)
+        : STArray() { *this = that; }
+
+    STArray(STArray&& that)
+        : STArray() { *this = std::move(that); }
+
+    explicit STArray(TArray<T, MEM_MOVE>&& that)
+        : STArray() { *this = std::move(that); }
+
+    STArray& operator=(const STArray& that) {
+        TArray<T, MEM_MOVE>::operator=(that);
         return *this;
     }
-    SkSTArray& operator=(const INHERITED& that) {
-        INHERITED::operator=(that);
+
+    STArray& operator=(const TArray<T, MEM_MOVE>& that) {
+        TArray<T, MEM_MOVE>::operator=(that);
         return *this;
     }
 
-    SkSTArray& operator=(SkSTArray&& that) {
-        INHERITED::operator=(std::move(that));
+    STArray& operator=(STArray&& that) {
+        TArray<T, MEM_MOVE>::operator=(std::move(that));
         return *this;
     }
-    SkSTArray& operator=(INHERITED&& that) {
-        INHERITED::operator=(std::move(that));
+
+    STArray& operator=(TArray<T, MEM_MOVE>&& that) {
+        TArray<T, MEM_MOVE>::operator=(std::move(that));
         return *this;
     }
 
     // Force the use of TArray for data() and size().
-    using INHERITED::data;
-    using INHERITED::size;
+    using TArray<T, MEM_MOVE>::data;
+    using TArray<T, MEM_MOVE>::size;
 };
-
-// TODO: remove this typedef when all uses have been converted from SkTArray to TArray.
-template <typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
-using SkTArray = skia_private::TArray<T, MEM_MOVE>;
-
-#endif
+}  // namespace skia_private
+#endif  // SkTArray_DEFINED

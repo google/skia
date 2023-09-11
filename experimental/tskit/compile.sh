@@ -66,7 +66,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     --pre-js $BASE_DIR/build/core.js \
     $BASE_DIR/bindings/core.cpp \
     $EXTENSION_OPT \
-    -s LLD_REPORT_UNDEFINED \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="InitTSKit" \
     -s EXPORTED_FUNCTIONS=['_malloc','_free'] \

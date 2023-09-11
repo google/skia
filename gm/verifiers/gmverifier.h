@@ -8,14 +8,14 @@
 #ifndef gmverifier_DEFINED
 #define gmverifier_DEFINED
 
-#include "include/core/SkColor.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 
+#include <memory>
 #include <vector>
 
 class SkBitmap;
 class SkColorInfo;
+struct SkIRect;
 
 namespace skiagm {
 

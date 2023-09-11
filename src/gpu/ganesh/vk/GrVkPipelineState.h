@@ -98,7 +98,7 @@ private:
 
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
 
-    SkSTArray<4, const GrVkSampler*> fImmutableSamplers;
+    skia_private::STArray<4, const GrVkSampler*> fImmutableSamplers;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;

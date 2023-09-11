@@ -23,7 +23,7 @@
 #include <utility>
 
 static sk_sp<SkImage> create_circle_texture(int size, SkColor color) {
-    auto surface(SkSurface::MakeRasterN32Premul(size, size));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(size, size)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0xFF000000);
 
@@ -46,14 +46,9 @@ public:
     }
 
 protected:
+    SkString getName() const override { return SkString("bigtileimagefilter"); }
 
-    SkString onShortName() override {
-        return SkString("bigtileimagefilter");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onOnceBeforeDraw() override {
         fRedImage = create_circle_texture(kBitmapSize, SK_ColorRED);
@@ -67,7 +62,8 @@ protected:
             SkPaint p;
 
             const SkRect bound = SkRect::MakeIWH(kWidth, kHeight);
-            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fRedImage));
+            sk_sp<SkImageFilter> imageSource(SkImageFilters::Image(fRedImage,
+                                                                   SkFilterMode::kLinear));
 
             sk_sp<SkImageFilter> tif(SkImageFilters::Tile(
                     SkRect::MakeIWH(kBitmapSize, kBitmapSize), SkRect::MakeIWH(kWidth, kHeight),

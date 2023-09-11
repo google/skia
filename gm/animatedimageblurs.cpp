@@ -37,9 +37,9 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override { return SkString("animated-image-blurs"); }
+    SkString getName() const override { return SkString("animated-image-blurs"); }
 
-    SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < kNumNodes; ++i) {

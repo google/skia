@@ -22,7 +22,7 @@ static constexpr PlatformFence kInvalidFence = 0;
  */
 class FenceSync {
 public:
-    virtual PlatformFence SK_WARN_UNUSED_RESULT insertFence() const = 0;
+    [[nodiscard]] virtual PlatformFence insertFence() const = 0;
     virtual bool waitFence(PlatformFence) const = 0;
     virtual void deleteFence(PlatformFence) const = 0;
 

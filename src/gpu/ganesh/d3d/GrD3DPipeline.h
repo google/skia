@@ -14,6 +14,9 @@
 class GrD3DPipeline : public GrManagedResource {
 public:
     static sk_sp<GrD3DPipeline> Make(gr_cp<ID3D12PipelineState> pipelineState) {
+        if (!pipelineState) {
+            return nullptr;
+        }
         return sk_sp<GrD3DPipeline>(new GrD3DPipeline(std::move(pipelineState)));
     }
 #ifdef SK_TRACE_MANAGED_RESOURCES

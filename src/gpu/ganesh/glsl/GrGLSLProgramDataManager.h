@@ -22,7 +22,7 @@ class SkM44;
  */
 class GrGLSLProgramDataManager {
 public:
-    GR_DEFINE_RESOURCE_HANDLE_CLASS(UniformHandle);
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(UniformHandle)
 
     virtual ~GrGLSLProgramDataManager() {}
 

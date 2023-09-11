@@ -6,13 +6,13 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
@@ -46,21 +46,21 @@ bool Analysis::IsDynamicallyUniformExpression(const Expression& expr) {
                 case Expression::Kind::kVariableReference: {
                     // Verify that variable references are const or uniform.
                     const Variable* var = expr.as<VariableReference>().variable();
-                    if (!var || !(var->modifiers().fFlags & (Modifiers::Flag::kConst_Flag |
-                                                             Modifiers::Flag::kUniform_Flag))) {
-                        fIsDynamicallyUniform = false;
-                        return true;
+                    if (var && (var->modifierFlags().isConst() ||
+                                var->modifierFlags().isUniform())) {
+                        break;
                     }
-                    break;
+                    fIsDynamicallyUniform = false;
+                    return true;
                 }
                 case Expression::Kind::kFunctionCall: {
                     // Verify that function calls are pure.
                     const FunctionDeclaration& decl = expr.as<FunctionCall>().function();
-                    if (!(decl.modifiers().fFlags & Modifiers::Flag::kPure_Flag)) {
-                        fIsDynamicallyUniform = false;
-                        return true;
+                    if (decl.modifierFlags().isPure()) {
+                        break;
                     }
-                    break;
+                    fIsDynamicallyUniform = false;
+                    return true;
                 }
                 case Expression::Kind::kLiteral:
                     // Literals are compile-time constants.

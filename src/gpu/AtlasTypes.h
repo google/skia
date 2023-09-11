@@ -22,7 +22,7 @@
 
 class GrOpFlushState;
 class TestingUploadTarget;
-namespace skgpu::graphite { class AtlasManager; }
+namespace skgpu::graphite { class TextAtlasManager; }
 
 /**
  * This file includes internal types that are used by all of our gpu backends for atlases.
@@ -33,25 +33,25 @@ namespace skgpu {
 struct IRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
 
-    static IRect16 SK_WARN_UNUSED_RESULT MakeEmpty() {
+    [[nodiscard]] static IRect16 MakeEmpty() {
         IRect16 r;
         r.setEmpty();
         return r;
     }
 
-    static IRect16 SK_WARN_UNUSED_RESULT MakeWH(int16_t w, int16_t h) {
+    [[nodiscard]] static IRect16 MakeWH(int16_t w, int16_t h) {
         IRect16 r;
         r.set(0, 0, w, h);
         return r;
     }
 
-    static IRect16 SK_WARN_UNUSED_RESULT MakeXYWH(int16_t x, int16_t y, int16_t w, int16_t h) {
+    [[nodiscard]] static IRect16 MakeXYWH(int16_t x, int16_t y, int16_t w, int16_t h) {
         IRect16 r;
         r.set(x, y, x + w, y + h);
         return r;
     }
 
-    static IRect16 SK_WARN_UNUSED_RESULT Make(const SkIRect& ir) {
+    [[nodiscard]] static IRect16 Make(const SkIRect& ir) {
         IRect16 r;
         r.set(ir);
         return r;
@@ -211,7 +211,7 @@ private:
     // Only these classes get to increment the token counters
     friend class ::GrOpFlushState;
     friend class ::TestingUploadTarget;
-    friend class skgpu::graphite::AtlasManager;
+    friend class skgpu::graphite::TextAtlasManager;
 
     // Issues the next token for a draw.
     AtlasToken issueDrawToken() { return ++fCurrentDrawToken; }
@@ -229,8 +229,6 @@ private:
  *
  * In fact PlotLocator is a portion of a glyph image location in the atlas fully specified by:
  *    format/atlasGeneration/page/plot/plotGeneration/rect
- *
- * TODO: Remove the small path renderer's use of the PlotLocator for eviction.
  */
 class PlotLocator {
 public:
@@ -418,7 +416,7 @@ private:
     }
 
     inline static constexpr int kMinItems = 4;
-    SkSTArray<kMinItems, PlotData, true> fPlotsToUpdate;
+    skia_private::STArray<kMinItems, PlotData, true> fPlotsToUpdate;
     // TODO: increase this to uint64_t to allow more plots per page
     uint32_t fPlotAlreadyUpdated[skgpu::PlotLocator::kMaxMultitexturePages];
 };

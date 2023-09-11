@@ -13,7 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkEndian.h"
+#include "src/base/SkEndian.h"
 #include "src/sfnt/SkOTTable_name.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"

@@ -8,6 +8,10 @@
 #include "src/base/SkBezierCurves.h"
 
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "src/base/SkCubics.h"
+#include "src/base/SkQuads.h"
 
 #include <cstddef>
 
@@ -107,5 +111,117 @@ std::array<double, 4> SkBezierCubic::ConvertToPolynomial(const double curve[8], 
     results[2] = -3*P(0) + 3*P(1);
     results[3] = P(0);
     return results;
+}
+
+namespace {
+struct Point {
+    Point(double x_, double y_) : x{x_}, y{y_} {}
+    Point(SkPoint p) : x{p.fX}, y{p.fY} {}
+    double x, y;
+};
+
+Point operator- (Point a) {
+    return {-a.x, -a.y};
+}
+
+Point operator+ (Point a, Point b) {
+    return {a.x + b.x, a.y + b.y};
+}
+
+Point operator- (Point a, Point b) {
+    return {a.x - b.x, a.y - b.y};
+}
+
+Point operator* (double s, Point a) {
+    return {s * a.x, s * a.y};
+}
+
+// Pin to 0 or 1 if within half a float ulp of 0 or 1.
+double pinTRange(double t) {
+    // The ULPs around 0 are tiny compared to the ULPs around 1. Shift to 1 to use the same
+    // size ULPs.
+    if (sk_double_to_float(t + 1.0) == 1.0f) {
+        return 0.0;
+    } else if (sk_double_to_float(t) == 1.0f) {
+        return 1.0;
+    }
+    return t;
+}
+}  // namespace
+
+SkSpan<const float>
+SkBezierCubic::IntersectWithHorizontalLine(
+        SkSpan<const SkPoint> controlPoints, float yIntercept, float* intersectionStorage) {
+    SkASSERT(controlPoints.size() >= 4);
+    const Point P0 = controlPoints[0],
+                P1 = controlPoints[1],
+                P2 = controlPoints[2],
+                P3 = controlPoints[3];
+
+    const Point A =   -P0 + 3*P1 - 3*P2 + P3,
+                B =  3*P0 - 6*P1 + 3*P2,
+                C = -3*P0 + 3*P1,
+                D =    P0;
+
+    return Intersect(A.x, B.x, C.x, D.x, A.y, B.y, C.y, D.y, yIntercept, intersectionStorage);
+}
+
+SkSpan<const float>
+SkBezierCubic::Intersect(double AX, double BX, double CX, double DX,
+                         double AY, double BY, double CY, double DY,
+                         float toIntersect, float intersectionsStorage[3]) {
+    double roots[3];
+    SkSpan<double> ts = SkSpan(roots,
+                               SkCubics::RootsReal(AY, BY, CY, DY - toIntersect, roots));
+
+    int intersectionCount = 0;
+    for (double t : ts) {
+        const double pinnedT = pinTRange(t);
+        if (0 <= pinnedT && pinnedT <= 1) {
+            intersectionsStorage[intersectionCount++] = SkCubics::EvalAt(AX, BX, CX, DX, pinnedT);
+        }
+    }
+
+    return {intersectionsStorage, intersectionCount};
+}
+
+SkSpan<const float>
+SkBezierQuad::IntersectWithHorizontalLine(SkSpan<const SkPoint> controlPoints, float yIntercept,
+                                          float intersectionStorage[2]) {
+    SkASSERT(controlPoints.size() >= 3);
+    const Point p0 = controlPoints[0],
+                p1 = controlPoints[1],
+                p2 = controlPoints[2];
+
+    // Calculate A, B, C using doubles to reduce round-off error.
+    const Point A = p0 - 2 * p1 + p2,
+    // Remember we are generating the polynomial in the form A*t^2 -2*B*t + C, so the factor
+    // of 2 is not needed and the term is negated. This term for a Bézier curve is usually
+    // 2(p1-p0).
+                B = p0 - p1,
+                C = p0;
+
+    return Intersect(A.x, B.x, C.x, A.y, B.y, C.y, yIntercept, intersectionStorage);
+}
+
+SkSpan<const float> SkBezierQuad::Intersect(
+        double AX, double BX, double CX, double AY, double BY, double CY,
+        double yIntercept, float intersectionStorage[2]) {
+    auto [discriminant, r0, r1] = SkQuads::Roots(AY, BY, CY - yIntercept);
+
+    int intersectionCount = 0;
+    // Round the roots to the nearest float to generate the values t. Valid t's are on the
+    // domain [0, 1].
+    const double t0 = pinTRange(r0);
+    if (0 <= t0 && t0 <= 1) {
+        intersectionStorage[intersectionCount++] = SkQuads::EvalAt(AX, -2 * BX, CX, t0);
+    }
+
+    const double t1 = pinTRange(r1);
+    if (0 <= t1 && t1 <= 1 && t1 != t0) {
+        intersectionStorage[intersectionCount++] = SkQuads::EvalAt(AX, -2 * BX, CX, t1);
+    }
+
+    return SkSpan{intersectionStorage, intersectionCount};
 }
 

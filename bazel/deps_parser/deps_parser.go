@@ -19,7 +19,7 @@ type depConfig struct {
 	needsBazelFile    bool
 }
 
-// These are all deps used by the Bazel build. They are a subset of those listed in DEPS.
+// These are all C++ deps used by the Bazel build. They are a subset of those listed in DEPS.
 // The key is the name of the repo as specified in DEPS.
 var deps = map[string]depConfig{
 	"abseil-cpp":  {bazelNameOverride: "abseil_cpp"},
@@ -35,6 +35,7 @@ var deps = map[string]depConfig{
 	"freetype":              {needsBazelFile: true},
 	"harfbuzz":              {needsBazelFile: true},
 	"icu":                   {needsBazelFile: true},
+	"imgui":                 {needsBazelFile: true},
 	"libavif":               {needsBazelFile: true},
 	"libgav1":               {needsBazelFile: true},
 	"libjpeg-turbo":         {bazelNameOverride: "libjpeg_turbo", needsBazelFile: true},
@@ -45,6 +46,7 @@ var deps = map[string]depConfig{
 	"spirv-cross":           {bazelNameOverride: "spirv_cross", needsBazelFile: true},
 	"perfetto":              {needsBazelFile: true},
 	"piex":                  {needsBazelFile: true},
+	"vello":                 {needsBazelFile: true},
 	"vulkan-headers":        {bazelNameOverride: "vulkan_headers", needsBazelFile: true},
 	"vulkan-tools":          {bazelNameOverride: "vulkan_tools", needsBazelFile: true},
 	"vulkanmemoryallocator": {needsBazelFile: true},
@@ -104,7 +106,7 @@ func parseDEPSFile(contents []string, workspaceFile string) (string, int, error)
 	defer outputFile.Close()
 
 	if _, err := outputFile.WriteString(header); err != nil {
-		return "", 0, fmt.Errorf("Could not write to output file %s: %s\n", outputFile.Name(), err)
+		return "", 0, fmt.Errorf("Could not write header to output file %s: %s\n", outputFile.Name(), err)
 	}
 
 	var nativeRepos []string
@@ -142,6 +144,10 @@ func parseDEPSFile(contents []string, workspaceFile string) (string, int, error)
 	}
 	if count != len(deps) {
 		return "", 0, fmt.Errorf("Not enough deps written. Maybe the deps dictionary needs a bazelNameOverride or an old dep needs to be removed?")
+	}
+
+	if _, err := outputFile.WriteString(footer); err != nil {
+		return "", 0, fmt.Errorf("Could not write footer to output file %s: %s\n", outputFile.Name(), err)
 	}
 
 	if newWorkspaceFile, err := writeCommentsToWorkspace(workspaceFile, nativeRepos, providedRepos); err != nil {
@@ -229,13 +235,34 @@ Instead, do:
 """
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+load("//bazel:gcs_mirror.bzl", "gcs_mirror_url")
 
-def git_repos_from_deps():
+def c_plus_plus_deps(ws = "@"):
     """A list of native Bazel git rules to download third party git repositories
 
        These are in the order they appear in //DEPS.
         https://bazel.build/rules/lib/repo/git
+
+    Args:
+      ws: The name of the Skia Bazel workspace. The default, "@", may be when used from within the
+          Skia workspace.
     """`
+
+// If necessary, we can make a new map for bazel deps
+const footer = `
+def bazel_deps():
+    maybe(
+        http_archive,
+        name = "bazel_skylib",
+        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+        urls = gcs_mirror_url(
+            sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+            url = "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+        ),
+    )
+`
 
 func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string) error {
 	// TODO(kjlubick) In a newer version of Bazel, new_git_repository can be replaced with just
@@ -243,7 +270,7 @@ func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string) e
 	_, err := w.WriteString(fmt.Sprintf(`
     new_git_repository(
         name = "%s",
-        build_file = "@//bazel/external/%s:BUILD.bazel",
+        build_file = ws + "//bazel/external/%s:BUILD.bazel",
         commit = "%s",
         remote = "%s",
     )

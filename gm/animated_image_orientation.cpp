@@ -61,7 +61,7 @@ class AnimatedImageGM : public skiagm::GM {
                                  * 2    // crop and no-crop
                                  * 2,   // post-process and no post-process
                       fTranslate * 4    // 4 scales
-                                 * 2 }; // newPictureSnapshot and getCurrentFrame
+                                 * 2 }; // makePictureSnapshot and getCurrentFrame
         }
     }
 public:
@@ -75,11 +75,9 @@ public:
     {}
     ~AnimatedImageGM() override = default;
 
-    SkString onShortName() override {
-        return SkStringPrintf("%s_animated_image", fName);
-    }
+    SkString getName() const override { return SkStringPrintf("%s_animated_image", fName); }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         this->init();
         return fSize;
     }
@@ -89,7 +87,7 @@ public:
         for (bool usePic : { true, false }) {
             auto drawProc = [canvas, usePic](const sk_sp<SkAnimatedImage>& animatedImage) {
                 if (usePic) {
-                    sk_sp<SkPicture> pic(animatedImage->newPictureSnapshot());
+                    sk_sp<SkPicture> pic = animatedImage->makePictureSnapshot();
                     canvas->drawPicture(pic);
                 } else {
                     auto image = animatedImage->getCurrentFrame();

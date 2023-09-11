@@ -7,7 +7,7 @@ flutter_defines = [
   "SK_ENABLE_DUMP_GPU",
 
   # Remove software rasterizers to save some code size.
-  "SK_DISABLE_AAA",
+  "SK_FORCE_AAA",
 
   # Staging
   "SK_LEGACY_IGNORE_DRAW_VERTICES_BLEND_WITH_NO_SHADER",

@@ -7,12 +7,19 @@
 
 #include "src/gpu/ganesh/effects/GrShadowGeoProc.h"
 
+#include "include/core/SkSamplingOptions.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
-#include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
+
+class GrGLSLProgramDataManager;
+class GrGLSLVertexBuilder;
+struct GrShaderCaps;
 
 class GrRRectShadowGeoProc::Impl : public ProgramImpl {
 public:
@@ -74,7 +81,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrRRectShadowGeoProc::makeProg
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomAlphaOnlyView();
 

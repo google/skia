@@ -68,7 +68,7 @@ QueueManager::OutstandingSubmission DawnQueueManager::onSubmitToGpu() {
     return std::move(submission);
 }
 
-#if GRAPHITE_TEST_UTILS
+#if defined(GRAPHITE_TEST_UTILS)
 void DawnQueueManager::startCapture() {
     // TODO: Dawn doesn't have capturing feature yet.
 }

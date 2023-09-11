@@ -25,13 +25,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("thinstrokedrects");
-    }
+    SkString getName() const override { return SkString("thinstrokedrects"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(240, 320);
-    }
+    SkISize getISize() override { return SkISize::Make(240, 320); }
 
     void onDraw(SkCanvas* canvas) override {
 

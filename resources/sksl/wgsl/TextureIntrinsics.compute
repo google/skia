@@ -1,0 +1,23 @@
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout (webgpu, rgba8, set=1, binding=0) writeonly texture2D texRGBA;
+layout (webgpu, r32f,  set=1, binding=1) readonly  texture2D texRed;
+
+noinline void fill_texture(layout(rgba8) writeonly texture2D passedInTexRGBA,
+                           layout(r32f)  readonly  texture2D passedInTexRed) {
+    half4 red = textureRead(passedInTexRed, uint2(0));
+
+    uint sizeX = textureWidth(passedInTexRGBA);
+    uint sizeY = textureHeight(passedInTexRGBA);
+
+    uint2 coords;
+    for (coords.y = 0; coords.y < sizeY; ++coords.y) {
+        for (coords.x = 0; coords.x < sizeX; ++coords.x) {
+            textureWrite(passedInTexRGBA, coords, red);
+        }
+    }
+}
+
+void main() {
+    fill_texture(texRGBA, texRed);
+}

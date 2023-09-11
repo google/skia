@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/ops/GrOvalOpFactory.h"
 
 #include "include/core/SkStrokeRec.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BufferWriter.h"
@@ -31,6 +32,8 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
 #include <utility>
+
+using namespace skia_private;
 
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
 
@@ -257,7 +260,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     bool stroke = d->fRandom->nextBool();
     bool roundCaps = stroke ? d->fRandom->nextBool() : false;
@@ -509,7 +512,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* ButtCapDashedCircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     bool wideColor = d->fRandom->nextBool();
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
@@ -701,7 +704,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     bool stroke = d->fRandom->nextBool();
     bool wideColor = d->fRandom->nextBool();
@@ -891,7 +894,7 @@ private:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor)
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 GrGeometryProcessor* DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     bool wideColor = d->fRandom->nextBool();
     bool useScale = d->fRandom->nextBool();
@@ -1446,7 +1449,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fCircles.size(); ++i) {
@@ -1477,7 +1480,7 @@ private:
 
     SkMatrix fViewMatrixIfUsingLocalCoords;
     Helper fHelper;
-    SkSTArray<1, Circle, true> fCircles;
+    STArray<1, Circle, true> fCircles;
     int fVertCount;
     int fIndexCount;
     bool fAllFill;
@@ -1769,7 +1772,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fCircles.size(); ++i) {
@@ -1801,7 +1804,7 @@ private:
 
     SkMatrix fViewMatrixIfUsingLocalCoords;
     Helper fHelper;
-    SkSTArray<1, Circle, true> fCircles;
+    STArray<1, Circle, true> fCircles;
     int fVertCount;
     int fIndexCount;
     bool fWideColor;
@@ -2010,8 +2013,8 @@ private:
             struct { float xOuter, yOuter, xInner, yInner; } invRadii = {
                 SkScalarInvert(xRadius),
                 SkScalarInvert(yRadius),
-                SkScalarInvert(ellipse.fInnerXRadius),
-                SkScalarInvert(ellipse.fInnerYRadius)
+                sk_ieee_float_divide(1.0f, ellipse.fInnerXRadius),
+                sk_ieee_float_divide(1.0f, ellipse.fInnerYRadius)
             };
             SkScalar xMaxOffset = xRadius + aaBloat;
             SkScalar yMaxOffset = yRadius + aaBloat;
@@ -2066,7 +2069,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
         for (const auto& geo : fEllipses) {
@@ -2096,7 +2099,7 @@ private:
     bool fStroked;
     bool fWideColor;
     bool fUseScale;
-    SkSTArray<1, Ellipse, true> fEllipses;
+    STArray<1, Ellipse, true> fEllipses;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -2338,7 +2341,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (const auto& geo : fEllipses) {
@@ -2374,7 +2377,7 @@ private:
     Helper fHelper;
     bool fWideColor;
     bool fUseScale;
-    SkSTArray<1, Ellipse, true> fEllipses;
+    STArray<1, Ellipse, true> fEllipses;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -2808,7 +2811,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fRRects.size(); ++i) {
@@ -2839,7 +2842,7 @@ private:
     int fIndexCount;
     bool fAllFill;
     bool fWideColor;
-    SkSTArray<1, RRect, true> fRRects;
+    STArray<1, RRect, true> fRRects;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -3030,8 +3033,9 @@ private:
             float reciprocalRadii[4] = {
                 SkScalarInvert(rrect.fXRadius),
                 SkScalarInvert(rrect.fYRadius),
-                SkScalarInvert(rrect.fInnerXRadius),
-                SkScalarInvert(rrect.fInnerYRadius)
+                // Pinned below, so divide by zero is acceptable
+                sk_ieee_float_divide(1.0f, rrect.fInnerXRadius),
+                sk_ieee_float_divide(1.0f, rrect.fInnerYRadius)
             };
 
             // If the stroke width is exactly double the radius, the inner radii will be zero.
@@ -3127,7 +3131,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
         for (const auto& geo : fRRects) {
@@ -3157,7 +3161,7 @@ private:
     bool fStroked;
     bool fWideColor;
     bool fUseScale;
-    SkSTArray<1, RRect, true> fRRects;
+    STArray<1, RRect, true> fRRects;
 
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
@@ -3406,7 +3410,7 @@ GrOp::Owner GrOvalOpFactory::MakeArcOp(GrRecordingContext* context,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(CircleOp) {
     if (numSamples > 1) {

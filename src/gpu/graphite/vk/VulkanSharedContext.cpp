@@ -122,11 +122,18 @@ VulkanSharedContext::VulkanSharedContext(const VulkanBackendContext& backendCont
         , fQueueIndex(backendContext.fGraphicsQueueIndex) {}
 
 VulkanSharedContext::~VulkanSharedContext() {
+    // need to clear out resources before the allocator is removed
+    this->globalCache()->deleteResources();
 }
 
 std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
-        SingleOwner* singleOwner) {
-    return std::unique_ptr<ResourceProvider>(new VulkanResourceProvider(this, singleOwner));
+        SingleOwner* singleOwner,
+        uint32_t recorderID,
+        size_t resourceBudget) {
+    return std::unique_ptr<ResourceProvider>(new VulkanResourceProvider(this,
+                                                                        singleOwner,
+                                                                        recorderID,
+                                                                        resourceBudget));
 }
 
 bool VulkanSharedContext::checkVkResult(VkResult result) const {
@@ -147,4 +154,3 @@ bool VulkanSharedContext::checkVkResult(VkResult result) const {
     }
 }
 } // namespace skgpu::graphite
-

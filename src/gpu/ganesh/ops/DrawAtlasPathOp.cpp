@@ -22,12 +22,14 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
+using namespace skia_private;
+
 namespace {
 
 class DrawAtlasPathShader : public GrGeometryProcessor {
 public:
     DrawAtlasPathShader(bool usesLocalCoords,
-                        const skgpu::v1::AtlasInstancedHelper* atlasHelper,
+                        const skgpu::ganesh::AtlasInstancedHelper* atlasHelper,
                         const GrShaderCaps& shaderCaps)
             : GrGeometryProcessor(kDrawAtlasPathShader_ClassID)
             , fUsesLocalCoords(usesLocalCoords)
@@ -66,10 +68,10 @@ private:
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
     const bool fUsesLocalCoords;
-    const skgpu::v1::AtlasInstancedHelper* const fAtlasHelper;
+    const skgpu::ganesh::AtlasInstancedHelper* const fAtlasHelper;
     TextureSampler fAtlasAccess;
     constexpr static int kMaxInstanceAttribs = 6;
-    SkSTArray<kMaxInstanceAttribs, GrGeometryProcessor::Attribute> fAttribs;
+    STArray<kMaxInstanceAttribs, GrGeometryProcessor::Attribute> fAttribs;
 };
 
 class DrawAtlasPathShader::Impl : public ProgramImpl {
@@ -124,7 +126,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> DrawAtlasPathShader::makeProgr
 
 }  // anonymous namespace
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 GrProcessorSet::Analysis DrawAtlasPathOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                                    GrClampType clampType) {
@@ -228,4 +230,4 @@ void DrawAtlasPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     flushState->drawInstanced(fInstanceCount, fBaseInstance, 4, 0);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

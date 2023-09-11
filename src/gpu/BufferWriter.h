@@ -8,12 +8,15 @@
 #ifndef skgpu_BufferWriter_DEFINED
 #define skgpu_BufferWriter_DEFINED
 
-#include <type_traits>
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkConvertPixels.h"
+
+#include <type_traits>
 
 namespace skgpu {
 
@@ -264,7 +267,7 @@ private:
 
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const T& val) {
-    static_assert(std::is_pod<T>::value, "");
+    static_assert(std::is_trivially_copyable<T>::value, "");
     w.validate(sizeof(T));
     memcpy(w.fPtr, &val, sizeof(T));
     w = w.makeOffset(sizeof(T));
@@ -273,7 +276,7 @@ inline VertexWriter& operator<<(VertexWriter& w, const T& val) {
 
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Conditional<T>& val) {
-    static_assert(std::is_pod<T>::value, "");
+    static_assert(std::is_trivially_copyable<T>::value, "");
     if (val.fCondition) {
         w << val.fValue;
     }
@@ -288,7 +291,7 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Skip<T>& va
 
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::ArrayDesc<T>& array) {
-    static_assert(std::is_pod<T>::value, "");
+    static_assert(std::is_trivially_copyable<T>::value, "");
     w.validate(array.fCount * sizeof(T));
     memcpy(w.fPtr, array.fArray, array.fCount * sizeof(T));
     w = w.makeOffset(sizeof(T) * array.fCount);

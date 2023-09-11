@@ -64,6 +64,11 @@ const std::string* SymbolTable::takeOwnershipOfString(std::string str) {
 }
 
 void SymbolTable::addWithoutOwnership(Symbol* symbol) {
+    if (symbol->name().empty()) {
+        // We have legitimate use cases of nameless symbols, such as anonymous function parameters.
+        // If we find one here, we don't need to add its name to the symbol table.
+        return;
+    }
     auto key = MakeSymbolKey(symbol->name());
 
     // If this is a function declaration, we need to keep the overload chain in sync.

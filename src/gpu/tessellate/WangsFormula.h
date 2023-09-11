@@ -42,12 +42,47 @@ AI float root4(float x) {
     return sqrtf(sqrtf(x));
 }
 
+// For finite positive x > 1, return ceil(log2(x)) otherwise, return 0.
+// For +/- NaN return 0.
+// For +infinity return 128.
+// For -infinity return 0.
+//
+//     nextlog2((-inf..1]) -> 0
+//     nextlog2((1..2]) -> 1
+//     nextlog2((2..4]) -> 2
+//     nextlog2((4..8]) -> 3
+//     ...
+AI int nextlog2(float x) {
+    if (x <= 1) {
+        return 0;
+    }
+
+    uint32_t bits = (uint32_t)SkFloat2Bits(x);
+    static constexpr uint32_t kDigitsAfterBinaryPoint = std::numeric_limits<float>::digits - 1;
+
+    // The constant is a significand of all 1s -- 0b0'00000000'111'1111111111'111111111. So, if
+    // the significand of x is all 0s (and therefore an integer power of two) this will not
+    // increment the exponent, but if it is just one ULP above the power of two the carry will
+    // ripple into the exponent incrementing the exponent by 1.
+    bits += (1u << kDigitsAfterBinaryPoint) - 1u;
+
+    // Shift the exponent down, and adjust it by the exponent offset so that 2^0 is really 0 instead
+    // of 127. Remember that 1 was added to the exponent, if x is NaN, then the exponent will
+    // carry a 1 into the sign bit during the addition to bits. Be sure to strip off the sign bit.
+    // In addition, infinity is an exponent of all 1's, and a significand of all 0, so
+    // the exponent is not affected during the addition to bits, and the exponent remains all 1's.
+    const int exp = ((bits >> kDigitsAfterBinaryPoint) & 0b1111'1111) - 127;
+
+    // Return 0 for x <= 1.
+    return exp > 0 ? exp : 0;
+}
+
 // Returns nextlog2(sqrt(x)):
 //
 //   log2(sqrt(x)) == log2(x^(1/2)) == log2(x)/2 == log2(x)/log2(4) == log4(x)
 //
 AI int nextlog4(float x) {
-    return (sk_float_nextlog2(x) + 1) >> 1;
+    return (nextlog2(x) + 1) >> 1;
 }
 
 // Returns nextlog2(sqrt(sqrt(x))):
@@ -55,7 +90,7 @@ AI int nextlog4(float x) {
 //   log2(sqrt(sqrt(x))) == log2(x^(1/4)) == log2(x)/4 == log2(x)/log2(16) == log16(x)
 //
 AI int nextlog16(float x) {
-    return (sk_float_nextlog2(x) + 3) >> 2;
+    return (nextlog2(x) + 3) >> 2;
 }
 
 // Represents the upper-left 2x2 matrix of an affine transform for applying to vectors:
@@ -106,9 +141,9 @@ AI float quadratic_p4(float precision,
                       const SkPoint pts[],
                       const VectorXform& vectorXform = VectorXform()) {
     return quadratic_p4(precision,
-                        skvx::bit_pun<skvx::float2>(pts[0]),
-                        skvx::bit_pun<skvx::float2>(pts[1]),
-                        skvx::bit_pun<skvx::float2>(pts[2]),
+                        sk_bit_cast<skvx::float2>(pts[0]),
+                        sk_bit_cast<skvx::float2>(pts[1]),
+                        sk_bit_cast<skvx::float2>(pts[2]),
                         vectorXform);
 }
 
@@ -144,10 +179,10 @@ AI float cubic_p4(float precision,
                   const SkPoint pts[],
                   const VectorXform& vectorXform = VectorXform()) {
     return cubic_p4(precision,
-                    skvx::bit_pun<skvx::float2>(pts[0]),
-                    skvx::bit_pun<skvx::float2>(pts[1]),
-                    skvx::bit_pun<skvx::float2>(pts[2]),
-                    skvx::bit_pun<skvx::float2>(pts[3]),
+                    sk_bit_cast<skvx::float2>(pts[0]),
+                    sk_bit_cast<skvx::float2>(pts[1]),
+                    sk_bit_cast<skvx::float2>(pts[2]),
+                    sk_bit_cast<skvx::float2>(pts[3]),
                     vectorXform);
 }
 
@@ -236,9 +271,9 @@ AI float conic_p2(float precision,
                   float w,
                   const VectorXform& vectorXform = VectorXform()) {
     return conic_p2(precision,
-                    skvx::bit_pun<skvx::float2>(pts[0]),
-                    skvx::bit_pun<skvx::float2>(pts[1]),
-                    skvx::bit_pun<skvx::float2>(pts[2]),
+                    sk_bit_cast<skvx::float2>(pts[0]),
+                    sk_bit_cast<skvx::float2>(pts[1]),
+                    sk_bit_cast<skvx::float2>(pts[2]),
                     w,
                     vectorXform);
 }

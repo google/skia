@@ -7,9 +7,9 @@
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
@@ -198,5 +198,77 @@ DEF_TEST(AndroidCodec_P3, r) {
         { 0.226013184f,  0.685974121f,  0.0880126953f },
         { 0.0116729736f, 0.0950927734f, 0.71812439f   },
     }};
+    REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
+}
+
+DEF_TEST(AndroidCodec_HLG, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* path = "images/red-hlg-profile.png";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing file %s", path);
+        return;
+    }
+
+    auto codec = SkAndroidCodec::MakeFromCodec(SkCodec::MakeFromData(std::move(data)));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec from %s", path);
+        return;
+    }
+
+    auto info = codec->getInfo();
+    auto cs = codec->computeOutputColorSpace(info.colorType(), nullptr);
+    if (!cs) {
+        ERRORF(r, "%s should have a color space", path);
+        return;
+    }
+
+    skcms_TransferFunction tf;
+    cs->transferFn(&tf);
+    REPORTER_ASSERT(r, skcms_TransferFunction_isHLGish(&tf));
+
+    skcms_Matrix3x3 matrix;
+    cs->toXYZD50(&matrix);
+
+    static constexpr skcms_Matrix3x3 kExpected = SkNamedGamut::kRec2020;
+    REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
+}
+
+DEF_TEST(AndroidCodec_PQ, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* path = "images/red-pq-profile.png";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing file %s", path);
+        return;
+    }
+
+    auto codec = SkAndroidCodec::MakeFromCodec(SkCodec::MakeFromData(std::move(data)));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec from %s", path);
+        return;
+    }
+
+    auto info = codec->getInfo();
+    auto cs = codec->computeOutputColorSpace(info.colorType(), nullptr);
+    if (!cs) {
+        ERRORF(r, "%s should have a color space", path);
+        return;
+    }
+
+    skcms_TransferFunction tf;
+    cs->transferFn(&tf);
+    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&tf));
+
+    skcms_Matrix3x3 matrix;
+    cs->toXYZD50(&matrix);
+
+    static constexpr skcms_Matrix3x3 kExpected = SkNamedGamut::kRec2020;
     REPORTER_ASSERT(r, 0 == memcmp(&matrix, &kExpected, sizeof(skcms_Matrix3x3)));
 }

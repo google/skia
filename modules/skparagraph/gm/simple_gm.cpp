@@ -76,7 +76,7 @@ protected:
         this->buildParagraph();
     }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("paragraph%s_%s",
                     fFlags & kTimeLayout   ? "_layout"    : "",
@@ -87,7 +87,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
+    SkISize getISize() override {
         if (fFlags & kShowVisitor) {
             return SkISize::Make(810, 420);
         }

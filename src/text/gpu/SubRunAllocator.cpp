@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkMath.h"
 #include "src/text/gpu/SubRunAllocator.h"
+
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTFitsIn.h"
 
 #include <cstddef>
 #include <memory>
 #include <new>
-#include <utility>
 
 namespace sktext::gpu {
 

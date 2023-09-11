@@ -7,10 +7,11 @@ namespace textlayout {
 
 namespace {
 struct LineBreakerWithLittleRounding {
-    LineBreakerWithLittleRounding(SkScalar maxWidth)
+    LineBreakerWithLittleRounding(SkScalar maxWidth, bool applyRoundingHack)
         : fLower(maxWidth - 0.25f)
         , fMaxWidth(maxWidth)
-        , fUpper(maxWidth + 0.25f) {}
+        , fUpper(maxWidth + 0.25f)
+        , fApplyRoundingHack(applyRoundingHack) {}
 
     bool breakLine(SkScalar width) const {
         if (width < fLower) {
@@ -21,23 +22,34 @@ struct LineBreakerWithLittleRounding {
 
         auto val = std::fabs(width);
         SkScalar roundedWidth;
-        if (val < 10000) {
-            roundedWidth = SkScalarRoundToScalar(width * 100) * (1.0f/100);
-        } else if (val < 100000) {
-            roundedWidth = SkScalarRoundToScalar(width *  10) * (1.0f/10);
+        if (fApplyRoundingHack) {
+            if (val < 10000) {
+                roundedWidth = SkScalarRoundToScalar(width * 100) * (1.0f/100);
+            } else if (val < 100000) {
+                roundedWidth = SkScalarRoundToScalar(width *  10) * (1.0f/10);
+            } else {
+                roundedWidth = SkScalarFloorToScalar(width);
+            }
         } else {
-            roundedWidth = SkScalarFloorToScalar(width);
+            if (val < 10000) {
+                roundedWidth = SkScalarFloorToScalar(width * 100) * (1.0f/100);
+            } else if (val < 100000) {
+                roundedWidth = SkScalarFloorToScalar(width *  10) * (1.0f/10);
+            } else {
+                roundedWidth = SkScalarFloorToScalar(width);
+            }
         }
         return roundedWidth > fMaxWidth;
     }
 
     const SkScalar fLower, fMaxWidth, fUpper;
+    const bool fApplyRoundingHack;
 };
 }  // namespace
 
 // Since we allow cluster clipping when they don't fit
 // we have to work with stretches - parts of clusters
-void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
+void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters, bool applyRoundingHack) {
 
     reset();
     fEndLine.metrics().clean();
@@ -45,7 +57,7 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     fClusters.startFrom(fEndLine.startCluster(), fEndLine.startPos());
     fClip.startFrom(fEndLine.startCluster(), fEndLine.startPos());
 
-    LineBreakerWithLittleRounding breaker(maxWidth);
+    LineBreakerWithLittleRounding breaker(maxWidth, applyRoundingHack);
     Cluster* nextNonBreakingSpace = nullptr;
     for (auto cluster = fEndLine.endCluster(); cluster < endOfClusters; ++cluster) {
         if (cluster->isHardBreak()) {
@@ -174,7 +186,11 @@ void TextWrapper::moveForward(bool hasEllipsis) {
     // If nothing fits we show the clipping.
     if (!fWords.empty()) {
         fEndLine.extend(fWords);
-        if (!fTooLongWord || hasEllipsis) {
+#ifdef SK_IGNORE_SKPARAGRAPH_ELLIPSIS_FIX
+        if (!fTooLongWord || hasEllipsis) { // Ellipsis added to a word
+#else
+        if (!fTooLongWord && !hasEllipsis) { // Ellipsis added to a grapheme
+#endif
             return;
         }
     }
@@ -287,7 +303,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     bool needEllipsis = false;
     while (fEndLine.endCluster() != end) {
 
-        this->lookAhead(maxWidth, end);
+        this->lookAhead(maxWidth, end, parent->getApplyRoundingHack());
 
         auto lastLine = (hasEllipsis && unlimitedLines) || fLineNumber >= maxLines;
         needEllipsis = hasEllipsis && !endlessLine && lastLine;

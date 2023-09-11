@@ -7,8 +7,6 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLStatement.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -20,6 +18,8 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -29,6 +29,8 @@
 #include <memory>
 #include <utility>
 #include <vector>
+
+using namespace skia_private;
 
 namespace SkSL {
 
@@ -128,7 +130,7 @@ static bool eliminate_dead_local_variables(const Context& context,
         bool fMadeChanges = false;
         const Context& fContext;
         ProgramUsage* fUsage;
-        SkTHashSet<const Variable*> fDeadVariables;
+        THashSet<const Variable*> fDeadVariables;
         bool fAssignmentWasEliminated = false;
 
         using INHERITED = ProgramWriter;

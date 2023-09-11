@@ -27,12 +27,17 @@ public:
                                              Protected,
                                              Renderable) const override;
 
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
+                                             Mipmapped mipmapped) const override;
+
     TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                           Discardable discardable) const override;
 
     TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
                                                   uint32_t sampleCount,
                                                   Protected) const override;
+
+    TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
 
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;
@@ -48,14 +53,13 @@ public:
     uint32_t channelMask(const TextureInfo&) const override;
 
     bool isRenderable(const TextureInfo&) const override;
+    bool isStorage(const TextureInfo&) const override;
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
                             ResourceType,
                             Shareable,
                             GraphiteResourceKey*) const override;
-
-    size_t bytesPerPixel(const TextureInfo&) const override;
 
 private:
     void initGPUFamily(const id<MTLDevice>);
@@ -107,20 +111,21 @@ private:
         }
 
         enum {
-            kTexturable_Flag  = 0x1,
-            kRenderable_Flag  = 0x2, // Color attachment and blendable
-            kMSAA_Flag        = 0x4,
-            kResolve_Flag     = 0x8,
+            kTexturable_Flag  = 0x01,
+            kRenderable_Flag  = 0x02, // Color attachment and blendable
+            kMSAA_Flag        = 0x04,
+            kResolve_Flag     = 0x08,
+            kStorage_Flag     = 0x10,
         };
-        static const uint16_t kAllFlags = kTexturable_Flag | kRenderable_Flag |
-                                          kMSAA_Flag | kResolve_Flag;
+        static const uint16_t kAllFlags =
+                kTexturable_Flag | kRenderable_Flag | kMSAA_Flag | kResolve_Flag | kStorage_Flag;
 
         uint16_t fFlags = 0;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    inline static constexpr size_t kNumMtlFormats = 12;
+    inline static constexpr size_t kNumMtlFormats = 19;
 
     static size_t GetFormatIndex(MTLPixelFormat);
     FormatInfo fFormatTable[kNumMtlFormats];

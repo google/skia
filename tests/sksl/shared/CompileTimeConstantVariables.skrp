@@ -1,75 +1,68 @@
-    1. store_src_rg                   v0..1 = src.rg
-    2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. zero_slot_unmasked             kConstant = 0
-    4. copy_constant                  kOtherConstant = 0x00000001 (1.401298e-45)
-    5. copy_constant                  kAnotherConstant = 0x00000002 (2.802597e-45)
-    6. copy_constant                  kFloatConstant = 0x4008F5C3 (2.14)
-    7. copy_slot_unmasked             kFloatConstantAlias = kFloatConstant
-    8. copy_constant                  kConstVec(0) = 0x3F800000 (1.0)
-    9. copy_constant                  kConstVec(1) = 0x3E4CCCCD (0.2)
-   10. copy_constant                  kConstVec(2) = 0x4008F5C3 (2.14)
-   11. copy_constant                  kConstVec(3) = 0x3F800000 (1.0)
-   12. copy_constant                  kLocalFloatConstant = 0x4048F5C3 (3.14)
-   13. copy_slot_unmasked             kLocalFloatConstantAlias = kLocalFloatConstant
-   14. copy_constant                  $0 = colorGreen(1)
-   15. cast_to_int_from_float         $0 = FloatToInt($0)
-   16. copy_slot_unmasked             integerInput = $0
-   17. store_condition_mask           $0 = CondMask
-   18. copy_slot_unmasked             $1 = integerInput
-   19. copy_slot_unmasked             $2 = kConstant
-   20. cmpeq_int                      $1 = equal($1, $2)
-   21. merge_condition_mask           CondMask = $0 & $1
-   22. copy_constant                  $2 = 0x4008F5C3 (2.14)
-   23. swizzle_4                      $2..5 = ($2..5).xxxx
-   24. copy_4_slots_masked            [main].result = Mask($2..5)
-   25. bitwise_not_int                $1 = ~$1
-   26. merge_condition_mask           CondMask = $0 & $1
-   27. store_condition_mask           $2 = CondMask
-   28. copy_slot_unmasked             $3 = integerInput
-   29. copy_slot_unmasked             $4 = kOtherConstant
-   30. cmpeq_int                      $3 = equal($3, $4)
-   31. merge_condition_mask           CondMask = $2 & $3
-   32. copy_4_constants               $4..7 = colorGreen
-   33. copy_4_slots_masked            [main].result = Mask($4..7)
-   34. bitwise_not_int                $3 = ~$3
-   35. merge_condition_mask           CondMask = $2 & $3
-   36. store_condition_mask           $4 = CondMask
-   37. copy_slot_unmasked             $5 = integerInput
-   38. copy_slot_unmasked             $6 = kAnotherConstant
-   39. cmpeq_int                      $5 = equal($5, $6)
-   40. merge_condition_mask           CondMask = $4 & $5
-   41. copy_4_slots_unmasked          $6..9 = kConstVec
-   42. copy_4_slots_masked            [main].result = Mask($6..9)
-   43. bitwise_not_int                $5 = ~$5
-   44. merge_condition_mask           CondMask = $4 & $5
-   45. copy_slot_unmasked             $6 = kLocalFloatConstantAlias
-   46. copy_constant                  $7 = colorGreen(0)
-   47. copy_slot_unmasked             $8 = kLocalFloatConstant
-   48. mul_float                      $7 *= $8
-   49. cmplt_float                    $6 = lessThan($6, $7)
-   50. branch_if_no_active_lanes_eq   branch +5 (label 0 at #55) if no lanes of $6 == 0xFFFFFFFF
-   51. copy_constant                  $7 = 0x4048F5C3 (3.14)
-   52. swizzle_4                      $7..10 = ($7..10).xxxx
-   53. copy_4_slots_masked            [main].result = Mask($7..10)
-   54. jump                           jump +17 (label 1 at #71)
-   55. label                          label 0x00000000
-   56. copy_constant                  $7 = colorGreen(0)
-   57. copy_slot_unmasked             $8 = kFloatConstantAlias
-   58. mul_float                      $7 *= $8
-   59. copy_slot_unmasked             $8 = kFloatConstantAlias
-   60. cmple_float                    $7 = lessThanEqual($7, $8)
-   61. branch_if_no_active_lanes_eq   branch +4 (label 2 at #65) if no lanes of $7 == 0xFFFFFFFF
-   62. zero_4_slots_unmasked          $8..11 = 0
-   63. copy_4_slots_masked            [main].result = Mask($8..11)
-   64. jump                           jump +6 (label 3 at #70)
-   65. label                          label 0x00000002
-   66. copy_constant                  $8 = 0x3F800000 (1.0)
-   67. zero_2_slots_unmasked          $9..10 = 0
-   68. copy_constant                  $11 = 0x3F800000 (1.0)
-   69. copy_4_slots_masked            [main].result = Mask($8..11)
-   70. label                          label 0x00000003
-   71. label                          label 0x00000001
-   72. load_condition_mask            CondMask = $4
-   73. load_condition_mask            CondMask = $2
-   74. load_condition_mask            CondMask = $0
-   75. load_src                       src.rgba = [main].result
+47 instructions
+
+[immutable slots]
+i0 = 0
+i1 = 0x00000001 (1.401298e-45)
+i2 = 0x00000002 (2.802597e-45)
+i3 = 0x4008F5C3 (2.14)
+i4 = 0x3F800000 (1.0)
+i5 = 0x3E4CCCCD (0.2)
+i6 = 0x4008F5C3 (2.14)
+i7 = 0x3F800000 (1.0)
+i8 = 0x4048F5C3 (3.14)
+i9 = 0x3F800000 (1.0)
+i10 = 0
+i11 = 0
+i12 = 0x3F800000 (1.0)
+
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_uniform                   $0 = colorGreen(1)
+cast_to_int_from_float         $0 = FloatToInt($0)
+copy_slot_unmasked             integerInput = $0
+store_condition_mask           $0 = CondMask
+copy_slot_unmasked             $1 = integerInput
+cmpeq_imm_int                  $1 = equal($1, 0)
+merge_condition_mask           CondMask = $0 & $1
+splat_4_constants              $2..5 = 0x4008F5C3 (2.14)
+copy_4_slots_masked            [main].result = Mask($2..5)
+merge_inv_condition_mask       CondMask = $0 & ~$1
+store_condition_mask           $2 = CondMask
+copy_slot_unmasked             $3 = integerInput
+cmpeq_imm_int                  $3 = equal($3, 0x00000001)
+merge_condition_mask           CondMask = $2 & $3
+copy_4_uniforms                $4..7 = colorGreen
+copy_4_slots_masked            [main].result = Mask($4..7)
+merge_inv_condition_mask       CondMask = $2 & ~$3
+store_condition_mask           $4 = CondMask
+copy_slot_unmasked             $5 = integerInput
+cmpeq_imm_int                  $5 = equal($5, 0x00000002)
+merge_condition_mask           CondMask = $4 & $5
+copy_4_immutables_unmasked     $6..9 = i4..7 [0x3F800000 (1.0), 0x3E4CCCCD (0.2), 0x4008F5C3 (2.14), 0x3F800000 (1.0)]
+copy_4_slots_masked            [main].result = Mask($6..9)
+merge_inv_condition_mask       CondMask = $4 & ~$5
+copy_constant                  $6 = 0x4048F5C3 (3.14)
+copy_uniform                   $7 = colorGreen(0)
+mul_imm_float                  $7 *= 0x4048F5C3 (3.14)
+cmplt_float                    $6 = lessThan($6, $7)
+branch_if_no_active_lanes_eq   branch +4 (label 0 at #35) if no lanes of $6 == 0xFFFFFFFF
+splat_4_constants              $7..10 = 0x4048F5C3 (3.14)
+copy_4_slots_masked            [main].result = Mask($7..10)
+jump                           jump +13 (label 1 at #47)
+label                          label 0
+copy_uniform                   $7 = colorGreen(0)
+mul_imm_float                  $7 *= 0x4008F5C3 (2.14)
+cmple_imm_float                $7 = lessThanEqual($7, 0x4008F5C3 (2.14))
+branch_if_no_active_lanes_eq   branch +4 (label 2 at #43) if no lanes of $7 == 0xFFFFFFFF
+splat_4_constants              $8..11 = 0
+copy_4_slots_masked            [main].result = Mask($8..11)
+jump                           jump +4 (label 3 at #46)
+label                          label 0x00000002
+copy_4_immutables_unmasked     $8..11 = i9..12 [0x3F800000 (1.0), 0, 0, 0x3F800000 (1.0)]
+copy_4_slots_masked            [main].result = Mask($8..11)
+label                          label 0x00000003
+label                          label 0x00000001
+load_condition_mask            CondMask = $4
+load_condition_mask            CondMask = $2
+load_condition_mask            CondMask = $0
+load_src                       src.rgba = [main].result

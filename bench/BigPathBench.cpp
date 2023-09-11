@@ -39,8 +39,8 @@ protected:
         return fName.c_str();
     }
 
-    SkIPoint onGetSize() override {
-        return SkIPoint::Make(640, 100);
+    SkISize onGetSize() override {
+        return SkISize::Make(640, 100);
     }
 
     void onDelayedSetup() override { fPath = BenchUtils::make_big_path(); }

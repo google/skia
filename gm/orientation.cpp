@@ -50,9 +50,8 @@ static void make_images() {
             swap(size.fWidth, size.fHeight);
         }
         using std::swap;
-        auto surf = SkSurface::MakeRaster(SkImageInfo::Make(size,
-                                                            kRGBA_8888_SkColorType,
-                                                            kPremul_SkAlphaType));
+        auto surf = SkSurfaces::Raster(
+                SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
         auto* canvas = surf->getCanvas();
         SkMatrix m = SkEncodedOriginToMatrix(origin, kImgW, kImgH);
         SkAssertResult(m.invert(&m));
@@ -116,7 +115,7 @@ static void make_images() {
         num.append(".png");
         SkPixmap pm;
         surf->makeImageSnapshot()->peekPixels(&pm);
-        ToolUtils::EncodeImageToFile(num.c_str(), pm, SkEncodedImageFormat::kPNG, 100);
+        ToolUtils::EncodeImageToPngFile(num.c_str(), pm);
     }
 }
 

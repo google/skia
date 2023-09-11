@@ -2,6 +2,11 @@ uniform half4 inputVal;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
+    // Ensure that normalizing zero doesn't trigger a UBSAN divide-by-zero report.
+    float normalizeZero = normalize(0);
+    // Ensure that it is harmless to normalize a gigantic value.
+    float normalizeHuge = normalize(1E34);
+
     const half4 constVec = half4(20, 0, 0, 0);
     half4 expectedVec = half4(1, 0, 0, 0);
 

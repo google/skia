@@ -9,6 +9,7 @@
 #define skgpu_graphite_GraphicsPipeline_DEFINED
 
 #include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/UniquePaintParamsID.h"
 
 namespace skgpu::graphite {
 
@@ -26,12 +27,34 @@ class GraphicsPipeline : public Resource {
 public:
     ~GraphicsPipeline() override;
 
+#if defined(GRAPHITE_TEST_UTILS)
+    // This is not quite enough information to fully recreate the pipeline, as the RenderPassDesc
+    // used to make the pipeline is not preserved.
+    struct PipelineInfo {
+        uint32_t fRenderStepID;
+        UniquePaintParamsID fPaintID;
+        std::string fSkSLVertexShader;
+        std::string fSkSLFragmentShader;
+        std::string fNativeVertexShader;
+        std::string fNativeFragmentShader;
+    };
+
+    const PipelineInfo& getPipelineInfo() const {
+        return fPipelineInfo;
+    }
+#else
+    struct PipelineInfo;
+#endif
+
 protected:
-    GraphicsPipeline(const SharedContext*);
+    GraphicsPipeline(const SharedContext*, PipelineInfo*);
 
 private:
+#if defined(GRAPHITE_TEST_UTILS)
+    PipelineInfo fPipelineInfo;
+#endif
 };
 
-} // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_GraphicsPipeline_DEFINED

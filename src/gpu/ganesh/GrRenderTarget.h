@@ -68,7 +68,7 @@ public:
      * actual number of samples in use. (This may differ from fSampleCnt.) Sample locations are
      * returned as 0..1 offsets relative to the top-left corner of the pixel.
      */
-    const SkTArray<SkPoint>& getSampleLocations();
+    const skia_private::TArray<SkPoint>& getSampleLocations();
 
 protected:
     GrRenderTarget(GrGpu*,

@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 
+REG_FIDDLE(Octopus_Generator, 256, 256, false, 0) {
 #include <random>
 
-REG_FIDDLE(Octopus_Generator, 256, 256, false, 0) {
 void paintOctopus(int x, int y, int size_base, SkColor color, SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);

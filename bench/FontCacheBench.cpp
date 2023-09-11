@@ -11,8 +11,8 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkString.h"
-#include "include/private/SkChecksum.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/core/SkChecksum.h"
 
 #include "bench/gUniqueGlyphIDs.h"
 

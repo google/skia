@@ -13,7 +13,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/shaders/gradients/SkGradientShaderBase.h"
+#include "src/shaders/gradients/SkGradientBaseShader.h"
 
 #include <functional>
 
@@ -127,15 +127,23 @@ void GrGradientBitmapCache::add(const void* buffer, size_t len, const SkBitmap& 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScalar* positions,
-                                         int count, SkBitmap* bitmap) {
+void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors,
+                                         const SkScalar* positions,
+                                         int count,
+                                         bool colorsAreOpaque,
+                                         const SkGradientShader::Interpolation& interpolation,
+                                         const SkColorSpace* intermediateColorSpace,
+                                         const SkColorSpace* dstColorSpace,
+                                         SkBitmap* bitmap) {
     SkArenaAlloc alloc(/*firstHeapAllocation=*/0);
     SkRasterPipeline p(&alloc);
     SkRasterPipeline_MemoryCtx ctx = { bitmap->getPixels(), 0 };
 
     p.append(SkRasterPipelineOp::seed_shader);
     p.append_matrix(&alloc, SkMatrix::Scale(1.0f / bitmap->width(), 1.0f));
-    SkGradientShaderBase::AppendGradientFillStages(&p, &alloc, colors, positions, count);
+    SkGradientBaseShader::AppendGradientFillStages(&p, &alloc, colors, positions, count);
+    SkGradientBaseShader::AppendInterpolatedToDstStages(
+            &p, &alloc, colorsAreOpaque, interpolation, intermediateColorSpace, dstColorSpace);
     p.append_store(bitmap->colorType(), &ctx);
     p.run(0, 0, bitmap->width(), 1);
 }
@@ -143,18 +151,27 @@ void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScal
 void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors,
                                         const SkScalar* positions,
                                         int count,
+                                        bool colorsAreOpaque,
+                                        const SkGradientShader::Interpolation& interpolation,
+                                        const SkColorSpace* intermediateColorSpace,
+                                        const SkColorSpace* dstColorSpace,
                                         SkColorType colorType,
                                         SkAlphaType alphaType,
                                         SkBitmap* bitmap) {
-    // build our key: [numColors + colors[] + positions[] + alphaType + colorType ]
+    // Build our key:
+    // [numColors + colors[] + positions[] + alphaType + colorType + interpolation + dstColorSpace]
+    // NOTE: colorsAreOpaque is redundant with the actual colors. intermediateColorSpace is fully
+    //       determined by interpolation and dstColorSpace.
     static_assert(sizeof(SkPMColor4f) % sizeof(int32_t) == 0, "");
     const int colorsAsIntCount = count * sizeof(SkPMColor4f) / sizeof(int32_t);
     SkASSERT(count > 2);  // Otherwise, we should have used the single-interval colorizer
-    const int keyCount = 1 +                 // count
-                         colorsAsIntCount +  // colors
-                         (count - 2) +       // positions
-                         1 +                 // alphaType
-                         1;                  // colorType
+    const int keyCount = 1 +                      // count
+                         colorsAsIntCount +       // colors
+                         (count - 2) +            // positions
+                         1 +                      // alphaType
+                         1 +                      // colorType
+                         3 +                      // interpolation
+                         (dstColorSpace ? 2 : 0); // dstColorSpace
 
     AutoSTMalloc<64, int32_t> storage(keyCount);
     int32_t* buffer = storage.get();
@@ -167,6 +184,13 @@ void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors,
     }
     *buffer++ = static_cast<int32_t>(alphaType);
     *buffer++ = static_cast<int32_t>(colorType);
+    *buffer++ = static_cast<int32_t>(interpolation.fInPremul);
+    *buffer++ = static_cast<int32_t>(interpolation.fColorSpace);
+    *buffer++ = static_cast<int32_t>(interpolation.fHueMethod);
+    if (dstColorSpace) {
+        *buffer++ = dstColorSpace->toXYZD50Hash();
+        *buffer++ = dstColorSpace->transferFnHash();
+    }
     SkASSERT(buffer - storage.get() == keyCount);
 
     ///////////////////////////////////
@@ -177,7 +201,14 @@ void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors,
     if (!this->find(storage.get(), size, bitmap)) {
         SkImageInfo info = SkImageInfo::Make(fResolution, 1, colorType, alphaType);
         bitmap->allocPixels(info);
-        this->fillGradient(colors, positions, count, bitmap);
+        this->fillGradient(colors,
+                           positions,
+                           count,
+                           colorsAreOpaque,
+                           interpolation,
+                           intermediateColorSpace,
+                           dstColorSpace,
+                           bitmap);
         bitmap->setImmutable();
         this->add(storage.get(), size, *bitmap);
     }

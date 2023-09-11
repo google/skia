@@ -36,7 +36,7 @@ canvas commands are drawn.
         draw(rasterCanvas);
         sk_sp<SkImage> img(rasterSurface->makeImageSnapshot());
         if (!img) { return; }
-        sk_sp<SkData> png(img->encodeToData());
+        sk_sp<SkData> png = SkPngEncoder::Encode(nullptr, img, {});
         if (!png) { return; }
         SkFILEWStream out(path);
         (void)out.write(png->data(), png->size());
@@ -88,9 +88,9 @@ current thread when Skia calls are made.
         // You've already created your OpenGL context and bound it.
         sk_sp<const GrGLInterface> interface = nullptr;
         // Leaving interface as null makes Skia extract pointers to OpenGL functions for the current
-        // context in a platform-specific way. Alternatively, you may create your own GrGLInterface and
-        // initialize it however you like to attach to an alternate OpenGL implementation or intercept
-        // Skia's OpenGL calls.
+        // context in a platform-specific way. Alternatively, you may create your own GrGLInterface
+        // and initialize it however you like to attach to an alternate OpenGL implementation or
+        // intercept Skia's OpenGL calls.
         sk_sp<GrDirectContext> context = GrDirectContext::MakeGL(interface);
         SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
         sk_sp<SkSurface> gpuSurface(
@@ -103,7 +103,8 @@ current thread when Skia calls are made.
         draw(gpuCanvas);
         sk_sp<SkImage> img(gpuSurface->makeImageSnapshot());
         if (!img) { return; }
-        sk_sp<SkData> png(img->encodeToData());
+        // Must pass non-null context so the pixels can be read back and encoded.
+        sk_sp<SkData> png = SkPngEncoder::Encode(context.get(), img, {});
         if (!png) { return; }
         SkFILEWStream out(path);
         (void)out.write(png->data(), png->size());

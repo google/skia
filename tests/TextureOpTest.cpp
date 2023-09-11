@@ -47,7 +47,7 @@ using namespace skgpu::ganesh;
 
 class OpsTaskTestingAccess {
 public:
-    typedef skgpu::v1::OpsTask::OpChain OpChain;
+    typedef skgpu::ganesh::OpsTask::OpChain OpChain;
 };
 
 static void check_chain(OpsTaskTestingAccess::OpChain* chain, SkRect firstRect, SkRect lastRect,

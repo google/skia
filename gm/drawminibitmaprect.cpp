@@ -29,7 +29,7 @@
 
 static sk_sp<SkImage> makebm(int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
     SkCanvas* canvas = surface->getCanvas();
 
     const SkScalar wScalar = SkIntToScalar(w);
@@ -85,9 +85,9 @@ public:
     }
 
 protected:
-    SkString onShortName() override { return fName; }
+    SkString getName() const override { return fName; }
 
-    SkISize onISize() override { return SkISize::Make(gSize, gSize); }
+    SkISize getISize() override { return SkISize::Make(gSize, gSize); }
 
     void onDraw(SkCanvas* canvas) override {
         if (nullptr == fImage) {

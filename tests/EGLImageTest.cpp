@@ -19,6 +19,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
@@ -39,7 +40,7 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/CtsEnforcement.h"
@@ -75,10 +76,7 @@ static void cleanup(GLTestContext* glctx0,
     }
 }
 
-DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest,
-                                          reporter,
-                                          ctxInfo,
-                                          CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_CONTEXT(EGLImageTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto context0 = ctxInfo.directContext();
     sk_gpu_test::GLTestContext* glCtx0 = ctxInfo.glContext();
 
@@ -134,7 +132,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest,
     }
 
     GrGLTextureInfo texInfo;
-    if (!mbet->texture().getGLTextureInfo(&texInfo)) {
+    if (!GrBackendTextures::GetGLTextureInfo(mbet->texture(), &texInfo)) {
         ERRORF(reporter, "Failed to get GrGLTextureInfo");
         return;
     }
@@ -189,7 +187,8 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest,
     }
 
     // Wrap this texture ID in a GrTexture
-    GrBackendTexture backendTex(kSize, kSize, GrMipmapped::kNo, externalTexture);
+    GrBackendTexture backendTex =
+            GrBackendTextures::MakeGL(kSize, kSize, GrMipmapped::kNo, externalTexture);
 
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     // TODO: If I make this TopLeft origin to match resolve_origin calls for kDefault, this test

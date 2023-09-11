@@ -19,6 +19,8 @@
 #include <string_view>
 #include <thread>
 
+using namespace skia_private;
+
 DEF_TEST(String, reporter) {
     SkString    a;
     SkString    b((size_t)0);
@@ -213,7 +215,7 @@ DEF_TEST(String_overflow, reporter) {
 }
 
 DEF_TEST(String_SkStrSplit, r) {
-    SkTArray<SkString> results;
+    TArray<SkString> results;
 
     SkStrSplit("a-_b_c-dee--f-_-_-g-", "-_", &results);
     REPORTER_ASSERT(r, results.size() == 6);
@@ -238,7 +240,7 @@ DEF_TEST(String_SkStrSplit, r) {
     REPORTER_ASSERT(r, results[0].equals("a"));
 }
 DEF_TEST(String_SkStrSplit_All, r) {
-    SkTArray<SkString> results;
+    TArray<SkString> results;
     SkStrSplit("a-_b_c-dee--f-_-_-g-", "-_", kStrict_SkStrSplitMode, &results);
     REPORTER_ASSERT(r, results.size() == 13);
     REPORTER_ASSERT(r, results[0].equals("a"));

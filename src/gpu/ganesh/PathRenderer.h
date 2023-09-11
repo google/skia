@@ -26,7 +26,7 @@ class SkMatrix;
 class SkPath;
 class SkSurfaceProps;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -205,6 +205,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // PathRenderer_DEFINED

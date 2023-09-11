@@ -1,6 +1,6 @@
 {
   "name": "canvaskit-wasm",
-  "version": "0.38.0",
+  "version": "0.38.2",
   "description": "A WASM version of Skia's Canvas API",
   "main": "bin/canvaskit.js",
   "homepage": "https://github.com/google/skia/tree/main/modules/canvaskit",
@@ -17,9 +17,59 @@
   "types": "./types/index.d.ts",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "dtslint": "4.2.1",
-    "typescript": "4.7.4",
     "@definitelytyped/header-parser": "0.0.121",
-    "@webgpu/types": "0.1.21"
+    "@webgpu/types": "0.1.21",
+    "dtslint": "4.2.1",
+    "typescript": "4.7.4"
+  },
+  "exports": {
+    ".": {
+      "require": "./bin/canvaskit.js",
+      "import": "./bin/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./full": {
+      "require": "./bin/full/canvaskit.js",
+      "import": "./bin/full/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./profiling": {
+      "require": "./bin/profiling/canvaskit.js",
+      "import": "./bin/profiling/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/canvaskit": {
+      "require": "./bin/canvaskit.js",
+      "import": "./bin/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/canvaskit.js": {
+      "require": "./bin/canvaskit.js",
+      "import": "./bin/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/canvaskit.wasm": "./bin/canvaskit.wasm",
+    "./bin/full/canvaskit": {
+      "require": "./bin/full/canvaskit.js",
+      "import": "./bin/full/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/full/canvaskit.js": {
+      "require": "./bin/full/canvaskit.js",
+      "import": "./bin/full/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/full/canvaskit.wasm": "./bin/full/canvaskit.wasm",
+    "./bin/profiling/canvaskit": {
+      "require": "./bin/profiling/canvaskit.js",
+      "import": "./bin/profiling/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/profiling/canvaskit.js": {
+      "require": "./bin/profiling/canvaskit.js",
+      "import": "./bin/profiling/canvaskit.js",
+      "types": "./types/index.d.ts"
+    },
+    "./bin/profiling/canvaskit.wasm": "./bin/profiling/canvaskit.wasm"
   }
 }

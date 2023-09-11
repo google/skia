@@ -28,7 +28,7 @@
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas) {
     static constexpr SkScalar kSize = 50;
     SkImageInfo info = SkImageInfo::MakeN32Premul(kSize, kSize);
-    auto surface(SkSurface::MakeRaster(info));
+    auto surface(SkSurfaces::Raster(info));
 
     SkPaint p;
     p.setAntiAlias(true);
@@ -222,11 +222,9 @@ public:
     LocalMatrixOrder() {}
 
 protected:
-    SkString onShortName() override {
-        return SkString("localmatrix_order");
-    }
+    SkString getName() const override { return SkString("localmatrix_order"); }
 
-    SkISize onISize() override { return SkISize::Make(500, 500); }
+    SkISize getISize() override { return SkISize::Make(500, 500); }
 
     void onOnceBeforeDraw() override {
         auto mandrill = GetResourceAsImage("images/mandrill_256.png");  // 256x256
@@ -235,12 +233,12 @@ protected:
         auto mshader = mandrill->makeShader(
                 SkTileMode::kRepeat,
                 SkTileMode::kRepeat,
-                SkSamplingOptions{},
+                SkFilterMode::kNearest,
                 SkMatrix::RotateDeg(45, {128, 128})); // rotate about center
         auto eshader = example5->makeShader(
                 SkTileMode::kRepeat,
                 SkTileMode::kRepeat,
-                SkSamplingOptions{},
+                SkFilterMode::kNearest,
                 SkMatrix::Scale(2, 2)); // make same size as mandrill and...
         // ... rotate about center
         eshader = eshader->makeWithLocalMatrix(SkMatrix::RotateDeg(45, {128, 128}));

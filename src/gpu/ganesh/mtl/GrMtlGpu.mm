@@ -12,8 +12,8 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -35,13 +35,15 @@
 
 #import <simd/simd.h>
 
+using namespace skia_private;
+
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
 GR_NORETAIN_BEGIN
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 // set to 1 if you want to do GPU capture of each commandBuffer
 #define GR_METAL_CAPTURE_COMMANDBUFFER 0
 #endif
@@ -51,7 +53,7 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
     if (!context.fDevice || !context.fQueue) {
         return nullptr;
     }
-    if (@available(macOS 10.14, iOS 10.0, *)) {
+    if (@available(macOS 10.14, iOS 10.0, tvOS 10.0, *)) {
         // no warning needed
     } else {
         SkDebugf("*** Error ***: Skia's Metal backend no longer supports this OS version.\n");
@@ -92,7 +94,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
 #endif
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
 #if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, *)) {
+    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         fBinaryArchive = (__bridge id<MTLBinaryArchive>)(binaryArchive);
     }
 #endif
@@ -149,7 +151,7 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
             GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+            const TArray<GrSurfaceProxy*, true>& sampledProxies,
             GrXferBarrierFlags renderPassXferBarriers) {
     // For the given render target and requested render pass features we need to find a compatible
     // framebuffer to use.
@@ -283,8 +285,8 @@ void GrMtlGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallba
     commandBuffer()->addFinishedCallback(std::move(finishedCallback));
 }
 
-bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
-    if (syncCpu) {
+bool GrMtlGpu::onSubmitToGpu(GrSyncCpu sync) {
+    if (sync == GrSyncCpu::kYes) {
         return this->submitCommandBuffer(kForce_SyncQueue);
     } else {
         return this->submitCommandBuffer(kSkip_SyncQueue);
@@ -292,7 +294,7 @@ bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
 }
 
 std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
-    this->submitToGpu(false);
+    this->submitToGpu(GrSyncCpu::kNo);
     return nullptr;
 }
 
@@ -351,7 +353,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
-    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    TArray<size_t> individualMipOffsets(mipLevelCount);
     size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bpp,
                                                                  rect.size(),
                                                                  &individualMipOffsets,
@@ -435,7 +437,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     // Either upload only the first miplevel or all miplevels
     int mipLevelCount = (int)mtlTexture.mipmapLevelCount;
 
-    SkTArray<size_t> individualMipOffsets(mipLevelCount);
+    TArray<size_t> individualMipOffsets(mipLevelCount);
     size_t combinedBufferSize = 0;
     int currentWidth = tex->width();
     int currentHeight = tex->height();
@@ -634,7 +636,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     auto compressionType = GrBackendFormatToCompressionType(format);
     SkASSERT(compressionType != SkTextureCompressionType::kNone);
 
-    SkTArray<size_t> individualMipOffsets(numMipLevels);
+    TArray<size_t> individualMipOffsets(numMipLevels);
     SkDEBUGCODE(size_t combinedBufferSize =) SkCompressedDataSize(compressionType, dimensions,
                                                                   &individualMipOffsets,
                                                                   mipmapped == GrMipmapped::kYes);
@@ -769,7 +771,7 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
     }
 
@@ -790,7 +792,7 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
         return nullptr;
     }
 
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
     }
 
@@ -848,7 +850,7 @@ static GrColorType mtl_format_to_backend_tex_clear_colortype(MTLPixelFormat form
 
 void copy_src_data(char* dst,
                    size_t bytesPerPixel,
-                   const SkTArray<size_t>& individualMipOffsets,
+                   const TArray<size_t>& individualMipOffsets,
                    const GrPixmap srcData[],
                    int numMipLevels,
                    size_t bufferSize) {
@@ -891,7 +893,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
     if (mipmapped == GrMipmapped::kYes) {
         desc.mipmapLevelCount = 1 + SkPrevLog2(std::max(dimensions.width(), dimensions.height()));
     }
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         desc.storageMode = MTLStorageModePrivate;
         MTLTextureUsage usage = texturable == GrTexturable::kYes ? MTLTextureUsageShaderRead : 0;
         usage |= renderable == GrRenderable::kYes ? MTLTextureUsageRenderTarget : 0;
@@ -1046,7 +1048,7 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
     SkASSERT(compression != SkTextureCompressionType::kNone);
 
     // Create a transfer buffer and fill with data.
-    SkSTArray<16, size_t> individualMipOffsets;
+    STArray<16, size_t> individualMipOffsets;
     size_t combinedBufferSize;
     combinedBufferSize = SkCompressedDataSize(compression,
                                               backendTexture.dimensions(),
@@ -1138,7 +1140,7 @@ bool GrMtlGpu::precompileShader(const SkData& key, const SkData& data) {
     return this->resourceProvider().precompileShader(key, data);
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     SkASSERT(GrBackendApi::kMetal == tex.backend());
 
@@ -1150,7 +1152,7 @@ bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     if (!mtlTexture) {
         return false;
     }
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         return mtlTexture.usage & MTLTextureUsageShaderRead;
     } else {
         return true; // best we can do
@@ -1189,12 +1191,12 @@ void GrMtlGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&
 
     GrMtlTextureInfo info;
     if (rt.getMtlTextureInfo(&info)) {
-        this->submitToGpu(true);
+        this->submitToGpu(GrSyncCpu::kYes);
         // Nothing else to do here, will get cleaned up when the GrBackendRenderTarget
         // is deleted.
     }
 }
-#endif // GR_TEST_UTILS
+#endif // defined(GR_TEST_UTILS)
 
 void GrMtlGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src) {
     // TODO: Add support for subrectangles
@@ -1580,7 +1582,7 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface,
     return true;
 }
 
-GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
+[[nodiscard]] GrFence GrMtlGpu::insertFence() {
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
     // We create a semaphore and signal it within the current
     // command buffer's completion handler.
@@ -1608,7 +1610,7 @@ void GrMtlGpu::deleteFence(GrFence fence) {
     CFRelease(cfFence);
 }
 
-std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool /*isOwned*/) {
+[[nodiscard]] std::unique_ptr<GrSemaphore> GrMtlGpu::makeSemaphore(bool /*isOwned*/) {
     SkASSERT(this->caps()->semaphoreSupport());
     return GrMtlSemaphore::Make(this);
 }
@@ -1621,7 +1623,7 @@ std::unique_ptr<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemap
 }
 
 void GrMtlGpu::insertSemaphore(GrSemaphore* semaphore) {
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         SkASSERT(semaphore);
         GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore);
 
@@ -1630,7 +1632,7 @@ void GrMtlGpu::insertSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrMtlGpu::waitSemaphore(GrSemaphore* semaphore) {
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         SkASSERT(semaphore);
         GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore);
 
@@ -1735,7 +1737,7 @@ GrMtlRenderCommandEncoder* GrMtlGpu::loadMSAAFromResolve(
     } uniData = {{dx1 - dx0, dy1 - dy0, dx0, dy0}, {dw, dh}, {0, 0}};
 
     constexpr size_t uniformSize = 32;
-    if (@available(macOS 10.11, iOS 8.3, *)) {
+    if (@available(macOS 10.11, iOS 8.3, tvOS 9.0, *)) {
         SkASSERT(uniformSize <= this->caps()->maxPushConstantsSize());
         renderCmdEncoder->setVertexBytes(&uniData, uniformSize, 0);
     } else {
@@ -1753,15 +1755,15 @@ GrMtlRenderCommandEncoder* GrMtlGpu::loadMSAAFromResolve(
     return renderCmdEncoder;
 }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 void GrMtlGpu::testingOnly_startCapture() {
-    if (@available(macOS 10.13, iOS 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         // TODO: add Metal 3 interface as well
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {
             return;
         }
-        if (@available(macOS 10.15, iOS 13.0, *)) {
+        if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
             MTLCaptureDescriptor* captureDescriptor = [[MTLCaptureDescriptor alloc] init];
             captureDescriptor.captureObject = fQueue;
 
@@ -1777,7 +1779,7 @@ void GrMtlGpu::testingOnly_startCapture() {
 }
 
 void GrMtlGpu::testingOnly_stopCapture() {
-    if (@available(macOS 10.13, iOS 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {
             [captureManager stopCapture];
@@ -1804,7 +1806,7 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
         writer->appendBool("isRemovable", fDevice.isRemovable);
     }
 #endif
-    if (@available(macOS 10.13, iOS 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         writer->appendU64("registryID", fDevice.registryID);
     }
 #if defined(SK_BUILD_FOR_MAC) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
@@ -1831,7 +1833,7 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
     }
 #endif  // SK_BUILD_FOR_MAC
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(macOS 10.15, iOS 13.0, *)) {
+    if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         writer->appendBool("hasUnifiedMemory", fDevice.hasUnifiedMemory);
     }
 #endif
@@ -1847,12 +1849,12 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
         writer->appendU64("recommendedMaxWorkingSetSize", fDevice.recommendedMaxWorkingSetSize);
     }
 #endif  // SK_BUILD_FOR_MAC
-    if (@available(macOS 10.13, iOS 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         writer->appendU64("currentAllocatedSize", fDevice.currentAllocatedSize);
         writer->appendU64("maxThreadgroupMemoryLength", fDevice.maxThreadgroupMemoryLength);
     }
 
-    if (@available(macOS 10.11, iOS 9.0, *)) {
+    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
         writer->beginObject("maxThreadsPerThreadgroup");
         writer->appendU64("width", fDevice.maxThreadsPerThreadgroup.width);
         writer->appendU64("height", fDevice.maxThreadsPerThreadgroup.height);
@@ -1860,7 +1862,7 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
         writer->endObject();
     }
 
-    if (@available(macOS 10.13, iOS 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         writer->appendBool("areProgrammableSamplePositionsSupported",
                            fDevice.areProgrammableSamplePositionsSupported);
         writer->appendBool("areRasterOrderGroupsSupported",
@@ -1881,10 +1883,10 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
     }
 #endif
 #endif  // SK_BUILD_FOR_MAC
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         writer->appendU64("maxBufferLength", fDevice.maxBufferLength);
     }
-    if (@available(macOS 10.13, iOS 11.0, *)) {
+    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
         switch (fDevice.readWriteTextureSupport) {
             case MTLReadWriteTextureTier1:
                 writer->appendNString("readWriteTextureSupport", "tier1");
@@ -1911,11 +1913,11 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
                 break;
         }
     }
-    if (@available(macOS 10.14, iOS 12.0, *)) {
+    if (@available(macOS 10.14, iOS 12.0, tvOS 12.0, *)) {
         writer->appendU64("maxArgumentBufferSamplerCount", fDevice.maxArgumentBufferSamplerCount);
     }
 #ifdef SK_BUILD_FOR_IOS
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
         writer->appendU64("sparseTileSizeInBytes", fDevice.sparseTileSizeInBytes);
     }
 #endif

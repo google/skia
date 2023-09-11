@@ -12,6 +12,7 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkStream.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkSwizzler.h"
 
@@ -35,7 +36,7 @@ public:
      */
     static std::unique_ptr<SkCodec> MakeFromStream(
             std::unique_ptr<SkStream>, SkCodec::SelectionPolicy selectionPolicy,
-            SkEncodedImageFormat, Result*);
+            Result*);
 
 protected:
 

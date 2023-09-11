@@ -12,7 +12,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
@@ -21,6 +20,9 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/vk/VkTestHelper.h"
@@ -33,6 +35,7 @@
 #include <cstdint>
 #include <vector>
 
+class SkImage;
 struct GrContextOptions;
 const size_t kImageWidth = 8;
 const size_t kImageHeight = 8;
@@ -64,19 +67,20 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
 
-    sk_sp<SkImage> srcImage = SkImage::MakeFromTexture(testHelper.directContext(),
-                                                       ycbcrHelper.backendTexture(),
-                                                       kTopLeft_GrSurfaceOrigin,
-                                                       kRGB_888x_SkColorType,
-                                                       kPremul_SkAlphaType,
-                                                       nullptr);
+    sk_sp<SkImage> srcImage = SkImages::BorrowTextureFrom(testHelper.directContext(),
+                                                          ycbcrHelper.backendTexture(),
+                                                          kTopLeft_GrSurfaceOrigin,
+                                                          kRGB_888x_SkColorType,
+                                                          kPremul_SkAlphaType,
+                                                          nullptr);
     if (!srcImage) {
         ERRORF(reporter, "Failed to create I420 image");
         return;
     }
 
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(
-            testHelper.directContext(),
+    auto dContext = testHelper.directContext();
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
+            dContext,
             skgpu::Budgeted::kNo,
             SkImageInfo::Make(kImageWidth, kImageHeight, kN32_SkColorType, kPremul_SkAlphaType));
     if (!surface) {
@@ -84,7 +88,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
     surface->getCanvas()->drawImage(srcImage, 0, 0);
-    surface->flushAndSubmit();
+    dContext->flushAndSubmit(surface);
 
     std::vector<uint8_t> readbackData(kImageWidth * kImageHeight * 4);
     if (!surface->readPixels(SkImageInfo::Make(kImageWidth, kImageHeight, kRGBA_8888_SkColorType,
@@ -153,7 +157,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_NoYcbcrSurface,
     }
 
     GrBackendTexture texture = testHelper.directContext()->createBackendTexture(
-            kImageWidth, kImageHeight, GrBackendFormat::MakeVk(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM),
+            kImageWidth, kImageHeight, GrBackendFormats::MakeVk(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM),
             GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     if (texture.isValid()) {
         ERRORF(reporter,

@@ -123,6 +123,34 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soun
       return this._setColor(key, cPtr);
     };
 
+    CanvasKit.ManagedAnimation.prototype.setColorSlot = function(key, color) {
+      var cPtr = copyColorToWasm(color);
+      return this._setColorSlot(key, cPtr);
+    };
+
+    CanvasKit.ManagedAnimation.prototype.getColorSlot = function(key) {
+      this._getColorSlot(key, _scratchColorPtr);
+      var fourFloats = copyColorFromWasm(_scratchColorPtr);
+      if (fourFloats[0] == -1) {
+        return null;
+      }
+      return fourFloats;
+    }
+
+    CanvasKit.ManagedAnimation.prototype.setVec2Slot = function(key, vec) {
+      copy1dArray(vec, 'HEAPF32', _scratchThreeFloatsAPtr);
+      return this._setVec2Slot(key, _scratchThreeFloatsAPtr);
+    };
+
+    CanvasKit.ManagedAnimation.prototype.getVec2Slot = function(key) {
+      this._getVec2Slot(key, _scratchThreeFloatsAPtr);
+      var ta = _scratchThreeFloatsA['toTypedArray']();
+      if (ta[2] === -1) {
+        return null;
+      }
+      return ta.slice(0, 2);
+    }
+
     CanvasKit.ManagedAnimation.prototype.setTransform = function(key, anchor, position, scale, rotation, skew, skew_axis) {
       let transformData = [anchor[0], anchor[1], position[0], position[1], scale[0], scale[1], rotation, skew, skew_axis];
       const tPtr = copy1dArray(transformData, 'HEAPF32', _scratch3x3MatrixPtr);

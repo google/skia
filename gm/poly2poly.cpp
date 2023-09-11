@@ -30,14 +30,9 @@ public:
     Poly2PolyGM() {}
 
 protected:
+    SkString getName() const override { return SkString("poly2poly"); }
 
-    SkString onShortName() override {
-        return SkString("poly2poly");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(835, 840);
-    }
+    SkISize getISize() override { return SkISize::Make(835, 840); }
 
     static void doDraw(SkCanvas* canvas, const SkFont& font, SkPaint* paint, const int isrc[],
                        const int idst[], int count) {

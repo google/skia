@@ -77,11 +77,8 @@ public:
 
     GrStyledShape(const SkRRect& rrect, const GrStyle& style,
                   DoSimplify doSimplify = DoSimplify::kYes)
-            : fShape(rrect), fStyle(style) {
-        if (doSimplify == DoSimplify::kYes) {
-            this->simplify();
-        }
-    }
+            // Preserve legacy indices (6 for CW), see SkPathBuilder::addRRect().
+            : GrStyledShape(rrect, SkPathDirection::kCW, 6, false, style, doSimplify) {}
 
     GrStyledShape(const SkRRect& rrect, SkPathDirection dir, unsigned start, bool inverted,
                   const GrStyle& style, DoSimplify doSimplify = DoSimplify::kYes)

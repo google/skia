@@ -11,7 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSwizzle.h"
 #include "src/codec/SkSampler.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "tests/Test.h"
 
 #include <cstdint>

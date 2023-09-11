@@ -86,7 +86,7 @@ void SkRescaleAndReadPixels(SkBitmap bmp,
         // Promote to F16 color type to preserve precision.
         auto ii = SkImageInfo::Make(srcW, srcH, kRGBA_F16_SkColorType, bmp.info().alphaType(),
                                     std::move(cs));
-        auto linearSurf = SkSurface::MakeRaster(ii);
+        auto linearSurf = SkSurfaces::Raster(ii);
         if (!linearSurf) {
             callback(context, nullptr);
             return;
@@ -99,7 +99,7 @@ void SkRescaleAndReadPixels(SkBitmap bmp,
         constraint = SkCanvas::kFast_SrcRectConstraint;
     } else {
         // MakeFromBitmap would trigger a copy if bmp is mutable.
-        srcImage = SkImage::MakeFromRaster(bmp.pixmap(), nullptr, nullptr);
+        srcImage = SkImages::RasterFromPixmap(bmp.pixmap(), nullptr, nullptr);
     }
     while (stepsX || stepsY) {
         int nextW = resultInfo.width();
@@ -127,7 +127,7 @@ void SkRescaleAndReadPixels(SkBitmap bmp,
             // Might as well fold conversion to final info in the last step.
             ii = resultInfo;
         }
-        auto next = SkSurface::MakeRaster(ii);
+        auto next = SkSurfaces::Raster(ii);
         if (!next) {
             callback(context, nullptr);
             return;

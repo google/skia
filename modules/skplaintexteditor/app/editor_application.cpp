@@ -6,7 +6,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
+#include "src/base/SkTime.h"
 
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
@@ -16,6 +16,7 @@
 
 #include "third_party/icu/SkLoadICU.h"
 
+#include <cfloat>
 #include <fstream>
 #include <memory>
 
@@ -169,7 +170,7 @@ struct EditorLayer : public sk_app::Window::Layer {
 
     void inval() { if (fParent) { fParent->inval(); } }
 
-    bool onMouseWheel(float delta, skui::ModifierKey) override {
+    bool onMouseWheel(float delta, int, int, skui::ModifierKey) override {
         this->scroll(-(int)(delta * fEditor.font().getSpacing()));
         return true;
     }
@@ -372,8 +373,6 @@ static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kVul
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kMetal_BackendType;
 #elif SK_GL
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kNativeGL_BackendType;
-#elif SK_DAWN
-static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kDawn_BackendType;
 #else
 static constexpr sk_app::Window::BackendType kBackendType = sk_app::Window::kRaster_BackendType;
 #endif

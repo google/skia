@@ -1,0 +1,7 @@
+/*#pragma settings NoOptimize*/
+
+void d(int)        { int b=4; }
+void c(int i)      { d(i); }
+void b(int i)      { c(i); }
+void a(int i)      { b(i); b(i); }
+half4 main(float2) { int i; a(i); return half4(0); }

@@ -57,13 +57,9 @@ public:
         fPicture = recorder.finishRecordingAsPicture();
     }
 
-    SkString onShortName() override {
-        return SkString("pictureshadercache");
-    }
+    SkString getName() const override { return SkString("pictureshadercache"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(100, 100);
-    }
+    SkISize getISize() override { return SkISize::Make(100, 100); }
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
@@ -80,7 +76,7 @@ public:
             sk_sp<SkColorSpace> gty = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
                                                             greenToYellow);
             SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100, std::move(gty));
-            sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
+            sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
             surface->getCanvas()->drawRect(SkRect::MakeWH(fTileSize, fTileSize), paint);
         }
 

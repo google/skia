@@ -52,8 +52,7 @@ bool test_Xno_Xop_Xvec2_XX_Xmat2_Xb() {
     const vec2 i = vec2(1.0);
     const vec2 z = vec2(0.0);
     vec2 v;
-    vec2 vv;
-    vv = vec2(0.0);
+    vec2 vv = vec2(0.0);
     vv = vec2(0.0);
     if (vv != z) return false;
     v = i * testMatrix2x2;
@@ -70,8 +69,7 @@ bool test_Xno_Xop_Xvec3_XX_Xmat3_Xb() {
     const vec3 i = vec3(1.0);
     const vec3 z = vec3(0.0);
     vec3 v;
-    vec3 vv;
-    vv = vec3(0.0);
+    vec3 vv = vec3(0.0);
     vv = vec3(0.0);
     if (vv != z) return false;
     v = i * testMatrix3x3;
@@ -89,8 +87,7 @@ bool test_Xno_Xop_Xvec4_XX_Xmat4_Xb() {
     const vec4 z = vec4(0.0);
     mat4 testMatrix4x4 = mat4(testMatrix2x2[0], testMatrix2x2[1], testMatrix2x2[0], testMatrix2x2[1], testMatrix2x2[0], testMatrix2x2[1], testMatrix2x2[0], testMatrix2x2[1]);
     vec4 v;
-    vec4 vv;
-    vv = vec4(0.0);
+    vec4 vv = vec4(0.0);
     vv = vec4(0.0);
     if (vv != z) return false;
     v = i * testMatrix4x4;

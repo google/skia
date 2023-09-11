@@ -1,4 +1,72 @@
-### Compilation failed:
+57 instructions
 
-error: code is not supported
-1 error
+[immutable slots]
+i0 = 0x3F800000 (1.0)
+i1 = 0x40000000 (2.0)
+i2 = 0x3F800000 (1.0)
+i3 = 0x40000000 (2.0)
+i4 = 0x40800000 (4.0)
+i5 = 0x3F800000 (1.0)
+i6 = 0x40000000 (2.0)
+i7 = 0x40800000 (4.0)
+i8 = 0x41000000 (8.0)
+
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_uniform                   $4 = inputVal(0)
+exp2_float                     $4 = exp2($4)
+copy_uniform                   $5 = expected(0)
+cmpeq_float                    $4 = equal($4, $5)
+copy_2_uniforms                $5..6 = inputVal(0..1)
+exp2_float                     $5 = exp2($5)
+exp2_float                     $6 = exp2($6)
+copy_2_uniforms                $7..8 = expected(0..1)
+cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_3_uniforms                $5..7 = inputVal(0..2)
+exp2_float                     $5 = exp2($5)
+exp2_float                     $6 = exp2($6)
+exp2_float                     $7 = exp2($7)
+copy_3_uniforms                $8..10 = expected(0..2)
+cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+bitwise_and_int                $6 &= $7
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_4_uniforms                $5..8 = inputVal
+exp2_float                     $5 = exp2($5)
+exp2_float                     $6 = exp2($6)
+exp2_float                     $7 = exp2($7)
+exp2_float                     $8 = exp2($8)
+copy_4_uniforms                $9..12 = expected
+cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+bitwise_and_2_ints             $5..6 &= $7..8
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_uniform                   $5 = expected(0)
+cmpeq_imm_float                $5 = equal($5, 0x3F800000 (1.0))
+bitwise_and_int                $4 &= $5
+copy_2_immutables_unmasked     $5..6 = i0..1 [0x3F800000 (1.0), 0x40000000 (2.0)]
+copy_2_uniforms                $7..8 = expected(0..1)
+cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_3_immutables_unmasked     $5..7 = i2..4 [0x3F800000 (1.0), 0x40000000 (2.0), 0x40800000 (4.0)]
+copy_3_uniforms                $8..10 = expected(0..2)
+cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+bitwise_and_int                $6 &= $7
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_4_immutables_unmasked     $5..8 = i5..8 [0x3F800000 (1.0), 0x40000000 (2.0), 0x40800000 (4.0), 0x41000000 (8.0)]
+copy_4_uniforms                $9..12 = expected
+cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+bitwise_and_2_ints             $5..6 &= $7..8
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+branch_if_no_active_lanes_eq   branch +3 (label 0 at #56) if no lanes of $4 == 0xFFFFFFFF
+copy_4_uniforms                $0..3 = colorGreen
+jump                           jump +3 (label 1 at #58)
+label                          label 0
+copy_4_uniforms                $0..3 = colorRed
+label                          label 0x00000001
+load_src                       src.rgba = $0..3

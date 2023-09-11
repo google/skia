@@ -51,16 +51,36 @@ public:
      *  Attempt to map the rect through the inverse of the matrix. If it is not invertible,
      *  then this returns false and dst is unchanged.
      */
-    static bool SK_WARN_UNUSED_RESULT InverseMapRect(const SkMatrix& mx,
-                                                     SkRect* dst, const SkRect& src) {
-        if (mx.getType() <= SkMatrix::kTranslate_Mask) {
-            SkScalar tx = mx.getTranslateX();
-            SkScalar ty = mx.getTranslateY();
-            skvx::float4 trans(tx, ty, tx, ty);
-            (skvx::float4::Load(&src.fLeft) - trans).store(&dst->fLeft);
+    [[nodiscard]] static bool InverseMapRect(const SkMatrix& mx, SkRect* dst, const SkRect& src) {
+        if (mx.isScaleTranslate()) {
+            // A scale-translate matrix with a 0 scale factor is not invertible.
+            if (mx.getScaleX() == 0.f || mx.getScaleY() == 0.f) {
+                return false;
+            }
+
+            const SkScalar tx = mx.getTranslateX();
+            const SkScalar ty = mx.getTranslateY();
+            // mx maps coordinates as ((sx*x + tx), (sy*y + ty)) so the inverse is
+            // ((x - tx)/sx), (y - ty)/sy). If sx or sy are negative, we have to swap the edge
+            // values to maintain a sorted rect.
+            auto inverted = skvx::float4::Load(&src.fLeft);
+            inverted -= skvx::float4(tx, ty, tx, ty);
+
+            if (mx.getType() > SkMatrix::kTranslate_Mask) {
+                const SkScalar sx = 1.f / mx.getScaleX();
+                const SkScalar sy = 1.f / mx.getScaleY();
+                inverted *= skvx::float4(sx, sy, sx, sy);
+                if (sx < 0.f && sy < 0.f) {
+                    inverted = skvx::shuffle<2, 3, 0, 1>(inverted); // swap L|R and T|B
+                } else if (sx < 0.f) {
+                    inverted = skvx::shuffle<2, 1, 0, 3>(inverted); // swap L|R
+                } else if (sy < 0.f) {
+                    inverted = skvx::shuffle<0, 3, 2, 1>(inverted); // swap T|B
+                }
+            }
+            inverted.store(&dst->fLeft);
             return true;
         }
-        // Insert other special-cases here (e.g. scale+translate)
 
         // general case
         SkMatrix inverse;

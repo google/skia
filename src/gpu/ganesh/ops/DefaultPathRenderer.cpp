@@ -31,6 +31,8 @@
 #include "src/gpu/ganesh/ops/GrPathStencilSettings.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
+using namespace skia_private;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
 
@@ -545,7 +547,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string = SkStringPrintf("Color: 0x%08x Count: %d\n",
                                          fColor.toBytes_RGBA(), fPaths.size());
@@ -567,7 +569,7 @@ private:
         SkScalar fTolerance;
     };
 
-    SkSTArray<1, PathData, true> fPaths;
+    STArray<1, PathData, true> fPaths;
     Helper fHelper;
     SkPMColor4f fColor;
     uint8_t fCoverage;
@@ -584,7 +586,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
@@ -613,9 +615,9 @@ GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
-bool DefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
+bool DefaultPathRenderer::internalDrawPath(skgpu::ganesh::SurfaceDrawContext* sdc,
                                            GrPaint&& paint,
                                            GrAAType aaType,
                                            const GrUserStencilSettings& userStencilSettings,
@@ -760,7 +762,6 @@ bool DefaultPathRenderer::internalDrawPath(skgpu::v1::SurfaceDrawContext* sdc,
     return true;
 }
 
-
 PathRenderer::StencilSupport
 DefaultPathRenderer::onGetStencilSupport(const GrStyledShape& shape) const {
     if (single_pass_shape(shape)) {
@@ -784,6 +785,12 @@ PathRenderer::CanDrawPath DefaultPathRenderer::onCanDrawPath(const CanDrawPathAr
     }
     // This can draw any path with any simple fill style.
     if (!args.fShape->style().isSimpleFill() && !isHairline) {
+        return CanDrawPath::kNo;
+    }
+    // Don't try to draw hairlines with DefaultPathRenderer if avoidLineDraws is true.
+    // Alternatively, we could try to implement hairline draws without line primitives in
+    // DefaultPathRenderer, but this is simpler.
+    if (args.fCaps->avoidLineDraws() && isHairline) {
         return CanDrawPath::kNo;
     }
     // This is the fallback renderer for when a path is too complicated for the others to draw.
@@ -815,4 +822,4 @@ void DefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
             args.fClip, *args.fViewMatrix, *args.fShape, true);
 }
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh

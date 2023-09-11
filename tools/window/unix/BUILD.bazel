@@ -1,0 +1,38 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "srcs",
+    testonly = True,
+    srcs = [
+        "RasterWindowContext_unix.cpp",
+        "WindowContextFactory_unix.h",
+    ] + select({
+        "//src/gpu:gl_ganesh": ["GLWindowContext_unix.cpp"],
+        "//src/gpu:vulkan_ganesh": ["VulkanWindowContext_unix.cpp"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//tools/window:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    testonly = True,
+    linkopts = [
+        "-lX11",
+        "-lxcb",  # dep of X11
+        "-lXau",  # dep of xcb
+        "-lXdmcp",  # dep of xcb
+    ] + select({
+        "//src/gpu:vulkan_ganesh": ["-lX11-xcb"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//tools/sk_app:__pkg__"],
+    deps = select({
+        "//src/gpu:vulkan_ganesh": ["//tools/gpu/vk:testutils"],
+        "//conditions:default": [],
+    }),
+)

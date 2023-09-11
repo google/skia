@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkPoint.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkPointPriv.h"
@@ -15,20 +14,20 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPoint::scale(SkScalar scale, SkPoint* dst) const {
+void SkPoint::scale(float scale, SkPoint* dst) const {
     SkASSERT(dst);
     dst->set(fX * scale, fY * scale);
 }
 
 bool SkPoint::normalize() {
-    return this->setLength(fX, fY, SK_Scalar1);
+    return this->setLength(fX, fY, 1);
 }
 
-bool SkPoint::setNormalize(SkScalar x, SkScalar y) {
-    return this->setLength(x, y, SK_Scalar1);
+bool SkPoint::setNormalize(float x, float y) {
+    return this->setLength(x, y, 1);
 }
 
-bool SkPoint::setLength(SkScalar length) {
+bool SkPoint::setLength(float length) {
     return this->setLength(fX, fY, length);
 }
 
@@ -69,7 +68,7 @@ template <bool use_rsqrt> bool set_point_length(SkPoint* pt, float x, float y, f
     return true;
 }
 
-SkScalar SkPoint::Normalize(SkPoint* pt) {
+float SkPoint::Normalize(SkPoint* pt) {
     float mag;
     if (set_point_length<false>(pt, pt->fX, pt->fY, 1.0f, &mag)) {
         return mag;
@@ -77,9 +76,9 @@ SkScalar SkPoint::Normalize(SkPoint* pt) {
     return 0;
 }
 
-SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
+float SkPoint::Length(float dx, float dy) {
     float mag2 = dx * dx + dy * dy;
-    if (SkScalarIsFinite(mag2)) {
+    if (sk_float_isfinite(mag2)) {
         return sk_float_sqrt(mag2);
     } else {
         double xx = dx;
@@ -99,36 +98,36 @@ bool SkPointPriv::SetLengthFast(SkPoint* pt, float length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkScalar SkPointPriv::DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint& a,
+float SkPointPriv::DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint& a,
                                                const SkPoint& b,
                                                Side* side) {
 
     SkVector u = b - a;
     SkVector v = pt - a;
 
-    SkScalar uLengthSqd = LengthSqd(u);
-    SkScalar det = u.cross(v);
+    float uLengthSqd = LengthSqd(u);
+    float det = u.cross(v);
     if (side) {
         SkASSERT(-1 == kLeft_Side &&
                   0 == kOn_Side &&
                   1 == kRight_Side);
-        *side = (Side) SkScalarSignAsInt(det);
+        *side = (Side)sk_float_sgn(det);
     }
-    SkScalar temp = sk_ieee_float_divide(det, uLengthSqd);
+    float temp = sk_ieee_float_divide(det, uLengthSqd);
     temp *= det;
     // It's possible we have a degenerate line vector, or we're so far away it looks degenerate
     // In this case, return squared distance to point A.
-    if (!SkScalarIsFinite(temp)) {
+    if (!sk_float_isfinite(temp)) {
         return LengthSqd(v);
     }
     return temp;
 }
 
-SkScalar SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const SkPoint& a,
+float SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const SkPoint& a,
                                                       const SkPoint& b) {
     // See comments to distanceToLineBetweenSqd. If the projection of c onto
     // u is between a and b then this returns the same result as that
-    // function. Otherwise, it returns the distance to the closer of a and
+    // function. Otherwise, it returns the distance to the closest of a and
     // b. Let the projection of v onto u be v'.  There are three cases:
     //    1. v' points opposite to u. c is not between a and b and is closer
     //       to a than b.
@@ -136,17 +135,17 @@ SkScalar SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const S
     //       a and b and the distance to the segment is the same as distance
     //       to the line ab.
     //    3. v' points along u and has greater magnitude than u. c is not
-    //       not between a and b and is closer to b than a.
+    //       between a and b and is closer to b than a.
     // v' = (u dot v) * u / |u|. So if (u dot v)/|u| is less than zero we're
-    // in case 1. If (u dot v)/|u| is > |u| we are in case 3. Otherwise
+    // in case 1. If (u dot v)/|u| is > |u| we are in case 3. Otherwise,
     // we're in case 2. We actually compare (u dot v) to 0 and |u|^2 to
     // avoid a sqrt to compute |u|.
 
     SkVector u = b - a;
     SkVector v = pt - a;
 
-    SkScalar uLengthSqd = LengthSqd(u);
-    SkScalar uDotV = SkPoint::DotProduct(u, v);
+    float uLengthSqd = LengthSqd(u);
+    float uDotV = SkPoint::DotProduct(u, v);
 
     // closest point is point A
     if (uDotV <= 0) {
@@ -156,12 +155,12 @@ SkScalar SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const S
         return DistanceToSqd(b, pt);
     // closest point is inside segment
     } else {
-        SkScalar det = u.cross(v);
-        SkScalar temp = sk_ieee_float_divide(det, uLengthSqd);
+        float det = u.cross(v);
+        float temp = sk_ieee_float_divide(det, uLengthSqd);
         temp *= det;
         // It's possible we have a degenerate segment, or we're so far away it looks degenerate
         // In this case, return squared distance to point A.
-        if (!SkScalarIsFinite(temp)) {
+        if (!sk_float_isfinite(temp)) {
             return LengthSqd(v);
         }
         return temp;

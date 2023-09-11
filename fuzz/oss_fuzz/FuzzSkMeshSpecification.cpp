@@ -10,12 +10,16 @@
 
 #include "fuzz/Fuzz.h"
 
+using namespace skia_private;
+
 template <typename T>
 T extract(SkSpan<const uint8_t>& data) {
     T result = 0;
     size_t bytesToCopy = std::min(sizeof(T), data.size());
-    memcpy(&result, &data.front(), bytesToCopy);
-    data = data.subspan(bytesToCopy);
+    if (bytesToCopy > 0) {
+        memcpy(&result, &data.front(), bytesToCopy);
+        data = data.subspan(bytesToCopy);
+    }
     return result;
 }
 
@@ -23,8 +27,8 @@ static void FuzzSkMeshSpecification(SkSpan<const uint8_t> data) {
     using Attribute = SkMeshSpecification::Attribute;
     using Varying = SkMeshSpecification::Varying;
 
-    SkSTArray<SkMeshSpecification::kMaxAttributes, Attribute> attributes;
-    SkSTArray<SkMeshSpecification::kMaxVaryings,   Varying>   varyings;
+    STArray<SkMeshSpecification::kMaxAttributes, Attribute> attributes;
+    STArray<SkMeshSpecification::kMaxVaryings,   Varying>   varyings;
     size_t vertexStride;
     SkString vs, fs;
 
@@ -151,6 +155,10 @@ static void FuzzSkMeshSpecification(SkSpan<const uint8_t> data) {
 
     while (!data.empty()) {
         uint8_t control = extract<uint8_t>(data) % 4;
+        // A control code with no payload can be ignored.
+        if (data.empty()) {
+            break;
+        }
         switch (control) {
             case 0: {
                 // Add an attribute.

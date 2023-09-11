@@ -50,13 +50,9 @@ protected:
         fBlob = builder.make();
     }
 
-    SkString onShortName() override {
-        return SkString("textblobblockreordering");
-    }
+    SkString getName() const override { return SkString("textblobblockreordering"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(kWidth, kHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     // This draws the same text blob 3 times.  The second draw used a different xfer mode so its
     // GrDrawOp doesn't get combined with the first and third. Ultimately, they will be flushed in

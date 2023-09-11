@@ -7,12 +7,12 @@
 
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 
-#include "include/sksl/SkSLErrorReporter.h"
-#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
@@ -31,7 +31,7 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     }
     if (ifTrue->type().componentType().isOpaque()) {
         context.fErrors->error(pos, "ternary expression of opaque type '" +
-                ifTrue->type().displayName() + "' not allowed");
+                                    ifTrue->type().displayName() + "' is not allowed");
         return nullptr;
     }
     const Type* trueType;
@@ -41,14 +41,19 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
     if (!equalityOp.determineBinaryType(context, ifTrue->type(), ifFalse->type(),
                                         &trueType, &falseType, &resultType) ||
         !trueType->matches(*falseType)) {
-        context.fErrors->error(ifTrue->fPosition.rangeThrough(ifFalse->fPosition),
-                "ternary operator result mismatch: '" + ifTrue->type().displayName() + "', '" +
-                ifFalse->type().displayName() + "'");
+        Position errorPos = ifTrue->fPosition.rangeThrough(ifFalse->fPosition);
+        if (ifTrue->type().isVoid()) {
+            context.fErrors->error(errorPos, "ternary expression of type 'void' is not allowed");
+        } else {
+            context.fErrors->error(errorPos, "ternary operator result mismatch: '" +
+                                             ifTrue->type().displayName() + "', '" +
+                                             ifFalse->type().displayName() + "'");
+        }
         return nullptr;
     }
-    if (context.fConfig->strictES2Mode() && trueType->isOrContainsArray()) {
+    if (trueType->isOrContainsArray()) {
         context.fErrors->error(pos, "ternary operator result may not be an array (or struct "
-                "containing an array)");
+                                    "containing an array)");
         return nullptr;
     }
     ifTrue = trueType->coerceExpression(std::move(ifTrue), context);

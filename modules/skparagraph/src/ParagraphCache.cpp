@@ -5,23 +5,26 @@
 #include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 
+using namespace skia_private;
+
 namespace skia {
 namespace textlayout {
 
 namespace {
-    SkScalar relax(SkScalar a) {
+    int32_t relax(SkScalar a) {
         // This rounding is done to match Flutter tests. Must be removed..
         if (SkScalarIsFinite(a)) {
           auto threshold = SkIntToScalar(1 << 12);
-          return SkScalarRoundToScalar(a * threshold)/threshold;
+          return SkFloat2Bits(SkScalarRoundToScalar(a * threshold)/threshold);
         } else {
-          return a;
+          return SkFloat2Bits(a);
         }
     }
 
     bool exactlyEqual(SkScalar x, SkScalar y) {
         return x == y || (x != x && y != y);
     }
+
 }  // namespace
 
 class ParagraphCacheKey {
@@ -56,8 +59,8 @@ private:
     uint32_t computeHash() const;
 
     SkString fText;
-    SkTArray<Placeholder, true> fPlaceholders;
-    SkTArray<Block, true> fTextStyles;
+    TArray<Placeholder, true> fPlaceholders;
+    TArray<Block, true> fTextStyles;
     ParagraphStyle fParagraphStyle;
     uint32_t fHash;
 };
@@ -80,11 +83,11 @@ public:
     ParagraphCacheKey fKey;
 
     // Shaped results
-    SkTArray<Run, false> fRuns;
-    SkTArray<Cluster, true> fClusters;
-    SkTArray<size_t, true> fClustersIndexFromCodeUnit;
+    TArray<Run, false> fRuns;
+    TArray<Cluster, true> fClusters;
+    TArray<size_t, true> fClustersIndexFromCodeUnit;
     // ICU results
-    SkTArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
+    TArray<SkUnicode::CodeUnitFlags, true> fCodeUnitProperties;
     std::vector<size_t> fWords;
     std::vector<SkUnicode::BidiRegion> fBidiRegions;
     bool fHasLineBreaks;
@@ -100,13 +103,12 @@ uint32_t ParagraphCacheKey::mix(uint32_t hash, uint32_t data) {
 }
 
 uint32_t ParagraphCacheKey::computeHash() const {
-    uint32_t hash = 0;
+uint32_t hash = 0;
     for (auto& ph : fPlaceholders) {
         if (ph.fRange.width() == 0) {
             continue;
         }
-        hash = mix(hash, SkGoodHash()(ph.fRange.start));
-        hash = mix(hash, SkGoodHash()(ph.fRange.end));
+        hash = mix(hash, SkGoodHash()(ph.fRange));
         hash = mix(hash, SkGoodHash()(relax(ph.fStyle.fHeight)));
         hash = mix(hash, SkGoodHash()(relax(ph.fStyle.fWidth)));
         hash = mix(hash, SkGoodHash()(ph.fStyle.fAlignment));

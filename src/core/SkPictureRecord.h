@@ -10,16 +10,49 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCanvasVirtualEnforcer.h"
-#include "include/core/SkFlattenable.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkPictureData.h"
+#include "include/private/chromium/Slug.h"
+#include "src/core/SkPictureFlat.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkWriter32.h"
+
+#include <cstddef>
+#include <cstdint>
+
+class SkBitmap;
+class SkMatrix;
+class SkPixmap;
+class SkRRect;
+class SkRegion;
+class SkShader;
+class SkSurface;
+class SkSurfaceProps;
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkDrawShadowRec;
+struct SkIRect;
+struct SkISize;
+struct SkImageInfo;
+struct SkPoint;
+struct SkRSXform;
+struct SkRect;
+
 
 // These macros help with packing and unpacking a single byte value and
 // a 3 byte value into/out of a uint32_t
@@ -48,11 +81,9 @@ public:
         return fTextBlobs;
     }
 
-#if defined(SK_GANESH)
     const skia_private::TArray<sk_sp<const sktext::gpu::Slug>>& getSlugs() const {
         return fSlugs;
     }
-#endif
 
     const skia_private::TArray<sk_sp<const SkVertices>>& getVertices() const {
         return fVertices;
@@ -164,8 +195,6 @@ protected:
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     bool onPeekPixels(SkPixmap*) override { return false; }
 
-    void onFlush() override;
-
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     bool onDoSaveBehind(const SkRect*) override;
@@ -180,9 +209,7 @@ protected:
 
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) override;
-#if defined(SK_GANESH)
     void onDrawSlug(const sktext::gpu::Slug* slug) override;
-#endif
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint) override;
 
@@ -247,7 +274,7 @@ private:
     struct PathHash {
         uint32_t operator()(const SkPath& p) { return p.getGenerationID(); }
     };
-    SkTHashMap<SkPath, int, PathHash> fPaths;
+    skia_private::THashMap<SkPath, int, PathHash> fPaths;
 
     SkWriter32 fWriter;
 
@@ -256,16 +283,12 @@ private:
     skia_private::TArray<sk_sp<SkDrawable>>       fDrawables;
     skia_private::TArray<sk_sp<const SkTextBlob>> fTextBlobs;
     skia_private::TArray<sk_sp<const SkVertices>> fVertices;
-#if defined(SK_GANESH)
     skia_private::TArray<sk_sp<const sktext::gpu::Slug>> fSlugs;
-#endif
 
     uint32_t fRecordFlags;
     int      fInitialSaveCount;
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
-
-    using INHERITED = SkCanvasVirtualEnforcer<SkCanvas>;
 };
 
 #endif

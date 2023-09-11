@@ -1,4 +1,61 @@
-### Compilation failed:
+57 instructions
 
-error: code is not supported
-1 error
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_uniform                   $4 = inputVal(0)
+acos_float                     $4 = acos($4)
+copy_uniform                   $5 = expected(0)
+cmpeq_float                    $4 = equal($4, $5)
+copy_2_uniforms                $5..6 = inputVal(0..1)
+acos_float                     $5 = acos($5)
+acos_float                     $6 = acos($6)
+copy_2_uniforms                $7..8 = expected(0..1)
+cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_3_uniforms                $5..7 = inputVal(0..2)
+acos_float                     $5 = acos($5)
+acos_float                     $6 = acos($6)
+acos_float                     $7 = acos($7)
+copy_3_uniforms                $8..10 = expected(0..2)
+cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+bitwise_and_int                $6 &= $7
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_4_uniforms                $5..8 = inputVal
+acos_float                     $5 = acos($5)
+acos_float                     $6 = acos($6)
+acos_float                     $7 = acos($7)
+acos_float                     $8 = acos($8)
+copy_4_uniforms                $9..12 = expected
+cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+bitwise_and_2_ints             $5..6 &= $7..8
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+copy_uniform                   $5 = expected(0)
+cmpeq_imm_float                $5 = equal($5, 0)
+bitwise_and_int                $4 &= $5
+splat_2_constants              $5..6 = 0
+copy_2_uniforms                $7..8 = expected(0..1)
+cmpeq_2_floats                 $5..6 = equal($5..6, $7..8)
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+splat_3_constants              $5..7 = 0
+copy_3_uniforms                $8..10 = expected(0..2)
+cmpeq_3_floats                 $5..7 = equal($5..7, $8..10)
+bitwise_and_int                $6 &= $7
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+splat_4_constants              $5..8 = 0
+copy_4_uniforms                $9..12 = expected
+cmpeq_4_floats                 $5..8 = equal($5..8, $9..12)
+bitwise_and_2_ints             $5..6 &= $7..8
+bitwise_and_int                $5 &= $6
+bitwise_and_int                $4 &= $5
+branch_if_no_active_lanes_eq   branch +3 (label 0 at #56) if no lanes of $4 == 0xFFFFFFFF
+copy_4_uniforms                $0..3 = colorGreen
+jump                           jump +3 (label 1 at #58)
+label                          label 0
+copy_4_uniforms                $0..3 = colorRed
+label                          label 0x00000001
+load_src                       src.rgba = $0..3

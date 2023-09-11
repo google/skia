@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
@@ -35,7 +36,6 @@
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkPathEnums.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkNullCanvas.h"
 #include "include/utils/SkParse.h"
@@ -43,6 +43,7 @@
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -141,7 +142,7 @@ static void test_sect_with_horizontal_needs_pinning() {
 
     // Without the pinning code in sect_with_horizontal(), this would assert in the lineclipper
     SkPaint paint;
-    SkSurface::MakeRasterN32Premul(10, 10)->getCanvas()->drawPath(path, paint);
+    SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10))->getCanvas()->drawPath(path, paint);
 }
 
 static void test_iterative_intersect_line() {
@@ -159,14 +160,13 @@ static void test_iterative_intersect_line() {
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    SkSurface::MakeRasterN32Premul(256, 256)->getCanvas()->drawPath(path, paint);
-
+    SkSurfaces::Raster(SkImageInfo::MakeN32Premul(256, 256))->getCanvas()->drawPath(path, paint);
 }
 
 static void test_path_crbug364224() {
     SkPath path;
     SkPaint paint;
-    auto surface(SkSurface::MakeRasterN32Premul(84, 88));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(84, 88)));
     SkCanvas* canvas = surface->getCanvas();
 
     make_path_crbug364224_simplified(&path);
@@ -177,7 +177,7 @@ static void test_path_crbug364224() {
 }
 
 static void test_draw_AA_path(int width, int height, const SkPath& path) {
-    auto surface(SkSurface::MakeRasterN32Premul(width, height));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height)));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -219,7 +219,7 @@ static void test_fuzz_crbug_647922() {
 }
 
 static void test_fuzz_crbug_662780() {
-    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(250, 250)));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -725,7 +725,7 @@ static void build_big_path(SkPath* path, bool reducedCase) {
 }
 
 static void test_clipped_cubic() {
-    auto surface(SkSurface::MakeRasterN32Premul(640, 480));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(640, 480)));
 
     // This path used to assert, because our cubic-chopping code incorrectly
     // moved control points after the chop. This test should be run in SK_DEBUG
@@ -4536,7 +4536,7 @@ static void test_fuzz_crbug_662952(skiatest::Reporter* reporter) {
     path.lineTo(SkBits2Float(0x4109999a), SkBits2Float(0x411c0000));  // 8.6f, 9.75f
     path.close();
 
-    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     SkPaint paint;
     paint.setAntiAlias(true);
     surface->getCanvas()->clipPath(path, true);
@@ -4544,7 +4544,7 @@ static void test_fuzz_crbug_662952(skiatest::Reporter* reporter) {
 }
 
 static void test_path_crbugskia6003() {
-    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(500, 500)));
     SkCanvas* canvas = surface->getCanvas();
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -4796,7 +4796,9 @@ static void test_skbug_7435() {
     path.quadTo(SkBits2Float(0x7eef4a19), SkBits2Float(0xfef000ee), SkBits2Float(0x7edf4859), SkBits2Float(0xfee000de));  // 1.59035e+38f, -1.5951e+38f, 1.48397e+38f, -1.48876e+38f
     path.lineTo(SkBits2Float(0x7f07a445), SkBits2Float(0xff080087));  // 1.80299e+38f, -1.80778e+38f
     path.close();
-    SkSurface::MakeRasterN32Premul(250, 250, nullptr)->getCanvas()->drawPath(path, paint);
+    SkSurfaces::Raster(SkImageInfo::MakeN32Premul(250, 250), nullptr)
+            ->getCanvas()
+            ->drawPath(path, paint);
 }
 
 static void test_interp(skiatest::Reporter* reporter) {
@@ -4850,7 +4852,9 @@ DEF_TEST(PathBigCubic, reporter) {
     path.moveTo(0, 512);
 
     // this call should not assert
-    SkSurface::MakeRasterN32Premul(255, 255, nullptr)->getCanvas()->drawPath(path, SkPaint());
+    SkSurfaces::Raster(SkImageInfo::MakeN32Premul(255, 255), nullptr)
+            ->getCanvas()
+            ->drawPath(path, SkPaint());
 }
 
 DEF_TEST(PathContains, reporter) {
@@ -5191,7 +5195,7 @@ DEF_TEST(AndroidArc, reporter) {
  *  Try a range of crazy values, just to ensure that we don't assert/crash.
  */
 DEF_TEST(HugeGeometry, reporter) {
-    auto surf = SkSurface::MakeRasterN32Premul(100, 100);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     auto canvas = surf->getCanvas();
 
     const bool aas[] = { false, true };
@@ -5223,7 +5227,7 @@ DEF_TEST(HugeGeometry, reporter) {
 
 // Treat nonfinite paths as "empty" or "full", depending on inverse-filltype
 DEF_TEST(ClipPath_nonfinite, reporter) {
-    auto surf = SkSurface::MakeRasterN32Premul(10, 10);
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10));
     SkCanvas* canvas = surf->getCanvas();
 
     REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
@@ -5446,7 +5450,7 @@ static void draw_triangle(SkCanvas* canvas, const SkPoint pts[]) {
 }
 
 DEF_TEST(triangle_onehalf, reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(100, 100));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100)));
 
     const SkPoint pts[] = {
         {  0.499069244f, 9.63295173f },
@@ -5457,7 +5461,7 @@ DEF_TEST(triangle_onehalf, reporter) {
 }
 
 DEF_TEST(triangle_big, reporter) {
-    auto surface(SkSurface::MakeRasterN32Premul(4, 4304));
+    auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(4, 4304)));
 
     // The first two points, when sent through our fixed-point SkEdge, can walk negative beyond
     // -0.5 due to accumulated += error of the slope. We have since make the bounds calculation
@@ -5806,20 +5810,38 @@ static void test_addPath_and_injected_moveTo(skiatest::Reporter* reporter) {
     };
 
     SkPath path1;
-    SkPath path2;
-
     path1.moveTo(230, 230); // Needed to show the bug: a moveTo before the addRect
+    path1.moveTo(20,30).lineTo(40,30).lineTo(40,50).lineTo(20,50);
+    SkPath path1c(path1);
+    path1c.close();
 
-    // add a rect, but the shape doesn't really matter
-    path1.moveTo(20,30).lineTo(40,30).lineTo(40,50).lineTo(20,50).close();
+    SkPath path2;
+    // If path2 contains zero points, the update calculation isn't tested.
+    path2.moveTo(144, 72);
+    path2.lineTo(146, 72);
+    SkPath path2c(path2);
+    path2c.close();
+    SkPath path3(path2);
+    SkPath path3c(path2c);
 
-    path2.addPath(path1);   // this must correctly update its "last-move-to" so that when
-                            // lineTo is called, it will inject the correct moveTo.
-
-    // at this point, path1 and path2 should be the same...
-
-    test_before_after_lineto(path1, {20,50}, {20,30});
+    // Test addPath, adding a path that ends with close.
+    // The start point of the last contour added,
+    // and the internal flag tracking whether it is closed,
+    // must be updated correctly.
+    path2.addPath(path1c);
+    path2c.addPath(path1c);
+    // At this point, path1c, path2, and path2c should end the same way.
+    test_before_after_lineto(path1c, {20,50}, {20,30});
     test_before_after_lineto(path2, {20,50}, {20,30});
+    test_before_after_lineto(path2c, {20,50}, {20,30});
+
+    // Test addPath, adding a path not ending in close.
+    path3.addPath(path1);
+    path3c.addPath(path1);
+    // At this point, path1, path3, and path3c should end the same way.
+    test_before_after_lineto(path1, {20,50}, {20,50});
+    test_before_after_lineto(path3, {20,50}, {20,50});
+    test_before_after_lineto(path3c, {20,50}, {20,50});
 }
 
 DEF_TEST(pathedger, r) {
@@ -5843,13 +5865,28 @@ DEF_TEST(pathedger, r) {
 }
 
 DEF_TEST(path_addpath_crbug_1153516, r) {
-    // When we add a path to another path, we need to sniff out in case the argument ended
-    // with a kClose, in which case we need to fiddle with our lastMoveIndex (as ::close() does)
+    // When we add a closed path to another path, verify
+    // that the result has the right value for last contour start point.
     SkPath p1, p2;
+    p2.lineTo(10,20);
     p1.addRect({143,226,200,241});
+    p2.addPath(p1);
+    p2.lineTo(262,513); // this should not assert
+    SkPoint rectangleStart = {143, 226};
+    SkPoint lineEnd = {262, 513};
+    SkPoint actualMoveTo = p2.getPoint(p2.countPoints() - 2);
+    REPORTER_ASSERT(r, actualMoveTo == rectangleStart );
+    SkPoint actualLineTo = p2.getPoint(p2.countPoints() - 1);
+    REPORTER_ASSERT(r, actualLineTo == lineEnd);
+
+    // Verify adding a closed path to itself
     p1.addPath(p1);
-    p1.lineTo(262,513); // this should not assert
-}
+    p1.lineTo(262,513);
+    actualMoveTo = p1.getPoint(p1.countPoints() - 2);
+    REPORTER_ASSERT(r, actualMoveTo == rectangleStart );
+    actualLineTo = p1.getPoint(p1.countPoints() - 1);
+    REPORTER_ASSERT(r, actualLineTo == lineEnd);
+ }
 
 DEF_TEST(path_convexity_scale_way_down, r) {
     SkPath path = SkPathBuilder().moveTo(0,0).lineTo(1, 0)
@@ -5920,7 +5957,7 @@ DEF_TEST(path_moveto_twopass_convexity, r) {
 // crbug.com/1154864
 DEF_TEST(path_walk_simple_edges_1154864, r) {
     // Drawing this path triggered an assert in walk_simple_edges:
-    auto surface = SkSurface::MakeRasterN32Premul(32, 32);
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(32, 32));
 
     SkPath path;
     path.setFillType(SkPathFillType::kWinding);

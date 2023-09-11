@@ -8,9 +8,9 @@
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
 
 #include "include/core/SkM44.h"
-#include "include/private/SkSLString.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
+#include "src/sksl/SkSLString.h"
 
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"

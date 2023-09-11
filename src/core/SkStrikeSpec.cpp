@@ -7,21 +7,20 @@
 
 #include "src/core/SkStrikeSpec.h"
 
-#include "include/core/SkGraphics.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
-#include "include/effects/SkDashPathEffect.h"
+#include "include/core/SkSurfaceProps.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/text/StrikeForGPU.h"
 
-#if defined(SK_GANESH) || defined(SK_GRAPHITE)
-#include "src/text/gpu/SDFMaskFilter.h"
-#include "src/text/gpu/SDFTControl.h"
-#include "src/text/gpu/StrikeCache.h"
-#endif
+#include <utility>
 
 SkStrikeSpec::SkStrikeSpec(const SkDescriptor& descriptor, sk_sp<SkTypeface> typeface)
     : fAutoDescriptor{descriptor}
@@ -153,51 +152,6 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
                         SkMatrix::I());
 }
 
-#if (defined(SK_GANESH) || defined(SK_GRAPHITE)) && !defined(SK_DISABLE_SDF_TEXT)
-std::tuple<SkStrikeSpec, SkScalar, sktext::gpu::SDFTMatrixRange>
-SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
-                       const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
-                       const SkPoint& textLocation, const sktext::gpu::SDFTControl& control) {
-    // Add filter to the paint which creates the SDFT data for A8 masks.
-    SkPaint dfPaint{paint};
-    dfPaint.setMaskFilter(sktext::gpu::SDFMaskFilter::Make());
-
-    auto [dfFont, strikeToSourceScale, matrixRange] = control.getSDFFont(font, deviceMatrix,
-                                                                         textLocation);
-
-    // Adjust the stroke width by the scale factor for drawing the SDFT.
-    dfPaint.setStrokeWidth(paint.getStrokeWidth() / strikeToSourceScale);
-
-    // Check for dashing and adjust the intervals.
-    if (SkPathEffect* pathEffect = paint.getPathEffect(); pathEffect != nullptr) {
-        SkPathEffect::DashInfo dashInfo;
-        if (pathEffect->asADash(&dashInfo) == SkPathEffect::kDash_DashType) {
-            if (dashInfo.fCount > 0) {
-                // Allocate the intervals.
-                std::vector<SkScalar> scaledIntervals(dashInfo.fCount);
-                dashInfo.fIntervals = scaledIntervals.data();
-                // Call again to get the interval data.
-                (void)pathEffect->asADash(&dashInfo);
-                for (SkScalar& interval : scaledIntervals) {
-                    interval /= strikeToSourceScale;
-                }
-                auto scaledDashes = SkDashPathEffect::Make(scaledIntervals.data(),
-                                                           scaledIntervals.size(),
-                                                           dashInfo.fPhase / strikeToSourceScale);
-                dfPaint.setPathEffect(scaledDashes);
-            }
-        }
-    }
-
-    // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
-    // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).
-    SkScalerContextFlags flags = SkScalerContextFlags::kNone;
-    SkStrikeSpec strikeSpec(dfFont, dfPaint, surfaceProps, flags, SkMatrix::I());
-
-    return std::make_tuple(std::move(strikeSpec), strikeToSourceScale, matrixRange);
-}
-#endif
-
 SkStrikeSpec::SkStrikeSpec(const SkFont& font, const SkPaint& paint,
                            const SkSurfaceProps& surfaceProps,
                            SkScalerContextFlags scalerContextFlags,
@@ -230,6 +184,8 @@ sk_sp<SkStrike> SkStrikeSpec::findOrCreateStrike(SkStrikeCache* cache) const {
 
 SkBulkGlyphMetrics::SkBulkGlyphMetrics(const SkStrikeSpec& spec)
     : fStrike{spec.findOrCreateStrike()} { }
+
+SkBulkGlyphMetrics::~SkBulkGlyphMetrics() = default;
 
 SkSpan<const SkGlyph*> SkBulkGlyphMetrics::glyphs(SkSpan<const SkGlyphID> glyphIDs) {
     fGlyphs.reset(glyphIDs.size());

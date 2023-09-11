@@ -416,9 +416,9 @@ public:
         }
     }
     AI void writeConic(const SkPoint pts[3], float w) {
-        this->writeConic(skvx::bit_pun<float2>(pts[0]),
-                         skvx::bit_pun<float2>(pts[1]),
-                         skvx::bit_pun<float2>(pts[2]),
+        this->writeConic(sk_bit_cast<float2>(pts[0]),
+                         sk_bit_cast<float2>(pts[1]),
+                         sk_bit_cast<float2>(pts[2]),
                          w);
     }
 
@@ -440,9 +440,9 @@ public:
         }
     }
     AI void writeQuadratic(const SkPoint pts[3]) {
-        this->writeQuadratic(skvx::bit_pun<float2>(pts[0]),
-                             skvx::bit_pun<float2>(pts[1]),
-                             skvx::bit_pun<float2>(pts[2]));
+        this->writeQuadratic(sk_bit_cast<float2>(pts[0]),
+                             sk_bit_cast<float2>(pts[1]),
+                             sk_bit_cast<float2>(pts[2]));
     }
 
     // Write a line that is automatically converted into an equivalent cubic.
@@ -463,7 +463,7 @@ public:
     }
     AI void writeLine(float2 p0, float2 p1) { this->writeLine({p0, p1}); }
     AI void writeLine(SkPoint p0, SkPoint p1) {
-        this->writeLine(skvx::bit_pun<float2>(p0), skvx::bit_pun<float2>(p1));
+        this->writeLine(sk_bit_cast<float2>(p0), sk_bit_cast<float2>(p1));
     }
 
     // Write a triangle by setting it to a conic with w=Inf, and using a distinct
@@ -477,9 +477,9 @@ public:
                          kTriangularConicCurveType);
     }
     AI void writeTriangle(SkPoint p0, SkPoint p1, SkPoint p2) {
-        this->writeTriangle(skvx::bit_pun<float2>(p0),
-                            skvx::bit_pun<float2>(p1),
-                            skvx::bit_pun<float2>(p2));
+        this->writeTriangle(sk_bit_cast<float2>(p0),
+                            sk_bit_cast<float2>(p1),
+                            sk_bit_cast<float2>(p2));
     }
 
     // Writes a circle used for round caps and joins in stroking, encoded as a cubic with
@@ -582,7 +582,7 @@ private:
     // assumed that 'numPatches' is calculated such that the resulting curves require the maximum
     // number of segments to draw appropriately (since the original presumably needed even more).
     void chopAndWriteQuads(float2 p0, float2 p1, float2 p2, int numPatches) {
-        InnerTriangulator triangulator(numPatches, skvx::bit_pun<SkPoint>(p0));
+        InnerTriangulator triangulator(numPatches, sk_bit_cast<SkPoint>(p0));
         for (; numPatches >= 3; numPatches -= 2) {
             // Chop into 3 quads.
             float4 T = float4(1,1,2,2) / numPatches;
@@ -598,7 +598,7 @@ private:
             }
             this->writeCubicPatch(abc.lo, middle, abc.hi);  // Write the 2nd quad (already a cubic)
             if constexpr (kAddTrianglesWhenChopping) {
-                this->writeTriangleStack(triangulator.pushVertex(skvx::bit_pun<SkPoint>(abc.hi)));
+                this->writeTriangleStack(triangulator.pushVertex(sk_bit_cast<SkPoint>(abc.hi)));
             }
             std::tie(p0, p1) = {abc.hi, bc.hi};  // Save the 3rd quad.
         }
@@ -618,13 +618,13 @@ private:
             this->writeQuadPatch(p0, p1, p2);  // Write the single remaining quad.
         }
         if constexpr (kAddTrianglesWhenChopping) {
-            this->writeTriangleStack(triangulator.pushVertex(skvx::bit_pun<SkPoint>(p2)));
+            this->writeTriangleStack(triangulator.pushVertex(sk_bit_cast<SkPoint>(p2)));
             this->writeTriangleStack(triangulator.close());
         }
     }
 
     void chopAndWriteConics(float2 p0, float2 p1, float2 p2, float w, int numPatches) {
-        InnerTriangulator triangulator(numPatches, skvx::bit_pun<SkPoint>(p0));
+        InnerTriangulator triangulator(numPatches, sk_bit_cast<SkPoint>(p0));
         // Load the conic in 3d homogeneous (unprojected) space.
         float4 h0 = float4(p0,1,1);
         float4 h1 = float4(p1,1,1) * w;
@@ -643,7 +643,7 @@ private:
                                   midpoint,
                                   ab.w() / sqrtf(h0.w() * abc.w()));
             if constexpr (kAddTrianglesWhenChopping) {
-                this->writeTriangleStack(triangulator.pushVertex(skvx::bit_pun<SkPoint>(midpoint)));
+                this->writeTriangleStack(triangulator.pushVertex(sk_bit_cast<SkPoint>(midpoint)));
             }
             std::tie(h0, h1) = {abc, bc};  // Save the 2nd conic (in homogeneous space).
         }
@@ -654,13 +654,13 @@ private:
                               h2.xy(), // h2.w == 1
                               h1.w() / sqrtf(h0.w()));
         if constexpr (kAddTrianglesWhenChopping) {
-            this->writeTriangleStack(triangulator.pushVertex(skvx::bit_pun<SkPoint>(h2.xy())));
+            this->writeTriangleStack(triangulator.pushVertex(sk_bit_cast<SkPoint>(h2.xy())));
             this->writeTriangleStack(triangulator.close());
         }
     }
 
     void chopAndWriteCubics(float2 p0, float2 p1, float2 p2, float2 p3, int numPatches) {
-        InnerTriangulator triangulator(numPatches, skvx::bit_pun<SkPoint>(p0));
+        InnerTriangulator triangulator(numPatches, sk_bit_cast<SkPoint>(p0));
         for (; numPatches >= 3; numPatches -= 2) {
             // Chop into 3 cubics.
             float4 T = float4(1,1,2,2) / numPatches;
@@ -678,7 +678,7 @@ private:
             }
             this->writeCubicPatch(abcd.lo, middle, abcd.hi);  // Write the 2nd cubic.
             if constexpr (kAddTrianglesWhenChopping) {
-                this->writeTriangleStack(triangulator.pushVertex(skvx::bit_pun<SkPoint>(abcd.hi)));
+                this->writeTriangleStack(triangulator.pushVertex(sk_bit_cast<SkPoint>(abcd.hi)));
             }
             std::tie(p0, p1, p2) = {abcd.hi, bcd.hi, cd.hi};  // Save the 3rd cubic.
         }
@@ -701,7 +701,7 @@ private:
             this->writeCubicPatch(p0, p1, p2, p3);  // Write the single remaining cubic.
         }
         if constexpr (kAddTrianglesWhenChopping) {
-            this->writeTriangleStack(triangulator.pushVertex(skvx::bit_pun<SkPoint>(p3)));
+            this->writeTriangleStack(triangulator.pushVertex(sk_bit_cast<SkPoint>(p3)));
             this->writeTriangleStack(triangulator.close());
         }
     }

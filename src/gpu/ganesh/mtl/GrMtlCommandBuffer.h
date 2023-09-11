@@ -81,13 +81,13 @@ public:
     void callFinishedCallbacks() { fFinishedCallbacks.clear(); }
 
     void pushDebugGroup(NSString* string) {
-        if (@available(macOS 10.13, iOS 11.0, *)) {
+        if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
             [fCmdBuffer pushDebugGroup:string];
         }
     }
 
     void popDebugGroup() {
-        if (@available(macOS 10.13, iOS 11.0, *)) {
+        if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
             [fCmdBuffer popDebugGroup];
         }
     }
@@ -104,9 +104,10 @@ private:
 
     static const int kInitialTrackedResourcesCount = 32;
 
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrManagedResource>> fTrackedResources;
-    SkSTArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGrBuffers;
-    SkSTArray<16, gr_cb<const GrSurface>> fTrackedGrSurfaces;
+    skia_private::STArray<
+        kInitialTrackedResourcesCount, sk_sp<const GrManagedResource>> fTrackedResources;
+    skia_private::STArray<kInitialTrackedResourcesCount, sk_sp<const GrBuffer>> fTrackedGrBuffers;
+    skia_private::STArray<16, gr_cb<const GrSurface>> fTrackedGrSurfaces;
 
     id<MTLCommandBuffer>        fCmdBuffer;
     id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;
@@ -114,7 +115,7 @@ private:
     MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
     bool                        fHasWork;
 
-    SkTArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
+    skia_private::TArray<sk_sp<skgpu::RefCntedCallback>> fFinishedCallbacks;
 
 };
 

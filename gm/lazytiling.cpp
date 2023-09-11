@@ -13,8 +13,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -148,7 +150,7 @@ static SkBitmap create_bitmap(SkIRect contentRect, SkISize fullSize, GrSurfaceOr
 }
 
 static void draw_texture(const GrCaps* caps,
-                         skgpu::v1::SurfaceDrawContext* sdc,
+                         skgpu::ganesh::SurfaceDrawContext* sdc,
                          const GrSurfaceProxyView& src,
                          const SkIRect& srcRect,
                          const SkIRect& drawRect,
@@ -180,14 +182,11 @@ public:
     }
 
 protected:
-
-    SkString onShortName() override {
+    SkString getName() const override {
         return SkStringPrintf("lazytiling_%s", fOrigin == kTopLeft_GrSurfaceOrigin ? "tl" : "bl");
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(kTotalWidth, kTotalHeight);
-    }
+    SkISize getISize() override { return SkISize::Make(kTotalWidth, kTotalHeight); }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
         auto dContext = GrAsDirectContext(canvas->recordingContext());
@@ -210,7 +209,7 @@ protected:
     }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
         if (!sdc) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;

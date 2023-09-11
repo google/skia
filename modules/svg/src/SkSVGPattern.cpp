@@ -7,8 +7,10 @@
 
 #include "modules/svg/include/SkSVGPattern.h"
 
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 

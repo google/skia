@@ -114,13 +114,9 @@ protected:
                                             SkTileMode::kClamp);
     }
 
-    SkString onShortName() override {
-        return SkString("lumafilter");
-    }
+    SkString getName() const override { return SkString("lumafilter"); }
 
-    SkISize onISize() override {
-        return SkISize::Make(600, 420);
-    }
+    SkISize getISize() override { return SkISize::Make(600, 420); }
 
     void onDraw(SkCanvas* canvas) override {
         SkBlendMode modes[] = {
@@ -179,7 +175,7 @@ DEF_SIMPLE_GM(AlternateLuma, canvas, 384,128) {
     // Normal luma colorfilter on the left.
     SkPaint paint;
     paint.setColorFilter(SkLumaColorFilter::Make());
-    canvas->drawImage(img, 0,0, SkSamplingOptions{}, &paint);
+    canvas->drawImage(img, 0,0, SkFilterMode::kNearest, &paint);
     canvas->translate(128,0);
 
     // Original image in the middle for reference.
@@ -199,5 +195,5 @@ DEF_SIMPLE_GM(AlternateLuma, canvas, 384,128) {
                                                               &SkNamedTransferFn::kLinear,
                                                               &SkNamedGamut::kXYZ,
                                                               &unpremul));
-    canvas->drawImage(img, 0,0, SkSamplingOptions{}, &paint);
+    canvas->drawImage(img, 0,0, SkFilterMode::kNearest, &paint);
 }

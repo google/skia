@@ -7,6 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
@@ -32,7 +33,7 @@ DEF_TEST(PictureShader_caching, reporter) {
     sk_sp<SkPicture> picture = makePicture();
     REPORTER_ASSERT(reporter, picture->unique());
 
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
 
     {
         SkPaint paint;
@@ -90,7 +91,7 @@ DEF_TEST(PictureShader_caching2, reporter) {
 
     // Draw with a view variants of picture-shaders that all use the same picture.
     // Only expect 1 cache entry for all (since same CTM for all).
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     for (SkTileMode m : {
         SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kRepeat, SkTileMode::kDecal
     }) {

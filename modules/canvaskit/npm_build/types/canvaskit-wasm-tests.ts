@@ -436,9 +436,12 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
     paint.setColorFilter(colorFilter);
     paint.setColorInt(CK.ColorAsInt(20, 30, 40));
     paint.setColorInt(CK.ColorAsInt(20, 30, 40), CK.ColorSpace.SRGB);
+    paint.setDither(true);
     paint.setImageFilter(imageFilter);
     paint.setMaskFilter(maskFilter);
     paint.setPathEffect(pathEffect);
+    // @ts-expect-error
+    paint.setShader(colorFilter);
     paint.setShader(shader);
     paint.setStrokeCap(CK.StrokeCap.Round);
     paint.setStrokeJoin(CK.StrokeJoin.Miter);
@@ -556,6 +559,7 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     p.layout(300);
     const m = p.getLineMetrics(); // $ExpectType LineMetrics[]
     const n = CK.GlyphRunFlags.IsWhiteSpace === 1;
+    const o = p.unresolvedCodepoints(); // $ExpectType number[]
 }
 
 function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) {
@@ -617,6 +621,14 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
     builder.setGraphemeBreaksUtf16(new Uint32Array(10));
     builder.setLineBreaksUtf16(new Uint32Array(10));
     const paragraph3 = builder.build(); // $ExpectType Paragraph
+
+    const fontCollection = CK.FontCollection.Make(); // $ExpectType FontCollection
+    fontCollection.enableFontFallback();
+    fontCollection.setDefaultFontManager(fontSrc);
+    const fcBuilder = CK.ParagraphBuilder.MakeFromFontCollection(// $ExpectType ParagraphBuilder
+        paraStyle, fontCollection);
+    fcBuilder.addText('12345');
+    const fcParagraph = fcBuilder.build();
 }
 
 function pathEffectTests(CK: CanvasKit, path?: Path) {
@@ -688,6 +700,8 @@ function pictureTests(CK: CanvasKit) {
     const canvas = recorder.beginRecording(CK.LTRBRect(0, 0, 100, 100));  // $ExpectType Canvas
     const pic = recorder.finishRecordingAsPicture(); // $ExpectType SkPicture
     const bytes = pic.serialize(); // $ExpectType Uint8Array | null
+    const cullRect = pic.cullRect(); // $ExpectType Float32Array
+    const approxBytesUsed = pic.approximateBytesUsed(); // $ExpectType number
     const pic2 = CK.MakePicture(bytes!);
     const shader1 = pic2!.makeShader(CK.TileMode.Clamp, CK.TileMode.Decal, CK.FilterMode.Nearest);
     const shader2 = pic2!.makeShader(CK.TileMode.Clamp, CK.TileMode.Decal, CK.FilterMode.Nearest,
@@ -752,6 +766,16 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     const j = mAnim.setOpacity('foo', 0.5);  // $ExpectType boolean
     const k = mAnim.setText('foo', 'bar', 12);  // $ExpectType boolean
     const l = mAnim.setTransform('foo', [1, 2], [3, 4], [5, 6], 90, 1, 0);  // $ExpectType boolean
+
+    const m = mAnim.setColorSlot('foo', CK.BLUE);  // $ExpectType boolean
+    const n = mAnim.setScalarSlot('foo', 5);  // $ExpectType boolean
+    const o = mAnim.setVec2Slot('foo', [1, 2]); // $ExpectType boolean
+    const p = mAnim.setImageSlot('foo', 'bar'); // $ExpectType boolean
+
+    const q = mAnim.getColorSlot('foo'); // $ExpectType Float32Array | null
+    const r = mAnim.getScalarSlot('foo'); // $ExpectType number | null
+    const s = mAnim.getVec2Slot('foo'); // $ExpectType Float32Array | null
+}
 
 function shaderTests(CK: CanvasKit) {
     const s1 = CK.Shader.MakeColor([0.8, 0.2, 0.5, 0.9], // $ExpectType Shader
@@ -923,8 +947,8 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
     const surfaceNine = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
         CK.ColorSpace.ADOBE_RGB)!;
 
-    var sample = gl.getParameter(gl.SAMPLES);
-    var stencil = gl.getParameter(gl.STENCIL_BITS);
+    const sample = gl.getParameter(gl.SAMPLES);
+    const stencil = gl.getParameter(gl.STENCIL_BITS);
     const surfaceTen = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
         CK.ColorSpace.ADOBE_RGB, sample, stencil)!;
 

@@ -8,11 +8,12 @@
 #include "src/codec/SkCodecImageGenerator.h"
 
 #include "include/codec/SkEncodedOrigin.h"
+#include "include/codec/SkPixmapUtils.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkTypes.h"
-#include "src/codec/SkPixmapUtils.h"
+#include "src/codec/SkPixmapUtilsPriv.h"
 
 #include <utility>
 

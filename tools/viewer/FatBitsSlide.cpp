@@ -109,9 +109,9 @@ public:
         fShader = fShader0;
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-        fMinSurface = SkSurface::MakeRaster(info);
+        fMinSurface = SkSurfaces::Raster(info);
         info = info.makeWH(width * zoom, height * zoom);
-        fMaxSurface = SkSurface::MakeRaster(info);
+        fMaxSurface = SkSurfaces::Raster(info);
     }
 
     void drawBG(SkCanvas*);

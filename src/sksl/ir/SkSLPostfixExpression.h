@@ -8,10 +8,10 @@
 #ifndef SKSL_POSTFIXEXPRESSION
 #define SKSL_POSTFIXEXPRESSION
 
-#include "include/private/SkSLIRNode.h"
-#include "include/sksl/SkSLOperator.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLOperator.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 
 #include <memory>
 #include <string>
@@ -29,9 +29,9 @@ public:
     inline static constexpr Kind kIRNodeKind = Kind::kPostfix;
 
     PostfixExpression(Position pos, std::unique_ptr<Expression> operand, Operator op)
-        : INHERITED(pos, kIRNodeKind, &operand->type())
-        , fOperand(std::move(operand))
-        , fOperator(op) {}
+            : INHERITED(pos, kIRNodeKind, &operand->type())
+            , fOperand(std::move(operand))
+            , fOperator(op) {}
 
     // Creates an SkSL postfix expression; uses the ErrorReporter to report errors.
     static std::unique_ptr<Expression> Convert(const Context& context,

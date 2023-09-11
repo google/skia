@@ -31,9 +31,9 @@ namespace {
 class InternalLinksGM : public skiagm::GM {
     void onOnceBeforeDraw() override { this->setBGColor(0xFFDDDDDD); }
 
-    SkString onShortName() override { return SkString("internal_links"); }
+    SkString getName() const override { return SkString("internal_links"); }
 
-    SkISize onISize() override { return {700, 500}; }
+    SkISize getISize() override { return {700, 500}; }
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkData> name(SkData::MakeWithCString("target-a"));

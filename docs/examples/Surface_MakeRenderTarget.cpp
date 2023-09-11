@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
 
     SkImageInfo info = SkImageInfo::MakeN32(256, 64, kOpaque_SkAlphaType);
     for (auto surfaceOrigin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
-        auto gpuSurface(SkSurface::MakeRenderTarget(
+        auto gpuSurface(SkSurfaces::RenderTarget(
                 dContext, skgpu::Budgeted::kNo, info, 0, surfaceOrigin, nullptr));
         auto surfaceCanvas = gpuSurface->getCanvas();
         surfaceCanvas->clear(SK_ColorWHITE);

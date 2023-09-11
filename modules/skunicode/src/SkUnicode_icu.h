@@ -20,6 +20,7 @@
 
 #define SKICU_EMIT_FUNCS              \
     SKICU_FUNC(u_errorName)           \
+    SKICU_FUNC(u_hasBinaryProperty)   \
     SKICU_FUNC(u_getIntPropertyValue) \
     SKICU_FUNC(u_iscntrl)             \
     SKICU_FUNC(u_isspace)             \
@@ -61,5 +62,8 @@ struct SkICULib {
 
 // Platform/config specific ICU factory.
 std::unique_ptr<SkICULib> SkLoadICULib();
+
+// Get cached already loaded ICU library.
+const SkICULib* SkGetICULib();
 
 #endif // SkUnicode_icu_DEFINED

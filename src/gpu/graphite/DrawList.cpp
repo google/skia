@@ -39,6 +39,16 @@ void DrawList::recordDraw(const Renderer* renderer,
     fDraws.push_back({renderer, this->deduplicateTransform(localToDevice),
                       geometry, clip, ordering, paint, stroke});
     fRenderStepCount += renderer->numRenderSteps();
+
+#if defined(SK_DEBUG)
+    if (geometry.isAtlasShape()) {
+        fAtlasShapeDrawCount++;
+    }
+#endif
+
+    if (paint && paint->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+        fDstCopyBounds.join(clip.drawBounds());
+    }
 }
 
 } // namespace skgpu::graphite

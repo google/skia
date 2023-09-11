@@ -35,7 +35,7 @@ namespace skgpu {
 class SingleOwner;
 }
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceFillContext;
 
@@ -92,6 +92,7 @@ public:
     // GPU implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixelsYUV420.
     void asyncRescaleAndReadPixelsYUV420(GrDirectContext*,
                                          SkYUVColorSpace yuvColorSpace,
+                                         bool readAlpha,
                                          sk_sp<SkColorSpace> dstColorSpace,
                                          const SkIRect& srcRect,
                                          SkISize dstSize,
@@ -162,7 +163,7 @@ public:
                      SkImage::RescaleGamma,
                      SkImage::RescaleMode);
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool testCopy(sk_sp<GrSurfaceProxy> src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
         return this->copy(std::move(src), srcRect, dstPoint) != nullptr;
     }
@@ -192,6 +193,8 @@ protected:
         // If null then the transfer could not be performed. Otherwise this buffer will contain
         // the pixel data when the transfer is complete.
         sk_sp<GrGpuBuffer> fTransferBuffer;
+        // RowBytes for transfer buffer data
+        size_t fRowBytes;
         // If this is null then the transfer buffer will contain the data in the requested
         // color type. Otherwise, when the transfer is done this must be called to convert
         // from the transfer buffer's color type to the requested color type.
@@ -259,6 +262,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SurfaceContext_DEFINED

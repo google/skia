@@ -21,11 +21,9 @@ namespace skiagm {
 // this GM tests hairlines which fill nearly the entire render target
 class StLouisArchGM : public GM {
 protected:
-    SkString onShortName() override {
-        return SkString("stlouisarch");
-    }
+    SkString getName() const override { return SkString("stlouisarch"); }
 
-    SkISize onISize() override { return SkISize::Make((int)kWidth, (int)kHeight); }
+    SkISize getISize() override { return SkISize::Make((int)kWidth, (int)kHeight); }
 
     void onOnceBeforeDraw() override {
         {

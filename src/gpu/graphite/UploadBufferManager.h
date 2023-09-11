@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_UploadBufferManager_DEFINED
 #define skgpu_graphite_UploadBufferManager_DEFINED
 
+#include <tuple>
 #include <vector>
 
 #include "include/core/SkRefCnt.h"

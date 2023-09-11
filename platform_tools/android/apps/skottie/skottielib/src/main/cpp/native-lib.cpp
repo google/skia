@@ -12,7 +12,6 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
 #include "modules/skresources/include/SkResources.h"
 #include <jni.h>
 #include <math.h>
@@ -22,6 +21,8 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -232,13 +233,13 @@ Java_org_skia_skottie_SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
         fboInfo.fFormat = GL_RGBA8;
         colorType = kN32_SkColorType;
     }
-    GrBackendRenderTarget backendRT(width, height, 0, STENCIL_BUFFER_SIZE, fboInfo);
+    fboInfo.fProtected = skgpu::Protected::kNo;
+    auto backendRT = GrBackendRenderTargets::MakeGL(width, height, 0, STENCIL_BUFFER_SIZE, fboInfo);
 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
 
-    sk_sp<SkSurface> renderTarget(SkSurface::MakeFromBackendRenderTarget(
-            dContext, backendRT, kBottomLeft_GrSurfaceOrigin, colorType,
-            nullptr, &props));
+    sk_sp<SkSurface> renderTarget(SkSurfaces::WrapBackendRenderTarget(
+            dContext, backendRT, kBottomLeft_GrSurfaceOrigin, colorType, nullptr, &props));
 
     auto canvas = renderTarget->getCanvas();
     canvas->clear(backgroundColor);
@@ -246,8 +247,7 @@ Java_org_skia_skottie_SkottieAnimation_nDrawFrame(JNIEnv *env, jclass clazz,
     SkAutoCanvasRestore acr(canvas, true);
     SkRect bounds = SkRect::MakeWH(width, height);
     skottieAnimation->mAnimation->render(canvas, &bounds);
-
-    canvas->flush();
+    dContext->flushAndSubmit();
     return true;
 }
 

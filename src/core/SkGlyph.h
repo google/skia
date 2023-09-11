@@ -10,17 +10,18 @@
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkChecksum.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkMask.h"
 
 #include <algorithm>
@@ -31,6 +32,7 @@
 #include <optional>
 
 class SkArenaAlloc;
+class SkCanvas;
 class SkGlyph;
 class SkReadBuffer;
 class SkScalerContext;
@@ -363,7 +365,7 @@ public:
 
     static bool FitsInAtlas(const SkGlyph& glyph);
 
-    // GetKey and Hash implement the required methods for SkTHashTable.
+    // GetKey and Hash implement the required methods for THashTable.
     static SkPackedGlyphID GetKey(SkGlyphDigest digest) {
         return SkPackedGlyphID{SkTo<uint32_t>(digest.fPackedID)};
     }
@@ -393,6 +395,19 @@ private:
     };
     int16_t fLeft, fTop;
     uint16_t fWidth, fHeight;
+};
+
+class SkPictureBackedGlyphDrawable final : public SkDrawable {
+public:
+    static sk_sp<SkPictureBackedGlyphDrawable>MakeFromBuffer(SkReadBuffer& buffer);
+    static void FlattenDrawable(SkWriteBuffer& buffer, SkDrawable* drawable);
+    SkPictureBackedGlyphDrawable(sk_sp<SkPicture> self);
+
+private:
+    sk_sp<SkPicture> fPicture;
+    SkRect onGetBounds() override;
+    size_t onApproximateBytesUsed() override;
+    void onDraw(SkCanvas* canvas) override;
 };
 
 class SkGlyph {
@@ -502,9 +517,11 @@ public:
     }
     bool imageTooLarge() const { return fWidth >= kMaxGlyphWidth; }
 
+    uint16_t extraBits() const { return fScalerContextBits; }
+
     // Make sure that the intercept information is on the glyph and return it, or return it if it
     // already exists.
-    // * bounds - either end of the gap for the character.
+    // * bounds - [0] - top of underline; [1] - bottom of underline.
     // * scale, xPos - information about how wide the gap is.
     // * array - accumulated gaps for many characters if not null.
     // * count - the number of gaps.
@@ -524,7 +541,7 @@ public:
     // Read the image data, store it in the alloc, and add it to the glyph.
     size_t addImageFromBuffer(SkReadBuffer&, SkArenaAlloc*);
 
-    // Flatten just the the path data.
+    // Flatten just the path data.
     void flattenPath(SkWriteBuffer&) const;
 
     // Read the path data, create the glyph's path data in the alloc, and add it to the glyph.
@@ -541,21 +558,7 @@ private:
     // There are two sides to an SkGlyph, the scaler side (things that create glyph data) have
     // access to all the fields. Scalers are assumed to maintain all the SkGlyph invariants. The
     // consumer side has a tighter interface.
-    friend class RandomScalerContext;
     friend class SkScalerContext;
-    friend class SkScalerContextProxy;
-    friend class SkScalerContext_Empty;
-    friend class SkScalerContext_FreeType;
-    friend class SkScalerContext_FreeType_Base;
-    friend class SkScalerContext_DW;
-    friend class SkScalerContext_GDI;
-    friend class SkScalerContext_Mac;
-    friend class SkStrikeClientImpl;
-    friend class SkTestScalerContext;
-    friend class SkTestSVGScalerContext;
-    friend class SkUserScalerContext;
-    friend class TestSVGTypeface;
-    friend class TestTypeface;
     friend class SkGlyphTestPeer;
 
     inline static constexpr uint16_t kMaxGlyphWidth = 1u << 13u;

@@ -8,11 +8,11 @@
 #ifndef SKSL_CONSTRUCTOR_STRUCT
 #define SKSL_CONSTRUCTOR_STRUCT
 
-#include "include/private/SkSLDefines.h"
-#include "include/private/SkSLIRNode.h"
-#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
 
 #include <memory>
 #include <utility>

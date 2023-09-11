@@ -46,8 +46,6 @@ public:
     }
 
 private:
-    inline static constexpr size_t kMinStagingBufferSize = 64 * 1024;
-
     struct StagingBuffer {
         StagingBuffer(sk_sp<GrGpuBuffer> buffer, void* mapPtr)
                 : fBuffer(std::move(buffer))

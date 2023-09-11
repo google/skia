@@ -38,14 +38,12 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkPatchUtils.h"
 
-#if defined(SK_GANESH)
-#include "include/private/chromium/Slug.h"
-#endif
-
 class SkDrawable;
 class SkPath;
 class SkTextBlob;
 class SkVertices;
+
+namespace sktext { namespace gpu { class Slug; } }
 
 using namespace skia_private;
 
@@ -140,7 +138,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->skip(size - 4);
         } break;
         case FLUSH:
-            canvas->flush();
             break;
         case CLIP_PATH: {
             const SkPath& path = fPictureData->getPath(reader);
@@ -633,12 +630,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             canvas->drawTextBlob(blob, x, y, paint);
         } break;
         case DRAW_SLUG: {
-#if defined(SK_GANESH)
             const sktext::gpu::Slug* slug = fPictureData->getSlug(reader);
             BREAK_ON_READ_ERROR(reader);
 
-            slug->draw(canvas);
-#endif
+            canvas->drawSlug(slug);
         } break;
         case DRAW_VERTICES_OBJECT: {
             const SkPaint& paint = fPictureData->requiredPaint(reader);

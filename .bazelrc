@@ -28,6 +28,9 @@ build --host_platform=//bazel/platform:host_with_hermetic_toolchain
 build --extra_toolchains=//toolchain:clang_linux_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_arm64_toolchain
+build --extra_toolchains=//toolchain:clang_host_mac_x64_target_mac_arm64_toolchain
+build --extra_toolchains=//toolchain:linux_amd64_ndk_arm64_toolchain
+build --extra_toolchains=//toolchain:linux_amd64_ndk_arm32_toolchain
 
 # Hide DEBUG messages from Bazel.
 # Many of these are things related to the git checkouts that are not relevent to devs.
@@ -60,8 +63,6 @@ build --flag_alias=disable_native_interface=no//src/gpu/ganesh/gl:enable_native_
 build --flag_alias=enable_native_interface=//src/gpu/ganesh/gl:enable_native_interface
 build --flag_alias=disable_pdf_backend=no//src/pdf:enable_pdf_backend
 build --flag_alias=enable_pdf_backend=//src/pdf:enable_pdf_backend
-build --flag_alias=disable_sksl=no//src/sksl:enable_sksl
-build --flag_alias=enable_sksl=//src/sksl:enable_sksl
 build --flag_alias=disable_skslc=no//src/sksl:enable_skslc
 build --flag_alias=enable_skslc=//src/sksl:enable_skslc
 build --flag_alias=disable_sksl_tracing=no//src/sksl:enable_sksl_tracing
@@ -75,15 +76,19 @@ build --flag_alias=enable_vma=//src/gpu:use_vulkan_memory_allocator
 build --flag_alias=with_default_global_memory_pool=//src/lazy:use_default_global_memory_pool
 build --flag_alias=with_no_global_memory_pool=no//src/lazy:use_default_global_memory_pool
 build --flag_alias=with_harfbuzz=//bazel/common_config_settings:use_harfbuzz
+build --flag_alias=with_fontations=//bazel/common_config_settings:use_fontations
 build --flag_alias=with_no_harfbuzz=no//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_icu=//bazel/common_config_settings:use_icu
 build --flag_alias=with_no_icu=no//bazel/common_config_settings:use_icu
+build --flag_alias=enable_build_for_debugger=//bazel/common_config_settings:build_for_debugger
+build --flag_alias=disable_build_for_debugger=no//bazel/common_config_settings:build_for_debugger
 
 # Flags used by Skia tools, not to be used by clients
 build --flag_alias=force_cpu_tests=//tests:force_cpu_tests
 build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
 build --flag_alias=enable_gpu_test_utils=//src/gpu:enable_gpu_test_utils
 build --flag_alias=compile_generated_cpp_files_for_headers=//bazel/common_config_settings:compile_generated_cpp_files_for_headers
+build --flag_alias=adb_platform=//bazel/adb_test_runner:adb_platform
 
 # Public CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts
@@ -126,9 +131,9 @@ build:remote --spawn_strategy=remote,sandboxed
 # Enable remote execution so actions are performed on the remote systems.
 build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
 
-# No compile task should take more than 180 seconds. Really long running tasks
-# are probably a result of spinning up new workers.
-build:remote --remote_timeout=180
+# Some long running tasks are linking because the workers have relatively little RAM
+# (at least as of now).
+build:remote --remote_timeout=300
 
 # Enable authentication. This will pick up application default credentials by
 # default. You can use --google_credentials=some_file.json to use a service

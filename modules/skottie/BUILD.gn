@@ -7,7 +7,10 @@ import("../../gn/skia.gni")
 
 if (skia_enable_skottie) {
   config("public_config") {
-    defines = [ "SK_ENABLE_SKOTTIE" ]
+    defines = [
+      "SK_ENABLE_SKOTTIE",
+      "SK_ENABLE_SKOTTIE_SKSLEFFECT",
+    ]
     include_dirs = [ "include" ]
   }
 
@@ -38,7 +41,10 @@ if (skia_enable_skottie) {
       public_configs = [ ":utils_config" ]
       configs = [ "../../:skia_private" ]
 
-      sources = [ "utils/SkottieUtils.cpp" ]
+      sources = [
+        "utils/SkottieUtils.cpp",
+        "utils/TextEditor.cpp",
+      ]
       deps = [
         ":skottie",
         "../..:skia",
@@ -59,6 +65,7 @@ if (skia_enable_skottie) {
           "tests/Expression.cpp",
           "tests/Image.cpp",
           "tests/Keyframe.cpp",
+          "tests/PropertyObserver.cpp",
           "tests/Shaper.cpp",
           "tests/Text.cpp",
         ]

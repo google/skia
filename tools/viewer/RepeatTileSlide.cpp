@@ -7,6 +7,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
 #include "tools/viewer/Slide.h"
 
 static void make_bitmap(SkBitmap* bm) {

@@ -8,7 +8,9 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -17,9 +19,6 @@
 #include "src/utils/SkJSON.h"
 
 namespace skottie::internal {
-
-#ifdef SK_ENABLE_SKSL
-
 namespace {
 
 static constexpr char gBulgeDisplacementSkSL[] =
@@ -201,16 +200,11 @@ private:
 
 } // namespace
 
-#endif  // SK_ENABLE_SKSL
-
 sk_sp<sksg::RenderNode> EffectBuilder::attachBulgeEffect(const skjson::ArrayValue& jprops,
                                                              sk_sp<sksg::RenderNode> layer) const {
-#ifdef SK_ENABLE_SKSL
     auto shaderNode = sk_make_sp<BulgeNode>(std::move(layer), fLayerSize);
-    return fBuilder->attachDiscardableAdapter<BulgeEffectAdapter>(jprops, *fBuilder, std::move(shaderNode));
-#else
-    return layer;
-#endif
+    return fBuilder->attachDiscardableAdapter<BulgeEffectAdapter>(jprops, *fBuilder,
+                                                                  std::move(shaderNode));
 }
 
 } // namespace skottie::internal

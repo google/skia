@@ -37,7 +37,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     *w  = (packed >> 14) & 0xf; // Lerp weight for v1; weight for v0 is 16-w.
 }
 
-#if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
@@ -67,8 +67,8 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             auto gather = [](const uint32_t* ptr, skvx::Vec<8,uint32_t> ix) {
             #if 1
                 // Drop into AVX2 intrinsics for vpgatherdd.
-                return skvx::bit_pun<skvx::Vec<8,uint32_t>>(
-                        _mm256_i32gather_epi32((const int*)ptr, skvx::bit_pun<__m256i>(ix), 4));
+                return sk_bit_cast<skvx::Vec<8,uint32_t>>(
+                        _mm256_i32gather_epi32((const int*)ptr, sk_bit_cast<__m256i>(ix), 4));
             #else
                 // Portable version... sometimes I don't trust vpgatherdd.
                 return skvx::Vec<8,uint32_t>{
@@ -85,9 +85,9 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         #if 1
             // We'll use _mm256_maddubs_epi16() to lerp much like in the SSSE3 code.
             auto lerp_x = [&](skvx::Vec<8,uint32_t> L, skvx::Vec<8,uint32_t> R) {
-                __m256i l = skvx::bit_pun<__m256i>(L),
-                        r = skvx::bit_pun<__m256i>(R),
-                       wr = skvx::bit_pun<__m256i>(wx),
+                __m256i l = sk_bit_cast<__m256i>(L),
+                        r = sk_bit_cast<__m256i>(R),
+                       wr = sk_bit_cast<__m256i>(wx),
                        wl = _mm256_sub_epi8(_mm256_set1_epi8(16), wr);
 
                 // Interlace l,r bytewise and line them up with their weights, then lerp.
@@ -108,8 +108,8 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
                 __m256i abcd = _mm256_permute2x128_si256(lo, hi, 0x20),
                         efgh = _mm256_permute2x128_si256(lo, hi, 0x31);
 
-                return skvx::join(skvx::bit_pun<skvx::Vec<16,uint16_t>>(abcd),
-                                  skvx::bit_pun<skvx::Vec<16,uint16_t>>(efgh));
+                return skvx::join(sk_bit_cast<skvx::Vec<16,uint16_t>>(abcd),
+                                  sk_bit_cast<skvx::Vec<16,uint16_t>>(efgh));
             };
 
             skvx::Vec<32, uint16_t> top = lerp_x(tl, tr),
@@ -118,7 +118,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         #else
             // Treat 32-bit pixels as 4 8-bit values, and expand to 16-bit for room to multiply.
             auto to_16x4 = [](auto v) -> skvx::Vec<32, uint16_t> {
-                return skvx::cast<uint16_t>(skvx::bit_pun<skvx::Vec<32, uint8_t>>(v));
+                return skvx::cast<uint16_t>(sk_bit_cast<skvx::Vec<32, uint8_t>>(v));
             };
 
             // Sum up weighted sample pixels.  The naive, redundant math would be,
@@ -146,7 +146,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             }
 
             // Pack back to 8-bit channels, undoing to_16x4().
-            return skvx::bit_pun<skvx::Vec<8,uint32_t>>(skvx::cast<uint8_t>(sum));
+            return sk_bit_cast<skvx::Vec<8,uint32_t>>(skvx::cast<uint8_t>(sum));
         };
 
         while (count >= 8) {
@@ -156,11 +156,11 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
             count  -= 8;
         }
         if (count > 0) {
-            __m256i active = skvx::bit_pun<__m256i>( count > skvx::Vec<8,int>{0,1,2,3, 4,5,6,7} ),
+            __m256i active = sk_bit_cast<__m256i>( count > skvx::Vec<8,int>{0,1,2,3, 4,5,6,7} ),
                     coords = _mm256_maskload_epi32((const int*)xy, active),
                     pixels;
 
-            bilerp(skvx::bit_pun<skvx::Vec<8,uint32_t>>(coords)).store(&pixels);
+            bilerp(sk_bit_cast<skvx::Vec<8,uint32_t>>(coords)).store(&pixels);
             _mm256_maskstore_epi32((int*)colors, active, pixels);
 
             sk_msan_mark_initialized(colors, colors+count,
@@ -168,7 +168,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         }
     }
 
-#elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
 
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
@@ -307,7 +307,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     }
 
 
-#elif 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
     /*not static*/ inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
@@ -497,40 +497,6 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
         }
     }
 
-#endif
-
-#if defined(SK_ARM_HAS_NEON)
-    /*not static*/ inline
-    void S32_alpha_D32_filter_DXDY(const SkBitmapProcState& s,
-                                   const uint32_t* xy, int count, SkPMColor* colors) {
-        SkASSERT(count > 0 && colors != nullptr);
-        SkASSERT(s.fBilerp);
-        SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
-        SkASSERT(s.fAlphaScale <= 256);
-
-        auto src = (const char*)s.fPixmap.addr();
-        size_t rb = s.fPixmap.rowBytes();
-
-        while (count --> 0) {
-            int y0, y1, wy,
-                x0, x1, wx;
-            decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
-            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
-
-            auto row0 = (const uint32_t*)(src + y0*rb),
-                 row1 = (const uint32_t*)(src + y1*rb);
-
-            filter_and_scale_by_alpha(wx, wy,
-                                      row0[x0], row0[x1],
-                                      row1[x0], row1[x1],
-                                      colors++,
-                                      s.fAlphaScale);
-        }
-    }
-#else
-    // It's not yet clear whether it's worthwhile specializing for SSE2/SSSE3/AVX2.
-    constexpr static void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState&,
-                                                       const uint32_t*, int, SkPMColor*) = nullptr;
 #endif
 
 }  // namespace SK_OPTS_NS

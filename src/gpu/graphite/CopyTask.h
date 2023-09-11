@@ -78,7 +78,8 @@ public:
     static sk_sp<CopyTextureToTextureTask> Make(sk_sp<TextureProxy> srcProxy,
                                                 SkIRect srcRect,
                                                 sk_sp<TextureProxy> dstProxy,
-                                                SkIPoint dstPoint);
+                                                SkIPoint dstPoint,
+                                                int dstLevel = 0);
 
     ~CopyTextureToTextureTask() override;
 
@@ -90,12 +91,14 @@ private:
     CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,
                              SkIRect srcRect,
                              sk_sp<TextureProxy> dstProxy,
-                             SkIPoint dstPoint);
+                             SkIPoint dstPoint,
+                             int dstLevel);
 
     sk_sp<TextureProxy> fSrcProxy;
     SkIRect fSrcRect;
     sk_sp<TextureProxy> fDstProxy;
     SkIPoint fDstPoint;
+    int fDstLevel;
 };
 
 } // namespace skgpu::graphite

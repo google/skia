@@ -6,6 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
@@ -89,12 +90,12 @@ class BlurRectDirectBench: public BlurRectBench {
     }
 protected:
     void makeBlurryRect(const SkRect& r) override {
-        SkMask mask;
+        SkMaskBuilder mask;
         if (!SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                   &mask, r, kNormal_SkBlurStyle)) {
             return;
         }
-        SkMask::FreeImage(mask.fImage);
+        SkMaskBuilder::FreeImage(mask.image());
     }
 private:
     using INHERITED = BlurRectBench;
@@ -106,22 +107,22 @@ public:
     BlurRectSeparableBench(SkScalar rad) : INHERITED(rad) { }
 
     ~BlurRectSeparableBench() override {
-        SkMask::FreeImage(fSrcMask.fImage);
+        SkMaskBuilder::FreeImage(fSrcMask.image());
     }
 
 protected:
     void preBenchSetup(const SkRect& r) override {
-        SkMask::FreeImage(fSrcMask.fImage);
+        SkMaskBuilder::FreeImage(fSrcMask.image());
 
-        r.roundOut(&fSrcMask.fBounds);
-        fSrcMask.fFormat = SkMask::kA8_Format;
-        fSrcMask.fRowBytes = fSrcMask.fBounds.width();
-        fSrcMask.fImage = SkMask::AllocImage(fSrcMask.computeTotalImageSize());
+        r.roundOut(&fSrcMask.bounds());
+        fSrcMask.format() = SkMask::kA8_Format;
+        fSrcMask.rowBytes() = fSrcMask.fBounds.width();
+        fSrcMask.image() = SkMaskBuilder::AllocImage(fSrcMask.computeTotalImageSize());
 
-        memset(fSrcMask.fImage, 0xff, fSrcMask.computeTotalImageSize());
+        memset(fSrcMask.image(), 0xff, fSrcMask.computeTotalImageSize());
     }
 
-    SkMask fSrcMask;
+    SkMaskBuilder fSrcMask;
 private:
     using INHERITED = BlurRectBench;
 };
@@ -143,12 +144,12 @@ public:
 protected:
 
     void makeBlurryRect(const SkRect&) override {
-        SkMask mask;
+        SkMaskBuilder mask;
         if (!SkBlurMask::BoxBlur(&mask, fSrcMask, SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                  kNormal_SkBlurStyle)) {
             return;
         }
-        SkMask::FreeImage(mask.fImage);
+        SkMaskBuilder::FreeImage(mask.image());
     }
 private:
     using INHERITED = BlurRectSeparableBench;
@@ -171,12 +172,12 @@ public:
 protected:
 
     void makeBlurryRect(const SkRect&) override {
-        SkMask mask;
+        SkMaskBuilder mask;
         if (!SkBlurMask::BlurGroundTruth(SkBlurMask::ConvertRadiusToSigma(this->radius()),
                                          &mask, fSrcMask, kNormal_SkBlurStyle)) {
             return;
         }
-        SkMask::FreeImage(mask.fImage);
+        SkMaskBuilder::FreeImage(mask.image());
     }
 private:
     using INHERITED = BlurRectSeparableBench;

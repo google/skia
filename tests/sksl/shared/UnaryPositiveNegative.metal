@@ -1,5 +1,8 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wall"
+#endif
 using namespace metal;
 struct Uniforms {
     half4 colorWhite;
@@ -23,6 +26,15 @@ thread bool operator!=(const float3x3 left, const float3x3 right);
 
 thread bool operator==(const float4x4 left, const float4x4 right);
 thread bool operator!=(const float4x4 left, const float4x4 right);
+
+thread bool operator==(const half2x2 left, const half2x2 right);
+thread bool operator!=(const half2x2 left, const half2x2 right);
+
+thread bool operator==(const half3x3 left, const half3x3 right);
+thread bool operator!=(const half3x3 left, const half3x3 right);
+
+thread bool operator==(const half4x4 left, const half4x4 right);
+thread bool operator!=(const half4x4 left, const half4x4 right);
 thread bool operator==(const float2x2 left, const float2x2 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]);
@@ -45,6 +57,30 @@ thread bool operator==(const float4x4 left, const float4x4 right) {
            all(left[3] == right[3]);
 }
 thread bool operator!=(const float4x4 left, const float4x4 right) {
+    return !(left == right);
+}
+thread bool operator==(const half2x2 left, const half2x2 right) {
+    return all(left[0] == right[0]) &&
+           all(left[1] == right[1]);
+}
+thread bool operator!=(const half2x2 left, const half2x2 right) {
+    return !(left == right);
+}
+thread bool operator==(const half3x3 left, const half3x3 right) {
+    return all(left[0] == right[0]) &&
+           all(left[1] == right[1]) &&
+           all(left[2] == right[2]);
+}
+thread bool operator!=(const half3x3 left, const half3x3 right) {
+    return !(left == right);
+}
+thread bool operator==(const half4x4 left, const half4x4 right) {
+    return all(left[0] == right[0]) &&
+           all(left[1] == right[1]) &&
+           all(left[2] == right[2]) &&
+           all(left[3] == right[3]);
+}
+thread bool operator!=(const half4x4 left, const half4x4 right) {
     return !(left == right);
 }
 bool test_iscalar_b(Uniforms _uniforms) {
@@ -80,11 +116,29 @@ bool test_mat4_b(Uniforms _uniforms) {
     x = (-1.0 * x);
     return x == negated;
 }
+bool test_hmat2_b(Uniforms _uniforms) {
+    const half2x2 negated = half2x2(half2(-1.0h, -2.0h), half2(-3.0h, -4.0h));
+    half2x2 x = half2x2(_uniforms.testMatrix2x2);
+    x = (-1.0h * x);
+    return x == negated;
+}
+bool test_hmat3_b(Uniforms _uniforms) {
+    const half3x3 negated = half3x3(half3(-1.0h, -2.0h, -3.0h), half3(-4.0h, -5.0h, -6.0h), half3(-7.0h, -8.0h, -9.0h));
+    half3x3 x = half3x3(_uniforms.testMatrix3x3);
+    x = (-1.0h * x);
+    return x == negated;
+}
+bool test_hmat4_b(Uniforms _uniforms) {
+    const half4x4 negated = half4x4(half4(-1.0h, -2.0h, -3.0h, -4.0h), half4(-5.0h, -6.0h, -7.0h, -8.0h), half4(-9.0h, -10.0h, -11.0h, -12.0h), half4(-13.0h, -14.0h, -15.0h, -16.0h));
+    half4x4 x = half4x4(_uniforms.testMatrix4x4);
+    x = (-1.0h * x);
+    return x == negated;
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
     float _0_x = float(_uniforms.colorWhite.x);
     _0_x = -_0_x;
-    _out.sk_FragColor = (((((_0_x == -1.0 && test_iscalar_b(_uniforms)) && test_fvec_b(_uniforms)) && test_ivec_b(_uniforms)) && test_mat2_b(_uniforms)) && test_mat3_b(_uniforms)) && test_mat4_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((((_0_x == -1.0 && test_iscalar_b(_uniforms)) && test_fvec_b(_uniforms)) && test_ivec_b(_uniforms)) && test_mat2_b(_uniforms)) && test_mat3_b(_uniforms)) && test_mat4_b(_uniforms)) && test_hmat2_b(_uniforms)) && test_hmat3_b(_uniforms)) && test_hmat4_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

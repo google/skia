@@ -7,16 +7,25 @@
 
 #include "src/core/SkAAClip.h"
 
+#include "include/core/SkClipOp.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMacros.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkRectPriv.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkScan.h"
+
+#include <algorithm>
 #include <atomic>
-#include <utility>
+#include <cstring>
 
 namespace {
 
@@ -747,10 +756,6 @@ public:
     void blitMask(const SkMask&, const SkIRect& clip) override
         { unexpected(); }
 
-    const SkPixmap* justAnOpaqueColor(uint32_t*) override {
-        return nullptr;
-    }
-
     void blitH(int x, int y, int width) override {
         this->recordMinY(y);
         this->checkForYGap(y);
@@ -843,7 +848,7 @@ bool SkAAClip::Builder::blitPath(SkAAClip* target, const SkPath& path, bool doAA
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkAAClip::copyToMask(SkMask* mask) const {
+void SkAAClip::copyToMask(SkMaskBuilder* mask) const {
     auto expandRowToMask = [](uint8_t* dst, const uint8_t* row, int width) {
         while (width > 0) {
             int n = row[0];
@@ -856,21 +861,21 @@ void SkAAClip::copyToMask(SkMask* mask) const {
         SkASSERT(0 == width);
     };
 
-    mask->fFormat = SkMask::kA8_Format;
+    mask->format() = SkMask::kA8_Format;
     if (this->isEmpty()) {
-        mask->fBounds.setEmpty();
-        mask->fImage = nullptr;
-        mask->fRowBytes = 0;
+        mask->bounds().setEmpty();
+        mask->image() = nullptr;
+        mask->rowBytes() = 0;
         return;
     }
 
-    mask->fBounds = fBounds;
-    mask->fRowBytes = fBounds.width();
+    mask->bounds() = fBounds;
+    mask->rowBytes() = fBounds.width();
     size_t size = mask->computeImageSize();
-    mask->fImage = SkMask::AllocImage(size);
+    mask->image() = SkMaskBuilder::AllocImage(size);
 
     Iter iter = RunHead::Iterate(*this);
-    uint8_t* dst = mask->fImage;
+    uint8_t* dst = mask->image();
     const int width = fBounds.width();
 
     int y = fBounds.fTop;
@@ -1912,14 +1917,14 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
     const SkMask* mask = &origMask;
 
     // if we're BW, we need to upscale to A8 (ugh)
-    SkMask  grayMask;
+    SkMaskBuilder  grayMask;
     if (SkMask::kBW_Format == origMask.fFormat) {
-        grayMask.fFormat = SkMask::kA8_Format;
-        grayMask.fBounds = origMask.fBounds;
-        grayMask.fRowBytes = origMask.fBounds.width();
+        grayMask.format() = SkMask::kA8_Format;
+        grayMask.bounds() = origMask.fBounds;
+        grayMask.rowBytes() = origMask.fBounds.width();
         size_t size = grayMask.computeImageSize();
-        grayMask.fImage = (uint8_t*)fGrayMaskScratch.reset(size,
-                                               SkAutoMalloc::kReuse_OnShrink);
+        grayMask.image() = reinterpret_cast<uint8_t*>(
+            fGrayMaskScratch.reset(size, SkAutoMalloc::kReuse_OnShrink));
 
         upscaleBW2A8(&grayMask, origMask);
         mask = &grayMask;
@@ -1935,12 +1940,12 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
     const int width = clip.width();
     MergeAAProc mergeProc = find_merge_aa_proc(mask->fFormat);
 
-    SkMask rowMask;
-    rowMask.fFormat = SkMask::k3D_Format == mask->fFormat ? SkMask::kA8_Format : mask->fFormat;
-    rowMask.fBounds.fLeft = clip.fLeft;
-    rowMask.fBounds.fRight = clip.fRight;
-    rowMask.fRowBytes = mask->fRowBytes; // doesn't matter, since our height==1
-    rowMask.fImage = (uint8_t*)fScanlineScratch;
+    SkMaskBuilder rowMask;
+    rowMask.format() = SkMask::k3D_Format == mask->fFormat ? SkMask::kA8_Format : mask->fFormat;
+    rowMask.bounds().fLeft = clip.fLeft;
+    rowMask.bounds().fRight = clip.fRight;
+    rowMask.rowBytes() = mask->fRowBytes; // doesn't matter, since our height==1
+    rowMask.image() = (uint8_t*)fScanlineScratch;
 
     int y = clip.fTop;
     const int stopY = y + clip.height();
@@ -1954,15 +1959,11 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
         int initialCount;
         row = fAAClip->findX(row, clip.fLeft, &initialCount);
         do {
-            mergeProc(src, width, row, initialCount, rowMask.fImage);
-            rowMask.fBounds.fTop = y;
-            rowMask.fBounds.fBottom = y + 1;
+            mergeProc(src, width, row, initialCount, rowMask.image());
+            rowMask.bounds().fTop = y;
+            rowMask.bounds().fBottom = y + 1;
             fBlitter->blitMask(rowMask, rowMask.fBounds);
             src = (const void*)((const char*)src + srcRB);
         } while (++y < localStopY);
     } while (y < stopY);
-}
-
-const SkPixmap* SkAAClipBlitter::justAnOpaqueColor(uint32_t* value) {
-    return nullptr;
 }

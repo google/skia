@@ -21,6 +21,7 @@
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/image/SkImageGeneratorPriv.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -46,13 +47,13 @@ static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
-    std::unique_ptr<SkImageGenerator> gen = SkImageGenerator::MakeFromEncoded(data);
+    std::unique_ptr<SkImageGenerator> gen = SkImageGenerators::MakeFromEncoded(data);
     REPORTER_ASSERT(reporter, nullptr == gen);
     REPORTER_ASSERT(reporter, !gMyFactoryWasCalled);
 
     // Test is racy, in that it hopes no other thread is changing this global...
     auto prev = SkGraphics::SetImageGeneratorFromEncodedDataFactory(my_factory);
-    gen = SkImageGenerator::MakeFromEncoded(data);
+    gen = SkImageGenerators::MakeFromEncoded(data);
     REPORTER_ASSERT(reporter, nullptr == gen);
     REPORTER_ASSERT(reporter, gMyFactoryWasCalled);
 
@@ -119,8 +120,8 @@ DEF_TEST(PictureImageGenerator, reporter) {
 
     auto colorspace = SkColorSpace::MakeSRGB();
     auto picture = make_picture();
-    auto gen = SkImageGenerator::MakeFromPicture({100, 100}, picture, nullptr, nullptr,
-                                                 SkImage::BitDepth::kU8, colorspace);
+    auto gen = SkImageGenerators::MakeFromPicture(
+            {100, 100}, picture, nullptr, nullptr, SkImages::BitDepth::kU8, colorspace);
 
     // worst case for all requests
     SkAutoMalloc storage(100 * 100 * SkColorTypeBytesPerPixel(kRGBA_F32_SkColorType));

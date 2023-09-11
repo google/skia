@@ -18,10 +18,15 @@
 
 // IWYU pragma: begin_exports
 
-// Note: SK_USER_CONFIG_HEADER will not work with Bazel builds, as that file will not
-// be specified for the Bazel sandbox.
-#if defined (SK_USER_CONFIG_HEADER)
+// Note: SK_USER_CONFIG_HEADER will not work with Bazel builds and some C++ compilers.
+#if defined(SK_USER_CONFIG_HEADER)
     #include SK_USER_CONFIG_HEADER
+#elif defined(SK_USE_BAZEL_CONFIG_HEADER)
+    // The Bazel config file is presumed to be in the root directory of its Bazel Workspace.
+    // This is achieved in Skia by having a nested WORKSPACE in include/config and a cc_library
+    // defined in that folder. As a result, we do not try to include SkUserConfig.h from the
+    // top of Skia because Bazel sandboxing will move it to a different location.
+    #include "SkUserConfig.h"
 #else
     #include "include/config/SkUserConfig.h"
 #endif

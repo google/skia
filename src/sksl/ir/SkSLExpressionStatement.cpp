@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLNop.h"
@@ -52,6 +53,10 @@ std::unique_ptr<Statement> ExpressionStatement::Make(const Context& context,
     }
 
     return std::make_unique<ExpressionStatement>(std::move(expr));
+}
+
+std::string ExpressionStatement::description() const {
+    return this->expression()->description(OperatorPrecedence::kStatement) + ";";
 }
 
 }  // namespace SkSL

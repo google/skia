@@ -12,6 +12,7 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -380,8 +381,9 @@ static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, S
 }
 
 static sk_sp<SkImage> render(const SkTextBlob* blob) {
-    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->bounds().width()),
-                                               SkScalarRoundToInt(blob->bounds().height()));
+    auto surf = SkSurfaces::Raster(
+            SkImageInfo::MakeN32Premul(SkScalarRoundToInt(blob->bounds().width()),
+                                       SkScalarRoundToInt(blob->bounds().height())));
     if (!surf) {
         return nullptr; // bounds are empty?
     }
@@ -391,7 +393,7 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
 }
 
 static sk_sp<SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
-    auto array = (SkTArray<sk_sp<SkTypeface>>*)ctx;
+    auto array = (TArray<sk_sp<SkTypeface>>*)ctx;
     const size_t idx = array->size();
     array->emplace_back(sk_ref_sp(tf));
     // In this test, we are deserializing on the same machine, so we don't worry about endianness.
@@ -399,7 +401,7 @@ static sk_sp<SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
 }
 
 static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, void* ctx) {
-    auto array = (SkTArray<sk_sp<SkTypeface>>*)ctx;
+    auto array = (TArray<sk_sp<SkTypeface>>*)ctx;
     if (length != sizeof(size_t)) {
         SkASSERT(false);
         return nullptr;
@@ -428,7 +430,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
         return builder.make();
     }();
 
-    SkTArray<sk_sp<SkTypeface>> array;
+    TArray<sk_sp<SkTypeface>> array;
     SkSerialProcs serializeProcs;
     serializeProcs.fTypefaceProc = &SerializeTypeface;
     serializeProcs.fTypefaceCtx = (void*) &array;

@@ -867,7 +867,7 @@ static void direct_blur_y(ToA8 toA8, const int strideOf8,
     }
 }
 
-static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMask* dst) {
+static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMaskBuilder* dst) {
     SkASSERT(sigmaX == sigmaY); // TODO
     SkASSERT(0.01 <= sigmaX && sigmaX < 2);
     SkASSERT(0.01 <= sigmaY && sigmaY < 2);
@@ -893,12 +893,12 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     prepareGauss(filterX, gaussFactorsX);
     prepareGauss(filterY, gaussFactorsY);
 
-    *dst = SkMask::PrepareDestination(radiusX, radiusY, src);
+    *dst = SkMaskBuilder::PrepareDestination(radiusX, radiusY, src);
     if (src.fImage == nullptr) {
         return {SkTo<int32_t>(radiusX), SkTo<int32_t>(radiusY)};
     }
     if (dst->fImage == nullptr) {
-        dst->fBounds.setEmpty();
+        dst->bounds().setEmpty();
         return {0, 0};
     }
 
@@ -919,24 +919,24 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
             direct_blur_y(bw_to_a8, 1,
                           radiusY, gaussFactorsY,
                           src.fImage, srcRB, srcW, srcH,
-                          dst->fImage + radiusX, dstRB);
+                          dst->image() + radiusX, dstRB);
             break;
         case SkMask::kA8_Format:
             direct_blur_y(nullptr, 8,
                           radiusY, gaussFactorsY,
                           src.fImage, srcRB, srcW, srcH,
-                          dst->fImage + radiusX, dstRB);
+                          dst->image() + radiusX, dstRB);
             break;
         case SkMask::kARGB32_Format:
             direct_blur_y(argb32_to_a8, 32,
                           radiusY, gaussFactorsY,
                           src.fImage, srcRB, srcW, srcH,
-                          dst->fImage + radiusX, dstRB);
+                          dst->image() + radiusX, dstRB);
             break;
         case SkMask::kLCD16_Format:
             direct_blur_y(lcd_to_a8, 16, radiusY, gaussFactorsY,
                           src.fImage, srcRB, srcW, srcH,
-                          dst->fImage + radiusX, dstRB);
+                          dst->image() + radiusX, dstRB);
             break;
         default:
             SK_ABORT("Unhandled format.");
@@ -945,14 +945,14 @@ static SkIPoint small_blur(double sigmaX, double sigmaY, const SkMask& src, SkMa
     // Blur horizontally in place.
     direct_blur_x(radiusX, gaussFactorsX,
                   dst->fImage + radiusX,  dstRB, srcW,
-                  dst->fImage,            dstRB, dstW, dstH);
+                  dst->image(),           dstRB, dstW, dstH);
 
     return {radiusX, radiusY};
 }
 
 // TODO: assuming sigmaW = sigmaH. Allow different sigmas. Right now the
 // API forces the sigmas to be the same.
-SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
+SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMaskBuilder* dst) const {
 
     if (fSigmaW < 2.0 && fSigmaH < 2.0) {
         return small_blur(fSigmaW, fSigmaH, src, dst);
@@ -968,12 +968,12 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         borderH = planH.border();
     SkASSERT(borderH >= 0 && borderW >= 0);
 
-    *dst = SkMask::PrepareDestination(borderW, borderH, src);
+    *dst = SkMaskBuilder::PrepareDestination(borderW, borderH, src);
     if (src.fImage == nullptr) {
         return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};
     }
     if (dst->fImage == nullptr) {
-        dst->fBounds.setEmpty();
+        dst->bounds().setEmpty();
         return {0, 0};
     }
 
@@ -1044,7 +1044,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     const PlanGauss::Scan& scanH = planH.makeBlurScan(tmpW, buffer);
     for (int y = 0; y < tmpH; y++) {
         auto tmpStart = &tmp[y * tmpW];
-        auto dstStart = &dst->fImage[y];
+        auto dstStart = &dst->image()[y];
 
         scanH.blur(tmpStart, tmpStart + tmpW,
                    dstStart, dst->fRowBytes, dstStart + dst->fRowBytes * dstH);

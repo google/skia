@@ -46,8 +46,12 @@ public:
     explicit Transform(const SkM44& m);
     Transform(const Transform& t) = default;
 
-    static const Transform& Identity();
-    static const Transform& Invalid();
+    static constexpr Transform Identity() {
+        return Transform(SkM44(), SkM44(), Type::kIdentity, {1.f, 1.f});
+    }
+    static constexpr Transform Invalid() {
+        return Transform(SkM44(SkM44::kNaN_Constructor), SkM44(), Type::kInvalid, {1.f, 1.f});
+    }
 
     Transform& operator=(const Transform& t) = default;
 
@@ -88,7 +92,7 @@ public:
     Transform concatInverse(const SkM44& t) const;
 
 private:
-    Transform(const SkM44& m, const SkM44& invM, Type type, const SkV2 scale)
+    constexpr Transform(const SkM44& m, const SkM44& invM, Type type, const SkV2 scale)
             : fM(m), fInvM(invM), fType(type), fScale(scale) {}
 
     SkM44 fM;

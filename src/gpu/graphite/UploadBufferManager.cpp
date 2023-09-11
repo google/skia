@@ -36,7 +36,7 @@ std::tuple<UploadWriter, BindBufferInfo> UploadBufferManager::getUploadWriter(
     if (requiredBytes > kReusedBufferSize) {
         // Create a dedicated buffer for this request.
         sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(
-                requiredBytes, BufferType::kXferCpuToGpu, PrioritizeGpuReads::kNo);
+                requiredBytes, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
 
         BindBufferInfo bindInfo;
         bindInfo.fBuffer = buffer.get();
@@ -55,7 +55,7 @@ std::tuple<UploadWriter, BindBufferInfo> UploadBufferManager::getUploadWriter(
 
     if (!fReusedBuffer) {
         fReusedBuffer = fResourceProvider->findOrCreateBuffer(
-                kReusedBufferSize, BufferType::kXferCpuToGpu, PrioritizeGpuReads::kNo);
+                kReusedBufferSize, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
         fReusedBufferOffset = 0;
         if (!fReusedBuffer) {
             return {UploadWriter(), BindBufferInfo()};

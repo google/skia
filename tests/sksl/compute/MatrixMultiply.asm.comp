@@ -1,0 +1,160 @@
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
+               OpExecutionMode %main LocalSize 16 16 1
+               OpName %sizeBuffer "sizeBuffer"
+               OpMemberName %sizeBuffer 0 "sizes"
+               OpName %inputs1 "inputs1"
+               OpMemberName %inputs1 0 "data1"
+               OpName %inputs2 "inputs2"
+               OpMemberName %inputs2 0 "data2"
+               OpName %result "result"
+               OpMemberName %result 0 "resultData"
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
+               OpName %main "main"
+               OpName %resultCell "resultCell"
+               OpName %result_0 "result"
+               OpName %i "i"
+               OpName %a "a"
+               OpName %b "b"
+               OpName %index "index"
+               OpDecorate %_runtimearr_v2int ArrayStride 16
+               OpMemberDecorate %sizeBuffer 0 Offset 0
+               OpDecorate %sizeBuffer BufferBlock
+               OpDecorate %3 Binding 0
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %_runtimearr_float ArrayStride 16
+               OpMemberDecorate %inputs1 0 Offset 0
+               OpDecorate %inputs1 BufferBlock
+               OpDecorate %9 Binding 1
+               OpDecorate %9 DescriptorSet 0
+               OpMemberDecorate %inputs2 0 Offset 0
+               OpDecorate %inputs2 BufferBlock
+               OpDecorate %14 Binding 2
+               OpDecorate %14 DescriptorSet 0
+               OpMemberDecorate %result 0 Offset 0
+               OpDecorate %result BufferBlock
+               OpDecorate %17 Binding 3
+               OpDecorate %17 DescriptorSet 0
+               OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
+        %int = OpTypeInt 32 1
+      %v2int = OpTypeVector %int 2
+%_runtimearr_v2int = OpTypeRuntimeArray %v2int
+ %sizeBuffer = OpTypeStruct %_runtimearr_v2int
+%_ptr_Uniform_sizeBuffer = OpTypePointer Uniform %sizeBuffer
+          %3 = OpVariable %_ptr_Uniform_sizeBuffer Uniform
+      %float = OpTypeFloat 32
+%_runtimearr_float = OpTypeRuntimeArray %float
+    %inputs1 = OpTypeStruct %_runtimearr_float
+%_ptr_Uniform_inputs1 = OpTypePointer Uniform %inputs1
+          %9 = OpVariable %_ptr_Uniform_inputs1 Uniform
+    %inputs2 = OpTypeStruct %_runtimearr_float
+%_ptr_Uniform_inputs2 = OpTypePointer Uniform %inputs2
+         %14 = OpVariable %_ptr_Uniform_inputs2 Uniform
+     %result = OpTypeStruct %_runtimearr_float
+%_ptr_Uniform_result = OpTypePointer Uniform %result
+         %17 = OpVariable %_ptr_Uniform_result Uniform
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+       %void = OpTypeVoid
+         %25 = OpTypeFunction %void
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_v2int = OpTypePointer Uniform %v2int
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+%_ptr_Function_float = OpTypePointer Function %float
+    %float_0 = OpConstant %float 0
+%_ptr_Function_int = OpTypePointer Function %int
+       %bool = OpTypeBool
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+       %main = OpFunction %void None %25
+         %26 = OpLabel
+ %resultCell = OpVariable %_ptr_Function_v2int Function
+   %result_0 = OpVariable %_ptr_Function_float Function
+          %i = OpVariable %_ptr_Function_int Function
+          %a = OpVariable %_ptr_Function_int Function
+          %b = OpVariable %_ptr_Function_int Function
+      %index = OpVariable %_ptr_Function_int Function
+         %28 = OpAccessChain %_ptr_Uniform_v2int %3 %int_0 %int_0
+         %30 = OpLoad %v2int %28
+         %31 = OpCompositeExtract %int %30 0
+         %33 = OpAccessChain %_ptr_Uniform_v2int %3 %int_0 %int_1
+         %34 = OpLoad %v2int %33
+         %35 = OpCompositeExtract %int %34 1
+         %36 = OpCompositeConstruct %v2int %31 %35
+         %38 = OpAccessChain %_ptr_Uniform_v2int %3 %int_0 %int_2
+               OpStore %38 %36
+         %41 = OpLoad %v3uint %sk_GlobalInvocationID
+         %42 = OpCompositeExtract %uint %41 0
+         %43 = OpBitcast %int %42
+         %44 = OpLoad %v3uint %sk_GlobalInvocationID
+         %45 = OpCompositeExtract %uint %44 1
+         %46 = OpBitcast %int %45
+         %47 = OpCompositeConstruct %v2int %43 %46
+               OpStore %resultCell %47
+               OpStore %result_0 %float_0
+               OpStore %i %int_0
+               OpBranch %53
+         %53 = OpLabel
+               OpLoopMerge %57 %56 None
+               OpBranch %54
+         %54 = OpLabel
+         %58 = OpLoad %int %i
+         %59 = OpAccessChain %_ptr_Uniform_v2int %3 %int_0 %int_0
+         %60 = OpLoad %v2int %59
+         %61 = OpCompositeExtract %int %60 1
+         %62 = OpSLessThan %bool %58 %61
+               OpBranchConditional %62 %55 %57
+         %55 = OpLabel
+         %65 = OpLoad %int %i
+         %66 = OpLoad %v2int %resultCell
+         %67 = OpCompositeExtract %int %66 0
+         %68 = OpAccessChain %_ptr_Uniform_v2int %3 %int_0 %int_0
+         %69 = OpLoad %v2int %68
+         %70 = OpCompositeExtract %int %69 1
+         %71 = OpIMul %int %67 %70
+         %72 = OpIAdd %int %65 %71
+               OpStore %a %72
+         %74 = OpLoad %v2int %resultCell
+         %75 = OpCompositeExtract %int %74 1
+         %76 = OpLoad %int %i
+         %77 = OpAccessChain %_ptr_Uniform_v2int %3 %int_0 %int_1
+         %78 = OpLoad %v2int %77
+         %79 = OpCompositeExtract %int %78 1
+         %80 = OpIMul %int %76 %79
+         %81 = OpIAdd %int %75 %80
+               OpStore %b %81
+         %82 = OpLoad %float %result_0
+         %83 = OpAccessChain %_ptr_Uniform_float %9 %int_0 %72
+         %85 = OpLoad %float %83
+         %86 = OpAccessChain %_ptr_Uniform_float %14 %int_0 %81
+         %87 = OpLoad %float %86
+         %88 = OpFMul %float %85 %87
+         %89 = OpFAdd %float %82 %88
+               OpStore %result_0 %89
+               OpBranch %56
+         %56 = OpLabel
+         %90 = OpLoad %int %i
+         %91 = OpIAdd %int %90 %int_1
+               OpStore %i %91
+               OpBranch %53
+         %57 = OpLabel
+         %93 = OpLoad %v2int %resultCell
+         %94 = OpCompositeExtract %int %93 1
+         %95 = OpLoad %v2int %resultCell
+         %96 = OpCompositeExtract %int %95 0
+         %97 = OpAccessChain %_ptr_Uniform_v2int %3 %int_0 %int_1
+         %98 = OpLoad %v2int %97
+         %99 = OpCompositeExtract %int %98 1
+        %100 = OpIMul %int %96 %99
+        %101 = OpIAdd %int %94 %100
+               OpStore %index %101
+        %102 = OpLoad %float %result_0
+        %103 = OpAccessChain %_ptr_Uniform_float %17 %int_0 %101
+               OpStore %103 %102
+               OpReturn
+               OpFunctionEnd

@@ -53,9 +53,9 @@ There are 6 types of effects that can be assigned to a paint:
   drawn (e.g. blur)
 - **SkShader** - e.g. gradients (linear, radial, sweep), bitmap patterns (clamp,
   repeat, mirror)
-- **SkColorFilter** - modify the source color(s) before applying the xfermode
+- **SkColorFilter** - modify the source color(s) before applying the blend
   (e.g. color matrix)
-- **SkXfermode** - e.g. porter-duff transfermodes, blend modes
+- **SkBlendMode** - e.g. porter-duff transfermodes, blend modes
 
 Paints also hold a reference to a SkTypeface. The typeface represents a specific
 font style, to be used for measuring and drawing text. Speaking of which, paints
@@ -68,9 +68,9 @@ are used not only for drawing text, but also for measuring it.
     paint.textToGlyphs(...);
     paint.getFontMetrics(...);
 
-## SkXfermode
+## SkBlendMode
 
-The following example demonstrates all of the Skia's standard transfer modes. In
+The following example demonstrates all of the Skia's standard blend modes. In
 this example the source is a solid magenta color with a horizontal alpha
 gradient and the destination is a solid cyan color with a vertical alpha
 gradient.

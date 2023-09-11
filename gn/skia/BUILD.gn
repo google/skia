@@ -180,6 +180,21 @@ config("default") {
     ldflags += [ "-static-libstdc++" ]
   }
 
+  if (show_includes) {
+    assert(is_clang, "show_includes requires clang to build.")
+    if (is_win) {
+      cflags += [
+        "/clang:-H",
+        "/clang:-fshow-skipped-includes",
+      ]
+    } else {
+      cflags += [
+        "-H",
+        "-fshow-skipped-includes",
+      ]
+    }
+  }
+
   if (is_ios) {
     if (target_cpu == "arm") {
       _arch_flags = [
@@ -438,7 +453,6 @@ config("warnings") {
     cflags_cc += [
       "-Wnon-virtual-dtor",
       "-Wno-noexcept-type",
-      "-Wno-redundant-move",  #TODO: gcc conflict with return-std-move-in-c++11
     ]
   }
 
@@ -519,6 +533,8 @@ config("warnings") {
       "-Wno-old-style-cast",
       "-Wno-newline-eof",
       "-Wno-padded",
+      "-Wno-return-std-move-in-c++11",  # we no longer support C++11, and don't
+                                        # need C++11-only performance warnings
       "-Wno-shadow-field-in-constructor",
       "-Wno-shadow-uncaptured-local",
       "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0

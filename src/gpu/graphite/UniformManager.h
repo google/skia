@@ -19,6 +19,7 @@
 class SkM44;
 class SkMatrix;
 struct SkPoint;
+struct SkPoint3;
 struct SkRect;
 struct SkV2;
 struct SkV4;
@@ -84,6 +85,7 @@ public:
     void write(const SkV2&);
     void write(const SkV4&);
     void write(const SkPoint&);
+    void write(const SkPoint3&);
     void write(float f);
     void write(int);
 
@@ -91,7 +93,10 @@ public:
     void writeArray(SkSpan<const SkPMColor4f>);
     void writeArray(SkSpan<const float>);
 
+    void writeHalf(float f);
     void writeHalf(const SkMatrix&);
+    void writeHalf(const SkM44&);
+    void writeHalf(const SkColor4f&);
     void writeHalfArray(SkSpan<const float>);
 
     // Debug only utilities used for debug assertions and tests.

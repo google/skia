@@ -1,4 +1,4 @@
-layout(push_constant) uniform testPushConstants {
+layout(vulkan, push_constant) uniform testPushConstants {
     float[2] pushConstantArray;
 };
 

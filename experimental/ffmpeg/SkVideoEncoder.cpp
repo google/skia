@@ -303,7 +303,7 @@ bool SkVideoEncoder::sendFrame(AVFrame* frame) {
 
 SkCanvas* SkVideoEncoder::beginFrame() {
     if (!fSurface) {
-        fSurface = SkSurface::MakeRaster(fInfo);
+        fSurface = SkSurfaces::Raster(fInfo);
         if (!fSurface) {
             return nullptr;
         }

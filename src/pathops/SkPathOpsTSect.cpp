@@ -21,6 +21,8 @@
 #include <array>
 #include <cmath>
 
+using namespace skia_private;
+
 #define COINCIDENT_SPAN_COUNT 9
 
 void SkTCoincident::setPerp(const SkTCurve& c1, double t,
@@ -1767,7 +1769,7 @@ struct SkClosestSect {
     }
 
     void finish(SkIntersections* intersections) const {
-        SkSTArray<SkDCubic::kMaxIntersections * 3,
+        STArray<SkDCubic::kMaxIntersections * 3,
                 const SkClosestRecord*, true> closestPtrs;
         for (int index = 0; index < fUsed; ++index) {
             closestPtrs.push_back(&fClosest[index]);
@@ -1780,7 +1782,7 @@ struct SkClosestSect {
     }
 
     // this is oversized so that an extra records can merge into final one
-    SkSTArray<SkDCubic::kMaxIntersections * 2, SkClosestRecord, true> fClosest;
+    STArray<SkDCubic::kMaxIntersections * 2, SkClosestRecord, true> fClosest;
     int fUsed;
 };
 

@@ -16,7 +16,7 @@ class SkMatrix;
 struct SkRect;
 class SkRRect;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -68,6 +68,6 @@ private:
     using INHERITED = SkNoncopyable;
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // StencilMaskHelper_DEFINED

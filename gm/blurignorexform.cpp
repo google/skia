@@ -38,7 +38,7 @@ public:
 protected:
     bool runAsBench() const override { return true; }
 
-    SkString onShortName() override {
+    SkString getName() const override {
         SkString name;
         name.printf("blur_ignore_xform_%s",
                     DrawType::kCircle == fDrawType ? "circle"
@@ -46,9 +46,7 @@ protected:
         return name;
     }
 
-    SkISize onISize() override {
-        return SkISize::Make(375, 475);
-    }
+    SkISize getISize() override { return SkISize::Make(375, 475); }
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < kNumBlurs; ++i) {

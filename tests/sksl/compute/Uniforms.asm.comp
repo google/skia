@@ -1,0 +1,49 @@
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
+               OpExecutionMode %main LocalSize 64 1 1
+               OpName %constants "constants"
+               OpMemberName %constants 0 "x"
+               OpName %outputBuffer "outputBuffer"
+               OpMemberName %outputBuffer 0 "results"
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
+               OpName %main "main"
+               OpMemberDecorate %constants 0 Offset 0
+               OpDecorate %constants Block
+               OpDecorate %3 Binding 0
+               OpDecorate %3 DescriptorSet 0
+               OpDecorate %_runtimearr_int ArrayStride 16
+               OpMemberDecorate %outputBuffer 0 Offset 0
+               OpDecorate %outputBuffer BufferBlock
+               OpDecorate %7 Binding 1
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
+        %int = OpTypeInt 32 1
+  %constants = OpTypeStruct %int
+%_ptr_Uniform_constants = OpTypePointer Uniform %constants
+          %3 = OpVariable %_ptr_Uniform_constants Uniform
+%_runtimearr_int = OpTypeRuntimeArray %int
+%outputBuffer = OpTypeStruct %_runtimearr_int
+%_ptr_Uniform_outputBuffer = OpTypePointer Uniform %outputBuffer
+          %7 = OpVariable %_ptr_Uniform_outputBuffer Uniform
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+       %void = OpTypeVoid
+         %16 = OpTypeFunction %void
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+       %main = OpFunction %void None %16
+         %17 = OpLabel
+         %19 = OpLoad %v3uint %sk_GlobalInvocationID
+         %20 = OpCompositeExtract %uint %19 0
+         %21 = OpAccessChain %_ptr_Uniform_int %7 %int_0 %20
+         %23 = OpLoad %int %21
+         %24 = OpAccessChain %_ptr_Uniform_int %3 %int_0
+         %25 = OpLoad %int %24
+         %26 = OpIMul %int %23 %25
+               OpStore %21 %26
+               OpReturn
+               OpFunctionEnd

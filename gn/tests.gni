@@ -21,6 +21,7 @@ tests_sources = [
   "$_tests/BackendSurfaceMutableStateTest.cpp",
   "$_tests/BadIcoTest.cpp",
   "$_tests/BezierCurveTest.cpp",
+  "$_tests/BigImageTest.cpp",
   "$_tests/BitSetTest.cpp",
   "$_tests/BitmapCopyTest.cpp",
   "$_tests/BitmapGetColorTest.cpp",
@@ -75,6 +76,7 @@ tests_sources = [
   "$_tests/F16StagesTest.cpp",
   "$_tests/FakeStreams.h",
   "$_tests/FillPathTest.cpp",
+  "$_tests/FilterResultTest.cpp",
   "$_tests/FindCubicConvex180ChopsTest.cpp",
   "$_tests/FitsInTest.cpp",
   "$_tests/FlattenDrawableTest.cpp",
@@ -111,7 +113,6 @@ tests_sources = [
   "$_tests/GrQuadBufferTest.cpp",
   "$_tests/GrQuadCropTest.cpp",
   "$_tests/GrRenderTaskClusterTest.cpp",
-  "$_tests/GrSlugTest.cpp",
   "$_tests/GrStyledShapeTest.cpp",
   "$_tests/GrSubmittedFlushTest.cpp",
   "$_tests/GrSurfaceResolveTest.cpp",
@@ -194,6 +195,7 @@ tests_sources = [
   "$_tests/PreChopPathCurvesTest.cpp",
   "$_tests/PremulAlphaRoundTripTest.cpp",
   "$_tests/PromiseImageTest.cpp",
+  "$_tests/ProtectedTest.cpp",
   "$_tests/ProxyConversionTest.cpp",
   "$_tests/ProxyRefTest.cpp",
   "$_tests/ProxyTest.cpp",
@@ -254,9 +256,8 @@ tests_sources = [
   "$_tests/SkRemoteGlyphCacheTest.cpp",
   "$_tests/SkResourceCacheTest.cpp",
   "$_tests/SkRuntimeEffectTest.cpp",
-  "$_tests/SkSLDSLOnlyTest.cpp",
-  "$_tests/SkSLDSLTest.cpp",
-  "$_tests/SkSLDSLUtil.cpp",
+  "$_tests/SkSLDebugTracePlayerTest.cpp",
+  "$_tests/SkSLDebugTraceTest.cpp",
   "$_tests/SkSLES2ConformanceTest.cpp",
   "$_tests/SkSLErrorTest.cpp",
   "$_tests/SkSLGLSLTestbed.cpp",
@@ -265,6 +266,7 @@ tests_sources = [
   "$_tests/SkSLSPIRVTestbed.cpp",
   "$_tests/SkSLTest.cpp",
   "$_tests/SkSLTypeTest.cpp",
+  "$_tests/SkSLWGSLTestbed.cpp",
   "$_tests/SkSharedMutexTest.cpp",
   "$_tests/SkSpanTest.cpp",
   "$_tests/SkStrikeCacheTest.cpp",
@@ -272,14 +274,13 @@ tests_sources = [
   "$_tests/SkStringViewTest.cpp",
   "$_tests/SkTBlockListTest.cpp",
   "$_tests/SkUTFTest.cpp",
-  "$_tests/SkVMDebugTracePlayerTest.cpp",
-  "$_tests/SkVMDebugTraceTest.cpp",
-  "$_tests/SkVMTest.cpp",
   "$_tests/SkVxTest.cpp",
+  "$_tests/SkXmpTest.cpp",
   "$_tests/Skbug12214.cpp",
   "$_tests/Skbug5221.cpp",
   "$_tests/Skbug6389.cpp",
   "$_tests/Skbug6653.cpp",
+  "$_tests/SlugTest.cpp",
   "$_tests/SortTest.cpp",
   "$_tests/SpecialImageTest.cpp",
   "$_tests/SpecialSurfaceTest.cpp",
@@ -303,6 +304,7 @@ tests_sources = [
   "$_tests/TextBlobCacheTest.cpp",
   "$_tests/TextBlobTest.cpp",
   "$_tests/TextureProxyTest.cpp",
+  "$_tests/TextureSizeTest.cpp",
   "$_tests/TextureStripAtlasManagerTest.cpp",
   "$_tests/Time.cpp",
   "$_tests/TopoSortTest.cpp",
@@ -346,9 +348,13 @@ graphite_tests_sources = [
   "$_tests/graphite/BackendTextureTest.cpp",
   "$_tests/graphite/BoundsManagerTest.cpp",
   "$_tests/graphite/BufferManagerTest.cpp",
+  "$_tests/graphite/CacheKeyTest.cpp",
   "$_tests/graphite/ComputeTest.cpp",
+  "$_tests/graphite/DeviceTest.cpp",
   "$_tests/graphite/GraphitePromiseImageTest.cpp",
   "$_tests/graphite/GraphiteResourceCacheTest.cpp",
+  "$_tests/graphite/GraphiteYUVAPromiseImageTest.cpp",
+  "$_tests/graphite/ImageOriginTest.cpp",
   "$_tests/graphite/ImageProviderTest.cpp",
   "$_tests/graphite/ImageShaderTest.cpp",
   "$_tests/graphite/IntersectionTreeTest.cpp",
@@ -356,6 +362,7 @@ graphite_tests_sources = [
   "$_tests/graphite/MultisampleTest.cpp",
   "$_tests/graphite/MutableImagesTest.cpp",
   "$_tests/graphite/PipelineDataCacheTest.cpp",
+  "$_tests/graphite/ProxyCacheTest.cpp",
   "$_tests/graphite/RTEffectTest.cpp",
   "$_tests/graphite/ReadWritePixelsGraphiteTest.cpp",
   "$_tests/graphite/RecorderTest.cpp",
@@ -376,6 +383,7 @@ precompile_tests_sources = [
   "$_tests/graphite/PaintParamsKeyTest.cpp",
 ]
 
+graphite_dawn_tests_sources = [ "$_tests/graphite/DawnBackendTextureTest.cpp" ]
 graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.mm" ]
 
 pathops_tests_sources = [
@@ -468,4 +476,7 @@ ganesh_tests_sources = [
 
 tests_sources += ganesh_tests_sources
 
-jpeg_gainmap_tests_sources = [ "$_tests/JpegGainmapTest.cpp" ]
+jpeg_gainmap_tests_sources = [
+  "$_tests/JpegGainmapTest.cpp",
+  "$_tests/SkJpegXmpTest.cpp",
+]

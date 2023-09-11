@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
 
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
+#include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/vk/VulkanMemory.h"
 
@@ -16,7 +17,7 @@ namespace skgpu::graphite {
 sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
                                  size_t size,
                                  BufferType type,
-                                 PrioritizeGpuReads prioritizeGpuReads) {
+                                 AccessPattern accessPattern) {
     if (size <= 0) {
         return nullptr;
     }
@@ -27,7 +28,7 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     // memory has faster reads on the gpu than memory that is also mappable on the cpu. Protected
     // memory always uses mappable buffers.
     bool requiresMappable = sharedContext->isProtected() == Protected::kYes ||
-                            prioritizeGpuReads == PrioritizeGpuReads::kNo ||
+                            accessPattern == AccessPattern::kHostVisible ||
                             !sharedContext->vulkanCaps().gpuOnlyBuffersMorePerformant();
 
     using BufferUsage = skgpu::VulkanMemoryAllocator::BufferUsage;
@@ -144,26 +145,21 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     //     }
     // }
 
-    return sk_sp<Buffer>(new VulkanBuffer(sharedContext,
-                                          size,
-                                          type,
-                                          prioritizeGpuReads,
-                                          std::move(buffer),
-                                          alloc,
-                                          bufInfo.usage));
+    return sk_sp<Buffer>(new VulkanBuffer(
+            sharedContext, size, type, accessPattern, std::move(buffer), alloc, bufInfo.usage));
 }
 
 VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            size_t size,
                            BufferType type,
-                           PrioritizeGpuReads prioritizeGpuReads,
+                           AccessPattern accessPattern,
                            VkBuffer buffer,
                            const skgpu::VulkanAlloc& alloc,
                            const VkBufferUsageFlags usageFlags)
         : Buffer(sharedContext, size)
         , fBuffer(std::move(buffer))
         , fAlloc(alloc)
-        , fBufferUsageFlags (usageFlags)
+        , fBufferUsageFlags(usageFlags)
         // We assume a buffer is used for CPU reads only in the case of GPU->CPU transfer buffers.
         , fBufferUsedForCPURead(type == BufferType::kXferGpuToCpu) {}
 
@@ -247,5 +243,76 @@ void VulkanBuffer::onUnmap() {
     SkASSERT(this->isMapped());
     this->internalUnmap(0, fBufferUsedForCPURead ? 0 : this->size());
 }
+
+void VulkanBuffer::setBufferAccess(VulkanCommandBuffer* cmdBuffer,
+                                   VkAccessFlags dstAccessMask,
+                                   VkPipelineStageFlags dstStageMask,
+                                   bool byRegion) const {
+    // TODO: fill out other cases where we need a barrier
+    if (dstAccessMask == VK_ACCESS_HOST_READ_BIT) {
+        VkPipelineStageFlags srcStageMask =
+            VulkanBuffer::AccessMaskToPipelineSrcStageFlags(fCurrentAccessMask);
+
+        VkBufferMemoryBarrier bufferMemoryBarrier = {
+                 VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,  // sType
+                 nullptr,                                  // pNext
+                 fCurrentAccessMask,                       // srcAccessMask
+                 dstAccessMask,                            // dstAccessMask
+                 VK_QUEUE_FAMILY_IGNORED,                  // srcQueueFamilyIndex
+                 VK_QUEUE_FAMILY_IGNORED,                  // dstQueueFamilyIndex
+                 fBuffer,                                  // buffer
+                 0,                                        // offset
+                 this->size(),                             // size
+        };
+
+        // TODO: restrict to area of buffer we're interested in
+        cmdBuffer->addBufferMemoryBarrier(srcStageMask, dstStageMask, byRegion,
+                                          &bufferMemoryBarrier);
+    }
+
+    fCurrentAccessMask = dstAccessMask;
+}
+
+VkPipelineStageFlags VulkanBuffer::AccessMaskToPipelineSrcStageFlags(const VkAccessFlags srcMask) {
+    if (srcMask == 0) {
+        return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    }
+    VkPipelineStageFlags flags = 0;
+
+    if (srcMask & VK_ACCESS_TRANSFER_WRITE_BIT || srcMask & VK_ACCESS_TRANSFER_READ_BIT) {
+        flags |= VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    if (srcMask & VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT ||
+        srcMask & VK_ACCESS_COLOR_ATTACHMENT_READ_BIT) {
+        flags |= VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    }
+    if (srcMask & VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT ||
+        srcMask & VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT) {
+        flags |= VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    }
+    if (srcMask & VK_ACCESS_INPUT_ATTACHMENT_READ_BIT) {
+        flags |= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+    if (srcMask & VK_ACCESS_SHADER_READ_BIT ||
+        srcMask & VK_ACCESS_UNIFORM_READ_BIT) {
+        flags |= (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+    }
+    if (srcMask & VK_ACCESS_SHADER_WRITE_BIT) {
+        flags |= VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    }
+    if (srcMask & VK_ACCESS_INDEX_READ_BIT ||
+        srcMask & VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT) {
+        flags |= VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+    }
+    if (srcMask & VK_ACCESS_INDIRECT_COMMAND_READ_BIT) {
+        flags |= VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+    }
+    if (srcMask & VK_ACCESS_HOST_READ_BIT || srcMask & VK_ACCESS_HOST_WRITE_BIT) {
+        flags |= VK_PIPELINE_STAGE_HOST_BIT;
+    }
+
+    return flags;
+}
+
 } // namespace skgpu::graphite
 

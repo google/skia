@@ -1,11 +1,12 @@
 uniform half4 colorGreen, colorRed;
 
 const int SEVEN = 7, TEN = 10;
+const half4x4 MATRIXFIVE = half4x4(5);
 
-noinline bool verify_const_globals(int seven, int ten) {
-    return seven == 7 && ten == 10;
+noinline bool verify_const_globals(int seven, int ten, half4x4 matrixFive) {
+    return seven == 7 && ten == 10 && matrixFive == half4x4(5);
 }
 
 half4 main(float2 xy) {
-    return verify_const_globals(SEVEN, TEN) ? colorGreen : colorRed;
+    return verify_const_globals(SEVEN, TEN, MATRIXFIVE) ? colorGreen : colorRed;
 }

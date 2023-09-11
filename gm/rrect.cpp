@@ -134,14 +134,9 @@ public:
     RRectGM() {}
 
 protected:
+    SkString getName() const override { return SkString("rrect"); }
 
-    SkString onShortName() override {
-        return SkString("rrect");
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(820, 710);
-    }
+    SkISize getISize() override { return SkISize::Make(820, 710); }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr InsetProc insetProcs[] = {

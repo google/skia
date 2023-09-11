@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2016 Google Inc.
 #
@@ -13,10 +13,7 @@ import sys
 import tempfile
 import zipfile
 
-if sys.version_info[0] < 3:
-  from urllib2 import urlopen
-else:
-  from urllib.request import urlopen
+from urllib.request import urlopen
 
 os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
@@ -25,7 +22,7 @@ with open(gnzip, 'wb') as f:
   OS  = {'darwin': 'mac', 'linux': 'linux', 'linux2': 'linux', 'win32': 'windows'}[sys.platform]
   cpu = {'aarch64': 'arm64', 'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
 
-  rev = 'd62642c920e6a0d1756316d225a90fd6faa9e21e'
+  rev = 'fe330c0ae1ec29db30b6f830e50771a335e071fb'
   url = 'https://chrome-infra-packages.appspot.com/dl/gn/gn/{}-{}/+/git_revision:{}'.format(
           OS,cpu,rev)
   f.write(urlopen(url).read())

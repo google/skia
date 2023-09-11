@@ -5,7 +5,7 @@
 REG_FIDDLE(Surface_MakeRaster_2, 256, 256, true, 0) {
 void draw(SkCanvas* ) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);
-    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
     SkPixmap pixmap;
@@ -14,7 +14,6 @@ void draw(SkCanvas* ) {
         SkPMColor pmWhite = colorPtr[0];
         SkPaint paint;
         canvas->drawPoint(1, 1, paint);
-        canvas->flush();  // ensure that point was drawn
         for (int y = 0; y < info.height(); ++y) {
             for (int x = 0; x < info.width(); ++x) {
                 SkDebugf("%c", colorPtr[x] == pmWhite ? '-' : 'x');

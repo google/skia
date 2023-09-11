@@ -9,7 +9,6 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkData.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
@@ -27,7 +26,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/effects/imagefilters/SkRuntimeImageFilter.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -152,9 +151,8 @@ static void test_runtime_shader(skiatest::Reporter* r, SkSurface* surface) {
     sk_sp<SkImageFilter> input = SkImageFilters::Shader(SkShaders::Color(SK_ColorRED));
 
     // Create the different variations of SkImageFilters::RuntimeShader
-    // All 3 variations should produce the same pixel output
+    // All variations should produce the same pixel output
     std::vector<sk_sp<SkImageFilter>> filters = {
-            SkMakeRuntimeImageFilter(effect, /*uniforms=*/nullptr, input),
             SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"", input),
             SkImageFilters::RuntimeShader(builder, /*childShaderName=*/"child", input)};
 
@@ -200,7 +198,7 @@ static void test_runtime_shader(skiatest::Reporter* r, SkSurface* surface) {
 
 DEF_TEST(SkRuntimeShaderImageFilter_CPU, r) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
-    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
     test_runtime_shader(r, surface.get());
 }
 
@@ -210,6 +208,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
                                        CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
     sk_sp<SkSurface> surface(
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
+            SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     test_runtime_shader(r, surface.get());
 }

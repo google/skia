@@ -159,6 +159,11 @@ void SkArenaAllocWithReset::reset() {
     new (this) SkArenaAllocWithReset{firstBlock, firstSize, firstHeapAllocationSize};
 }
 
+bool SkArenaAllocWithReset::isEmpty() {
+    return this->cursor() == nullptr ||
+           this->cursor() == fFirstBlock + sizeof(Footer);
+}
+
 // SkFibonacci47 is the first 47 Fibonacci numbers. Fib(47) is the largest value less than 2 ^ 32.
 // Used by SkFibBlockSizes.
 std::array<const uint32_t, 47> SkFibonacci47 {

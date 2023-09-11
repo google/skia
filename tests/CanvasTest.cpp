@@ -12,7 +12,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkDocument.h"
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
@@ -38,10 +37,8 @@
 #include "include/utils/SkNWayCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkBigPicture.h"
-#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/utils/SkCanvasStack.h"
 #include "tests/Test.h"
 
@@ -53,7 +50,6 @@
 using namespace skia_private;
 
 class SkPicture;
-class SkReadBuffer;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "include/core/SkColorSpace.h"
@@ -148,7 +144,7 @@ template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
         proc(doc->beginPage(SkIntToScalar(w), SkIntToScalar(h)));
     }
 
-    proc(SkSurface::MakeRasterN32Premul(w, h, nullptr)->getCanvas());
+    proc(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h), nullptr)->getCanvas());
 }
 
 const SkIRect gBaseRestrictedR = { 0, 0, 10, 10 };
@@ -364,42 +360,26 @@ static CanvasTest kCanvasTests[] = {
         c->restoreToCount(baseSaveCount + 1);
         REPORTER_ASSERT(r, baseSaveCount + 1 == c->getSaveCount());
 
-       // should this pin to 1, or be a no-op, or crash?
-       c->restoreToCount(0);
-       REPORTER_ASSERT(r, 1 == c->getSaveCount());
+        // should this pin to 1, or be a no-op, or crash?
+        c->restoreToCount(0);
+        REPORTER_ASSERT(r, 1 == c->getSaveCount());
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-       // This test step challenges the TestDeferredCanvasStateConsistency
-       // test cases because the opaque paint can trigger an optimization
-       // that discards previously recorded commands. The challenge is to maintain
-       // correct clip and matrix stack state.
-       c->resetMatrix();
-       c->rotate(SkIntToScalar(30));
-       c->save();
-       c->translate(SkIntToScalar(2), SkIntToScalar(1));
-       c->save();
-       c->scale(SkIntToScalar(3), SkIntToScalar(3));
-       SkPaint paint;
-       paint.setColor(0xFFFFFFFF);
-       c->drawPaint(paint);
-       c->restore();
-       c->restore();
-    },
-    [](SkCanvas* c, skiatest::Reporter* r) {
-       // This test step challenges the TestDeferredCanvasStateConsistency
-       // test case because the canvas flush on a deferred canvas will
-       // reset the recording session. The challenge is to maintain correct
-       // clip and matrix stack state on the playback canvas.
-       c->resetMatrix();
-       c->rotate(SkIntToScalar(30));
-       c->save();
-       c->translate(SkIntToScalar(2), SkIntToScalar(1));
-       c->save();
-       c->scale(SkIntToScalar(3), SkIntToScalar(3));
-       c->drawRect(kRect, SkPaint());
-       c->flush();
-       c->restore();
-       c->restore();
+        // This test step challenges the TestDeferredCanvasStateConsistency
+        // test cases because the opaque paint can trigger an optimization
+        // that discards previously recorded commands. The challenge is to maintain
+        // correct clip and matrix stack state.
+        c->resetMatrix();
+        c->rotate(SkIntToScalar(30));
+        c->save();
+        c->translate(SkIntToScalar(2), SkIntToScalar(1));
+        c->save();
+        c->scale(SkIntToScalar(3), SkIntToScalar(3));
+        SkPaint paint;
+        paint.setColor(0xFFFFFFFF);
+        c->drawPaint(paint);
+        c->restore();
+        c->restore();
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         SkPoint pts[4];
@@ -601,7 +581,7 @@ static void test_cliptype(SkCanvas* canvas, skiatest::Reporter* r) {
 
 DEF_TEST(CanvasClipType, r) {
     // test rasterclip backend
-    test_cliptype(SkSurface::MakeRasterN32Premul(10, 10)->getCanvas(), r);
+    test_cliptype(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10))->getCanvas(), r);
 
 #ifdef SK_SUPPORT_PDF
     // test clipstack backend
@@ -632,40 +612,10 @@ DEF_TEST(Canvas_LegacyColorBehavior, r) {
 }
 #endif
 
-namespace {
-
-class ZeroBoundsImageFilter : public SkImageFilter_Base {
-public:
-    static sk_sp<SkImageFilter> Make() { return sk_sp<SkImageFilter>(new ZeroBoundsImageFilter); }
-
-protected:
-    sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint*) const override {
-        return nullptr;
-    }
-    SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&,
-                               MapDirection, const SkIRect* inputRect) const override {
-        return SkIRect::MakeEmpty();
-    }
-
-private:
-    SK_FLATTENABLE_HOOKS(ZeroBoundsImageFilter)
-
-    ZeroBoundsImageFilter() : INHERITED(nullptr, 0, nullptr) {}
-
-    using INHERITED = SkImageFilter_Base;
-};
-
-sk_sp<SkFlattenable> ZeroBoundsImageFilter::CreateProc(SkReadBuffer& buffer) {
-    SkDEBUGFAIL("Should never get here");
-    return nullptr;
-}
-
-}  // anonymous namespace
-
 DEF_TEST(Canvas_SaveLayerWithNullBoundsAndZeroBoundsImageFilter, r) {
     SkCanvas canvas(10, 10);
     SkPaint p;
-    p.setImageFilter(ZeroBoundsImageFilter::Make());
+    p.setImageFilter(SkImageFilters::Empty());
     // This should not fail any assert.
     canvas.saveLayer(nullptr, &p);
     REPORTER_ASSERT(r, canvas.getDeviceClipBounds().isEmpty());
@@ -738,7 +688,7 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
     auto do_test = [&](int saveCount, int restoreCount) {
         SkASSERT(restoreCount <= saveCount);
 
-        auto surf = SkSurface::MakeRasterDirect(pm);
+        auto surf = SkSurfaces::WrapPixels(pm);
         auto canvas = surf->getCanvas();
 
         canvas->clear(SK_ColorRED);

@@ -6,9 +6,9 @@
  */
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
-#include "include/private/SkSpinlock.h"
 #include "include/private/base/SkMutex.h"
-#include "src/core/SkSharedMutex.h"
+#include "src/base/SkSharedMutex.h"
+#include "src/base/SkSpinlock.h"
 
 template <typename Mutex>
 class MutexBench : public Benchmark {

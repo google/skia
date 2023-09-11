@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLErrorReporter.h"
 
-#include "include/sksl/SkSLPosition.h"
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLPosition.h"
 
 namespace SkSL {
 

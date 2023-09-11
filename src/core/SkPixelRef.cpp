@@ -6,13 +6,15 @@
  */
 
 #include "include/core/SkPixelRef.h"
-#include "include/private/base/SkMutex.h"
+
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkPixelRefPriv.h"
-#include "src/core/SkTraceEvent.h"
 
 #include <atomic>
+#include <utility>
 
 uint32_t SkNextID::ImageID() {
     // We never set the low bit.... see SkPixelRef::genIDIsUnique().

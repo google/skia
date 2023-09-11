@@ -163,10 +163,10 @@ sk_sp<SkTypeface> FontCollection::defaultFallback() {
         return nullptr;
     }
     for (const SkString& familyName : fDefaultFamilyNames) {
-        SkTypeface* match = fDefaultFontManager->matchFamilyStyle(familyName.c_str(),
-                                                                  SkFontStyle());
+        sk_sp<SkTypeface> match = fDefaultFontManager->matchFamilyStyle(familyName.c_str(),
+                                                                        SkFontStyle());
         if (match) {
-            return sk_sp<SkTypeface>(match);
+            return match;
         }
     }
     return nullptr;

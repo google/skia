@@ -75,6 +75,7 @@ bool VkTestHelper::init() {
         return false;
     }
 
+    SkASSERT(fDirectContext->supportsProtectedContent() == fIsProtected);
     return true;
 }
 

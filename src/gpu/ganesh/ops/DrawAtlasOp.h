@@ -16,7 +16,7 @@ class GrPaint;
 class GrRecordingContext;
 class SkMatrix;
 
-namespace skgpu::v1::DrawAtlasOp {
+namespace skgpu::ganesh::DrawAtlasOp {
 
 GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
@@ -27,6 +27,6 @@ GrOp::Owner Make(GrRecordingContext*,
                  const SkRect* rects,
                  const SkColor* colors);
 
-}  // namespace skgpu::v1::DrawAtlasOp
+}  // namespace skgpu::ganesh::DrawAtlasOp
 
 #endif // DrawAtlasOp_DEFINED

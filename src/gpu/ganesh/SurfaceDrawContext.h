@@ -41,7 +41,6 @@ struct SkDrawShadowRec;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
-class SkMatrixProvider;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -57,7 +56,7 @@ namespace sktext {
 class GlyphRunList;
 }
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
@@ -115,9 +114,9 @@ public:
             SkBackingFit,
             SkISize dimensions,
             const SkSurfaceProps&,
-            int sampleCnt = 1,
-            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
-            skgpu::Protected = skgpu::Protected::kNo,
+            int sampleCnt,
+            skgpu::Mipmapped,
+            skgpu::Protected,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             skgpu::Budgeted = skgpu::Budgeted::kYes);
 
@@ -373,7 +372,7 @@ public:
      */
     void drawVertices(const GrClip*,
                       GrPaint&& paint,
-                      const SkMatrixProvider& matrixProvider,
+                      const SkMatrix& viewMatrix,
                       sk_sp<SkVertices> vertices,
                       GrPrimitiveType* overridePrimType = nullptr,
                       bool skipColorXform = false);
@@ -381,13 +380,13 @@ public:
     /**
      * Draws a custom mesh with a paint.
      *
-     * @param   paint            describes how to color pixels.
-     * @param   matrixProvider   provides the transformation matrix
-     * @param   mesh             the mesh to draw.
+     * @param   paint      describes how to color pixels.
+     * @param   viewMatrix transformation matrix
+     * @param   mesh       the mesh to draw.
      */
     void drawMesh(const GrClip*,
                   GrPaint&& paint,
-                  const SkMatrixProvider& matrixProvider,
+                  const SkMatrix& viewMatrix,
                   const SkMesh& mesh);
 
     /**
@@ -484,12 +483,12 @@ public:
     /**
      * Draw the text specified by the GlyphRunList.
      *
-     * @param viewMatrix      transformationMatrix
+     * @param viewMatrix      transformation matrix
      * @param glyphRunList    text, text positions, and paint.
      */
     void drawGlyphRunList(SkCanvas*,
                           const GrClip*,
-                          const SkMatrixProvider& viewMatrix,
+                          const SkMatrix& viewMatrix,
                           const sktext::GlyphRunList& glyphRunList,
                           SkStrikeDeviceInfo strikeDeviceInfo,
                           const SkPaint& paint);
@@ -613,7 +612,7 @@ public:
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
 #endif
 
@@ -680,9 +679,9 @@ private:
     // value is false then a texture copy could not be made.
     //
     // The op should have already had setClippedBounds called on it.
-    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const SkRect& opBounds,
-                                                 bool opRequiresMSAA,
-                                                 GrDstProxyView* result);
+    [[nodiscard]] bool setupDstProxyView(const SkRect& opBounds,
+                                         bool opRequiresMSAA,
+                                         GrDstProxyView* result);
 
     OpsTask* replaceOpsTaskIfModifiesColor();
 
@@ -691,11 +690,11 @@ private:
 
     bool fNeedsStencil = false;
 
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
 };
 
-} // namespace skgpu::v1
+}  // namespace skgpu::ganesh
 
 #endif // SurfaceDrawContext_v1_DEFINED

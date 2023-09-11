@@ -115,8 +115,8 @@ private:
 
     InstanceType              fInstanceType = InstanceType::kNone;
 
-    VectorValue fStartColor,
-                  fEndColor;
+    ColorValue  fStartColor,
+                fEndColor;
     Vec2Value   fStartPoint = {0,0},
                 fEndPoint   = {0,0};
     ScalarValue fBlend   = 0,

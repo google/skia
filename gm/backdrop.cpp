@@ -19,6 +19,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkMatrixPriv.h"
 
 #include <initializer_list>
 
@@ -57,7 +58,12 @@ static void do_draw(SkCanvas* canvas, bool useClip, bool useHintRect, SkScalar s
     }
     // Using kClamp because kDecal, the default, produces transparency near the edge of the canvas's
     // device.
-    auto blur = SkImageFilters::Blur(sigma, sigma, SkTileMode::kClamp, nullptr);
+    SkRect blurCrop;
+    SkAssertResult(SkMatrixPriv::InverseMapRect(canvas->getLocalToDeviceAs3x3(),
+                                                &blurCrop,
+                                                SkRect::MakeWH(canvas->imageInfo().width(),
+                                                               canvas->imageInfo().height())));
+    auto blur = SkImageFilters::Blur(sigma, sigma, SkTileMode::kClamp, nullptr, blurCrop);
     auto rec = SkCanvasPriv::ScaledBackdropLayer(drawrptr, nullptr, blur.get(), scaleFactor, 0);
     canvas->saveLayer(rec);
         // draw something inside, just to demonstrate that we don't blur the new contents,

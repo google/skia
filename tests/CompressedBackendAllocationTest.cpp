@@ -26,6 +26,8 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -45,6 +47,8 @@
 #include <initializer_list>
 #include <memory>
 #include <utility>
+
+using namespace skia_private;
 
 class GrRecordingContext;
 class SkPixmap;
@@ -75,11 +79,8 @@ sk_sp<SkImage> create_image(GrDirectContext* dContext, const GrBackendTexture& b
     SkAlphaType at = SkTextureCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
 
-    return SkImage::MakeFromCompressedTexture(dContext,
-                                              backendTex,
-                                              kTopLeft_GrSurfaceOrigin,
-                                              at,
-                                              nullptr);
+    return SkImages::TextureFromCompressedTexture(
+            dContext, backendTex, kTopLeft_GrSurfaceOrigin, at, nullptr);
 }
 
 // Draw the compressed backend texture (wrapped in an SkImage) into an RGBA surface, attempting
@@ -93,12 +94,12 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage
     SkImageInfo readbackSurfaceII = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(rContext,
-                                                        skgpu::Budgeted::kNo,
-                                                        readbackSurfaceII,
-                                                        1,
-                                                        kTopLeft_GrSurfaceOrigin,
-                                                        nullptr);
+    sk_sp<SkSurface> surf = SkSurfaces::RenderTarget(rContext,
+                                                     skgpu::Budgeted::kNo,
+                                                     readbackSurfaceII,
+                                                     1,
+                                                     kTopLeft_GrSurfaceOrigin,
+                                                     nullptr);
     if (!surf) {
         return;
     }
@@ -226,7 +227,7 @@ static std::unique_ptr<const char[]> make_compressed_data(SkTextureCompressionTy
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    SkTArray<size_t> mipMapOffsets(numMipLevels);
+    TArray<size_t> mipMapOffsets(numMipLevels);
 
     size_t dataSize = SkCompressedDataSize(compression, dimensions, &mipMapOffsets,
                                            mipmapped == GrMipmapped::kYes);

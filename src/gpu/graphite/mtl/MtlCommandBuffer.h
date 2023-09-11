@@ -17,10 +17,6 @@
 #include "include/core/SkTypes.h"
 #include "include/ports/SkCFObject.h"
 
-#ifdef SK_ENABLE_PIET_GPU
-#include "src/gpu/piet/Render.h"
-#endif
-
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
@@ -41,6 +37,11 @@ public:
 
     bool setNewCommandBufferResources() override;
 
+    void addWaitSemaphores(size_t numWaitSemaphores,
+                           const BackendSemaphore* waitSemaphores) override;
+    void addSignalSemaphores(size_t numSignalSemaphores,
+                             const BackendSemaphore* signalSemaphores) override;
+
     bool isFinished() {
         return (*fCommandBuffer).status == MTLCommandBufferStatusCompleted ||
                (*fCommandBuffer).status == MTLCommandBufferStatusError;
@@ -59,10 +60,6 @@ public:
         }
     }
     bool commit();
-
-#ifdef SK_ENABLE_PIET_GPU
-    void setPietRenderer(const skgpu::piet::MtlRenderer* renderer) { fPietRenderer = renderer; }
-#endif
 
 private:
     MtlCommandBuffer(id<MTLCommandQueue>,
@@ -126,6 +123,8 @@ private:
     void beginComputePass();
     void bindComputePipeline(const ComputePipeline*);
     void bindBuffer(const Buffer* buffer, unsigned int offset, unsigned int index);
+    void bindTexture(const Texture* texture, unsigned int index);
+    void bindSampler(const Sampler* sampler, unsigned int index);
     void dispatchThreadgroups(const WorkgroupSize& globalSize, const WorkgroupSize& localSize);
     void endComputePass();
 
@@ -147,13 +146,10 @@ private:
     bool onCopyTextureToTexture(const Texture* src,
                                 SkIRect srcRect,
                                 const Texture* dst,
-                                SkIPoint dstPoint) override;
+                                SkIPoint dstPoint,
+                                int mipLevel) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
     bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
-
-#ifdef SK_ENABLE_PIET_GPU
-    void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) override;
-#endif
 
     MtlBlitCommandEncoder* getBlitCommandEncoder();
     void endBlitCommandEncoder();
@@ -177,10 +173,6 @@ private:
     // This can happen if a recording is being replayed with a transform that moves the recorded
     // commands outside of the render target bounds.
     bool fDrawIsOffscreen = false;
-
-#ifdef SK_ENABLE_PIET_GPU
-    const skgpu::piet::MtlRenderer* fPietRenderer = nullptr;  // owned by MtlQueueManager
-#endif
 };
 
 } // namespace skgpu::graphite

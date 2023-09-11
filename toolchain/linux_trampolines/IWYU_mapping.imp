@@ -9,12 +9,14 @@
   { include: ["<__algorithm/fill.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/fill_n.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/find.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/find_if.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/is_sorted.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/lower_bound.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/max.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/max_element.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/min.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/min_element.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/minmax.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/move.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/remove_if.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/reverse.h>", "private", "<algorithm>", "public"] },
@@ -397,6 +399,7 @@
 
   { symbol: ["std::time_t", "private", "<ctime>", "public"] },
   { symbol: ["time_t", "private", "<ctime>", "public"] },
+  { symbol: ["tm", "private", "<ctime>", "public"] },
 
   # We are pretty forgiving with iostream headers. If we specify
   # any of them, that is generally sufficient.
@@ -438,5 +441,6 @@
   # out if this can be done with a glob.
   { symbol: ["skia_private", "private", "\"include/private/base/SkTemplates.h\"", "public"] },
   { symbol: ["skia_private", "private", "\"include/private/base/SkTArray.h\"", "public"] },
+  { symbol: ["skia_private", "private", "\"src/core/SkTHash.h\"", "public"] },
   { symbol: ["skia_private", "private", "\"src/core/SkTraceEvent.h\"", "public"] },
 ]

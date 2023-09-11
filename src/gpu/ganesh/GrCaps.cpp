@@ -53,6 +53,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = false;
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
+    fSupportsProtectedContent = false;
     fPerformPartialClearsAsDraws = false;
     fPerformColorClearsAsDraws = false;
     fAvoidLargeIndexBufferDraws = false;
@@ -80,7 +81,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fInternalMultisampleCount = 0;
 
     fSuppressPrints = options.fSuppressPrints;
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     fWireframeMode = options.fWireframeMode;
 #else
     fWireframeMode = false;
@@ -91,6 +92,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fNativeDrawIndexedIndirectIsBroken = false;
     fAvoidReorderingRenderTasks = false;
     fAvoidDithering = false;
+    fAvoidLineDraws = false;
     fDisablePerspectiveSDFText = false;
 
     fPreferVRAMUseOverFlushes = true;
@@ -140,7 +142,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     }
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
-#if GR_TEST_UTILS
+#if defined(GR_TEST_UTILS)
     if (options.fSuppressAdvancedBlendEquations) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
     }
@@ -237,6 +239,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Half float vertex attribute support", fHalfFloatVertexAttributeSupport);
     writer->appendBool("Specify GeometryProcessor textures as a dynamic state array",
                        fDynamicStateArrayGeometryProcessorTextureSupport);
+    writer->appendBool("Supports Protected content", fSupportsProtectedContent);
     writer->appendBool("Use draws for partial clears", fPerformPartialClearsAsDraws);
     writer->appendBool("Use draws for color clears", fPerformColorClearsAsDraws);
     writer->appendBool("Avoid Large IndexBuffer Draws", fAvoidLargeIndexBufferDraws);
@@ -429,7 +432,7 @@ bool GrCaps::areColorTypeAndFormatCompatible(GrColorType grCT,
     SkTextureCompressionType compression = GrBackendFormatToCompressionType(format);
     if (compression != SkTextureCompressionType::kNone) {
         return grCT == (SkTextureCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
-                                                               : GrColorType::kRGBA_8888);
+                                                                      : GrColorType::kRGBA_8888);
     }
 
     return this->onAreColorTypeAndFormatCompatible(grCT, format);

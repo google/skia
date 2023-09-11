@@ -1,0 +1,185 @@
+168 instructions
+
+[immutable slots]
+i0 = 0x3E59B3D0 (0.2126)
+i1 = 0x3F371759 (0.7152)
+i2 = 0x3D93DD98 (0.0722)
+i3 = 0
+i4 = 0x3F2AAAAB (0.6666667)
+i5 = 0x3EAAAAAB (0.333333343)
+
+store_src                      inColor = src.rgba
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_3_slots_unmasked          c = inColor(0..2)
+copy_uniform                   $0 = grayscale
+cmpeq_imm_float                $0 = equal($0, 0x3F800000 (1.0))
+branch_if_no_active_lanes_eq   branch +6 (label 0 at #12) if no lanes of $0 == 0xFFFFFFFF
+copy_3_immutables_unmasked     $1..3 = i0..2 [0x3E59B3D0 (0.2126), 0x3F371759 (0.7152), 0x3D93DD98 (0.0722)]
+copy_3_slots_unmasked          $4..6 = c
+dot_3_floats                   $1 = dot($1..3, $4..6)
+swizzle_3                      $1..3 = ($1..3).xxx
+copy_3_slots_unmasked          c = $1..3
+label                          label 0
+copy_uniform                   $0 = invertStyle
+cmpeq_imm_float                $0 = equal($0, 0x3F800000 (1.0))
+branch_if_no_active_lanes_eq   branch +6 (label 2 at #21) if no lanes of $0 == 0xFFFFFFFF
+splat_3_constants              $1..3 = 0x3F800000 (1.0)
+copy_3_slots_unmasked          $4..6 = c
+sub_3_floats                   $1..3 -= $4..6
+copy_3_slots_unmasked          c = $1..3
+jump                           jump +143 (label 3 at #163)
+label                          label 0x00000002
+copy_uniform                   $1 = invertStyle
+cmpeq_imm_float                $1 = equal($1, 0x40000000 (2.0))
+branch_if_no_active_lanes_eq   branch +138 (label 4 at #162) if no lanes of $1 == 0xFFFFFFFF
+copy_2_slots_unmasked          $2..3 = c(0..1)
+max_float                      $2 = max($2, $3)
+copy_slot_unmasked             $3 = c(2)
+max_float                      $2 = max($2, $3)
+copy_slot_unmasked             _0_mx = $2
+copy_2_slots_unmasked          $2..3 = c(0..1)
+min_float                      $2 = min($2, $3)
+copy_slot_unmasked             $3 = c(2)
+min_float                      $2 = min($2, $3)
+copy_slot_unmasked             _1_mn = $2
+copy_2_slots_unmasked          $2..3 = _0_mx, _1_mn
+sub_float                      $2 -= $3
+copy_slot_unmasked             _2_d = $2
+copy_constant                  $2 = 0x3F800000 (1.0)
+copy_slot_unmasked             $3 = _2_d
+div_float                      $2 /= $3
+copy_slot_unmasked             _3_invd = $2
+copy_2_slots_unmasked          $2..3 = c(1..2)
+cmplt_float                    $2 = lessThan($2, $3)
+copy_constant                  $3 = 0
+copy_constant                  $4 = 0x40C00000 (6.0)
+mix_int                        $2 = mix($3, $4, $2)
+copy_slot_unmasked             _4_g_lt_b = $2
+copy_2_slots_unmasked          $2..3 = _0_mx, _1_mn
+cmpeq_float                    $2 = equal($2, $3)
+store_condition_mask           $9 = CondMask
+copy_slot_unmasked             $10 = c(1)
+copy_slot_unmasked             $11 = c(0)
+cmple_float                    $10 = lessThanEqual($10, $11)
+copy_slot_unmasked             $11 = c(2)
+copy_slot_unmasked             $12 = c(0)
+cmple_float                    $11 = lessThanEqual($11, $12)
+bitwise_and_int                $10 &= $11
+store_condition_mask           $13 = CondMask
+copy_slot_unmasked             $14 = c(2)
+copy_slot_unmasked             $15 = c(1)
+cmple_float                    $14 = lessThanEqual($14, $15)
+copy_slot_unmasked             $3 = _3_invd
+copy_2_slots_unmasked          $4..5 = c(0..1)
+sub_float                      $4 -= $5
+mul_float                      $3 *= $4
+add_imm_float                  $3 += 0x40800000 (4.0)
+merge_condition_mask           CondMask = $13 & $14
+branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 9 at #76)
+copy_slot_unmasked             $4 = _3_invd
+copy_slot_unmasked             $5 = c(2)
+copy_slot_unmasked             $6 = c(0)
+sub_float                      $5 -= $6
+mul_float                      $4 *= $5
+add_imm_float                  $4 += 0x40000000 (2.0)
+copy_slot_masked               $3 = Mask($4)
+label                          label 0x00000009
+merge_condition_mask           CondMask = $9 & $10
+branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 8 at #86)
+copy_slot_unmasked             $4 = _3_invd
+copy_2_slots_unmasked          $5..6 = c(1..2)
+sub_float                      $5 -= $6
+mul_float                      $4 *= $5
+copy_slot_unmasked             $5 = _4_g_lt_b
+add_float                      $4 += $5
+copy_slot_masked               $3 = Mask($4)
+label                          label 0x00000008
+load_condition_mask            CondMask = $9
+copy_constant                  $4 = 0
+mix_int                        $2 = mix($3, $4, $2)
+mul_imm_float                  $2 *= 0x3E2AAAAB (0.166666672)
+copy_slot_unmasked             _5_h = $2
+copy_2_slots_unmasked          $2..3 = _0_mx, _1_mn
+add_float                      $2 += $3
+copy_slot_unmasked             _6_sum = $2
+mul_imm_float                  $2 *= 0x3F000000 (0.5)
+copy_slot_unmasked             _7_l = $2
+copy_2_slots_unmasked          $2..3 = _0_mx, _1_mn
+cmpeq_float                    $2 = equal($2, $3)
+copy_slot_unmasked             $3 = _2_d
+store_condition_mask           $9 = CondMask
+copy_constant                  $10 = 0x3F000000 (0.5)
+copy_slot_unmasked             $11 = _7_l
+cmplt_float                    $10 = lessThan($10, $11)
+copy_slot_unmasked             $4 = _6_sum
+merge_condition_mask           CondMask = $9 & $10
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 11 at #111)
+copy_constant                  $5 = 0x40000000 (2.0)
+copy_slot_unmasked             $6 = _6_sum
+sub_float                      $5 -= $6
+copy_slot_masked               $4 = Mask($5)
+label                          label 0x0000000B
+load_condition_mask            CondMask = $9
+div_float                      $3 /= $4
+copy_constant                  $4 = 0
+mix_int                        $2 = mix($3, $4, $2)
+copy_slot_unmasked             _8_s = $2
+copy_slot_unmasked             c(0) = _5_h
+copy_slot_unmasked             c(1) = _8_s
+copy_slot_unmasked             c(2) = _7_l
+copy_constant                  $2 = 0x3F800000 (1.0)
+copy_slot_unmasked             $3 = c(2)
+sub_float                      $2 -= $3
+copy_slot_unmasked             c(2) = $2
+copy_constant                  $2 = 0x3F800000 (1.0)
+copy_slot_unmasked             $3 = c(2)
+mul_imm_float                  $3 *= 0x40000000 (2.0)
+add_imm_float                  $3 += 0xBF800000 (-1.0)
+bitwise_and_imm_int            $3 &= 0x7FFFFFFF
+sub_float                      $2 -= $3
+copy_slot_unmasked             $3 = c(1)
+mul_float                      $2 *= $3
+copy_slot_unmasked             _9_C = $2
+copy_3_slots_unmasked          $2..4 = c
+swizzle_3                      $2..4 = ($2..4).xxx
+copy_3_immutables_unmasked     $5..7 = i3..5 [0, 0x3F2AAAAB (0.6666667), 0x3EAAAAAB (0.333333343)]
+add_3_floats                   $2..4 += $5..7
+copy_3_slots_unmasked          _10_p = $2..4
+copy_3_slots_unmasked          $5..7 = $2..4
+floor_3_floats                 $5..7 = floor($5..7)
+sub_3_floats                   $2..4 -= $5..7
+splat_3_constants              $5..7 = 0x40C00000 (6.0)
+mul_3_floats                   $2..4 *= $5..7
+splat_3_constants              $5..7 = 0x40400000 (3.0)
+sub_3_floats                   $2..4 -= $5..7
+bitwise_and_imm_3_ints         $2..4 &= 0x7FFFFFFF
+splat_3_constants              $5..7 = 0x3F800000 (1.0)
+sub_3_floats                   $2..4 -= $5..7
+splat_3_constants              $5..7 = 0
+max_3_floats                   $2..4 = max($2..4, $5..7)
+splat_3_constants              $5..7 = 0x3F800000 (1.0)
+min_3_floats                   $2..4 = min($2..4, $5..7)
+copy_3_slots_unmasked          _11_q = $2..4
+splat_3_constants              $5..7 = 0x3F000000 (0.5)
+sub_3_floats                   $2..4 -= $5..7
+copy_slot_unmasked             $5 = _9_C
+swizzle_3                      $5..7 = ($5..7).xxx
+mul_3_floats                   $2..4 *= $5..7
+copy_slot_unmasked             $5 = c(2)
+swizzle_3                      $5..7 = ($5..7).xxx
+add_3_floats                   $2..4 += $5..7
+copy_3_slots_unmasked          c = $2..4
+label                          label 0x00000004
+label                          label 0x00000003
+copy_uniform                   $0 = contrast
+swizzle_3                      $0..2 = ($0..2).xxx
+splat_3_constants              $3..5 = 0x3F000000 (0.5)
+copy_3_slots_unmasked          $6..8 = c
+mix_3_floats                   $0..2 = mix($3..5, $6..8, $0..2)
+copy_3_slots_unmasked          c = $0..2
+splat_3_constants              $3..5 = 0
+max_3_floats                   $0..2 = max($0..2, $3..5)
+splat_3_constants              $3..5 = 0x3F800000 (1.0)
+min_3_floats                   $0..2 = min($0..2, $3..5)
+copy_slot_unmasked             $3 = inColor(3)
+load_src                       src.rgba = $0..3

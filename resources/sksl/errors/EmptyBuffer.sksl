@@ -1,0 +1,5 @@
+buffer B {};
+
+/*%%*
+interface block 'B' must contain at least one field
+*%%*/

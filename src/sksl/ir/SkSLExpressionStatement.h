@@ -8,9 +8,9 @@
 #ifndef SKSL_EXPRESSIONSTATEMENT
 #define SKSL_EXPRESSIONSTATEMENT
 
-#include "include/private/SkSLIRNode.h"
-#include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLStatement.h"
 
 #include <memory>
 #include <string>
@@ -51,9 +51,7 @@ public:
         return std::make_unique<ExpressionStatement>(this->expression()->clone());
     }
 
-    std::string description() const override {
-        return this->expression()->description() + ";";
-    }
+    std::string description() const override;
 
 private:
     std::unique_ptr<Expression> fExpression;

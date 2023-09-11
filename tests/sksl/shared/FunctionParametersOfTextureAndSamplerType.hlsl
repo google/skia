@@ -1,4 +1,4 @@
-Texture2D<float4> aTexture : register(t1, space0);
+RWTexture2D<unorm float4> aTexture : register(u1, space0);
 Texture2D<float4> aSampledTexture : register(t2, space0);
 SamplerState _aSampledTexture_sampler : register(s2, space0);
 
@@ -15,14 +15,14 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 helpers_helper_h4ZT(Texture2D<float4> _22, SamplerState __22_sampler, Texture2D<float4> _23)
+float4 helpers_helper_h4ZT(Texture2D<float4> _23, SamplerState __23_sampler, RWTexture2D<unorm float4> _24)
 {
-    return _22.Sample(__22_sampler, c);
+    return _23.Sample(__23_sampler, c);
 }
 
-float4 helper_h4TZ(Texture2D<float4> _29, Texture2D<float4> _30, SamplerState __30_sampler)
+float4 helper_h4TZ(RWTexture2D<unorm float4> _30, Texture2D<float4> _31, SamplerState __31_sampler)
 {
-    return helpers_helper_h4ZT(_30, __30_sampler, _29);
+    return helpers_helper_h4ZT(_31, __31_sampler, _30);
 }
 
 void frag_main()

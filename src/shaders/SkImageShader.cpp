@@ -7,52 +7,43 @@
 
 #include "src/shaders/SkImageShader.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/private/base/SkMath.h"
+#include "modules/skcms/skcms.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkEffectPriv.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixProvider.h"
+#include "src/core/SkImagePriv.h"
 #include "src/core/SkMipmapAccessor.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkVM.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/image/SkImage_Base.h"
-#include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkLocalMatrixShader.h"
-#include "src/shaders/SkTransformShader.h"
 
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/ImageUtils.h"
-#include "src/gpu/graphite/Image_Graphite.h"
-#include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/ReadWriteSwizzle.h"
-#include "src/gpu/graphite/TextureProxyView.h"
-
-
-static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swizzle& swizzle) {
-    if (swizzle == skgpu::Swizzle::RGBA()) {
-        return skgpu::graphite::ReadSwizzle::kRGBA;
-    } else if (swizzle == skgpu::Swizzle::RGB1()) {
-        return skgpu::graphite::ReadSwizzle::kRGB1;
-    } else if (swizzle == skgpu::Swizzle("rrrr")) {
-        return skgpu::graphite::ReadSwizzle::kRRRR;
-    } else if (swizzle == skgpu::Swizzle("rrr1")) {
-        return skgpu::graphite::ReadSwizzle::kRRR1;
-    } else if (swizzle == skgpu::Swizzle::BGRA()) {
-        return skgpu::graphite::ReadSwizzle::kBGRA;
-    } else {
-        SKGPU_LOG_W("%s is an unsupported read swizzle. Defaulting to RGBA.\n",
-                    swizzle.asString().data());
-        return skgpu::graphite::ReadSwizzle::kRGBA;
-    }
-}
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
+#include "src/shaders/SkBitmapProcShader.h"
 #endif
+
+#include <optional>
+#include <tuple>
+#include <utility>
+
+class SkColorSpace;
 
 SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
 #if 0
@@ -95,12 +86,11 @@ static SkTileMode optimize(SkTileMode tm, int dimension) {
 #endif
 }
 
-// TODO: currently this only *always* used in asFragmentProcessor(), which is excluded on no-gpu
-// builds. No-gpu builds only use needs_subset() in asserts, so release+no-gpu doesn't use it, which
-// can cause builds to fail if unused warnings are treated as errors.
-[[maybe_unused]] static bool needs_subset(SkImage* img, const SkRect& subset) {
+#if defined(SK_DEBUG)
+static bool needs_subset(SkImage* img, const SkRect& subset) {
     return subset != SkRect::Make(img->dimensions());
 }
+#endif
 
 SkImageShader::SkImageShader(sk_sp<SkImage> img,
                              const SkRect& subset,
@@ -202,8 +192,8 @@ bool SkImageShader::isOpaque() const {
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
     SkASSERT(!inv.hasPerspective());
 
-    // Scale+translate methods are always present, but affine might not be.
-    if (!SkOpts::S32_alpha_D32_filter_DXDY && !inv.isScaleTranslate()) {
+    // We only have methods for scale+translate
+    if (!inv.isScaleTranslate()) {
         return false;
     }
 
@@ -277,8 +267,7 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
     }
 
     SkMatrix inv;
-    if (!this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &inv) ||
-        !legacy_shader_can_handle(inv)) {
+    if (!rec.fMatrixRec.totalInverse(&inv) || !legacy_shader_can_handle(inv)) {
         return nullptr;
     }
 
@@ -365,110 +354,6 @@ sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined(SK_GANESH)
-
-#include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
-
-std::unique_ptr<GrFragmentProcessor>
-SkImageShader::asFragmentProcessor(const GrFPArgs& args, const MatrixRec& mRec) const {
-    SkTileMode tileModes[2] = {fTileModeX, fTileModeY};
-    const SkRect* subset = needs_subset(fImage.get(), fSubset) ? &fSubset : nullptr;
-    auto fp = as_IB(fImage.get())->asFragmentProcessor(args.fContext,
-                                                       fSampling,
-                                                       tileModes,
-                                                       SkMatrix::I(),
-                                                       subset);
-    if (!fp) {
-        return nullptr;
-    }
-
-    bool success;
-    std::tie(success, fp) = mRec.apply(std::move(fp));
-    if (!success) {
-        return nullptr;
-    }
-
-    if (!fRaw) {
-        fp = GrColorSpaceXformEffect::Make(std::move(fp),
-                                           fImage->colorSpace(),
-                                           fImage->alphaType(),
-                                           args.fDstColorInfo->colorSpace(),
-                                           kPremul_SkAlphaType);
-
-        if (fImage->isAlphaOnly()) {
-            fp = GrBlendFragmentProcessor::Make<SkBlendMode::kDstIn>(std::move(fp), nullptr);
-        }
-    }
-
-    return fp;
-}
-
-#endif
-
-#if defined(SK_GRAPHITE)
-void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
-                             skgpu::graphite::PaintParamsKeyBuilder* builder,
-                             skgpu::graphite::PipelineDataGatherer* gatherer) const {
-    using namespace skgpu::graphite;
-
-    ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset,
-                                        ReadSwizzle::kRGBA);
-
-    auto [ imageToDraw, newSampling ] = skgpu::graphite::GetGraphiteBacked(keyContext.recorder(),
-                                                                           fImage.get(),
-                                                                           fSampling);
-
-    if (imageToDraw) {
-        imgData.fSampling = newSampling;
-        skgpu::Mipmapped mipmapped = (newSampling.mipmap != SkMipmapMode::kNone)
-                                         ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-
-        auto [view, _] = as_IB(imageToDraw)->asView(keyContext.recorder(), mipmapped);
-        imgData.fTextureProxy = view.refProxy();
-        skgpu::Swizzle readSwizzle = view.swizzle();
-        // If the color type is alpha-only, propagate the alpha value to the other channels.
-        if (imageToDraw->isAlphaOnly()) {
-            readSwizzle = skgpu::Swizzle::Concat(readSwizzle, skgpu::Swizzle("aaaa"));
-        }
-        imgData.fReadSwizzle = swizzle_class_to_read_enum(readSwizzle);
-    }
-
-    if (!fRaw) {
-        imgData.fSteps = SkColorSpaceXformSteps(fImage->colorSpace(),
-                                                fImage->alphaType(),
-                                                keyContext.dstColorInfo().colorSpace(),
-                                                keyContext.dstColorInfo().alphaType());
-
-        if (fImage->isAlphaOnly()) {
-            SkSpan<const float> constants = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kDstIn);
-            // expects dst, src
-            PorterDuffBlendShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                                   {constants});
-
-                // dst
-                SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                                  keyContext.paintColor());
-                builder->endBlock();
-
-                // src
-                ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
-                builder->endBlock();
-
-            builder->endBlock();
-            return;
-        }
-    }
-
-    ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
-    builder->endBlock();
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "src/core/SkImagePriv.h"
 
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
                                            SkTileMode tmx, SkTileMode tmy,
@@ -572,7 +457,7 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
     return SkSamplingOptions(filter, sampling.mipmap);
 }
 
-bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
+bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const {
     SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
 
     // We only support certain sampling options in stages so far
@@ -708,7 +593,9 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
                 break;
 
             case kBGR_101010x_XR_SkColorType:
-                SkASSERT(false);
+                p->append(SkRasterPipelineOp::gather_1010102_xr, ctx);
+                p->append(SkRasterPipelineOp::force_opaque);
+                p->append(SkRasterPipelineOp::swap_rb);
                 break;
 
             case kBGR_101010x_SkColorType:
@@ -850,293 +737,4 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
     }
 
     return append_misc();
-}
-
-skvm::Color SkImageShader::program(skvm::Builder* p,
-                                   skvm::Coord device,
-                                   skvm::Coord origLocal,
-                                   skvm::Color paint,
-                                   const MatrixRec& mRec,
-                                   const SkColorInfo& dst,
-                                   skvm::Uniforms* uniforms,
-                                   SkArenaAlloc* alloc) const {
-    SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
-
-    auto sampling = fSampling;
-    if (sampling.isAniso()) {
-        sampling = SkSamplingPriv::AnisoFallback(fImage->hasMipmaps());
-    }
-
-    SkMatrix baseInv;
-    // If the total matrix isn't valid then we will always access the base MIP level.
-    if (mRec.totalMatrixIsValid()) {
-        if (!mRec.totalInverse(&baseInv)) {
-            return {};
-        }
-        baseInv.normalizePerspective();
-    }
-
-    SkASSERT(!sampling.useCubic || sampling.mipmap == SkMipmapMode::kNone);
-    auto* access = SkMipmapAccessor::Make(alloc, fImage.get(), baseInv, sampling.mipmap);
-    if (!access) {
-        return {};
-    }
-
-    SkPixmap upper;
-    SkMatrix upperInv;
-    std::tie(upper, upperInv) = access->level();
-
-    if (!sampling.useCubic) {
-        // TODO: can tweak_sampling sometimes for cubic too when B=0
-        if (mRec.totalMatrixIsValid()) {
-            sampling = tweak_sampling(sampling, SkMatrix::Concat(upperInv, baseInv));
-        }
-    }
-
-    SkPixmap lowerPixmap;
-    SkMatrix lowerInv;
-    SkPixmap* lower = nullptr;
-    float lowerWeight = access->lowerWeight();
-    if (lowerWeight > 0) {
-        std::tie(lowerPixmap, lowerInv) = access->lowerLevel();
-        lower = &lowerPixmap;
-    }
-
-    skvm::Coord upperLocal = origLocal;
-    if (!mRec.apply(p, &upperLocal, uniforms, upperInv).has_value()) {
-        return {};
-    }
-
-    // We can exploit image opacity to skip work unpacking alpha channels.
-    const bool input_is_opaque = SkAlphaTypeIsOpaque(upper.alphaType())
-                              || SkColorTypeIsAlwaysOpaque(upper.colorType());
-
-    // Each call to sample() will try to rewrite the same uniforms over and over,
-    // so remember where we start and reset back there each time.  That way each
-    // sample() call uses the same uniform offsets.
-
-    auto compute_clamp_limit = [&](float limit) {
-        // Subtract an ulp so the upper clamp limit excludes limit itself.
-        int bits;
-        memcpy(&bits, &limit, 4);
-        return p->uniformF(uniforms->push(bits-1));
-    };
-
-    // Except in the simplest case (no mips, no filtering), we reference uniforms
-    // more than once. To avoid adding/registering them multiple times, we pre-load them
-    // into a struct (just to logically group them together), based on the "current"
-    // pixmap (level of a mipmap).
-    //
-    struct Uniforms {
-        skvm::F32   w, iw, i2w,
-                    h, ih, i2h;
-
-        skvm::F32   clamp_w,
-                    clamp_h;
-
-        skvm::Uniform addr;
-        skvm::I32     rowBytesAsPixels;
-
-        skvm::PixelFormat pixelFormat;  // not a uniform, but needed for each texel sample,
-                                        // so we store it here, since it is also dependent on
-                                        // the current pixmap (level).
-    };
-
-    auto setup_uniforms = [&](const SkPixmap& pm) -> Uniforms {
-        skvm::PixelFormat pixelFormat = skvm::SkColorType_to_PixelFormat(pm.colorType());
-        return {
-            p->uniformF(uniforms->pushF(     pm.width())),
-            p->uniformF(uniforms->pushF(1.0f/pm.width())), // iff tileX == kRepeat
-            p->uniformF(uniforms->pushF(0.5f/pm.width())), // iff tileX == kMirror
-
-            p->uniformF(uniforms->pushF(     pm.height())),
-            p->uniformF(uniforms->pushF(1.0f/pm.height())), // iff tileY == kRepeat
-            p->uniformF(uniforms->pushF(0.5f/pm.height())), // iff tileY == kMirror
-
-            compute_clamp_limit(pm. width()),
-            compute_clamp_limit(pm.height()),
-
-            uniforms->pushPtr(pm.addr()),
-            p->uniform32(uniforms->push(pm.rowBytesAsPixels())),
-
-            pixelFormat,
-        };
-    };
-
-    auto sample_texel = [&](const Uniforms& u, skvm::F32 sx, skvm::F32 sy) -> skvm::Color {
-        // repeat() and mirror() are written assuming they'll be followed by a [0,scale) clamp.
-        auto repeat = [&](skvm::F32 v, skvm::F32 S, skvm::F32 I) {
-            return v - floor(v * I) * S;
-        };
-        auto mirror = [&](skvm::F32 v, skvm::F32 S, skvm::F32 I2) {
-            // abs( (v-scale) - (2*scale)*floor((v-scale)*(0.5f/scale)) - scale )
-            //      {---A---}   {------------------B------------------}
-            skvm::F32 A = v - S,
-                      B = (S + S) * floor(A * I2);
-            return abs(A - B - S);
-        };
-        switch (fTileModeX) {
-            case SkTileMode::kDecal:  /* handled after gather */ break;
-            case SkTileMode::kClamp:  /*    we always clamp   */ break;
-            case SkTileMode::kRepeat: sx = repeat(sx, u.w, u.iw);  break;
-            case SkTileMode::kMirror: sx = mirror(sx, u.w, u.i2w); break;
-        }
-        switch (fTileModeY) {
-            case SkTileMode::kDecal:  /* handled after gather */  break;
-            case SkTileMode::kClamp:  /*    we always clamp   */  break;
-            case SkTileMode::kRepeat: sy = repeat(sy, u.h, u.ih);  break;
-            case SkTileMode::kMirror: sy = mirror(sy, u.h, u.i2h); break;
-        }
-
-        // Always clamp sample coordinates to [0,width), [0,height), both for memory
-        // safety and to handle the clamps still needed by kClamp, kRepeat, and kMirror.
-        skvm::F32 clamped_x = clamp(sx, 0, u.clamp_w),
-                  clamped_y = clamp(sy, 0, u.clamp_h);
-
-        // Load pixels from pm.addr()[(int)sx + (int)sy*stride].
-        skvm::I32 index = trunc(clamped_x) +
-                          trunc(clamped_y) * u.rowBytesAsPixels;
-        skvm::Color c = gather(u.pixelFormat, u.addr, index);
-
-        // If we know the image is opaque, jump right to alpha = 1.0f, skipping work to unpack it.
-        if (input_is_opaque) {
-            c.a = p->splat(1.0f);
-        }
-
-        // Mask away any pixels that we tried to sample outside the bounds in kDecal.
-        if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
-            skvm::I32 mask = p->splat(~0);
-            if (fTileModeX == SkTileMode::kDecal) { mask &= (sx == clamped_x); }
-            if (fTileModeY == SkTileMode::kDecal) { mask &= (sy == clamped_y); }
-            c.r = pun_to_F32(p->bit_and(mask, pun_to_I32(c.r)));
-            c.g = pun_to_F32(p->bit_and(mask, pun_to_I32(c.g)));
-            c.b = pun_to_F32(p->bit_and(mask, pun_to_I32(c.b)));
-            c.a = pun_to_F32(p->bit_and(mask, pun_to_I32(c.a)));
-            // Notice that even if input_is_opaque, c.a might now be 0.
-        }
-
-        return c;
-    };
-
-    auto sample_level = [&](const SkPixmap& pm, skvm::Coord local) {
-        const Uniforms u = setup_uniforms(pm);
-
-        if (sampling.useCubic) {
-            // All bicubic samples have the same fractional offset (fx,fy) from the center.
-            // They're either the 16 corners of a 3x3 grid/ surrounding (x,y) at (0.5,0.5) off-center.
-            skvm::F32 fx = fract(local.x + 0.5f),
-                      fy = fract(local.y + 0.5f);
-            skvm::F32 wx[4],
-                      wy[4];
-
-            SkM44 weights = CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C);
-
-            auto dot = [](const skvm::F32 a[], const skvm::F32 b[]) {
-                return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3];
-            };
-            const skvm::F32 tmpx[] =  { p->splat(1.0f), fx, fx*fx, fx*fx*fx };
-            const skvm::F32 tmpy[] =  { p->splat(1.0f), fy, fy*fy, fy*fy*fy };
-
-            for (int row = 0; row < 4; ++row) {
-                SkV4 r = weights.row(row);
-                skvm::F32 ru[] = {
-                    p->uniformF(uniforms->pushF(r[0])),
-                    p->uniformF(uniforms->pushF(r[1])),
-                    p->uniformF(uniforms->pushF(r[2])),
-                    p->uniformF(uniforms->pushF(r[3])),
-                };
-                wx[row] = dot(ru, tmpx);
-                wy[row] = dot(ru, tmpy);
-            }
-
-            skvm::Color c;
-            c.r = c.g = c.b = c.a = p->splat(0.0f);
-
-            skvm::F32 sy = local.y - 1.5f;
-            for (int j = 0; j < 4; j++, sy += 1.0f) {
-                skvm::F32 sx = local.x - 1.5f;
-                for (int i = 0; i < 4; i++, sx += 1.0f) {
-                    skvm::Color s = sample_texel(u, sx,sy);
-                    skvm::F32   w = wx[i] * wy[j];
-
-                    c.r += s.r * w;
-                    c.g += s.g * w;
-                    c.b += s.b * w;
-                    c.a += s.a * w;
-                }
-            }
-            return c;
-        } else if (sampling.filter == SkFilterMode::kLinear) {
-            // Our four sample points are the corners of a logical 1x1 pixel
-            // box surrounding (x,y) at (0.5,0.5) off-center.
-            skvm::F32 left   = local.x - 0.5f,
-                      top    = local.y - 0.5f,
-                      right  = local.x + 0.5f,
-                      bottom = local.y + 0.5f;
-
-            // The fractional parts of right and bottom are our lerp factors in x and y respectively.
-            skvm::F32 fx = fract(right ),
-                      fy = fract(bottom);
-
-            return lerp(lerp(sample_texel(u, left,top   ), sample_texel(u, right,top   ), fx),
-                        lerp(sample_texel(u, left,bottom), sample_texel(u, right,bottom), fx), fy);
-        } else {
-            SkASSERT(sampling.filter == SkFilterMode::kNearest);
-            // Our rasterizer biases upward. That is a rect from 0.5...1.5 fills pixel 1 and not
-            // pixel 0. To make an image that is mapped 1:1 with device pixels but at a half pixel
-            // offset select every pixel from the src image once we make exact integer pixel sample
-            // values round down not up. Note that a mirror mapping will not have this property.
-            local.x = skvm::pun_to_F32(skvm::pun_to_I32(local.x) - 1);
-            local.y = skvm::pun_to_F32(skvm::pun_to_I32(local.y) - 1);
-            return sample_texel(u, local.x,local.y);
-        }
-    };
-
-    skvm::Color c = sample_level(upper, upperLocal);
-    if (lower) {
-        skvm::Coord lowerLocal = origLocal;
-        if (!mRec.apply(p, &lowerLocal, uniforms, lowerInv)) {
-            return {};
-        }
-        // lower * weight + upper * (1 - weight)
-        c = lerp(c,
-                 sample_level(*lower, lowerLocal),
-                 p->uniformF(uniforms->pushF(lowerWeight)));
-    }
-
-    // If the input is opaque and we're not in decal mode, that means the output is too.
-    // Forcing *a to 1.0 here will retroactively skip any work we did to interpolate sample alphas.
-    if (input_is_opaque
-            && fTileModeX != SkTileMode::kDecal
-            && fTileModeY != SkTileMode::kDecal) {
-        c.a = p->splat(1.0f);
-    }
-
-    // Alpha-only images get their color from the paint (already converted to dst color space).
-    SkColorSpace* cs = upper.colorSpace();
-    SkAlphaType   at = upper.alphaType();
-    if (SkColorTypeIsAlphaOnly(upper.colorType()) && !fRaw) {
-        c.r = paint.r;
-        c.g = paint.g;
-        c.b = paint.b;
-
-        cs = dst.colorSpace();
-        at = kUnpremul_SkAlphaType;
-    }
-
-    if (sampling.useCubic) {
-        // Bicubic filtering naturally produces out of range values on both sides of [0,1].
-        c.a = clamp01(c.a);
-
-        skvm::F32 limit = (at == kUnpremul_SkAlphaType || fClampAsIfUnpremul)
-                        ? p->splat(1.0f)
-                        : c.a;
-        c.r = clamp(c.r, 0.0f, limit);
-        c.g = clamp(c.g, 0.0f, limit);
-        c.b = clamp(c.b, 0.0f, limit);
-    }
-
-    return fRaw ? c
-                : SkColorSpaceXformSteps{cs, at, dst.colorSpace(), dst.alphaType()}.program(
-                          p, uniforms, c);
 }

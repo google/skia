@@ -23,7 +23,7 @@ bool test_bifffff22(int _31, float _32, float _33, float _34, float _35, float2x
     {
         case 1:
         {
-            m2 = float2x2(_53 + 1.0f.xx, _54 + 1.0f.xx);
+            m2 = float2x2(1.0f.xx + _53, 1.0f.xx + _54);
             break;
         }
         case 2:
@@ -111,7 +111,7 @@ float4 main(float2 _169)
     float2 _209 = float2(_12_colorGreen.y * _12_colorRed.x, _179 * _12_colorRed.x);
     float2 _210 = float2(_185 * _12_colorRed.x, _191 * _12_colorRed.x);
     float2x2 _RESERVED_IDENTIFIER_FIXUP_2_m2 = float2x2(_209, _210);
-    _RESERVED_IDENTIFIER_FIXUP_2_m2 = float2x2(_209 + 1.0f.xx, _210 + 1.0f.xx);
+    _RESERVED_IDENTIFIER_FIXUP_2_m2 = float2x2(1.0f.xx + _209, 1.0f.xx + _210);
     bool _231 = false;
     if (_RESERVED_IDENTIFIER_FIXUP_2_m2[0].x == _RESERVED_IDENTIFIER_FIXUP_0_expected[0].x)
     {

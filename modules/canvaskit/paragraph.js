@@ -74,6 +74,7 @@
       s['textDirection'] = s['textDirection'] || CanvasKit.TextDirection.LTR;
       s['textHeightBehavior'] = s['textHeightBehavior'] || CanvasKit.TextHeightBehavior.All;
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
+      s['applyRoundingHack'] = s['applyRoundingHack'] !== false;
       return s;
     };
 
@@ -294,6 +295,15 @@
         copyArrays(paragraphStyle['textStyle']);
 
         var result =  CanvasKit.ParagraphBuilder._MakeFromFontProvider(paragraphStyle, fontProvider);
+        freeArrays(paragraphStyle['textStyle']);
+        return result;
+    };
+
+    CanvasKit.ParagraphBuilder.MakeFromFontCollection = function(paragraphStyle, fontCollection) {
+        copyArrays(paragraphStyle['textStyle']);
+
+        var result = CanvasKit.ParagraphBuilder._MakeFromFontCollection(
+	    paragraphStyle, fontCollection);
         freeArrays(paragraphStyle['textStyle']);
         return result;
     };

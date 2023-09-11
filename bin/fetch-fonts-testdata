@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+# Copyright 2023 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import hashlib
+import json
+import os
+import platform
+import re
+import stat
+import sys
+import tempfile
+import zipfile
+
+from urllib.request import urlopen
+
+TESTDATA_REL_DIR = 'third_party/externals/googlefonts_testdata'
+ZIP_ARCHIVE_NAME = 'googlefonts_testdata.zip'
+VERSION_FILE = 'googlefonts_testdata.version'
+
+def sha256sum(path):
+  try:
+    with open(path, 'rb') as f:
+      return hashlib.sha256(f.read()).hexdigest()
+  except OSError:
+    return ''
+
+
+os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
+
+with open('DEPS', 'rb') as f:
+  deps = f.read().decode()
+found = re.findall(r"'googlefonts_testdata_version':\s*'(\S+)'", deps)
+if len(found) != 1:
+  print('Unable to find desired revision in DEPS', file=sys.stderr)
+  exit(1)
+desired_version = found[0]
+
+# Determine which version (if any) we currently have.
+zip_archive_path = os.path.join(TESTDATA_REL_DIR, ZIP_ARCHIVE_NAME)
+current_sha256 = sha256sum(zip_archive_path)
+archive_version_path = os.path.join(TESTDATA_REL_DIR, VERSION_FILE)
+
+current_version = {
+  'version': '',
+  'sha256': '',
+}
+try:
+  with open(archive_version_path, 'r', encoding='utf8') as f:
+    current_version = json.load(f)
+except OSError:
+  pass
+
+if desired_version != current_version['version']:
+  print('Version "%s" requested by DEPS differs from current version "%s"' % (
+      desired_version, current_version['version']))
+elif current_sha256 != current_version['sha256']:
+  print('sha256 sum "%s" does not match last-downloaded version "%s"' % (
+      current_sha256, current_version['sha256']))
+else:
+  print('Already up to date.')
+  exit(0)
+
+print('Fetching %s at %s.' % (ZIP_ARCHIVE_NAME, desired_version))
+
+os.makedirs(os.path.dirname(zip_archive_path), exist_ok=True)
+with open(zip_archive_path, 'wb') as f:
+  url = f'https://chrome-infra-packages.appspot.com/dl/chromium/third_party/googlefonts_testdata/+/{desired_version}'
+  f.write(urlopen(url).read())
+
+with zipfile.ZipFile(zip_archive_path, 'r') as f:
+  f.extractall(TESTDATA_REL_DIR)
+
+# Write the downloaded version info to a file.
+current_version['version'] = desired_version
+current_version['sha256'] = sha256sum(zip_archive_path)
+with open(archive_version_path, 'w', encoding='utf8') as f:
+  json.dump(current_version, f, sort_keys=True, indent=2)

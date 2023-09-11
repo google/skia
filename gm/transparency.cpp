@@ -71,7 +71,7 @@ DEF_SIMPLE_GM(transparency_check, canvas, 1792, 1080) {
     checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
     {
         SkAutoCanvasRestore autoCanvasRestore(canvas, true);
-        auto surface(SkSurface::MakeRasterN32Premul(256, 9));
+        auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(256, 9)));
         make_transparency(surface->getCanvas(), 256.0f, 9.0f);
         canvas->scale(7.0f, 120.0f);
         surface->draw(canvas, 0, 0);

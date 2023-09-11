@@ -355,7 +355,7 @@ static bool FindByLogFont(SkTypeface* face, void* ctx) {
  *  This is public. It first searches the cache, and if a match is not found,
  *  it creates a new face.
  */
-SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
+sk_sp<SkTypeface> SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
     LOGFONT lf = origLF;
     make_canonical(&lf);
     sk_sp<SkTypeface> face = SkTypefaceCache::FindByProcAndRef(FindByLogFont, &lf);
@@ -363,7 +363,7 @@ SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
         face = LogFontTypeface::Make(lf);
         SkTypefaceCache::Add(face);
     }
-    return face.release();
+    return face;
 }
 
 /**
@@ -572,9 +572,8 @@ public:
     bool isValid() const;
 
 protected:
-    bool generateAdvance(SkGlyph* glyph) override;
-    void generateMetrics(SkGlyph* glyph, SkArenaAlloc*) override;
-    void generateImage(const SkGlyph& glyph) override;
+    GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
+    void generateImage(const SkGlyph&, void* imageBuffer) override;
     bool generatePath(const SkGlyph& glyph, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
@@ -583,10 +582,11 @@ private:
                           AutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
     template<bool APPLY_PREBLEND>
     static void RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                        const SkGlyph& glyph, const uint8_t* table8);
+                        const SkGlyph& glyph, void* imageBuffer, const uint8_t* table8);
 
     template<bool APPLY_PREBLEND>
     static void RGBToLcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+                           void* imageBuffer,
                            const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB);
 
     HDCOffscreen fOffscreen;
@@ -806,60 +806,53 @@ bool SkScalerContext_GDI::isValid() const {
     return fDDC && fFont;
 }
 
-bool SkScalerContext_GDI::generateAdvance(SkGlyph* glyph) {
-    return false;
-}
-
-void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
+SkScalerContext::GlyphMetrics SkScalerContext_GDI::generateMetrics(const SkGlyph& glyph,
+                                                                   SkArenaAlloc*) {
     SkASSERT(fDDC);
 
-    glyph->fMaskFormat = fRec.fMaskFormat;
+    GlyphMetrics mx(glyph.maskFormat());
 
     if (fType == SkScalerContext_GDI::kBitmap_Type || fType == SkScalerContext_GDI::kLine_Type) {
         SIZE size;
-        WORD glyphs = glyph->getGlyphID();
+        WORD glyphs = glyph.getGlyphID();
+        int width, height;
         if (0 == GetTextExtentPointI(fDDC, &glyphs, 1, &size)) {
-            glyph->fWidth = SkToS16(fTM.tmMaxCharWidth);
-            glyph->fHeight = SkToS16(fTM.tmHeight);
+            width = fTM.tmMaxCharWidth;
+            height = fTM.tmHeight;
         } else {
-            glyph->fWidth = SkToS16(size.cx);
-            glyph->fHeight = SkToS16(size.cy);
+            width = size.cx;
+            height = size.cy;
         }
 
-        glyph->fTop = SkToS16(-fTM.tmAscent);
         // Bitmap FON cannot underhang, but vector FON may.
         // There appears no means of determining underhang of vector FON.
-        glyph->fLeft = SkToS16(0);
-        glyph->fAdvanceX = glyph->width();
-        glyph->fAdvanceY = 0;
+        int left = 0;
+        int top = -fTM.tmAscent;
+
+        mx.bounds = SkIRect::MakeXYWH(left, top, width, height);
+        mx.advance = SkVector{(float)width, 0};
 
         // Vector FON will transform nicely, but bitmap FON do not.
         if (fType == SkScalerContext_GDI::kLine_Type) {
-            SkRect bounds = SkRect::MakeXYWH(glyph->fLeft, glyph->fTop,
-                                             glyph->width(), glyph->height());
+            SkRect bounds = SkRect::MakeXYWH(left, top, width, height);
             SkMatrix m;
             m.setAll(SkFIXEDToScalar(fMat22.eM11), -SkFIXEDToScalar(fMat22.eM21), 0,
                      -SkFIXEDToScalar(fMat22.eM12), SkFIXEDToScalar(fMat22.eM22), 0,
                      0,  0, 1);
             m.mapRect(&bounds);
-            bounds.roundOut(&bounds);
-            glyph->fLeft = SkScalarTruncToInt(bounds.fLeft);
-            glyph->fTop = SkScalarTruncToInt(bounds.fTop);
-            glyph->fWidth = SkScalarTruncToInt(bounds.width());
-            glyph->fHeight = SkScalarTruncToInt(bounds.height());
+            bounds.roundOut(&mx.bounds);
         }
 
         // Apply matrix to advance.
-        glyph->fAdvanceY = -SkFIXEDToFloat(fMat22.eM12) * glyph->fAdvanceX;
-        glyph->fAdvanceX *= SkFIXEDToFloat(fMat22.eM11);
+        mx.advance.fY = -SkFIXEDToFloat(fMat22.eM12) * mx.advance.fX;
+        mx.advance.fX *= SkFIXEDToFloat(fMat22.eM11);
 
         // These do not have an outline path at all.
-        glyph->setPath(alloc, nullptr, false);
-
-        return;
+        mx.neverRequestPath = true;
+        return mx;
     }
 
-    UINT glyphId = glyph->getGlyphID();
+    UINT glyphId = glyph.getGlyphID();
 
     GLYPHMETRICS gm;
     sk_bzero(&gm, sizeof(gm));
@@ -869,8 +862,7 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
         LogFontTypeface::EnsureAccessible(this->getTypeface());
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fMat22);
         if (GDI_ERROR == status) {
-            glyph->zeroMetrics();
-            return;
+            return mx;
         }
     }
 
@@ -884,43 +876,34 @@ void SkScalerContext_GDI::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
         empty = (0 == bufferSize);
     }
 
-    glyph->fTop = SkToS16(-gm.gmptGlyphOrigin.y);
-    glyph->fLeft = SkToS16(gm.gmptGlyphOrigin.x);
-    if (empty) {
-        glyph->fWidth = 0;
-        glyph->fHeight = 0;
-    } else {
+
+    if (!empty) {
+        int y  = -gm.gmptGlyphOrigin.y;
+        int x =  gm.gmptGlyphOrigin.x;
         // Outset, since the image may bleed out of the black box.
         // For embedded bitmaps the black box should be exact.
         // For outlines we need to outset by 1 in all directions for bleed.
         // For ClearType we need to outset by 2 for bleed.
-        glyph->fWidth = gm.gmBlackBoxX + 4;
-        glyph->fHeight = gm.gmBlackBoxY + 4;
-        glyph->fTop -= 2;
-        glyph->fLeft -= 2;
+        mx.bounds = SkIRect::MakeXYWH(x, y, gm.gmBlackBoxX, gm.gmBlackBoxY).makeOutset(2, 2);
     }
     // TODO(benjaminwagner): What is the type of gm.gmCellInc[XY]?
-    glyph->fAdvanceX = (float)((int)gm.gmCellIncX);
-    glyph->fAdvanceY = (float)((int)gm.gmCellIncY);
+    mx.advance.fX = (float)((int)gm.gmCellIncX);
+    mx.advance.fY = (float)((int)gm.gmCellIncY);
 
     if ((fTM.tmPitchAndFamily & TMPF_VECTOR) && this->isLinearMetrics()) {
         sk_bzero(&gm, sizeof(gm));
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fHighResMat22);
         if (GDI_ERROR != status) {
-            SkPoint advance;
-            fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
-            glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-            glyph->fAdvanceY = SkScalarToFloat(advance.fY);
+            mx.advance = fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX),
+                                            SkIntToScalar(gm.gmCellIncY));
         }
     } else if (!isAxisAligned(this->fRec)) {
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fGsA);
         if (GDI_ERROR != status) {
-            SkPoint advance;
-            fG_inv.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
-            glyph->fAdvanceX = SkScalarToFloat(advance.fX);
-            glyph->fAdvanceY = SkScalarToFloat(advance.fY);
+            mx.advance = fG_inv.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY));
         }
     }
+    return mx;
 }
 
 static const MAT2 gMat2Identity = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
@@ -1067,12 +1050,12 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
 
 template<bool APPLY_PREBLEND>
 void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                                  const SkGlyph& glyph, const uint8_t* table8) {
+                                  const SkGlyph& glyph, void* imageBuffer, const uint8_t* table8) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.width();
-    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
+    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)imageBuffer + (glyph.height() - 1) * dstRB);
 
-    for (int y = 0; y < glyph.fHeight; y++) {
+    for (int y = 0; y < glyph.height(); y++) {
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
             if constexpr (kSkShowTextBlitCoverage) {
@@ -1086,13 +1069,13 @@ void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
 
 template<bool APPLY_PREBLEND>
 void SkScalerContext_GDI::RGBToLcd16(
-        const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph,
+        const SkGdiRGB* SK_RESTRICT src, size_t srcRB, const SkGlyph& glyph, void* imageBuffer,
         const uint8_t* tableR, const uint8_t* tableG, const uint8_t* tableB) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.width();
-    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.height() - 1) * dstRB);
+    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)imageBuffer + (glyph.height() - 1) * dstRB);
 
-    for (int y = 0; y < glyph.fHeight; y++) {
+    for (int y = 0; y < glyph.height(); y++) {
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_lcd16<APPLY_PREBLEND>(src[i], tableR, tableG, tableB);
         }
@@ -1101,7 +1084,7 @@ void SkScalerContext_GDI::RGBToLcd16(
     }
 }
 
-void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
+void SkScalerContext_GDI::generateImage(const SkGlyph& glyph, void* imageBuffer) {
     SkASSERT(fDDC);
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
@@ -1113,7 +1096,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         LogFontTypeface::EnsureAccessible(this->getTypeface());
         bits = fOffscreen.draw(glyph, isBW, &srcRB);
         if (nullptr == bits) {
-            sk_bzero(glyph.fImage, glyph.imageSize());
+            sk_bzero(imageBuffer, glyph.imageSize());
             return;
         }
     }
@@ -1133,7 +1116,7 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         //Other code may also be applying the pre-blend, so we'd need another
         //one with this and one without.
         SkGdiRGB* addr = (SkGdiRGB*)bits;
-        for (int y = 0; y < glyph.fHeight; ++y) {
+        for (int y = 0; y < glyph.height(); ++y) {
             for (int x = 0; x < glyph.width(); ++x) {
                 int r = (addr[x] >> 16) & 0xFF;
                 int g = (addr[x] >>  8) & 0xFF;
@@ -1147,17 +1130,17 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
     size_t dstRB = glyph.rowBytes();
     if (isBW) {
         const uint8_t* src = (const uint8_t*)bits;
-        uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-        for (int y = 0; y < glyph.fHeight; y++) {
+        uint8_t* dst = (uint8_t*)((char*)imageBuffer + (glyph.height() - 1) * dstRB);
+        for (int y = 0; y < glyph.height(); y++) {
             memcpy(dst, src, dstRB);
             src += srcRB;
             dst -= dstRB;
         }
         if constexpr (kSkShowTextBlitCoverage) {
-            if (glyph.width() > 0 && glyph.fHeight > 0) {
+            if (glyph.width() > 0 && glyph.height() > 0) {
                 int bitCount = glyph.width() & 7;
-                uint8_t* first = (uint8_t*)glyph.fImage;
-                uint8_t* last = (uint8_t*)((char*)glyph.fImage + glyph.height() * dstRB - 1);
+                uint8_t* first = (uint8_t*)imageBuffer;
+                uint8_t* last = first + glyph.height() * dstRB - 1;
                 *first |= 1 << 7;
                 *last |= bitCount == 0 ? 1 : 1 << (8 - bitCount);
             }
@@ -1167,17 +1150,19 @@ void SkScalerContext_GDI::generateImage(const SkGlyph& glyph) {
         // ... until we have the caller tell us that explicitly
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
         if (fPreBlend.isApplicable()) {
-            RGBToA8<true>(src, srcRB, glyph, fPreBlend.fG);
+            RGBToA8<true>(src, srcRB, glyph, imageBuffer, fPreBlend.fG);
         } else {
-            RGBToA8<false>(src, srcRB, glyph, fPreBlend.fG);
+            RGBToA8<false>(src, srcRB, glyph, imageBuffer, fPreBlend.fG);
         }
     } else {    // LCD16
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
-        SkASSERT(SkMask::kLCD16_Format == glyph.fMaskFormat);
+        SkASSERT(SkMask::kLCD16_Format == glyph.maskFormat());
         if (fPreBlend.isApplicable()) {
-            RGBToLcd16<true>(src, srcRB, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            RGBToLcd16<true>(src, srcRB, glyph, imageBuffer,
+                             fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         } else {
-            RGBToLcd16<false>(src, srcRB, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
+            RGBToLcd16<false>(src, srcRB, glyph, imageBuffer,
+                              fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         }
     }
 }
@@ -2223,11 +2208,11 @@ public:
         }
     }
 
-    SkTypeface* createTypeface(int index) override {
+    sk_sp<SkTypeface> createTypeface(int index) override {
         return SkCreateTypefaceFromLOGFONT(fArray[index].elfLogFont);
     }
 
-    SkTypeface* matchStyle(const SkFontStyle& pattern) override {
+    sk_sp<SkTypeface> matchStyle(const SkFontStyle& pattern) override {
         return this->matchStyleCSS3(pattern);
     }
 
@@ -2257,30 +2242,31 @@ protected:
         tchar_to_skstring(fLogFontArray[index].elfLogFont.lfFaceName, familyName);
     }
 
-    SkFontStyleSet* onCreateStyleSet(int index) const override {
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int index) const override {
         SkASSERT(index < fLogFontArray.size());
-        return new SkFontStyleSetGDI(fLogFontArray[index].elfLogFont.lfFaceName);
+        return sk_sp<SkFontStyleSet>(
+            new SkFontStyleSetGDI(fLogFontArray[index].elfLogFont.lfFaceName));
     }
 
-    SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+    sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override {
         if (nullptr == familyName) {
             familyName = "";    // do we need this check???
         }
         LOGFONT lf;
         logfont_for_name(familyName, &lf);
-        return new SkFontStyleSetGDI(lf.lfFaceName);
+        return sk_sp<SkFontStyleSet>(new SkFontStyleSetGDI(lf.lfFaceName));
     }
 
-    virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& fontstyle) const override {
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
+                                         const SkFontStyle& fontstyle) const override {
         // could be in base impl
         sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontstyle);
     }
 
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
-                                                    const char* bcp47[], int bcp47Count,
-                                                    SkUnichar character) const override {
+    sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                  const char* bcp47[], int bcp47Count,
+                                                  SkUnichar character) const override {
         return nullptr;
     }
 

@@ -26,12 +26,13 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
 
 static sk_sp<SkImage> make_src(int w, int h) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(w, h));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h)));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
@@ -47,7 +48,7 @@ static sk_sp<SkImage> make_src(int w, int h) {
 }
 
 static sk_sp<SkImage> make_dst(int w, int h) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(w, h));
+    sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(w, h)));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
@@ -77,9 +78,9 @@ static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar
 }
 
 class ArithmodeGM : public skiagm::GM {
-    SkString onShortName() override { return SkString("arithmode"); }
+    SkString getName() const override { return SkString("arithmode"); }
 
-    SkISize onISize() override { return {640, 572}; }
+    SkISize getISize() override { return {640, 572}; }
 
     void onDraw(SkCanvas* canvas) override {
         constexpr int WW = 100,
@@ -87,8 +88,8 @@ class ArithmodeGM : public skiagm::GM {
 
         sk_sp<SkImage> src = make_src(WW, HH);
         sk_sp<SkImage> dst = make_dst(WW, HH);
-        sk_sp<SkImageFilter> srcFilter = SkImageFilters::Image(src);
-        sk_sp<SkImageFilter> dstFilter = SkImageFilters::Image(dst);
+        sk_sp<SkImageFilter> srcFilter = SkImageFilters::Image(src, {SkFilterMode::kLinear});
+        sk_sp<SkImageFilter> dstFilter = SkImageFilters::Image(dst, {SkFilterMode::kLinear});
 
         constexpr SkScalar one = SK_Scalar1;
         constexpr SkScalar K[] = {
@@ -107,6 +108,9 @@ class ArithmodeGM : public skiagm::GM {
 
         const SkScalar* k = K;
         const SkScalar* stop = k + std::size(K);
+        // Many of the Arithmetic filters have a 4th coefficient that's not zero, which means they
+        // affect transparent black. 'rect' is used as a crop filter to make sure they don't
+        // overwrite each other.
         const SkRect rect = SkRect::MakeWH(WW, HH);
         SkScalar gap = SkIntToScalar(WW + 20);
         while (k < stop) {
@@ -118,8 +122,8 @@ class ArithmodeGM : public skiagm::GM {
                 canvas->translate(gap, 0);
                 SkPaint paint;
                 paint.setImageFilter(SkImageFilters::Arithmetic(k[0], k[1], k[2], k[3], true,
-                                                                dstFilter, srcFilter, nullptr));
-                canvas->saveLayer(&rect, &paint);
+                                                                dstFilter, srcFilter, rect));
+                canvas->saveLayer(nullptr, &paint);
                 canvas->restore();
 
                 canvas->translate(gap, 0);
@@ -149,8 +153,8 @@ class ArithmodeGM : public skiagm::GM {
                                                    nullptr, nullptr);
                 SkPaint p;
                 p.setImageFilter(SkImageFilters::Arithmetic(0, one / 2, -one, 1, true,
-                                                            std::move(bg), dstFilter, nullptr));
-                canvas->saveLayer(&rect, &p);
+                                                            std::move(bg), dstFilter, rect));
+                canvas->saveLayer(nullptr, &p);
                 canvas->restore();
                 canvas->translate(gap, 0);
 
@@ -178,12 +182,12 @@ class ArithmodeBlenderGM : public skiagm::GM {
     sk_sp<SkShader>        fSrcShader, fDstShader;
     sk_sp<SkRuntimeEffect> fRuntimeEffect;
 
-    SkString onShortName() override { return SkString("arithmode_blender"); }
+    SkString getName() const override { return SkString("arithmode_blender"); }
 
     static constexpr int W = 200;
     static constexpr int H = 200;
 
-    SkISize onISize() override { return {(W + 30) * 2, (H + 30) * 4}; }
+    SkISize getISize() override { return {(W + 30) * 2, (H + 30) * 4}; }
 
     void onOnceBeforeDraw() override {
         // Prepare a runtime effect for this blend.

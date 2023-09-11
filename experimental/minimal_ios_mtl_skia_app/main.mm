@@ -13,11 +13,12 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
+#include "src/base/SkTime.h"
 
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
@@ -70,7 +71,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     draw_example(surface.get(), fPaint, rotation);
 
     // Must flush *and* present for this to work!
-    surface->flushAndSubmit();
+    skgpu::ganesh::Flush(surface);
     surface = nullptr;
 
     id<MTLCommandBuffer> commandBuffer = [[self metalQueue] commandBuffer];

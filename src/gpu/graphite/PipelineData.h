@@ -16,7 +16,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkEnumBitMask.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
@@ -25,7 +25,6 @@ class SkArenaAlloc;
 
 namespace skgpu::graphite {
 
-enum class SnippetRequirementFlags : uint32_t;
 class Uniform;
 
 class UniformDataBlock {
@@ -68,7 +67,7 @@ public:
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
              sk_sp<TextureProxy> proxy) {
-        fTextureData.push_back({std::move(proxy), {sampling, {tileModes[0], tileModes[1]}}});
+        fTextureData.push_back({std::move(proxy), SamplerDesc{sampling, tileModes}});
     }
 
     void reset() {
@@ -104,9 +103,6 @@ public:
     }
     bool hasTextures() const { return !fTextureDataBlock.empty(); }
 
-    void addFlags(SkEnumBitMask<SnippetRequirementFlags> flags);
-    bool needsLocalCoords() const;
-
     const TextureDataBlock& textureDataBlock() { return fTextureDataBlock; }
 
     void write(const SkM44& mat) { fUniformManager.write(mat); }
@@ -115,18 +111,22 @@ public:
     void write(const SkV2& v) { fUniformManager.write(v); }
     void write(const SkV4& v) { fUniformManager.write(v); }
     void write(const SkPoint& point) { fUniformManager.write(point); }
+    void write(const SkPoint3& point3) { fUniformManager.write(point3); }
     void write(float f) { fUniformManager.write(f); }
     void write(int i) { fUniformManager.write(i); }
-
 
     void write(SkSLType t, const void* data) { fUniformManager.write(t, data); }
     void write(const Uniform& u, const uint8_t* data) { fUniformManager.write(u, data); }
 
+    void writeArray(SkSLType t, const void* data, int n) { fUniformManager.writeArray(t, data, n); }
     void writeArray(SkSpan<const SkColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const SkPMColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }
 
+    void writeHalf(float f) { fUniformManager.writeHalf(f); }
     void writeHalf(const SkMatrix& mat) { fUniformManager.writeHalf(mat); }
+    void writeHalf(const SkM44& mat) { fUniformManager.writeHalf(mat); }
+    void writeHalf(const SkColor4f& unpremulColor) { fUniformManager.writeHalf(unpremulColor); }
     void writeHalfArray(SkSpan<const float> floats) { fUniformManager.writeHalfArray(floats); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
@@ -145,7 +145,6 @@ private:
 
     TextureDataBlock                       fTextureDataBlock;
     UniformManager                         fUniformManager;
-    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
 };
 
 #ifdef SK_DEBUG

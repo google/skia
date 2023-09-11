@@ -12,6 +12,7 @@
 
 #include "include/core/SkBlender.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
 
 class SkCanvas;

@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "testutils",
+    testonly = True,
+    srcs = ["testutils.go"],
+    importpath = "go.skia.org/skia/infra/bots/task_drivers/testutils",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)

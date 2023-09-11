@@ -10,7 +10,6 @@
 #include <memory>
 
 #include "include/private/base/SkTPin.h"
-#include "src/core/SkOpts.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
@@ -21,6 +20,8 @@
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTracing.h"
+
+using namespace skia_private;
 
 using AtlasLocator = skgpu::AtlasLocator;
 using AtlasToken = skgpu::AtlasToken;
@@ -346,7 +347,7 @@ void GrDrawOpAtlas::compact(AtlasToken startTokenForNextFlush) {
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
     if (atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
-        SkTArray<Plot*> availablePlots;
+        TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
         // For all plots but the last one, update number of flushes since used, and check to see

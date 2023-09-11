@@ -15,6 +15,8 @@
 #include <cstdint>
 #include <utility>
 
+using namespace skia_private;
+
 namespace {
 
 struct TestMessage {
@@ -44,7 +46,7 @@ DEF_TEST(MessageBus, r) {
     TestMessageBus::Post(std::move(m2));
 
     // Make sure we got two.
-    SkTArray<TestMessage> messages;
+    TArray<TestMessage> messages;
     inbox1.poll(&messages);
     REPORTER_ASSERT(r, 2 == messages.size());
     REPORTER_ASSERT(r, 5 == messages[0].x);
@@ -98,7 +100,7 @@ DEF_TEST(MessageBusSp, r) {
     TestMessageBus::Post(std::move(m2));
 
     // Make sure we got two.
-    SkTArray<sk_sp<TestMessageRefCnt>> messages;
+    TArray<sk_sp<TestMessageRefCnt>> messages;
     inbox1.poll(&messages);
     REPORTER_ASSERT(r, 2 == messages.size());
     REPORTER_ASSERT(r, messages[0]->unique());
@@ -158,7 +160,7 @@ DEF_TEST(MessageBus_SkShouldPostMessageToBus, r) {
     AddressedMessageBus::Post({id2});        // Should go to inbox2
     AddressedMessageBus::Post({id3});        // Should go nowhere
 
-    SkTArray<AddressedMessage> messages;
+    TArray<AddressedMessage> messages;
     inbox1.poll(&messages);
     REPORTER_ASSERT(r, messages.size() == 2);
     if (messages.size() == 2) {

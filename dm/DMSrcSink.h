@@ -14,6 +14,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
+#include "include/gpu/graphite/ContextOptions.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
@@ -22,11 +23,13 @@
 
 //#define TEST_VIA_SVG
 
-namespace skiagm {
-namespace verifiers {
+namespace skiagm::verifiers {
 class VerifierList;
-}  // namespace verifiers
-}  // namespace skiagm
+}
+
+namespace skgpu::graphite {
+struct Options;
+}
 
 namespace DM {
 
@@ -92,14 +95,15 @@ struct SinkFlags {
 
 struct Src {
     virtual ~Src() {}
-    virtual Result SK_WARN_UNUSED_RESULT draw(SkCanvas* canvas) const = 0;
+    [[nodiscard]] virtual Result draw(SkCanvas* canvas) const = 0;
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
-    virtual void modifyGrContextOptions(GrContextOptions* options) const {}
+    virtual void modifyGrContextOptions(GrContextOptions*) const  {}
+    virtual void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const {}
     virtual bool veto(SinkFlags) const { return false; }
 
     virtual int pageCount() const { return 1; }
-    virtual Result SK_WARN_UNUSED_RESULT draw([[maybe_unused]] int page, SkCanvas* canvas) const {
+    [[nodiscard]] virtual Result draw([[maybe_unused]] int page, SkCanvas* canvas) const {
         return this->draw(canvas);
     }
     virtual SkISize size([[maybe_unused]] int page) const { return this->size(); }
@@ -115,8 +119,7 @@ struct Src {
 struct Sink {
     virtual ~Sink() {}
     // You may write to either the bitmap or stream.  If you write to log, we'll print that out.
-    virtual Result SK_WARN_UNUSED_RESULT draw(const Src&, SkBitmap*, SkWStream*, SkString* log)
-        const = 0;
+    [[nodiscard]] virtual Result draw(const Src&, SkBitmap*, SkWStream*, SkString* log) const = 0;
 
     // Override the color space of this Sink, after creation
     virtual void setColorSpace(sk_sp<SkColorSpace>) {}
@@ -143,6 +146,9 @@ public:
     SkISize size() const override;
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
+#if defined(SK_GRAPHITE)
+    void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const override;
+#endif
 
     std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const override;
 
@@ -375,7 +381,7 @@ public:
                   std::function<void(GrDirectContext*)> initContext = nullptr,
                   std::function<SkCanvas*(SkCanvas*)> wrapCanvas = nullptr) const;
 
-    sk_gpu_test::GrContextFactory::ContextType contextType() const { return fContextType; }
+    skgpu::ContextType contextType() const { return fContextType; }
     const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() const {
         return fContextOverrides;
     }
@@ -398,7 +404,7 @@ protected:
     bool readBack(SkSurface*, SkBitmap* dst) const;
 
 private:
-    sk_gpu_test::GrContextFactory::ContextType        fContextType;
+    skgpu::ContextType                                fContextType;
     sk_gpu_test::GrContextFactory::ContextOverrides   fContextOverrides;
     SkCommandLineConfigGpu::SurfType                  fSurfType;
     int                                               fSampleCount;
@@ -410,7 +416,7 @@ private:
     sk_gpu_test::MemoryCache                          fMemoryCache;
 };
 
-// Wrap a gpu canvas in one that routes all text draws through GrSlugs.
+// Wrap a gpu canvas in one that routes all text draws through Slugs.
 // Note that text blobs that have an RSXForm aren't converted.
 class GPUSlugSink : public GPUSink {
 public:
@@ -431,23 +437,6 @@ public:
     GPURemoteSlugSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-};
-
-class GPUThreadTestingSink : public GPUSink {
-public:
-    GPUThreadTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
-
-    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-
-    const char* fileExtension() const override {
-        // Suppress writing out results from this config - we just want to do our matching test
-        return nullptr;
-    }
-
-private:
-    std::unique_ptr<SkExecutor> fExecutor;
-
-    using INHERITED = GPUSink;
 };
 
 class GPUPersistentCacheTestingSink : public GPUSink {
@@ -584,21 +573,20 @@ private:
 
 class GraphiteSink : public Sink {
 public:
-    using ContextType = sk_gpu_test::GrContextFactory::ContextType;
-
     GraphiteSink(const SkCommandLineConfigGraphite*);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     bool serial() const override { return true; }
     const char* fileExtension() const override { return "png"; }
-    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
+    SinkFlags flags() const override { return SinkFlags{SinkFlags::kGPU, SinkFlags::kDirect}; }
     void setColorSpace(sk_sp<SkColorSpace> colorSpace) override { fColorSpace = colorSpace; }
     SkColorInfo colorInfo() const override {
         return SkColorInfo(fColorType, fAlphaType, fColorSpace);
     }
 
 private:
-    ContextType fContextType;
+    skgpu::graphite::ContextOptions fBaseContextOptions;
+    skgpu::ContextType fContextType;
     SkColorType fColorType;
     SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
