@@ -64,7 +64,7 @@ SkColor4f SkSVGGradient::resolveStopColor(const SkSVGRenderContext& ctx,
 
     const auto color = SkColor4f::FromColor(ctx.resolveSvgColor(*stopColor));
 
-    return { color.fR, color.fG, color.fB, *stopOpacity };
+    return { color.fR, color.fG, color.fB, *stopOpacity * color.fA };
 }
 
 bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
