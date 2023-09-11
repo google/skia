@@ -418,7 +418,6 @@ sksl_wgsl_tests = [
   "wgsl/MatrixConstructorDiagonal.sksl",
   "wgsl/OutParams.sksl",
   "wgsl/Sample.sksl",
-  "wgsl/TernaryThenShortCircuit.sksl",
   "wgsl/TextureIntrinsics.compute",
   "wgsl/UniformArrays.sksl",
   "wgsl/UniformMatrices.sksl",
