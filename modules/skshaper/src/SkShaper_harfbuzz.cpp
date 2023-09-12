@@ -945,8 +945,6 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
 
             // TODO: break iterator per item, but just reset position if needed?
             // Maybe break iterator with model?
-
-            // TODO: this line break iterator needs to be in the current language.
             if (!fLineBreakIterator->setText(utf8Start, utf8runLength)) {
                 return;
             }
