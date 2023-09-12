@@ -135,29 +135,6 @@ static bool check_shader_module(wgpu::ShaderModule* module,
     return handler.fSuccess;
 }
 
-bool DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedContext,
-                                  const std::string& spirv,
-                                  wgpu::ShaderModule* module,
-                                  ShaderErrorHandler* errorHandler) {
-    wgpu::ShaderModuleSPIRVDescriptor spirvDesc;
-    spirvDesc.codeSize = spirv.size() / 4;
-    spirvDesc.code = reinterpret_cast<const uint32_t*>(spirv.data());
-
-    // Skia often generates shaders that select a texture/sampler conditionally based on an
-    // attribute (specifically in the case of texture atlas indexing). We disable derivative
-    // uniformity warnings as we expect Skia's behavior to result in well-defined values.
-    wgpu::DawnShaderModuleSPIRVOptionsDescriptor dawnSpirvOptions;
-    dawnSpirvOptions.allowNonUniformDerivatives = true;
-
-    wgpu::ShaderModuleDescriptor desc;
-    desc.nextInChain = &spirvDesc;
-    spirvDesc.nextInChain = &dawnSpirvOptions;
-
-    *module = sharedContext->device().CreateShaderModule(&desc);
-
-    return check_shader_module(module, "[SPIR-V omitted]", errorHandler);
-}
-
 bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
                                  const std::string& wgsl,
                                  wgpu::ShaderModule* module,
