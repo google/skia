@@ -95,6 +95,8 @@ static constexpr const char* sk_color_type_to_str(SkColorType colorType) {
             return "kSRGBA_8888_SkColorType";
         case kR8_unorm_SkColorType:
             return "kR8_unorm_SkColorType";
+        case kRGBA_10x6_SkColorType:
+            return "kRGBA_10x6_SkColorType";
     }
     SkUNREACHABLE;
 }
