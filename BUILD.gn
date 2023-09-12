@@ -2282,6 +2282,9 @@ if (skia_enable_tools) {
       if (skia_use_metal) {
         sources += graphite_metal_tests_sources
       }
+      if (skia_use_vulkan) {
+        sources += graphite_vulkan_tests_sources
+      }
     }
     if (!skia_enable_ganesh) {
       sources -= ganesh_tests_sources

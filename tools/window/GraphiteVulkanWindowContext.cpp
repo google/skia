@@ -20,6 +20,7 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/vk/VulkanInterface.h"
@@ -364,7 +365,8 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFla
                                                    info,
                                                    VK_IMAGE_LAYOUT_UNDEFINED,
                                                    fPresentQueueIndex,
-                                                   fImages[i]);
+                                                   fImages[i],
+                                                   skgpu::VulkanAlloc());
         fSurfaces[i] = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                       backendTex,
                                                       colorType,

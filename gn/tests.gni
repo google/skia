@@ -385,6 +385,8 @@ precompile_tests_sources = [
 
 graphite_dawn_tests_sources = [ "$_tests/graphite/DawnBackendTextureTest.cpp" ]
 graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.mm" ]
+graphite_vulkan_tests_sources =
+    [ "$_tests/graphite/VulkanBackendTextureTest.cpp" ]
 
 pathops_tests_sources = [
   "$_tests/PathOpsAngleIdeas.cpp",
