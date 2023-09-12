@@ -107,6 +107,18 @@ DstReadRequirement get_dst_read_req(const Caps* caps,
     return GetDstReadRequirement(caps, SkBlendMode::kSrcOver, coverage);
 }
 
+void PaintOptions::addPaintColorToKey(const KeyContext& keyContext,
+                                      PaintParamsKeyBuilder* keyBuilder,
+                                      int desiredShaderCombination) const {
+    if (!fShaderOptions.empty()) {
+        PrecompileBase::AddToKey(keyContext, keyBuilder, fShaderOptions, desiredShaderCombination);
+    } else {
+        SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
+                                          {1, 0, 0, 1});
+        keyBuilder->endBlock();
+    }
+}
+
 void PaintOptions::createKey(const KeyContext& keyContext,
                              int desiredCombination,
                              PaintParamsKeyBuilder* keyBuilder,
@@ -153,9 +165,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
         keyBuilder->endBlock();
     }
 
-    if (!fShaderOptions.empty()) {
-        PrecompileBase::AddToKey(keyContext, keyBuilder, fShaderOptions, desiredShaderCombination);
-    }
+    this->addPaintColorToKey(keyContext, keyBuilder, desiredShaderCombination);
 
     if (addPrimitiveBlender) {
         BlendShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);

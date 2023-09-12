@@ -104,6 +104,18 @@ SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& 
     return result;
 }
 
+void PaintParams::addPaintColorToKey(const KeyContext& keyContext,
+                                     PaintParamsKeyBuilder* keyBuilder,
+                                     PipelineDataGatherer* gatherer) const {
+    if (fShader) {
+        AddToKey(keyContext, keyBuilder, gatherer, fShader.get());
+    } else {
+        SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer,
+                                          keyContext.paintColor());
+        keyBuilder->endBlock();
+    }
+}
+
 void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
@@ -124,7 +136,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
         builder->endBlock();
     }
 
-    AddToKey(keyContext, builder, gatherer, fShader.get());
+    this->addPaintColorToKey(keyContext, builder, gatherer);
 
     if (fPrimitiveBlender) {
         AddPrimitiveBlendBlock(keyContext, builder, gatherer, fPrimitiveBlender.get());
