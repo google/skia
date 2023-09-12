@@ -1254,6 +1254,12 @@ void WGSLCodeGenerator::writeUserDefinedIODecl(const Layout& layout,
                                                Delimiter delimiter) {
     this->write("@location(" + std::to_string(layout.fLocation) + ") ");
 
+    // Indices are only allowed when doing dual-source blending, and only on color attachment 0.
+    if (layout.fLocation == 0 && layout.fIndex >= 0 && fContext.fCaps->fDualSourceBlendingSupport &&
+        fProgram.fInterface.fOutputSecondaryColor) {
+        this->write("@index(" + std::to_string(layout.fIndex) + ") ");
+    }
+
     // "User-defined IO of scalar or vector integer type must always be specified as
     // @interpolate(flat)" (see https://www.w3.org/TR/WGSL/#interpolation)
     if (type.isInteger() || (type.isVector() && type.componentType().isInteger())) {
@@ -3786,6 +3792,13 @@ void WGSLCodeGenerator::writeEnables() {
     this->writeLine("diagnostic(off, derivative_uniformity);");
     if (fRequirements.fPixelLocalExtension) {
         this->writeLine("enable chromium_experimental_pixel_local;");
+    }
+    if (fProgram.fInterface.fOutputSecondaryColor) {
+        if (fContext.fCaps->fDualSourceBlendingSupport) {
+            this->writeLine("enable chromium_internal_dual_source_blending;");
+        } else {
+            fContext.fErrors->error({}, "dual-src blending not supported");
+        }
     }
 }
 

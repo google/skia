@@ -50,7 +50,7 @@ namespace skgpu::graphite {
 DawnCaps::DawnCaps(const wgpu::Device& device, const ContextOptions& options)
     : Caps() {
     this->initCaps(device, options);
-    this->initShaderCaps();
+    this->initShaderCaps(device);
     this->initFormatTable(device);
     this->finishInitialization(options);
 }
@@ -286,7 +286,7 @@ void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& option
     fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
 }
 
-void DawnCaps::initShaderCaps() {
+void DawnCaps::initShaderCaps(const wgpu::Device& device) {
     SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
 
     // WGSL does not support infinities regardless of hardware support. There are discussions around
@@ -295,6 +295,10 @@ void DawnCaps::initShaderCaps() {
 
     // WGSL supports shader derivatives in the fragment shader
     shaderCaps->fShaderDerivativeSupport = true;
+
+    if (device.HasFeature(wgpu::FeatureName::DualSourceBlending)) {
+        shaderCaps->fDualSourceBlendingSupport = true;
+    }
 }
 
 void DawnCaps::initFormatTable(const wgpu::Device& device) {
