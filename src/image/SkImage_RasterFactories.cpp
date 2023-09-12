@@ -30,10 +30,6 @@ struct SkIPoint;
 struct SkIRect;
 enum class SkTextureCompressionType;
 
-namespace skif {
-Functors MakeRasterFunctors();
-} // namespace skif
-
 static bool valid_args(const SkImageInfo& info, size_t rowBytes, size_t* minSize) {
     const int maxDimension = SK_MaxS32 >> 2;
 

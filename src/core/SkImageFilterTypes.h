@@ -32,7 +32,7 @@
 #include <optional>
 #include <utility>
 
-class FilterResultImageResolver;  // for testing
+class FilterResultTestAccess;  // for testing
 class SkImageFilter_Base;
 class GrRecordingContext;
 class SkBitmap;
@@ -795,7 +795,7 @@ public:
     SK_DECL_BITMASK_OPS_FRIENDS(ShaderFlags)
 
 private:
-    friend class ::FilterResultImageResolver; // For testing draw() and asShader()
+    friend class ::FilterResultTestAccess; // For testing draw() and asShader()
 
     // Renders this FilterResult into a new, but visually equivalent, image that fills 'dstBounds',
     // has default sampling, no color filter, and a transform that translates by only 'dstBounds's
@@ -1011,6 +1011,8 @@ struct Functors {
     BlurImageFunctor fBlurImageFunctor;
 };
 
+Functors MakeRasterFunctors();
+
 class Context {
     static constexpr GrSurfaceOrigin kUnusedOrigin = (GrSurfaceOrigin) 0;
 public:
@@ -1110,8 +1112,9 @@ private:
                                      const ContextInfo& info);
     friend Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
                                        const ContextInfo& info);
-    friend class ::SkImageFilter_Base;    // for private ctor
-    friend class FilterResult::Builder; // for fBlurImageFunctor
+    friend class ::SkImageFilter_Base;     // for private ctor
+    friend class ::FilterResultTestAccess; // for private ctor
+    friend class FilterResult::Builder;    // for fBlurImageFunctor
 };
 
 } // end namespace skif
