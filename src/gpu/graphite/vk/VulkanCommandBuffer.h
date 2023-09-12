@@ -164,13 +164,8 @@ private:
 
     // begin() has been called, but not end()
     bool fActive = false;
-
-    // Stores a pointer to the current active render pass (i.e. begin has been called but not
-    // end). A nullptr means there is no active render pass. The VulkanCommandBuffer does not own
-    // the render pass.
-    // TODO: define what this is once we implement renderpasses.
-    //const void* fActiveRenderPass = nullptr;
-    // For now, use this to track whether we're between beginRendering/endRendering calls.
+    // Track whether there is currently an active render pass (beginRenderPass has been called, but
+    // not endRenderPass)
     bool fActiveRenderPass = false;
 
     const VulkanGraphicsPipeline* fActiveGraphicsPipeline = nullptr;

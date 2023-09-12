@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
+#include "src/gpu/graphite/vk/VulkanRenderPass.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -542,7 +543,9 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
+        sk_sp<VulkanRenderPass> compatibleRenderPass,
         VkPipelineCache pipelineCache) {
+
     SkSL::Program::Interface vsInterface, fsInterface;
     SkSL::ProgramSettings settings;
     settings.fForceNoRTFlip = true; // TODO: Confirm
@@ -665,20 +668,10 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkPipelineDynamicStateCreateInfo dynamicInfo;
     setup_dynamic_state(&dynamicInfo, dynamicStates);
 
-    VkPipelineRenderingCreateInfoKHR pipelineRenderingInfo;
-    memset(&pipelineRenderingInfo, 0, sizeof(VkPipelineRenderingCreateInfoKHR));
-    pipelineRenderingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-    pipelineRenderingInfo.colorAttachmentCount = 1;
-    VulkanTextureInfo textureInfo;
-    bool validTextureInfo =
-            renderPassDesc.fColorAttachment.fTextureInfo.getVulkanTextureInfo(&textureInfo);
-    pipelineRenderingInfo.pColorAttachmentFormats = validTextureInfo ? &textureInfo.fFormat
-                                                                     : VK_NULL_HANDLE;
-
     VkGraphicsPipelineCreateInfo pipelineCreateInfo;
     memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineCreateInfo.pNext = &pipelineRenderingInfo;
+    pipelineCreateInfo.pNext = nullptr;
     pipelineCreateInfo.flags = 0;
     pipelineCreateInfo.stageCount = hasFragment ? 2 : 1;
     pipelineCreateInfo.pStages = &pipelineShaderStages[0];
@@ -692,9 +685,9 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     pipelineCreateInfo.pColorBlendState = &colorBlendInfo;
     pipelineCreateInfo.pDynamicState = &dynamicInfo;
     pipelineCreateInfo.layout = pipelineLayout;
-    pipelineCreateInfo.renderPass = VK_NULL_HANDLE;
-    // For the vast majority of cases we only have one subpass so we default piplines to subpass 0.
-    // TODO: However, if we need to load a resolve into msaa attachment for discardable msaa then
+    pipelineCreateInfo.renderPass = compatibleRenderPass->renderPass();
+    // TODO: Consider setting pipeline to a subpass other than subpass 0 once we support >1 subpass.
+    // For example, if we need to load a resolve into msaa attachment for discardable msaa then
     // the main subpass will be 1.
     pipelineCreateInfo.subpass = 0;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;

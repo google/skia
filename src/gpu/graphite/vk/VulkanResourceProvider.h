@@ -17,6 +17,7 @@ namespace skgpu::graphite {
 
 class VulkanCommandBuffer;
 class VulkanDescriptorSet;
+class VulkanFramebuffer;
 class VulkanRenderPass;
 class VulkanSharedContext;
 
@@ -44,6 +45,12 @@ private:
     sk_sp<Sampler> createSampler(const SkSamplingOptions&,
                                  SkTileMode xTileMode,
                                  SkTileMode yTileMode) override;
+    sk_sp<VulkanFramebuffer> createFramebuffer(
+            const VulkanSharedContext*,
+            const skia_private::TArray<VkImageView>& attachmentViews,
+            const VulkanRenderPass&,
+            const int width,
+            const int height);
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override {}

@@ -294,6 +294,8 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanDescriptorPool.h",
   "$_src/vk/VulkanDescriptorSet.cpp",
   "$_src/vk/VulkanDescriptorSet.h",
+  "$_src/vk/VulkanFramebuffer.cpp",
+  "$_src/vk/VulkanFramebuffer.h",
   "$_src/vk/VulkanGraphicsPipeline.cpp",
   "$_src/vk/VulkanGraphicsPipeline.h",
   "$_src/vk/VulkanGraphiteTypes.cpp",
