@@ -31,11 +31,11 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "tests/CtsEnforcement.h"
@@ -81,10 +81,10 @@ public:
         return skif::Context(ctxInfo, functors);
     }
 
-    static void Draw(SkCanvas* canvas,
+    static void Draw(SkDevice* device,
                      const skif::FilterResult& image,
                      const skif::LayerSpace<SkIRect> dstBounds) {
-        image.draw(canvas, dstBounds);
+        image.draw(device, dstBounds);
     }
 
     static sk_sp<SkShader> AsShader(const skif::Context& ctx,
@@ -120,6 +120,13 @@ bool colorfilter_equals(const SkColorFilter* actual, const SkColorFilter* expect
     sk_sp<SkData> actualData = actual->serialize();
     sk_sp<SkData> expectedData = expected->serialize();
     return actualData && actualData->equals(expectedData.get());
+}
+
+void clear_device(SkDevice* device) {
+    SkPaint p;
+    p.setColor4f(SkColors::kTransparent, /*colorSpace=*/nullptr);
+    p.setBlendMode(SkBlendMode::kSrc);
+    device->drawPaint(p);
 }
 
 static constexpr SkTileMode kTileModes[4] = {SkTileMode::kClamp,
@@ -261,16 +268,16 @@ public:
             effectiveExpectation = Expect::kEmptyImage;
         }
 
-        auto surface = ctx.makeSurface(size);
-        SkCanvas* canvas = surface->getCanvas();
-        canvas->clear(SK_ColorTRANSPARENT);
-        canvas->translate(-desiredOutput.left(), -desiredOutput.top());
+        auto device = ctx.makeDevice(size);
+        SkCanvas canvas{device};
+        canvas.clear(SK_ColorTRANSPARENT);
+        canvas.translate(-desiredOutput.left(), -desiredOutput.top());
 
         LayerSpace<SkIRect> sourceBounds{
                 SkIRect::MakeXYWH(origin.x(), origin.y(), source->width(), source->height())};
         LayerSpace<SkIRect> expectedBounds = this->expectedBounds(sourceBounds);
 
-        canvas->clipIRect(SkIRect(expectedBounds), SkClipOp::kIntersect);
+        canvas.clipIRect(SkIRect(expectedBounds), SkClipOp::kIntersect);
 
         if (effectiveExpectation != Expect::kEmptyImage) {
             SkPaint paint;
@@ -288,7 +295,7 @@ public:
                     !SkScalarIsInt(m.getTranslateY())) {
                     sampling = t->fSampling;
                 }
-                canvas->concat(m);
+                canvas.concat(m);
             } else if (auto* c = std::get_if<CropParams>(&fAction)) {
                 LayerSpace<SkIRect> imageBounds(
                         SkIRect::MakeXYWH(origin.x(), origin.y(),
@@ -304,11 +311,15 @@ public:
                 } else {
                     // A non-decal tile mode where the image doesn't cover the crop requires the
                     // image to be padded out with transparency so the tiling matches 'fRect'.
-                    auto paddedSurface = ctx.makeSurface(SkISize(c->fRect.size()));
-                    paddedSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
-                    paddedSurface->getCanvas()->translate(-c->fRect.left(), -c->fRect.top());
-                    source->draw(paddedSurface->getCanvas(), origin.x(), origin.y());
-                    source = paddedSurface->makeImageSnapshot();
+                    SkISize paddedSize = SkISize(c->fRect.size());
+                    auto paddedDevice = ctx.makeDevice(paddedSize);
+                    clear_device(paddedDevice.get());
+                    paddedDevice->drawSpecial(source.get(),
+                                              SkMatrix::Translate(origin.x() - c->fRect.left(),
+                                                                  origin.y() - c->fRect.top()),
+                                              /*sampling=*/{},
+                                              /*paint=*/{});
+                    source = paddedDevice->snapSpecial(SkIRect::MakeSize(paddedSize));
                     origin = c->fRect.topLeft();
                 }
                 tileMode = c->fTileMode;
@@ -318,9 +329,9 @@ public:
             paint.setShader(source->asShader(tileMode,
                                              sampling,
                                              SkMatrix::Translate(origin.x(), origin.y())));
-            canvas->drawPaint(paint);
+            canvas.drawPaint(paint);
         }
-        return surface->makeImageSnapshot();
+        return device->snapSpecial(SkIRect::MakeSize(size));
     }
 
 private:
@@ -338,6 +349,7 @@ private:
     // The expected desired outputs and layer bounds are calculated automatically based on the
     // action type and parameters to simplify test case specification.
 };
+
 
 class FilterResultImageResolver {
 public:
@@ -371,12 +383,12 @@ public:
                 return {nullptr, {}};
             }
 
-            auto surface = ctx.makeSurface(SkISize(ctx.desiredOutput().size()));
-            SkASSERT(surface);
+            auto device = ctx.makeDevice(SkISize(ctx.desiredOutput().size()));
+            SkASSERT(device);
 
-            SkCanvas* canvas = surface->getCanvas();
-            canvas->clear(SK_ColorTRANSPARENT);
-            canvas->translate(-ctx.desiredOutput().left(), -ctx.desiredOutput().top());
+            SkCanvas canvas{device};
+            canvas.clear(SK_ColorTRANSPARENT);
+            canvas.translate(-ctx.desiredOutput().left(), -ctx.desiredOutput().top());
 
             if (fMethod == Method::kShader || fMethod == Method::kClippedShader) {
                 skif::LayerSpace<SkIRect> sampleBounds;
@@ -385,7 +397,7 @@ public:
                     // (e.g. kDrawToCanvas), if sampleBounds is larger than the layer bounds. Since
                     // we want to test the unclipped shader version, pass in layerBounds() for
                     // sampleBounds and add a clip to the canvas instead.
-                    canvas->clipIRect(SkIRect(image.layerBounds()));
+                    canvas.clipIRect(SkIRect(image.layerBounds()));
                     sampleBounds = image.layerBounds();
                 } else {
                     sampleBounds = ctx.desiredOutput();
@@ -393,13 +405,15 @@ public:
 
                 SkPaint paint;
                 paint.setShader(FilterResultTestAccess::AsShader(ctx, image, sampleBounds));
-                canvas->drawPaint(paint);
+                canvas.drawPaint(paint);
             } else {
                 SkASSERT(fMethod == Method::kDrawToCanvas);
-                FilterResultTestAccess::Draw(canvas, image, ctx.desiredOutput());
+                FilterResultTestAccess::Draw(device.get(), image, ctx.desiredOutput());
             }
 
-            return {surface->makeImageSnapshot(), SkIPoint(ctx.desiredOutput().topLeft())};
+            return {device->snapSpecial(SkIRect::MakeWH(ctx.desiredOutput().width(),
+                                                        ctx.desiredOutput().height())),
+                    SkIPoint(ctx.desiredOutput().topLeft())};
         }
     }
 
@@ -457,12 +471,12 @@ public:
         // (which is used as a proxy for being approximately equal to each other).
         return this->compareImages(ctx, expectedBM, expectedOrigin, actual,
                                    FilterResultImageResolver::Method::kImageAndOffset) &&
-               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kShader) &&
-               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kClippedShader) &&
-               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kDrawToCanvas);
+            this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+            FilterResultImageResolver::Method::kShader) &&
+            this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+            FilterResultImageResolver::Method::kClippedShader) &&
+            this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+            FilterResultImageResolver::Method::kDrawToCanvas);
     }
 
 private:
@@ -478,7 +492,7 @@ private:
             SkDebugf("FilterResult comparison failed for method %s\n", resolver.methodName());
             this->logBitmaps(expected, actualBM, badPixels);
             return false;
-        }
+                }
         return true;
     }
 
@@ -814,8 +828,8 @@ public:
         // Create the source image
         FilterResult source;
         if (!fSourceBounds.isEmpty()) {
-            sk_sp<SkSpecialSurface> sourceSurface =
-                    baseContext.makeSurface({fSourceBounds.width(), fSourceBounds.height()});
+            sk_sp<SkDevice> sourceSurface = baseContext.makeDevice(SkISize(fSourceBounds.size()));
+
             const SkColor colors[] = { SK_ColorMAGENTA,
                                        SK_ColorRED,
                                        SK_ColorYELLOW,
@@ -825,13 +839,13 @@ public:
             SkMatrix rotation = SkMatrix::RotateDeg(15.f, {fSourceBounds.width() / 2.f,
                                                            fSourceBounds.height() / 2.f});
 
-            SkCanvas* canvas = sourceSurface->getCanvas();
-            canvas->clear(SK_ColorBLACK);
-            canvas->concat(rotation);
+            SkCanvas canvas{sourceSurface};
+            canvas.clear(SK_ColorBLACK);
+            canvas.concat(rotation);
 
             int color = 0;
             SkRect coverBounds;
-            SkRect dstBounds = SkRect::Make(canvas->imageInfo().bounds());
+            SkRect dstBounds = SkRect::Make(canvas.imageInfo().bounds());
             SkAssertResult(SkMatrixPriv::InverseMapRect(rotation, &coverBounds, dstBounds));
 
             float sz = fSourceBounds.width() <= 16.f || fSourceBounds.height() <= 16.f ? 2.f : 8.f;
@@ -839,11 +853,12 @@ public:
                 for (float x = coverBounds.fLeft; x < coverBounds.fRight; x += sz) {
                     SkPaint p;
                     p.setColor(colors[(color++) % std::size(colors)]);
-                    canvas->drawRect(SkRect::MakeXYWH(x, y, sz, sz), p);
+                    canvas.drawRect(SkRect::MakeXYWH(x, y, sz, sz), p);
                 }
             }
 
-            source = FilterResult(sourceSurface->makeImageSnapshot(), fSourceBounds.topLeft());
+            SkIRect subset = SkIRect::MakeWH(fSourceBounds.width(), fSourceBounds.height());
+            source = FilterResult(sourceSurface->snapSpecial(subset), fSourceBounds.topLeft());
             baseContext = baseContext.withNewSource(source);
         }
 
@@ -855,9 +870,9 @@ public:
         LayerSpace<SkIPoint> expectedOrigin = source.layerBounds().topLeft();
         // The expected image can't ever be null, so we produce a transparent black image instead.
         if (!expectedImage) {
-            sk_sp<SkSpecialSurface> expectedSurface = baseContext.makeSurface({1, 1});
-            expectedSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
-            expectedImage = expectedSurface->makeImageSnapshot();
+            sk_sp<SkDevice> expectedSurface = baseContext.makeDevice({1, 1});
+            clear_device(expectedSurface.get());
+            expectedImage = expectedSurface->snapSpecial(SkIRect::MakeWH(1, 1));
             expectedOrigin = LayerSpace<SkIPoint>({0, 0});
         }
         SkASSERT(expectedImage);

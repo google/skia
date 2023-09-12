@@ -13,10 +13,10 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/image/SkImage_Base.h"
 
 #include "include/gpu/graphite/Context.h"
@@ -30,6 +30,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/CopyTask.h"
+#include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -90,19 +91,25 @@ sk_sp<SkSpecialImage> eval_blur(skgpu::graphite::Recorder* recorder,
                                 const SkSurfaceProps& outProps) {
     SkImageInfo outII = SkImageInfo::Make({dstRect.width(), dstRect.height()},
                                           colorType, kPremul_SkAlphaType, std::move(outCS));
-    auto surface = SkSpecialSurfaces::MakeGraphite(recorder, outII, outProps);
-    if (!surface) {
+    auto device = skgpu::graphite::Device::Make(recorder,
+                                                outII,
+                                                skgpu::Budgeted::kYes,
+                                                skgpu::Mipmapped::kNo,
+                                                outProps,
+                                                /*addInitialClear=*/false);
+    if (!device) {
         return nullptr;
     }
 
     // TODO(b/294102201): This is very much like AutoSurface in SkImageFilterTypes.cpp
-    SkCanvas* canvas = surface->getCanvas();
-    canvas->translate(-dstRect.left(), -dstRect.top());
+    SkIRect subset = SkIRect::MakeSize(dstRect.size());
+    device->clipRect(SkRect::Make(subset), SkClipOp::kIntersect, /*aa=*/false);
+    device->setLocalToDevice(SkM44::Translate(-dstRect.left(), -dstRect.top()));
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
     paint.setShader(std::move(blurEffect));
-    canvas->drawPaint(paint);
-    return surface->makeImageSnapshot();
+    device->drawPaint(paint);
+    return device->snapSpecial(subset);
 }
 
 sk_sp<SkSpecialImage> blur_2d(skgpu::graphite::Recorder* recorder,
@@ -685,9 +692,14 @@ namespace skif {
 Functors MakeGraphiteFunctors(skgpu::graphite::Recorder* recorder) {
     SkASSERT(recorder);
 
-    auto makeSurfaceFunctor = [recorder](const SkImageInfo& imageInfo,
-                                         const SkSurfaceProps* props) {
-        return SkSpecialSurfaces::MakeGraphite(recorder, imageInfo, *props);
+    auto makeDeviceFunctor = [recorder](const SkImageInfo& imageInfo,
+                                        const SkSurfaceProps& props) {
+        return skgpu::graphite::Device::Make(recorder,
+                                             imageInfo,
+                                             skgpu::Budgeted::kYes,
+                                             skgpu::Mipmapped::kNo,
+                                             props,
+                                             /*addInitialClear=*/false);
     };
     auto makeImageFunctor = [recorder](const SkIRect& subset,
                                        sk_sp<SkImage> image,
@@ -719,8 +731,7 @@ Functors MakeGraphiteFunctors(skgpu::graphite::Recorder* recorder) {
                     std::move(outCS), outProps);
     };
 
-    return Functors(makeSurfaceFunctor, makeImageFunctor, makeCachedBitmapFunctor,
-                    blurImageFunctor);
+    return Functors(makeDeviceFunctor, makeImageFunctor, makeCachedBitmapFunctor, blurImageFunctor);
 }
 
 Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,

@@ -36,13 +36,12 @@ class FilterResultTestAccess;  // for testing
 class SkImageFilter_Base;
 class GrRecordingContext;
 class SkBitmap;
-class SkCanvas;
+class SkDevice;
 class SkImage;
 class SkImageFilter;
 class SkImageFilterCache;
 class SkPicture;
 class SkShader;
-class SkSpecialSurface;
 enum GrSurfaceOrigin : int;
 enum SkColorType : int;
 struct SkImageInfo;
@@ -815,9 +814,13 @@ private:
     bool isCropped(const LayerSpace<SkMatrix>& xtraTransform,
                    const LayerSpace<SkIRect>& dstBounds) const;
 
-    // Draw directly to the canvas, which draws the same image as produced by resolve() but can be
+    // Draw directly to the device, which draws the same image as produced by resolve() but can be
     // useful if multiple operations need to be performed on the canvas.
-    void draw(SkCanvas* canvas, const LayerSpace<SkIRect>& dstBounds) const;
+    //
+    // This assumes that the device's transform is set to match the current layer space coordinate
+    // system. This will concat any internal extra transform and apply clipping as necessary, but
+    // will restore the device to the original state before returning.
+    void draw(SkDevice* device, const LayerSpace<SkIRect>& dstBounds) const;
 
     // Returns the FilterResult as a shader, ideally without resolving to an axis-aligned image.
     // 'xtraSampling' is the sampling that any parent shader applies to the FilterResult.
@@ -967,8 +970,8 @@ struct ContextInfo {
 };
 
 struct Functors {
-    using MakeSurfaceFunctor = std::function<sk_sp<SkSpecialSurface>(const SkImageInfo& info,
-                                                                     const SkSurfaceProps* props)>;
+    using MakeDeviceFunctor = std::function<sk_sp<SkDevice>(const SkImageInfo& info,
+                                                            const SkSurfaceProps& props)>;
 
     // For input images to be processed by image filters
     using MakeImageFunctor = std::function<sk_sp<SkSpecialImage>(const SkIRect& subset,
@@ -987,15 +990,15 @@ struct Functors {
                                                                  sk_sp<SkColorSpace> outCS,
                                                                  const SkSurfaceProps& outProps)>;
 
-    Functors(MakeSurfaceFunctor makeSurfaceFunctor,
+    Functors(MakeDeviceFunctor makeDeviceFunctor,
              MakeImageFunctor makeImageFunctor,
              MakeCachedBitmapFunctor makeCachedBitmapFunctor,
              BlurImageFunctor blurImageFunctor)
-                 : fMakeSurfaceFunctor(makeSurfaceFunctor)
+                 : fMakeDeviceFunctor(makeDeviceFunctor)
                  , fMakeImageFunctor(makeImageFunctor)
                  , fMakeCachedBitmapFunctor(makeCachedBitmapFunctor)
                  , fBlurImageFunctor(blurImageFunctor) {
-        SkASSERT(fMakeSurfaceFunctor);
+        SkASSERT(fMakeDeviceFunctor);
         SkASSERT(fMakeImageFunctor);
         SkASSERT(fMakeCachedBitmapFunctor);
         // The blur functor is currently not implemented yet for CPU blurs so it can be null
@@ -1005,7 +1008,7 @@ struct Functors {
     // std::function<> is very heavyweight in terms of codesize. The context can be a pointer to
     // the backend impl, the fixed context info that won't change, and the context info that
     // must change frequently during evaluation.
-    MakeSurfaceFunctor fMakeSurfaceFunctor;
+    MakeDeviceFunctor fMakeDeviceFunctor;
     MakeImageFunctor fMakeImageFunctor;
     MakeCachedBitmapFunctor fMakeCachedBitmapFunctor;
     BlurImageFunctor fBlurImageFunctor;
@@ -1063,11 +1066,10 @@ public:
         return SkToBool(fFunctors.fBlurImageFunctor);
     }
 
-    // Create a surface of the given size, that matches the context's color type and color space
-    // as closely as possible, and uses the same backend of the device that produced the source
-    // image.
-    sk_sp<SkSpecialSurface> makeSurface(const SkISize& size,
-                                        const SkSurfaceProps* props = nullptr) const;
+    // Create an SkDevice ("surface") of the given size, that matches the context's color type and
+    // color space as closely as possible, and uses the same backend of the device that produced the
+    // source image.
+    sk_sp<SkDevice> makeDevice(const SkISize& size, const SkSurfaceProps* props = nullptr) const;
 
     sk_sp<SkSpecialImage> makeImage(const SkIRect& subset, sk_sp<SkImage> image) const;
 

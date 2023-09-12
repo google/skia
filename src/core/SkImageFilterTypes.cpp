@@ -8,8 +8,10 @@
 #include "src/core/SkImageFilterTypes.h"
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
@@ -19,11 +21,13 @@
 #include "include/core/SkShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "src/core/SkBitmapDevice.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <algorithm>
@@ -282,9 +286,11 @@ sk_sp<SkShader> apply_decal(
     return decalShader;
 }
 
-// AutoSurface manages an SkSpecialSurface and canvas state to draw to a layer-space bounding box,
-// and then snap it into a FilterResult. It provides operators to be used directly as a canvas,
-// assuming surface creation succeeded. Usage:
+// AutoSurface manages an SkCanvas and device state to draw to a layer-space bounding box,
+// and then snap it into a FilterResult. It provides operators to be used directly as an SkDevice,
+// assuming surface creation succeeded. It can also be viewed as an SkCanvas (for when an operation
+// is unavailable on SkDevice). A given AutoSurface should only rely on one access API.
+// Usage:
 //
 //     AutoSurface surface{ctx, dstBounds, renderInParameterSpace}; // if true, concats layer matrix
 //     if (surface) {
@@ -297,45 +303,51 @@ public:
                 const LayerSpace<SkIRect>& dstBounds,
                 bool renderInParameterSpace,
                 const SkSurfaceProps* props = nullptr)
-            : fSurface(nullptr)
-            , fDstBounds(dstBounds) {
+            : fDstBounds(dstBounds) {
         // We don't intersect by ctx.desiredOutput() and only use the Context to make the surface.
         // It is assumed the caller has already accounted for the desired output, or it's a
         // situation where the desired output shouldn't apply (e.g. this surface will be transformed
         // to align with the actual desired output via FilterResult metadata).
-        fSurface = ctx.makeSurface(SkISize(fDstBounds.size()), props);
-        if (!fSurface) {
+        auto device = ctx.makeDevice(SkISize(dstBounds.size()), props);
+        if (!device) {
             return;
         }
 
-        // Configure the canvas
-        SkCanvas* canvas = fSurface->getCanvas();
-        // skbug.com/5075: GPU-backed special surfaces don't reset their contents.
-        canvas->clear(SK_ColorTRANSPARENT);
-        canvas->translate(-fDstBounds.left(), -fDstBounds.top()); // dst's origin adjustment
+        // Wrap the device in a canvas and use that to configure its origin and clip. This ensures
+        // the device and the canvas are in sync regardless of how the AutoSurface user intends
+        // to render.
+        fCanvas.emplace(std::move(device));
+        fCanvas->translate(-fDstBounds.left(), -fDstBounds.top());
+        fCanvas->clear(SkColors::kTransparent);
+        // The device functor may have provided an approx-fit backing surface so clip to the
+        // expected dst bounds.
+        fCanvas->clipIRect(SkIRect(fDstBounds));
 
         if (renderInParameterSpace) {
-            canvas->concat(ctx.mapping().layerMatrix());
+            fCanvas->concat(SkMatrix(ctx.mapping().layerMatrix()));
         }
     }
 
-    explicit operator bool() const { return SkToBool(fSurface); }
+    explicit operator bool() const { return fCanvas.has_value(); }
 
-    SkCanvas* canvas() { SkASSERT(fSurface); return fSurface->getCanvas(); }
-    SkCanvas* operator->() { SkASSERT(fSurface); return fSurface->getCanvas(); }
+    SkDevice* device() { SkASSERT(fCanvas.has_value()); return SkCanvasPriv::TopDevice(&*fCanvas); }
+    SkCanvas* operator->() { SkASSERT(fCanvas.has_value()); return &*fCanvas; }
 
     // NOTE: This pair is equivalent to a FilterResult but we keep it this way for use by resolve(),
     // which wants them separate while the legacy imageAndOffset() function is around.
     std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> snap() {
-        if (fSurface) {
-            return {fSurface->makeImageSnapshot(), fDstBounds.topLeft()};
+        if (fCanvas.has_value()) {
+            // Snap a subset of the device matching the expected dst bounds.
+            SkIRect subset = SkIRect::MakeWH(fDstBounds.width(), fDstBounds.height());
+            fCanvas->restoreToCount(0);
+            return {this->device()->snapSpecial(subset), fDstBounds.topLeft()};
         } else {
             return {nullptr, {}};
         }
     }
 
 private:
-    sk_sp<SkSpecialSurface> fSurface;
+    std::optional<SkCanvas> fCanvas;
     LayerSpace<SkIRect> fDstBounds;
 };
 
@@ -344,9 +356,14 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 Functors MakeRasterFunctors() {
-    auto makeSurfaceFunctor = [](const SkImageInfo& imageInfo,
-                                 const SkSurfaceProps* props) {
-        return SkSpecialSurfaces::MakeRaster(imageInfo, *props);
+    auto makeDeviceFunctor = [](const SkImageInfo& imageInfo,
+                                const SkSurfaceProps& props) -> sk_sp<SkDevice> {
+        SkBitmap bitmap;
+        if (!bitmap.tryAllocPixels(imageInfo)) {
+            return nullptr;
+        }
+
+        return sk_make_sp<SkBitmapDevice>(bitmap, props);
     };
     auto makeImageFunctor = [](const SkIRect& subset,
                                sk_sp<SkImage> image,
@@ -359,7 +376,7 @@ Functors MakeRasterFunctors() {
 
     // TODO: For now pass null for the blur image functor so that SkBlurImageFilter uses its N32
     // implementation.
-    return Functors(makeSurfaceFunctor, makeImageFunctor, makeCachedBitmapFunctor,
+    return Functors(makeDeviceFunctor, makeImageFunctor, makeCachedBitmapFunctor,
                     /*blurImageFunctor=*/ nullptr);
 }
 
@@ -373,9 +390,8 @@ Context Context::MakeRaster(const ContextInfo& info) {
     return Context(n32, MakeRasterFunctors());
 }
 
-sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
-                                             const SkSurfaceProps* props) const {
-    SkASSERT(fFunctors.fMakeSurfaceFunctor);
+sk_sp<SkDevice> Context::makeDevice(const SkISize& size, const SkSurfaceProps* props) const {
+    SkASSERT(fFunctors.fMakeDeviceFunctor);
     if (!props) {
         props = &fInfo.fSurfaceProps;
     }
@@ -384,7 +400,7 @@ sk_sp<SkSpecialSurface> Context::makeSurface(const SkISize& size,
                                               fInfo.fColorType,
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(fInfo.fColorSpace));
-    return fFunctors.fMakeSurfaceFunctor(imageInfo, props);
+    return fFunctors.fMakeDeviceFunctor(imageInfo, *props);
 }
 
 sk_sp<SkSpecialImage> Context::makeImage(const SkIRect& subset, sk_sp<SkImage> image) const {
@@ -1026,19 +1042,20 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
     SkSurfaceProps props = {};
     AutoSurface surface{ctx, dstBounds, /*renderInParameterSpace=*/false, &props};
     if (surface) {
-        this->draw(surface.canvas(), dstBounds);
+        this->draw(surface.device(), dstBounds);
     }
     return surface.snap();
 }
 
-void FilterResult::draw(SkCanvas* canvas, const LayerSpace<SkIRect>& dstBounds) const {
+void FilterResult::draw(SkDevice* device, const LayerSpace<SkIRect>& dstBounds) const {
     if (!fImage) {
         return;
     }
 
-    // When this is called by resolve(), the surface and canvas matrix are such that this clip is
+    // When this is called by resolve(), the surface and transform are such that this clip is
     // trivially a no-op, but including the clip means draw() works correctly in other scenarios.
-    canvas->clipIRect(SkIRect(fLayerBounds));
+    device->pushClipStack();
+    device->clipRect(SkRect::Make(SkIRect(fLayerBounds)), SkClipOp::kIntersect, /*aa=*/false);
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -1068,11 +1085,16 @@ void FilterResult::draw(SkCanvas* canvas, const LayerSpace<SkIRect>& dstBounds) 
             paint.setShader(fImage->asShader(fTileMode, sampling, SkMatrix(fTransform)));
         }
         // Fill the canvas with the shader, relying on it to do the transform
-        canvas->drawPaint(paint);
+        device->drawPaint(paint);
     } else {
-        canvas->concat(SkMatrix(fTransform)); // src's origin is embedded in fTransform
-        fImage->draw(canvas, 0.f, 0.f, sampling, &paint);
+        // src's origin is embedded in fTransform. For historical reasons, drawSpecial() does
+        // not automatically use the device's current local-to-device matrix, but that's what preps
+        // it to match the expected layer coordinate system.
+        SkMatrix netTransform = SkMatrix::Concat(device->localToDevice(), SkMatrix(fTransform));
+        device->drawSpecial(fImage.get(), netTransform, sampling, paint);
     }
+
+    device->popClipStack();
 }
 
 sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
@@ -1204,7 +1226,7 @@ FilterResult FilterResult::MakeFromImage(const Context& ctx,
     if (surface) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        surface->drawImageRect(image, srcRect, SkRect(dstRect), sampling, &paint,
+        surface->drawImageRect(std::move(image), srcRect, SkRect(dstRect), sampling, &paint,
                                SkCanvas::kStrict_SrcRectConstraint);
     }
     return surface.snap();
@@ -1303,9 +1325,8 @@ FilterResult FilterResult::Builder::merge() {
             SkASSERT(!input.fSampleBounds.has_value() &&
                      input.fSampling == kDefaultSampling &&
                      input.fFlags == ShaderFlags::kNone);
-            surface->save();
-            input.fImage.draw(surface.canvas(), outputBounds);
-            surface->restore();
+            // draw() leaves the Device state unmodified when it's done
+            input.fImage.draw(surface.device(), outputBounds);
         }
     }
     return surface.snap();
