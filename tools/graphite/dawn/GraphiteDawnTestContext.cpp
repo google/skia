@@ -51,8 +51,11 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
                 gAdapter = adapter;
                 break;
             }
+            // We never want a null/undefined backend.
             // Skip Dawn D3D11 backend for now.
-            if (props.backendType != wgpu::BackendType::D3D11) {
+            if (props.backendType != wgpu::BackendType::Null &&
+                props.backendType != wgpu::BackendType::Undefined &&
+                props.backendType != wgpu::BackendType::D3D11) {
                 gAdapter = adapter;
                 break;
             }
