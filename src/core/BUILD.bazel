@@ -313,8 +313,6 @@ CORE_FILES = [
     "SkScan_SAAPath.cpp",
     "SkSpecialImage.cpp",
     "SkSpecialImage.h",
-    "SkSpecialSurface.cpp",
-    "SkSpecialSurface.h",
     "SkSpriteBlitter.h",
     "SkSpriteBlitter_ARGB32.cpp",
     "SkStreamPriv.h",

@@ -48,7 +48,6 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 #include "src/image/SkImage_Base.h"

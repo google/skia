@@ -16,7 +16,6 @@
 
 class SkColorInfo;
 class SkImage;
-class SkSpecialSurface;
 class SkSurfaceProps;
 struct SkIRect;
 struct SkImageInfo;
@@ -47,11 +46,5 @@ inline skgpu::graphite::TextureProxyView AsTextureProxyView(sk_sp<const SkSpecia
 }
 
 }  // namespace SkSpecialImages
-
-namespace SkSpecialSurfaces {
-sk_sp<SkSpecialSurface> MakeGraphite(skgpu::graphite::Recorder*,
-                                     const SkImageInfo&,
-                                     const SkSurfaceProps&);
-}  // namespace SkSpecialSurfaces
 
 #endif

@@ -300,7 +300,6 @@ GANESH_TESTS = [
     "Skbug6653.cpp",
     "SlugTest.cpp",
     "SpecialImageTest.cpp",
-    "SpecialSurfaceTest.cpp",
     "SrcSrcOverBatchTest.cpp",
     "StrikeForGPUTest.cpp",
     "SurfaceDrawContextTest.cpp",

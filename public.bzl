@@ -648,8 +648,6 @@ BASE_SRCS_ALL = [
     "src/core/SkScan_SAAPath.cpp",
     "src/core/SkSpecialImage.cpp",
     "src/core/SkSpecialImage.h",
-    "src/core/SkSpecialSurface.cpp",
-    "src/core/SkSpecialSurface.h",
     "src/core/SkSpriteBlitter.h",
     "src/core/SkSpriteBlitter_ARGB32.cpp",
     "src/core/SkStream.cpp",
