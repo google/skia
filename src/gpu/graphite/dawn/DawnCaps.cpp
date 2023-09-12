@@ -284,7 +284,6 @@ void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& option
             device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
 
     fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
-    fEnableWGSL = options.fEnableWGSL;
 }
 
 void DawnCaps::initShaderCaps() {

@@ -119,26 +119,22 @@ public:
                                 const skia_private::TArray<SkString>& viaParts,
                                 ContextType contextType,
                                 SkColorType colorType,
-                                SkAlphaType alphaType,
-                                bool wgsl)
+                                SkAlphaType alphaType)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
             , fContextType(contextType)
             , fColorType(colorType)
-            , fAlphaType(alphaType)
-            , fWGSL(wgsl) {}
+            , fAlphaType(alphaType) {}
 
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
     ContextType getContextType() const { return fContextType; }
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
-    bool getWGSL() const { return fWGSL; }
 
 private:
     ContextType         fContextType;
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;
-    bool                fWGSL;
 };
 
 #endif // SK_GRAPHITE

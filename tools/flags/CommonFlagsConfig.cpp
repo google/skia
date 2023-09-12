@@ -137,13 +137,13 @@ static const struct {
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
 #ifdef SK_DAWN
-    { "grdawn",                "graphite", "api=dawn,wgsl=true" },
-    { "grdawn_d3d11",          "graphite", "api=dawn_d3d11,wgsl=true" },
-    { "grdawn_d3d12",          "graphite", "api=dawn_d3d12,wgsl=true" },
-    { "grdawn_mtl",            "graphite", "api=dawn_mtl,wgsl=true" },
-    { "grdawn_vk",             "graphite", "api=dawn_vk,wgsl=true" },
-    { "grdawn_gl",             "graphite", "api=dawn_gl,wgsl=true" },
-    { "grdawn_gles",           "graphite", "api=dawn_gles,wgsl=true" },
+    { "grdawn",                "graphite", "api=dawn" },
+    { "grdawn_d3d11",          "graphite", "api=dawn_d3d11" },
+    { "grdawn_d3d12",          "graphite", "api=dawn_d3d12" },
+    { "grdawn_mtl",            "graphite", "api=dawn_mtl" },
+    { "grdawn_vk",             "graphite", "api=dawn_vk" },
+    { "grdawn_gl",             "graphite", "api=dawn_gl" },
+    { "grdawn_gles",           "graphite", "api=dawn_gles" },
 #endif
 #ifdef SK_METAL
     { "grmtl",                 "graphite", "api=metal" },
@@ -685,7 +685,6 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     ContextType contextType = skgpu::ContextType::kMetal;
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;
-    bool wgsl = false;
 
     bool parseSucceeded = false;
     ExtendedOptions extendedOptions(options, &parseSucceeded);
@@ -694,13 +693,12 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     }
 
     bool validOptions = extendedOptions.get_option_graphite_api("api", &contextType) &&
-                        extendedOptions.get_option_gpu_color("color", &colorType, &alphaType) &&
-                        extendedOptions.get_option_bool("wgsl", &wgsl);
+                        extendedOptions.get_option_gpu_color("color", &colorType, &alphaType);
     if (!validOptions) {
         return nullptr;
     }
 
-    return new SkCommandLineConfigGraphite(tag, vias, contextType, colorType, alphaType, wgsl);
+    return new SkCommandLineConfigGraphite(tag, vias, contextType, colorType, alphaType);
 }
 
 #endif

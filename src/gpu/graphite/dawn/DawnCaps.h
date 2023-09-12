@@ -46,9 +46,6 @@ public:
                             Shareable,
                             GraphiteResourceKey*) const override;
     uint64_t getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const;
-    bool enableWGSL() const {
-        return fEnableWGSL;
-    }
 
     static constexpr size_t kFormatCnt = 14;
 
@@ -115,7 +112,6 @@ private:
     void setColorType(SkColorType, std::initializer_list<wgpu::TextureFormat> formats);
 
     bool fTransientAttachmentSupport = false;
-    bool fEnableWGSL = false;
 };
 
 } // namespace skgpu::graphite

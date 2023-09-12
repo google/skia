@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :2:1 error: chromium_experimental_pixel_local requires TINT_ENABLE_LOCAL_STORAGE_EXTENSION
+error: :2:1 error: chromium_experimental_pixel_local requires TINT_ENABLE_PIXEL_LOCAL_EXTENSION
 enable chromium_experimental_pixel_local;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

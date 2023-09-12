@@ -358,11 +358,6 @@ static void test_graphite(skiatest::Reporter* r,
 
 #if defined(SK_DAWN)
     if (ctx->backend() == skgpu::BackendApi::kDawn) {
-        // We always force-enable WGSL via `force_wgsl_in_dawn` below. Dawn's SPIR-V Reader has
-        // known limitations that we will bump into otherwise (some of our tests cause it to emit
-        // malformed WGSL).
-        SkASSERT(static_cast<const skgpu::graphite::DawnCaps*>(ctx->priv().caps())->enableWGSL());
-
         // If this is a test that requires the GPU to generate NaN values, we don't run it in Dawn.
         // (WGSL/Dawn does not support infinity or NaN even if the GPU natively does.)
         if (flags & SkSLTestFlag::UsesNaN) {
@@ -563,16 +558,12 @@ static bool is_native_context_or_dawn(skgpu::ContextType type) {
            type == skgpu::ContextType::kDawn;
 }
 
-static void force_wgsl_in_dawn(skgpu::graphite::ContextOptions* options) {
-    options->fEnableWGSL = true;
-}
-
 #define DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path)         \
     DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(SkSL##name##_Graphite,     \
                                                is_native_context_or_dawn, \
                                                r,                         \
                                                context,                   \
-                                               force_wgsl_in_dawn,        \
+                                               /*opt_filter=*/nullptr,    \
                                                is_gpu(flags),             \
                                                ctsEnforcement) {          \
         test_graphite(r, context, path, flags);                           \
