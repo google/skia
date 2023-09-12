@@ -18,12 +18,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkSpecialSurface.h"
 #include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
@@ -104,9 +105,9 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
                                               kN32_SkColorType,
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(img->getColorSpace()));
-    sk_sp<SkSpecialSurface> surf = isGPUBacked
-            ? SkSpecialSurfaces::MakeRenderTarget(rContext, imageInfo, {}, kTopLeft_GrSurfaceOrigin)
-            : SkSpecialSurfaces::MakeRaster(imageInfo, {});
+    sk_sp<SkSurface> surf = isGPUBacked
+            ? SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kNo, imageInfo)
+            : SkSurfaces::Raster(imageInfo, {});
 
     SkCanvas* canvas = surf->getCanvas();
 
