@@ -44,6 +44,8 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/core/SkBitmapDevice.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRectPriv.h"
@@ -367,33 +369,37 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input, const SkIRect*
     return SkImageFilters::ColorFilter(std::move(filter), std::move(input), cropRect);
 }
 
-static sk_sp<SkSpecialSurface> create_empty_special_surface(GrRecordingContext* rContext,
-                                                            int widthHeight) {
+
+static sk_sp<SkDevice> create_empty_device(GrRecordingContext* rContext, int widthHeight) {
 
     const SkImageInfo ii = SkImageInfo::Make({ widthHeight, widthHeight },
                                              kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
     if (rContext) {
-        return SkSpecialSurfaces::MakeRenderTarget(rContext, ii, SkSurfaceProps(),
-                                                  kTestSurfaceOrigin);
+        return rContext->priv().createDevice(skgpu::Budgeted::kNo, ii, SkBackingFit::kApprox, 1,
+                                             skgpu::Mipmapped::kNo, skgpu::Protected::kNo,
+                                             kTestSurfaceOrigin, {},
+                                             skgpu::ganesh::Device::InitContents::kUninit);
     } else {
-        return SkSpecialSurfaces::MakeRaster(ii, SkSurfaceProps());
+        SkBitmap bm;
+        SkAssertResult(bm.tryAllocPixels(ii));
+        return sk_make_sp<SkBitmapDevice>(bm, SkSurfaceProps());
     }
 }
 
 static sk_sp<SkSpecialImage> create_empty_special_image(GrRecordingContext* rContext,
-                                                        int widthHeight) {
-    sk_sp<SkSpecialSurface> surf(create_empty_special_surface(rContext, widthHeight));
+                                                        int widthHeight,
+                                                        SkColor4f color = SkColors::kTransparent) {
+    sk_sp<SkDevice> device = create_empty_device(rContext, widthHeight);
 
-    SkASSERT(surf);
+    SkASSERT(device);
 
-    SkCanvas* canvas = surf->getCanvas();
-    SkASSERT(canvas);
-
-    canvas->clear(0x0);
-
-    return surf->makeImageSnapshot();
+    SkPaint p;
+    p.setColor4f(color, /*colorSpace=*/nullptr);
+    p.setBlendMode(SkBlendMode::kSrc);
+    device->drawPaint(p);
+    return device->snapSpecial(SkIRect::MakeWH(widthHeight, widthHeight));
 }
 
 
@@ -700,9 +706,7 @@ static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrDirectContext* 
     sk_sp<SkImageFilter> input(SkImageFilters::Offset(0, 0, nullptr, &cropRect));
     sk_sp<SkImageFilter> filter(SkImageFilters::Blur(0, 0, std::move(input), &cropRect));
 
-    sk_sp<SkSpecialSurface> surf(create_empty_special_surface(dContext, 10));
-    surf->getCanvas()->clear(SK_ColorGREEN);
-    sk_sp<SkSpecialImage> image(surf->makeImageSnapshot());
+    sk_sp<SkSpecialImage> image = create_empty_special_image(dContext, 10, SkColors::kGreen);
 
     SkIPoint offset;
     skif::Context ctx = make_context(32, 32, image.get());
