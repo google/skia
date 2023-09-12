@@ -7595,6 +7595,8 @@ UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
     REPORTER_ASSERT(reporter, lineNumber == 1);
     lineNumber = paragraph->getLineNumberAt(len - 1);
     REPORTER_ASSERT(reporter, lineNumber == -1);
+    lineNumber = paragraph->getLineNumberAt(len);
+    REPORTER_ASSERT(reporter, lineNumber == -1);
     lineNumber = paragraph->getLineNumberAt(len + 10);
     REPORTER_ASSERT(reporter, lineNumber == -1);
 
@@ -7632,8 +7634,9 @@ UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
     REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 61 &&
                                               glyphInfo.fClusterTextRange.end == 62);
     foundClosest = paragraph->getClosestGlyphClusterAt(TestCanvasWidth + 10, 30, &glyphInfo);
-    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 230 &&
-                                              glyphInfo.fClusterTextRange.end == 231);
+
+    REPORTER_ASSERT(reporter, foundClosest && glyphInfo.fClusterTextRange.start == 228 &&
+                                              glyphInfo.fClusterTextRange.end == 229);
 
     auto font = paragraph->getFontAt(10);
     REPORTER_ASSERT(reporter, font.getTypeface() != nullptr);
@@ -7647,6 +7650,204 @@ UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
     REPORTER_ASSERT(reporter, fonts[0].fFont.getTypeface() != nullptr);
     font.getTypeface()->getFamilyName(&fontFamily);
     REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
+}
+
+UNIX_ONLY_TEST(SkParagraph_getLineNumberAt_Ellipsis, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    TestCanvas canvas("SkParagraph_Ellipsis.png");
+
+    // The second line will be ellipsized. The 10th glyph ("0") will be replaced
+    // by U+2026.
+    const char* text = "This\n"          // [0, 5)
+                       "1234567890ABCD"; // [5, len)
+
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setMaxLines(2);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontSize(10);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+    auto paragraph = builder.Build();
+
+    // Roughly 10 characters wide.
+    paragraph->layout(100);
+
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(0) == 0);
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(4) == 0);
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(5) == 1);
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(len) == -1);
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(len - 1) == -1);
+    // "0" should be ellipsized away so the call return -1 instead of 1.
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(14) == -1);
+}
+
+UNIX_ONLY_TEST(SkParagraph_API_USES_UTF16, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    // Each of these characters consists of 3 UTF-8 code points, or 1 UTF-16
+    // code point.
+    const char* text = "一丁丂七";
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+
+    REPORTER_ASSERT(reporter, paragraph->getFontAtUTF16Offset(0).getTypeface() != nullptr);
+    REPORTER_ASSERT(reporter, paragraph->getFontAtUTF16Offset(4).getTypeface() == nullptr);
+
+    REPORTER_ASSERT(reporter, paragraph->getGlyphInfoAtUTF16Offset(0, nullptr));
+    REPORTER_ASSERT(reporter, !paragraph->getGlyphInfoAtUTF16Offset(4, nullptr));
+    // Verify the output also uses UTF-16
+    Paragraph::GlyphInfo glyphInfo;
+    REPORTER_ASSERT(reporter, paragraph->getGlyphInfoAtUTF16Offset(3, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.start == 3);
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.end == 4);
+
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAtUTF16Offset(0) == 0);
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAtUTF16Offset(4) == -1);
+
+    // The last logical character ("七") is considered hit.
+    REPORTER_ASSERT(reporter, paragraph->getClosestUTF16GlyphInfoAt(999.0f, 999.0f, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.start == 3);
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.end == 4);
+
+    // The first logical character ("一") is considered hit.
+    REPORTER_ASSERT(reporter, paragraph->getClosestUTF16GlyphInfoAt(-999.0f, 0.0f, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.start == 0);
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.end == 1);
+}
+
+UNIX_ONLY_TEST(SkParagraph_Empty_Paragraph_Metrics, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    const char* text = "";
+
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, 0);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+
+    REPORTER_ASSERT(reporter, paragraph->getFontAt(0).getTypeface() == nullptr);
+    REPORTER_ASSERT(reporter, !paragraph->getGlyphClusterAt(0, nullptr));
+    REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(0) == -1);
+    REPORTER_ASSERT(reporter, !paragraph->getClosestGlyphClusterAt(10.0, 5.0, nullptr));
+}
+
+UNIX_ONLY_TEST(SkParagraph_GlyphCluster_Ligature, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    const char* text = "fi";
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+
+    Paragraph::GlyphClusterInfo glyphInfo;
+    REPORTER_ASSERT(reporter, paragraph->getGlyphClusterAt(0, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fClusterTextRange.start == 0);
+    REPORTER_ASSERT(reporter, glyphInfo.fClusterTextRange.end == len);
+}
+
+UNIX_ONLY_TEST(SkParagraph_GlyphInfo_LigatureDiacritics, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    // Ligature + diacritics
+    // text = lam + hamza + alef + hamza
+    // lam and alef form a laam-alif ligature and the 2 hamza are diacritical
+    // marks the combines into the ligated base glyphs.
+    const char* text = "لٔأ";
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Katibeh")});
+    text_style.setFontSize(100);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+    TestCanvas canvas("SkParagraph_laam_alif_diacritics.png");
+    paragraph->paint(canvas.get(), 50, 50);
+
+    Paragraph::GlyphInfo glyphInfo;
+
+    const auto boxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+    const SkRect fullRect = boxes[0].rect;
+
+    REPORTER_ASSERT(reporter, paragraph->getGlyphInfoAtUTF16Offset(0, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.start == 0);
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.end == 2);
+    const SkRect rect0 = glyphInfo.fGraphemeLayoutBounds;
+
+    REPORTER_ASSERT(reporter, paragraph->getGlyphInfoAtUTF16Offset(1, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.start == 0);
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.end == 2);
+    const SkRect rect1 = glyphInfo.fGraphemeLayoutBounds;
+    REPORTER_ASSERT(reporter, rect0 == rect1);
+
+    REPORTER_ASSERT(reporter, paragraph->getGlyphInfoAtUTF16Offset(2, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.start == 2);
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.end == 4);
+    const SkRect rect2 = glyphInfo.fGraphemeLayoutBounds;
+    // The latter half of the text forms a different grapheme.
+    REPORTER_ASSERT(reporter, rect2 != rect1);
+
+    REPORTER_ASSERT(reporter, paragraph->getGlyphInfoAtUTF16Offset(3, &glyphInfo));
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.start == 2);
+    REPORTER_ASSERT(reporter, glyphInfo.fGraphemeClusterTextRange.end == 4);
+    const SkRect rect3 = glyphInfo.fGraphemeLayoutBounds;
+    REPORTER_ASSERT(reporter, rect2 == rect3);
+
+    // RTL text.
+    REPORTER_ASSERT(reporter, fullRect.left() == rect2.left());
+    REPORTER_ASSERT(reporter, fullRect.right() == rect0.right());
+
+    // Currently it seems the 2 grapheme rects do not overlap each other.
+    // REPORTER_ASSERT(reporter, rect2.right() < rect0.left());
 }
 
 UNIX_ONLY_TEST(SkParagraph_SingleDummyPlaceholder, reporter) {
