@@ -12,7 +12,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
-#include "include/core/SkDataTable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMetrics.h"
@@ -44,7 +43,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
@@ -799,12 +797,6 @@ DEF_TEST(Serialization, reporter) {
 
         // Serialize picture
         SkBinaryWriteBuffer writer;
-        SkSerialProcs sProcs;
-        sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
-            return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
-        };
-        writer.setSerialProcs(sProcs);
-
         SkPicturePriv::Flatten(pict, writer);
         size_t size = writer.bytesWritten();
         AutoTMalloc<unsigned char> data(size);
@@ -835,7 +827,7 @@ DEF_TEST(Serialization, reporter) {
 
 static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
     SkDynamicMemoryWStream wstream;
-    src->serialize(&wstream, nullptr);  // default is fine, no SkImages to encode
+    src->serialize(&wstream);
     std::unique_ptr<SkStreamAsset> rstream(wstream.detachAsStream());
     return SkPicture::MakeFromStream(rstream.get());
 }

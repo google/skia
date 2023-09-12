@@ -8,8 +8,6 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkPictureRecorder.h"
 
 #include <cmath>
 
@@ -44,6 +42,9 @@ static SkM44 make_ctm(const Info& info, const SkM44& model, SkSize size) {
     return viewport * perspective * camera * model * inv(viewport);
 }
 
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+
 static void do_draw(SkCanvas* canvas, SkColor color) {
     SkAutoCanvasRestore acr(canvas, true);
 
@@ -72,4 +73,10 @@ DEF_SIMPLE_GM(sk3d_simple, real_canvas, 300, 300) {
 
     auto pic = recorder.finishRecordingAsPicture();
     real_canvas->drawPicture(pic);
+
+    if ((false)) {
+        auto data = pic->serialize();
+        auto pic2 = SkPicture::MakeFromData(data.get());
+        real_canvas->drawPicture(pic2);
+    }
 }

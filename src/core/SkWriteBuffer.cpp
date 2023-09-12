@@ -8,13 +8,16 @@
 #include "src/core/SkWriteBuffer.h"
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
@@ -167,9 +170,21 @@ static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs dProcs)
         return data;
     }
     // Check to see if the image's source was an encoded block of data.
-    // If so, just use that. Otherwise, return nullptr. Clients really should be providing
-    // an ImageProc to encode images if that functionality is necessary.
-    return image->refEncodedData();
+    // If so, just use that.
+    data = image->refEncodedData();
+    if (data) {
+        return data;
+    }
+    SkBitmap bm;
+    auto ib = as_IB(image);
+    if (!ib->getROPixels(ib->directContext(), &bm)) {
+        return nullptr;
+    }
+    SkDynamicMemoryWStream stream;
+    if (SkPngEncoder::Encode(&stream, bm.pixmap(), SkPngEncoder::Options())) {
+        return stream.detachAsData();
+    }
+    return nullptr;
 }
 
 static sk_sp<SkData> serialize_mipmap(const SkMipmap* mipmap, SkSerialProcs dProcs) {
