@@ -75,20 +75,27 @@
     static_cast<void>( __builtin_expect(static_cast<bool>(cond), 1) \
         ? static_cast<void>(0) \
         : []{ SK_ABORT("check(%s)", #cond); }() )
+
+#define SkASSERTF_RELEASE(cond, fmt, ...)                                  \
+    static_cast<void>( __builtin_expect(static_cast<bool>(cond), 1)        \
+        ? static_cast<void>(0)                                             \
+        : [&]{ SK_ABORT("assertf(%s): " fmt, #cond, ##__VA_ARGS__); }() )
 #else
 #define SkASSERT_RELEASE(cond) \
     static_cast<void>( (cond) ? static_cast<void>(0) : []{ SK_ABORT("check(%s)", #cond); }() )
+
+#define SkASSERTF_RELEASE(cond, fmt, ...)                                   \
+    static_cast<void>( (cond)                                               \
+        ? static_cast<void>(0)                                              \
+        : [&]{ SK_ABORT("assertf(%s): " fmt, #cond, ##__VA_ARGS__); }() )
 #endif
 
 #if defined(SK_DEBUG)
-    #define SkASSERT(cond) SkASSERT_RELEASE(cond)
-    #define SkASSERTF(cond, fmt, ...) static_cast<void>( (cond) ? (void)0 : [&]{ \
-                                          SkDebugf(fmt"\n", ##__VA_ARGS__);      \
-                                          SK_ABORT("assert(%s)", #cond);         \
-                                      }() )
-    #define SkDEBUGFAIL(message)        SK_ABORT("%s", message)
-    #define SkDEBUGFAILF(fmt, ...)      SK_ABORT(fmt, ##__VA_ARGS__)
-    #define SkAssertResult(cond)        SkASSERT(cond)
+    #define SkASSERT(cond)            SkASSERT_RELEASE(cond)
+    #define SkASSERTF(cond, fmt, ...) SkASSERTF_RELEASE(cond, fmt, ##__VA_ARGS__)
+    #define SkDEBUGFAIL(message)      SK_ABORT("%s", message)
+    #define SkDEBUGFAILF(fmt, ...)    SK_ABORT(fmt, ##__VA_ARGS__)
+    #define SkAssertResult(cond)      SkASSERT(cond)
 #else
     #define SkASSERT(cond)            static_cast<void>(0)
     #define SkASSERTF(cond, fmt, ...) static_cast<void>(0)
