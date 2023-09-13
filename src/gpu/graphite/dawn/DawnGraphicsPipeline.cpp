@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 #include <vector>
@@ -162,7 +163,7 @@ size_t create_vertex_attributes(SkSpan<const Attribute> attrs,
 }
 
 // TODO: share this w/ Ganesh dawn backend?
-static wgpu::BlendFactor blend_coeff_to_dawn_blend(skgpu::BlendCoeff coeff) {
+static wgpu::BlendFactor blend_coeff_to_dawn_blend(const DawnCaps& caps, skgpu::BlendCoeff coeff) {
     switch (coeff) {
         case skgpu::BlendCoeff::kZero:
             return wgpu::BlendFactor::Zero;
@@ -189,16 +190,37 @@ static wgpu::BlendFactor blend_coeff_to_dawn_blend(skgpu::BlendCoeff coeff) {
         case skgpu::BlendCoeff::kIConstC:
             return wgpu::BlendFactor::OneMinusConstant;
         case skgpu::BlendCoeff::kS2C:
+            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
+                return wgpu::BlendFactor::Src1;
+            } else {
+                return wgpu::BlendFactor::Zero;
+            }
         case skgpu::BlendCoeff::kIS2C:
+            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
+                return wgpu::BlendFactor::OneMinusSrc1;
+            } else {
+                return wgpu::BlendFactor::Zero;
+            }
         case skgpu::BlendCoeff::kS2A:
+            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
+                return wgpu::BlendFactor::Src1Alpha;
+            } else {
+                return wgpu::BlendFactor::Zero;
+            }
         case skgpu::BlendCoeff::kIS2A:
+            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
+                return wgpu::BlendFactor::OneMinusSrc1Alpha;
+            } else {
+                return wgpu::BlendFactor::Zero;
+            }
         case skgpu::BlendCoeff::kIllegal:
             return wgpu::BlendFactor::Zero;
     }
     SkUNREACHABLE;
 }
 
-static wgpu::BlendFactor blend_coeff_to_dawn_blend_for_alpha(skgpu::BlendCoeff coeff) {
+static wgpu::BlendFactor blend_coeff_to_dawn_blend_for_alpha(const DawnCaps& caps,
+                                                             skgpu::BlendCoeff coeff) {
     switch (coeff) {
         // Force all srcColor used in alpha slot to alpha version.
         case skgpu::BlendCoeff::kSC:
@@ -210,7 +232,7 @@ static wgpu::BlendFactor blend_coeff_to_dawn_blend_for_alpha(skgpu::BlendCoeff c
         case skgpu::BlendCoeff::kIDC:
             return wgpu::BlendFactor::OneMinusDstAlpha;
         default:
-            return blend_coeff_to_dawn_blend(coeff);
+            return blend_coeff_to_dawn_blend(caps, coeff);
     }
 }
 
@@ -314,11 +336,11 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     wgpu::BlendState blend;
     if (blendOn) {
         blend.color.operation = blend_equation_to_dawn_blend_op(equation);
-        blend.color.srcFactor = blend_coeff_to_dawn_blend(srcCoeff);
-        blend.color.dstFactor = blend_coeff_to_dawn_blend(dstCoeff);
+        blend.color.srcFactor = blend_coeff_to_dawn_blend(caps, srcCoeff);
+        blend.color.dstFactor = blend_coeff_to_dawn_blend(caps, dstCoeff);
         blend.alpha.operation = blend_equation_to_dawn_blend_op(equation);
-        blend.alpha.srcFactor = blend_coeff_to_dawn_blend_for_alpha(srcCoeff);
-        blend.alpha.dstFactor = blend_coeff_to_dawn_blend_for_alpha(dstCoeff);
+        blend.alpha.srcFactor = blend_coeff_to_dawn_blend_for_alpha(caps, srcCoeff);
+        blend.alpha.dstFactor = blend_coeff_to_dawn_blend_for_alpha(caps, dstCoeff);
     }
 
     wgpu::ColorTargetState colorTarget;
