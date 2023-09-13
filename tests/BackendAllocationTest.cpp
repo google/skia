@@ -972,6 +972,8 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest,
                                                                       { 0.25f, 0.5f, 0.75f, 1.0f }},
         { GrColorType::kBGRA_1010102,     VK_FORMAT_A2R10G10B10_UNORM_PACK32,
                                                                       { 0.25f, 0.5f, 0.75f, 1.0f }},
+        { GrColorType::kRGBA_10x6,        VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16,
+                                                                      { 0.25f, 0.5f, 0.75f, 1.0f }},
         { GrColorType::kBGR_565,          VK_FORMAT_R5G6B5_UNORM_PACK16,      SkColors::kRed      },
 
         { GrColorType::kABGR_4444,        VK_FORMAT_R4G4B4A4_UNORM_PACK16,    SkColors::kCyan     },

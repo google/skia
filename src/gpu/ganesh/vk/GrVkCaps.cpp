@@ -96,6 +96,7 @@ enum class FormatCompatibilityClass {
     k24_3_1,
     k32_4_1,
     k64_8_1,
+    k10x6_64_6_1,
     kBC1_RGB_8_16_1,
     kBC1_RGBA_8_16,
     kETC2_RGB_8_16,
@@ -130,6 +131,9 @@ static FormatCompatibilityClass format_compatibility_class(VkFormat format) {
 
         case VK_FORMAT_R8G8B8_UNORM:
             return FormatCompatibilityClass::k24_3_1;
+
+        case VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16:
+            return FormatCompatibilityClass::k10x6_64_6_1;
 
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
             return FormatCompatibilityClass::kETC2_RGB_8_16;
@@ -479,7 +483,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     }
 #endif
 
-    this->initFormatTable(contextOptions, vkInterface, physDev, properties);
+    this->initFormatTable(contextOptions, vkInterface, physDev, properties, features, extensions);
     this->initStencilFormat(vkInterface, physDev);
 
     if (contextOptions.fMaxCachedVulkanSecondaryCommandBuffers >= 0) {
@@ -802,6 +806,7 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R8G8_UNORM,
     VK_FORMAT_A2B10G10R10_UNORM_PACK32,
     VK_FORMAT_A2R10G10B10_UNORM_PACK32,
+    VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16,
     VK_FORMAT_B4G4R4A4_UNORM_PACK16,
     VK_FORMAT_R4G4B4A4_UNORM_PACK16,
     VK_FORMAT_R8G8B8A8_SRGB,
@@ -867,7 +872,9 @@ GrVkCaps::FormatInfo& GrVkCaps::getFormatInfo(VkFormat format) {
 void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
                                const skgpu::VulkanInterface* interface,
                                VkPhysicalDevice physDev,
-                               const VkPhysicalDeviceProperties& properties) {
+                               const VkPhysicalDeviceProperties& properties,
+                               const VkPhysicalDeviceFeatures2& features,
+                               const skgpu::VulkanExtensions& extensions) {
     static_assert(std::size(kVkFormats) == GrVkCaps::kNumVkFormats,
                   "Size of VkFormats array must match static value in header");
 
@@ -1104,6 +1111,38 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
             }
         }
     }
+
+    bool supportsRGBA10x6 = false;
+    if (extensions.hasExtension(VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME, 1)) {
+        auto rgba10x6Feature =
+            get_extension_feature_struct<VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(
+                features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT);
+        // Technically without this extension and exabled feature we could still use this format to
+        // sample with a ycbcr sampler. But for simplicity until we have clients requesting that, we
+        // limit the use of this format to cases where we have the extension supported.
+        supportsRGBA10x6 = rgba10x6Feature  && rgba10x6Feature->formatRgba10x6WithoutYCbCrSampler;
+    }
+
+    // Format: VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16
+    if (supportsRGBA10x6) {
+        constexpr VkFormat format = VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16;
+        auto& info = this->getFormatInfo(format);
+        info.init(contextOptions, interface, physDev, properties, format);
+        if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
+            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16, Surface: kRGBA_10x6
+            {
+                constexpr GrColorType ct = GrColorType::kRGBA_10x6;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            }
+        }
+    }
+
     // Format: VK_FORMAT_B4G4R4A4_UNORM_PACK16
     {
         constexpr VkFormat format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
@@ -2024,6 +2063,8 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinat
         { GrColorType::kBGRA_8888,        GrBackendFormats::MakeVk(VK_FORMAT_B8G8R8A8_UNORM)      },
         { GrColorType::kRGBA_1010102, GrBackendFormats::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32)},
         { GrColorType::kBGRA_1010102, GrBackendFormats::MakeVk(VK_FORMAT_A2R10G10B10_UNORM_PACK32)},
+        { GrColorType::kRGBA_10x6,
+          GrBackendFormats::MakeVk(VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16)},
         { GrColorType::kGray_8,           GrBackendFormats::MakeVk(VK_FORMAT_R8_UNORM)            },
         { GrColorType::kAlpha_F16,        GrBackendFormats::MakeVk(VK_FORMAT_R16_SFLOAT)          },
         { GrColorType::kRGBA_F16,         GrBackendFormats::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT) },
