@@ -2197,7 +2197,7 @@ func (b *jobBuilder) bazelBuild() {
 			"--task_name=" + b.Name,
 			"--bazel_label=" + labelAndSavedOutputDir.label,
 			"--bazel_config=" + config,
-			"--bazel_cache_dir", bazelCacheDir,
+			"--bazel_cache_dir=" + bazelCacheDir,
 			"--workdir=.",
 		}
 
@@ -2292,7 +2292,7 @@ func (b *jobBuilder) bazelTest() {
 			cmd = append(cmd,
 				"--bazel_label="+labelAndSavedOutputDir.label,
 				"--bazel_config="+config,
-				"--bazel_cache_dir", bazelCacheDir,
+				"--bazel_cache_dir="+bazelCacheDir,
 				"--goldctl_path=./cipd_bin_packages/goldctl",
 				"--git_commit="+specs.PLACEHOLDER_REVISION,
 				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
@@ -2314,13 +2314,13 @@ func (b *jobBuilder) bazelTest() {
 			cmd = append(cmd,
 				"--bazel_label="+labelAndSavedOutputDir.label,
 				"--bazel_config="+config,
-				"--bazel_cache_dir"+bazelCacheDir)
+				"--bazel_cache_dir="+bazelCacheDir)
 
 		case "toolchain_layering_check":
 			cmd = append(cmd,
 				"--bazel_label="+labelAndSavedOutputDir.label,
 				"--bazel_config="+config,
-				"--bazel_cache_dir"+bazelCacheDir)
+				"--bazel_cache_dir="+bazelCacheDir)
 
 		case "bazel_test_precompiled":
 			// Compute the file name of the test based on its Bazel label. The file name will be relative to
@@ -2353,7 +2353,7 @@ func (b *jobBuilder) bazelTest() {
 			cmd = append(cmd,
 				"--bazel_label="+labelAndSavedOutputDir.label,
 				"--bazel_config="+config,
-				"--bazel_cache_dir", bazelCacheDir,
+				"--bazel_cache_dir="+bazelCacheDir,
 				"--goldctl_path=./cipd_bin_packages/goldctl",
 				"--git_commit="+specs.PLACEHOLDER_REVISION,
 				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
