@@ -15,7 +15,6 @@
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
-#include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -214,8 +213,7 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureMutableStateTest, repor
                            info,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                            /*queueFamilyIndex=*/1,
-                           VK_NULL_HANDLE,
-                           skgpu::VulkanAlloc());
+                           VK_NULL_HANDLE);
 
     REPORTER_ASSERT(reporter, texture.isValid());
     REPORTER_ASSERT(reporter,
