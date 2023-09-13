@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/stretchr/testify v1.7.0
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20230911211116-021af1a1b94f
+	go.skia.org/infra v0.0.0-20230912185103-19ec9904dd95
 	google.golang.org/api v0.74.0
 	google.golang.org/protobuf v1.28.0
 )
