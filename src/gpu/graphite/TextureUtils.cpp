@@ -114,11 +114,13 @@ sk_sp<SkSpecialImage> blur_2d(skgpu::graphite::Recorder* recorder,
                               sk_sp<SkColorSpace> outCS,
                               const SkSurfaceProps& outProps) {
     std::array<SkV4, skgpu::kMaxBlurSamples/4> kernel;
+    std::array<SkV4, skgpu::kMaxBlurSamples/2> offsets;
     skgpu::Compute2DBlurKernel(sigma, radii, kernel);
+    skgpu::Compute2DBlurOffsets(radii, offsets);
 
     SkRuntimeShaderBuilder builder{sk_ref_sp(skgpu::GetBlur2DEffect(radii))};
     builder.uniform("kernel") = kernel;
-    builder.uniform("radii") = radii;
+    builder.uniform("offsets") = offsets;
     // TODO(b/294102201): This is very much like FilterResult::asShader()...
     builder.child("child") =
             input->makeSubset(srcRect)->asShader(SkTileMode::kDecal,
