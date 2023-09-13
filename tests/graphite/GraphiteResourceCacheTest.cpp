@@ -266,7 +266,7 @@ sk_sp<Resource> add_new_resource(skiatest::Reporter* reporter,
         return nullptr;
     }
     resourceCache->insertResource(resource.get());
-    return std::move(resource);
+    return resource;
 }
 
 Resource* add_new_purgeable_resource(skiatest::Reporter* reporter,
