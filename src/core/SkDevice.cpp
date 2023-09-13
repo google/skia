@@ -507,7 +507,27 @@ SkNoPixelsDevice::SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& 
     //SkASSERT(bounds.width() >= 0 && bounds.height() >= 0);
 
     this->setOrigin(SkM44(), bounds.left(), bounds.top());
-    this->resetClipStack();
+    fClipStack.emplace_back(this->bounds(), /*isAA=*/false, /*isRect=*/true);
+}
+
+bool SkNoPixelsDevice::resetForNextPicture(const SkIRect& bounds) {
+    // Resetting should only happen on the root SkNoPixelsDevice, so its device-to-global
+    // transform should be pixel aligned.
+    SkASSERT(this->isPixelAlignedToGlobal());
+    // We can only reset the device as long as its dimensions are not changing.
+    if (bounds.width() != this->width() || bounds.height() != this->height()) {
+        return false;
+    }
+
+    // And the canvas should have restored back to the original save count.
+    SkASSERT(fClipStack.size() == 1 && fClipStack[0].fDeferredSaveCount == 0);
+    // But in the event that the clip was modified w/o a save(), reset the tracking state
+    fClipStack[0].fClipBounds = this->bounds();
+    fClipStack[0].fIsAA = false;
+    fClipStack[0].fIsRect = true;
+
+    this->setOrigin(SkM44(), bounds.left(), bounds.top());
+    return true;
 }
 
 void SkNoPixelsDevice::pushClipStack() {

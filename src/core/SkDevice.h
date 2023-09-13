@@ -520,6 +520,9 @@ public:
     SkNoPixelsDevice(const SkIRect& bounds, const SkSurfaceProps& props,
                      sk_sp<SkColorSpace> colorSpace);
 
+    // Returns false if the device could not be reset; this should only be called on a root device.
+    bool resetForNextPicture(const SkIRect& bounds);
+
     // SkNoPixelsDevice tracks the clip conservatively in order to respond to some queries as
     // accurately as possible while emphasizing performance
     void pushClipStack() override;
@@ -583,11 +586,6 @@ private:
 
     const ClipState& clip() const { return fClipStack.back(); }
     ClipState& writableClip();
-
-    void resetClipStack() {
-        fClipStack.clear();
-        fClipStack.emplace_back(this->bounds(), /*isAA=*/false, /*isRect=*/true);
-    }
 
     skia_private::STArray<4, ClipState> fClipStack;
 };

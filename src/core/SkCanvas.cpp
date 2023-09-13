@@ -265,12 +265,16 @@ std::optional<AutoLayerForImageFilter> SkCanvas::aboutToDraw(
 void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
     this->restoreToCount(1);
 
-    // We're peering through a lot of structs here.  Only at this scope do we
-    // know that the device is a SkNoPixelsDevice.
+    // We're peering through a lot of structs here.  Only at this scope do we know that the device
+    // is a SkNoPixelsDevice.
     SkASSERT(fRootDevice->isNoPixelsDevice());
-    fRootDevice = sk_make_sp<SkNoPixelsDevice>(bounds,
-                                               fRootDevice->surfaceProps(),
-                                               fRootDevice->imageInfo().refColorSpace());
+    SkNoPixelsDevice* asNoPixelsDevice = static_cast<SkNoPixelsDevice*>(fRootDevice.get());
+    if (!asNoPixelsDevice->resetForNextPicture(bounds)) {
+        fRootDevice = sk_make_sp<SkNoPixelsDevice>(bounds,
+                                                   fRootDevice->surfaceProps(),
+                                                   fRootDevice->imageInfo().refColorSpace());
+    }
+
     fMCRec->reset(fRootDevice.get());
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }
