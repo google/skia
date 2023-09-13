@@ -203,6 +203,11 @@ private:
                               PaintParamsKeyBuilder*,
                               int desiredShaderCombination,
                               bool addPrimitiveBlender) const;
+    void handlePaintAlpha(const KeyContext&,
+                          PaintParamsKeyBuilder*,
+                          int desiredShaderCombination,
+                          bool addPrimitiveBlender,
+                          bool nonOpaquePaintColor) const;
 
     std::vector<sk_sp<PrecompileShader>> fShaderOptions;
     std::vector<sk_sp<PrecompileMaskFilter>> fMaskFilterOptions;

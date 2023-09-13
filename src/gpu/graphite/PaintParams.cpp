@@ -148,11 +148,28 @@ void PaintParams::handlePrimitiveColor(const KeyContext& keyContext,
                                        PipelineDataGatherer* gatherer) const {
     Blend(keyContext, keyBuilder, gatherer, fPrimitiveBlender.get(),
           /* addSrcToKey= */ [&]() -> void {
-                this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
+              this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
           },
           /* addDstToKey= */ [&]() -> void {
-                PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder, gatherer);
-                keyBuilder->endBlock();
+              PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder, gatherer);
+              keyBuilder->endBlock();
+          });
+}
+
+// Apply the paint's alpha value.
+void PaintParams::handlePaintAlpha(const KeyContext& keyContext,
+                                   PaintParamsKeyBuilder* keyBuilder,
+                                   PipelineDataGatherer* gatherer) const {
+    sk_sp<SkBlender> blender = fColor.fA != 1.0f ? SkBlender::Mode(SkBlendMode::kSrcIn) : nullptr;
+
+    Blend(keyContext, keyBuilder, gatherer, blender.get(),
+          /* addSrcToKey= */ [&]() -> void {
+              this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
+          },
+          /* addDstToKey= */ [&]() -> void {
+              SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer,
+                                                {0, 0, 0, fColor.fA});
+              keyBuilder->endBlock();
           });
 }
 
@@ -176,13 +193,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
         builder->endBlock();
     }
 
-    this->handlePrimitiveColor(keyContext, builder, gatherer);
-
-    // Apply the paint's alpha value.
-    if (fColor.fA != 1.0f) {
-        AddColorBlendBlock(
-                keyContext, builder, gatherer, SkBlendMode::kDstIn, {0, 0, 0, fColor.fA});
-    }
+    this->handlePaintAlpha(keyContext, builder, gatherer);
 
     AddToKey(keyContext, builder, gatherer, fColorFilter.get());
 

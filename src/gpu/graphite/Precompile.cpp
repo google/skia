@@ -141,6 +141,27 @@ void PaintOptions::handlePrimitiveColor(const KeyContext& keyContext,
                        });
 }
 
+void PaintOptions::handlePaintAlpha(const KeyContext& keyContext,
+                                    PaintParamsKeyBuilder* keyBuilder,
+                                    int desiredShaderCombination,
+                                    bool addPrimitiveBlender,
+                                    bool nonOpaquePaintColor) const {
+    sk_sp<SkBlender> blender = nonOpaquePaintColor ? SkBlender::Mode(SkBlendMode::kSrcIn) : nullptr;
+
+    PaintParams::Blend(keyContext, keyBuilder, /* gatherer= */ nullptr, blender.get(),
+                       /* addSrcToKey= */ [&]() -> void {
+                           this->handlePrimitiveColor(keyContext, keyBuilder,
+                                                      desiredShaderCombination,
+                                                      addPrimitiveBlender);
+                       },
+                       /* addDstToKey= */ [&]() -> void {
+                           SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder,
+                                                             /* gatherer= */ nullptr,
+                                                             {0, 0, 0, 0.5f});
+                           keyBuilder->endBlock();
+                       });
+}
+
 void PaintOptions::createKey(const KeyContext& keyContext,
                              int desiredCombination,
                              PaintParamsKeyBuilder* keyBuilder,
@@ -187,8 +208,11 @@ void PaintOptions::createKey(const KeyContext& keyContext,
         keyBuilder->endBlock();
     }
 
-    this->handlePrimitiveColor(keyContext, keyBuilder, desiredShaderCombination,
-                               addPrimitiveBlender);
+    // TODO: this probably needs to be passed in just like addPrimitiveBlender
+    const bool kNonOpaquePaintColor = false;
+
+    this->handlePaintAlpha(keyContext, keyBuilder, desiredShaderCombination,
+                           addPrimitiveBlender, kNonOpaquePaintColor);
 
     PrecompileBase::AddToKey(keyContext, keyBuilder, fMaskFilterOptions,
                              desiredMaskFilterCombination);
