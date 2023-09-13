@@ -6,7 +6,7 @@ go_library(
     importpath = "go.skia.org/skia/infra/bots/task_drivers/check_generated_files",
     visibility = ["//visibility:private"],
     deps = [
-        "@org_skia_go_infra//go/common",
+        "//infra/bots/task_drivers/common",
         "@org_skia_go_infra//go/exec",
         "@org_skia_go_infra//task_driver/go/lib/bazel",
         "@org_skia_go_infra//task_driver/go/lib/os_steps",

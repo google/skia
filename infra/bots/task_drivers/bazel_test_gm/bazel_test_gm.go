@@ -30,10 +30,6 @@ var (
 	//
 	// We want the cache to be on a bigger disk than default. The root disk, where the home directory
 	// (and default Bazel cache) lives, is only 15 GB on our GCE VMs.
-	cachePath = flag.String("cache_path", "/mnt/pd0/bazel_cache", "The path where the Bazel cache should live. This should be able to hold tens of GB at least.")
-	cross     = flag.String("cross", "", "An identifier specifying the target platform that Bazel should build for. If empty, Bazel builds for the host platform (the machine on which this executable is run).")
-	label     = flag.String("test_label", "", "The label of the Bazel target to test.")
-	config    = flag.String("test_config", "", "A custom configuration specified in //bazel/buildrc. This configuration potentially encapsulates many features and options.")
 	projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
 	taskId    = flag.String("task_id", "", "ID of this task.")
 	taskName  = flag.String("task_name", "", "Name of the task.")
@@ -52,17 +48,16 @@ var (
 )
 
 func main() {
+	bazelFlags := common.MakeBazelFlags(common.MakeBazelFlagsOpts{
+		Label:  true,
+		Config: true,
+	})
+
 	// StartRun calls flag.Parse().
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
 
-	if *label == "" {
-		td.Fatal(ctx, fmt.Errorf("--test_label is required"))
-	}
-
-	if *config == "" {
-		td.Fatal(ctx, fmt.Errorf("--test_config is required"))
-	}
+	bazelFlags.Validate(ctx)
 
 	wd, err := os_steps.Abs(ctx, *workdir)
 	if err != nil {
@@ -70,21 +65,15 @@ func main() {
 	}
 
 	opts := bazel.BazelOptions{
-		CachePath: *cachePath,
+		CachePath: *bazelFlags.CacheDir,
 	}
 	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if *cross != "" {
-		// See https://bazel.build/concepts/platforms-intro and https://bazel.build/docs/platforms when
-		// ready to support this.
-		td.Fatal(ctx, fmt.Errorf("cross compilation not yet supported"))
-	}
-
 	if err := run(ctx, taskDriverArgs{
 		UploadToGoldArgs: common.UploadToGoldArgs{
-			BazelLabel:    *label,
+			BazelLabel:    *bazelFlags.Label,
 			GoldctlPath:   filepath.Join(wd, *goldctlPath),
 			GitCommit:     *gitCommit,
 			ChangelistID:  *changelistID,
@@ -92,7 +81,7 @@ func main() {
 			TryjobID:      *tryjobID,
 		},
 		checkoutDir: filepath.Join(wd, "skia"),
-		bazelConfig: *config,
+		bazelConfig: *bazelFlags.Config,
 	}); err != nil {
 		td.Fatal(ctx, err)
 	}

@@ -18,10 +18,10 @@ import (
 	"strings"
 
 	sk_exec "go.skia.org/infra/go/exec"
-	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/task_driver/go/lib/bazel"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
+	"go.skia.org/skia/infra/bots/task_drivers/common"
 )
 
 // This value is arbitrarily selected. It is smaller than our maximum RBE pool size.
@@ -29,13 +29,10 @@ const rbeJobs = 100
 
 var (
 	// Required properties for this task.
-	projectId  = flag.String("project_id", "", "ID of the Google Cloud project.")
-	taskId     = flag.String("task_id", "", "ID of this task.")
-	taskName   = flag.String("task_name", "", "Name of the task.")
-	workdir    = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
-	testLabel  = flag.String("test_label", "", "The label of the Bazel target to test.")
-	testConfig = flag.String("test_config", "", "The config name (defined in //bazel/buildrc), which indicates how CanvasKit should be compiled and tested.")
-	cross      = flag.String("cross", "", "[not yet supported] For use with cross-compiling.")
+	projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
+	taskId    = flag.String("task_id", "", "ID of this task.")
+	taskName  = flag.String("task_name", "", "Name of the task.")
+	workdir   = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
 	// goldctl data
 	goldctlPath      = flag.String("goldctl_path", "", "The path to the golctl binary on disk.")
 	gitCommit        = flag.String("git_commit", "", "The git hash to which the data should be associated. This will be used when changelist_id and patchset_order are not set to report data to Gold that belongs on the primary branch.")
@@ -49,15 +46,20 @@ var (
 	cpuOrGPUValue   = flag.String("cpu_or_gpu_value", "WebGL2", "What variant of the render backend")
 
 	// Optional flags.
-	bazelCacheDir = flag.String("bazel_cache_dir", "/mnt/pd0/bazel_cache", "Override the Bazel cache directory with this path")
-	expungeCache  = flag.Bool("expunge_cache", false, "If set, the Bazel cache will be cleaned with --expunge before execution. We should only have to set this rarely, if something gets messed up.")
-	local         = flag.Bool("local", false, "True if running locally (as opposed to on the CI/CQ)")
-	output        = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
+	local  = flag.Bool("local", false, "True if running locally (as opposed to on the CI/CQ)")
+	output = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
 )
 
 func main() {
+	bazelFlags := common.MakeBazelFlags(common.MakeBazelFlagsOpts{
+		Label:  true,
+		Config: true,
+	})
+
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
+
+	bazelFlags.Validate(ctx)
 
 	goldctlAbsPath := td.MustGetAbsolutePathOfFlag(ctx, *goldctlPath, "gold_ctl_path")
 	wd := td.MustGetAbsolutePathOfFlag(ctx, *workdir, "workdir")
@@ -71,32 +73,17 @@ func main() {
 			td.Fatal(ctx, err)
 		}
 	}
-	if *testLabel == "" {
-		td.Fatal(ctx, skerr.Fmt("Must specify --test_label"))
-	}
-	if *testConfig == "" {
-		td.Fatal(ctx, skerr.Fmt("Must specify --test_config"))
-	}
 
 	opts := bazel.BazelOptions{
 		// We want the cache to be on a bigger disk than default. The root disk, where the home
 		// directory (and default Bazel cache) lives, is only 15 GB on our GCE VMs.
-		CachePath: *bazelCacheDir,
+		CachePath: *bazelFlags.CacheDir,
 	}
 	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
 		td.Fatal(ctx, err)
 	}
-	if *cross != "" {
-		fmt.Println("Saw --cross, but don't know what to do with that yet.")
-	}
 
-	if *expungeCache {
-		if err := bazelClean(ctx, skiaDir); err != nil {
-			td.Fatal(ctx, err)
-		}
-	}
-
-	if err := bazelTest(ctx, skiaDir, *testLabel, *testConfig,
+	if err := bazelTest(ctx, skiaDir, *bazelFlags.Label, *bazelFlags.Config,
 		"--config=linux_rbe", "--test_output=streamed", "--jobs="+strconv.Itoa(rbeJobs)); err != nil {
 		td.Fatal(ctx, err)
 	}
@@ -110,14 +97,14 @@ func main() {
 		corpus:        "canvaskit",
 		keys: map[string]string{
 			"arch":             "wasm32", // https://github.com/bazelbuild/platforms/blob/da5541f26b7de1dc8e04c075c99df5351742a4a2/cpu/BUILD#L109
-			"configuration":    *testConfig,
+			"configuration":    *bazelFlags.Config,
 			"browser":          *browser,
 			"compilation_mode": *compilationMode,
 			"cpu_or_gpu":       *cpuOrGPU,
 			"cpu_or_gpu_value": *cpuOrGPUValue,
 		},
 	}
-	if err := uploadDataToGold(ctx, *testLabel, skiaDir, conf); err != nil {
+	if err := uploadDataToGold(ctx, *bazelFlags.Label, skiaDir, conf); err != nil {
 		td.Fatal(ctx, err)
 	}
 }
@@ -289,23 +276,4 @@ func finalizeGoldctl(ctx context.Context, goldctlPath, workDir string) error {
 		return err
 	}
 	return nil
-}
-
-// bazelClean cleans the bazel cache and the external directory via the --expunge flag.
-func bazelClean(ctx context.Context, checkoutDir string) error {
-	return td.Do(ctx, td.Props("Cleaning cache with --expunge"), func(ctx context.Context) error {
-		runCmd := &sk_exec.Command{
-			Name:       "bazelisk",
-			Args:       append([]string{"clean", "--expunge"}),
-			InheritEnv: true, // Makes sure bazelisk is on PATH
-			Dir:        checkoutDir,
-			LogStdout:  true,
-			LogStderr:  true,
-		}
-		_, err := sk_exec.RunCommand(ctx, runCmd)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
 }

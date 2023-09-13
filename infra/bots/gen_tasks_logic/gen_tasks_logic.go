@@ -91,6 +91,10 @@ const (
 	// src/core/SkPicturePriv.h
 	// See the comment in that file on how to find the version to use here.
 	oldestSupportedSkpVersion = 293
+
+	// bazelCacheDir is the path where Bazel should write its cache. It can grow large (>10GB), so
+	// this should be in a partition with enough free space.
+	bazelCacheDir = "/mnt/pd0/bazel_cache"
 )
 
 var (
@@ -1191,6 +1195,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 			"--patch_issue", specs.PLACEHOLDER_ISSUE,
 			"--patch_set", specs.PLACEHOLDER_PATCHSET,
 			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--bazel_cache_dir", bazelCacheDir,
 		)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(false))
@@ -1219,6 +1224,7 @@ func (b *jobBuilder) createPushBazelAppsFromWASMDockerImage() {
 			"--task_name", b.Name,
 			"--workdir", ".",
 			"--skia_revision", specs.PLACEHOLDER_REVISION,
+			"--bazel_cache_dir", bazelCacheDir,
 		)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(true))
@@ -1416,6 +1422,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
 			"--task_name", b.Name,
+			"--bazel_cache_dir", bazelCacheDir,
 			"--bazel_arg=--config=for_linux_x64_with_rbe",
 			"--bazel_arg=--jobs=100",
 		)
@@ -2188,8 +2195,9 @@ func (b *jobBuilder) bazelBuild() {
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
 			"--task_name=" + b.Name,
-			"--label=" + labelAndSavedOutputDir.label,
-			"--config=" + config,
+			"--bazel_label=" + labelAndSavedOutputDir.label,
+			"--bazel_config=" + config,
+			"--bazel_cache_dir", bazelCacheDir,
 			"--workdir=.",
 		}
 
@@ -2282,16 +2290,14 @@ func (b *jobBuilder) bazelTest() {
 		switch taskdriverName {
 		case "canvaskit_gold":
 			cmd = append(cmd,
-				"--test_label="+labelAndSavedOutputDir.label,
-				"--test_config="+config,
+				"--bazel_label="+labelAndSavedOutputDir.label,
+				"--bazel_config="+config,
+				"--bazel_cache_dir", bazelCacheDir,
 				"--goldctl_path=./cipd_bin_packages/goldctl",
 				"--git_commit="+specs.PLACEHOLDER_REVISION,
 				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
 				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
-				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-				// It is unclear why this is needed, but it helps resolve issues like
-				// Middleman ...tests-runfiles failed: missing input file 'external/npm/node_modules/karma-chrome-launcher/...'
-				"--expunge_cache")
+				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
 			b.cipd(CIPD_PKGS_GOLDCTL)
 			switch config {
 			case "ck_full_cpu_release_chrome":
@@ -2306,13 +2312,15 @@ func (b *jobBuilder) bazelTest() {
 
 		case "cpu_tests":
 			cmd = append(cmd,
-				"--test_label="+labelAndSavedOutputDir.label,
-				"--test_config="+config)
+				"--bazel_label="+labelAndSavedOutputDir.label,
+				"--bazel_config="+config,
+				"--bazel_cache_dir"+bazelCacheDir)
 
 		case "toolchain_layering_check":
 			cmd = append(cmd,
-				"--test_label="+labelAndSavedOutputDir.label,
-				"--test_config="+config)
+				"--bazel_label="+labelAndSavedOutputDir.label,
+				"--bazel_config="+config,
+				"--bazel_cache_dir"+bazelCacheDir)
 
 		case "bazel_test_precompiled":
 			// Compute the file name of the test based on its Bazel label. The file name will be relative to
@@ -2332,7 +2340,7 @@ func (b *jobBuilder) bazelTest() {
 			if isPrecompiledGM {
 				cmd = append(cmd,
 					"--gm",
-					"--test_label="+labelAndSavedOutputDir.label,
+					"--bazel_label="+labelAndSavedOutputDir.label,
 					"--goldctl_path=./cipd_bin_packages/goldctl",
 					"--git_commit="+specs.PLACEHOLDER_REVISION,
 					"--changelist_id="+specs.PLACEHOLDER_ISSUE,
@@ -2343,8 +2351,9 @@ func (b *jobBuilder) bazelTest() {
 
 		case "bazel_test_gm":
 			cmd = append(cmd,
-				"--test_label="+labelAndSavedOutputDir.label,
-				"--test_config="+config,
+				"--bazel_label="+labelAndSavedOutputDir.label,
+				"--bazel_config="+config,
+				"--bazel_cache_dir", bazelCacheDir,
 				"--goldctl_path=./cipd_bin_packages/goldctl",
 				"--git_commit="+specs.PLACEHOLDER_REVISION,
 				"--changelist_id="+specs.PLACEHOLDER_ISSUE,

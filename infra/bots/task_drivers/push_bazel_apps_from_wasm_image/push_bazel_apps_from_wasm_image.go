@@ -19,7 +19,7 @@ import (
 	"google.golang.org/api/option"
 
 	"go.skia.org/infra/go/auth"
-	"go.skia.org/infra/go/common"
+	infra_common "go.skia.org/infra/go/common"
 	docker_pubsub "go.skia.org/infra/go/docker/build/pubsub"
 	sk_exec "go.skia.org/infra/go/exec"
 	"go.skia.org/infra/task_driver/go/lib/auth_steps"
@@ -30,6 +30,7 @@ import (
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
 	"go.skia.org/infra/task_scheduler/go/types"
+	"go.skia.org/skia/infra/bots/task_drivers/common"
 )
 
 var (
@@ -46,9 +47,13 @@ var (
 )
 
 func main() {
+	bazelFlags := common.MakeBazelFlags(common.MakeBazelFlagsOpts{})
+
 	// Setup.
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
+
+	bazelFlags.Validate(ctx)
 
 	wd, err := os_steps.Abs(ctx, *workdir)
 	if err != nil {
@@ -66,7 +71,7 @@ func main() {
 		}
 		// Check out the Skia infra repo at the specified commit.
 		rs := types.RepoState{
-			Repo:     common.REPO_SKIA_INFRA,
+			Repo:     infra_common.REPO_SKIA_INFRA,
 			Revision: *infraRevision,
 		}
 		checkoutDir = filepath.Join("repo")
@@ -114,7 +119,7 @@ func main() {
 	opts := bazel.BazelOptions{
 		// We want the cache to be on a bigger disk than default. The root disk, where the home
 		// directory (and default Bazel cache) lives, is only 15 GB on our GCE VMs.
-		CachePath: "/mnt/pd0/bazel_cache",
+		CachePath: *bazelFlags.CacheDir,
 	}
 	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
 		td.Fatal(ctx, err)
@@ -158,5 +163,5 @@ func buildPush(ctx context.Context, appName, wasmProductsDir, checkoutDir, skiaR
 	if err != nil {
 		return err
 	}
-	return docker.PublishToTopic(ctx, "gcr.io/skia-public/"+appName, skiaRevision, common.REPO_SKIA, topic)
+	return docker.PublishToTopic(ctx, "gcr.io/skia-public/"+appName, skiaRevision, infra_common.REPO_SKIA, topic)
 }

@@ -34,7 +34,7 @@ var (
 
 	// Flags required for GM tests.
 	isGM  = flag.Bool("gm", false, "Whether this test is a GM (if so, we'll upload any produced images to Gold)")
-	label = flag.String("test_label", "", "The label of the Bazel target to test (only used if --gm is set)")
+	label = flag.String("bazel_label", "", "The label of the Bazel target to test (only used if --gm is set)")
 
 	// goldctl data.
 	goldctlPath      = flag.String("goldctl_path", "", "The path to the golctl binary on disk.")

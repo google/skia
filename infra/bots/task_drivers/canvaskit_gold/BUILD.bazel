@@ -6,8 +6,8 @@ go_library(
     importpath = "go.skia.org/skia/infra/bots/task_drivers/canvaskit_gold",
     visibility = ["//visibility:private"],
     deps = [
+        "//infra/bots/task_drivers/common",
         "@org_skia_go_infra//go/exec",
-        "@org_skia_go_infra//go/skerr",
         "@org_skia_go_infra//task_driver/go/lib/bazel",
         "@org_skia_go_infra//task_driver/go/lib/os_steps",
         "@org_skia_go_infra//task_driver/go/td",

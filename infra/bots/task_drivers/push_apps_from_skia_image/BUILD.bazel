@@ -11,6 +11,7 @@ go_library(
     importpath = "go.skia.org/skia/infra/bots/task_drivers/push_apps_from_skia_image",
     visibility = ["//visibility:private"],
     deps = [
+        "//infra/bots/task_drivers/common",
         "@com_google_cloud_go_pubsub//:pubsub",
         "@org_golang_google_api//option",
         "@org_skia_go_infra//go/auth",

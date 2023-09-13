@@ -16,19 +16,17 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go.skia.org/infra/go/common"
 	sk_exec "go.skia.org/infra/go/exec"
 	"go.skia.org/infra/task_driver/go/lib/bazel"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
+	"go.skia.org/skia/infra/bots/task_drivers/common"
 )
 
 var (
 	// Required properties for this task.
 	// We want the cache to be on a bigger disk than default. The root disk, where the home
 	// directory (and default Bazel cache) lives, is only 15 GB on our GCE VMs.
-	cachePath = flag.String("cache_path", "/mnt/pd0/bazel_cache", "The path where the Bazel cache should live. This should be able to hold tens of GB at least.")
-	bazelArgs = common.NewMultiStringFlag("bazel_arg", nil, "Additional arguments that should be forwarded directly to the Bazel invocation.")
 	gitPath   = flag.String("git_path", "", "Location of git binary to use for diffs.")
 	projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
 	taskId    = flag.String("task_id", "", "ID of this task.")
@@ -40,9 +38,15 @@ var (
 )
 
 func main() {
+	bazelFlags := common.MakeBazelFlags(common.MakeBazelFlagsOpts{
+		AdditionalArgs: true,
+	})
+
 	// StartRun calls flag.Parse()
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
+
+	bazelFlags.Validate(ctx)
 
 	if *gitPath == "" {
 		td.Fatal(ctx, fmt.Errorf("--git_path is required"))
@@ -70,17 +74,17 @@ func main() {
 	}
 
 	opts := bazel.BazelOptions{
-		CachePath: *cachePath,
+		CachePath: *bazelFlags.CacheDir,
 	}
 	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if err := bazelRun(ctx, skiaPath, "//bazel/deps_parser", *bazelArgs...); err != nil {
+	if err := bazelRun(ctx, skiaPath, "//bazel/deps_parser", *bazelFlags.AdditionalArgs...); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if err := bazelRun(ctx, skiaPath, "//tools/gpu/gl/interface:generate_gl_interfaces", *bazelArgs...); err != nil {
+	if err := bazelRun(ctx, skiaPath, "//tools/gpu/gl/interface:generate_gl_interfaces", *bazelFlags.AdditionalArgs...); err != nil {
 		td.Fatal(ctx, err)
 	}
 
@@ -94,20 +98,20 @@ func main() {
 		"compile_wgsl_tests",
 	}
 	for _, label := range skslTests {
-		if err := bazelRun(ctx, skiaPath, "//tools/skslc:"+label, *bazelArgs...); err != nil {
+		if err := bazelRun(ctx, skiaPath, "//tools/skslc:"+label, *bazelFlags.AdditionalArgs...); err != nil {
 			td.Fatal(ctx, err)
 		}
 	}
 
-	if err := bazelRun(ctx, skiaPath, "//tools:generate_workarounds", *bazelArgs...); err != nil {
+	if err := bazelRun(ctx, skiaPath, "//tools:generate_workarounds", *bazelFlags.AdditionalArgs...); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if err := bazelRun(ctx, skiaPath, "//tools/sksl-minify:minify_srcs", *bazelArgs...); err != nil {
+	if err := bazelRun(ctx, skiaPath, "//tools/sksl-minify:minify_srcs", *bazelFlags.AdditionalArgs...); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if err := bazelRun(ctx, skiaPath, "//tools/sksl-minify:minify_tests", *bazelArgs...); err != nil {
+	if err := bazelRun(ctx, skiaPath, "//tools/sksl-minify:minify_tests", *bazelFlags.AdditionalArgs...); err != nil {
 		td.Fatal(ctx, err)
 	}
 
