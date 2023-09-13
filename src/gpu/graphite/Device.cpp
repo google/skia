@@ -1087,11 +1087,11 @@ void Device::drawGeometry(const Transform& localToDevice,
     // next invocation of flushPendingWorkToRecorder().
     if (pathAtlas != nullptr) {
         // Record the draw as a fill since stroking is handled by the atlas render/upload.
-        Geometry atlasShape(
+        Geometry coverageMask(
                 CoverageMaskShape(geometry.shape(), pathAtlas->texture(), localToDevice.inverse(),
                                   atlasMaskInfo));
         fDC->recordDraw(
-                renderer, Transform::Identity(), atlasShape, clip, order, &shading, nullptr);
+                renderer, Transform::Identity(), coverageMask, clip, order, &shading, nullptr);
     } else {
         if (styleType == SkStrokeRec::kStroke_Style ||
             styleType == SkStrokeRec::kHairline_Style ||
@@ -1217,7 +1217,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     if (!requireMSAA && pathAtlas) {
         // TODO: vello can't do correct strokes yet. Maybe this shouldn't get selected for stroke
         // renders until all stroke styles are supported?
-        return {renderers->atlasShape(), pathAtlas};
+        return {renderers->coverageMask(), pathAtlas};
     }
 
     // If we got here, it requires tessellated path rendering or an MSAA technique applied to a

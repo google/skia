@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_render_AtlasShapeRenderStep_DEFINED
-#define skgpu_graphite_render_AtlasShapeRenderStep_DEFINED
+#ifndef skgpu_graphite_render_CoverageMaskRenderStep_DEFINED
+#define skgpu_graphite_render_CoverageMaskRenderStep_DEFINED
 
 #include "src/gpu/graphite/Renderer.h"
 
 namespace skgpu::graphite {
 
-class AtlasShapeRenderStep final : public RenderStep {
+class CoverageMaskRenderStep final : public RenderStep {
 public:
-    AtlasShapeRenderStep();
-    ~AtlasShapeRenderStep() override = default;
+    CoverageMaskRenderStep();
+    ~CoverageMaskRenderStep() override = default;
 
     std::string vertexSkSL() const override;
     std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
@@ -30,4 +30,4 @@ public:
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_graphite_render_AtlasShapeRenderStep_DEFINED
+#endif  // skgpu_graphite_render_CoverageMaskRenderStep_DEFINED

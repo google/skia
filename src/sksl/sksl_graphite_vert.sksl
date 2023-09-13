@@ -878,21 +878,21 @@ float4 text_vertex_fn(float2 baseCoords,
     return float4(position.xy, depth, position.w);
 }
 
-float4 atlas_shape_vertex_fn(float2 quadCoords,
-                             // Uniforms
-                             float2 atlasSizeInv,
-                             // Instance Attributes
-                             float4 drawBounds,
-                             float2 deviceOrigin,
-                             float2 uvPos,
-                             float2 maskDims,
-                             float depth,
-                             float3x3 deviceToLocal,
-                             // Varyings
-                             out float4 maskBounds,
-                             out float2 textureCoords,
-                             // Render Step
-                             out float2 stepLocalCoords) {
+float4 coverage_mask_vertex_fn(float2 quadCoords,
+                               // Uniforms
+                               float2 atlasSizeInv,
+                               // Instance Attributes
+                               float4 drawBounds,
+                               float2 deviceOrigin,
+                               float2 uvPos,
+                               float2 maskDims,
+                               float depth,
+                               float3x3 deviceToLocal,
+                               // Varyings
+                               out float4 maskBounds,
+                               out float2 textureCoords,
+                               // Render Step
+                               out float2 stepLocalCoords) {
     // An atlas shape is an axis-aligned rectangle tessellated as a triangle strip.
     //
     // The bounds coordinates that we use here have already been transformed to device space and

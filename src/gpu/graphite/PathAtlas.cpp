@@ -62,8 +62,8 @@ bool PathAtlas::addShape(Recorder* recorder,
     Rect maskBounds = transformedShapeBounds.makeRoundOut();
 
     // Add an additional one pixel outset as buffer between atlas slots. This prevents sampling from
-    // neighboring atlas slots; the AtlasShape renderer also uses the outset to sample zero coverage
-    // on inverse fill pixels that fall outside the mask bounds.
+    // neighboring atlas slots; the CoverageMask renderer also uses the outset to sample zero
+    // coverage on inverse fill pixels that fall outside the mask bounds.
     skvx::float2 maskSize = maskBounds.size();
     skvx::float2 atlasSize = maskSize + 2;
     SkIPoint16 pos;

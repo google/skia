@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/gpu/graphite/render/AtlasShapeRenderStep.h"
+#include "src/gpu/graphite/render/CoverageMaskRenderStep.h"
 
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawParams.h"
@@ -15,8 +15,8 @@
 
 namespace skgpu::graphite {
 
-AtlasShapeRenderStep::AtlasShapeRenderStep()
-        : RenderStep("AtlasShapeRenderStep",
+CoverageMaskRenderStep::CoverageMaskRenderStep()
+        : RenderStep("CoverageMaskRenderStep",
                      "",
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"atlasSizeInv", SkSLType::kFloat2},
@@ -43,32 +43,32 @@ AtlasShapeRenderStep::AtlasShapeRenderStep()
                       {"maskBounds"   , SkSLType::kFloat4},
                       {"textureCoords", SkSLType::kFloat2}}) {}
 
-std::string AtlasShapeRenderStep::vertexSkSL() const {
+std::string CoverageMaskRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
-    return "float4 devPosition = atlas_shape_vertex_fn("
+    return "float4 devPosition = coverage_mask_vertex_fn("
                     "float2(sk_VertexID >> 1, sk_VertexID & 1), atlasSizeInv, "
                     "drawBounds, float2(deviceOrigin), float2(uvOrigin), "
                     "float2(maskSize), depth, float3x3(mat0, mat1, mat2), "
                     "maskBounds, textureCoords, stepLocalCoords);\n";
 }
 
-std::string AtlasShapeRenderStep::texturesAndSamplersSkSL(
+std::string CoverageMaskRenderStep::texturesAndSamplersSkSL(
         const ResourceBindingRequirements& bindingReqs, int* nextBindingIndex) const {
     return EmitSamplerLayout(bindingReqs, nextBindingIndex) + " sampler2D pathAtlas;";
 }
 
-const char* AtlasShapeRenderStep::fragmentCoverageSkSL() const {
+const char* CoverageMaskRenderStep::fragmentCoverageSkSL() const {
     return R"(
         half c = sample(pathAtlas, clamp(textureCoords, maskBounds.LT, maskBounds.RB)).r;
         outputCoverage = half4(isInverted == 1 ? (1 - c) : c);
     )";
 }
 
-float AtlasShapeRenderStep::boundsOutset(const Transform& localToDevice, const Rect&) const {
-    // Always incorporate a 1-pixel wide border to the (device space) mask for AA. AtlasShapes are
+float CoverageMaskRenderStep::boundsOutset(const Transform& localToDevice, const Rect&) const {
+    // Always incorporate a 1-pixel wide border to the (device space) mask for AA. CoverageMasks are
     // expected to be in device space but only after the clip stack has been applied to the
-    // AtlasShape's originating geometry. Hence `localToDevice` is not guaranteed to be identity
+    // CoverageMask's originating geometry. Hence `localToDevice` is not guaranteed to be identity
     // `boundsOutset` needs to return a local coordinate outset for the shape which will be applied
     // to its local-coordinate bounds before it gets transformed to device space.
     //
@@ -78,10 +78,10 @@ float AtlasShapeRenderStep::boundsOutset(const Transform& localToDevice, const R
     return 1.0 / localToDevice.maxScaleFactor();
 }
 
-void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
-                                         const DrawParams& params,
-                                         int ssboIndex) const {
-    const CoverageMaskShape& atlasShape = params.geometry().coverageMaskShape();
+void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
+                                           const DrawParams& params,
+                                           int ssboIndex) const {
+    const CoverageMaskShape& coverageMask = params.geometry().coverageMaskShape();
 
     // A quad is a 4-vertex instance. The coordinates are derived from the vertex IDs.
     DrawWriter::Instances instances(*dw, {}, {}, 4);
@@ -92,7 +92,7 @@ void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
         // If the mask shape is clipped out then this must be an inverse fill. There is no mask to
         // sample but we still need to paint the fill region that excludes the mask shape. Signal
         // this by setting the mask size to 0.
-        SkASSERT(atlasShape.inverted());
+        SkASSERT(coverageMask.inverted());
         maskSize = uvOrigin = 0;
         deviceOrigin = 0;
     } else {
@@ -100,12 +100,12 @@ void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
         // expanded by a 1-pixel border for AA). `uvOrigin` is positioned to include the additional
         // 1-pixel border between atlas entries (which corresponds to their clip bounds and should
         // contain 0).
-        maskSize     = atlasShape.maskSize();
-        deviceOrigin = atlasShape.deviceOrigin();
-        uvOrigin     = atlasShape.textureOrigin();
+        maskSize     = coverageMask.maskSize();
+        deviceOrigin = coverageMask.deviceOrigin();
+        uvOrigin     = coverageMask.textureOrigin();
     }
 
-    const SkM44& m = atlasShape.deviceToLocal();
+    const SkM44& m = coverageMask.deviceToLocal();
     instances.append(1) << params.clip().drawBounds().ltrb()     // drawBounds
                         << deviceOrigin << uvOrigin << maskSize
                         << params.order().depthAsFloat() << ssboIndex
@@ -114,18 +114,18 @@ void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
                         << m.rc(0,3) << m.rc(1,3) << m.rc(3,3);  // mat2
 }
 
-void AtlasShapeRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                    PipelineDataGatherer* gatherer) const {
+void CoverageMaskRenderStep::writeUniformsAndTextures(const DrawParams& params,
+                                                      PipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
-    const CoverageMaskShape& atlasShape = params.geometry().coverageMaskShape();
-    const TextureProxy* proxy = atlasShape.textureProxy();
+    const CoverageMaskShape& coverageMask = params.geometry().coverageMaskShape();
+    const TextureProxy* proxy = coverageMask.textureProxy();
     SkASSERT(proxy);
 
     // write uniforms
     SkV2 atlasSizeInv = {1.f / proxy->dimensions().width(), 1.f / proxy->dimensions().height()};
     gatherer->write(atlasSizeInv);
-    gatherer->write(int(atlasShape.inverted()));
+    gatherer->write(int(coverageMask.inverted()));
 
     // write textures and samplers
     const SkSamplingOptions kSamplingOptions(SkFilterMode::kNearest);

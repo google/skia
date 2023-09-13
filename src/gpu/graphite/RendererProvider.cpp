@@ -11,10 +11,10 @@
 #include "include/core/SkVertices.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
-#include "src/gpu/graphite/render/AtlasShapeRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
+#include "src/gpu/graphite/render/CoverageMaskRenderStep.h"
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
 #include "src/gpu/graphite/render/SDFTextRenderStep.h"
 #include "src/gpu/graphite/render/TessellateCurvesRenderStep.h"
@@ -51,7 +51,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                          DrawTypeFlags::kShape);
     fTessellatedStrokes = makeFromStep(
             std::make_unique<TessellateStrokesRenderStep>(infinitySupport), DrawTypeFlags::kShape);
-    fAtlasShape = makeFromStep(std::make_unique<AtlasShapeRenderStep>(), DrawTypeFlags::kShape);
+    fCoverageMask = makeFromStep(std::make_unique<CoverageMaskRenderStep>(), DrawTypeFlags::kShape);
     for (bool lcd : {false, true}) {
         fBitmapText[lcd] = makeFromStep(std::make_unique<BitmapTextRenderStep>(lcd),
                                         DrawTypeFlags::kText);

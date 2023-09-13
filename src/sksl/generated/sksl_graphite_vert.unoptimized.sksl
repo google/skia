@@ -189,7 +189,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 "*=size;float2 subRunCoords=strikeToSourceScale*baseCoords+xyPos;float4 position"
 "=subRunDeviceMatrix*float4(subRunCoords,0.,1.);stepLocalCoords=(deviceToLocal"
 "*position).xy;unormTexCoords=baseCoords+uvPos;textureCoords=unormTexCoords*"
-"atlasSizeInv;return float4(position.xy,depth,position.w);}float4 atlas_shape_vertex_fn"
+"atlasSizeInv;return float4(position.xy,depth,position.w);}float4 coverage_mask_vertex_fn"
 "(float2 quadCoords,float2 atlasSizeInv,float4 drawBounds,float2 deviceOrigin"
 ",float2 uvPos,float2 maskDims,float depth,float3x3 deviceToLocal,out float4"
 " maskBounds,out float2 textureCoords,out float2 stepLocalCoords){float2 drawCoords"

@@ -111,7 +111,7 @@ private:
     int fRenderStepCount;
 
 #if defined(SK_DEBUG)
-    // The number of AtlasShape draws that have been recorded. Used in debugging.
+    // The number of CoverageMask draws that have been recorded. Used in debugging.
     int fCoverageMaskShapeDrawCount = 0;
 #endif
 

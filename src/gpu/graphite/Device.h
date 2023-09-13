@@ -224,7 +224,7 @@ private:
     // Depending on the preferred anti-aliasing quality and platform capabilities (such as compute
     // shader support), an atlas handler for path rendering may be returned alongside the chosen
     // Renderer. In that case, all fill, stroke, and stroke-and-fill styles should be rendered with
-    // a single recorded AtlasShape draw and the shape data should be added to the provided atlas
+    // a single recorded CoverageMask draw and the shape data should be added to the provided atlas
     // handler to be scheduled for a coverage mask render.
     //
     // TODO: Renderers may have fallbacks (e.g. pre-chop large paths, or convert stroke to fill).

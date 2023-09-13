@@ -47,8 +47,8 @@ public:
     const Renderer* convexTessellatedWedges() const { return &fConvexTessellatedWedges; }
     const Renderer* tessellatedStrokes() const { return &fTessellatedStrokes; }
 
-    // Atlas'ed path rendering
-    const Renderer* atlasShape() const { return &fAtlasShape; }
+    // Coverage mask rendering
+    const Renderer* coverageMask() const { return &fCoverageMask; }
 
     // Atlas'ed text rendering
     const Renderer* bitmapText(bool useLCDText) const { return &fBitmapText[useLCDText]; }
@@ -103,7 +103,7 @@ private:
     Renderer fConvexTessellatedWedges;
     Renderer fTessellatedStrokes;
 
-    Renderer fAtlasShape;
+    Renderer fCoverageMask;
 
     Renderer fBitmapText[2];  // bool isLCD
     Renderer fSDFText[2]; // bool isLCD
