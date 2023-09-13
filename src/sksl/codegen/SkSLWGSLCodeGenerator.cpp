@@ -3794,11 +3794,7 @@ void WGSLCodeGenerator::writeEnables() {
         this->writeLine("enable chromium_experimental_pixel_local;");
     }
     if (fProgram.fInterface.fOutputSecondaryColor) {
-        if (fContext.fCaps->fDualSourceBlendingSupport) {
-            this->writeLine("enable chromium_internal_dual_source_blending;");
-        } else {
-            fContext.fErrors->error({}, "dual-src blending not supported");
-        }
+        this->writeLine("enable chromium_internal_dual_source_blending;");
     }
 }
 

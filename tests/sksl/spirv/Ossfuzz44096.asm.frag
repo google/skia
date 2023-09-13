@@ -1,6 +1,4 @@
 ### Compilation failed:
 
-error: 1: sk_SecondaryFragColor is not allowed in SPIR-V
-void main() { half x; ++x * sk_SecondaryFragColor; }
-                            ^^^^^^^^^^^^^^^^^^^^^
+error: 'sk_SecondaryFragColor' not supported
 1 error

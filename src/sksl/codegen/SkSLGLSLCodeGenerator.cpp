@@ -917,12 +917,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->writeIdentifier("gl_InstanceID");
             break;
         case SK_LASTFRAGCOLOR_BUILTIN:
-            if (this->caps().fFBFetchSupport) {
-                this->write(this->caps().fFBFetchColorName);
-            } else {
-                fContext.fErrors->error(ref.fPosition,
-                                        "sk_LastFragColor requires framebuffer fetch support");
-            }
+            this->write(this->caps().fFBFetchColorName);
             break;
         case SK_SAMPLEMASKIN_BUILTIN:
             // GLSL defines gl_SampleMaskIn as an array of ints. SkSL defines it as a scalar uint.

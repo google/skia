@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
@@ -30,6 +31,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -162,12 +164,22 @@ void FindAndDeclareBuiltinVariables(Program& program) {
                 // Set the UseLastFragColor program input if we find sk_LastFragColor.
                 // Metal defines this as a program input, rather than a global variable.
                 case SK_LASTFRAGCOLOR_BUILTIN:
-                    program.fInterface.fUseLastFragColor = true;
+                    if (context.fCaps->fFBFetchSupport) {
+                        program.fInterface.fUseLastFragColor = true;
+                    } else {
+                        context.fErrors->error({},
+                                               "'" + std::string(var->name()) + "' not supported");
+                    }
                     break;
 
                 // Set secondary color output if we find sk_SecondaryFragColor.
                 case SK_SECONDARYFRAGCOLOR_BUILTIN:
-                    program.fInterface.fOutputSecondaryColor = true;
+                    if (context.fCaps->fDualSourceBlendingSupport) {
+                        program.fInterface.fOutputSecondaryColor = true;
+                    } else {
+                        context.fErrors->error({},
+                                               "'" + std::string(var->name()) + "' not supported");
+                    }
                     break;
             }
         }

@@ -1467,11 +1467,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write("_out.sk_SampleMask");
             break;
         case SK_SECONDARYFRAGCOLOR_BUILTIN:
-            if (fContext.fCaps->fDualSourceBlendingSupport) {
-                this->write("_out.sk_SecondaryFragColor");
-            } else {
-                fContext.fErrors->error(ref.fPosition, "dual-src blending not supported");
-            }
+            this->write("_out.sk_SecondaryFragColor");
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
@@ -1495,11 +1491,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
             }
             break;
         case SK_LASTFRAGCOLOR_BUILTIN:
-            if (fContext.fCaps->fFBFetchSupport) {
-                this->write(fContext.fCaps->fFBFetchColorName);
-            } else {
-                fContext.fErrors->error(ref.fPosition, "framebuffer fetch not supported");
-            }
+            this->write(fContext.fCaps->fFBFetchColorName);
             break;
         default:
             const Variable& var = *ref.variable();
@@ -2236,12 +2228,8 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 this->write(", uint sk_SampleMaskIn [[sample_mask]]");
             }
             if (fProgram.fInterface.fUseLastFragColor) {
-                if (fContext.fCaps->fFBFetchSupport) {
-                    this->write(", half4 " + std::string(fContext.fCaps->fFBFetchColorName) +
-                                " [[color(0)]]\n");
-                } else {
-                    fContext.fErrors->error(Position(), "framebuffer fetch not supported");
-                }
+                this->write(", half4 " + std::string(fContext.fCaps->fFBFetchColorName) +
+                            " [[color(0)]]\n");
             }
             separator = ", ";
         } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
@@ -2808,11 +2796,7 @@ void MetalCodeGenerator::writeOutputStruct() {
     } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
         this->write("    half4 sk_FragColor [[color(0)]];\n");
         if (fProgram.fInterface.fOutputSecondaryColor) {
-            if (fContext.fCaps->fDualSourceBlendingSupport) {
-                this->write("    half4 sk_SecondaryFragColor [[color(0), index(1)]];\n");
-            } else {
-                fContext.fErrors->error({}, "dual-src blending not supported");
-            }
+            this->write("    half4 sk_SecondaryFragColor [[color(0), index(1)]];\n");
         }
     }
     for (const ProgramElement* e : fProgram.elements()) {
