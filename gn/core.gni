@@ -663,6 +663,8 @@ skia_core_sources = [
   "$_src/shaders/SkTransformShader.h",
   "$_src/shaders/SkTriColorShader.cpp",
   "$_src/shaders/SkTriColorShader.h",
+  "$_src/shaders/SkWorkingColorSpaceShader.cpp",
+  "$_src/shaders/SkWorkingColorSpaceShader.h",
   "$_src/text/GlyphRun.cpp",
   "$_src/text/GlyphRun.h",
   "$_src/text/SlugFromBuffer.cpp",

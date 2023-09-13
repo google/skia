@@ -67,6 +67,15 @@ public:
      */
     sk_sp<SkShader> makeWithColorFilter(sk_sp<SkColorFilter>) const;
 
+    /**
+     *  Return a shader that will compute this shader in a specific color space.
+     *  By default, all shaders operate in the destination (surface) color space.
+     *  The results of a shader are still always converted to the destination - this
+     *  API has no impact on simple shaders or images. Primarily, it impacts shaders
+     *  that perform mathematical operations, like Blend shaders, or runtime shaders.
+     */
+    sk_sp<SkShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>) const;
+
 private:
     SkShader() = default;
     friend class SkShaderBase;

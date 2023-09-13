@@ -1455,6 +1455,8 @@ BASE_SRCS_ALL = [
     "src/shaders/SkTransformShader.h",
     "src/shaders/SkTriColorShader.cpp",
     "src/shaders/SkTriColorShader.h",
+    "src/shaders/SkWorkingColorSpaceShader.cpp",
+    "src/shaders/SkWorkingColorSpaceShader.h",
     "src/shaders/gradients/SkConicalGradient.cpp",
     "src/shaders/gradients/SkConicalGradient.h",
     "src/shaders/gradients/SkGradientBaseShader.cpp",

@@ -25,6 +25,8 @@ SHADER_FILES = [
     "SkLocalMatrixShader.h",
     "SkPerlinNoiseShaderImpl.cpp",
     "SkPerlinNoiseShaderImpl.h",
+    "SkPictureShader.cpp",
+    "SkPictureShader.h",
     "SkRuntimeShader.cpp",
     "SkRuntimeShader.h",
     "SkShader.cpp",
@@ -34,8 +36,8 @@ SHADER_FILES = [
     "SkTransformShader.h",
     "SkTriColorShader.cpp",
     "SkTriColorShader.h",
-    "SkPictureShader.cpp",
-    "SkPictureShader.h",
+    "SkWorkingColorSpaceShader.cpp",
+    "SkWorkingColorSpaceShader.h",
 ]
 
 split_srcs_and_hdrs(

@@ -8,10 +8,12 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkColorFilterPriv.h"
 
@@ -25,6 +27,32 @@ static sk_sp<SkShader> color_shader(SkColor4f color) {
     bmp.allocPixels(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     bmp.eraseColor(color);
     return bmp.makeShader(SkFilterMode::kNearest);
+}
+
+static sk_sp<SkShader> paint_color_shader() {
+    // This will return the paint color (unless it's a child of a runtime effect)
+    SkBitmap bmp;
+    bmp.allocPixels(SkImageInfo::MakeA8(1, 1));
+    bmp.eraseColor(SkColors::kWhite);
+    return bmp.makeShader(SkFilterMode::kNearest);
+}
+
+static sk_sp<SkShader> raw_shader(SkColor4f color) {
+    return SkRuntimeEffect::MakeForShader(SkString("uniform half4 c;"
+                                                   "half4 main(float2 xy) { return c; }"))
+            .effect->makeShader(SkData::MakeWithCopy(&color, sizeof(SkColor4f)), {});
+}
+
+static sk_sp<SkShader> managed_shader(SkColor4f color) {
+    return SkRuntimeEffect::MakeForShader(SkString("layout(color) uniform half4 c;"
+                                                   "half4 main(float2 xy) { return c; }"))
+            .effect->makeShader(SkData::MakeWithCopy(&color, sizeof(SkColor4f)), {});
+}
+
+static sk_sp<SkShader> gradient_shader() {
+    const SkPoint pts[] = {{0, 0}, {40, 40}};
+    const SkColor4f colors[] = {SkColors::kRed, SkColors::kGreen};
+    return SkGradientShader::MakeLinear(pts, colors, nullptr, nullptr, 2, SkTileMode::kClamp);
 }
 
 static sk_sp<SkColorFilter> raw_cf(SkColor4f color) {
@@ -51,7 +79,21 @@ static sk_sp<SkColorFilter> mode_cf(SkColor4f color) {
     return SkColorFilters::Blend(color, nullptr, SkBlendMode::kSrc);
 }
 
-DEF_SIMPLE_GM_CAN_FAIL(workingspace, canvas, errorMsg, 200, 200) {
+static sk_sp<SkColorFilter> spin(sk_sp<SkColorFilter> cf) {
+    skcms_Matrix3x3 spinMtx;
+    SkAssertResult(SkColorSpace::MakeSRGB()->makeColorSpin()->toXYZD50(&spinMtx));
+    return SkColorFilterPriv::WithWorkingFormat(std::move(cf), nullptr, &spinMtx, nullptr);
+}
+
+static sk_sp<SkShader> spin(sk_sp<SkShader> shader) {
+    return shader->makeWithWorkingColorSpace(SkColorSpace::MakeSRGB()->makeColorSpin());
+}
+
+static sk_sp<SkShader> linear(sk_sp<SkShader> shader) {
+    return shader->makeWithWorkingColorSpace(SkColorSpace::MakeSRGBLinear());
+}
+
+DEF_SIMPLE_GM_CAN_FAIL(workingspace, canvas, errorMsg, 200, 350) {
     if (!canvas->getSurface()) {
         // The only backend that really fails is DDL (because the color filter fails to evaluate on
         // the CPU when we do paint optimization). We can't identify DDL separate from other
@@ -67,12 +109,18 @@ DEF_SIMPLE_GM_CAN_FAIL(workingspace, canvas, errorMsg, 200, 200) {
     //
     // In all cases, the tests are designed to draw green if implemented correctly. Any other color
     // (red or blue, most likely) is an error.
+    //
+    // The bottom row is the exception - it draws red-to-green gradients. The first two should be
+    // "ugly" (via brown). The last one should be "nice" (via yellow).
 
     canvas->translate(5, 5);
     canvas->save();
 
-    auto cell = [&](sk_sp<SkShader> shader, sk_sp<SkColorFilter> colorFilter) {
+    auto cell = [&](sk_sp<SkShader> shader,
+                    sk_sp<SkColorFilter> colorFilter,
+                    SkColor4f paintColor = SkColors::kBlack) {
         SkPaint paint;
+        paint.setColor(paintColor);
         paint.setShader(shader);
         paint.setColorFilter(colorFilter);
         canvas->drawRect({0, 0, 40, 40}, paint);
@@ -86,13 +134,6 @@ DEF_SIMPLE_GM_CAN_FAIL(workingspace, canvas, errorMsg, 200, 200) {
     };
 
     auto blackShader = color_shader(SkColors::kBlack);
-
-    auto spinCS = SkColorSpace::MakeSRGB()->makeColorSpin();
-    skcms_Matrix3x3 spinMtx;
-    SkAssertResult(spinCS->toXYZD50(&spinMtx));
-    auto spin = [&](sk_sp<SkColorFilter> cf) {
-        return SkColorFilterPriv::WithWorkingFormat(std::move(cf), nullptr, &spinMtx, nullptr);
-    };
 
     cell(nullptr, raw_cf(SkColors::kGreen));
     cell(nullptr, managed_cf(SkColors::kGreen));
@@ -119,6 +160,26 @@ DEF_SIMPLE_GM_CAN_FAIL(workingspace, canvas, errorMsg, 200, 200) {
     cell(blackShader, spin(managed_cf(SkColors::kGreen)));
     cell(blackShader, spin(indirect_cf(SkColors::kGreen)));
     cell(blackShader, spin(mode_cf(SkColors::kGreen)));
+
+    nextRow();
+
+    cell(raw_shader(SkColors::kGreen), nullptr);
+    cell(managed_shader(SkColors::kGreen), nullptr);
+    cell(color_shader(SkColors::kGreen), nullptr);
+    cell(paint_color_shader(), nullptr, SkColors::kGreen);
+
+    nextRow();
+
+    cell(spin(raw_shader(SkColors::kRed)), nullptr);  // Un-managed red turns into green
+    cell(spin(managed_shader(SkColors::kGreen)), nullptr);
+    cell(spin(color_shader(SkColors::kGreen)), nullptr);
+    cell(spin(paint_color_shader()), nullptr, SkColors::kGreen);
+
+    nextRow();
+
+    cell(gradient_shader(), nullptr);          // Red to green, via ugly brown
+    cell(spin(gradient_shader()), nullptr);    // Same (spin doesn't change anything)
+    cell(linear(gradient_shader()), nullptr);  // Red to green, via bright yellow
 
     return skiagm::DrawResult::kOk;
 }

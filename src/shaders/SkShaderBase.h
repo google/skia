@@ -174,7 +174,8 @@ private:
     M(Picture)            \
     M(Runtime)            \
     M(Transform)          \
-    M(TriColor)
+    M(TriColor)           \
+    M(WorkingColorSpace)
 
 #define SK_ALL_GRADIENTS(M) \
     M(Conical)              \
@@ -426,5 +427,6 @@ void SkRegisterColorShaderFlattenable();
 void SkRegisterCoordClampShaderFlattenable();
 void SkRegisterEmptyShaderFlattenable();
 void SkRegisterPerlinNoiseShaderFlattenable();
+void SkRegisterWorkingColorSpaceShaderFlattenable();
 
 #endif // SkShaderBase_DEFINED

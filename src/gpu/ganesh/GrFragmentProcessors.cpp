@@ -85,6 +85,7 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/SkTransformShader.h"
 #include "src/shaders/SkTriColorShader.h"
+#include "src/shaders/SkWorkingColorSpaceShader.h"
 #include "src/shaders/gradients/SkConicalGradient.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
@@ -814,6 +815,30 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkTriColorShade
                                                            const GrFPArgs&,
                                                            const SkShaders::MatrixRec&) {
     return nullptr;
+}
+
+static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkWorkingColorSpaceShader* shader,
+                                                           const GrFPArgs& args,
+                                                           const SkShaders::MatrixRec& mRec) {
+    const GrColorInfo* dstInfo = args.fDstColorInfo;
+    sk_sp<SkColorSpace> dstCS = dstInfo->refColorSpace();
+    if (!dstCS) {
+        dstCS = SkColorSpace::MakeSRGB();
+    }
+
+    GrColorInfo dst     = {dstInfo->colorType(), dstInfo->alphaType(), dstCS},
+                working = {dstInfo->colorType(), dstInfo->alphaType(), shader->workingSpace()};
+    GrFPArgs workingArgs(args.fContext, &working, args.fSurfaceProps, args.fScope);
+
+    auto childFP = Make(shader->shader().get(), workingArgs, mRec);
+    if (!childFP) {
+        return nullptr;
+    }
+
+    auto childWithWorkingInput = GrFragmentProcessor::Compose(
+            std::move(childFP), GrColorSpaceXformEffect::Make(nullptr, dst, working));
+
+    return GrColorSpaceXformEffect::Make(std::move(childWithWorkingInput), working, dst);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
