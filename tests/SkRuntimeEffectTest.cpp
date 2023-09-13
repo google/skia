@@ -656,13 +656,13 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
     // Sampling children
     //
 
-    // Sampling a null shader should return the paint color
+    // Sampling a null shader should return transparent black
     if (!graphite) {
         // TODO: Graphite does not yet pass this test.
         effect.build("uniform shader child;"
                      "half4 main(float2 p) { return child.eval(p); }");
         effect.child("child") = nullptr;
-        effect.test(0xFF00FFFF,
+        effect.test(0x00000000,
                     [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
     }
 
@@ -1106,11 +1106,11 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r,
     // Sampling children
     //
 
-    // Sampling a null shader/color filter should return the paint color.
+    // Sampling a null shader should return transparent black.
     effect.build("uniform shader child;"
                  "half4 main(half4 s, half4 d) { return child.eval(s.rg); }");
     effect.child("child") = nullptr;
-    effect.test(0xFF00FFFF,
+    effect.test(0x00000000,
                 [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
 
     effect.build("uniform colorFilter child;"
@@ -1331,9 +1331,10 @@ static void test_RuntimeEffectStructNameReuse(skiatest::Reporter* r, GrRecording
         "half4 main(float2 p) { S s; s.rgba = paint.eval(p); process(s); return s.rgba; }"
     ));
     REPORTER_ASSERT(r, childEffect, "%s\n", err.c_str());
-    sk_sp<SkShader> nullChild = nullptr;
+    sk_sp<SkShader> sourceColor = SkShaders::Color({0.99608f, 0.50196f, 0.0f, 1.0f}, nullptr);
+    const GrColor kExpected = 0xFF00407F;
     sk_sp<SkShader> child = childEffect->makeShader(/*uniforms=*/nullptr,
-                                                    &nullChild,
+                                                    &sourceColor,
                                                     /*childCount=*/1);
 
     TestEffect effect(r, /*grContext=*/nullptr, /*graphite=*/nullptr);
@@ -1344,9 +1345,7 @@ static void test_RuntimeEffectStructNameReuse(skiatest::Reporter* r, GrRecording
             "half4 main(float2 p) { S s; s.coord = p; process(s); return child.eval(s.coord); "
             "}");
     effect.child("child") = child;
-    effect.test(0xFF00407F, [](SkCanvas*, SkPaint* paint) {
-        paint->setColor4f({0.99608f, 0.50196f, 0.0f, 1.0f});
-    });
+    effect.test(kExpected, [](SkCanvas*, SkPaint* paint) {});
 }
 
 DEF_TEST(SkRuntimeStructNameReuse, r) {

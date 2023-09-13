@@ -10,6 +10,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlender.h"
 #include "include/core/SkCapabilities.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/private/base/SkAlign.h"
@@ -266,8 +267,8 @@ bool RuntimeEffectRPCallbacks::appendShader(int index) {
         nonPassthroughMatrix.markTotalMatrixInvalid();
         return as_SB(shader)->appendStages(fStage, nonPassthroughMatrix);
     }
-    // Return the paint color when a null child shader is evaluated.
-    fStage.fPipeline->append_constant_color(fStage.fAlloc, fStage.fPaintColor);
+    // Return transparent black when a null shader is evaluated.
+    fStage.fPipeline->append_constant_color(fStage.fAlloc, SkColors::kTransparent);
     return true;
 }
 bool RuntimeEffectRPCallbacks::appendColorFilter(int index) {

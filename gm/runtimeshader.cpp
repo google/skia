@@ -428,42 +428,6 @@ public:
 };
 DEF_GM(return new ColorCubeColorFilterRT;)
 
-class DefaultColorRT : public RuntimeShaderGM {
-public:
-    DefaultColorRT() : RuntimeShaderGM("default_color_rt", {512, 256}, R"(
-        uniform shader child;
-        half4 main(float2 xy) {
-            return child.eval(xy);
-        }
-    )") {}
-
-    sk_sp<SkImage> fMandrill;
-
-    void onOnceBeforeDraw() override {
-        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
-        this->RuntimeShaderGM::onOnceBeforeDraw();
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkRuntimeShaderBuilder builder(fEffect);
-
-        // First, we leave the child as null, so sampling it returns the default (paint) color
-        SkPaint paint;
-        paint.setColor4f({ 0.25f, 0.75f, 0.75f, 1.0f });
-        paint.setShader(builder.makeShader());
-        canvas->drawRect({ 0, 0, 256, 256 }, paint);
-
-        // Now we bind an image shader as the child. This (by convention) scales by the paint alpha
-        builder.child("child") = fMandrill->makeShader(SkSamplingOptions());
-        paint.setColor4f({ 1.0f, 1.0f, 1.0f, 0.5f });
-        paint.setShader(builder.makeShader());
-        canvas->translate(256, 0);
-        canvas->drawRect({ 0, 0, 256, 256 }, paint);
-
-    }
-};
-DEF_GM(return new DefaultColorRT;)
-
 // Emits coverage for a rounded rectangle whose corners are superellipses defined by the boundary:
 //
 //   x^n + y^n == 1
@@ -940,16 +904,16 @@ DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
     canvas->restore();
 }
 
-DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
+DEF_SIMPLE_GM(null_child_rt, canvas, 150, 100) {
     using ChildPtr = SkRuntimeEffect::ChildPtr;
 
     // Every swatch should evaluate to the same shade of purple.
     // Paint with a shader evaluating a null shader.
-    // Point passed to eval() is ignored; paint color is returned.
+    // Point passed to eval() is ignored; transparent black is returned.
     {
         const SkString kEvalShader{R"(
             uniform shader s;
-            half4 main(float2 p) { return s.eval(p); }
+            half4 main(float2 p) { return s.eval(p) + half4(0.5, 0, 0.5, 1); }
         )"};
         auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalShader);
         SkASSERT(rtShader);
@@ -957,7 +921,7 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkShader>{nullptr}}};
         paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));  // purple (contributes)
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00));  // green (ignored)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
@@ -999,11 +963,11 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
     canvas->translate(-150, 50);
 
     // Paint with a color filter evaluating a null shader.
-    // Point passed to eval() is ignored; previous-stage color (the paint color) is returned.
+    // Point passed to eval() is ignored; transparent black is returned.
     {
         const SkString kEvalShader{R"(
             uniform shader s;
-            half4 main(half4 c) { return s.eval(float2(0)); }
+            half4 main(half4 c) { return s.eval(float2(0)) + half4(0.5, 0, 0.5, 1); }
         )"};
         auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalShader);
         SkASSERT(rtFilter);
@@ -1011,7 +975,7 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkShader>{nullptr}}};
         paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));  // purple (contributes)
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0xFF, 0x00));  // green (ignored)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
@@ -1047,54 +1011,6 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 150) {
         paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
         paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));  // green (does not contribute)
         canvas->drawRect({0, 0, 48, 48}, paint);
-        canvas->translate(50, 0);
-    }
-
-    canvas->translate(-150, 50);
-
-    // Paint with a shader evaluating a null shader.
-    // Point passed to eval() is ignored; paint color is returned.
-    // We draw to an offscreen surface in a different color space, then draw that surface back to
-    // the main canvas. This ensures the paint color is correctly transformed. (skbug.com/14153)
-    {
-        const SkString kEvalShader{R"(
-            uniform shader s;
-            half4 main(float2 p) { return s.eval(p); }
-        )"};
-        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalShader);
-        SkASSERT(rtShader);
-
-        sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
-        SkImageInfo spinInfo =
-                SkImageInfo::Make(50, 50, kN32_SkColorType, kPremul_SkAlphaType, spin);
-        auto surface = canvas->makeSurface(spinInfo);
-        if (!surface) {
-            surface = SkSurfaces::Raster(spinInfo);
-        }
-
-        SkPaint paint;
-        ChildPtr children[1] = {ChildPtr{sk_sp<SkShader>{nullptr}}};
-        paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));  // purple (contributes)
-        surface->getCanvas()->clear(SK_ColorTRANSPARENT);
-        surface->getCanvas()->drawRect({0, 0, 48, 48}, paint);
-
-        // Ideally, we'd just draw the offscreen surface back to the canvas. But if `canvas` isn't
-        // color managed, we won't convert it BACK, so we'll still see a color-spin happen.
-        // Instead, convert the image back to sRGB, and the resulting image will look correct for
-        // all modes (assuming the paint color was handled correctly above):
-        auto image = surface->makeImageSnapshot();
-#if defined(SK_GRAPHITE)
-        if (auto recorder = canvas->recorder()) {
-            image = image->makeColorSpace(recorder, SkColorSpace::MakeSRGB(), {});
-        } else
-#endif
-        {
-            auto direct = GrAsDirectContext(canvas->recordingContext());
-            image = image->makeColorSpace(direct, SkColorSpace::MakeSRGB());
-        }
-
-        canvas->drawImage(image, 0, 0);
         canvas->translate(50, 0);
     }
 }

@@ -162,7 +162,9 @@ public:
                 if (child && child->sampleUsage().isPassThrough()) {
                     coords.clear();
                 }
-                return std::string(fSelf->invokeChild(index, fInputColor, fArgs, coords).c_str());
+                return child ? std::string(fSelf->invokeChild(index, fInputColor, fArgs, coords)
+                                                   .c_str())
+                             : std::string("half4(0)");
             }
 
             std::string sampleColorFilter(int index, std::string color) override {
