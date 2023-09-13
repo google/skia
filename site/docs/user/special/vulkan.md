@@ -22,6 +22,31 @@ Android
 The Vulkan backend can run on any device with Vulkan drivers, including all Android N+ devices.
 To build the Vulkan backend, set `ndk_api = 24` in `args.gn` to target Android N.
 
+Mac
+---
+The Vulkan backend can be run in software emulation using SwiftShader. This will allow for
+testing and debugging via `dm`. (Vulkan is not supported in interactive apps like `viewer`.)
+
+Skia already includes the SwiftShader library as an external dependency. To build it, you
+will first need to install [CMake](https://cmake.org/download/). Set up CMake for command
+line use by opening the app and following the instructions in _Tools > How to Install For
+Command Line Use_. Once CMake has been prepared, SwiftShader needs to be compiled. Follow
+these steps, substituting your actual Skia directory instead of `$(SKIA_DIR)` below:
+
+<!--?prettify lang=bash-->
+    $ cd $(SKIA_DIR)/third_party/externals/swiftshader/build
+    $ cmake ..
+    $ cmake --build . --parallel
+
+Once its build completes, SwiftShader's `build` directory should include a `Darwin`
+subdirectory containing `libvk_swiftshader.dylib`. To allow Skia to see this library,
+we need to reference it in `args.gn` like so:
+
+```
+skia_use_vulkan = true
+extra_cflags = [ "-D", "SK_GPU_TOOLS_VK_LIBRARY_NAME=$(SKIA_DIR)/third_party/externals/swiftshader/build/Darwin/libvk_swiftshader.dylib" ]
+```
+
 Using the Vulkan Backend
 ------------------------
 
