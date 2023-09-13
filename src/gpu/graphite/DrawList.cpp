@@ -41,8 +41,8 @@ void DrawList::recordDraw(const Renderer* renderer,
     fRenderStepCount += renderer->numRenderSteps();
 
 #if defined(SK_DEBUG)
-    if (geometry.isAtlasShape()) {
-        fAtlasShapeDrawCount++;
+    if (geometry.isCoverageMaskShape()) {
+        fCoverageMaskShapeDrawCount++;
     }
 #endif
 

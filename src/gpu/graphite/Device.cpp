@@ -991,7 +991,7 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // If an atlas path renderer was chosen we need to insert the shape into the atlas and schedule
     // it to be drawn.
-    AtlasShape::MaskInfo atlasMaskInfo;  // only used if `pathAtlas != nullptr`
+    CoverageMaskShape::MaskInfo atlasMaskInfo;  // only used if `pathAtlas != nullptr`
 
     // It is possible for the transformed shape bounds to be fully clipped out while the draw still
     // produces coverage due to an inverse fill. In this case, don't render any mask;
@@ -1082,12 +1082,14 @@ void Device::drawGeometry(const Transform& localToDevice,
         order.dependsOnStencil(setIndex);
     }
 
-    // If the atlas path renderer was chosen, then schedule the shape to be rendered into the atlas
-    // and record a single AtlashShape draw.
+    // If an atlas path renderer was chosen, then record a single CoverageMaskShape draw.
+    // The shape will be scheduled to be rendered or uploaded into the atlas during the
+    // next invocation of flushPendingWorkToRecorder().
     if (pathAtlas != nullptr) {
-        // Record the draw as a fill since stroking is handled by the atlas render.
+        // Record the draw as a fill since stroking is handled by the atlas render/upload.
         Geometry atlasShape(
-                AtlasShape(geometry.shape(), pathAtlas, localToDevice.inverse(), atlasMaskInfo));
+                CoverageMaskShape(geometry.shape(), pathAtlas->texture(), localToDevice.inverse(),
+                                  atlasMaskInfo));
         fDC->recordDraw(
                 renderer, Transform::Identity(), atlasShape, clip, order, &shading, nullptr);
     } else {

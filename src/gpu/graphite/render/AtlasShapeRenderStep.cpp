@@ -10,7 +10,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/PathAtlas.h"
-#include "src/gpu/graphite/geom/AtlasShape.h"
+#include "src/gpu/graphite/geom/CoverageMaskShape.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 namespace skgpu::graphite {
@@ -81,7 +81,7 @@ float AtlasShapeRenderStep::boundsOutset(const Transform& localToDevice, const R
 void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
                                          const DrawParams& params,
                                          int ssboIndex) const {
-    const AtlasShape& atlasShape = params.geometry().atlasShape();
+    const CoverageMaskShape& atlasShape = params.geometry().coverageMaskShape();
 
     // A quad is a 4-vertex instance. The coordinates are derived from the vertex IDs.
     DrawWriter::Instances instances(*dw, {}, {}, 4);
@@ -102,7 +102,7 @@ void AtlasShapeRenderStep::writeVertices(DrawWriter* dw,
         // contain 0).
         maskSize     = atlasShape.maskSize();
         deviceOrigin = atlasShape.deviceOrigin();
-        uvOrigin     = atlasShape.atlasOrigin();
+        uvOrigin     = atlasShape.textureOrigin();
     }
 
     const SkM44& m = atlasShape.deviceToLocal();
@@ -118,8 +118,8 @@ void AtlasShapeRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                     PipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
-    const AtlasShape& atlasShape = params.geometry().atlasShape();
-    const TextureProxy* proxy = atlasShape.atlas()->texture();
+    const CoverageMaskShape& atlasShape = params.geometry().coverageMaskShape();
+    const TextureProxy* proxy = atlasShape.textureProxy();
     SkASSERT(proxy);
 
     // write uniforms

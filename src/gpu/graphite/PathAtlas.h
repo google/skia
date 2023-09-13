@@ -10,7 +10,7 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/RectanizerSkyline.h"
-#include "src/gpu/graphite/geom/AtlasShape.h"
+#include "src/gpu/graphite/geom/CoverageMaskShape.h"
 
 #ifdef SK_ENABLE_VELLO_SHADERS
 #include "src/gpu/graphite/compute/VelloRenderer.h"
@@ -73,7 +73,7 @@ public:
                   const Shape& shape,
                   const Transform& localToDevice,
                   const SkStrokeRec& style,
-                  AtlasShape::MaskInfo* outMaskInfo);
+                  CoverageMaskShape::MaskInfo* outMaskInfo);
 
     // Clear all scheduled atlas draws and free up atlas allocations. After this call the atlas can
     // be considered cleared and available for new shape insertions. However this method does not

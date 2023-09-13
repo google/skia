@@ -285,7 +285,8 @@ void DrawContext::snapPathAtlasDispatches(Recorder* recorder) {
     }
     auto dispatchGroup = fComputePathAtlas->recordDispatches(recorder);
     if (dispatchGroup) {
-        SkASSERT(fPendingDraws->hasAtlasDraws());
+        // For now this check is valid as all coverage mask draws involve dispatches
+        SkASSERT(fPendingDraws->hasCoverageMaskDraws());
         fDispatchGroups.push_back(std::move(dispatchGroup));
     }
     fComputePathAtlas->reset();

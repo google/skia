@@ -44,7 +44,7 @@ bool PathAtlas::addShape(Recorder* recorder,
                          const Shape& shape,
                          const Transform& localToDevice,
                          const SkStrokeRec& style,
-                         AtlasShape::MaskInfo* out) {
+                         CoverageMaskShape::MaskInfo* out) {
     SkASSERT(out);
     SkASSERT(!transformedShapeBounds.isEmptyNegativeOrNaN());
 
@@ -72,7 +72,7 @@ bool PathAtlas::addShape(Recorder* recorder,
     }
 
     out->fDeviceOrigin = skvx::int2((int)maskBounds.x(), (int)maskBounds.y());
-    out->fAtlasOrigin = skvx::half2(pos.x(), pos.y());
+    out->fTextureOrigin = skvx::half2(pos.x(), pos.y());
     out->fMaskSize = skvx::half2((uint16_t)maskSize.x(), (uint16_t)maskSize.y());
 
     this->onAddShape(shape,
