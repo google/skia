@@ -1034,14 +1034,18 @@ sk_sp<GrRenderTask> SurfaceContext::copyScaled(sk_sp<GrSurfaceProxy> src,
         // axis where we are copying up to the logical dimension, but that dimension is less than
         // the actual backing store dimension, the linear filter will access one texel beyond the
         // logical size, potentially incorporating undefined values.
+        // NOTE: Identity scales that sample along the logical boundary of an approxi-fit texture
+        // can still technically access a row or column of undefined data (albeit with a weight that
+        // *should* be zero). We also disallow copying with linear filtering in that scenario,
+        // just in case.
         const bool upscalingXAtApproxEdge =
-            dstRect.width() > srcRect.width() &&
+            dstRect.width() >= srcRect.width() &&
             srcRect.fRight == src->width() &&
-            src->width() < src->backingStoreDimensions().width();
+            srcRect.fRight < src->backingStoreDimensions().width();
         const bool upscalingYAtApproxEdge =
-            dstRect.height() > srcRect.height() &&
-            srcRect.height() == src->height() &&
-            srcRect.height() < src->backingStoreDimensions().height();
+            dstRect.height() >= srcRect.height() &&
+            srcRect.fBottom == src->height() &&
+            srcRect.fBottom < src->backingStoreDimensions().height();
         if (upscalingXAtApproxEdge || upscalingYAtApproxEdge) {
             return nullptr;
         }
