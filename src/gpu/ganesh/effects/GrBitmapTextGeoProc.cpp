@@ -12,6 +12,7 @@
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/effects/GrAtlasedShaderHelpers.h"
+#include "src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
@@ -42,6 +43,7 @@ public:
         }
 
         SetTransform(pdman, shaderCaps, fLocalMatrixUniform, btgp.fLocalMatrix, &fLocalMatrix);
+        fColorSpaceXformHelper.setData(pdman, btgp.fColorSpaceXform.get());
     }
 
 private:
@@ -51,6 +53,9 @@ private:
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+
+        fColorSpaceXformHelper.emitCode(uniformHandler,
+                                        btgp.fColorSpaceXform.get());
 
         // emit attributes
         varyingHandler->emitAttributes(btgp);
@@ -90,7 +95,7 @@ private:
 
         fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, btgp.numTextureSamplers(),
-                                   texIdx, uv.fsIn(), "texColor");
+                                   texIdx, uv.fsIn(), "texColor", &fColorSpaceXformHelper);
 
         if (btgp.fMaskFormat == MaskFormat::kARGB) {
             // modulate by color
@@ -109,6 +114,8 @@ private:
     UniformHandle fColorUniform;
     UniformHandle fAtlasDimensionsInvUniform;
     UniformHandle fLocalMatrixUniform;
+
+    GrGLSLColorSpaceXformHelper fColorSpaceXformHelper;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,6 +123,7 @@ private:
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
                                          const SkPMColor4f& color,
                                          bool wideColor,
+                                         sk_sp<GrColorSpaceXform> colorSpaceXform,
                                          const GrSurfaceProxyView* views,
                                          int numActiveViews,
                                          GrSamplerState params,
@@ -124,6 +132,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
                                          bool usesW)
         : INHERITED(kGrBitmapTextGeoProc_ClassID)
         , fColor(color)
+        , fColorSpaceXform(std::move(colorSpaceXform))
         , fLocalMatrix(localMatrix)
         , fUsesW(usesW)
         , fMaskFormat(format) {
@@ -187,6 +196,7 @@ void GrBitmapTextGeoProc::addToKey(const GrShaderCaps& caps, skgpu::KeyBuilder* 
                ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
                "localMatrixType");
     b->add32(this->numTextureSamplers(), "numTextures");
+    b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()), "colorSpaceXform");
 }
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrBitmapTextGeoProc::makeProgramImpl(
@@ -229,7 +239,7 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
     bool usesW = d->fRandom->nextBool();
     return GrBitmapTextGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(),
                                      SkPMColor4f::FromBytes_RGBA(color),
-                                     wideColor,
+                                     wideColor, /*colorSpaceXform=*/nullptr,
                                      &view, 1, samplerState, format,
                                      localMatrix, usesW);
 }

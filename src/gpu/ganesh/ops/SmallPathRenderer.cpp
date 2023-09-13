@@ -193,8 +193,8 @@ private:
         } else {
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                     target->allocator(), *target->caps().shaderCaps(), this->color(), fWideColor,
-                    views, numActiveProxies, GrSamplerState::Filter::kNearest,
-                    MaskFormat::kA8, invert, false);
+                    /*colorSpaceXform=*/nullptr, views, numActiveProxies,
+                    GrSamplerState::Filter::kNearest, MaskFormat::kA8, invert, false);
         }
 
         // allocate vertices

@@ -1461,6 +1461,7 @@ std::tuple<const GrClip*, GrOp::Owner> DirectMaskSubRun::makeAtlasTextOp(
                                              this->glyphCount(),
                                              subRunDeviceBounds,
                                              geometry,
+                                             sdc->colorInfo(),
                                              std::move(grPaint));
     return {clip, std::move(op)};
 }
@@ -1803,6 +1804,7 @@ public:
                                                  this->glyphCount(),
                                                  this->deviceRect(positionMatrix),
                                                  geometry,
+                                                 sdc->colorInfo(),
                                                  std::move(grPaint));
         return {clip, std::move(op)};
     }
