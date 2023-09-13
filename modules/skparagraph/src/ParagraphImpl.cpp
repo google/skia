@@ -1141,7 +1141,7 @@ TextIndex ParagraphImpl::findPreviousGlyphClusterBoundary(TextIndex utf8) const 
 
 void ParagraphImpl::ensureUTF16Mapping() {
     fillUTF16MappingOnce([&] {
-        fUnicode->extractUtfConversionMapping(
+        SkUnicode::extractUtfConversionMapping(
                 this->text(),
                 [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
                 [&](size_t index) { fUTF16IndexForUTF8Index.emplace_back(index); });

@@ -1,9 +1,11 @@
-                                           /*
-* Copyright 2023 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+/*
+ * Copyright 2023 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "include/private/base/SkDebug.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include <algorithm>
 #include <array>
@@ -106,5 +108,3 @@ bool SkUnicodeHardCodedCharProperties::isIdeographic(SkUnichar unichar) {
     }
     return false;
 }
-
-

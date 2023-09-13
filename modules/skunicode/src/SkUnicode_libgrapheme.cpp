@@ -49,6 +49,14 @@ public:
         return SkUnicode_IcuBidi::ExtractBidi(utf8, utf8Units, dir, results);
     }
 
+    bool getSentences(const char utf8[],
+                      int utf8Units,
+                      const char* locale,
+                      std::vector<SkUnicode::Position>* results) override {
+        SkDEBUGF("Method 'getSentences' is not implented\n");
+        return false;
+    }
+
     bool computeCodeUnitFlags(char utf8[],
                               int utf8Units,
                               bool replaceTabs,
@@ -146,6 +154,64 @@ public:
             results->emplace_back(mapping[wordBreak]);
         }
         return true;
+    }
+
+    bool getUtf8Words(const char utf8[],
+                      int utf8Units,
+                      const char* locale,
+                      std::vector<Position>* results) override {
+        // Let's consider sort line breaks, whitespaces and CJK codepoints instead
+        std::vector<CodeUnitFlags> breaks(utf8Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
+
+        size_t lineBreak = 0;
+        breaks[lineBreak] = CodeUnitFlags::kSoftLineBreakBefore;
+        while (lineBreak < utf8Units) {
+            lineBreak += grapheme_next_line_break_utf8(utf8 + lineBreak, utf8Units - lineBreak);
+            breaks[lineBreak] = CodeUnitFlags::kSoftLineBreakBefore;
+        }
+        breaks[lineBreak] = CodeUnitFlags::kSoftLineBreakBefore;
+
+        const char* current = utf8;
+        const char* end = utf8 + utf8Units;
+        while (current < end) {
+            auto index = current - utf8;
+            SkUnichar unichar = SkUTF::NextUTF8(&current, end);
+            if (this->isWhitespace(unichar)) {
+                breaks[index] = CodeUnitFlags::kPartOfWhiteSpaceBreak;
+            } else if (this->isIdeographic(unichar)) {
+                breaks[index] = CodeUnitFlags::kIdeographic;
+            }
+        }
+
+        bool whitespaces = false;
+        for (size_t i = 0; i < breaks.size(); ++i) {
+            auto b = breaks[i];
+            if (b == CodeUnitFlags::kSoftLineBreakBefore) {
+                results->emplace_back(i);
+                whitespaces = false;
+            } else if (b == CodeUnitFlags::kIdeographic) {
+                results->emplace_back(i);
+                whitespaces = false;
+            } else if (b == CodeUnitFlags::kPartOfWhiteSpaceBreak) {
+                if (!whitespaces) {
+                    results->emplace_back(i);
+                }
+                whitespaces = true;
+            } else {
+                whitespaces = false;
+            }
+        }
+
+        return true;
+
+        /*
+        size_t wordBreak = 0;
+        while (wordBreak < utf8Units) {
+            wordBreak += grapheme_next_word_break_utf8(utf8 + wordBreak, utf8Units - wordBreak);
+            results->emplace_back(wordBreak);
+        }
+        return true;
+        */
     }
 
     SkString toUpper(const SkString& str) override {
