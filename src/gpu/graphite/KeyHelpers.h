@@ -382,16 +382,6 @@ void AddDstBlendBlock(const KeyContext&,
                       const SkBlender*);
 
 /**
- * Primitive blend blocks are used to blend either the paint color or the output of another shader
- * with a primitive color emitted by certain draw geometry calls (drawVertices, drawAtlas, etc.).
- * Dst: primitiveColor Src: Paint color/shader output
- */
-void AddPrimitiveBlendBlock(const KeyContext&,
-                            PaintParamsKeyBuilder*,
-                            PipelineDataGatherer*,
-                            const SkBlender*);
-
-/**
  * Color filter blend blocks are used to blend a color uniform with the output of a shader.
  */
 void AddColorBlendBlock(const KeyContext&,

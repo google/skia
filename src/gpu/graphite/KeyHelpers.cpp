@@ -940,24 +940,6 @@ void AddDstBlendBlock(const KeyContext& keyContext,
     builder->endBlock();  // BlendShaderBlock
 }
 
-void AddPrimitiveBlendBlock(const KeyContext& keyContext,
-                            PaintParamsKeyBuilder* builder,
-                            PipelineDataGatherer* gatherer,
-                            const SkBlender* blender) {
-    BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
-
-    // src -- prior output
-    PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
-    builder->endBlock();
-    // dst -- primitive color
-    PrimitiveColorBlock::BeginBlock(keyContext, builder, gatherer);
-    builder->endBlock();
-    // blender -- shader based blending
-    AddToKey(keyContext, builder, gatherer, blender);
-
-    builder->endBlock();  // BlendShaderBlock
-}
-
 void AddColorBlendBlock(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer,

@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "src/gpu/graphite/Caps.h"
+#include <functional>  // std::function
 
 class SkColorInfo;
 class SkShader;
@@ -72,8 +73,15 @@ public:
 
     void toKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
 
+    using AddToKeyFn = std::function<void()>;
+    static void Blend(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*,
+                      const SkBlender* blender, AddToKeyFn addSrcToKey, AddToKeyFn addDstToKey);
+
 private:
     void addPaintColorToKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
+    void handlePrimitiveColor(const KeyContext&,
+                              PaintParamsKeyBuilder*,
+                              PipelineDataGatherer*) const;
 
     SkColor4f            fColor;
     sk_sp<SkBlender>     fFinalBlender; // A nullptr here means SrcOver blending
