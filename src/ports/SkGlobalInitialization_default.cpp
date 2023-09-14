@@ -32,7 +32,6 @@
     #include "src/core/SkRecordedDrawable.h"
     #include "src/effects/SkDashImpl.h"
     #include "src/effects/SkEmbossMaskFilter.h"
-    #include "src/effects/SkOpPE.h"
     #include "src/effects/SkTrimPE.h"
     #include "src/shaders/SkBitmapProcShader.h"
     #include "src/shaders/SkColorFilterShader.h"
@@ -95,11 +94,7 @@
         SkDiscretePathEffect::RegisterFlattenables();
         SkLine2DPathEffect::RegisterFlattenables();
         SkPath2DPathEffect::RegisterFlattenables();
-        SK_REGISTER_FLATTENABLE(SkMatrixPE);
-        SK_REGISTER_FLATTENABLE(SkOpPE);
         SkPath1DPathEffect::RegisterFlattenables();
-        SK_REGISTER_FLATTENABLE(SkStrokePE);
-        SK_REGISTER_FLATTENABLE(SkStrokeAndFillPE);
         SK_REGISTER_FLATTENABLE(SkTrimPE);
         SkPathEffectBase::RegisterFlattenables();
 

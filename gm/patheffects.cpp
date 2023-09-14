@@ -22,7 +22,6 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
-#include "include/effects/SkOpPathEffect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/pathops/SkPathOps.h"
 
@@ -173,116 +172,6 @@ private:
 DEF_GM( return new PathEffectGM; )
 
 }  // namespace skiagm
-
-//////////////////////////////////////////////////////////////////////////////
-
-class ComboPathEfectsGM : public skiagm::GM {
-public:
-    ComboPathEfectsGM() {}
-
-protected:
-    SkString getName() const override { return SkString("combo-patheffects"); }
-
-    SkISize getISize() override { return SkISize::Make(360, 630); }
-
-    void onDraw(SkCanvas* canvas) override {
-        SkPath path0 = SkPath::Circle(100, 100, 60),
-               path1 = SkPathBuilder().moveTo(20, 20)
-                                      .cubicTo(20, 180, 140, 0, 140, 140)
-                                      .detach();
-
-        sk_sp<SkPathEffect> effects[] = {
-            nullptr,
-            SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap, 0),
-            SkMergePathEffect::Make(nullptr,
-                                    SkStrokePathEffect::Make(20, SkPaint::kRound_Join,
-                                                             SkPaint::kRound_Cap, 0),
-                                    kDifference_SkPathOp),
-            SkMergePathEffect::Make(SkMatrixPathEffect::MakeTranslate(50, 30),
-                                    SkStrokePathEffect::Make(20, SkPaint::kRound_Join,
-                                                             SkPaint::kRound_Cap, 0),
-                                    kReverseDifference_SkPathOp),
-        };
-
-        SkPaint wireframe;
-        wireframe.setStyle(SkPaint::kStroke_Style);
-        wireframe.setAntiAlias(true);
-
-        SkPaint paint;
-        paint.setColor(0xFF8888FF);
-        paint.setAntiAlias(true);
-
-        for (const SkPath& path : { path0, path1 }) {
-            canvas->save();
-            for (const sk_sp<SkPathEffect>& pe : effects) {
-                paint.setPathEffect(pe);
-                canvas->drawPath(path, paint);
-                canvas->drawPath(path, wireframe);
-
-                canvas->translate(0, 150);
-            }
-            canvas->restore();
-            canvas->translate(180, 0);
-        }
-    }
-
-private:
-    using INHERITED = GM;
-};
-DEF_GM(return new ComboPathEfectsGM;)
-
-#include "include/effects/SkStrokeAndFillPathEffect.h"
-
-// Test that we can replicate SkPaint::kStrokeAndFill_Style
-// with a patheffect. We expect the 2nd and 3rd columns to draw the same.
-DEF_SIMPLE_GM(stroke_and_fill_patheffect, canvas, 900, 450) {
-    const float kStrokeWidth = 20;
-
-    typedef SkPath (*Maker)();
-    const Maker makers[] = {
-        []() { return SkPath::Oval({0, 0, 100, 100}, SkPathDirection::kCW); },
-        []() { return SkPath::Oval({0, 0, 100, 100}, SkPathDirection::kCCW); },
-        []() {
-            const SkPoint pts[] = {
-                {0, 0}, {100, 100}, {0, 100}, {100, 0},
-            };
-            return SkPath::Polygon(pts, std::size(pts), true);
-        },
-    };
-
-    const struct {
-        SkPaint::Style  fStyle;
-        float           fWidth;
-        bool            fUsePE;
-        bool            fExpectStrokeAndFill;
-    } rec[] = {
-        { SkPaint::kStroke_Style,                   0, false, false },
-        { SkPaint::kFill_Style,                     0,  true, false },
-        { SkPaint::kStroke_Style,                   0,  true, false },
-        { SkPaint::kStrokeAndFill_Style, kStrokeWidth, false, true  },
-        { SkPaint::kStroke_Style,        kStrokeWidth,  true, true  },
-        { SkPaint::kStrokeAndFill_Style, kStrokeWidth,  true, true  },
-    };
-
-    SkPaint paint;
-    canvas->translate(20, 20);
-    for (auto maker : makers) {
-        const SkPath path = maker();
-        canvas->save();
-        for (const auto& r : rec) {
-            paint.setStyle(r.fStyle);
-            paint.setStrokeWidth(r.fWidth);
-            paint.setPathEffect(r.fUsePE ? SkStrokeAndFillPathEffect::Make() : nullptr);
-            paint.setColor(r.fExpectStrokeAndFill ? SK_ColorGRAY : SK_ColorBLACK);
-
-            canvas->drawPath(path, paint);
-            canvas->translate(150, 0);
-        }
-        canvas->restore();
-
-        canvas->translate(0, 150);
-    }
-}
 
 //////////////////////////////////////////////////////////////////////////////
 

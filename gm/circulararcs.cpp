@@ -20,15 +20,7 @@
 
 #include <functional>
 
-#include "include/effects/SkStrokeAndFillPathEffect.h"
-
 using namespace skia_private;
-
-static void set_strokeandfill(SkPaint* paint) {
-    SkASSERT(paint->getPathEffect() == nullptr);
-    paint->setPathEffect(SkStrokeAndFillPathEffect::Make());
-    paint->setStroke(true);
-}
 
 constexpr SkScalar kStarts[] = {0.f, 10.f, 30.f, 45.f, 90.f, 165.f, 180.f, 270.f};
 constexpr SkScalar kSweeps[] = {1.f, 45.f, 90.f, 130.f, 180.f, 184.f, 300.f, 355.f};
@@ -118,30 +110,6 @@ DEF_ARC_GM(stroke_square) {
 DEF_ARC_GM(stroke_round) {
     auto setStroke = [] (SkPaint* p) {
         p->setStroke(true);
-        p->setStrokeCap(SkPaint::kRound_Cap);
-    };
-    draw_arcs(canvas, setStroke);
-}
-
-DEF_ARC_GM(stroke_and_fill_butt) {
-    auto setStroke = [] (SkPaint* p) {
-        set_strokeandfill(p);
-        p->setStrokeCap(SkPaint::kButt_Cap);
-    };
-    draw_arcs(canvas, setStroke);
-}
-
-DEF_ARC_GM(stroke_and_fill_square) {
-    auto setStroke = [] (SkPaint* p) {
-        set_strokeandfill(p);
-        p->setStrokeCap(SkPaint::kSquare_Cap);
-    };
-    draw_arcs(canvas, setStroke);
-}
-
-DEF_ARC_GM(stroke_and_fill_round) {
-    auto setStroke = [] (SkPaint* p) {
-        set_strokeandfill(p);
         p->setStrokeCap(SkPaint::kRound_Cap);
     };
     draw_arcs(canvas, setStroke);
