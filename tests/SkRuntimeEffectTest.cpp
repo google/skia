@@ -849,6 +849,25 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectObeysCapabilities_GPU,
     test_RuntimeEffectObeysCapabilities(r, surface.get());
 }
 
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeColorFilterReturningInvalidAlpha_GPU,
+                                       r,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface =
+            SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
+    REPORTER_ASSERT(r, surface);
+
+    auto effect = SkRuntimeEffect::MakeForColorFilter(SkString(R"(
+        half4 main(half4 color) { return half4(2); }
+    )")).effect;
+    REPORTER_ASSERT(r, effect);
+    SkPaint paint;
+    paint.setColorFilter(effect->makeColorFilter(/*uniforms=*/nullptr));
+    REPORTER_ASSERT(r, paint.getColorFilter());
+    surface->getCanvas()->drawPaint(paint);
+}
+
 DEF_TEST(SkRuntimeColorFilterLimitedToES2, r) {
     // Verify that SkSL requesting #version 300 can't be used to create a color-filter effect.
     // This restriction could be removed if we can find a way to implement filterColor for these
