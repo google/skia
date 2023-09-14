@@ -152,7 +152,9 @@ void DrawContext::snapDrawPass(Recorder* recorder) {
                                this->imageInfo(),
                                std::make_pair(fPendingLoadOp, fPendingStoreOp),
                                fPendingClearColor);
-    fDrawPasses.push_back(std::move(pass));
+    if (pass) {
+        fDrawPasses.push_back(std::move(pass));
+    }
     fPendingDraws = std::make_unique<DrawList>();
     fPendingLoadOp = LoadOp::kLoad;
     fPendingStoreOp = StoreOp::kStore;

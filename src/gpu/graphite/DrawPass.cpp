@@ -409,12 +409,14 @@ sk_sp<TextureProxy> add_copy_target_task(Recorder* recorder,
                                                   target->textureInfo(),
                                                   skgpu::Budgeted::kYes);
     if (!copy) {
+        SKGPU_LOG_W("Failed to create destination copy texture for dst read.");
         return nullptr;
     }
 
     sk_sp<CopyTextureToTextureTask> copyTask = CopyTextureToTextureTask::Make(
             std::move(target), dstSrcRect, copy, /*dstOffset=*/{0, 0});
     if (!copyTask) {
+        SKGPU_LOG_W("Failed to create destination copy task for dst read.");
         return nullptr;
     }
 
@@ -496,7 +498,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         dstOffset = dstCopyPixelBounds.topLeft();
         dst = add_copy_target_task(
                 recorder, target, targetInfo.makeDimensions(dstCopyPixelBounds.size()), dstOffset);
-        SkASSERT(dst);
+        if (!dst) {
+            SKGPU_LOG_W("Failed to copy destination for reading. Dropping draw pass!");
+            return nullptr;
+        }
     }
 
     std::vector<SortKey> keys;
