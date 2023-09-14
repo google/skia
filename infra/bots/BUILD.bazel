@@ -30,7 +30,6 @@ genrule(
         "//infra/bots/task_drivers/perf_puppeteer_render_skps",
         "//infra/bots/task_drivers/perf_puppeteer_skottie_frames",
         "//infra/bots/task_drivers/push_apps_from_skia_image",
-        "//infra/bots/task_drivers/push_bazel_apps_from_wasm_image",
         "//infra/bots/task_drivers/recreate_skps",
         "//infra/bots/task_drivers/run_gn_to_bp",
         "//infra/bots/task_drivers/run_wasm_gm_tests",
