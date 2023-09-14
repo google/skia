@@ -84,7 +84,6 @@ DECODE_JPEG_FILES = [
     "SkEncodedInfo.cpp",
     "SkJpegCodec.cpp",
     "SkJpegCodec.h",
-    "SkJpegConstants.h",
     "SkJpegDecoderMgr.cpp",
     "SkJpegDecoderMgr.h",
     "SkJpegSourceMgr.cpp",
@@ -98,6 +97,14 @@ DECODE_JPEG_FILES = [
 split_srcs_and_hdrs(
     name = "decode_jpeg",
     files = DECODE_JPEG_FILES,
+)
+
+filegroup(
+    name = "shared_jpeg_hdrs",  # needed for both encoding and decoding
+    srcs = [
+        "SkJpegConstants.h",
+    ],
+    visibility = ["//src/encode:__pkg__"],
 )
 
 filegroup(
@@ -245,7 +252,10 @@ skia_filegroup(
         {
             ":avif_decode_codec": [":decode_avif_hdrs"],
             ":gif_decode_codec": [":decode_gif_hdrs"],
-            ":needs_jpeg": [":decode_jpeg_hdrs"],
+            ":needs_jpeg": [
+                ":decode_jpeg_hdrs",
+                ":shared_jpeg_hdrs",
+            ],
             ":jxl_decode_codec": [":decode_jxl_hdrs"],
             ":png_decode_codec": [":decode_png_hdrs"],
             ":raw_decode_codec": [":decode_raw_hdrs"],

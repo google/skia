@@ -85,12 +85,15 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "SkICCPriv.h",
         "SkImageEncoderFns.h",
         "SkImageEncoderPriv.h",
-        "SkICCPriv.h",
     ] + select_multi({
         ":png_encode_codec": [":png_encode_hdrs"],
-        ":jpeg_encode_codec": [":jpeg_encode_hdrs"],
+        ":jpeg_encode_codec": [
+            ":jpeg_encode_hdrs",
+            "//src/codec:shared_jpeg_hdrs",
+        ],
     }),
     visibility = ["//src:__pkg__"],
 )
