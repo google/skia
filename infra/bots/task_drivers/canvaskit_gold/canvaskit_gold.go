@@ -107,6 +107,12 @@ func main() {
 	if err := uploadDataToGold(ctx, *bazelFlags.Label, skiaDir, conf); err != nil {
 		td.Fatal(ctx, err)
 	}
+
+	if !*local {
+		if err := common.BazelCleanIfLowDiskSpace(ctx, *bazelFlags.CacheDir, skiaDir, "bazelisk"); err != nil {
+			td.Fatal(ctx, err)
+		}
+	}
 }
 
 func bazelTest(ctx context.Context, checkoutDir, label, config string, args ...string) error {

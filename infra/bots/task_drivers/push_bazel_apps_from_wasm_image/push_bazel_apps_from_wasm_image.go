@@ -41,6 +41,7 @@ var (
 	workdir       = flag.String("workdir", ".", "Working directory")
 	skiaRevision  = flag.String("skia_revision", "", "Specifies which revision of Skia should be used to find the docker image containing the WASM products.")
 	infraRevision = flag.String("infra_revision", "origin/main", "Specifies which revision of the infra repo the images should be built off")
+
 	// Optional flags.
 	local  = flag.Bool("local", false, "True if running locally (as opposed to on the bots)")
 	output = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
@@ -134,6 +135,12 @@ func main() {
 	cleanupCmd := []string{"/bin/sh", "-c", "rm -rf /OUT/*"}
 	if err := dkr.Run(ctx, releaseImg, cleanupCmd, volumes, nil); err != nil {
 		td.Fatal(ctx, err)
+	}
+
+	if !*local {
+		if err := common.BazelCleanIfLowDiskSpace(ctx, *bazelFlags.CacheDir, checkoutDir, "bazelisk"); err != nil {
+			td.Fatal(ctx, err)
+		}
 	}
 }
 

@@ -59,13 +59,15 @@ func TestRun_Success(t *testing.T) {
 			commandCollector := exec.CommandCollector{}
 			res := td.RunTestSteps(t, false, func(ctx context.Context) error {
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
+				var bazelCacheDirPath string
+				ctx, bazelCacheDirPath = common.WithEnoughSpaceOnBazelCachePartitionTestOnlyContext(ctx)
 
 				// We don't need to assert the exact number of times that os_steps.TempDir() is called
 				// because said function produces a "Creating TempDir" task driver step, and we check the
 				// exact set of steps produced.
 				ctx = context.WithValue(ctx, os_steps.TempDirContextKey, testutils.MakeTempDirMockFn(t, outputsZIPExtractionDir, goldctlWorkDir))
 
-				err := run(ctx, tdArgs)
+				err := run(ctx, bazelCacheDirPath, tdArgs)
 
 				assert.NoError(t, err)
 				return err
@@ -93,6 +95,8 @@ func TestRun_Success(t *testing.T) {
 				"/path/to/goldctl imgtest add --work-dir "+goldctlWorkDir+" --test-name alfa --png-file "+outputsZIPExtractionDir+"/alfa.png --png-digest a01a01a01a01a01a01a01a01a01a01a0 --add-test-key build_system:bazel --add-test-key name:alfa --add-test-key source_type:gm",
 				"/path/to/goldctl imgtest add --work-dir "+goldctlWorkDir+" --test-name beta --png-file "+outputsZIPExtractionDir+"/beta.png --png-digest b02b02b02b02b02b02b02b02b02b02b0 --add-test-key build_system:bazel --add-test-key name:beta --add-test-key source_type:gm",
 				"/path/to/goldctl imgtest finalize --work-dir "+goldctlWorkDir,
+				"Clean Bazel cache if disk space is too low",
+				"No need to clear the Bazel cache: free space on partition /mnt/pd0 is 20000000000 bytes, which is above the threshold of 15000000000 bytes",
 			)
 
 			// Command "bazelisk test ..." should be called from the checkout directory.

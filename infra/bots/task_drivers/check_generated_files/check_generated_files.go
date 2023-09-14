@@ -122,6 +122,12 @@ func main() {
 	if err := checkGitDiff(ctx, absGit, skiaPath); err != nil {
 		td.Fatal(ctx, err)
 	}
+
+	if !*local {
+		if err := common.BazelCleanIfLowDiskSpace(ctx, *bazelFlags.CacheDir, skiaPath, "bazelisk"); err != nil {
+			td.Fatal(ctx, err)
+		}
+	}
 }
 
 // bazelRun runs the given Bazel label from the Skia path with any given args using Bazelisk.

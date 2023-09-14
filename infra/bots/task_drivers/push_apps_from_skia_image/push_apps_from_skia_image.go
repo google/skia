@@ -244,4 +244,10 @@ func main() {
 	if err := buildPushFiddlerImage(ctx, dkr, tag, infraCheckoutDir, topic); err != nil {
 		td.Fatal(ctx, err)
 	}
+
+	if !*local {
+		if err := common.BazelCleanIfLowDiskSpace(ctx, *bazelFlags.CacheDir, skiaCheckoutDir, "bazelisk"); err != nil {
+			td.Fatal(ctx, err)
+		}
+	}
 }

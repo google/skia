@@ -76,6 +76,12 @@ func main() {
 			td.Fatal(ctx, err)
 		}
 	}
+
+	if !*local {
+		if err := common.BazelCleanIfLowDiskSpace(ctx, *bazelFlags.CacheDir, skiaDir, "bazelisk"); err != nil {
+			td.Fatal(ctx, err)
+		}
+	}
 }
 
 // bazelBuild builds the target referenced by the given absolute label passing the provided

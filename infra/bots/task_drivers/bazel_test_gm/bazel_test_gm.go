@@ -71,7 +71,7 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	if err := run(ctx, taskDriverArgs{
+	if err := run(ctx, *bazelFlags.CacheDir, taskDriverArgs{
 		UploadToGoldArgs: common.UploadToGoldArgs{
 			BazelLabel:    *bazelFlags.Label,
 			GoldctlPath:   filepath.Join(wd, *goldctlPath),
@@ -97,7 +97,7 @@ type taskDriverArgs struct {
 }
 
 // run is the entrypoint of this task driver.
-func run(ctx context.Context, tdArgs taskDriverArgs) error {
+func run(ctx context.Context, bazelCacheDir string, tdArgs taskDriverArgs) error {
 	outputsZipPath, err := common.ValidateLabelAndReturnOutputsZipPath(tdArgs.checkoutDir, tdArgs.BazelLabel)
 	if err != nil {
 		return skerr.Wrap(err)
@@ -109,6 +109,12 @@ func run(ctx context.Context, tdArgs taskDriverArgs) error {
 
 	if err := common.UploadToGold(ctx, tdArgs.UploadToGoldArgs, outputsZipPath); err != nil {
 		return skerr.Wrap(err)
+	}
+
+	if !*local {
+		if err := common.BazelCleanIfLowDiskSpace(ctx, bazelCacheDir, tdArgs.checkoutDir, "bazelisk"); err != nil {
+			return skerr.Wrap(err)
+		}
 	}
 
 	return nil
