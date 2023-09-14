@@ -8,17 +8,18 @@
 To archive webpages and store SKP files (archives should be rarely updated):
 
 cd skia
-python tools/skp/webpages_playback.py --data_store=gs://rmistry --record \
---page_sets=all --skia_tools=/home/default/trunk/out/Debug/ \
+python tools/skp/webpages_playback.py --data_store=gs://your-bucket-name \
+--record --page_sets=all --skia_tools=/home/default/trunk/out/Debug/ \
 --browser_executable=/tmp/chromium/out/Release/chrome
 
-The above command uses Google Storage bucket 'rmistry' to download needed files.
+The above command uses Google Storage bucket 'your-bucket-name' to download
+needed files.
 
 To replay archived webpages and re-generate SKP files (should be run whenever
 SkPicture.PICTURE_VERSION changes):
 
 cd skia
-python tools/skp/webpages_playback.py --data_store=gs://rmistry \
+python tools/skp/webpages_playback.py --data_store=gs://your-bucket-name \
 --page_sets=all --skia_tools=/home/default/trunk/out/Debug/ \
 --browser_executable=/tmp/chromium/out/Release/chrome
 
