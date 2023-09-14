@@ -261,7 +261,9 @@ public:
                 auto& cSlot = fColorSlots.at(i);
                 ImGui::PushID(i);
                 ImGui::Text("%s", cSlot.first.c_str());
-                ImGui::ColorEdit4("Color", cSlot.second.data());
+                if (ImGui::ColorEdit4("Color", cSlot.second.data())) {
+                    this->pushSlots();
+                }
                 ImGui::PopID();
             }
             ImGui::Text("Scalar Slots");
@@ -269,7 +271,9 @@ public:
                 auto& oSlot = fScalarSlots.at(i);
                 ImGui::PushID(i);
                 ImGui::Text("%s", oSlot.first.c_str());
-                ImGui::InputFloat("Scalar", &(oSlot.second));
+                if (ImGui::InputFloat("Scalar", &(oSlot.second))) {
+                    this->pushSlots();
+                }
                 ImGui::PopID();
             }
             ImGui::Text("Vec2 Slots");
@@ -277,7 +281,9 @@ public:
                 auto& vSlot = fVec2Slots.at(i);
                 ImGui::PushID(i);
                 ImGui::Text("%s", vSlot.first.c_str());
-                ImGui::InputFloat2("x, y", &(vSlot.second.x));
+                if (ImGui::InputFloat2("x, y", &(vSlot.second.x))) {
+                    this->pushSlots();
+                }
                 ImGui::PopID();
             }
             ImGui::Text("Text Slots");
@@ -285,11 +291,15 @@ public:
                 auto& tSlot = fTextStringSlots.at(i);
                 ImGui::PushID(i);
                 ImGui::Text("%s", tSlot.first.c_str());
-                ImGui::InputText("Text", tSlot.second.source.data(), tSlot.second.source.size());
+                if (ImGui::InputText("Text", tSlot.second.source.data(),
+                                             tSlot.second.source.size())) {
+                    this->pushSlots();
+                }
                 if (ImGui::BeginCombo("Font", tSlot.second.font.data())) {
                     for (const auto& typeface : fTypefaceList) {
                         if (ImGui::Selectable(typeface, false)) {
                             tSlot.second.font = typeface;
+                            this->pushSlots();
                         }
                     }
                     ImGui::EndCombo();
@@ -306,16 +316,13 @@ public:
                     for (const auto& res : fResList) {
                         if (ImGui::Selectable(res.c_str(), false)) {
                             iSlot.second = res.c_str();
+                            this->pushSlots();
                         }
                     }
                     ImGui::EndCombo();
                 }
                 ImGui::PopID();
             }
-            if (ImGui::Button("Apply Slots")) {
-                this->pushSlots();
-            }
-
         }
         ImGui::End();
     }
