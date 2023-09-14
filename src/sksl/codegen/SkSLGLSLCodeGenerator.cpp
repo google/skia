@@ -126,7 +126,7 @@ void GLSLCodeGenerator::writeIdentifier(std::string_view identifier) {
 
 // Returns the name of the type with array dimensions, e.g. `float[2]`.
 std::string GLSLCodeGenerator::getTypeName(const Type& raw) {
-    const Type& type = raw.resolve();
+    const Type& type = raw.resolve().scalarTypeForLiteral();
     switch (type.typeKind()) {
         case Type::TypeKind::kVector: {
             const Type& component = type.componentType();

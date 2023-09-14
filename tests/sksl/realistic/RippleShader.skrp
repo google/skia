@@ -1,4 +1,4 @@
-498 instructions, 1 invocations
+496 instructions, 1 invocations
 
 [immutable slots]
 i0 = 0x40490FDB (3.14159274)
@@ -500,7 +500,7 @@ copy_uniform                   sparkleColor(3) = in_sparkleColor(3)
 copy_3_slots_unmasked          sparkleColor(0..2) = $0..2
 copy_uniform                   $12 = in_hasMask
 cmpeq_imm_float                $12 = equal($12, 0x3F800000 (1.0))
-branch_if_no_active_lanes_eq   branch +12 (label 15 at #504) if no lanes of $12 == 0xFFFFFFFF
+branch_if_no_active_lanes_eq   branch +10 (label 15 at #502) if no lanes of $12 == 0xFFFFFFFF
 copy_constant                  $0 = 0
 copy_2_slots_unmasked          $1..2 = p
 exchange_src                   swap(src.rgba, $1..4)
@@ -508,10 +508,8 @@ invoke_shader                  invoke_shader 0
 exchange_src                   swap(src.rgba, $1..4)
 swizzle_1                      $1 = ($1..4).w
 cmplt_float                    $0 = lessThan($0, $1)
-copy_constant                  $1 = 0
-copy_constant                  $2 = 0x3F800000 (1.0)
-mix_int                        $0 = mix($1, $2, $0)
-jump                           jump +3 (label 16 at #506)
+bitwise_and_imm_int            $0 &= 0x3F800000
+jump                           jump +3 (label 16 at #504)
 label                          label 0x0000000F
 copy_constant                  $0 = 0x3F800000 (1.0)
 label                          label 0x00000010

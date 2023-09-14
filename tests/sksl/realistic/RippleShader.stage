@@ -80,6 +80,6 @@ float4 main(float2 p)
 	float waveAlpha = (softCircle_0(_coords, center, in_maxRadius * scaleIn, 1.0) * fade) * in_color.w;
 	float4 waveColor = float4(in_color.xyz * waveAlpha, waveAlpha);
 	float4 sparkleColor = float4(in_sparkleColor.xyz * in_sparkleColor.w, in_sparkleColor.w);
-	float mask = float(in_hasMask == 1.0 ? (child_0.eval(_coords).w > 0.0 ? 1.0 : 0.0) : 1.0);
+	float mask = float(in_hasMask == 1.0 ? float(child_0.eval(_coords).w > 0.0) : 1.0);
 	return half4(mix(waveColor, sparkleColor, sparkleAlpha) * mask);
 }

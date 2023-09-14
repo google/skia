@@ -31,13 +31,13 @@
                OpDecorate %7 DescriptorSet 0
                OpDecorate %32 RelaxedPrecision
                OpDecorate %35 RelaxedPrecision
-               OpDecorate %38 RelaxedPrecision
+               OpDecorate %37 RelaxedPrecision
                OpDecorate %52 RelaxedPrecision
-               OpDecorate %65 RelaxedPrecision
-               OpDecorate %68 RelaxedPrecision
-               OpDecorate %72 RelaxedPrecision
-               OpDecorate %77 RelaxedPrecision
-               OpDecorate %80 RelaxedPrecision
+               OpDecorate %64 RelaxedPrecision
+               OpDecorate %67 RelaxedPrecision
+               OpDecorate %71 RelaxedPrecision
+               OpDecorate %76 RelaxedPrecision
+               OpDecorate %78 RelaxedPrecision
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -62,6 +62,8 @@
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
       %int_0 = OpConstant %int 0
       %int_1 = OpConstant %int 1
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
 %_ptr_Output_float = OpTypePointer Output %float
 %_ptr_Uniform_v2uint = OpTypePointer Uniform %v2uint
       %int_2 = OpConstant %int 2
@@ -85,18 +87,16 @@
          %35 = OpLoad %v4float %33
          %28 = OpFOrdEqual %v4bool %32 %35
          %36 = OpCompositeExtract %bool %28 0
-         %37 = OpSelect %int %36 %int_1 %int_0
-         %38 = OpConvertSToF %float %37
-         %39 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-               OpStore %39 %38
-         %42 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_2
-         %45 = OpLoad %v2uint %42
-         %46 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_3
-         %48 = OpLoad %v2uint %46
-         %41 = OpIEqual %v2bool %45 %48
-         %50 = OpCompositeExtract %bool %41 1
-         %51 = OpSelect %int %50 %int_1 %int_0
-         %52 = OpConvertSToF %float %51
+         %37 = OpSelect %float %36 %float_1 %float_0
+         %40 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+               OpStore %40 %37
+         %43 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_2
+         %46 = OpLoad %v2uint %43
+         %47 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_3
+         %49 = OpLoad %v2uint %47
+         %42 = OpIEqual %v2bool %46 %49
+         %51 = OpCompositeExtract %bool %42 1
+         %52 = OpSelect %float %51 %float_1 %float_0
          %53 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_1
                OpStore %53 %52
          %55 = OpAccessChain %_ptr_Uniform_v3int %7 %int_4
@@ -105,31 +105,29 @@
          %61 = OpLoad %v3int %59
          %54 = OpIEqual %v3bool %58 %61
          %63 = OpCompositeExtract %bool %54 2
-         %64 = OpSelect %int %63 %int_1 %int_0
-         %65 = OpConvertSToF %float %64
-         %66 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_2
-               OpStore %66 %65
-         %68 = OpLoad %v4bool %expectTTFF
-         %67 = OpAny %bool %68
-               OpSelectionMerge %70 None
-               OpBranchConditional %67 %70 %69
+         %64 = OpSelect %float %63 %float_1 %float_0
+         %65 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_2
+               OpStore %65 %64
+         %67 = OpLoad %v4bool %expectTTFF
+         %66 = OpAny %bool %67
+               OpSelectionMerge %69 None
+               OpBranchConditional %66 %69 %68
+         %68 = OpLabel
+         %71 = OpLoad %v4bool %expectFFTT
+         %70 = OpAny %bool %71
+               OpBranch %69
          %69 = OpLabel
-         %72 = OpLoad %v4bool %expectFFTT
-         %71 = OpAny %bool %72
-               OpBranch %70
-         %70 = OpLabel
-         %73 = OpPhi %bool %true %16 %71 %69
-               OpSelectionMerge %75 None
-               OpBranchConditional %73 %75 %74
+         %72 = OpPhi %bool %true %16 %70 %68
+               OpSelectionMerge %74 None
+               OpBranchConditional %72 %74 %73
+         %73 = OpLabel
+         %76 = OpLoad %v4bool %expectTTTT
+         %75 = OpAny %bool %76
+               OpBranch %74
          %74 = OpLabel
-         %77 = OpLoad %v4bool %expectTTTT
-         %76 = OpAny %bool %77
-               OpBranch %75
-         %75 = OpLabel
-         %78 = OpPhi %bool %true %70 %76 %74
-         %79 = OpSelect %int %78 %int_1 %int_0
-         %80 = OpConvertSToF %float %79
-         %81 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_3
-               OpStore %81 %80
+         %77 = OpPhi %bool %true %69 %75 %73
+         %78 = OpSelect %float %77 %float_1 %float_0
+         %79 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_3
+               OpStore %79 %78
                OpReturn
                OpFunctionEnd

@@ -491,7 +491,7 @@ void PipelineStageCodeGenerator::writeProgramElementSecondPass(const ProgramElem
 }
 
 std::string PipelineStageCodeGenerator::typeName(const Type& raw) {
-    const Type& type = raw.resolve();
+    const Type& type = raw.resolve().scalarTypeForLiteral();
     if (type.isArray()) {
         // This is necessary so that name mangling on arrays-of-structs works properly.
         std::string arrayName = this->typeName(type.componentType());

@@ -18,9 +18,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     int check = 0;
     check += int(_uniforms.colorGreen.y == 1.0h ? 0 : 1);
-    check += int(_uniforms.colorGreen.x == 1.0h ? 1 : 0);
+    check += int(_uniforms.colorGreen.x == 1.0h);
     check += int(all(_uniforms.colorGreen.yx == _uniforms.colorRed.xy) ? 0 : 1);
-    check += int(any(_uniforms.colorGreen.yx != _uniforms.colorRed.xy) ? 1 : 0);
+    check += int(any(_uniforms.colorGreen.yx != _uniforms.colorRed.xy));
     _out.sk_FragColor = check == 0 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

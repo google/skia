@@ -16,13 +16,13 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     var expectTTFF: vec4<bool> = vec4<bool>(true, true, false, false);
     var expectFFTT: vec4<bool> = vec4<bool>(false, false, true, true);
     var expectTTTT: vec4<bool> = vec4<bool>(true);
-    (*_stageOut).sk_FragColor.x = f32(select(0, 1, (_globalUniforms.a == _globalUniforms.b).x));
-    (*_stageOut).sk_FragColor.y = f32(select(0, 1, (_globalUniforms.c == _globalUniforms.d).y));
-    (*_stageOut).sk_FragColor.z = f32(select(0, 1, (_globalUniforms.e == _globalUniforms.f).z));
+    (*_stageOut).sk_FragColor.x = f32((_globalUniforms.a == _globalUniforms.b).x);
+    (*_stageOut).sk_FragColor.y = f32((_globalUniforms.c == _globalUniforms.d).y);
+    (*_stageOut).sk_FragColor.z = f32((_globalUniforms.e == _globalUniforms.f).z);
     let _skTemp0 = any(expectTTFF);
     let _skTemp1 = any(expectFFTT);
     let _skTemp2 = any(expectTTTT);
-    (*_stageOut).sk_FragColor.w = f32(select(0, 1, (_skTemp0 || _skTemp1) || _skTemp2));
+    (*_stageOut).sk_FragColor.w = f32((_skTemp0 || _skTemp1) || _skTemp2);
   }
 }
 @fragment fn main() -> FSOut {

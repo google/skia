@@ -15,6 +15,7 @@
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 
@@ -65,7 +66,7 @@ std::unique_ptr<Expression> TernaryExpression::Convert(const Context& context,
         return nullptr;
     }
     return TernaryExpression::Make(context, pos, std::move(test), std::move(ifTrue),
-            std::move(ifFalse));
+                                   std::move(ifFalse));
 }
 
 std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
@@ -122,6 +123,12 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
             ifFalseExpr->isBoolLiteral() && ifFalseExpr->as<Literal>().boolValue()) {
             return PrefixExpression::Make(context, pos, Operator::Kind::LOGICALNOT,
                                           std::move(test));
+        }
+
+        // A ternary of the form `test ? 1 : 0` can be simplified to `cast(test)`.
+        if (ifTrueExpr->is<Literal>() && ifTrueExpr->as<Literal>().value() == 1.0 &&
+            ifFalseExpr->is<Literal>() && ifFalseExpr->as<Literal>().value() == 0.0) {
+            return ConstructorScalarCast::Make(context, pos, ifTrue->type(), std::move(test));
         }
     }
 

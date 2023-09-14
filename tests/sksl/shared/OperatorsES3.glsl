@@ -26,7 +26,7 @@ vec4 main() {
     z %= 5;
     x = float((colorGreen.xy, 6));
     y = ((((float(b) * float(c)) * float(d)) * float(e)) * float(f), 6.0);
-    z = int((colorRed.zw, 6));
+    z = (colorRed.zw, 6);
     ivec2 w = ivec2(~5);
     w = ~w;
     return (((w.x == 5 && w.y == 5) && x == 6.0) && y == 6.0) && z == 6 ? colorGreen : colorRed;

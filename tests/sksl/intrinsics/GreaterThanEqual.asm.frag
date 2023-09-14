@@ -30,12 +30,12 @@
                OpDecorate %7 DescriptorSet 0
                OpDecorate %30 RelaxedPrecision
                OpDecorate %33 RelaxedPrecision
-               OpDecorate %36 RelaxedPrecision
+               OpDecorate %35 RelaxedPrecision
                OpDecorate %50 RelaxedPrecision
-               OpDecorate %63 RelaxedPrecision
-               OpDecorate %66 RelaxedPrecision
-               OpDecorate %70 RelaxedPrecision
-               OpDecorate %73 RelaxedPrecision
+               OpDecorate %62 RelaxedPrecision
+               OpDecorate %65 RelaxedPrecision
+               OpDecorate %69 RelaxedPrecision
+               OpDecorate %71 RelaxedPrecision
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -59,6 +59,8 @@
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
       %int_0 = OpConstant %int 0
       %int_1 = OpConstant %int 1
+    %float_1 = OpConstant %float 1
+    %float_0 = OpConstant %float 0
 %_ptr_Output_float = OpTypePointer Output %float
 %_ptr_Uniform_v2uint = OpTypePointer Uniform %v2uint
       %int_2 = OpConstant %int 2
@@ -80,18 +82,16 @@
          %33 = OpLoad %v4float %31
          %26 = OpFOrdGreaterThanEqual %v4bool %30 %33
          %34 = OpCompositeExtract %bool %26 0
-         %35 = OpSelect %int %34 %int_1 %int_0
-         %36 = OpConvertSToF %float %35
-         %37 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-               OpStore %37 %36
-         %40 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_2
-         %43 = OpLoad %v2uint %40
-         %44 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_3
-         %46 = OpLoad %v2uint %44
-         %39 = OpUGreaterThanEqual %v2bool %43 %46
-         %48 = OpCompositeExtract %bool %39 1
-         %49 = OpSelect %int %48 %int_1 %int_0
-         %50 = OpConvertSToF %float %49
+         %35 = OpSelect %float %34 %float_1 %float_0
+         %38 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+               OpStore %38 %35
+         %41 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_2
+         %44 = OpLoad %v2uint %41
+         %45 = OpAccessChain %_ptr_Uniform_v2uint %7 %int_3
+         %47 = OpLoad %v2uint %45
+         %40 = OpUGreaterThanEqual %v2bool %44 %47
+         %49 = OpCompositeExtract %bool %40 1
+         %50 = OpSelect %float %49 %float_1 %float_0
          %51 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_1
                OpStore %51 %50
          %53 = OpAccessChain %_ptr_Uniform_v3int %7 %int_4
@@ -100,23 +100,21 @@
          %59 = OpLoad %v3int %57
          %52 = OpSGreaterThanEqual %v3bool %56 %59
          %61 = OpCompositeExtract %bool %52 2
-         %62 = OpSelect %int %61 %int_1 %int_0
-         %63 = OpConvertSToF %float %62
-         %64 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_2
-               OpStore %64 %63
-         %66 = OpLoad %v4bool %expectTTFF
-         %65 = OpAny %bool %66
-               OpSelectionMerge %68 None
-               OpBranchConditional %65 %68 %67
+         %62 = OpSelect %float %61 %float_1 %float_0
+         %63 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_2
+               OpStore %63 %62
+         %65 = OpLoad %v4bool %expectTTFF
+         %64 = OpAny %bool %65
+               OpSelectionMerge %67 None
+               OpBranchConditional %64 %67 %66
+         %66 = OpLabel
+         %69 = OpLoad %v4bool %expectFFTT
+         %68 = OpAny %bool %69
+               OpBranch %67
          %67 = OpLabel
-         %70 = OpLoad %v4bool %expectFFTT
-         %69 = OpAny %bool %70
-               OpBranch %68
-         %68 = OpLabel
-         %71 = OpPhi %bool %true %16 %69 %67
-         %72 = OpSelect %int %71 %int_1 %int_0
-         %73 = OpConvertSToF %float %72
-         %74 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_3
-               OpStore %74 %73
+         %70 = OpPhi %bool %true %16 %68 %66
+         %71 = OpSelect %float %70 %float_1 %float_0
+         %72 = OpAccessChain %_ptr_Output_float %sk_FragColor %int_3
+               OpStore %72 %71
                OpReturn
                OpFunctionEnd

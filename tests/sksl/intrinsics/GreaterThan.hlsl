@@ -20,19 +20,19 @@ void frag_main()
 {
     bool4 expectFFTT = bool4(false, false, true, true);
     bool4 expectTTFF = bool4(true, true, false, false);
-    sk_FragColor.x = float(int(bool4(_7_a.x > _7_b.x, _7_a.y > _7_b.y, _7_a.z > _7_b.z, _7_a.w > _7_b.w).x));
-    sk_FragColor.y = float(int(bool2(_7_c.x > _7_d.x, _7_c.y > _7_d.y).y));
-    sk_FragColor.z = float(int(bool3(_7_e.x > _7_f.x, _7_e.y > _7_f.y, _7_e.z > _7_f.z).z));
-    bool _71 = false;
+    sk_FragColor.x = float(bool4(_7_a.x > _7_b.x, _7_a.y > _7_b.y, _7_a.z > _7_b.z, _7_a.w > _7_b.w).x);
+    sk_FragColor.y = float(bool2(_7_c.x > _7_d.x, _7_c.y > _7_d.y).y);
+    sk_FragColor.z = float(bool3(_7_e.x > _7_f.x, _7_e.y > _7_f.y, _7_e.z > _7_f.z).z);
+    bool _70 = false;
     if (any(expectTTFF))
     {
-        _71 = true;
+        _70 = true;
     }
     else
     {
-        _71 = any(expectFFTT);
+        _70 = any(expectFFTT);
     }
-    sk_FragColor.w = float(int(_71));
+    sk_FragColor.w = float(_70);
 }
 
 SPIRV_Cross_Output main()

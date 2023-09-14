@@ -133,8 +133,9 @@ void MetalCodeGenerator::writeExtension(const Extension& ext) {
     this->writeLine("#extension " + std::string(ext.name()) + " : enable");
 }
 
-std::string MetalCodeGenerator::typeName(const Type& type) {
+std::string MetalCodeGenerator::typeName(const Type& raw) {
     // we need to know the modifiers for textures
+    const Type& type = raw.resolve().scalarTypeForLiteral();
     switch (type.typeKind()) {
         case Type::TypeKind::kArray:
             SkASSERT(!type.isUnsizedArray());
@@ -164,10 +165,12 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
                 default:                              break;
             }
             SkUNREACHABLE;
+
         case Type::TypeKind::kAtomic:
             // SkSL currently only supports the atomicUint type.
             SkASSERT(type.matches(*fContext.fTypes.fAtomicUInt));
             return "atomic_uint";
+
         default:
             return std::string(type.name());
     }
