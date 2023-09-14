@@ -571,6 +571,7 @@ sksl_shared_tests = [
   "shared/EmptyBlocksES3.sksl",
   "shared/ForLoopControlFlow.sksl",
   "shared/ForLoopMultipleInit.sksl",
+  "shared/ForLoopShadowing.sksl",
   "shared/FragCoords.sksl",
   "shared/FragCoordsNoRTFlip.sksl",
   "shared/FunctionAnonymousParameters.sksl",

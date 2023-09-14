@@ -1,0 +1,16 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2) {
+    int counter = 0;
+
+    const int increment = 1;
+    for (int i = 0; i < 10; i += increment) {
+        const int increment = 10;
+        if (i == 0) {
+            continue;  // `i += increment` should increment by 1
+        }
+        counter += increment;  // `counter += increment` should increment by 10
+    }
+
+    return (counter == 90) ? colorGreen : colorRed;
+}
