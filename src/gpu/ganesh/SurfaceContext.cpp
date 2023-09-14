@@ -1035,14 +1035,31 @@ sk_sp<GrRenderTask> SurfaceContext::copyScaled(sk_sp<GrSurfaceProxy> src,
         // axis where we are copying up to the logical dimension, but that dimension is less than
         // the actual backing store dimension, the linear filter will access one texel beyond the
         // logical size, potentially incorporating undefined values.
+        // NOTE: Identity scales that sample along the logical boundary of an approxi-fit texture
+        // can still technically access a row or column of undefined data (albeit with a weight that
+        // *should* be zero). We also disallow copying with linear filtering in that scenario,
+        // just in case.
+#if defined(SK_USE_SAFE_INSET_FOR_TEXTURE_SAMPLING)
+        const bool upscalingXAtApproxEdge =
+            dstRect.width() >= srcRect.width() &&
+            srcRect.fRight == src->width() &&
+            srcRect.fRight < src->backingStoreDimensions().width();
+        const bool upscalingYAtApproxEdge =
+            dstRect.height() >= srcRect.height() &&
+            srcRect.fBottom == src->height() &&
+            srcRect.fBottom < src->backingStoreDimensions().height();
+#else
+        // In this mode we allow non-scaling copies through even if the linear filtering would
+        // access the adjacent undefined row or column.
         const bool upscalingXAtApproxEdge =
             dstRect.width() > srcRect.width() &&
             srcRect.fRight == src->width() &&
-            src->width() < src->backingStoreDimensions().width();
+            srcRect.fRight < src->backingStoreDimensions().width();
         const bool upscalingYAtApproxEdge =
             dstRect.height() > srcRect.height() &&
-            srcRect.height() == src->height() &&
-            srcRect.height() < src->backingStoreDimensions().height();
+            srcRect.fBottom == src->height() &&
+            srcRect.fBottom < src->backingStoreDimensions().height();
+#endif
         if (upscalingXAtApproxEdge || upscalingYAtApproxEdge) {
             return nullptr;
         }

@@ -33,6 +33,24 @@ class GrTextureEffect : public GrFragmentProcessor {
 public:
     inline static constexpr float kDefaultBorder[4] = {0};
 
+    // An extra inset amount to apply to subset clamp boundaries to ensure clamped coordinates will
+    // access texel (i-1) to i instead of i to (i+1), even if the weights should mean the clamped
+    // color is still equal to texel i's value.
+#if defined(SK_USE_SAFE_INSET_FOR_TEXTURE_SAMPLING)
+    inline static constexpr float kInsetEpsilon = 0.0001f;
+#else
+    // A value of 0 means that coordinates for linear filtering will be clamped to exactly 1/2px
+    // inset from the defined data boundary (for approx-fit textures that don't fill to the HW
+    // boundaries). For bottom/right edges this can then access the row or column outside of the
+    // defined data. The filtering weight should be 0, which should be safe for non-floating-point
+    // color types, and not have any impact on the clamped sample. In practice, devices with lower
+    // precision texture coordinates may not actually evaluate with a weight of 0, and it is
+    // caught by Swiftshader+MSAN.
+    inline static constexpr float kInsetEpsilon = 0.f;
+#endif
+
+    inline static constexpr float kLinearInset = 0.5f + kInsetEpsilon;
+
     /** Make from a filter. The sampler will be configured with clamp mode. */
     static std::unique_ptr<GrFragmentProcessor> Make(
             GrSurfaceProxyView,
