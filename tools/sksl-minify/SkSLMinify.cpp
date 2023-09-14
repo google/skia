@@ -18,6 +18,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/transform/SkSLTransform.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/SkGetExecutablePath.h"
@@ -224,7 +225,10 @@ static ResultCode process_command(SkSpan<std::string> args) {
     bool isShader = find_boolean_flag(&args, "--shader");
     bool isColorFilter = find_boolean_flag(&args, "--colorfilter");
     bool isBlender = find_boolean_flag(&args, "--blender");
-    if (has_overlapping_flags({isFrag, isVert, isCompute, isShader, isColorFilter, isBlender})) {
+    bool isMeshFrag = find_boolean_flag(&args, "--meshfrag");
+    bool isMeshVert = find_boolean_flag(&args, "--meshvert");
+    if (has_overlapping_flags({isFrag, isVert, isCompute, isShader, isColorFilter,
+                               isBlender, isMeshFrag, isMeshVert})) {
         show_usage();
         return ResultCode::kInputError;
     }
@@ -238,6 +242,10 @@ static ResultCode process_command(SkSpan<std::string> args) {
         gProgramKind = SkSL::ProgramKind::kRuntimeColorFilter;
     } else if (isBlender) {
         gProgramKind = SkSL::ProgramKind::kRuntimeBlender;
+    } else if (isMeshFrag) {
+        gProgramKind = SkSL::ProgramKind::kMeshFragment;
+    } else if (isMeshVert) {
+        gProgramKind = SkSL::ProgramKind::kMeshVertex;
     } else {
         // Default case, if no option is specified.
         gProgramKind = SkSL::ProgramKind::kRuntimeShader;
@@ -274,6 +282,14 @@ static ResultCode process_command(SkSpan<std::string> args) {
     // Generate the program text by getting the program's description.
     std::string text;
     for (const std::unique_ptr<SkSL::ProgramElement>& element : module->fElements) {
+        if ((isMeshFrag || isMeshVert) && element->is<SkSL::StructDefinition>()) {
+            std::string_view name = element->as<SkSL::StructDefinition>().type().name();
+            if (name == "Attributes" || name == "Varyings") {
+                // Don't emit the Attributes or Varyings structs from a mesh program into the
+                // minified output; those are synthesized via the SkMeshSpecification.
+                continue;
+            }
+        }
         text += element->description();
     }
 

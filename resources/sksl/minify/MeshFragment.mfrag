@@ -1,0 +1,12 @@
+struct Varyings {
+    float2 position;
+    float2 coords;
+};
+
+uniform half3x3 m;
+layout(color) uniform half4 color;
+
+float2 main(const Varyings varyings, out half4 c) {
+    c = color;
+    return (m*float3(varyings.coords, 1)).xy;
+}

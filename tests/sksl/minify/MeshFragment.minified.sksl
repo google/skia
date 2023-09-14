@@ -1,0 +1,1 @@
+uniform half3x3 m;layout(color)uniform half4 color;float2 main(const Varyings a,out half4 b){b=color;return(float3x3(m)*float3(a.coords,1.)).xy;}

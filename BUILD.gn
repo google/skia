@@ -699,7 +699,8 @@ if (skia_compile_modules) {
         dir = get_path_info(dst, "dir")
         name = get_path_info(dst, "name")
         ext = get_path_info(dst, "extension")
-        if (ext == "rts" || ext == "rtcf" || ext == "rtb") {
+        if (ext == "rts" || ext == "rtcf" || ext == "rtb" || ext == "mfrag" ||
+            ext == "mvert") {
           response_file_contents += [ rebase_path(src) ]
           sources += [ src ]
           outputs += [ target_out_dir + "/" +

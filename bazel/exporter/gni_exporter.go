@@ -103,7 +103,8 @@ sksl_skrp_tests_sources = sksl_folding_tests + sksl_rte_tests + sksl_shared_test
 
 sksl_stage_tests_sources = sksl_rte_tests
 
-sksl_minify_tests_sources = sksl_rte_tests + sksl_folding_tests`
+sksl_minify_tests_sources =
+    sksl_folding_tests + sksl_minify_tests + sksl_rte_tests`
 
 // The footer written to modules/skshaper/skshaper.gni.
 const skshaperFooter = `

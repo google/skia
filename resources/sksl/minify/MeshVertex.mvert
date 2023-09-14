@@ -1,0 +1,18 @@
+struct Attributes {
+    float2 pos;
+    float2 coords;
+};
+struct Varyings {
+    float2 position;
+    float2 coords;
+
+};
+uniform float t[2];
+uniform half3x3 m;
+
+Varyings main(in const Attributes attributes) {
+    Varyings varyings;
+    varyings.coords   = (m*float3(attributes.coords + float2(t[0], t[1]), 1)).xy;
+    varyings.position = attributes.pos;
+    return varyings;
+}

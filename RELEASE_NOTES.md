@@ -15,14 +15,14 @@ Milestone 118
     Raster:   `SkImages::MakeWithFilter(...);`                              -- declared in SkImage.h
 
     The new factories require the associated backend context object be valid. For example, the Graphite version will return nullptr if it isn't supplied with a `Recorder` object.
-  * - SkSL and Runtime Effects are no longer optional features of Skia; they are always available.
-      The GN flag `skia_enable_sksl` has been removed.
-  * - SkSL will now properly reject sequence-expressions containing arrays, or sequence-expressions
-      containing structures of arrays. Previously, the left-side expression of a sequence was checked,
-      but the right-side was not. In GLSL ES 1.0, and therefore in SkSL, the only operator which is
-      allowed to operate on arrays is the array subscript operator (`[]`).
-  * - The Dawn backend for Ganesh has been removed. Dawn will continue to be supported in the
-      Graphite backend.
+  * SkSL and Runtime Effects are no longer optional features of Skia; they are always available.
+    The GN flag `skia_enable_sksl` has been removed.
+  * SkSL will now properly reject sequence-expressions containing arrays, or sequence-expressions
+    containing structures of arrays. Previously, the left-side expression of a sequence was checked,
+    but the right-side was not. In GLSL ES 1.0, and therefore in SkSL, the only operator which is
+    allowed to operate on arrays is the array subscript operator (`[]`).
+  * The Dawn backend for Ganesh has been removed. Dawn will continue to be supported in the
+    Graphite backend.
   * We plan to remove SkTime.h from the public API. As of now, SkAutoTime has been
     deleted as it was unused.
   * Vulkan-specific calls are being removed from GrBackendSurface.h. Clients should use the

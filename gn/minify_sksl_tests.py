@@ -25,7 +25,8 @@ with open(input_file, 'r') as reader:
 
 inputs = []
 for file in all_inputs:
-    if file.endswith(".rts") or file.endswith(".rtcf") or file.endswith(".rtb"):
+    if (file.endswith(".rts") or file.endswith(".rtcf") or file.endswith(".rtb") or
+        file.endswith(".mfrag") or file.endswith(".mvert")):
         inputs.append(file)
 
 def executeWorklist(input, worklist):
@@ -65,6 +66,10 @@ for input in inputs:
         worklist.write("--colorfilter\n")
     elif ext == '.rtb':
         worklist.write("--blender\n")
+    elif ext == '.mfrag':
+        worklist.write("--meshfrag\n")
+    elif ext == '.mvert':
+        worklist.write("--meshvert\n")
     worklist.write(target + ".minified.sksl\n")
     worklist.write(input + "\n")
     worklist.write(public_module + "\n")

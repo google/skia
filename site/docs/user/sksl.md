@@ -259,9 +259,9 @@ incorrectly, becoming too bright and shifting hue as the alpha changes.
 
 ## Minified SkSL
 
-Skia includes a minifier tool which can automatically reduce the size of your Runtime Effect code.
-The tool eliminates whitespace and comments, shortens function and variable names, and
-deletes unreferenced code.
+Skia includes a minifier tool which can automatically reduce the size of your Runtime Effect
+or SkMesh code. The tool eliminates whitespace and comments, shortens function and variable names,
+and deletes unreferenced code.
 
 As an example, here is the previous demo in its minified form. The shader code is reduced to
 approximately half of its original size, while displaying the exact same result.
@@ -273,6 +273,10 @@ line, type `gn args out/yourbuild` to access the arguments, or edit the file `ou
 directly.) Use `ninja` to compile Skia once more, and you will now have a new utility called
 `sksl-minify` in the output directory.
 
+When minifying a mesh program, you must supply `struct Varyings` and `struct Attributes` which
+correspond to the SkMeshSpecification. These structs will be eliminated from the minified program
+for convenience.
+
 `sksl-minify` takes the following command line arguments:
 
 - An output path, e.g. `MyShader.minified.sksl`
@@ -280,5 +284,5 @@ directly.) Use `ninja` to compile Skia once more, and you will now have a new ut
 - (Optional) Pass `--stringify` to wrap the minified SkSL text in a quoted C++ string.
   By default, the output file will contain plain SkSL. The minified shader string in the example
   code above was created with --stringify.
-- (Optional) Pass `--shader`, `--colorfilter` or `--blender` to set the Runtime Effect program kind.
-  The default value is `--shader`.
+- (Optional) Pass `--shader`, `--colorfilter`, `--blender`, `--meshfrag` or `--meshvert` to set
+  the program kind. The default value is `--shader`.
