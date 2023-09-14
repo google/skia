@@ -30,6 +30,7 @@ This requires gsutil, part of the [gcloud sdk](https://cloud.google.com/sdk/down
 
 <!--?prettify lang=sh?-->
 
+    gcloud auth application-default login
     CLANGDIR="${HOME}/clang"
     ./bin/sk asset download clang_linux $CLANGDIR
 
