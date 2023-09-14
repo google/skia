@@ -155,7 +155,6 @@ private:
                   const VkPhysicalDeviceProperties&,
                   VkFormat);
 
-
         bool isTexturable(VkImageTiling) const;
         bool isRenderable(VkImageTiling, uint32_t sampleCount) const;
         bool isStorage(VkImageTiling) const;
@@ -167,7 +166,7 @@ private:
         SupportedSampleCounts fSupportedSampleCounts;
 
         // Indicates that a format is only supported if we are wrapping a texture with it.
-        SkDEBUGCODE(bool fIsWrappedOnly;)
+        SkDEBUGCODE(bool fIsWrappedOnly = false;)
 
     private:
         bool isTexturable(VkFormatFeatureFlags) const;
