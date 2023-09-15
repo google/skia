@@ -52,7 +52,7 @@ public:
     bool setImageSlot(SlotID, sk_sp<skresources::ImageAsset>);
     bool setScalarSlot(SlotID, float);
     bool setVec2Slot(SlotID, SkV2);
-    bool setTextSlot(SlotID, TextPropertyValue&);
+    bool setTextSlot(SlotID, const TextPropertyValue&);
 
     std::optional<SkColor>               getColorSlot(SlotID) const;
     sk_sp<const skresources::ImageAsset> getImageSlot(SlotID) const;

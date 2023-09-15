@@ -68,6 +68,36 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soun
   return anim;
 };
 
+CanvasKit.SlottableTextProperty = function(t) {
+  // Use [''] to tell closure not to minify the names
+  t['text'] = t['text'] || "";
+  t['textSize'] = t['textSize'] || 0;
+  t['minTextSize'] = t['minTextSize'] || 0;
+  t['maxTextSize'] = t['maxTextSize'] || Number.MAX_VALUE;
+  t['strokeWidth'] = t['strokeWidth'] || 0;
+  t['lineHeight'] = t['lineHeight'] || 0;
+  t['lineShift'] = t['lineShift'] || 0;
+  t['ascent'] = t['ascent'] || 0;
+  t['maxLines'] = t['maxLines'] || 0;
+  t['horizAlign'] = t['horizAlign'] || CanvasKit.TextAlign.Left;
+  t['vertAlign'] = t['vertAlign'] || CanvasKit.VerticalTextAlign.Top;
+  t['strokeJoin'] = t['strokeJoin'] || CanvasKit.StrokeJoin.Miter;
+  t['direction'] = t['direction'] || CanvasKit.TextDirection.LTR;
+  t['linebreak'] = t['linebreak'] || CanvasKit.LineBreakType.HardLineBreak;
+  t['resize'] = t['resize'] || CanvasKit.ResizePolicy.None;
+
+  if (!t['fillColor']) {
+    t['fillColor'] = CanvasKit.TRANSPARENT;
+  }
+  if (!t['strokeColor']) {
+    t['strokeColor'] = CanvasKit.TRANSPARENT;
+  }
+  if (!t['boundingBox']) {
+    t['boundingBox'] = [0,0,0,0];
+  }
+  return t;
+};
+
 (function(CanvasKit){
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {
@@ -149,6 +179,18 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix, soun
         return null;
       }
       return ta.slice(0, 2);
+    }
+
+    CanvasKit.ManagedAnimation.prototype.setTextSlot = function(key, textValue) {
+      var fillPtr = copyColorToWasm(textValue['fillColor'], _scratchColorPtr);
+      var strokePtr = copyColorToWasm(textValue['strokeColor'], _scratchFourFloatsAPtr);
+      var boxPtr = copyRectToWasm(textValue['boundingBox'], _scratchFourFloatsBPtr);
+
+      textValue['_fillColorPtr'] = fillPtr;
+      textValue['_strokeColorPtr'] = strokePtr;
+      textValue['_boundingBoxPtr'] = boxPtr;
+
+      return this._setTextSlot(key, textValue);
     }
 
     CanvasKit.ManagedAnimation.prototype.setTransform = function(key, anchor, position, scale, rotation, skew, skew_axis) {

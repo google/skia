@@ -755,6 +755,10 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     const mAnim = CK.MakeManagedAnimation('other json', { // $ExpectType ManagedSkottieAnimation
         'flightAnim.gif': buff,
     });
+    const textProp = new CK.SlottableTextProperty({ // $ExpectType SlottableTextProperty
+        fillColor: CK.Color(48, 37, 199),
+        strokeColor: CK.Color(0, 100, 100)
+    });
     mAnim.setColor('slider', CK.WHITE);
     mAnim.setOpacity('slider', 0.8);
     const e = mAnim.getMarkers();  // $ExpectType AnimationMarker[]
@@ -771,10 +775,12 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     const n = mAnim.setScalarSlot('foo', 5);  // $ExpectType boolean
     const o = mAnim.setVec2Slot('foo', [1, 2]); // $ExpectType boolean
     const p = mAnim.setImageSlot('foo', 'bar'); // $ExpectType boolean
+    const q = mAnim.setTextSlot('foo', textProp); // $ExpectType boolean
 
-    const q = mAnim.getColorSlot('foo'); // $ExpectType Float32Array | null
-    const r = mAnim.getScalarSlot('foo'); // $ExpectType number | null
-    const s = mAnim.getVec2Slot('foo'); // $ExpectType Float32Array | null
+    const r = mAnim.getColorSlot('foo'); // $ExpectType Float32Array | null
+    const s = mAnim.getScalarSlot('foo'); // $ExpectType number | null
+    const t = mAnim.getVec2Slot('foo'); // $ExpectType Float32Array | null
+    const u = mAnim.getTextSlot('foo'); // $ExpectType SlottableTextProperty | null
 }
 
 function shaderTests(CK: CanvasKit) {

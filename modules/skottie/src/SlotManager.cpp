@@ -96,7 +96,7 @@ bool skottie::SlotManager::setVec2Slot(SlotID slotID, SkV2 v) {
     return false;
 }
 
-bool skottie::SlotManager::setTextSlot(SlotID slotID, TextPropertyValue& t) {
+bool skottie::SlotManager::setTextSlot(SlotID slotID, const TextPropertyValue& t) {
     const auto adapterGroup = fTextMap.find(slotID);
     if (adapterGroup) {
         for (auto& textAdapter : *adapterGroup) {

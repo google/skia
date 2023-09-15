@@ -14,8 +14,10 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skottie/utils/TextEditor.h"
+#include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
+#include "modules/skunicode/include/SkUnicode.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/ModifierKey.h"
 
@@ -25,8 +27,86 @@
 #include <emscripten/bind.h>
 
 using namespace emscripten;
-
+namespace para = skia::textlayout;
 namespace {
+
+struct SimpleSlottableTextProperty {
+    sk_sp<SkTypeface> typeface;
+    std::string text;
+
+    float textSize;
+    float minTextSize;
+    float maxTextSize;
+    float strokeWidth;
+    float lineHeight;
+    float lineShift;
+    float ascent;
+    float maxLines;
+
+    para::TextAlign horizAlign;
+    skottie::Shaper::VAlign vertAlign;
+    skottie::Shaper::ResizePolicy resize;
+    SkUnicode::LineBreakType lineBreak;
+    para::TextDirection direction;
+    SkPaint::Join strokeJoin;
+
+    WASMPointerF32 boundingBoxPtr;
+    WASMPointerF32 fillColorPtr;
+    WASMPointerF32 strokeColorPtr;
+
+    operator skottie::TextPropertyValue() const {
+        skottie::TextPropertyValue textProperty;
+
+        textProperty.fTypeface = this->typeface;
+        textProperty.fText = SkString(this->text);
+        textProperty.fTextSize = this->textSize;
+        textProperty.fMinTextSize = this->minTextSize;
+        textProperty.fMaxTextSize = this->maxTextSize;
+        textProperty.fStrokeWidth = this->strokeWidth;
+        textProperty.fLineHeight = this->lineHeight;
+        textProperty.fLineShift = this->lineShift;
+        textProperty.fAscent = this->ascent;
+        textProperty.fMaxLines = this->maxLines;
+
+        switch (this->horizAlign) {
+        case para::TextAlign::kLeft:
+            textProperty.fHAlign = SkTextUtils::Align::kLeft_Align;
+            break;
+        case para::TextAlign::kCenter:
+            textProperty.fHAlign = SkTextUtils::Align::kCenter_Align;
+            break;
+        case para::TextAlign::kRight:
+            textProperty.fHAlign = SkTextUtils::Align::kRight_Align;
+            break;
+        default:
+            textProperty.fHAlign = SkTextUtils::Align::kLeft_Align;
+            break;
+        }
+
+        textProperty.fVAlign = this->vertAlign;
+        textProperty.fResize = this->resize;
+
+        if (this->lineBreak == SkUnicode::LineBreakType::kSoftLineBreak) {
+            textProperty.fLineBreak = skottie::Shaper::LinebreakPolicy::kParagraph;
+        } else {
+            textProperty.fLineBreak = skottie::Shaper::LinebreakPolicy::kExplicit;
+        }
+
+        if (this->direction == para::TextDirection::kRtl) {
+            textProperty.fDirection = skottie::Shaper::Direction::kRTL;
+        } else {
+            textProperty.fDirection = skottie::Shaper::Direction::kLTR;
+        }
+
+        textProperty.fStrokeJoin = this->strokeJoin;
+
+        textProperty.fBox = reinterpret_cast<SkRect*>(this->boundingBoxPtr)[0];
+        textProperty.fFillColor = ptrToSkColor4f(this->fillColorPtr).toSkColor();
+        textProperty.fStrokeColor = ptrToSkColor4f(this->strokeColorPtr).toSkColor();
+
+        return textProperty;
+    }
+};
 
 // WebTrack wraps a JS object that has a 'seek' method.
 // Playback logic is kept there.
@@ -336,6 +416,66 @@ public:
         memcpy(reinterpret_cast<float*>(outPtr), vec3.ptr(), 3 * sizeof(float));
     }
 
+    JSObject getTextSlot(const std::string& slotID) const {
+        if (auto textProp = fSlotMgr->getTextSlot(SkString(slotID))){
+            JSObject text_val = emscripten::val::object();
+
+            text_val.set("typeface", textProp->fTypeface);
+            text_val.set("text", emscripten::val(textProp->fText.c_str()));
+            text_val.set("textSize", textProp->fTextSize);
+            text_val.set("minTextSize", textProp->fMinTextSize);
+            text_val.set("maxTextSize", textProp->fMaxTextSize);
+            text_val.set("strokeWidth", textProp->fStrokeWidth);
+            text_val.set("lineHeight", textProp->fLineHeight);
+            text_val.set("lineShift", textProp->fLineShift);
+            text_val.set("ascent", textProp->fAscent);
+            text_val.set("maxLines", textProp->fMaxLines);
+
+            switch (textProp->fHAlign) {
+            case SkTextUtils::Align::kLeft_Align:
+                text_val.set("horizAlign", para::TextAlign::kLeft);
+                break;
+            case SkTextUtils::Align::kRight_Align:
+                text_val.set("horizAlign", para::TextAlign::kRight);
+                break;
+            case SkTextUtils::Align::kCenter_Align:
+                text_val.set("horizAlign", para::TextAlign::kCenter);
+                break;
+            default:
+                text_val.set("horizAlign", para::TextAlign::kLeft);
+                break;
+            }
+
+            text_val.set("vertAlign", textProp->fVAlign);
+            text_val.set("resize", textProp->fResize);
+
+            if (textProp->fLineBreak == skottie::Shaper::LinebreakPolicy::kParagraph) {
+                text_val.set("linebreak", SkUnicode::LineBreakType::kSoftLineBreak);
+            } else {
+                text_val.set("linebreak", SkUnicode::LineBreakType::kHardLineBreak);
+            }
+
+            if (textProp->fDirection == skottie::Shaper::Direction::kLTR) {
+                text_val.set("direction", para::TextDirection::kLtr);
+            } else {
+                text_val.set("direction", para::TextDirection::kRtl);
+            }
+            text_val.set("strokeJoin", textProp->fStrokeJoin);
+
+            text_val.set("fillColor", MakeTypedArray(4, SkColor4f::FromColor(textProp->fFillColor)
+                                                            .vec()));
+
+            text_val.set("strokeColor", MakeTypedArray(4, SkColor4f::FromColor(textProp->fStrokeColor)
+                                                            .vec()));
+
+            const float box[] = {textProp->fBox.fLeft, textProp->fBox.fTop,
+                                 textProp->fBox.fRight, textProp->fBox.fBottom};
+            text_val.set("boundingBox", MakeTypedArray(4, box));
+            return text_val;
+        }
+        return emscripten::val::null();
+    }
+
     bool setImageSlot(const std::string& slotID, const std::string& assetName) {
         // look for resource in preloaded SkottieAssetProvider
         return fSlotMgr->setImageSlot(SkString(slotID), fResourceProvider->loadImageAsset(nullptr,
@@ -419,6 +559,10 @@ public:
         return fTextEditor
                 ? fTextEditor->onMouseInput(x, y, state, mod)
                 : false;
+    }
+
+    bool setTextSlot(const std::string& slotID, SimpleSlottableTextProperty t) {
+        return fSlotMgr->setTextSlot(SkString(slotID), t);
     }
 
 private:
@@ -533,12 +677,13 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         }))
         .function("getScalarSlot"    , &ManagedAnimation::getScalarSlot)
         .function("setScalarSlot"    , &ManagedAnimation::setScalarSlot)
-        .function("setImageSlot"     , &ManagedAnimation::setImageSlot)
-
         .function("attachEditor"         , &ManagedAnimation::attachEditor)
         .function("enableEditor"         , &ManagedAnimation::enableEditor)
         .function("dispatchEditorKey"    , &ManagedAnimation::dispatchEditorKey)
-        .function("dispatchEditorPointer", &ManagedAnimation::dispatchEditorPointer);
+        .function("dispatchEditorPointer", &ManagedAnimation::dispatchEditorPointer)
+        .function("getTextSlot"      , &ManagedAnimation::getTextSlot)
+        .function("_setTextSlot"     , &ManagedAnimation::setTextSlot)
+        .function("setImageSlot"     , &ManagedAnimation::setImageSlot);
 
     function("_MakeManagedAnimation", optional_override([](std::string json,
                                                            size_t assetCount,
@@ -577,12 +722,45 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .value("Left",  skui::InputState::kLeft);
 
     enum_<skui::ModifierKey>("ModifierKey")
-        .value("None"      , skui::ModifierKey::kNone)
-        .value("Shift"     , skui::ModifierKey::kShift)
-        .value("Control"   , skui::ModifierKey::kControl)
-        .value("Option"    , skui::ModifierKey::kOption)
-        .value("Command"   , skui::ModifierKey::kCommand)
+        .value("None",       skui::ModifierKey::kNone)
+        .value("Shift",      skui::ModifierKey::kShift)
+        .value("Control",    skui::ModifierKey::kControl)
+        .value("Option",     skui::ModifierKey::kOption)
+        .value("Command",    skui::ModifierKey::kCommand)
         .value("FirstPress", skui::ModifierKey::kFirstPress);
+
+    enum_<skottie::Shaper::VAlign>("VerticalTextAlign")
+        .value("Top",          skottie::Shaper::VAlign::kTop)
+        .value("TopBaseline",  skottie::Shaper::VAlign::kTopBaseline)
+        .value("VisualTop",    skottie::Shaper::VAlign::kVisualTop)
+        .value("VisualCenter", skottie::Shaper::VAlign::kVisualCenter)
+        .value("VisualBottom", skottie::Shaper::VAlign::kVisualBottom);
+
+    enum_<skottie::Shaper::ResizePolicy>("ResizePolicy")
+        .value("None",           skottie::Shaper::ResizePolicy::kNone)
+        .value("ScaleToFit",     skottie::Shaper::ResizePolicy::kScaleToFit)
+        .value("DownscaleToFit", skottie::Shaper::ResizePolicy::kDownscaleToFit);
+
+    value_object<SimpleSlottableTextProperty>("SlottableTextProperty")
+        .field("typeface",          &SimpleSlottableTextProperty::typeface)
+        .field("text",              &SimpleSlottableTextProperty::text)
+        .field("textSize",          &SimpleSlottableTextProperty::textSize)
+        .field("minTextSize",       &SimpleSlottableTextProperty::minTextSize)
+        .field("maxTextSize",       &SimpleSlottableTextProperty::maxTextSize)
+        .field("strokeWidth",       &SimpleSlottableTextProperty::strokeWidth)
+        .field("lineHeight",        &SimpleSlottableTextProperty::lineHeight)
+        .field("lineShift",         &SimpleSlottableTextProperty::lineShift)
+        .field("ascent",            &SimpleSlottableTextProperty::ascent)
+        .field("maxLines",          &SimpleSlottableTextProperty::maxLines)
+        .field("horizAlign",        &SimpleSlottableTextProperty::horizAlign)
+        .field("vertAlign",         &SimpleSlottableTextProperty::vertAlign)
+        .field("strokeJoin",        &SimpleSlottableTextProperty::strokeJoin)
+        .field("direction",         &SimpleSlottableTextProperty::direction)
+        .field("linebreak",         &SimpleSlottableTextProperty::lineBreak)
+        .field("resize",            &SimpleSlottableTextProperty::resize)
+        .field("_fillColorPtr",     &SimpleSlottableTextProperty::fillColorPtr)
+        .field("_strokeColorPtr",   &SimpleSlottableTextProperty::strokeColorPtr)
+        .field("_boundingBoxPtr",   &SimpleSlottableTextProperty::boundingBoxPtr);
 
     constant("managed_skottie", true);
 }

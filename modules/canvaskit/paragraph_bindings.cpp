@@ -29,6 +29,7 @@ using namespace skia_private;
 
 namespace para = skia::textlayout;
 
+// switch to ptrToSkColor4f (canvaskit_bindings.cpp)
 SkColor4f toSkColor4f(WASMPointerF32 cPtr) {
     float* fourFloats = reinterpret_cast<float*>(cPtr);
     SkColor4f color = {fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3]};
