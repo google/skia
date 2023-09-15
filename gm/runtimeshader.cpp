@@ -22,6 +22,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
 enum RT_Flags {
     kAnimate_RTFlag     = 0x1,
@@ -1048,6 +1049,84 @@ DEF_SIMPLE_GM_CAN_FAIL(deferred_shader_rt, canvas, errorMsg, 150, 50) {
         canvas->drawRect({0, 0, 50, 50}, paint);
         canvas->translate(50, 0);
     }
+
+    return skiagm::DrawResult::kOk;
+}
+
+sk_sp<SkShader> paint_color_shader() {
+    SkBitmap bmp;
+    bmp.allocPixels(SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kPremul_SkAlphaType));
+    bmp.eraseColor(SK_ColorWHITE);
+    return bmp.makeShader(SkFilterMode::kNearest);
+}
+
+DEF_SIMPLE_GM_CAN_FAIL(alpha_image_shader_rt, canvas, errorMsg, 350, 50) {
+    if (!canvas->getSurface()) {
+        // The only backend that really fails is DDL (because the color filter fails to evaluate on
+        // the CPU when we do paint optimization). We can't identify DDL separate from other
+        // recording backends, so skip this GM for all of them:
+        *errorMsg = "Not supported in recording/DDL mode";
+        return skiagm::DrawResult::kSkip;
+    }
+
+    // Skia typically applies the paint color (or input color, for more complex GPU-FP trees)
+    // to alpha-only images. This is useful in trivial cases, but surprising and inconsistent in
+    // more complex situations, especially when using SkSL.
+    //
+    // This GM checks that we suppress the paint-color tinting from SkSL, and always get {0,0,0,a}.
+    auto checkerboard = ToolUtils::create_checkerboard_shader(SK_ColorBLACK, SK_ColorWHITE, 4);
+    auto paint_shader = paint_color_shader();
+    SkRuntimeEffect::ChildPtr children[1] = { paint_shader };
+
+    SkPaint paint;
+    paint.setColor({0.5f, 0, 0.5f, 1.0f});
+
+    auto rect = [&]() {
+        canvas->drawRect({0, 0, 48, 48}, paint);
+        canvas->translate(50, 0);
+    };
+
+    // Two simple cases: just paint color, then the "paint color" shader.
+    // These should both be PURPLE
+    rect();
+
+    paint.setShader(paint_shader);
+    rect();
+
+    // All remaining cases should be BLACK
+
+    // Shader that evaluates the "paint color" shader.
+    // For color-filter and blender, we test them with and without an actual SkShader on the paint.
+    // These should all be BLACK
+    paint.setShader(
+            SkRuntimeEffect::MakeForShader(SkString("uniform shader s;"
+                                                    "half4 main(float2 p) { return s.eval(p); }"))
+                    .effect->makeShader(nullptr, children));
+    rect();
+
+    // Color-filter that evaluates the "paint color" shader, with and without a shader on the paint
+    paint.setShader(nullptr);
+    paint.setColorFilter(SkRuntimeEffect::MakeForColorFilter(
+                                 SkString("uniform shader s;"
+                                          "half4 main(half4 color) { return s.eval(float2(0)); }"))
+                                 .effect->makeColorFilter(nullptr, children));
+    rect();
+
+    paint.setShader(checkerboard);
+    rect();
+
+    // Blender that evaluates the "paint color" shader, with and without a shader on the paint
+    paint.setShader(nullptr);
+    paint.setColorFilter(nullptr);
+    paint.setBlender(
+            SkRuntimeEffect::MakeForBlender(
+                    SkString("uniform shader s;"
+                             "half4 main(half4 src, half4 dst) { return s.eval(float2(0)); }"))
+                    .effect->makeBlender(nullptr, children));
+    rect();
+
+    paint.setShader(checkerboard);
+    rect();
 
     return skiagm::DrawResult::kOk;
 }

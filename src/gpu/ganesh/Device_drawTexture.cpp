@@ -304,10 +304,12 @@ void Device::drawEdgeAAImage(const SkImage* image,
             std::move(fp), image->imageInfo().colorInfo(), sdc->colorInfo());
     if (image->isAlphaOnly()) {
         if (const auto* shader = as_SB(paint.getShader())) {
-            auto shaderFP = GrFragmentProcessors::Make(
-                    shader,
-                    GrFPArgs(rContext, &sdc->colorInfo(), sdc->surfaceProps()),
-                    localToDevice);
+            auto shaderFP = GrFragmentProcessors::Make(shader,
+                                                       GrFPArgs(rContext,
+                                                                &sdc->colorInfo(),
+                                                                sdc->surfaceProps(),
+                                                                GrFPArgs::Scope::kDefault),
+                                                       localToDevice);
             if (!shaderFP) {
                 return;
             }

@@ -371,7 +371,7 @@ static inline bool skpaint_to_grpaint_impl(
     // Convert SkPaint color to 4f format in the destination color space
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), dstColorInfo);
 
-    GrFPArgs fpArgs(context, &dstColorInfo, surfaceProps);
+    GrFPArgs fpArgs(context, &dstColorInfo, surfaceProps, GrFPArgs::Scope::kDefault);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.

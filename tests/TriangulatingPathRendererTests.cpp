@@ -34,6 +34,7 @@
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -828,7 +829,8 @@ create_linear_gradient_processor(GrRecordingContext* rContext, const SkMatrix& c
         pts, colors, nullptr, std::size(colors), SkTileMode::kClamp);
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     SkSurfaceProps props; // default props for testing
-    return GrFragmentProcessors::Make(shader.get(), {rContext, &colorInfo, props}, ctm);
+    return GrFragmentProcessors::Make(
+            shader.get(), {rContext, &colorInfo, props, GrFPArgs::Scope::kDefault}, ctm);
 }
 
 static void test_path(GrRecordingContext* rContext,
