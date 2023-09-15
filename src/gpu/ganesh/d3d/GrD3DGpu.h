@@ -27,8 +27,9 @@ struct IDXGraphicsAnalysis;
 
 class GrD3DGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(const GrD3DBackendContext& backendContext, const GrContextOptions&,
-                             GrDirectContext*);
+    static std::unique_ptr<GrGpu> Make(const GrD3DBackendContext& backendContext,
+                                       const GrContextOptions&,
+                                       GrDirectContext*);
 
     ~GrD3DGpu() override;
 

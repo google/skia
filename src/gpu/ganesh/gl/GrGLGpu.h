@@ -88,7 +88,9 @@ enum class Mipmapped : bool;
 
 class GrGLGpu final : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(sk_sp<const GrGLInterface>, const GrContextOptions&, GrDirectContext*);
+    static std::unique_ptr<GrGpu> Make(sk_sp<const GrGLInterface>,
+                                       const GrContextOptions&,
+                                       GrDirectContext*);
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;

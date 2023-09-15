@@ -48,8 +48,9 @@ GR_NORETAIN_BEGIN
 #define GR_METAL_CAPTURE_COMMANDBUFFER 0
 #endif
 
-sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextOptions& options,
-                            GrDirectContext* direct) {
+std::unique_ptr<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context,
+                                      const GrContextOptions& options,
+                                      GrDirectContext* direct) {
     if (!context.fDevice || !context.fQueue) {
         return nullptr;
     }
@@ -68,7 +69,11 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
     id<MTLDevice> GR_NORETAIN device = (__bridge id<MTLDevice>)(context.fDevice.get());
     id<MTLCommandQueue> GR_NORETAIN queue = (__bridge id<MTLCommandQueue>)(context.fQueue.get());
 
-    return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, context.fBinaryArchive.get()));
+    return std::unique_ptr<GrGpu>(new GrMtlGpu(direct,
+                                               options,
+                                               device,
+                                               queue,
+                                               context.fBinaryArchive.get()));
 }
 
 // This constant determines how many OutstandingCommandBuffers are allocated together as a block in

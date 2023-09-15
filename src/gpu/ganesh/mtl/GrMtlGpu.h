@@ -35,7 +35,9 @@ class GrMtlCommandBuffer;
 
 class GrMtlGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(const GrMtlBackendContext&, const GrContextOptions&, GrDirectContext*);
+    static std::unique_ptr<GrGpu> Make(const GrMtlBackendContext&,
+                                       const GrContextOptions&,
+                                       GrDirectContext*);
     ~GrMtlGpu() override;
 
     void disconnect(DisconnectType) override;

@@ -1052,7 +1052,7 @@ private:
     // invoked after objects they depend upon have already been destroyed.
     std::unique_ptr<SkTaskGroup>              fTaskGroup;
     std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
-    sk_sp<GrGpu>                              fGpu;
+    std::unique_ptr<GrGpu>                    fGpu;
     std::unique_ptr<GrResourceCache>          fResourceCache;
     std::unique_ptr<GrResourceProvider>       fResourceProvider;
 

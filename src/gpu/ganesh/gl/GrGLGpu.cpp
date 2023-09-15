@@ -408,8 +408,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContextOptions& options,
-                           GrDirectContext* direct) {
+std::unique_ptr<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface,
+                                     const GrContextOptions& options,
+                                     GrDirectContext* direct) {
     if (!interface) {
         interface = GrGLMakeNativeInterface();
         if (!interface) {
@@ -423,7 +424,7 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
     if (!glContext) {
         return nullptr;
     }
-    return sk_sp<GrGpu>(new GrGLGpu(std::move(glContext), direct));
+    return std::unique_ptr<GrGpu>(new GrGLGpu(std::move(glContext), direct));
 }
 
 GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* dContext)

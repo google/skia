@@ -41,7 +41,9 @@ struct VulkanInterface;
 
 class GrVkGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(const GrVkBackendContext&, const GrContextOptions&, GrDirectContext*);
+    static std::unique_ptr<GrGpu> Make(const GrVkBackendContext&,
+                                       const GrContextOptions&,
+                                       GrDirectContext*);
 
     ~GrVkGpu() override;
 

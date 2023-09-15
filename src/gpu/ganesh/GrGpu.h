@@ -48,10 +48,10 @@ namespace SkSL {
     class Compiler;
 }
 
-class GrGpu : public SkRefCnt {
+class GrGpu {
 public:
     GrGpu(GrDirectContext* direct);
-    ~GrGpu() override;
+    virtual ~GrGpu();
 
     GrDirectContext* getContext() { return fContext; }
     const GrDirectContext* getContext() const { return fContext; }

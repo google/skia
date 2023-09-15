@@ -21,7 +21,9 @@ class GrPipeline;
 
 class GrMockGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(const GrMockOptions*, const GrContextOptions&, GrDirectContext*);
+    static std::unique_ptr<GrGpu> Make(const GrMockOptions*,
+                                       const GrContextOptions&,
+                                       GrDirectContext*);
 
     ~GrMockGpu() override;
 

@@ -48,13 +48,14 @@ int GrMockGpu::NextExternalRenderTargetID() {
     return nextID.fetch_add(1, std::memory_order_relaxed);
 }
 
-sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
-                             const GrContextOptions& contextOptions, GrDirectContext* direct) {
+std::unique_ptr<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
+                                       const GrContextOptions& contextOptions,
+                                       GrDirectContext* direct) {
     static const GrMockOptions kDefaultOptions = GrMockOptions();
     if (!mockOptions) {
         mockOptions = &kDefaultOptions;
     }
-    return sk_sp<GrGpu>(new GrMockGpu(direct, *mockOptions, contextOptions));
+    return std::unique_ptr<GrGpu>(new GrMockGpu(direct, *mockOptions, contextOptions));
 }
 
 GrOpsRenderPass* GrMockGpu::onGetOpsRenderPass(GrRenderTarget* rt,
