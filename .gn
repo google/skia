@@ -5,4 +5,5 @@ default_args = {
   angle_standalone = false
   angle_enable_msl_through_spirv = false
   angle_use_wayland = false
+  dawn_use_built_dxc = false
 }
