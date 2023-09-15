@@ -168,8 +168,8 @@ void setup_vk_attachment_description(VkAttachmentDescription* outAttachment,
         case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
             outAttachment->loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             outAttachment->storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            outAttachment->loadOp = vkLoadOp[static_cast<int>(loadOp)];
-            outAttachment->storeOp = vkStoreOp[static_cast<int>(storeOp)];
+            outAttachment->stencilLoadOp = vkLoadOp[static_cast<int>(loadOp)];
+            outAttachment->stencilStoreOp = vkStoreOp[static_cast<int>(storeOp)];
             break;
         default:
             SK_ABORT("Unexpected attachment layout");
