@@ -1237,7 +1237,7 @@ SkDescriptor* SkScalerContext::AutoDescriptorGivenRecAndEffects(
     const SkScalerContextEffects& effects,
     SkAutoDescriptor* ad)
 {
-    SkBinaryWriteBuffer buf;
+    SkBinaryWriteBuffer buf({});
 
     ad->reset(calculate_size_and_flatten(rec, effects, &buf));
     generate_descriptor(rec, buf, ad->getDesc());
@@ -1249,7 +1249,7 @@ std::unique_ptr<SkDescriptor> SkScalerContext::DescriptorGivenRecAndEffects(
     const SkScalerContextRec& rec,
     const SkScalerContextEffects& effects)
 {
-    SkBinaryWriteBuffer buf;
+    SkBinaryWriteBuffer buf({});
 
     auto desc = SkDescriptor::Alloc(calculate_size_and_flatten(rec, effects, &buf));
     generate_descriptor(rec, buf, desc.get());
@@ -1258,13 +1258,13 @@ std::unique_ptr<SkDescriptor> SkScalerContext::DescriptorGivenRecAndEffects(
 }
 
 void SkScalerContext::DescriptorBufferGiveRec(const SkScalerContextRec& rec, void* buffer) {
-    generate_descriptor(rec, SkBinaryWriteBuffer{}, (SkDescriptor*)buffer);
+    generate_descriptor(rec, SkBinaryWriteBuffer({}), (SkDescriptor*)buffer);
 }
 
 bool SkScalerContext::CheckBufferSizeForRec(const SkScalerContextRec& rec,
                                             const SkScalerContextEffects& effects,
                                             size_t size) {
-    SkBinaryWriteBuffer buf;
+    SkBinaryWriteBuffer buf({});
     return size >= calculate_size_and_flatten(rec, effects, &buf);
 }
 

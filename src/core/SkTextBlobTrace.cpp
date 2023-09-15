@@ -78,7 +78,7 @@ void SkTextBlobTrace::DumpTrace(const std::vector<SkTextBlobTrace::Record>& trac
     }
 }
 
-SkTextBlobTrace::Capture::Capture() : fTypefaceSet(new SkRefCntSet) {
+SkTextBlobTrace::Capture::Capture() : fTypefaceSet(new SkRefCntSet), fWriteBuffer({}) {
     fWriteBuffer.setTypefaceRecorder(fTypefaceSet);
 }
 

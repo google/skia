@@ -258,7 +258,7 @@ DEF_TEST(SkStrike_FlattenByType, reporter) {
     drawablesToSend.emplace_back(drawableGlyph);
 
     // Test the FlattenGlyphsByType method.
-    SkBinaryWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer({});
     SkStrike::FlattenGlyphsByType(writeBuffer, imagesToSend, pathsToSend, drawablesToSend);
     auto data = writeBuffer.snapshotAsData();
 

@@ -2624,7 +2624,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
 
 static void write_and_read_back(skiatest::Reporter* reporter,
                                 const SkPath& p) {
-    SkBinaryWriteBuffer writer;
+    SkBinaryWriteBuffer writer({});
     writer.writePath(p);
     size_t size = writer.bytesWritten();
     SkAutoMalloc storage(size);

@@ -232,9 +232,8 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     // We delay serializing the bulk of our data until after we've serialized
     // factories and typefaces by first serializing to an in-memory write buffer.
     SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
-    SkBinaryWriteBuffer buffer;
+    SkBinaryWriteBuffer buffer(skip_typeface_proc(procs));
     buffer.setFactoryRecorder(sk_ref_sp(&factSet));
-    buffer.setSerialProcs(skip_typeface_proc(procs));
     buffer.setTypefaceRecorder(sk_ref_sp(typefaceSet));
     this->flattenToBuffer(buffer, textBlobsOnly);
 

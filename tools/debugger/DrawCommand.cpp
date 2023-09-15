@@ -629,7 +629,7 @@ static SkString encode_data(const void*     bytes,
 void DrawCommand::flatten(const SkFlattenable* flattenable,
                           SkJSONWriter&        writer,
                           UrlDataManager&      urlDataManager) {
-    SkBinaryWriteBuffer buffer;
+    SkBinaryWriteBuffer buffer({});  // TODO(kjlubick, bungeman) feed SkSerialProcs through API
     flattenable->flatten(buffer);
     void* data = sk_malloc_throw(buffer.bytesWritten());
     buffer.writeToMemory(data);

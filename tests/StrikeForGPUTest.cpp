@@ -42,7 +42,7 @@ DEF_TEST(SkStrikePromise_Basic, reporter) {
         auto strike = strikeCache->createStrike(strikeSpec, nullptr, std::make_unique<Pinner>());
         toCompareWith = reinterpret_cast<intptr_t>(strike.get());
         SkStrikePromise srcPromise(std::move(strike));
-        SkBinaryWriteBuffer writeBuffer;
+        SkBinaryWriteBuffer writeBuffer({});
         srcPromise.flatten(writeBuffer);
         data = writeBuffer.snapshotAsData();
     }

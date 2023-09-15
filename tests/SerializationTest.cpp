@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDataTable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMetrics.h"
@@ -43,6 +44,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
@@ -204,7 +206,7 @@ template<> struct SerializationTestUtils<SkString, true> {
 
 template<typename T, bool testInvalid>
 static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* reporter) {
-    SkBinaryWriteBuffer writer;
+    SkBinaryWriteBuffer writer({});
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
@@ -242,7 +244,7 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
 template<typename T>
 static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
                                        skiatest::Reporter* reporter) {
-    SkBinaryWriteBuffer writer;
+    SkBinaryWriteBuffer writer({});
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
@@ -280,7 +282,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
 
 template<typename T>
 static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
-    SkBinaryWriteBuffer writer;
+    SkBinaryWriteBuffer writer({});
     SerializationUtils<T>::Write(writer, data, kArraySize);
     size_t bytesWritten = writer.bytesWritten();
     // This should write the length (in 4 bytes) and the array
@@ -730,22 +732,22 @@ DEF_TEST(Serialization, reporter) {
         // Valid case with non-empty array:
         {
             unsigned char data[kArraySize] = { 1, 2, 3 };
-            SkBinaryWriteBuffer writer;
-            writer.writeByteArray(data, kArraySize);
-            SkAutoMalloc buf(writer.bytesWritten());
-            writer.writeToMemory(buf.get());
+    SkBinaryWriteBuffer writer({});
+    writer.writeByteArray(data, kArraySize);
+    SkAutoMalloc buf(writer.bytesWritten());
+    writer.writeToMemory(buf.get());
 
-            SkReadBuffer reader(buf.get(), writer.bytesWritten());
-            size_t len = ~0;
-            const void* arr = reader.skipByteArray(&len);
-            REPORTER_ASSERT(reporter, arr);
-            REPORTER_ASSERT(reporter, len == kArraySize);
-            REPORTER_ASSERT(reporter, memcmp(arr, data, len) == 0);
+    SkReadBuffer reader(buf.get(), writer.bytesWritten());
+    size_t len = ~0;
+    const void* arr = reader.skipByteArray(&len);
+    REPORTER_ASSERT(reporter, arr);
+    REPORTER_ASSERT(reporter, len == kArraySize);
+    REPORTER_ASSERT(reporter, memcmp(arr, data, len) == 0);
         }
 
         // Writing a zero length array (can be detected as valid by non-nullptr return):
         {
-            SkBinaryWriteBuffer writer;
+            SkBinaryWriteBuffer writer({});
             writer.writeByteArray(nullptr, 0);
             SkAutoMalloc buf(writer.bytesWritten());
             writer.writeToMemory(buf.get());
@@ -759,7 +761,7 @@ DEF_TEST(Serialization, reporter) {
 
         // If the array can't be safely read, should return nullptr:
         {
-            SkBinaryWriteBuffer writer;
+            SkBinaryWriteBuffer writer({});
             writer.writeUInt(kArraySize);
             SkAutoMalloc buf(writer.bytesWritten());
             writer.writeToMemory(buf.get());
@@ -796,7 +798,12 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
         // Serialize picture
-        SkBinaryWriteBuffer writer;
+        SkSerialProcs sProcs;
+        sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+            return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
+        };
+        SkBinaryWriteBuffer writer(sProcs);
+
         SkPicturePriv::Flatten(pict, writer);
         size_t size = writer.bytesWritten();
         AutoTMalloc<unsigned char> data(size);
@@ -827,7 +834,7 @@ DEF_TEST(Serialization, reporter) {
 
 static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
     SkDynamicMemoryWStream wstream;
-    src->serialize(&wstream);
+    src->serialize(&wstream, nullptr);  // default is fine, no SkImages to encode
     std::unique_ptr<SkStreamAsset> rstream(wstream.detachAsStream());
     return SkPicture::MakeFromStream(rstream.get());
 }
@@ -911,7 +918,7 @@ DEF_TEST(WriteBuffer_storage, reporter) {
     char src[kSize];
     sk_bzero(src, kSize);
 
-    SkBinaryWriteBuffer writer(storage, kSize);
+    SkBinaryWriteBuffer writer(storage, kSize, {});
     REPORTER_ASSERT(reporter, writer.usingInitialStorage());
     REPORTER_ASSERT(reporter, writer.bytesWritten() == 0);
     writer.write(src, kSize - 4);
@@ -974,7 +981,7 @@ DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
 }
 
 DEF_TEST(ReadBuffer_empty, reporter) {
-    SkBinaryWriteBuffer writer;
+    SkBinaryWriteBuffer writer({});
     writer.writeInt(123);
     writer.writeDataAsByteArray(SkData::MakeEmpty().get());
     writer.writeInt(321);

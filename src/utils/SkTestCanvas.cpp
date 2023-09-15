@@ -7,12 +7,18 @@
 
 #include "src/utils/SkTestCanvas.h"
 
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"  // IWYU pragma: keep
 #include "include/core/SkData.h"
+#include "include/core/SkDataTable.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkTypes.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
@@ -20,9 +26,11 @@
 #include "src/core/SkDevice.h"
 #include "src/text/GlyphRun.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 class SkPaint;
@@ -65,12 +73,25 @@ void SkTestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
             {
                 auto slug = this->onConvertGlyphRunListToSlug(glyphRunList, layer->paint());
                 if (slug != nullptr) {
-                    bytes = slug->serialize();
+                    SkSerialProcs procs;
+                    procs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+                        return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
+                    };
+                    bytes = slug->serialize(procs);
                 }
             }
             {
                 if (bytes != nullptr) {
-                    auto slug = sktext::gpu::Slug::Deserialize(bytes->data(), bytes->size());
+                    SkDeserialProcs procs;
+                    procs.fImageProc =
+                            [](const void* bytes, size_t length, void*) -> sk_sp<SkImage> {
+                        auto data = SkData::MakeWithoutCopy(bytes, length);
+                        auto codec = SkPngDecoder::Decode(data, nullptr);
+                        SkASSERT(codec);
+                        return std::get<0>(codec->getImage());
+                    };
+                    auto slug = sktext::gpu::Slug::Deserialize(
+                            bytes->data(), bytes->size(), nullptr, procs);
                     this->drawSlug(slug.get());
                 }
             }
@@ -164,7 +185,11 @@ void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
                 auto slug = analysisCanvas->onConvertGlyphRunListToSlug(glyphRunList,
                                                                         layer->paint());
                 if (slug != nullptr) {
-                    slugBytes = slug->serialize();
+                    SkSerialProcs procs;
+                    procs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+                        return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
+                    };
+                    slugBytes = slug->serialize(procs);
                 }
                 fStrikeServer.writeStrikeData(&glyphBytes);
             }
@@ -173,8 +198,16 @@ void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
                     fStrikeClient.readStrikeData(glyphBytes.data(), glyphBytes.size());
                 }
                 if (slugBytes != nullptr) {
+                    SkDeserialProcs procs;
+                    procs.fImageProc =
+                            [](const void* bytes, size_t length, void*) -> sk_sp<SkImage> {
+                        auto data = SkData::MakeWithoutCopy(bytes, length);
+                        auto codec = SkPngDecoder::Decode(data, nullptr);
+                        SkASSERT(codec);
+                        return std::get<0>(codec->getImage());
+                    };
                     auto slug = sktext::gpu::Slug::Deserialize(
-                            slugBytes->data(), slugBytes->size(), &fStrikeClient);
+                            slugBytes->data(), slugBytes->size(), &fStrikeClient, procs);
                     this->drawSlug(slug.get());
                 }
             }

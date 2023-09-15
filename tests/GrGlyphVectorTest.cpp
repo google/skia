@@ -57,7 +57,7 @@ DEF_TEST(GlyphVector_Serialization, r) {
 
     GlyphVector src = GlyphVector::Make(std::move(promise), SkSpan(glyphs, N), &alloc);
 
-    SkBinaryWriteBuffer wBuffer;
+    SkBinaryWriteBuffer wBuffer({});
     src.flatten(wBuffer);
 
     auto data = wBuffer.snapshotAsData();
@@ -86,7 +86,7 @@ DEF_TEST(GlyphVector_BadLengths, r) {
     SkStrikePromise promise{sk_sp<SkStrike>(strike)};
     {
         // Make broken stream by hand - zero length
-        SkBinaryWriteBuffer wBuffer;
+        SkBinaryWriteBuffer wBuffer({});
         promise.flatten(wBuffer);
         wBuffer.write32(0);  // length
         auto data = wBuffer.snapshotAsData();
@@ -98,7 +98,7 @@ DEF_TEST(GlyphVector_BadLengths, r) {
 
     {
         // Make broken stream by hand - zero length
-        SkBinaryWriteBuffer wBuffer;
+        SkBinaryWriteBuffer wBuffer({});
         promise.flatten(wBuffer);
         // Make broken stream by hand - stream is too short
         wBuffer.write32(5);  // length
@@ -114,7 +114,7 @@ DEF_TEST(GlyphVector_BadLengths, r) {
 
     {
         // Make broken stream by hand - length out of range of safe calculations
-        SkBinaryWriteBuffer wBuffer;
+        SkBinaryWriteBuffer wBuffer({});
         promise.flatten(wBuffer);
         wBuffer.write32(INT_MAX - 10);  // length
         wBuffer.writeUInt(12);  // random data

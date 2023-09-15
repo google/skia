@@ -67,7 +67,7 @@ static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
 }
 
 static void self_test(sk_sp<SkVertices> v0, skiatest::Reporter* reporter) {
-    SkBinaryWriteBuffer writer;
+    SkBinaryWriteBuffer writer({});
     v0->priv().encode(writer);
 
     SkAutoMalloc buf(writer.bytesWritten());

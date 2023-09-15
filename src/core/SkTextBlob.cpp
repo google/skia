@@ -830,8 +830,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromRSXform(const void* text, size_t byteLengt
 }
 
 sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
-    SkBinaryWriteBuffer buffer;
-    buffer.setSerialProcs(procs);
+    SkBinaryWriteBuffer buffer(procs);
     SkTextBlobPriv::Flatten(*this, buffer);
 
     size_t total = buffer.bytesWritten();
@@ -850,8 +849,7 @@ sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
-    SkBinaryWriteBuffer buffer(memory, memory_size);
-    buffer.setSerialProcs(procs);
+    SkBinaryWriteBuffer buffer(memory, memory_size, procs);
     SkTextBlobPriv::Flatten(*this, buffer);
     return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
 }

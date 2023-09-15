@@ -138,7 +138,7 @@ DEF_TEST(Descriptor_entry_over_end, r) {
 
 DEF_TEST(Descriptor_flatten_unflatten, r) {
     {
-        SkBinaryWriteBuffer writer;
+        SkBinaryWriteBuffer writer({});
         auto desc = SkDescriptor::Alloc(sizeof(SkDescriptor));
         desc->computeChecksum();
         desc->flatten(writer);
@@ -150,7 +150,7 @@ DEF_TEST(Descriptor_flatten_unflatten, r) {
     }
 
     {  // broken header
-        SkBinaryWriteBuffer writer;
+        SkBinaryWriteBuffer writer({});
         writer.writeInt(0);  // fChecksum
         auto data = writer.snapshotAsData();
         SkReadBuffer reader{data->data(), data->size()};
@@ -159,7 +159,7 @@ DEF_TEST(Descriptor_flatten_unflatten, r) {
     }
 
     {  // length too big
-        SkBinaryWriteBuffer writer;
+        SkBinaryWriteBuffer writer({});
         // Simulate a broken header
         writer.writeInt(0);    // fChecksum
         writer.writeInt(4000); // fLength
@@ -171,7 +171,7 @@ DEF_TEST(Descriptor_flatten_unflatten, r) {
     }
 
     {  // length too small
-        SkBinaryWriteBuffer writer;
+        SkBinaryWriteBuffer writer({});
         // Simulate a broken header
         writer.writeInt(0);    // fChecksum
         writer.writeInt(3);    // fLength
@@ -183,7 +183,7 @@ DEF_TEST(Descriptor_flatten_unflatten, r) {
     }
 
     {  // garbage in count
-        SkBinaryWriteBuffer writer;
+        SkBinaryWriteBuffer writer({});
         // Simulate a broken header
         writer.writeInt(0);    // fChecksum
         writer.writeInt(20);   // fLength

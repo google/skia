@@ -36,16 +36,11 @@ class SkRegion;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkBinaryWriteBuffer::SkBinaryWriteBuffer()
-    : fFactorySet(nullptr)
-    , fTFSet(nullptr) {
-}
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(const SkSerialProcs& p)
+        : SkWriteBuffer(p), fFactorySet(nullptr), fTFSet(nullptr) {}
 
-SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize)
-    : fFactorySet(nullptr)
-    , fTFSet(nullptr)
-    , fWriter(storage, storageSize)
-{}
+SkBinaryWriteBuffer::SkBinaryWriteBuffer(void* storage, size_t storageSize, const SkSerialProcs& p)
+        : SkWriteBuffer(p), fFactorySet(nullptr), fTFSet(nullptr), fWriter(storage, storageSize) {}
 
 SkBinaryWriteBuffer::~SkBinaryWriteBuffer() {}
 
@@ -161,10 +156,10 @@ bool SkBinaryWriteBuffer::writeToStream(SkWStream* stream) const {
     return fWriter.writeToStream(stream);
 }
 
-static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs dProcs) {
+static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs procs) {
     sk_sp<SkData> data;
-    if (dProcs.fImageProc) {
-        data = dProcs.fImageProc(const_cast<SkImage*>(image), dProcs.fImageCtx);
+    if (procs.fImageProc) {
+        data = procs.fImageProc(const_cast<SkImage*>(image), procs.fImageCtx);
     }
     if (data) {
         return data;
@@ -187,7 +182,7 @@ static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs dProcs)
     return nullptr;
 }
 
-static sk_sp<SkData> serialize_mipmap(const SkMipmap* mipmap, SkSerialProcs dProcs) {
+static sk_sp<SkData> serialize_mipmap(const SkMipmap* mipmap, SkSerialProcs procs) {
     /*  Format
         count_levels:32
         for each level, starting with the biggest (index 0 in our iterator)
@@ -196,13 +191,14 @@ static sk_sp<SkData> serialize_mipmap(const SkMipmap* mipmap, SkSerialProcs dPro
     */
     const int count = mipmap->countLevels();
 
-    SkBinaryWriteBuffer buffer;
+    // This buffer does not need procs because it is just writing SkDatas
+    SkBinaryWriteBuffer buffer({});
     buffer.write32(count);
     for (int i = 0; i < count; ++i) {
         SkMipmap::Level level;
         if (mipmap->getLevel(i, &level)) {
             sk_sp<SkImage> levelImage = SkImages::RasterFromPixmap(level.fPixmap, nullptr, nullptr);
-            sk_sp<SkData> levelData = serialize_image(levelImage.get(), dProcs);
+            sk_sp<SkData> levelData = serialize_image(levelImage.get(), procs);
             buffer.writeDataAsByteArray(levelData.get());
         } else {
             return nullptr;

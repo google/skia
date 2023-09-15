@@ -40,7 +40,7 @@ sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     // kGrShaderTypeCount interfaces. If the backend gives us fewer, we just replicate the last one.
     SkASSERT(numInterfaces >= 1 && numInterfaces <= kGrShaderTypeCount);
 
-    SkBinaryWriteBuffer writer;
+    SkBinaryWriteBuffer writer({});
     writer.writeInt(kCurrentVersion);
     writer.writeUInt(shaderType);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {

@@ -27,7 +27,7 @@ DEF_TEST(SkFontMetricsPriv_Basic, reporter) {
     // Check that font metrics round-trip.
     context->getFontMetrics(&srcMetrics);
 
-    SkBinaryWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer({});
     SkFontMetricsPriv::Flatten(writeBuffer, srcMetrics);
 
     auto data = writeBuffer.snapshotAsData();

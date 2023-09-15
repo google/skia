@@ -278,7 +278,7 @@ static bool write_pad32(SkWStream* stream, const void* data, size_t size) {
 }
 
 // Private serialize.
-// SkPictureData::serialize makes a first pass on all subpictures, indicatewd by textBlobsOnly=true,
+// SkPictureData::serialize makes a first pass on all subpictures, indicated by textBlobsOnly=true,
 // to fill typefaceSet.
 void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procsPtr,
                           SkRefCntSet* typefaceSet, bool textBlobsOnly) const {

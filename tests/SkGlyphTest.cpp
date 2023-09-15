@@ -89,7 +89,7 @@ DEF_TEST(SkGlyph_SendMetrics, reporter) {
         SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
         SkGlyphTestPeer::SetGlyph1(&srcGlyph);
 
-        SkBinaryWriteBuffer writeBuffer;
+        SkBinaryWriteBuffer writeBuffer({});
         srcGlyph.flattenMetrics(writeBuffer);
 
         sk_sp<SkData> data = writeBuffer.snapshotAsData();
@@ -106,7 +106,7 @@ DEF_TEST(SkGlyph_SendMetrics, reporter) {
         SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
         SkGlyphTestPeer::SetGlyph2(&srcGlyph);
 
-        SkBinaryWriteBuffer writeBuffer;
+        SkBinaryWriteBuffer writeBuffer({});
         srcGlyph.flattenMetrics(writeBuffer);
 
         sk_sp<SkData> data = writeBuffer.snapshotAsData();
@@ -148,7 +148,7 @@ DEF_TEST(SkGlyph_SendWithImage, reporter) {
 
     srcGlyph.setImage(&alloc, imageData);
 
-    SkBinaryWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer({});
     srcGlyph.flattenMetrics(writeBuffer);
     srcGlyph.flattenImage(writeBuffer);
 
@@ -172,7 +172,7 @@ DEF_TEST(SkGlyph_SendWithImage, reporter) {
     }
 
     // Add good metrics, but mess up image data
-    SkBinaryWriteBuffer badWriteBuffer;
+    SkBinaryWriteBuffer badWriteBuffer({});
     srcGlyph.flattenMetrics(badWriteBuffer);
     badWriteBuffer.writeInt(7);
     badWriteBuffer.writeInt(8);
@@ -202,7 +202,7 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
 
     srcGlyph.setPath(&alloc, &srcPath, false);
 
-    SkBinaryWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer({});
     srcGlyph.flattenMetrics(writeBuffer);
     srcGlyph.flattenPath(writeBuffer);
 
@@ -224,7 +224,7 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
 
     {
         // Add good metrics, but mess up path data
-        SkBinaryWriteBuffer badWriteBuffer;
+        SkBinaryWriteBuffer badWriteBuffer({});
         srcGlyph.flattenMetrics(badWriteBuffer);
         // Force a false value to be read in addPathFromBuffer for hasPath.
         badWriteBuffer.writeInt(8);
@@ -245,7 +245,7 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
     }
     {
         // Add good metrics, but no path data.
-        SkBinaryWriteBuffer badWriteBuffer;
+        SkBinaryWriteBuffer badWriteBuffer({});
         srcGlyph.flattenMetrics(badWriteBuffer);
 
         data = badWriteBuffer.snapshotAsData();
@@ -288,7 +288,7 @@ DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
     srcGlyph.setDrawable(&alloc, srcDrawable);
     REPORTER_ASSERT(reporter, srcGlyph.setDrawableHasBeenCalled());
 
-    SkBinaryWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer({});
     srcGlyph.flattenMetrics(writeBuffer);
     srcGlyph.flattenDrawable(writeBuffer);
 
@@ -309,7 +309,7 @@ DEF_TEST(SkGlyph_SendWithDrawable, reporter) {
     REPORTER_ASSERT(reporter, dstDrawable->getBounds() == srcDrawable->getBounds());
 
     // Add good metrics, but mess up drawable data
-    SkBinaryWriteBuffer badWriteBuffer;
+    SkBinaryWriteBuffer badWriteBuffer({});
     srcGlyph.flattenMetrics(badWriteBuffer);
     badWriteBuffer.writeInt(7);
     badWriteBuffer.writeInt(8);
@@ -346,7 +346,7 @@ DEF_TEST(SkPictureBackedGlyphDrawable_Basic, reporter) {
     };
 
     sk_sp<SkDrawable> srcDrawable = sk_make_sp<TestDrawable>(SkRect::MakeWH(10, 20));
-    SkBinaryWriteBuffer writeBuffer;
+    SkBinaryWriteBuffer writeBuffer({});
     SkPictureBackedGlyphDrawable::FlattenDrawable(writeBuffer, srcDrawable.get());
 
     sk_sp<SkData> data = writeBuffer.snapshotAsData();
@@ -360,7 +360,7 @@ DEF_TEST(SkPictureBackedGlyphDrawable_Basic, reporter) {
     REPORTER_ASSERT(reporter, dstDrawable != nullptr);
     REPORTER_ASSERT(reporter, srcDrawable->getBounds() == dstDrawable->getBounds());
 
-    SkBinaryWriteBuffer badWriteBuffer;
+    SkBinaryWriteBuffer badWriteBuffer({});
     badWriteBuffer.writeInt(7);
     badWriteBuffer.writeInt(8);
 
@@ -419,7 +419,7 @@ DEF_TEST(SkPictureBackedGlyphDrawable_SkSL, reporter) {
         for (bool allowSkSL : {true, false}) {
             REPORTER_ASSERT(reporter, drawable);
 
-            SkBinaryWriteBuffer writeBuffer;
+            SkBinaryWriteBuffer writeBuffer({});
             SkPictureBackedGlyphDrawable::FlattenDrawable(writeBuffer, drawable.get());
 
             sk_sp<SkData> data = writeBuffer.snapshotAsData();

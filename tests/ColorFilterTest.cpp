@@ -42,7 +42,7 @@ struct GrContextOptions;
 struct SkStageRec;
 
 static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
-    SkBinaryWriteBuffer wb;
+    SkBinaryWriteBuffer wb({});
     wb.writeFlattenable(obj);
 
     size_t size = wb.bytesWritten();
