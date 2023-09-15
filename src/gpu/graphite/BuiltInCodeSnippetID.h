@@ -43,12 +43,10 @@ enum class BuiltInCodeSnippetID : int32_t {
     kCoordClampShader,
     kDitherShader,
     kPerlinNoiseShader,
-    kColorFilterShader,
     kRuntimeShader,
 
     // SkColorFilter code snippets
     kMatrixColorFilter,
-    kComposeColorFilter,
     kTableColorFilter,
     kGaussianColorFilter,
     kColorSpaceXformColorFilter,
@@ -65,6 +63,8 @@ enum class BuiltInCodeSnippetID : int32_t {
     // One of these must be included at the beginning of a shader if DstColor block is used
     kDstReadSample,
     kDstReadFetch,
+
+    kCompose,
 
     // Fixed-function blend modes are used for the final blend with the dst buffer's color when the
     // SkPaint is using a coefficient-based SkBlendMode. The actual coefficients are extracted into

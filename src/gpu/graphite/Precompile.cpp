@@ -129,16 +129,14 @@ void PaintOptions::handlePrimitiveColor(const KeyContext& keyContext,
     sk_sp<SkBlender> blender = addPrimitiveBlender ? SkBlender::Mode(SkBlendMode::kSrcOver)
                                                    : nullptr;
 
-    PaintParams::Blend(keyContext, keyBuilder, /* gatherer= */ nullptr, blender.get(),
-                       /* addSrcToKey= */ [&]() -> void {
-                           this->addPaintColorToKey(keyContext, keyBuilder,
-                                                    desiredShaderCombination);
-                       },
-                       /* addDstToKey= */ [&]() -> void {
-                           PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder,
-                                                           /* gatherer= */ nullptr);
-                           keyBuilder->endBlock();
-                       });
+    Blend(keyContext, keyBuilder, /* gatherer= */ nullptr, blender.get(),
+          /* addSrcToKey= */ [&]() -> void {
+              this->addPaintColorToKey(keyContext, keyBuilder, desiredShaderCombination);
+          },
+          /* addDstToKey= */ [&]() -> void {
+              PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
+              keyBuilder->endBlock();
+          });
 }
 
 void PaintOptions::handlePaintAlpha(const KeyContext& keyContext,
@@ -148,18 +146,17 @@ void PaintOptions::handlePaintAlpha(const KeyContext& keyContext,
                                     bool nonOpaquePaintColor) const {
     sk_sp<SkBlender> blender = nonOpaquePaintColor ? SkBlender::Mode(SkBlendMode::kSrcIn) : nullptr;
 
-    PaintParams::Blend(keyContext, keyBuilder, /* gatherer= */ nullptr, blender.get(),
-                       /* addSrcToKey= */ [&]() -> void {
-                           this->handlePrimitiveColor(keyContext, keyBuilder,
-                                                      desiredShaderCombination,
-                                                      addPrimitiveBlender);
-                       },
-                       /* addDstToKey= */ [&]() -> void {
-                           SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder,
-                                                             /* gatherer= */ nullptr,
-                                                             {0, 0, 0, 0.5f});
-                           keyBuilder->endBlock();
-                       });
+    Blend(keyContext, keyBuilder, /* gatherer= */ nullptr, blender.get(),
+          /* addSrcToKey= */ [&]() -> void {
+              this->handlePrimitiveColor(keyContext, keyBuilder,
+                                         desiredShaderCombination,
+                                         addPrimitiveBlender);
+          },
+          /* addDstToKey= */ [&]() -> void {
+              SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
+                                                {0, 0, 0, 0.5f});
+              keyBuilder->endBlock();
+          });
 }
 
 void PaintOptions::createKey(const KeyContext& keyContext,

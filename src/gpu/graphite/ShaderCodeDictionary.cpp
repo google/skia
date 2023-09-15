@@ -1019,11 +1019,6 @@ std::string GenerateBlendShaderPreamble(const ShaderInfo& shaderInfo,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr char kColorFilterShaderName[] = "ColorFilterShader";
-
-static constexpr int kNumColorFilterShaderChildren = 2;
-
-//--------------------------------------------------------------------------------------------------
 static constexpr char kRuntimeShaderName[] = "RuntimeEffect";
 
 class GraphitePipelineCallbacks : public SkSL::PipelineStage::Callbacks {
@@ -1141,9 +1136,9 @@ static constexpr Uniform kMatrixColorFilterUniforms[] = {
 static constexpr char kMatrixColorFilterName[] = "sk_matrix_colorfilter";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr char kComposeColorFilterName[] = "ComposeColorFilter";
+static constexpr char kComposeName[] = "Compose";
 
-static constexpr int kNumComposeColorFilterChildren = 2;
+static constexpr int kNumComposeChildren = 2;
 
 // Compose two children, assuming the first child is the innermost.
 std::string GenerateNestedChildrenPreamble(const ShaderInfo& shaderInfo,
@@ -1628,18 +1623,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             GenerateDefaultPreamble,
             kNoChildren
     };
-
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorFilterShader] = {
-            "ColorFilterShader",
-            {},      // no uniforms
-            SnippetRequirementFlags::kNone,
-            { },     // no samplers
-            kColorFilterShaderName,
-            GenerateDefaultExpression,
-            GenerateNestedChildrenPreamble,
-            kNumColorFilterShaderChildren
-    };
-
     // SkColorFilter snippets
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kMatrixColorFilter] = {
             "MatrixColorFilter",
@@ -1650,16 +1633,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
             kNoChildren
-    };
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kComposeColorFilter] = {
-            "ComposeColorFilter",
-            { },     // no uniforms
-            SnippetRequirementFlags::kPriorStageOutput,
-            { },     // no samplers
-            kComposeColorFilterName,
-            GenerateDefaultExpression,
-            GenerateNestedChildrenPreamble,
-            kNumComposeColorFilterChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kTableColorFilter] = {
             "TableColorFilter",
@@ -1763,6 +1736,16 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             GenerateDstReadFetchExpression,
             GenerateDstReadFetchPreamble,
             kNoChildren
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCompose] = {
+            "Compose",
+            { },     // no uniforms
+            SnippetRequirementFlags::kPriorStageOutput,
+            { },     // no samplers
+            kComposeName,
+            GenerateDefaultExpression,
+            GenerateNestedChildrenPreamble,
+            kNumComposeChildren
     };
 
     // Fixed-function blend mode snippets are all the same, their functionality is entirely defined

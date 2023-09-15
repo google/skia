@@ -11,6 +11,7 @@
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PrecompileBasePriv.h"
@@ -323,15 +324,18 @@ private:
         GradientShaderBlocks::GradientData gradData(fType, kStopVariants[intrinsicCombination]);
 
         // TODO: we may need SkLocalMatrixShader-wrapped versions too
-        ColorFilterShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr);
-            GradientShaderBlocks::BeginBlock(keyContext, builder,
-                                             /* gatherer= */ nullptr, gradData);
-            builder->endBlock();
-
-            ColorSpaceTransformBlock::BeginBlock(keyContext, builder,
-                                                 /* gatherer= */ nullptr, /* data= */ nullptr);
-            builder->endBlock();
-        builder->endBlock();
+        Compose(keyContext, builder, /* gatherer= */ nullptr,
+                /* addInnerToKey= */ [&]() -> void {
+                    GradientShaderBlocks::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                                     gradData);
+                    builder->endBlock();
+                },
+                /* addOuterToKey= */  [&]() -> void {
+                    ColorSpaceTransformBlock::BeginBlock(keyContext, builder,
+                                                         /* gatherer= */ nullptr,
+                                                         /* data= */ nullptr);
+                    builder->endBlock();
+                });
     }
 
     SkShaderBase::GradientType fType;
@@ -413,12 +417,14 @@ private:
         int desiredColorFilterCombination = desiredCombination / numShaderCombos;
         SkASSERT(desiredColorFilterCombination < numColorFilterCombos);
 
-        ColorFilterShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr);
-
-        fShader->priv().addToKey(keyContext, desiredShaderCombination, builder);
-        fColorFilter->priv().addToKey(keyContext, desiredColorFilterCombination, builder);
-
-        builder->endBlock();
+        Compose(keyContext, builder, /* gatherer= */ nullptr,
+                /* addInnerToKey= */ [&]() -> void {
+                    fShader->priv().addToKey(keyContext, desiredShaderCombination, builder);
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    fColorFilter->priv().addToKey(keyContext, desiredColorFilterCombination,
+                                                  builder);
+                });
     }
 
     sk_sp<PrecompileShader> fShader;
