@@ -203,6 +203,16 @@ bool GrDirectContext::abandoned() {
     return false;
 }
 
+bool GrDirectContext::isDeviceLost() {
+    if (fGpu && fGpu->isDeviceLost()) {
+        if (!GrRecordingContext::abandoned()) {
+            this->abandonContext();
+        }
+        return true;
+    }
+    return false;
+}
+
 bool GrDirectContext::oomed() { return fGpu ? fGpu->checkAndResetOOMed() : false; }
 
 void GrDirectContext::releaseResourcesAndAbandonContext() {

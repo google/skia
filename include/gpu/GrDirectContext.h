@@ -165,12 +165,19 @@ public:
     void abandonContext() override;
 
     /**
-     * Returns true if the context was abandoned or if the if the backend specific context has
-     * gotten into an unrecoverarble, lost state (e.g. in Vulkan backend if we've gotten a
+     * Returns true if the context was abandoned or if the backend specific context has gotten into
+     * an unrecoverarble, lost state (e.g. in Vulkan backend if we've gotten a
      * VK_ERROR_DEVICE_LOST). If the backend context is lost, this call will also abandon this
      * context.
      */
     bool abandoned() override;
+
+    /**
+     * Returns true if the backend specific context has gotten into an unrecoverarble, lost state
+     * (e.g. in Vulkan backend if we've gotten a VK_ERROR_DEVICE_LOST). If the backend context is
+     * lost, this call will also abandon this context.
+     */
+    bool isDeviceLost();
 
     // TODO: Remove this from public after migrating Chrome.
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
