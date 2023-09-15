@@ -33,6 +33,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #endif
 
 /** Creates an image with two one-pixel wide borders around a checkerboard. The checkerboard is 2x2
@@ -298,7 +299,8 @@ protected:
 
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
-        options->fMaxTextureSizeOverride = kMaxTextureSize;
+        SkASSERT(options->fOptionsPriv);
+        options->fOptionsPriv->fMaxTextureSizeOverride = kMaxTextureSize;
     }
 #endif
 

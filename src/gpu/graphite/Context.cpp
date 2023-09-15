@@ -47,6 +47,10 @@
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UploadTask.h"
 
+#if defined(GRAPHITE_TEST_UTILS)
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#endif
+
 namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -66,9 +70,6 @@ Context::Context(sk_sp<SharedContext> sharedContext,
                  const ContextOptions& options)
         : fSharedContext(std::move(sharedContext))
         , fQueueManager(std::move(queueManager))
-#if defined(GRAPHITE_TEST_UTILS)
-        , fStoreContextRefInRecorder(options.fStoreContextRefInRecorder)
-#endif
         , fContextID(ContextID::Next()) {
     // We have to create this outside the initializer list because we need to pass in the Context's
     // SingleOwner object and it is declared last
@@ -77,6 +78,11 @@ Context::Context(sk_sp<SharedContext> sharedContext,
                                                              options.fGpuBudgetInBytes);
     fMappedBufferManager = std::make_unique<ClientMappedBufferManager>(this->contextID());
     fPlotUploadTracker = std::make_unique<PlotUploadTracker>();
+#if defined(GRAPHITE_TEST_UTILS)
+    if (options.fOptionsPriv) {
+        fStoreContextRefInRecorder = options.fOptionsPriv->fStoreContextRefInRecorder;
+    }
+#endif
 }
 
 Context::~Context() {

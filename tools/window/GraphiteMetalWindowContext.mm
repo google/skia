@@ -15,6 +15,7 @@
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #include "src/base/SkMathPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/window/GraphiteMetalWindowContext.h"
@@ -57,7 +58,10 @@ void GraphiteMetalWindowContext::initializeContext() {
     backendContext.fQueue.retain((skgpu::graphite::MtlHandle)fQueue.get());
 
     skgpu::graphite::ContextOptions contextOptions;
-    contextOptions.fStoreContextRefInRecorder = true;
+    skgpu::graphite::ContextOptionsPriv contextOptionsPriv;
+    // Needed to make synchronous readPixels work
+    contextOptionsPriv.fStoreContextRefInRecorder = true;
+    contextOptions.fOptionsPriv = &contextOptionsPriv;
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeMetal(backendContext, contextOptions);
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     // TODO

@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #include "include/gpu/graphite/dawn/DawnUtils.h"
 #include "include/private/base/SkOnce.h"
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
 
 #include "dawn/dawn_proc.h"
 
@@ -129,7 +130,12 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
 std::unique_ptr<skgpu::graphite::Context> DawnTestContext::makeContext(
         const skgpu::graphite::ContextOptions& options) {
     skgpu::graphite::ContextOptions revisedOptions(options);
-    revisedOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
+    skgpu::graphite::ContextOptionsPriv optionsPriv;
+    if (!options.fOptionsPriv) {
+        revisedOptions.fOptionsPriv = &optionsPriv;
+    }
+    // Needed to make synchronous readPixels work
+    revisedOptions.fOptionsPriv->fStoreContextRefInRecorder = true;
 
     return skgpu::graphite::ContextFactory::MakeDawn(fBackendContext, revisedOptions);
 }

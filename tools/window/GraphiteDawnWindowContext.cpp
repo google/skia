@@ -17,6 +17,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
 #include "include/gpu/graphite/dawn/DawnUtils.h"
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/ToolUtils.h"
 
 #include "dawn/dawn_proc.h"
@@ -47,7 +48,10 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     backendContext.fDevice = fDevice;
     backendContext.fQueue = fDevice.GetQueue();
     skgpu::graphite::ContextOptions contextOptions;
-    contextOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
+    skgpu::graphite::ContextOptionsPriv contextOptionsPriv;
+    // Needed to make synchronous readPixels work
+    contextOptionsPriv.fStoreContextRefInRecorder = true;
+    contextOptions.fOptionsPriv = &contextOptionsPriv;
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(backendContext,
                                                                  contextOptions);
     if (!fGraphiteContext) {

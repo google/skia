@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 namespace skiatest::graphite {
@@ -85,7 +86,12 @@ VulkanTestContext::~VulkanTestContext() {
 std::unique_ptr<skgpu::graphite::Context> VulkanTestContext::makeContext(
         const skgpu::graphite::ContextOptions& options) {
     skgpu::graphite::ContextOptions revisedOptions(options);
-    revisedOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
+    skgpu::graphite::ContextOptionsPriv optionsPriv;
+    if (!options.fOptionsPriv) {
+        revisedOptions.fOptionsPriv = &optionsPriv;
+    }
+    // Needed to make synchronous readPixels work
+    revisedOptions.fOptionsPriv->fStoreContextRefInRecorder = true;
 
     return skgpu::graphite::ContextFactory::MakeVulkan(fVulkan, revisedOptions);
 }

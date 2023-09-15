@@ -90,6 +90,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
 // TODO: Remove this src include once we figure out public readPixels call for Graphite.
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "tools/graphite/ContextFactory.h"
@@ -2089,6 +2090,11 @@ Result GraphiteSink::draw(const Src& src,
                           SkWStream* dstStream,
                           SkString* log) const {
     skgpu::graphite::ContextOptions options = fBaseContextOptions;
+    // If we've copied context options from an external source we can't trust that the
+    // priv pointer is still in scope, so assume it should be NULL and set our own up.
+    SkASSERT(!options.fOptionsPriv);
+    skgpu::graphite::ContextOptionsPriv optionsPriv;
+    options.fOptionsPriv = &optionsPriv;
 
     src.modifyGraphiteContextOptions(&options);
 

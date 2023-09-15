@@ -17,6 +17,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #endif
 
 namespace skiagm {
@@ -40,8 +41,9 @@ private:
     }
 
 #if defined(SK_GRAPHITE)
- void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
-        options->fMaxTextureAtlasSize = fMaxAtlasSize;
+    void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
+        SkASSERT(options->fOptionsPriv);
+        options->fOptionsPriv->fMaxTextureAtlasSize = fMaxAtlasSize;
     }
 #endif
 

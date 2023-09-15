@@ -23,6 +23,7 @@ skia_graphite_public = [
 ]
 
 skia_graphite_sources = [
+  "$_include_private/ContextOptionsPriv.h",
   "$_src/AtlasProvider.cpp",
   "$_src/AtlasProvider.h",
   "$_src/AttachmentTypes.h",
