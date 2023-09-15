@@ -41,8 +41,10 @@
     <div>Fetching <a href="https://skia.org/docs/user/modules/canvaskit/">CanvasKit</a>...</div>
   </div>
 
-  <canvas id="canvas2d" width="1024" height="1024"></canvas>
-  <canvas id="canvas3d" width="1024" height="1024"></canvas>
+  <div id="canvas_wrapper">
+    <canvas id="canvas2d" width="1024" height="1024"></canvas>
+    <canvas id="canvas3d" width="1024" height="1024"></canvas>
+  </div>
 
   <div class="controls">
     <div class="controls-left">
@@ -68,11 +70,11 @@
       </div>
       <div>
         <select id="animator">
-          <option value="">None</option>
-          <option value="squircleAnimator" selected>Squircle</option>
+          <option value="">Manual</option>
+          <option value="squircleAnimator">Squircle</option>
           <option value="twirlAnimator">Twirl</option>
           <option value="wiggleAnimator">Wiggle</option>
-          <option value="cylinderAnimator">Cylinder</option>
+          <option value="cylinderAnimator" selected>Cylinder</option>
         </select>
       </div>
       <div>
@@ -92,10 +94,10 @@
     constructor(size, renderer) {
       const vertex_count = size*size;
 
-      // 2 floats per point, 4 bytes per float
-      this.verts          = new Float32Array(vertex_count*4);
-      this.animated_verts = new Float32Array(vertex_count*4);
-      this.uvs            = new Float32Array(vertex_count*4);
+      // 2 floats per point
+      this.verts          = new Float32Array(vertex_count*2);
+      this.animated_verts = new Float32Array(vertex_count*2);
+      this.uvs            = new Float32Array(vertex_count*2);
 
       let i = 0;
       for (let y = 0; y < size; ++y) {
@@ -165,6 +167,190 @@
     }
   }
 
+  class PatchControls {
+    constructor() {
+      this.controls = [
+        { pos: [ 0.00, 0.33], color: '#0ff', deps: []      },
+        { pos: [ 0.00, 0.00], color: '#0f0', deps: [0, 2]  },
+        { pos: [ 0.33, 0.00], color: '#0ff', deps: []      },
+
+        { pos: [ 0.66, 0.00], color: '#0ff', deps: []      },
+        { pos: [ 1.00, 0.00], color: '#0f0', deps: [3, 5]  },
+        { pos: [ 1.00, 0.33], color: '#0ff', deps: []      },
+
+        { pos: [ 1.00, 0.66], color: '#0ff', deps: []      },
+        { pos: [ 1.00, 1.00], color: '#0f0', deps: [6, 8]  },
+        { pos: [ 0.66, 1.00], color: '#0ff', deps: []      },
+
+        { pos: [ 0.33, 1.00], color: '#0ff', deps: []      },
+        { pos: [ 0.00, 1.00], color: '#0f0', deps: [9, 11] },
+        { pos: [ 0.00, 0.66], color: '#0ff', deps: []      },
+      ];
+
+      this.radius = 0.01;
+      this.drag_target = null;
+    }
+
+    mapMouse(ev) {
+      const w = canvas2d.width,
+            h = canvas2d.height;
+      return [
+        (ev.offsetX - w*(1 - meshScale)*0.5)/(w*meshScale),
+        (ev.offsetY - h*(1 - meshScale)*0.5)/(h*meshScale),
+      ];
+    }
+
+    onMouseDown(ev) {
+      const mouse_pos = this.mapMouse(ev);
+
+      for (let i = this.controls.length - 1; i >= 0; --i) {
+        const dx = this.controls[i].pos[0] - mouse_pos[0],
+              dy = this.controls[i].pos[1] - mouse_pos[1];
+
+        if (dx*dx + dy*dy <= this.radius*this.radius) {
+          this.drag_target = this.controls[i];
+          this.drag_offset = [dx, dy];
+          break;
+        }
+      }
+    }
+
+    onMouseMove(ev) {
+      if (!this.drag_target) return;
+
+      const mouse_pos = this.mapMouse(ev),
+                   dx = mouse_pos[0] + this.drag_offset[0] - this.drag_target.pos[0],
+                   dy = mouse_pos[1] + this.drag_offset[1] - this.drag_target.pos[1];
+
+      this.drag_target.pos = [ this.drag_target.pos[0] + dx, this.drag_target.pos[1] + dy ];
+
+      for (let dep_index of this.drag_target.deps) {
+        const dep = this.controls[dep_index];
+        dep.pos = [ dep.pos[0] + dx, dep.pos[1] + dy ];
+      }
+
+      this.updateVerts();
+    }
+
+    onMouseUp(ev) {
+      this.drag_target = null;
+    }
+
+    updateVerts() {
+      this.samplePatch(parseInt(lodSelectUI.value), meshData.animated_verts);
+    }
+
+    drawUI(line_func, circle_func) {
+      for (let i = 0; i < this.controls.length; i += 3) {
+        const c0 = this.controls[i + 0],
+              c1 = this.controls[i + 1],
+              c2 = this.controls[i + 2];
+
+        line_func(c0.pos, c1.pos, '#f00');
+        line_func(c1.pos, c2.pos, '#f00');
+        circle_func(c0.pos, this.radius, c0.color);
+        circle_func(c1.pos, this.radius, c1.color);
+        circle_func(c2.pos, this.radius, c2.color);
+      }
+    }
+
+    // Based on https://github.com/google/skia/blob/de56f293eb41d65786b9e6224fdf9a4702b30f51/src/utils/SkPatchUtils.cpp#L84
+    sampleCubic(cind, lod) {
+      const divisions = lod - 1,
+                    h = 1/divisions,
+                   h2 = h*h,
+                   h3 = h*h2,
+                  pts = [
+                          this.controls[cind[0]].pos,
+                          this.controls[cind[1]].pos,
+                          this.controls[cind[2]].pos,
+                          this.controls[cind[3]].pos,
+                        ],
+               coeffs = [
+                          [
+                            pts[3][0] + 3*(pts[1][0] - pts[2][0]) - pts[0][0],
+                            pts[3][1] + 3*(pts[1][1] - pts[2][1]) - pts[0][1],
+                          ],
+                          [
+                            3*(pts[2][0] - 2*pts[1][0] + pts[0][0]),
+                            3*(pts[2][1] - 2*pts[1][1] + pts[0][1]),
+                          ],
+                          [
+                            3*(pts[1][0] - pts[0][0]),
+                            3*(pts[1][1] - pts[0][1]),
+                          ],
+                          pts[0],
+                        ],
+              fwDiff3 = [
+                          6*h3*coeffs[0][0],
+                          6*h3*coeffs[0][1],
+                        ];
+
+      let fwDiff = [
+                     coeffs[3],
+                     [
+                       h3*coeffs[0][0] + h2*coeffs[1][0] + h*coeffs[2][0],
+                       h3*coeffs[0][1] + h2*coeffs[1][1] + h*coeffs[2][1],
+                     ],
+                     [
+                       fwDiff3[0] + 2*h2*coeffs[1][0],
+                       fwDiff3[1] + 2*h2*coeffs[1][1],
+                     ],
+                     fwDiff3,
+                   ];
+
+      let verts = [];
+
+      for (let i = 0; i <= divisions; ++i) {
+        verts.push(fwDiff[0]);
+        fwDiff[0] = [ fwDiff[0][0] + fwDiff[1][0], fwDiff[0][1] + fwDiff[1][1] ];
+        fwDiff[1] = [ fwDiff[1][0] + fwDiff[2][0], fwDiff[1][1] + fwDiff[2][1] ];
+        fwDiff[2] = [ fwDiff[2][0] + fwDiff[3][0], fwDiff[2][1] + fwDiff[3][1] ];
+      }
+
+      return verts;
+    }
+
+    // Based on https://github.com/google/skia/blob/de56f293eb41d65786b9e6224fdf9a4702b30f51/src/utils/SkPatchUtils.cpp#L256
+    samplePatch(lod, verts) {
+      const top_verts = this.sampleCubic([  1,  2,  3,  4 ], lod),
+          right_verts = this.sampleCubic([  4,  5,  6,  7 ], lod),
+         bottom_verts = this.sampleCubic([ 10,  9,  8,  7 ], lod),
+           left_verts = this.sampleCubic([  1,  0, 11, 10 ], lod);
+
+      let i = 0;
+      for (let y = 0; y < lod; ++y) {
+        const v = y/(lod - 1),
+           left = left_verts[y],
+          right = right_verts[y];
+
+        for (let x = 0; x < lod; ++x) {
+          const u = x/(lod - 1),
+              top = top_verts[x],
+           bottom = bottom_verts[x],
+
+               s0 = [
+                      (1 - v)*top[0] + v*bottom[0],
+                      (1 - v)*top[1] + v*bottom[1],
+                    ],
+               s1 = [
+                      (1 - u)*left[0] + u*right[0],
+                      (1 - u)*left[1] + u*right[1],
+                    ],
+               s2 = [
+                      (1 - v)*((1 - u)*this.controls[ 1].pos[0] + u*this.controls[4].pos[0]) +
+                            v*((1 - u)*this.controls[10].pos[0] + u*this.controls[7].pos[0]),
+                      (1 - v)*((1 - u)*this.controls[ 1].pos[1] + u*this.controls[4].pos[1]) +
+                            v*((1 - u)*this.controls[10].pos[1] + u*this.controls[7].pos[1]),
+                    ];
+
+          verts[i++] = s0[0] + s1[0] - s2[0];
+          verts[i++] = s0[1] + s1[1] - s2[1];
+        }
+      }
+    }
+  }
+
   class CKRenderer {
     constructor(ck, img, canvasElement) {
       this.ck = ck;
@@ -187,6 +373,10 @@
       this.gridPaint.setColor(ck.BLUE);
       this.gridPaint.setAntiAlias(true);
       this.gridPaint.setStyle(ck.PaintStyle.Stroke);
+
+      this.controlsPaint = new ck.Paint();
+      this.controlsPaint.setAntiAlias(true);
+      this.controlsPaint.setStyle(ck.PaintStyle.Fill);
     }
 
     // Unlike the native renderer, CK drawVertices() takes typed arrays directly - so
@@ -208,7 +398,7 @@
       return this.ck.Path.MakeFromCmds(cmds);
     }
 
-    drawMesh(mesh) {
+    drawMesh(mesh, ctrls) {
       const vertices = this.ck.MakeVertices(this.ck.VertexMode.Triangles,
                                             this.makeVertexBuffer(mesh.animated_verts),
                                             mesh.uvBuffer, null, mesh.indexBuffer, false);
@@ -226,6 +416,17 @@
         if (showMeshUI.checked) {
           canvas.drawPath(this.meshPath(mesh), this.gridPaint);
         }
+
+        ctrls?.drawUI(
+            (p0, p1, color) => {
+                this.controlsPaint.setColor(this.ck.parseColorString(color));
+                canvas.drawLine(p0[0], p0[1], p1[0], p1[1], this.controlsPaint);
+            },
+            (c, r, color) => {
+                this.controlsPaint.setColor(this.ck.parseColorString(color));
+                canvas.drawCircle(c[0], c[1], r, this.controlsPaint);
+            }
+        );
       canvas.restore();
       this.surface.flush();
     }
@@ -260,7 +461,7 @@
       return path;
     }
 
-    drawMesh(mesh) {
+    drawMesh(mesh, ctrls) {
       const vbuf = new Mesh2DVertexBuffer(mesh.animated_verts);
       const w = canvas2d.width,
             h = canvas2d.height;
@@ -277,6 +478,23 @@
           this.ctx.lineWidth = 0.001;
           this.ctx.stroke(this.meshPath(mesh));
         }
+
+        ctrls?.drawUI(
+            (p0, p1, color) => {
+                this.ctx.lineWidth = 0.001;
+                this.ctx.strokeStyle = color;
+                this.ctx.beginPath();
+                this.ctx.moveTo(p0[0], p0[1]);
+                this.ctx.lineTo(p1[0], p1[1]);
+                this.ctx.stroke();
+            },
+            (c, r, color) => {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.arc(c[0], c[1], r, 0, 2*Math.PI);
+                this.ctx.fill();
+            }
+        );
       this.ctx.restore();
     }
   }
@@ -342,7 +560,7 @@
 
   function drawFrame() {
     meshData.animate(animator);
-    currentRenderer.drawMesh(meshData);
+    currentRenderer.drawMesh(meshData, patchControls);
     requestAnimationFrame(drawFrame);
   }
 
@@ -354,6 +572,8 @@
     const hideCanvas = renderer == ckRenderer ? canvas2d : canvas3d;
     showCanvas.style.display = 'block';
     hideCanvas.style.display = 'none';
+
+    patchControls?.updateVerts();
   }
 
   const canvas2d = document.getElementById("canvas2d");
@@ -381,7 +601,8 @@
 
   const timeBase = Date.now();
 
-  var animator = window[animatorSelectUI.value];;
+  var animator = window[animatorSelectUI.value];
+  var patchControls = animator ? null : new PatchControls();
 
   Promise.all([loadCK, loadImage]).then(([ck, img]) => {
     ckRenderer = new CKRenderer(ck, img, canvas3d);
@@ -399,6 +620,15 @@
   });
 
   lodSelectUI.onchange      = () => { switchRenderer(currentRenderer); }
-  animatorSelectUI.onchange = () => { animator = window[animatorSelectUI.value]; }
   rendererSelectUI.onchange = () => { switchRenderer(window[rendererSelectUI.value]); }
+  animatorSelectUI.onchange = () => {
+    animator = window[animatorSelectUI.value];
+    patchControls = animator ? null : new PatchControls();
+    patchControls?.updateVerts();
+  }
+
+  const cwrapper = document.getElementById('canvas_wrapper');
+  cwrapper.onmousedown = (ev) => { patchControls?.onMouseDown(ev); }
+  cwrapper.onmousemove = (ev) => { patchControls?.onMouseMove(ev); }
+  cwrapper.onmouseup   = (ev) => { patchControls?.onMouseUp(ev); }
 </script>
