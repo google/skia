@@ -95,9 +95,7 @@ SkEventTracer::Handle ChromeTracingTracer::addTraceEvent(char            phase,
     int size = static_cast<int>(sizeof(TraceEvent) + numArgs * sizeof(TraceEventArg));
     for (int i = 0; i < numArgs; ++i) {
         if (TRACE_VALUE_TYPE_COPY_STRING == argTypes[i]) {
-            skia_private::TraceValueUnion value;
-            value.as_uint = argValues[i];
-            size += strlen(value.as_string) + 1;
+            size += strlen(skia_private::TraceValueAsString(argValues[i])) + 1;
         }
     }
 
@@ -127,10 +125,9 @@ SkEventTracer::Handle ChromeTracingTracer::addTraceEvent(char            phase,
             traceEventArgs[i].fArgValue = stringTable - stringTableBase;
 
             // Copy string into our buffer (and advance)
-            skia_private::TraceValueUnion value;
-            value.as_uint = argValues[i];
-            while (*value.as_string) {
-                *stringTable++ = *value.as_string++;
+            const char* valueStr = skia_private::TraceValueAsString(argValues[i]);
+            while (*valueStr) {
+                *stringTable++ = *valueStr++;
             }
             *stringTable++ = 0;
         } else {
@@ -154,18 +151,20 @@ static void trace_value_to_json(SkJSONWriter* writer,
                                 uint64_t      argValue,
                                 uint8_t       argType,
                                 const char*   stringTableBase) {
-    skia_private::TraceValueUnion value;
-    value.as_uint = argValue;
-
     switch (argType) {
-        case TRACE_VALUE_TYPE_BOOL: writer->appendBool(value.as_bool); break;
-        case TRACE_VALUE_TYPE_UINT: writer->appendU64(value.as_uint); break;
-        case TRACE_VALUE_TYPE_INT: writer->appendS64(value.as_int); break;
-        case TRACE_VALUE_TYPE_DOUBLE: writer->appendDouble(value.as_double); break;
-        case TRACE_VALUE_TYPE_POINTER: writer->appendPointer(value.as_pointer); break;
-        case TRACE_VALUE_TYPE_STRING: writer->appendCString(value.as_string); break;
+        case TRACE_VALUE_TYPE_BOOL:   writer->appendBool(argValue); break;
+        case TRACE_VALUE_TYPE_UINT:   writer->appendU64(argValue); break;
+        case TRACE_VALUE_TYPE_INT:    writer->appendS64(static_cast<int64_t>(argValue)); break;
+        case TRACE_VALUE_TYPE_DOUBLE: writer->appendDouble(sk_bit_cast<double>(argValue)); break;
+        case TRACE_VALUE_TYPE_POINTER:
+            writer->appendPointer(skia_private::TraceValueAsPointer(argValue));
+            break;
+        case TRACE_VALUE_TYPE_STRING:
+            writer->appendCString(skia_private::TraceValueAsString(argValue));
+            break;
         case TRACE_VALUE_TYPE_COPY_STRING:
-            writer->appendCString(stringTableBase + value.as_uint);
+            // See addTraceEvent(), the value in _COPY_STRING events is replaced with an offset
+            writer->appendCString(stringTableBase + argValue);
             break;
         default: writer->appendNString("<unknown type>"); break;
     }

@@ -8,6 +8,8 @@
 #include "src/core/SkTraceEvent.h"
 #include "tools/trace/SkDebugfTracer.h"
 
+#include <inttypes.h>
+
 SkEventTracer::Handle SkDebugfTracer::addTraceEvent(char phase,
                                                     const uint8_t* categoryEnabledFlag,
                                                     const char* name,
@@ -24,28 +26,28 @@ SkEventTracer::Handle SkDebugfTracer::addTraceEvent(char phase,
         } else {
             args.append(" ");
         }
-        skia_private::TraceValueUnion value;
-        value.as_uint = argValues[i];
+
+        uint64_t value = argValues[i];
         switch (argTypes[i]) {
             case TRACE_VALUE_TYPE_BOOL:
-                args.appendf("%s=%s", argNames[i], value.as_bool ? "true" : "false");
+                args.appendf("%s=%s", argNames[i], value ? "true" : "false");
                 break;
             case TRACE_VALUE_TYPE_UINT:
-                args.appendf("%s=%u", argNames[i], static_cast<uint32_t>(argValues[i]));
+                args.appendf("%s=%" PRIu64, argNames[i], value);
                 break;
             case TRACE_VALUE_TYPE_INT:
-                args.appendf("%s=%d", argNames[i], static_cast<int32_t>(argValues[i]));
+                args.appendf("%s=%" PRIi64, argNames[i], static_cast<int64_t>(value));
                 break;
             case TRACE_VALUE_TYPE_DOUBLE:
-                args.appendf("%s=%g", argNames[i], value.as_double);
+                args.appendf("%s=%g", argNames[i], sk_bit_cast<double>(value));
                 break;
             case TRACE_VALUE_TYPE_POINTER:
-                args.appendf("%s=0x%p", argNames[i], value.as_pointer);
+                args.appendf("%s=0x%p", argNames[i], skia_private::TraceValueAsPointer(value));
                 break;
             case TRACE_VALUE_TYPE_STRING:
             case TRACE_VALUE_TYPE_COPY_STRING: {
                 static constexpr size_t kMaxLen = 20;
-                SkString string(value.as_string);
+                SkString string(skia_private::TraceValueAsString(value));
                 size_t truncAt = string.size();
                 size_t newLineAt = SkStrFind(string.c_str(), "\n");
                 if (newLineAt > 0) {

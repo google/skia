@@ -177,48 +177,43 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag, cons
                                         const char* arg1Name, const uint8_t& arg1Type,
                                         const uint64_t& arg1Val) {
     perfetto::DynamicCategory category{ this->getCategoryGroupName(categoryEnabledFlag) };
-    skia_private::TraceValueUnion value;
-    value.as_uint = arg1Val;
 
     switch (arg1Type) {
         case TRACE_VALUE_TYPE_BOOL: {
-            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, value.as_bool,
+            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, SkToBool(arg1Val),
                               [&](perfetto::EventContext ctx) {
                               ctx.event()->set_name(eventName); });
             break;
         }
         case TRACE_VALUE_TYPE_UINT: {
-            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, value.as_uint,
+            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val,
                               [&](perfetto::EventContext ctx) {
                               ctx.event()->set_name(eventName); });
             break;
         }
         case TRACE_VALUE_TYPE_INT: {
-            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, value.as_int,
+            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, static_cast<int64_t>(arg1Val),
                               [&](perfetto::EventContext ctx) {
                               ctx.event()->set_name(eventName); });
             break;
         }
         case TRACE_VALUE_TYPE_DOUBLE: {
-            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, value.as_double,
+            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, sk_bit_cast<double>(arg1Val),
                               [&](perfetto::EventContext ctx) {
                               ctx.event()->set_name(eventName); });
             break;
         }
         case TRACE_VALUE_TYPE_POINTER: {
-            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, value.as_pointer,
+            TRACE_EVENT_BEGIN(category, nullptr,
+                              arg1Name, skia_private::TraceValueAsPointer(arg1Val),
                               [&](perfetto::EventContext ctx) {
                               ctx.event()->set_name(eventName); });
             break;
         }
+        case TRACE_VALUE_TYPE_COPY_STRING: [[fallthrough]]; // Perfetto always copies string data
         case TRACE_VALUE_TYPE_STRING: {
-            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, value.as_string,
-                              [&](perfetto::EventContext ctx) {
-                              ctx.event()->set_name(eventName); });
-            break;
-        }
-        case TRACE_VALUE_TYPE_COPY_STRING: {
-            TRACE_EVENT_BEGIN(category, nullptr, arg1Name, value.as_string,
+            TRACE_EVENT_BEGIN(category, nullptr,
+                              arg1Name, skia_private::TraceValueAsString(arg1Val),
                               [&](perfetto::EventContext ctx) {
                               ctx.event()->set_name(eventName); });
             break;
@@ -231,55 +226,52 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag, cons
 
 namespace {
 /* Define a template to help handle all the possible TRACE_EVENT_BEGIN macro call
- * combinations with 2 arguments of various types (defined in TraceValueUnion).
+ * combinations with 2 arguments of all the types supported by SetTraceValue.
  */
 template <typename T>
 void begin_event_with_second_arg(const char * categoryName, const char* eventName,
                                  const char* arg1Name, T arg1Val, const char* arg2Name,
                                  const uint8_t& arg2Type, const uint64_t& arg2Val) {
       perfetto::DynamicCategory category{categoryName};
-      skia_private::TraceValueUnion value;
-      value.as_uint = arg2Val;
 
       switch (arg2Type) {
           case TRACE_VALUE_TYPE_BOOL: {
-              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, value.as_bool,
+              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, SkToBool(arg2Val),
                                 [&](perfetto::EventContext ctx) {
                                 ctx.event()->set_name(eventName); });
               break;
           }
           case TRACE_VALUE_TYPE_UINT: {
-              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, value.as_uint,
+              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, arg2Val,
                                 [&](perfetto::EventContext ctx) {
                                 ctx.event()->set_name(eventName); });
               break;
           }
           case TRACE_VALUE_TYPE_INT: {
-              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg1Name, value.as_int,
+              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val,
+                                arg2Name, static_cast<int64_t>(arg2Val),
                                 [&](perfetto::EventContext ctx) {
                                 ctx.event()->set_name(eventName); });
               break;
           }
           case TRACE_VALUE_TYPE_DOUBLE: {
-              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, value.as_double,
+              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val,
+                                arg2Name, sk_bit_cast<double>(arg2Val),
                                 [&](perfetto::EventContext ctx) {
                                 ctx.event()->set_name(eventName); });
               break;
           }
           case TRACE_VALUE_TYPE_POINTER: {
-              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, value.as_pointer,
+              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val,
+                                arg2Name, skia_private::TraceValueAsPointer(arg2Val),
                                 [&](perfetto::EventContext ctx) {
                                 ctx.event()->set_name(eventName); });
               break;
           }
+          case TRACE_VALUE_TYPE_COPY_STRING: [[fallthrough]];
           case TRACE_VALUE_TYPE_STRING: {
-              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, value.as_string,
-                                [&](perfetto::EventContext ctx) {
-                                ctx.event()->set_name(eventName); });
-              break;
-          }
-          case TRACE_VALUE_TYPE_COPY_STRING: {
-              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val, arg2Name, value.as_string,
+              TRACE_EVENT_BEGIN(category, nullptr, arg1Name, arg1Val,
+                                arg2Name, skia_private::TraceValueAsString(arg2Val),
                                 [&](perfetto::EventContext ctx) {
                                 ctx.event()->set_name(eventName); });
               break;
@@ -299,43 +291,40 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag,
                                         const uint64_t& arg2Val) {
 
     const char * category{ this->getCategoryGroupName(categoryEnabledFlag) };
-    skia_private::TraceValueUnion value;
-    value.as_uint = arg1Val;
 
     switch (arg1Type) {
         case TRACE_VALUE_TYPE_BOOL: {
-            begin_event_with_second_arg(category, eventName, arg1Name, value.as_bool, arg2Name,
-                                          arg2Type, arg2Val);
+            begin_event_with_second_arg(category, eventName, arg1Name, SkToBool(arg1Val),
+                                        arg2Name, arg2Type, arg2Val);
             break;
         }
         case TRACE_VALUE_TYPE_UINT: {
-            begin_event_with_second_arg(category, eventName, arg1Name, value.as_uint, arg2Name,
-                                          arg2Type, arg2Val);
+            begin_event_with_second_arg(category, eventName, arg1Name, arg1Val,
+                                        arg2Name, arg2Type, arg2Val);
             break;
         }
         case TRACE_VALUE_TYPE_INT: {
-            begin_event_with_second_arg(category, eventName, arg1Name, value.as_int, arg2Name,
-                                          arg2Type, arg2Val);
+            begin_event_with_second_arg(category, eventName,
+                                        arg1Name, static_cast<int64_t>(arg1Val),
+                                        arg2Name, arg2Type, arg2Val);
             break;
         }
         case TRACE_VALUE_TYPE_DOUBLE: {
-            begin_event_with_second_arg(category, eventName, arg1Name, value.as_double, arg2Name,
-                                          arg2Type, arg2Val);
+            begin_event_with_second_arg(category, eventName, arg1Name, sk_bit_cast<double>(arg1Val),
+                                        arg2Name, arg2Type, arg2Val);
             break;
         }
         case TRACE_VALUE_TYPE_POINTER: {
-            begin_event_with_second_arg(category, eventName, arg1Name, value.as_pointer, arg2Name,
-                                          arg2Type, arg2Val);
+            begin_event_with_second_arg(category, eventName,
+                                        arg1Name, skia_private::TraceValueAsPointer(arg1Val),
+                                        arg2Name, arg2Type, arg2Val);
             break;
         }
+        case TRACE_VALUE_TYPE_COPY_STRING: [[fallthrough]];
         case TRACE_VALUE_TYPE_STRING: {
-            begin_event_with_second_arg(category, eventName, arg1Name, value.as_string, arg2Name,
-                                          arg2Type, arg2Val);
-            break;
-        }
-        case TRACE_VALUE_TYPE_COPY_STRING: {
-            begin_event_with_second_arg(category, eventName, arg1Name, value.as_string, arg2Name,
-                                          arg2Type, arg2Val);
+            begin_event_with_second_arg(category, eventName,
+                                        arg1Name, skia_private::TraceValueAsString(arg1Val),
+                                        arg2Name, arg2Type, arg2Val);
             break;
         }
         default: {
