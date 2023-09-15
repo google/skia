@@ -13,6 +13,7 @@
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/DitherUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
@@ -107,21 +108,16 @@ SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& 
 void Blend(const KeyContext& keyContext,
            PaintParamsKeyBuilder* keyBuilder,
            PipelineDataGatherer* gatherer,
-           const SkBlender* blender,
+           AddToKeyFn addBlendToKey,
            AddToKeyFn addSrcToKey,
            AddToKeyFn addDstToKey) {
-    if (!blender) {
-        addSrcToKey();
-        return;
-    }
-
     BlendShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer);
 
         addSrcToKey();
 
         addDstToKey();
 
-        AddToKey(keyContext, keyBuilder, gatherer, blender);
+        addBlendToKey();
 
     keyBuilder->endBlock();  // BlendShaderBlock
 }
@@ -161,31 +157,46 @@ void PaintParams::addPaintColorToKey(const KeyContext& keyContext,
 void PaintParams::handlePrimitiveColor(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* keyBuilder,
                                        PipelineDataGatherer* gatherer) const {
-    Blend(keyContext, keyBuilder, gatherer, fPrimitiveBlender.get(),
-          /* addSrcToKey= */ [&]() -> void {
-              this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
-          },
-          /* addDstToKey= */ [&]() -> void {
-              PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder, gatherer);
-              keyBuilder->endBlock();
-          });
+    if (fPrimitiveBlender) {
+        Blend(keyContext, keyBuilder, gatherer,
+              /* addBlendToKey= */ [&] () -> void {
+                  AddToKey(keyContext, keyBuilder, gatherer, fPrimitiveBlender.get());
+              },
+              /* addSrcToKey= */ [&]() -> void {
+                  this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
+              },
+              /* addDstToKey= */ [&]() -> void {
+                  PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder, gatherer);
+                  keyBuilder->endBlock();
+              });
+    } else {
+        this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
+    }
 }
 
 // Apply the paint's alpha value.
 void PaintParams::handlePaintAlpha(const KeyContext& keyContext,
                                    PaintParamsKeyBuilder* keyBuilder,
                                    PipelineDataGatherer* gatherer) const {
-    sk_sp<SkBlender> blender = fColor.fA != 1.0f ? SkBlender::Mode(SkBlendMode::kSrcIn) : nullptr;
-
-    Blend(keyContext, keyBuilder, gatherer, blender.get(),
-          /* addSrcToKey= */ [&]() -> void {
-              this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
-          },
-          /* addDstToKey= */ [&]() -> void {
-              SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer,
-                                                {0, 0, 0, fColor.fA});
-              keyBuilder->endBlock();
-          });
+    if (fColor.fA != 1.0f) {
+        Blend(keyContext, keyBuilder, gatherer,
+              /* addBlendToKey= */ [&] () -> void {
+                  auto coeffs = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kSrcIn);
+                  SkASSERT(!coeffs.empty());
+                  CoeffBlenderBlock::BeginBlock(keyContext, keyBuilder, gatherer, coeffs);
+                  keyBuilder->endBlock();
+              },
+              /* addSrcToKey= */ [&]() -> void {
+                  this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
+              },
+              /* addDstToKey= */ [&]() -> void {
+                  SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer,
+                                                    {0, 0, 0, fColor.fA});
+                  keyBuilder->endBlock();
+              });
+    } else {
+        this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
+    }
 }
 
 void PaintParams::toKey(const KeyContext& keyContext,

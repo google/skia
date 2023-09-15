@@ -99,7 +99,7 @@ private:
 using AddToKeyFn = std::function<void()>;
 
 void Blend(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*,
-           const SkBlender* blender, AddToKeyFn addSrcToKey, AddToKeyFn addDstToKey);
+           AddToKeyFn addBlendToKey, AddToKeyFn addSrcToKey, AddToKeyFn addDstToKey);
 void Compose(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*,
              AddToKeyFn addInnerToKey, AddToKeyFn addOuterToKey);
 
