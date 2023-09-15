@@ -238,10 +238,11 @@ public:
             }
         }
 
-        // Both srcIdx and dstIdx are in sync now, and can run in a 1:1 fashion. This is the
-        // normal mode of operation.
-        SkASSERT(srcIdx == dstIdx);
         if (int commonEnd = std::min(dstEnd, srcEnd); dstIdx < commonEnd) {
+            // Both srcIdx and dstIdx are in sync now, and can run in a 1:1 fashion. This is the
+            // normal mode of operation.
+            SkASSERT(srcIdx == dstIdx);
+
             int n = commonEnd - dstIdx;
             this->blurSegment(n, srcCursor, srcStride, dstCursor, dstStride);
             srcCursor += n * srcStride;
