@@ -84,10 +84,11 @@ public:
     virtual void writeImage(const SkImage*) = 0;
     virtual void writeTypeface(SkTypeface* typeface) = 0;
     virtual void writePaint(const SkPaint& paint) = 0;
+
+    const SkSerialProcs& serialProcs() const { return fProcs; }
+
 protected:
     SkSerialProcs   fProcs;
-
-    friend class SkPicturePriv; // fProcs
 };
 
 /**

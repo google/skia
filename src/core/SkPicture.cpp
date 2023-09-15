@@ -319,7 +319,7 @@ void SkPicturePriv::Flatten(const sk_sp<const SkPicture> picture, SkWriteBuffer&
     buffer.writeUInt(info.getVersion());
     buffer.writeRect(info.fCullRect);
 
-    if (auto custom = custom_serialize(picture.get(), buffer.fProcs)) {
+    if (auto custom = custom_serialize(picture.get(), buffer.serialProcs())) {
         int32_t size = SkToS32(custom->size());
         buffer.write32(-size);    // negative for custom format
         buffer.writePad32(custom->data(), size);

@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
     sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
     SkDynamicMemoryWStream writableStream;
-    picture->serialize(&writableStream);
+    picture->serialize(&writableStream, nullptr);
     sk_sp<SkData> readableData = writableStream.detachAsData();
     sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData.get());
     copy->playback(canvas);
