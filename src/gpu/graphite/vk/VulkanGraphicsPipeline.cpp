@@ -696,7 +696,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkPipeline vkPipeline;
     VkResult result;
     {
-        TRACE_EVENT0_ALWAYS("skia.shaders", "CreateGraphicsPipeline");
+        TRACE_EVENT0_ALWAYS("skia.shaders", "VkCreateGraphicsPipeline");
         VULKAN_CALL_RESULT(sharedContext->interface(),
                            result,
                            CreateGraphicsPipelines(sharedContext->device(),

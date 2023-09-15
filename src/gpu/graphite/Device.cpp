@@ -870,7 +870,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
             // We flush every Device because the glyphs that are being flushed/referenced are not
             // necessarily specific to this Device. This addresses both multiple SkSurfaces within
             // a Recorder, and nested layers.
-            ATRACE_ANDROID_FRAMEWORK_ALWAYS("Atlas full");
+            TRACE_EVENT_INSTANT0("skia.gpu", "Glyph atlas full", TRACE_EVENT_SCOPE_NAME_THREAD);
             fRecorder->priv().flushTrackedDevices();
         }
     }
@@ -1269,6 +1269,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 }
 
 void Device::flushPendingWorkToRecorder() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fRecorder);
 
     // TODO: we may need to further split this function up since device->device drawList and

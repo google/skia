@@ -61,6 +61,8 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   sk_sp<Texture> depthStencilTexture,
                                   SkRect viewport,
                                   const DrawPassList& drawPasses) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     fRenderPassSize = colorTexture->dimensions();
     if (!this->onAddRenderPass(renderPassDesc,
                                colorTexture.get(),
@@ -89,6 +91,8 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
 }
 
 bool CommandBuffer::addComputePass(const DispatchGroupList& dispatchGroups) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     if (!this->onAddComputePass(dispatchGroups)) {
         return false;
     }

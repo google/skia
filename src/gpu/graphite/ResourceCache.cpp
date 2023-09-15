@@ -10,6 +10,7 @@
 #include "include/private/base/SingleOwner.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/Resource.h"
@@ -74,6 +75,8 @@ void ResourceCache::shutdown() {
         this->removeFromPurgeableQueue(top);
         top->unrefCache();
     }
+
+    TRACE_EVENT_INSTANT0("skia.gpu.cache", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD);
 }
 
 void ResourceCache::insertResource(Resource* resource) {
@@ -221,6 +224,14 @@ void ResourceCache::processReturnedResources() {
             *resource->accessReturnIndex() = -1;
         }
     }
+
+    if (tempQueue.empty()) {
+        return;
+    }
+
+    // Trace after the lock has been released so we can simply record the tempQueue size.
+    TRACE_EVENT1("skia.gpu.cache", TRACE_FUNC, "count", tempQueue.size());
+
     for (auto& nextResource : tempQueue) {
         auto [resource, ref] = nextResource;
         // We need this check here to handle the following scenario. A Resource is sitting in the
@@ -337,6 +348,9 @@ bool ResourceCache::inPurgeableQueue(Resource* resource) const {
 void ResourceCache::purgeResource(Resource* resource) {
     SkASSERT(resource->isPurgeable());
 
+    TRACE_EVENT_INSTANT1("skia.gpu.cache", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                         "size", resource->gpuMemorySize());
+
     fResourceMap.remove(resource->key(), resource);
 
     if (resource->shouldDeleteASAP() == Resource::DeleteASAP::kNo) {
@@ -391,6 +405,7 @@ void ResourceCache::purgeResources() {
 }
 
 void ResourceCache::purgeResources(const StdSteadyClock::time_point* purgeTime) {
+    TRACE_EVENT0("skia.gpu.cache", TRACE_FUNC);
     if (fProxyCache) {
         fProxyCache->purgeProxiesNotUsedSince(purgeTime);
     }

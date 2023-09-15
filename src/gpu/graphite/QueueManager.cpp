@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/QueueManager.h"
 
 #include "include/gpu/graphite/Recording.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -55,6 +56,8 @@ bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider) {
 }
 
 bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     sk_sp<RefCntedCallback> callback;
     if (info.fFinishedProc) {
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
@@ -183,6 +186,8 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
 }
 
 bool QueueManager::submitToGpu() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
     if (!fCurrentCommandBuffer) {
         // We warn because this probably representative of a bad client state, where they don't
         // need to submit but didn't notice, but technically the submit itself is fine (no-op), so
@@ -207,6 +212,8 @@ bool QueueManager::submitToGpu() {
 }
 
 void QueueManager::checkForFinishedWork(SyncToCpu sync) {
+    TRACE_EVENT1("skia.gpu", TRACE_FUNC, "sync", sync == SyncToCpu::kYes);
+
     if (sync == SyncToCpu::kYes) {
         // wait for the last submission to finish
         OutstandingSubmission* back = (OutstandingSubmission*)fOutstandingSubmissions.back();

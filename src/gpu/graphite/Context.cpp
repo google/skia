@@ -17,6 +17,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/base/SkRectMemcpy.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/BufferManager.h"
@@ -246,6 +247,8 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
                               const SkIRect& srcRect,
                               SkImage::ReadPixelsCallback callback,
                               SkImage::ReadPixelsContext callbackContext) {
+    TRACE_EVENT2("skia.gpu", TRACE_FUNC, "width", srcRect.width(), "height", srcRect.height());
+
     if (!proxy || proxy->textureInfo().isProtected() == Protected::kYes) {
         callback(callbackContext, nullptr);
         return;
@@ -478,6 +481,8 @@ void Context::asyncReadPixelsYUV420(Recorder* recorder,
                                     const SkIRect& srcRect,
                                     SkImage::ReadPixelsCallback callback,
                                     SkImage::ReadPixelsContext callbackContext) {
+    TRACE_EVENT2("skia.gpu", TRACE_FUNC, "width", srcRect.width(), "height", srcRect.height());
+
     // Make three or four Surfaces to draw the YUV[A] planes into
     SkImageInfo yaInfo = SkImageInfo::MakeA8(srcRect.size());
     sk_sp<SkSurface> ySurface = Surface::MakeGraphite(recorder, yaInfo, Budgeted::kNo);

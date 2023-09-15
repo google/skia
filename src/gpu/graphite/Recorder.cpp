@@ -16,6 +16,7 @@
 #include "include/gpu/graphite/Recording.h"
 
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/AtlasProvider.h"
@@ -134,6 +135,7 @@ Recorder::~Recorder() {
 BackendApi Recorder::backend() const { return fSharedContext->backend(); }
 
 std::unique_ptr<Recording> Recorder::snap() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     ASSERT_SINGLE_OWNER
     for (auto& device : fTrackedDevices) {
         device->flushPendingWorkToRecorder();

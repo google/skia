@@ -130,6 +130,8 @@ public:
     List() = default;
     ~List() = default;
 
+    int count() const { return fCommands.count(); }
+
     void bindGraphicsPipeline(uint32_t pipelineIndex) {
         this->add<BindGraphicsPipeline>(pipelineIndex);
     }

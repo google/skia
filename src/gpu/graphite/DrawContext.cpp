@@ -13,6 +13,7 @@
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
@@ -236,6 +237,9 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
         return nullptr;
     }
 
+    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                         "# passes", fDrawPasses.size());
+
     const Caps* caps = recorder->priv().caps();
 
     // TODO: At this point we would determine all the targets used by the drawPasses,
@@ -265,6 +269,8 @@ sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
         return nullptr;
     }
 
+    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                         "# uploads", fPendingUploads->size());
     sk_sp<Task> uploadTask = UploadTask::Make(fPendingUploads.get());
 
     fPendingUploads = std::make_unique<UploadList>();
@@ -276,6 +282,10 @@ sk_sp<Task> DrawContext::snapComputeTask(Recorder* recorder) {
     if (fDispatchGroups.empty()) {
         return nullptr;
     }
+
+    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                         "# groups", fDispatchGroups.size());
+
     SkASSERT(fDispatchGroups.size() == 1);
     return ComputeTask::Make(std::move(fDispatchGroups));
 }

@@ -10,6 +10,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -52,6 +53,7 @@ sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
         // threads. If this happens, GlobalCache returns the first-through-gate pipeline and we
         // discard the redundant pipeline. While this is wasted effort in the rare event of a race,
         // it allows pipeline creation to be performed without locking the global cache.
+        TRACE_EVENT0_ALWAYS("skia.shaders", "createGraphicsPipeline");
         pipeline = this->createGraphicsPipeline(runtimeDict, pipelineDesc, renderPassDesc);
         if (pipeline) {
             // TODO: Should we store a null pipeline if we failed to create one so that subsequent

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/TaskGraph.h"
 
 namespace skgpu::graphite {
@@ -22,6 +23,7 @@ void TaskGraph::prepend(sk_sp<Task> task) {
 
 bool TaskGraph::prepareResources(ResourceProvider* resourceProvider,
                                  const RuntimeEffectDictionary* runtimeDict) {
+    TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
     for (const auto& task: fTasks) {
         if (!task->prepareResources(resourceProvider, runtimeDict)) {
             return false;
@@ -34,6 +36,8 @@ bool TaskGraph::prepareResources(ResourceProvider* resourceProvider,
 bool TaskGraph::addCommands(Context* context,
                             CommandBuffer* commandBuffer,
                             Task::ReplayTargetData replayData) {
+    TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
+
     for (const auto& task: fTasks) {
         if (!task->addCommands(context, commandBuffer, replayData)) {
             return false;
