@@ -100,6 +100,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
 
+#if defined(GR_TEST_UTILS)
+    const GrGLubyte* deviceName;
+    GR_GL_CALL_RET(gli, deviceName, GetString(GR_GL_RENDERER));
+    this->setDeviceName(reinterpret_cast<const char*>(deviceName));
+#endif
+
     if (GR_IS_GR_GL(standard)) {
         GrGLint max;
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);

@@ -25,6 +25,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -59,6 +61,10 @@ public:
     void dumpJSON(SkJSONWriter*) const;
 
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
+
+#if defined(GR_TEST_UTILS)
+    std::string_view deviceName() const { return fDeviceName; }
+#endif
 
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
@@ -563,6 +569,12 @@ protected:
     // NOTE: this method will only reduce the caps, never expand them.
     void finishInitialization(const GrContextOptions& options);
 
+#if defined(GR_TEST_UTILS)
+    void setDeviceName(const char* n) {
+        fDeviceName = n;
+    }
+#endif
+
     virtual bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const { return false; }
 
     std::unique_ptr<GrShaderCaps> fShaderCaps;
@@ -649,6 +661,10 @@ protected:
     size_t fBufferUpdateDataPreserveAlignment = 1;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
+
+#if defined(GR_TEST_UTILS)
+    std::string fDeviceName;
+#endif
 
 private:
     void applyOptionsOverrides(const GrContextOptions& options);

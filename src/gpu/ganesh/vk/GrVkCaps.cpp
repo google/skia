@@ -320,6 +320,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
+#if defined(GR_TEST_UTILS)
+    this->setDeviceName(properties.deviceName);
+#endif
+
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
 

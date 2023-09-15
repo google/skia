@@ -48,7 +48,7 @@ public:
     uint64_t getRenderPassDescKey(const RenderPassDesc&) const;
 
     bool isMac() const { return fGPUFamily == GPUFamily::kMac; }
-    bool isApple()const  { return fGPUFamily == GPUFamily::kApple; }
+    bool isApple() const { return fGPUFamily == GPUFamily::kApple; }
 
     uint32_t channelMask(const TextureInfo&) const override;
 

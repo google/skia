@@ -9,6 +9,8 @@
 #define skgpu_graphite_Caps_DEFINED
 
 #include <optional>
+#include <string>
+#include <string_view>
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
@@ -67,6 +69,10 @@ public:
     const SkSL::ShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     sk_sp<SkCapabilities> capabilities() const;
+
+#if defined(GRAPHITE_TEST_UTILS)
+    std::string_view deviceName() const { return fDeviceName; }
+#endif
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                                      Mipmapped mipmapped,
@@ -220,6 +226,12 @@ protected:
     // the caps.
     void finishInitialization(const ContextOptions&);
 
+#if defined(GRAPHITE_TEST_UTILS)
+    void setDeviceName(const char* n) {
+        fDeviceName = n;
+    }
+#endif
+
     // There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
     // options instead of the actual sample value.
     static inline uint32_t SamplesToKey(uint32_t numSamples) {
@@ -287,7 +299,8 @@ protected:
     ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
 #if defined(GRAPHITE_TEST_UTILS)
-    int  fMaxTextureAtlasSize = 2048;
+    std::string fDeviceName;
+    int fMaxTextureAtlasSize = 2048;
 #endif
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 

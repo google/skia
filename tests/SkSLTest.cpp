@@ -232,6 +232,7 @@ static SkString load_source(skiatest::Reporter* r,
 }
 
 static void test_one_permutation(skiatest::Reporter* r,
+                                 std::string_view deviceName,
                                  SkSurface* surface,
                                  const char* testFile,
                                  const char* permutationSuffix,
@@ -266,11 +267,13 @@ static void test_one_permutation(skiatest::Reporter* r,
     if (!success) {
         static_assert(kWidth  == 2);
         static_assert(kHeight == 2);
-        ERRORF(r, "Expected%s: solid green. Actual:\n"
+        ERRORF(r, "Expected%s: solid green. Actual output from %.*s:\n"
                   "RRGGBBAA RRGGBBAA\n"
                   "%02X%02X%02X%02X %02X%02X%02X%02X\n"
                   "%02X%02X%02X%02X %02X%02X%02X%02X",
                   permutationSuffix,
+                  (int)deviceName.size(), deviceName.data(),
+
                   SkColorGetR(color[0][0]), SkColorGetG(color[0][0]),
                   SkColorGetB(color[0][0]), SkColorGetA(color[0][0]),
 
@@ -286,16 +289,17 @@ static void test_one_permutation(skiatest::Reporter* r,
 }
 
 static void test_permutations(skiatest::Reporter* r,
+                              std::string_view deviceName,
                               SkSurface* surface,
                               const char* testFile,
                               bool strictES2) {
     SkRuntimeEffect::Options options = strictES2 ? SkRuntimeEffect::Options{}
                                                  : SkRuntimeEffectPriv::ES3Options();
     options.forceUnoptimized = false;
-    test_one_permutation(r, surface, testFile, "", options);
+    test_one_permutation(r, deviceName, surface, testFile, "", options);
 
     options.forceUnoptimized = true;
-    test_one_permutation(r, surface, testFile, " (Unoptimized)", options);
+    test_one_permutation(r, deviceName, surface, testFile, " (Unoptimized)", options);
 }
 
 static void test_cpu(skiatest::Reporter* r, const char* testFile, SkSLTestFlags flags) {
@@ -305,7 +309,7 @@ static void test_cpu(skiatest::Reporter* r, const char* testFile, SkSLTestFlags 
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
 
-    test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
+    test_permutations(r, "SkRP", surface.get(), testFile, /*strictES2=*/true);
 }
 
 #if defined(SK_GANESH)
@@ -332,12 +336,13 @@ static void test_ganesh(skiatest::Reporter* r,
     // Create a GPU-backed Ganesh surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
+    std::string_view deviceName = ctx->priv().caps()->deviceName();
 
     if (shouldRunGPU) {
-        test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
+        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/true);
     }
     if (shouldRunGPU_ES3) {
-        test_permutations(r, surface.get(), testFile, /*strictES2=*/false);
+        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/false);
     }
 }
 #endif
@@ -373,12 +378,13 @@ static void test_graphite(skiatest::Reporter* r,
                                                 kRGBA_8888_SkColorType,
                                                 kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
+    std::string_view deviceName = ctx->priv().caps()->deviceName();
 
     if (shouldRunGPU) {
-        test_permutations(r, surface.get(), testFile, /*strictES2=*/true);
+        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/true);
     }
     if (shouldRunGPU_ES3) {
-        test_permutations(r, surface.get(), testFile, /*strictES2=*/false);
+        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/false);
     }
 }
 #endif

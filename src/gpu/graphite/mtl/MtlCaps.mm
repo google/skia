@@ -223,6 +223,10 @@ void MtlCaps::initGPUFamily(id<MTLDevice> device) {
 }
 
 void MtlCaps::initCaps(const id<MTLDevice> device) {
+#if defined(GRAPHITE_TEST_UTILS)
+    this->setDeviceName([[device name] UTF8String]);
+#endif
+
     if (this->isMac() || fFamilyGroup >= 3) {
         fMaxTextureSize = 16384;
     } else {
@@ -300,7 +304,6 @@ void MtlCaps::initShaderCaps() {
     shaderCaps->fInverseHyperbolicSupport = true;
 
     // Metal uses IEEE floats so assuming those values here.
-    // TODO: add fHalfIs32Bits?
     shaderCaps->fFloatIs32Bits = true;
 }
 
