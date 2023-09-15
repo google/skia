@@ -258,7 +258,7 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
 
 sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
     if (fSoftwarePathAtlas) {
-        fSoftwarePathAtlas->recordUploads(fPendingUploads.get());
+        fSoftwarePathAtlas->recordUploads(this, recorder);
     }
 
     if (!fPendingUploads || fPendingUploads->size() == 0) {

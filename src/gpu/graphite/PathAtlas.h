@@ -9,6 +9,7 @@
 #define skgpu_graphite_PathAtlas_DEFINED
 
 #include "include/core/SkStrokeRec.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/graphite/geom/CoverageMaskShape.h"
 
@@ -20,12 +21,12 @@
 
 namespace skgpu::graphite {
 
+class DrawContext;
 class Recorder;
 class Rect;
 class Shape;
 class TextureProxy;
 class Transform;
-class UploadList;
 
 /**
  * PathAtlas manages one or more atlas textures that store coverage masks for path rendering.
@@ -170,15 +171,18 @@ class SoftwarePathAtlas : public PathAtlas {
 public:
     SoftwarePathAtlas();
     ~SoftwarePathAtlas() override {}
-    void recordUploads(UploadList*) const {}
+    void recordUploads(DrawContext*, Recorder*);
 
 protected:
     void onAddShape(const Shape&,
                     const Transform& transform,
                     const Rect& atlasBounds,
                     skvx::int2 deviceOffset,
-                    const SkStrokeRec&) override {}
-    void onReset() override {}
+                    const SkStrokeRec&) override;
+    void onReset() override;
+
+    SkAutoPixmapStorage fPixels;
+    SkIRect fDirtyRect;
 };
 
 }  // namespace skgpu::graphite
