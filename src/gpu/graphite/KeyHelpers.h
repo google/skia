@@ -376,13 +376,14 @@ void AddDstBlendBlock(const KeyContext&,
                       const SkBlender*);
 
 /**
- * Color filter blend blocks are used to blend a color uniform with the output of a shader.
+ * Blend mode color filters blend their input (as the dst color) with some given color (supplied
+ * via a uniform) as the src color.
  */
-void AddColorBlendBlock(const KeyContext&,
-                        PaintParamsKeyBuilder*,
-                        PipelineDataGatherer*,
-                        SkBlendMode,
-                        const SkPMColor4f& srcColor);
+void AddBlendModeColorFilter(const KeyContext&,
+                             PaintParamsKeyBuilder*,
+                             PipelineDataGatherer*,
+                             SkBlendMode,
+                             const SkPMColor4f& srcColor);
 
 struct RuntimeEffectBlock {
     struct ShaderData {

@@ -934,24 +934,29 @@ void AddDstBlendBlock(const KeyContext& keyContext,
     builder->endBlock();  // BlendShaderBlock
 }
 
-void AddColorBlendBlock(const KeyContext& keyContext,
-                        PaintParamsKeyBuilder* builder,
-                        PipelineDataGatherer* gatherer,
-                        SkBlendMode bm,
-                        const SkPMColor4f& srcColor) {
-    BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
-
-    // src -- solid color
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, srcColor);
-    builder->endBlock();
-    // dst -- prior output
-    PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
-    builder->endBlock();
-    // blender -- shader based blending
-    BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, bm);
-    builder->endBlock();
-
-    builder->endBlock();  // BlendShaderBlock
+void AddBlendModeColorFilter(const KeyContext& keyContext,
+                             PaintParamsKeyBuilder* builder,
+                             PipelineDataGatherer* gatherer,
+                             SkBlendMode bm,
+                             const SkPMColor4f& srcColor) {
+    Blend(keyContext, builder, gatherer,
+          /* addBlendToKey= */ [&] () -> void {
+              // Note, we're playing a bit of a game here. By explicitly adding a
+              // BlendModeBlenderBlock we're always forcing the SkSL to call 'sk_blend'
+              // rather than allowing it to sometimes call 'blend_porter_duff'. This reduces
+              // the number of shader combinations and allows the pre-compilation system to more
+              // easily match the rendering path.
+              BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, bm);
+              builder->endBlock();
+          },
+          /* addSrcToKey= */ [&]() -> void {
+              SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, srcColor);
+              builder->endBlock();
+          },
+          /* addDstToKey= */ [&]() -> void {
+              PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
+              builder->endBlock();
+          });
 }
 
 RuntimeEffectBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect)
@@ -1120,9 +1125,10 @@ static void add_to_key(const KeyContext& keyContext,
                        const SkBlendModeColorFilter* filter) {
     SkASSERT(filter);
 
-    SkPMColor4f color =
-            map_color(filter->color(), sk_srgb_singleton(), keyContext.dstColorInfo().colorSpace());
-    AddColorBlendBlock(keyContext, builder, gatherer, filter->mode(), color);
+    SkPMColor4f color = map_color(filter->color(), sk_srgb_singleton(),
+                                  keyContext.dstColorInfo().colorSpace());
+
+    AddBlendModeColorFilter(keyContext, builder, gatherer, filter->mode(), color);
 }
 
 static void add_to_key(const KeyContext& keyContext,
