@@ -805,8 +805,7 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
         info.init(interface, physDev, properties, format);
         if (info.fFormatProperties.optimalTilingFeatures &
             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()],
-                                   VK_FORMAT_S8_UINT);
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()], format);
         }
     }
     // Format: VK_FORMAT_D24_UNORM_S8_UINT
@@ -816,12 +815,9 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
         info.init(interface, physDev, properties, format);
         if (info.fFormatProperties.optimalTilingFeatures &
             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()],
-                                   VK_FORMAT_D24_UNORM_S8_UINT);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()],
-                                   VK_FORMAT_D24_UNORM_S8_UINT);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[dsFlags.value()],
-                                   VK_FORMAT_D24_UNORM_S8_UINT);
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()], format);
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[dsFlags.value()], format);
         }
     }
     // Format: VK_FORMAT_D32_SFLOAT_S8_UINT
@@ -831,12 +827,9 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
         info.init(interface, physDev, properties, format);
         if (info.fFormatProperties.optimalTilingFeatures &
             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()],
-                                   VK_FORMAT_D24_UNORM_S8_UINT);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()],
-                                   VK_FORMAT_D24_UNORM_S8_UINT);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[dsFlags.value()],
-                                   VK_FORMAT_D24_UNORM_S8_UINT);
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()], format);
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[dsFlags.value()], format);
         }
     }
 }
