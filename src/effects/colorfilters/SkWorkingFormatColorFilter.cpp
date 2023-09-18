@@ -8,7 +8,6 @@
 #include "src/effects/colorfilters/SkWorkingFormatColorFilter.h"
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
@@ -76,16 +75,17 @@ bool SkWorkingFormatColorFilter::appendStages(const SkStageRec& rec, bool shader
     const auto* dstToWorking = rec.fAlloc->make<SkColorSpaceXformSteps>(dst, working);
     const auto* workingToDst = rec.fAlloc->make<SkColorSpaceXformSteps>(working, dst);
 
-    // Any SkSL effects might reference the paint color, which is already in the destination
-    // color space. We need to transform it to the working space for consistency.
-    SkColor4f paintColorInWorkingSpace = rec.fPaintColor;
-    dstToWorking->apply(paintColorInWorkingSpace.vec());
+    // The paint color is in the destination color space, so *should* be coverted to working space.
+    // That's not necessary, though:
+    //   - Tinting alpha-only image shaders is the only effect that uses paint-color
+    //   - Alpha-only image shaders can't be reached from color-filters without SkSL
+    //   - SkSL disables paint-color tinting of alpha-only image shaders
 
     SkStageRec workingRec = {rec.fPipeline,
                              rec.fAlloc,
                              rec.fDstColorType,
                              workingCS.get(),
-                             paintColorInWorkingSpace,
+                             rec.fPaintColor,
                              rec.fSurfaceProps};
 
     dstToWorking->apply(rec.fPipeline);
