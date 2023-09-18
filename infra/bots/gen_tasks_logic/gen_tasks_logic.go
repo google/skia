@@ -1746,6 +1746,13 @@ func (b *jobBuilder) dm() {
 		if b.extraConfig("NativeFonts") && !b.matchOs("Android") {
 			b.needsFontsForParagraphTests()
 		}
+		if b.extraConfig("Fontations") {
+			b.cipd(&specs.CipdPackage{
+				Name:    "chromium/third_party/googlefonts_testdata",
+				Path:    "skia/third_party/externals/googlefonts_testdata",
+				Version: "version:20230913",
+			})
+		}
 		b.commonTestPerfAssets()
 		if b.matchExtraConfig("Lottie") {
 			b.asset("lottie-samples")
