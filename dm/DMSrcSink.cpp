@@ -19,6 +19,7 @@
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
@@ -2072,8 +2073,9 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
     dst->allocPixelsFlags(SkImageInfo::Make(size, this->colorInfo()),
                           SkBitmap::kZeroPixels_AllocFlag);
 
-    SkCanvas canvas(*dst, SkSurfaceProps(0, kRGB_H_SkPixelGeometry));
-    return src.draw(&canvas);
+    SkSurfaceProps props(/*flags=*/0, kRGB_H_SkPixelGeometry);
+    auto surface = SkSurfaces::WrapPixels(dst->pixmap(), &props);
+    return src.draw(surface->getCanvas());
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
