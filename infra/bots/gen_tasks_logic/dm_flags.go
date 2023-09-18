@@ -1069,15 +1069,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLUnaryPositiveNegative_Ganesh")
 	}
 
-	if b.model("Pixel3") || b.model("Pixel2XL") {
-		skip(ALL, "tests", ALL, "SkSLEmptyBlocksES3_Ganesh") // skia:13309
-	}
-
-	if b.extraConfig("Vulkan") &&
-		(b.model("Pixel2XL") || b.model("Pixel3") || b.model("Pixel4XL") || b.model("Pixel3a")) {
-		skip(ALL, "tests", ALL, "SkSLVoidInSequenceExpressions_Ganesh") // b/295217166
-	}
-
         // b/296440036
 	// disable broken tests on Adreno 5/6xx Vulkan or API30
 	if b.matchGpu("Adreno[56]") && (b.extraConfig("Vulkan") || b.extraConfig("API30")) {
@@ -1088,44 +1079,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels")
 	}
 
-        if b.matchGpu("Adreno[3456]") { // disable broken tests on Adreno 3/4/5/6xx
-		skip(ALL, "tests", ALL, "SkSLArrayCast_Ganesh")       // skia:12332
-		skip(ALL, "tests", ALL, "SkSLArrayComparison_Ganesh") // skia:12332
-		skip(ALL, "tests", ALL, "SkSLCommaSideEffects_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES2_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLIntrinsicClampFloat_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexLookup_Ganesh") // skia:14177
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_Ganesh")  // skia:14177
-	}
-
-	if b.matchGpu("Adreno[345]") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 3/4/5xx GLSL
-		skip(ALL, "tests", ALL, "DSLFPTest_SwitchStatement")  // skia:11891
-		skip(ALL, "tests", ALL, "SkSLMatrixToVectorCast_Ganesh") // skia:12192
-		skip(ALL, "tests", ALL, "SkSLStructsInFunctions_Ganesh") // skia:11929
-	}
-
-	if b.matchGpu("Adreno[3456]") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 3/4/5/6xx GLSL
-		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_Ganesh") // skia:13115
-	}
-
-	if b.matchGpu("Adreno6") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 6xx GLSL
-		skip(ALL, "tests", ALL, "SkSLIntrinsicIsInf_Ganesh") // skia:12377
-	}
-
-	if b.matchGpu("Adreno[56]") && !b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx GLSL
-		skip(ALL, "tests", ALL, "SkSLStructFieldFolding_Ganesh") // skia:13393
-	}
-
-	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") { // disable broken tests on Adreno 5/6xx Vulkan
-		skip(ALL, "tests", ALL, "SkSLInoutParameters_Ganesh")        // skia:12869
-		skip(ALL, "tests", ALL, "SkSLOutParams_Ganesh")              // skia:11919
-		skip(ALL, "tests", ALL, "SkSLOutParamsDoubleSwizzle_Ganesh") // skia:11919
-		skip(ALL, "tests", ALL, "SkSLOutParamsNoInline_Ganesh")      // skia:11919
-		skip(ALL, "tests", ALL, "SkSLOutParamsFunctionCallInArgument")
-	}
-
-	if (b.matchGpu("Adreno3") || b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
+	if (b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
 		skip(ALL, "tests", ALL, "SkSLMatrices") // skia:12456
 		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_Ganesh")
 	}
