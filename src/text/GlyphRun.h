@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkZip.h"
@@ -27,7 +28,6 @@
 #include <vector>
 
 class SkPaint;
-class SkTextBlob;
 struct SkRSXform;
 
 namespace sktext {
@@ -83,7 +83,7 @@ public:
                  GlyphRunBuilder* builder);
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
-    void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;
+    void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID, SkTextBlob::PurgeDelegate) const;
 
     bool canCache() const { return fOriginalTextBlob != nullptr; }
     size_t runCount() const { return fGlyphRuns.size(); }

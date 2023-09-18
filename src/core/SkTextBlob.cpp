@@ -19,7 +19,6 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/GlyphRun.h"
-#include "src/text/TextBlobMailbox.h"
 
 #include <atomic>
 #include <limits>
@@ -145,11 +144,14 @@ static int32_t next_id() {
 SkTextBlob::SkTextBlob(const SkRect& bounds)
     : fBounds(bounds)
     , fUniqueID(next_id())
-    , fCacheID(SK_InvalidUniqueID) {}
+    , fCacheID(SK_InvalidUniqueID)
+    , fPurgeDelegate(nullptr) {}
 
 SkTextBlob::~SkTextBlob() {
     if (SK_InvalidUniqueID != fCacheID.load()) {
-        sktext::PostPurgeBlobMessage(fUniqueID, fCacheID);
+        PurgeDelegate f = fPurgeDelegate.load();
+        SkASSERT(f);
+        f(fUniqueID, fCacheID);
     }
 
     const auto* run = RunRecord::First(this);

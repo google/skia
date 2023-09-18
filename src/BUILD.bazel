@@ -42,9 +42,7 @@ skia_filegroup(
             "//src/gpu:srcs",
             "//src/text/gpu:srcs",
         ],
-        "//conditions:default": [
-            "//src/text:no_slug_srcs",
-        ],
+        "//conditions:default": [],
     }) + select({
         "//src/svg:enable_svg_canvas_true": [
             "//src/svg:srcs",
@@ -163,6 +161,5 @@ generate_cpp_files_for_headers(
         "src/gpu/ganesh/GrBackendSurfacePriv.h",
         "src/gpu/ganesh/gl/GrGLBackendSurfacePriv.h",
         "src/image/SkImageGeneratorPriv.h",
-        "src/text/TextBlobMailbox.h",
     ],
 )

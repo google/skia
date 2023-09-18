@@ -248,10 +248,13 @@ private:
 
     static unsigned ScalarsPerGlyph(GlyphPositioning pos);
 
+    using PurgeDelegate = void (*)(uint32_t blobID, uint32_t cacheID);
+
     // Call when this blob is part of the key to a cache entry. This allows the cache
     // to know automatically those entries can be purged when this SkTextBlob is deleted.
-    void notifyAddedToCache(uint32_t cacheID) const {
+    void notifyAddedToCache(uint32_t cacheID, PurgeDelegate purgeDelegate) const {
         fCacheID.store(cacheID);
+        fPurgeDelegate.store(purgeDelegate);
     }
 
     friend class sktext::GlyphRunList;
@@ -262,6 +265,7 @@ private:
     const SkRect                  fBounds;
     const uint32_t                fUniqueID;
     mutable std::atomic<uint32_t> fCacheID;
+    mutable std::atomic<PurgeDelegate> fPurgeDelegate;
 
     SkDEBUGCODE(size_t fStorageSize;)
 

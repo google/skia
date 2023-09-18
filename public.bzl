@@ -1706,7 +1706,6 @@ BASE_SRCS_ALL = [
     "src/text/SlugFromBuffer.cpp",
     "src/text/StrikeForGPU.cpp",
     "src/text/StrikeForGPU.h",
-    "src/text/TextBlobMailbox.h",
     "src/utils/SkAnimCodecPlayer.cpp",
     "src/utils/SkBase64.cpp",
     "src/utils/SkBitSet.h",

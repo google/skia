@@ -11,7 +11,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkTextBlob.h"
 #include "include/private/base/SkTLogic.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
@@ -79,9 +78,11 @@ bool GlyphRunList::anyRunsLCD() const {
     return false;
 }
 
-void GlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const {
+void GlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID,
+                                                        SkTextBlob::PurgeDelegate pd) const {
     SkASSERT(fOriginalTextBlob != nullptr);
-    fOriginalTextBlob->notifyAddedToCache(cacheID);
+    SkASSERT(pd != nullptr);
+    fOriginalTextBlob->notifyAddedToCache(cacheID, pd);
 }
 
 sk_sp<SkTextBlob> GlyphRunList::makeBlob() const {

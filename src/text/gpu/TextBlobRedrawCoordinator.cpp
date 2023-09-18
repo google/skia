@@ -83,11 +83,17 @@ sk_sp<TextBlob> TextBlobRedrawCoordinator::findOrCreateBlob(const SkMatrix& view
     return blob;
 }
 
+static void post_purge_blob_message(uint32_t blobID, uint32_t cacheID) {
+    using PurgeBlobMessage = TextBlobRedrawCoordinator::PurgeBlobMessage;
+    SkASSERT(blobID != SK_InvalidGenID);
+    SkMessageBus<PurgeBlobMessage, uint32_t>::Post(PurgeBlobMessage(blobID, cacheID));
+}
+
 sk_sp<TextBlob> TextBlobRedrawCoordinator::addOrReturnExisting(
         const GlyphRunList& glyphRunList, sk_sp<TextBlob> blob) {
     SkAutoSpinlock lock{fSpinLock};
     blob = this->internalAdd(std::move(blob));
-    glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);
+    glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID, post_purge_blob_message);
     return blob;
 }
 
@@ -259,11 +265,3 @@ int TextBlobRedrawCoordinator::BlobIDCacheEntry::findBlobIndex(const TextBlob::K
 }
 
 }  // namespace sktext::gpu
-
-namespace sktext {
-void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
-    using PurgeBlobMessage = sktext::gpu::TextBlobRedrawCoordinator::PurgeBlobMessage;
-    SkASSERT(blobID != SK_InvalidGenID);
-    SkMessageBus<PurgeBlobMessage, uint32_t>::Post(PurgeBlobMessage(blobID, cacheID));
-}
-}

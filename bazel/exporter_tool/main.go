@@ -113,7 +113,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_discardable_memory_chromium",
 			Rules: []string{"//include/private/chromium:discardable_memory_hdrs"}},
 		{Var: "skia_no_slug_srcs",
-			Rules: []string{"//src/text:no_slug_srcs"}},
+			Rules: []string{}},
 	},
 	},
 	{GNI: "gn/effects.gni", Vars: []exporter.GNIFileListExportDesc{
