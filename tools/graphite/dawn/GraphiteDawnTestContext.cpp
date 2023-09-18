@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/dawn/DawnUtils.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#include "tools/gpu/ContextType.h"
 
 #include "dawn/dawn_proc.h"
 
@@ -125,6 +126,34 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     backendContext.fDevice = device;
     backendContext.fQueue  = device.GetQueue();
     return std::unique_ptr<GraphiteTestContext>(new DawnTestContext(backendContext));
+}
+
+skgpu::ContextType DawnTestContext::contextType() {
+    wgpu::AdapterProperties props;
+    fBackendContext.fDevice.GetAdapter().GetProperties(&props);
+    switch (props.backendType) {
+        case wgpu::BackendType::D3D11:
+            return skgpu::ContextType::kDawn_D3D11;
+
+        case wgpu::BackendType::D3D12:
+            return skgpu::ContextType::kDawn_D3D12;
+
+        case wgpu::BackendType::Metal:
+            return skgpu::ContextType::kDawn_Metal;
+
+        case wgpu::BackendType::Vulkan:
+            return skgpu::ContextType::kDawn_Vulkan;
+
+        case wgpu::BackendType::OpenGL:
+            return skgpu::ContextType::kDawn_OpenGL;
+
+        case wgpu::BackendType::OpenGLES:
+            return skgpu::ContextType::kDawn_OpenGLES;
+
+        default:
+            SkDEBUGFAIL("unexpected Dawn backend");
+            return skgpu::ContextType::kDawn;
+    }
 }
 
 std::unique_ptr<skgpu::graphite::Context> DawnTestContext::makeContext(

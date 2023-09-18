@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#include "tools/gpu/ContextType.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 namespace skiatest::graphite {
@@ -81,6 +82,10 @@ VulkanTestContext::~VulkanTestContext() {
 
     sk_gpu_test::FreeVulkanFeaturesStructs(fFeatures);
     delete fFeatures;
+}
+
+skgpu::ContextType VulkanTestContext::contextType() {
+    return skgpu::ContextType::kVulkan;
 }
 
 std::unique_ptr<skgpu::graphite::Context> VulkanTestContext::makeContext(

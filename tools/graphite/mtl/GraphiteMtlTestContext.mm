@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#include "tools/gpu/ContextType.h"
 
 #import <Metal/Metal.h>
 
@@ -46,6 +47,10 @@ std::unique_ptr<GraphiteTestContext> MtlTestContext::Make() {
     backendContext.fQueue.reset([*device newCommandQueue]);
 
     return std::unique_ptr<GraphiteTestContext>(new MtlTestContext(backendContext));
+}
+
+skgpu::ContextType MtlTestContext::contextType() {
+    return skgpu::ContextType::kMetal;
 }
 
 std::unique_ptr<skgpu::graphite::Context> MtlTestContext::makeContext(

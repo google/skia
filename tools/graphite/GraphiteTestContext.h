@@ -11,6 +11,10 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 
+namespace skgpu {
+enum class BackendApi : unsigned;
+enum class ContextType;
+}
 namespace skgpu::graphite {
 class Context;
 struct ContextOptions;
@@ -33,6 +37,8 @@ public:
     virtual ~GraphiteTestContext();
 
     virtual skgpu::BackendApi backend() = 0;
+
+    virtual skgpu::ContextType contextType() = 0;
 
     virtual std::unique_ptr<skgpu::graphite::Context> makeContext(
             const skgpu::graphite::ContextOptions&) = 0;

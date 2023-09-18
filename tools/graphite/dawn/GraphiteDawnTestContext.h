@@ -27,6 +27,8 @@ public:
 
     skgpu::BackendApi backend() override { return skgpu::BackendApi::kDawn; }
 
+    skgpu::ContextType contextType() override;
+
     std::unique_ptr<skgpu::graphite::Context> makeContext(
             const skgpu::graphite::ContextOptions&) override;
 
@@ -38,7 +40,7 @@ protected:
     DawnTestContext(const skgpu::graphite::DawnBackendContext& backendContext)
             : fBackendContext(backendContext) {}
 
-    skgpu::graphite::DawnBackendContext     fBackendContext;
+    skgpu::graphite::DawnBackendContext fBackendContext;
 };
 
 }  // namespace skiatest::graphite
