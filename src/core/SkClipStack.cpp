@@ -5,12 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkPath.h"
 #include "src/core/SkClipStack.h"
+
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkRectPriv.h"
 #include "src/shaders/SkShaderBase.h"
 
+#include <array>
 #include <atomic>
 #include <new>
 

@@ -11,6 +11,7 @@
 
 #if defined(SK_GANESH)
 
+#include "include/core/SkFont.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrCaps.h"

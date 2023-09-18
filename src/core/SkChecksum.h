@@ -9,9 +9,10 @@
 #define SkChecksum_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/core/SkTypes.h"
 #include "include/private/base/SkAPI.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <type_traits>

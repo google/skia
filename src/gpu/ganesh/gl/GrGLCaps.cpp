@@ -7,26 +7,46 @@
 
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 
-#include <algorithm>
-#include <memory>
-
+#include "include/core/SkColor.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDriverBugWorkarounds.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkTSearch.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/Blend.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrSurface.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
-#include "src/gpu/ganesh/GrTextureProxyPriv.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "src/gpu/ganesh/gl/GrGLContext.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "src/sksl/SkSLGLSL.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <initializer_list>
+#include <memory>
+
+class GrProgramInfo;
+class SkJSONWriter;
 
 #if defined(SK_BUILD_FOR_IOS)
 #include <TargetConditionals.h>

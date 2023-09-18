@@ -8,14 +8,14 @@
 #include "src/core/SkDescriptor.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-#include <string.h>
-#include <new>
+#include <cstring>
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
     SkASSERT(length >= sizeof(SkDescriptor) && SkAlign4(length) == length);

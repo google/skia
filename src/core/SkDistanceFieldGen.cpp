@@ -5,14 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkColorData.h"
+#include "src/core/SkDistanceFieldGen.h"
+
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkPointPriv.h"
 
+#include <cstdint>
+#include <cstring>
 #include <utility>
 
 using namespace skia_private;

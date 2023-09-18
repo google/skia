@@ -6,6 +6,8 @@
  */
 #include "src/core/SkChecksum.h"
 
+#include <cstring>
+
 // wyhash, a fast and good hash function, from https://github.com/wangyi-fudan/wyhash
 
 // likely and unlikely macros

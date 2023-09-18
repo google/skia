@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Device.h"
+#include "src/core/SkSurfacePriv.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"

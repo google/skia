@@ -8,12 +8,13 @@
 #ifndef SkColorSpaceXformSteps_DEFINED
 #define SkColorSpaceXformSteps_DEFINED
 
-#include "include/core/SkAlphaType.h"
 #include "modules/skcms/skcms.h"
-#include <stdint.h>
+
+#include <cstdint>
 
 class SkColorSpace;
 class SkRasterPipeline;
+enum SkAlphaType : int;
 
 struct SkColorSpaceXformSteps {
 

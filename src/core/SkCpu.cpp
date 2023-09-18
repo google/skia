@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkStream.h"
-#include "include/core/SkString.h"
-#include "include/private/base/SkOnce.h"
 #include "src/core/SkCpu.h"
+
+#include "include/private/base/SkOnce.h"
 
 #if defined(SK_CPU_X86)
     #if defined(_MSC_VER)

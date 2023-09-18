@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/ganesh/mtl/SkSurfaceMetal.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
+#include "src/core/SkSurfacePriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"

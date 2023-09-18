@@ -10,6 +10,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstdint>
+
 struct SkCpu {
     enum {
         SSE1       = 1 << 0,

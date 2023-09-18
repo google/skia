@@ -8,8 +8,20 @@
 #ifndef SkClipStackDevice_DEFINED
 #define SkClipStackDevice_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDevice.h"
+
+#include <cstdint>
+
+class SkPath;
+class SkRRect;
+class SkRegion;
+class SkShader;
+class SkSurfaceProps;
+enum class SkClipOp;
+struct SkImageInfo;
 
 class SkClipStackDevice : public SkDevice {
 public:

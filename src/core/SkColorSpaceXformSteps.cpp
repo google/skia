@@ -7,12 +7,16 @@
 
 #include "src/core/SkColorSpaceXformSteps.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
+
+#include <cstring>
 
 // See skia.org/user/color  (== site/user/color.md).
 

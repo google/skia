@@ -6,12 +6,19 @@
  */
 
 #include "include/core/SkContourMeasure.h"
+
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/base/SkTSearch.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathMeasurePriv.h"
 #include "src/core/SkPathPriv.h"
+
+#include <algorithm>
+#include <utility>
 
 #define kMaxTValue  0x3FFFFFFF
 

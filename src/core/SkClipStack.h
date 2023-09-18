@@ -8,15 +8,20 @@
 #ifndef SkClipStack_DEFINED
 #define SkClipStack_DEFINED
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkRegion.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDeque.h"
 #include "src/base/SkTLazy.h"
-#include "src/core/SkMessageBus.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 
 // Because a single save/restore state can have multiple clips, this class
 // stores the stack depth (fSaveCount) and clips (fDeque) separately.

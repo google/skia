@@ -8,50 +8,74 @@
 #ifndef SkDevice_DEFINED
 #define SkDevice_DEFINED
 
-#include "include/core/SkBlender.h"
+#include "include/core/SkBlender.h"  // IWYU pragma: keep
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkRasterClip.h"
-#include "src/core/SkScalerContext.h"
 #include "src/shaders/SkShaderBase.h"
 
-namespace sktext {
-class GlyphRun;
-class GlyphRunList;
-}
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
 class SkBitmap;
 class SkColorSpace;
 class SkMesh;
 struct SkDrawShadowRec;
 class SkImageFilter;
 class SkImageFilterCache;
-struct SkIRect;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
+class GrRecordingContext;
+class SkData;
+class SkDrawable;
+class SkImage;
+class SkPaint;
+class SkPath;
+class SkPixmap;
+class SkRRect;
+class SkSurface;
+class SkVertices;
+enum SkColorType : int;
+enum class SkBlendMode;
+enum class SkScalerContextFlags : uint32_t;
+struct SkRSXform;
+
+namespace sktext {
+class GlyphRunList;
+}
 
 namespace skif {
 class Context;
 struct ContextInfo;
 class Mapping;
 }
-namespace skgpu {
-class TiledTextureUtils;
-}
 namespace skgpu::ganesh {
 class Device;
 }
 namespace skgpu::graphite {
 class Device;
+class Recorder;
 }
 namespace sktext::gpu {
 class SDFTControl;
+class Slug;
 }
 
 struct SkStrikeDeviceInfo {

@@ -7,6 +7,7 @@
 
 #include "include/core/SkColorTable.h"
 
+#include "include/core/SkImageInfo.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 

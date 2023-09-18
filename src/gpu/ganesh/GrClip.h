@@ -10,9 +10,12 @@
 
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 
 class GrDrawOp;
+class GrRecordingContext;
 namespace skgpu {
 namespace ganesh {
 class SurfaceDrawContext;

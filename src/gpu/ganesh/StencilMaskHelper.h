@@ -8,6 +8,7 @@
 #ifndef StencilMaskHelper_DEFINED
 #define StencilMaskHelper_DEFINED
 
+#include "include/core/SkRegion.h"
 #include "src/gpu/ganesh/StencilClip.h"
 
 class GrShape;

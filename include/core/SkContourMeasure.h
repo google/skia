@@ -8,11 +8,16 @@
 #ifndef SkContourMeasure_DEFINED
 #define SkContourMeasure_DEFINED
 
-#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTDArray.h"
 
-struct SkConic;
+#include <memory>
+
+class SkMatrix;
+class SkPath;
 
 class SK_API SkContourMeasure : public SkRefCnt {
 public:

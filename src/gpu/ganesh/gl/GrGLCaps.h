@@ -9,21 +9,37 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
-#include "src/core/SkChecksum.h"
-#include "src/core/SkTHash.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/gl/GrGLAttachment.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "src/gpu/ganesh/GrProgramDesc.h"
 
-#include <functional>
+#include <cstdint>
+#include <memory>
+#include <vector>
 
 class GrGLContextInfo;
-class GrGLRenderTarget;
+class GrProgramInfo;
+class GrRenderTarget;
+class GrRenderTargetProxy;
+class GrSurface;
+class GrSurfaceProxy;
+class SkJSONWriter;
 enum class SkTextureCompressionType;
+struct GrContextOptions;
+struct GrGLInterface;
+struct GrShaderCaps;
+struct SkIRect;
+struct SkRect;
+
+namespace GrTest { struct TestFormatColorTypeCombination; }
 
 /**
  * Stores some capabilities of a GL context. Most are determined by the GL

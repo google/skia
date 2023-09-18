@@ -6,8 +6,20 @@
  */
 
 #include "src/core/SkClipStackDevice.h"
-#include "src/core/SkDraw.h"
-#include "src/core/SkRasterClip.h"
+
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkShader.h"
+#include "include/private/base/SkAssert.h"
+#include "src/core/SkMatrixPriv.h"
+
+#include <utility>
+
+class SkRRect;
+enum class SkClipOp;
 
 SkIRect SkClipStackDevice::devClipBounds() const {
     SkIRect r = fClipStack.bounds(this->imageInfo().bounds()).roundOut();

@@ -10,6 +10,9 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
+
+#include <cstdint>
 
 class SkReadBuffer;
 class SkWriteBuffer;

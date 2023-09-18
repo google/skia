@@ -7,33 +7,40 @@
 
 #include "src/core/SkDevice.h"
 
-#include "include/core/SkColorFilter.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkDrawable.h"
-#include "include/core/SkImageFilter.h"
-#include "include/core/SkPathMeasure.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/private/base/SkTo.h"
-#include "include/private/chromium/Slug.h"
-#include "src/base/SkTLazy.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/chromium/Slug.h"  // IWYU pragma: keep
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMemset.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkScalerContext.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/core/SkTextBlobPriv.h"
-#include "src/image/SkImage_Base.h"
-#include "src/shaders/SkLocalMatrixShader.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
+
+#include <cstdint>
 
 SkDevice::SkDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
         : fInfo(info)
@@ -376,8 +383,6 @@ bool SkDevice::peekPixels(SkPixmap* pmap) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-
-#include "src/base/SkUtils.h"
 
 static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatrix& lm) {
      SkMatrix inverse_lm;
