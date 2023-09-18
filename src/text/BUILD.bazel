@@ -10,6 +10,7 @@ TEXT_FILES = [
     "StrikeForGPU.cpp",
     "StrikeForGPU.h",
     "TextBlobMailbox.h",
+    "SlugFromBuffer.cpp",
 ]
 
 split_srcs_and_hdrs(
@@ -33,7 +34,6 @@ skia_filegroup(
     name = "no_slug_srcs",
     srcs = [
         "EmptyMailboxImpl.cpp",
-        "EmptySlugImpl.cpp",
     ],
     visibility = ["//src:__pkg__"],
 )

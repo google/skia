@@ -9,16 +9,15 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkSerialProcs.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <atomic>
+
 class SkData;
 
 namespace sktext::gpu {
-
-// This is implemented in SlugImpl.cpp
-sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client);
 
 sk_sp<Slug> Slug::ConvertBlob(
         SkCanvas* canvas, const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
@@ -42,17 +41,15 @@ size_t Slug::serialize(void* buffer, size_t size, const SkSerialProcs& procs) co
     return writeBuffer.usingInitialStorage() ? writeBuffer.bytesWritten() : 0u;
 }
 
-sk_sp<Slug> Slug::MakeFromBuffer(SkReadBuffer& buffer) {
-    return SkMakeSlugFromBuffer(buffer, nullptr);
-}
-
 sk_sp<Slug> Slug::Deserialize(const void* data,
                               size_t size,
                               const SkStrikeClient* client,
                               const SkDeserialProcs& procs) {
     SkReadBuffer buffer{data, size};
-    buffer.setDeserialProcs(procs);
-    return SkMakeSlugFromBuffer(buffer, client);
+    SkDeserialProcs procsWithSlug = procs;
+    Slug::AddDeserialProcs(&procsWithSlug, client);
+    buffer.setDeserialProcs(procsWithSlug);
+    return MakeFromBuffer(buffer);
 }
 
 void Slug::draw(SkCanvas* canvas) const {

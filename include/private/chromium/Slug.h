@@ -49,6 +49,8 @@ public:
                                    const SkDeserialProcs& procs = {});
     static sk_sp<Slug> MakeFromBuffer(SkReadBuffer& buffer);
 
+    // Allows clients to deserialize SkPictures that contain slug data
+    static void AddDeserialProcs(SkDeserialProcs* procs, const SkStrikeClient* client = nullptr);
 
     // Draw the Slug obeying the canvas's mapping and clipping.
     void draw(SkCanvas* canvas) const;
@@ -69,6 +71,8 @@ private:
     static uint32_t NextUniqueID();
     const uint32_t  fUniqueID{NextUniqueID()};
 };
+
+
 }  // namespace sktext::gpu
 
 #endif  // sktext_gpu_Slug_DEFINED

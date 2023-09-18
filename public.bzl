@@ -1703,6 +1703,7 @@ BASE_SRCS_ALL = [
     "src/text/gpu/TextBlobRedrawCoordinator.h",
     "src/text/gpu/VertexFiller.cpp",
     "src/text/gpu/VertexFiller.h",
+    "src/text/SlugFromBuffer.cpp",
     "src/text/StrikeForGPU.cpp",
     "src/text/StrikeForGPU.h",
     "src/text/TextBlobMailbox.h",
