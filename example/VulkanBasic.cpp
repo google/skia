@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
     // After drawing to our surface, we must first flush the recorded work (i.e. convert all our
     // recorded SkCanvas calls into a VkCommandBuffer). Then we call submit to submit our
     // VkCommandBuffers to the gpu queue.
-    context->flush(surface);
+    context->flush(surface.get());
     context->submit();
 
     surface.reset();

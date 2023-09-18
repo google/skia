@@ -251,7 +251,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxI
     REPORTER_ASSERT(reporter, newVkInfo.fCurrentQueueFamily == vkGpu->queueIndex());
 
     image.reset();
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
     dContext->deleteBackendTexture(backendTex);
 }
 #endif

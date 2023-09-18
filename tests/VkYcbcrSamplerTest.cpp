@@ -88,7 +88,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
     surface->getCanvas()->drawImage(srcImage, 0, 0);
-    dContext->flushAndSubmit(surface);
+    dContext->flushAndSubmit(surface.get());
 
     std::vector<uint8_t> readbackData(kImageWidth * kImageHeight * 4);
     if (!surface->readPixels(SkImageInfo::Make(kImageWidth, kImageHeight, kRGBA_8888_SkColorType,

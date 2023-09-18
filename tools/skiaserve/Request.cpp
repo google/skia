@@ -190,7 +190,7 @@ bool Request::enableGPU(bool enable) {
             // TODO understand what is actually happening here
             if (fDebugCanvas) {
                 fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
-                this->directContext()->flush(fSurface);
+                this->directContext()->flush(fSurface.get());
             }
 
             return true;
@@ -220,7 +220,7 @@ bool Request::initPictureFromStream(SkStream* stream) {
 
     // for some reason we need to 'flush' the debug canvas by drawing all of the ops
     fDebugCanvas->drawTo(this->getCanvas(), this->getLastOp());
-    this->directContext()->flush(fSurface);
+    this->directContext()->flush(fSurface.get());
     return true;
 }
 

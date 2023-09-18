@@ -105,7 +105,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* fil
             // calling flush.
             ctxInfo.testContext()->makeCurrent();
             // Sync so any release/finished procs get called.
-            ctxInfo.directContext()->flushAndSubmit(/*syncCPU=*/true);
+            ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
         } else {
             SkDebugf("Unable to make direct context for Ganesh test.\n");
             SkASSERT(false);

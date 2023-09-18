@@ -195,7 +195,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
     }
 
     // We must submit this work before we try to delete the backend texture.
-    dContext->submit(true);
+    dContext->submit(GrSyncCpu::kYes);
 
     dContext->deleteBackendTexture(backendTex);
 }

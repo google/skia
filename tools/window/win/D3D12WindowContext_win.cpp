@@ -8,6 +8,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/gpu/d3d/D3DTestUtils.h"
@@ -223,7 +224,7 @@ void D3D12WindowContext::onSwapBuffers() {
 void D3D12WindowContext::resize(int width, int height) {
     // Clean up any outstanding resources in command lists
     fContext->flush();
-    fContext->submit(true);
+    fContext->submit(GrSyncCpu::kYes);
 
     // release the previous surface and backbuffer resources
     for (int i = 0; i < kNumFrames; ++i) {

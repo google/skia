@@ -20,6 +20,7 @@
 #include "tools/gpu/GrContextFactory.h"
 
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 
 static DEFINE_string2(input, i, "", "skottie animation to render");
@@ -158,7 +159,7 @@ int main(int argc, char** argv) {
 
         if (grctx) {
             // ensure all pending reads are completed
-            grctx->flushAndSubmit(true);
+            grctx->flushAndSubmit(GrSyncCpu::kYes);
         }
         data = encoder.endRecording();
 

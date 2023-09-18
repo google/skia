@@ -18,6 +18,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -371,7 +372,7 @@ bool EGLTestHelper::importAndWaitOnSemaphore(skiatest::Reporter* reporter, int f
 
 void EGLTestHelper::doClientSync() {
     this->directContext()->flush();
-    this->directContext()->submit(true);
+    this->directContext()->submit(GrSyncCpu::kYes);
 }
 #endif  // SK_GL
 
@@ -458,7 +459,7 @@ public:
             return;
         }
 
-        fDirectContext->submit(true);
+        fDirectContext->submit(GrSyncCpu::kYes);
     }
 
     bool flushSurfaceAndSignalSemaphore(skiatest::Reporter* reporter, sk_sp<SkSurface>) override;
