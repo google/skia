@@ -1,10 +1,3 @@
-### Compilation failed:
-
-error: :2:1 error: chromium_experimental_pixel_local requires TINT_ENABLE_PIXEL_LOCAL_EXTENSION
-enable chromium_experimental_pixel_local;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
 diagnostic(off, derivative_uniformity);
 enable chromium_experimental_pixel_local;
 struct PixelLocalData {
@@ -21,5 +14,3 @@ fn _skslMain() {
 @fragment fn main() {
   _skslMain();
 }
-
-1 error
