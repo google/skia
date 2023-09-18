@@ -26,6 +26,7 @@
 #include "include/sksl/SkSLVersion.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkEnumBitMask.h"
+#include "src/base/SkStringView.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
@@ -231,10 +232,21 @@ static SkString load_source(skiatest::Reporter* r,
     return SkString{reinterpret_cast<const char*>(shaderData->bytes()), shaderData->size()};
 }
 
+static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4090"
+                                std::string_view backendAPI,    // "OpenGL"
+                                std::string_view name,          // "MatrixToVectorCast"
+                                skiatest::TestType testType) {  // skiatest::TestType::kGraphite
+    // TODO(b/40044139): migrate test-disable list from dm_flags into this file
+    return false;
+}
+
 static void test_one_permutation(skiatest::Reporter* r,
                                  std::string_view deviceName,
+                                 std::string_view backend,
                                  SkSurface* surface,
+                                 const char* name,
                                  const char* testFile,
+                                 skiatest::TestType testType,
                                  const char* permutationSuffix,
                                  const SkRuntimeEffect::Options& options) {
     SkString shaderString = load_source(r, testFile, permutationSuffix);
@@ -267,56 +279,76 @@ static void test_one_permutation(skiatest::Reporter* r,
     if (!success) {
         static_assert(kWidth  == 2);
         static_assert(kHeight == 2);
-        ERRORF(r, "Expected%s: solid green. Actual output from %.*s:\n"
-                  "RRGGBBAA RRGGBBAA\n"
-                  "%02X%02X%02X%02X %02X%02X%02X%02X\n"
-                  "%02X%02X%02X%02X %02X%02X%02X%02X",
-                  permutationSuffix,
-                  (int)deviceName.size(), deviceName.data(),
 
-                  SkColorGetR(color[0][0]), SkColorGetG(color[0][0]),
-                  SkColorGetB(color[0][0]), SkColorGetA(color[0][0]),
+        SkString message = SkStringPrintf("Expected%s: solid green. Actual output from %.*s using "
+                                          "%.*s:\n"
+                                          "RRGGBBAA RRGGBBAA\n"
+                                          "%02X%02X%02X%02X %02X%02X%02X%02X\n"
+                                          "%02X%02X%02X%02X %02X%02X%02X%02X",
+                                          permutationSuffix,
+                                          (int)deviceName.size(), deviceName.data(),
+                                          (int)backend.size(),    backend.data(),
 
-                  SkColorGetR(color[0][1]), SkColorGetG(color[0][1]),
-                  SkColorGetB(color[0][1]), SkColorGetA(color[0][1]),
+                                          SkColorGetR(color[0][0]), SkColorGetG(color[0][0]),
+                                          SkColorGetB(color[0][0]), SkColorGetA(color[0][0]),
 
-                  SkColorGetR(color[1][0]), SkColorGetG(color[1][0]),
-                  SkColorGetB(color[1][0]), SkColorGetA(color[1][0]),
+                                          SkColorGetR(color[0][1]), SkColorGetG(color[0][1]),
+                                          SkColorGetB(color[0][1]), SkColorGetA(color[0][1]),
 
-                  SkColorGetR(color[1][1]), SkColorGetG(color[1][1]),
-                  SkColorGetB(color[1][1]), SkColorGetA(color[1][1]));
+                                          SkColorGetR(color[1][0]), SkColorGetG(color[1][0]),
+                                          SkColorGetB(color[1][0]), SkColorGetA(color[1][0]),
+
+                                          SkColorGetR(color[1][1]), SkColorGetG(color[1][1]),
+                                          SkColorGetB(color[1][1]), SkColorGetA(color[1][1]));
+
+        if (failure_is_expected(deviceName, backend, name, testType)) {
+            INFOF(r, "(KNOWN ISSUE) %s", message.c_str());
+        } else {
+            ERRORF(r, "%s", message.c_str());
+        }
     }
 }
 
 static void test_permutations(skiatest::Reporter* r,
                               std::string_view deviceName,
+                              std::string_view backend,
                               SkSurface* surface,
+                              const char* name,
                               const char* testFile,
+                              skiatest::TestType testType,
                               bool strictES2) {
     SkRuntimeEffect::Options options = strictES2 ? SkRuntimeEffect::Options{}
                                                  : SkRuntimeEffectPriv::ES3Options();
     options.forceUnoptimized = false;
-    test_one_permutation(r, deviceName, surface, testFile, "", options);
+    test_one_permutation(r, deviceName, backend, surface, name, testFile, testType, "", options);
 
     options.forceUnoptimized = true;
-    test_one_permutation(r, deviceName, surface, testFile, " (Unoptimized)", options);
+    test_one_permutation(r, deviceName, backend, surface, name, testFile, testType,
+                         " (Unoptimized)", options);
 }
 
-static void test_cpu(skiatest::Reporter* r, const char* testFile, SkSLTestFlags flags) {
+static void test_cpu(skiatest::Reporter* r,
+                     const char* name,
+                     const char* testFile,
+                     SkSLTestFlags flags) {
     SkASSERT(flags & SkSLTestFlag::CPU);
 
     // Create a raster-backed surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
 
-    test_permutations(r, "SkRP", surface.get(), testFile, /*strictES2=*/true);
+    test_permutations(r, "CPU", "SkRP", surface.get(), name, testFile,
+                      skiatest::TestType::kCPU, /*strictES2=*/true);
 }
 
 #if defined(SK_GANESH)
 static void test_ganesh(skiatest::Reporter* r,
-                        GrDirectContext* ctx,
+                        const sk_gpu_test::ContextInfo& ctxInfo,
+                        const char* name,
                         const char* testFile,
                         SkSLTestFlags flags) {
+    GrDirectContext *ctx = ctxInfo.directContext();
+
     // If this is an ES3-only test on a GPU which doesn't support SkSL ES3, return immediately.
     bool shouldRunGPU = SkToBool(flags & SkSLTestFlag::GPU);
     bool shouldRunGPU_ES3 =
@@ -337,12 +369,15 @@ static void test_ganesh(skiatest::Reporter* r,
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
     std::string_view deviceName = ctx->priv().caps()->deviceName();
+    std::string_view backendAPI = skgpu::ContextTypeName(ctxInfo.type());
 
     if (shouldRunGPU) {
-        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/true);
+        test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
+                          skiatest::TestType::kGanesh, /*strictES2=*/true);
     }
     if (shouldRunGPU_ES3) {
-        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/false);
+        test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
+                          skiatest::TestType::kGanesh, /*strictES2=*/false);
     }
 }
 #endif
@@ -350,6 +385,7 @@ static void test_ganesh(skiatest::Reporter* r,
 #if defined(SK_GRAPHITE)
 static void test_graphite(skiatest::Reporter* r,
                           skgpu::graphite::Context* ctx,
+                          const char* name,
                           const char* testFile,
                           SkSLTestFlags flags) {
     // If this is an ES3-only test on a GPU which doesn't support SkSL ES3, return immediately.
@@ -379,12 +415,22 @@ static void test_graphite(skiatest::Reporter* r,
                                                 kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
     std::string_view deviceName = ctx->priv().caps()->deviceName();
+    std::string_view backendAPI;
+    switch (ctx->backend()) {
+        case skgpu::BackendApi::kDawn:   backendAPI = "Dawn"; break;
+        case skgpu::BackendApi::kMetal:  backendAPI = "Metal"; break;
+        case skgpu::BackendApi::kVulkan: backendAPI = "Vulkan"; break;
+        case skgpu::BackendApi::kMock:   backendAPI = "Mock"; break;
+        default:                         backendAPI = "Unknown"; break;
+    }
 
     if (shouldRunGPU) {
-        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/true);
+        test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
+                          skiatest::TestType::kGraphite, /*strictES2=*/true);
     }
     if (shouldRunGPU_ES3) {
-        test_permutations(r, deviceName, surface.get(), testFile, /*strictES2=*/false);
+        test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
+                          skiatest::TestType::kGraphite, /*strictES2=*/false);
     }
 }
 #endif
@@ -538,7 +584,6 @@ static void test_raster_pipeline(skiatest::Reporter* r,
     report_rp_pass(r, testFile, flags);
 }
 
-
 #if defined(SK_GANESH)
 #define DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path) \
     DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkSL##name##_Ganesh, \
@@ -546,7 +591,7 @@ static void test_raster_pipeline(skiatest::Reporter* r,
                                                        ctxInfo,             \
                                                        is_gpu(flags),       \
                                                        ctsEnforcement) {    \
-        test_ganesh(r, ctxInfo.directContext(), path, flags);               \
+        test_ganesh(r, ctxInfo, #name, path, flags);                        \
     }
 #else
 #define DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path) /* Ganesh is disabled */
@@ -567,17 +612,17 @@ static bool is_native_context_or_dawn(skgpu::ContextType type) {
                                                /*opt_filter=*/nullptr,    \
                                                is_gpu(flags),             \
                                                ctsEnforcement) {          \
-        test_graphite(r, context, path, flags);                           \
+        test_graphite(r, context, #name, path, flags);                    \
     }
 #else
 #define DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path) /* Graphite is disabled */
 #endif
 
-#define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
-    DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) { test_cpu(r, path, flags); } \
-    DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }                 \
-    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                        \
-    DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path)                                \
+#define SKSL_TEST(flags, ctsEnforcement, name, path)                                              \
+    DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) { test_cpu(r, #name, path, flags); } \
+    DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }                        \
+    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                               \
+    DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
     DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path)
 
 /**

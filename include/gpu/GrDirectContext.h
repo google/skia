@@ -417,7 +417,7 @@ public:
      * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
      * the GrFlushInfo. Regardless of whether semaphores were submitted to the GPU or not, the
      * client is still responsible for deleting any initialized semaphores.
-     * Regardleess of semaphore submission the context will still be flushed. It should be
+     * Regardless of semaphore submission the context will still be flushed. It should be
      * emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
      * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
      * take this as a failure if they passed in semaphores to be submitted.
