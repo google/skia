@@ -1065,8 +1065,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(glMsaaConfig, "gm", ALL, "imageblurtiled")
 			skip(glMsaaConfig, "gm", ALL, "imagefiltersbase")
 		}
-
-		skip(ALL, "tests", ALL, "SkSLUnaryPositiveNegative_Ganesh")
 	}
 
         // b/296440036
@@ -1079,24 +1077,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels")
 	}
 
-	if (b.matchGpu("Mali400")) && !b.extraConfig("Vulkan") {
-		skip(ALL, "tests", ALL, "SkSLMatrices") // skia:12456
-		skip(ALL, "tests", ALL, "SkSLMatrixNoOpFolding_Ganesh")
-	}
-
 	if b.gpu("QuadroP400") {
 		skip(ALL, "tests", ALL, "SkSLCommaSideEffects")
 	}
 
-	if b.matchGpu("Mali400") || b.matchGpu("Tegra3") {
-		skip(ALL, "tests", ALL, "SkSLMatrixScalarMath") // skia:12681
-	}
 
 	if b.matchGpu("Mali400") {
 		skip(ALL, "tests", ALL, "BlendRequiringDstReadWithLargeCoordinates")
-		skip(ALL, "tests", ALL, "SkSLCross")
-		skip(ALL, "tests", ALL, "SkSLMatrixSwizzleStore_Ganesh")
-	}
+		skip(ALL, "tests", ALL, "SkSLCross")  // despite the name, it's not in SkSLTest.cpp
+    }
 
 	if b.matchOs("iOS") && !b.extraConfig("Metal") {
 		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_Ganesh")
@@ -1160,11 +1149,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RTX3060") ||
-		b.gpu("QuadroP400") ||
-		b.matchGpu("GTX[6-9]60") ||
-		b.matchGpu("Mali400") ||
-		b.matchGpu("Tegra3") ||
-		b.matchGpu("Radeon(R9|HD)")) {
+		                            b.gpu("QuadroP400") ||
+		                            b.matchGpu("GTX[6-9]60") ||
+		                            b.matchGpu("Radeon(R9|HD)")) {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh") // skia:13556
 	}
 

@@ -288,6 +288,17 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
             disables[test].push_back({_, "OpenGL", GPU, kMac || kiOS});
         }
 
+        // Mali 400 is a very old driver its share of quirks, particularly in relation to matrices.
+        for (const char* test : {"Matrices",                // b/40043539
+                                 "MatrixNoOpFolding",
+                                 "MatrixScalarMath",        // b/40043764
+                                 "MatrixSwizzleStore",
+                                 "MatrixScalarNoOpFolding", // b/40044644
+                                 "UnaryPositiveNegative",
+                                 "Cross"}) {
+            disables[test].push_back({regex("Mali-400"), _, GPU, _});
+        }
+
         // Tegra3 fails to compile break stmts inside a for loop (b/40043561)
         for (const char* test : {"Switch",
                                  "SwitchDefaultOnly",
@@ -296,7 +307,9 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
                                  "SwitchWithLoops",
                                  "SwitchCaseFolding",
                                  "LoopFloat",
-                                 "LoopInt"}) {
+                                 "LoopInt",
+                                 "MatrixScalarNoOpFolding",  // b/40044644 - matrix trouble as well
+                                 "MatrixScalarMath"}) {      // b/40043764
             disables[test].push_back({regex("Tegra 3"), _, GPU, _});
         }
 
