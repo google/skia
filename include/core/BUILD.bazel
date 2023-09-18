@@ -31,7 +31,6 @@ skia_filegroup(
         "SkDataTable.h",
         "SkDocument.h",
         "SkDrawable.h",
-        "SkEncodedImageFormat.h",  # TODO(kjlubick) remove this shim
         "SkExecutor.h",
         "SkFlattenable.h",
         "SkFont.h",
@@ -42,7 +41,6 @@ skia_filegroup(
         "SkFontStyle.h",
         "SkFontTypes.h",
         "SkGraphics.h",
-        "SkICC.h",  # Remove shim
         "SkImage.h",
         "SkImageFilter.h",
         "SkImageGenerator.h",

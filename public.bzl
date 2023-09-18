@@ -47,7 +47,6 @@ SKIA_PUBLIC_HDRS = [
     "include/core/SkDocument.h",
     "include/core/SkDrawLooper.h",
     "include/core/SkDrawable.h",
-    "include/core/SkEncodedImageFormat.h",  # TODO(kjlubick) remove this shim
     "include/core/SkExecutor.h",
     "include/core/SkFlattenable.h",
     "include/core/SkFont.h",
