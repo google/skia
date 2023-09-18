@@ -236,7 +236,98 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
                                 std::string_view backendAPI,    // "OpenGL"
                                 std::string_view name,          // "MatrixToVectorCast"
                                 skiatest::TestType testType) {  // skiatest::TestType::kGraphite
-    // TODO(b/40044139): migrate test-disable list from dm_flags into this file
+    enum TestTypeMatcher { CPU, Ganesh, Graphite, GPU /* either Ganesh or Graphite */ };
+
+    struct TestDisable {
+        std::optional<std::string_view> deviceName;
+        std::optional<std::string_view> backendAPI;
+        std::optional<TestTypeMatcher> testTypeMatcher;
+        std::optional<bool> platform;
+    };
+
+    using TestDisableMap = THashMap<std::string_view, std::vector<TestDisable>>;
+
+    // TODO(b/40044139): migrate test-disable list from dm_flags into this map
+    static SkNoDestructor<TestDisableMap> testDisableMap{[] {
+        TestDisableMap disables;
+        constexpr std::nullopt_t _ = std::nullopt;
+
+#if defined(SK_BUILD_FOR_UNIX)
+        [[maybe_unused]] constexpr bool kLinux = true;
+#else
+        [[maybe_unused]] constexpr bool kLinux = false;
+#endif
+#if defined(SK_BUILD_FOR_MAC)
+        constexpr bool kMac = true;
+#else
+        constexpr bool kMac = false;
+#endif
+#if defined(SK_BUILD_FOR_IOS)
+        constexpr bool kiOS = true;
+#else
+        constexpr bool kiOS = false;
+#endif
+#if defined(SK_BUILD_FOR_WIN)
+        [[maybe_unused]] constexpr bool kWindows = true;
+#else
+        [[maybe_unused]] constexpr bool kWindows = false;
+#endif
+#if defined(SK_BUILD_FOR_ANDROID)
+        [[maybe_unused]] constexpr bool kAndroid = true;
+#else
+        [[maybe_unused]] constexpr bool kAndroid = false;
+#endif
+
+        // MacOS/iOS do not handle short-circuit evaluation properly in OpenGL (chromium:307751)
+        for (const char* test : {"LogicalAndShortCircuit",
+                                 "LogicalOrShortCircuit"}) {
+            disables[test].push_back({_, "OpenGL", GPU, kMac || kiOS});
+        }
+
+        // Tegra3 fails to compile break stmts inside a for loop (b/40043561)
+        for (const char* test : {"Switch",
+                                 "SwitchDefaultOnly",
+                                 "SwitchWithFallthrough",
+                                 "SwitchWithFallthroughAndVarDecls",
+                                 "SwitchWithLoops",
+                                 "SwitchCaseFolding",
+                                 "LoopFloat",
+                                 "LoopInt"}) {
+            disables[test].push_back({"Tegra 3", _, GPU, _});
+        }
+
+        return disables;
+    }()};
+
+    if (const std::vector<TestDisable>* testDisables = testDisableMap->find(name)) {
+        for (const TestDisable& d : *testDisables) {
+            if (d.platform.has_value() && !*d.platform) {
+                continue;  // disable applies to a different platform
+            }
+            if (d.backendAPI.has_value() && !skstd::contains(backendAPI, *d.backendAPI)) {
+                continue;  // disable applies to a different backend API
+            }
+            if (d.deviceName.has_value() && !skstd::contains(deviceName, *d.deviceName)) {
+                continue;  // disable applies to a different device
+            }
+            if (d.testTypeMatcher == CPU && testType != skiatest::TestType::kCPU) {
+                continue;  // disable only applies to CPU
+            }
+            if (d.testTypeMatcher == Ganesh && testType != skiatest::TestType::kGanesh) {
+                continue;  // disable only applies to Ganesh
+            }
+            if (d.testTypeMatcher == Graphite && testType != skiatest::TestType::kGraphite) {
+                continue;  // disable only applies to Graphites
+            }
+            if (d.testTypeMatcher == GPU && testType == skiatest::TestType::kCPU) {
+                continue;  // disable only applies to GPU
+            }
+            // This test was disabled.
+            return true;
+        }
+    }
+
+    // This test was not in our disable list.
     return false;
 }
 
@@ -256,6 +347,12 @@ static void test_one_permutation(skiatest::Reporter* r,
     SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForShader(shaderString, options);
     if (!result.effect) {
         ERRORF(r, "%s%s: %s", testFile, permutationSuffix, result.errorText.c_str());
+        return;
+    }
+    if (failure_is_expected(deviceName, backend, name, testType)) {
+        // Some driver bugs can be catastrophic (e.g. crashing dm entirely), so we don't even try to
+        // run a shader if we expect that it might fail.
+        SkDebugf("%s%s: skipped\n", testFile, permutationSuffix);
         return;
     }
 
@@ -301,11 +398,7 @@ static void test_one_permutation(skiatest::Reporter* r,
                                           SkColorGetR(color[1][1]), SkColorGetG(color[1][1]),
                                           SkColorGetB(color[1][1]), SkColorGetA(color[1][1]));
 
-        if (failure_is_expected(deviceName, backend, name, testType)) {
-            INFOF(r, "(KNOWN ISSUE) %s", message.c_str());
-        } else {
-            ERRORF(r, "%s", message.c_str());
-        }
+        ERRORF(r, "%s", message.c_str());
     }
 }
 

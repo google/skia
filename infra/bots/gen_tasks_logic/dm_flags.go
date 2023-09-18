@@ -1144,12 +1144,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLMatrixSwizzleStore_Ganesh")
 	}
 
-	if (b.matchOs("Mac") || b.matchOs("iOS")) && !b.extraConfig("Metal") {
-		// MacOS/iOS do not handle short-circuit evaluation properly in OpenGL (chromium:307751)
-		skip(ALL, "tests", ALL, "SkSLLogicalAndShortCircuit_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLLogicalOrShortCircuit_Ganesh")
-	}
-
 	if b.matchOs("iOS") && !b.extraConfig("Metal") {
 		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_Ganesh")
 	}
@@ -1196,18 +1190,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655|Xe)") {
 		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_Ganesh") // skia:12465
 		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu")      // b/294080402
-	}
-
-	if b.gpu("Tegra3") {
-		// Tegra3 fails to compile break stmts inside a for loop (skia:12477)
-		skip(ALL, "tests", ALL, "SkSLSwitch_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthroughAndVarDecls_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchWithLoops_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchCaseFolding_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLLoopFloat_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLLoopInt_Ganesh")
 	}
 
 	if b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3") || b.gpu("RTX3060") {
