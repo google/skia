@@ -1199,13 +1199,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu")      // b/294080402
 	}
 
-	if b.extraConfig("Dawn") {
-		// skia:13922: WGSL does not support case fallthrough in switch statements.
-		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthroughAndVarDecls_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwitchWithLoops_Ganesh")
-	}
-
 	if b.gpu("Tegra3") {
 		// Tegra3 fails to compile break stmts inside a for loop (skia:12477)
 		skip(ALL, "tests", ALL, "SkSLSwitch_Ganesh")
