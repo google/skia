@@ -219,9 +219,17 @@ void PaintParams::toKey(const KeyContext& keyContext,
         builder->endBlock();
     }
 
-    this->handlePaintAlpha(keyContext, builder, gatherer);
-
-    AddToKey(keyContext, builder, gatherer, fColorFilter.get());
+    if (fColorFilter) {
+        Compose(keyContext, builder, gatherer,
+                /* addInnerToKey= */ [&]() -> void {
+                    this->handlePaintAlpha(keyContext, builder, gatherer);
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    AddToKey(keyContext, builder, gatherer, fColorFilter.get());
+                });
+    } else {
+        this->handlePaintAlpha(keyContext, builder, gatherer);
+    }
 
 #ifndef SK_IGNORE_GPU_DITHER
     SkColorType ct = keyContext.dstColorInfo().colorType();
