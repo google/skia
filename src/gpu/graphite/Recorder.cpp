@@ -93,18 +93,18 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext, const RecorderOptions& op
         , fGraph(new TaskGraph)
         , fUniformDataCache(new UniformDataCache)
         , fTextureDataCache(new TextureDataCache)
-        , fRecorderID(next_id())
+        , fUniqueID(next_id())
         , fAtlasProvider(std::make_unique<AtlasProvider>(this))
         , fTokenTracker(std::make_unique<TokenTracker>())
         , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>())
-        , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fRecorderID)) {
+        , fTextBlobCache(std::make_unique<sktext::gpu::TextBlobRedrawCoordinator>(fUniqueID)) {
     fClientImageProvider = options.fImageProvider;
     if (!fClientImageProvider) {
         fClientImageProvider = DefaultImageProvider::Make();
     }
 
     fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(),
-                                                             fRecorderID,
+                                                             fUniqueID,
                                                              options.fGpuBudgetInBytes);
     fDrawBufferManager.reset( new DrawBufferManager(fResourceProvider.get(),
                                                     fSharedContext->caps()));
@@ -178,7 +178,9 @@ std::unique_ptr<Recording> Recorder::snap() {
         fTargetProxyDevice.reset();
         fTargetProxyCanvas.reset();
     }
-    std::unique_ptr<Recording> recording(new Recording(std::move(fGraph),
+    std::unique_ptr<Recording> recording(new Recording(fNextRecordingID++,
+                                                       fUniqueID,
+                                                       std::move(fGraph),
                                                        std::move(nonVolatileLazyProxies),
                                                        std::move(volatileLazyProxies),
                                                        std::move(targetProxyData),

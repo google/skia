@@ -66,7 +66,7 @@ public:
                                                  const SkBitmap&,
                                                  Mipmapped = skgpu::Mipmapped::kNo);
 
-    uint32_t recorderID() const { return fRecorder->fRecorderID; }
+    uint32_t uniqueID() const { return fRecorder->fUniqueID; }
 
     size_t getResourceCacheLimit() const;
 

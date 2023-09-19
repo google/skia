@@ -31,6 +31,9 @@ public:
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
 
+    uint32_t recorderID() const { return fRecording->fRecorderID; }
+    uint32_t uniqueID() const { return fRecording->fUniqueID; }
+
 #if defined(GRAPHITE_TEST_UTILS)
     bool isTargetProxyInstantiated() const;
     int numVolatilePromiseImages() const;

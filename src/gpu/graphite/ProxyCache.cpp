@@ -106,7 +106,7 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
     auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr,
                                             mipmapped, skgpu::Budgeted::kYes);
     if (view) {
-        auto listener = make_unique_key_invalidation_listener(key, recorder->priv().recorderID());
+        auto listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
         bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
 
         fCache.set(key, view.refProxy());

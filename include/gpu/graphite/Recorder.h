@@ -200,7 +200,8 @@ private:
     std::unique_ptr<UploadBufferManager> fUploadBufferManager;
     std::vector<Device*> fTrackedDevices;
 
-    uint32_t fRecorderID;  // Needed for MessageBox handling for text
+    uint32_t fUniqueID;  // Needed for MessageBox handling for text
+    uint32_t fNextRecordingID = 1;
     std::unique_ptr<AtlasProvider> fAtlasProvider;
     std::unique_ptr<TokenTracker> fTokenTracker;
     std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
