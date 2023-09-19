@@ -43,6 +43,45 @@ DEF_TEST(SkJpegXmp_standardXmp, r) {
     REPORTER_ASSERT(r, info.fDisplayRatioHdr == 16.f);
 }
 
+DEF_TEST(SkJpegXmp_defaultValues, r) {
+    const char xmpData[] =
+            "http://ns.adobe.com/xap/1.0/\0"
+            R"(
+            <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 6.0.0">
+               <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                        xmlns:hdrgm="http://ns.adobe.com/hdr-gain-map/1.0/">
+                  <rdf:Description rdf:about="" hdrgm:Version="1.0">
+                  </rdf:Description>
+               </rdf:RDF>
+            </x:xmpmeta>)";
+
+    std::vector<sk_sp<SkData>> app1Params;
+    app1Params.push_back(SkData::MakeWithoutCopy(xmpData, sizeof(xmpData) - 1));
+
+    auto xmp = SkJpegMakeXmp(app1Params);
+    REPORTER_ASSERT(r, xmp);
+
+    SkGainmapInfo info;
+    REPORTER_ASSERT(r, xmp->getGainmapInfoHDRGM(&info));
+    REPORTER_ASSERT(r, info.fGainmapRatioMin.fR == 1.f);
+    REPORTER_ASSERT(r, info.fGainmapRatioMin.fG == 1.f);
+    REPORTER_ASSERT(r, info.fGainmapRatioMin.fB == 1.f);
+    REPORTER_ASSERT(r, info.fGainmapRatioMax.fR == 2.f);
+    REPORTER_ASSERT(r, info.fGainmapRatioMax.fG == 2.f);
+    REPORTER_ASSERT(r, info.fGainmapRatioMax.fB == 2.f);
+    REPORTER_ASSERT(r, info.fGainmapGamma.fR == 1.f);
+    REPORTER_ASSERT(r, info.fGainmapGamma.fG == 1.f);
+    REPORTER_ASSERT(r, info.fGainmapGamma.fB == 1.f);
+    REPORTER_ASSERT(r, info.fEpsilonSdr.fR == 1.f / 64.f);
+    REPORTER_ASSERT(r, info.fEpsilonSdr.fG == 1.f / 64.f);
+    REPORTER_ASSERT(r, info.fEpsilonSdr.fB == 1.f / 64.f);
+    REPORTER_ASSERT(r, info.fEpsilonHdr.fG == 1.f / 64.f);
+    REPORTER_ASSERT(r, info.fEpsilonHdr.fR == 1.f / 64.f);
+    REPORTER_ASSERT(r, info.fEpsilonHdr.fB == 1.f / 64.f);
+    REPORTER_ASSERT(r, info.fDisplayRatioSdr == 1.f);
+    REPORTER_ASSERT(r, info.fDisplayRatioHdr == 2.f);
+}
+
 static std::string uint32_to_string(uint32_t v) {
     const char c[4] = {static_cast<char>((v >> 24) & 0xff),
                        static_cast<char>((v >> 16) & 0xff),
