@@ -129,7 +129,8 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test,
             continue;
         }
 
-        auto [_, context] = factory.getContextInfo(contextType);
+        skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(contextType);
+        skgpu::graphite::Context* context = ctxInfo.fContext;
         if (!context) {
             continue;
         }

@@ -350,12 +350,13 @@ struct GraphiteTarget : public Target {
         // context options when we make the factory here.
         this->factory = std::make_unique<ContextFactory>();
 
-        auto [testCtx, ctx] = this->factory->getContextInfo(this->config.ctxType);
-        if (!ctx) {
+        skiatest::graphite::ContextInfo ctxInfo =
+                this->factory->getContextInfo(this->config.ctxType);
+        if (!ctxInfo.fContext) {
             return false;
         }
-        this->testContext = testCtx;
-        this->context = ctx;
+        this->testContext = ctxInfo.fTestContext;
+        this->context = ctxInfo.fContext;
 
         this->recorder = this->context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
         if (!this->recorder) {
@@ -602,8 +603,9 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
 
         using ContextFactory = skiatest::graphite::ContextFactory;
 
-        ContextFactory factory{};
-        auto [testContext, ctx] = factory.getContextInfo(graphiteCtxType);
+        ContextFactory factory;
+        skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(graphiteCtxType);
+        skgpu::graphite::Context* ctx = ctxInfo.fContext;
         if (ctx) {
             // TODO: Add graphite ctx queries for supported sample count by color type.
 #if 0

@@ -21,35 +21,22 @@
 
 namespace skiatest::graphite {
 
-ContextFactory::ContextInfo::ContextInfo(ContextInfo&& other)
-    : fType(other.fType)
-    , fTestContext(std::move(other.fTestContext))
-    , fContext(std::move(other.fContext)) {
-}
-
-ContextFactory::ContextInfo::ContextInfo(skgpu::ContextType type,
-                                         std::unique_ptr<GraphiteTestContext> testContext,
-                                         std::unique_ptr<skgpu::graphite::Context> context)
-    : fType(type)
-    , fTestContext(std::move(testContext))
-    , fContext(std::move(context)) {
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 ContextFactory::ContextFactory(const skgpu::graphite::ContextOptions& options)
         : fOptions(options) {}
 
-ContextFactory::~ContextFactory() {}
+ContextInfo ContextFactory::AsContextInfo(const OwnedContextInfo& owned) {
+    return ContextInfo{owned.fTestContext.get(), owned.fContext.get()};
+}
 
-std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getContextInfo(
-        skgpu::ContextType type) {
-
-    for (ContextInfo& c : fContexts) {
-        if (c.type() == type) {
-            return { c.testContext(), c.context() };
+ContextInfo ContextFactory::getContextInfo(skgpu::ContextType type) {
+    // Look for an existing ContextInfo that we can re-use.
+    for (const OwnedContextInfo& ctxInfo : fContexts) {
+        if (ctxInfo.fType == type) {
+            return AsContextInfo(ctxInfo);
         }
     }
 
+    // Create a new ContextInfo from this context type.
     std::unique_ptr<GraphiteTestContext> testCtx;
 
     switch (type) {
@@ -94,17 +81,16 @@ std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getC
     }
 
     if (!testCtx) {
-        return {};
+        return ContextInfo{};
     }
 
     std::unique_ptr<skgpu::graphite::Context> context = testCtx->makeContext(fOptions);
     if (!context) {
-        return {};
+        return ContextInfo{};
     }
 
-    fContexts.push_back({ type, std::move(testCtx), std::move(context) });
-
-    return { fContexts.back().testContext(), fContexts.back().context() };
+    fContexts.push_back({type, std::move(testCtx), std::move(context)});
+    return AsContextInfo(fContexts.back());
 }
 
 } // namespace skiatest::graphite
