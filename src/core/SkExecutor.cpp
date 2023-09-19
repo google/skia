@@ -10,10 +10,9 @@
 #include "include/private/base/SkSemaphore.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkNoDestructor.h"
-
+#include "src/base/SkSpinlock.h"
 #include <deque>
 #include <thread>
-#include <utility>
 
 using namespace skia_private;
 

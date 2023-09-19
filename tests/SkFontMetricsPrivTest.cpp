@@ -8,7 +8,6 @@
 #include "src/core/SkFontMetricsPriv.h"
 
 #include "include/core/SkFont.h"
-#include "include/core/SkFontMetrics.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"

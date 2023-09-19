@@ -9,25 +9,16 @@
 #define SkTextBlob_DEFINED
 
 #include "include/core/SkFont.h"
-#include "include/core/SkFontTypes.h"
-#include "include/core/SkRect.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
+#include "include/core/SkString.h"
 #include "include/private/base/SkTemplates.h"
 
 #include <atomic>
-#include <cstdint>
-#include <cstring>
 
-class SkData;
-class SkPaint;
-class SkTypeface;
-struct SkDeserialProcs;
-struct SkPoint;
 struct SkRSXform;
 struct SkSerialProcs;
+struct SkDeserialProcs;
 
 namespace sktext {
 class GlyphRunList;

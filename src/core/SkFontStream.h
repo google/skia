@@ -8,11 +8,9 @@
 #ifndef SkFontStream_DEFINED
 #define SkFontStream_DEFINED
 
-#include "include/core/SkTypeface.h"
-
-#include <cstddef>
-
 class SkStream;
+
+#include "include/core/SkTypeface.h"
 
 class SkFontStream {
 public:
