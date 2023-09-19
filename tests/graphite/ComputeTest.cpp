@@ -63,8 +63,8 @@ bool is_dawn_or_metal_context_type(skiatest::GpuContextType ctxType) {
 }  // namespace
 
 #define DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(name, reporter, graphite_context) \
-    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, is_dawn_or_metal_context_type, reporter, \
-                                   graphite_context, CtsEnforcement::kNever)
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, is_dawn_or_metal_context_type, reporter,       \
+                                   graphite_context, testCtx, CtsEnforcement::kNever)
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.

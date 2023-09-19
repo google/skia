@@ -130,13 +130,12 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test,
         }
 
         skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(contextType);
-        skgpu::graphite::Context* context = ctxInfo.fContext;
-        if (!context) {
+        if (!ctxInfo.fContext) {
             continue;
         }
 
         ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
-        (*test)(reporter, context);
+        (*test)(reporter, ctxInfo.fContext, ctxInfo.fTestContext);
     }
 }
 

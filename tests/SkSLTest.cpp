@@ -69,6 +69,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "tools/graphite/GraphiteTestContext.h"
 #if defined(SK_DAWN)
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #endif
@@ -544,6 +545,7 @@ static void test_ganesh(skiatest::Reporter* r,
 #if defined(SK_GRAPHITE)
 static void test_graphite(skiatest::Reporter* r,
                           skgpu::graphite::Context* ctx,
+                          skiatest::graphite::GraphiteTestContext* testCtx,
                           const char* name,
                           const char* testFile,
                           SkSLTestFlags flags) {
@@ -574,14 +576,7 @@ static void test_graphite(skiatest::Reporter* r,
                                                 kPremul_SkAlphaType);
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
     std::string_view deviceName = ctx->priv().caps()->deviceName();
-    std::string_view backendAPI;
-    switch (ctx->backend()) {
-        case skgpu::BackendApi::kDawn:   backendAPI = "Dawn"; break;
-        case skgpu::BackendApi::kMetal:  backendAPI = "Metal"; break;
-        case skgpu::BackendApi::kVulkan: backendAPI = "Vulkan"; break;
-        case skgpu::BackendApi::kMock:   backendAPI = "Mock"; break;
-        default:                         backendAPI = "Unknown"; break;
-    }
+    std::string_view backendAPI = skgpu::ContextTypeName(testCtx->contextType());
 
     if (shouldRunGPU) {
         test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
@@ -768,10 +763,11 @@ static bool is_native_context_or_dawn(skgpu::ContextType type) {
                                                is_native_context_or_dawn, \
                                                r,                         \
                                                context,                   \
+                                               testContext,               \
                                                /*opt_filter=*/nullptr,    \
                                                is_gpu(flags),             \
                                                ctsEnforcement) {          \
-        test_graphite(r, context, #name, path, flags);                    \
+        test_graphite(r, context, testContext, #name, path, flags);       \
     }
 #else
 #define DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path) /* Graphite is disabled */
