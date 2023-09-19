@@ -24,6 +24,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/chromium/GrPromiseImageTexture.h"
+#include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -441,5 +442,13 @@ sk_sp<SkImage> MakeWithFilter(GrRecordingContext* rContext,
                                                outSubset,
                                                offset);
 }
+
+GrDirectContext* GetContext(const SkImage* src) {
+    if (!src || !as_IB(src)->isGaneshBacked()) {
+        return nullptr;
+    }
+    return as_IB(src)->directContext();
+}
+
 
 } // namespace SkImages

@@ -14,6 +14,7 @@
 class GrBackendFormat;
 class GrContextThreadSafeProxy;
 class GrPromiseImageTexture;
+class GrDirectContext;
 class GrYUVABackendTextureInfo;
 class SkColorSpace;
 class SkImage;
@@ -101,6 +102,15 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> gpu
                                              PromiseImageTextureFulfillProc textureFulfillProc,
                                              PromiseImageTextureReleaseProc textureReleaseProc,
                                              PromiseImageTextureContext textureContexts[]);
+
+/** Returns the GPU context associated with this image or nullptr if the image is not Ganesh-backed.
+    We expose this only to help transition certain API calls and do not intend for this to stick
+    around forever.
+*/
+SK_API GrDirectContext* GetContext(const SkImage* src);
+inline GrDirectContext* GetContext(sk_sp<const SkImage> src) {
+    return GetContext(src.get());
+}
 
 }  // namespace SkImages
 
