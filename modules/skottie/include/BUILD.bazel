@@ -11,6 +11,7 @@ skia_filegroup(
         "Skottie.h",
         "SkottieProperty.h",
         "SlotManager.h",
+        "TextShaper.h"
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )

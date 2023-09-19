@@ -8,9 +8,9 @@
 #ifndef SkottieTextAdapter_DEFINED
 #define SkottieTextAdapter_DEFINED
 
+#include "modules/skottie/include/TextShaper.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/Font.h"
-#include "modules/skottie/src/text/SkottieShaper.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
 

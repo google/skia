@@ -17,7 +17,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
-#include "modules/skottie/src/text/SkottieShaper.h"
+#include "modules/skottie/include/TextShaper.h"
 
 #include <functional>
 #include <vector>

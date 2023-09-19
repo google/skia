@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkFontMgr.h"
-#include "modules/skottie/src/text/SkottieShaper.h"
+#include "modules/skottie/include/TextShaper.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 

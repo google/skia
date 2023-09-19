@@ -2390,6 +2390,7 @@ SKOTTIE_LIB_HDRS = [
     "modules/skottie/include/Skottie.h",
     "modules/skottie/include/SkottieProperty.h",
     "modules/skottie/include/SlotManager.h",
+    "modules/skottie/include/TextShaper.h",
 ]
 
 # We omit SkottieTool and SkottieTest as they are not needed for production code.
@@ -2476,12 +2477,12 @@ SKOTTIE_LIB_SRCS = [
     "modules/skottie/src/text/Font.h",
     "modules/skottie/src/text/RangeSelector.cpp",
     "modules/skottie/src/text/RangeSelector.h",
-    "modules/skottie/src/text/SkottieShaper.cpp",
     "modules/skottie/src/text/SkottieShaper.h",
     "modules/skottie/src/text/TextAdapter.cpp",
     "modules/skottie/src/text/TextAdapter.h",
     "modules/skottie/src/text/TextAnimator.cpp",
     "modules/skottie/src/text/TextAnimator.h",
+    "modules/skottie/src/text/TextShaper.cpp",
     "modules/skottie/src/text/TextValue.cpp",
     "modules/skottie/src/text/TextValue.h",
     "modules/skottie/src/Transform.cpp",
@@ -2505,11 +2506,13 @@ SKOTTIE_UTILS_SRCS = [
 ################################################################################
 
 SKOTTIE_SHAPER_HDRS = [
+    "modules/skottie/include/TextShaper.h",
+    # transitional
     "modules/skottie/src/text/SkottieShaper.h",
 ]
 
 SKOTTIE_SHAPER_SRCS = [
-    "modules/skottie/src/text/SkottieShaper.cpp",
+    "modules/skottie/src/text/TextShaper.cpp",
 ]
 
 ################################################################################
