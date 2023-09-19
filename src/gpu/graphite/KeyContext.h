@@ -105,6 +105,17 @@ private:
     SkMatrix fStorage;
 };
 
+class KeyContextWithColorInfo : public KeyContext {
+public:
+    KeyContextWithColorInfo(const KeyContext& other, const SkColorInfo& info) : KeyContext(other) {
+        fDstColorInfo = info;
+    }
+
+private:
+    KeyContextWithColorInfo(const KeyContextWithColorInfo&) = delete;
+    KeyContextWithColorInfo& operator=(const KeyContextWithColorInfo&) = delete;
+};
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_KeyContext_DEFINED
