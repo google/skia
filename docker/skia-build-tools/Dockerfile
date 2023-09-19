@@ -9,6 +9,7 @@ RUN apt update && apt dist-upgrade -y && apt install -y \
   libfontconfig-dev \
   libgl1-mesa-dev \
   libglu1-mesa-dev \
+  procps \
   && groupadd -g 2000 skia \
   && useradd -u 2000 -g 2000 skia
 
