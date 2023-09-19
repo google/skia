@@ -22,6 +22,8 @@ jobs:
     - name: Install skia dependencies and prepare release folder
       run: |
         python3 tools/git-sync-deps
+        rm -rf third_party/externals/emsdk/node
+        rm -rf third_party/externals/emsdk/upstream
         mkdir -p github-release
         echo ${{ github.sha }} > COMMIT_ID
 
