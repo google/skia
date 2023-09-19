@@ -131,8 +131,8 @@ static inline void transform_scanline_bgra_1010102(char* dst, const char* src, i
 
 static inline void transform_scanline_bgr_101010x_xr(char* dst, const char* src, int width, int) {
     skcms(dst, src, width,
-          skcms_PixelFormat_BGR_101010x_XR,  skcms_AlphaFormat_Unpremul,
-          skcms_PixelFormat_RGBA_16161616BE, skcms_AlphaFormat_Unpremul);
+          skcms_PixelFormat_BGR_101010x_XR, skcms_AlphaFormat_Unpremul,
+          skcms_PixelFormat_RGB_161616BE,   skcms_AlphaFormat_Unpremul);
 }
 
 
