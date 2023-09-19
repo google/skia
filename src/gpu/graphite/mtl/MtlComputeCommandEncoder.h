@@ -88,7 +88,9 @@ public:
         }
     }
 
+    // `length` must be 16-byte aligned
     void setThreadgroupMemoryLength(NSUInteger length, NSUInteger index) {
+        SkASSERT(length % 16 == 0);
         [(*fCommandEncoder) setThreadgroupMemoryLength:length atIndex:index];
     }
 

@@ -192,7 +192,9 @@ bool MtlCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
             }
             SkASSERT(fActiveComputeCommandEncoder);
             for (const ComputeStep::WorkgroupBufferDesc& wgBuf : dispatch.fWorkgroupBuffers) {
-                fActiveComputeCommandEncoder->setThreadgroupMemoryLength(wgBuf.size, wgBuf.index);
+                fActiveComputeCommandEncoder->setThreadgroupMemoryLength(
+                        SkAlignTo(wgBuf.size, 16),
+                        wgBuf.index);
             }
             this->dispatchThreadgroups(dispatch.fParams.fGlobalDispatchSize,
                                        dispatch.fParams.fLocalDispatchSize);
