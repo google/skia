@@ -26,12 +26,26 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     static dawn::native::Adapter sAdapter;
     static SkOnce sOnce;
 
+    static constexpr const char* kToggles[] = {
+        "allow_unsafe_apis",  // Needed for dual-source blending.
+        "use_user_defined_labels_in_backend",
+    };
+    wgpu::DawnTogglesDescriptor togglesDesc;
+#ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
+    togglesDesc.enabledToggleCount  = std::size(kToggles);
+#else
+    togglesDesc.enabledTogglesCount = std::size(kToggles);
+#endif
+    togglesDesc.enabledToggles      = kToggles;
+
     sOnce([&]{
         DawnProcTable backendProcs = dawn::native::GetProcs();
         dawnProcSetProcs(&backendProcs);
 
         sInstance = std::make_unique<dawn::native::Instance>();
-        std::vector<dawn::native::Adapter> adapters = sInstance->EnumerateAdapters();
+        wgpu::RequestAdapterOptions options;
+        options.nextInChain = &togglesDesc;
+        std::vector<dawn::native::Adapter> adapters = sInstance->EnumerateAdapters(&options);
         SkASSERT(!adapters.empty());
         // Sort adapters by adapterType(DiscreteGPU, IntegratedGPU, CPU) and
         // backendType(WebGPU, D3D11, D3D12, Metal, Vulkan, OpenGL, OpenGLES).
@@ -93,19 +107,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     desc.requiredFeaturesCount = features.size();
 #endif
     desc.requiredFeatures      = features.data();
-
-    wgpu::DawnTogglesDescriptor deviceTogglesDesc;
-    static constexpr const char* kToggles[] = {
-        "allow_unsafe_apis",  // Needed for dual-source blending.
-        "use_user_defined_labels_in_backend",
-    };
-#ifdef WGPU_BREAKING_CHANGE_COUNT_RENAME
-    deviceTogglesDesc.enabledToggleCount  = std::size(kToggles);
-#else
-    deviceTogglesDesc.enabledTogglesCount = std::size(kToggles);
-#endif
-    deviceTogglesDesc.enabledToggles      = kToggles;
-    desc.nextInChain                      = &deviceTogglesDesc;
+    desc.nextInChain           = &togglesDesc;
 
     wgpu::Device device = wgpu::Device::Acquire(sAdapter.CreateDevice(&desc));
     SkASSERT(device);
