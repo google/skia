@@ -65,7 +65,7 @@ QueueManager::OutstandingSubmission DawnQueueManager::onSubmitToGpu() {
     std::unique_ptr<DawnWorkSubmission> submission(new DawnWorkSubmission(
             std::move(fCurrentCommandBuffer), this, dawnSharedContext()->device()));
 
-    return std::move(submission);
+    return submission;
 }
 
 #if defined(GRAPHITE_TEST_UTILS)

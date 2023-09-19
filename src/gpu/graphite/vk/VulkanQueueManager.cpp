@@ -29,7 +29,7 @@ std::unique_ptr<CommandBuffer> VulkanQueueManager::getNewCommandBuffer(
             static_cast<VulkanResourceProvider*>(resourceProvider);
 
     auto cmdBuffer = VulkanCommandBuffer::Make(this->vkSharedContext(), vkResourceProvider);
-    return std::move(cmdBuffer);
+    return cmdBuffer;
 }
 
 class VulkanWorkSubmission final : public GpuWorkSubmission {
