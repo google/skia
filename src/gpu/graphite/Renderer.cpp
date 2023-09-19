@@ -10,7 +10,7 @@
 namespace skgpu::graphite {
 
 static uint32_t next_id() {
-    static std::atomic<int32_t> nextID{0};
+    static std::atomic<uint32_t> nextID{0};
     // Not worried about overflow since each Context won't have that many RenderSteps, so even if
     // it wraps back to 0, that RenderStep will not be in the same Context as the original 0.
     return nextID.fetch_add(1, std::memory_order_relaxed);

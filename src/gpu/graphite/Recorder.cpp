@@ -78,9 +78,9 @@ RecorderOptions::RecorderOptions(const RecorderOptions&) = default;
 RecorderOptions::~RecorderOptions() = default;
 
 /**************************************************************************************************/
-static int32_t next_id() {
-    static std::atomic<int32_t> nextID{1};
-    int32_t id;
+static uint32_t next_id() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
     do {
         id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id == SK_InvalidGenID);

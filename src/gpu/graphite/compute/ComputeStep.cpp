@@ -16,7 +16,7 @@ namespace skgpu::graphite {
 namespace {
 
 static uint32_t next_id() {
-    static std::atomic<int32_t> nextId{0};
+    static std::atomic<uint32_t> nextId{0};
     // Not worried about overflow since a Context isn't expected to have that many ComputeSteps.
     // Even if this it wraps around to 0, that ComputeStep will not be in the same Context as the
     // original 0.
