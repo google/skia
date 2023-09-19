@@ -8,12 +8,18 @@
 #ifndef SkFontDescriptor_DEFINED
 #define SkFontDescriptor_DEFINED
 
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTemplates.h"
+
+#include <memory>
+#include <utility>
 
 class SkFontData {
 public:

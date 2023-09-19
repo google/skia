@@ -6,9 +6,13 @@
  */
 
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkEndian.h"
 #include "src/core/SkFontStream.h"
+
+#include <cstdint>
 
 struct SkSFNTHeader {
     uint32_t    fVersion;

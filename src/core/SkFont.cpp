@@ -5,22 +5,36 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFont.h"
+
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
-#include "src/base/SkUtils.h"
-#include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintDefaults.h"
-#include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
-#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 
 using namespace skia_private;
 

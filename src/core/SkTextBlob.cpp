@@ -7,22 +7,33 @@
 
 #include "include/core/SkTextBlob.h"
 
+#include "include/core/SkData.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRSXform.h"
-#include "include/core/SkTypeface.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkPaintPriv.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/GlyphRun.h"
 
+#include <algorithm>
 #include <atomic>
 #include <limits>
 #include <new>
+#include <vector>
 
 using namespace skia_private;
 

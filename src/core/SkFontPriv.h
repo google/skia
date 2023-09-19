@@ -9,6 +9,7 @@
 #define SkFontPriv_DEFINED
 
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkTemplates.h"

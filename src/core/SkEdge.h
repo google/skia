@@ -9,10 +9,15 @@
 #define SkEdge_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkMath.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkFDot6.h"
 
+#include <cstdint>
 #include <utility>
 
 // This correctly favors the lower-pixel when y0 is on a 1/2 pixel boundary

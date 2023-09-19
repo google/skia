@@ -12,6 +12,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkFontMgr_empty.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/base/SkTime.h"
 #include "src/sfnt/SkOTTable_glyf.h"
 #include "src/sfnt/SkOTTable_head.h"

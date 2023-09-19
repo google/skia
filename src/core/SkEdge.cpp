@@ -7,10 +7,12 @@
 
 #include "src/core/SkEdge.h"
 
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkFDot6.h"
 
+#include <algorithm>
 #include <utility>
 
 /*
