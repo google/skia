@@ -1077,11 +1077,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels")
 	}
 
-	if b.gpu("QuadroP400") {
-		skip(ALL, "tests", ALL, "SkSLCommaSideEffects")
-	}
-
-
 	if b.matchGpu("Mali400") {
 		skip(ALL, "tests", ALL, "BlendRequiringDstReadWithLargeCoordinates")
 		skip(ALL, "tests", ALL, "SkSLCross")  // despite the name, it's not in SkSLTest.cpp
@@ -1135,23 +1130,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu")      // b/294080402
 	}
 
-	if b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3") || b.gpu("RTX3060") {
-		if !b.extraConfig("Vulkan") {
-			// Various Nvidia GPUs crash or generate errors when assembling weird matrices
-			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES2_Ganesh") // skia:12443
-			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_Ganesh") // skia:12443
 
-			// Nvidia drivers erroneously constant-fold expressions with side-effects in
-			// constructors when compiling GLSL.
-			skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_Ganesh")  // skia:13035
-			skip(ALL, "tests", ALL, "SkSLStructFieldNoFolding_Ganesh") // skia:13395
-		}
-	}
-
-	if !b.extraConfig("Vulkan") && (b.gpu("RTX3060") ||
-		                            b.gpu("QuadroP400") ||
-		                            b.matchGpu("GTX[6-9]60") ||
-		                            b.matchGpu("Radeon(R9|HD)")) {
+	if !b.extraConfig("Vulkan") && b.matchGpu("Radeon(R9|HD)") {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh") // skia:13556
 	}
 
@@ -1175,7 +1155,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
 		skip(ALL, "gm", ALL, "blurcircles2") // skia:13342
-		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_Ganesh")
 	}
 
 	if b.gpu("Tegra3") {
@@ -1183,11 +1162,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLMatrixEquality_Ganesh")   // skia:11919
 		skip(ALL, "tests", ALL, "SkSLIntrinsicFract_Ganesh")
 		skip(ALL, "tests", ALL, "SkSLModifiedStructParametersCannotBeInlined_Ganesh")
-	}
-
-	if b.gpu("QuadroP400") && b.matchOs("Ubuntu") && b.matchModel("Golo") {
-		// Fails on Ubuntu18-Golo machines with QuadroP400 GPUs on Vulkan and OpenGL
-		skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_Ganesh") // skia:13035
 	}
 
 	if b.gpu("QuadroP400") && b.matchOs("Win10") && b.matchModel("Golo") {

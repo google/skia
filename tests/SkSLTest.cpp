@@ -252,6 +252,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
     // TODO(b/40044139): migrate test-disable list from dm_flags into this map
     static SkNoDestructor<TestDisableMap> testDisableMap{[] {
         #define ADRENO "Adreno \\(TM\\) "
+        #define NVIDIA "(Tegra|Quadro|RTX|GTX) "
 
         TestDisableMap disables;
         constexpr std::nullopt_t _ = std::nullopt;
@@ -283,12 +284,14 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         [[maybe_unused]] constexpr bool kAndroid = false;
 #endif
 
+        // - Apple --------------------------------------------------------------------------------
         // MacOS/iOS do not handle short-circuit evaluation properly in OpenGL (chromium:307751)
         for (const char* test : {"LogicalAndShortCircuit",
                                  "LogicalOrShortCircuit"}) {
             disables[test].push_back({_, "OpenGL", GPU, kMac || kiOS});
         }
 
+        // - ARM ----------------------------------------------------------------------------------
         // Mali 400 is a very old driver its share of quirks, particularly in relation to matrices.
         for (const char* test : {"Matrices",                // b/40043539
                                  "MatrixNoOpFolding",
@@ -300,6 +303,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
             disables[test].push_back({regex("Mali-400"), _, GPU, _});
         }
 
+        // - Nvidia -------------------------------------------------------------------------------
         // Tegra3 fails to compile break stmts inside a for loop (b/40043561)
         for (const char* test : {"Switch",
                                  "SwitchDefaultOnly",
@@ -314,6 +318,26 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
             disables[test].push_back({regex("Tegra 3"), _, GPU, _});
         }
 
+        // Various Nvidia GPUs generate errors when assembling weird matrices, and erroneously
+        // constant-fold expressions with side-effects in constructors when compiling GLSL.
+        for (const char* test : {"MatrixConstructorsES2",    // b/40043524
+                                 "MatrixConstructorsES3",    // b/40043524
+                                 "MatrixScalarNoOpFolding",  // b/40044644
+                                 "PreserveSideEffects",      // b/40044140
+                                 "StructFieldNoFolding"}) {  // b/40044479
+            disables[test].push_back({regex(NVIDIA), "OpenGL", _, _});
+            disables[test].push_back({regex(NVIDIA), "ANGLE GL", _, _});
+        }
+
+        disables["IntrinsicMixFloatES3"].push_back({regex("RTX "), "Vulkan", _, kWindows});
+
+        // The Golo features P400s with older and buggier drivers than usual.
+        for (const char* test : {"PreserveSideEffects",  // b/40044140
+                                 "CommaSideEffects"}) {
+            disables[test].push_back({regex("Quadro P400"), _, _, kLinux});
+        }
+
+        // - Adreno -------------------------------------------------------------------------------
         // Disable broken tests on Android with Adreno GPUs (b/40043413, b/40045254)
         for (const char* test : {"ArrayCast",
                                  "ArrayComparison",
@@ -353,7 +377,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         // Older Adreno drivers crash when presented with an empty block (b/40044390)
         disables["EmptyBlocksES3"].push_back({regex(ADRENO "(540|630)"), _, _, kAndroid});
 
-        // Various drivers alias out-params to globals improperly (b/40044222)
+        // Adrenos alias out-params to globals improperly (b/40044222)
         disables["OutParamsAreDistinctFromGlobal"].push_back({regex(ADRENO "[3456]"), "OpenGL",
                                                               _, kAndroid});
         // Adreno generates the wrong result for this test. (b/40044477)
@@ -361,6 +385,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
                                                         _, kAndroid});
 
         #undef ADRENO
+        #undef NVIDIA
 
         return disables;
     }()};
