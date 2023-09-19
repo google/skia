@@ -25,6 +25,7 @@ struct SkSamplingOptions;
 
 namespace skgpu::graphite {
 
+class Caps;
 class Context;
 class Recorder;
 class TextureProxyView;
@@ -62,6 +63,10 @@ std::tuple<skgpu::graphite::TextureProxyView, SkColorType> AsView(Recorder*,
 std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder*,
                                                                const SkImage*,
                                                                SkSamplingOptions);
+
+// Return the color format used for coverage mask textures that are rendered by a GPU
+// compute program.
+SkColorType ComputeShaderCoverageMaskTargetFormat(const Caps*);
 
 } // namespace skgpu::graphite
 

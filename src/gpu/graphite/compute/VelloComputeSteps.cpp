@@ -617,54 +617,56 @@ VelloCoarseStep::VelloCoarseStep() : VelloStep(
         }) {}
 
 // Fine
-VelloFineStep::VelloFineStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Segments,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PTCL,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_InfoBinData,
-            },
-            {
-                /*type=*/ResourceType::kWriteOnlyStorageTexture,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_OutputImage,
-            },
-            {
-                /*type=*/ResourceType::kReadOnlyTexture,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_GradientImage,
-            },
-            {
-                /*type=*/ResourceType::kReadOnlyTexture,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ImageAtlas,
-            },
-        }) {}
+VelloFineStep::VelloFineStep(SkColorType targetFormat)
+        : VelloStep(
+            /*resources=*/{
+                {
+                    /*type=*/ResourceType::kStorageBuffer,
+                    /*flow=*/DataFlow::kShared,
+                    /*policy=*/ResourcePolicy::kNone,
+                    /*slot=*/kVelloSlot_ConfigUniform,
+                },
+                {
+                    /*type=*/ResourceType::kStorageBuffer,
+                    /*flow=*/DataFlow::kShared,
+                    /*policy=*/ResourcePolicy::kNone,
+                    /*slot=*/kVelloSlot_Segments,
+                },
+                {
+                    /*type=*/ResourceType::kStorageBuffer,
+                    /*flow=*/DataFlow::kShared,
+                    /*policy=*/ResourcePolicy::kNone,
+                    /*slot=*/kVelloSlot_PTCL,
+                },
+                {
+                    /*type=*/ResourceType::kStorageBuffer,
+                    /*flow=*/DataFlow::kShared,
+                    /*policy=*/ResourcePolicy::kNone,
+                    /*slot=*/kVelloSlot_InfoBinData,
+                },
+                {
+                    /*type=*/ResourceType::kWriteOnlyStorageTexture,
+                    /*flow=*/DataFlow::kShared,
+                    /*policy=*/ResourcePolicy::kNone,
+                    /*slot=*/kVelloSlot_OutputImage,
+                },
+                {
+                    /*type=*/ResourceType::kReadOnlyTexture,
+                    /*flow=*/DataFlow::kShared,
+                    /*policy=*/ResourcePolicy::kNone,
+                    /*slot=*/kVelloSlot_GradientImage,
+                },
+                {
+                    /*type=*/ResourceType::kReadOnlyTexture,
+                    /*flow=*/DataFlow::kShared,
+                    /*policy=*/ResourcePolicy::kNone,
+                    /*slot=*/kVelloSlot_ImageAtlas,
+                },
+            })
+        , fTargetFormat(targetFormat) {}
 
 std::tuple<SkISize, SkColorType> VelloFineStep::calculateTextureParameters(int index, const ResourceDesc&) const {
-    return {{}, index == 4 ? kAlpha_8_SkColorType : kRGBA_8888_SkColorType};
+    return {{}, index == 4 ? fTargetFormat : kRGBA_8888_SkColorType};
 }
 
 }  // namespace skgpu::graphite

@@ -335,7 +335,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     // Format: R8Unorm
     {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::R8Unorm)];
-        info->fFlags = FormatInfo::kAllFlags;
+        info->fFlags = FormatInfo::kAllFlags & ~FormatInfo::kStorage_Flag;
         info->fColorTypeInfoCount = 3;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;
@@ -368,7 +368,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::R16Unorm)];
         if (supportNorm16) {
-            info->fFlags = FormatInfo::kAllFlags;
+            info->fFlags = FormatInfo::kAllFlags & ~FormatInfo::kStorage_Flag;
             info->fColorTypeInfoCount = 1;
             info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
             int ctIdx = 0;

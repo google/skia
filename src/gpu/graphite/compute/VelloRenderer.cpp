@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 
@@ -215,7 +216,13 @@ void VelloScene::popClipLayer() {
     SkDEBUGCODE(fLayers--;)
 }
 
-VelloRenderer::VelloRenderer(const Caps* caps) {
+VelloRenderer::VelloRenderer(const Caps* caps)
+        // We currently use the fine stage to rasterize a coverage mask. For full compositing, we
+        // should instantiate a second variant of fine with a different color format.
+        //
+        // Currently fine has only one variant: on Metal this variant can operate on any floating
+        // point format (so we set it to R8) but on Dawn it must use RGBA8unorm.
+        : fFine(ComputeShaderCoverageMaskTargetFormat(caps)) {
     fGradientImage = TextureProxy::Make(caps,
                                         {1, 1},
                                         kRGBA_8888_SkColorType,

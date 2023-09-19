@@ -692,6 +692,18 @@ std::tuple<skgpu::graphite::TextureProxyView, SkColorType> AsView(Recorder* reco
     return {gi->textureProxyView(), ct};
 }
 
+SkColorType ComputeShaderCoverageMaskTargetFormat(const Caps* caps) {
+    // GPU compute coverage mask renderers need to bind the mask texture as a storage binding, which
+    // support a limited set of color formats. In general, we use RGBA8 if Alpha8 can't be
+    // supported.
+    // TODO(chromium:1856): In particular, WebGPU does not support the "storage binding" usage for
+    // the R8Unorm texture format.
+    if (caps->isStorage(caps->getDefaultStorageTextureInfo(kAlpha_8_SkColorType))) {
+        return kAlpha_8_SkColorType;
+    }
+    return kRGBA_8888_SkColorType;
+}
+
 } // namespace skgpu::graphite
 
 namespace skif {

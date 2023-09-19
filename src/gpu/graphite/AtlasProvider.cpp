@@ -32,20 +32,20 @@ std::unique_ptr<SoftwarePathAtlas> AtlasProvider::createSoftwarePathAtlas() cons
 }
 
 sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
-                                                   uint32_t width,
-                                                   uint32_t height) {
-    uint64_t key = (static_cast<uint64_t>(width) << 32) | static_cast<uint64_t>(height);
+                                                   uint16_t width,
+                                                   uint16_t height,
+                                                   SkColorType colorType) {
+    uint64_t key = static_cast<uint64_t>(width)  << 48 |
+                   static_cast<uint64_t>(height) << 32 |
+                   static_cast<uint64_t>(colorType);
     auto iter = fTexturePool.find(key);
     if (iter != fTexturePool.end()) {
         return iter->second;
     }
 
-    // TODO(chromium:1856): WebGPU does not support the "storage binding" usage for the R8Unorm
-    // texture format. This means that we may have to use RGBA8 on Dawn until it provides an
-    // optional feature.
     auto proxy = TextureProxy::MakeStorage(recorder->priv().caps(),
                                            SkISize::Make(int32_t(width), int32_t(height)),
-                                           kAlpha_8_SkColorType,
+                                           colorType,
                                            skgpu::Budgeted::kYes);
     if (!proxy) {
         return nullptr;

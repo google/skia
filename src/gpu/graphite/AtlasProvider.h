@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_AtlasProvider_DEFINED
 #define skgpu_graphite_AtlasProvider_DEFINED
 
+#include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
 
 #include <memory>
@@ -42,8 +43,8 @@ public:
     // for path rendering.
     std::unique_ptr<SoftwarePathAtlas> createSoftwarePathAtlas() const;
 
-    // Return an Alpha_8 TextureProxy with the given dimensions.
-    sk_sp<TextureProxy> getAtlasTexture(Recorder*, uint32_t width, uint32_t height);
+    // Return a TextureProxy with the given dimensions and color type.
+    sk_sp<TextureProxy> getAtlasTexture(Recorder*, uint16_t width, uint16_t height, SkColorType);
 
     void clearTexturePool();
 

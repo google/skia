@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
@@ -35,10 +36,10 @@ namespace {
 
 // TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
 // TODO: This is the maximum target dimension that vello can handle today
-constexpr uint32_t kComputeAtlasDim = 4096;
+constexpr uint16_t kComputeAtlasDim = 4096;
 
 // TODO: for now
-constexpr uint32_t kSoftwareAtlasDim = 4096;
+constexpr uint16_t kSoftwareAtlasDim = 4096;
 
 }  // namespace
 
@@ -57,7 +58,10 @@ bool PathAtlas::addShape(Recorder* recorder,
 
     if (!fTexture) {
         fTexture = recorder->priv().atlasProvider()->getAtlasTexture(
-                recorder, this->width(), this->height());
+                recorder,
+                this->width(),
+                this->height(),
+                this->coverageMaskFormat(recorder->priv().caps()));
         if (!fTexture) {
             SKGPU_LOG_E("Failed to instantiate an atlas texture");
             return false;
@@ -95,7 +99,13 @@ void PathAtlas::reset() {
     this->onReset();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+
 ComputePathAtlas::ComputePathAtlas() : PathAtlas(kComputeAtlasDim, kComputeAtlasDim) {}
+
+SkColorType ComputePathAtlas::coverageMaskFormat(const Caps* caps) const {
+    return ComputeShaderCoverageMaskTargetFormat(caps);
+}
 
 #ifdef SK_ENABLE_VELLO_SHADERS
 
@@ -269,6 +279,10 @@ void SoftwarePathAtlas::onReset() {
     // clear backing data for next pass
     fDirtyRect.setEmpty();
     fPixels.erase(0);
+}
+
+SkColorType SoftwarePathAtlas::coverageMaskFormat(const Caps*) const {
+    return kAlpha_8_SkColorType;
 }
 
 }  // namespace skgpu::graphite
