@@ -50,6 +50,10 @@ void Caps::finishInitialization(const ContextOptions& options) {
     fGlyphsAsPathsFontSize = options.fGlyphsAsPathsFontSize;
     fAllowMultipleGlyphCacheTextures = options.fAllowMultipleGlyphCacheTextures;
     fSupportBilerpFromGlyphAtlas = options.fSupportBilerpFromGlyphAtlas;
+    fDisableCachedGlyphUploads = options.fDisableCachedGlyphUploads;
+    if (fDisableCachedGlyphUploads) {
+        fRequireOrderedRecordings = true;
+    }
 }
 
 sk_sp<SkCapabilities> Caps::capabilities() const { return fCapabilities; }

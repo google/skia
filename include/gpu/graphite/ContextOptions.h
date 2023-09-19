@@ -77,6 +77,12 @@ struct SK_API ContextOptions {
     bool fAllowMultipleGlyphCacheTextures = true;
     bool fSupportBilerpFromGlyphAtlas = false;
 
+    /**
+     * Disable caching of glyph uploads at the start of each Recording. These can add additional
+     * overhead and are only necessary if Recordings are replayed or played out of order.
+     */
+    bool fDisableCachedGlyphUploads = false;
+
     static constexpr size_t kDefaultContextBudget = 256 * (1 << 20);
     /**
      * What is the budget for GPU resources allocated and held by the Context.

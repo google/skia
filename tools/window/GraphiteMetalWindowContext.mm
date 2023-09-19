@@ -58,6 +58,7 @@ void GraphiteMetalWindowContext::initializeContext() {
     backendContext.fQueue.retain((skgpu::graphite::MtlHandle)fQueue.get());
 
     skgpu::graphite::ContextOptions contextOptions;
+    contextOptions.fDisableCachedGlyphUploads = true;
     skgpu::graphite::ContextOptionsPriv contextOptionsPriv;
     // Needed to make synchronous readPixels work
     contextOptionsPriv.fStoreContextRefInRecorder = true;
