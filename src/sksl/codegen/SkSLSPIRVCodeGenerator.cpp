@@ -234,7 +234,6 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
         PACK(Snorm2x16);
         PACK(Unorm2x16);
         PACK(Half2x16);
-        PACK(Double2x32);
 #undef PACK
 
         case k_length_IntrinsicKind:        return ALL_GLSL(Length);
