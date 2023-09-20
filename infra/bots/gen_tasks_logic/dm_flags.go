@@ -370,8 +370,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "test", ALL, "ProcessorCloneTest")
 				}
 				if b.matchGpu("Intel") {
-					// anglebug.com/5588
-					skip(ALL, "test", ALL, "SkSLIntrinsicFloor_Ganesh")
 					// Debug-ANGLE-All on Intel frequently timeout, and the FilterResult test suite
 					// produces many test cases, that are multiplied by the number of configs (of
 					// which ANGLE has many variations). There is not a lot of value gained by
@@ -1088,11 +1086,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.matchOs("Mac") && (b.gpu("IntelIrisPlus") || b.gpu("IntelHD6000")) &&
 						   (b.extraConfig("Metal") || b.extraConfig("Dawn")) {
-		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_Ganesh")           // skia:14025
-		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_Ganesh")   // skia:14025
-		skip(ALL, "tests", ALL, "SkSLIntrinsicNot_Graphite")         // skia:14025
-		skip(ALL, "tests", ALL, "SkSLIntrinsicMixFloatES3_Graphite") // skia:14025
-
 		// TODO(skia:296960708): The IntelIrisPlus+Metal config hangs on this test, but passes
 		// SurfaceContextWritePixelsMipped so let that one keep running.
 		skip(ALL, "tests", ALL, "SurfaceContextWritePixels")
@@ -1101,35 +1094,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels")
 	}
 
-	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && b.extraConfig("ANGLE") {
-		skip(ALL, "tests", ALL, "SkSLVectorToMatrixCast_Ganesh")             // skia:12179, vec4(mat2) crash
-		skip(ALL, "tests", ALL, "SkSLTrivialArgumentsInlineDirectly_Ganesh") // skia:12179 again
-		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_Ganesh")
-	}
-
-	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_Ganesh")     // skia:11919
-		skip(ALL, "tests", ALL, "SkSLMatrixEquality_Ganesh")       // skia:11919
-		skip(ALL, "tests", ALL, "SkSLTemporaryIndexLookup_Ganesh") // skia:14151
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexLookup_Ganesh")   // skia:14177
-	}
-
-	if b.matchGpu("Intel") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_Ganesh")     // skia:12465
-		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_Ganesh") // skia:13115
-		skip(ALL, "tests", ALL, "SkSLStructFieldFolding_Ganesh")             // skia:13393
-	}
-
-	if b.extraConfig("Vulkan") && b.isLinux() && b.matchGpu("Intel") {
-		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_Ganesh")          // skia:12465
-		skip(ALL, "tests", ALL, "SkSLReturnsValueOnEveryPathES3_Ganesh") // skia:14131
-	}
-
 	if b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655|Xe)") {
-		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_Ganesh") // skia:12465
 		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu")      // b/294080402
 	}
-
 
 	if !b.extraConfig("Vulkan") && b.matchGpu("Radeon(R9|HD)") {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh") // skia:13556
@@ -1139,18 +1106,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh") // https://anglebug.com/7525
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarMath_Ganesh")        // https://anglebug.com/7525
 		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_Ganesh")       // Apple bug FB12055941
-	}
-
-	if b.matchOs("Mac") && b.matchGpu("Intel") && !b.extraConfig("Metal") {
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_Ganesh") // skia:14177
-	}
-
-	if b.matchOs("Win10") && b.gpu("IntelIris655") {
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_Ganesh") // skia:14177
-	}
-
-	if b.matchOs("Win") && (b.matchGpu("Intel") || b.extraConfig("ANGLE")) {
-		skip(ALL, "tests", ALL, "SkSLSwizzleAsLValueES3_Ganesh") // https://anglebug.com/8260
 	}
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
@@ -1199,14 +1154,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "test", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler") // skia:13265
 	}
 
-	if b.matchGpu("Intel") || b.matchGpu("RadeonVega6") { // some Intel and AMD GPUs don't return zero for the derivative of a uniform
+	if b.matchGpu("RadeonVega6") { // some AMD GPUs don't return zero for the derivative of a uniform
 		skip(ALL, "tests", ALL, "SkSLIntrinsicDFdy_Ganesh")
 		skip(ALL, "tests", ALL, "SkSLIntrinsicDFdx_Ganesh")
 		skip(ALL, "tests", ALL, "SkSLIntrinsicFwidth_Ganesh")
-	}
-
-	if b.matchOs("Mac") && b.matchGpu("Intel(Iris5100|HD6000)") {
-		skip(ALL, "tests", ALL, "SkSLLoopFloat_Ganesh") // skia:12426
 	}
 
 	match := []string{}
