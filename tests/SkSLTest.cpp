@@ -458,7 +458,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
                                  "OutParamsAreDistinctFromGlobal",  // b/40044222
                                  "StructFieldFolding"}) {           // b/40044477
             disables[test].push_back({regex("Intel"), "OpenGL", _, kWindows});
-            disables[test].push_back({regex("Intel"), "Angle GL", _, kWindows});
+            disables[test].push_back({regex("Intel"), "ANGLE GL", _, kWindows});
         }
 
         for (const char* test : {"SwitchDefaultOnly",               // b/40043548
