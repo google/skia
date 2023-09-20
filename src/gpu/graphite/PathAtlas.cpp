@@ -56,16 +56,9 @@ bool PathAtlas::addShape(Recorder* recorder,
     SkASSERT(out);
     SkASSERT(!transformedShapeBounds.isEmptyNegativeOrNaN());
 
-    if (!fTexture) {
-        fTexture = recorder->priv().atlasProvider()->getAtlasTexture(
-                recorder,
-                this->width(),
-                this->height(),
-                this->coverageMaskFormat(recorder->priv().caps()));
-        if (!fTexture) {
-            SKGPU_LOG_E("Failed to instantiate an atlas texture");
-            return false;
-        }
+    if (!this->initializeTextureIfNeeded(recorder)) {
+        SKGPU_LOG_E("Failed to instantiate an atlas texture");
+        return false;
     }
 
     // Round out the shape bounds to preserve any fractional offset so that it is present in the
@@ -97,6 +90,24 @@ bool PathAtlas::addShape(Recorder* recorder,
 void PathAtlas::reset() {
     fRectanizer.reset();
     this->onReset();
+}
+
+const TextureProxy* PathAtlas::getTexture(Recorder* recorder) {
+    if (!this->initializeTextureIfNeeded(recorder)) {
+        SKGPU_LOG_E("Failed to instantiate an atlas texture");
+    }
+    return fTexture.get();
+}
+
+bool PathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
+    if (!fTexture) {
+        fTexture = recorder->priv().atlasProvider()->getAtlasTexture(
+                recorder,
+                this->width(),
+                this->height(),
+                this->coverageMaskFormat(recorder->priv().caps()));
+    }
+    return fTexture != nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

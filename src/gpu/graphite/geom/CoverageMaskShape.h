@@ -64,7 +64,9 @@ public:
             : fTextureProxy(proxy)
             , fDeviceToLocal(deviceToLocal)
             , fInverted(shape.inverted())
-            , fMaskInfo(maskInfo) {}
+            , fMaskInfo(maskInfo) {
+        SkASSERT(proxy);
+    }
     CoverageMaskShape(const CoverageMaskShape&) = default;
 
     ~CoverageMaskShape() = default;

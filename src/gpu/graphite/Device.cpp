@@ -1087,9 +1087,10 @@ void Device::drawGeometry(const Transform& localToDevice,
     // next invocation of flushPendingWorkToRecorder().
     if (pathAtlas != nullptr) {
         // Record the draw as a fill since stroking is handled by the atlas render/upload.
-        Geometry coverageMask(
-                CoverageMaskShape(geometry.shape(), pathAtlas->texture(), localToDevice.inverse(),
-                                  atlasMaskInfo));
+        Geometry coverageMask(CoverageMaskShape(geometry.shape(),
+                                                pathAtlas->getTexture(fRecorder),
+                                                localToDevice.inverse(),
+                                                atlasMaskInfo));
         fDC->recordDraw(
                 renderer, Transform::Identity(), coverageMask, clip, order, &shading, nullptr);
     } else {
