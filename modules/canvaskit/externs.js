@@ -173,16 +173,21 @@ var CanvasKit = {
     getHeight: function() {},
     getIdeographicBaseline: function() {},
     getLineMetrics: function() {},
+    getLineMetricsAt: function() {},
+    getLineNumberAt: function() {},
     getLongestLine: function() {},
     getMaxIntrinsicWidth: function() {},
     getMaxWidth: function() {},
     getMinIntrinsicWidth: function() {},
+    getNumberOfLines: function() {},
     getWordBoundary: function() {},
     getShapedLines: function() {},
     layout: function() {},
 
     // private API
     /** @return {Float32Array} */
+    _getClosestGlyphInfoAtCoordinate: function() {},
+    _getGlyphInfoAt: function() {},
     _getRectsForRange: function() {},
     _getRectsForPlaceholders: function() {},
   },
@@ -1165,6 +1170,8 @@ var CanvasKit = {
 // unless they go on the prototype.
 CanvasKit.Paragraph.prototype.getRectsForRange = function() {};
 CanvasKit.Paragraph.prototype.getRectsForPlaceholders = function() {};
+CanvasKit.Paragraph.prototype.getClosestGlyphInfoAtCoordinate = function() {};
+CanvasKit.Paragraph.prototype.getGlyphInfoAt = function() {};
 
 CanvasKit.Surface.prototype.dispose = function() {};
 CanvasKit.Surface.prototype.flush = function() {};

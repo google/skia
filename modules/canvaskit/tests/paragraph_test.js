@@ -129,6 +129,37 @@ describe('Paragraph Behavior', function() {
         expect(flm.left).toBeCloseTo(13.818, 3);
         expect(flm.baseline).toBeCloseTo(21.141, 3);
 
+        const singleLineMetrics = paragraph.getLineMetricsAt(0);
+        expect(singleLineMetrics.startIndex).toEqual(flm.startIndex);
+        expect(singleLineMetrics.lineNumber).toEqual(flm.lineNumber);
+        expect(paragraph.getLineMetricsAt(9)).toBeFalsy();
+        expect(paragraph.getNumberOfLines()).toEqual(8);
+        expect(paragraph.getLineNumberAt(9999)).toEqual(-1);
+        expect(paragraph.getLineNumberAt(0)).toEqual(0);
+
+        const glyphInfo = paragraph.getGlyphInfoAt(13);
+        expect(glyphInfo.graphemeClusterTextRange.start).toEqual(13);
+        expect(glyphInfo.graphemeClusterTextRange.end).toEqual(14);
+        expect(glyphInfo.dir).toEqual(CanvasKit.TextDirection.LTR);
+        expect(glyphInfo.isEllipsis).toEqual(false);
+        expect(glyphInfo.graphemeLayoutBounds[0]).toBeCloseTo(172.08, 3);
+        expect(glyphInfo.graphemeLayoutBounds[1]).toBeCloseTo(-0.24, 3);
+        expect(glyphInfo.graphemeLayoutBounds[2]).toBeCloseTo(186.18, 3);
+        expect(glyphInfo.graphemeLayoutBounds[3]).toBeCloseTo(27, 3);
+
+        expect(paragraph.getGlyphInfoAt(9999)).toBeFalsy();
+
+        // This should hit the last character on the first line.
+        const lastGlyphOnFirstLine = paragraph.getClosestGlyphInfoAtCoordinate(180, 21);
+        expect(lastGlyphOnFirstLine.graphemeClusterTextRange.start).toEqual(13);
+        expect(lastGlyphOnFirstLine.graphemeClusterTextRange.end).toEqual(14);
+        expect(lastGlyphOnFirstLine.dir).toEqual(CanvasKit.TextDirection.LTR);
+        expect(lastGlyphOnFirstLine.isEllipsis).toEqual(false);
+        expect(lastGlyphOnFirstLine.graphemeLayoutBounds[0]).toBeCloseTo(172.08, 3);
+        expect(lastGlyphOnFirstLine.graphemeLayoutBounds[1]).toBeCloseTo(-0.24, 3);
+        expect(lastGlyphOnFirstLine.graphemeLayoutBounds[2]).toBeCloseTo(186.18, 3);
+        expect(lastGlyphOnFirstLine.graphemeLayoutBounds[3]).toBeCloseTo(27, 3);
+
         const unresolvedGlyphs = paragraph.unresolvedCodepoints();
         expect(unresolvedGlyphs.length).toEqual(0, unresolvedGlyphs);
 

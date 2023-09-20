@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ManagedAnimation` WYSIWYG editor API: `attachEditor`, `enableEditor`, `dispatchEditorKey`,
   `dispatchEditorPointer`.
 - `InputState` and `ModifierKey` enums.
+- `Paragraph.getClosestGlyphInfoAtCoordinate` and `Paragraph.getGlyphInfoAt` return the information associated with the glyph or grapheme cluster in the paragraph at the specified location/index.
+- `Paragraph.getLineMetricsAt`, returns the line metrics of a line.
+- `Paragraph.getNumberOfLines`, returns the number of visible lines in the paragraph.
+- `Paragraph.getLineNumberAt`, finds the line that contains the given UTF-16 index.
+
 
 ### Fixed
  - `EmbindObject` has been updated to allow TypeScript to differentiate between opaque

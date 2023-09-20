@@ -321,27 +321,72 @@ Float32Array GetRectsForPlaceholders(para::Paragraph& self) {
     return TextBoxesToFloat32Array(boxes);
 }
 
+JSObject JSObjectFromLineMetrics(skia::textlayout::LineMetrics& metrics) {
+    JSObject m = emscripten::val::object();
+    m.set("startIndex", metrics.fStartIndex);
+    m.set("endIndex", metrics.fEndIndex);
+    m.set("endExcludingWhitespaces", metrics.fEndExcludingWhitespaces);
+    m.set("endIncludingNewline", metrics.fEndIncludingNewline);
+    m.set("isHardBreak", metrics.fHardBreak);
+    m.set("ascent", metrics.fAscent);
+    m.set("descent", metrics.fDescent);
+    m.set("height", metrics.fHeight);
+    m.set("width", metrics.fWidth);
+    m.set("left", metrics.fLeft);
+    m.set("baseline", metrics.fBaseline);
+    m.set("lineNumber", metrics.fLineNumber);
+    return m;
+}
+
+JSObject JSObjectFromGlyphInfo(skia::textlayout::Paragraph::GlyphInfo& glyphInfo) {
+    JSObject object = emscripten::val::object();
+
+    JSObject range = emscripten::val::object();
+    range.set("start", glyphInfo.fGraphemeClusterTextRange.start);
+    range.set("end",  glyphInfo.fGraphemeClusterTextRange.end);
+    object.set("graphemeClusterTextRange", range);
+
+    JSArray rect = emscripten::val::array();
+    rect.call<void>("push", glyphInfo.fGraphemeLayoutBounds.left());
+    rect.call<void>("push", glyphInfo.fGraphemeLayoutBounds.top());
+    rect.call<void>("push", glyphInfo.fGraphemeLayoutBounds.right());
+    rect.call<void>("push", glyphInfo.fGraphemeLayoutBounds.bottom());
+    object.set("graphemeLayoutBounds", rect);
+
+    object.set("dir", glyphInfo.fDirection == skia::textlayout::TextDirection::kRtl ? 0 : 1);
+    object.set("isEllipsis", glyphInfo.fIsEllipsis);
+    return object;
+}
+
 JSArray GetLineMetrics(para::Paragraph& self) {
     std::vector<skia::textlayout::LineMetrics> metrics;
     self.getLineMetrics(metrics);
     JSArray result = emscripten::val::array();
     for (auto metric : metrics) {
-        JSObject m = emscripten::val::object();
-        m.set("startIndex", metric.fStartIndex);
-        m.set("endIndex", metric.fEndIndex);
-        m.set("endExcludingWhitespaces", metric.fEndExcludingWhitespaces);
-        m.set("endIncludingNewline", metric.fEndIncludingNewline);
-        m.set("isHardBreak", metric.fHardBreak);
-        m.set("ascent", metric.fAscent);
-        m.set("descent", metric.fDescent);
-        m.set("height", metric.fHeight);
-        m.set("width", metric.fWidth);
-        m.set("left", metric.fLeft);
-        m.set("baseline", metric.fBaseline);
-        m.set("lineNumber", metric.fLineNumber);
-        result.call<void>("push", m);
+        result.call<void>("push", JSObjectFromLineMetrics(metric));
     }
     return result;
+}
+
+JSObject GetLineMetricsAt(para::Paragraph& self, size_t lineNumber) {
+    skia::textlayout::LineMetrics metrics;
+    return self.getLineMetricsAt(lineNumber, &metrics)
+        ? JSObjectFromLineMetrics(metrics)
+        : emscripten::val::null();
+}
+
+JSObject GetGlyphInfoAt(para::Paragraph& self, size_t index) {
+    skia::textlayout::Paragraph::GlyphInfo glyphInfo;
+    return self.getGlyphInfoAtUTF16Offset(index, &glyphInfo)
+        ? JSObjectFromGlyphInfo(glyphInfo)
+        : emscripten::val::null();
+}
+
+JSObject GetClosestGlyphInfoAtCoordinate(para::Paragraph& self, SkScalar dx, SkScalar dy) {
+    skia::textlayout::Paragraph::GlyphInfo glyphInfo;
+    return self.getClosestUTF16GlyphInfoAt(dx, dy, &glyphInfo)
+        ? JSObjectFromGlyphInfo(glyphInfo)
+        : emscripten::val::null();
 }
 
 /*
@@ -467,10 +512,15 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("getHeight", &para::Paragraph::getHeight)
         .function("getIdeographicBaseline", &para::Paragraph::getIdeographicBaseline)
         .function("getLineMetrics", &GetLineMetrics)
+        .function("getLineMetricsAt", &GetLineMetricsAt)
+        .function("getLineNumberAt", &para::Paragraph::getLineNumberAt)
         .function("getLongestLine", &para::Paragraph::getLongestLine)
         .function("getMaxIntrinsicWidth", &para::Paragraph::getMaxIntrinsicWidth)
         .function("getMaxWidth", &para::Paragraph::getMaxWidth)
         .function("getMinIntrinsicWidth", &para::Paragraph::getMinIntrinsicWidth)
+        .function("getNumberOfLines", &para::Paragraph::lineNumber)
+        .function("_getClosestGlyphInfoAtCoordinate", &GetClosestGlyphInfoAtCoordinate)
+        .function("_getGlyphInfoAt", &GetGlyphInfoAt)
         .function("_getRectsForPlaceholders", &GetRectsForPlaceholders)
         .function("_getRectsForRange", &GetRectsForRange)
         .function("getShapedLines", &GetShapedLines)

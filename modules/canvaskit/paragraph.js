@@ -18,6 +18,25 @@
         return floatArrayToRects(floatArray);
     }
 
+    function convertDirection(glyphInfo) {
+      if (glyphInfo) {
+        if (glyphInfo['dir'] === 0) {
+          glyphInfo['dir'] = CanvasKit.TextDirection.RTL;
+        } else {
+          glyphInfo['dir'] = CanvasKit.TextDirection.LTR;
+        }
+      }
+      return glyphInfo;
+    }
+
+    CanvasKit.Paragraph.prototype.getGlyphInfoAt = function(index) {
+      return convertDirection(this._getGlyphInfoAt(index));
+    }
+
+    CanvasKit.Paragraph.prototype.getClosestGlyphInfoAtCoordinate = function(dx, dy) {
+      return convertDirection(this._getClosestGlyphInfoAtCoordinate(dx, dy));
+    }
+
     function floatArrayToRects(floatArray) {
         if (!floatArray || !floatArray.length) {
             return [];

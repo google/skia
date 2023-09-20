@@ -702,6 +702,40 @@ export interface WebGPUCanvasContext {
 }
 
 /**
+ * The glyph and grapheme cluster information associated with a code point within
+ * a paragraph.
+ */
+export interface GlyphInfo {
+    /**
+     * The layout bounds of the grapheme cluster the code point belongs to, in
+     * the paragraph's coordinates.
+     *
+     * This width of the rect is horizontal advance of the grapheme cluster,
+     * the height of the rect is the line height when the grapheme cluster
+     * occupies a full line.
+     */
+    graphemeLayoutBounds: Rect;
+    /**
+     * The left-closed-right-open UTF-16 range of the grapheme cluster the code
+     * point belongs to.
+     */
+    graphemeClusterTextRange: URange;
+    /** The writing direction of the grapheme cluster. */
+    dir: TextDirection;
+    /**
+     * Whether the associated glyph points to an ellipsis added by the text
+     * layout library.
+     *
+     * The text layout library truncates the lines that exceed the specified
+     * max line number, and may add an ellipsis to replace the last few code
+     * points near the logical end of the last visible line. If True, this object
+     * marks the logical end of the list of GlyphInfo objects that are
+     * retrievable from the text layout library.
+     */
+    isEllipsis: boolean;
+}
+
+/**
  * See Metrics.h for more on this struct.
  */
 export interface LineMetrics {
@@ -1031,14 +1065,42 @@ export interface Paragraph extends EmbindObject<"Paragraph"> {
      * with the top left corner as the origin, and +y direction as down.
      */
     getGlyphPositionAtCoordinate(dx: number, dy: number): PositionWithAffinity;
+    /**
+     * Returns the information associated with the closest glyph at the specified
+     * paragraph coordinate, or null if the paragraph is empty.
+     */
+    getClosestGlyphInfoAtCoordinate(dx: number, dy: number): GlyphInfo | null;
+    /**
+     * Returns the information associated with the glyph at the specified UTF-16
+     * offset within the paragraph's visible lines, or null if the index is out
+     * of bounds, or points to a codepoint that is logically after the last
+     * visible codepoint.
+     */
+    getGlyphInfoAt(index: number): GlyphInfo | null;
 
     getHeight(): number;
     getIdeographicBaseline(): number;
+    /**
+     * Returns the line number of the line that contains the specified UTF-16
+     * offset within the paragraph, or -1 if the index is out of bounds, or
+     * points to a codepoint that is logically after the last visible codepoint.
+     */
+    getLineNumberAt(index: number): number;
     getLineMetrics(): LineMetrics[];
+    /**
+     * Returns the LineMetrics of the line at the specified line number, or null
+     * if the line number is out of bounds, or is larger than or equal to the
+     * specified max line number.
+     */
+    getLineMetricsAt(lineNumber: number): LineMetrics | null;
     getLongestLine(): number;
     getMaxIntrinsicWidth(): number;
     getMaxWidth(): number;
     getMinIntrinsicWidth(): number;
+    /**
+     * Returns the total number of visible lines in the paragraph.
+     */
+    getNumberOfLines(): number;
     getRectsForPlaceholders(): RectWithDirection[];
 
     /**
