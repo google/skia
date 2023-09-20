@@ -251,22 +251,14 @@ private:
 
     SpvId writeScalarToMatrixSplat(const Type& matrixType, SpvId scalarId, OutputStream& out);
 
-    SpvId writeFloatConstructor(const AnyConstructor& c, OutputStream& out);
-
     SpvId castScalarToFloat(SpvId inputId, const Type& inputType, const Type& outputType,
                             OutputStream& out);
-
-    SpvId writeIntConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToSignedInt(SpvId inputId, const Type& inputType, const Type& outputType,
                                 OutputStream& out);
 
-    SpvId writeUIntConstructor(const AnyConstructor& c, OutputStream& out);
-
     SpvId castScalarToUnsignedInt(SpvId inputId, const Type& inputType, const Type& outputType,
                                   OutputStream& out);
-
-    SpvId writeBooleanConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToBoolean(SpvId inputId, const Type& inputType, const Type& outputType,
                               OutputStream& out);
@@ -446,8 +438,8 @@ private:
         struct Hash;
     };
 
-    static Instruction BuildInstructionKey(
-            SpvOp_ opCode, const skia_private::TArray<Word, true>& words);
+    static Instruction BuildInstructionKey(SpvOp_ opCode,
+                                           const skia_private::TArray<Word, true>& words);
 
     // The writeOpXxxxx calls will simplify and deduplicate ops where possible.
     SpvId writeOpConstantTrue(const Type& type);
