@@ -473,6 +473,7 @@ CPU_GMS = [
     # "wacky_yuv_formats.cpp",
     # "widebuttcaps.cpp",
     # "windowrectangles.cpp",
+    # "workingspace.cpp",
     # "xfermodeimagefilter.cpp",
     # "xfermodes2.cpp",
     # "xfermodes3.cpp",

@@ -405,6 +405,7 @@ gm_sources = [
   "$_gm/wacky_yuv_formats.cpp",
   "$_gm/widebuttcaps.cpp",
   "$_gm/windowrectangles.cpp",
+  "$_gm/workingspace.cpp",
   "$_gm/xfermodeimagefilter.cpp",
   "$_gm/xfermodes.cpp",
   "$_gm/xfermodes2.cpp",
