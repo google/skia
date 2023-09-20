@@ -316,17 +316,21 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         }
 
         // - Nvidia -------------------------------------------------------------------------------
-        // Tegra3 fails to compile break stmts inside a for loop (b/40043561)
-        for (const char* test : {"Switch",
-                                 "SwitchDefaultOnly",
-                                 "SwitchWithFallthrough",
-                                 "SwitchWithFallthroughAndVarDecls",
-                                 "SwitchWithLoops",
-                                 "SwitchCaseFolding",
-                                 "LoopFloat",
-                                 "LoopInt",
-                                 "MatrixScalarNoOpFolding",  // b/40044644 - matrix trouble as well
-                                 "MatrixScalarMath"}) {      // b/40043764
+        // Tegra3 has several issues, but the inability to break from a for loop is a common theme.
+        for (const char* test : {"Switch",                            // b/40043561
+                                 "SwitchDefaultOnly",                 //  "      "
+                                 "SwitchWithFallthrough",             //  "      "
+                                 "SwitchWithFallthroughAndVarDecls",  //  "      "
+                                 "SwitchWithLoops",                   //  "      "
+                                 "SwitchCaseFolding",                 //  "      "
+                                 "LoopFloat",                         //  "      "
+                                 "LoopInt",                           //  "      "
+                                 "MatrixScalarNoOpFolding",           // b/40044644
+                                 "MatrixScalarMath",                  // b/40043764
+                                 "MatrixFoldingES2",                  // b/40043017
+                                 "MatrixEquality",                    // b/40043017
+                                 "IntrinsicFract",
+                                 "ModifiedStructParametersCannotBeInlined"}) {
             disables[test].push_back({regex("Tegra 3"), _, GPU, _});
         }
 
@@ -347,6 +351,30 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         for (const char* test : {"PreserveSideEffects",  // b/40044140
                                  "CommaSideEffects"}) {
             disables[test].push_back({regex("Quadro P400"), _, _, kLinux});
+        }
+
+        // - PowerVR ------------------------------------------------------------------------------
+        for (const char* test : {"OutParamsAreDistinct"              // b/40044222
+                                 "OutParamsAreDistinctFromGlobal"}) {
+            disables[test].push_back({regex("PowerVR Rogue GE8300"), _, GPU, _});
+        }
+
+        // - Radeon -------------------------------------------------------------------------------
+        for (const char* test : {"IntrinsicAll",               // b/40045114
+                                 "MatrixConstructors",         // b/40043524
+                                 "MatrixScalarNoOpFolding",    // b/40044644
+                                 "StructIndexStore",           // b/40045236
+                                 "SwizzleIndexLookup",         // b/40045254
+                                 "SwizzleIndexStore"}) {       // b/40045254
+            disables[test].push_back({regex("Radeon.*(R9|HD)"), "OpenGL", GPU, _});
+            disables[test].push_back({regex("Radeon.*(R9|HD)"), "ANGLE GL", GPU, _});
+        }
+
+        // The Radeon Vega 6 doesn't return zero for the derivative of a uniform.
+        for (const char* test : {"IntrinsicDFdy",
+                                 "IntrinsicDFdx",
+                                 "IntrinsicFwidth"}) {
+            disables[test].push_back({regex("AMD RADV RENOIR"), _, GPU, _});
         }
 
         // - Adreno -------------------------------------------------------------------------------
@@ -497,7 +525,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
 
 static void test_one_permutation(skiatest::Reporter* r,
                                  std::string_view deviceName,
-                                 std::string_view backend,
+                                 std::string_view backendAPI,
                                  SkSurface* surface,
                                  const char* name,
                                  const char* testFile,
@@ -513,10 +541,11 @@ static void test_one_permutation(skiatest::Reporter* r,
         ERRORF(r, "%s%s: %s", testFile, permutationSuffix, result.errorText.c_str());
         return;
     }
-    if (failure_is_expected(deviceName, backend, name, testType)) {
+    if (failure_is_expected(deviceName, backendAPI, name, testType)) {
         // Some driver bugs can be catastrophic (e.g. crashing dm entirely), so we don't even try to
         // run a shader if we expect that it might fail.
-        SkDebugf("%s%s: skipped\n", testFile, permutationSuffix);
+        SkDebugf("%s: skipped %.*s%s\n", testFile, (int)backendAPI.size(), backendAPI.data(),
+                                         permutationSuffix);
         return;
     }
 
@@ -548,7 +577,7 @@ static void test_one_permutation(skiatest::Reporter* r,
                                           "%02X%02X%02X%02X %02X%02X%02X%02X",
                                           permutationSuffix,
                                           (int)deviceName.size(), deviceName.data(),
-                                          (int)backend.size(),    backend.data(),
+                                          (int)backendAPI.size(), backendAPI.data(),
 
                                           SkColorGetR(color[0][0]), SkColorGetG(color[0][0]),
                                           SkColorGetB(color[0][0]), SkColorGetA(color[0][0]),
@@ -568,7 +597,7 @@ static void test_one_permutation(skiatest::Reporter* r,
 
 static void test_permutations(skiatest::Reporter* r,
                               std::string_view deviceName,
-                              std::string_view backend,
+                              std::string_view backendAPI,
                               SkSurface* surface,
                               const char* name,
                               const char* testFile,
@@ -577,10 +606,10 @@ static void test_permutations(skiatest::Reporter* r,
     SkRuntimeEffect::Options options = strictES2 ? SkRuntimeEffect::Options{}
                                                  : SkRuntimeEffectPriv::ES3Options();
     options.forceUnoptimized = false;
-    test_one_permutation(r, deviceName, backend, surface, name, testFile, testType, "", options);
+    test_one_permutation(r, deviceName, backendAPI, surface, name, testFile, testType, "", options);
 
     options.forceUnoptimized = true;
-    test_one_permutation(r, deviceName, backend, surface, name, testFile, testType,
+    test_one_permutation(r, deviceName, backendAPI, surface, name, testFile, testType,
                          " (Unoptimized)", options);
 }
 

@@ -1088,41 +1088,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu")      // b/294080402
 	}
 
-	if !b.extraConfig("Vulkan") && b.matchGpu("Radeon(R9|HD)") {
-		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh") // skia:13556
-	}
-
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
 		skip(ALL, "gm", ALL, "blurcircles2") // skia:13342
-	}
-
-	if b.gpu("Tegra3") {
-		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_Ganesh") // skia:11919
-		skip(ALL, "tests", ALL, "SkSLMatrixEquality_Ganesh")   // skia:11919
-		skip(ALL, "tests", ALL, "SkSLIntrinsicFract_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLModifiedStructParametersCannotBeInlined_Ganesh")
 	}
 
 	if b.gpu("QuadroP400") && b.matchOs("Win10") && b.matchModel("Golo") {
 		// Times out with driver 30.0.15.1179
 		skip("vkmsaa4", "gm", ALL, "shadow_utils")
-	}
-
-	if b.gpu("PowerVRGE8320") {
-		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinct_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_Ganesh") // skia:13115
-	}
-
-	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
-		// Some AMD GPUs can get the wrong result when assembling non-square matrices (skia:12443)
-		skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_Ganesh")
-		// Some AMD GPUs miscompile the all() intrinsic. (skia:14034)
-		skip(ALL, "tests", ALL, "SkSLIntrinsicAll_Ganesh")
-		// Some AMD GPUs do not like storing into deeply-nested structs. (skia:14159)
-		skip(ALL, "tests", ALL, "SkSLStructIndexStore_Ganesh")
-		// Accessing an indexed swizzle can be trouble. (skia:14177)
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexLookup_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_Ganesh")
 	}
 
 	if b.gpu("RadeonR9M470X") && b.extraConfig("ANGLE") {
@@ -1136,12 +1108,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.extraConfig("Vulkan") && b.gpu("RadeonVega6") {
 		skip(ALL, "gm", ALL, "ycbcrimage")                                 // skia:13265
 		skip(ALL, "test", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler") // skia:13265
-	}
-
-	if b.matchGpu("RadeonVega6") { // some AMD GPUs don't return zero for the derivative of a uniform
-		skip(ALL, "tests", ALL, "SkSLIntrinsicDFdy_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLIntrinsicDFdx_Ganesh")
-		skip(ALL, "tests", ALL, "SkSLIntrinsicFwidth_Ganesh")
 	}
 
 	match := []string{}
