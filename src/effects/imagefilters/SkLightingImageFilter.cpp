@@ -182,11 +182,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     skif::LayerSpace<SkIRect> requiredInput(const skif::LayerSpace<SkIRect>& desiredOutput) const {
         // We request 1px of padding so that the visible normal map can do a regular Sobel kernel
@@ -679,18 +679,18 @@ skif::FilterResult SkLightingImageFilter::onFilterImage(const skif::Context& ctx
 skif::LayerSpace<SkIRect> SkLightingImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     skif::LayerSpace<SkIRect> requiredInput = this->requiredInput(desiredOutput);
     return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkLightingImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkLightingImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // The lighting equation is defined on the entire plane, even if the input image that defines
     // the normal map is bounded. It just is evaluated at a constant normal vector, which can still
     // produce non-constant color since the direction to the eye and light change per pixel.
-    return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
+    return skif::LayerSpace<SkIRect>::Unbounded();
 }
 
 SkRect SkLightingImageFilter::computeFastBounds(const SkRect& src) const {

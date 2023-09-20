@@ -65,7 +65,7 @@ skif::FilterResult SkLocalMatrixImageFilter::onFilterImage(const skif::Context& 
 skif::LayerSpace<SkIRect> SkLocalMatrixImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // The local matrix changes 'mapping' by adjusting the parameter space of the image filter, but
     // both 'desiredOutput' and 'contentBounds' have already been transformed to the consistent
     // layer space. They remain unchanged with the new mapping.
@@ -73,9 +73,9 @@ skif::LayerSpace<SkIRect> SkLocalMatrixImageFilter::onGetInputLayerBounds(
                                           desiredOutput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkLocalMatrixImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkLocalMatrixImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     return this->getChildOutputLayerBounds(0, this->localMapping(mapping), contentBounds);
 }
 

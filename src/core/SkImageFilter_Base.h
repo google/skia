@@ -72,13 +72,15 @@ public:
      *                       output (assuming that the filter is then invoked with a suitable input)
      *  @param knownContentBounds
      *                       Optional, the known layer-space bounds of the non-transparent content
-     *                       that would be rasterized in the source input image.
+     *                       that would be rasterized in the source input image. Assumes unbounded
+     *                       content when not provided.
      *
      * @return The layer-space bounding box to use for an SkDevice when drawing the source image.
      */
     skif::LayerSpace<SkIRect> getInputBounds(
-            const skif::Mapping& mapping, const skif::DeviceSpace<SkIRect>& desiredOutput,
-            const skif::ParameterSpace<SkRect>* knownContentBounds) const;
+            const skif::Mapping& mapping,
+            const skif::DeviceSpace<SkIRect>& desiredOutput,
+            std::optional<skif::ParameterSpace<SkRect>> knownContentBounds) const;
 
     /**
      *  Calculate the device-space bounds of the output of this filter DAG, if it were to process
@@ -93,6 +95,10 @@ public:
      *  generate a result larger than its input (so that the blur is visible) and, thus, expands its
      *  output to include every pixel that it will touch.
      *
+     *  If the returned optional does not have a value, the caller should interpret this to mean
+     *  that the output of the image filter will fill the entirety of whatever clipped device it's
+     *  drawn into.
+     *
      *  @param mapping       The coordinate space mapping that defines both the transformation
      *                       between local and layer, and layer to root device space, that will be
      *                       used when the filter is later invoked.
@@ -104,8 +110,9 @@ public:
      *          content contained by 'contentBounds' and then drawn with 'mapping' to the root
      *          device (w/o any additional clipping).
      */
-    skif::DeviceSpace<SkIRect> getOutputBounds(
-            const skif::Mapping& mapping, const skif::ParameterSpace<SkRect>& contentBounds) const;
+    std::optional<skif::DeviceSpace<SkIRect>> getOutputBounds(
+            const skif::Mapping& mapping,
+            const skif::ParameterSpace<SkRect>& contentBounds) const;
 
     // Returns true if this image filter graph transforms a source transparent black pixel to a
     // color other than transparent black.
@@ -183,11 +190,11 @@ protected:
             int index,
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const;
-    skif::LayerSpace<SkIRect> getChildOutputLayerBounds(
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const;
+    std::optional<skif::LayerSpace<SkIRect>> getChildOutputLayerBounds(
             int index,
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const;
 
     // Helper function for recursing through the filter DAG. It automatically evaluates the input
     // image filter at 'index' using the given context. If the input image filter is null, it
@@ -259,12 +266,19 @@ private:
      *  node require for input in order to satisfy (as its own output), the input needs of its
      *  parent?".
      *
+     *  'contentBounds' represents the bounds of the non-transparent content that will form the
+     *  source image when the filter graph is invoked. If it's not instantiated, implementations
+     *  should treat the content as extending infinitely. However, since the output is known and
+     *  bounded, implementations should still be able to determine a finite input bounds under these
+     *  circumstances.
+     *
      *  Unlike the public getInputBounds(), all internal bounds calculations are done in the shared
      *  layer space defined by 'mapping'.
      */
     virtual skif::LayerSpace<SkIRect> onGetInputLayerBounds(
-            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const = 0;
+            const skif::Mapping& mapping,
+            const skif::LayerSpace<SkIRect>& desiredOutput,
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const = 0;
 
     /**
      *  Calculates the output bounds that this filter node would touch when processing an input
@@ -272,13 +286,24 @@ private:
      *  filters and accounting for what they output. It is up to the filter to determine how to
      *  aggregate the outputs of its children.
      *
+     *  'contentBounds' represents the bounds of the non-transparent content that will form the
+     *  source image when the filter graph is invoked. If it's not instantiated, implementations
+     *  should treat the content as extending infinitely. However, since the output is known and
+     *  bounded, implementations should still be able to determine a finite input bounds under these
+     *  circumstances.
+     *
+     *  If the non-transparent output extends infinitely, subclasses should return an uninstantiated
+     *  optional. Implementations must also be able to handle when their children return such
+     *  unbounded "outputs" and react accordingly.
+     *
      *  Unlike the public getOutputBounds(), all internal bounds calculations are done in the
      *  shared layer space defined by 'mapping'.
      */
     // TODO (michaelludwig) - When layerMatrix = I, this function could be used to implement
     // onComputeFastBounds() instead of making filters implement the essentially the same calcs x2
-    virtual skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
-            const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const = 0;
+    virtual std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
+            const skif::Mapping& mapping,
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const = 0;
 
     skia_private::AutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 

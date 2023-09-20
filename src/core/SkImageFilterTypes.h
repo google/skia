@@ -116,8 +116,12 @@ public:
 
     explicit operator const T&() const { return fData; }
 
-    static const ParameterSpace<T>* Optional(const T* ptr) {
-        return static_cast<const ParameterSpace<T>*>(reinterpret_cast<const void*>(ptr));
+    static std::optional<ParameterSpace<T>> Optional(const T* ptr) {
+        if (ptr) {
+            return ParameterSpace(*ptr);
+        } else {
+            return {};
+        }
     }
 private:
     T fData;
@@ -384,6 +388,8 @@ public:
     explicit operator const SkIRect&() const { return fData; }
 
     static LayerSpace<SkIRect> Empty() { return LayerSpace<SkIRect>(SkIRect::MakeEmpty()); }
+
+    static constexpr std::optional<LayerSpace<SkIRect>> Unbounded() { return {}; }
 
     // Utility function to iterate a collection of items that can map to LayerSpace<SkIRect> bounds
     // and returns the union of those bounding boxes. 'boundsFn' will be invoked with i = 0 to

@@ -23,6 +23,7 @@
 #include "src/core/SkLocalMatrixImageFilter.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
@@ -66,12 +67,15 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     skif::Mapping mapping{ctm};
     if (kReverse_MapDirection == direction) {
         skif::LayerSpace<SkIRect> targetOutput(src);
+        // TODO (michaelludwig): This should pass in an uninstantiated optional when inputRect is
+        // null, but for now preserve legacy behavior.
         skif::LayerSpace<SkIRect> content(inputRect ? *inputRect : src);
         return SkIRect(as_IFB(this)->onGetInputLayerBounds(mapping, targetOutput, content));
     } else {
         SkASSERT(!inputRect);
         skif::LayerSpace<SkIRect> content(src);
-        return SkIRect(as_IFB(this)->onGetOutputLayerBounds(mapping, content));
+        auto output = as_IFB(this)->onGetOutputLayerBounds(mapping, content);
+        return output ? SkIRect(*output) : SkRectPriv::MakeILarge();
     }
 }
 
@@ -328,16 +332,18 @@ sk_sp<SkImage> SkImageFilter_Base::makeImageWithFilter(const skif::Functors& fun
 }
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
-        const skif::Mapping& mapping, const skif::DeviceSpace<SkIRect>& desiredOutput,
-        const skif::ParameterSpace<SkRect>* knownContentBounds) const {
+        const skif::Mapping& mapping,
+        const skif::DeviceSpace<SkIRect>& desiredOutput,
+        std::optional<skif::ParameterSpace<SkRect>> knownContentBounds) const {
     // Map both the device-space desired coverage area and the known content bounds to layer space
     skif::LayerSpace<SkIRect> desiredBounds = mapping.deviceToLayer(desiredOutput);
 
-    // If we have no known content bounds use the desired coverage area, because that is the most
-    // conservative possibility.
-    skif::LayerSpace<SkIRect> contentBounds =
-            knownContentBounds ? mapping.paramToLayer(*knownContentBounds).roundOut()
-                               : desiredBounds;
+    // If we have no known content bounds, leave 'contentBounds' uninstantiated to represent
+    // infinite possible content.
+    std::optional<skif::LayerSpace<SkIRect>> contentBounds;
+    if (knownContentBounds) {
+        contentBounds = mapping.paramToLayer(*knownContentBounds).roundOut();
+    }
 
     // Process the layer-space desired output with the filter DAG to determine required input
     skif::LayerSpace<SkIRect> requiredInput = this->onGetInputLayerBounds(
@@ -348,7 +354,7 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
     // FilterResults, there's no reason this can't always be applied, or be an expectation from the
     // leaf filters.
     if (knownContentBounds && !this->affectsTransparentBlack()) {
-        if (!requiredInput.intersect(contentBounds)) {
+        if (!requiredInput.intersect(*contentBounds)) {
             // Nothing would be output by the filter, so return empty rect
             return skif::LayerSpace<SkIRect>(SkIRect::MakeEmpty());
         }
@@ -356,15 +362,21 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
     return requiredInput;
 }
 
-skif::DeviceSpace<SkIRect> SkImageFilter_Base::getOutputBounds(
-        const skif::Mapping& mapping, const skif::ParameterSpace<SkRect>& contentBounds) const {
+std::optional<skif::DeviceSpace<SkIRect>> SkImageFilter_Base::getOutputBounds(
+        const skif::Mapping& mapping,
+        const skif::ParameterSpace<SkRect>& contentBounds) const {
     // Map the input content into the layer space where filtering will occur
     skif::LayerSpace<SkRect> layerContent = mapping.paramToLayer(contentBounds);
     // Determine the filter DAGs output bounds in layer space
-    skif::LayerSpace<SkIRect> filterOutput = this->onGetOutputLayerBounds(
-            mapping, layerContent.roundOut());
-    // Map all the way to device space
-    return mapping.layerToDevice(filterOutput);
+    std::optional<skif::LayerSpace<SkIRect>> filterOutput =
+            this->onGetOutputLayerBounds(mapping, layerContent.roundOut());
+    if (filterOutput) {
+        // Map all the way to device space
+        return mapping.layerToDevice(*filterOutput);
+    } else {
+        // Infinite layer output is infinite device-space output too
+        return {};
+    }
 }
 
 SkImageFilter_Base::MatrixCapability SkImageFilter_Base::getCTMCapability() const {
@@ -382,7 +394,7 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildInputLayerBounds(
         int index,
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // The required input for childFilter filter, or 'contentBounds' intersected with 'desiredOutput'
     // if the filter is null and the source image is used (i.e. the identity filter).
     const SkImageFilter* childFilter = this->getInput(index);
@@ -397,10 +409,10 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildInputLayerBounds(
     }
 }
 
-skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkImageFilter_Base::getChildOutputLayerBounds(
         int index,
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // The output for just childFilter filter, or 'contentBounds' if the filter is null and
     // the source image is used (i.e. the identity filter applied to the source).
     const SkImageFilter* childFilter = this->getInput(index);

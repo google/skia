@@ -60,11 +60,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     skif::LayerSpace<SkIRect> requiredInput(const skif::Mapping& mapping,
                                             const skif::LayerSpace<SkIRect>& desiredOutput) const;
@@ -177,17 +177,20 @@ skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::requiredInput(
 skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // Our required input is the desired output for our child image filter.
     skif::LayerSpace<SkIRect> requiredInput = this->requiredInput(mapping, desiredOutput);
     return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkMatrixTransformImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // The output of this filter is the transformed bounds of its child's output.
-    skif::LayerSpace<SkIRect> childOutput =
-            this->getChildOutputLayerBounds(0, mapping, contentBounds);
-    return mapping.paramToLayer(fTransform).mapRect(childOutput);
+    auto childOutput = this->getChildOutputLayerBounds(0, mapping, contentBounds);
+    if (childOutput) {
+        return mapping.paramToLayer(fTransform).mapRect(*childOutput);
+    } else {
+        return skif::LayerSpace<SkIRect>::Unbounded();
+    }
 }

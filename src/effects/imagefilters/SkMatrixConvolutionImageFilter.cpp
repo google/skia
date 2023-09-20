@@ -119,11 +119,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     // Helper functions to adjust 'bounds' by the kernel size and offset, either for what would be
     // sampled when covering 'bounds', or what could produce values when applied to 'bounds'.
@@ -542,29 +542,32 @@ skif::FilterResult SkMatrixConvolutionImageFilter::onFilterImage(
 skif::LayerSpace<SkIRect> SkMatrixConvolutionImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // Adjust the desired output bounds by the kernel size to avoid evaluating edge conditions, and
     // then recurse to the child filter.
     skif::LayerSpace<SkIRect> requiredInput = this->boundsSampledByKernel(desiredOutput);
     return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkMatrixConvolutionImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkMatrixConvolutionImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     if (fConvolveAlpha && fBias != 0.f) {
         // Applying the kernel as a convolution to fully transparent black will result in 0 for
         // each channel, unless the bias itself shifts this "zero-point". However, when the alpha
         // channel is not convolved, the original a=0 is preserved and producing a premul color
         // discards the non-zero bias. Convolving the alpha channel and a non-zero bias can mean
         // the transparent black pixels outside of any input image become non-transparent black.
-        return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
+        return skif::LayerSpace<SkIRect>::Unbounded();
     }
 
     // Otherwise apply the kernel to the output bounds of the child filter.
-    skif::LayerSpace<SkIRect> outputBounds =
-            this->getChildOutputLayerBounds(0, mapping, contentBounds);
-    return this->boundsAffectedByKernel(outputBounds);
+    auto outputBounds = this->getChildOutputLayerBounds(0, mapping, contentBounds);
+    if (outputBounds) {
+        return this->boundsAffectedByKernel(*outputBounds);
+    } else {
+        return skif::LayerSpace<SkIRect>::Unbounded();
+    }
 }
 
 SkRect SkMatrixConvolutionImageFilter::computeFastBounds(const SkRect& bounds) const {

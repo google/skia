@@ -62,11 +62,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     skif::LayerSpace<SkISize> radii(const skif::Mapping& mapping) const {
         skif::LayerSpace<SkISize> radii = mapping.paramToLayer(fRadii).round();
@@ -319,17 +319,20 @@ skif::FilterResult SkMorphologyImageFilter::onFilterImage(const skif::Context& c
 skif::LayerSpace<SkIRect> SkMorphologyImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     skif::LayerSpace<SkIRect> requiredInput = this->requiredInput(mapping, desiredOutput);
     return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkMorphologyImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkMorphologyImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
-    skif::LayerSpace<SkIRect> childOutput =
-            this->getChildOutputLayerBounds(0, mapping, contentBounds);
-    return this->kernelOutputBounds(mapping, childOutput);
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
+    auto childOutput = this->getChildOutputLayerBounds(0, mapping, contentBounds);
+    if (childOutput) {
+        return this->kernelOutputBounds(mapping, *childOutput);
+    } else {
+        return skif::LayerSpace<SkIRect>::Unbounded();
+    }
 }
 
 SkRect SkMorphologyImageFilter::computeFastBounds(const SkRect& src) const {

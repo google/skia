@@ -20,6 +20,7 @@
 #include "src/core/SkWriteBuffer.h"
 
 #include <cstdint>
+#include <optional>
 #include <utility>
 
 namespace {
@@ -55,11 +56,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     // The crop rect is specified in floating point to allow cropping to partial local pixels,
     // that could become whole pixels in the layer-space image if the canvas is scaled.
@@ -200,7 +201,7 @@ skif::FilterResult SkCropImageFilter::onFilterImage(const skif::Context& context
 skif::LayerSpace<SkIRect> SkCropImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // Assuming unbounded desired output, this filter only needs to process an image that's at most
     // sized to our crop rect, but we can restrict the crop rect to just what's requested since
     // anything in the crop but outside 'desiredOutput' won't be visible.
@@ -210,17 +211,16 @@ skif::LayerSpace<SkIRect> SkCropImageFilter::onGetInputLayerBounds(
     return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkCropImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkCropImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // Assuming unbounded child content, our output is an image tiled around the crop rect.
     // But the child output image is drawn into our output surface with its own decal tiling, which
     // may allow the output dimensions to be reduced.
-    skif::LayerSpace<SkIRect> childOutput =
-            this->getChildOutputLayerBounds(0, mapping, contentBounds);
+    auto childOutput = this->getChildOutputLayerBounds(0, mapping, contentBounds);
 
     skif::LayerSpace<SkIRect> crop = this->cropRect(mapping);
-    if (!crop.intersect(childOutput)) {
+    if (childOutput && !crop.intersect(*childOutput)) {
         // Regardless of tile mode, the content within the crop rect is fully transparent, so
         // any tiling will maintain that transparency.
         return skif::LayerSpace<SkIRect>::Empty();
@@ -230,7 +230,7 @@ skif::LayerSpace<SkIRect> SkCropImageFilter::onGetOutputLayerBounds(
         if (fTileMode == SkTileMode::kDecal) {
             return crop;
         } else {
-            return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
+            return skif::LayerSpace<SkIRect>::Unbounded();
         }
     }
 }

@@ -73,13 +73,13 @@ private:
     skif::FilterResult onFilterImage(const skif::Context&) const override;
 
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
-            const skif::Mapping&,
+            const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
-            const skif::Mapping&,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
+            const skif::Mapping& mapping,
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     skif::LayerSpace<SkIRect> applyMaxSampleRadius(
             const skif::Mapping& mapping,
@@ -272,7 +272,7 @@ skif::FilterResult SkRuntimeImageFilter::onFilterImage(const skif::Context& ctx)
 skif::LayerSpace<SkIRect> SkRuntimeImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     const int inputCount = this->countInputs();
     if (inputCount <= 0) {
         return skif::LayerSpace<SkIRect>::Empty();
@@ -290,11 +290,11 @@ skif::LayerSpace<SkIRect> SkRuntimeImageFilter::onGetInputLayerBounds(
     }
 }
 
-skif::LayerSpace<SkIRect> SkRuntimeImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkRuntimeImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& /*mapping*/,
-        const skif::LayerSpace<SkIRect>& /*contentBounds*/) const {
+        std::optional<skif::LayerSpace<SkIRect>> /*contentBounds*/) const {
     // Pessimistically assume it can cover anything
-    return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
+    return skif::LayerSpace<SkIRect>::Unbounded();
 }
 
 SkRect SkRuntimeImageFilter::computeFastBounds(const SkRect& src) const {

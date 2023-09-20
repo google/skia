@@ -79,11 +79,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     skif::LayerSpace<SkSize> mapSigma(const skif::Mapping& mapping, bool gpuBacked) const;
 
@@ -1007,7 +1007,7 @@ skif::LayerSpace<SkSize> SkBlurImageFilter::mapSigma(const skif::Mapping& mappin
 skif::LayerSpace<SkIRect> SkBlurImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // Use gpuBacked=true since that has a more sensitive kernel, ensuring any layer input bounds
     // will be sufficient for both GPU and CPU evaluations.
     skif::LayerSpace<SkIRect> requiredInput =
@@ -1015,13 +1015,17 @@ skif::LayerSpace<SkIRect> SkBlurImageFilter::onGetInputLayerBounds(
     return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkBlurImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkBlurImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
-    // Use gpuBacked=true since it will ensure output bounds are conservative; CPU-based blurs may
-    // produce 1px inset from this for very small sigmas.
-    return this->kernelBounds(mapping, this->getChildOutputLayerBounds(0, mapping, contentBounds),
-                              /*gpuBacked=*/true);
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
+    auto childOutput = this->getChildOutputLayerBounds(0, mapping, contentBounds);
+    if (childOutput) {
+        // Use gpuBacked=true since it will ensure output bounds are conservative; CPU-based blurs
+        // may produce 1px inset from this for very small sigmas.
+        return this->kernelBounds(mapping, *childOutput, /*gpuBacked=*/true);
+    } else {
+        return skif::LayerSpace<SkIRect>::Unbounded();
+    }
 }
 
 SkRect SkBlurImageFilter::computeFastBounds(const SkRect& src) const {

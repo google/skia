@@ -81,10 +81,15 @@ private:
             // been transformed to device space. To achieve that, we mock a new mapping with the
             // identity matrix transform.
             skif::Mapping layerOnly{fMapping.layerMatrix()};
-            skif::DeviceSpace<SkIRect> pseudoDeviceBounds =
+            std::optional<skif::DeviceSpace<SkIRect>> pseudoDeviceBounds =
                     as_IFB(fFilter)->getOutputBounds(layerOnly, fContent);
             // Since layerOnly's device matrix is I, this is effectively a cast to layer space
-            fOutputBounds = layerOnly.deviceToLayer(pseudoDeviceBounds);
+            if (pseudoDeviceBounds) {
+                fOutputBounds = layerOnly.deviceToLayer(*pseudoDeviceBounds);
+            } else {
+                // Skip drawing infinite output bounds
+                fOutputBounds = skif::LayerSpace<SkIRect>::Empty();
+            }
         } else {
             fOutputBounds = fMapping.paramToLayer(fContent).roundOut();
         }
@@ -103,8 +108,8 @@ private:
                                                         .roundOut());
 
         if (fFilter) {
-            fHintedLayerBounds = as_IFB(fFilter)->getInputBounds(fMapping, targetOutput, &fContent);
-            fUnhintedLayerBounds = as_IFB(fFilter)->getInputBounds(fMapping, targetOutput, nullptr);
+            fHintedLayerBounds = as_IFB(fFilter)->getInputBounds(fMapping, targetOutput, fContent);
+            fUnhintedLayerBounds = as_IFB(fFilter)->getInputBounds(fMapping, targetOutput, {});
         } else {
             fHintedLayerBounds = fMapping.paramToLayer(fContent).roundOut();
             fUnhintedLayerBounds = fMapping.deviceToLayer(targetOutput);

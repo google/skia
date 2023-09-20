@@ -54,13 +54,13 @@ private:
     skif::FilterResult onFilterImage(const skif::Context&) const override;
 
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
-            const skif::Mapping&,
+            const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
-            const skif::Mapping&,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
+            const skif::Mapping& mapping,
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     sk_sp<SkShader> fShader;
     SkImageFilters::Dither fDither;
@@ -125,15 +125,15 @@ skif::FilterResult SkShaderImageFilter::onFilterImage(const skif::Context& ctx) 
 skif::LayerSpace<SkIRect> SkShaderImageFilter::onGetInputLayerBounds(
         const skif::Mapping&,
         const skif::LayerSpace<SkIRect>&,
-        const skif::LayerSpace<SkIRect>&) const {
+        std::optional<skif::LayerSpace<SkIRect>>) const {
     // This is a leaf filter, it requires no input and no further recursion
     return skif::LayerSpace<SkIRect>::Empty();
 }
 
-skif::LayerSpace<SkIRect> SkShaderImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkShaderImageFilter::onGetOutputLayerBounds(
         const skif::Mapping&,
-        const skif::LayerSpace<SkIRect>&) const {
+        std::optional<skif::LayerSpace<SkIRect>>) const {
     // The output of a shader is infinite, unless we were to inspect the shader for a decal
     // tile mode around a gradient or image.
-    return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
+    return skif::LayerSpace<SkIRect>::Unbounded();
 }

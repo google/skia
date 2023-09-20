@@ -54,6 +54,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <utility>
 
 class SkTypeface;
@@ -292,13 +293,13 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override {
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override {
         return desiredOutput;
     }
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override {
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override {
         return contentBounds;
     }
 

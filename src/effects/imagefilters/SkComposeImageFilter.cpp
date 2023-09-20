@@ -54,11 +54,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 };
 
 } // end namespace
@@ -90,7 +90,7 @@ sk_sp<SkFlattenable> SkComposeImageFilter::CreateProc(SkReadBuffer& buffer) {
 
 skif::FilterResult SkComposeImageFilter::onFilterImage(const skif::Context& ctx) const {
     // Get the expected output of the inner filter, given the source image's layer bounds as content
-    skif::LayerSpace<SkIRect> innerOutputBounds =
+    auto innerOutputBounds =
             this->getChildOutputLayerBounds(kInner, ctx.mapping(), ctx.source().layerBounds());
     // Get the required input for the outer filter, that it needs to cover the desired output.
     skif::LayerSpace<SkIRect> outerRequiredInput =
@@ -114,24 +114,28 @@ skif::FilterResult SkComposeImageFilter::onFilterImage(const skif::Context& ctx)
 skif::LayerSpace<SkIRect> SkComposeImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // The outer filter must produce 'desiredOutput'. Its required input bounds becomes the desired
     // output of the inner filter. However, 'contentBounds' is the bounds visible to the input
     // filter. The output bounds of the inner filter represents the content bounds of the outer.
-    skif::LayerSpace<SkIRect> outerContentBounds =
-            this->getChildOutputLayerBounds(kInner, mapping, contentBounds);
+    std::optional<skif::LayerSpace<SkIRect>> outerContentBounds;
+    if (contentBounds) {
+        outerContentBounds = this->getChildOutputLayerBounds(kInner, mapping, *contentBounds);
+    } // else leave outer's content bounds "unbounded"
+
     skif::LayerSpace<SkIRect> innerDesiredOutput =
             this->getChildInputLayerBounds(kOuter, mapping, desiredOutput, outerContentBounds);
     return this->getChildInputLayerBounds(kInner, mapping, innerDesiredOutput, contentBounds);
 }
 
-skif::LayerSpace<SkIRect> SkComposeImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkComposeImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // The 'contentBounds' is processed by the inner filter, producing the content bounds for the
     // outer filter of the composition, which then produces the final output bounds.
-    skif::LayerSpace<SkIRect> innerBounds =
-            this->getChildOutputLayerBounds(kInner, mapping, contentBounds);
+    auto innerBounds = this->getChildOutputLayerBounds(kInner, mapping, contentBounds);
+    // NOTE: Even if innerBounds is unbounded, the outer image filter may be capable of restricting
+    // it if it contains a crop image filter.
     return this->getChildOutputLayerBounds(kOuter, mapping, innerBounds);
 }
 

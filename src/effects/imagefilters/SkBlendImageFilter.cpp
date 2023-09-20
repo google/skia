@@ -81,11 +81,11 @@ private:
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
             const skif::Mapping& mapping,
             const skif::LayerSpace<SkIRect>& desiredOutput,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
+    std::optional<skif::LayerSpace<SkIRect>> onGetOutputLayerBounds(
             const skif::Mapping& mapping,
-            const skif::LayerSpace<SkIRect>& contentBounds) const override;
+            std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
     sk_sp<SkShader> makeBlendShader(sk_sp<SkShader> bg, sk_sp<SkShader> fg) const;
 
@@ -299,13 +299,16 @@ skif::FilterResult SkBlendImageFilter::onFilterImage(const skif::Context& ctx) c
     // than the union of the foreground and background. To make this restriction available to both
     // children before evaluating them, we determine the maximum possible output the blend can
     // produce from the contentBounds and require that for both children to produce.
-    skif::LayerSpace<SkIRect> requiredInput = this->onGetOutputLayerBounds(
-            ctx.mapping(), ctx.source().layerBounds());
-    if (!requiredInput.intersect(ctx.desiredOutput())) {
-        return {};
+    auto requiredInput = this->onGetOutputLayerBounds(ctx.mapping(), ctx.source().layerBounds());
+    if (requiredInput) {
+        if (!requiredInput->intersect(ctx.desiredOutput())) {
+            return {};
+        }
+    } else {
+        requiredInput = ctx.desiredOutput();
     }
-    skif::Context inputCtx = ctx.withNewDesiredOutput(requiredInput);
 
+    skif::Context inputCtx = ctx.withNewDesiredOutput(*requiredInput);
     skif::FilterResult::Builder builder{ctx};
     builder.add(this->getChildOutput(kBackground, inputCtx));
     builder.add(this->getChildOutput(kForeground, inputCtx));
@@ -318,12 +321,21 @@ skif::FilterResult SkBlendImageFilter::onFilterImage(const skif::Context& ctx) c
 skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
-    // See comment in onFilterImage().
-    skif::LayerSpace<SkIRect> requiredInput = this->onGetOutputLayerBounds(mapping, contentBounds);
-    if (!requiredInput.intersect(desiredOutput)) {
-        // Don't bother recursing if we know the blend will discard everything
-        return skif::LayerSpace<SkIRect>::Empty();
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
+
+    skif::LayerSpace<SkIRect> requiredInput;
+    std::optional<skif::LayerSpace<SkIRect>> maxOutput;
+    if (contentBounds && (maxOutput = this->onGetOutputLayerBounds(mapping, *contentBounds))) {
+        // See comment in onFilterImage().
+        requiredInput = *maxOutput;
+        if (!requiredInput.intersect(desiredOutput)) {
+            // Don't bother recursing if we know the blend will discard everything
+            return skif::LayerSpace<SkIRect>::Empty();
+        }
+    } else {
+        // The content and/or the output of the child are unbounded so the intersection with the
+        // desired output is simply the desired output.
+        requiredInput = desiredOutput;
     }
 
     // Return the union of both FG and BG required inputs to ensure both have all necessary pixels
@@ -336,9 +348,9 @@ skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetInputLayerBounds(
     return bgInput;
 }
 
-skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetOutputLayerBounds(
+std::optional<skif::LayerSpace<SkIRect>> SkBlendImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
-        const skif::LayerSpace<SkIRect>& contentBounds) const {
+        std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     // Blending is (k0*FG*BG +       k1*FG +       k2*BG + k3) for arithmetic blenders OR
     //             ( 0*FG*BG + srcCoeff*FG + dstCoeff*BG + 0 ) for Porter-Duff blend modes OR
     //              un-inspectable(FG, BG) for advanced blend modes and other runtime blenders.
@@ -374,7 +386,7 @@ skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetOutputLayerBounds(
 
         if (k[3] != 0.f) {
             // The arithmetic equation produces non-transparent black everywhere
-            return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
+            return skif::LayerSpace<SkIRect>::Unbounded();
         } else {
             // Given the earlier assert and if, then (k[1] == k[2] == 0) implies k[0] != 0. If only
             // one of k[1] or k[2] are non-zero then, regardless of k[0], then only that bounds
@@ -385,25 +397,32 @@ skif::LayerSpace<SkIRect> SkBlendImageFilter::onGetOutputLayerBounds(
     } else {
         // A non-arithmetic runtime blender, so pessimistically assume it can return non-transparent
         // black anywhere.
-        return skif::LayerSpace<SkIRect>(SkRectPriv::MakeILarge());
+        return skif::LayerSpace<SkIRect>::Unbounded();
     }
 
-    skif::LayerSpace<SkIRect> foregroundBounds =
-            this->getChildOutputLayerBounds(kForeground, mapping, contentBounds);
-    skif::LayerSpace<SkIRect> backgroundBounds =
-            this->getChildOutputLayerBounds(kBackground, mapping, contentBounds);
+    auto foregroundBounds = this->getChildOutputLayerBounds(kForeground, mapping, contentBounds);
+    auto backgroundBounds = this->getChildOutputLayerBounds(kBackground, mapping, contentBounds);
     if (transparentOutsideFG) {
         if (transparentOutsideBG) {
             // Output is the intersection of both
-            if (!foregroundBounds.intersect(backgroundBounds)) {
+            if (!foregroundBounds && backgroundBounds) {
+                foregroundBounds = *backgroundBounds;
+            } else if (backgroundBounds && !foregroundBounds->intersect(*backgroundBounds)) {
                 return skif::LayerSpace<SkIRect>::Empty();
             }
+            // When both fore and background are infinite, foregroundBounds remains uninstantiated.
+            // When only foreground is provided, it's left unmodified, which is the correct result.
         }
         return foregroundBounds;
     } else {
         if (!transparentOutsideBG) {
-            // Output is the union of both (infinite bounds were detected earlier).
-            backgroundBounds.join(foregroundBounds);
+            // Output is the union of both (infinite blend-induced bounds were detected earlier).
+            if (foregroundBounds && backgroundBounds) {
+                backgroundBounds->join(*foregroundBounds);
+            } else {
+                // At least one of the union arguments is unbounded, so the union is infinite
+                backgroundBounds.reset();
+            }
         }
         return backgroundBounds;
     }
