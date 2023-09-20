@@ -8,6 +8,7 @@
 #ifndef SkFontMgr_android_parser_DEFINED
 #define SkFontMgr_android_parser_DEFINED
 
+#include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"

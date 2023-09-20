@@ -9,6 +9,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkTypeface.h"
 #include "src/base/SkUTF.h"
 #include "src/base/SkUtils.h"

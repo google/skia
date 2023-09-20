@@ -6,13 +6,17 @@
  */
 
 #include "include/core/SkFontMgr.h"
+
+#include "include/core/SkData.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkOnce.h"
-#include "src/core/SkFontDescriptor.h"
 
-class SkFontStyle;
-class SkTypeface;
+#include <utility>
+
+struct SkFontArguments;
 
 class SkEmptyFontStyleSet : public SkFontStyleSet {
 public:

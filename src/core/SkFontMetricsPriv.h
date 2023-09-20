@@ -8,12 +8,11 @@
 #ifndef SkFontMetricsPriv_DEFINED
 #define SkFontMetricsPriv_DEFINED
 
-#include "include/core/SkFontMetrics.h"
-
 #include <optional>
 
 class SkReadBuffer;
 class SkWriteBuffer;
+struct SkFontMetrics;
 
 class SkFontMetricsPriv {
 public:
