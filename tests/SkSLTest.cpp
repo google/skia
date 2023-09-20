@@ -303,6 +303,9 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         // Switch fallthrough has some issues on iOS.
         disables["SwitchWithFallthrough"].push_back({_, "OpenGL", GPU, kiOS});
 
+        // Pack intrinsics do not work properly on Mac + OpenGL + Radeon. (b/40043515)
+        disables["SwitchWithFallthrough"].push_back({regex("Radeon"), "OpenGL", GPU, kMac});
+
         // - ARM ----------------------------------------------------------------------------------
         // Mali 400 is a very old driver its share of quirks, particularly in relation to matrices.
         for (const char* test : {"Matrices",                // b/40043539
@@ -945,9 +948,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_U, MatrixNoOpFolding,               "folding/
 SKSL_TEST(CPU | GPU,     kApiLevel_U, MatrixScalarNoOpFolding,         "folding/MatrixScalarNoOpFolding.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_U, MatrixVectorNoOpFolding,         "folding/MatrixVectorNoOpFolding.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, Negation,                        "folding/Negation.rts")
-// TODO(skia:13035): This test fails on Nvidia GPUs on OpenGL but passes Vulkan. Re-enable the test
-// on Vulkan when granular GPU backend selection is supported.
-SKSL_TEST(CPU,           kApiLevel_T, PreserveSideEffects,             "folding/PreserveSideEffects.rts")
+SKSL_TEST(CPU | GPU,     kApiLevel_T, PreserveSideEffects,             "folding/PreserveSideEffects.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, SelfAssignment,                  "folding/SelfAssignment.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_U, StructFieldFolding,              "folding/StructFieldFolding.rts")
@@ -981,8 +982,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, InlineWithModifiedArgument,               
 SKSL_TEST(CPU | GPU,     kApiLevel_T, InlineWithNestedBigCalls,                         "inliner/InlineWithNestedBigCalls.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, InlineWithUnmodifiedArgument,                     "inliner/InlineWithUnmodifiedArgument.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, InlineWithUnnecessaryBlocks,                      "inliner/InlineWithUnnecessaryBlocks.sksl")
-// TODO(tint:1932): GPU is disabled for now; test exposes a bug in the Tint SPIR-V Reader
-SKSL_TEST(CPU,           kNextRelease,IntrinsicNameCollision,                           "inliner/IntrinsicNameCollision.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,IntrinsicNameCollision,                           "inliner/IntrinsicNameCollision.sksl")
 SKSL_TEST(CPU | GPU,     kNextRelease,ModifiedArrayParametersCannotBeInlined,           "inliner/ModifiedArrayParametersCannotBeInlined.sksl")
 SKSL_TEST(CPU | GPU,     kNextRelease,ModifiedStructParametersCannotBeInlined,          "inliner/ModifiedStructParametersCannotBeInlined.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, NoInline,                                         "inliner/NoInline.sksl")
@@ -1032,8 +1032,7 @@ SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicMixFloatES3,            "intrinsi
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicModf,                   "intrinsics/Modf.sksl")
 SKSL_TEST(CPU | GPU,     kNever,      IntrinsicNot,                    "intrinsics/Not.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicOuterProduct,           "intrinsics/OuterProduct.sksl")
-// Fails on Mac OpenGL + Radeon 5300M (skia:12434)
-// SKSL_TEST(GPU_ES3,    kNever,      IntrinsicPackUnorm2x16,          "intrinsics/PackUnorm2x16.sksl")
+SKSL_TEST(GPU_ES3,       kNever,      IntrinsicPackUnorm2x16,          "intrinsics/PackUnorm2x16.sksl")
 SKSL_TEST(CPU | GPU,     kNever,      IntrinsicRadians,                "intrinsics/Radians.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicRound,                  "intrinsics/Round.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicRoundEven,              "intrinsics/RoundEven.sksl")
@@ -1079,8 +1078,7 @@ SKSL_TEST(CPU | GPU,     kNever,      DeadGlobals,                     "shared/D
 SKSL_TEST(ES3 | GPU_ES3, kNever,      DeadLoopVariable,                "shared/DeadLoopVariable.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, DeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, DeadReturn,                      "shared/DeadReturn.sksl")
-// TODO(skia:12012): some Radeons crash when compiling this code; disable them.
-SKSL_TEST(ES3/* | GPU_ES3*/,kNever,   DeadReturnES3,                   "shared/DeadReturnES3.sksl")
+SKSL_TEST(ES3 | GPU_ES3, kNever,      DeadReturnES3,                   "shared/DeadReturnES3.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, DeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, DependentInitializers,           "shared/DependentInitializers.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_U, DoubleNegation,                  "shared/DoubleNegation.sksl")
@@ -1105,10 +1103,8 @@ SKSL_TEST(CPU | GPU,     kApiLevel_U, LogicalAndShortCircuit,          "shared/L
 SKSL_TEST(CPU | GPU,     kApiLevel_U, LogicalOrShortCircuit,           "shared/LogicalOrShortCircuit.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, Matrices,                        "shared/Matrices.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
-// TODO(skia:12443) The MatrixConstructors tests actually don't work on MANY devices. The GLSL SkQP
-// suite does a terrible job of enforcing this rule. We still test the ES2 variant on CPU.
-SKSL_TEST(CPU,           kNever,      MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
-SKSL_TEST(ES3,           kNever,      MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
+SKSL_TEST(CPU | GPU,     kNever,      MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
+SKSL_TEST(ES3 | GPU_ES3, kNever,      MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, MatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(CPU | GPU,     kNextRelease,MatrixIndexLookup,               "shared/MatrixIndexLookup.sksl")
 SKSL_TEST(CPU | GPU,     kNextRelease,MatrixIndexStore,                "shared/MatrixIndexStore.sksl")
