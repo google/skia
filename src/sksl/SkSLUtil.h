@@ -123,9 +123,6 @@ struct ShaderCaps {
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
     // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
     bool fCanUseFragCoord = true;
-    // If true, short ints can't represent every integer in the 16-bit two's complement range as
-    // required by the spec. SKSL will always emit full ints.
-    bool fIncompleteShortIntPrecision = false;
     // If true, then conditions in for loops need "&& true" to work around driver bugs.
     bool fAddAndTrueToLoopCondition = false;
     // If true, then expressions such as "x && y" or "x || y" are rewritten as ternary to work

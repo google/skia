@@ -145,17 +145,6 @@ public:
         return sCaps;
     }
 
-    static const SkSL::ShaderCaps* IncompleteShortIntPrecision() {
-        static const SkSL::ShaderCaps* sCaps = [] {
-            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
-            caps->fVersionDeclString = "#version 310es";
-            caps->fUsesPrecisionModifiers = true;
-            caps->fIncompleteShortIntPrecision = true;
-            return caps.release();
-        }();
-        return sCaps;
-    }
-
     static const SkSL::ShaderCaps* MustForceNegatedAtanParamToFloat() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -377,9 +366,6 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " FramebufferFetchSupport")) {
                     *caps = Factory::FramebufferFetchSupport();
-                }
-                if (consume_suffix(&settingsText, " IncompleteShortIntPrecision")) {
-                    *caps = Factory::IncompleteShortIntPrecision();
                 }
                 if (consume_suffix(&settingsText, " MustGuardDivisionEvenAfterExplicitZeroCheck")) {
                     *caps = Factory::MustGuardDivisionEvenAfterExplicitZeroCheck();

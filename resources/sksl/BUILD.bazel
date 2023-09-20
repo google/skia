@@ -537,7 +537,6 @@ skia_filegroup(
     name = "sksl_glsl_tests",
     srcs = [
         "glsl/ForceHighPrecision.sksl",
-        "glsl/IncompleteShortIntPrecision.sksl",
         "glsl/LastFragColor.sksl",
         "glsl/LastFragColorWithoutCaps.sksl",
         "glsl/LayoutQualifiers.sksl",

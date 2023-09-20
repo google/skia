@@ -4199,12 +4199,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fCanUseFragCoord = false;
     }
 
-    // On Mali G71, mediump ints don't appear capable of representing every integer beyond +/-2048.
-    // (Are they implemented with fp16?)
-    if (ctxInfo.vendor() == GrGLVendor::kARM) {
-        shaderCaps->fIncompleteShortIntPrecision = true;
-    }
-
     if (fDriverBugWorkarounds.add_and_true_to_loop_condition) {
         shaderCaps->fAddAndTrueToLoopCondition = true;
     }

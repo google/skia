@@ -1327,18 +1327,13 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
                 if (type.matches(*fContext.fTypes.fShort) ||
-                    type.matches(*fContext.fTypes.fUShort)) {
-                    if (fProgram.fConfig->fSettings.fForceHighPrecision ||
-                            this->caps().fIncompleteShortIntPrecision) {
-                        return "highp ";
-                    }
-                    return "mediump ";
-                }
-                if (type.matches(*fContext.fTypes.fHalf)) {
+                    type.matches(*fContext.fTypes.fUShort) ||
+                    type.matches(*fContext.fTypes.fHalf)) {
                     return fProgram.fConfig->fSettings.fForceHighPrecision ? "highp " : "mediump ";
                 }
-                if (type.matches(*fContext.fTypes.fFloat) || type.matches(*fContext.fTypes.fInt) ||
-                        type.matches(*fContext.fTypes.fUInt)) {
+                if (type.matches(*fContext.fTypes.fFloat) ||
+                    type.matches(*fContext.fTypes.fInt) ||
+                    type.matches(*fContext.fTypes.fUInt)) {
                     return "highp ";
                 }
                 return "";
