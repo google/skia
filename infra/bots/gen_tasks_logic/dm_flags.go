@@ -380,12 +380,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			} else if b.matchOs("Mac") {
 				configs = []string{"angle_mtl_es2", "angle_mtl_es3"}
 
-				// anglebug.com/7145
-				skip(ALL, "test", ALL, "SkSLOutParamsAreDistinctFromGlobal_Ganesh")
-
-				// b/268720489
-				skip(ALL, "test", ALL, "SkSLIntrinsicMixFloatES3_Ganesh")
-
 				// anglebug.com/7245
 				skip("angle_mtl_es3", "gm", ALL, "runtime_intrinsics_common_es3")
 
@@ -1080,10 +1074,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLCross")  // despite the name, it's not in SkSLTest.cpp
     }
 
-	if b.matchOs("iOS") && !b.extraConfig("Metal") {
-		skip(ALL, "tests", ALL, "SkSLSwitchWithFallthrough_Ganesh")
-	}
-
 	if b.matchOs("Mac") && (b.gpu("IntelIrisPlus") || b.gpu("IntelHD6000")) &&
 						   (b.extraConfig("Metal") || b.extraConfig("Dawn")) {
 		// TODO(skia:296960708): The IntelIrisPlus+Metal config hangs on this test, but passes
@@ -1100,12 +1090,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if !b.extraConfig("Vulkan") && b.matchGpu("Radeon(R9|HD)") {
 		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh") // skia:13556
-	}
-
-	if b.matchOs("Mac") && b.extraConfig("ANGLE") {
-		skip(ALL, "tests", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh") // https://anglebug.com/7525
-		skip(ALL, "tests", ALL, "SkSLMatrixScalarMath_Ganesh")        // https://anglebug.com/7525
-		skip(ALL, "tests", ALL, "SkSLSwizzleIndexStore_Ganesh")       // Apple bug FB12055941
 	}
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {

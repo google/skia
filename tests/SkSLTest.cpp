@@ -291,6 +291,18 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
             disables[test].push_back({_, "OpenGL", GPU, kMac || kiOS});
         }
 
+        // ANGLE has a handful of Mac-specific bugs.
+        for (const char* test : {"MatrixScalarNoOpFolding",         // anglebug.com/7525
+                                 "MatrixScalarMath",                // anglebug.com/7525
+                                 "SwizzleIndexStore",               // Apple bug FB12055941
+                                 "OutParamsAreDistinctFromGlobal",  // anglebug.com/7145
+                                 "IntrinsicMixFloatES3"}) {         // anglebug.com/7245
+            disables[test].push_back({_, "ANGLE", GPU, kMac});
+        }
+
+        // Switch fallthrough has some issues on iOS.
+        disables["SwitchWithFallthrough"].push_back({_, "OpenGL", GPU, kiOS});
+
         // - ARM ----------------------------------------------------------------------------------
         // Mali 400 is a very old driver its share of quirks, particularly in relation to matrices.
         for (const char* test : {"Matrices",                // b/40043539
@@ -392,7 +404,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         // Intrinsic not() and mix() are broken on Intel GPUs in Metal. (b/40045105)
         for (const char* test : {"IntrinsicNot",
                                  "IntrinsicMixFloatES3"}) {
-            disables[test].push_back({regex("Intel.*(Iris|6000)"), "Metal", _, kMac || kiOS});
+            disables[test].push_back({regex("Intel.*(Iris|6000)"), "Metal", _, kMac});
         }
 
         // Swizzled-index store is broken across many Intel GPUs. (b/40045254)
