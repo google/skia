@@ -303,9 +303,6 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         // Switch fallthrough has some issues on iOS.
         disables["SwitchWithFallthrough"].push_back({_, "OpenGL", GPU, kiOS});
 
-        // Pack intrinsics do not work properly on Mac + OpenGL + Radeon. (b/40043515)
-        disables["SwitchWithFallthrough"].push_back({regex("Radeon"), "OpenGL", GPU, kMac});
-
         // - ARM ----------------------------------------------------------------------------------
         // Mali 400 is a very old driver its share of quirks, particularly in relation to matrices.
         for (const char* test : {"Matrices",                // b/40043539
@@ -1032,7 +1029,6 @@ SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicMixFloatES3,            "intrinsi
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicModf,                   "intrinsics/Modf.sksl")
 SKSL_TEST(CPU | GPU,     kNever,      IntrinsicNot,                    "intrinsics/Not.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicOuterProduct,           "intrinsics/OuterProduct.sksl")
-SKSL_TEST(GPU_ES3,       kNever,      IntrinsicPackUnorm2x16,          "intrinsics/PackUnorm2x16.sksl")
 SKSL_TEST(CPU | GPU,     kNever,      IntrinsicRadians,                "intrinsics/Radians.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicRound,                  "intrinsics/Round.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicRoundEven,              "intrinsics/RoundEven.sksl")
