@@ -60,7 +60,8 @@ public:
     std::unique_ptr<SoftwarePathAtlas> createSoftwarePathAtlas() const;
 
     // Return a TextureProxy with the given dimensions and color type.
-    sk_sp<TextureProxy> getAtlasTexture(Recorder*, uint16_t width, uint16_t height, SkColorType);
+    sk_sp<TextureProxy> getAtlasTexture(
+            Recorder*, uint16_t width, uint16_t height, SkColorType, bool requireStorageUsage);
 
     void clearTexturePool();
 

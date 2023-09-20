@@ -100,7 +100,11 @@ protected:
                             const SkStrokeRec&) = 0;
     virtual void onReset() = 0;
 
-    virtual SkColorType coverageMaskFormat(const Caps*) const = 0;
+    struct MaskFormat {
+        SkColorType fColorType = kUnknown_SkColorType;
+        bool requiresStorageUsage = false;
+    };
+    virtual MaskFormat coverageMaskFormat(const Caps*) const = 0;
 
 private:
     bool initializeTextureIfNeeded(Recorder*);
@@ -137,7 +141,7 @@ public:
     virtual std::unique_ptr<DispatchGroup> recordDispatches(Recorder*) const = 0;
 
 protected:
-    SkColorType coverageMaskFormat(const Caps*) const override;
+    MaskFormat coverageMaskFormat(const Caps*) const override;
 };
 
 #ifdef SK_ENABLE_VELLO_SHADERS
@@ -191,7 +195,7 @@ protected:
                     skvx::int2 deviceOffset,
                     const SkStrokeRec&) override;
     void onReset() override;
-    SkColorType coverageMaskFormat(const Caps*) const override;
+    MaskFormat coverageMaskFormat(const Caps*) const override;
 
     SkAutoPixmapStorage fPixels;
     SkIRect fDirtyRect;

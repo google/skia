@@ -1020,10 +1020,11 @@ void Device::drawGeometry(const Transform& localToDevice,
         }
 
         if (!foundAtlasSpace) {
-            SKGPU_LOG_E("Shape is too large for path atlas!");
-            // TODO(b/285195175): This can happen if the atlas is not large enough. Handle this case
-            // in `chooseRenderer` and make sure that the atlas path renderer is not chosen if the
-            // path is larger than the atlas texture.
+            SKGPU_LOG_E("Failed to add shape to atlas!");
+            // TODO(b/285195175): This can happen if the atlas is not large enough or a compatible
+            // atlas texture cannot be created. Handle the first case in `chooseRenderer` and make
+            // sure that the atlas path renderer is not chosen if the path is larger than the atlas
+            // texture.
             return;
         }
     }

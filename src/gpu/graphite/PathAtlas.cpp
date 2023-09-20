@@ -101,11 +101,13 @@ const TextureProxy* PathAtlas::getTexture(Recorder* recorder) {
 
 bool PathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
     if (!fTexture) {
-        fTexture = recorder->priv().atlasProvider()->getAtlasTexture(
-                recorder,
-                this->width(),
-                this->height(),
-                this->coverageMaskFormat(recorder->priv().caps()));
+        const MaskFormat maskFormat = this->coverageMaskFormat(recorder->priv().caps());
+        fTexture =
+                recorder->priv().atlasProvider()->getAtlasTexture(recorder,
+                                                                  this->width(),
+                                                                  this->height(),
+                                                                  maskFormat.fColorType,
+                                                                  maskFormat.requiresStorageUsage);
     }
     return fTexture != nullptr;
 }
@@ -114,8 +116,8 @@ bool PathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
 
 ComputePathAtlas::ComputePathAtlas() : PathAtlas(kComputeAtlasDim, kComputeAtlasDim) {}
 
-SkColorType ComputePathAtlas::coverageMaskFormat(const Caps* caps) const {
-    return ComputeShaderCoverageMaskTargetFormat(caps);
+PathAtlas::MaskFormat ComputePathAtlas::coverageMaskFormat(const Caps* caps) const {
+    return {ComputeShaderCoverageMaskTargetFormat(caps), /*requiresStorageUsage=*/true};
 }
 
 #ifdef SK_ENABLE_VELLO_SHADERS
@@ -296,8 +298,8 @@ void SoftwarePathAtlas::onReset() {
     fPixels.erase(0);
 }
 
-SkColorType SoftwarePathAtlas::coverageMaskFormat(const Caps*) const {
-    return kAlpha_8_SkColorType;
+PathAtlas::MaskFormat SoftwarePathAtlas::coverageMaskFormat(const Caps*) const {
+    return {kAlpha_8_SkColorType, /*requiresStorageUsage=*/true};
 }
 
 }  // namespace skgpu::graphite

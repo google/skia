@@ -45,7 +45,8 @@ std::unique_ptr<SoftwarePathAtlas> AtlasProvider::createSoftwarePathAtlas() cons
 sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
                                                    uint16_t width,
                                                    uint16_t height,
-                                                   SkColorType colorType) {
+                                                   SkColorType colorType,
+                                                   bool requireStorageUsage) {
     uint64_t key = static_cast<uint64_t>(width)  << 48 |
                    static_cast<uint64_t>(height) << 32 |
                    static_cast<uint64_t>(colorType);
@@ -54,10 +55,24 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
         return iter->second;
     }
 
-    auto proxy = TextureProxy::MakeStorage(recorder->priv().caps(),
-                                           SkISize::Make(int32_t(width), int32_t(height)),
-                                           colorType,
-                                           skgpu::Budgeted::kYes);
+    sk_sp<TextureProxy> proxy;
+    if (requireStorageUsage) {
+        proxy = TextureProxy::MakeStorage(recorder->priv().caps(),
+                                          SkISize::Make(int32_t(width), int32_t(height)),
+                                          colorType,
+                                          skgpu::Budgeted::kYes);
+    } else {
+        // We currently only make the distinction between a storage texture (written by a
+        // compute pass) and a plain sampleable texture (written via upload) that won't be
+        // used as a render attachment.
+        proxy = TextureProxy::Make(recorder->priv().caps(),
+                                   SkISize::Make(int32_t(width), int32_t(height)),
+                                   colorType,
+                                   skgpu::Mipmapped::kNo,
+                                   skgpu::Protected::kNo,
+                                   skgpu::Renderable::kNo,
+                                   skgpu::Budgeted::kYes);
+    }
     if (!proxy) {
         return nullptr;
     }
