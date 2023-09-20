@@ -810,23 +810,39 @@ private:
     resolve(const Context& ctx, LayerSpace<SkIRect> dstBounds,
             bool preserveTransparency=false) const;
 
-    // Returns true if tiling and color filtering affect pixels outside of the image's bounds that
-    // are within the layer bounds (limited to 'dstBounds'). This does not consider the layer bounds
-    // which are considered separately in isCropped().
-    bool modifiesPixelsBeyondImage(const LayerSpace<SkIRect>& dstBounds) const;
+    enum class BoundsAnalysis : int {
+        // The image can be drawn directly, without needing to apply tiling, or handling how any
+        // color filter might affect transparent black.
+        kSimple = 0,
+        // The image's tiling or color filter modify pixels beyond the image and those regions are
+        // visible when rendering to the 'dstBounds'.
+        kEffectsVisible = 1 << 0,
+        // The crop boundary induced by `fLayerBounds` is visible when rendering to the 'dstBounds',
+        // although this could be either because it intersects the image's content or because the
+        // effects modify transparent black and fill out to the layer bounds.
+        kLayerCropVisible = 1 << 1
+    };
+    SK_DECL_BITMASK_OPS_FRIENDS(BoundsAnalysis);
 
-    // Returns true if the effects of the fLayerBounds crop are visible when this image is drawn
-    // with 'xtraTransform' restricted to 'dstBounds'.
-    bool isCropped(const LayerSpace<SkMatrix>& xtraTransform,
-                   const LayerSpace<SkIRect>& dstBounds) const;
+    // Determine what effects are visible based on the target 'dstBounds' and extra transform that
+    // will be applied when this FilterResult is drawn. These are not LayerSpace because the
+    // 'xtraTransform' may be either a within-layer transform, or a layer-to-device space transform.
+    // The 'dstBounds' should be in the same coordinate space that 'xtraTransform' maps to. When
+    // that is the identity matrix, 'dstBounds' is in layer space.
+    SkEnumBitMask<BoundsAnalysis> analyzeBounds(const SkMatrix& xtraTransform,
+                                                const SkIRect& dstBounds) const;
+    SkEnumBitMask<BoundsAnalysis> analyzeBounds(const LayerSpace<SkIRect>& dstBounds) const {
+        return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds));
+    }
 
     // Draw directly to the device, which draws the same image as produced by resolve() but can be
     // useful if multiple operations need to be performed on the canvas.
     //
     // This assumes that the device's transform is set to match the current layer space coordinate
-    // system. This will concat any internal extra transform and apply clipping as necessary, but
-    // will restore the device to the original state before returning.
-    void draw(SkDevice* device, const LayerSpace<SkIRect>& dstBounds) const;
+    // system. This will concat any internal extra transform and apply clipping as necessary. If
+    // 'preserveDeviceState' is true it will undo any modifications. This can be set to false if the
+    // device is a one-off that will be snapped to an image after this returns.
+    void draw(SkDevice* device, bool preserveDeviceState) const;
 
     // Returns the FilterResult as a shader, ideally without resolving to an axis-aligned image.
     // 'xtraSampling' is the sampling that any parent shader applies to the FilterResult.
@@ -860,6 +876,7 @@ private:
     LayerSpace<SkIRect>   fLayerBounds;
 };
 SK_MAKE_BITMASK_OPS(FilterResult::ShaderFlags)
+SK_MAKE_BITMASK_OPS(FilterResult::BoundsAnalysis)
 
 // A FilterResult::Builder is used to render one or more FilterResults or other sources into
 // a new FilterResult. It automatically aggregates the incoming bounds to minimize the output's

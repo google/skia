@@ -83,8 +83,8 @@ public:
 
     static void Draw(SkDevice* device,
                      const skif::FilterResult& image,
-                     const skif::LayerSpace<SkIRect> dstBounds) {
-        image.draw(device, dstBounds);
+                     bool preserveDeviceState) {
+        image.draw(device, preserveDeviceState);
     }
 
     static sk_sp<SkShader> AsShader(const skif::Context& ctx,
@@ -408,7 +408,7 @@ public:
                 canvas.drawPaint(paint);
             } else {
                 SkASSERT(fMethod == Method::kDrawToCanvas);
-                FilterResultTestAccess::Draw(device.get(), image, ctx.desiredOutput());
+                FilterResultTestAccess::Draw(device.get(), image, /*preserveDeviceState=*/false);
             }
 
             return {device->snapSpecial(SkIRect::MakeWH(ctx.desiredOutput().width(),

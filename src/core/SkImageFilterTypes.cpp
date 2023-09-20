@@ -661,37 +661,38 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>FilterResult::imageAndOffs
     return this->resolve(ctx, fLayerBounds);
 }
 
-bool FilterResult::modifiesPixelsBeyondImage(const LayerSpace<SkIRect>& dstBounds) const {
-    // If there is no transparency-affecting color filter and it's just decal tiling, it doesn't
-    // matter how the image geometry overlaps with the dst bounds.
-    if (!(fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack()) &&
-        fTileMode == SkTileMode::kDecal) {
-        return false;
+SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
+        const SkMatrix& xtraTransform,
+        const SkIRect& dstBounds) const {
+    SkEnumBitMask<BoundsAnalysis> analysis = BoundsAnalysis::kSimple;
+
+    // First determine if the effects fill the layer bounds beyond the edges of the pixel data
+    bool fillsLayerBounds = false; // optimistic
+    {
+        // If there is no transparency-affecting color filter and it's just decal tiling, it doesn't
+        // matter how the image geometry overlaps with the dst bounds.
+        // We only need to check how the image geometry overlaps the dst bounds if there's a color
+        // filter that affects transparent black, or there's non-decal tiling
+        if ((fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack()) ||
+            fTileMode != SkTileMode::kDecal) {
+
+            // If the image does not completely cover the render bounds, then the effects of tiling
+            // won't be visible; otherwise add the analysis flag.
+            if (!SkRectPriv::QuadContainsRect(SkMatrix::Concat(xtraTransform, SkMatrix(fTransform)),
+                                              SkIRect::MakeSize(fImage->dimensions()),
+                                              dstBounds)) {
+                fillsLayerBounds = true;
+                analysis |= BoundsAnalysis::kEffectsVisible;
+            }
+        }
     }
 
-    // If the base image completely covers the render bounds then the effects of tiling won't be
-    // visible and it doesn't matter if any color filter affects transparent black.
-    if (SkRectPriv::QuadContainsRect(SkMatrix(fTransform),
-                                     SkIRect::MakeSize(fImage->dimensions()),
-                                     SkIRect(dstBounds))) {
-        return false;
-    }
-
-    // Otherwise tiling or transparency-affecting color filters will modify the pixels beyond
-    // the image bounds that are still within render bounds.
-    return true;
-}
-
-bool FilterResult::isCropped(const LayerSpace<SkMatrix>& xtraTransform,
-                             const LayerSpace<SkIRect>& dstBounds) const {
-    // Tiling and color-filtering can completely fill 'fLayerBounds' in which case its edge is
-    // a transition from possibly non-transparent to definitely transparent color.
-    bool fillsLayerBounds = this->modifiesPixelsBeyondImage(dstBounds);
+    // Second determine if the layer bounds clip are visible given the target dstBounds.
     if (!fillsLayerBounds) {
-        // When that's not the case, 'fLayerBounds' may still be important if it crops the
-        // edges of the original transformed image itself.
+        // When the effects don't fill the layer bounds, the clip may still be important if it crops
+        // the edges of the original transformed image.
         LayerSpace<SkIRect> imageBounds =
-            fTransform.mapRect(LayerSpace<SkIRect>{fImage->dimensions()});
+                fTransform.mapRect(LayerSpace<SkIRect>{fImage->dimensions()});
         fillsLayerBounds = !fLayerBounds.contains(imageBounds);
     }
 
@@ -701,14 +702,15 @@ bool FilterResult::isCropped(const LayerSpace<SkMatrix>& xtraTransform,
         // desired output is completely contained within it (i.e. the edges of 'fLayerBounds' are
         // not visible).
         // NOTE: For the identity transform, this is equal to !fLayerBounds.contains(dstBounds)
-        return !SkRectPriv::QuadContainsRect(SkMatrix(xtraTransform),
-                                             SkIRect(fLayerBounds),
-                                             SkIRect(dstBounds));
-    } else {
-        // No part of the sampled and color-filtered image would produce non-transparent pixels
-        // outside of 'fLayerBounds' so 'fLayerBounds' can be ignored.
-        return false;
+        if (!SkRectPriv::QuadContainsRect(SkMatrix(xtraTransform),
+                                          SkIRect(fLayerBounds),
+                                          dstBounds)) {
+            analysis |= BoundsAnalysis::kLayerCropVisible;
+        }
     }
+    // else no part of the sampled and color-filtered image would produce non-transparent pixels
+    // outside of 'fLayerBounds' so 'fLayerBounds' can be ignored.
+    return analysis;
 }
 
 void FilterResult::updateTileMode(const Context& ctx, SkTileMode tileMode) {
@@ -798,7 +800,7 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
     LayerSpace<SkIPoint> origin;
     if (!preserveTransparencyInCrop &&
         is_nearly_integer_translation(fTransform, &origin) &&
-        (doubleClamp || !this->modifiesPixelsBeyondImage(fittedCrop))) {
+        (doubleClamp || !(this->analyzeBounds(fittedCrop) & BoundsAnalysis::kEffectsVisible))) {
         // Since the transform is axis-aligned, the tile mode can be applied to the original
         // image pre-transformation and still be consistent with the 'crop' geometry. When the
         // original tile mode is decal, extract_subset is always valid. When the original mode is
@@ -832,8 +834,6 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
 
 FilterResult FilterResult::applyColorFilter(const Context& ctx,
                                             sk_sp<SkColorFilter> colorFilter) const {
-    static const LayerSpace<SkMatrix> kIdentity{SkMatrix::I()};
-
     // A null filter is the identity, so it should have been caught during image filter DAG creation
     SkASSERT(colorFilter);
 
@@ -866,7 +866,7 @@ FilterResult FilterResult::applyColorFilter(const Context& ctx,
             return solidColor;
         }
 
-        if (this->isCropped(kIdentity, ctx.desiredOutput())) {
+        if (this->analyzeBounds(ctx.desiredOutput()) & BoundsAnalysis::kLayerCropVisible) {
             // Since 'colorFilter' modifies transparent black, the new result's layer bounds must
             // be the desired output. But if the current image is cropped we need to resolve the
             // image to avoid losing the effect of the current 'fLayerBounds'.
@@ -977,7 +977,9 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
     // merge this transform with any previous transform (unless the new transform is an integer
     // translation in which case any visible edge is aligned with the desired output and can be
     // resolved by intersecting the transformed layer bounds and the output bounds).
-    bool isCropped = !nextXformIsInteger && this->isCropped(transform, ctx.desiredOutput());
+    bool isCropped = !nextXformIsInteger &&
+                     (this->analyzeBounds(SkMatrix(transform), SkIRect(ctx.desiredOutput()))
+                            & BoundsAnalysis::kLayerCropVisible);
 
     FilterResult transformed;
     if (!isCropped && compatible_sampling(fSamplingOptions, currentXformIsInteger,
@@ -1042,20 +1044,27 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
     SkSurfaceProps props = {};
     AutoSurface surface{ctx, dstBounds, /*renderInParameterSpace=*/false, &props};
     if (surface) {
-        this->draw(surface.device(), dstBounds);
+        this->draw(surface.device(), /*preserveDeviceState=*/false);
     }
     return surface.snap();
 }
 
-void FilterResult::draw(SkDevice* device, const LayerSpace<SkIRect>& dstBounds) const {
+void FilterResult::draw(SkDevice* device, bool preserveDeviceState) const {
     if (!fImage) {
         return;
     }
 
+    SkEnumBitMask<BoundsAnalysis> analysis =
+            this->analyzeBounds(device->localToDevice(), device->devClipBounds());
+
     // When this is called by resolve(), the surface and transform are such that this clip is
     // trivially a no-op, but including the clip means draw() works correctly in other scenarios.
-    device->pushClipStack();
-    device->clipRect(SkRect::Make(SkIRect(fLayerBounds)), SkClipOp::kIntersect, /*aa=*/false);
+    if (analysis & BoundsAnalysis::kLayerCropVisible) {
+        if (preserveDeviceState) {
+            device->pushClipStack();
+        }
+        device->clipRect(SkRect::Make(SkIRect(fLayerBounds)), SkClipOp::kIntersect, /*aa=*/false);
+    }
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -1072,7 +1081,7 @@ void FilterResult::draw(SkDevice* device, const LayerSpace<SkIRect>& dstBounds) 
         sampling = {};
     }
 
-    if (this->modifiesPixelsBeyondImage(dstBounds)) {
+    if (analysis & BoundsAnalysis::kEffectsVisible) {
         if (fTileMode == SkTileMode::kDecal) {
             // apply_decal consumes the transform, so we don't modify the canvas
             paint.setShader(apply_decal(fTransform, fImage, fLayerBounds, sampling));
@@ -1094,7 +1103,9 @@ void FilterResult::draw(SkDevice* device, const LayerSpace<SkIRect>& dstBounds) 
         device->drawSpecial(fImage.get(), netTransform, sampling, paint);
     }
 
-    device->popClipStack();
+    if (preserveDeviceState && (analysis & BoundsAnalysis::kLayerCropVisible)) {
+        device->popClipStack();
+    }
 }
 
 sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
@@ -1122,7 +1133,7 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
             !compatible_sampling(fSamplingOptions, currentXformIsInteger,
                                  &sampling, nextXformIsInteger) ||
             // The deferred edge of the layer bounds is visible to sampling
-            this->isCropped(LayerSpace<SkMatrix>(SkMatrix::I()), sampleBounds);
+            (this->analyzeBounds(sampleBounds) & BoundsAnalysis::kLayerCropVisible);
 
     // Downgrade to nearest-neighbor if the sequence of sampling doesn't do anything
     if (sampling == kDefaultSampling && nextXformIsInteger &&
@@ -1325,8 +1336,7 @@ FilterResult FilterResult::Builder::merge() {
             SkASSERT(!input.fSampleBounds.has_value() &&
                      input.fSampling == kDefaultSampling &&
                      input.fFlags == ShaderFlags::kNone);
-            // draw() leaves the Device state unmodified when it's done
-            input.fImage.draw(surface.device(), outputBounds);
+            input.fImage.draw(surface.device(), /*preserveDeviceState=*/true);
         }
     }
     return surface.snap();
