@@ -357,7 +357,7 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         }
 
         // - PowerVR ------------------------------------------------------------------------------
-        for (const char* test : {"OutParamsAreDistinct"              // b/40044222
+        for (const char* test : {"OutParamsAreDistinct",              // b/40044222
                                  "OutParamsAreDistinctFromGlobal"}) {
             disables[test].push_back({regex("PowerVR Rogue GE8300"), _, GPU, _});
         }
