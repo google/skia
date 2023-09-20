@@ -56,6 +56,8 @@ class PrecompileColorShader : public PrecompileShader {
 public:
     PrecompileColorShader() {}
 
+    bool isConstant() const override { return true; }
+
 private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,

@@ -112,6 +112,8 @@ class PrecompileShader : public PrecompileBase {
 public:
     PrecompileShader() : PrecompileBase(Type::kShader) {}
 
+    virtual bool isConstant() const { return false; }
+
     sk_sp<PrecompileShader> makeWithLocalMatrix();
 
     sk_sp<PrecompileShader> makeWithColorFilter(sk_sp<PrecompileColorFilter>);
@@ -172,6 +174,8 @@ public:
         fBlenderOptions.assign(blenders.begin(), blenders.end());
     }
 
+    void setDither(bool dither) { fDither = dither; }
+
     // Provides access to functions that aren't part of the public API.
     PaintOptionsPriv priv();
     const PaintOptionsPriv priv() const;  // NOLINT(readability-const-return-type)
@@ -195,24 +199,12 @@ private:
         Coverage coverage,
         const std::function<void(UniquePaintParamsID)>& processCombination) const;
 
-    void addPaintColorToKey(const KeyContext&,
-                            PaintParamsKeyBuilder*,
-                            int desiredShaderCombination) const;
-    void handlePrimitiveColor(const KeyContext&,
-                              PaintParamsKeyBuilder*,
-                              int desiredShaderCombination,
-                              bool addPrimitiveBlender) const;
-    void handlePaintAlpha(const KeyContext&,
-                          PaintParamsKeyBuilder*,
-                          int desiredShaderCombination,
-                          bool addPrimitiveBlender,
-                          bool nonOpaquePaintColor) const;
-
     std::vector<sk_sp<PrecompileShader>> fShaderOptions;
     std::vector<sk_sp<PrecompileMaskFilter>> fMaskFilterOptions;
     std::vector<sk_sp<PrecompileColorFilter>> fColorFilterOptions;
     std::vector<sk_sp<PrecompileImageFilter>> fImageFilterOptions;
     std::vector<sk_sp<PrecompileBlender>> fBlenderOptions;
+    bool fDither = false;
 };
 
 } // namespace skgpu::graphite

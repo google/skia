@@ -680,9 +680,6 @@ void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
                                    PaintParamsKeyBuilder* builder,
                                    PipelineDataGatherer* gatherer,
                                    const DitherData* ditherData) {
-    SkASSERT(!gatherer == !ditherData);
-
-    auto dict = keyContext.dict();
     if (gatherer) {
         static const SkBitmap gLUT = skgpu::MakeDitherLUT();
 
@@ -694,7 +691,7 @@ void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
             return;
         }
 
-        add_dither_uniform_data(dict, *ditherData, gatherer);
+        add_dither_uniform_data(keyContext.dict(), *ditherData, gatherer);
 
         static constexpr SkSamplingOptions kNearest(SkFilterMode::kNearest, SkMipmapMode::kNone);
         static constexpr SkTileMode kRepeatTiling[2] = { SkTileMode::kRepeat, SkTileMode::kRepeat };

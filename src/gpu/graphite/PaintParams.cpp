@@ -26,7 +26,7 @@ namespace skgpu::graphite {
 
 namespace {
 
-// This should be kept in sync w/ SkPaintPriv::ShouldDither
+// This should be kept in sync w/ SkPaintPriv::ShouldDither and PaintOption::shouldDither
 bool should_dither(const PaintParams& p, SkColorType dstCT) {
     // The paint dither flag can veto.
     if (!p.dither()) {
@@ -214,6 +214,30 @@ void PaintParams::handleColorFilter(const KeyContext& keyContext,
     }
 }
 
+void PaintParams::handleDithering(const KeyContext& keyContext,
+                                  PaintParamsKeyBuilder* builder,
+                                  PipelineDataGatherer* gatherer) const {
+
+#ifndef SK_IGNORE_GPU_DITHER
+    SkColorType ct = keyContext.dstColorInfo().colorType();
+    if (should_dither(*this, ct)) {
+        Compose(keyContext, builder, gatherer,
+                /* addInnerToKey= */ [&]() -> void {
+                    this->handleColorFilter(keyContext, builder, gatherer);
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    DitherShaderBlock::DitherData data(skgpu::DitherRangeForConfig(ct));
+
+                    DitherShaderBlock::BeginBlock(keyContext, builder, gatherer, &data);
+                    builder->endBlock();
+                });
+    } else
+#endif
+    {
+        this->handleColorFilter(keyContext, builder, gatherer);
+    }
+}
+
 void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
@@ -234,17 +258,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
         builder->endBlock();
     }
 
-    this->handleColorFilter(keyContext, builder, gatherer);
-
-#ifndef SK_IGNORE_GPU_DITHER
-    SkColorType ct = keyContext.dstColorInfo().colorType();
-    if (should_dither(*this, ct)) {
-        DitherShaderBlock::DitherData data(skgpu::DitherRangeForConfig(ct));
-
-        DitherShaderBlock::BeginBlock(keyContext, builder, gatherer, &data);
-        builder->endBlock();
-    }
-#endif
+    this->handleDithering(keyContext, builder, gatherer);
 
     std::optional<SkBlendMode> finalBlendMode = this->asFinalBlendMode();
     // If this draw needs a dst read, we are either doing custom blending or we cannot handle the

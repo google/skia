@@ -553,6 +553,11 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
         }
     }
 
+    if (rand->nextBool()) {
+        paint.setDither(true);
+        paintOptions.setDither(true);
+    }
+
     return { paint, paintOptions };
 }
 
