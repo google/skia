@@ -1379,7 +1379,10 @@ optional("typeface_fontations") {
     "src/ports/SkTypeface_fontations_priv.h",
   ]
 
-  sources_for_tests = [ "tests/FontationsTest.cpp" ]
+  sources_for_tests = [
+    "tests/FontationsTest.cpp",
+    "tests/FontationsFtCompTest.cpp",
+  ]
 }
 
 optional("webp_decode") {
@@ -2100,6 +2103,10 @@ if (skia_enable_tools) {
     sources = [ "tools/flags/CommonFlagsAA.cpp" ]
     deps = [ ":flags" ]
   }
+  test_lib("common_flags_fonttestdata") {
+    sources = [ "tools/flags/CommonFlagsFontTestData.cpp" ]
+    deps = [ ":flags" ]
+  }
 
   test_lib("trace") {
     deps = [ ":flags" ]
@@ -2134,6 +2141,8 @@ if (skia_enable_tools) {
       "tools/MSKPPlayer.h",
       "tools/ProcStats.cpp",
       "tools/ProcStats.h",
+      "tools/RasterTestData.cpp",
+      "tools/RasterTestData.h",
       "tools/Resources.cpp",
       "tools/Resources.h",
       "tools/RuntimeBlendUtils.cpp",
@@ -2299,6 +2308,7 @@ if (skia_enable_tools) {
       ":test",
       ":tool_utils",
       ":typeface_fontations_tests",
+      ":typeface_fontations_tests",
       "experimental/sktext:tests",
       "modules/bentleyottmann:tests",
       "modules/skottie:tests",
@@ -2390,6 +2400,7 @@ if (skia_enable_tools) {
         ":common_flags_aa",
         ":common_flags_config",
         ":common_flags_fontmgr",
+        ":common_flags_fonttestdata",
         ":common_flags_gpu",
         ":common_flags_images",
         ":flags",

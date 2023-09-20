@@ -1598,6 +1598,7 @@ int main(int argc, char** argv) {
 
     CommonFlags::SetDefaultFontMgr();
     CommonFlags::SetAnalyticAA();
+    CommonFlags::SetFontTestDataDirectory();
 
     gSkForceRasterPipelineBlitter     = FLAGS_forceRasterPipelineHP || FLAGS_forceRasterPipeline;
     gForceHighPrecisionRasterPipeline = FLAGS_forceRasterPipelineHP;

@@ -55,4 +55,10 @@ void SetAnalyticAA();
  */
 void SetDefaultFontMgr();
 
+/**
+ * Set font test data directory. Overrides the location of the extracted googlefonts_testdata CIPD
+ * archive.
+ */
+void SetFontTestDataDirectory();
+
 }  // namespace CommonFlags
