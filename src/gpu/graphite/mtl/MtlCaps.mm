@@ -829,12 +829,17 @@ TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
 
 TextureInfo MtlCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
     // Storage textures are currently always sampleable from a shader.
-    MTLTextureUsage usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
-    MtlPixelFormat format = this->getFormatFromColorType(colorType);
+    MTLPixelFormat format = static_cast<MTLPixelFormat>(this->getFormatFromColorType(colorType));
     if (format == MTLPixelFormatInvalid) {
         return {};
     }
 
+    const FormatInfo& formatInfo = this->getFormatInfo(format);
+    if (!SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags)) {
+        return {};
+    }
+
+    MTLTextureUsage usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
     MtlTextureInfo info;
     info.fSampleCount = 1;
     info.fMipmapped = Mipmapped::kNo;
@@ -919,6 +924,9 @@ uint32_t MtlCaps::channelMask(const TextureInfo& info) const {
 }
 
 bool MtlCaps::onIsTexturable(const TextureInfo& info) const {
+    if (!info.isValid()) {
+        return false;
+    }
     if (!(info.mtlTextureSpec().fUsage & MTLTextureUsageShaderRead)) {
         return false;
     }
@@ -934,8 +942,9 @@ bool MtlCaps::isTexturable(MTLPixelFormat format) const {
 }
 
 bool MtlCaps::isRenderable(const TextureInfo& info) const {
-    return info.mtlTextureSpec().fUsage & MTLTextureUsageRenderTarget &&
-    this->isRenderable((MTLPixelFormat)info.mtlTextureSpec().fFormat, info.numSamples());
+    return info.isValid() &&
+           (info.mtlTextureSpec().fUsage & MTLTextureUsageRenderTarget) &&
+           this->isRenderable((MTLPixelFormat)info.mtlTextureSpec().fFormat, info.numSamples());
 }
 
 bool MtlCaps::isRenderable(MTLPixelFormat format, uint32_t sampleCount) const {
@@ -943,6 +952,9 @@ bool MtlCaps::isRenderable(MTLPixelFormat format, uint32_t sampleCount) const {
 }
 
 bool MtlCaps::isStorage(const TextureInfo& info) const {
+    if (!info.isValid()) {
+        return false;
+    }
     if (!(info.mtlTextureSpec().fUsage & MTLTextureUsageShaderWrite)) {
         return false;
     }

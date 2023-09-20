@@ -943,9 +943,9 @@ bool VulkanCaps::FormatInfo::isRenderable(VkImageTiling imageTiling,
 bool VulkanCaps::FormatInfo::isStorage(VkImageTiling imageTiling) const {
     switch (imageTiling) {
         case VK_IMAGE_TILING_OPTIMAL:
-            return this->isTexturable(fFormatProperties.optimalTilingFeatures);
+            return this->isStorage(fFormatProperties.optimalTilingFeatures);
         case VK_IMAGE_TILING_LINEAR:
-            return this->isTexturable(fFormatProperties.linearTilingFeatures);
+            return this->isStorage(fFormatProperties.linearTilingFeatures);
         default:
             return false;
     }
@@ -1079,7 +1079,9 @@ const Caps::ColorTypeInfo* VulkanCaps::getColorTypeInfo(SkColorType ct,
 
 bool VulkanCaps::onIsTexturable(const TextureInfo& texInfo) const {
     VulkanTextureInfo vkInfo;
-    texInfo.getVulkanTextureInfo(&vkInfo);
+    if (!texInfo.getVulkanTextureInfo(&vkInfo)) {
+        return false;
+    }
 
     // TODO:
     // Once we support external formats with associated YCbCr conversion info, check for that
@@ -1092,15 +1094,29 @@ bool VulkanCaps::onIsTexturable(const TextureInfo& texInfo) const {
 
 bool VulkanCaps::isRenderable(const TextureInfo& texInfo) const {
     VulkanTextureInfo vkInfo;
-    texInfo.getVulkanTextureInfo(&vkInfo);
+    if (!texInfo.getVulkanTextureInfo(&vkInfo)) {
+        return false;
+    }
 
     const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
     return info.isRenderable(vkInfo.fImageTiling, texInfo.numSamples());
 }
 
+bool VulkanCaps::isStorage(const TextureInfo& texInfo) const {
+    VulkanTextureInfo vkInfo;
+    if (!texInfo.getVulkanTextureInfo(&vkInfo)) {
+        return false;
+    }
+
+    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
+    return info.isStorage(vkInfo.fImageTiling);
+}
+
 bool VulkanCaps::supportsWritePixels(const TextureInfo& texInfo) const {
     VulkanTextureInfo vkInfo;
-    texInfo.getVulkanTextureInfo(&vkInfo);
+    if (!texInfo.getVulkanTextureInfo(&vkInfo)) {
+        return false;
+    }
 
     // Can't write if it needs a YCbCr sampler
     if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
@@ -1124,7 +1140,9 @@ bool VulkanCaps::supportsReadPixels(const TextureInfo& texInfo) const {
     }
 
     VulkanTextureInfo vkInfo;
-    texInfo.getVulkanTextureInfo(&vkInfo);
+    if (!texInfo.getVulkanTextureInfo(&vkInfo)) {
+        return false;
+    }
 
     // Can't read if it needs a YCbCr sampler
     if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
@@ -1150,7 +1168,9 @@ SkColorType VulkanCaps::supportedWritePixelsColorType(SkColorType dstColorType,
                                                       const TextureInfo& dstTextureInfo,
                                                       SkColorType srcColorType) const {
     VulkanTextureInfo vkInfo;
-    dstTextureInfo.getVulkanTextureInfo(&vkInfo);
+    if (!dstTextureInfo.getVulkanTextureInfo(&vkInfo)) {
+        return kUnknown_SkColorType;
+    }
 
     // Can't write to YCbCr formats
     // TODO: Can't write to external formats, either
@@ -1173,7 +1193,9 @@ SkColorType VulkanCaps::supportedReadPixelsColorType(SkColorType srcColorType,
                                                      const TextureInfo& srcTextureInfo,
                                                      SkColorType dstColorType) const {
     VulkanTextureInfo vkInfo;
-    srcTextureInfo.getVulkanTextureInfo(&vkInfo);
+    if (!srcTextureInfo.getVulkanTextureInfo(&vkInfo)) {
+        return kUnknown_SkColorType;
+    }
 
     // Can't read from YCbCr formats
     // TODO: external formats?
