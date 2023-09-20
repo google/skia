@@ -2732,6 +2732,21 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_notEqual_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::NEQ, call, parentPrecedence);
 
+        case k_packHalf2x16_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("pack2x16float", call);
+
+        case k_packSnorm2x16_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("pack2x16snorm", call);
+
+        case k_packSnorm4x8_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("pack4x8snorm", call);
+
+        case k_packUnorm2x16_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("pack2x16unorm", call);
+
+        case k_packUnorm4x8_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("pack4x8unorm", call);
+
         case k_reflect_IntrinsicKind:
             if (arguments[0]->type().isScalar()) {
                 // I - 2 * N * I * N
@@ -2825,6 +2840,21 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
 
         case k_textureWrite_IntrinsicKind:
             return this->assembleSimpleIntrinsic("textureStore", call);
+
+        case k_unpackHalf2x16_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("unpack2x16float", call);
+
+        case k_unpackSnorm2x16_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("unpack2x16snorm", call);
+
+        case k_unpackSnorm4x8_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("unpack4x8snorm", call);
+
+        case k_unpackUnorm2x16_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("unpack2x16unorm", call);
+
+        case k_unpackUnorm4x8_IntrinsicKind:
+            return this->assembleSimpleIntrinsic("unpack4x8unorm", call);
 
         case k_clamp_IntrinsicKind:
         case k_max_IntrinsicKind:
