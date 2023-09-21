@@ -822,7 +822,7 @@ private:
         // effects modify transparent black and fill out to the layer bounds.
         kLayerCropVisible = 1 << 1
     };
-    SK_DECL_BITMASK_OPS_FRIENDS(BoundsAnalysis);
+    SK_DECL_BITMASK_OPS_FRIENDS(BoundsAnalysis)
 
     // Determine what effects are visible based on the target 'dstBounds' and extra transform that
     // will be applied when this FilterResult is drawn. These are not LayerSpace because the
