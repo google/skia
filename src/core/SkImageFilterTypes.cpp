@@ -10,6 +10,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
@@ -22,6 +23,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkBitmapDevice.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -663,7 +665,8 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>FilterResult::imageAndOffs
 
 SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         const SkMatrix& xtraTransform,
-        const SkIRect& dstBounds) const {
+        const SkIRect& dstBounds,
+        bool blendAffectsTransparentBlack) const {
     SkEnumBitMask<BoundsAnalysis> analysis = BoundsAnalysis::kSimple;
 
     // First determine if the effects fill the layer bounds beyond the edges of the pixel data
@@ -674,8 +677,8 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         // We only need to check how the image geometry overlaps the dst bounds if there's a color
         // filter that affects transparent black, or there's non-decal tiling
         if ((fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack()) ||
-            fTileMode != SkTileMode::kDecal) {
-
+            fTileMode != SkTileMode::kDecal ||
+            blendAffectsTransparentBlack) {
             // If the image does not completely cover the render bounds, then the effects of tiling
             // won't be visible; otherwise add the analysis flag.
             if (!SkRectPriv::QuadContainsRect(SkMatrix::Concat(xtraTransform, SkMatrix(fTransform)),
@@ -978,7 +981,8 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
     // translation in which case any visible edge is aligned with the desired output and can be
     // resolved by intersecting the transformed layer bounds and the output bounds).
     bool isCropped = !nextXformIsInteger &&
-                     (this->analyzeBounds(SkMatrix(transform), SkIRect(ctx.desiredOutput()))
+                     (this->analyzeBounds(SkMatrix(transform), SkIRect(ctx.desiredOutput()),
+                                          /*blendAffectsTransparentBlack=*/false)
                             & BoundsAnalysis::kLayerCropVisible);
 
     FilterResult transformed;
@@ -1044,22 +1048,73 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
     SkSurfaceProps props = {};
     AutoSurface surface{ctx, dstBounds, /*renderInParameterSpace=*/false, &props};
     if (surface) {
-        this->draw(surface.device(), /*preserveDeviceState=*/false);
+        this->draw(ctx, surface.device(), /*preserveDeviceState=*/false);
     }
     return surface.snap();
 }
 
-void FilterResult::draw(SkDevice* device, bool preserveDeviceState) const {
+void FilterResult::draw(const Context& ctx, SkDevice* target, const SkBlender* blender) const {
+    SkAutoDeviceTransformRestore adtr{target, ctx.mapping().layerToDevice()};
+    this->draw(ctx, target, /*preserveDeviceState=*/true, blender);
+}
+
+void FilterResult::draw(const Context& ctx,
+                        SkDevice* device,
+                        bool preserveDeviceState,
+                        const SkBlender* blender) const {
+    bool blendAffectsTransparentBlack = false;
+    if (blender) {
+        if (auto blendMode = as_BB(blender)->asBlendMode()) {
+            SkBlendModeCoeff src, dst;
+            if (SkBlendMode_AsCoeff(*blendMode, &src, &dst)) {
+                // If the source is (0,0,0,0), then dst is preserved as long as its coefficient
+                // evaluates to 1.0. This is true for kOne, kISA, and kISC. Anything else means the
+                // blend mode affects transparent black.
+                blendAffectsTransparentBlack =
+                        dst != SkBlendModeCoeff::kOne &&
+                        dst != SkBlendModeCoeff::kISA &&
+                        dst != SkBlendModeCoeff::kISC;
+            } // else an advanced blend mode, which do not affect transparent black
+        } else {
+            // Blenders that aren't blend modes are assumed to modify transparent black.
+            blendAffectsTransparentBlack = true;
+        }
+    } // else src-over default, which does not modify transparent black
+
     if (!fImage) {
+        // The image is transparent black, this is a no-op unless we need to apply the blend mode
+        if (blendAffectsTransparentBlack) {
+            SkPaint clear;
+            clear.setColor4f(SkColors::kTransparent);
+            clear.setBlender(sk_ref_sp(blender));
+            device->drawPaint(clear);
+        }
         return;
     }
 
-    SkEnumBitMask<BoundsAnalysis> analysis =
-            this->analyzeBounds(device->localToDevice(), device->devClipBounds());
+    SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(device->localToDevice(),
+                                                                 device->devClipBounds(),
+                                                                 blendAffectsTransparentBlack);
 
-    // When this is called by resolve(), the surface and transform are such that this clip is
-    // trivially a no-op, but including the clip means draw() works correctly in other scenarios.
     if (analysis & BoundsAnalysis::kLayerCropVisible) {
+        if (blendAffectsTransparentBlack) {
+            // This is similar to the resolve() path in applyColorFilter() when the filter affects
+            // transparent black but must be applied after the prior visible layer bounds clip.
+            // NOTE: We map devClipBounds() by the local-to-device matrix instead of the Context
+            // mapping because that works for both use cases: drawing to the final device (where
+            // the transforms are the same), or drawing to intermediate layer images (where they
+            // are not the same).
+            LayerSpace<SkIRect> dstBounds;
+            if (!LayerSpace<SkMatrix>(device->localToDevice()).inverseMapRect(
+                        LayerSpace<SkIRect>(device->devClipBounds()), &dstBounds)) {
+                return;
+            }
+            // Regardless of the scenario, the end result is that it's in layer space.
+            FilterResult clipped = this->resolve(ctx, dstBounds);
+            clipped.draw(ctx, device, preserveDeviceState, blender);
+            return;
+        }
+        // Otherwise we can apply the layer bounds as a clip to avoid an intermediate render pass
         if (preserveDeviceState) {
             device->pushClipStack();
         }
@@ -1068,7 +1123,11 @@ void FilterResult::draw(SkDevice* device, bool preserveDeviceState) const {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setBlendMode(SkBlendMode::kSrcOver);
+    if (blender) {
+        paint.setBlender(sk_ref_sp(blender));
+    } else {
+        paint.setBlendMode(SkBlendMode::kSrcOver);
+    }
     paint.setColorFilter(fColorFilter);
 
     // If we are an integer translate, the default bilinear sampling *should* be equivalent to
@@ -1336,7 +1395,7 @@ FilterResult FilterResult::Builder::merge() {
             SkASSERT(!input.fSampleBounds.has_value() &&
                      input.fSampling == kDefaultSampling &&
                      input.fFlags == ShaderFlags::kNone);
-            input.fImage.draw(surface.device(), /*preserveDeviceState=*/true);
+            input.fImage.draw(fContext, surface.device(), /*preserveDeviceState=*/true);
         }
     }
     return surface.snap();

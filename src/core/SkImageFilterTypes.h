@@ -36,6 +36,7 @@ class FilterResultTestAccess;  // for testing
 class SkImageFilter_Base;
 class GrRecordingContext;
 class SkBitmap;
+class SkBlender;
 class SkDevice;
 class SkImage;
 class SkImageFilter;
@@ -782,6 +783,11 @@ public:
     // away entirely.
     std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> imageAndOffset(const Context& ctx) const;
 
+     // Draw this FilterResult into 'target' by applying the remaining layer-to-device transform of
+     // 'mapping', using the provided 'blender' to composite the effective image on top of 'target'.
+     // If 'blender' is null, it's equivalent to kSrcOver blending.
+    void draw(const Context& ctx, SkDevice* target, const SkBlender* blender) const;
+
     class Builder;
 
     enum class ShaderFlags : int {
@@ -829,10 +835,15 @@ private:
     // 'xtraTransform' may be either a within-layer transform, or a layer-to-device space transform.
     // The 'dstBounds' should be in the same coordinate space that 'xtraTransform' maps to. When
     // that is the identity matrix, 'dstBounds' is in layer space.
+    //
+    // Set 'blendAffectsTransparentBlack' to true when drawing a FilterResult with the non-default
+    // src-over blend and the blend modifies transparent black.
     SkEnumBitMask<BoundsAnalysis> analyzeBounds(const SkMatrix& xtraTransform,
-                                                const SkIRect& dstBounds) const;
+                                                const SkIRect& dstBounds,
+                                                bool blendAffectsTransparentBlack) const;
     SkEnumBitMask<BoundsAnalysis> analyzeBounds(const LayerSpace<SkIRect>& dstBounds) const {
-        return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds));
+        return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds),
+                                   /*blendAffectsTransparentBlack=*/false);
     }
 
     // Draw directly to the device, which draws the same image as produced by resolve() but can be
@@ -842,7 +853,14 @@ private:
     // system. This will concat any internal extra transform and apply clipping as necessary. If
     // 'preserveDeviceState' is true it will undo any modifications. This can be set to false if the
     // device is a one-off that will be snapped to an image after this returns.
-    void draw(SkDevice* device, bool preserveDeviceState) const;
+    //
+    // If 'blender' is null, the filter result is drawn with src-over blending. If it's not, it will
+    // be drawn using the given 'blender', filling the device's current clip when the blend
+    // modifies transparent black.
+    void draw(const Context& ctx,
+              SkDevice* device,
+              bool preserveDeviceState,
+              const SkBlender* blender=nullptr) const;
 
     // Returns the FilterResult as a shader, ideally without resolving to an axis-aligned image.
     // 'xtraSampling' is the sampling that any parent shader applies to the FilterResult.

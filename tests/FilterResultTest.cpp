@@ -81,10 +81,11 @@ public:
         return skif::Context(ctxInfo, functors);
     }
 
-    static void Draw(SkDevice* device,
+    static void Draw(const skif::Context& ctx,
+                     SkDevice* device,
                      const skif::FilterResult& image,
                      bool preserveDeviceState) {
-        image.draw(device, preserveDeviceState);
+        image.draw(ctx, device, preserveDeviceState, /*blender=*/nullptr);
     }
 
     static sk_sp<SkShader> AsShader(const skif::Context& ctx,
@@ -408,7 +409,8 @@ public:
                 canvas.drawPaint(paint);
             } else {
                 SkASSERT(fMethod == Method::kDrawToCanvas);
-                FilterResultTestAccess::Draw(device.get(), image, /*preserveDeviceState=*/false);
+                FilterResultTestAccess::Draw(ctx, device.get(), image,
+                                             /*preserveDeviceState=*/false);
             }
 
             return {device->snapSpecial(SkIRect::MakeWH(ctx.desiredOutput().width(),
