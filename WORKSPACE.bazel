@@ -568,7 +568,7 @@ container_pull(
 # Pulls the gcr.io/skia-public/shaders-base container.
 container_pull(
     name = "shaders-base",
-    digest = "sha256:c6e5b668b1a4859a73e93c2ad2244ce59d4e2a1320994e02ed4f07190d76c8f0",
+    digest = "sha256:84356d9e8452ce2ed1284c270aa51728fe60b1b9159a29b2cc1e02841b33e163",
     registry = "gcr.io",
     repository = "skia-public/shaders-base",
 )
