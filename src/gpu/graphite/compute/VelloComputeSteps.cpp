@@ -32,35 +32,38 @@ skia_private::TArray<ComputeStep::WorkgroupBufferDesc> VelloWorkgroupBuffers(
     return result;
 }
 
-std::string_view VelloNativeShaderSource(vello_cpp::ShaderStage stage,
-                                         ComputeStep::NativeShaderFormat format) {
+ComputeStep::NativeShaderSource VelloNativeShaderSource(vello_cpp::ShaderStage stage,
+                                                        ComputeStep::NativeShaderFormat format) {
     using NativeFormat = ComputeStep::NativeShaderFormat;
 
     const auto& shader = vello_cpp::shader(stage);
     ::rust::Str source;
+    std::string entryPoint;
     switch (format) {
 #ifdef SK_DAWN
         case NativeFormat::kWGSL:
             source = shader.wgsl();
+            entryPoint = "main";
             break;
 #endif
 #ifdef SK_METAL
         case NativeFormat::kMSL:
             source = shader.msl();
+            entryPoint = "main_";
             break;
 #endif
         default:
-            return std::string_view();
+            return {std::string_view(), ""};
     }
 
-    return {source.data(), source.length()};
+    return {{source.data(), source.length()}, std::move(entryPoint)};
 }
 
 // PathtagReduce
 VelloPathtagReduceStep::VelloPathtagReduceStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kMapped,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -83,7 +86,7 @@ VelloPathtagReduceStep::VelloPathtagReduceStep() : VelloStep(
 VelloPathtagScanSmallStep::VelloPathtagScanSmallStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -153,7 +156,7 @@ VelloPathtagScan1Step::VelloPathtagScan1Step() : VelloStep(
 VelloPathtagScanLargeStep::VelloPathtagScanLargeStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -182,7 +185,7 @@ VelloPathtagScanLargeStep::VelloPathtagScanLargeStep() : VelloStep(
 VelloBboxClearStep::VelloBboxClearStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -199,7 +202,7 @@ VelloBboxClearStep::VelloBboxClearStep() : VelloStep(
 VelloPathsegStep::VelloPathsegStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -234,7 +237,7 @@ VelloPathsegStep::VelloPathsegStep() : VelloStep(
 VelloDrawReduceStep::VelloDrawReduceStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -257,7 +260,7 @@ VelloDrawReduceStep::VelloDrawReduceStep() : VelloStep(
 VelloDrawLeafStep::VelloDrawLeafStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -333,7 +336,7 @@ VelloClipReduceStep::VelloClipReduceStep() : VelloStep(
 VelloClipLeafStep::VelloClipLeafStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -380,7 +383,7 @@ VelloClipLeafStep::VelloClipLeafStep() : VelloStep(
 VelloBinningStep::VelloBinningStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -433,7 +436,7 @@ VelloBinningStep::VelloBinningStep() : VelloStep(
 VelloTileAllocStep::VelloTileAllocStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -474,7 +477,7 @@ VelloTileAllocStep::VelloTileAllocStep() : VelloStep(
 VelloPathCoarseFullStep::VelloPathCoarseFullStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -521,7 +524,7 @@ VelloPathCoarseFullStep::VelloPathCoarseFullStep() : VelloStep(
 VelloBackdropStep::VelloBackdropStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -538,7 +541,7 @@ VelloBackdropStep::VelloBackdropStep() : VelloStep(
 VelloBackdropDynStep::VelloBackdropDynStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -561,7 +564,7 @@ VelloBackdropDynStep::VelloBackdropDynStep() : VelloStep(
 VelloCoarseStep::VelloCoarseStep() : VelloStep(
         /*resources=*/{
             {
-                /*type=*/ResourceType::kStorageBuffer,
+                /*type=*/ResourceType::kUniformBuffer,
                 /*flow=*/DataFlow::kShared,
                 /*policy=*/ResourcePolicy::kNone,
                 /*slot=*/kVelloSlot_ConfigUniform,
@@ -621,7 +624,7 @@ VelloFineStep::VelloFineStep(SkColorType targetFormat)
         : VelloStep(
             /*resources=*/{
                 {
-                    /*type=*/ResourceType::kStorageBuffer,
+                    /*type=*/ResourceType::kUniformBuffer,
                     /*flow=*/DataFlow::kShared,
                     /*policy=*/ResourcePolicy::kNone,
                     /*slot=*/kVelloSlot_ConfigUniform,

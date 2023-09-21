@@ -144,12 +144,12 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
                     maybeResource = this->allocateResource(step, r, index);
                     *slot = maybeResource;
                 } else {
-                    SkASSERT((r.fType == Type::kStorageBuffer &&
+                    SkASSERT(((r.fType == Type::kUniformBuffer ||
+                               r.fType == Type::kStorageBuffer) &&
                               std::holds_alternative<BufferView>(*slot)) ||
                              ((r.fType == Type::kReadOnlyTexture ||
+                               r.fType == Type::kSampledTexture ||
                                r.fType == Type::kWriteOnlyStorageTexture) &&
-                              std::holds_alternative<TextureIndex>(*slot)) ||
-                             (r.fType == Type::kSampledTexture &&
                               std::holds_alternative<TextureIndex>(*slot)));
 #ifdef SK_DEBUG
                     // Ensure that the texture has the right format if it was assigned via
