@@ -98,13 +98,9 @@ int PaintOptions::numCombinations() const {
 
 DstReadRequirement get_dst_read_req(const Caps* caps,
                                     Coverage coverage,
-                                    SkSpan<const sk_sp<PrecompileBlender>> options,
-                                    int desiredOption) {
-    for (const sk_sp<PrecompileBlender>& option : options) {
-        if (desiredOption < option->numCombinations()) {
-            return GetDstReadRequirement(caps, option->asBlendMode(), coverage);
-        }
-        desiredOption -= option->numCombinations();
+                                    PrecompileBlender* blender) {
+    if (blender) {
+        return GetDstReadRequirement(caps, blender->asBlendMode(), coverage);
     }
     return GetDstReadRequirement(caps, SkBlendMode::kSrcOver, coverage);
 }
@@ -112,16 +108,22 @@ DstReadRequirement get_dst_read_req(const Caps* caps,
 class PaintOption {
 public:
     PaintOption(bool opaquePaintColor,
+                const std::pair<sk_sp<PrecompileBlender>, int>& finalBlender,
                 const std::pair<sk_sp<PrecompileShader>, int>& shader,
                 const std::pair<sk_sp<PrecompileColorFilter>, int>& colorFilter,
                 bool hasPrimitiveBlender,
+                DstReadRequirement dstReadReq,
                 bool dither)
         : fOpaquePaintColor(opaquePaintColor)
+        , fFinalBlender(finalBlender)
         , fShader(shader)
         , fColorFilter(colorFilter)
         , fHasPrimitiveBlender(hasPrimitiveBlender)
+        , fDstReadReq(dstReadReq)
         , fDither(dither) {
     }
+
+    PrecompileBlender* finalBlender() { return fFinalBlender.first.get(); }
 
     void toKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
 
@@ -133,13 +135,16 @@ private:
     void handlePaintAlpha(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
     void handleColorFilter(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
     void handleDithering(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
+    void handleDstRead(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
 
     bool shouldDither(SkColorType dstCT) const;
 
     bool fOpaquePaintColor;
+    std::pair<sk_sp<PrecompileBlender>, int> fFinalBlender;
     std::pair<sk_sp<PrecompileShader>, int> fShader;
     std::pair<sk_sp<PrecompileColorFilter>, int> fColorFilter;
     bool fHasPrimitiveBlender;
+    DstReadRequirement fDstReadReq;
     bool fDither;
 };
 
@@ -184,10 +189,7 @@ void PaintOption::handlePaintAlpha(const KeyContext& keyContext,
     if (!fOpaquePaintColor) {
         Blend(keyContext, keyBuilder, gatherer,
               /* addBlendToKey= */ [&] () -> void {
-                  auto coeffs = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kSrcIn);
-                  SkASSERT(!coeffs.empty());
-                  CoeffBlenderBlock::BeginBlock(keyContext, keyBuilder, gatherer, coeffs);
-                  keyBuilder->endBlock();
+                  AddKnownModeBlend(keyContext, keyBuilder, gatherer, SkBlendMode::kSrcIn);
               },
               /* addSrcToKey= */ [&]() -> void {
                   this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
@@ -262,10 +264,34 @@ void PaintOption::handleDithering(const KeyContext& keyContext,
     }
 }
 
+void PaintOption::handleDstRead(const KeyContext& keyContext,
+                                PaintParamsKeyBuilder* builder,
+                                PipelineDataGatherer* gatherer) const {
+    if (fDstReadReq != DstReadRequirement::kNone) {
+        Blend(keyContext, builder, gatherer,
+                /* addBlendToKey= */ [&] () -> void {
+                    if (fFinalBlender.first) {
+                        fFinalBlender.first->priv().addToKey(keyContext, fFinalBlender.second,
+                                                             builder);
+                    } else {
+                        AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+                    }
+                },
+                /* addSrcToKey= */ [&]() -> void {
+                    this->handleDithering(keyContext, builder, gatherer);
+                },
+                /* addDstToKey= */ [&]() -> void {
+                    AddDstReadBlock(keyContext, builder, gatherer, fDstReadReq);
+                });
+    } else {
+        this->handleDithering(keyContext, builder, gatherer);
+    }
+}
+
 void PaintOption::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* keyBuilder,
                         PipelineDataGatherer* gatherer) const {
-    this->handleDithering(keyContext, keyBuilder, gatherer);
+    this->handleDstRead(keyContext, keyBuilder, gatherer);
 }
 
 void PaintOptions::createKey(const KeyContext& keyContext,
@@ -286,7 +312,8 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     const int desiredColorFilterCombination = remainingCombinations % numColorFilterCombinations;
     remainingCombinations /= numColorFilterCombinations;
 
-    const int desiredMaskFilterCombination = remainingCombinations % numMaskFilterCombinations;
+    [[maybe_unused]] const int desiredMaskFilterCombination =
+                                             remainingCombinations % numMaskFilterCombinations;
     remainingCombinations /= numMaskFilterCombinations;
 
     const int desiredShaderCombination = remainingCombinations;
@@ -297,54 +324,30 @@ void PaintOptions::createKey(const KeyContext& keyContext,
                                       {1, 0, 0, 1});
     keyBuilder->endBlock();
 
-    DstReadRequirement dstReadReq = get_dst_read_req(
-            keyContext.caps(), coverage, fBlenderOptions, desiredBlendCombination);
-    bool needsDstSample = dstReadReq == DstReadRequirement::kTextureCopy ||
-                          dstReadReq == DstReadRequirement::kTextureSample;
-    if (needsDstSample) {
-        DstReadSampleBlock::BeginBlock(keyContext,
-                                       keyBuilder,
-                                       /* gatherer= */ nullptr,
-                                       /* dstTexture= */ nullptr,
-                                       /* dstOffset= */ {0, 0});
-        keyBuilder->endBlock();
-
-    } else if (dstReadReq == DstReadRequirement::kFramebufferFetch) {
-        DstReadFetchBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
-        keyBuilder->endBlock();
-    }
-
     // TODO: this probably needs to be passed in just like addPrimitiveBlender
     const bool kOpaquePaintColor = true;
 
+    auto finalBlender = PrecompileBase::SelectOption(fBlenderOptions, desiredBlendCombination);
+
+    DstReadRequirement dstReadReq = get_dst_read_req(keyContext.caps(), coverage,
+                                                     finalBlender.first.get());
+
     PaintOption option(kOpaquePaintColor,
+                       finalBlender,
                        PrecompileBase::SelectOption(fShaderOptions, desiredShaderCombination),
                        PrecompileBase::SelectOption(fColorFilterOptions,
                                                     desiredColorFilterCombination),
                        addPrimitiveBlender,
+                       dstReadReq,
                        fDither);
 
     option.toKey(keyContext, keyBuilder, /* gatherer= */ nullptr);
 
-    PrecompileBase::AddToKey(keyContext, keyBuilder, fMaskFilterOptions,
-                             desiredMaskFilterCombination);
-
-    auto [blender, _] = PrecompileBase::SelectOption(fBlenderOptions, desiredBlendCombination);
-
-    std::optional<SkBlendMode> finalBlendMode = blender ? blender->asBlendMode()
+    std::optional<SkBlendMode> finalBlendMode = option.finalBlender()
+                                                        ? option.finalBlender()->asBlendMode()
                                                         : SkBlendMode::kSrcOver;
     if (dstReadReq != DstReadRequirement::kNone) {
-        BlendShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
-        // src -- prior output
-        PriorOutputBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
-        keyBuilder->endBlock();
-        // dst -- surface color
-        DstColorBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr);
-        keyBuilder->endBlock();
-        // blender -- shader based blending
-        PrecompileBase::AddToKey(keyContext, keyBuilder, fBlenderOptions, desiredBlendCombination);
-        keyBuilder->endBlock();  // BlendShaderBlock
-
+        // In this case the blend will have been handled by shader-based blending with the dstRead.
         finalBlendMode = SkBlendMode::kSrc;
     }
 

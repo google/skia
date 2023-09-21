@@ -56,11 +56,10 @@ enum class BuiltInCodeSnippetID : int32_t {
     kBlendModeBlender,
     kCoeffBlender,
 
-    // Special dst values to use as blender children
-    kDstColor,        // Emits special variable holding the color of the draw target
-    kPrimitiveColor,  // Emits special variable holding the primitiveColor emitted by a RenderStep
+    // Emits special variable holding the primitiveColor emitted by a RenderStep
+    kPrimitiveColor,
 
-    // One of these must be included at the beginning of a shader if DstColor block is used
+    // Dest Read code snippets
     kDstReadSample,
     kDstReadFetch,
 

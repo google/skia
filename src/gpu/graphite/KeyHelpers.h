@@ -295,10 +295,6 @@ struct CoeffBlenderBlock {
                            SkSpan<const float> coeffs);
 };
 
-struct DstColorBlock {
-    static void BeginBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*);
-};
-
 struct PrimitiveColorBlock {
     static void BeginBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*);
 };
@@ -366,14 +362,6 @@ struct ColorSpaceTransformBlock {
                            PipelineDataGatherer*,
                            const ColorSpaceTransformData*);
 };
-
-/**
- * Dst blend blocks are used to blend the output of a shader with a color attachment.
- */
-void AddDstBlendBlock(const KeyContext&,
-                      PaintParamsKeyBuilder*,
-                      PipelineDataGatherer*,
-                      const SkBlender*);
 
 /**
  * Blend mode color filters blend their input (as the dst color) with some given color (supplied

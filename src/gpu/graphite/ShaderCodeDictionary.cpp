@@ -581,24 +581,21 @@ std::string GenerateDstReadSampleExpression(const ShaderInfo& shaderInfo,
             get_mangled_uniform_name(shaderInfo, entry->fUniforms[0], node->keyIndex());
     std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, node->keyIndex());
 
-    return SkSL::String::printf("%s(%s, %s, %s)",
+    return SkSL::String::printf("%s(%s, %s)",
                                 helperFnName.c_str(),
-                                args.fPriorStageOutput.data(),
                                 coords.c_str(),
                                 sampler.c_str());
 }
 
-// Emit a surfaceColor global, and a function that passes through a half4 value and initializes
-// surfaceColor as a side effect.
 std::string GenerateDstReadSamplePreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
     std::string helperFnName =
             get_mangled_name(node->entry()->fStaticFunctionName, node->keyIndex());
 
     return SkSL::String::printf(
-            "half4 surfaceColor;"
-            "half4 %s(half4 priorStageOutput, float4 coords, sampler2D dstSampler) {"
+            "half4 surfaceColor;"  // we save off the original dstRead color to combine w/ coverage
+            "half4 %s(float4 coords, sampler2D dstSampler) {"
                 "surfaceColor = sample(dstSampler, (sk_FragCoord.xy - coords.xy) * coords.zw);"
-                "return priorStageOutput;"
+                "return surfaceColor;"
             "}",
             helperFnName.c_str());
 }
@@ -610,10 +607,7 @@ std::string GenerateDstReadFetchExpression(const ShaderInfo& shaderInfo,
     std::string helperFnName =
             get_mangled_name(node->entry()->fStaticFunctionName, node->keyIndex());
 
-    return SkSL::String::printf(
-            "%s(%s)",
-            helperFnName.c_str(),
-            args.fPriorStageOutput.data());
+    return SkSL::String::printf("%s()", helperFnName.c_str());
 }
 
 std::string GenerateDstReadFetchPreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
@@ -621,10 +615,10 @@ std::string GenerateDstReadFetchPreamble(const ShaderInfo& shaderInfo, const Sha
             get_mangled_name(node->entry()->fStaticFunctionName, node->keyIndex());
 
     return SkSL::String::printf(
-            "half4 surfaceColor;"
-            "half4 %s(half4 priorStageOutput) {"
+            "half4 surfaceColor;"  // we save off the original dstRead color to combine w/ coverage
+            "half4 %s() {"
                 "surfaceColor = sk_LastFragColor;"
-                "return priorStageOutput;"
+                "return surfaceColor;"
             "}",
             helperFnName.c_str());
 }
@@ -1232,12 +1226,6 @@ std::string GenerateFixedFunctionBlenderExpression(const ShaderInfo&,
 
 //--------------------------------------------------------------------------------------------------
 
-std::string GenerateDstColorExpression(const ShaderInfo&,
-                                       const ShaderNode* node,
-                                       const ShaderSnippet::Args& args) {
-    return "surfaceColor";
-}
-
 std::string GeneratePrimitiveColorExpression(const ShaderInfo&,
                                              const ShaderNode* node,
                                              const ShaderSnippet::Args&) {
@@ -1696,16 +1684,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren
     };
 
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstColor] = {
-            "DstColor",
-            { },          // no uniforms
-            SnippetRequirementFlags::kSurfaceColor,
-            { },          // no samplers
-            "dst color",  // no static sksl
-            GenerateDstColorExpression,
-            GenerateDefaultPreamble,
-            kNoChildren
-    };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {
             "PrimitiveColor",
             { },                // no uniforms
@@ -1720,7 +1698,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadSample] = {
             "DstReadSample",
             SkSpan(kDstReadSampleUniforms),
-            SnippetRequirementFlags::kNone,
+            SnippetRequirementFlags::kSurfaceColor,
             SkSpan(kDstReadSampleTexturesAndSamplers),
             "InitSurfaceColor",
             GenerateDstReadSampleExpression,
@@ -1730,7 +1708,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadFetch] = {
             "DstReadFetch",
             { },     // no uniforms
-            SnippetRequirementFlags::kNone,
+            SnippetRequirementFlags::kSurfaceColor,
             { },     // no samplers
             "InitSurfaceColor",
             GenerateDstReadFetchExpression,

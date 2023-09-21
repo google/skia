@@ -136,6 +136,39 @@ void Compose(const KeyContext& keyContext,
     keyBuilder->endBlock();  // ComposeBlock
 }
 
+void AddKnownModeBlend(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       SkBlendMode bm) {
+    auto coeffs = skgpu::GetPorterDuffBlendConstants(bm);
+    SkASSERT(!coeffs.empty());
+
+    CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, coeffs);
+    builder->endBlock();
+}
+
+void AddDstReadBlock(const KeyContext& keyContext,
+                     PaintParamsKeyBuilder* builder,
+                     PipelineDataGatherer* gatherer,
+                     DstReadRequirement dstReadReq) {
+    switch(dstReadReq) {
+        case DstReadRequirement::kNone:
+            SkASSERT(false);            // This should never be reached
+            return;
+        case DstReadRequirement::kTextureCopy:
+            [[fallthrough]];
+        case DstReadRequirement::kTextureSample:
+            DstReadSampleBlock::BeginBlock(keyContext, builder, gatherer,
+                                           keyContext.dstTexture(),
+                                           keyContext.dstOffset());
+            break;
+        case DstReadRequirement::kFramebufferFetch:
+            DstReadFetchBlock::BeginBlock(keyContext, builder, gatherer);
+            break;
+    }
+    builder->endBlock();
+}
+
 void PaintParams::addPaintColorToKey(const KeyContext& keyContext,
                                      PaintParamsKeyBuilder* keyBuilder,
                                      PipelineDataGatherer* gatherer) const {
@@ -180,10 +213,7 @@ void PaintParams::handlePaintAlpha(const KeyContext& keyContext,
     if (fColor.fA != 1.0f) {
         Blend(keyContext, keyBuilder, gatherer,
               /* addBlendToKey= */ [&] () -> void {
-                  auto coeffs = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kSrcIn);
-                  SkASSERT(!coeffs.empty());
-                  CoeffBlenderBlock::BeginBlock(keyContext, keyBuilder, gatherer, coeffs);
-                  keyBuilder->endBlock();
+                  AddKnownModeBlend(keyContext, keyBuilder, gatherer, SkBlendMode::kSrcIn);
               },
               /* addSrcToKey= */ [&]() -> void {
                   this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
@@ -238,6 +268,29 @@ void PaintParams::handleDithering(const KeyContext& keyContext,
     }
 }
 
+void PaintParams::handleDstRead(const KeyContext& keyContext,
+                                PaintParamsKeyBuilder* builder,
+                                PipelineDataGatherer* gatherer) const {
+    if (fDstReadReq != DstReadRequirement::kNone) {
+        Blend(keyContext, builder, gatherer,
+              /* addBlendToKey= */ [&] () -> void {
+                  if (fFinalBlender) {
+                      AddToKey(keyContext, builder, gatherer, fFinalBlender.get());
+                  } else {
+                      AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+                  }
+              },
+              /* addSrcToKey= */ [&]() -> void {
+                  this->handleDithering(keyContext, builder, gatherer);
+              },
+              /* addDstToKey= */ [&]() -> void {
+                  AddDstReadBlock(keyContext, builder, gatherer, fDstReadReq);
+              });
+    } else {
+        this->handleDithering(keyContext, builder, gatherer);
+    }
+}
+
 void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
@@ -245,31 +298,11 @@ void PaintParams::toKey(const KeyContext& keyContext,
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, keyContext.paintColor());
     builder->endBlock();
 
-    bool needsDstSample = fDstReadReq == DstReadRequirement::kTextureCopy ||
-                          fDstReadReq == DstReadRequirement::kTextureSample;
-    SkASSERT(needsDstSample == SkToBool(keyContext.dstTexture()));
-    if (needsDstSample) {
-        DstReadSampleBlock::BeginBlock(
-                keyContext, builder, gatherer, keyContext.dstTexture(), keyContext.dstOffset());
-        builder->endBlock();
-
-    } else if (fDstReadReq == DstReadRequirement::kFramebufferFetch) {
-        DstReadFetchBlock::BeginBlock(keyContext, builder, gatherer);
-        builder->endBlock();
-    }
-
-    this->handleDithering(keyContext, builder, gatherer);
+    this->handleDstRead(keyContext, builder, gatherer);
 
     std::optional<SkBlendMode> finalBlendMode = this->asFinalBlendMode();
-    // If this draw needs a dst read, we are either doing custom blending or we cannot handle the
-    // combination of blend mode and coverage using fixed function blend hardware.
     if (fDstReadReq != DstReadRequirement::kNone) {
-        // Add a block to implement the blending in the shader.
-        static const SkBlendModeBlender kDefaultBlender(SkBlendMode::kSrcOver);
-        AddDstBlendBlock(keyContext,
-                         builder,
-                         gatherer,
-                         fFinalBlender ? fFinalBlender.get() : &kDefaultBlender);
+        // In this case the blend will have been handled by shader-based blending with the dstRead.
         finalBlendMode = SkBlendMode::kSrc;
     }
 
