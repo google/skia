@@ -83,7 +83,7 @@ static SkString make_description(SkSpan<const Attribute> attributes,
     return result;
 }
 
-static bool check_for_failure(skiatest::Reporter*     r,
+static bool check_for_failure(skiatest::Reporter*     reporter,
                               SkSpan<const Attribute> attributes,
                               size_t                  stride,
                               SkSpan<const Varying>   varyings,
@@ -94,13 +94,13 @@ static bool check_for_failure(skiatest::Reporter*     r,
     if (!spec) {
         return true;
     }
-    ERRORF(r,
+    ERRORF(reporter,
            "Expected to fail but succeeded:\n%s",
            make_description(attributes, stride, varyings, vs, fs).c_str());
     return false;
 }
 
-static bool check_for_success(skiatest::Reporter*         r,
+static bool check_for_success(skiatest::Reporter*         reporter,
                               SkSpan<const Attribute>     attributes,
                               size_t                      stride,
                               SkSpan<const Varying>       varyings,
@@ -109,13 +109,13 @@ static bool check_for_success(skiatest::Reporter*         r,
                               sk_sp<SkMeshSpecification>* spec = nullptr) {
     auto [s, error] = SkMeshSpecification::Make(attributes, stride, varyings, vs, fs);
     if (s) {
-        REPORTER_ASSERT(r, error.isEmpty());
+        REPORTER_ASSERT(reporter, error.isEmpty());
         if (spec) {
             *spec = std::move(s);
         }
         return true;
     }
-    ERRORF(r,
+    ERRORF(reporter,
            "Expected to succeed but failed:\n%sError:\n%s",
            make_description(attributes, stride, varyings, vs, fs).c_str(),
            error.c_str());
@@ -149,9 +149,9 @@ static const Varying kValidVaryings[] = {
         {Varying::Type::kFloat2, SkString{"uv"}},
 };
 
-static void test_good(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_Valid, reporter) {
     for (const auto& validFS : kValidFSes) {
-        if (!check_for_success(r,
+        if (!check_for_success(reporter,
                                kValidAttrs,
                                kValidStride,
                                kValidVaryings,
@@ -162,7 +162,7 @@ static void test_good(skiatest::Reporter* r) {
     }
 }
 
-static void test_bad_sig(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_InvalidSignature, reporter) {
     static constexpr const char* kVSBody = "{ return float2(10); }";
 
     static constexpr const char* kInvalidVSSigs[] {
@@ -199,7 +199,7 @@ static void test_bad_sig(skiatest::Reporter* r) {
         SkString invalidVS;
         invalidVS.appendf("%s %s", vsSig, kVSBody);
         for (const auto& validFS : kValidFSes) {
-            if (!check_for_failure(r,
+            if (!check_for_failure(reporter,
                                    kValidAttrs,
                                    kValidStride,
                                    kValidVaryings,
@@ -213,7 +213,7 @@ static void test_bad_sig(skiatest::Reporter* r) {
     for (const char* noColorFSSig : kInvalidNoColorFSSigs) {
         SkString invalidFS;
         invalidFS.appendf("%s %s", noColorFSSig, kNoColorFSBody);
-        if (!check_for_failure(r,
+        if (!check_for_failure(reporter,
                                kValidAttrs,
                                kValidStride,
                                kValidVaryings,
@@ -226,7 +226,7 @@ static void test_bad_sig(skiatest::Reporter* r) {
     for (const char* colorFSSig : kInvalidColorFSSigs) {
         SkString invalidFS;
         invalidFS.appendf("%s %s", colorFSSig, kColorFSBody);
-        if (!check_for_failure(r,
+        if (!check_for_failure(reporter,
                                kValidAttrs,
                                kValidStride,
                                kValidVaryings,
@@ -238,7 +238,7 @@ static void test_bad_sig(skiatest::Reporter* r) {
 }
 
 // We allow the optional out color from the FS to either be float4 or half4
-static void test_float4_color(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_Float4Color, reporter) {
     static const SkString kFloat4FS {
         R"(
             float2 main(const Varyings varyings, out float4 color) {
@@ -246,7 +246,7 @@ static void test_float4_color(skiatest::Reporter* r) {
             }
         )"
     };
-    check_for_success(r,
+    check_for_success(reporter,
                       kValidAttrs,
                       kValidStride,
                       kValidVaryings,
@@ -255,14 +255,14 @@ static void test_float4_color(skiatest::Reporter* r) {
 }
 
 // We don't allow child effects in custom meshes currently.
-static void test_bad_globals(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_InvalidGlobals, reporter) {
     static constexpr const char* kBadGlobals[] {
         "uniform shader myshader;"
     };
     for (const auto& global : kBadGlobals) {
         SkString badVS = kValidVS;
         badVS.prepend(global);
-        if (!check_for_failure(r,
+        if (!check_for_failure(reporter,
                                kValidAttrs,
                                kValidStride,
                                kValidVaryings,
@@ -274,7 +274,7 @@ static void test_bad_globals(skiatest::Reporter* r) {
     for (const auto& global : kBadGlobals) {
         SkString badFS = kValidFSes[0];
         badFS.prepend(global);
-        if (!check_for_failure(r,
+        if (!check_for_failure(reporter,
                                kValidAttrs,
                                kValidStride,
                                kValidVaryings,
@@ -285,7 +285,7 @@ static void test_bad_globals(skiatest::Reporter* r) {
     }
 }
 
-static void test_good_uniforms(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_ValidUniforms, reporter) {
     using Uniform = SkMeshSpecification::Uniform;
     using Type    = Uniform::Type;
     using Flags   = Uniform::Flags;
@@ -457,13 +457,13 @@ static void test_good_uniforms(skiatest::Reporter* r) {
         auto attrs = SkSpan(kValidAttrs);
         auto varys = SkSpan(kValidVaryings);
         sk_sp<SkMeshSpecification> spec;
-        if (!check_for_success(r, attrs, kValidStride, varys, vs, fs, &spec)) {
+        if (!check_for_success(reporter, attrs, kValidStride, varys, vs, fs, &spec)) {
             return;
         }
         SkString desc = make_description(attrs, kValidStride, varys, vs, fs);
         SkSpan<const Uniform> uniforms = spec->uniforms();
         if (uniforms.size() != c.expectations.size()) {
-            ERRORF(r,
+            ERRORF(reporter,
                    "Expected %zu uniforms but actually %zu:\n%s",
                    c.expectations.size(),
                    uniforms.size(),
@@ -473,14 +473,14 @@ static void test_good_uniforms(skiatest::Reporter* r) {
         for (const auto& [actual, expected] : SkMakeZip(uniforms, c.expectations)) {
             std::string name = std::string(actual.name);
             if (name != expected.name) {
-                ERRORF(r,
+                ERRORF(reporter,
                        "Actual uniform name (%s) does not match expected name (%.*s)",
                        name.c_str(),
                        (int)expected.name.size(), expected.name.data());
                 return;
             }
             if (actual.type != expected.type) {
-                ERRORF(r,
+                ERRORF(reporter,
                        "Uniform %s: Actual type (%d) does not match expected type (%d)",
                        name.c_str(),
                        static_cast<int>(actual.type),
@@ -488,7 +488,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
                 return;
             }
             if (actual.count != expected.count) {
-                ERRORF(r,
+                ERRORF(reporter,
                        "Uniform %s: Actual count (%d) does not match expected count (%d)",
                        name.c_str(),
                        actual.count,
@@ -496,7 +496,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
                 return;
             }
             if (actual.flags != expected.flags) {
-                ERRORF(r,
+                ERRORF(reporter,
                        "Uniform %s: Actual flags (0x%04x) do not match expected flags (0x%04x)",
                        name.c_str(),
                        actual.flags,
@@ -504,7 +504,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
                 return;
             }
             if (actual.offset != expected.offset) {
-                ERRORF(r,
+                ERRORF(reporter,
                        "Uniform %s: Actual offset (%zu) does not match expected offset (%zu)",
                        name.c_str(),
                        actual.offset,
@@ -515,7 +515,7 @@ static void test_good_uniforms(skiatest::Reporter* r) {
     }
 }
 
-static void test_bad_uniforms(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_InvalidUniforms, reporter) {
     // We assume general uniform declarations are broadly tested generically in SkSL. Here we are
     // concerned with agreement between VS and FS declarations, which is a unique aspect of
     // SkMeshSpecification.
@@ -547,18 +547,18 @@ static void test_bad_uniforms(skiatest::Reporter* r) {
 
             auto attrs = SkSpan(kValidAttrs);
             auto varys = SkSpan(kValidVaryings);
-            if (!check_for_failure(r, attrs, kValidStride, varys, vs, fs)) {
+            if (!check_for_failure(reporter, attrs, kValidStride, varys, vs, fs)) {
                 return;
             }
         }
     }
 }
 
-static void test_no_main(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_MissingMain, reporter) {
     static const SkString kHelper{"float2 swiz(float2 x) { return z.yx; }"};
 
     // Empty VS
-    if (!check_for_failure(r,
+    if (!check_for_failure(reporter,
                            kValidAttrs,
                            kValidStride,
                            kValidVaryings,
@@ -568,7 +568,7 @@ static void test_no_main(skiatest::Reporter* r) {
     }
 
     // VS with helper function but no main
-    if (!check_for_failure(r,
+    if (!check_for_failure(reporter,
                            kValidAttrs,
                            kValidStride,
                            kValidVaryings,
@@ -578,7 +578,7 @@ static void test_no_main(skiatest::Reporter* r) {
     }
 
     // Empty FS
-    if (!check_for_failure(r,
+    if (!check_for_failure(reporter,
                            kValidAttrs,
                            kValidStride,
                            kValidVaryings,
@@ -588,7 +588,7 @@ static void test_no_main(skiatest::Reporter* r) {
     }
 
     // VS with helper function but no main
-    if (!check_for_failure(r,
+    if (!check_for_failure(reporter,
                            kValidAttrs,
                            kValidStride,
                            kValidVaryings,
@@ -598,9 +598,9 @@ static void test_no_main(skiatest::Reporter* r) {
     }
 }
 
-static void test_zero_attrs(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_ZeroAttributes, reporter) {
     // We require at least one attribute
-    check_for_failure(r,
+    check_for_failure(reporter,
                       SkSpan<Attribute>(),
                       kValidStride,
                       kValidVaryings,
@@ -608,9 +608,9 @@ static void test_zero_attrs(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_zero_varyings(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_ZeroVaryings, reporter) {
     // Varyings are not required.
-    check_for_success(r,
+    check_for_success(reporter,
                       kValidAttrs,
                       kValidStride,
                       SkSpan<Varying>(),
@@ -618,9 +618,9 @@ static void test_zero_varyings(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_bad_strides(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_InvalidStride, reporter) {
     // Zero stride
-    if (!check_for_failure(r,
+    if (!check_for_failure(reporter,
                            kValidAttrs,
                            0,
                            kValidVaryings,
@@ -630,7 +630,7 @@ static void test_bad_strides(skiatest::Reporter* r) {
     }
 
     // Unaligned
-    if (!check_for_failure(r,
+    if (!check_for_failure(reporter,
                            kValidAttrs,
                            kValidStride + 1,
                            kValidVaryings,
@@ -640,7 +640,7 @@ static void test_bad_strides(skiatest::Reporter* r) {
     }
 
     // Too large
-    if (!check_for_failure(r,
+    if (!check_for_failure(reporter,
                            kValidAttrs,
                            1 << 20,
                            kValidVaryings,
@@ -650,12 +650,12 @@ static void test_bad_strides(skiatest::Reporter* r) {
     }
 }
 
-static void test_bad_offsets(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_InvalidOffset, reporter) {
     {  // offset isn't aligned
         static const Attribute kAttributes[] {
                 {Attribute::Type::kFloat4,  1, SkString{"var"}},
         };
-        if (!check_for_failure(r,
+        if (!check_for_failure(reporter,
                                kAttributes,
                                32,
                                kValidVaryings,
@@ -669,7 +669,7 @@ static void test_bad_offsets(skiatest::Reporter* r) {
                 {Attribute::Type::kFloat4,   0, SkString{"var"}},
                 {Attribute::Type::kFloat2,  16, SkString{"var"}},
         };
-        if (!check_for_failure(r,
+        if (!check_for_failure(reporter,
                                kAttributes,
                                20,
                                kValidVaryings,
@@ -682,7 +682,7 @@ static void test_bad_offsets(skiatest::Reporter* r) {
         static const Attribute kAttributes[] {
                 {Attribute::Type::kFloat, std::numeric_limits<size_t>::max() - 3, SkString{"var"}},
         };
-        if (!check_for_failure(r,
+        if (!check_for_failure(reporter,
                                kAttributes,
                                4,
                                kValidVaryings,
@@ -693,14 +693,14 @@ static void test_bad_offsets(skiatest::Reporter* r) {
     }
 }
 
-static void test_too_many_attrs(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_TooManyAttributes, reporter) {
     static constexpr size_t kN = 500;
     std::vector<Attribute> attrs;
     attrs.reserve(kN);
     for (size_t i = 0; i < kN; ++i) {
         attrs.push_back({Attribute::Type::kFloat4, 0, SkStringPrintf("attr%zu", i)});
     }
-    check_for_failure(r,
+    check_for_failure(reporter,
                       attrs,
                       4*4,
                       kValidVaryings,
@@ -708,14 +708,14 @@ static void test_too_many_attrs(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_too_many_varyings(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_TooManyVaryings, reporter) {
     static constexpr size_t kN = 500;
     std::vector<Varying> varyings;
     varyings.reserve(kN);
     for (size_t i = 0; i < kN; ++i) {
         varyings.push_back({Varying::Type::kFloat4, SkStringPrintf("varying%zu", i)});
     }
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kValidAttrs,
                       kValidStride,
                       SkSpan(varyings),
@@ -723,12 +723,12 @@ static void test_too_many_varyings(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_duplicate_attribute_names(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_DuplicateAttributeNames, reporter) {
     static const Attribute kAttributes[] {
             {Attribute::Type::kFloat4,  0, SkString{"var"}},
             {Attribute::Type::kFloat2, 16, SkString{"var"}}
     };
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kAttributes,
                       24,
                       kValidVaryings,
@@ -736,12 +736,12 @@ static void test_duplicate_attribute_names(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_duplicate_varying_names(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_DuplicateVaryingNames, reporter) {
     static const Varying kVaryings[] {
         {Varying::Type::kFloat4, SkString{"var"}},
         {Varying::Type::kFloat3, SkString{"var"}}
     };
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kValidAttrs,
                       kValidStride,
                       kVaryings,
@@ -751,11 +751,11 @@ static void test_duplicate_varying_names(skiatest::Reporter* r) {
 
 static constexpr const char* kSneakyName = "name; float3 sneaky";
 
-static void test_sneaky_attribute_name(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_SneakyExtraAttribute, reporter) {
     static const Attribute kAttributes[] {
             {Attribute::Type::kFloat4, 0, SkString{kSneakyName}},
     };
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kAttributes,
                       16,
                       kValidVaryings,
@@ -763,11 +763,11 @@ static void test_sneaky_attribute_name(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_sneaky_varying_name(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_SneakyExtraVarying, reporter) {
     static const Varying kVaryings[] {
             {Varying::Type::kFloat4, SkString{kSneakyName}},
     };
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kValidAttrs,
                       kValidStride,
                       kVaryings,
@@ -775,12 +775,12 @@ static void test_sneaky_varying_name(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_good_position_varying(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_AllowsFloat2PositionVarying, reporter) {
     // Position varying can be explicit if it is float2
     static const Varying kVaryings[] {
             {Varying::Type::kFloat2, SkString{"position"}},
     };
-    check_for_success(r,
+    check_for_success(reporter,
                       kValidAttrs,
                       kValidStride,
                       kVaryings,
@@ -788,12 +788,12 @@ static void test_good_position_varying(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_bad_position_varying(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_InvalidPositionType, reporter) {
     // Position varying can be explicit but it must be float2
     static const Varying kVaryings[] {
             {Varying::Type::kFloat4, SkString{"position"}},
     };
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kValidAttrs,
                       kValidStride,
                       kVaryings,
@@ -801,11 +801,11 @@ static void test_bad_position_varying(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_empty_attribute_name(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_EmptyAttributeName, reporter) {
     static const Attribute kAttributes[] {
             {Attribute::Type::kFloat4, 0, SkString{}},
     };
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kAttributes,
                       16,
                       kValidVaryings,
@@ -813,43 +813,17 @@ static void test_empty_attribute_name(skiatest::Reporter* r) {
                       kValidFSes[0]);
 }
 
-static void test_empty_varying_name(skiatest::Reporter* r) {
+DEF_TEST(MeshSpec_EmptyVaryingName, reporter) {
     static const Varying kVaryings[] {
             {Varying::Type::kFloat4, SkString{}},
     };
-    check_for_failure(r,
+    check_for_failure(reporter,
                       kValidAttrs,
                       kValidStride,
                       kVaryings,
                       kValidVS,
                       kValidFSes[0]);
 }
-
-DEF_TEST(MeshSpec, reporter) {
-    struct X {};
-    test_good(reporter);
-    test_bad_sig(reporter);
-    test_float4_color(reporter);
-    test_bad_globals(reporter);
-    test_good_uniforms(reporter);
-    test_bad_uniforms(reporter);
-    test_no_main(reporter);
-    test_zero_attrs(reporter);
-    test_zero_varyings(reporter);
-    test_bad_strides(reporter);
-    test_bad_offsets(reporter);
-    test_too_many_attrs(reporter);
-    test_too_many_varyings(reporter);
-    test_duplicate_attribute_names(reporter);
-    test_duplicate_varying_names(reporter);
-    test_sneaky_attribute_name(reporter);
-    test_sneaky_varying_name(reporter);
-    test_good_position_varying(reporter);
-    test_bad_position_varying(reporter);
-    test_empty_attribute_name(reporter);
-    test_empty_varying_name(reporter);
-}
-
 
 DEF_TEST(MeshSpecVaryingPassthrough, reporter) {
     static const Attribute kAttributes[]{
