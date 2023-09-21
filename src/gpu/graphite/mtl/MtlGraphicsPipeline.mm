@@ -288,7 +288,12 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
                                                       blendInfo);
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;
 
-    (*psoDescriptor).sampleCount = renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
+    if (@available(tvOS 11, *)) {
+        (*psoDescriptor).rasterSampleCount =
+                renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
+    } else {
+        (*psoDescriptor).sampleCount = renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
+    }
 
     const MtlTextureSpec& mtlDSSpec =
             renderPassDesc.fDepthStencilAttachment.fTextureInfo.mtlTextureSpec();

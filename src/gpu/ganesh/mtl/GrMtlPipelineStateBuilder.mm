@@ -517,7 +517,11 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
     pipelineDescriptor.colorAttachments[0] = create_color_attachment(pixelFormat,
                                                                      programInfo.pipeline(),
                                                                      writer.get());
-    pipelineDescriptor.sampleCount = programInfo.numSamples();
+    if (@available(tvOS 11, *)) {
+        pipelineDescriptor.rasterSampleCount = programInfo.numSamples();
+    } else {
+        pipelineDescriptor.sampleCount = programInfo.numSamples();
+    }
     GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
     pipelineDescriptor.stencilAttachmentPixelFormat = mtlCaps->getStencilPixelFormat(desc);
     if (writer) {
