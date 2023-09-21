@@ -1025,8 +1025,13 @@ static void add_children_to_key(const KeyContext& keyContext,
             // We don't have a child effect. Substitute in a no-op effect.
             switch (childInfo[index].type) {
                 case ChildType::kShader:
+                    // A missing shader returns transparent black
+                    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {0, 0, 0, 0});
+                    builder->endBlock();
+                    break;
+
                 case ChildType::kColorFilter:
-                    // A "passthrough" shader returns the input color as-is.
+                    // A "passthrough" color filter returns the input color as-is.
                     PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
                     builder->endBlock();
                     break;
