@@ -71,14 +71,14 @@ struct SkGainmapInfo {
     };
     BaseImageType fBaseImageType = BaseImageType::kSDR;
 
-    inline bool operator==(const SkGainmapInfo& other) {
+    inline bool operator==(const SkGainmapInfo& other) const {
         return fGainmapRatioMin == other.fGainmapRatioMin &&
                fGainmapRatioMax == other.fGainmapRatioMax && fGainmapGamma == other.fGainmapGamma &&
                fEpsilonSdr == other.fEpsilonSdr && fEpsilonHdr == other.fEpsilonHdr &&
                fDisplayRatioSdr == other.fDisplayRatioSdr &&
                fDisplayRatioHdr == other.fDisplayRatioHdr && fBaseImageType == other.fBaseImageType;
     }
-    inline bool operator!=(const SkGainmapInfo& other) { return !(*this == other); }
+    inline bool operator!=(const SkGainmapInfo& other) const { return !(*this == other); }
 
     // TODO(ccameron): Remove these parameters once we are certain they are not used in Android.
     enum class Type {
