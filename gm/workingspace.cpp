@@ -80,9 +80,7 @@ static sk_sp<SkColorFilter> mode_cf(SkColor4f color) {
 }
 
 static sk_sp<SkColorFilter> spin(sk_sp<SkColorFilter> cf) {
-    skcms_Matrix3x3 spinMtx;
-    SkAssertResult(SkColorSpace::MakeSRGB()->makeColorSpin()->toXYZD50(&spinMtx));
-    return SkColorFilterPriv::WithWorkingFormat(std::move(cf), nullptr, &spinMtx, nullptr);
+    return cf->makeWithWorkingColorSpace(SkColorSpace::MakeSRGB()->makeColorSpin());
 }
 
 static sk_sp<SkShader> spin(sk_sp<SkShader> shader) {

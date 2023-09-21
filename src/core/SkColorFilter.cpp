@@ -8,10 +8,13 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTPin.h"
+#include "modules/skcms/skcms.h"
+#include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
@@ -55,4 +58,19 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     // SkColor4f will assert if we allow alpha outside [0,1]. (SkSL color filters might do this).
     filteredColor.fA = SkTPin(filteredColor.fA, 0.0f, 1.0f);
     return filteredColor.unpremul();
+}
+
+sk_sp<SkColorFilter> SkColorFilter::makeWithWorkingColorSpace(
+        sk_sp<SkColorSpace> workingSpace) const {
+    SkColorFilter* base = const_cast<SkColorFilter*>(this);
+    if (!workingSpace) {
+        return sk_ref_sp(base);
+    }
+
+    skcms_TransferFunction tf;
+    skcms_Matrix3x3 toXYZ;
+    workingSpace->transferFn(&tf);
+    workingSpace->toXYZD50(&toXYZ);
+    const SkAlphaType* kOriginalAlphaType = nullptr;
+    return SkColorFilterPriv::WithWorkingFormat(sk_ref_sp(base), &tf, &toXYZ, kOriginalAlphaType);
 }

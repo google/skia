@@ -64,6 +64,12 @@ public:
      */
     sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter> inner) const;
 
+    /** Return a colorfilter that will compute this filter in a specific color space. By default all
+     *  filters operate in the destination (surface) color space. This allows filters like Blend and
+     *  Matrix, or runtime color filters to perform their math in a known space.
+     */
+    sk_sp<SkColorFilter> makeWithWorkingColorSpace(sk_sp<SkColorSpace>) const;
+
     static sk_sp<SkColorFilter> Deserialize(const void* data, size_t size,
                                             const SkDeserialProcs* procs = nullptr);
 
