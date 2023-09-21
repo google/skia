@@ -71,6 +71,13 @@ public:
 
     const SkPMColor4f& paintColor() const { return fPaintColor; }
 
+    enum class Scope {
+        kDefault,
+        kRuntimeEffect,
+    };
+
+    Scope scope() const { return fScope; }
+
 protected:
     Recorder* fRecorder = nullptr;
     SkM44 fLocal2Dev;
@@ -79,6 +86,7 @@ protected:
     RuntimeEffectDictionary* fRTEffectDict;
     SkColorInfo fDstColorInfo;
     SkPMColor4f fPaintColor = SK_PMColor4fBLACK;
+    Scope fScope = Scope::kDefault;
 
 private:
     const Caps* fCaps = nullptr;
@@ -117,6 +125,17 @@ public:
 private:
     KeyContextWithColorInfo(const KeyContextWithColorInfo&) = delete;
     KeyContextWithColorInfo& operator=(const KeyContextWithColorInfo&) = delete;
+};
+
+class KeyContextWithScope : public KeyContext {
+public:
+    KeyContextWithScope(const KeyContext& other, KeyContext::Scope scope) : KeyContext(other) {
+        fScope = scope;
+    }
+
+private:
+    KeyContextWithScope(const KeyContextWithScope&) = delete;
+    KeyContextWithScope& operator=(const KeyContextWithScope&) = delete;
 };
 
 } // namespace skgpu::graphite
