@@ -62,7 +62,7 @@ static std::string remove_extension(const std::string& path) {
  */
 static void show_usage() {
     printf("usage: sksl-minify <output> <input> [--frag|--vert|--compute|--shader|"
-           "--colorfilter|--blender] [dependencies...]\n");
+           "--colorfilter|--blender|--meshfrag|--meshvert] [dependencies...]\n");
 }
 
 static std::string_view stringize(const SkSL::Token& token, std::string_view text) {
