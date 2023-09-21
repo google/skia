@@ -360,8 +360,9 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         }
 
         // - Radeon -------------------------------------------------------------------------------
-        for (const char* test : {"IntrinsicAll",               // b/40045114
-                                 "MatrixConstructors",         // b/40043524
+        for (const char* test : {"DeadReturnES3",              // b/301326132
+                                 "IntrinsicAll",               // b/40045114
+                                 "MatrixConstructorsES3",      // b/40043524
                                  "MatrixScalarNoOpFolding",    // b/40044644
                                  "StructIndexStore",           // b/40045236
                                  "SwizzleIndexLookup",         // b/40045254
