@@ -97,6 +97,22 @@ public:
         return SkUnicode_IcuBidi::ExtractBidi(utf8, utf8Units, dir, results);
     }
 
+    bool getUtf8Words(const char utf8[],
+                      int utf8Units,
+                      const char* locale,
+                      std::vector<Position>* results) override {
+        SkDEBUGF("Method 'getUtf8Words' is not implemented\n");
+        return false;
+    }
+
+    bool getSentences(const char utf8[],
+                      int utf8Units,
+                      const char* locale,
+                      std::vector<SkUnicode::Position>* results) override {
+        SkDEBUGF("Method 'getSentences' is not implemented\n");
+        return false;
+    }
+
     bool computeCodeUnitFlags(char utf8[],
                               int utf8Units,
                               bool replaceTabs,

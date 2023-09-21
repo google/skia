@@ -53,7 +53,7 @@ public:
                       int utf8Units,
                       const char* locale,
                       std::vector<SkUnicode::Position>* results) override {
-        SkDEBUGF("Method 'getSentences' is not implented\n");
+        SkDEBUGF("Method 'getSentences' is not implemented\n");
         return false;
     }
 
