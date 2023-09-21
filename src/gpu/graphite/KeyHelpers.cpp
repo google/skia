@@ -993,14 +993,8 @@ static void add_to_key(const KeyContext& keyContext,
                        PipelineDataGatherer* gatherer,
                        const SkBlendModeBlender* blender) {
     SkASSERT(blender);
-    SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(blender->mode());
-    if (!coeffs.empty()) {
-        CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, coeffs);
-        builder->endBlock();
-    } else {
-        BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, blender->mode());
-        builder->endBlock();
-    }
+
+    AddModeBlend(keyContext, builder, gatherer, blender->mode());
 }
 
 static void add_children_to_key(const KeyContext& keyContext,
@@ -1277,21 +1271,16 @@ static void add_to_key(const KeyContext& keyContext,
                        const SkBlendShader* shader) {
     SkASSERT(shader);
 
-    BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
-
-    AddToKey(keyContext, builder, gatherer, shader->src().get());
-    AddToKey(keyContext, builder, gatherer, shader->dst().get());
-
-    SkSpan<const float> porterDuffConstants = skgpu::GetPorterDuffBlendConstants(shader->mode());
-    if (!porterDuffConstants.empty()) {
-        CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, porterDuffConstants);
-        builder->endBlock();
-    } else {
-        BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, shader->mode());
-        builder->endBlock();
-    }
-
-    builder->endBlock();  // BlendShaderBlock
+    Blend(keyContext, builder, gatherer,
+            /* addBlendToKey= */ [&] () -> void {
+                AddModeBlend(keyContext, builder, gatherer, shader->mode());
+            },
+            /* addSrcToKey= */ [&]() -> void {
+                AddToKey(keyContext, builder, gatherer, shader->src().get());
+            },
+            /* addDstToKey= */ [&]() -> void {
+                AddToKey(keyContext, builder, gatherer, shader->dst().get());
+            });
 }
 
 static void add_to_key(const KeyContext& keyContext,
@@ -1491,6 +1480,15 @@ static void add_to_key(const KeyContext& keyContext,
     }
     imgData.fReadSwizzle = swizzle_class_to_read_enum(readSwizzle);
 
+    auto addImageSampling = [&]() -> void {
+        if (imgData.fSampling.useCubic) {
+            ImageShaderBlock::BeginCubicBlock(keyContext, builder, gatherer, &imgData);
+        } else {
+            ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
+        }
+        builder->endBlock();
+    };
+
     if (!shader->isRaw()) {
         imgData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
                                                 imageToDraw->alphaType(),
@@ -1498,36 +1496,21 @@ static void add_to_key(const KeyContext& keyContext,
                                                 keyContext.dstColorInfo().alphaType());
 
         if (imageToDraw->isAlphaOnly()) {
-            SkSpan<const float> constants = skgpu::GetPorterDuffBlendConstants(SkBlendMode::kDstIn);
-            BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
-
-                // src
-                if (imgData.fSampling.useCubic) {
-                    ImageShaderBlock::BeginCubicBlock(keyContext, builder, gatherer, &imgData);
-                } else {
-                    ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
-                }
-                builder->endBlock();
-
-                // dst
-                SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                                  keyContext.paintColor());
-                builder->endBlock();
-
-                CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, constants);
-                builder->endBlock();
-
-            builder->endBlock();
+            Blend(keyContext, builder, gatherer,
+                  /* addBlendToKey= */ [&] () -> void {
+                      AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kDstIn);
+                  },
+                  /* addSrcToKey= */ addImageSampling,
+                  /* addDstToKey= */ [&]() -> void {
+                      SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
+                                                        keyContext.paintColor());
+                      builder->endBlock();
+                  });
             return;
         }
     }
 
-    if (imgData.fSampling.useCubic) {
-        ImageShaderBlock::BeginCubicBlock(keyContext, builder, gatherer, &imgData);
-    } else {
-        ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
-    }
-    builder->endBlock();
+    addImageSampling();
 }
 
 static void add_to_key(const KeyContext& keyContext,

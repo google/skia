@@ -147,6 +147,20 @@ void AddKnownModeBlend(const KeyContext& keyContext,
     builder->endBlock();
 }
 
+void AddModeBlend(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  SkBlendMode bm) {
+    SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(bm);
+    if (!coeffs.empty()) {
+        CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, coeffs);
+        builder->endBlock();
+    } else {
+        BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, bm);
+        builder->endBlock();
+    }
+}
+
 void AddDstReadBlock(const KeyContext& keyContext,
                      PaintParamsKeyBuilder* builder,
                      PipelineDataGatherer* gatherer,

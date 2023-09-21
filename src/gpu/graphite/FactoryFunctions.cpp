@@ -32,15 +32,7 @@ private:
                   PaintParamsKeyBuilder* builder) const override {
         SkASSERT(desiredCombination == 0); // The blend mode blender only ever has one combination
 
-        SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(fBlendMode);
-        if (!coeffs.empty()) {
-            CoeffBlenderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr, coeffs);
-            builder->endBlock();
-        } else {
-            BlendModeBlenderBlock::BeginBlock(
-                    keyContext, builder, /* gatherer= */ nullptr, fBlendMode);
-            builder->endBlock();
-        }
+        AddModeBlend(keyContext, builder, /* gatherer= */ nullptr, fBlendMode);
     }
 
 
