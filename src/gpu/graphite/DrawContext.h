@@ -83,14 +83,15 @@ public:
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
 
-    // Returns the transient path atlas that accumulates coverage masks for atlas draws recorded to
-    // this SDC. The atlas gets created lazily upon request. Returns nullptr if atlas draws are not
-    // supported.
-    //
-    // TODO: Should this be explicit about how the atlas gets drawn (i.e. GPU compute vs CPU)?
-    // Currently this is assumed to use GPU compute atlas. Maybe the PathAtlas class should report
-    // its rendering algorithm to aid the renderer selection in `chooseRenderer`?
-    PathAtlas* getOrCreatePathAtlas(Recorder*);
+    // Returns the transient path atlas that uses compute to accumulate coverage masks for atlas
+    // draws recorded to this SDC. The atlas gets created lazily upon request. Returns nullptr
+    // if compute path generation is not supported.
+    PathAtlas* getComputePathAtlas(Recorder*);
+
+    // Returns the transient path atlas that uses CPU rendering to upload coverage masks for atlas
+    // draws recorded to this SDC. The atlas gets created lazily upon request. Returns nullptr
+    // if software path generation is not supported.
+    PathAtlas* getSoftwarePathAtlas(Recorder*);
 
     // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or

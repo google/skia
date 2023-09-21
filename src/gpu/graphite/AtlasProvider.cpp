@@ -16,11 +16,19 @@
 namespace skgpu::graphite {
 
 AtlasProvider::AtlasProvider(Recorder* recorder)
-        : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder)) {}
+        : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder)) {
+    // Disable for now.
+    //fPathAtlasFlags |= PathAtlasFlags::kSoftware;
+#ifdef SK_ENABLE_VELLO_SHADERS
+    if (recorder->priv().caps()->computeSupport()) {
+        fPathAtlasFlags |= PathAtlasFlag::kCompute;
+    }
+#endif  // SK_ENABLE_VELLO_SHADERS
+}
 
 std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas(Recorder* recorder) const {
 #ifdef SK_ENABLE_VELLO_SHADERS
-    if (recorder->priv().caps()->computeSupport()) {
+    if (fPathAtlasFlags & PathAtlasFlag::kCompute) {
         return std::make_unique<VelloComputePathAtlas>();
     }
 #endif  // SK_ENABLE_VELLO_SHADERS
@@ -28,7 +36,10 @@ std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas(Recorder
 }
 
 std::unique_ptr<SoftwarePathAtlas> AtlasProvider::createSoftwarePathAtlas() const {
-    return std::make_unique<SoftwarePathAtlas>();
+    if (fPathAtlasFlags & PathAtlasFlags::kSoftware) {
+        return std::make_unique<SoftwarePathAtlas>();
+    }
+    return nullptr;
 }
 
 sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,

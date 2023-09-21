@@ -1204,19 +1204,25 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         return {renderers->analyticRRect(), nullptr};
     }
 
+    PathAtlas* pathAtlas = nullptr;
     // Prefer compute atlas draws if supported. This currently implicitly filters out clip draws as
     // they require MSAA. Eventually we may want to route clip shapes to the atlas as well but not
     // if hardware MSAA is required.
     // TODO(b/285195175): There may be reasons to prefer tessellation, e.g. if the shape is large
     // and hardware MSAA looks acceptable.
-    // TODO(b/280927548): Currently we assume `pathAtlas` is a GPU compute path atlas and select it
-    // if it's supported (this should be always nullptr if SK_ENABLE_VELLO_SHADERS isn't defined).
-    // This will likely need to provide more information about the PathAtlas' rendering algorithm
-    // when we support non-compute PathAtlases, which may factor into the renderer choice.
-    PathAtlas* pathAtlas = fDC->getOrCreatePathAtlas(fRecorder);
-    if (!requireMSAA && pathAtlas) {
+    AtlasProvider* atlasProvider = fRecorder->priv().atlasProvider();
+    if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kCompute)) {
         // TODO: vello can't do correct strokes yet. Maybe this shouldn't get selected for stroke
         // renders until all stroke styles are supported?
+        pathAtlas = fDC->getComputePathAtlas(fRecorder);
+    // Only use CPU rendered paths when multisampling is disabled
+    // TODO: enable other uses of the software path renderer
+    } else if (fRecorder->priv().caps()->defaultMSAASamplesCount() <= 1 &&
+               atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kSoftware)) {
+        pathAtlas = fDC->getSoftwarePathAtlas(fRecorder);
+    }
+    // We currently always use a coverage mask renderer if a `PathAtlas` is selected.
+    if (!requireMSAA && pathAtlas) {
         return {renderers->coverageMask(), pathAtlas};
     }
 

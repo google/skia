@@ -81,7 +81,7 @@ public:
     UploadInstance& operator=(UploadInstance&&);
     ~UploadInstance();
 
-    bool isValid() const { return fBuffer != nullptr; }
+    bool isValid() const { return fBuffer != nullptr && fTextureProxy != nullptr; }
 
     bool prepareResources(ResourceProvider*);
 

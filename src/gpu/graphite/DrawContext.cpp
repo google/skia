@@ -131,12 +131,18 @@ bool DrawContext::recordUpload(Recorder* recorder,
                                          std::move(condContext));
 }
 
-PathAtlas* DrawContext::getOrCreatePathAtlas(Recorder* recorder) {
-    // TODO: Determine whether to use SoftwarePathAtlas
+PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     if (!fComputePathAtlas) {
         fComputePathAtlas = recorder->priv().atlasProvider()->createComputePathAtlas(recorder);
     }
     return fComputePathAtlas.get();
+}
+
+PathAtlas* DrawContext::getSoftwarePathAtlas(Recorder* recorder) {
+    if (!fSoftwarePathAtlas) {
+        fSoftwarePathAtlas = recorder->priv().atlasProvider()->createSoftwarePathAtlas();
+    }
+    return fSoftwarePathAtlas.get();
 }
 
 void DrawContext::snapDrawPass(Recorder* recorder) {
@@ -263,6 +269,7 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
 sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
     if (fSoftwarePathAtlas) {
         fSoftwarePathAtlas->recordUploads(this, recorder);
+        fSoftwarePathAtlas->reset();
     }
 
     if (!fPendingUploads || fPendingUploads->size() == 0) {

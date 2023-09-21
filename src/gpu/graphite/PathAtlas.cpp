@@ -267,6 +267,10 @@ void SoftwarePathAtlas::onAddShape(const Shape& shape,
                                    atlasBounds.y() + 1 - deviceOffset.y());
     draw.fCTM = &translatedMatrix;
     SkPath path = shape.asPath();
+    if (path.isInverseFillType()) {
+        // The shader will handle the inverse fill in this case
+        path.toggleInverseFillType();
+    }
     draw.drawPathCoverage(path, paint);
 
     // Add atlasBounds to dirtyRect for later upload
