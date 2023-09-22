@@ -168,15 +168,30 @@ DEF_TEST(SkSLErrorTest, r) {
     iterate_dir("sksl/errors/", ".sksl", [&](const char* path) {
         test_expect_fail(r, path, SkSL::ProgramKind::kFragment);
     });
-    iterate_dir("sksl/errors/", ".rts", [&](const char* path) {
-        test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeShader);
-    });
+}
+
+DEF_TEST(SkSLComputeErrorTest, r) {
     iterate_dir("sksl/errors/", ".compute", [&](const char* path) {
         test_expect_fail(r, path, SkSL::ProgramKind::kCompute);
     });
 }
 
+DEF_TEST(SkSLMeshVertexErrorTest, r) {
+    iterate_dir("sksl/errors/", ".mvert", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kMeshVertex);
+    });
+}
+
+DEF_TEST(SkSLMeshFragmentErrorTest, r) {
+    iterate_dir("sksl/errors/", ".mfrag", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kMeshFragment);
+    });
+}
+
 DEF_TEST(SkSLRuntimeShaderErrorTest, r) {
+    iterate_dir("sksl/errors/", ".rts", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeShader);
+    });
     iterate_dir("sksl/runtime_errors/", ".rts", [&](const char* path) {
         test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeShader);
     });

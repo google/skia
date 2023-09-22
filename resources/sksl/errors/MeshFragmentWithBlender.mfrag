@@ -1,0 +1,14 @@
+struct Varyings {
+    float2 position;
+    float4 src, dst;
+};
+
+uniform blender myBlender;
+
+float2 main(const Varyings vary) {
+    return myBlender.eval(vary.src, vary.dst).xy;
+}
+
+/*%%*
+effects are not permitted in custom mesh shaders
+*%%*/

@@ -1,0 +1,12 @@
+struct Varyings {
+    float2 position;
+};
+
+float3 main(const Varyings varyings, out half4 c) {
+    return position.xxx;
+}
+
+
+/*%%*
+'main' must return: 'vec2' or 'float2'
+*%%*/

@@ -1,0 +1,11 @@
+struct Varyings {
+    float2 position;
+};
+
+float2 main(const Varyings vary, float4 outColor) {
+    return vary.position;
+}
+
+/*%%*
+'main' parameters must be (const Varyings, (out (half4|float4))?)
+*%%*/

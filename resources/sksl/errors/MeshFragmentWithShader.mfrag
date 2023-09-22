@@ -1,0 +1,13 @@
+struct Varyings {
+    float2 position;
+};
+
+uniform shader myShader;
+
+float2 main(const Varyings vary) {
+    return myShader.eval(vary.position).xy;
+}
+
+/*%%*
+effects are not permitted in custom mesh shaders
+*%%*/

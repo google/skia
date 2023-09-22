@@ -1,0 +1,19 @@
+struct Attributes {
+    float2 position;
+    float4 color;
+};
+
+struct Varyings {
+    float2 position;
+    float4 color;
+};
+
+uniform colorFilter myColorFilter;
+
+Varyings main(const Attributes attr) {
+    return Varyings(attr.position, myColorFilter.eval(attr.color));
+}
+
+/*%%*
+effects are not permitted in custom mesh shaders
+*%%*/

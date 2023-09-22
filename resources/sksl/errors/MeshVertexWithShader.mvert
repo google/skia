@@ -1,0 +1,18 @@
+struct Attributes {
+    float2 position;
+};
+
+struct Varyings {
+    float2 position;
+    float4 color;
+};
+
+uniform shader myShader;
+
+Varyings main(const Attributes attr) {
+    return Varyings(attr.position, myShader.eval(attr.position));
+}
+
+/*%%*
+effects are not permitted in custom mesh shaders
+*%%*/

@@ -1,0 +1,15 @@
+struct Varyings {
+    float2 position;
+};
+
+struct NotAttributes {
+    float2 position;
+};
+
+Varyings main(const NotAttributes attr) {
+    return Varyings(attr.position);
+}
+
+/*%%*
+'main' parameter must be 'const Attributes'
+*%%*/

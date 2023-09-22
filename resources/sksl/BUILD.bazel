@@ -88,6 +88,8 @@ skia_filegroup(
 skia_filegroup(
     name = "sksl_stage_tests_sources",
     srcs = [
+        ":sksl_mesh_error_tests",
+        ":sksl_mesh_tests",
         ":sksl_rte_tests",
     ],
     visibility = ["//tools/skslc:__pkg__"],
@@ -296,11 +298,11 @@ skia_filegroup(
         "errors/InvalidBackendBindingFlagsMetal.sksl",
         "errors/InvalidBackendBindingFlagsSPIRV.sksl",
         "errors/InvalidBackendBindingFlagsWGSL.sksl",
+        "errors/InvalidComputeMainParameters.compute",
+        "errors/InvalidComputeMainReturn.compute",
         "errors/InvalidExtensionDirective.sksl",
         "errors/InvalidInOutType.compute",
         "errors/InvalidLocalSizeQualifier.compute",
-        "errors/InvalidMainParameters.compute",
-        "errors/InvalidMainReturn.compute",
         "errors/InvalidOutParams.sksl",
         "errors/InvalidToken.rts",
         "errors/InvalidUnary.rts",
@@ -623,6 +625,22 @@ skia_filegroup(
     srcs = [
         "mesh/MeshFragment.mfrag",
         "mesh/MeshVertex.mvert",
+    ],
+)
+
+skia_filegroup(
+    name = "sksl_mesh_error_tests",
+    srcs = [
+        "errors/InvalidMeshFragmentMainParameters.mfrag",
+        "errors/InvalidMeshFragmentMainReturn.mfrag",
+        "errors/InvalidMeshVertexMainParameters.mvert",
+        "errors/InvalidMeshVertexMainReturn.mvert",
+        "errors/MeshFragmentWithBlender.mfrag",
+        "errors/MeshFragmentWithColorFilter.mfrag",
+        "errors/MeshFragmentWithShader.mfrag",
+        "errors/MeshVertexWithBlender.mvert",
+        "errors/MeshVertexWithColorFilter.mvert",
+        "errors/MeshVertexWithShader.mvert",
     ],
 )
 

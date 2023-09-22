@@ -1,0 +1,20 @@
+struct Attributes {
+    float2 position;
+    float4 src;
+    float4 dst;
+};
+
+struct Varyings {
+    float2 position;
+    float4 color;
+};
+
+uniform blender myBlender;
+
+Varyings main(const Attributes attr) {
+    return Varyings(attr.position, myBlender.eval(attr.src, attr.dst));
+}
+
+/*%%*
+effects are not permitted in custom mesh shaders
+*%%*/

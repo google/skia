@@ -1,0 +1,16 @@
+struct NotVaryings {
+    float2 position;
+};
+
+struct Attributes {
+    float2 position;
+};
+
+NotVaryings main(const Attributes attr) {
+    return NotVaryings(attr.position);
+}
+
+
+/*%%*
+'main' must return 'Varyings'
+*%%*/

@@ -1,0 +1,14 @@
+struct Varyings {
+    float2 position;
+    float4 color;
+};
+
+uniform colorFilter myColorFilter;
+
+float2 main(const Varyings vary) {
+    return myColorFilter.eval(vary.color).xy;
+}
+
+/*%%*
+effects are not permitted in custom mesh shaders
+*%%*/
