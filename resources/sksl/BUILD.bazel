@@ -27,7 +27,7 @@ skia_filegroup(
     name = "sksl_minify_tests_sources",
     srcs = [
         ":sksl_folding_tests",
-        ":sksl_minify_tests",
+        ":sksl_mesh_tests",
         ":sksl_rte_tests",
     ],
     visibility = ["//tools/sksl-minify:__pkg__"],
@@ -619,10 +619,10 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "sksl_minify_tests",
+    name = "sksl_mesh_tests",
     srcs = [
-        "minify/MeshFragment.mfrag",
-        "minify/MeshVertex.mvert",
+        "mesh/MeshFragment.mfrag",
+        "mesh/MeshVertex.mvert",
     ],
 )
 

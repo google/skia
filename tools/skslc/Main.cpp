@@ -516,6 +516,10 @@ static ResultCode process_command(SkSpan<std::string> args) {
         kind = SkSL::ProgramKind::kVertex;
     } else if (skstd::ends_with(inputPath, ".frag") || skstd::ends_with(inputPath, ".sksl")) {
         kind = SkSL::ProgramKind::kFragment;
+    } else if (skstd::ends_with(inputPath, ".mvert")) {
+        kind = SkSL::ProgramKind::kMeshVertex;
+    } else if (skstd::ends_with(inputPath, ".mfrag")) {
+        kind = SkSL::ProgramKind::kMeshFragment;
     } else if (skstd::ends_with(inputPath, ".compute")) {
         kind = SkSL::ProgramKind::kCompute;
     } else if (skstd::ends_with(inputPath, ".rtb")) {
@@ -525,8 +529,8 @@ static ResultCode process_command(SkSpan<std::string> args) {
     } else if (skstd::ends_with(inputPath, ".rts")) {
         kind = SkSL::ProgramKind::kRuntimeShader;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.compute', '.rtb', '.rtcf', "
-               "'.rts' or '.sksl'\n");
+        printf("input filename must end in '.vert', '.frag', '.mvert', '.mfrag', '.compute', "
+               "'.rtb', '.rtcf', '.rts' or '.sksl'\n");
         return ResultCode::kInputError;
     }
 
