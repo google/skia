@@ -32,6 +32,7 @@
 #include "src/effects/colorfilters/SkWorkingFormatColorFilter.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/DitherUtils.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Image_YUVA_Graphite.h"
@@ -1434,6 +1435,8 @@ static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swiz
         return skgpu::graphite::ReadSwizzle::kRRR1;
     } else if (swizzle == skgpu::Swizzle::BGRA()) {
         return skgpu::graphite::ReadSwizzle::kBGRA;
+    } else if (swizzle == skgpu::Swizzle("000r")) {
+        return skgpu::graphite::ReadSwizzle::k000R;
     } else {
         SKGPU_LOG_W("%s is an unsupported read swizzle. Defaulting to RGBA.\n",
                     swizzle.asString().data());

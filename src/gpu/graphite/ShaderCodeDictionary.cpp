@@ -862,6 +862,8 @@ static_assert(3 == static_cast<int>(ReadSwizzle::kRRR1),
               "ImageShader code depends on ReadSwizzle");
 static_assert(4 == static_cast<int>(ReadSwizzle::kBGRA),
               "ImageShader code depends on ReadSwizzle");
+static_assert(5 == static_cast<int>(ReadSwizzle::k000R),
+              "ImageShader code depends on ReadSwizzle");
 
 static constexpr char kImageShaderName[] = "sk_image_shader";
 static constexpr char kCubicImageShaderName[] = "sk_cubic_image_shader";

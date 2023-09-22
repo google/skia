@@ -15,11 +15,10 @@ namespace skgpu::graphite {
 enum class ReadSwizzle {
     kRGBA, // Default
     kRGB1,
-    /* 000r is a possible read swizzle, but it is currently only expected for use with alpha-only
-       color types. As a result, the swizzle is concatenated with "aaaa", resulting in "rrrr". */
     kRRRR,
     kRRR1,
-    kBGRA
+    kBGRA,
+    k000R,
 };
 
 } // namespace skgpu::graphite

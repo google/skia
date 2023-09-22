@@ -10,6 +10,7 @@ const int $kReadSwizzleRGB1 = 1;
 const int $kReadSwizzleRRRR = 2;
 const int $kReadSwizzleRRR1 = 3;
 const int $kReadSwizzleBGRA = 4;
+const int $kReadSwizzle000R = 5;
 
 const int $kFilterModeNearest = 0;
 const int $kFilterModeLinear  = 1;
@@ -51,6 +52,8 @@ $pure half4 $apply_swizzle(int swizzleType, half4 color) {
             return color.rrr1;
         case $kReadSwizzleBGRA:
             return color.bgra;
+        case $kReadSwizzle000R:
+            return color.000r;
         default:
             return color;
     }
