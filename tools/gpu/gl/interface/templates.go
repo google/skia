@@ -169,39 +169,24 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 }
 #else
 
-// Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/webgl
-#include <webgl/webgl1.h>
-#include <webgl/webgl1_ext.h>
-#include <webgl/webgl2.h>
+// Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/GLES3
+#define GL_GLEXT_PROTOTYPES
+#include <GLES3/gl32.h>
+#include <GLES3/gl2ext.h>
 #include <webgl/webgl2_ext.h>
 
-#define GET_PROC(F) functions->f##F = emscripten_gl##F
-#define GET_PROC_SUFFIX(F, S) functions->f##F = emscripten_gl##F##S
-
-// Adapter from standard GL signature to emscripten.
-void emscripten_glWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
-    uint32_t timeoutLo = timeout;
-    uint32_t timeoutHi = timeout >> 32;
-    emscripten_glWaitSync(sync, flags, timeoutLo, timeoutHi);
-}
-
-// Adapter from standard GL signature to emscripten.
-GLenum emscripten_glClientWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
-    uint32_t timeoutLo = timeout;
-    uint32_t timeoutHi = timeout >> 32;
-    return emscripten_glClientWaitSync(sync, flags, timeoutLo, timeoutHi);
-}
+#define GET_PROC(F) functions->f##F = gl##F
+#define GET_PROC_SUFFIX(F, S) functions->f##F = gl##F##S
 
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
-    const char* verStr = reinterpret_cast<const char*>(emscripten_glGetString(GR_GL_VERSION));
+    const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));
     GrGLVersion glVer = GrGLGetVersionFromString(verStr);
     if (glVer < GR_GL_VER(1,0)) {
         return nullptr;
     }
 
     GrGLExtensions extensions;
-    if (!extensions.init(kWebGL_GrGLStandard, emscripten_glGetString, emscripten_glGetStringi,
-                         emscripten_glGetIntegerv)) {
+    if (!extensions.init(kWebGL_GrGLStandard, glGetString, glGetStringi, glGetIntegerv)) {
         return nullptr;
     }
 
