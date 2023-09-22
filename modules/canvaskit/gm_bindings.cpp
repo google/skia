@@ -152,7 +152,7 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     } else if (drawResult == skiagm::DrawResult::kSkip) {
         return result;
     }
-    ctx->flushAndSubmit(surface, true);
+    ctx->flushAndSubmit(surface.get(), GrSyncCpu::kYes);
 
     // Based on GPUSink::readBack
     SkBitmap bitmap;
@@ -301,7 +301,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* fil
         // From DMGpuTestProcs.cpp
         (*testFn)(reporter, ctxInfo);
         // Sync so any release/finished procs get called.
-        ctxInfo.directContext()->flushAndSubmit(/*sync*/true);
+        ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
     }
 }
 } // namespace skiatest
