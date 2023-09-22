@@ -1,0 +1,9 @@
+struct Varyings_0 
+{
+	float2 position;
+}
+;
+float2 main(const Varyings_0 vary)
+{
+	return float2(child_0.eval(vary.position).xy);
+}

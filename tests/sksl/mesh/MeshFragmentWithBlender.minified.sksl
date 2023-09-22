@@ -1,0 +1,1 @@
+uniform blender myBlender;float2 main(const Varyings a){return float2(myBlender.eval(half4(a.src),half4(a.dst)).xy);}

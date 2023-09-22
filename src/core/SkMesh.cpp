@@ -89,28 +89,36 @@ gather_uniforms_and_check_for_main(const SkSL::Program& program,
             const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
             const SkSL::Variable& var = *varDecl.var();
             if (var.modifierFlags().isUniform()) {
-                auto iter = find_uniform(*uniforms, var.name());
-                const auto& context = *program.fContext;
-                if (iter == uniforms->end()) {
-                    uniforms->push_back(SkRuntimeEffectPriv::VarAsUniform(var, context, offset));
-                    uniforms->back().flags |= stage;
+                if (var.type().isEffectChild()) {
+                    // TODO(b/40045302): add support for child effects.
+                    return {false, SkString("effects are not permitted in mesh fragment shaders")};
                 } else {
-                    // Check that the two declarations are equivalent
-                    size_t ignoredOffset = 0;
-                    auto uniform = SkRuntimeEffectPriv::VarAsUniform(var, context, &ignoredOffset);
-                    if (uniform.isArray() != iter->isArray() ||
-                        uniform.type      != iter->type      ||
-                        uniform.count     != iter->count) {
-                        return {false, SkStringPrintf("Uniform %.*s declared with different types"
-                                                      " in vertex and fragment shaders.",
-                                                      (int)iter->name.size(), iter->name.data())};
+                    auto iter = find_uniform(*uniforms, var.name());
+                    const auto& context = *program.fContext;
+                    if (iter == uniforms->end()) {
+                        uniforms->push_back(SkRuntimeEffectPriv::VarAsUniform(var, context, offset));
+                        uniforms->back().flags |= stage;
+                    } else {
+                        // Check that the two declarations are equivalent
+                        size_t ignoredOffset = 0;
+                        auto uniform = SkRuntimeEffectPriv::VarAsUniform(var, context,
+                                                                         &ignoredOffset);
+                        if (uniform.isArray() != iter->isArray() ||
+                            uniform.type      != iter->type      ||
+                            uniform.count     != iter->count) {
+                            return {false,
+                                    SkStringPrintf("Uniform %.*s declared with different types"
+                                                   " in vertex and fragment shaders.",
+                                                   (int)var.name().size(), var.name().data())};
+                        }
+                        if (uniform.isColor() != iter->isColor()) {
+                            return {false,
+                                    SkStringPrintf("Uniform %.*s declared with different color"
+                                                   " layout in vertex and fragment shaders.",
+                                                   (int)var.name().size(), var.name().data())};
+                        }
+                        (*iter).flags |= stage;
                     }
-                    if (uniform.isColor() != iter->isColor()) {
-                        return {false, SkStringPrintf("Uniform %.*s declared with different color"
-                                                      " layout in vertex and fragment shaders.",
-                                                      (int)iter->name.size(), iter->name.data())};
-                    }
-                    (*iter).flags |= stage;
                 }
             }
         }

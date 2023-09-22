@@ -14,5 +14,5 @@ Varyings main(const Attributes attr) {
 }
 
 /*%%*
-effects are not permitted in custom mesh shaders
+effects are not permitted in mesh vertex shaders
 *%%*/
