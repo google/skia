@@ -899,6 +899,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     } else {
         // Populate the descriptor set with texture/sampler descriptors
         TArray<VkWriteDescriptorSet> writeDescriptorSets(command.fNumTexSamplers);
+        TArray<VkDescriptorImageInfo> descriptorImageInfos(command.fNumTexSamplers);
         for (int i = 0; i < command.fNumTexSamplers; ++i) {
             auto texture = const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(
                     drawPass.getTexture(command.fTextureIndices[i])));
@@ -914,7 +915,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
                 return;
             }
 
-            VkDescriptorImageInfo textureInfo;
+            VkDescriptorImageInfo& textureInfo = descriptorImageInfos.push_back();
             memset(&textureInfo, 0, sizeof(VkDescriptorImageInfo));
             textureInfo.sampler = sampler->vkSampler();
             textureInfo.imageView =
