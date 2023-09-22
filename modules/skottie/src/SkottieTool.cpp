@@ -9,7 +9,6 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
-#include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
@@ -20,7 +19,6 @@
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
-#include "src/image/SkImage_Base.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -273,12 +271,7 @@ public:
         auto stream = make_file_stream(frame_index, "skp");
 
         if (frame && stream) {
-            SkSerialProcs sProcs;
-            sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
-                return SkPngEncoder::Encode(as_IB(img)->directContext(), img,
-                                            SkPngEncoder::Options{});
-            };
-            frame->serialize(stream.get(), &sProcs);
+            frame->serialize(stream.get());
         }
     }
 

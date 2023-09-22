@@ -24,12 +24,10 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTPin.h"
@@ -48,7 +46,6 @@
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLString.h"
 #include "src/text/GlyphRun.h"
@@ -1594,14 +1591,6 @@ public:
     Viewer::SkFontFields* fFontOverrides;
 };
 
-static SkSerialProcs serial_procs_using_png() {
-    SkSerialProcs sProcs;
-    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
-        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
-    };
-    return sProcs;
-}
-
 void Viewer::drawSlide(SkSurface* surface) {
     if (fCurrentSlide < 0) {
         return;
@@ -1628,8 +1617,7 @@ void Viewer::drawSlide(SkSurface* surface) {
         fSlides[fCurrentSlide]->draw(recorderCanvas);
         sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
         SkFILEWStream stream("sample_app.skp");
-        SkSerialProcs sProcs = serial_procs_using_png();
-        picture->serialize(&stream, &sProcs);
+        picture->serialize(&stream);
         fSaveToSKP = false;
     }
 
@@ -1728,8 +1716,7 @@ void Viewer::drawSlide(SkSurface* surface) {
 
     if (recorderRestoreCanvas) {
         sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-        SkSerialProcs sProcs = serial_procs_using_png();
-        auto data = picture->serialize(&sProcs);
+        auto data = picture->serialize();
         slideCanvas = recorderRestoreCanvas;
         slideCanvas->drawPicture(SkPicture::MakeFromData(data.get()));
     }
