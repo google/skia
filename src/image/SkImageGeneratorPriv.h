@@ -55,11 +55,6 @@ std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&,
  */
 std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData>,
                                                   std::optional<SkAlphaType> = std::nullopt);
-
-// This is our default impl, which may be different on different platforms.
-// It is called from MakeFromEncoded() after it has checked for any runtime factory.
-// The SkData will never be NULL, as that will have been checked by MakeFromEncoded.
-std::unique_ptr<SkImageGenerator> MakeFromEncodedImpl(sk_sp<SkData>, std::optional<SkAlphaType>);
 }
 
 #endif

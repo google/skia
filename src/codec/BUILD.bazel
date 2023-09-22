@@ -20,6 +20,7 @@ CORE_FILES = [
     "SkColorPalette.cpp",
     "SkColorPalette.h",
     "SkFrameHolder.h",
+    "SkImageGenerator_FromEncoded.cpp",
     "SkMaskSwizzler.cpp",
     "SkMaskSwizzler.h",
     "SkMasks.cpp",

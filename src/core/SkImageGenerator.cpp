@@ -7,16 +7,9 @@
 
 #include "include/core/SkImageGenerator.h"
 
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkGraphics.h"
 #include "include/private/base/SkAssert.h"
 #include "src/core/SkNextID.h"
-#include "src/image/SkImageGeneratorPriv.h"
-
-#include <memory>
-#include <optional>
-#include <utility>
 
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
@@ -49,32 +42,3 @@ bool SkImageGenerator::queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&
 bool SkImageGenerator::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     return this->onGetYUVAPlanes(yuvaPixmaps);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static SkGraphics::ImageGeneratorFromEncodedDataFactory gFactory;
-
-SkGraphics::ImageGeneratorFromEncodedDataFactory
-SkGraphics::SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDataFactory factory)
-{
-    ImageGeneratorFromEncodedDataFactory prev = gFactory;
-    gFactory = factory;
-    return prev;
-}
-
-namespace SkImageGenerators {
-
-std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData> data,
-                                                  std::optional<SkAlphaType> at) {
-    if (!data || at == kOpaque_SkAlphaType) {
-        return nullptr;
-    }
-    if (gFactory) {
-        if (std::unique_ptr<SkImageGenerator> generator = gFactory(data)) {
-            return generator;
-        }
-    }
-    return MakeFromEncodedImpl(std::move(data), at);
-}
-
-}  // namespace SkImageGenerators
