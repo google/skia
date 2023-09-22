@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
 #include "include/core/SkMesh.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
@@ -88,16 +90,23 @@ static bool check_for_failure(skiatest::Reporter*     reporter,
                               size_t                  stride,
                               SkSpan<const Varying>   varyings,
                               const SkString&         vs,
-                              const SkString&         fs) {
+                              const SkString&         fs,
+                              const char*             expectedErrorSubstring = nullptr) {
     auto [spec, error] = SkMeshSpecification::Make(attributes, stride, varyings, vs, fs);
-    SkString description;
-    if (!spec) {
-        return true;
+    if (spec) {
+        ERRORF(reporter,
+               "Expected to fail but succeeded:\n%s",
+               make_description(attributes, stride, varyings, vs, fs).c_str());
+        return false;
     }
-    ERRORF(reporter,
-           "Expected to fail but succeeded:\n%s",
-           make_description(attributes, stride, varyings, vs, fs).c_str());
-    return false;
+    if (expectedErrorSubstring && !error.contains(expectedErrorSubstring)) {
+        ERRORF(reporter,
+               "    Expected: %s\n"
+               "Actual error: %s\n",
+               expectedErrorSubstring, error.c_str());
+        return false;
+    }
+    return true;
 }
 
 static bool check_for_success(skiatest::Reporter*         reporter,
@@ -254,35 +263,94 @@ DEF_TEST(MeshSpec_Float4Color, reporter) {
                       kFloat4FS);
 }
 
-// We don't allow child effects in custom meshes currently.
-DEF_TEST(MeshSpec_InvalidGlobals, reporter) {
-    static constexpr const char* kBadGlobals[] {
-        "uniform shader myshader;"
+DEF_TEST(MeshSpec_DisallowsChildEffectInVertex, reporter) {
+    static constexpr const char* kChildEffects[] {
+        "uniform shader myshader;",
+        "uniform colorFilter mycolorfilter;",
+        "uniform blender myblender;"
     };
-    for (const auto& global : kBadGlobals) {
-        SkString badVS = kValidVS;
-        badVS.prepend(global);
+
+    for (const auto& global : kChildEffects) {
+        SkString vsWithChild{global};
+        vsWithChild.append(kValidVS);
+
+        SkString fsWithChild{global};
+        fsWithChild.append(kValidFSes[0]);
+
         if (!check_for_failure(reporter,
                                kValidAttrs,
                                kValidStride,
                                kValidVaryings,
-                               badVS,
-                               kValidFSes[0])) {
+                               vsWithChild,
+                               kValidFSes[0],
+                               "effects are not permitted in mesh vertex shaders")) {
+            return;
+        }
+
+        if (!check_for_failure(reporter,
+                               kValidAttrs,
+                               kValidStride,
+                               kValidVaryings,
+                               vsWithChild,
+                               fsWithChild,
+                               "effects are not permitted in mesh vertex shaders")) {
             return;
         }
     }
-    for (const auto& global : kBadGlobals) {
-        SkString badFS = kValidFSes[0];
-        badFS.prepend(global);
-        if (!check_for_failure(reporter,
+}
+
+DEF_TEST(MeshSpec_AllowsChildEffectInFragment, reporter) {
+    static constexpr const char* kChildEffects[] {
+        "uniform shader myshader;",
+        "uniform colorFilter mycolorfilter; uniform shader myshader;",
+        "uniform shader myshader; uniform blender myblender; uniform colorFilter mycolorfilter;"
+    };
+
+    for (const auto& global : kChildEffects) {
+        SkString fsWithChild{global};
+        fsWithChild.append(kValidFSes[0]);
+
+        if (!check_for_success(reporter,
                                kValidAttrs,
                                kValidStride,
                                kValidVaryings,
                                kValidVS,
-                               badFS)) {
+                               fsWithChild)) {
             return;
         }
     }
+}
+
+DEF_TEST(Mesh_DisallowsChildEffects, reporter) {
+    SkString fsWithChild{"uniform shader myshader;"};
+    fsWithChild.append(kValidFSes[0]);
+
+    sk_sp<SkMeshSpecification> meshSpec;
+    if (!check_for_success(reporter,
+                           kValidAttrs,
+                           kValidStride,
+                           kValidVaryings,
+                           kValidVS,
+                           fsWithChild,
+                           &meshSpec)) {
+        return;
+    }
+
+    constexpr float kVertexCount = 4;
+    sk_sp<SkMesh::VertexBuffer> vertexBuffer =
+            SkMeshes::MakeVertexBuffer(nullptr, kValidStride * kVertexCount);
+    SkMesh::Result result = SkMesh::Make(meshSpec,
+                                         SkMesh::Mode::kTriangleStrip,
+                                         vertexBuffer,
+                                         kVertexCount,
+                                         /*vertexOffset=*/0,
+                                         /*uniforms=*/nullptr,
+                                         SkRect::MakeEmpty());
+
+    REPORTER_ASSERT(reporter, !result.mesh.isValid());
+    REPORTER_ASSERT(reporter,
+                    result.error.contains("effects are not permitted in mesh fragment shaders"),
+                    "Error: '%s'", result.error.c_str());
 }
 
 DEF_TEST(MeshSpec_ValidUniforms, reporter) {
@@ -367,32 +435,32 @@ DEF_TEST(MeshSpec_ValidUniforms, reporter) {
 
             // A shared uniform before an unshared vertex uniform
             {
-                {
+                    {
                         "uniform half x[2];",
                         "uniform int  y;",
-                },
-                {
+                    },
+                    {
                         "uniform half x[2];",
-                },
-                {
+                    },
+                    {
                         make_uni(Type::kFloat, "x",  0, kVS|kFS|kHalfP, 2),
                         make_uni(Type::kInt,   "y",  8, kVS           , 0)
-                }
+                    }
             },
 
             // A shared uniform after an unshared fragment uniform
             {
-                     {
+                    {
                             "uniform float3x3 m;",
-                     },
-                     {
+                    },
+                    {
                              "uniform int2     i2;",
                              "uniform float3x3 m;",
-                     },
-                     {
+                    },
+                    {
                             make_uni(Type::kFloat3x3, "m" ,  0, kVS|kFS),
                             make_uni(Type::kInt2    , "i2", 36, kFS    )
-                     }
+                    }
             },
 
             // A shared uniform before an unshared fragment uniform

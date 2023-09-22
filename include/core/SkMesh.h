@@ -103,6 +103,7 @@ public:
     };
 
     using Uniform = SkRuntimeEffect::Uniform;
+    using Child = SkRuntimeEffect::Child;
 
     ~SkMeshSpecification();
 
@@ -167,6 +168,12 @@ public:
      */
     SkSpan<const Uniform> uniforms() const { return SkSpan(fUniforms); }
 
+    /**
+     * Provides basic info about individual children: names, indices and runtime effect type.
+     * TODO(b/40045302): SkMesh will currently reject mesh specifications that include child effects
+     */
+    SkSpan<const Child> children() const { return SkSpan(fChildren); }
+
     /** Returns pointer to the named uniform variable's description, or nullptr if not found. */
     const Uniform* findUniform(std::string_view name) const;
 
@@ -201,6 +208,7 @@ private:
                         int passthroughLocalCoordsVaryingIndex,
                         uint32_t deadVaryingMask,
                         std::vector<Uniform> uniforms,
+                        std::vector<Child> children,
                         std::unique_ptr<const SkSL::Program>,
                         std::unique_ptr<const SkSL::Program>,
                         ColorType,
@@ -216,6 +224,7 @@ private:
     const std::vector<Attribute>               fAttributes;
     const std::vector<Varying>                 fVaryings;
     const std::vector<Uniform>                 fUniforms;
+    const std::vector<Child>                   fChildren;
     const std::unique_ptr<const SkSL::Program> fVS;
     const std::unique_ptr<const SkSL::Program> fFS;
     const size_t                               fStride;
