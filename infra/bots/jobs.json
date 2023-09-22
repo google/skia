@@ -200,8 +200,12 @@
   {"name": "Build-Mac-Clang-arm64-Release"},
   {"name": "Build-Mac-Clang-arm64-Release-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Release-Metal"},
-  {"name": "Build-Mac-Clang-arm64-Release-iOS"},
-  {"name": "Build-Mac-Clang-arm64-Release-iOS_Metal"},
+  {"name": "Build-Mac-Clang-arm64-Release-iOS",
+   "cq_config": {}
+   },
+  {"name": "Build-Mac-Clang-arm64-Release-iOS_Metal",
+   "cq_config": {}
+   },
   {"name": "Build-Mac-Xcode11.4.1-arm64-Release-iOS_Metal"},
   {"name": "Build-Mac-Xcode11.4.1-arm64-Release-iOS"},
   {"name": "Build-Mac-Clang-x64-Release-iOS"},
