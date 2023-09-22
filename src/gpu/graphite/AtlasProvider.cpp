@@ -26,7 +26,7 @@ AtlasProvider::AtlasProvider(Recorder* recorder)
 #endif  // SK_ENABLE_VELLO_SHADERS
 }
 
-std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas(Recorder* recorder) const {
+std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas() const {
 #ifdef SK_ENABLE_VELLO_SHADERS
     if (fPathAtlasFlags & PathAtlasFlags::kCompute) {
         return std::make_unique<VelloComputePathAtlas>();

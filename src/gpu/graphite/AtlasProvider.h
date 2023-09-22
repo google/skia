@@ -53,7 +53,7 @@ public:
     // Creates a new transient atlas handler that uses compute shaders to rasterize coverage masks
     // for path rendering. This method returns nullptr if compute shaders are not supported by the
     // owning Recorder's context.
-    std::unique_ptr<ComputePathAtlas> createComputePathAtlas(Recorder*) const;
+    std::unique_ptr<ComputePathAtlas> createComputePathAtlas() const;
 
     // Creates a new atlas handler that uses the CPU pipeline to rasterize coverage masks
     // for path rendering.
