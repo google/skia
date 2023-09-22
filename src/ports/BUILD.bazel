@@ -218,7 +218,7 @@ skia_filegroup(
 
 skia_filegroup(
     name = "image_generator",
-    srcs = [],
+    srcs = ["SkImageGenerator_empty.cpp"],
 )
 
 # In own group to prevent exporting to *.gni files.
