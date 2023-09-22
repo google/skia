@@ -224,21 +224,19 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
         recording->priv().addTask(ClearBuffersTask::Make(std::move(fClearList)));
     }
 
-    bool useTransferBuffer = !fCaps->drawBufferCanBeMapped();
     for (auto& [buffer, transferBuffer] : fUsedBuffers) {
-        if (useTransferBuffer) {
-            if (transferBuffer) {
-                SkASSERT(buffer);
-                // A transfer buffer should always be mapped at this stage
-                transferBuffer->unmap();
-                recording->priv().addTask(CopyBufferToBufferTask::Make(std::move(transferBuffer),
-                                                                       std::move(buffer)));
-            }
+        if (transferBuffer) {
+            SkASSERT(buffer);
+            SkASSERT(!fCaps->drawBufferCanBeMapped());
+            // A transfer buffer should always be mapped at this stage
+            transferBuffer->unmap();
+            recording->priv().addTask(
+                    CopyBufferToBufferTask::Make(std::move(transferBuffer), std::move(buffer)));
         } else {
             if (buffer->isMapped()) {
                 buffer->unmap();
             }
-           recording->priv().addResourceRef(std::move(buffer));
+            recording->priv().addResourceRef(std::move(buffer));
         }
     }
     fUsedBuffers.clear();
@@ -249,14 +247,13 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
         if (!info.fBuffer) {
             continue;
         }
-        if (useTransferBuffer) {
-            if (info.fTransferBuffer) {
-                // A transfer buffer should always be mapped at this stage
-                info.fTransferBuffer->unmap();
-                SkASSERT(info.fBuffer);
-                recording->priv().addTask(CopyBufferToBufferTask::Make(
-                        std::move(info.fTransferBuffer), info.fBuffer));
-            }
+        if (info.fTransferBuffer) {
+            // A transfer buffer should always be mapped at this stage
+            SkASSERT(info.fBuffer);
+            SkASSERT(!fCaps->drawBufferCanBeMapped());
+            info.fTransferBuffer->unmap();
+            recording->priv().addTask(
+                    CopyBufferToBufferTask::Make(std::move(info.fTransferBuffer), info.fBuffer));
         } else {
             if (info.fBuffer->isMapped()) {
                 info.fBuffer->unmap();
