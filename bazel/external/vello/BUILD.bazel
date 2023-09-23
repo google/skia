@@ -70,7 +70,9 @@ rust_library(
 
 cargo_build_script(
     name = "vello_shaders_build_script",
-    crate_features = select({
+    crate_features = [
+        "force_rw_storage",
+    ] + select({
         ":msl_shaders": ["msl"],
         "//conditions:default": [],
     }) + select({

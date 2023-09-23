@@ -354,21 +354,21 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
                                kVelloSlot_DrawMonoid);
     builder.assignSharedBuffer(new_storage_slice(bufMgr, bin_data_size), kVelloSlot_InfoBinData);
     // A clip input buffer must still get bound even if the encoding doesn't contain any clips
-    builder.assignSharedBuffer(new_storage_slice(bufMgr, std::max(1u, bufferSizes.clip_inps)),
+    builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.clip_inps),
                                kVelloSlot_ClipInput);
     builder.appendStep(&fDrawLeaf, to_wg_size(dispatchInfo.draw_leaf));
 
     // clip_reduce, clip_leaf
     // The clip bbox buffer is always an input to the binning stage, even when the encoding doesn't
     // contain any clips
-    builder.assignSharedBuffer(new_storage_slice(bufMgr, std::max(1u, bufferSizes.clip_bboxes)),
+    builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.clip_bboxes),
                                kVelloSlot_ClipBBoxes);
     WorkgroupSize clipReduceWgCount = to_wg_size(dispatchInfo.clip_reduce);
     WorkgroupSize clipLeafWgCount = to_wg_size(dispatchInfo.clip_leaf);
     bool doClipReduce = clipReduceWgCount.scalarSize() > 0u;
     bool doClipLeaf = clipLeafWgCount.scalarSize() > 0u;
     if (doClipReduce || doClipLeaf) {
-        builder.assignSharedBuffer(new_storage_slice(bufMgr, std::max(1u, bufferSizes.clip_bics)),
+        builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.clip_bics),
                                    kVelloSlot_ClipBicyclic);
         builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.clip_els),
                                    kVelloSlot_ClipElement);

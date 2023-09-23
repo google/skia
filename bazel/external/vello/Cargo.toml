@@ -9,7 +9,7 @@ version = "0.1.0"
 
 [dependencies]
 bytemuck = { version = "1.12.1", features = ["derive"] }
-naga = { git = "https://github.com/gfx-rs/naga", rev = "53d62b9", features = ["wgsl-in", "msl-out", "validate"] }
+naga = { version = "0.13", features = ["wgsl-in", "msl-out", "validate"] }
 peniko = { git = "https://github.com/linebender/peniko", rev = "cafdac9a211a0fb2fec5656bd663d1ac770bcc81" }
 regex = "1.8.1"
 thiserror = "1.0.40"

@@ -27,12 +27,12 @@ impl Shader {
 
     #[cfg(feature = "wgsl")]
     pub fn wgsl(&self) -> &str {
-        &self.0.wgsl
+        &self.0.wgsl.code
     }
 
     #[cfg(feature = "msl")]
     pub fn msl(&self) -> &str {
-        &self.0.msl
+        &self.0.msl.code
     }
 }
 
