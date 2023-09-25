@@ -8,16 +8,13 @@
 #include "src/core/SkWriteBuffer.h"
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
@@ -26,6 +23,12 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPtrRecorder.h"
 #include "src/image/SkImage_Base.h"
+
+#if !defined(SK_DISABLE_LEGACY_PNG_WRITEBUFFER)
+#include "include/core/SkBitmap.h"
+#include "include/core/SkStream.h"
+#include "include/encode/SkPngEncoder.h"
+#endif
 
 #include <cstring>
 #include <utility>
@@ -170,6 +173,7 @@ static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs procs) 
     if (data) {
         return data;
     }
+#if !defined(SK_DISABLE_LEGACY_PNG_WRITEBUFFER)
     SkBitmap bm;
     auto ib = as_IB(image);
     if (!ib->getROPixels(ib->directContext(), &bm)) {
@@ -179,6 +183,7 @@ static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs procs) 
     if (SkPngEncoder::Encode(&stream, bm.pixmap(), SkPngEncoder::Options())) {
         return stream.detachAsData();
     }
+#endif
     return nullptr;
 }
 

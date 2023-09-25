@@ -732,17 +732,17 @@ DEF_TEST(Serialization, reporter) {
         // Valid case with non-empty array:
         {
             unsigned char data[kArraySize] = { 1, 2, 3 };
-    SkBinaryWriteBuffer writer({});
-    writer.writeByteArray(data, kArraySize);
-    SkAutoMalloc buf(writer.bytesWritten());
-    writer.writeToMemory(buf.get());
+	    SkBinaryWriteBuffer writer({});
+	    writer.writeByteArray(data, kArraySize);
+	    SkAutoMalloc buf(writer.bytesWritten());
+	    writer.writeToMemory(buf.get());
 
-    SkReadBuffer reader(buf.get(), writer.bytesWritten());
-    size_t len = ~0;
-    const void* arr = reader.skipByteArray(&len);
-    REPORTER_ASSERT(reporter, arr);
-    REPORTER_ASSERT(reporter, len == kArraySize);
-    REPORTER_ASSERT(reporter, memcmp(arr, data, len) == 0);
+	    SkReadBuffer reader(buf.get(), writer.bytesWritten());
+	    size_t len = ~0;
+	    const void* arr = reader.skipByteArray(&len);
+	    REPORTER_ASSERT(reporter, arr);
+	    REPORTER_ASSERT(reporter, len == kArraySize);
+	    REPORTER_ASSERT(reporter, memcmp(arr, data, len) == 0);
         }
 
         // Writing a zero length array (can be detected as valid by non-nullptr return):

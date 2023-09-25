@@ -7,6 +7,7 @@
 
 #include "fuzz/Fuzz.h"
 #include "fuzz/FuzzCommon.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
@@ -34,6 +35,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
@@ -1522,9 +1524,14 @@ DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
                                               SkIntToScalar(kCanvasSize.height())));
     sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
     if (!pic) { fuzz->signalBug(); }
-    sk_sp<SkData> data = pic->serialize();
+    SkSerialProcs sProcs;
+    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+        return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
+    };
+    sk_sp<SkData> data = pic->serialize(&sProcs);
     if (!data) { fuzz->signalBug(); }
     SkReadBuffer rb(data->data(), data->size());
+    SkCodecs::Register(SkPngDecoder::Decoder());
     auto deserialized = SkPicturePriv::MakeFromBuffer(rb);
     if (!deserialized) { fuzz->signalBug(); }
     auto surface = SkSurfaces::Raster(

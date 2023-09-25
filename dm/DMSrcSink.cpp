@@ -21,6 +21,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
@@ -51,6 +52,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "src/image/SkImage_Base.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 #include "src/utils/SkOSPath.h"
@@ -2005,6 +2007,14 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
 }
 #endif
 
+static SkSerialProcs serial_procs_using_png() {
+    static SkSerialProcs procs;
+    procs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
+    };
+    return procs;
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 SKPSink::SKPSink() {}
@@ -2016,7 +2026,8 @@ Result SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
     if (!result.isOk()) {
         return result;
     }
-    recorder.finishRecordingAsPicture()->serialize(dst);
+    SkSerialProcs procs = serial_procs_using_png();
+    recorder.finishRecordingAsPicture()->serialize(dst, &procs);
     return Result::Ok();
 }
 
@@ -2269,8 +2280,9 @@ Result ViaSerialization::draw(
     }
     sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
 
+    SkSerialProcs procs = serial_procs_using_png();
     // Serialize it and then deserialize it.
-    sk_sp<SkPicture> deserialized(SkPicture::MakeFromData(pic->serialize().get()));
+    sk_sp<SkPicture> deserialized(SkPicture::MakeFromData(pic->serialize(&procs).get()));
 
     result = draw_to_canvas(fSink.get(), bitmap, stream, log, size,
                             [&](SkCanvas* canvas) {
