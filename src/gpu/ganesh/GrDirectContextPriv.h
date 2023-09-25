@@ -45,7 +45,6 @@ public:
 
     static void SetGpu(sk_sp<GrDirectContext> ctx, std::unique_ptr<GrGpu> gpu) {
         SkASSERT(ctx);
-        SkASSERT(gpu);
         ctx->fGpu = std::move(gpu);
     }
 
