@@ -96,10 +96,13 @@ gather_uniforms_and_check_for_main(const SkSL::Program& program,
                     // This is a child effect; add it to our list of children.
                     children->push_back(SkRuntimeEffectPriv::VarAsChild(var, children->size()));
                 } else {
+                    // This is a uniform variable; make sure it exists in our list of uniforms, and
+                    // ensure that the type and layout matches between VS and FS.
                     auto iter = find_uniform(*uniforms, var.name());
                     const auto& context = *program.fContext;
                     if (iter == uniforms->end()) {
-                        uniforms->push_back(SkRuntimeEffectPriv::VarAsUniform(var, context, offset));
+                        uniforms->push_back(SkRuntimeEffectPriv::VarAsUniform(var, context,
+                                                                              offset));
                         uniforms->back().flags |= stage;
                     } else {
                         // Check that the two declarations are equivalent
@@ -643,24 +646,39 @@ size_t SkMeshSpecification::uniformSize() const {
 }
 
 const Uniform* SkMeshSpecification::findUniform(std::string_view name) const {
-    auto iter = std::find_if(fUniforms.begin(), fUniforms.end(), [name] (const Uniform& u) {
-        return u.name == name;
-    });
-    return iter == fUniforms.end() ? nullptr : &(*iter);
+    for (const Uniform& uniform : fUniforms) {
+        if (uniform.name == name) {
+            return &uniform;
+        }
+    }
+    return nullptr;
+}
+
+const Child* SkMeshSpecification::findChild(std::string_view name) const {
+    for (const Child& child : fChildren) {
+        if (child.name == name) {
+            return &child;
+        }
+    }
+    return nullptr;
 }
 
 const Attribute* SkMeshSpecification::findAttribute(std::string_view name) const {
-    auto iter = std::find_if(fAttributes.begin(), fAttributes.end(), [name](const Attribute& a) {
-        return name.compare(a.name.c_str()) == 0;
-    });
-    return iter == fAttributes.end() ? nullptr : &(*iter);
+    for (const Attribute& attr : fAttributes) {
+        if (name == attr.name.c_str()) {
+            return &attr;
+        }
+    }
+    return nullptr;
 }
 
 const Varying* SkMeshSpecification::findVarying(std::string_view name) const {
-    auto iter = std::find_if(fVaryings.begin(), fVaryings.end(), [name](const Varying& v) {
-        return name.compare(v.name.c_str()) == 0;
-    });
-    return iter == fVaryings.end() ? nullptr : &(*iter);
+    for (const Varying& varying : fVaryings) {
+        if (name == varying.name.c_str()) {
+            return &varying;
+        }
+    }
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////

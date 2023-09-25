@@ -174,13 +174,16 @@ public:
      */
     SkSpan<const Child> children() const { return SkSpan(fChildren); }
 
-    /** Returns pointer to the named uniform variable's description, or nullptr if not found. */
+    /** Returns a pointer to the named child's description, or nullptr if not found. */
+    const Child* findChild(std::string_view name) const;
+
+    /** Returns a pointer to the named uniform variable's description, or nullptr if not found. */
     const Uniform* findUniform(std::string_view name) const;
 
-    /** Returns pointer to the named attribute, or nullptr if not found. */
+    /** Returns a pointer to the named attribute, or nullptr if not found. */
     const Attribute* findAttribute(std::string_view name) const;
 
-    /** Returns pointer to the named varying, or nullptr if not found. */
+    /** Returns a pointer to the named varying, or nullptr if not found. */
     const Varying* findVarying(std::string_view name) const;
 
     size_t stride() const { return fStride; }

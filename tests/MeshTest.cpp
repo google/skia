@@ -327,6 +327,29 @@ DEF_TEST(MeshSpec_AllowsChildEffectInFragment, reporter) {
     }
 }
 
+DEF_TEST(MeshSpec_FindChild, reporter) {
+    SkString fsWithChild{"uniform shader myshader;"
+                         "uniform blender myblender;"
+                         "uniform colorFilter mycolorfilter;"};
+    fsWithChild.append(kValidFSes[0]);
+
+    sk_sp<SkMeshSpecification> meshSpec;
+    if (!check_for_success(reporter,
+                           kValidAttrs,
+                           kValidStride,
+                           kValidVaryings,
+                           kValidVS,
+                           fsWithChild,
+                           &meshSpec)) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, meshSpec->findChild("myshader")->index == 0);
+    REPORTER_ASSERT(reporter, meshSpec->findChild("myblender")->index == 1);
+    REPORTER_ASSERT(reporter, meshSpec->findChild("mycolorfilter")->index == 2);
+    REPORTER_ASSERT(reporter, !meshSpec->findChild("missing"));
+}
+
 DEF_TEST(Mesh_ChildEffectsMatchSpec, reporter) {
     auto test = [&](const char* prefix,
                     SkSpan<SkRuntimeEffect::ChildPtr> children,
