@@ -399,6 +399,7 @@ local_repository(
 # @vello - //bazel/external/vello:BUILD.bazel
 # @vulkan_headers - //bazel/external/vulkan_headers:BUILD.bazel
 # @vulkan_tools - //bazel/external/vulkan_tools:BUILD.bazel
+# @vulkan_utility_libraries - //bazel/external/vulkan_utility_libraries:BUILD.bazel
 # @vulkanmemoryallocator - //bazel/external/vulkanmemoryallocator:BUILD.bazel
 # @wuffs - //bazel/external/wuffs:BUILD.bazel
 # @zlib_skia - //bazel/external/zlib_skia:BUILD.bazel

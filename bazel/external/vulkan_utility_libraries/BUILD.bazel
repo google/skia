@@ -1,0 +1,10 @@
+# This file will be copied into //third_party/externals/vulkan-utility-libraries via the
+# new_local_repository rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+cc_library(
+    name = "vulkan_utility_libraries",
+    hdrs = [
+        "include/vulkan/utility/vk_struct_helper.hpp",
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -18,3 +18,5 @@ dawn_spirv_cross_dir = "//third_party/externals/spirv-cross"
 dawn_tint_dir = "//third_party/externals/tint"
 dawn_vulkan_headers_dir = "//third_party/externals/vulkan-headers"
 dawn_vulkan_tools_dir = "//third_party/externals/vulkan-tools"
+dawn_vulkan_utility_libraries_dir =
+    "//third_party/externals/vulkan-utility-libraries"

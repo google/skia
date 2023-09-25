@@ -659,6 +659,7 @@ cc_library(
         "@abseil_cpp//absl/strings:str_format",
         "@vulkan_headers",
         "@vulkan_tools",
+        "@vulkan_utility_libraries",
     ],
 )
 
