@@ -8,6 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "src/base/SkNoDestructor.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -21,7 +22,6 @@
 
 #include <cstring>
 #include <functional>
-#include <initializer_list>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -93,11 +93,14 @@ static void check_expected_errors(skiatest::Reporter* r,
 static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
     // In a size-optimized build, there are a handful of errors which report differently, or not at
     // all. Skip over those tests.
-    static const auto* kTestsToSkip = new THashSet<std::string_view>{
+    static const SkNoDestructor<THashSet<std::string_view>> kTestsToSkip{{
         // These are tests that have been deleted, but which may still show up (and fail) on tasks,
-        // because the resources directory isn't properly cleaned up. (skbug.com/12987)
+        // because the resources directory isn't properly cleaned up. (b/40044088)
         "sksl/errors/InvalidBackendBindingFlagsGL.sksl",
         "sksl/errors/InvalidThreadgroupRTS.rts",
+        "sksl/errors/MeshFragmentWithShader.mfrag",
+        "sksl/errors/MeshFragmentWithBlender.mfrag",
+        "sksl/errors/MeshFragmentWithColorFilter.mfrag",
         "sksl/errors/StaticIfTest.sksl",
         "sksl/errors/StaticSwitchConditionalBreak.sksl",
         "sksl/errors/StaticSwitchTest.sksl",
@@ -118,7 +121,7 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
         "sksl/errors/OverflowInlinedLiteral.sksl",
         "sksl/errors/VectorInlinedIndexOutOfRange.sksl",
 #endif
-    };
+    }};
     if (kTestsToSkip->contains(testFile)) {
         INFOF(r, "%s: skipped in SK_ENABLE_OPTIMIZE_SIZE mode", testFile);
         return;
