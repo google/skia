@@ -70,14 +70,6 @@
 
 class GrSemaphore;
 
-#ifdef SK_GL
-#include "include/gpu/gl/GrGLConfig.h"
-#include "include/gpu/gl/GrGLFunctions.h"
-#include "include/gpu/gl/GrGLInterface.h"
-#include "include/gpu/gl/GrGLTypes.h"
-#include "src/gpu/ganesh/gl/GrGLDefines.h"
-#include "src/gpu/ganesh/gl/GrGLGpu.h"
-#endif
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlBackendContext.h"
 #include "src/gpu/ganesh/mtl/GrMtlTrampoline.h"
@@ -87,13 +79,6 @@ class GrSemaphore;
 #endif
 #ifdef SK_DIRECT3D
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
-#endif
-
-#if defined(GR_TEST_UTILS)
-#   include "src/base/SkRandom.h"
-#   if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-#       include <sanitizer/lsan_interface.h>
-#   endif
 #endif
 
 using namespace skia_private;
@@ -1180,75 +1165,6 @@ SkString GrDirectContext::dump() const {
     SkString result(stream.bytesWritten());
     stream.copyToAndReset(result.data());
     return result;
-}
-#endif
-
-#ifdef SK_GL
-
-/*************************************************************************************************/
-sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
-    GrContextOptions defaultOptions;
-    return MakeGL(std::move(glInterface), defaultOptions);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeGL(const GrContextOptions& options) {
-    return MakeGL(nullptr, options);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeGL() {
-    GrContextOptions defaultOptions;
-    return MakeGL(nullptr, defaultOptions);
-}
-
-#if defined(GR_TEST_UTILS)
-GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGetErrorFn> original) {
-    // A SkRandom and a GrGLFunction<GrGLGetErrorFn> are too big to be captured by a
-    // GrGLFunction<GrGLGetError> (surprise, surprise). So we make a context object and
-    // capture that by pointer. However, GrGLFunction doesn't support calling a destructor
-    // on the thing it captures. So we leak the context.
-    struct GetErrorContext {
-        SkRandom fRandom;
-        GrGLFunction<GrGLGetErrorFn> fGetError;
-    };
-
-    auto errorContext = new GetErrorContext;
-
-#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-    __lsan_ignore_object(errorContext);
-#endif
-
-    errorContext->fGetError = original;
-
-    return GrGLFunction<GrGLGetErrorFn>([errorContext]() {
-        GrGLenum error = errorContext->fGetError();
-        if (error == GR_GL_NO_ERROR && (errorContext->fRandom.nextU() % 300) == 0) {
-            error = GR_GL_OUT_OF_MEMORY;
-        }
-        return error;
-    });
-}
-#endif
-
-sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
-                                               const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kOpenGL, options));
-#if defined(GR_TEST_UTILS)
-    if (options.fRandomGLOOM) {
-        auto copy = sk_make_sp<GrGLInterface>(*glInterface);
-        copy->fFunctions.fGetError =
-                make_get_error_with_random_oom(glInterface->fFunctions.fGetError);
-#if GR_GL_CHECK_ERROR
-        // Suppress logging GL errors since we'll be synthetically generating them.
-        copy->suppressErrorLogging();
-#endif
-        glInterface = std::move(copy);
-    }
-#endif
-    direct->fGpu = GrGLGpu::Make(std::move(glInterface), options, direct.get());
-    if (!direct->init()) {
-        return nullptr;
-    }
-    return direct;
 }
 #endif
 

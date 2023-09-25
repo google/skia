@@ -13,6 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/Device.h"
+#include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
 class GrAtlasManager;
@@ -33,6 +34,21 @@ class SkTaskGroup;
     data members or virtual methods. */
 class GrDirectContextPriv : public GrRecordingContextPriv {
 public:
+    static sk_sp<GrDirectContext> Make(GrBackendApi backend, const GrContextOptions& options) {
+        return sk_sp<GrDirectContext>(new GrDirectContext(backend, options));
+    }
+
+    static bool Init(sk_sp<GrDirectContext> ctx) {
+        SkASSERT(ctx);
+        return ctx->init();
+    }
+
+    static void SetGpu(sk_sp<GrDirectContext> ctx, std::unique_ptr<GrGpu> gpu) {
+        SkASSERT(ctx);
+        SkASSERT(gpu);
+        ctx->fGpu = std::move(gpu);
+    }
+
     GrDirectContext* context() { return static_cast<GrDirectContext*>(fContext); }
     const GrDirectContext* context() const { return static_cast<const GrDirectContext*>(fContext); }
 

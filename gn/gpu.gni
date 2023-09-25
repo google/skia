@@ -586,6 +586,7 @@ skia_gpu_chromium_public = [
 #  //include/gpu/ganesh/gl:public_hdrs
 skia_gpu_gl_public = [
   "$_include/gpu/ganesh/gl/GrGLBackendSurface.h",
+  "$_include/gpu/ganesh/gl/GrGLDirectContext.h",
   "$_include/gpu/gl/GrGLAssembleHelpers.h",
   "$_include/gpu/gl/GrGLAssembleInterface.h",
   "$_include/gpu/gl/GrGLConfig.h",
@@ -618,6 +619,7 @@ skia_gpu_gl_private = [
   "$_src/gpu/ganesh/gl/GrGLContext.cpp",
   "$_src/gpu/ganesh/gl/GrGLContext.h",
   "$_src/gpu/ganesh/gl/GrGLDefines.h",
+  "$_src/gpu/ganesh/gl/GrGLDirectContext.cpp",
   "$_src/gpu/ganesh/gl/GrGLExtensions.cpp",
   "$_src/gpu/ganesh/gl/GrGLGLSL.cpp",
   "$_src/gpu/ganesh/gl/GrGLGLSL.h",

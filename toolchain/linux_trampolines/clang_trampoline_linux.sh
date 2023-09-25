@@ -117,6 +117,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/effects/GrPerlinNoise2Effect.cpp"
   "src/gpu/ganesh/gl/GrGLBackendSurface.cpp"
   "src/gpu/ganesh/gl/GrGLCaps.cpp"
+  "src/gpu/ganesh/gl/GrGLDirectContext.cpp"
   "src/gpu/ganesh/gl/GrGLGpu.cpp"
   "src/gpu/ganesh/ops/AtlasTextOp.cpp"
   "src/pdf/SkJpeg"

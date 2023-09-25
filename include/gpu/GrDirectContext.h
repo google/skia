@@ -62,7 +62,7 @@ enum class BackendSurfaceAccess;
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
-#ifdef SK_GL
+#if defined(SK_GL) && !defined(SK_DISABLE_LEGACY_GL_GRDIRECTCONTEXT_FACTORIES)
     /**
      * Creates a GrDirectContext for a backend context. If no GrGLInterface is provided then the
      * result of GrGLMakeNativeInterface() is used if it succeeds.
