@@ -45,7 +45,7 @@ bool DawnAsyncWait::yieldAndCheck() const {
 #else
     fDevice.Tick();
 #endif  // __EMSCRIPTEN__
-    return fSignaled.load();
+    return fSignaled.load(std::memory_order_acquire);
 }
 
 void DawnAsyncWait::busyWait() const {
