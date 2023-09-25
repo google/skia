@@ -144,6 +144,8 @@ for retry in range(RETRIES):
           api.flavor.device_dirs.resource_dir, 'skottie'),
       api.flavor.device_dirs.lotties_dir,
     ])
+  if 'Fontations' in api.vars.builder_cfg.get('extra_config', []):
+    args.extend(['--fontTestDataPath', api.flavor.device_dirs.fonts_dir])
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
@@ -179,6 +181,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android',
   'Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
+  'Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Fontations',
 ]
 
 

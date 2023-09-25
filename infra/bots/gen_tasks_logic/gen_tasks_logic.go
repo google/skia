@@ -1749,7 +1749,7 @@ func (b *jobBuilder) dm() {
 		if b.extraConfig("Fontations") {
 			b.cipd(&specs.CipdPackage{
 				Name:    "chromium/third_party/googlefonts_testdata",
-				Path:    "skia/third_party/externals/googlefonts_testdata",
+				Path:    "googlefonts_testdata",
 				Version: "version:20230913",
 			})
 		}

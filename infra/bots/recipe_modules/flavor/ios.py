@@ -17,6 +17,7 @@ class iOSFlavor(default.DefaultFlavor):
         dm_dir='dm',
         perf_data_dir='perf',
         resource_dir='resources',
+        fonts_dir = 'NOT_SUPPORTED',
         images_dir='images',
         lotties_dir='lotties',
         skp_dir='skps',

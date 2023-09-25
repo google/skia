@@ -19,7 +19,7 @@ WIN_TOOLCHAIN_DIR = 't'
 #   dm_dir: Where DM writes.
 #   skp_dir: Holds SKP files that are consumed by RenderSKPs and BenchPictures.
 DeviceDirs = collections.namedtuple(
-    'DeviceDirs', ['bin_dir', 'dm_dir', 'perf_data_dir', 'resource_dir', 'images_dir',
+    'DeviceDirs', ['bin_dir', 'dm_dir', 'perf_data_dir', 'resource_dir', 'images_dir', 'fonts_dir',
                    'lotties_dir', 'skp_dir', 'svg_dir', 'mskp_dir', 'tmp_dir', 'texttraces_dir'])
 
 
@@ -44,6 +44,7 @@ class DefaultFlavor(object):
         perf_data_dir=self.m.vars.swarming_out_dir,
         resource_dir=self.m.path['start_dir'].join('skia', 'resources'),
         images_dir=self.m.path['start_dir'].join('skimage'),
+        fonts_dir=self.m.path['start_dir'].join('googlefonts_testdata', 'data'),
         lotties_dir=self.m.path['start_dir'].join('lottie-samples'),
         skp_dir=self.m.path['start_dir'].join('skp'),
         svg_dir=self.m.path['start_dir'].join('svg'),

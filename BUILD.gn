@@ -1379,7 +1379,10 @@ optional("typeface_fontations") {
     "src/ports/SkTypeface_fontations_priv.h",
   ]
 
-  sources_for_tests = [ "tests/FontationsTest.cpp" ]
+  sources_for_tests = [
+    "tests/FontationsTest.cpp",
+    "tests/FontationsFtCompTest.cpp",
+  ]
 }
 
 optional("webp_decode") {
@@ -2142,6 +2145,8 @@ if (skia_enable_tools) {
       "tools/SkSharingProc.cpp",
       "tools/SkSharingProc.h",
       "tools/Stats.h",
+      "tools/TestFontDataProvider.cpp",
+      "tools/TestFontDataProvider.h",
       "tools/ToolUtils.cpp",
       "tools/ToolUtils.h",
       "tools/UrlDataManager.cpp",

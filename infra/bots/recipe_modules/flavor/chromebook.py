@@ -22,6 +22,7 @@ class ChromebookFlavor(ssh.SSHFlavor):
       dm_dir         = self.chromeos_homedir + 'dm_out',
       perf_data_dir  = self.chromeos_homedir + 'perf',
       resource_dir   = self.chromeos_homedir + 'resources',
+      fonts_dir      = 'NOT_SUPPORTED',
       images_dir     = self.chromeos_homedir + 'images',
       lotties_dir    = self.chromeos_homedir + 'lotties',
       skp_dir        = self.chromeos_homedir + 'skps',

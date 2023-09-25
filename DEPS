@@ -12,7 +12,7 @@ vars = {
 
   # googlefonts_testdata CIPD package version
   # https://chrome-infra-packages.appspot.com/p/chromium/third_party/googlefonts_testdata/
-  'googlefonts_testdata_version': 'version:20230409',
+  'googlefonts_testdata_version': 'version:20230913',
 }
 
 # If you modify this file, you will need to regenerate the Bazel version of this file (bazel/deps.bzl).
