@@ -318,15 +318,6 @@ public:
      * vertex buffer was null or uniform data too small).
      */
 
-    // TODO(b/40045302): this form of Make is deprecated; remove existing callers in Android/google3
-    static Result Make(sk_sp<SkMeshSpecification>,
-                       Mode,
-                       sk_sp<VertexBuffer>,
-                       size_t vertexCount,
-                       size_t vertexOffset,
-                       sk_sp<const SkData> uniforms,
-                       const SkRect& bounds);
-
     // TODO(b/40045302): support for `children` is a work-in-progress
     static Result Make(sk_sp<SkMeshSpecification>,
                        Mode,
@@ -343,18 +334,6 @@ public:
      * If the mesh is invalid the returned string give contain the reason for the failure (e.g. the
      * index buffer was null or uniform data too small).
      */
-
-    // TODO(b/40045302): this form of MakeIndexed is deprecated; remove existing callers
-    static Result MakeIndexed(sk_sp<SkMeshSpecification>,
-                              Mode,
-                              sk_sp<VertexBuffer>,
-                              size_t vertexCount,
-                              size_t vertexOffset,
-                              sk_sp<IndexBuffer>,
-                              size_t indexCount,
-                              size_t indexOffset,
-                              sk_sp<const SkData> uniforms,
-                              const SkRect& bounds);
 
     // TODO(b/40045302): support for `children` is a work-in-progress
     static Result MakeIndexed(sk_sp<SkMeshSpecification>,

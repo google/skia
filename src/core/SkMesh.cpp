@@ -698,23 +698,6 @@ SkMesh::Result SkMesh::Make(sk_sp<SkMeshSpecification> spec,
                             size_t vertexCount,
                             size_t vertexOffset,
                             sk_sp<const SkData> uniforms,
-                            const SkRect& bounds) {
-    return Make(std::move(spec),
-                mode,
-                std::move(vb),
-                vertexCount,
-                vertexOffset,
-                std::move(uniforms),
-                /*children=*/{},
-                bounds);
-}
-
-SkMesh::Result SkMesh::Make(sk_sp<SkMeshSpecification> spec,
-                            Mode mode,
-                            sk_sp<VertexBuffer> vb,
-                            size_t vertexCount,
-                            size_t vertexOffset,
-                            sk_sp<const SkData> uniforms,
                             SkSpan<ChildPtr> children,
                             const SkRect& bounds) {
     SkMesh mesh;
@@ -731,29 +714,6 @@ SkMesh::Result SkMesh::Make(sk_sp<SkMeshSpecification> spec,
         mesh = {};
     }
     return {std::move(mesh), std::move(msg)};
-}
-
-SkMesh::Result SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
-                                   Mode mode,
-                                   sk_sp<VertexBuffer> vb,
-                                   size_t vertexCount,
-                                   size_t vertexOffset,
-                                   sk_sp<IndexBuffer> ib,
-                                   size_t indexCount,
-                                   size_t indexOffset,
-                                   sk_sp<const SkData> uniforms,
-                                   const SkRect& bounds) {
-    return MakeIndexed(std::move(spec),
-                       mode,
-                       std::move(vb),
-                       vertexCount,
-                       vertexOffset,
-                       std::move(ib),
-                       indexCount,
-                       indexOffset,
-                       std::move(uniforms),
-                       /*children=*/{},
-                       bounds);
 }
 
 SkMesh::Result SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
