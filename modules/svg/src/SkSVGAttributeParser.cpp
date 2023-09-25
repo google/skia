@@ -322,11 +322,13 @@ bool SkSVGAttributeParser::parseColorComponentFractionalToken(int32_t* c) {
 
 bool SkSVGAttributeParser::parseColorComponentScalarToken(int32_t* c) {
     SkScalar s;
-    const char* p = SkParse::FindScalar(fCurPos, &s);
-    *c = SkScalarRoundToInt(s * 255.0f);
-    *c = SkTPin<int32_t>(*c, 0, 255);
-    fCurPos = p;
-    return true;
+    if (const char* p = SkParse::FindScalar(fCurPos, &s)) {
+        *c = SkScalarRoundToInt(s * 255.0f);
+        *c = SkTPin<int32_t>(*c, 0, 255);
+        fCurPos = p;
+        return true;
+    }
+    return false;
 }
 
 bool SkSVGAttributeParser::parseColorComponentToken(int32_t* c) {
