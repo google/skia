@@ -83,6 +83,7 @@ std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context
 
     // If this is a no-op cast, return the expression as-is.
     if (type.matches(arg->type())) {
+        arg->setPosition(pos);
         return arg;
     }
     // Look up the value of constant variables. This allows constant-expressions like

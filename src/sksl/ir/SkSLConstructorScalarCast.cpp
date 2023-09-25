@@ -70,6 +70,7 @@ std::unique_ptr<Expression> ConstructorScalarCast::Make(const Context& context,
 
     // No cast required when the types match.
     if (arg->type().matches(type)) {
+        arg->setPosition(pos);
         return arg;
     }
     // Look up the value of constant variables. This allows constant-expressions like `int(zero)` to

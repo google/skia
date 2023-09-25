@@ -1,0 +1,19 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    bool ok = true;
+    bool TRUE = bool(colorGreen.g);
+
+    ok = ok && (1 == (TRUE ? 1 : 0));
+    ok = ok && (1.0 == (TRUE ? 1.0 : 0.0));
+
+    ok = ok && (bool(TRUE ? 1 : 0));
+    ok = ok && (1 == int(TRUE ? 1 : 0));
+    ok = ok && (1.0 == float(TRUE ? 1.0 : 0.0));
+
+    ok = ok && (bool2(true) == bool2(TRUE ? 1 : 0));
+    ok = ok && (int2(1) == int2(TRUE ? 1 : 0));
+    ok = ok && (float2(1.0) == float2(TRUE ? 1.0 : 0.0));
+
+    return ok ? colorGreen : colorRed;
+}

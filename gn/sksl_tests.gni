@@ -706,6 +706,7 @@ sksl_shared_tests = [
   "shared/TernaryComplexNesting.sksl",
   "shared/TernaryExpression.sksl",
   "shared/TernaryNesting.sksl",
+  "shared/TernaryOneZeroOptimization.sksl",
   "shared/TernarySideEffects.sksl",
   "shared/TernaryTrueFalseOptimization.sksl",
   "shared/Texture2D.sksl",

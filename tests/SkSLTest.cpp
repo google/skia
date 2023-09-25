@@ -1164,6 +1164,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, TernaryAsLValueFoldableTest,     "shared/T
 SKSL_TEST(CPU | GPU,     kNextRelease,TernaryComplexNesting,           "shared/TernaryComplexNesting.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, TernaryExpression,               "shared/TernaryExpression.sksl")
 SKSL_TEST(CPU | GPU,     kNextRelease,TernaryNesting,                  "shared/TernaryNesting.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,TernaryOneZeroOptimization,      "shared/TernaryOneZeroOptimization.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_U, TernarySideEffects,              "shared/TernarySideEffects.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, UnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, UniformArray,                    "shared/UniformArray.sksl")
