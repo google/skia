@@ -299,7 +299,7 @@ void SoftwarePathAtlas::onReset() {
 }
 
 PathAtlas::MaskFormat SoftwarePathAtlas::coverageMaskFormat(const Caps*) const {
-    return {kAlpha_8_SkColorType, /*requiresStorageUsage=*/true};
+    return {kAlpha_8_SkColorType, /*requiresStorageUsage=*/false};
 }
 
 }  // namespace skgpu::graphite
