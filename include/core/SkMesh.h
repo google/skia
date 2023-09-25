@@ -240,18 +240,18 @@ private:
  * A vertex buffer, a topology, optionally an index buffer, and a compatible SkMeshSpecification.
  *
  * The data in the vertex buffer is expected to contain the attributes described by the spec
- * for vertexCount vertices beginning at vertexOffset. vertexOffset must be aligned to the
+ * for vertexCount vertices, beginning at vertexOffset. vertexOffset must be aligned to the
  * SkMeshSpecification's vertex stride. The size of the buffer must be at least vertexOffset +
  * spec->stride()*vertexCount (even if vertex attributes contains pad at the end of the stride). If
- * the specified bounds does not contain all the points output by the spec's vertex program when
- * applied to the vertices in the custom mesh then the result is undefined.
+ * the specified bounds do not contain all the points output by the spec's vertex program when
+ * applied to the vertices in the custom mesh, then the result is undefined.
  *
  * MakeIndexed may be used to create an indexed mesh. indexCount indices are read from the index
- * buffer at the specified offset which must be aligned to 2. The indices are always unsigned 16bit
- * integers. The index count must be at least 3.
+ * buffer at the specified offset, which must be aligned to 2. The indices are always unsigned
+ * 16-bit integers. The index count must be at least 3.
  *
- * If Make() is used the implicit index sequence is 0, 1, 2, 3, ... and vertexCount must be at least
- * 3.
+ * If Make() is used, the implicit index sequence is 0, 1, 2, 3, ... and vertexCount must be at
+ * least 3.
  *
  * Both Make() and MakeIndexed() take a SkData with the uniform values. See
  * SkMeshSpecification::uniformSize() and SkMeshSpecification::uniforms() for sizing and packing
@@ -259,7 +259,7 @@ private:
  */
 class SkMesh {
 public:
-    class IndexBuffer  : public SkRefCnt {
+    class IndexBuffer : public SkRefCnt {
     public:
         virtual size_t size() const = 0;
 
@@ -306,12 +306,16 @@ public:
 
     struct Result;
 
+    using ChildPtr = SkRuntimeEffect::ChildPtr;
+
     /**
      * Creates a non-indexed SkMesh. The returned SkMesh can be tested for validity using
      * SkMesh::isValid(). An invalid mesh simply fails to draws if passed to SkCanvas::drawMesh().
      * If the mesh is invalid the returned string give contain the reason for the failure (e.g. the
      * vertex buffer was null or uniform data too small).
      */
+
+    // TODO(b/40045302): this form of Make is deprecated; remove existing callers in Android/google3
     static Result Make(sk_sp<SkMeshSpecification>,
                        Mode,
                        sk_sp<VertexBuffer>,
@@ -320,12 +324,24 @@ public:
                        sk_sp<const SkData> uniforms,
                        const SkRect& bounds);
 
+    // TODO(b/40045302): support for `children` is a work-in-progress
+    static Result Make(sk_sp<SkMeshSpecification>,
+                       Mode,
+                       sk_sp<VertexBuffer>,
+                       size_t vertexCount,
+                       size_t vertexOffset,
+                       sk_sp<const SkData> uniforms,
+                       SkSpan<ChildPtr> children,
+                       const SkRect& bounds);
+
     /**
      * Creates an indexed SkMesh. The returned SkMesh can be tested for validity using
      * SkMesh::isValid(). A invalid mesh simply fails to draw if passed to SkCanvas::drawMesh().
      * If the mesh is invalid the returned string give contain the reason for the failure (e.g. the
      * index buffer was null or uniform data too small).
      */
+
+    // TODO(b/40045302): this form of MakeIndexed is deprecated; remove existing callers
     static Result MakeIndexed(sk_sp<SkMeshSpecification>,
                               Mode,
                               sk_sp<VertexBuffer>,
@@ -335,6 +351,19 @@ public:
                               size_t indexCount,
                               size_t indexOffset,
                               sk_sp<const SkData> uniforms,
+                              const SkRect& bounds);
+
+    // TODO(b/40045302): support for `children` is a work-in-progress
+    static Result MakeIndexed(sk_sp<SkMeshSpecification>,
+                              Mode,
+                              sk_sp<VertexBuffer>,
+                              size_t vertexCount,
+                              size_t vertexOffset,
+                              sk_sp<IndexBuffer>,
+                              size_t indexCount,
+                              size_t indexOffset,
+                              sk_sp<const SkData> uniforms,
+                              SkSpan<ChildPtr> children,
                               const SkRect& bounds);
 
     sk_sp<SkMeshSpecification> refSpec() const { return fSpec; }

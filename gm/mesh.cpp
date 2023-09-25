@@ -157,9 +157,10 @@ protected:
                         result = SkMesh::Make(fSpecWithColor,
                                             SkMesh::Mode::kTriangleStrip,
                                             fColorVB,
-                                            /*vertexCount= */4,
+                                            /*vertexCount=*/4,
                                             /*vertexOffset=*/0,
-                                            /*uniforms=    */nullptr,
+                                            /*uniforms=*/nullptr,
+                                            /*children=*/{},
                                             kRect);
                     } else {
                         result = SkMesh::Make(fSpecWithNoColor,
@@ -168,6 +169,7 @@ protected:
                                             /*vertexCount=*/4,
                                             kNoColorOffset,
                                             /*uniforms=*/nullptr,
+                                            /*children=*/{},
                                             kRect);
                     }
                 } else {
@@ -183,6 +185,7 @@ protected:
                                                      /*indexCount=*/6,
                                                      kIndexOffset,
                                                      /*uniforms=*/nullptr,
+                                                     /*children=*/{},
                                                      kRect);
                     } else {
                         result = SkMesh::MakeIndexed(fSpecWithNoColor,
@@ -194,6 +197,7 @@ protected:
                                                      /*indexCount=*/6,
                                                      kIndexOffset,
                                                      /*uniforms=*/nullptr,
+                                                     /*children=*/{},
                                                      kRect);
                     }
                 }
@@ -426,9 +430,10 @@ protected:
                 auto result = SkMesh::Make(fSpecs[SpecIndex(unpremul, spin)],
                                            SkMesh::Mode::kTriangleStrip,
                                            fVB,
-                                           /*vertexCount= */4,
+                                           /*vertexCount=*/4,
                                            /*vertexOffset=*/0,
-                                           /*uniforms=    */nullptr,
+                                           /*uniforms=*/nullptr,
+                                           /*children=*/{},
                                            kRect);
                 if (!result.mesh.isValid()) {
                     SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
@@ -599,9 +604,10 @@ protected:
             auto result = SkMesh::Make(fSpec,
                                        SkMesh::Mode::kTriangleStrip,
                                        fVB,
-                                       /*vertexCount= */4,
+                                       /*vertexCount=*/4,
                                        /*vertexOffset=*/0,
-                                       /*uniforms=    */std::move(unis),
+                                       /*uniforms=*/std::move(unis),
+                                       /*children=*/{},
                                        kRect);
 
             if (!result.mesh.isValid()) {
@@ -777,9 +783,10 @@ protected:
                 auto result = SkMesh::Make(fSpec,
                                            SkMesh::Mode::kTriangles,
                                            vb,
-                                           /*vertexCount=*/6*rectCount,
+                                           /*vertexCount=*/6 * rectCount,
                                            /*vertexOffset=*/0,
-                                           nullptr,
+                                           /*uniforms=*/nullptr,
+                                           /*children=*/{},
                                            bounds);
 
                 if (!result.mesh.isValid()) {
@@ -838,12 +845,13 @@ protected:
                 auto result = SkMesh::MakeIndexed(fSpec,
                                                   SkMesh::Mode::kTriangles,
                                                   vb,
-                                                  /*vertexCount= */ 4*kNumIBUpdates,
+                                                  /*vertexCount=*/4 * kNumIBUpdates,
                                                   /*vertexOffset=*/0,
                                                   ib,
-                                                  /*indexCount= */ 6,
+                                                  /*indexCount=*/6,
                                                   /*indexOffset=*/offset,
-                                                  /*uniforms=   */ nullptr,
+                                                  /*uniforms=*/nullptr,
+                                                  /*children=*/{},
                                                   bounds);
 
                 if (!result.mesh.isValid()) {
@@ -980,12 +988,13 @@ protected:
                 auto result = SkMesh::MakeIndexed(spec,
                                                   SkMesh::Mode::kTriangles,
                                                   std::move(vb),
-                                                  /*vertexCount=*/ std::size(kTri),
+                                                  /*vertexCount=*/std::size(kTri),
                                                   /*vertexOffset=*/0,
                                                   std::move(ib),
                                                   /*indexCount=*/std::size(kTiIndices) + 1,
                                                   indexMeshOffset,
                                                   /*uniforms=*/nullptr,
+                                                  /*children=*/{},
                                                   bounds);
                 if (!result.mesh.isValid()) {
                     SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
@@ -1115,8 +1124,9 @@ protected:
                                              SkMesh::Mode::kTriangles,
                                              fVB,
                                              6,
-                                             1*sizeof(Vertex),
+                                             1 * sizeof(Vertex),
                                              std::move(uniforms),
+                                             /*children=*/{},
                                              kRect);
                             break;
                         case 1:
@@ -1124,8 +1134,9 @@ protected:
                                              SkMesh::Mode::kTriangleStrip,
                                              fVB,
                                              4,
-                                             1*sizeof(Vertex),
+                                             1 * sizeof(Vertex),
                                              std::move(uniforms),
+                                             /*children=*/{},
                                              kRect);
                             break;
                         case 2:
@@ -1136,8 +1147,9 @@ protected:
                                                     0,
                                                     fIB,
                                                     6,
-                                                    2*(sizeof(uint16_t)),
+                                                    2 * (sizeof(uint16_t)),
                                                     std::move(uniforms),
+                                                    /*children=*/{},
                                                     kRect);
                             break;
                         case 3:
@@ -1148,8 +1160,9 @@ protected:
                                                     0,
                                                     fIB,
                                                     6,
-                                                    2*sizeof(uint16_t),
+                                                    2 * sizeof(uint16_t),
                                                     std::move(uniforms),
+                                                    /*children=*/{},
                                                     kRect);
                             break;
                     }
