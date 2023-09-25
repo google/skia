@@ -6,7 +6,6 @@
  */
 
 #include "include/effects/SkImageFilters.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
@@ -396,12 +395,12 @@ sk_sp<SkImageFilter> make_lighting(const Light& light,
     // boundary condition spec) and the output (because otherwise it has infinite bounds).
     sk_sp<SkImageFilter> filter = std::move(input);
     if (cropRect) {
-        filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, std::move(filter));
     }
     filter = sk_sp<SkImageFilter>(
             new SkLightingImageFilter(light, material, std::move(filter)));
     if (cropRect) {
-        filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, std::move(filter));
     }
     return filter;
 }

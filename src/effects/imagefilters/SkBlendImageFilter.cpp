@@ -29,7 +29,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <cstdint>
 #include <optional>
@@ -109,7 +108,7 @@ sk_sp<SkImageFilter> make_blend(sk_sp<SkBlender> blender,
 
     auto cropped = [cropRect](sk_sp<SkImageFilter> filter) {
         if (cropRect) {
-            filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
+            filter = SkImageFilters::Crop(*cropRect, std::move(filter));
         }
         return filter;
     };

@@ -51,7 +51,6 @@ skia_filegroup(
     srcs = [
         ":effects_hdrs",
         "//src/effects/colorfilters:private_hdrs",
-        "//src/effects/imagefilters:private_hdrs",
     ],
     visibility = ["//src:__pkg__"],
 )

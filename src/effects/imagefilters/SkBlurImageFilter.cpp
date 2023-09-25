@@ -28,7 +28,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <algorithm>
 #include <cmath>
@@ -126,13 +125,13 @@ sk_sp<SkImageFilter> SkImageFilters::Blur(
         // Historically the input image was restricted to the cropRect when tiling was not
         // kDecal, so that the kernel evaluated the tiled edge conditions, while a kDecal crop
         // only affected the output.
-        filter = SkMakeCropImageFilter(*cropRect, tileMode, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, tileMode, std::move(filter));
     }
 
     filter = sk_make_sp<SkBlurImageFilter>(SkSize{sigmaX, sigmaY}, std::move(filter));
     if (cropRect) {
         // But regardless of the tileMode, the output is always decal cropped
-        filter = SkMakeCropImageFilter(*cropRect, SkTileMode::kDecal, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, SkTileMode::kDecal, std::move(filter));
     }
     return filter;
 }

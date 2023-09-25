@@ -146,6 +146,27 @@ public:
     static sk_sp<SkImageFilter> Compose(sk_sp<SkImageFilter> outer, sk_sp<SkImageFilter> inner);
 
     /**
+     *  Create a filter that applies a crop to the result of the 'input' filter. Pixels within the
+     *  crop rectangle are unmodified from what 'input' produced. Pixels outside of crop match the
+     *  provided SkTileMode (defaulting to kDecal).
+     *
+     *  NOTE: The optional CropRect argument for many of the factories is equivalent to creating the
+     *  filter without a CropRect and then wrapping it in ::Crop(rect, kDecal). Explicitly adding
+     *  Crop filters lets you control their tiling and use different geometry for the input and the
+     *  output of another filter.
+     *
+     *  @param rect     The cropping geometry
+     *  @param tileMode The tilemode applied to pixels *outside* of 'crop'
+     *  @param input    The input filter that is cropped, uses source image if this is null
+    */
+    static sk_sp<SkImageFilter> Crop(const SkRect& rect,
+                                     SkTileMode tileMode,
+                                     sk_sp<SkImageFilter> input);
+    static sk_sp<SkImageFilter> Crop(const SkRect& rect, sk_sp<SkImageFilter> input) {
+        return Crop(rect, SkTileMode::kDecal, std::move(input));
+    }
+
+    /**
      *  Create a filter that moves each pixel in its color input based on an (x,y) vector encoded
      *  in its displacement input filter. Two color components of the displacement image are
      *  mapped into a vector as scale * (color[xChannel], color[yChannel]), where the channel

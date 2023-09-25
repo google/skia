@@ -10,7 +10,6 @@ IMAGEFILTERS_FILES = [
     "SkColorFilterImageFilter.cpp",
     "SkComposeImageFilter.cpp",
     "SkCropImageFilter.cpp",
-    "SkCropImageFilter.h",
     "SkDisplacementMapImageFilter.cpp",
     "SkDropShadowImageFilter.cpp",
     "SkImageImageFilter.cpp",
@@ -25,19 +24,8 @@ IMAGEFILTERS_FILES = [
     "SkShaderImageFilter.cpp",
 ]
 
-split_srcs_and_hdrs(
-    name = "imagefilters",
-    files = IMAGEFILTERS_FILES,
-)
-
 skia_filegroup(
     name = "srcs",
-    srcs = [":imagefilters_srcs"],
-    visibility = ["//src/effects:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":imagefilters_hdrs"],
+    srcs = IMAGEFILTERS_FILES,
     visibility = ["//src/effects:__pkg__"],
 )

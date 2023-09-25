@@ -27,7 +27,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <algorithm>
 #include <optional>
@@ -93,7 +92,7 @@ sk_sp<SkImageFilter> SkImageFilters::Magnifier(const SkRect& lensBounds,
     // The magnifier automatically restricts its output based on the size of the image it receives
     // as input, so 'cropRect' only applies to its input.
     if (cropRect) {
-        input = SkMakeCropImageFilter(*cropRect, std::move(input));
+        input = SkImageFilters::Crop(*cropRect, std::move(input));
     }
 
     if (zoomAmount > 1.f) {

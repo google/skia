@@ -20,7 +20,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 #include "tools/ToolUtils.h"
 
 #include <initializer_list>
@@ -153,7 +152,7 @@ DEF_SIMPLE_GM(imageblurrepeatunclipped, canvas, 256, 128) {
     // but the crop IF is created directly since the tilemode factory for ::Blur also adds a kDecal
     // post-crop that is undesired for this GM.
     auto filter = SkImageFilters::Blur(0, 10,
-            SkMakeCropImageFilter(SkRect::Make(img->bounds()), SkTileMode::kRepeat, nullptr));
+            SkImageFilters::Crop(SkRect::Make(img->bounds()), SkTileMode::kRepeat, nullptr));
     SkPaint paint;
     paint.setImageFilter(std::move(filter));
 

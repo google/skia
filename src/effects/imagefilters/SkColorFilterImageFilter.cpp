@@ -18,7 +18,6 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <optional>
 #include <utility>
@@ -91,7 +90,7 @@ sk_sp<SkImageFilter> SkImageFilters::ColorFilter(sk_sp<SkColorFilter> cf,
                 new SkColorFilterImageFilter(std::move(cf), std::move(filter)));
     }
     if (cropRect) {
-        filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, std::move(filter));
     }
     return filter;
 }

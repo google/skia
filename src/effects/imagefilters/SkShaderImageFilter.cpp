@@ -20,7 +20,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <optional>
 #include <utility>
@@ -77,7 +76,7 @@ sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader,
 
     sk_sp<SkImageFilter> filter{new SkShaderImageFilter(std::move(shader), dither)};
     if (cropRect) {
-        filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, std::move(filter));
     }
     return filter;
 }

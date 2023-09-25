@@ -23,7 +23,6 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <optional>
 #include <utility>
@@ -56,7 +55,7 @@ static sk_sp<SkImageFilter> make_drop_shadow_graph(SkVector offset,
                 SkBlendMode::kSrcOver, std::move(filter), std::move(input));
     }
     if (crop) {
-        filter = SkMakeCropImageFilter(*crop, std::move(filter));
+        filter = SkImageFilters::Crop(*crop, std::move(filter));
     }
     return filter;
 }

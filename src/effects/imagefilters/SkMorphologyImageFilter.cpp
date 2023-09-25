@@ -6,7 +6,6 @@
  */
 
 #include "include/effects/SkImageFilters.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
@@ -119,7 +118,7 @@ sk_sp<SkImageFilter> make_morphology(MorphType type,
     // we just need to apply the 'cropRect' to the 'input'.
 
     if (cropRect) {
-        filter = SkMakeCropImageFilter(*cropRect, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, std::move(filter));
     }
     return filter;
 }

@@ -751,7 +751,6 @@ BASE_SRCS_ALL = [
     "src/effects/imagefilters/SkColorFilterImageFilter.cpp",
     "src/effects/imagefilters/SkComposeImageFilter.cpp",
     "src/effects/imagefilters/SkCropImageFilter.cpp",
-    "src/effects/imagefilters/SkCropImageFilter.h",
     "src/effects/imagefilters/SkDisplacementMapImageFilter.cpp",
     "src/effects/imagefilters/SkDropShadowImageFilter.cpp",
     "src/effects/imagefilters/SkImageImageFilter.cpp",

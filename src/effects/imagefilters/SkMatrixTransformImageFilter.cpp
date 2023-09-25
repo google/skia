@@ -21,7 +21,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <optional>
 #include <utility>
@@ -94,7 +93,7 @@ sk_sp<SkImageFilter> SkImageFilters::Offset(SkScalar dx, SkScalar dy,
             std::move(input));
     // The legacy 'cropRect' applies only to the output of the offset filter.
     if (cropRect) {
-        offset = SkMakeCropImageFilter(*cropRect, std::move(offset));
+        offset = SkImageFilters::Crop(*cropRect, std::move(offset));
     }
     return offset;
 }

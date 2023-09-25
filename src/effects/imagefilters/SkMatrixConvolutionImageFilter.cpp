@@ -6,7 +6,6 @@
  */
 
 #include "include/effects/SkImageFilters.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
@@ -252,13 +251,13 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixConvolution(const SkISize& kernelSize
         // Historically the input image was restricted to the cropRect when tiling was not kDecal
         // so that the kernel evaluated the tiled edge conditions, while a kDecal crop only affected
         // the output.
-        filter = SkMakeCropImageFilter(*cropRect, tileMode, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, tileMode, std::move(filter));
     }
     filter = sk_sp<SkImageFilter>(new SkMatrixConvolutionImageFilter(
             kernelSize, kernel, gain, bias, kernelOffset, convolveAlpha, std::move(filter)));
     if (cropRect) {
         // But regardless of the tileMode, the output is decal cropped.
-        filter = SkMakeCropImageFilter(*cropRect, SkTileMode::kDecal, std::move(filter));
+        filter = SkImageFilters::Crop(*cropRect, SkTileMode::kDecal, std::move(filter));
     }
     return filter;
 }

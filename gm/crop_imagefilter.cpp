@@ -22,9 +22,6 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-// TODO(michaelludwig) - This will be made public within SkImageFilters.h at some point
-#include "src/effects/imagefilters/SkCropImageFilter.h"
-
 
 namespace {
 
@@ -230,9 +227,9 @@ void draw_example_tile(
     // Build filter, clip, save layer, draw, restore - the interesting part is in the tile modes
     // and how the various bounds intersect each other.
     {
-        sk_sp<SkImageFilter> filter = SkMakeCropImageFilter(contentBounds, inputMode, nullptr);
+        sk_sp<SkImageFilter> filter = SkImageFilters::Crop(contentBounds, inputMode, nullptr);
         filter = SkImageFilters::Blur(4.f, 4.f, std::move(filter));
-        filter = SkMakeCropImageFilter(cropRect, outputMode, std::move(filter));
+        filter = SkImageFilters::Crop(cropRect, outputMode, std::move(filter));
         SkPaint layerPaint;
         layerPaint.setImageFilter(std::move(filter));
 

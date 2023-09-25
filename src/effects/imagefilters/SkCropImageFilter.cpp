@@ -6,11 +6,13 @@
  */
 
 #include "include/effects/SkImageFilters.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTileMode.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
@@ -18,6 +20,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
+
 
 #include <cstdint>
 #include <optional>
@@ -91,9 +94,9 @@ private:
 
 } // end namespace
 
-sk_sp<SkImageFilter> SkMakeCropImageFilter(const SkRect& rect,
-                                           SkTileMode tileMode,
-                                           sk_sp<SkImageFilter> input) {
+sk_sp<SkImageFilter> SkImageFilters::Crop(const SkRect& rect,
+                                          SkTileMode tileMode,
+                                          sk_sp<SkImageFilter> input) {
     if (!SkIsValidRect(rect)) {
         return nullptr;
     }
@@ -103,7 +106,7 @@ sk_sp<SkImageFilter> SkMakeCropImageFilter(const SkRect& rect,
 // While a number of filter factories could handle "empty" cases (e.g. a null SkShader or SkPicture)
 // just use a crop with an empty rect because its implementation gracefully handles empty rects.
 sk_sp<SkImageFilter> SkImageFilters::Empty() {
-    return SkMakeCropImageFilter(SkRect::MakeEmpty(), SkTileMode::kDecal, nullptr);
+    return SkImageFilters::Crop(SkRect::MakeEmpty(), SkTileMode::kDecal, nullptr);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
@@ -111,8 +114,8 @@ sk_sp<SkImageFilter> SkImageFilters::Tile(const SkRect& src,
                                           sk_sp<SkImageFilter> input) {
     // The Tile filter is simply a crop to 'src' with a kRepeat tile mode wrapped in a crop to 'dst'
     // with a kDecal tile mode.
-    sk_sp<SkImageFilter> filter = SkMakeCropImageFilter(src, SkTileMode::kRepeat, std::move(input));
-    filter = SkMakeCropImageFilter(dst, SkTileMode::kDecal, std::move(filter));
+    sk_sp<SkImageFilter> filter = SkImageFilters::Crop(src, SkTileMode::kRepeat, std::move(input));
+    filter = SkImageFilters::Crop(dst, SkTileMode::kDecal, std::move(filter));
     return filter;
 }
 
@@ -143,7 +146,7 @@ sk_sp<SkFlattenable> SkCropImageFilter::CreateProc(SkReadBuffer& buffer) {
         tileMode = buffer.read32LE(SkTileMode::kLastTileMode);
     }
 
-    return SkMakeCropImageFilter(cropRect, tileMode, common.getInput(0));
+    return SkImageFilters::Crop(cropRect, tileMode, common.getInput(0));
 }
 
 void SkCropImageFilter::flatten(SkWriteBuffer& buffer) const {

@@ -142,7 +142,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_effects_imagefilter_sources",
 			Rules: []string{
-				"//src/effects/imagefilters:imagefilters_srcs",
+				"//src/effects/imagefilters:srcs",
 			}}},
 	},
 	{GNI: "gn/pdf.gni", Vars: []exporter.GNIFileListExportDesc{

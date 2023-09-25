@@ -22,7 +22,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/effects/imagefilters/SkCropImageFilter.h"
 #include "src/gpu/BlurUtils.h"
 #include "tools/ToolUtils.h"
 
@@ -100,7 +99,7 @@ protected:
         SkPaint paint;
         auto filter = this->makeFilter(kernelOffset, tileMode, convolveAlpha);
         if (cropRect) {
-            filter = SkMakeCropImageFilter(SkRect::Make(*cropRect), std::move(filter));
+            filter = SkImageFilters::Crop(SkRect::Make(*cropRect), std::move(filter));
         }
         paint.setImageFilter(std::move(filter));
         canvas->save();
