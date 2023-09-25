@@ -99,6 +99,8 @@ public:
     static SkRuntimeEffect::Child VarAsChild(const SkSL::Variable& var,
                                              int index);
 
+    static const char* ChildTypeToStr(SkRuntimeEffect::ChildType type);
+
     // If there are layout(color) uniforms then this performs color space transformation on the
     // color values and returns a new SkData. Otherwise, the original data is returned.
     static sk_sp<const SkData> TransformUniforms(SkSpan<const SkRuntimeEffect::Uniform> uniforms,

@@ -5,13 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/core/SkMesh.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkMeshPriv.h"
 #include "tests/Test.h"
@@ -321,36 +327,84 @@ DEF_TEST(MeshSpec_AllowsChildEffectInFragment, reporter) {
     }
 }
 
-DEF_TEST(Mesh_DisallowsChildEffects, reporter) {
-    SkString fsWithChild{"uniform shader myshader;"};
-    fsWithChild.append(kValidFSes[0]);
+DEF_TEST(Mesh_ChildEffectsMatchSpec, reporter) {
+    auto test = [&](const char* prefix,
+                    SkSpan<SkRuntimeEffect::ChildPtr> children,
+                    const char* expected) {
+        SkString fsWithChild{prefix};
+        fsWithChild.append(kValidFSes[0]);
 
-    sk_sp<SkMeshSpecification> meshSpec;
-    if (!check_for_success(reporter,
-                           kValidAttrs,
-                           kValidStride,
-                           kValidVaryings,
-                           kValidVS,
-                           fsWithChild,
-                           &meshSpec)) {
-        return;
-    }
+        sk_sp<SkMeshSpecification> meshSpec;
+        if (!check_for_success(reporter,
+                               kValidAttrs,
+                               kValidStride,
+                               kValidVaryings,
+                               kValidVS,
+                               fsWithChild,
+                               &meshSpec)) {
+            return;
+        }
 
-    constexpr float kVertexCount = 4;
-    sk_sp<SkMesh::VertexBuffer> vertexBuffer =
-            SkMeshes::MakeVertexBuffer(nullptr, kValidStride * kVertexCount);
-    SkMesh::Result result = SkMesh::Make(meshSpec,
-                                         SkMesh::Mode::kTriangleStrip,
-                                         vertexBuffer,
-                                         kVertexCount,
-                                         /*vertexOffset=*/0,
-                                         /*uniforms=*/nullptr,
-                                         SkRect::MakeEmpty());
+        constexpr float kVertexCount = 4;
+        sk_sp<SkMesh::VertexBuffer> vertexBuffer =
+                SkMeshes::MakeVertexBuffer(nullptr, kValidStride * kVertexCount);
+        SkMesh::Result result = SkMesh::Make(meshSpec,
+                                             SkMesh::Mode::kTriangleStrip,
+                                             vertexBuffer,
+                                             kVertexCount,
+                                             /*vertexOffset=*/0,
+                                             /*uniforms=*/nullptr,
+                                             children,
+                                             SkRect::MakeEmpty());
 
-    REPORTER_ASSERT(reporter, !result.mesh.isValid());
-    REPORTER_ASSERT(reporter,
-                    result.error.contains("effects are not permitted in mesh fragment shaders"),
-                    "Error: '%s'", result.error.c_str());
+        REPORTER_ASSERT(reporter, !result.mesh.isValid());
+        REPORTER_ASSERT(reporter,
+                        result.error.contains(expected),
+                        "Expected: '%s'\n"
+                        "  Actual: '%s'\n", expected, result.error.c_str());
+    };
+
+    SkRuntimeEffect::ChildPtr childShader[]  = {SkShaders::Color(SK_ColorBLACK)};
+    SkRuntimeEffect::ChildPtr childFilter[]  = {SkColorFilters::LinearToSRGBGamma()};
+    SkRuntimeEffect::ChildPtr childBlender[] = {SkBlender::Mode(SkBlendMode::kSrcOver)};
+    SkRuntimeEffect::ChildPtr childNull[1]   = {};
+
+    // These are expected to report a count mismatch.
+    test("uniform shader myshader;", {},
+         "The mesh specification declares 1 child effects, but the mesh supplies 0.");
+    test("", childShader,
+         "The mesh specification declares 0 child effects, but the mesh supplies 1.");
+
+    // These are expected to report a type mismatch.
+    test("uniform shader myshader;", childFilter,
+         "Child effect 'myshader' was specified as a shader, but passed as a color filter.");
+    test("uniform shader myshader;", childBlender,
+         "Child effect 'myshader' was specified as a shader, but passed as a blender.");
+    test("uniform colorFilter myfilter;", childShader,
+         "Child effect 'myfilter' was specified as a color filter, but passed as a shader.");
+    test("uniform colorFilter myfilter;", childBlender,
+         "Child effect 'myfilter' was specified as a color filter, but passed as a blender.");
+    test("uniform blender myblender;", childShader,
+         "Child effect 'myblender' was specified as a blender, but passed as a shader.");
+    test("uniform blender myblender;", childFilter,
+         "Child effect 'myblender' was specified as a blender, but passed as a color filter.");
+
+    // These are expected to match in type, but support is not actually implemented yet, so this
+    // will report "effects are not permitted in mesh fragment shaders" for now.
+    test("uniform shader myshader;", childShader,
+         "effects are not permitted in mesh fragment shaders");
+    test("uniform colorFilter myfilter;", childFilter,
+         "effects are not permitted in mesh fragment shaders");
+    test("uniform blender myblender;", childBlender,
+         "effects are not permitted in mesh fragment shaders");
+
+    // Null children are always allowed to type-match.
+    test("uniform shader myshader;", childNull,
+         "effects are not permitted in mesh fragment shaders");
+    test("uniform shader myfilter;", childNull,
+         "effects are not permitted in mesh fragment shaders");
+    test("uniform shader myblender;", childNull,
+         "effects are not permitted in mesh fragment shaders");
 }
 
 DEF_TEST(MeshSpec_ValidUniforms, reporter) {

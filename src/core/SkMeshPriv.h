@@ -68,7 +68,7 @@ struct SkMeshSpecificationPriv {
 
     /**
      * A varying is dead if it is never referenced OR it is only referenced as a passthrough for
-     * local coordinates. In the latter case it's index will returned as
+     * local coordinates. In the latter case, its index will returned as
      * PassthroughLocalCoordsVaryingIndex. Our analysis is not very sophisticated so this is
      * determined conservatively.
      */

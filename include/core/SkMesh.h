@@ -399,6 +399,7 @@ private:
     sk_sp<IndexBuffer>  fIB;
 
     sk_sp<const SkData> fUniforms;
+    std::vector<ChildPtr> fChildren;
 
     size_t fVOffset = 0;  // Must be a multiple of spec->stride()
     size_t fVCount  = 0;

@@ -45,6 +45,7 @@
 
 #include <algorithm>
 #include <locale>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -92,7 +93,6 @@ gather_uniforms_and_check_for_main(const SkSL::Program& program,
             const SkSL::Variable& var = *varDecl.var();
             if (var.modifierFlags().isUniform()) {
                 if (var.type().isEffectChild()) {
-                    // TODO(b/40045302): add support for child effects.
                     // This is a child effect; add it to our list of children.
                     children->push_back(SkRuntimeEffectPriv::VarAsChild(var, children->size()));
                 } else {
@@ -699,14 +699,12 @@ SkMesh::Result SkMesh::Make(sk_sp<SkMeshSpecification> spec,
                             sk_sp<const SkData> uniforms,
                             SkSpan<ChildPtr> children,
                             const SkRect& bounds) {
-    // TODO(b/40045302): support for `children` is a work-in-progress
-    SkASSERT(children.empty());
-
     SkMesh mesh;
     mesh.fSpec     = std::move(spec);
     mesh.fMode     = mode;
     mesh.fVB       = std::move(vb);
     mesh.fUniforms = std::move(uniforms);
+    mesh.fChildren = std::vector<ChildPtr>(children.begin(), children.end());
     mesh.fVCount   = vertexCount;
     mesh.fVOffset  = vertexOffset;
     mesh.fBounds   = bounds;
@@ -751,9 +749,6 @@ SkMesh::Result SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
                                    sk_sp<const SkData> uniforms,
                                    SkSpan<ChildPtr> children,
                                    const SkRect& bounds) {
-    // TODO(b/40045302): support for `children` is a work-in-progress
-    SkASSERT(children.empty());
-
     if (!ib) {
         // We check this before calling validate to disambiguate from a non-indexed mesh where
         // IB is expected to be null.
@@ -767,6 +762,7 @@ SkMesh::Result SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
     mesh.fVOffset  = vertexOffset;
     mesh.fIB       = std::move(ib);
     mesh.fUniforms = std::move(uniforms);
+    mesh.fChildren = std::vector<ChildPtr>(children.begin(), children.end());
     mesh.fICount   = indexCount;
     mesh.fIOffset  = indexOffset;
     mesh.fBounds   = bounds;
@@ -801,8 +797,27 @@ std::tuple<bool, SkString> SkMesh::validate() const {
         FAIL_MESH_VALIDATE("A vertex buffer is required.");
     }
 
-    if (!fSpec->children().empty()) {
-        // TODO(b/40045302): add support for child effects in SkMesh
+    if (fSpec->children().size() != fChildren.size()) {
+        FAIL_MESH_VALIDATE("The mesh specification declares %zu child effects, "
+                           "but the mesh supplies %zu.",
+                           fSpec->children().size(),
+                           fChildren.size());
+    }
+
+    for (size_t index = 0; index < fChildren.size(); ++index) {
+        const SkRuntimeEffect::Child& meshSpecChild = fSpec->children()[index];
+        if (fChildren[index].type().has_value()) {
+            if (meshSpecChild.type != fChildren[index].type()) {
+                FAIL_MESH_VALIDATE("Child effect '%.*s' was specified as a %s, but passed as a %s.",
+                                   (int)meshSpecChild.name.size(), meshSpecChild.name.data(),
+                                   SkRuntimeEffectPriv::ChildTypeToStr(meshSpecChild.type),
+                                   SkRuntimeEffectPriv::ChildTypeToStr(*fChildren[index].type()));
+            }
+        }
+    }
+
+    if (!fChildren.empty()) {
+        // TODO(b/40045302): support for `children` is a work-in-progress
         FAIL_MESH_VALIDATE("effects are not permitted in mesh fragment shaders");
     }
 

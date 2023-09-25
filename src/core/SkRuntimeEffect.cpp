@@ -140,6 +140,15 @@ static ChildType child_type(const SkSL::Type& type) {
     }
 }
 
+const char* SkRuntimeEffectPriv::ChildTypeToStr(ChildType type) {
+    switch (type) {
+        case ChildType::kBlender:     return "blender";
+        case ChildType::kColorFilter: return "color filter";
+        case ChildType::kShader:      return "shader";
+        default: SkUNREACHABLE;
+    }
+}
+
 SkRuntimeEffect::Child SkRuntimeEffectPriv::VarAsChild(const SkSL::Variable& var, int index) {
     SkRuntimeEffect::Child c;
     c.name  = var.name();
