@@ -9,9 +9,9 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.2
 	github.com/stretchr/testify v1.7.0
-	github.com/trietmn/go-wiki v1.0.1 // indirect
+	github.com/trietmn/go-wiki v1.0.1
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20230923140522-2888f630bd2e
+	go.skia.org/infra v0.0.0-20230925225652-d850dc2502db
 	google.golang.org/api v0.74.0
 	google.golang.org/protobuf v1.28.0
 )
