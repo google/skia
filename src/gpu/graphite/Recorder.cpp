@@ -320,7 +320,7 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
     return true;
 }
 
-void Recorder::deleteBackendTexture(BackendTexture& texture) {
+void Recorder::deleteBackendTexture(const BackendTexture& texture) {
     ASSERT_SINGLE_OWNER
 
     if (!texture.isValid() || texture.backend() != this->backend()) {

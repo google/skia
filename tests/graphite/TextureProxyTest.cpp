@@ -36,7 +36,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
     ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
     const TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(
             kValidColorType, Mipmapped::kNo, Protected::kNo, Renderable::kNo);
-    const BackendTexture backendTexture = recorder->createBackendTexture(kValidSize, textureInfo);
+    BackendTexture backendTexture = recorder->createBackendTexture(kValidSize, textureInfo);
     sk_sp<Texture> texture = resourceProvider->createWrappedTexture(backendTexture);
 
     auto nullCallback = [](ResourceProvider*) -> sk_sp<Texture> { return nullptr; };
@@ -151,7 +151,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
     REPORTER_ASSERT(reporter, textureProxy->isFullyLazy());
 
     constexpr SkISize kLargerSize = SkISize::Make(2, 2);
-    const BackendTexture largerBackendTexture =
+    BackendTexture largerBackendTexture =
             recorder->createBackendTexture(kLargerSize, textureInfo);
     assignableTexture = resourceProvider->createWrappedTexture(largerBackendTexture);
     instantiateSuccess = textureProxy->lazyInstantiate(resourceProvider);
@@ -173,6 +173,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
             caps, kValidSize, textureInfo, skgpu::Budgeted::kNo, Volatile::kNo, nullCallback);
     instantiateSuccess = TextureProxy::InstantiateIfNotLazy(resourceProvider, textureProxy.get());
     REPORTER_ASSERT(reporter, instantiateSuccess);
+    // Clean up the backend textures.
+    recorder->deleteBackendTexture(backendTexture);
+    recorder->deleteBackendTexture(largerBackendTexture);
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureTooLargeTest, reporter, context,
@@ -244,9 +247,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteLazyTextureInvalidDimensions, reporte
                                                                    nullptr,
                                                                    nullptr,
                                                                    &fulfillContext);
+
         surface->getCanvas()->drawImage(promiseImage, 0.0f, 0.0f);
         std::unique_ptr<Recording> recording = recorder->snap();
         REPORTER_ASSERT(reporter, context->insertRecording({recording.get()}));
+        // Clean up backend texture
+        context->deleteBackendTexture(fulfillContext.fBackendTexture);
     }
 }
 

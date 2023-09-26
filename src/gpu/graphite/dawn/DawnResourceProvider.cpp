@@ -234,7 +234,7 @@ BackendTexture DawnResourceProvider::onCreateBackendTexture(SkISize dimensions,
     return BackendTexture(texture.MoveToCHandle());
 }
 
-void DawnResourceProvider::onDeleteBackendTexture(BackendTexture& texture) {
+void DawnResourceProvider::onDeleteBackendTexture(const BackendTexture& texture) {
     SkASSERT(texture.isValid());
     SkASSERT(texture.backend() == BackendApi::kDawn);
 

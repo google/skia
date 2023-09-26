@@ -39,9 +39,9 @@
 #include "src/image/SkImage_Picture.h"
 #include "src/image/SkImage_Raster.h"
 
-using namespace skgpu::graphite;
-
 namespace SkImages {
+
+using namespace skgpu::graphite;
 
 static bool validate_backend_texture(const skgpu::graphite::Caps* caps,
                                      const skgpu::graphite::BackendTexture& texture,

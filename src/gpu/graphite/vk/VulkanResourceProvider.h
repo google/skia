@@ -53,7 +53,7 @@ private:
             const int height);
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
-    void onDeleteBackendTexture(BackendTexture&) override {}
+    void onDeleteBackendTexture(const BackendTexture&) override;
 
     sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
     // Find or create a compatible (needed when creating a framebuffer and graphics pipeline) or

@@ -125,7 +125,7 @@ public:
      * Otherwise this will delete/release the backend object that is wrapped in the BackendTexture.
      * The BackendTexture will be reset to an invalid state and should not be used again.
      */
-    void deleteBackendTexture(BackendTexture&);
+    void deleteBackendTexture(const BackendTexture&);
 
     /**
      * Frees GPU resources created and held by the Context. Can be called to reduce GPU memory

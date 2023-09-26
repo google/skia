@@ -48,7 +48,7 @@ private:
                                  SkTileMode yTileMode) override;
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
-    void onDeleteBackendTexture(BackendTexture&) override;
+    void onDeleteBackendTexture(const BackendTexture&) override;
 
     sk_cfp<id<MTLDepthStencilState>> findOrCreateCompatibleDepthStencilState(
             const DepthStencilSettings&);

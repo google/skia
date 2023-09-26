@@ -346,7 +346,7 @@ BackendTexture MtlResourceProvider::onCreateBackendTexture(SkISize dimensions,
     return BackendTexture(dimensions, (Handle)texture.release());
 }
 
-void MtlResourceProvider::onDeleteBackendTexture(BackendTexture& texture) {
+void MtlResourceProvider::onDeleteBackendTexture(const BackendTexture& texture) {
     SkASSERT(texture.backend() == BackendApi::kMetal);
     MtlHandle texHandle = texture.getMtlTexture();
     SkCFSafeRelease(texHandle);

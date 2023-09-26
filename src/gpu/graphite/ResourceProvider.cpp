@@ -269,10 +269,8 @@ BackendTexture ResourceProvider::createBackendTexture(SkISize dimensions, const 
     return this->onCreateBackendTexture(dimensions, info);
 }
 
-void ResourceProvider::deleteBackendTexture(BackendTexture& texture) {
+void ResourceProvider::deleteBackendTexture(const BackendTexture& texture) {
     this->onDeleteBackendTexture(texture);
-    // Invalidate the texture;
-    texture = BackendTexture();
 }
 
 void ResourceProvider::freeGpuResources() {

@@ -15,10 +15,8 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #endif
 #ifdef SK_GRAPHITE
-#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/RecorderPriv.h"
 #endif
 
 using Mipmapped = skgpu::Mipmapped;

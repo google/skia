@@ -73,7 +73,7 @@ public:
                                                  SkTileMode yTileMode);
 
     BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
-    void deleteBackendTexture(BackendTexture&);
+    void deleteBackendTexture(const BackendTexture&);
 
     ProxyCache* proxyCache() { return fResourceCache->proxyCache(); }
 
@@ -116,7 +116,7 @@ private:
                                               skgpu::Budgeted);
 
     virtual BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) = 0;
-    virtual void onDeleteBackendTexture(BackendTexture&) = 0;
+    virtual void onDeleteBackendTexture(const BackendTexture&) = 0;
 };
 
 } // namespace skgpu::graphite
