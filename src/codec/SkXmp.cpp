@@ -559,7 +559,6 @@ bool SkXmpImpl::getGainmapInfoHDRGainMap(SkGainmapInfo* info) const {
     info->fDisplayRatioSdr = 1.f;
     info->fDisplayRatioHdr = kRatioMax;
     info->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
-    info->fType = SkGainmapInfo::Type::kMultiPicture;
     return true;
 }
 
@@ -625,7 +624,6 @@ bool SkXmpImpl::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     } else {
         outGainmapInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
     }
-    outGainmapInfo->fType = SkGainmapInfo::Type::kHDRGM;
     return true;
 }
 

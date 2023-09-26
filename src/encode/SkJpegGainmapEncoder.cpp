@@ -24,18 +24,6 @@
 static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB; };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// JpegR encoding
-
-bool SkJpegGainmapEncoder::EncodeJpegR(SkWStream* dst,
-                                       const SkPixmap& base,
-                                       const SkJpegEncoder::Options& baseOptions,
-                                       const SkPixmap& gainmap,
-                                       const SkJpegEncoder::Options& gainmapOptions,
-                                       const SkGainmapInfo& gainmapInfo) {
-    return EncodeHDRGM(dst, base, baseOptions, gainmap, gainmapOptions, gainmapInfo);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // HDRGM encoding
 
 // Generate the XMP metadata for an HDRGM file.

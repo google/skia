@@ -82,18 +82,9 @@ struct SkGainmapInfo {
 
     // TODO(ccameron): Remove these parameters once we are certain they are not used in Android.
     enum class Type {
-        kUnknown,
-        kMultiPicture,
-        kJpegR_Linear,
-        kJpegR_HLG,
-        kJpegR_PQ,
-        kHDRGM,
+        kDefault,
     };
-    SkColor4f fLogRatioMin = {0.f, 0.f, 0.f, 1.0};
-    SkColor4f fLogRatioMax = {1.f, 1.f, 1.f, 1.0};
-    float fHdrRatioMin = 1.f;
-    float fHdrRatioMax = 50.f;
-    Type fType = Type::kUnknown;
+    Type fType = Type::kDefault;
 };
 
 #endif

@@ -10,13 +10,10 @@
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkGainmapInfo.h"
-#include "include/private/base/SkFloatingPoint.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkAndroidCodecAdapter.h"
 #include "src/codec/SkCodecPriv.h"
@@ -546,18 +543,5 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* 
 
 bool SkAndroidCodec::getAndroidGainmap(SkGainmapInfo* info,
                                        std::unique_ptr<SkStream>* outGainmapImageStream) {
-    if (!fCodec->onGetGainmapInfo(info, outGainmapImageStream)) {
-        return false;
-    }
-    // Convert old parameter names to new parameter names.
-    // TODO(ccameron): Remove these parameters.
-    info->fLogRatioMin.fR = sk_float_log(info->fGainmapRatioMin.fR);
-    info->fLogRatioMin.fG = sk_float_log(info->fGainmapRatioMin.fG);
-    info->fLogRatioMin.fB = sk_float_log(info->fGainmapRatioMin.fB);
-    info->fLogRatioMax.fR = sk_float_log(info->fGainmapRatioMax.fR);
-    info->fLogRatioMax.fG = sk_float_log(info->fGainmapRatioMax.fG);
-    info->fLogRatioMax.fB = sk_float_log(info->fGainmapRatioMax.fB);
-    info->fHdrRatioMin = info->fDisplayRatioSdr;
-    info->fHdrRatioMax = info->fDisplayRatioHdr;
-    return true;
+    return fCodec->onGetGainmapInfo(info, outGainmapImageStream);
 }

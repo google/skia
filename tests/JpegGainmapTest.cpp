@@ -395,30 +395,27 @@ DEF_TEST(AndroidCodec_jpegGainmapDecode, r) {
         SkISize dimensions;
         SkColor originColor;
         SkColor farCornerColor;
-        float logRatioMin;
-        float logRatioMax;
+        float ratioMin;
+        float ratioMax;
         float hdrRatioMin;
         float hdrRatioMax;
-        SkGainmapInfo::Type type;
     } recs[] = {
             {"images/iphone_13_pro.jpeg",
              SkISize::Make(1512, 2016),
              0xFF3B3B3B,
              0xFF101010,
-             0.f,
+             sk_float_exp(0.f),
+             sk_float_exp(1.f),
              1.f,
-             1.f,
-             2.71828f,
-             SkGainmapInfo::Type::kMultiPicture},
+             2.71828f},
             {"images/hdrgm.jpg",
              SkISize::Make(188, 250),
              0xFFE9E9E9,
              0xFFAAAAAA,
-             -2.209409f,
-             2.209409f,
+             sk_float_exp(-2.209409f),
+             sk_float_exp(2.209409f),
              1.f,
-             9.110335f,
-             SkGainmapInfo::Type::kHDRGM},
+             9.110335f},
     };
 
     TestStream::Type kStreamTypes[] = {
@@ -448,18 +445,16 @@ DEF_TEST(AndroidCodec_jpegGainmapDecode, r) {
 
             // Verify the gainmap rendering parameters.
             constexpr float kEpsilon = 1e-3f;
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fLogRatioMin.fR, rec.logRatioMin, kEpsilon));
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fLogRatioMin.fG, rec.logRatioMin, kEpsilon));
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fLogRatioMin.fB, rec.logRatioMin, kEpsilon));
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fGainmapRatioMin.fR, rec.ratioMin, kEpsilon));
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fGainmapRatioMin.fG, rec.ratioMin, kEpsilon));
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fGainmapRatioMin.fB, rec.ratioMin, kEpsilon));
 
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fLogRatioMax.fR, rec.logRatioMax, kEpsilon));
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fLogRatioMax.fG, rec.logRatioMax, kEpsilon));
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fLogRatioMax.fB, rec.logRatioMax, kEpsilon));
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fGainmapRatioMax.fR, rec.ratioMax, kEpsilon));
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fGainmapRatioMax.fG, rec.ratioMax, kEpsilon));
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fGainmapRatioMax.fB, rec.ratioMax, kEpsilon));
 
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fHdrRatioMin, rec.hdrRatioMin, kEpsilon));
-            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fHdrRatioMax, rec.hdrRatioMax, kEpsilon));
-
-            REPORTER_ASSERT(r, gainmapInfo.fType == rec.type);
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fDisplayRatioSdr, rec.hdrRatioMin, kEpsilon));
+            REPORTER_ASSERT(r, approx_eq(gainmapInfo.fDisplayRatioHdr, rec.hdrRatioMax, kEpsilon));
         }
     }
 }
@@ -550,7 +545,7 @@ DEF_TEST(AndroidCodec_gainmapInfoEncode, r) {
         }
 
         // Encode |gainmapInfo|.
-        bool encodeResult = SkJpegGainmapEncoder::EncodeJpegR(&encodeStream,
+        bool encodeResult = SkJpegGainmapEncoder::EncodeHDRGM(&encodeStream,
                                                               baseBitmap.pixmap(),
                                                               SkJpegEncoder::Options(),
                                                               gainmapBitmap.pixmap(),
@@ -640,27 +635,16 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
     decode_all(r, GetResourceAsStream(path), baseBitmap[0], gainmapBitmap[0], gainmapInfo[0]);
 
     constexpr float kEpsilon = 1e-2f;
-    for (size_t i = 0; i < 2; ++i) {
+    {
         SkDynamicMemoryWStream encodeStream;
-        bool encodeResult = false;
 
-        if (i == 0) {
-            // Transcode to JpegR.
-            encodeResult = SkJpegGainmapEncoder::EncodeJpegR(&encodeStream,
-                                                             baseBitmap[0].pixmap(),
-                                                             SkJpegEncoder::Options(),
-                                                             gainmapBitmap[0].pixmap(),
-                                                             SkJpegEncoder::Options(),
-                                                             gainmapInfo[0]);
-        } else {
-            // Transcode to HDRGM.
-            encodeResult = SkJpegGainmapEncoder::EncodeHDRGM(&encodeStream,
-                                                             baseBitmap[0].pixmap(),
-                                                             SkJpegEncoder::Options(),
-                                                             gainmapBitmap[0].pixmap(),
-                                                             SkJpegEncoder::Options(),
-                                                             gainmapInfo[0]);
-        }
+        // Transcode to UltraHDR.
+        bool encodeResult = SkJpegGainmapEncoder::EncodeHDRGM(&encodeStream,
+                                                              baseBitmap[0].pixmap(),
+                                                              SkJpegEncoder::Options(),
+                                                              gainmapBitmap[0].pixmap(),
+                                                              SkJpegEncoder::Options(),
+                                                              gainmapInfo[0]);
         REPORTER_ASSERT(r, encodeResult);
         auto encodeData = encodeStream.detachAsData();
 
@@ -671,10 +655,12 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
         // HDRGM will have the same rendering parameters.
         REPORTER_ASSERT(
                 r,
-                approx_eq_rgb(gainmapInfo[0].fLogRatioMin, gainmapInfo[1].fLogRatioMin, kEpsilon));
+                approx_eq_rgb(
+                        gainmapInfo[0].fGainmapRatioMin, gainmapInfo[1].fGainmapRatioMin,kEpsilon));
         REPORTER_ASSERT(
                 r,
-                approx_eq_rgb(gainmapInfo[0].fLogRatioMax, gainmapInfo[1].fLogRatioMax, kEpsilon));
+                approx_eq_rgb(
+                        gainmapInfo[0].fGainmapRatioMax, gainmapInfo[1].fGainmapRatioMax, kEpsilon));
         REPORTER_ASSERT(
                 r,
                 approx_eq_rgb(
@@ -686,9 +672,17 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
                 r,
                 approx_eq(gainmapInfo[0].fEpsilonHdr.fR, gainmapInfo[1].fEpsilonHdr.fR, kEpsilon));
         REPORTER_ASSERT(
-                r, approx_eq(gainmapInfo[0].fHdrRatioMin, gainmapInfo[1].fHdrRatioMin, kEpsilon));
+                r,
+                approx_eq(
+                        gainmapInfo[0].fDisplayRatioSdr,
+                        gainmapInfo[1].fDisplayRatioSdr,
+                        kEpsilon));
         REPORTER_ASSERT(
-                r, approx_eq(gainmapInfo[0].fHdrRatioMax, gainmapInfo[1].fHdrRatioMax, kEpsilon));
+                r,
+                approx_eq(
+                        gainmapInfo[0].fDisplayRatioHdr,
+                        gainmapInfo[1].fDisplayRatioHdr,
+                        kEpsilon));
 
         // Render a few pixels and verify that they come out the same. Rendering requires SkSL.
         const struct Rec {
