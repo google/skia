@@ -9,6 +9,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/base/SkTime.h"
@@ -125,10 +126,10 @@ static sk_sp<SkSurface> make_gl_surface(GrDirectContext* dContext, int width, in
     }
     EAGLContext* oldContext = [EAGLContext currentContext];
     [EAGLContext setCurrentContext:[self eaglContext]];
-    fDContext = GrDirectContext::MakeGL(nullptr, GrContextOptions());
+    fDContext = GrDirectContexts::MakeGL(nullptr, GrContextOptions());
     [EAGLContext setCurrentContext:oldContext];
     if (!fDContext) {
-        NSLog(@"GrDirectContext::MakeGL failed");
+        NSLog(@"GrDirectContexts::MakeGL failed");
         return nil;
     }
     return self;

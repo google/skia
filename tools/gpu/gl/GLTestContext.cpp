@@ -8,6 +8,7 @@
 #include "tools/gpu/gl/GLTestContext.h"
 
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/gpu/GpuTimer.h"
 
@@ -22,10 +23,8 @@ public:
     void deleteQuery(sk_gpu_test::PlatformTimerQuery) override;
 
 private:
-#ifdef SK_GL
     GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext*, const char* ext = "");
     bool validate() const;
-#endif
 
     sk_gpu_test::PlatformTimerQuery onQueueTimerStart() const override;
     void onQueueTimerStop(sk_gpu_test::PlatformTimerQuery) const override;
@@ -56,7 +55,6 @@ private:
 };
 
 std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {
-#ifdef SK_GL
     std::unique_ptr<GLGpuTimer> ret;
     const GrGLInterface* gl = ctx->gl();
     if (gl->fExtensions.has("GL_EXT_disjoint_timer_query")) {
@@ -71,12 +69,8 @@ std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTes
         ret = nullptr;
     }
     return ret;
-#else
-    return nullptr;
-#endif
 }
 
-#ifdef SK_GL
 GLGpuTimer::GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext* ctx, const char* ext)
     : INHERITED(disjointSupport) {
     ctx->getGLProcAddress(&fGLGetIntegerv, "glGetIntegerv");
@@ -92,7 +86,6 @@ bool GLGpuTimer::validate() const {
     return fGLGetIntegerv && fGLGenQueries && fGLDeleteQueries && fGLBeginQuery && fGLEndQuery &&
            fGLGetQueryObjectuiv && fGLGetQueryObjectui64v;
 }
-#endif
 
 sk_gpu_test::PlatformTimerQuery GLGpuTimer::onQueueTimerStart() const {
     GrGLuint queryID;
@@ -164,15 +157,10 @@ GLTestContext::~GLTestContext() {
 }
 
 bool GLTestContext::isValid() const {
-#ifdef SK_GL
     return SkToBool(this->gl());
-#else
-    return fWasInitialized;
-#endif
 }
 
 static bool fence_is_supported(const GLTestContext* ctx) {
-#ifdef SK_GL
     if (kGL_GrGLStandard == ctx->gl()->fStandard) {
         if (GrGLGetVersion(ctx->gl()) < GR_GL_VER(3, 2) &&
             !ctx->gl()->hasExtension("GL_ARB_sync")) {
@@ -190,9 +178,6 @@ static bool fence_is_supported(const GLTestContext* ctx) {
             return false;
         }
     }
-#else
-    return false;
-#endif
 }
 
 void GLTestContext::init(sk_sp<const GrGLInterface> gl) {
@@ -200,9 +185,6 @@ void GLTestContext::init(sk_sp<const GrGLInterface> gl) {
     fOriginalGLInterface = fGLInterface;
     fFenceSupport = fence_is_supported(this);
     fGpuTimer = GLGpuTimer::MakeIfSupported(this);
-#ifndef SK_GL
-    fWasInitialized = true;
-#endif
 }
 
 void GLTestContext::teardown() {
@@ -213,7 +195,7 @@ void GLTestContext::teardown() {
 
 void GLTestContext::testAbandon() {
     INHERITED::testAbandon();
-#if defined(SK_GL) && defined(GR_TEST_UTILS)
+#if defined(GR_TEST_UTILS)
     if (fGLInterface) {
         fGLInterface->abandon();
         fOriginalGLInterface->abandon();
@@ -222,15 +204,12 @@ void GLTestContext::testAbandon() {
 }
 
 void GLTestContext::finish() {
-#ifdef SK_GL
     if (fGLInterface) {
         GR_GL_CALL(fGLInterface.get(), Finish());
     }
-#endif
 }
 
 void GLTestContext::overrideVersion(const char* version, const char* shadingLanguageVersion) {
-#ifdef SK_GL
     // GrGLFunction has both a limited capture size and doesn't call a destructor when it is
     // initialized with a lambda. So here we're trusting fOriginalGLInterface will be kept alive.
     auto getString = [wrapped = &fOriginalGLInterface->fFunctions.fGetString,
@@ -246,15 +225,10 @@ void GLTestContext::overrideVersion(const char* version, const char* shadingLang
     auto newInterface = sk_make_sp<GrGLInterface>(*fOriginalGLInterface);
     newInterface->fFunctions.fGetString = getString;
     fGLInterface = std::move(newInterface);
-#endif
 }
 
 sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& options) {
-#ifdef SK_GL
-    return GrDirectContext::MakeGL(fGLInterface, options);
-#else
-    return nullptr;
-#endif
+    return GrDirectContexts::MakeGL(fGLInterface, options);
 }
 
 }  // namespace sk_gpu_test

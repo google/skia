@@ -23,6 +23,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -83,7 +84,7 @@ Java_org_skia_skottie_SkottieRunner_nCreateProxy(JNIEnv *env, jclass clazz) {
 
     GrContextOptions options;
     options.fDisableDistanceFieldPaths = true;
-    sk_sp<GrDirectContext> dContext = GrDirectContext::MakeGL(std::move(glInterface), options);
+    sk_sp<GrDirectContext> dContext = GrDirectContexts::MakeGL(std::move(glInterface), options);
     if (!dContext.get()) {
         return 0;
     }

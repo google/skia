@@ -87,6 +87,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -197,7 +198,7 @@ sk_sp<GrDirectContext> MakeGrContext()
     // setup interface.
     auto interface = GrGLMakeNativeInterface();
     // setup context
-    return GrDirectContext::MakeGL(interface);
+    return GrDirectContexts::MakeGL(interface);
 }
 
 sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int width, int height,

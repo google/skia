@@ -9,11 +9,12 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 
 #ifdef SK_GL
 GrContextHolder SkMakeGLContext() {
-    return GrContextHolder(GrDirectContext::MakeGL(nullptr, GrContextOptions()).release());
+    return GrContextHolder(GrDirectContexts::MakeGL(nullptr, GrContextOptions()).release());
 }
 #endif
 

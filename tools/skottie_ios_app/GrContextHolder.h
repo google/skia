@@ -11,7 +11,7 @@ class GrDirectContext;
 struct GrContextRelease { void operator()(GrDirectContext*); };
 using GrContextHolder = std::unique_ptr<GrDirectContext, GrContextRelease>;
 
-// Wrapper around GrDirectContext::MakeGL
+// Wrapper around GrDirectContexts::MakeGL
 GrContextHolder SkMakeGLContext();
 
 #endif  // GrContextHolder_DEFINED

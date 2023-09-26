@@ -20,6 +20,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
@@ -95,7 +96,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(EGLImageTest, reporter, ctxInfo, CtsEnforcement::
     if (!glCtx1) {
         return;
     }
-    sk_sp<GrDirectContext> context1 = GrDirectContext::MakeGL(sk_ref_sp(glCtx1->gl()));
+    sk_sp<GrDirectContext> context1 = GrDirectContexts::MakeGL(sk_ref_sp(glCtx1->gl()));
     GrEGLImage image = GR_EGL_NO_IMAGE;
     GrGLTextureInfo externalTexture;
     externalTexture.fID = 0;

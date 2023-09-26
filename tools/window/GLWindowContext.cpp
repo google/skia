@@ -17,6 +17,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "src/image/SkImage_Base.h"
 
 namespace skwindow::internal {
@@ -33,7 +34,7 @@ void GLWindowContext::initializeContext() {
 
     fBackendContext = this->onInitializeContext();
 
-    fContext = GrDirectContext::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
+    fContext = GrDirectContexts::MakeGL(fBackendContext, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();

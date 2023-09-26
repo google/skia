@@ -1974,8 +1974,6 @@ if (skia_enable_tools) {
       "tools/gpu/TestOps.h",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
-      "tools/gpu/gl/GLTestContext.cpp",  # See comment below about
-                                         # GrContextFactory workaround.
       "tools/gpu/mock/MockTestContext.cpp",
     ]
     sources += skia_utils_gpu
@@ -1984,6 +1982,7 @@ if (skia_enable_tools) {
     frameworks = []
 
     if (skia_use_gl) {
+      sources += [ "tools/gpu/gl/GLTestContext.cpp" ]
       if (is_ios) {
         sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
         frameworks += [ "OpenGLES.framework" ]
