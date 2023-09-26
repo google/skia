@@ -10,6 +10,7 @@ skia_filegroup(
         "EventQueueTest.cpp",
         "Int96Test.cpp",
         "PointTest.cpp",
+        "BruteForceCrossingsTest.cpp",
         "SegmentTest.cpp",
     ],
 )

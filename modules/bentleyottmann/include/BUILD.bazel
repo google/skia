@@ -11,6 +11,7 @@ skia_filegroup(
         "EventQueue.h",
         "Int96.h",
         "Point.h",
+        "BruteForceCrossings.h",
         "Segment.h",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],

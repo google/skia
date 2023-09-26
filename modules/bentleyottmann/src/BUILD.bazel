@@ -11,6 +11,7 @@ skia_filegroup(
         "EventQueue.cpp",
         "Int96.cpp",
         "Point.cpp",
+        "BruteForceCrossings.cpp",
         "Segment.cpp",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],
