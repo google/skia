@@ -117,13 +117,6 @@ public:
 
     explicit operator const T&() const { return fData; }
 
-    static std::optional<ParameterSpace<T>> Optional(const T* ptr) {
-        if (ptr) {
-            return ParameterSpace(*ptr);
-        } else {
-            return {};
-        }
-    }
 private:
     T fData;
 };
