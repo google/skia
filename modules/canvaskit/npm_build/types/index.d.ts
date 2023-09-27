@@ -981,6 +981,17 @@ export interface TransformProperty {
 }
 
 /**
+ * Collection of slot IDs sorted by value type
+ */
+export interface SlotInfo {
+    colorSlotIDs: string[];
+    scalarSlotIDs: string[];
+    vec2SlotIDs: string[];
+    imageSlotIDs: string[];
+    textSlotIDs: string[];
+}
+
+/**
  * Text property for ManagedAnimation's slot support
  */
 export interface SlottableTextProperty {
@@ -1025,6 +1036,8 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
     // can be observed and editted live like with the other get/set tools. The slot id passed in
     // must match the name of the property in the Essential Graphics window. Property Groups support
     // one-to-many relationships.
+    getSlotInfo() : SlotInfo;
+
     setColorSlot(key: string, color: InputColor): boolean;
     setScalarSlot(key: string, scalar: number): boolean;
     setVec2Slot(key: string, vec2: InputVector2): boolean;
@@ -1034,7 +1047,7 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
     getColorSlot(key: string): Color | null;
     getScalarSlot(key: string): number | null;
     getVec2Slot(key: string): Vector2 | null;
-    getTextSlot(key: string): SlottableTextProperty
+    getTextSlot(key: string): SlottableTextProperty | null;
 
     // Attach a WYSIWYG editor to the text layer identified by 'id' and 'index' (multiple layers
     // can be grouped with the same ID).

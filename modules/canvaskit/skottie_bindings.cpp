@@ -387,7 +387,28 @@ public:
         return markers;
     }
 
+    JSArray copyStringArrayToJSArray(skia_private::TArray<SkString> slotIDs) const {
+        JSArray retVal = emscripten::val::array();
+        for (auto slotID : slotIDs) {
+            retVal.call<void>("push", emscripten::val(slotID.c_str()));
+        }
+        return retVal;
+    }
+
     // Slot Manager API
+    JSObject getSlotInfo() const {
+        JSObject slotInfoJS = emscripten::val::object();
+        auto slotInfo = fSlotMgr->getSlotInfo();
+
+        slotInfoJS.set("colorSlotIDs", copyStringArrayToJSArray(slotInfo.fColorSlotIDs));
+        slotInfoJS.set("scalarSlotIDs", copyStringArrayToJSArray(slotInfo.fScalarSlotIDs));
+        slotInfoJS.set("vec2SlotIDs", copyStringArrayToJSArray(slotInfo.fVec2SlotIDs));
+        slotInfoJS.set("imageSlotIDs", copyStringArrayToJSArray(slotInfo.fImageSlotIDs));
+        slotInfoJS.set("textSlotIDs", copyStringArrayToJSArray(slotInfo.fTextSlotIDs));
+
+        return slotInfoJS;
+    }
+
     void getColorSlot(const std::string& slotID, WASMPointerF32 outPtr) {
         SkColor4f c4f;
         if (auto c = fSlotMgr->getColorSlot(SkString(slotID))) {
@@ -664,6 +685,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("getTextProps"     , &ManagedAnimation::getTextProps)
         .function("setText"          , &ManagedAnimation::setText)
         .function("getTransformProps", &ManagedAnimation::getTransformProps)
+        .function("getSlotInfo"      , &ManagedAnimation::getSlotInfo)
         .function("_getColorSlot"    , &ManagedAnimation::getColorSlot)
         .function("_setColorSlot"    , optional_override([](ManagedAnimation& self, const std::string& key, WASMPointerF32 cPtr) {
             SkColor4f color = ptrToSkColor4f(cPtr);

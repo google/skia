@@ -93,6 +93,13 @@ describe('Skottie behavior', () => {
                                                          {'flightAnim.gif': promises[1]});
         expect(animation).toBeTruthy();
 
+        const slotInfo = animation.getSlotInfo();
+        expect(slotInfo.colorSlotIDs).toEqual(['FillsGroup', 'StrokeGroup']);
+        expect(slotInfo.scalarSlotIDs).toEqual(['Opacity']);
+        expect(slotInfo.vec2SlotIDs).toEqual(['ScaleGroup']);
+        expect(slotInfo.imageSlotIDs).toEqual(['ImageSource']);
+        expect(slotInfo.textSlotIDs).toEqual(['TextSource']);
+
         expect(animation.getScalarSlot('Opacity')).toBe(100);
         const textProp = animation.getTextSlot('TextSource');
         expect(textProp.text).toBe('text slots');

@@ -157,6 +157,7 @@ var CanvasKit = {
     _seek: function() {},
     _seekFrame: function() {},
     _setTransform: function() {},
+    _getSlotInfo: function() {},
     _setColorSlot: function() {},
     _getColorSlot: function() {},
     _setVec2Slot: function() {},

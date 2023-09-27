@@ -786,6 +786,8 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     const s = mAnim.getScalarSlot('foo'); // $ExpectType number | null
     const t = mAnim.getVec2Slot('foo'); // $ExpectType Float32Array | null
     const u = mAnim.getTextSlot('foo'); // $ExpectType SlottableTextProperty | null
+
+    const v = mAnim.getSlotInfo(); // $ExpectType SlotInfo
 }
 
 function shaderTests(CK: CanvasKit) {
