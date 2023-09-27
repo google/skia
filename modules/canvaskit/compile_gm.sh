@@ -163,6 +163,7 @@ fi
 GLOBIGNORE="gm/compressed_textures.cpp:"\
 "gm/fiddle.cpp:"\
 "gm/fontations.cpp:"\
+"gm/fontations_ft_compare.cpp:"\
 "gm/video_decoder.cpp:"
 
 # These tests do not compile with the WASM code (require other deps).
