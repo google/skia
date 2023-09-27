@@ -21,6 +21,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -150,13 +151,13 @@ bool IsSupported(const SkMaskFilter* maskfilter) {
 
 using ChildType = SkRuntimeEffect::ChildType;
 
-GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
-                          const char* name,
-                          sk_sp<const SkData> uniforms,
-                          std::unique_ptr<GrFragmentProcessor> inputFP,
-                          std::unique_ptr<GrFragmentProcessor> destColorFP,
-                          SkSpan<const SkRuntimeEffect::ChildPtr> children,
-                          const GrFPArgs& childArgs) {
+static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
+                                 const char* name,
+                                 sk_sp<const SkData> uniforms,
+                                 std::unique_ptr<GrFragmentProcessor> inputFP,
+                                 std::unique_ptr<GrFragmentProcessor> destColorFP,
+                                 SkSpan<const SkRuntimeEffect::ChildPtr> children,
+                                 const GrFPArgs& childArgs) {
     skia_private::STArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;
     for (const auto& child : children) {
         std::optional<ChildType> type = child.type();
