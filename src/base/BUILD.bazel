@@ -56,7 +56,10 @@ skia_filegroup(
         "SkUtils.h",
         "SkVx.h",  # Causes IWYU to crash when compiling.
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = [
+        "//src:__pkg__",
+        "//src/opts:__pkg__",
+    ],
 )
 
 generate_cpp_files_for_header_list(
@@ -99,18 +102,20 @@ skia_filegroup(
         "SkTime.cpp",
         ":skslc_srcs",
     ],
-    visibility = ["//src:__pkg__"],
+    visibility = [
+        "//src:__pkg__",
+    ],
 )
 
 skia_cc_library(
     name = "base",
     srcs = [
         ":srcs",
-        "//src/ports:buffet_base_srcs",
+        "//src/ports:base_srcs",
     ] + select({
         "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
-            "//include/private/base:generated_base_header_cpps",
             ":generated_base_header_cpps",
+            "//include/private/base:generated_base_header_cpps",
         ],
         "//conditions:default": [],
     }),

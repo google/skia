@@ -126,13 +126,13 @@ skia_core_public = [
 #  //src/base:private_hdrs
 #  //src/base:skslc_srcs
 #  //src/base:srcs
-#  //src/core:_core_hdrs
-#  //src/core:_core_srcs
+#  //src/core:legacy_core_hdrs
+#  //src/core:legacy_core_srcs
 #  //src/core:core_skslc_hdrs
 #  //src/core:core_skslc_srcs
 #  //src/core:legacy_draw_looper
-#  //src/image:core_hdrs
-#  //src/image:core_srcs
+#  //src/image:image_hdrs
+#  //src/image:image_srcs
 #  //src/lazy:lazy_hdrs
 #  //src/lazy:lazy_srcs
 #  //src/opts:private_hdrs

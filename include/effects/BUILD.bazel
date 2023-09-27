@@ -19,7 +19,6 @@ skia_filegroup(
         "Sk1DPathEffect.h",
         "Sk2DPathEffect.h",
         "SkBlenders.h",
-        "SkBlurDrawLooper.h",
         "SkBlurMaskFilter.h",
         "SkColorMatrix.h",
         "SkColorMatrixFilter.h",
@@ -28,7 +27,6 @@ skia_filegroup(
         "SkDiscretePathEffect.h",
         "SkGradientShader.h",
         "SkHighContrastFilter.h",
-        "SkLayerDrawLooper.h",
         "SkLumaColorFilter.h",
         "SkOverdrawColorFilter.h",
         "SkPerlinNoiseShader.h",
@@ -38,5 +36,35 @@ skia_filegroup(
         "SkTrimPathEffect.h",
         ":public_imagefilters_hdrs",
     ],
-    visibility = ["//include:__pkg__"],
+    visibility = [
+        "//include:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "core_hdrs",
+    srcs = [
+        "Sk1DPathEffect.h",
+        "Sk2DPathEffect.h",
+        "SkBlenders.h",
+        "SkBlurMaskFilter.h",
+        "SkColorMatrix.h",
+        "SkColorMatrixFilter.h",
+        "SkCornerPathEffect.h",
+        "SkDashPathEffect.h",
+        "SkDiscretePathEffect.h",
+        "SkGradientShader.h",
+        "SkHighContrastFilter.h",
+        "SkImageFilters.h",
+        "SkLumaColorFilter.h",
+        "SkOverdrawColorFilter.h",
+        "SkPerlinNoiseShader.h",
+        "SkRuntimeEffect.h",
+        "SkShaderMaskFilter.h",
+        "SkTableMaskFilter.h",
+        "SkTrimPathEffect.h",
+    ],
+    visibility = [
+        "//src/core:__pkg__",
+    ],
 )

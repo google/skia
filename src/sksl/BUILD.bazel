@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 load("//bazel:flags.bzl", "bool_flag", "selects")
 
 licenses(["notice"])
@@ -30,7 +30,7 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "sksl_srcs",
+    name = "sksl_data",
     srcs = [
         "sksl_compute.sksl",
         "sksl_frag.sksl",
@@ -45,7 +45,7 @@ skia_filegroup(
     visibility = ["//tools/sksl-minify:__pkg__"],
 )
 
-CORE_SRCS = [
+SKSL_SRCS = [
     "SkSLAnalysis.cpp",
     "SkSLAnalysis.h",
     "SkSLBuiltinTypes.cpp",
@@ -97,8 +97,8 @@ CORE_SRCS = [
 ]
 
 split_srcs_and_hdrs(
-    name = "core",
-    files = CORE_SRCS,
+    name = "sksl",
+    files = SKSL_SRCS,
 )
 
 skia_filegroup(
@@ -130,7 +130,7 @@ bool_flag(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":core_srcs",
+        ":sksl_srcs",
         "//src/sksl/analysis:srcs",
         "//src/sksl/codegen:srcs",
         "//src/sksl/ir:srcs",
@@ -143,7 +143,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        ":core_hdrs",
+        ":sksl_hdrs",
         "//src/sksl/analysis:private_hdrs",
         "//src/sksl/codegen:private_hdrs",
         "//src/sksl/ir:private_hdrs",
@@ -172,4 +172,34 @@ skia_cc_deps(
         ],
         "//conditions:default": [],
     }),
+)
+
+skia_filegroup(
+    name = "core_srcs",
+    srcs = [
+        ":sksl_srcs",
+        "//src/sksl/analysis:srcs",
+        "//src/sksl/ir:srcs",
+        "//src/sksl/tracing:core_srcs",
+        "//src/sksl/transform:srcs",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "core_priv_hdrs",
+    srcs = [
+        ":sksl_hdrs",
+        "//src/sksl/analysis:private_hdrs",
+        "//src/sksl/ir:private_hdrs",
+        "//src/sksl/tracing:core_priv_hdrs",
+        "//src/sksl/transform:private_hdrs",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_cc_library(
+    name = "generated_sksl",
+    textual_hdrs = [":txts"],
+    visibility = ["//src/core:__pkg__"],
 )

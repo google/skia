@@ -9,6 +9,7 @@
 #define SkRasterPipelineOpContexts_DEFINED
 
 #include <cstddef>
+#include <cstdint>
 
 namespace SkSL { class TraceHook; }
 

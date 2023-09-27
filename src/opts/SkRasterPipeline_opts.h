@@ -8,7 +8,6 @@
 #ifndef SkRasterPipeline_opts_DEFINED
 #define SkRasterPipeline_opts_DEFINED
 
-#include "include/core/SkData.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMalloc.h"
 #include "modules/skcms/skcms.h"

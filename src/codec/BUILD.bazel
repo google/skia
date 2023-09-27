@@ -3,6 +3,7 @@ load(
     "exports_files_legacy",
     "select_multi",
     "skia_cc_deps",
+    "skia_cc_library",
     "skia_filegroup",
     "split_srcs_and_hdrs",
 )
@@ -283,4 +284,57 @@ skia_cc_deps(
             ":webp_decode_codec": ["@libwebp"],
         },
     ),
+)
+
+skia_filegroup(
+    name = "any_decoder_srcs",
+    srcs = [
+        "SkCodecImageGenerator.cpp",
+        "SkCodecImageGenerator.h",
+        "SkImageGenerator_FromEncoded.cpp",
+        "SkPixmapUtils.cpp",
+        "SkPixmapUtilsPriv.h",
+    ],
+)
+
+skia_filegroup(
+    name = "buffet_png_srcs",
+    srcs = [
+        "SkCodec.cpp",
+        "SkCodecPriv.h",
+        "SkColorPalette.cpp",
+        "SkColorPalette.h",
+        "SkEncodedInfo.cpp",
+        "SkFrameHolder.h",
+        "SkPngCodec.cpp",
+        "SkPngCodec.h",
+        "SkPngPriv.h",
+        "SkSampler.cpp",
+        "SkSampler.h",
+        "SkSwizzler.cpp",
+        "SkSwizzler.h",
+    ],
+)
+
+skia_cc_library(
+    name = "png_decode",
+    srcs = [
+        ":any_decoder_srcs",
+        ":buffet_png_srcs",
+        "//include/private:decode_srcs",
+    ],
+    hdrs = [
+        "//include/codec:any_codec_hdrs",
+        "//include/codec:png_public_hdrs",
+    ],
+    features = ["layering_check"],
+    local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//modules/skcms",
+        "//src/base",
+        "//src/core",
+        "//src/core:core_priv",
+        "@libpng",
+    ],
 )

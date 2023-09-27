@@ -86,16 +86,41 @@ alias(
 )
 
 alias(
+    name = "default_malloc",
+    actual = "//src/ports:default_malloc",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "pathops",
     actual = "//src/pathops:pathops",
     visibility = ["//visibility:public"],
 )
 
 alias(
-    name = "default_malloc",
-    actual = "//src/ports:default_malloc",
+    name = "png_decode_codec",
+    actual = "//src/codec:png_decode",
     visibility = ["//visibility:public"],
 )
+
+alias(
+    name = "png_encode_codec",
+    actual = "//src/codec:png_encode",
+    visibility = ["//visibility:public"],
+)
+
+# Font Manager Options. Pick at most one target starting with "default_font_manager" and as many
+# other font managers as desired (most clients only need one in practice).
+
+alias(
+    # No fonts will be able to created using the default FontMgr either directly
+    # or indirectly (e.g. via SkTypeface::MakeFromStream)
+    name = "default_font_manager_empty",
+    actual = "//src/ports:default_font_manager_empty",
+    visibility = ["//visibility:public"],
+)
+
+# TODO(kjlubick) make other font manager options
 
 # Load bearing comment below - gazelle looks here (and not in any other BUILD.bazel files)
 # for a special comment indicating the prefix.

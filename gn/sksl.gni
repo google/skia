@@ -35,8 +35,8 @@ _include = get_path_info("../include", "abspath")
 #  //src/sksl/tracing:srcs
 #  //src/sksl/transform:transform_hdrs
 #  //src/sksl/transform:transform_srcs
-#  //src/sksl:core_hdrs
-#  //src/sksl:core_srcs
+#  //src/sksl:sksl_hdrs
+#  //src/sksl:sksl_srcs
 skia_sksl_sources = [
   "$_include/private/SkSLSampleUsage.h",
   "$_include/sksl/SkSLDebugTrace.h",
@@ -272,8 +272,8 @@ skia_sksl_gpu_sources = [
 #  //src/gpu/ganesh:core_skslc_srcs
 #  //src/ports:malloc
 #  //src/ports:osfile
-#  //src/utils:core_skslc_hdrs
-#  //src/utils:core_skslc_srcs
+#  //src/utils:utils_skslc_hdrs
+#  //src/utils:utils_skslc_srcs
 #  //src/utils:json_srcs
 skslc_deps = [
   "$_src/base/SkArenaAlloc.cpp",

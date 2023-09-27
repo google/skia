@@ -11,6 +11,6 @@ skia_filegroup(
     ],
     visibility = [
         "//include:__pkg__",
-        "//src:__pkg__",
+        "//src/pathops:__pkg__",
     ],
 )

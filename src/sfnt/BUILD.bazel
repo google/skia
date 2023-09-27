@@ -45,11 +45,31 @@ split_srcs_and_hdrs(
 skia_filegroup(
     name = "srcs",
     srcs = [":sfnt_srcs"],
-    visibility = ["//src:__pkg__"],
+    visibility = [
+        "//src:__pkg__",
+    ],
 )
 
 skia_filegroup(
     name = "private_hdrs",
     srcs = [":sfnt_hdrs"],
-    visibility = ["//src:__pkg__"],
+    visibility = [
+        "//src:__pkg__",
+    ],
+)
+
+alias(
+    name = "core_priv_hdrs",
+    actual = ":private_hdrs",
+    visibility = [
+        "//src/core:__pkg__",
+    ],
+)
+
+alias(
+    name = "core_srcs",
+    actual = ":srcs",
+    visibility = [
+        "//src/core:__pkg__",
+    ],
 )

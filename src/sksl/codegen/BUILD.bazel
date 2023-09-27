@@ -66,3 +66,21 @@ skia_cc_deps(
         "//conditions:default": [],
     }),
 )
+
+skia_filegroup(
+    name = "rasterpipeline_hdrs",
+    srcs = [
+        "SkSLRasterPipelineBuilder.h",
+        "SkSLRasterPipelineCodeGenerator.h",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "rasterpipeline_srcs",
+    srcs = [
+        "SkSLRasterPipelineBuilder.cpp",
+        "SkSLRasterPipelineCodeGenerator.cpp",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)

@@ -78,5 +78,6 @@ skia_filegroup(
     visibility = [
         "//include/private:__pkg__",
         "//src/base:__pkg__",
+        "//src/opts:__pkg__",
     ],
 )

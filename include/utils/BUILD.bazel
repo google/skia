@@ -26,3 +26,16 @@ skia_filegroup(
     ],  # TODO(kjlubick) add select for mac
     visibility = ["//include:__pkg__"],
 )
+
+skia_filegroup(
+    name = "core_hdrs",
+    srcs = [
+        "SkCustomTypeface.h",
+        "SkEventTracer.h",
+        "SkNWayCanvas.h",
+        "SkNoDrawCanvas.h",
+        "SkShadowUtils.h",
+        "SkTraceEventPhase.h",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)

@@ -13,7 +13,7 @@ py_binary(
     data = [
         ":sksl_minify",
         "//gn:minify_sksl",
-        "//src/sksl:sksl_srcs",
+        "//src/sksl:sksl_data",
     ],
     main = ":sksl_minify_srcs.py",
     # We can compile remotely, but because we are running the executable to modify files in

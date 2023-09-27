@@ -15,11 +15,11 @@ CORE_SKSLC_FILES = [
 ]
 
 split_srcs_and_hdrs(
-    name = "core_skslc",
+    name = "utils_skslc",
     files = CORE_SKSLC_FILES,
 )
 
-CORE_FILES = [
+UTIL_FILES = [
     "SkAnimCodecPlayer.cpp",
     "SkBase64.cpp",
     "SkBitSet.h",
@@ -62,8 +62,8 @@ CORE_FILES = [
 ]
 
 split_srcs_and_hdrs(
-    name = "core",
-    files = CORE_FILES,
+    name = "utils",
+    files = UTIL_FILES,
 )
 
 GPU_ONLY_FILES = [
@@ -123,8 +123,8 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":core_skslc_srcs",
-        ":core_srcs",
+        ":utils_skslc_srcs",
+        ":utils_srcs",
     ] + select({
         ":needs_json": [":json_srcs"],
         "//conditions:default": [],
@@ -139,8 +139,8 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":chromium_hdrs",
-        ":core_hdrs",
-        ":core_skslc_hdrs",
+        ":utils_hdrs",
+        ":utils_skslc_hdrs",
     ] + select({
         ":needs_json": [":json_hdrs"],
         "//conditions:default": [],
@@ -149,4 +149,32 @@ skia_filegroup(
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "core_priv_hdrs",
+    srcs = [
+        "SkBitSet.h",
+        "SkDashPathPriv.h",
+        "SkMatrix22.h",
+        "SkPatchUtils.h",
+        "SkPolyUtils.h",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "core_srcs",
+    srcs = [
+        "SkCustomTypeface.cpp",
+        "SkDashPath.cpp",
+        "SkEventTracer.cpp",
+        "SkMatrix22.cpp",
+        "SkPatchUtils.cpp",
+        "SkPolyUtils.cpp",
+        "SkShadowTessellator.cpp",
+        "SkShadowTessellator.h",
+        "SkShadowUtils.cpp",
+    ],
+    visibility = ["//src/core:__pkg__"],
 )

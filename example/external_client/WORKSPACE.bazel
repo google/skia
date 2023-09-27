@@ -31,8 +31,7 @@ local_repository(
 load("@skia//bazel:deps.bzl", "bazel_deps", "c_plus_plus_deps")
 # Be sure to call the functions.
 bazel_deps()
-# TODO(kjlubick) add in the call to the c_plus_plus_deps() functions once there
-# is a sample rule that makes use of codecs or similar
+c_plus_plus_deps()
 
 ##############################################################################
 # Everything below here is not required for Skia, but is required for the sample

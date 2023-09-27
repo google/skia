@@ -363,9 +363,26 @@ skia_cc_library(
 )
 
 skia_filegroup(
-    name = "buffet_base_srcs",
+    name = "base_srcs",
     srcs = [
         ":skdebug",
     ],
     visibility = ["//src/base:__pkg__"],
+)
+
+skia_filegroup(
+    name = "core_srcs",
+    srcs = [
+        ":global_init",
+        ":osfile",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_cc_library(
+    name = "default_font_manager_empty",
+    srcs = [":fontmgr_empty_factory"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = ["//src/core"],
 )

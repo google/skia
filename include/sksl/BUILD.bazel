@@ -10,5 +10,15 @@ skia_filegroup(
         "SkSLDebugTrace.h",
         "SkSLVersion.h",
     ],
-    visibility = ["//include:__pkg__"],
+    visibility = [
+        "//include:__pkg__",
+    ],
+)
+
+alias(
+    name = "core_hdrs",
+    actual = ":public_hdrs",
+    visibility = [
+        "//src/core:__pkg__",
+    ],
 )

@@ -4,7 +4,7 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-CORE_FILES = [
+IMAGE_FILES = [
     "SkImage.cpp",
     "SkImageGeneratorPriv.h",
     "SkImage_Base.cpp",
@@ -31,8 +31,8 @@ CORE_FILES = [
 ]
 
 split_srcs_and_hdrs(
-    name = "core",
-    files = CORE_FILES,
+    name = "image",
+    files = IMAGE_FILES,
 )
 
 skia_filegroup(
@@ -43,12 +43,32 @@ skia_filegroup(
 
 skia_filegroup(
     name = "srcs",
-    srcs = [":core_srcs"],
-    visibility = ["//src:__pkg__"],
+    srcs = [":image_srcs"],
+    visibility = [
+        "//src:__pkg__",
+    ],
 )
 
 skia_filegroup(
     name = "private_hdrs",
-    srcs = [":core_hdrs"],
-    visibility = ["//src:__pkg__"],
+    srcs = [":image_hdrs"],
+    visibility = [
+        "//src:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "core_priv_hdrs",
+    srcs = [":image_hdrs"],
+    visibility = [
+        "//src/core:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "core_srcs",
+    srcs = [":image_srcs"],
+    visibility = [
+        "//src/core:__pkg__",
+    ],
 )

@@ -27,3 +27,31 @@ skia_filegroup(
     ],
     visibility = ["//include:__pkg__"],
 )
+
+skia_filegroup(
+    name = "core_hdrs",
+    srcs = [
+        "SkEncodedOrigin.h",
+    ],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "any_codec_hdrs",
+    srcs = [
+        "SkPixmapUtils.h",
+    ],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "png_public_hdrs",
+    srcs = [
+        "SkCodec.h",
+        "SkCodecAnimation.h",
+        "SkEncodedImageFormat.h",
+        "SkPngChunkReader.h",
+        "SkPngDecoder.h",
+    ],
+    visibility = ["//src/codec:__pkg__"],
+)
