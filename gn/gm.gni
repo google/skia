@@ -416,7 +416,10 @@ gm_sources = [
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 
-fontations_gm_sources = [ "$_gm/fontations.cpp" ]
+fontations_gm_sources = [
+  "$_gm/fontations.cpp",
+  "$_gm/fontations_ft_compare.cpp",
+]
 
 ganesh_gm_sources = [
   "$_gm/aarecteffect.cpp",
