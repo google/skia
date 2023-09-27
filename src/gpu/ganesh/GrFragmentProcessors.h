@@ -8,6 +8,8 @@
 #ifndef GrFragmentProcessors_DEFINED
 #define GrFragmentProcessors_DEFINED
 
+#include "include/effects/SkRuntimeEffect.h"
+
 #include <tuple>
 #include <memory>
 
@@ -68,6 +70,13 @@ std::unique_ptr<GrFragmentProcessor> Make(const SkShader*, const GrFPArgs&, cons
 std::unique_ptr<GrFragmentProcessor> Make(const SkShader*,
                                           const GrFPArgs&,
                                           const SkShaders::MatrixRec&);
+
+/**
+ * Returns a GrFragmentProcessor for the passed-in runtime effect child. The processor will be
+ * created with generic/null inputs, since the runtime effect is responsible for filling in the
+ * arguments to the function.
+ */
+GrFPResult MakeChildFP(const SkRuntimeEffect::ChildPtr& child, const GrFPArgs& childArgs);
 
 }  // namespace GrFragmentProcessors
 
