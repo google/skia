@@ -794,9 +794,11 @@ std::tuple<bool, SkString> SkMesh::validate() const {
         }
     }
 
-    if (!fChildren.empty()) {
-        // TODO(b/40045302): support for `children` is a work-in-progress
-        FAIL_MESH_VALIDATE("effects are not permitted in mesh fragment shaders");
+    // TODO(b/40045302): only allow null child effects. Non-null children are a work in progress.
+    for (const ChildPtr& child : fChildren) {
+        if (child.type().has_value()) {
+            FAIL_MESH_VALIDATE("effects are not permitted in mesh fragment shaders");
+        }
     }
 
     auto vb = static_cast<SkMeshPriv::VB*>(fVB.get());

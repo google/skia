@@ -353,7 +353,7 @@ DEF_TEST(MeshSpec_FindChild, reporter) {
 DEF_TEST(Mesh_ChildEffectsMatchSpec, reporter) {
     auto test = [&](const char* prefix,
                     SkSpan<SkRuntimeEffect::ChildPtr> children,
-                    const char* expected) {
+                    const char* expectedError = nullptr) {
         SkString fsWithChild{prefix};
         fsWithChild.append(kValidFSes[0]);
 
@@ -380,11 +380,19 @@ DEF_TEST(Mesh_ChildEffectsMatchSpec, reporter) {
                                              children,
                                              SkRect::MakeEmpty());
 
-        REPORTER_ASSERT(reporter, !result.mesh.isValid());
-        REPORTER_ASSERT(reporter,
-                        result.error.contains(expected),
-                        "Expected: '%s'\n"
-                        "  Actual: '%s'\n", expected, result.error.c_str());
+        if (expectedError) {
+            REPORTER_ASSERT(reporter, !result.mesh.isValid());
+            REPORTER_ASSERT(reporter,
+                            result.error.contains(expectedError),
+                            "Expected: '%s'\n"
+                            "  Actual: '%s'\n", expectedError, result.error.c_str());
+        } else {
+            REPORTER_ASSERT(reporter, result.mesh.isValid());
+            REPORTER_ASSERT(reporter,
+                            result.error.isEmpty(),
+                            "Expected: no errors\n"
+                            "  Actual: '%s'\n", result.error.c_str());
+        }
     };
 
     SkRuntimeEffect::ChildPtr childShader[]  = {SkShaders::Color(SK_ColorBLACK)};
@@ -412,6 +420,11 @@ DEF_TEST(Mesh_ChildEffectsMatchSpec, reporter) {
     test("uniform blender myblender;", childFilter,
          "Child effect 'myblender' was specified as a blender, but passed as a color filter.");
 
+    // Null children are supported.
+    test("uniform shader myshader;", childNull);
+    test("uniform shader myfilter;", childNull);
+    test("uniform shader myblender;", childNull);
+
     // These are expected to match in type, but support is not actually implemented yet, so this
     // will report "effects are not permitted in mesh fragment shaders" for now.
     test("uniform shader myshader;", childShader,
@@ -421,13 +434,6 @@ DEF_TEST(Mesh_ChildEffectsMatchSpec, reporter) {
     test("uniform blender myblender;", childBlender,
          "effects are not permitted in mesh fragment shaders");
 
-    // Null children are always allowed to type-match.
-    test("uniform shader myshader;", childNull,
-         "effects are not permitted in mesh fragment shaders");
-    test("uniform shader myfilter;", childNull,
-         "effects are not permitted in mesh fragment shaders");
-    test("uniform shader myblender;", childNull,
-         "effects are not permitted in mesh fragment shaders");
 }
 
 DEF_TEST(MeshSpec_ValidUniforms, reporter) {

@@ -204,14 +204,32 @@ private:
             }
 
             std::string sampleShader(int index, std::string coords) override {
+                const GrFragmentProcessor* fp = fGP.fChildren[index].get();
+                if (!fp) {
+                    // For a null shader, return transparent black.
+                    return "half4(0)";
+                }
+                // TODO(b/40045302): add support for non-null shaders.
                 SK_ABORT("No children allowed.");
             }
 
             std::string sampleColorFilter(int index, std::string color) override {
+                const GrFragmentProcessor* fp = fGP.fChildren[index].get();
+                if (!fp) {
+                    // For a null color filter, return the color as-is.
+                    return color;
+                }
+                // TODO(b/40045302): add support for non-null color filters.
                 SK_ABORT("No children allowed.");
             }
 
             std::string sampleBlender(int index, std::string src, std::string dst) override {
+                const GrFragmentProcessor* fp = fGP.fChildren[index].get();
+                if (!fp) {
+                    // For a null blend, perform src-over.
+                    return SkSL::String::printf("blend_src_over(%s, %s)", src.c_str(), dst.c_str());
+                }
+                // TODO(b/40045302): add support for non-null blenders.
                 SK_ABORT("No children allowed.");
             }
 
