@@ -58,6 +58,7 @@ cc_binary_with_flags(
         "enable_gpu_test_utils": ["True"],
         "enable_svg_canvas": ["True"],
         "enable_sksl_tracing": ["True"],
+        "use_fontations": ["True"],
     },
     deps = [
         "//:skia_internal",
@@ -66,6 +67,7 @@ cc_binary_with_flags(
         "//tools:mskp_player",
         "//tools:registry",
         "//tools:runtime_blend_utils",
+        "//tools:test_font_data",
         "//tools:tool_utils",
         "//tools/gpu:utils",
         "//tools/sk_app",

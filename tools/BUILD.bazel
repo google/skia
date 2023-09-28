@@ -33,6 +33,24 @@ skia_cc_library(
 )
 
 skia_cc_library(
+    name = "test_font_data",
+    testonly = True,
+    srcs = [
+        "TestFontDataProvider.cpp",
+        "//src/utils:json_hdrs",
+        "//src/utils:json_srcs",
+    ],
+    hdrs = [
+        "TestFontDataProvider.h",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":tool_utils",
+        "//:skia_internal",
+    ],
+)
+
+skia_cc_library(
     name = "registry",
     hdrs = ["Registry.h"],
     visibility = [
