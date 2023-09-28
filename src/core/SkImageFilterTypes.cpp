@@ -675,22 +675,16 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         // If there is no transparency-affecting color filter and it's just decal tiling, it doesn't
         // matter how the image geometry overlaps with the dst bounds.
         // We only need to check how the image geometry overlaps the dst bounds if there's a color
-        // filter that affects transparent black, or there's non-decal tiling, or there's a blend
-        // that modifies transparent black (applied post layer clip).
-        const bool hasFillingEffectPreLayerClip =
-                (fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack()) ||
-                    fTileMode != SkTileMode::kDecal;
-        if (hasFillingEffectPreLayerClip || blendAffectsTransparentBlack) {
+        // filter that affects transparent black, or there's non-decal tiling
+        if ((fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack()) ||
+            fTileMode != SkTileMode::kDecal ||
+            blendAffectsTransparentBlack) {
             // If the image does not completely cover the render bounds, then the effects of tiling
             // won't be visible; otherwise add the analysis flag.
             if (!SkRectPriv::QuadContainsRect(SkMatrix::Concat(xtraTransform, SkMatrix(fTransform)),
                                               SkIRect::MakeSize(fImage->dimensions()),
                                               dstBounds)) {
-                // We add the effects-visible flag for any reason, but we only mark the effect as
-                // filling layer bounds if there's an effect that applies *before* the layer clip.
-                // If it's just a non-transparency-preserving blend, that applies after the layer
-                // clip so the layer boundary wouldn't be made visible by the blend.
-                fillsLayerBounds = hasFillingEffectPreLayerClip;
+                fillsLayerBounds = true;
                 analysis |= BoundsAnalysis::kEffectsVisible;
             }
         }
@@ -1142,9 +1136,7 @@ void FilterResult::draw(const Context& ctx,
     // detected and some GPUs' linear filtering doesn't exactly match nearest-neighbor and can
     // lead to leaks beyond the image's subset. Detect and reduce sampling explicitly.
     SkSamplingOptions sampling = fSamplingOptions;
-    if (sampling == kDefaultSampling &&
-        is_nearly_integer_translation(fTransform) &&
-        is_nearly_integer_translation(skif::LayerSpace<SkMatrix>(device->localToDevice()))) {
+    if (sampling == kDefaultSampling && is_nearly_integer_translation(fTransform)) {
         sampling = {};
     }
 
