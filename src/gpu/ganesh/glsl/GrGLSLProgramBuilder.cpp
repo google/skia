@@ -136,22 +136,14 @@ bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
     return true;
 }
 
-SkString GrGLSLProgramBuilder::emitRootFragProc(const GrFragmentProcessor& fp,
-                                                GrFragmentProcessor::ProgramImpl& impl,
-                                                const SkString& input,
-                                                SkString output) {
-    SkASSERT(input.size());
-
-    // Program builders have a bit of state we need to clear with each effect
-    this->advanceStage();
-    this->nameExpression(&output, "output");
-    fFS.codeAppendf("half4 %s;", output.c_str());
+bool GrGLSLProgramBuilder::emitTextureSamplersForFPs(const GrFragmentProcessor& fp,
+                                                     GrFragmentProcessor::ProgramImpl& impl,
+                                                     int* samplerIndex) {
     bool ok = true;
-    fp.visitWithImpls([&, samplerIdx = 0](const GrFragmentProcessor& fp,
-                                          GrFragmentProcessor::ProgramImpl& impl) mutable {
-        if (auto* te = fp.asTextureEffect()) {
-            SkString name;
-            name.printf("TextureSampler_%d", samplerIdx++);
+    fp.visitWithImpls([&](const GrFragmentProcessor& fp, GrFragmentProcessor::ProgramImpl& impl) {
+        if (const GrTextureEffect* te = fp.asTextureEffect()) {
+            SkString name = SkStringPrintf("TextureSampler_%d", *samplerIndex);
+            *samplerIndex += 1;
 
             GrSamplerState samplerState = te->samplerState();
             const GrBackendFormat& format = te->view().proxy()->backendFormat();
@@ -164,7 +156,22 @@ SkString GrGLSLProgramBuilder::emitRootFragProc(const GrFragmentProcessor& fp,
             static_cast<GrTextureEffect::Impl&>(impl).setSamplerHandle(handle);
         }
     }, impl);
-    if (!ok) {
+
+    return ok;
+}
+
+SkString GrGLSLProgramBuilder::emitRootFragProc(const GrFragmentProcessor& fp,
+                                                GrFragmentProcessor::ProgramImpl& impl,
+                                                const SkString& input,
+                                                SkString output) {
+    SkASSERT(input.size());
+
+    // Program builders have a bit of state we need to clear with each effect
+    this->advanceStage();
+    this->nameExpression(&output, "output");
+    fFS.codeAppendf("half4 %s;", output.c_str());
+    int samplerIndex = 0;
+    if (!this->emitTextureSamplersForFPs(fp, impl, &samplerIndex)) {
         return {};
     }
 

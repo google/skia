@@ -78,6 +78,14 @@ public:
     SkString nameVariable(char prefix, const char* name, bool mangle = true);
 
     /**
+     * Emits samplers for TextureEffect fragment processors as needed. `fp` can be a TextureEffect,
+     * or a tree containing zero or more TextureEffects.
+     */
+    bool emitTextureSamplersForFPs(const GrFragmentProcessor& fp,
+                                   GrFragmentProcessor::ProgramImpl& impl,
+                                   int* samplerIndex);
+
+    /**
      * If the FP's coords are unused or all uses have been lifted to interpolated varyings then
      * don't put coords in the FP's function signature or call sites.
      */
