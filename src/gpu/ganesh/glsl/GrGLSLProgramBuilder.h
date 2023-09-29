@@ -89,7 +89,7 @@ public:
      * If the FP's coords are unused or all uses have been lifted to interpolated varyings then
      * don't put coords in the FP's function signature or call sites.
      */
-    bool fragmentProcessorHasCoordsParam(const GrFragmentProcessor*);
+    bool fragmentProcessorHasCoordsParam(const GrFragmentProcessor*) const;
 
     virtual GrGLSLUniformHandler* uniformHandler() = 0;
     virtual const GrGLSLUniformHandler* uniformHandler() const = 0;

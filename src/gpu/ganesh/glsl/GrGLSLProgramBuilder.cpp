@@ -503,8 +503,10 @@ void GrGLSLProgramBuilder::addRTFlipUniform(const char* name) {
                                                     nullptr);
 }
 
-bool GrGLSLProgramBuilder::fragmentProcessorHasCoordsParam(const GrFragmentProcessor* fp) {
-    return fFPCoordsMap[fp].hasCoordsParam;
+bool GrGLSLProgramBuilder::fragmentProcessorHasCoordsParam(const GrFragmentProcessor* fp) const {
+    auto iter = fFPCoordsMap.find(fp);
+    return (iter != fFPCoordsMap.end()) ? iter->second.hasCoordsParam
+                                        : fp->usesSampleCoords();
 }
 
 void GrGLSLProgramBuilder::finalizeShaders() {
