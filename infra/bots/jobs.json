@@ -53,6 +53,8 @@
   {"name": "BazelTest-precompiled-android_cpu_only_test-pixel_5-linux_arm64"},
   {"name": "BazelTest-precompiled_gm-hello_bazel_world_android_test-pixel_5-linux_arm64"},
   {"name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"},
+  {"name": "BazelTest-external_client-path_combiner-default-linux_x64"},
+  {"name": "BazelTest-external_client-png_decoder-default-linux_x64"},
   {"name": "Build-Debian11-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian11-GCC-x86-Release-Docker"},
   {"name": "Build-Debian11-GCC-x86_64-Debug-Docker"},

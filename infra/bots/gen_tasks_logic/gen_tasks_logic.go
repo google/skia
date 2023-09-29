@@ -2150,6 +2150,10 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
 	"hello_bazel_world_test":         {"//gm:hello_bazel_world_test", ""},
 
+	// Note: these paths are relative to the WORKSPACE in //example/external_client
+	"path_combiner": {"//:path_combiner", ""},
+	"png_decoder":   {"//:png_decoder", ""},
+
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.
 	//
@@ -2366,6 +2370,13 @@ func (b *jobBuilder) bazelTest() {
 				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
 				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
 			b.cipd(CIPD_PKGS_GOLDCTL)
+
+		case "external_client":
+			cmd = append(cmd,
+				"--bazel_label="+labelAndSavedOutputDir.label,
+				"--path_in_skia=example/external_client",
+				"--bazel_cache_dir="+bazelCacheDir)
+			b.usesDocker()
 
 		default:
 			panic("Unsupported Bazel taskdriver " + taskdriverName)

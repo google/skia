@@ -82,9 +82,9 @@
       "type=bind,source=[START_DIR]/cache/work,target=/SRC",
       "--mount",
       "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian11-GCC-x86_64-Release-NoGPU_Docker/Release,target=/OUT",
-      "gcr.io/skia-public/gcc-debian11@sha256:7d722ac227234b36b77d24ab470fd4e3e8deec812eb1b1145ad7c3751d32fb83",
+      "gcr.io/skia-public/gcc-debian11@sha256:1117ea368f43e45e0f543f74c8e3bf7ff6932df54ddaa4ba1fe6131209110d3d",
       "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-compile.sh",
-      "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-g1\",\"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/gcc-debian11@sha256:7d722ac227234b36b77d24ab470fd4e3e8deec812eb1b1145ad7c3751d32fb83\"] extra_ldflags=[] is_debug=false skia_enable_ganesh=false target_cpu=\"x86_64\" werror=true"
+      "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-g1\",\"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/gcc-debian11@sha256:1117ea368f43e45e0f543f74c8e3bf7ff6932df54ddaa4ba1fe6131209110d3d\"] extra_ldflags=[] is_debug=false skia_enable_ganesh=false target_cpu=\"x86_64\" werror=true"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

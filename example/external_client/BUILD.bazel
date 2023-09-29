@@ -7,7 +7,10 @@ cc_binary(
     name = "path_combiner",
     srcs = ["src/path_main.cpp"],
     copts = ["-std=c++17"],
-    linkopts = ["-fuse-ld=lld"],
+    linkopts = [
+        "-fuse-ld=lld",
+        "-lpthread",
+    ],
     deps = [":skia_core_and_pathops"],
 )
 
@@ -25,7 +28,10 @@ cc_binary(
     name = "png_decoder",
     srcs = ["src/decode_png_main.cpp"],
     copts = ["-std=c++17"],
-    linkopts = ["-fuse-ld=lld"],
+    linkopts = [
+        "-fuse-ld=lld",
+        "-lpthread",
+    ],
     deps = [
         "@skia//:core",
         "@skia//:default_font_manager_empty",

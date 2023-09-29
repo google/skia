@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "external_client_lib",
+    srcs = ["external_client.go"],
+    importpath = "go.skia.org/skia/infra/bots/task_drivers/external_client",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//infra/bots/task_drivers/common",
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//task_driver/go/lib/os_steps",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)
+
+go_binary(
+    name = "external_client",
+    embed = [":external_client_lib"],
+    visibility = ["//visibility:public"],
+)

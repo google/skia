@@ -8,7 +8,7 @@ from . import util
 IMAGES = {
     'gcc-debian11': (
         'gcr.io/skia-public/gcc-debian11@sha256:'
-        '7d722ac227234b36b77d24ab470fd4e3e8deec812eb1b1145ad7c3751d32fb83'),
+        '1117ea368f43e45e0f543f74c8e3bf7ff6932df54ddaa4ba1fe6131209110d3d'),
     'gcc-debian11-x86': (
         'gcr.io/skia-public/gcc-debian11-x86@sha256:'
         'eb30682887c4c74c95f769aacab8a1a170eb561536ded87f0914f88b7243ba23'),

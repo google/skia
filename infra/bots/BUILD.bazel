@@ -32,6 +32,7 @@ genrule(
         "//infra/bots/task_drivers/push_apps_from_skia_image",
         "//infra/bots/task_drivers/recreate_skps",
         "//infra/bots/task_drivers/run_gn_to_bp",
+        "//infra/bots/task_drivers/external_client",
         "//infra/bots/task_drivers/run_wasm_gm_tests",
         "//infra/bots/task_drivers/toolchain_layering_check",
         "@org_skia_go_infra//infra/bots/task_drivers/build_push_docker_image",
