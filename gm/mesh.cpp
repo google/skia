@@ -62,12 +62,11 @@ protected:
                         return varyings.uv;
                     }
             )";
-            auto[spec, error] =
-                    SkMeshSpecification::Make(kAttributes,
-                                              sizeof(ColorVertex),
-                                              kVaryings,
-                                              SkString(kVS),
-                                              SkString(kFS));
+            auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                           sizeof(ColorVertex),
+                                                           kVaryings,
+                                                           SkString(kVS),
+                                                           SkString(kFS));
             if (!spec) {
                 SkDebugf("%s\n", error.c_str());
             }
@@ -94,12 +93,11 @@ protected:
                         return helper(varyings.vux2);
                     }
             )";
-            auto[spec, error] =
-                    SkMeshSpecification::Make(kAttributes,
-                                              sizeof(NoColorVertex),
-                                              kVaryings,
-                                              SkString(kVS),
-                                              SkString(kFS));
+            auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                           sizeof(NoColorVertex),
+                                                           kVaryings,
+                                                           SkString(kVS),
+                                                           SkString(kFS));
             if (!spec) {
                 SkDebugf("%s\n", error.c_str());
             }

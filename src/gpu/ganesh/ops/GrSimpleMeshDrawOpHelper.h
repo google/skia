@@ -200,7 +200,7 @@ GrOp::Owner GrOp::MakeWithProcessorSet(
         GrPaint&& paint, Args&&... args) {
     char* bytes = (char*)::operator new(sizeof(Op) + sizeof(GrProcessorSet));
     char* setMem = bytes + sizeof(Op);
-    GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};
+    GrProcessorSet* processorSet = new (setMem) GrProcessorSet{std::move(paint)};
     return Owner{new (bytes) Op(processorSet, color, std::forward<Args>(args)...)};
 }
 

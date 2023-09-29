@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -383,11 +384,13 @@ public:
      * @param   paint      describes how to color pixels.
      * @param   viewMatrix transformation matrix
      * @param   mesh       the mesh to draw.
+     * @param   children   child effects referenced by SkMesh shaders
      */
     void drawMesh(const GrClip*,
                   GrPaint&& paint,
                   const SkMatrix& viewMatrix,
-                  const SkMesh& mesh);
+                  const SkMesh& mesh,
+                  skia_private::TArray<std::unique_ptr<GrFragmentProcessor>> children);
 
     /**
      * Draws textured sprites from an atlas with a paint. This currently does not support AA for the

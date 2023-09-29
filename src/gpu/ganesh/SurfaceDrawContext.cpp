@@ -79,6 +79,8 @@
 #define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
 #define RETURN_FALSE_IF_ABANDONED  if (fContext->abandoned()) { return false; }
 
+using namespace skia_private;
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace {
@@ -938,7 +940,8 @@ void SurfaceDrawContext::drawVertices(const GrClip* clip,
 void SurfaceDrawContext::drawMesh(const GrClip* clip,
                                   GrPaint&& paint,
                                   const SkMatrix& viewMatrix,
-                                  const SkMesh& mesh) {
+                                  const SkMesh& mesh,
+                                  TArray<std::unique_ptr<GrFragmentProcessor>> children) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -956,6 +959,7 @@ void SurfaceDrawContext::drawMesh(const GrClip* clip,
     GrOp::Owner op = DrawMeshOp::Make(fContext,
                                       std::move(paint),
                                       mesh,
+                                      std::move(children),
                                       viewMatrix,
                                       aaType,
                                       std::move(xform));

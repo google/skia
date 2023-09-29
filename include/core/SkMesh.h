@@ -368,6 +368,8 @@ public:
     sk_sp<const SkData> refUniforms() const { return fUniforms; }
     const SkData* uniforms() const { return fUniforms.get(); }
 
+    SkSpan<const ChildPtr> children() const { return SkSpan(fChildren); }
+
     SkRect bounds() const { return fBounds; }
 
     bool isValid() const;

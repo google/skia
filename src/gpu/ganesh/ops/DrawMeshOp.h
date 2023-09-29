@@ -10,6 +10,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
@@ -23,6 +24,7 @@ namespace skgpu::ganesh::DrawMeshOp {
 GrOp::Owner Make(GrRecordingContext*,
                  GrPaint&&,
                  const SkMesh&,
+                 skia_private::TArray<std::unique_ptr<GrFragmentProcessor>> children,
                  const SkMatrix&,
                  GrAAType,
                  sk_sp<GrColorSpaceXform>);

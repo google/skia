@@ -33,10 +33,12 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkVertices.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
@@ -46,6 +48,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/chromium/Slug.h"  // IWYU pragma: keep
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -71,6 +74,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
@@ -111,6 +115,8 @@
 class GrBackendSemaphore;
 struct GrShaderCaps;
 struct SkDrawShadowRec;
+
+using namespace skia_private;
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
@@ -167,6 +173,26 @@ bool init_vertices_paint(GrRecordingContext* rContext,
     } else {
         return SkPaintToGrPaint(rContext, colorInfo, skPaint, ctm, props, grPaint);
     }
+}
+
+bool init_mesh_child_effects(GrRecordingContext* rContext,
+                             const GrColorInfo& colorInfo,
+                             const SkSurfaceProps& surfaceProps,
+                             const SkMesh& mesh,
+                             TArray<std::unique_ptr<GrFragmentProcessor>>* meshChildFPs) {
+    // We use `Scope::kRuntimeEffect` here to ensure that mesh shaders get the same "raw" sampling
+    // behavior from alpha-only image shaders as a Runtime Effect would, rather than the unexpected
+    // tinting-by-input-color.
+    GrFPArgs fpArgs(rContext, &colorInfo, surfaceProps, GrFPArgs::Scope::kRuntimeEffect);
+
+    for (const SkRuntimeEffect::ChildPtr& child : mesh.children()) {
+        auto [success, childFP] = GrFragmentProcessors::MakeChildFP(child, fpArgs);
+        if (!success) {
+            return false;
+        }
+        meshChildFPs->push_back(std::move(childFP));
+    }
+    return true;
 }
 
 } // anonymous namespace
@@ -1092,7 +1118,17 @@ void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPain
                              &grPaint)) {
         return;
     }
-    fSurfaceDrawContext->drawMesh(this->clip(), std::move(grPaint), this->localToDevice(), mesh);
+
+    TArray<std::unique_ptr<GrFragmentProcessor>> meshChildFPs;
+    if (!init_mesh_child_effects(fContext.get(),
+                                 fSurfaceDrawContext->colorInfo(),
+                                 fSurfaceDrawContext->surfaceProps(),
+                                 mesh,
+                                 &meshChildFPs)) {
+        return;
+    }
+    fSurfaceDrawContext->drawMesh(this->clip(), std::move(grPaint), this->localToDevice(), mesh,
+                                  std::move(meshChildFPs));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

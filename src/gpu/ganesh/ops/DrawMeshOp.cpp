@@ -54,6 +54,9 @@ GrVertexAttribType attrib_type(MeshAttributeType type) {
 }
 
 class MeshGP : public GrGeometryProcessor {
+private:
+    using ChildPtr = SkRuntimeEffect::ChildPtr;
+
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
                                      sk_sp<SkMeshSpecification> spec,
@@ -61,14 +64,16 @@ public:
                                      const SkMatrix& viewMatrix,
                                      const std::optional<SkPMColor4f>& color,
                                      bool needsLocalCoords,
-                                     sk_sp<const SkData> uniforms) {
+                                     sk_sp<const SkData> uniforms,
+                                     SkSpan<std::unique_ptr<GrFragmentProcessor>> children) {
         return arena->make([&](void* ptr) {
             return new (ptr) MeshGP(std::move(spec),
                                     std::move(colorSpaceXform),
                                     viewMatrix,
                                     std::move(color),
                                     needsLocalCoords,
-                                    std::move(uniforms));
+                                    std::move(uniforms),
+                                    children);
         });
     }
 
@@ -124,7 +129,12 @@ private:
 
             std::string declareUniform(const SkSL::VarDeclaration* decl) override {
                 const SkSL::Variable* var = decl->var();
-                SkASSERT(!var->type().isOpaque());
+                if (var->type().isOpaque()) {
+                    // Nothing to do. The only opaque types we should see are children, and those
+                    // will be handled in the `sample` overloads below.
+                    SkASSERT(var->type().isEffectChild());
+                    return std::string(var->name());
+                }
 
                 const SkSL::Type* type = &var->type();
                 bool isArray = false;
@@ -425,15 +435,17 @@ private:
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     };
 
-    MeshGP(sk_sp<SkMeshSpecification>        spec,
-           sk_sp<GrColorSpaceXform>          colorSpaceXform,
-           const SkMatrix&                   viewMatrix,
-           const std::optional<SkPMColor4f>& color,
-           bool                              needsLocalCoords,
-           sk_sp<const SkData>               uniforms)
+    MeshGP(sk_sp<SkMeshSpecification>                   spec,
+           sk_sp<GrColorSpaceXform>                     colorSpaceXform,
+           const SkMatrix&                              viewMatrix,
+           const std::optional<SkPMColor4f>&            color,
+           bool                                         needsLocalCoords,
+           sk_sp<const SkData>                          uniforms,
+           SkSpan<std::unique_ptr<GrFragmentProcessor>> children)
             : INHERITED(kVerticesGP_ClassID)
             , fSpec(std::move(spec))
             , fUniforms(std::move(uniforms))
+            , fChildren(children)
             , fViewMatrix(viewMatrix)
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fNeedsLocalCoords(needsLocalCoords) {
@@ -447,13 +459,14 @@ private:
         this->setVertexAttributes(fAttributes.data(), fAttributes.size(), fSpec->stride());
     }
 
-    sk_sp<SkMeshSpecification> fSpec;
-    sk_sp<const SkData>        fUniforms;
-    std::vector<Attribute>     fAttributes;
-    SkMatrix                   fViewMatrix;
-    SkPMColor4f                fColor;
-    sk_sp<GrColorSpaceXform>   fColorSpaceXform;
-    bool                       fNeedsLocalCoords;
+    sk_sp<SkMeshSpecification>                   fSpec;
+    sk_sp<const SkData>                          fUniforms;
+    SkSpan<std::unique_ptr<GrFragmentProcessor>> fChildren;  // backed by TArray in the MeshOp
+    std::vector<Attribute>                       fAttributes;
+    SkMatrix                                     fViewMatrix;
+    SkPMColor4f                                  fColor;
+    sk_sp<GrColorSpaceXform>                     fColorSpaceXform;
+    bool                                         fNeedsLocalCoords;
 
     using INHERITED = GrGeometryProcessor;
 };
@@ -461,6 +474,7 @@ private:
 class MeshOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
+    using ChildPtr = SkRuntimeEffect::ChildPtr;
 
 public:
     DEFINE_OP_CLASS_ID
@@ -468,6 +482,7 @@ public:
     MeshOp(GrProcessorSet*,
            const SkPMColor4f&,
            const SkMesh&,
+           TArray<std::unique_ptr<GrFragmentProcessor>> children,
            GrAAType,
            sk_sp<GrColorSpaceXform>,
            const SkMatrix&);
@@ -632,7 +647,7 @@ private:
     sk_sp<SkMeshSpecification> fSpecification;
     bool                       fIgnoreSpecColor = false;
     GrPrimitiveType            fPrimitiveType;
-    STArray<1, Mesh>         fMeshes;
+    STArray<1, Mesh>           fMeshes;
     sk_sp<GrColorSpaceXform>   fColorSpaceXform;
     SkPMColor4f                fColor; // Used if no color from spec or analysis overrides.
     SkMatrix                   fViewMatrix;
@@ -641,6 +656,7 @@ private:
     int                        fIndexCount;
     GrSimpleMesh*              fMesh = nullptr;
     GrProgramInfo*             fProgramInfo = nullptr;
+    TArray<std::unique_ptr<GrFragmentProcessor>> fChildren;
 
     using INHERITED = GrMeshDrawOp;
 };
@@ -660,14 +676,14 @@ MeshOp::Mesh::Mesh(const SkMesh& mesh) {
     // The caller could modify CPU buffers after the draw so we must copy the data.
     if (fMeshData.vb->peek()) {
         auto data = SkTAddOffset<const void>(fMeshData.vb->peek(), fMeshData.voffset);
-        size_t size = fMeshData.vcount*mesh.spec()->stride();
+        size_t size = fMeshData.vcount * mesh.spec()->stride();
         fMeshData.vb = SkMeshPriv::CpuVertexBuffer::Make(data, size);
         fMeshData.voffset = 0;
     }
 
     if (fMeshData.ib && fMeshData.ib->peek()) {
         auto data = SkTAddOffset<const void>(fMeshData.ib->peek(), fMeshData.ioffset);
-        size_t size = fMeshData.icount*sizeof(uint16_t);
+        size_t size = fMeshData.icount * sizeof(uint16_t);
         fMeshData.ib = SkMeshPriv::CpuIndexBuffer::Make(data, size);
         fMeshData.ioffset = 0;
     }
@@ -725,12 +741,13 @@ void MeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
     }
 }
 
-MeshOp::MeshOp(GrProcessorSet*          processorSet,
-               const SkPMColor4f&       color,
-               const SkMesh&            mesh,
-               GrAAType                 aaType,
-               sk_sp<GrColorSpaceXform> colorSpaceXform,
-               const SkMatrix&          viewMatrix)
+MeshOp::MeshOp(GrProcessorSet*                              processorSet,
+               const SkPMColor4f&                           color,
+               const SkMesh&                                mesh,
+               TArray<std::unique_ptr<GrFragmentProcessor>> children,
+               GrAAType                                     aaType,
+               sk_sp<GrColorSpaceXform>                     colorSpaceXform,
+               const SkMatrix&                              viewMatrix)
         : INHERITED(ClassID())
         , fHelper(processorSet, aaType)
         , fPrimitiveType(primitive_type(mesh.mode()))
@@ -747,6 +764,8 @@ MeshOp::MeshOp(GrProcessorSet*          processorSet,
     } else {
         fUniforms = mesh.refUniforms();
     }
+
+    fChildren = std::move(children);
 
     fVertexCount = fMeshes.back().vertexCount();
     fIndexCount  = fMeshes.back().indexCount();
@@ -791,12 +810,11 @@ static SkMeshSpecification* make_vertices_spec(bool hasColors, bool hasTex) {
     }
     vs += "v.position = a.pos;\nreturn v;\n}";
     fs += "}";
-    auto [spec, error] = SkMeshSpecification::Make(
-            SkSpan(attributes),
-            size,
-            SkSpan(varyings),
-            vs,
-            fs);
+    auto [spec, error] = SkMeshSpecification::Make(SkSpan(attributes),
+                                                   size,
+                                                   SkSpan(varyings),
+                                                   vs,
+                                                   fs);
     SkASSERT(spec);
     return spec.release();
 }
@@ -903,7 +921,8 @@ GrGeometryProcessor* MeshOp::makeGP(SkArenaAlloc* arena) {
                         vm,
                         color,
                         fHelper.usesLocalCoords(),
-                        fUniforms);
+                        fUniforms,
+                        SkSpan(fChildren));
 }
 
 void MeshOp::onCreateProgramInfo(const GrCaps* caps,
@@ -1087,12 +1106,14 @@ namespace skgpu::ganesh::DrawMeshOp {
 GrOp::Owner Make(GrRecordingContext* context,
                  GrPaint&& paint,
                  const SkMesh& mesh,
+                 TArray<std::unique_ptr<GrFragmentProcessor>> children,
                  const SkMatrix& viewMatrix,
                  GrAAType aaType,
                  sk_sp<GrColorSpaceXform> colorSpaceXform) {
     return GrSimpleMeshDrawOpHelper::FactoryHelper<MeshOp>(context,
                                                            std::move(paint),
                                                            mesh,
+                                                           std::move(children),
                                                            aaType,
                                                            std::move(colorSpaceXform),
                                                            viewMatrix);
