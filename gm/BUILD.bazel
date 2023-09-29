@@ -12,7 +12,6 @@ filegroup(
     srcs = [
         "bitmaprect.cpp",
         "fontations.cpp",
-        "fontations_ft_compare.cpp",
     ],
     visibility = ["//tools/viewer:__pkg__"],
 )
@@ -32,7 +31,6 @@ skia_cc_library(
     ],
     deps = [
         "//:skia_internal",
-        "//modules/skshaper",
         "//tools:registry",
         "//tools:tool_utils",
     ],
