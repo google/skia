@@ -7,8 +7,10 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkVx.h"
-
 #include "src/core/SkMatrixInvert.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPathPriv.h"

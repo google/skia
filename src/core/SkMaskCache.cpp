@@ -7,6 +7,21 @@
 
 #include "src/core/SkMaskCache.h"
 
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkTLazy.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkResourceCache.h"
+
+#include <cstddef>
+#include <cstdint>
+
+class SkDiscardableMemory;
+enum SkBlurStyle : int;
+
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
 

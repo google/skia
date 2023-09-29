@@ -9,8 +9,12 @@
 #define SkM44_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+
+#include <cstring>
+
+struct SkRect;
 
 struct SK_API SkV2 {
     float x, y;

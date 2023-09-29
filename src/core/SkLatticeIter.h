@@ -9,11 +9,13 @@
 #define SkLatticeIter_DEFINED
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTArray.h"
 
-struct SkIRect;
-struct SkRect;
+class SkMatrix;
 
 /**
  *  Disect a lattice request into an sequence of src-rect / dst-rect pairs

@@ -8,7 +8,6 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
-#include "src/core/SkOptsTargets.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
 #include <cstddef>

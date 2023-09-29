@@ -9,10 +9,15 @@
 #define SkImageFilterCache_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkImageFilterTypes.h"
 
-struct SkIPoint;
+#include <cstddef>
+#include <cstdint>
+
 class SkImageFilter;
 
 struct SkImageFilterCacheKey {

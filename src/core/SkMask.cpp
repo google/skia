@@ -8,9 +8,12 @@
 #include "src/core/SkMask.h"
 
 #include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 
+#include <array>
 #include <climits>
 
 /** returns the product if it is positive and fits in 31 bits. Otherwise this

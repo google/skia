@@ -7,9 +7,8 @@
 
 #include "src/core/SkLocalMatrixImageFilter.h"
 
-#include "include/core/SkString.h"
+#include "include/core/SkImageFilter.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 
 sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localMatrix,

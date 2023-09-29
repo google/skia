@@ -9,7 +9,17 @@
 #define SkLocalMatrixImageFilter_DEFINED
 
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+
+#include <optional>
+
+class SkImageFilter;
+class SkReadBuffer;
+class SkWriteBuffer;
 
 /**
  *  Wraps another imagefilter + matrix, such that using this filter will give the same result

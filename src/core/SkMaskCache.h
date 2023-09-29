@@ -8,13 +8,15 @@
 #ifndef SkMaskCache_DEFINED
 #define SkMaskCache_DEFINED
 
-#include "include/core/SkBlurTypes.h"
-#include "include/core/SkRRect.h"
-#include "include/core/SkRect.h"
-#include "src/base/SkTLazy.h"
-#include "src/core/SkCachedData.h"
-#include "src/core/SkMask.h"
-#include "src/core/SkResourceCache.h"
+#include "include/core/SkScalar.h"
+
+class SkCachedData;
+class SkRRect;
+class SkResourceCache;
+enum SkBlurStyle : int;
+struct SkMask;
+struct SkRect;
+template <typename T> class SkTLazy;
 
 class SkMaskCache {
 public:

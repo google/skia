@@ -8,11 +8,14 @@
 #ifndef SkMask_DEFINED
 #define SkMask_DEFINED
 
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 
 /** \class SkMask

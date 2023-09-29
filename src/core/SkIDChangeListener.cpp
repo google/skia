@@ -7,6 +7,9 @@
 
 #include "include/private/SkIDChangeListener.h"
 
+#include "include/private/base/SkAssert.h"
+
+#include <utility>
 /**
  * Used to be notified when a gen/unique ID is invalidated, typically to preemptively purge
  * associated items from a cache that are no longer reachable. The listener can

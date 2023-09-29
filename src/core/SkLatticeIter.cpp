@@ -5,8 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkRect.h"
 #include "src/core/SkLatticeIter.h"
+
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+
+#include <cstdint>
 
 /**
  *  Divs must be in increasing order with no duplicates.

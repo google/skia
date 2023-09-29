@@ -10,9 +10,14 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTo.h"
+
+#include <cstdint>
 
 /**
  * SkColorSpaceLuminance is used to convert luminances to and from linear and
