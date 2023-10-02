@@ -31,7 +31,7 @@ const int $kColorSpaceXformFlagPremul = 0x10;
 const float $kLinearInset = 0.5 + 0.00001;
 
 $pure half4 sk_error() {
-    return half4(1.0, 0.0, 1.0, 1.0);
+    return half4(1.0, 0.0, 0.0, 1.0);
 }
 
 $pure half4 sk_passthrough(half4 color) {

@@ -1,5 +1,5 @@
 static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
-"$pure half4 sk_error(){return half4(1.,0.,1.,1.);}$pure half4 sk_passthrough"
+"$pure half4 sk_error(){return half4(1.,0.,0.,1.);}$pure half4 sk_passthrough"
 "(half4 a){return a;}$pure half4 sk_solid_shader(float4 a){return half4(a);}"
 "$pure half4 $k(int a,half4 b){switch(a){case 1:return half4(b.xyz,1.);case 2"
 ":return b.xxxx;case 3:return half4(b.xxx,1.);case 4:return b.zyxw;case 5:return"

@@ -602,6 +602,8 @@ void add_children_to_key(const KeyContext& keyContext,
 
     SkASSERT(optionSet.size() == childInfo.size());
 
+    KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+
     int remainingCombinations = desiredCombination;
 
     for (size_t index = 0; index < optionSet.size(); ++index) {
@@ -614,27 +616,32 @@ void add_children_to_key(const KeyContext& keyContext,
 
         std::optional<ChildType> type = childOption.type();
         if (type == ChildType::kShader) {
-            childOption.shader()->priv().addToKey(keyContext, curCombo, builder);
+            childOption.shader()->priv().addToKey(childContext, curCombo, builder);
         } else if (type == ChildType::kColorFilter) {
-            childOption.colorFilter()->priv().addToKey(keyContext, curCombo, builder);
+            childOption.colorFilter()->priv().addToKey(childContext, curCombo, builder);
         } else if (type == ChildType::kBlender) {
-            childOption.blender()->priv().addToKey(keyContext, curCombo, builder);
+            childOption.blender()->priv().addToKey(childContext, curCombo, builder);
         } else {
             SkASSERT(curCombo == 0);
 
             // We don't have a child effect. Substitute in a no-op effect.
             switch (childInfo[index].type) {
                 case ChildType::kShader:
+                    // A missing shader returns transparent black
+                    SolidColorShaderBlock::BeginBlock(
+                            childContext, builder, /* gatherer= */ nullptr, {0, 0, 0, 0});
+                    builder->endBlock();
+                    break;
+
                 case ChildType::kColorFilter:
                     // A "passthrough" shader returns the input color as-is.
-                    PriorOutputBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr);
-                    builder->endBlock();
+                    builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
                     break;
 
                 case ChildType::kBlender:
                     // A "passthrough" blender performs `blend_src_over(src, dest)`.
                     BlendModeBlenderBlock::BeginBlock(
-                            keyContext, builder, /* gatherer= */ nullptr, SkBlendMode::kSrcOver);
+                            childContext, builder, /* gatherer= */ nullptr, SkBlendMode::kSrcOver);
                     builder->endBlock();
                     break;
             }

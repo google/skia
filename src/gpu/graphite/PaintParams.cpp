@@ -175,12 +175,12 @@ void AddDstReadBlock(const KeyContext& keyContext,
             DstReadSampleBlock::BeginBlock(keyContext, builder, gatherer,
                                            keyContext.dstTexture(),
                                            keyContext.dstOffset());
+            builder->endBlock();
             break;
         case DstReadRequirement::kFramebufferFetch:
-            DstReadFetchBlock::BeginBlock(keyContext, builder, gatherer);
+            builder->addBlock(BuiltInCodeSnippetID::kDstReadFetch);
             break;
     }
-    builder->endBlock();
 }
 
 void PaintParams::addPaintColorToKey(const KeyContext& keyContext,
@@ -212,8 +212,7 @@ void PaintParams::handlePrimitiveColor(const KeyContext& keyContext,
                   this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
               },
               /* addDstToKey= */ [&]() -> void {
-                  PrimitiveColorBlock::BeginBlock(keyContext, keyBuilder, gatherer);
-                  keyBuilder->endBlock();
+                  keyBuilder->addBlock(BuiltInCodeSnippetID::kPrimitiveColor);
               });
     } else {
         this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
@@ -324,8 +323,8 @@ void PaintParams::toKey(const KeyContext& keyContext,
     SkASSERT(finalBlendMode);
     BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
             kFixedFunctionBlendModeIDOffset + static_cast<int>(*finalBlendMode));
-    builder->beginBlock(fixedFuncBlendModeID);
-    builder->endBlock();
+
+    builder->addBlock(fixedFuncBlendModeID);
 }
 
 } // namespace skgpu::graphite

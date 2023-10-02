@@ -67,12 +67,6 @@ struct DstReadSampleBlock {
                            SkIPoint dstOffset);
 };
 
-struct DstReadFetchBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*);
-};
-
 struct SolidColorShaderBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
@@ -295,10 +289,6 @@ struct CoeffBlenderBlock {
                            SkSpan<const float> coeffs);
 };
 
-struct PrimitiveColorBlock {
-    static void BeginBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*);
-};
-
 struct ComposeBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
@@ -340,12 +330,6 @@ struct TableColorFilterBlock {
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const TableColorFilterData&);
-};
-
-struct GaussianColorFilterBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*);
 };
 
 struct ColorSpaceTransformBlock {

@@ -131,6 +131,12 @@ public:
     void checkReset();
 #endif
 
+    // Helper to add blocks that don't have children
+    void addBlock(BuiltInCodeSnippetID id) {
+        this->beginBlock(id);
+        this->endBlock();
+    }
+
 private:
     friend class AutoLockBuilderAsKey; // for lockAsKey() and unlock()
 
