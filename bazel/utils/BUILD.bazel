@@ -32,7 +32,7 @@ genrule(
     name = "create_go_platform_script",
     outs = ["go_platform.py"],
     cmd = "echo '%s' > $@" % _GO_PLATFORM,
-    exec_tools = [
+    tools = [
         "@go_sdk//:bin/go",
     ],
 )

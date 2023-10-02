@@ -285,7 +285,6 @@ skia_ganesh_tests(
 bool_flag(
     name = "force_cpu_tests",
     default = False,
-    public = False,
 )
 
 selects.config_setting_group(

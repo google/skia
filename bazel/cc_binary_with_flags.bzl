@@ -97,7 +97,7 @@ def _transition_rule_impl(ctx):
     return [
         DefaultInfo(
             executable = outfile,
-            runfiles = actual_binary[DefaultInfo].default_runfiles,
+            runfiles = actual_binary[DefaultInfo].data_runfiles,
         ),
     ]
 

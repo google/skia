@@ -33,7 +33,7 @@ genrule(
           "$(location flutter/icudtl.dat) " +
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@",
-    exec_tools = [":make_data_cpp"],
+    tools = [":make_data_cpp"],
 )
 
 # We need to make a separate genrule per input because cmd cannot be based on a select()
@@ -46,7 +46,7 @@ genrule(
           "$(location common/icudtl.dat) " +
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@",
-    exec_tools = [":make_data_assembly"],
+    tools = [":make_data_assembly"],
 )
 
 genrule(
@@ -58,7 +58,7 @@ genrule(
           "$(location android/icudtl.dat) " +
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@",
-    exec_tools = [":make_data_assembly"],
+    tools = [":make_data_assembly"],
 )
 
 genrule(
@@ -70,7 +70,7 @@ genrule(
           "$(location ios/icudtl.dat) " +
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@ --mac",
-    exec_tools = [":make_data_assembly"],
+    tools = [":make_data_assembly"],
 )
 
 genrule(
@@ -82,7 +82,7 @@ genrule(
           "$(location common/icudtl.dat) " +
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@ --mac",
-    exec_tools = [":make_data_assembly"],
+    tools = [":make_data_assembly"],
 )
 
 # For convenience, we add in a Skia-specific loader to help out on Windows.

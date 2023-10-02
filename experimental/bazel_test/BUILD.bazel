@@ -45,7 +45,7 @@ genrule(
         "some_file.txt",
     ],
     cmd = "$(location :print_os) $@",
-    exec_tools = [":print_os"],
+    tools = [":print_os"],
 )
 
 cc_binary(

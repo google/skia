@@ -76,9 +76,9 @@ genrule(
     name = "create_sksl_minify_srcs_script",
     outs = ["sksl_minify_srcs.py"],
     cmd = "echo '%s' > $@" % _SKSL_MINIFY_SRCS,
-    # note: exec_tools are not transitive, so anything that depends on sksl_minify_srcs.sh
+    # note: tools are not transitive, so anything that depends on sksl_minify_srcs.sh
     # should also specify these so they are properly built/available.
-    exec_tools = [
+    tools = [
         ":sksl_minify",
         "//gn:minify_sksl",
     ],
@@ -123,10 +123,10 @@ genrule(
     name = "create_sksl_minify_tests_script",
     outs = ["sksl_minify_tests.py"],
     cmd = "echo '%s' > $@" % _SKSL_MINIFY_TESTS,
-    exec_tools = [
+    tools = [
         ":sksl_minify",
-        "//gn:minify_sksl_tests",
         ":test_input_list.txt",
+        "//gn:minify_sksl_tests",
     ],
 )
 

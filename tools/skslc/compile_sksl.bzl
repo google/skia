@@ -39,7 +39,7 @@ def compile_sksl(name, lang, inputs, settings = "settings"):
             ":skslc",
             "//gn:compile_sksl_tests",
         ],
-        tags = ["no-remote"],
+        tags = ["no-remote-exec"],
     )
 
     native.genrule(

@@ -21,13 +21,13 @@ package(default_visibility = ["//visibility:public"])
 toolchain(
     name = "cc-toolchain",
     exec_compatible_with = [
-        "@bazel_tools//platforms:linux",
-        "@bazel_tools//platforms:x86_64",
         "@bazel_tools//tools/cpp:clang",
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
     ],
     target_compatible_with = [
-        "@bazel_tools//platforms:linux",
-        "@bazel_tools//platforms:x86_64",
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
     ],
     toolchain = "//bazel/rbe/gce_linux/cc:cc-compiler-k8",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
@@ -37,9 +37,9 @@ platform(
     name = "platform",
     parents = ["@local_config_platform//:host"],
     constraint_values = [
-        "@bazel_tools//platforms:linux",
-        "@bazel_tools//platforms:x86_64",
         "@bazel_tools//tools/cpp:clang",
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
     ],
     exec_properties = {
         "container-image": "docker://gcr.io/skia-public/rbe_linux@sha256:82e8a4c7d06c8f47bbc08ee899c4c03069af0f7f4d8c0d958a50a23d814405e6",

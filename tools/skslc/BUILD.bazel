@@ -130,7 +130,7 @@ genrule(
     name = "create_sksl_compile_tests_script",
     outs = ["sksl_compile_tests.py"],
     cmd = "echo '%s' > $@" % _SKSL_COMPILE_TESTS,
-    exec_tools = [
+    tools = [
         ":skslc",
         "//gn:compile_sksl_tests",
     ],

@@ -176,5 +176,5 @@ genrule(
     name = "create_generate_workarounds_script",
     outs = ["generate_workarounds.py"],
     cmd = "echo '%s' > $@" % _GENERATE_WORKAROUNDS,
-    exec_tools = [":build_workaround_header"],
+    tools = [":build_workaround_header"],
 )

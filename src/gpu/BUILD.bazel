@@ -106,9 +106,9 @@ selects.config_setting_group(
 )
 
 bool_flag(
+    # Users should use :vulkan_with_vma directly
     name = "use_vulkan_memory_allocator",
     default = True,
-    public = False,  # Users should use :vulkan_with_vma
 )
 
 bool_flag(

@@ -41,7 +41,7 @@ genrule(
     name = "create_gn_script",
     outs = ["gn.py"],
     cmd = "echo '%s' > $@" % _GN,
-    exec_tools = [
+    tools = [
         ":gn_exe",
     ],
 )

@@ -57,7 +57,7 @@ genrule(
           # in the fonts/ subdirectory as if it had been there all along.
           "--output=$@ " +
           "--align=4",
-    exec_tools = ["//tools:embed_resources"],
+    tools = ["//tools:embed_resources"],
 )
 
 # Note: These are defines that only impact the _bindings.cpp files in this folder.

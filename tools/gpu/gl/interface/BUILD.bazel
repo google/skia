@@ -46,7 +46,7 @@ genrule(
     name = "create_generate_gl_interfaces_script",
     outs = ["generate_gl_interfaces.py"],
     cmd = "echo '%s' > $@" % _GENERATE_INTERFACE,
-    exec_tools = [
+    tools = [
         ":interface",
         ":interface.json5",
     ],
