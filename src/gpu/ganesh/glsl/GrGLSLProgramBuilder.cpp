@@ -160,6 +160,27 @@ bool GrGLSLProgramBuilder::emitTextureSamplersForFPs(const GrFragmentProcessor& 
     return ok;
 }
 
+std::string GrGLSLProgramBuilder::invokeFP(const GrFragmentProcessor& fp,
+                                           const GrFragmentProcessor::ProgramImpl& impl,
+                                           const char* inputColor,
+                                           const char* destColor,
+                                           const char* coords) const {
+    if (fp.isBlendFunction()) {
+        if (this->fragmentProcessorHasCoordsParam(&fp)) {
+            return SkSL::String::printf("%s(%s, %s, %s)", impl.functionName(), inputColor,
+                                                          destColor, coords);
+        } else {
+            return SkSL::String::printf("%s(%s, %s)", impl.functionName(), inputColor, destColor);
+        }
+    }
+
+    if (this->fragmentProcessorHasCoordsParam(&fp)) {
+        return SkSL::String::printf("%s(%s, %s)", impl.functionName(), inputColor, coords);
+    } else {
+        return SkSL::String::printf("%s(%s)", impl.functionName(), inputColor);
+    }
+}
+
 SkString GrGLSLProgramBuilder::emitRootFragProc(const GrFragmentProcessor& fp,
                                                 GrFragmentProcessor::ProgramImpl& impl,
                                                 const SkString& input,
@@ -177,30 +198,10 @@ SkString GrGLSLProgramBuilder::emitRootFragProc(const GrFragmentProcessor& fp,
 
     this->writeFPFunction(fp, impl);
 
-    if (fp.isBlendFunction()) {
-        if (this->fragmentProcessorHasCoordsParam(&fp)) {
-            fFS.codeAppendf("%s = %s(%s, half4(1), %s);",
-                            output.c_str(),
-                            impl.functionName(),
-                            input.c_str(),
-                            fLocalCoordsVar.c_str());
-        } else {
-            fFS.codeAppendf("%s = %s(%s, half4(1));",
-                            output.c_str(),
-                            impl.functionName(),
-                            input.c_str());
-        }
-    } else {
-        if (this->fragmentProcessorHasCoordsParam(&fp)) {
-            fFS.codeAppendf("%s = %s(%s, %s);",
-                            output.c_str(),
-                            impl.functionName(),
-                            input.c_str(),
-                            fLocalCoordsVar.c_str());
-        } else {
-            fFS.codeAppendf("%s = %s(%s);", output.c_str(), impl.functionName(), input.c_str());
-        }
-    }
+    fFS.codeAppendf(
+            "%s = %s;",
+            output.c_str(),
+            this->invokeFP(fp, impl, input.c_str(), "half4(1)", fLocalCoordsVar.c_str()).c_str());
 
     // We have to check that effects and the code they emit are consistent, ie if an effect asks
     // for dst color, then the emit code needs to follow suit
