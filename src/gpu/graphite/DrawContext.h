@@ -34,7 +34,7 @@ class ComputePathAtlas;
 class DispatchGroup;
 class DrawPass;
 class PathAtlas;
-class SoftwarePathAtlas;
+class RasterPathAtlas;
 class Task;
 class TextAtlasManager;
 class TextureProxy;
@@ -90,8 +90,8 @@ public:
 
     // Returns the transient path atlas that uses CPU rendering to upload coverage masks for atlas
     // draws recorded to this SDC. The atlas gets created lazily upon request. Returns nullptr
-    // if software path generation is not supported.
-    PathAtlas* getSoftwarePathAtlas(Recorder*);
+    // if CPU raster path generation is not supported.
+    PathAtlas* getRasterPathAtlas(Recorder*);
 
     // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
     // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or
@@ -179,8 +179,9 @@ private:
     //
     // TODO: We should not clear all accumulated masks but cache masks over more than one frame.
     //
-    // TODO: We may need a method to generate software masks in separate threads prior to upload.
-    std::unique_ptr<SoftwarePathAtlas> fSoftwarePathAtlas;
+    // TODO: We may need a method to generate raster-generated masks in separate threads prior to
+    // upload.
+    std::unique_ptr<RasterPathAtlas> fRasterPathAtlas;
 
     // Stores previously snapped DrawPasses of this DC, or inlined child DCs whose content
     // couldn't have been copied directly to fPendingDraws. While each DrawPass is immutable, the

@@ -172,35 +172,6 @@ private:
 
 #endif  // SK_ENABLE_VELLO_SHADERS
 
-/**
- * PathAtlas class that rasterizes coverage masks on the CPU.
- *
- * When a new shape gets added, its path is rasterized in preparation for upload. These
- * uploads are recorded by `recordUploads()` and subsequently added to an UploadTask.
- *
- * After a successful call to `recordUploads()`, the client is free to call `reset()` and start
- * adding new shapes for a future atlas render.
- * TODO: We should cache Shapes for future frames to avoid the cost of software rendering.
- */
-class SoftwarePathAtlas : public PathAtlas {
-public:
-    SoftwarePathAtlas();
-    ~SoftwarePathAtlas() override {}
-    void recordUploads(DrawContext*, Recorder*);
-
-protected:
-    void onAddShape(const Shape&,
-                    const Transform& transform,
-                    const Rect& atlasBounds,
-                    skvx::int2 deviceOffset,
-                    const SkStrokeRec&) override;
-    void onReset() override;
-    MaskFormat coverageMaskFormat(const Caps*) const override;
-
-    SkAutoPixmapStorage fPixels;
-    SkIRect fDirtyRect;
-};
-
 }  // namespace skgpu::graphite
 
 #endif  // skgpu_graphite_PathAtlas_DEFINED

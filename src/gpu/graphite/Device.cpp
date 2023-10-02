@@ -1220,8 +1220,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     // Only use CPU rendered paths when multisampling is disabled
     // TODO: enable other uses of the software path renderer
     } else if (fRecorder->priv().caps()->defaultMSAASamplesCount() <= 1 &&
-               atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kSoftware)) {
-        pathAtlas = fDC->getSoftwarePathAtlas(fRecorder);
+               atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster)) {
+        pathAtlas = fDC->getRasterPathAtlas(fRecorder);
     }
     // We currently always use a coverage mask renderer if a `PathAtlas` is selected.
     if (!requireMSAA && pathAtlas) {

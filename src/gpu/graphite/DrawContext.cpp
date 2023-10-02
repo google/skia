@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/PathAtlas.h"
+#include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RenderPassTask.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -138,11 +139,11 @@ PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     return fComputePathAtlas.get();
 }
 
-PathAtlas* DrawContext::getSoftwarePathAtlas(Recorder* recorder) {
-    if (!fSoftwarePathAtlas) {
-        fSoftwarePathAtlas = recorder->priv().atlasProvider()->createSoftwarePathAtlas();
+PathAtlas* DrawContext::getRasterPathAtlas(Recorder* recorder) {
+    if (!fRasterPathAtlas) {
+        fRasterPathAtlas = recorder->priv().atlasProvider()->createRasterPathAtlas();
     }
-    return fSoftwarePathAtlas.get();
+    return fRasterPathAtlas.get();
 }
 
 void DrawContext::snapDrawPass(Recorder* recorder) {
@@ -267,9 +268,9 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
 }
 
 sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
-    if (fSoftwarePathAtlas) {
-        fSoftwarePathAtlas->recordUploads(this, recorder);
-        fSoftwarePathAtlas->reset();
+    if (fRasterPathAtlas) {
+        fRasterPathAtlas->recordUploads(this, recorder);
+        fRasterPathAtlas->reset();
     }
 
     if (!fPendingUploads || fPendingUploads->size() == 0) {
