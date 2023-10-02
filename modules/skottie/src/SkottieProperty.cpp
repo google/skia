@@ -18,6 +18,7 @@ namespace skottie {
 bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
     return fTypeface == other.fTypeface
         && fText == other.fText
+        && fLocale == other.fLocale
         && fTextSize == other.fTextSize
         && fStrokeWidth == other.fStrokeWidth
         && fLineHeight == other.fLineHeight

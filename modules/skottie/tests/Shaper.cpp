@@ -19,6 +19,7 @@ DEF_TEST(Skottie_Shaper_Clusters, r) {
                              const std::vector<size_t>& expected_clusters) {
         const Shaper::TextDesc desc = {
             ToolUtils::create_portable_typeface("Serif", SkFontStyle()),
+            nullptr,
             18,
             0, 18,
             18,
@@ -95,6 +96,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
         for (const auto& talign : kTestAligns) {
             const skottie::Shaper::TextDesc desc = {
                 typeface,
+                nullptr,
                 tsize.text_size,
                 0, tsize.text_size,
                 tsize.text_size,
@@ -165,6 +167,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
         for (const auto& talign : kTestAligns) {
             const skottie::Shaper::TextDesc desc = {
                 typeface,
+                nullptr,
                 tsize.text_size,
                 0, tsize.text_size,
                 tsize.text_size,
@@ -205,6 +208,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
 DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
     skottie::Shaper::TextDesc desc = {
         SkTypeface::MakeDefault(),
+        nullptr,
         18,
         0, 18,
         18,
@@ -297,6 +301,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
 
     skottie::Shaper::TextDesc desc = {
         ToolUtils::create_portable_typeface(),
+        nullptr,
         18,
         0, 18,
         18,

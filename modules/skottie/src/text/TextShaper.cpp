@@ -10,9 +10,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
@@ -46,6 +48,7 @@ public:
         , fBox(box)
         , fHAlignFactor(HAlignFactor(fDesc.fHAlign))
         , fFont(fDesc.fTypeface, fDesc.fTextSize)
+        , fFontMgr(fontmgr)
         , fShaper(SkShaper::Make(fontmgr)) {
         fFont.setHinting(SkFontHinting::kNone);
         fFont.setSubpixel(true);
@@ -304,14 +307,34 @@ public:
             }
         }
 
-        const auto shape_width = fDesc.fLinebreak == Shaper::LinebreakPolicy::kExplicit
+        const auto shape_width  = fDesc.fLinebreak == Shaper::LinebreakPolicy::kExplicit
                                     ? SK_ScalarMax
                                     : fBox.width();
-        const auto shape_ltr   = fDesc.fDirection == Shaper::Direction::kLTR;
+        const auto shape_ltr    = fDesc.fDirection == Shaper::Direction::kLTR;
+        const size_t utf8_bytes = SkToSizeT(end - start);
+
+        SkASSERT(fFontMgr);
+        const auto font_iter = SkShaper::MakeFontMgrRunIterator(start, utf8_bytes, fFont, fFontMgr);
+        const auto bidi_iter = SkShaper::MakeBiDiRunIterator(start, utf8_bytes,
+                                    shape_ltr ? SkBidiIterator::kLTR : SkBidiIterator::kRTL);
+        const auto scpt_iter = SkShaper::MakeScriptRunIterator(start, utf8_bytes,
+                                    SkSetFourByteTag('Z', 'z', 'z', 'z'));
+        const auto lang_iter = fDesc.fLocale
+                ? std::make_unique<SkShaper::TrivialLanguageRunIterator>(fDesc.fLocale, utf8_bytes)
+                : SkShaper::MakeStdLanguageRunIterator(start, utf8_bytes);
+
+        if (!font_iter || !bidi_iter || !scpt_iter || !lang_iter) {
+            return;
+        }
 
         fUTF8 = start;
         fUTF8Offset = utf8_offset;
-        fShaper->shape(start, SkToSizeT(end - start), fFont, shape_ltr, shape_width, this);
+        fShaper->shape(start, utf8_bytes,
+                       *font_iter,
+                       *bidi_iter,
+                       *scpt_iter,
+                       *lang_iter,
+                       shape_width, this);
         fUTF8 = nullptr;
     }
 
@@ -414,8 +437,9 @@ private:
     const SkRect&             fBox;
     const float               fHAlignFactor;
 
-    SkFont                    fFont;
-    std::unique_ptr<SkShaper> fShaper;
+    SkFont                          fFont;
+    const sk_sp<SkFontMgr>          fFontMgr;
+    const std::unique_ptr<SkShaper> fShaper;
 
     AutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
     AutoSTMalloc<64, SkPoint>            fLinePos;

@@ -148,6 +148,7 @@ public:
 
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
+        const char*               fLocale         = nullptr;
         SkScalar                  fTextSize       = 0,
                                   fMinTextSize    = 0,  // when auto-sizing
                                   fMaxTextSize    = 0,  // when auto-sizing
