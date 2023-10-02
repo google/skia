@@ -82,7 +82,7 @@ bool SkUnicodeHardCodedCharProperties::isTabulation(SkUnichar utf8) {
 }
 
 bool SkUnicodeHardCodedCharProperties::isHardBreak(SkUnichar utf8) {
-    return utf8 == '\n';
+    return utf8 == '\n' || utf8 == u'\u2028';
 }
 
 bool SkUnicodeHardCodedCharProperties::isEmoji(SkUnichar unichar) {

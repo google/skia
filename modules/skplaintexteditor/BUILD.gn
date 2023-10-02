@@ -5,7 +5,8 @@
 import("../../gn/skia.gni")
 import("../../modules/skshaper/skshaper.gni")
 
-if ((skia_use_icu || skia_use_libgrapheme) && skia_enable_skshaper) {
+if ((skia_use_icu || skia_use_libgrapheme || skia_use_icu4x) &&
+    skia_enable_skshaper) {
   skia_source_set("editor_lib") {
     include_dirs = [ "../.." ]
     public = [

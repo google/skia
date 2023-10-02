@@ -332,6 +332,21 @@ load("@fontations//:defs.bzl", fontations_crates = "crate_repositories")
 
 fontations_crates()
 
+# The icu4x repository consists of multiple crates. We download those
+# listed in the external/icu4x/Cargo.* files.
+# Add this entry to have a root repository from which the individual
+# icu4x crates can be fetched.
+# This allows them to be used as deps in other bazel targets.
+crates_repository(
+    name = "icu4x_deps",
+    cargo_lockfile = "//bazel/external/icu4x:Cargo.lock",
+    manifests = ["//bazel/external/icu4x:Cargo.toml"],
+)
+
+load("@icu4x_deps//:defs.bzl", icu4x_deps = "crate_repositories")
+
+icu4x_deps()
+
 # Skia uses crates from the vello repository that are under development and have not been published
 # to crates.io. Normally we could fetch them directly from the git mirror in the Cargo.lock file as
 # Bazel supports compiling them without any custom build rules. However, since Bazel's repository
@@ -389,6 +404,7 @@ local_repository(
 # @freetype - //bazel/external/freetype:BUILD.bazel
 # @harfbuzz - //bazel/external/harfbuzz:BUILD.bazel
 # @icu - //bazel/external/icu:BUILD.bazel
+# @icu4x - //bazel/external/icu4x:BUILD.bazel
 # @imgui - //bazel/external/imgui:BUILD.bazel
 # @libavif - //bazel/external/libavif:BUILD.bazel
 # @libgav1 - //bazel/external/libgav1:BUILD.bazel

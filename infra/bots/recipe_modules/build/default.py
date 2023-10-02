@@ -274,6 +274,8 @@ def compile_fn(api, checkout_root, out_dir):
       #'skia_use_libgrapheme': 'true',
     })
 
+  if 'Fontations' in extra_tokens:
+    args['skia_use_icu4x'] = 'true'
 
   if 'Shared' in extra_tokens:
     args['is_component_build'] = 'true'

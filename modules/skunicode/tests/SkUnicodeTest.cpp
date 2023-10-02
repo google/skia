@@ -59,6 +59,7 @@ UNIX_ONLY_TEST(SkUnicode_GetUtf8Words, reporter) {
 }
 #endif
 
+#ifdef SK_UNICODE_ICU_IMPLEMENTATION
 UNIX_ONLY_TEST(SkUnicode_GetSentences, reporter) {
     SkString text("Hello world! Hello world? Hello world... Not a sentence end: 3.1415926");
     std::vector<SkUnicode::Position> expected = {0, 13, 26, 41, 70};
@@ -71,6 +72,7 @@ UNIX_ONLY_TEST(SkUnicode_GetSentences, reporter) {
         REPORTER_ASSERT(reporter, results[i] == expected[i]);
     }
 }
+#endif
 
 bool hasWordFlag(SkUnicode::CodeUnitFlags flags) {
     return (flags & SkUnicode::kWordBreak) == SkUnicode::kWordBreak;
@@ -161,6 +163,7 @@ UNIX_ONLY_TEST(SkUnicode_GetBidiRegionsMix2, reporter) {
     }
 }
 
+#ifndef SK_UNICODE_ICU4X_IMPLEMENTATION
 UNIX_ONLY_TEST(SkUnicode_ToUpper, reporter) {
     SkString lower("abcdefghijklmnopqrstuvwxyz");
     SkString upper("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -170,6 +173,7 @@ UNIX_ONLY_TEST(SkUnicode_ToUpper, reporter) {
     auto icu_result2 = icu->toUpper(upper);
     REPORTER_ASSERT(reporter, icu_result2.equals(upper));
 }
+#endif
 
 UNIX_ONLY_TEST(SkUnicode_ComputeCodeUnitFlags, reporter) {
     //SkString text("World domination is such an ugly phrase - I prefer to call it world optimisation");
@@ -220,6 +224,7 @@ UNIX_ONLY_TEST(SkUnicode_ReorderVisual, reporter) {
     reorder({0, 1, 0, 1}, {0, 1, 2, 3});
 }
 
+#ifdef SK_UNICODE_ICU_IMPLEMENTATION
 UNIX_ONLY_TEST(SkUnicode_Emoji, reporter) {
     std::u32string emojis(U"😄😁😆😅😂🤣");
     std::u32string not_emojis(U"満毎行昼本可");
@@ -231,6 +236,7 @@ UNIX_ONLY_TEST(SkUnicode_Emoji, reporter) {
         REPORTER_ASSERT(reporter, !icu->isEmoji(n));
     }
 }
+#endif
 
 UNIX_ONLY_TEST(SkUnicode_Ideographic, reporter) {
     std::u32string ideographic(U"満毎行昼本可");

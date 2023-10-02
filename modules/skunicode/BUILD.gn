@@ -11,7 +11,8 @@ declare_args() {
   skunicode_tests_enabled = true
 }
 
-if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
+if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
+    skia_use_icu4x) {
   config("public_config") {
     include_dirs = [ "include" ]
     defines = [ "SK_UNICODE_AVAILABLE" ]
@@ -24,6 +25,9 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
     if (skia_use_libgrapheme) {
       defines += [ "SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION" ]
     }
+    if (skia_use_icu4x) {
+      defines += [ "SK_UNICODE_ICU4X_IMPLEMENTATION" ]
+    }
     if (is_component_build) {
       defines += [ "SKUNICODE_DLL" ]
     }
@@ -35,11 +39,12 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
     public = skia_unicode_public
     deps = [ "../..:skia" ]
     defines = [ "SKUNICODE_IMPLEMENTATION=1" ]
-    sources = skia_unicode_sources + skia_unicode_icu_bidi_sources
+    sources = skia_unicode_sources
     defines += [ "SK_UNICODE_AVAILABLE" ]
     configs += [ "../../:skia_private" ]
 
     if (skia_use_icu) {
+      sources += skia_unicode_icu_bidi_sources
       sources += skia_unicode_icu_sources
       defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
 
@@ -57,6 +62,7 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
       sources += skia_unicode_client_icu_sources
       defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
       if (!skia_use_icu) {
+        sources += skia_unicode_icu_bidi_sources
         deps += [ skia_icu_bidi_third_party_dir ]
       }
     }
@@ -65,14 +71,21 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme) {
       defines += [ "SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION" ]
       deps += [ skia_libgrapheme_third_party_dir ]
       if (!skia_use_icu) {
+        sources += skia_unicode_icu_bidi_sources
         deps += [ skia_icu_bidi_third_party_dir ]
       }
+    }
+    if (skia_use_icu4x) {
+      sources += skia_unicode_icu4x_sources
+      defines += [ "SK_UNICODE_ICU4X_IMPLEMENTATION" ]
+      deps += [ "//third_party/icu4x" ]
     }
   }
 
   if (defined(is_skia_standalone) && skia_enable_tools) {
     skia_source_set("tests") {
-      if (skunicode_tests_enabled && (skia_use_icu || skia_use_libgrapheme)) {
+      if (skunicode_tests_enabled &&
+          (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {
         testonly = true
         deps = [
           ":skunicode",

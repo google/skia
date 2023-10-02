@@ -1,0 +1,15 @@
+# This file seems to be needed only for bazel's dependency pinning to figure out
+# declared dependencies, actual build rules are in BUILD.bazel.
+[workspace]
+resolver = "2"
+
+[package]
+name = "icu4x_deps"
+edition = "2021"
+version = "0.1.0"
+
+[dependencies]
+icu_capi = { git = "https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git", tag="upstream/ind/icu_capi@1.2.2", features = ["provider_test"]}
+
+[lib]
+crate-type = ["staticlib"]

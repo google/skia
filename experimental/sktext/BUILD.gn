@@ -1,0 +1,126 @@
+# Copyright 2021 Google LLC.
+
+import("../../gn/skia.gni")
+import("../../modules/skshaper/skshaper.gni")
+
+declare_args() {
+  skia_enable_sktext = true
+  text_gms_enabled = true
+  text_tests_enabled = true
+  text_bench_enabled = false
+}
+
+if ((skia_use_icu || skia_use_libgrapheme || skia_use_icu4x) &&
+    skia_enable_sktext && skia_enable_skshaper && skia_use_harfbuzz) {
+  config("public_config") {
+    include_dirs = [ "include" ]
+  }
+
+  component("sktext") {
+    import("sktext.gni")
+    public_configs = [ ":public_config" ]
+    public = sktext_public
+    sources = sktext_sources
+    deps = [
+      "../..:skia",
+      "../../modules/skshaper",
+      "../../modules/skunicode",
+    ]
+  }
+
+  if (defined(is_skia_standalone) && skia_enable_tools) {
+    source_set("gm") {
+      if (text_gms_enabled) {
+        testonly = true
+        sources = []
+        deps = [
+          ":sktext",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+          "../../modules/skshaper",
+        ]
+      } else {
+        sources = []
+      }
+    }
+
+    source_set("tests") {
+      if (text_tests_enabled) {
+        testonly = true
+        sources = [
+          "tests/FontResolvedText.cpp",
+          "tests/SelectableText.cpp",
+          "tests/ShapedText.cpp",
+          "tests/UnicodeText.cpp",
+          "tests/WrappedText.cpp",
+        ]
+        deps = [
+          ":sktext",
+          "../..:gpu_tool_utils",
+          "../..:skia",
+          "../../modules/skshaper",
+        ]
+      } else {
+        sources = []
+      }
+    }
+
+    source_set("bench") {
+      if (text_bench_enabled) {
+        testonly = true
+        sources = []
+        deps = [
+          ":sktext",
+          "../..:skia",
+          "../../modules/skshaper",
+        ]
+      } else {
+        sources = []
+      }
+    }
+
+    source_set("slides") {
+      testonly = true
+      sources = [
+        "editor/Cursor.cpp",
+        "editor/Editor.cpp",
+        "editor/Mouse.cpp",
+        "editor/Selection.cpp",
+        "editor/Texts.cpp",
+        "slides/Text.cpp",
+      ]
+      deps = [
+        ":sktext",
+        "../..:skia",
+        "../../modules/skshaper",
+      ]
+    }
+
+    skia_source_set("text_editor") {
+      testonly = true
+      sources = [
+        "editor/App.cpp",
+        "editor/Cursor.cpp",
+        "editor/Editor.cpp",
+        "editor/Mouse.cpp",
+        "editor/Selection.cpp",
+        "editor/Texts.cpp",
+      ]
+      public_deps = [ "../..:sk_app" ]
+      deps = [ ":sktext" ]
+    }
+  }
+} else {
+  group("sktext") {
+  }
+  group("gm") {
+  }
+  group("tests") {
+  }
+  group("bench") {
+  }
+  group("slides") {
+  }
+  group("text_editor") {
+  }
+}

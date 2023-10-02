@@ -25,6 +25,12 @@ std::unique_ptr<SkUnicode> SkUnicode::Make() {
         return unicode;
     }
 #endif
+#ifdef SK_UNICODE_ICU4X_IMPLEMENTATION
+    unicode = SkUnicode::MakeIcu4xBasedUnicode();
+    if (unicode) {
+        return unicode;
+    }
+#endif
     return nullptr;
 }
 

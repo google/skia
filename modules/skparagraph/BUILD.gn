@@ -51,7 +51,8 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
     }
 
     skia_source_set("gm") {
-      if (paragraph_gms_enabled && (skia_use_icu || skia_use_libgrapheme)) {
+      if (paragraph_gms_enabled &&
+          (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {
         testonly = true
         sources = [ "gm/simple_gm.cpp" ]
         deps = [
@@ -66,7 +67,8 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
     }
 
     skia_source_set("tests") {
-      if (paragraph_tests_enabled && (skia_use_icu || skia_use_libgrapheme)) {
+      if (paragraph_tests_enabled &&
+          (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {
         testonly = true
         sources = skparagraph_tests
         deps = [
@@ -82,7 +84,8 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
     }
 
     skia_source_set("bench") {
-      if (paragraph_bench_enabled && (skia_use_icu || skia_use_libgrapheme)) {
+      if (paragraph_bench_enabled &&
+          (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {
         testonly = true
         sources = [ "bench/ParagraphBench.cpp" ]
         deps = [

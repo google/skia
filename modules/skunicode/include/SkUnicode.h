@@ -303,6 +303,8 @@ class SKUNICODE_API SkUnicode {
                 std::vector<SkUnicode::LineBreakBefore> lineBreaks);
 
         static std::unique_ptr<SkUnicode> MakeLibgraphemeBasedUnicode();
+
+        static std::unique_ptr<SkUnicode> MakeIcu4xBasedUnicode();
 };
 
 namespace sknonstd {

@@ -19,7 +19,8 @@ type depConfig struct {
 	needsBazelFile    bool
 }
 
-// These are all C++ deps used by the Bazel build. They are a subset of those listed in DEPS.
+// These are all C++ deps or Rust deps (with a compatible C++ FFI) used by the Bazel build.
+// They are a subset of those listed in DEPS.
 // The key is the name of the repo as specified in DEPS.
 var deps = map[string]depConfig{
 	"abseil-cpp":  {bazelNameOverride: "abseil_cpp"},
@@ -35,6 +36,7 @@ var deps = map[string]depConfig{
 	"freetype":              {needsBazelFile: true},
 	"harfbuzz":              {needsBazelFile: true},
 	"icu":                   {needsBazelFile: true},
+	"icu4x":                 {needsBazelFile: true},
 	"imgui":                 {needsBazelFile: true},
 	"libavif":               {needsBazelFile: true},
 	"libgav1":               {needsBazelFile: true},

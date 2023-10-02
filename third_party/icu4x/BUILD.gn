@@ -1,0 +1,33 @@
+# Copyright 2023 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+import("../third_party.gni")
+
+bazel_args = []
+
+action("compile_icu4x_rust") {
+  script = "../../gn/bazel_build.py"
+  sources = [
+    "//bazel/external/icu4x/BUILD.bazel",
+    "//bazel/external/icu4x/src/lib.rs",
+  ]
+  outputs = [ "$root_out_dir/libicu4x_rust.a" ]
+  args = [
+           "//bazel/external/icu4x:icu4x_rust",
+           rebase_path("//bazel-bin/bazel/external/icu4x/libicu4x_rust.a",
+                       root_build_dir),
+         ] + bazel_args
+}
+
+third_party("icu4x") {
+  public_include_dirs = [
+    "../externals/icu4x/ffi/diplomat/cpp/include",
+    "../externals/icu4x/ffi/diplomat/c/include",
+  ]
+
+  libs = [ "$root_out_dir/libicu4x_rust.a" ]
+  deps = [ ":compile_icu4x_rust" ]
+}

@@ -1,4 +1,4 @@
-                                           /*
+/*
 * Copyright 2022 Google Inc.
 *
 * Use of this source code is governed by a BSD-style license that can be
