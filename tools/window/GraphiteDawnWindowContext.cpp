@@ -47,13 +47,10 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     skgpu::graphite::DawnBackendContext backendContext;
     backendContext.fDevice = fDevice;
     backendContext.fQueue = fDevice.GetQueue();
-    skgpu::graphite::ContextOptions contextOptions;
-    skgpu::graphite::ContextOptionsPriv contextOptionsPriv;
-    // Needed to make synchronous readPixels work
-    contextOptionsPriv.fStoreContextRefInRecorder = true;
-    contextOptions.fOptionsPriv = &contextOptionsPriv;
-    fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(backendContext,
-                                                                 contextOptions);
+    // Needed to make synchronous readPixels work:
+    fDisplayParams.fGraphiteContextOptions.fPriv.fStoreContextRefInRecorder = true;
+    fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(
+            backendContext, fDisplayParams.fGraphiteContextOptions.fOptions);
     if (!fGraphiteContext) {
         SkASSERT(false);
         return;
@@ -77,7 +74,6 @@ void GraphiteDawnWindowContext::destroyContext() {
     fSwapChain = nullptr;
     fSurface = nullptr;
     fDevice = nullptr;
-    fInstance = nullptr;
 }
 
 sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
@@ -113,7 +109,9 @@ void GraphiteDawnWindowContext::onSwapBuffers() {
 }
 
 void GraphiteDawnWindowContext::setDisplayParams(const DisplayParams& params) {
+    this->destroyContext();
     fDisplayParams = params;
+    this->initializeContext(fWidth, fHeight);
 }
 
 wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {

@@ -21,6 +21,10 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/text/gpu/SDFTControl.h"
 
+#if defined(GRAPHITE_TEST_UTILS)
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#endif
+
 enum class SkBlendMode;
 class SkCapabilities;
 
@@ -72,6 +76,10 @@ public:
 
 #if defined(GRAPHITE_TEST_UTILS)
     std::string_view deviceName() const { return fDeviceName; }
+
+    PathRendererStrategy requestedPathRendererStrategy() const {
+        return fRequestedPathRendererStrategy;
+    }
 #endif
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
@@ -305,6 +313,7 @@ protected:
 #if defined(GRAPHITE_TEST_UTILS)
     std::string fDeviceName;
     int fMaxTextureAtlasSize = 2048;
+    PathRendererStrategy fRequestedPathRendererStrategy;
 #endif
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 

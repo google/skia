@@ -151,7 +151,7 @@ using namespace sk_app;
 using SkSL::Compiler;
 using OverrideFlag = SkSL::Compiler::OverrideFlag;
 
-static std::map<GpuPathRenderers, std::string> gPathRendererNames;
+static std::map<GpuPathRenderers, std::string> gGaneshPathRendererNames;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
@@ -238,6 +238,43 @@ static DEFINE_bool(createProtected, false, "Create a protected native backend (e
 
 #ifndef SK_GL
 static_assert(false, "viewer requires GL backend for raster.")
+#endif
+
+static bool is_graphite_backend_type(sk_app::Window::BackendType type) {
+#if defined(SK_GRAPHITE)
+    switch (type) {
+#ifdef SK_DAWN
+        case sk_app::Window::kGraphiteDawn_BackendType:
+#endif
+#ifdef SK_METAL
+        case sk_app::Window::kGraphiteMetal_BackendType:
+#endif
+#ifdef SK_VULKAN
+        case sk_app::Window::kGraphiteVulkan_BackendType:
+#endif
+            return true;
+        default:
+            break;
+    }
+#endif
+    return false;
+}
+
+#if defined(GRAPHITE_TEST_UTILS)
+static const char* get_path_renderer_strategy(skgpu::graphite::PathRendererStrategy strategy) {
+    using Strategy = skgpu::graphite::PathRendererStrategy;
+    switch (strategy) {
+        case Strategy::kDefault:
+            return "Default";
+        case Strategy::kComputeAnalyticAA:
+            return "GPU Compute AA (Analytic)";
+        case Strategy::kRasterAA:
+            return "CPU Raster AA";
+        case Strategy::kTessellation:
+            return "Tessellation";
+    }
+    return "unknown";
+}
 #endif
 
 const char* get_backend_string(sk_app::Window::BackendType type) {
@@ -417,12 +454,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
 
-    gPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
-    gPathRendererNames[GpuPathRenderers::kAtlas] = "Atlas (tessellation)";
-    gPathRendererNames[GpuPathRenderers::kTessellation] = "Tessellation";
-    gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
-    gPathRendererNames[GpuPathRenderers::kTriangulating] = "Triangulating";
-    gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
+    gGaneshPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
+    gGaneshPathRendererNames[GpuPathRenderers::kAtlas] = "Atlas (tessellation)";
+    gGaneshPathRendererNames[GpuPathRenderers::kTessellation] = "Tessellation";
+    gGaneshPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
+    gGaneshPathRendererNames[GpuPathRenderers::kTriangulating] = "Triangulating";
+    gGaneshPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
 
     SkDebugf("Command line arguments: ");
     for (int i = 1; i < argc; ++i) {
@@ -1206,13 +1243,25 @@ void Viewer::updateTitle() {
     }
     title.append("]");
 
-    GpuPathRenderers pr = fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
-    if (GpuPathRenderers::kDefault != pr) {
-        title.appendf(" [Path renderer: %s]", gPathRendererNames[pr].c_str());
+    if (is_graphite_backend_type(fBackendType)) {
+#if defined(GRAPHITE_TEST_UTILS)
+        skgpu::graphite::PathRendererStrategy strategy =
+                fWindow->getRequestedDisplayParams()
+                        .fGraphiteContextOptions.fPriv.fPathRendererStrategy;
+        if (skgpu::graphite::PathRendererStrategy::kDefault != strategy) {
+            title.appendf(" [Path renderer strategy: %s]", get_path_renderer_strategy(strategy));
+        }
+#endif
+    } else {
+        GpuPathRenderers pr =
+                fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
+        if (GpuPathRenderers::kDefault != pr) {
+            title.appendf(" [Path renderer: %s]", gGaneshPathRendererNames[pr].c_str());
+        }
     }
 
     if (kPerspective_Real == fPerspectiveMode) {
-        title.append(" Perpsective (Real)");
+        title.append(" Perspective (Real)");
     } else if (kPerspective_Fake == fPerspectiveMode) {
         title.append(" Perspective (Fake)");
     }
@@ -2142,19 +2191,47 @@ void Viewer::drawImGui() {
                 }
 
                 if (ImGui::TreeNode("Path Renderers")) {
-                    GpuPathRenderers prevPr = params.fGrContextOptions.fGpuPathRenderers;
-                    auto prButton = [&](GpuPathRenderers x) {
-                        if (ImGui::RadioButton(gPathRendererNames[x].c_str(), prevPr == x)) {
-                            if (x != params.fGrContextOptions.fGpuPathRenderers) {
-                                params.fGrContextOptions.fGpuPathRenderers = x;
-                                displayParamsChanged = true;
+                    skgpu::graphite::Context* gctx = fWindow->graphiteContext();
+                    if (is_graphite_backend_type(fBackendType) && gctx) {
+#if defined(GRAPHITE_TEST_UTILS)
+                        using skgpu::graphite::PathRendererStrategy;
+                        skgpu::graphite::ContextOptionsPriv* opts =
+                                &params.fGraphiteContextOptions.fPriv;
+                        auto prevPrs = opts->fPathRendererStrategy;
+                        auto prsButton = [&](skgpu::graphite::PathRendererStrategy s) {
+                            if (ImGui::RadioButton(get_path_renderer_strategy(s), prevPrs == s)) {
+                                if (s != opts->fPathRendererStrategy) {
+                                    opts->fPathRendererStrategy = s;
+                                    displayParamsChanged = true;
+                                }
+                            }
+                        };
+
+                        prsButton(PathRendererStrategy::kDefault);
+
+                        PathRendererStrategy strategies[] = {
+                                PathRendererStrategy::kComputeAnalyticAA,
+                                PathRendererStrategy::kRasterAA,
+                                PathRendererStrategy::kTessellation,
+                        };
+                        for (size_t i = 0; i < std::size(strategies); ++i) {
+                            if (gctx->priv().supportsPathRendererStrategy(strategies[i])) {
+                                prsButton(strategies[i]);
                             }
                         }
-                    };
+#endif
+                    } else if (ctx) {
+                        GpuPathRenderers prevPr = params.fGrContextOptions.fGpuPathRenderers;
+                        auto prButton = [&](GpuPathRenderers x) {
+                            if (ImGui::RadioButton(gGaneshPathRendererNames[x].c_str(),
+                                                   prevPr == x)) {
+                                if (x != params.fGrContextOptions.fGpuPathRenderers) {
+                                    params.fGrContextOptions.fGpuPathRenderers = x;
+                                    displayParamsChanged = true;
+                                }
+                            }
+                        };
 
-                    if (!ctx) {
-                        ImGui::RadioButton("Software", true);
-                    } else {
                         prButton(GpuPathRenderers::kDefault);
 #if defined(SK_GANESH)
                         if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
@@ -2172,6 +2249,8 @@ void Viewer::drawImGui() {
                         }
                         prButton(GpuPathRenderers::kTriangulating);
                         prButton(GpuPathRenderers::kNone);
+                    } else {
+                        ImGui::RadioButton("Software", true);
                     }
                     ImGui::TreePop();
                 }
@@ -3091,31 +3170,32 @@ void Viewer::updateUIState() {
             }
         });
 
+    // TODO: Store Graphite path renderer strategy
     // Path renderer state
     GpuPathRenderers pr = fWindow->getRequestedDisplayParams().fGrContextOptions.fGpuPathRenderers;
-    WriteStateObject(writer, kPathRendererStateName, gPathRendererNames[pr].c_str(),
+    WriteStateObject(writer, kPathRendererStateName, gGaneshPathRendererNames[pr].c_str(),
         [this](SkJSONWriter& writer) {
             auto ctx = fWindow->directContext();
             if (!ctx) {
                 writer.appendNString("Software");
             } else {
-                writer.appendString(gPathRendererNames[GpuPathRenderers::kDefault]);
+                writer.appendString(gGaneshPathRendererNames[GpuPathRenderers::kDefault]);
 #if defined(SK_GANESH)
                 if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
                     const auto* caps = ctx->priv().caps();
                     if (skgpu::ganesh::AtlasPathRenderer::IsSupported(ctx)) {
-                        writer.appendString(gPathRendererNames[GpuPathRenderers::kAtlas]);
+                        writer.appendString(gGaneshPathRendererNames[GpuPathRenderers::kAtlas]);
                     }
                     if (skgpu::ganesh::TessellationPathRenderer::IsSupported(*caps)) {
-                        writer.appendString(gPathRendererNames[GpuPathRenderers::kTessellation]);
+                        writer.appendString(gGaneshPathRendererNames[GpuPathRenderers::kTessellation]);
                     }
                 }
 #endif
                 if (1 == fWindow->sampleCount()) {
-                    writer.appendString(gPathRendererNames[GpuPathRenderers::kSmall]);
+                    writer.appendString(gGaneshPathRendererNames[GpuPathRenderers::kSmall]);
                 }
-                writer.appendString(gPathRendererNames[GpuPathRenderers::kTriangulating]);
-                writer.appendString(gPathRendererNames[GpuPathRenderers::kNone]);
+                writer.appendString(gGaneshPathRendererNames[GpuPathRenderers::kTriangulating]);
+                writer.appendString(gGaneshPathRendererNames[GpuPathRenderers::kNone]);
             }
         });
 
@@ -3180,7 +3260,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         }
     } else if (stateName.equals(kPathRendererStateName)) {
         DisplayParams params = fWindow->getRequestedDisplayParams();
-        for (const auto& pair : gPathRendererNames) {
+        for (const auto& pair : gGaneshPathRendererNames) {
             if (pair.second == stateValue.c_str()) {
                 if (params.fGrContextOptions.fGpuPathRenderers != pair.first) {
                     params.fGrContextOptions.fGpuPathRenderers = pair.first;

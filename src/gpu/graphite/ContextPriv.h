@@ -12,6 +12,10 @@
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/SharedContext.h"
 
+#if defined(GRAPHITE_TEST_UTILS)
+#include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#endif
+
 namespace skgpu::graphite {
 
 class Caps;
@@ -63,6 +67,8 @@ public:
                     const TextureProxy*,
                     const SkImageInfo& srcImageInfo,
                     int srcX, int srcY);
+
+    bool supportsPathRendererStrategy(PathRendererStrategy);
 #endif
 
 private:

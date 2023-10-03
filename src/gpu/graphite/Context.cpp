@@ -815,6 +815,24 @@ void ContextPriv::deregisterRecorder(const Recorder* recorder) {
     }
 }
 
+bool ContextPriv::supportsPathRendererStrategy(PathRendererStrategy strategy) {
+    switch (strategy) {
+        case PathRendererStrategy::kDefault:
+            return true;
+        case PathRendererStrategy::kComputeAnalyticAA:
+#ifdef SK_ENABLE_VELLO_SHADERS
+            return this->caps()->computeSupport();
+#else
+            return false;
+#endif
+        case PathRendererStrategy::kRasterAA:
+        case PathRendererStrategy::kTessellation:
+            return true;
+    }
+
+    return false;
+}
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////

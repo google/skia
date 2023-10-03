@@ -16,10 +16,6 @@
 #include "src/core/SkBlenderBase.h"
 #include "src/sksl/SkSLUtil.h"
 
-#if defined(GRAPHITE_TEST_UTILS)
-#include "include/private/gpu/graphite/ContextOptionsPriv.h"
-#endif
-
 namespace skgpu::graphite {
 
 Caps::Caps()
@@ -43,6 +39,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
     if (options.fOptionsPriv) {
         fMaxTextureSize = std::min(fMaxTextureSize, options.fOptionsPriv->fMaxTextureSizeOverride);
         fMaxTextureAtlasSize = options.fOptionsPriv->fMaxTextureAtlasSize;
+        fRequestedPathRendererStrategy = options.fOptionsPriv->fPathRendererStrategy;
     }
 #endif
     fGlyphCacheTextureMaximumBytes = options.fGlyphCacheTextureMaximumBytes;

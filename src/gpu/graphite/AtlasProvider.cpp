@@ -18,8 +18,7 @@ namespace skgpu::graphite {
 
 AtlasProvider::AtlasProvider(Recorder* recorder)
         : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder)) {
-    // Disable for now.
-    //fPathAtlasFlags |= PathAtlasFlags::kRaster;
+    fPathAtlasFlags |= PathAtlasFlags::kRaster;
 #ifdef SK_ENABLE_VELLO_SHADERS
     if (recorder->priv().caps()->computeSupport()) {
         fPathAtlasFlags |= PathAtlasFlags::kCompute;
