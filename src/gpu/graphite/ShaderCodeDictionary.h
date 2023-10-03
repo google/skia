@@ -193,6 +193,7 @@ public:
                        const RenderStep* step,
                        const bool useStorageBuffers,
                        int* numTexturesAndSamplersUsed,
+                       int* numPaintUniforms,
                        Swizzle writeSwizzle);
 
 private:

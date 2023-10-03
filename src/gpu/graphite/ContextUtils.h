@@ -45,6 +45,7 @@ struct FragSkSLInfo {
     BlendInfo fBlendInfo;
     bool fRequiresLocalCoords = false;
     int fNumTexturesAndSamplers = 0;
+    int fNumPaintUniforms = 0;
 };
 
 std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
@@ -86,7 +87,8 @@ std::string BuildComputeSkSL(const Caps*, const ComputeStep*);
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
                                     const Layout layout,
-                                    SkSpan<const ShaderNode*> nodes);
+                                    SkSpan<const ShaderNode*> nodes,
+                                    int* numPaintUniforms);
 std::string EmitRenderStepUniforms(int bufferID,
                                    const char* name,
                                    const Layout layout,
@@ -94,7 +96,8 @@ std::string EmitRenderStepUniforms(int bufferID,
 std::string EmitPaintParamsStorageBuffer(int bufferID,
                                          const char* bufferTypePrefix,
                                          const char* bufferNamePrefix,
-                                         SkSpan<const ShaderNode*> nodes);
+                                         SkSpan<const ShaderNode*> nodes,
+                                         int* numPaintUniforms);
 std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
                                     const char* ssboIndex,
                                     const char* uniformName);

@@ -561,7 +561,7 @@ void DawnCommandBuffer::syncUniformBuffers() {
             ++numBuffers;
         }
 
-        if (fActiveGraphicsPipeline->hasFragment() &&
+        if (fActiveGraphicsPipeline->hasFragmentUniforms() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]) {
             auto boundBuffer = fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
 

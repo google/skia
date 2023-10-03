@@ -710,7 +710,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
             fUniformBuffersToBind[VulkanGraphicsPipeline::kRenderStepUniformBufferIndex].fBuffer) {
         descriptors.push_back(VulkanGraphicsPipeline::kRenderStepUniformDescriptor);
     }
-    if (fActiveGraphicsPipeline->hasFragment() &&
+    if (fActiveGraphicsPipeline->hasFragmentUniforms() &&
             fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
         descriptors.push_back(VulkanGraphicsPipeline::kPaintUniformDescriptor);
     }
@@ -1412,4 +1412,3 @@ void VulkanCommandBuffer::submitPipelineBarriers(bool forSelfDependency) {
 
 
 } // namespace skgpu::graphite
-

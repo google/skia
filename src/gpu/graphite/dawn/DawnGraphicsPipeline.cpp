@@ -289,9 +289,10 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
     const int numTexturesAndSamplers = fsSkSLInfo.fNumTexturesAndSamplers;
+    const int numFragmentUniforms = fsSkSLInfo.fNumPaintUniforms;
 
-    bool hasFragment = !fsSkSL.empty();
-    if (hasFragment) {
+    bool hasFragmentSkSL = !fsSkSL.empty();
+    if (hasFragmentSkSL) {
         if (!SkSLToWGSL(compiler,
                         fsSkSL,
                         SkSL::ProgramKind::kGraphiteFragment,
@@ -345,13 +346,13 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     wgpu::ColorTargetState colorTarget;
     colorTarget.format = renderPassDesc.fColorAttachment.fTextureInfo.dawnTextureSpec().fFormat;
     colorTarget.blend = blendOn ? &blend : nullptr;
-    colorTarget.writeMask = blendInfo.fWritesColor && hasFragment ? wgpu::ColorWriteMask::All
-                                                                  : wgpu::ColorWriteMask::None;
+    colorTarget.writeMask = blendInfo.fWritesColor && hasFragmentSkSL ? wgpu::ColorWriteMask::All
+                                                                      : wgpu::ColorWriteMask::None;
 
     wgpu::FragmentState fragment;
     // Dawn doesn't allow having a color attachment but without fragment shader, so have to use a
     // noop fragment shader, if fragment shader is null.
-    fragment.module = hasFragment ? std::move(fsModule) : sharedContext->noopFragment();
+    fragment.module = hasFragmentSkSL ? std::move(fsModule) : sharedContext->noopFragment();
     fragment.entryPoint = "main";
     fragment.targetCount = 1;
     fragment.targets = &colorTarget;
@@ -407,7 +408,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                 ++numBuffers;
             }
 
-            if (hasFragment) {
+            bool hasFragmentUniforms = hasFragmentSkSL && numFragmentUniforms > 0;
+            if (hasFragmentUniforms) {
                 entries[numBuffers].binding = kPaintUniformBufferIndex;
                 entries[numBuffers].visibility = wgpu::ShaderStage::Fragment;
                 entries[numBuffers].buffer.type = wgpu::BufferBindingType::Uniform;
@@ -429,7 +431,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             }
         }
 
-        bool hasFragmentSamplers = hasFragment && numTexturesAndSamplers > 0;
+        bool hasFragmentSamplers = hasFragmentSkSL && numTexturesAndSamplers > 0;
         if (hasFragmentSamplers) {
             std::vector<wgpu::BindGroupLayoutEntry> entries(numTexturesAndSamplers);
             for (int i = 0; i < numTexturesAndSamplers;) {
@@ -592,7 +594,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
                                      !step->uniforms().empty(),
-                                     hasFragment));
+                                     numFragmentUniforms > 0));
 }
 
 DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
@@ -602,14 +604,14 @@ DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext*
                                            PrimitiveType primitiveType,
                                            uint32_t refValue,
                                            bool hasStepUniforms,
-                                           bool hasFragment)
+                                           bool hasFragmentUniforms)
         : GraphicsPipeline(sharedContext, pipelineInfo)
         , fAsyncPipelineCreation(std::move(asyncCreationInfo))
         , fGroupLayouts(std::move(groupLayouts))
         , fPrimitiveType(primitiveType)
         , fStencilReferenceValue(refValue)
         , fHasStepUniforms(hasStepUniforms)
-        , fHasFragment(hasFragment) {}
+        , fHasFragmentUniforms(hasFragmentUniforms) {}
 
 void DawnGraphicsPipeline::freeGpuData() {
     fAsyncPipelineCreation = nullptr;

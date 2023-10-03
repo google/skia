@@ -220,6 +220,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                                const RenderStep* step,
                                const bool useStorageBuffers,
                                int* numTexturesAndSamplersUsed,
+                               int* numPaintUniforms,
                                Swizzle writeSwizzle) {
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
     std::string preamble = EmitVaryings(step,
@@ -237,14 +238,16 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                 /*bufferID=*/1, "Step", bindingReqs.fUniformBufferLayout, step->uniforms());
     }
     if (this->ssboIndex()) {
-        preamble += EmitPaintParamsStorageBuffer(/*bufferID=*/2, "FS", "fs", fRootNodes);
+        preamble += EmitPaintParamsStorageBuffer(/*bufferID=*/2, "FS", "fs", fRootNodes,
+                                                 numPaintUniforms);
     } else {
         preamble += EmitPaintParamsUniforms(
                 /*bufferID=*/2,
                 "FS",
                 useStorageBuffers ? bindingReqs.fStorageBufferLayout
                                   : bindingReqs.fUniformBufferLayout,
-                fRootNodes);
+                fRootNodes,
+                numPaintUniforms);
     }
 
     {

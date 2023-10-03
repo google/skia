@@ -142,7 +142,8 @@ std::string get_uniforms(Layout layout,
     return result;
 }
 
-std::string get_node_uniforms(Layout layout, const ShaderNode* node, int* offset) {
+std::string get_node_uniforms(Layout layout, const ShaderNode* node, int* offset,
+                              int* numUniforms) {
     std::string result;
     SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
 
@@ -152,13 +153,14 @@ std::string get_node_uniforms(Layout layout, const ShaderNode* node, int* offset
         result += get_uniforms(layout, uniforms, offset, node->keyIndex());
     }
 
+    *numUniforms += uniforms.size();
     for (const ShaderNode* child : node->children()) {
-        result += get_node_uniforms(layout, child, offset);
+        result += get_node_uniforms(layout, child, offset, numUniforms);
     }
     return result;
 }
 
-std::string get_node_ssbo_fields(const ShaderNode* node) {
+std::string get_node_ssbo_fields(const ShaderNode* node, int* numUniforms) {
     std::string result;
     SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
 
@@ -176,8 +178,9 @@ std::string get_node_ssbo_fields(const ShaderNode* node) {
         }
     }
 
+    *numUniforms += uniforms.size();
     for (const ShaderNode* child : node->children()) {
-        result += get_node_ssbo_fields(child);
+        result += get_node_ssbo_fields(child, numUniforms);
     }
     return result;
 }
@@ -210,14 +213,20 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
                                     const Layout layout,
-                                    SkSpan<const ShaderNode*> nodes) {
+                                    SkSpan<const ShaderNode*> nodes,
+                                    int* numUniforms) {
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
     for (const ShaderNode* n : nodes) {
-        result += get_node_uniforms(layout, n, &offset);
+        result += get_node_uniforms(layout, n, &offset, numUniforms);
     }
     result.append("};\n\n");
+
+    if (!*numUniforms) {
+        // No uniforms were added
+        return {};
+    }
 
     return result;
 }
@@ -239,14 +248,20 @@ std::string EmitPaintParamsStorageBuffer(
         int bufferID,
         const char* bufferTypePrefix,
         const char* bufferNamePrefix,
-        SkSpan<const ShaderNode*> nodes) {
+        SkSpan<const ShaderNode*> nodes,
+        int* numUniforms) {
 
     std::string result;
     SkSL::String::appendf(&result, "struct %sUniformData {\n", bufferTypePrefix);
     for (const ShaderNode* n : nodes) {
-        result += get_node_ssbo_fields(n);
+        result += get_node_ssbo_fields(n, numUniforms);
     }
     result.append("};\n\n");
+
+    if (!*numUniforms) {
+        // No uniforms were added
+        return {};
+    }
 
     SkSL::String::appendf(&result,
                           "layout (binding=%d) buffer %sUniforms {\n"
@@ -434,7 +449,8 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
     result.fSkSL = shaderInfo.toSkSL(caps,
                                      step,
                                      useStorageBuffers,
-                                     /*numTexturesAndSamplersUsed=*/&result.fNumTexturesAndSamplers,
+                                     &result.fNumTexturesAndSamplers,
+                                     &result.fNumPaintUniforms,
                                      writeSwizzle);
 
     // Extract blend info after integrating the RenderStep into the final fragment shader in case
