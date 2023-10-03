@@ -148,7 +148,6 @@ public:
 
     struct TextDesc {
         const sk_sp<SkTypeface>&  fTypeface;
-        const char*               fLocale         = nullptr;
         SkScalar                  fTextSize       = 0,
                                   fMinTextSize    = 0,  // when auto-sizing
                                   fMaxTextSize    = 0,  // when auto-sizing
@@ -163,6 +162,7 @@ public:
         Capitalization            fCapitalization = Shaper::Capitalization::kNone;
         size_t                    fMaxLines       = 0;  // when auto-sizing, 0 -> no max
         uint32_t                  fFlags          = 0;
+        const char*               fLocale         = nullptr;
     };
 
     // Performs text layout along an infinite horizontal line, starting at |point|.
