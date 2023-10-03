@@ -765,6 +765,11 @@ void Context::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     fResourceProvider->purgeResourcesNotUsedSince(purgeTime);
 }
 
+size_t Context::currentBudgetedBytes() const {
+    ASSERT_SINGLE_OWNER
+    return fResourceProvider->getResourceCacheCurrentBudgetedBytes();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 #if defined(GRAPHITE_TEST_UTILS)

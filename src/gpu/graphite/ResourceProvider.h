@@ -78,6 +78,9 @@ public:
     ProxyCache* proxyCache() { return fResourceCache->proxyCache(); }
 
     size_t getResourceCacheLimit() const { return fResourceCache->getMaxBudget(); }
+    size_t getResourceCacheCurrentBudgetedBytes() const {
+        return fResourceCache->currentBudgetedBytes();
+    }
 
     void freeGpuResources();
     void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);

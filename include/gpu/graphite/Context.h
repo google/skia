@@ -142,6 +142,11 @@ public:
      */
     void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
 
+    /**
+     * Returns the number of bytes of gpu memory currently budgeted in the Context's cache.
+     */
+    size_t currentBudgetedBytes() const;
+
     // Provides access to functions that aren't part of the public API.
     ContextPriv priv();
     const ContextPriv priv() const;  // NOLINT(readability-const-return-type)

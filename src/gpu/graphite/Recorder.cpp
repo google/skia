@@ -360,6 +360,11 @@ void Recorder::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     fResourceProvider->purgeResourcesNotUsedSince(purgeTime);
 }
 
+size_t Recorder::currentBudgetedBytes() const {
+    ASSERT_SINGLE_OWNER
+    return fResourceProvider->getResourceCacheCurrentBudgetedBytes();
+}
+
 void RecorderPriv::add(sk_sp<Task> task) {
     ASSERT_SINGLE_OWNER_PRIV
     fRecorder->fGraph->add(std::move(task));
