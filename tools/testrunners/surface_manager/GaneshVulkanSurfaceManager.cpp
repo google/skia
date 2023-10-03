@@ -10,7 +10,6 @@
 #include <string>
 
 std::unique_ptr<SurfaceManager> SurfaceManager::FromConfig(std::string config,
-                                                           int width,
-                                                           int height) {
+                                                           SurfaceOptions surfaceOptions) {
     return nullptr;  // TODO(lovisolo): Implement.
 }

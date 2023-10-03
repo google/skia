@@ -157,8 +157,8 @@ void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outp
     SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName().c_str());
 
     // Create surface and canvas.
-    std::unique_ptr<SurfaceManager> surfaceManager =
-            SurfaceManager::FromConfig(config, gm->getISize().width(), gm->getISize().height());
+    std::unique_ptr<SurfaceManager> surfaceManager = SurfaceManager::FromConfig(
+            config, SurfaceOptions{gm->getISize().width(), gm->getISize().height()});
     if (surfaceManager == nullptr) {
         SK_ABORT("Unknown --surfaceConfig flag value: %s.", config.c_str());
     }
