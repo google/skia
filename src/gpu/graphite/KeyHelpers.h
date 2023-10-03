@@ -53,12 +53,6 @@ enum class DstColorType {
  * as parent-child relationships.
  */
 
-struct PriorOutputBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*);
-};
-
 struct DstReadSampleBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
@@ -224,16 +218,19 @@ struct CoordClampShaderBlock {
 
 struct DitherShaderBlock {
     struct DitherData {
-        DitherData(float range) : fRange(range) {}
+        DitherData(float range, sk_sp<TextureProxy> proxy)
+            : fRange(range)
+            , fLUTProxy(std::move(proxy)) {}
 
         float fRange;
+        sk_sp<TextureProxy> fLUTProxy;
     };
 
     // The gatherer and data should be null or non-null together
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
-                           const DitherData*);
+                           const DitherData&);
 };
 
 struct PerlinNoiseShaderBlock {

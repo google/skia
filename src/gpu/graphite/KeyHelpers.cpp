@@ -84,14 +84,6 @@ namespace skgpu::graphite {
 
 //--------------------------------------------------------------------------------------------------
 
-void PriorOutputBlock::BeginBlock(const KeyContext& keyContext,
-                                  PaintParamsKeyBuilder* builder,
-                                  PipelineDataGatherer* gatherer) {
-    builder->beginBlock(BuiltInCodeSnippetID::kPriorOutput);
-}
-
-//--------------------------------------------------------------------------------------------------
-
 namespace {
 
 void add_solid_uniform_data(const ShaderCodeDictionary* dict,
@@ -673,24 +665,15 @@ void add_dither_uniform_data(const ShaderCodeDictionary* dict,
 void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
                                    PaintParamsKeyBuilder* builder,
                                    PipelineDataGatherer* gatherer,
-                                   const DitherData* ditherData) {
+                                   const DitherData& data) {
     if (gatherer) {
-        static const SkBitmap gLUT = skgpu::MakeDitherLUT();
-
-        sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), gLUT);
-        if (!proxy) {
-            SKGPU_LOG_W("Couldn't create dither shader's LUT");
-
-            PriorOutputBlock::BeginBlock(keyContext, builder, gatherer);
-            return;
-        }
-
-        add_dither_uniform_data(keyContext.dict(), *ditherData, gatherer);
+        add_dither_uniform_data(keyContext.dict(), data, gatherer);
 
         static constexpr SkSamplingOptions kNearest(SkFilterMode::kNearest, SkMipmapMode::kNone);
         static constexpr SkTileMode kRepeatTiling[2] = { SkTileMode::kRepeat, SkTileMode::kRepeat };
 
-        gatherer->add(kNearest, kRepeatTiling, std::move(proxy));
+        SkASSERT(data.fLUTProxy);
+        gatherer->add(kNearest, kRepeatTiling, data.fLUTProxy);
     }
 
     builder->beginBlock(BuiltInCodeSnippetID::kDitherShader);

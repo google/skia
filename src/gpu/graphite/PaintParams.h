@@ -116,6 +116,7 @@ void AddDstReadBlock(const KeyContext&,
                      PaintParamsKeyBuilder*,
                      PipelineDataGatherer*,
                      DstReadRequirement);
+void AddDitherBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*, SkColorType);
 
 } // namespace skgpu::graphite
 
