@@ -154,8 +154,6 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
     // the root to initialize the HW blend info.
     SkDEBUGCODE(bool fixedFuncBlendFound = false;)
     for (const ShaderNode* root : fRootNodes) {
-        fSnippetRequirementFlags |= root->requiredFlags();
-
         // TODO: This is brittle as it relies on PaintParams::toKey() putting the final fixed
         // function blend block at the root level. This can be improved with more structure to the
         // key creation.
@@ -171,6 +169,8 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
             SkASSERT(static_cast<int>(fBlendMode) >= 0 &&
                      fBlendMode <= SkBlendMode::kLastCoeffMode);
             fBlendInfo = gBlendTable[static_cast<int>(fBlendMode)];
+        } else {
+            fSnippetRequirementFlags |= root->requiredFlags();
         }
     }
 }
@@ -288,7 +288,12 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                                 kUnusedDstColor,
                                 this->needsLocalCoords() ? "localCoordsVar" : kUnusedLocalCoords};
     for (const ShaderNode* node : fRootNodes) {
-        args.fPriorStageOutput = emit_glue_code_for_entry(*this, node, args, &mainBody);
+        // This exclusion of the final Blend can be removed once we've resolved the final
+        // blend parenting issue w/in the key
+        if (node->codeSnippetId() >= kBuiltInCodeSnippetIDCount ||
+            node->codeSnippetId() < kFixedFunctionBlendModeIDOffset) {
+            args.fPriorStageOutput = emit_glue_code_for_entry(*this, node, args, &mainBody);
+        }
     }
 
     if (writeSwizzle != Swizzle::RGBA()) {
@@ -1212,22 +1217,6 @@ static constexpr char kPassthroughShaderName[] = "sk_passthrough";
 
 //--------------------------------------------------------------------------------------------------
 
-// This method generates the glue code for the case where the SkBlendMode-based blending is
-// handled with fixed function blending.
-std::string GenerateFixedFunctionBlenderExpression(const ShaderInfo&,
-                                                   const ShaderNode* node,
-                                                   const ShaderSnippet::Args& args) {
-    SkASSERT(node->codeSnippetId() >= kFixedFunctionBlendModeIDOffset &&
-             node->codeSnippetId() < kBuiltInCodeSnippetIDCount);
-    SkASSERT(node->numChildren() == 0);
-
-    // The actual blending is set up via the fixed function pipeline so we don't actually
-    // need to access the blend mode in the glue code.
-    return std::string(args.fPriorStageOutput);
-}
-
-//--------------------------------------------------------------------------------------------------
-
 std::string GeneratePrimitiveColorExpression(const ShaderInfo&,
                                              const ShaderNode* node,
                                              const ShaderSnippet::Args&) {
@@ -1735,10 +1724,11 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
         fBuiltInCodeSnippets[ffBlendModeID] = {
                 SkBlendMode_Name(static_cast<SkBlendMode>(i)),
                 { },     // no uniforms
-                SnippetRequirementFlags::kNone,
+                SnippetRequirementFlags::kPriorStageOutput |
+                SnippetRequirementFlags::kBlenderDstColor,
                 { },     // no samplers
-                "",  // fixed function blending doesn't use static SkSL
-                GenerateFixedFunctionBlenderExpression,
+                skgpu::BlendFuncName(static_cast<SkBlendMode>(i)),
+                GenerateDefaultExpression,
                 GenerateDefaultPreamble,
                 kNoChildren
         };
