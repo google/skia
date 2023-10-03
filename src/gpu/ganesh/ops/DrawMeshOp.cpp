@@ -67,8 +67,7 @@ public:
             const std::optional<SkPMColor4f>& color,
             bool needsLocalCoords,
             sk_sp<const SkData> uniforms,
-            SkSpan<std::unique_ptr<GrFragmentProcessor>> children,
-            SkSpan<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> childImpls) {
+            SkSpan<std::unique_ptr<GrFragmentProcessor>> children) {
         return arena->make([&](void* ptr) {
             return new (ptr) MeshGP(std::move(spec),
                                     std::move(colorSpaceXform),
@@ -76,8 +75,7 @@ public:
                                     std::move(color),
                                     needsLocalCoords,
                                     std::move(uniforms),
-                                    children,
-                                    childImpls);
+                                    children);
         });
     }
 
@@ -259,6 +257,13 @@ private:
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
+            SkSpan<std::unique_ptr<GrFragmentProcessor>> children = mgp.fChildren;
+
+            // Create Impls for any child fragment processors.
+            fChildImpls.reserve_exact(children.size());
+            for (const std::unique_ptr<GrFragmentProcessor>& fp : children) {
+                fChildImpls.push_back(fp ? fp->makeProgramImpl() : nullptr);
+            }
 
             SkASSERT(fSpecUniformHandles.empty());
             fSpecUniformHandles.resize(mgp.fSpec->uniforms().size());
@@ -450,31 +455,28 @@ private:
     private:
         SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
 
-        UniformHandle              fViewMatrixUniform;
-        UniformHandle              fColorUniform;
-        std::vector<UniformHandle> fSpecUniformHandles;
+        TArray<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fChildImpls;
+        UniformHandle                                             fViewMatrixUniform;
+        UniformHandle                                             fColorUniform;
+        std::vector<UniformHandle>                                fSpecUniformHandles;
 
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     };
 
-    MeshGP(sk_sp<SkMeshSpecification>                                spec,
-           sk_sp<GrColorSpaceXform>                                  colorSpaceXform,
-           const SkMatrix&                                           viewMatrix,
-           const std::optional<SkPMColor4f>&                         color,
-           bool                                                      needsLocalCoords,
-           sk_sp<const SkData>                                       uniforms,
-           SkSpan<std::unique_ptr<GrFragmentProcessor>>              children,
-           SkSpan<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> childImpls)
+    MeshGP(sk_sp<SkMeshSpecification>                   spec,
+           sk_sp<GrColorSpaceXform>                     colorSpaceXform,
+           const SkMatrix&                              viewMatrix,
+           const std::optional<SkPMColor4f>&            color,
+           bool                                         needsLocalCoords,
+           sk_sp<const SkData>                          uniforms,
+           SkSpan<std::unique_ptr<GrFragmentProcessor>> children)
             : INHERITED(kVerticesGP_ClassID)
             , fSpec(std::move(spec))
             , fUniforms(std::move(uniforms))
             , fChildren(children)
-            , fChildImpls(childImpls)
             , fViewMatrix(viewMatrix)
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fNeedsLocalCoords(needsLocalCoords) {
-        SkASSERT(fChildren.size() == fChildImpls.size());
-
         fColor = color.value_or(SK_PMColor4fILLEGAL);
         for (const auto& srcAttr : fSpec->attributes()) {
             fAttributes.emplace_back(srcAttr.name.c_str(),
@@ -487,8 +489,7 @@ private:
 
     sk_sp<SkMeshSpecification> fSpec;
     sk_sp<const SkData> fUniforms;
-    SkSpan<std::unique_ptr<GrFragmentProcessor>> fChildren;  // backed by a TArray in the MeshOp
-    SkSpan<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fChildImpls; //  "   "    "    "
+    SkSpan<std::unique_ptr<GrFragmentProcessor>> fChildren; // backed by a TArray in MeshOp
     std::vector<Attribute> fAttributes;
     SkMatrix fViewMatrix;
     SkPMColor4f fColor;
@@ -684,7 +685,6 @@ private:
     GrSimpleMesh*              fMesh = nullptr;
     GrProgramInfo*             fProgramInfo = nullptr;
     TArray<std::unique_ptr<GrFragmentProcessor>> fChildren;
-    TArray<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fChildImpls;
 
     using INHERITED = GrMeshDrawOp;
 };
@@ -794,11 +794,6 @@ MeshOp::MeshOp(GrProcessorSet*                              processorSet,
     }
 
     fChildren = std::move(children);
-
-    fChildImpls.reserve_exact(fChildren.size());
-    for (const std::unique_ptr<GrFragmentProcessor>& fp : fChildren) {
-        fChildImpls.push_back(fp ? fp->makeProgramImpl() : nullptr);
-    }
 
     fVertexCount = fMeshes.back().vertexCount();
     fIndexCount  = fMeshes.back().indexCount();
@@ -955,8 +950,7 @@ GrGeometryProcessor* MeshOp::makeGP(SkArenaAlloc* arena) {
                         color,
                         fHelper.usesLocalCoords(),
                         fUniforms,
-                        SkSpan(fChildren),
-                        SkSpan(fChildImpls));
+                        SkSpan(fChildren));
 }
 
 void MeshOp::onCreateProgramInfo(const GrCaps* caps,
