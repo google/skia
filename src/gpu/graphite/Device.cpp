@@ -951,6 +951,8 @@ void Device::drawGeometry(const Transform& localToDevice,
     SkASSERT(!SkToBool(paint.getPathEffect()) || (flags & DrawFlags::kIgnorePathEffect));
     SkASSERT(!SkToBool(paint.getMaskFilter()) || (flags & DrawFlags::kIgnoreMaskFilter));
 
+    // TODO: Some renderer decisions could depend on the clip (see PathAtlas::addShape for
+    // one workaround) so we should figure out how to remove this circular dependency.
     auto [renderer, pathAtlas] =
             this->chooseRenderer(localToDevice, geometry, style, /*requireMSAA=*/false);
     if (!renderer) {
@@ -993,33 +995,31 @@ void Device::drawGeometry(const Transform& localToDevice,
     // it to be drawn.
     CoverageMaskShape::MaskInfo atlasMaskInfo;  // only used if `pathAtlas != nullptr`
 
-    // It is possible for the transformed shape bounds to be fully clipped out while the draw still
-    // produces coverage due to an inverse fill. In this case, don't render any mask;
-    // AtlasShapeRenderStep will automatically handle the simple fill.
-    if (pathAtlas != nullptr && !clip.transformedShapeBounds().isEmptyNegativeOrNaN()) {
-        bool foundAtlasSpace = pathAtlas->addShape(recorder(),
-                                                   clip.transformedShapeBounds(),
-                                                   geometry.shape(),
-                                                   localToDevice,
-                                                   style,
-                                                   &atlasMaskInfo);
+    const TextureProxy* pathAtlasTextureProxy = nullptr;
+    if (pathAtlas != nullptr) {
+        pathAtlasTextureProxy = pathAtlas->addShape(recorder(),
+                                                    clip.transformedShapeBounds(),
+                                                    geometry.shape(),
+                                                    localToDevice,
+                                                    style,
+                                                    &atlasMaskInfo);
 
         // If there was no space in the atlas and we haven't flushed already, then flush pending
         // work to clear up space in the atlas. If we had already flushed once (which would have
         // cleared the atlas) then the atlas is too small for this shape.
-        if (!foundAtlasSpace && !needsFlush) {
+        if (!pathAtlasTextureProxy && !needsFlush) {
             this->flushPendingWorkToRecorder();
 
             // Try inserting the shape again.
-            foundAtlasSpace = pathAtlas->addShape(recorder(),
-                                                  clip.transformedShapeBounds(),
-                                                  geometry.shape(),
-                                                  localToDevice,
-                                                  style,
-                                                  &atlasMaskInfo);
+            pathAtlasTextureProxy = pathAtlas->addShape(recorder(),
+                                                        clip.transformedShapeBounds(),
+                                                        geometry.shape(),
+                                                        localToDevice,
+                                                        style,
+                                                        &atlasMaskInfo);
         }
 
-        if (!foundAtlasSpace) {
+        if (!pathAtlasTextureProxy) {
             SKGPU_LOG_E("Failed to add shape to atlas!");
             // TODO(b/285195175): This can happen if the atlas is not large enough or a compatible
             // atlas texture cannot be created. Handle the first case in `chooseRenderer` and make
@@ -1089,7 +1089,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     if (pathAtlas != nullptr) {
         // Record the draw as a fill since stroking is handled by the atlas render/upload.
         Geometry coverageMask(CoverageMaskShape(geometry.shape(),
-                                                pathAtlas->getTexture(fRecorder),
+                                                pathAtlasTextureProxy,
                                                 localToDevice.inverse(),
                                                 atlasMaskInfo));
         fDC->recordDraw(
