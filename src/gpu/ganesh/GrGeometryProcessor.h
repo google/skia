@@ -246,19 +246,8 @@ protected:
         fTextureSamplerCnt = cnt;
     }
 
-    /**
-     * Helper for implementing onTextureSampler(). E.g.:
-     * return IthTexureSampler(i, fMyFirstSampler, fMySecondSampler, fMyThirdSampler);
-     */
-    template <typename... Args>
-    static const TextureSampler& IthTextureSampler(int i, const TextureSampler& samp0,
-                                                   const Args&... samps) {
-        return (0 == i) ? samp0 : IthTextureSampler(i - 1, samps...);
-    }
-    inline static const TextureSampler& IthTextureSampler(int i);
-
 private:
-    virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
+    virtual const TextureSampler& onTextureSampler(int) const { SK_ABORT("no texture samplers"); }
 
     AttributeSet fVertexAttributes;
     AttributeSet fInstanceAttributes;
@@ -498,12 +487,6 @@ private:
     skgpu::Swizzle  fSwizzle;
     bool            fIsInitialized = false;
 };
-
-const GrGeometryProcessor::TextureSampler& GrGeometryProcessor::IthTextureSampler(int i) {
-    SK_ABORT("Illegal texture sampler index");
-    static const TextureSampler kBogus;
-    return kBogus;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
