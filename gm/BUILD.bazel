@@ -47,9 +47,9 @@ skia_cc_library(
     ],
     deps = [
         ":gm",
-        "//gm/surface_manager",
         "//gm/vias",
         "//tools:hash_and_encode",
+        "//tools/testrunners/surface_manager",
         "//tools/timer",  # Required by animatedimageblurs.cpp.
     ],
 )

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "gm/surface_manager/SurfaceManager.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkSurface.h"
@@ -14,6 +13,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkAssert.h"
 #include "tools/gpu/GrContextFactory.h"
+#include "tools/testrunners/surface_manager/SurfaceManager.h"
 
 #include <string>
 
@@ -49,8 +49,7 @@ std::unique_ptr<SurfaceManager> SurfaceManager::FromConfig(std::string config,
         GrContextOptions grCtxOptions;
         auto testFactory = std::make_unique<sk_gpu_test::GrContextFactory>(grCtxOptions);
         sk_gpu_test::ContextInfo contextInfo = testFactory.get()->getContextInfo(
-                skgpu::ContextType::kGLES,
-                sk_gpu_test::GrContextFactory::ContextOverrides::kNone);
+                skgpu::ContextType::kGLES, sk_gpu_test::GrContextFactory::ContextOverrides::kNone);
         GrDirectContext* context = contextInfo.directContext();
         SkASSERT_RELEASE(context);
 

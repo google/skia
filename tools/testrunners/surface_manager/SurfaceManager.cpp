@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm/surface_manager/SurfaceManager.h"
 #include "include/core/SkCanvas.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/testrunners/surface_manager/SurfaceManager.h"
 
 // Based on
 // https://skia.googlesource.com/skia/+/88d5e1daa3ba3aae65139d4a3ded1e1b7078d59b/dm/DM.cpp#1315.

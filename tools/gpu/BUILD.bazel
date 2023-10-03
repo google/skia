@@ -56,9 +56,9 @@ skia_cc_library(
         "GrContextFactory.h",
     ],
     visibility = [
-        "//gm/surface_manager:__pkg__",
         "//modules/skottie:__pkg__",
         "//tests:__pkg__",
+        "//tools/testrunners/surface_manager:__pkg__",
         "//tools/viewer:__pkg__",
     ],
     deps = ["//:skia_internal"] + select_multi({

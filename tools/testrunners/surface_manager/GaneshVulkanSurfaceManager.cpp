@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "gm/surface_manager/SurfaceManager.h"
+#include "tools/testrunners/surface_manager/SurfaceManager.h"
 
 #include <string>
 
