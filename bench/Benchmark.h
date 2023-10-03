@@ -59,8 +59,9 @@ public:
     // Allows a benchmark to override options used to construct the GrContext.
     virtual void modifyGrContextOptions(GrContextOptions*) {}
 
-    virtual int calculateLoops(int defaultLoops) const {
-        return defaultLoops;
+    // Whether or not this benchmark requires multiple samples to get a meaningful result.
+    virtual bool shouldLoop() const {
+        return true;
     }
 
     // Call before draw, allows the benchmark to do setup work outside of the

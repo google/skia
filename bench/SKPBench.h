@@ -24,8 +24,8 @@ public:
              bool doLooping);
     ~SKPBench() override;
 
-    int calculateLoops(int defaultLoops) const override {
-        return fDoLooping ? defaultLoops : 1;
+    bool shouldLoop() const override {
+        return fDoLooping;
     }
 
     void getGpuStats(SkCanvas*,
