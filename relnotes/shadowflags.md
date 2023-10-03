@@ -1,1 +1,0 @@
-`SkShadowFlags` are now visible in `include/utils/SkShadowUtils.h`
