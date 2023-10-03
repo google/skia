@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PrecompileBasePriv.h"
+#include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
@@ -275,14 +276,15 @@ private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
-        if (desiredCombination == 0) {
-            ImageShaderBlock::BeginBlock(keyContext, builder,
-                                        /* gatherer= */ nullptr, /* imgData= */ nullptr);
-        } else {
-            ImageShaderBlock::BeginCubicBlock(keyContext, builder,
-                                              /* gatherer= */ nullptr, /* imgData= */ nullptr);
-        }
-        builder->endBlock();
+        static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
+        static constexpr SkSamplingOptions kDefaultSampling;
+
+        ImageShaderBlock::ImageData imgData(desiredCombination > 0 ? kDefaultCubicSampling
+                                                                   : kDefaultSampling,
+                                            SkTileMode::kClamp, SkTileMode::kClamp,
+                                            SkRect::MakeEmpty(), ReadSwizzle::kRGBA);
+
+        ImageShaderBlock::AddBlock(keyContext, builder, /* gatherer= */ nullptr, imgData);
     }
 };
 
