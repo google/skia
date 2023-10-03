@@ -1,6 +1,7 @@
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
-load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
+load("//bazel:gen_compile_flags_txt_linux_amd64.bzl", "gen_compile_flags_txt_linux_amd64")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_objc_library")
+load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
 
 licenses(["notice"])
 
@@ -147,4 +148,34 @@ test_suite(
         "//infra/bots/task_drivers/perf_puppeteer_render_skps:perf_puppeteer_render_skps_test",
         "//infra/bots/task_drivers/perf_puppeteer_skottie_frames:perf_puppeteer_skottie_frames_test",
     ],
+)
+
+# Generates a compile_flags.txt file for use with clangd against the Bazel-downloaded Linux AMD64
+# clang hermetic toolchain.
+#
+# This command prints to standard input a compile_flags.txt file that can be used with clangd to
+# enable autocompletion on editors that support it. See:
+# https://clangd.llvm.org/design/compile-commands.
+#
+# Note that this is implemented on a best effort basis. The produced compile_flags.txt file will
+# contain the subset of flags used by most targets, but some targets might require additional
+# flags. If that's the case, please manually add them to your compile_flags.txt file.
+#
+# Sample usage:
+#
+#     $ bazel run //:gen_compile_flags_txt_linux_amd64 > compile_flags.txt
+#
+# Invoke with --config=<some config> to generate flags with the defines and includes required for
+# your build. For example, if you build your binary as follows:
+#
+#     $ bazel build //path/to:binary --config=gl_ganesh
+#
+# Then your compile_flags.txt file should be generated with:
+#
+#     $ bazel run //:gen_compile_flags_txt_linux_amd64 --config=gl_ganesh > compile_flags.txt
+#
+# This was tested with Visual Studio Code and the clangd extension:
+# https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd.
+gen_compile_flags_txt_linux_amd64(
+    name = "gen_compile_flags_txt_linux_amd64",
 )
