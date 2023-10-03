@@ -18,7 +18,6 @@ namespace skottie {
 bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
     return fTypeface == other.fTypeface
         && fText == other.fText
-        && fLocale == other.fLocale
         && fTextSize == other.fTextSize
         && fStrokeWidth == other.fStrokeWidth
         && fLineHeight == other.fLineHeight
@@ -38,7 +37,8 @@ bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
         && fStrokeJoin == other.fStrokeJoin
         && fHasFill == other.fHasFill
         && fHasStroke == other.fHasStroke
-        && fDecorator == other.fDecorator;
+        && fDecorator == other.fDecorator
+        && fLocale == other.fLocale;
 }
 
 bool TextPropertyValue::operator!=(const TextPropertyValue& other) const {

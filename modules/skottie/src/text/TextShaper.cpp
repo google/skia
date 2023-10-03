@@ -16,7 +16,6 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "modules/skunicode/include/SkUnicode.h"
 #include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
@@ -315,9 +314,11 @@ public:
         const size_t utf8_bytes = SkToSizeT(end - start);
 
         SkASSERT(fFontMgr);
+        static constexpr uint8_t kBidiLevelLTR = 0,
+                                 kBidiLevelRTL = 1;
         const auto font_iter = SkShaper::MakeFontMgrRunIterator(start, utf8_bytes, fFont, fFontMgr);
         const auto bidi_iter = SkShaper::MakeBiDiRunIterator(start, utf8_bytes,
-                                    shape_ltr ? SkBidiIterator::kLTR : SkBidiIterator::kRTL);
+                                    shape_ltr ? kBidiLevelLTR : kBidiLevelRTL);
         const auto scpt_iter = SkShaper::MakeScriptRunIterator(start, utf8_bytes,
                                     SkSetFourByteTag('Z', 'z', 'z', 'z'));
         const auto lang_iter = fDesc.fLocale
