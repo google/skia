@@ -62,10 +62,10 @@ struct DstReadSampleBlock {
 };
 
 struct SolidColorShaderBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const SkPMColor4f&);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const SkPMColor4f&);
 };
 
 struct GradientShaderBlocks {

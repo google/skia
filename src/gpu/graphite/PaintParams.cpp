@@ -213,9 +213,7 @@ void PaintParams::addPaintColorToKey(const KeyContext& keyContext,
     if (fShader) {
         AddToKey(keyContext, keyBuilder, gatherer, fShader.get());
     } else {
-        SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer,
-                                          keyContext.paintColor());
-        keyBuilder->endBlock();
+        SolidColorShaderBlock::AddBlock(keyContext, keyBuilder, gatherer, keyContext.paintColor());
     }
 }
 
@@ -256,9 +254,8 @@ void PaintParams::handlePaintAlpha(const KeyContext& keyContext,
                   this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
               },
               /* addDstToKey= */ [&]() -> void {
-                  SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer,
-                                                    {0, 0, 0, fColor.fA});
-                  keyBuilder->endBlock();
+                  SolidColorShaderBlock::AddBlock(keyContext, keyBuilder, gatherer,
+                                                  {0, 0, 0, fColor.fA});
               });
     } else {
         this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
@@ -329,8 +326,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
     // TODO: figure out how we can omit this block when the Paint's color isn't used.
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, keyContext.paintColor());
-    builder->endBlock();
+    SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, keyContext.paintColor());
 
     this->handleDstRead(keyContext, builder, gatherer);
 

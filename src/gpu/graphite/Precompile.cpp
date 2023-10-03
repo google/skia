@@ -155,8 +155,7 @@ void PaintOption::addPaintColorToKey(const KeyContext& keyContext,
     if (fShader.first) {
         fShader.first->priv().addToKey(keyContext, fShader.second, builder);
     } else {
-        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
-        builder->endBlock();
+        SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
     }
 }
 
@@ -194,9 +193,8 @@ void PaintOption::handlePaintAlpha(const KeyContext& keyContext,
                   this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
               },
               /* addDstToKey= */ [&]() -> void {
-                  SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer,
-                                                    {0, 0, 0, 0.5f});
-                  keyBuilder->endBlock();
+                  SolidColorShaderBlock::AddBlock(keyContext, keyBuilder, gatherer,
+                                                  {0, 0, 0, 0.5f});
               });
     } else {
         this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
@@ -316,9 +314,8 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     SkASSERT(desiredShaderCombination < this->numShaderCombinations());
 
     // TODO: eliminate this block for the Paint's color when it isn't needed
-    SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
-                                      {1, 0, 0, 1});
-    keyBuilder->endBlock();
+    SolidColorShaderBlock::AddBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
+                                    {1, 0, 0, 1});
 
     // TODO: this probably needs to be passed in just like addPrimitiveBlender
     const bool kOpaquePaintColor = true;

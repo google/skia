@@ -60,9 +60,8 @@ private:
 
         constexpr SkPMColor4f kUnusedColor = { 1, 0, 0, 1 };
 
-        SolidColorShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
-                                          kUnusedColor); // color isn't used w/o a gatherer
-        builder->endBlock();
+        SolidColorShaderBlock::AddBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                        kUnusedColor); // color isn't used w/o a gatherer
     }
 
 };
@@ -630,9 +629,8 @@ void add_children_to_key(const KeyContext& keyContext,
             switch (childInfo[index].type) {
                 case ChildType::kShader:
                     // A missing shader returns transparent black
-                    SolidColorShaderBlock::BeginBlock(
+                    SolidColorShaderBlock::AddBlock(
                             childContext, builder, /* gatherer= */ nullptr, {0, 0, 0, 0});
-                    builder->endBlock();
                     break;
 
                 case ChildType::kColorFilter:
