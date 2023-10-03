@@ -179,12 +179,16 @@ sk_sp<DawnComputePipeline> DawnComputePipeline::Make(const DawnSharedContext* sh
         return nullptr;
     }
 
-    return sk_sp<DawnComputePipeline>(new DawnComputePipeline(sharedContext, std::move(pipeline)));
+    return sk_sp<DawnComputePipeline>(new DawnComputePipeline(
+            sharedContext, std::move(pipeline), std::move(bindGroupLayout)));
 }
 
 DawnComputePipeline::DawnComputePipeline(const SharedContext* sharedContext,
-                                         wgpu::ComputePipeline pso)
-        : ComputePipeline(sharedContext), fPipeline(std::move(pso)) {}
+                                         wgpu::ComputePipeline pso,
+                                         wgpu::BindGroupLayout groupLayout)
+        : ComputePipeline(sharedContext)
+        , fPipeline(std::move(pso))
+        , fGroupLayout(std::move(groupLayout)) {}
 
 void DawnComputePipeline::freeGpuData() { fPipeline = nullptr; }
 

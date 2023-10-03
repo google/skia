@@ -40,6 +40,7 @@ class DawnGraphicsPipeline final : public GraphicsPipeline {
 public:
     inline static constexpr unsigned int kUniformBufferBindGroupIndex = 0;
     inline static constexpr unsigned int kTextureBindGroupIndex = 1;
+    inline static constexpr unsigned int kBindGroupCount = 2;
 
     inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
     inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
@@ -62,12 +63,16 @@ public:
     PrimitiveType primitiveType() const { return fPrimitiveType; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
     bool hasFragment() const { return fHasFragment; }
-    const wgpu::RenderPipeline& dawnRenderPipeline() const;
+    const wgpu::RenderPipeline& dawnRenderPipeline() const { return fRenderPipeline; }
+
+    using BindGroupLayouts = std::array<wgpu::BindGroupLayout, kBindGroupCount>;
+    const BindGroupLayouts& dawnGroupLayouts() const { return fGroupLayouts; }
 
 private:
     DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                          PipelineInfo* pipelineInfo,
                          wgpu::RenderPipeline renderPipeline,
+                         BindGroupLayouts groupLayouts,
                          PrimitiveType primitiveType,
                          uint32_t refValue,
                          bool hasStepUniforms,
@@ -76,6 +81,7 @@ private:
     void freeGpuData() override;
 
     wgpu::RenderPipeline fRenderPipeline;
+    BindGroupLayouts fGroupLayouts;
     const PrimitiveType fPrimitiveType;
     const uint32_t fStencilReferenceValue;
     const bool fHasStepUniforms;

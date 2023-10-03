@@ -522,8 +522,8 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     }
 
     wgpu::BindGroupDescriptor desc;
-    desc.layout = fActiveGraphicsPipeline->dawnRenderPipeline().GetBindGroupLayout(
-            DawnGraphicsPipeline::kTextureBindGroupIndex);
+    const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
+    desc.layout = groupLayouts[DawnGraphicsPipeline::kTextureBindGroupIndex];
     desc.entryCount = entries.size();
     desc.entries = entries.data();
 
@@ -578,8 +578,8 @@ void DawnCommandBuffer::syncUniformBuffers() {
         }
 
         wgpu::BindGroupDescriptor desc;
-        desc.layout = fActiveGraphicsPipeline->dawnRenderPipeline().GetBindGroupLayout(
-                DawnGraphicsPipeline::kUniformBufferBindGroupIndex);
+        const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
+        desc.layout = groupLayouts[DawnGraphicsPipeline::kUniformBufferBindGroupIndex];
         desc.entryCount = numBuffers;
         desc.entries = entries.data();
 
@@ -772,7 +772,7 @@ void DawnCommandBuffer::bindDispatchResources(const DispatchGroup& group,
     }
 
     wgpu::BindGroupDescriptor desc;
-    desc.layout = fActiveComputePipeline->dawnComputePipeline().GetBindGroupLayout(0);
+    desc.layout = fActiveComputePipeline->dawnGroupLayout();
     desc.entryCount = entries.size();
     desc.entries = entries.data();
 
