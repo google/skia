@@ -40,6 +40,27 @@ private:
     std::atomic_bool fSignaled;
 };
 
+template <typename T> class DawnAsyncResult {
+public:
+    DawnAsyncResult(const wgpu::Device& device) : fSync(device) {}
+    ~DawnAsyncResult() { fSync.busyWait(); }
+
+    void set(const T& result) {
+        fResult = result;
+        fSync.signal();
+    }
+
+    const T& waitAndGet() const {
+        // If fSync is already signaled, the wait will return immediately.
+        fSync.busyWait();
+        return fResult;
+    }
+
+private:
+    DawnAsyncWait fSync;
+    T fResult;
+};
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DawnAsyncWait_DEFINED

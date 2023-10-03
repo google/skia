@@ -13,6 +13,7 @@
 #include "include/ports/SkCFObject.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 
 #include "webgpu/webgpu_cpp.h"
 
@@ -63,15 +64,17 @@ public:
     PrimitiveType primitiveType() const { return fPrimitiveType; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
     bool hasFragment() const { return fHasFragment; }
-    const wgpu::RenderPipeline& dawnRenderPipeline() const { return fRenderPipeline; }
+    const wgpu::RenderPipeline& dawnRenderPipeline() const;
 
     using BindGroupLayouts = std::array<wgpu::BindGroupLayout, kBindGroupCount>;
     const BindGroupLayouts& dawnGroupLayouts() const { return fGroupLayouts; }
 
 private:
+    using AsyncPipelineCreation = DawnAsyncResult<wgpu::RenderPipeline>;
+
     DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                          PipelineInfo* pipelineInfo,
-                         wgpu::RenderPipeline renderPipeline,
+                         std::unique_ptr<AsyncPipelineCreation> pipelineCreationInfo,
                          BindGroupLayouts groupLayouts,
                          PrimitiveType primitiveType,
                          uint32_t refValue,
@@ -80,7 +83,7 @@ private:
 
     void freeGpuData() override;
 
-    wgpu::RenderPipeline fRenderPipeline;
+    std::unique_ptr<AsyncPipelineCreation> fAsyncPipelineCreation;
     BindGroupLayouts fGroupLayouts;
     const PrimitiveType fPrimitiveType;
     const uint32_t fStencilReferenceValue;

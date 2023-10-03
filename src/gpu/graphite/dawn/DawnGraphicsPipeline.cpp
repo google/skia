@@ -16,7 +16,6 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/UniformManager.h"
-#include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
@@ -554,12 +553,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
-    struct PipelineAsyncArg {
-        PipelineAsyncArg(const wgpu::Device& device) : sync(device) {}
-        DawnAsyncWait sync;
-        wgpu::RenderPipeline pipeline;
-    };
-    PipelineAsyncArg asyncArg(device);
+    auto asyncCreation = std::make_unique<AsyncPipelineCreation>(device);
 
     device.CreateRenderPipelineAsync(
             &descriptor,
@@ -567,23 +561,16 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                WGPURenderPipeline pipeline,
                char const* message,
                void* userdata) {
-                PipelineAsyncArg* arg = static_cast<PipelineAsyncArg*>(userdata);
+                AsyncPipelineCreation* arg = static_cast<AsyncPipelineCreation*>(userdata);
 
                 if (status != WGPUCreatePipelineAsyncStatus_Success) {
                     SKGPU_LOG_E("Failed to create render pipeline (%d): %s", status, message);
-                    arg->pipeline = nullptr;
+                    arg->set(nullptr);
                 } else {
-                    arg->pipeline = wgpu::RenderPipeline::Acquire(pipeline);
+                    arg->set(wgpu::RenderPipeline::Acquire(pipeline));
                 }
-                arg->sync.signal();
             },
-            &asyncArg);
-
-    asyncArg.sync.busyWait();
-
-    if (asyncArg.pipeline == nullptr) {
-        return {};
-    }
+            asyncCreation.get());
 
 #if defined(GRAPHITE_TEST_UTILS)
     GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
@@ -600,7 +587,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     return sk_sp<DawnGraphicsPipeline>(
             new DawnGraphicsPipeline(sharedContext,
                                      pipelineInfoPtr,
-                                     std::move(asyncArg.pipeline),
+                                     std::move(asyncCreation),
                                      std::move(groupLayouts),
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
@@ -610,14 +597,14 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
 DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                                            PipelineInfo* pipelineInfo,
-                                           wgpu::RenderPipeline renderPipeline,
+                                           std::unique_ptr<AsyncPipelineCreation> asyncCreationInfo,
                                            BindGroupLayouts groupLayouts,
                                            PrimitiveType primitiveType,
                                            uint32_t refValue,
                                            bool hasStepUniforms,
                                            bool hasFragment)
         : GraphicsPipeline(sharedContext, pipelineInfo)
-        , fRenderPipeline(std::move(renderPipeline))
+        , fAsyncPipelineCreation(std::move(asyncCreationInfo))
         , fGroupLayouts(std::move(groupLayouts))
         , fPrimitiveType(primitiveType)
         , fStencilReferenceValue(refValue)
@@ -625,7 +612,11 @@ DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext*
         , fHasFragment(hasFragment) {}
 
 void DawnGraphicsPipeline::freeGpuData() {
-    fRenderPipeline = nullptr;
+    fAsyncPipelineCreation = nullptr;
+}
+
+const wgpu::RenderPipeline& DawnGraphicsPipeline::dawnRenderPipeline() const {
+    return fAsyncPipelineCreation->waitAndGet();
 }
 
 } // namespace skgpu::graphite
