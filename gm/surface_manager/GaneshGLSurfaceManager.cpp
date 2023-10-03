@@ -10,6 +10,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkAssert.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -30,7 +31,7 @@ public:
 
     sk_sp<SkSurface> getSurface() override { return fSurface; }
 
-    void flush() override { fContext->flushAndSubmit(fSurface, /* syncCpu= */ true); }
+    void flush() override { fContext->flushAndSubmit(fSurface.get(), GrSyncCpu::kYes); }
 
 private:
     // The GL context is destroyed when the context factory is destroyed. We prevent early
