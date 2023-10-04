@@ -694,6 +694,10 @@ get_webgl_vendor_and_renderer(
     GrGLVendor webglVendor = get_vendor(webglVendorString);
     GrGLRenderer webglRenderer = get_renderer(webglRendererString, interface->fExtensions);
 
+    if (webglVendor == GrGLVendor::kOther && strstr(webglRendererString, "Intel")) {
+        webglVendor = GrGLVendor::kIntel;
+    }
+
     return {webglVendor, webglRenderer};
 }
 
