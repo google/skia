@@ -157,8 +157,7 @@ void AddModeBlend(const KeyContext& keyContext,
         CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, coeffs);
         builder->endBlock();
     } else {
-        BlendModeBlenderBlock::BeginBlock(keyContext, builder, gatherer, bm);
-        builder->endBlock();
+        BlendModeBlenderBlock::AddBlock(keyContext, builder, gatherer, bm);
     }
 }
 

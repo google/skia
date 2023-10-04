@@ -176,9 +176,8 @@ private:
                                           {}); // coeffs aren't used
             builder->endBlock();
         } else if (desiredBlendCombination == fSeparableModeIndex) {
-            BlendModeBlenderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
-                                              SkBlendMode::kOverlay); // the blendmode is unused
-            builder->endBlock();
+            BlendModeBlenderBlock::AddBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                            SkBlendMode::kOverlay); // the blendmode is unused
         } else {
             AddToKey<PrecompileBlender>(keyContext, builder, fRuntimeBlendEffects,
                                         desiredBlendCombination);
@@ -640,9 +639,8 @@ void add_children_to_key(const KeyContext& keyContext,
 
                 case ChildType::kBlender:
                     // A "passthrough" blender performs `blend_src_over(src, dest)`.
-                    BlendModeBlenderBlock::BeginBlock(
-                            childContext, builder, /* gatherer= */ nullptr, SkBlendMode::kSrcOver);
-                    builder->endBlock();
+                    AddKnownModeBlend(childContext, builder, /* gatherer= */ nullptr,
+                                      SkBlendMode::kSrcOver);
                     break;
             }
         }
