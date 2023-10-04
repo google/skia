@@ -62,6 +62,7 @@ skia_cc_library(
     defines = DEFAULT_DEFINES,
     local_defines = DEFAULT_LOCAL_DEFINES,
     visibility = [
+        "//bench:__subpackages__",
         "//dm:__subpackages__",
         "//gm:__subpackages__",
         "//modules:__subpackages__",

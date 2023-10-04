@@ -56,6 +56,8 @@ skia_cc_library(
         "GrContextFactory.h",
     ],
     visibility = [
+        "//bench:__pkg__",
+        "//bench/benchmark_target:__pkg__",
         "//modules/skottie:__pkg__",
         "//tests:__pkg__",
         "//tools/testrunners/surface_manager:__pkg__",

@@ -1,9 +1,120 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
+load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 
 licenses(["notice"])
+
+exports_files_legacy()
 
 skia_filegroup(
     name = "gpu_tools",
     srcs = ["GpuTools.h"],
     visibility = ["//tools/viewer:__pkg__"],
+)
+
+skia_cc_library(
+    name = "benchmark",
+    srcs = ["Benchmark.cpp"],
+    hdrs = ["Benchmark.h"],
+    visibility = ["//bench/benchmark_target:__pkg__"],
+    deps = [
+        "//:skia_internal",
+        "//tools:registry",
+    ],
+)
+
+skia_cc_library(
+    name = "benchmarks_base",
+    testonly = True,
+    srcs = [
+        "BazelBenchmarkRunner.cpp",
+        "ResultsWriter.h",
+        "//src/utils:json_hdrs",
+        "//src/utils:json_srcs",
+    ],
+    deps = [
+        ":benchmark",
+        "//:skia_internal",
+        "//bench/benchmark_target",
+        "//tools:autorelease_pool",
+        "//tools:proc_stats",
+        "//tools:registry",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/timer",
+    ],
+)
+
+cc_test_with_flags(
+    name = "cpu_nonrendering_test",
+    srcs = [
+        "GradientBench.cpp",
+        "TextBlobBench.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "nonrendering",
+        "--autoTuneLoops",
+        # Example keys. For CI tasks, these should be set by the task driver.
+        "--key",
+        "key-1",
+        "value-1",
+        "key-2",
+        "value-2",
+    ],
+    set_flags = {
+        "include_encoder": [
+            "png_encode_codec",
+        ],
+    },
+    deps = [":benchmarks_base"],
+)
+
+cc_test_with_flags(
+    name = "cpu_8888_test",
+    srcs = [
+        "GradientBench.cpp",
+        "TextBlobBench.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "8888",
+        "--autoTuneLoops",
+        # Example keys. For CI tasks, these should be set by the task driver.
+        "--key",
+        "key-1",
+        "value-1",
+        "key-2",
+        "value-2",
+    ],
+    set_flags = {
+        "include_encoder": [
+            "png_encode_codec",
+        ],
+    },
+    deps = [":benchmarks_base"],
+)
+
+cc_test_with_flags(
+    name = "gpu_gles_test",
+    srcs = [
+        "GradientBench.cpp",
+        "TextBlobBench.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "gles",
+        "--autoTuneLoops",
+        # Example keys. For CI tasks, these should be set by the task driver.
+        "--key",
+        "key-1",
+        "value-1",
+        "key-2",
+        "value-2",
+    ],
+    set_flags = {
+        "include_encoder": [
+            "png_encode_codec",
+        ],
+    },
+    deps = [":benchmarks_base"],
 )

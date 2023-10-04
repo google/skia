@@ -13,7 +13,10 @@ skia_cc_library(
         "//conditions:default": ["RasterSurfaceManager.cpp"],
     }),
     hdrs = ["SurfaceManager.h"],
-    visibility = ["//gm:__pkg__"],
+    visibility = [
+        "//bench/benchmark_target:__pkg__",
+        "//gm:__pkg__",
+    ],
     deps = [
         "//:skia_internal",
         "//tools:tool_utils",

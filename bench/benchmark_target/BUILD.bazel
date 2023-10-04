@@ -1,0 +1,25 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "benchmark_target",
+    testonly = True,
+    srcs = ["BenchmarkTarget.cpp"] + select({
+        "//src/gpu:has_ganesh_backend": ["GaneshBenchmarkTarget.cpp"],
+        "//conditions:default": ["RasterBenchmarkTarget.cpp"],
+    }),
+    hdrs = ["BenchmarkTarget.h"],
+    visibility = ["//bench:__pkg__"],
+    deps = [
+        "//:skia_internal",
+        "//bench:benchmark",
+        "//tools:tool_utils",
+        "//tools/testrunners/surface_manager",
+    ] + select({
+        "//src/gpu:has_ganesh_backend": ["//tools/gpu:utils"],
+        "//conditions:default": ["//tools/timer"],
+    }),
+)

@@ -41,7 +41,8 @@ public:
     // Constructs a SurfaceManager for the given config name (e.g. "8888", "565", "gles"). It
     // returns nullptr if the config is unknown, and it aborts execution if the config is known but
     // we weren't able to construct the surface for any reason.
-    static std::unique_ptr<SurfaceManager> FromConfig(std::string config, SurfaceOptions options);
+    static std::unique_ptr<SurfaceManager> FromConfig(std::string config,
+                                                      SurfaceOptions surfaceOptions);
 
     // Returns the surface created from the given config. All calls return the same surface.
     virtual sk_sp<SkSurface> getSurface() = 0;

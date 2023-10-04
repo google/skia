@@ -36,6 +36,7 @@ skia_cc_library(
     name = "registry",
     hdrs = ["Registry.h"],
     visibility = [
+        "//bench:__pkg__",
         "//gm:__pkg__",
         "//tests:__subpackages__",
         "//tools/viewer:__pkg__",
@@ -67,7 +68,10 @@ py_binary(
 skia_cc_library(
     name = "autorelease_pool",
     hdrs = ["AutoreleasePool.h"],
-    visibility = ["//tools/gpu:__pkg__"],
+    visibility = [
+        "//bench:__pkg__",
+        "//tools/gpu:__pkg__",
+    ],
 )
 
 skia_objc_library(
@@ -127,6 +131,21 @@ skia_cc_library(
         "//src/sksl:__pkg__",
         "//tools/sksl-minify:__pkg__",
     ],
+)
+
+skia_cc_library(
+    name = "stats",
+    hdrs = ["Stats.h"],
+    visibility = ["//bench:__pkg__"],
+    deps = ["//:skia_internal"],
+)
+
+skia_cc_library(
+    name = "proc_stats",
+    srcs = ["ProcStats.cpp"],
+    hdrs = ["ProcStats.h"],
+    visibility = ["//bench:__pkg__"],
+    deps = ["//:skia_internal"],
 )
 
 # Regenerate workarounds with `bazel run //tools:generate_workarounds`
