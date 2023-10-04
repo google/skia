@@ -42,6 +42,14 @@ $pure half4 sk_solid_shader(float4 colorParam) {
     return half4(colorParam);
 }
 
+$pure half4 sk_rgb_opaque(float4 colorParam) {
+    return half4(colorParam.rgb, 1.0);
+}
+
+$pure half4 sk_alpha_only(float4 colorParam) {
+    return half4(0.0, 0.0, 0.0, colorParam.a);
+}
+
 $pure half4 $apply_swizzle(int swizzleType, half4 color) {
     switch (swizzleType) {
         case $kReadSwizzleRGB1:

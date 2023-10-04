@@ -68,6 +68,18 @@ struct SolidColorShaderBlock {
                          const SkPMColor4f&);
 };
 
+struct RGBPaintColorBlock {
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*);
+};
+
+struct AlphaOnlyPaintColorBlock {
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*);
+};
+
 struct GradientShaderBlocks {
     struct GradientData {
         // The number of stops stored internal to this data structure before falling back to

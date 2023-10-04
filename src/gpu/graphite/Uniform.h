@@ -23,12 +23,23 @@ class Uniform {
 public:
     static constexpr int kNonArray = 0;
 
+    /*
+     * The paint color uniform is treated special and will only be added to the uniform block
+     * once. Its name will not be mangled.
+     */
+    enum class IsPaintColor : bool {
+        kNo = false,
+        kYes = true,
+    };
+
     constexpr Uniform(const char* name, SkSLType type) : Uniform(name, type, kNonArray) {}
 
-    constexpr Uniform(const char* name, SkSLType type, int count)
-            : fType      (static_cast<unsigned>(type))
-            , fCount     (static_cast<unsigned>(count))
-            , fName      (name) {
+    constexpr Uniform(const char* name, SkSLType type, int count,
+                      IsPaintColor isPaintColor = IsPaintColor::kNo)
+            : fType(static_cast<unsigned>(type))
+            , fCount(static_cast<unsigned>(count))
+            , fIsPaintColor(isPaintColor)
+            , fName(name) {
     }
 
     constexpr Uniform(const Uniform&) = default;
@@ -39,10 +50,12 @@ public:
     constexpr const char* name() const  { return fName; }
     constexpr SkSLType    type() const  { return static_cast<SkSLType>(fType);  }
     constexpr uint32_t    count() const { return static_cast<uint32_t>(fCount); }
+    constexpr bool        isPaintColor() const   { return fIsPaintColor == IsPaintColor::kYes; }
 
 private:
     uint32_t    fType    : 6;
     uint32_t    fCount   : 26;
+    IsPaintColor fIsPaintColor;
     const char* fName;
 
     static_assert(kSkSLTypeCount <= (1 << 6));

@@ -43,7 +43,13 @@ std::string get_mangled_uniform_name(const ShaderInfo& shaderInfo,
                                      const Uniform& uniform,
                                      int manglingSuffix) {
     std::string result;
-    result = uniform.name() + std::string("_") + std::to_string(manglingSuffix);
+
+    if (uniform.isPaintColor()) {
+        // Due to deduplication there will only ever be one of these
+        result = uniform.name();
+    } else {
+        result = uniform.name() + std::string("_") + std::to_string(manglingSuffix);
+    }
     if (shaderInfo.ssboIndex()) {
         result = EmitStorageBufferAccess("fs", shaderInfo.ssboIndex(), result.c_str());
     }
@@ -234,12 +240,15 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     // API-independent ones.
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
     if (step->numUniforms() > 0) {
-        preamble += EmitRenderStepUniforms(
-                /*bufferID=*/1, "Step", bindingReqs.fUniformBufferLayout, step->uniforms());
+        preamble += EmitRenderStepUniforms(/*bufferID=*/1, "Step",
+                                           bindingReqs.fUniformBufferLayout, step->uniforms());
     }
+
+    bool wrotePaintColor = false;
     if (this->ssboIndex()) {
         preamble += EmitPaintParamsStorageBuffer(/*bufferID=*/2, "FS", "fs", fRootNodes,
-                                                 numPaintUniforms);
+                                                 numPaintUniforms,
+                                                 &wrotePaintColor);
     } else {
         preamble += EmitPaintParamsUniforms(
                 /*bufferID=*/2,
@@ -247,7 +256,8 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                 useStorageBuffers ? bindingReqs.fStorageBufferLayout
                                   : bindingReqs.fUniformBufferLayout,
                 fRootNodes,
-                numPaintUniforms);
+                numPaintUniforms,
+                &wrotePaintColor);
     }
 
     {
@@ -778,6 +788,15 @@ static constexpr Uniform kSolidShaderUniforms[] = {
 };
 
 static constexpr char kSolidShaderName[] = "sk_solid_shader";
+
+//--------------------------------------------------------------------------------------------------
+static constexpr Uniform kPaintColorUniforms[] = {
+        { "paintColorSingleton", SkSLType::kFloat4, Uniform::kNonArray,
+          Uniform::IsPaintColor::kYes }
+};
+
+static constexpr char kRGBPaintColorName[] = "sk_rgb_opaque";
+static constexpr char kAlphaOnlyPaintColorName[] = "sk_alpha_only";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr Uniform kLocalMatrixShaderUniforms[] = {
@@ -1410,6 +1429,26 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             { },     // no samplers
             kSolidShaderName,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
+            kNoChildren
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRGBPaintColor] = {
+            "RGBPaintColor",
+            SkSpan(kPaintColorUniforms),
+            SnippetRequirementFlags::kNone,
+            { },     // no samplers
+            kRGBPaintColorName,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
+            kNoChildren
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kAlphaOnlyPaintColor] = {
+            "AlphaOnlyPaintColor",
+            SkSpan(kPaintColorUniforms),
+            SnippetRequirementFlags::kNone,
+            { },     // no samplers
+            kAlphaOnlyPaintColorName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
             kNoChildren

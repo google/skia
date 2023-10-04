@@ -28,6 +28,7 @@ KeyContext::KeyContext(skgpu::graphite::Recorder* recorder,
     fDictionary = fRecorder->priv().shaderCodeDictionary();
     fRTEffectDict = fRecorder->priv().runtimeEffectDictionary();
     fPaintColor = PaintParams::Color4fPrepForDst(paintColor, fDstColorInfo).makeOpaque().premul();
+    fPaintColor.fA = paintColor.fA;
 }
 
 KeyContext::KeyContext(const KeyContext& other)

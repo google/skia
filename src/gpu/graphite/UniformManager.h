@@ -81,6 +81,7 @@ public:
 
     void write(const SkM44&);
     void write(const SkPMColor4f&);
+    void writePaintColor(const SkPMColor4f&);
     void write(const SkRect&);
     void write(const SkV2&);
     void write(const SkV4&);
@@ -114,6 +115,8 @@ private:
     // overloads which correctly abstract the array vs non-array semantics.
     void writeInternal(SkSLType type, unsigned int count, const void* src);
 
+    // The paint color is treated special and we only add its uniform once.
+    bool fWrotePaintColor = false;
 #ifdef SK_DEBUG
     SkSpan<const Uniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;

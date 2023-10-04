@@ -85,6 +85,9 @@ protected:
     ShaderCodeDictionary* fDictionary;
     RuntimeEffectDictionary* fRTEffectDict;
     SkColorInfo fDstColorInfo;
+    // Although stored as premul the paint color is actually comprised of an opaque RGB portion
+    // and a separate alpha portion. The two portions will never be used together but are stored
+    // together to reduce the number of uniforms.
     SkPMColor4f fPaintColor = SK_PMColor4fBLACK;
     Scope fScope = Scope::kDefault;
 
@@ -117,8 +120,14 @@ private:
 class KeyContextWithColorInfo : public KeyContext {
 public:
     KeyContextWithColorInfo(const KeyContext& other, const SkColorInfo& info) : KeyContext(other) {
-        SkASSERT(fPaintColor.isOpaque());
-        SkColorSpaceXformSteps(fDstColorInfo, info).apply(fPaintColor.vec());
+        // We want to keep fPaintColor's alpha value but replace the RGB with values in the new
+        // color space
+        SkPMColor4f tmp = fPaintColor;
+        tmp.fA = 1.0f;
+        SkColorSpaceXformSteps(fDstColorInfo, info).apply(tmp.vec());
+        fPaintColor.fR = tmp.fR;
+        fPaintColor.fG = tmp.fG;
+        fPaintColor.fB = tmp.fB;
         fDstColorInfo = info;
     }
 

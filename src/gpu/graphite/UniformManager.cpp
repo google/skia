@@ -530,6 +530,7 @@ void UniformManager::reset() {
     fOffset = 0;
     fReqAlignment = 0;
     fStorage.clear();
+    fWrotePaintColor = false;
 }
 
 void UniformManager::checkReset() const {
@@ -603,6 +604,22 @@ void UniformManager::write(const SkM44& mat) {
 
 void UniformManager::write(const SkPMColor4f& color) {
     static constexpr SkSLType kType = SkSLType::kFloat4;
+    this->write(kType, &color);
+}
+
+// This is a specialized uniform writing entry point intended to deduplicate the paint
+// color. If a more general system is required, the deduping logic can be added to the
+// other write methods (and this specialized method would be removed).
+void UniformManager::writePaintColor(const SkPMColor4f& color) {
+    static constexpr SkSLType kType = SkSLType::kFloat4;
+
+    SkASSERT(fExpectedUniforms[fExpectedUniformIndex].isPaintColor());
+    if (fWrotePaintColor) {
+        this->checkExpected(kType, 1);
+        return;
+    }
+
+    fWrotePaintColor = true;
     this->write(kType, &color);
 }
 

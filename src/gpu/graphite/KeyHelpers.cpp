@@ -112,6 +112,50 @@ void SolidColorShaderBlock::AddBlock(const KeyContext& keyContext,
 
 namespace {
 
+void add_rgb_paint_color_uniform_data(const ShaderCodeDictionary* dict,
+                                      const SkPMColor4f& premulColor,
+                                      PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kRGBPaintColor)
+    gatherer->writePaintColor(premulColor);
+}
+
+void add_alpha_only_paint_color_uniform_data(const ShaderCodeDictionary* dict,
+                                             const SkPMColor4f& premulColor,
+                                             PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kAlphaOnlyPaintColor)
+    gatherer->writePaintColor(premulColor);
+}
+
+} // anonymous namespace
+
+void RGBPaintColorBlock::AddBlock(const KeyContext& keyContext,
+                                  PaintParamsKeyBuilder* builder,
+                                  PipelineDataGatherer* gatherer) {
+    if (gatherer) {
+        auto dict = keyContext.dict();
+
+        add_rgb_paint_color_uniform_data(dict, keyContext.paintColor(), gatherer);
+    }
+
+    builder->addBlock(BuiltInCodeSnippetID::kRGBPaintColor);
+}
+
+void AlphaOnlyPaintColorBlock::AddBlock(const KeyContext& keyContext,
+                                        PaintParamsKeyBuilder* builder,
+                                        PipelineDataGatherer* gatherer) {
+    if (gatherer) {
+        auto dict = keyContext.dict();
+
+        add_alpha_only_paint_color_uniform_data(dict, keyContext.paintColor(), gatherer);
+    }
+
+    builder->addBlock(BuiltInCodeSnippetID::kAlphaOnlyPaintColor);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+namespace {
+
 void add_dst_read_sample_uniform_data(const ShaderCodeDictionary* dict,
                                       PipelineDataGatherer* gatherer,
                                       sk_sp<TextureProxy> dstTexture,
@@ -1420,8 +1464,7 @@ static void add_to_key(const KeyContext& keyContext,
                       ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
                   },
                   /* addDstToKey= */ [&]() -> void {
-                      SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer,
-                                                      keyContext.paintColor());
+                      RGBPaintColorBlock::AddBlock(keyContext, builder, gatherer);
                   });
             return;
         }
