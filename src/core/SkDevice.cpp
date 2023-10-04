@@ -304,6 +304,13 @@ void SkDevice::drawDrawable(SkCanvas* canvas, SkDrawable* drawable, const SkMatr
 
 void SkDevice::drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
                            const SkPaint&) {}
+void SkDevice::drawCoverageMask(const SkSpecialImage*, const SkMatrix& maskToDevice,
+                                const SkSamplingOptions&, const SkPaint&) {
+    // This shouldn't be reached; SkCanvas will only call this if
+    // useDrawCoverageMaskForMaskFilters() is overridden to return true.
+    SK_ABORT("Must override if useDrawCoverageMaskForMaskFilters() is true");
+}
+
 sk_sp<SkSpecialImage> SkDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkDevice::snapSpecial(const SkIRect&, bool forceCopy) { return nullptr; }
