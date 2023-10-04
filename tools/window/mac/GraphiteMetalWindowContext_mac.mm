@@ -57,7 +57,7 @@ bool GraphiteMetalWindowContext_mac::onInitializeContext() {
     this->resize(0, 0);
 
     BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
-    fMetalLayer.displaySyncEnabled = useVsync;  // TODO: need solution for 10.12 or lower
+    fMetalLayer.displaySyncEnabled = useVsync;
     fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
     fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
     fMetalLayer.contentsGravity = kCAGravityTopLeft;

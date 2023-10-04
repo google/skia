@@ -62,6 +62,8 @@ bool GraphiteDawnMetalWindowContext_mac::onInitializeContext() {
     // Create a CAMetalLayer that covers the whole window that will be passed to
     // CreateSurface.
     fMetalLayer = [CAMetalLayer layer];
+    BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
+    fMetalLayer.displaySyncEnabled = useVsync;
     fMainView.wantsLayer = YES;
     fMainView.layer = fMetalLayer;
 
