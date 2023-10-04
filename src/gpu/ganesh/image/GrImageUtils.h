@@ -27,6 +27,7 @@ class SkImage;
 class SkImage_Lazy;
 class SkImage_Raster;
 class SkMatrix;
+class SkSurfaceProps;
 enum GrSurfaceOrigin : int;
 enum SkAlphaType : int;
 enum SkColorType : int;
@@ -132,13 +133,14 @@ SkYUVAPixmapInfo::SupportedDataTypes SupportedTextureFormats(const GrImageContex
 }  // namespace skgpu::ganesh
 
 namespace skif {
-class Context;
-struct ContextInfo;
-struct Functors;
-Functors MakeGaneshFunctors(GrRecordingContext* context, GrSurfaceOrigin origin);
-Context MakeGaneshContext(GrRecordingContext* context,
-                          GrSurfaceOrigin origin,
-                          const ContextInfo& info);
+
+class Backend;
+
+sk_sp<Backend> MakeGaneshBackend(sk_sp<GrRecordingContext> context,
+                                 GrSurfaceOrigin origin,
+                                 const SkSurfaceProps& surfaceProps,
+                                 SkColorType colorType);
+
 }  // namespace skif
 
 #endif

@@ -39,7 +39,6 @@ class SkColorSpace;
 class SkMesh;
 struct SkDrawShadowRec;
 class SkImageFilter;
-class SkImageFilterCache;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
 class GrRecordingContext;
@@ -62,8 +61,7 @@ class GlyphRunList;
 }
 
 namespace skif {
-class Context;
-struct ContextInfo;
+class Backend;
 class Mapping;
 }
 namespace skgpu::ganesh {
@@ -489,10 +487,9 @@ private:
     friend class SkCanvas; // for setOrigin/setDeviceCoordinateSystem
     friend class DeviceTestingAccess;
 
-    // Defaults to a CPU image filtering context.
-    virtual skif::Context createContext(const skif::ContextInfo&) const;
-
-    virtual SkImageFilterCache* getImageFilterCache() { return nullptr; }
+    // Defaults to a CPU image filtering backend.
+    virtual sk_sp<skif::Backend> createImageFilteringBackend(const SkSurfaceProps& surfaceProps,
+                                                             SkColorType colorType) const;
 
     // Implementations can assume that the device from (x,y) to (w,h) will fit within dst.
     virtual bool onReadPixels(const SkPixmap&, int x, int y) { return false; }

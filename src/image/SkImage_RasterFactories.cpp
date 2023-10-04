@@ -107,7 +107,8 @@ sk_sp<SkImage> MakeWithFilter(sk_sp<SkImage> src,
         return nullptr;
     }
 
-    return as_IFB(filter)->makeImageWithFilter(skif::MakeRasterFunctors(),
+    sk_sp<skif::Backend> backend = skif::MakeRasterBackend({}, src->colorType());
+    return as_IFB(filter)->makeImageWithFilter(std::move(backend),
                                                std::move(src),
                                                subset,
                                                clipBounds,

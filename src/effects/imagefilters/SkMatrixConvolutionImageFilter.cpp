@@ -485,7 +485,7 @@ sk_sp<SkShader> SkMatrixConvolutionImageFilter::createShader(const skif::Context
     builder.child("child") = std::move(input);
 
     if (useTextureShader) {
-        sk_sp<SkImage> cachedKernel = ctx.getCachedBitmap(fKernelBitmap);
+        sk_sp<SkImage> cachedKernel = ctx.backend()->getCachedBitmap(fKernelBitmap);
         if (!cachedKernel) {
             return nullptr;
         }

@@ -151,13 +151,13 @@ private:
 
 } // namespace
 
-SkImageFilterCache* SkImageFilterCache::Create(size_t maxBytes) {
-    return new CacheImpl(maxBytes);
+sk_sp<SkImageFilterCache> SkImageFilterCache::Create(size_t maxBytes) {
+    return sk_make_sp<CacheImpl>(maxBytes);
 }
 
-SkImageFilterCache* SkImageFilterCache::Get() {
+sk_sp<SkImageFilterCache> SkImageFilterCache::Get() {
     static SkOnce once;
-    static SkImageFilterCache* cache;
+    static sk_sp<SkImageFilterCache> cache;
 
     once([]{ cache = SkImageFilterCache::Create(kDefaultCacheSize); });
     return cache;

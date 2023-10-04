@@ -435,7 +435,9 @@ sk_sp<SkImage> MakeWithFilter(GrRecordingContext* rContext,
         origin = base->origin();
     }
 
-    return as_IFB(filter)->makeImageWithFilter(skif::MakeGaneshFunctors(rContext, origin),
+    sk_sp<skif::Backend> backend =
+            skif::MakeGaneshBackend(sk_ref_sp(rContext), origin, {}, src->colorType());
+    return as_IFB(filter)->makeImageWithFilter(std::move(backend),
                                                std::move(src),
                                                subset,
                                                clipBounds,

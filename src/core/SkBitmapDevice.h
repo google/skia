@@ -22,7 +22,6 @@
 
 class SkBlender;
 class SkImage;
-class SkImageFilterCache;
 class SkMatrix;
 class SkMesh;
 class SkPaint;
@@ -128,8 +127,6 @@ private:
     // Used to change the backend's pixels (and possibly config/rowbytes) but cannot change the
     // width/height, so there should be no change to any clip information.
     void replaceBitmapBackendForRasterSurface(const SkBitmap&);
-
-    SkImageFilterCache* getImageFilterCache() override;
 
     void onClipShader(sk_sp<SkShader>) override;
 

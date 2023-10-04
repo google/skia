@@ -64,6 +64,7 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 struct GrContextOptions;
 #endif
@@ -76,11 +77,6 @@ using namespace skif;
 // NOTE: Not in anonymous so that FilterResult can friend it
 class FilterResultTestAccess {
 public:
-    static skif::Context MakeContext(const skif::Functors& functors,
-                                     const skif::ContextInfo& ctxInfo) {
-        return skif::Context(ctxInfo, functors);
-    }
-
     static void Draw(const skif::Context& ctx,
                      SkDevice* device,
                      const skif::FilterResult& image,
@@ -269,7 +265,7 @@ public:
             effectiveExpectation = Expect::kEmptyImage;
         }
 
-        auto device = ctx.makeDevice(size);
+        auto device = ctx.backend()->makeDevice(size, ctx.refColorSpace());
         SkCanvas canvas{device};
         canvas.clear(SK_ColorTRANSPARENT);
         canvas.translate(-desiredOutput.left(), -desiredOutput.top());
@@ -313,7 +309,7 @@ public:
                     // A non-decal tile mode where the image doesn't cover the crop requires the
                     // image to be padded out with transparency so the tiling matches 'fRect'.
                     SkISize paddedSize = SkISize(c->fRect.size());
-                    auto paddedDevice = ctx.makeDevice(paddedSize);
+                    auto paddedDevice = ctx.backend()->makeDevice(paddedSize, ctx.refColorSpace());
                     clear_device(paddedDevice.get());
                     paddedDevice->drawSpecial(source.get(),
                                               SkMatrix::Translate(origin.x() - c->fRect.left(),
@@ -384,7 +380,8 @@ public:
                 return {nullptr, {}};
             }
 
-            auto device = ctx.makeDevice(SkISize(ctx.desiredOutput().size()));
+            auto device = ctx.backend()->makeDevice(SkISize(ctx.desiredOutput().size()),
+                                                    ctx.refColorSpace());
             SkASSERT(device);
 
             SkCanvas canvas{device};
@@ -424,18 +421,22 @@ private:
 };
 
 class TestRunner {
+    static constexpr SkColorType kColorType = kRGBA_8888_SkColorType;
 public:
     // Raster-backed TestRunner
     TestRunner(skiatest::Reporter* reporter)
             : fReporter(reporter)
-            , fFunctors(skif::MakeRasterFunctors()) {}
+            , fBackend(skif::MakeRasterBackend(/*surfaceProps=*/{}, kColorType)) {}
 
     // Ganesh-backed TestRunner
 #if defined(SK_GANESH)
     TestRunner(skiatest::Reporter* reporter, GrDirectContext* context)
             : fReporter(reporter)
             , fDirectContext(context)
-            , fFunctors(skif::MakeGaneshFunctors(context, kTopLeft_GrSurfaceOrigin)) {}
+            , fBackend(skif::MakeGaneshBackend(sk_ref_sp(context),
+                                               kTopLeft_GrSurfaceOrigin,
+                                               /*surfaceProps=*/{},
+                                               kColorType)) {}
 #endif
 
     // Graphite-backed TestRunner
@@ -443,23 +444,15 @@ public:
     TestRunner(skiatest::Reporter* reporter, skgpu::graphite::Recorder* recorder)
             : fReporter(reporter)
             , fRecorder(recorder)
-            , fFunctors(skif::MakeGraphiteFunctors(recorder)) {}
+            , fBackend(skif::MakeGraphiteBackend(recorder, /*surfaceProps=*/{}, kColorType)) {}
 #endif
 
     // Let TestRunner be passed in to places that take a Reporter* or to REPORTER_ASSERT etc.
     operator skiatest::Reporter*() const { return fReporter; }
     skiatest::Reporter* operator->() const { return fReporter; }
 
-    skif::Context newContext() const {
-        skif::ContextInfo ctxInfo = {skif::Mapping(SkMatrix::I()),
-                                     skif::LayerSpace<SkIRect>::Empty(),
-                                     skif::FilterResult{},
-                                     kRGBA_8888_SkColorType,
-                                     /*colorSpace=*/nullptr,
-                                     /*surfaceProps=*/{},
-                                     /*cache=*/nullptr};
-        return FilterResultTestAccess::MakeContext(fFunctors, ctxInfo);
-    }
+    skif::Backend* backend() const { return fBackend.get(); }
+    sk_sp<skif::Backend> refBackend() const { return fBackend; }
 
     bool compareImages(const skif::Context& ctx,
                        SkSpecialImage* expectedImage,
@@ -704,7 +697,7 @@ private:
     skgpu::graphite::Recorder* fRecorder = nullptr;
 #endif
 
-    skif::Functors fFunctors;
+    sk_sp<skif::Backend> fBackend;
 
     bool fLoggedErrorImage = false; // only do this once per test runner
 };
@@ -825,12 +818,13 @@ public:
             }
         }
 
-        Context baseContext = fRunner.newContext();
 
         // Create the source image
+        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
         FilterResult source;
         if (!fSourceBounds.isEmpty()) {
-            sk_sp<SkDevice> sourceSurface = baseContext.makeDevice(SkISize(fSourceBounds.size()));
+            sk_sp<SkDevice> sourceSurface =
+                    fRunner.backend()->makeDevice(SkISize(fSourceBounds.size()), colorSpace);
 
             const SkColor colors[] = { SK_ColorMAGENTA,
                                        SK_ColorRED,
@@ -861,8 +855,13 @@ public:
 
             SkIRect subset = SkIRect::MakeWH(fSourceBounds.width(), fSourceBounds.height());
             source = FilterResult(sourceSurface->snapSpecial(subset), fSourceBounds.topLeft());
-            baseContext = baseContext.withNewSource(source);
         }
+
+        Context baseContext{fRunner.refBackend(),
+                            skif::Mapping{SkMatrix::I()},
+                            skif::LayerSpace<SkIRect>::Empty(),
+                            source,
+                            colorSpace.get()};
 
         // Applying modifiers to FilterResult might produce a new image, but hopefully it's
         // able to merge properties and even re-order operations to minimize the number of offscreen
@@ -872,7 +871,7 @@ public:
         LayerSpace<SkIPoint> expectedOrigin = source.layerBounds().topLeft();
         // The expected image can't ever be null, so we produce a transparent black image instead.
         if (!expectedImage) {
-            sk_sp<SkDevice> expectedSurface = baseContext.makeDevice({1, 1});
+            sk_sp<SkDevice> expectedSurface = fRunner.backend()->makeDevice({1, 1}, colorSpace);
             clear_device(expectedSurface.get());
             expectedImage = expectedSurface->snapSpecial(SkIRect::MakeWH(1, 1));
             expectedOrigin = LayerSpace<SkIPoint>({0, 0});

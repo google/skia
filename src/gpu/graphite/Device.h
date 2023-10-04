@@ -168,7 +168,8 @@ private:
 
     void onClipShader(sk_sp<SkShader> shader) override;
 
-    skif::Context createContext(const skif::ContextInfo&) const override;
+    sk_sp<skif::Backend> createImageFilteringBackend(const SkSurfaceProps& surfaceProps,
+                                                     SkColorType colorType) const override;
 
     // DrawFlags alters the effects used by drawShape.
     enum class DrawFlags : unsigned {

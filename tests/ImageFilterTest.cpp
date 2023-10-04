@@ -291,21 +291,19 @@ private:
 }  // namespace
 
 static skif::Context make_context(const SkIRect& out, const SkSpecialImage* src) {
-    skif::Mapping mapping{SkMatrix::I()};
-    skif::LayerSpace<SkIRect> desiredOutput{out};
-    skif::FilterResult source{sk_ref_sp(src)};
-    skif::ContextInfo ctxInfo = {skif::Mapping(SkMatrix::I()),
-                                 skif::LayerSpace<SkIRect>(out),
-                                 skif::FilterResult(sk_ref_sp(src)),
-                                 src->colorType(),
-                                 src->getColorSpace(),
-                                 src->props(),
-                                 /*cache=*/nullptr};
+    sk_sp<skif::Backend> backend;
     if (src->isGaneshBacked()) {
-        return skif::MakeGaneshContext(src->getContext(), kTestSurfaceOrigin, ctxInfo);
+        backend = skif::MakeGaneshBackend(sk_ref_sp(src->getContext()), kTestSurfaceOrigin,
+                                          src->props(), src->colorType());
     } else {
-        return skif::Context::MakeRaster(ctxInfo);
+        backend = skif::MakeRasterBackend(src->props(), src->colorType());
     }
+
+    return skif::Context{std::move(backend),
+                         skif::Mapping{SkMatrix::I()},
+                         skif::LayerSpace<SkIRect>{out},
+                         skif::FilterResult{sk_ref_sp(src)},
+                         src->getColorSpace()};
 }
 static skif::Context make_context(int outWidth, int outHeight, const SkSpecialImage* src) {
     return make_context(SkIRect::MakeWH(outWidth, outHeight), src);

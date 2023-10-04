@@ -22,7 +22,6 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/ganesh/ClipStack.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
@@ -42,7 +41,6 @@ class SkBitmap;
 class SkBlender;
 class SkColorSpace;
 class SkDrawable;
-class SkImageFilterCache;
 class SkLatticeIter;
 class SkMatrix;
 class SkMesh;
@@ -56,6 +54,7 @@ class SkSurfaceProps;
 class SkSurface_Ganesh;
 class SkVertices;
 enum SkAlphaType : int;
+enum SkColorType : int;
 enum class GrAA : bool;
 enum class GrColorType;
 enum class SkBackingFit;
@@ -69,6 +68,9 @@ namespace skgpu {
 enum class Budgeted : bool;
 enum class Mipmapped : bool;
 class TiledTextureUtils;
+}
+namespace skif {
+class Backend;
 }
 namespace sktext {
 class GlyphRunList;
@@ -332,9 +334,8 @@ private:
     bool onWritePixels(const SkPixmap&, int, int) override;
     bool onAccessPixels(SkPixmap*) override;
 
-    skif::Context createContext(const skif::ContextInfo& ctxInfo) const override;
-
-    SkImageFilterCache* getImageFilterCache() override;
+    sk_sp<skif::Backend> createImageFilteringBackend(const SkSurfaceProps& surfaceProps,
+                                                     SkColorType colorType) const override;
 
     void onClipShader(sk_sp<SkShader> shader) override {
         fClip.clipShader(std::move(shader));

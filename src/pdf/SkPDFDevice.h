@@ -139,8 +139,6 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    SkImageFilterCache* getImageFilterCache() override;
-
     void onDrawGlyphRunList(SkCanvas*,
                             const sktext::GlyphRunList&,
                             const SkPaint& initialPaint,

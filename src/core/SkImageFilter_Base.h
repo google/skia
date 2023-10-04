@@ -40,7 +40,7 @@ public:
      * around filterImage that prepares the skif::Context to filter the 'src' image directly,
      * for implementing the SkImages::MakeWithFilter API calls.
      */
-    sk_sp<SkImage> makeImageWithFilter(const skif::Functors& functors,
+    sk_sp<SkImage> makeImageWithFilter(sk_sp<skif::Backend> backend,
                                        sk_sp<SkImage> src,
                                        const SkIRect& subset,
                                        const SkIRect& clipBounds,

@@ -902,17 +902,19 @@ sk_sp<SkSpecialImage> cpu_blur(const skif::Context& ctx,
     originalDstBounds.offset(-dstOrigin); // Make relative to dst's pixels
     return SkSpecialImages::MakeFromRaster(SkIRect(originalDstBounds),
                                            dst,
-                                           ctx.surfaceProps());
+                                           ctx.backend()->surfaceProps());
 }
 
 }  // namespace
 
 skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) const {
+    const bool gpuBacked = ctx.backend()->isBlurSupported();
+
     skif::Context inputCtx = ctx.withNewDesiredOutput(
-            this->kernelBounds(ctx.mapping(), ctx.desiredOutput(), ctx.gpuBacked()));
+            this->kernelBounds(ctx.mapping(), ctx.desiredOutput(), gpuBacked));
 
     skif::FilterResult childOutput = this->getChildOutput(0, inputCtx);
-    skif::LayerSpace<SkSize> sigma = this->mapSigma(ctx.mapping(), ctx.gpuBacked());
+    skif::LayerSpace<SkSize> sigma = this->mapSigma(ctx.mapping(), gpuBacked);
     if (sigma.width() == 0.f && sigma.height() == 0.f) {
         // No actual blur, so just return the input unmodified
         return childOutput;
@@ -925,7 +927,7 @@ skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) co
     // *before* we apply any legacy tile mode since the legacy tiling did not actually cause the
     // output to extend fully.
     skif::LayerSpace<SkIRect> maxOutput =
-            this->kernelBounds(ctx.mapping(), childOutput.layerBounds(), ctx.gpuBacked());
+            this->kernelBounds(ctx.mapping(), childOutput.layerBounds(), gpuBacked);
     if (!maxOutput.intersect(ctx.desiredOutput())) {
         return {};
     }
@@ -941,7 +943,7 @@ skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) co
 
     // TODO(b/40039877): Once the CPU blur functions can handle tile modes and color types beyond
     // N32, there won't be any need to branch on how to apply the blur to the filter result.
-    if (ctx.gpuBacked()) {
+    if (gpuBacked) {
         // For non-legacy tiling, 'maxOutput' is equal to the desired output. For decal's it matches
         // what Builder::blur() calculates internally. For legacy tiling, however, it's dependent on
         // the original child output's bounds ignoring the tile mode's effect.

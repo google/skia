@@ -31,7 +31,6 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -609,12 +608,6 @@ sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial(const SkIRect& bounds, bool fo
 
 sk_sp<SkSurface> SkBitmapDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     return SkSurfaces::Raster(info, &props);
-}
-
-SkImageFilterCache* SkBitmapDevice::getImageFilterCache() {
-    SkImageFilterCache* cache = SkImageFilterCache::Get();
-    cache->ref();
-    return cache;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -42,7 +42,6 @@
 #include "src/base/SkMSAN.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
@@ -754,20 +753,16 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
         }
     }
 
-    // getImageFilterCache returns a bare image filter cache pointer that must be ref'ed until
-    // the filter's filterImage(ctx) function returns.
-    sk_sp<SkImageFilterCache> cache(dst->getImageFilterCache());
-
     // Start out with an empty source image, to be replaced with the converted 'image', and a
     // desired output equal to the calculated initial source layer bounds, which accounts for
     // how the image filters will access 'image' (possibly different than just 'outputBounds').
-    skif::Context ctx = dst->createContext({mapping,
-                                            requiredInput,
-                                            skif::FilterResult{},
-                                            filterColorType,
-                                            filterColorSpace.get(),
-                                            dst->surfaceProps(),
-                                            cache.get()});
+    auto backend = dst->createImageFilteringBackend(src ? src->surfaceProps() : dst->surfaceProps(),
+                                                    filterColorType);
+    skif::Context ctx{std::move(backend),
+                      mapping,
+                      requiredInput,
+                      skif::FilterResult{},
+                      filterColorSpace.get()};
 
     skif::FilterResult source;
     if (src && !requiredInput.isEmpty()) {

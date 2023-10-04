@@ -28,13 +28,10 @@
 #include "src/core/SkSpecialImage.h"
 
 #include <cstdint>
-#include <functional>
 #include <optional>
 #include <utility>
 
 class FilterResultTestAccess;  // for testing
-class SkImageFilter_Base;
-class GrRecordingContext;
 class SkBitmap;
 class SkBlender;
 class SkDevice;
@@ -43,11 +40,7 @@ class SkImageFilter;
 class SkImageFilterCache;
 class SkPicture;
 class SkShader;
-enum GrSurfaceOrigin : int;
 enum SkColorType : int;
-struct SkImageInfo;
-
-namespace skgpu::graphite { class Recorder; }
 
 // The skif (SKI[mage]F[ilter]) namespace contains types that are used for filter implementations.
 // The defined types come in two groups: users of internal Skia types, and templates to help with
@@ -981,79 +974,75 @@ private:
     skia_private::STArray<1, sk_sp<SkShader>> fInputShaders;
 };
 
+// The backend provides key functionality to the image filtering pipeline that must be implemented
+// by the Skia backend (e.g. raster or GPU). While a Context's state may change as the image filter
+// DAG is evaluated, a given filter invocation will always use one Backend.
+class Backend : public SkRefCnt {
+public:
+    ~Backend() override;
+
+    // For creating offscreen intermediate renderable images
+    virtual sk_sp<SkDevice> makeDevice(SkISize size,
+                                       sk_sp<SkColorSpace>,
+                                       const SkSurfaceProps* props=nullptr) const = 0;
+
+    // For input images to be processed by image filters
+    virtual sk_sp<SkSpecialImage> makeImage(const SkIRect& subset, sk_sp<SkImage> image) const = 0;
+
+    // For internal data to be accessed by filter implementations
+    virtual sk_sp<SkImage> getCachedBitmap(const SkBitmap& data) const = 0;
+
+    // For backend-optimized blurring implementations (TODO: Possibly replaced by a SkBlurEngine).
+    // The srcRect and dstRect are relative to (0,0) of 'input's logical image (which may have its
+    // own offset to backing data). The returned image should have a width and height equal to the
+    // dstRect's dimensions and its (0,0) pixel is assumed to be located at dstRect.topLeft().
+    virtual sk_sp<SkSpecialImage> blur(SkSize sigma,
+                                       sk_sp<SkSpecialImage> input,
+                                       SkIRect srcRect,
+                                       SkIRect dstRect,
+                                       sk_sp<SkColorSpace>) const = 0;
+
+    // Temporary, until SkBlurImageFilter always delegates to FilterResult::blur()
+    virtual bool isBlurSupported() const = 0;
+
+    // Properties controlling the pixel data for offscreen surfaces rendered to during filtering.
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
+    SkColorType colorType() const { return fColorType; }
+
+    SkImageFilterCache* cache() const { return fCache.get(); }
+
+protected:
+    Backend(sk_sp<SkImageFilterCache> cache,
+            const SkSurfaceProps& surfaceProps,
+            const SkColorType colorType);
+
+private:
+    sk_sp<SkImageFilterCache> fCache;
+    SkSurfaceProps fSurfaceProps;
+    SkColorType fColorType;
+};
+
+sk_sp<Backend> MakeRasterBackend(const SkSurfaceProps& surfaceProps, SkColorType colorType);
+
 // The context contains all necessary information to describe how the image filter should be
 // computed (i.e. the current layer matrix and clip), and the color information of the output of a
 // filter DAG. For now, this is just the color space (of the original requesting device). This is
 // used when constructing intermediate rendering surfaces, so that we ensure we land in a surface
 // that's similar/compatible to the final consumer of the DAG's output.
-struct ContextInfo {
-    // Properties controlling the size and coordinate space of image filtering
-    Mapping             fMapping;
-    LayerSpace<SkIRect> fDesiredOutput;
-    // Can contain a null image if the image filter DAG has no late-bound null inputs.
-    FilterResult        fSource;
-
-    // Properties controlling the pixel data during image filtering
-    SkColorType         fColorType;
-    // The pointed-to object is owned by the device controlling the filter process, and our lifetime
-    // is bounded by the device, so this can be a bare pointer.
-    SkColorSpace*       fColorSpace;
-    SkSurfaceProps      fSurfaceProps;
-
-    SkImageFilterCache* fCache;
-};
-
-struct Functors {
-    using MakeDeviceFunctor = std::function<sk_sp<SkDevice>(const SkImageInfo& info,
-                                                            const SkSurfaceProps& props)>;
-
-    // For input images to be processed by image filters
-    using MakeImageFunctor = std::function<sk_sp<SkSpecialImage>(const SkIRect& subset,
-                                                                 sk_sp<SkImage> image,
-                                                                 const SkSurfaceProps& props)>;
-    // For internal data to be accessed by filter implementations
-    using MakeCachedBitmapFunctor = std::function<sk_sp<SkImage>(const SkBitmap& data)>;
-    // For backend-optimized blurring implementations (TODO: Possibly replaced by a SkBlurEngine).
-    // The srcRect and dstRect are relative to (0,0) of 'input's logical image (which may have its
-    // own offset to backing data). The returned image should have a width and height equal to the
-    // dstRect's dimensions and its (0,0) pixel is assumed to be located at dstRect.topLeft().
-    using BlurImageFunctor = std::function<sk_sp<SkSpecialImage>(SkSize sigma,
-                                                                 sk_sp<SkSpecialImage> input,
-                                                                 SkIRect srcRect,
-                                                                 SkIRect dstRect,
-                                                                 sk_sp<SkColorSpace> outCS,
-                                                                 const SkSurfaceProps& outProps)>;
-
-    Functors(MakeDeviceFunctor makeDeviceFunctor,
-             MakeImageFunctor makeImageFunctor,
-             MakeCachedBitmapFunctor makeCachedBitmapFunctor,
-             BlurImageFunctor blurImageFunctor)
-                 : fMakeDeviceFunctor(makeDeviceFunctor)
-                 , fMakeImageFunctor(makeImageFunctor)
-                 , fMakeCachedBitmapFunctor(makeCachedBitmapFunctor)
-                 , fBlurImageFunctor(blurImageFunctor) {
-        SkASSERT(fMakeDeviceFunctor);
-        SkASSERT(fMakeImageFunctor);
-        SkASSERT(fMakeCachedBitmapFunctor);
-        // The blur functor is currently not implemented yet for CPU blurs so it can be null
-    }
-
-    // TODO: Reorganize these into a virtual class that can have an implementation per backend.
-    // std::function<> is very heavyweight in terms of codesize. The context can be a pointer to
-    // the backend impl, the fixed context info that won't change, and the context info that
-    // must change frequently during evaluation.
-    MakeDeviceFunctor fMakeDeviceFunctor;
-    MakeImageFunctor fMakeImageFunctor;
-    MakeCachedBitmapFunctor fMakeCachedBitmapFunctor;
-    BlurImageFunctor fBlurImageFunctor;
-};
-
-Functors MakeRasterFunctors();
-
 class Context {
-    static constexpr GrSurfaceOrigin kUnusedOrigin = (GrSurfaceOrigin) 0;
 public:
-    static Context MakeRaster(const ContextInfo& info);
+    Context(sk_sp<Backend> backend,
+            const Mapping& mapping,
+            const LayerSpace<SkIRect>& desiredOutput,
+            const FilterResult& source,
+            const SkColorSpace* colorSpace)
+        : fBackend(std::move(backend))
+        , fMapping(mapping)
+        , fDesiredOutput(desiredOutput)
+        , fSource(source)
+        , fColorSpace(sk_ref_sp(colorSpace)) {}
+
+    const Backend* backend() const { return fBackend.get(); }
 
     // The mapping that defines the transformation from local parameter space of the filters to the
     // layer space where the image filters are evaluated, as well as the remaining transformation
@@ -1064,93 +1053,62 @@ public:
     // the mapping will respect that return value, and the remaining matrix will be appropriately
     // set to transform the layer space to the final device space (applied by the SkCanvas when
     // filtering is finished).
-    const Mapping& mapping() const { return fInfo.fMapping; }
+    const Mapping& mapping() const { return fMapping; }
 
     // The bounds, in the layer space, that the filtered image will be clipped to. The output
     // from filterImage() must cover these clip bounds, except in areas where it will just be
     // transparent black, in which case a smaller output image can be returned.
-    const LayerSpace<SkIRect>& desiredOutput() const { return fInfo.fDesiredOutput; }
-
-    // The cache to use when recursing through the filter DAG, in order to avoid repeated
-    // calculations of the same image.
-    SkImageFilterCache* cache() const { return fInfo.fCache; }
-    // The output device's color type, which can be used for intermediate images to be
-    // compatible with the eventual target of the filtered result.
-    SkColorType colorType() const { return fInfo.fColorType; }
+    const LayerSpace<SkIRect>& desiredOutput() const { return fDesiredOutput; }
 
     // The output device's color space, so intermediate images can match, and so filtering can
     // be performed in the destination color space.
-    SkColorSpace* colorSpace() const { return fInfo.fColorSpace; }
-    sk_sp<SkColorSpace> refColorSpace() const { return sk_ref_sp(fInfo.fColorSpace); }
-    // The default surface properties to use when making transient surfaces during filtering.
-    const SkSurfaceProps& surfaceProps() const { return fInfo.fSurfaceProps; }
+    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
+    sk_sp<SkColorSpace> refColorSpace() const { return fColorSpace; }
 
     // This is the image to use whenever an expected input filter has been set to null. In the
     // majority of cases, this is the original source image for the image filter DAG so it comes
     // from the SkDevice that holds either the saveLayer or the temporary rendered result. The
     // exception is composing two image filters (via SkImageFilters::Compose), which must use
     // the output of the inner DAG as the "source" for the outer DAG.
-    const FilterResult& source() const { return fInfo.fSource; }
+    const FilterResult& source() const { return fSource; }
 
-    // True if image filtering must occur on the GPU if possible.
-    bool gpuBacked() const {
-        // TODO: Once CPU blurs are moved to a blur functor, we'll need a different signal.
-        // On the otherhand, if CPU blurs become more consistent with handling of identity sigmas,
-        // then SkBlurImageFilter may not need to check this at all.
-        return SkToBool(fFunctors.fBlurImageFunctor);
-    }
-
-    // Create an SkDevice ("surface") of the given size, that matches the context's color type and
-    // color space as closely as possible, and uses the same backend of the device that produced the
-    // source image.
-    sk_sp<SkDevice> makeDevice(const SkISize& size, const SkSurfaceProps* props = nullptr) const;
-
-    sk_sp<SkSpecialImage> makeImage(const SkIRect& subset, sk_sp<SkImage> image) const;
-
-    sk_sp<SkImage> getCachedBitmap(const SkBitmap& data) const;
 
     // Create a new context that matches this context, but with an overridden layer space.
     Context withNewMapping(const Mapping& mapping) const {
-        ContextInfo info = fInfo;
-        info.fMapping = mapping;
-        return Context(info, fFunctors);
+        Context c = *this;
+        c.fMapping = mapping;
+        return c;
     }
     // Create a new context that matches this context, but with an overridden desired output rect.
     Context withNewDesiredOutput(const LayerSpace<SkIRect>& desiredOutput) const {
-        ContextInfo info = fInfo;
-        info.fDesiredOutput = desiredOutput;
-        return Context(info, fFunctors);
+        Context c = *this;
+        c.fDesiredOutput = desiredOutput;
+        return c;
     }
     // Create a new context that matches this context, but with an overridden color space.
     Context withNewColorSpace(SkColorSpace* cs) const {
-        ContextInfo info = fInfo;
-        info.fColorSpace = cs;
-        return Context(info, fFunctors);
+        Context c = *this;
+        c.fColorSpace = sk_ref_sp(cs);
+        return c;
     }
 
     // Create a new context that matches this context, but with an overridden source.
     Context withNewSource(const FilterResult& source) const {
-        ContextInfo info = fInfo;
-        info.fSource = source;
-        return Context(info, fFunctors);
+        Context c = *this;
+        c.fSource = source;
+        return c;
     }
 
 private:
-    Context(const ContextInfo& info, const Functors& functors)
-            : fInfo(info)
-            , fFunctors(functors) {}
+    sk_sp<Backend> fBackend;
 
-    ContextInfo fInfo;
-    Functors fFunctors;
-
-    friend Context MakeGaneshContext(GrRecordingContext* context,
-                                     GrSurfaceOrigin origin,
-                                     const ContextInfo& info);
-    friend Context MakeGraphiteContext(skgpu::graphite::Recorder* recorder,
-                                       const ContextInfo& info);
-    friend class ::SkImageFilter_Base;     // for private ctor
-    friend class ::FilterResultTestAccess; // for private ctor
-    friend class FilterResult::Builder;    // for fBlurImageFunctor
+    // Properties controlling the size and coordinate space of image filtering
+    Mapping             fMapping;
+    LayerSpace<SkIRect> fDesiredOutput;
+    // Can contain a null image if the image filter DAG has no late-bound null inputs.
+    FilterResult        fSource;
+    // The color space the filters are evaluated in
+    sk_sp<SkColorSpace> fColorSpace;
 };
 
 } // end namespace skif

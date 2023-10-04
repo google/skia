@@ -13,7 +13,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkSurfaceProps.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
@@ -248,26 +247,20 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
                               context.mapping().layerMatrix(),
                               SkIRect(context.desiredOutput()),
                               srcGenID, srcSubset);
-    if (context.cache() && context.cache()->get(key, &result)) {
+    if (context.backend()->cache() && context.backend()->cache()->get(key, &result)) {
         return result;
     }
 
     result = this->onFilterImage(context);
 
-    if (context.gpuBacked()) {
-        SkASSERT(!result.image() ||
-                 result.image()->isGaneshBacked() ||
-                 result.image()->isGraphiteBacked());
-    }
-
-    if (context.cache()) {
-        context.cache()->set(key, this, result);
+    if (context.backend()->cache()) {
+        context.backend()->cache()->set(key, this, result);
     }
 
     return result;
 }
 
-sk_sp<SkImage> SkImageFilter_Base::makeImageWithFilter(const skif::Functors& functors,
+sk_sp<SkImage> SkImageFilter_Base::makeImageWithFilter(sk_sp<skif::Backend> backend,
                                                        sk_sp<SkImage> src,
                                                        const SkIRect& subset,
                                                        const SkIRect& clipBounds,
@@ -277,57 +270,26 @@ sk_sp<SkImage> SkImageFilter_Base::makeImageWithFilter(const skif::Functors& fun
         return nullptr;
     }
 
-    sk_sp<SkImageFilterCache> cache(
-            SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
-
-    static const SkSurfaceProps kDefaultSurfaceProps;
-
-    auto srcSpecialImage = functors.fMakeImageFunctor(subset, src, kDefaultSurfaceProps);
+    auto srcSpecialImage = backend->makeImage(subset, src);
     if (!srcSpecialImage) {
         return nullptr;
     }
 
-    // The filters operate in the local space of the src image, where (0,0) corresponds to the
-    // subset's top left corner. But the clip bounds and any crop rects on the filters are in the
-    // original coordinate system, so configure the CTM to correct crop rects and explicitly adjust
-    // the clip bounds (since it is assumed to already be in image space).
-    // TODO: Once all image filters support it, we can just use the subset's top left corner as
-    // the source FilterResult's origin.
-    skif::ContextInfo ctxInfo = {
-            skif::Mapping(SkMatrix::Translate(-subset.x(), -subset.y())),
-            skif::LayerSpace<SkIRect>(clipBounds.makeOffset(-subset.topLeft())),
-            // TODO: Pass subset.topLeft() as the origin of the source FilterResult
-            /* fSource= */skif::FilterResult{std::move(srcSpecialImage)},
-            src->imageInfo().colorType(),
-            src->imageInfo().colorSpace(),
-            kDefaultSurfaceProps,
-            cache.get()};
-    const skif::Context context(ctxInfo, functors);
+    const skif::Context context{std::move(backend),
+                                skif::Mapping(SkMatrix::I()),
+                                skif::LayerSpace<SkIRect>(clipBounds),
+                                skif::FilterResult(std::move(srcSpecialImage),
+                                                   skif::LayerSpace<SkIPoint>(subset.topLeft())),
+                                src->imageInfo().colorSpace()};
 
     sk_sp<SkSpecialImage> result = this->filterImage(context).imageAndOffset(context, offset);
     if (!result) {
         return nullptr;
     }
 
-    // The output image and offset are relative to the subset rectangle, so the offset needs to
-    // be shifted to put it in the correct spot with respect to the original coordinate system
-    offset->fX += subset.x();
-    offset->fY += subset.y();
-
-    // Final clip against the exact clipBounds (the clip provided in the context gets adjusted
-    // to account for pixel-moving filters so doesn't always exactly match when finished). The
-    // clipBounds are translated into the clippedDstRect coordinate space, including the
-    // result->subset() ensures that the result's image pixel origin does not affect results.
-    SkIRect dstRect = result->subset();
-    SkIRect clippedDstRect = dstRect;
-    if (!clippedDstRect.intersect(clipBounds.makeOffset(result->subset().topLeft() - *offset))) {
-        return nullptr;
-    }
-
-    // Adjust the geometric offset if the top-left corner moved as well
-    offset->fX += (clippedDstRect.x() - dstRect.x());
-    offset->fY += (clippedDstRect.y() - dstRect.y());
-    *outSubset = clippedDstRect;
+    SkASSERT(clipBounds.contains(SkIRect::MakeXYWH(offset->fX, offset->fY,
+                                                   result->width(), result->height())));
+    *outSubset = result->subset();
     return result->asImage();
 }
 
