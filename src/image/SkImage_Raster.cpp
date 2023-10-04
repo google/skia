@@ -116,7 +116,12 @@ static sk_sp<SkMipmap> copy_mipmaps(const SkBitmap& src, SkMipmap* srcMips) {
     }
 
     sk_sp<SkMipmap> dst;
-    dst.reset(SkMipmap::Build(src.pixmap(), nullptr, /* computeContents= */ false));
+    dst.reset(SkMipmap::Build(src.pixmap(),
+                              /* factoryProc= */ nullptr,
+                              /* computeContents= */ false));
+    if (!dst) {
+        return nullptr;
+    }
     for (int i = 0; i < dst->countLevels(); ++i) {
         SkMipmap::Level srcLevel, dstLevel;
         srcMips->getLevel(i, &srcLevel);

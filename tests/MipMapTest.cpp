@@ -41,6 +41,10 @@ DEF_TEST(MipMap, reporter) {
         int height = 1 + rand.nextU() % 1000;
         make_bitmap(&bm, width, height);
         sk_sp<SkMipmap> mm(SkMipmap::Build(bm, nullptr));
+        REPORTER_ASSERT(reporter, mm);
+        if (!mm) {
+            return;
+        }
 
         REPORTER_ASSERT(reporter, mm->countLevels() == SkMipmap::ComputeLevelCount(width, height));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SkSize::Make(SK_Scalar1, SK_Scalar1),
@@ -78,6 +82,10 @@ static void test_mipmap_generation(int width, int height, int expectedMipLevelCo
     bm.allocN32Pixels(width, height);
     bm.eraseColor(SK_ColorWHITE);
     sk_sp<SkMipmap> mm(SkMipmap::Build(bm, nullptr));
+    REPORTER_ASSERT(reporter, mm);
+    if (!mm) {
+        return;
+    }
 
     const int mipLevelCount = mm->countLevels();
     REPORTER_ASSERT(reporter, mipLevelCount == expectedMipLevelCount);

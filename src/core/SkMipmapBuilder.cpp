@@ -13,7 +13,9 @@
 struct SkImageInfo;
 
 SkMipmapBuilder::SkMipmapBuilder(const SkImageInfo& info) {
-    fMM = sk_sp<SkMipmap>(SkMipmap::Build({info, nullptr, 0}, nullptr, false));
+    fMM = sk_sp<SkMipmap>(SkMipmap::Build({info, nullptr, 0},
+                                          /* factoryProc= */ nullptr,
+                                          /* computeContents= */ false));
 }
 
 SkMipmapBuilder::~SkMipmapBuilder() {}
