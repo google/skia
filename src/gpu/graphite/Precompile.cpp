@@ -313,10 +313,6 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     const int desiredShaderCombination = remainingCombinations;
     SkASSERT(desiredShaderCombination < this->numShaderCombinations());
 
-    // TODO: eliminate this block for the Paint's color when it isn't needed
-    SolidColorShaderBlock::AddBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
-                                    {1, 0, 0, 1});
-
     // TODO: this probably needs to be passed in just like addPrimitiveBlender
     const bool kOpaquePaintColor = true;
 

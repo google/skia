@@ -325,9 +325,6 @@ void PaintParams::handleDstRead(const KeyContext& keyContext,
 void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
-    // TODO: figure out how we can omit this block when the Paint's color isn't used.
-    SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, keyContext.paintColor());
-
     this->handleDstRead(keyContext, builder, gatherer);
 
     std::optional<SkBlendMode> finalBlendMode = this->asFinalBlendMode();
