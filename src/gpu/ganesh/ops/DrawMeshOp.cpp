@@ -102,14 +102,30 @@ private:
                      const GrGeometryProcessor& geomProc) override {
             const auto& mgp = geomProc.cast<MeshGP>();
             SetTransform(pdman, shaderCaps, fViewMatrixUniform, mgp.fViewMatrix, &fViewMatrix);
+            // Set up uniforms for the color-space transform.
             fColorSpaceHelper.setData(pdman, mgp.fColorSpaceXform.get());
+            // Assign the paint color to a uniform.
             if (fColorUniform.isValid()) {
                 pdman.set4fv(fColorUniform, 1, mgp.fColor.vec());
             }
+            // Update uniforms associated with the mesh vertex/fragment program.
             if (mgp.fUniforms) {
                 pdman.setRuntimeEffectUniforms(mgp.fSpec->uniforms(),
                                                SkSpan(fSpecUniformHandles),
                                                mgp.fUniforms->data());
+            }
+            // Recursively update uniforms associated with the mesh child FPs.
+            for (size_t index = 0; index < mgp.fChildren.size(); ++index) {
+                if (const GrFragmentProcessor* fp = mgp.fChildren[index].get()) {
+                    GrFragmentProcessor::ProgramImpl* impl = fChildImpls[index].get();
+                    SkASSERT(impl);
+
+                    fp->visitWithImpls([&](const GrFragmentProcessor& fp,
+                                           GrFragmentProcessor::ProgramImpl& impl) {
+                                           impl.setData(pdman, fp);
+                                       },
+                                       *impl);
+                }
             }
         }
 
@@ -211,8 +227,13 @@ private:
                     // For a null shader, return transparent black.
                     return "half4(0)";
                 }
-                // TODO(b/40045302): add support for non-null shaders.
-                SK_ABORT("No children allowed.");
+                GrFragmentProcessor::ProgramImpl* impl = fSelf->fChildImpls[index].get();
+                SkASSERT(impl);
+                return fBuilder->getProgramBuilder()->invokeFP(*fp,
+                                                               *impl,
+                                                               /*inputColor=*/"half4(0)",
+                                                               /*destColor=*/"half4(1)",
+                                                               coords.c_str());
             }
 
             std::string sampleColorFilter(int index, std::string color) override {
@@ -221,8 +242,13 @@ private:
                     // For a null color filter, return the color as-is.
                     return color;
                 }
-                // TODO(b/40045302): add support for non-null color filters.
-                SK_ABORT("No children allowed.");
+                GrFragmentProcessor::ProgramImpl* impl = fSelf->fChildImpls[index].get();
+                SkASSERT(impl);
+                return fBuilder->getProgramBuilder()->invokeFP(*fp,
+                                                               *impl,
+                                                               color.c_str(),
+                                                               /*destColor=*/"half4(1)",
+                                                               /*coords=*/"float2(0)");
             }
 
             std::string sampleBlender(int index, std::string src, std::string dst) override {
@@ -231,8 +257,13 @@ private:
                     // For a null blend, perform src-over.
                     return SkSL::String::printf("blend_src_over(%s, %s)", src.c_str(), dst.c_str());
                 }
-                // TODO(b/40045302): add support for non-null blenders.
-                SK_ABORT("No children allowed.");
+                GrFragmentProcessor::ProgramImpl* impl = fSelf->fChildImpls[index].get();
+                SkASSERT(impl);
+                return fBuilder->getProgramBuilder()->invokeFP(*fp,
+                                                               *impl,
+                                                               src.c_str(),
+                                                               dst.c_str(),
+                                                               /*coords=*/"float2(0)");
             }
 
             std::string toLinearSrgb(std::string color) override {
@@ -373,10 +404,22 @@ private:
 
             ////// FS
 
+            // Emit the child FP functions.
+            for (size_t fpIdx = 0; fpIdx < mgp.fChildren.size(); ++fpIdx) {
+                if (const GrFragmentProcessor* fp = mgp.fChildren[fpIdx].get()) {
+                    GrFragmentProcessor::ProgramImpl* impl = fChildImpls[fpIdx].get();
+                    SkASSERT(impl);
+
+                    // Write functions associated with this FP.
+                    args.fFragBuilder->getProgramBuilder()->advanceStage();
+                    args.fFragBuilder->getProgramBuilder()->writeFPFunction(*fp, *impl);
+                }
+            }
+
+            // Define the user's frag function.
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
             fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
 
-            // Define the user's frag function.
             SkString userFragName = fragBuilder->getMangledFunctionName("custom_mesh_fs");
             const SkSL::Program* customFS = SkMeshSpecificationPriv::FS(*mgp.fSpec);
             MeshCallbacks fsCallbacks(this,

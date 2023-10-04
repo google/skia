@@ -86,6 +86,20 @@ public:
                                    int* samplerIndex);
 
     /**
+     * advanceStage is called by program creator between each processor's emit code.  It increments
+     * the stage index for variable name mangling, and also ensures verification variables in the
+     * fragment shader are cleared.
+     */
+    void advanceStage() {
+        fStageIndex++;
+        SkDEBUGCODE(fFS.debugOnly_resetPerStageVerification();)
+        fFS.nextStage();
+    }
+
+    /** Adds the SkSL function that implements an FP assuming its children are already written. */
+    void writeFPFunction(const GrFragmentProcessor& fp, GrFragmentProcessor::ProgramImpl& impl);
+
+    /**
      * Returns a function-call invocation of `fp` in string form, passing the appropriate
      * combination of `inputColor`, `destColor` and `fLocalCoordsVar` for the FP.
      */
@@ -138,15 +152,6 @@ protected:
     bool fragColorIsInOut() const { return fFS.primaryColorOutputIsInOut(); }
 
 private:
-    // advanceStage is called by program creator between each processor's emit code.  It increments
-    // the stage index for variable name mangling, and also ensures verification variables in the
-    // fragment shader are cleared.
-    void advanceStage() {
-        fStageIndex++;
-        SkDEBUGCODE(fFS.debugOnly_resetPerStageVerification();)
-        fFS.nextStage();
-    }
-
     SkString getMangleSuffix() const;
 
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
@@ -164,8 +169,6 @@ private:
     /** Recursive step to write out children FPs' functions before parent's. */
     void writeChildFPFunctions(const GrFragmentProcessor& fp,
                                GrFragmentProcessor::ProgramImpl& impl);
-    /** Adds the SkSL function that implements an FP assuming its children are already written. */
-    void writeFPFunction(const GrFragmentProcessor& fp, GrFragmentProcessor::ProgramImpl& impl);
     bool emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     SamplerHandle emitSampler(const GrBackendFormat&, GrSamplerState, const skgpu::Swizzle&,
                               const char* name);

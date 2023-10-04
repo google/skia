@@ -248,14 +248,22 @@ void GrGLSLProgramBuilder::writeFPFunction(const GrFragmentProcessor& fp,
         params[numParams++] = GrShaderVar(kDstColor, SkSLType::kHalf4);
     }
 
-    if (this->fragmentProcessorHasCoordsParam(&fp)) {
+    auto fpCoordsIter = fFPCoordsMap.find(&fp);
+    if (fpCoordsIter == fFPCoordsMap.end()) {
+        // This FP isn't in our coords map at all, so its coords (if any) couldn't have been lifted
+        // to a varying.
+        if (fp.usesSampleCoords()) {
+            params[numParams++] = GrShaderVar(sampleCoords, SkSLType::kFloat2);
+        }
+    } else if (fpCoordsIter->second.hasCoordsParam) {
+        // This FP is in our map, and it takes an explicit coords param.
         params[numParams++] = GrShaderVar(sampleCoords, SkSLType::kFloat2);
     } else {
         // Either doesn't use coords at all or sampled through a chain of passthrough/matrix
         // samples usages. In the latter case the coords are emitted in the vertex shader as a
         // varying, so this only has to access it. Add a float2 _coords variable that maps to the
         // associated varying and replaces the absent 2nd argument to the fp's function.
-        GrShaderVar varying = fFPCoordsMap[&fp].coordsVarying;
+        GrShaderVar varying = fpCoordsIter->second.coordsVarying;
 
         switch (varying.getType()) {
             case SkSLType::kVoid:
