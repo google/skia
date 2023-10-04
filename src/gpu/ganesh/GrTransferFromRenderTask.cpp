@@ -17,7 +17,8 @@ void GrTransferFromRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) 
     // fEndOfOpsTaskOpIndices will remain in sync), so we create a fake op# to capture the fact that
     // we read fSrcProxy.
     alloc->addInterval(fSrcProxy.get(), alloc->curOp(), alloc->curOp(),
-                       GrResourceAllocator::ActualUse::kYes);
+                       GrResourceAllocator::ActualUse::kYes,
+                       GrResourceAllocator::AllowRecycling::kYes);
     alloc->incOps();
 }
 

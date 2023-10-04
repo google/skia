@@ -18,7 +18,8 @@ void GrWaitRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     SkASSERT(0 == this->numTargets());
     auto fakeOp = alloc->curOp();
     alloc->addInterval(fWaitedOn.proxy(), fakeOp, fakeOp,
-                       GrResourceAllocator::ActualUse::kYes);
+                       GrResourceAllocator::ActualUse::kYes,
+                       GrResourceAllocator::AllowRecycling::kYes);
     alloc->incOps();
 }
 

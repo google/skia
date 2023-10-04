@@ -95,10 +95,21 @@ public:
         kYes = true
     };
 
+    /** Indicates whether we allow a gpu texture assigned to a register to be recycled or not. This
+     *  comes up when dealing with with Vulkan Secondary CommandBuffers since offscreens sampled
+     *  into the scb will all be drawn before being sampled in the scb. This is because the scb
+     *  will get submitted in a later command buffer. Thus offscreens cannot share an allocation or
+     *  later reuses will overwrite earlier ones.
+     */
+    enum class AllowRecycling : bool {
+        kNo  = false,
+        kYes = true
+    };
+
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
-                     SkDEBUGCODE(, bool isDirectDstRead = false));
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse,
+                     AllowRecycling SkDEBUGCODE(, bool isDirectDstRead = false));
 
     bool failedInstantiation() const { return fFailedInstantiation; }
 
@@ -169,7 +180,8 @@ private:
         GrSurface* existingSurface() const { return fExistingSurface.get(); }
 
         // Can this register be used by other proxies after this one?
-        bool isRecyclable(const GrCaps&, GrSurfaceProxy* proxy, int knownUseCount) const;
+        bool isRecyclable(const GrCaps&, GrSurfaceProxy* proxy, int knownUseCount,
+                          AllowRecycling) const;
 
         // Resolve the register allocation to an actual GrSurface. 'fOriginatingProxy'
         // is used to cache the allocation when a given register is used by multiple
@@ -230,6 +242,11 @@ private:
             }
         }
 
+        void disallowRecycling() {
+            fAllowRecycling = AllowRecycling::kNo;
+        }
+        AllowRecycling allowRecycling() const { return fAllowRecycling; }
+
         SkDEBUGCODE(uint32_t uniqueID() const { return fUniqueID; })
 
     private:
@@ -239,6 +256,7 @@ private:
         Interval*        fNext = nullptr;
         unsigned int     fUses = 0;
         Register*        fRegister = nullptr;
+        AllowRecycling   fAllowRecycling = AllowRecycling::kYes;
 
 #ifdef SK_DEBUG
         uint32_t        fUniqueID;

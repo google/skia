@@ -905,31 +905,41 @@ void OpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         // they can be recycled. This is a bit unfortunate because a flush can proceed in waves
         // with sub-flushes. The deferred proxies only need to be pinned from the start of
         // the sub-flush in which they appear.
-        alloc->addInterval(fDeferredProxies[i], 0, 0, GrResourceAllocator::ActualUse::kNo);
+        alloc->addInterval(fDeferredProxies[i], 0, 0, GrResourceAllocator::ActualUse::kNo,
+                           GrResourceAllocator::AllowRecycling::kYes);
     }
 
-    GrSurfaceProxy* targetProxy = this->target(0);
+    GrSurfaceProxy* targetSurface = this->target(0);
+    SkASSERT(targetSurface);
+    GrRenderTargetProxy* targetProxy = targetSurface->asRenderTargetProxy();
 
     // Add the interval for all the writes to this OpsTasks's target
     if (fOpChains.size()) {
         unsigned int cur = alloc->curOp();
 
         alloc->addInterval(targetProxy, cur, cur + fOpChains.size() - 1,
-                           GrResourceAllocator::ActualUse::kYes);
+                           GrResourceAllocator::ActualUse::kYes,
+                           GrResourceAllocator::AllowRecycling::kYes);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
         alloc->addInterval(targetProxy, alloc->curOp(), alloc->curOp(),
-                           GrResourceAllocator::ActualUse::kYes);
+                           GrResourceAllocator::ActualUse::kYes,
+                           GrResourceAllocator::AllowRecycling::kYes);
         alloc->incOps();
     }
 
-    auto gather = [alloc SkDEBUGCODE(, this)](GrSurfaceProxy* p, skgpu::Mipmapped) {
+    GrResourceAllocator::AllowRecycling allowRecycling =
+            targetProxy->wrapsVkSecondaryCB() ? GrResourceAllocator::AllowRecycling::kNo
+                                              : GrResourceAllocator::AllowRecycling::kYes;
+
+    auto gather = [alloc, allowRecycling SkDEBUGCODE(, this)](GrSurfaceProxy* p, skgpu::Mipmapped) {
         alloc->addInterval(p,
                            alloc->curOp(),
                            alloc->curOp(),
-                           GrResourceAllocator::ActualUse::kYes
+                           GrResourceAllocator::ActualUse::kYes,
+                           allowRecycling
                            SkDEBUGCODE(, this->target(0) == p));
     };
     // TODO: visitProxies is expensive. Can we do this with fSampledProxies instead?

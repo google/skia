@@ -26,6 +26,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -41,8 +42,6 @@
 #include <vulkan/vulkan_core.h>
 #include <cstdint>
 #include <memory>
-
-struct GrContextOptions;
 
 namespace skgpu { struct VulkanInterface; }
 
@@ -171,15 +170,29 @@ public:
         canvas->drawIRect(rect, paint);
 
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
-        // buffers and the imported secondary command buffer.
+        // buffers and the imported secondary command buffer. Also we do two separate offscreen
+        // draws to test that we don't share scratch textures. The GrResourceAllocator would think
+        // that the two offscreens can share a texture here since we draw them to the SCB before
+        // drawing the 2nd offscreen. However, since the SCB ends up not being submitted the GPU
+        // immediately we need to make sure to not share offscreen textures or else the second will
+        // overwrite the first. This test makes sure this non sharing logic is workng correctly.
         sk_sp<SkSurface> surf =
                 SkSurfaces::RenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
-        surf->getCanvas()->clear(SK_ColorRED);
+        surf->getCanvas()->clear(SK_ColorBLUE);
 
-        SkRect dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
+        SkRect dstRect = SkRect::MakeXYWH(td->fWidth/4, 0, td->fWidth/4, td->fHeight);
         SkRect srcRect = SkRect::MakeIWH(td->fWidth/4, td->fHeight);
         canvas->drawImageRect(surf->makeImageSnapshot(), srcRect, dstRect, SkSamplingOptions(),
                               &paint, SkCanvas::kStrict_SrcRectConstraint);
+
+        surf = SkSurfaces::RenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
+        surf->getCanvas()->clear(SK_ColorRED);
+
+        dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
+        canvas->drawImageRect(surf->makeImageSnapshot(), srcRect, dstRect, SkSamplingOptions(),
+                              &paint, SkCanvas::kStrict_SrcRectConstraint);
+
+        surf.reset();
 
         td->fDrawContext->flush();
     }
@@ -298,7 +311,14 @@ DEF_GANESH_TEST(VkDrawableImportTest, reporter, options, CtsEnforcement::kApiLev
         if (contextType != skgpu::ContextType::kVulkan) {
             continue;
         }
-        sk_gpu_test::GrContextFactory factory(options);
+        GrContextOptions childOptions = options;
+        // Part of our testing of secondary command buffers here is that we don't recycle scratch
+        // textures that are drawing into the SCB. The reason being that the SCB gets played back
+        // later and thus logically gets reordered to the end. This can mess up our resource
+        // allocator which thinks it is safe to reuse things. To test this behavior we need to make
+        // sure we aren't pre-emptively reordering draws.
+        childOptions.fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
+        sk_gpu_test::GrContextFactory factory(childOptions);
         sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(contextType);
         skiatest::ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
         if (ctxInfo.directContext()) {
