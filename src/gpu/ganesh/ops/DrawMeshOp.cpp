@@ -89,6 +89,13 @@ public:
             SkMeshSpecificationPriv::ColorType::kNone) {
             b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()), "colorspace xform key");
         }
+        for (const std::unique_ptr<GrFragmentProcessor>& fp : fChildren) {
+            if (fp) {
+                fp->addToKey(caps, b);
+            } else {
+                b->addBool(false, "null effect");
+            }
+        }
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
@@ -599,6 +606,13 @@ public:
     const char* name() const override { return "MeshOp"; }
 
     void visitProxies(const GrVisitProxyFunc& func) const override {
+        for (const std::unique_ptr<GrFragmentProcessor>& fp : fChildren) {
+            if (fp) {
+                fp->visitTextureEffects([&](const GrTextureEffect& te) {
+                    func(te.view().proxy(), te.view().mipmapped());
+                });
+            }
+        }
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);
         } else {
