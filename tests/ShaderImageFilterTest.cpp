@@ -29,6 +29,8 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
+#include "tools/ToolUtils.h"
 
 #include <vector>
 
@@ -123,12 +125,24 @@ static void test_scaled(skiatest::Reporter* reporter) {
     }
 
     // Assert that both paths yielded the same result
-    for (int y = 0; y < kHeight; ++y) {
-        const SkPMColor* filterPtr = filterResult.getAddr32(0, y);
-        const SkPMColor* paintPtr = paintResult.getAddr32(0, y);
-        for (int x = 0; x < kWidth; ++x, ++filterPtr, ++paintPtr) {
-            REPORTER_ASSERT(reporter, *filterPtr == *paintPtr);
+    if (!ToolUtils::equal_pixels(filterResult, paintResult)) {
+        SkString encoded;
+        SkString errString("Image filter doesn't match paint reference");
+        errString.append("\nExpected: ");
+        if (BitmapToBase64DataURI(paintResult, &encoded)) {
+            errString.append(encoded);
+        } else {
+            errString.append("failed to encode");
         }
+
+        errString.append("\nActual: ");
+        if (BitmapToBase64DataURI(filterResult, &encoded)) {
+            errString.append(encoded);
+        } else {
+            errString.append("failed to encode");
+        }
+
+        ERRORF(reporter, "%s\n", errString.c_str());
     }
 }
 
