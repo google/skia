@@ -2420,7 +2420,8 @@ if (skia_enable_tools) {
       ]
     }
 
-    if (!skia_enable_optimize_size && !skia_use_fontations) {
+    if (!skia_enable_optimize_size && !skia_use_fontations &&
+        !skia_enable_vello_shaders) {
       # optional separate library to dlopen when running CanvasStateTests.
       skia_shared_library("canvas_state_lib") {
         sources = [
