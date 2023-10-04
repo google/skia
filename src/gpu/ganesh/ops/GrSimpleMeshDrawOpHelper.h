@@ -110,18 +110,17 @@ public:
         fAAType = static_cast<unsigned>(aaType);
     }
 
-    static const GrPipeline* CreatePipeline(
-                                const GrCaps*,
-                                SkArenaAlloc*,
-                                skgpu::Swizzle writeViewSwizzle,
-                                GrAppliedClip&&,
-                                const GrDstProxyView&,
-                                GrProcessorSet&&,
-                                GrPipeline::InputFlags pipelineFlags);
-    static const GrPipeline* CreatePipeline(
-                                GrOpFlushState*,
-                                GrProcessorSet&&,
-                                GrPipeline::InputFlags pipelineFlags);
+    static const GrPipeline* CreatePipeline(const GrCaps*,
+                                            SkArenaAlloc*,
+                                            skgpu::Swizzle writeViewSwizzle,
+                                            GrAppliedClip&&,
+                                            const GrDstProxyView&,
+                                            GrProcessorSet&&,
+                                            GrPipeline::InputFlags pipelineFlags);
+
+    static const GrPipeline* CreatePipeline(GrOpFlushState*,
+                                            GrProcessorSet&&,
+                                            GrPipeline::InputFlags pipelineFlags);
 
     const GrPipeline* createPipeline(GrOpFlushState* flushState);
 

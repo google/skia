@@ -19,6 +19,7 @@
 #include "src/gpu/ganesh/GrMeshBuffers.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
@@ -404,11 +405,22 @@ private:
 
             ////// FS
 
-            // Emit the child FP functions.
+            int samplerIndex = 0;
             for (size_t fpIdx = 0; fpIdx < mgp.fChildren.size(); ++fpIdx) {
                 if (const GrFragmentProcessor* fp = mgp.fChildren[fpIdx].get()) {
                     GrFragmentProcessor::ProgramImpl* impl = fChildImpls[fpIdx].get();
                     SkASSERT(impl);
+
+                    // Hook up sampler handles to texture effects. This code needs to keep
+                    // consistent with the code that up sampler handles (in the MeshGP ctor).
+                    fp->visitWithImpls([&](const GrFragmentProcessor& fp,
+                                           GrFragmentProcessor::ProgramImpl& impl) {
+                                if (fp.asTextureEffect()) {
+                                    static_cast<GrTextureEffect::Impl&>(impl).setSamplerHandle(
+                                            args.fTexSamplers[samplerIndex++]);
+                                }
+                            },
+                            *impl);
 
                     // Write functions associated with this FP.
                     args.fFragBuilder->getProgramBuilder()->advanceStage();
@@ -528,11 +540,29 @@ private:
                                      srcAttr.offset);
         }
         this->setVertexAttributes(fAttributes.data(), fAttributes.size(), fSpec->stride());
+
+        // We are relying here on the fact that `visitTextureEffects` and `visitWithImpls` walk the
+        // FP tree in the same order.
+        for (const std::unique_ptr<GrFragmentProcessor>& fp : fChildren) {
+            if (fp) {
+                fp->visitTextureEffects([&](const GrTextureEffect& te) {
+                    fTextureSamplers.push_back({te.samplerState(),
+                                                te.view().proxy()->backendFormat(),
+                                                te.view().swizzle()});
+                });
+            }
+        }
+        this->setTextureSamplerCnt(fTextureSamplers.size());
+    }
+
+    const TextureSampler& onTextureSampler(int index) const override {
+        return fTextureSamplers[index];
     }
 
     sk_sp<SkMeshSpecification> fSpec;
     sk_sp<const SkData> fUniforms;
     SkSpan<std::unique_ptr<GrFragmentProcessor>> fChildren; // backed by a TArray in MeshOp
+    TArray<TextureSampler> fTextureSamplers;
     std::vector<Attribute> fAttributes;
     SkMatrix fViewMatrix;
     SkPMColor4f fColor;
@@ -1097,8 +1127,19 @@ void MeshOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
         return;
     }
 
+    TArray<GrSurfaceProxy*> geomProcTextures;
+    for (const std::unique_ptr<GrFragmentProcessor>& fp : fChildren) {
+        if (fp) {
+            fp->visitTextureEffects([&](const GrTextureEffect& te) {
+                geomProcTextures.push_back(te.view().proxy());
+            });
+        }
+    }
+
     flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
-    flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
+    flushState->bindTextures(fProgramInfo->geomProc(),
+                             geomProcTextures.data(),
+                             fProgramInfo->pipeline());
     flushState->drawMesh(*fMesh);
 }
 

@@ -79,7 +79,7 @@ public:
 
     void reset();
 
-    // Helper that copies a rect of a src view'' proxy and then creates a view for the copy with
+    // Helper that copies a rect of a src view's proxy and then creates a view for the copy with
     // the same origin and swizzle as the src view.
     static GrSurfaceProxyView Copy(GrRecordingContext* context,
                                    GrSurfaceProxyView src,

@@ -91,7 +91,7 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
         SkString name;
         name.printf("TextureSampler_%d", i);
         const auto& sampler = geomProc.textureSampler(i);
-        texSamplers[i] = this->emitSampler(geomProc.textureSampler(i).backendFormat(),
+        texSamplers[i] = this->emitSampler(sampler.backendFormat(),
                                            sampler.samplerState(),
                                            sampler.swizzle(),
                                            name.c_str());

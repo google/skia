@@ -471,6 +471,9 @@ public:
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
+    TextureSampler(TextureSampler&&) = default;
+    TextureSampler& operator=(TextureSampler&&) = default;
+
     void reset(GrSamplerState, const GrBackendFormat&, const skgpu::Swizzle&);
 
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
