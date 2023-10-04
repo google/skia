@@ -20,12 +20,6 @@ enum SkCopyPixelsMode {
     kNever_SkCopyPixelsMode,      //!< never copy src pixels (even if they are marked mutable)
 };
 
-// If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
-// the SkShader.
-sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode, SkTileMode,
-                                   const SkSamplingOptions&, const SkMatrix* localMatrix,
-                                   SkCopyPixelsMode);
-
 // Convenience function to return a shader that implements the shader+image behavior defined for
 // drawImage/Bitmap where the paint's shader is ignored when the bitmap is a color image, but
 // properly compose them together when it is an alpha image. This allows the returned paint to
@@ -33,6 +27,16 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode, SkTileMode,
 sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
                                            SkTileMode, SkTileMode, const SkSamplingOptions&,
                                            const SkMatrix* localMatrix, SkCopyPixelsMode);
+
+// Given arguments for a call to SkCanvas::drawImageRect, modify the SkPaint and return a
+// possibly adjusted 'dst' SkRect such that calling SkCanvas::drawRect(newDst, *paint) produces
+// visually equivalent results to the original drawImageRect() call.
+SkRect SkModifyPaintAndDstForDrawImageRect(const SkImage* image,
+                                           const SkSamplingOptions&,
+                                           SkRect src,
+                                           SkRect dst,
+                                           bool strictSrcSubset,
+                                           SkPaint* paint);
 
 /**
  *  Examines the bitmap to decide if it can share the existing pixelRef, or

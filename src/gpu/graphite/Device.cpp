@@ -50,6 +50,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -152,40 +153,6 @@ std::optional<SkColor4f> extract_paint_color(const SkPaint& paint,
 
 SkIRect rect_to_pixelbounds(const Rect& r) {
     return r.makeRoundOut().asSkIRect();
-}
-
-bool create_img_shader_paint(sk_sp<SkImage> image,
-                             const SkRect& subset,
-                             SkCanvas::SrcRectConstraint constraint,
-                             const SkSamplingOptions& sampling,
-                             const SkMatrix* localMatrix,
-                             SkPaint* paint) {
-    bool imageIsAlphaOnly = SkColorTypeIsAlphaOnly(image->colorType());
-
-    sk_sp<SkShader> imgShader;
-    if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
-        imgShader = SkImageShader::MakeSubset(std::move(image), subset,
-                                              SkTileMode::kClamp, SkTileMode::kClamp,
-                                              sampling, localMatrix);
-    } else {
-        imgShader = image->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
-                                      sampling, localMatrix);
-    }
-    if (!imgShader) {
-        SKGPU_LOG_W("Couldn't create subset image shader");
-        return false;
-    }
-    if (imageIsAlphaOnly && paint->getShader()) {
-        // Compose the image shader with the paint's shader. Alpha images+shaders should output the
-        // texture's alpha multiplied by the shader's color. DstIn (d*sa) will achieve this with
-        // the source image and dst shader (MakeBlend takes dst first, src second).
-        imgShader = SkShaders::Blend(SkBlendMode::kDstIn, paint->refShader(), std::move(imgShader));
-    }
-
-    paint->setStyle(SkPaint::kFill_Style);
-    paint->setShader(std::move(imgShader));
-    paint->setPathEffect(nullptr);  // neither drawSpecial nor drawImageRect support path effects
-    return true;
 }
 
 bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
@@ -729,22 +696,6 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // Similarly, if it has an extra transform, those must be provided
         SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
 
-        SkRect imgBounds = SkRect::Make(set[i].fImage->bounds());
-        SkRect src = set[i].fSrcRect;
-        SkRect dst = set[i].fDstRect;
-
-        // TODO: All of this logic should be handled in SkCanvas, since it's the same for every
-        // backend.
-        SkASSERT(src.isFinite() && dst.isFinite() && dst.isSorted());
-        SkMatrix localMatrix = SkMatrix::RectToRect(src, dst);
-        if (!imgBounds.contains(src)) {
-            if (!src.intersect(imgBounds)) {
-                continue; // Nothing to draw for this entry
-            }
-            // Update dst to match smaller src
-            dst = localMatrix.mapRect(src);
-        }
-
         auto [ imageToDraw, newSampling ] =
                 skgpu::graphite::GetGraphiteBacked(this->recorder(), set[i].fImage.get(), sampling);
         if (!imageToDraw) {
@@ -755,11 +706,14 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // TODO: Produce an image shading paint key and data directly without having to reconstruct
         // the equivalent SkPaint for each entry. Reuse the key and data between entries if possible
         paintWithShader.setShader(paint.refShader());
-        if (!create_img_shader_paint(std::move(imageToDraw), src, constraint, newSampling,
-                                     &localMatrix, &paintWithShader)) {
+        paintWithShader.setAlphaf(paint.getAlphaf() * set[i].fAlpha);
+        SkRect dst = SkModifyPaintAndDstForDrawImageRect(
+                    imageToDraw.get(), newSampling, set[i].fSrcRect, set[i].fDstRect,
+                    constraint == SkCanvas::kStrict_SrcRectConstraint,
+                    &paintWithShader);
+        if (dst.isEmpty()) {
             return;
         }
-        paintWithShader.setAlphaf(paint.getAlphaf() * set[i].fAlpha);
 
         auto flags =
                 SkEnumBitMask<EdgeAAQuad::Flags>(static_cast<EdgeAAQuad::Flags>(set[i].fAAFlags));
@@ -1355,24 +1309,20 @@ void Device::drawSpecial(SkSpecialImage* special,
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
 
     sk_sp<SkImage> img = special->asImage();
-    if (!img) {
+    if (!img || !as_IB(img)->isGraphiteBacked()) {
         SKGPU_LOG_W("Couldn't get Graphite-backed special image as image");
         return;
     }
 
-    // TODO: remove this check once Graphite has image filter support.
-    if (!img->isTextureBacked()) {
-        return;
-    }
-
-    SkRect src = SkRect::Make(special->subset());
-    SkRect dst = SkRect::MakeWH(special->width(), special->height());
-    SkMatrix srcToDst = SkMatrix::RectToRect(src, dst);
-    SkASSERT(srcToDst.isTranslate());
-
     SkPaint paintWithShader(paint);
-    if (!create_img_shader_paint(std::move(img), src, SkCanvas::kStrict_SrcRectConstraint ,sampling,
-                                 &srcToDst, &paintWithShader)) {
+    SkRect dst = SkModifyPaintAndDstForDrawImageRect(
+            img.get(),
+            sampling,
+            /*src=*/SkRect::Make(special->subset()),
+            /*dst=*/SkRect::MakeIWH(special->width(), special->height()),
+            /*strictSrcSubset=*/true,
+            &paintWithShader);
+    if (dst.isEmpty()) {
         return;
     }
 
