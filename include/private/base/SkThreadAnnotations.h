@@ -8,6 +8,8 @@
 #ifndef SkThreadAnnotations_DEFINED
 #define SkThreadAnnotations_DEFINED
 
+#include "include/private/base/SkFeatures.h"  // IWYU pragma: keep
+
 // The bulk of this code is cribbed from:
 // http://clang.llvm.org/docs/ThreadSafetyAnalysis.html
 
@@ -76,7 +78,8 @@
 #define SK_NO_THREAD_SAFETY_ANALYSIS \
   SK_THREAD_ANNOTATION_ATTRIBUTE(no_thread_safety_analysis)
 
-#if defined(SK_BUILD_FOR_GOOGLE3) && !defined(SK_BUILD_FOR_WASM_IN_GOOGLE3)
+#if defined(SK_BUILD_FOR_GOOGLE3) && !defined(SK_BUILD_FOR_WASM_IN_GOOGLE3) \
+    && !defined(SK_BUILD_FOR_WIN)
     extern "C" {
         void __google_cxa_guard_acquire_begin(void);
         void __google_cxa_guard_acquire_end  (void);
