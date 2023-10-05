@@ -338,16 +338,27 @@ uint32_t SkReadBuffer::getArrayCount() {
 static sk_sp<SkImage> deserialize_image(sk_sp<SkData> data, SkDeserialProcs dProcs,
                                         std::optional<SkAlphaType> alphaType) {
     sk_sp<SkImage> image;
-    if (dProcs.fImageProc) {
+    if (dProcs.fImageDataProc) {
+        image = dProcs.fImageDataProc(data, alphaType, dProcs.fImageCtx);
+    } else if (dProcs.fImageProc) {
+#if !defined(SK_LEGACY_DESERIAL_IMAGE_PROC)
         image = dProcs.fImageProc(data->data(), data->size(), dProcs.fImageCtx);
+#else
+        image = dProcs.fImageProc(data->data(), data->size(), alphaType, dProcs.fImageCtx);
+#endif
     }
     if (image) {
         return image;
     }
+#if !defined(SK_DISABLE_LEGACY_IMAGE_READBUFFER)
     // The default implementation will encode to PNG unless the input SkImages came from
     // a codec that was built-in (e.g. JPEG/WEBP). Thus, we should be sure to try all
     // available codecs when reading images out of an SKP.
     return SkImages::DeferredFromEncodedData(std::move(data), alphaType);
+#else
+    SkDEBUGFAIL("Need to set image proc in SkDeserialProcs");
+    return nullptr;
+#endif
 }
 
 static sk_sp<SkImage> add_mipmaps(sk_sp<SkImage> img, sk_sp<SkData> data,
@@ -365,6 +376,9 @@ static sk_sp<SkImage> add_mipmaps(sk_sp<SkImage> img, sk_sp<SkData> data,
         if (!ptr) {
             return img;
         }
+        // This use of SkData::MakeWithoutCopy is safe because the image goes
+        // out of scope after we read the pixels from it, so we are sure the
+        // data (from buffer) outlives the image.
         sk_sp<SkImage> mip = deserialize_image(SkData::MakeWithoutCopy(ptr, size), dProcs,
                                                alphaType);
         if (!mip) {

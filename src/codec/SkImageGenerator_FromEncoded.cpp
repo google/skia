@@ -8,6 +8,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
@@ -44,3 +45,15 @@ std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData> data,
 }
 
 }  // namespace SkImageGenerators
+
+namespace SkImages {
+
+sk_sp<SkImage> DeferredFromEncodedData(sk_sp<SkData> encoded,
+                                       std::optional<SkAlphaType> alphaType) {
+    if (nullptr == encoded || encoded->isEmpty()) {
+        return nullptr;
+    }
+    return DeferredFromGenerator(SkImageGenerators::MakeFromEncoded(std::move(encoded), alphaType));
+}
+
+}  // namespace SkImages

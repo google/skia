@@ -6,31 +6,19 @@
  */
 
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/image/SkImageGeneratorPriv.h"
 #include "src/image/SkImage_Picture.h"
 
-#include <optional>
 #include <utility>
 
 class SkMatrix;
 class SkPaint;
-enum SkAlphaType : int;
 struct SkISize;
 
 namespace SkImages {
-
-sk_sp<SkImage> DeferredFromEncodedData(sk_sp<SkData> encoded,
-                                       std::optional<SkAlphaType> alphaType) {
-    if (nullptr == encoded || 0 == encoded->size()) {
-        return nullptr;
-    }
-    return DeferredFromGenerator(SkImageGenerators::MakeFromEncoded(std::move(encoded), alphaType));
-}
 
 sk_sp<SkImage> DeferredFromPicture(sk_sp<SkPicture> picture,
                                    const SkISize& dimensions,
