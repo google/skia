@@ -185,8 +185,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		configs = append(configs, "vk", "vkdmsaa")
 		// skbug.com/12826
 		skip(ALL, "test", ALL, "GrThreadSafeCache16Verts")
-                // b/296440036
-                skip(ALL, "test", ALL, "ImageAsyncReadPixels")
+		// b/296440036
+		skip(ALL, "test", ALL, "ImageAsyncReadPixels")
 		// skbug.com/12829
 		skip(ALL, "test", ALL, "image_subset")
 	} else if b.cpu() {
@@ -1059,7 +1059,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
-        // b/296440036
+	// b/296440036
 	// disable broken tests on Adreno 5/6xx Vulkan or API30
 	if b.matchGpu("Adreno[56]") && (b.extraConfig("Vulkan") || b.extraConfig("API30")) {
 		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_Renderable_BottomLeft")
@@ -1069,13 +1069,19 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels")
 	}
 
+	if b.matchGpu("Adreno[56]") && b.extraConfig("Vulkan") {
+		skip(ALL, "gm", ALL, "mesh_with_image")
+		skip(ALL, "gm", ALL, "mesh_with_paint_color")
+		skip(ALL, "gm", ALL, "mesh_with_paint_image")
+	}
+
 	if b.matchGpu("Mali400") {
 		skip(ALL, "tests", ALL, "BlendRequiringDstReadWithLargeCoordinates")
-		skip(ALL, "tests", ALL, "SkSLCross")  // despite the name, it's not in SkSLTest.cpp
-    }
+		skip(ALL, "tests", ALL, "SkSLCross") // despite the name, it's not in SkSLTest.cpp
+	}
 
 	if b.matchOs("Mac") && (b.gpu("IntelIrisPlus") || b.gpu("IntelHD6000")) &&
-						   (b.extraConfig("Metal") || b.extraConfig("Dawn")) {
+		(b.extraConfig("Metal") || b.extraConfig("Dawn")) {
 		// TODO(skia:296960708): The IntelIrisPlus+Metal config hangs on this test, but passes
 		// SurfaceContextWritePixelsMipped so let that one keep running.
 		skip(ALL, "tests", ALL, "SurfaceContextWritePixels")
@@ -1085,7 +1091,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655|Xe)") {
-		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu")      // b/294080402
+		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu") // b/294080402
 	}
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
