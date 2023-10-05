@@ -122,17 +122,19 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     content->writeText(" re\n");
 }
 
-void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                          bool doConsumeDegerates, SkWStream* content,
+void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle, SkWStream* content,
                           SkScalar tolerance) {
     if (path.isEmpty() && SkPaint::kFill_Style == paintStyle) {
         SkPDFUtils::AppendRectangle({0, 0, 0, 0}, content);
         return;
     }
-    // Filling a path with no area results in a drawing in PDF renderers but
-    // Chrome expects to be able to draw some such entities with no visible
-    // result, so we detect those cases and discard the drawing for them.
-    // Specifically: moveTo(X), lineTo(Y) and moveTo(X), lineTo(X), lineTo(Y).
+
+    // The PDF specification states that if a subpath is degenerate then fill will paint the single
+    // device pixel at that point.  Many PDF viewers appear to comply with this by filling and also
+    // stroking a hairline, which results in filled zero area regions drawing as if they were a
+    // hairline.
+    // To avoid this, Simplify the path first when filling. Stroking should not simplify the path
+    // so that endcaps can be drawn for the degnerate segments.
 
     SkRect rect;
     bool isClosed; // Both closure and direction need to be checked.
@@ -146,74 +148,41 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
         return;
     }
 
-    enum SkipFillState {
-        kEmpty_SkipFillState,
-        kSingleLine_SkipFillState,
-        kNonSingleLine_SkipFillState,
-    };
-    SkipFillState fillState = kEmpty_SkipFillState;
-    //if (paintStyle != SkPaint::kFill_Style) {
-    //    fillState = kNonSingleLine_SkipFillState;
-    //}
     SkPoint lastMovePt = SkPoint::Make(0,0);
-    SkDynamicMemoryWStream currentSegment;
     SkPoint args[4];
     SkPath::Iter iter(path, false);
-    for (SkPath::Verb verb = iter.next(args);
-         verb != SkPath::kDone_Verb;
-         verb = iter.next(args)) {
+    for (SkPath::Verb verb = iter.next(args); verb != SkPath::kDone_Verb; verb = iter.next(args)) {
         // args gets all the points, even the implicit first point.
         switch (verb) {
             case SkPath::kMove_Verb:
-                MoveTo(args[0].fX, args[0].fY, &currentSegment);
+                MoveTo(args[0].fX, args[0].fY, content);
                 lastMovePt = args[0];
-                fillState = kEmpty_SkipFillState;
                 break;
             case SkPath::kLine_Verb:
-                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 2)) {
-                    AppendLine(args[1].fX, args[1].fY, &currentSegment);
-                    if ((fillState == kEmpty_SkipFillState) && (args[0] != lastMovePt)) {
-                        fillState = kSingleLine_SkipFillState;
-                        break;
-                    }
-                    fillState = kNonSingleLine_SkipFillState;
-                }
+                AppendLine(args[1].fX, args[1].fY, content);
                 break;
             case SkPath::kQuad_Verb:
-                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 3)) {
-                    append_quad(args, &currentSegment);
-                    fillState = kNonSingleLine_SkipFillState;
+                append_quad(args, content);
+                break;
+            case SkPath::kConic_Verb: {
+                SkAutoConicToQuads converter;
+                const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tolerance);
+                for (int i = 0; i < converter.countQuads(); ++i) {
+                    append_quad(&quads[i * 2], content);
                 }
                 break;
-            case SkPath::kConic_Verb:
-                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 3)) {
-                    SkAutoConicToQuads converter;
-                    const SkPoint* quads = converter.computeQuads(args, iter.conicWeight(), tolerance);
-                    for (int i = 0; i < converter.countQuads(); ++i) {
-                        append_quad(&quads[i * 2], &currentSegment);
-                    }
-                    fillState = kNonSingleLine_SkipFillState;
-                }
-                break;
+            }
             case SkPath::kCubic_Verb:
-                if (!doConsumeDegerates || !SkPathPriv::AllPointsEq(args, 4)) {
-                    append_cubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
-                                 args[3].fX, args[3].fY, &currentSegment);
-                    fillState = kNonSingleLine_SkipFillState;
-                }
+                append_cubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY, args[3].fX, args[3].fY,
+                             content);
                 break;
             case SkPath::kClose_Verb:
-                ClosePath(&currentSegment);
-                currentSegment.writeToStream(content);
-                currentSegment.reset();
+                ClosePath(content);
                 break;
             default:
                 SkASSERT(false);
                 break;
         }
-    }
-    if (currentSegment.bytesWritten() > 0) {
-        currentSegment.writeToStream(content);
     }
 }
 
