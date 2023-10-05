@@ -1454,9 +1454,14 @@ protected:
             return DrawResult::kFail;
         }
 
+        // TODO(b/303705884): The call to `VertexBuffer::update` above has the side effect of
+        // preventing the canvas from being cleared in Ganesh's VKDMSAA mode. (Performing the update
+        // drops the currently-active op.) This causes garbage to appear in golden images,
+        // particularly in Swiftshader. Until this is fixed, we reissue the canvas clear here.
+        canvas->drawColor(SK_ColorWHITE, SkBlendMode::kSrc);
+
         SkPaint paint;
         paint.setShader(fPaintShader);
-
         canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kDstOver), paint);
 
         return DrawResult::kOk;
