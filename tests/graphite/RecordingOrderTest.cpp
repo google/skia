@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkFont.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"

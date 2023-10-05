@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkTypeface.h"

@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkStream.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTPin.h"

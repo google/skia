@@ -7,6 +7,7 @@
 
 #include "tools/ToolUtils.h"
 
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkTypeface.h"

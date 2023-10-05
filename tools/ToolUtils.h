@@ -8,46 +8,54 @@
 #ifndef ToolUtils_DEFINED
 #define ToolUtils_DEFINED
 
-#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkData.h"
-#include "include/core/SkFont.h"
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontParameters.h"
 #include "include/core/SkFontStyle.h"
-#include "include/core/SkFontTypes.h"
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTypeface.h"
+#include "include/core/SkTypeface.h"  // IWYU pragma: keep
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTInternalLList.h"
-#include "tools/SkMetaData.h"
 
-#if defined(SK_GRAPHITE)
-#include "include/gpu/graphite/Recorder.h"
-#endif
-
+#include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <memory>
+#include <vector>
 
 class SkBitmap;
 class SkCanvas;
-class SkFontStyle;
+class SkFont;
 class SkImage;
+class SkMatrix;
+class SkMetaData;
+class SkPaint;
 class SkPath;
-class SkPixmap;
-class SkRRect;
 class SkShader;
-class SkSurface;
 class SkSurfaceProps;
 class SkTextBlobBuilder;
-class SkTypeface;
+enum SkAlphaType : int;
+enum SkColorType : int;
+enum class SkTextEncoding;
+enum class SkTileMode;
+struct SkImageInfo;
+
+#if defined(SK_GRAPHITE)
+namespace skgpu::graphite {
+struct RecorderOptions;
+}
+#endif
 
 namespace ToolUtils {
 

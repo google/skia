@@ -7,29 +7,40 @@
 
 #include "tools/ToolUtils.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
+#include "include/core/SkDataTable.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPicture.h"
-#include "include/core/SkPixelRef.h"
+#include "include/core/SkPixelRef.h"  // IWYU pragma: keep
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint3.h"
-#include "include/core/SkRRect.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/SkColorData.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkFontPriv.h"
+#include "tools/SkMetaData.h"
 
 #include <cmath>
 #include <cstring>
@@ -38,6 +49,7 @@
 #include "include/core/SkTiledImageUtils.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/ImageProvider.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkLRUCache.h"
 #endif
 

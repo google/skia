@@ -47,6 +47,7 @@
 #include "tools/trace/ChromeTracingTracer.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/trace/SkDebugfTracer.h"
+#include "include/codec/SkEncodedImageFormat.h"
 
 #include <memory>
 #include <vector>
