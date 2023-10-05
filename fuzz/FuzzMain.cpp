@@ -790,9 +790,9 @@ bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes);
 
 static void fuzz_skruntimeeffect(sk_sp<SkData> bytes) {
     if (FuzzSkRuntimeEffect(bytes)) {
-        SkDebugf("[terminated] Success! Compiled and Executed sksl code.\n");
+        SkDebugf("[terminated] Success! Compiled and executed SkSL code.\n");
     } else {
-        SkDebugf("[terminated] Could not Compile or Execute sksl code.\n");
+        SkDebugf("[terminated] Could not compile or execute SkSL code.\n");
     }
 }
 

@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "fuzz/Fuzz.h"
+#include "fuzz/FuzzCommon.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkBlenders.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 
-#include "fuzz/Fuzz.h"
+using namespace skia_private;
 
 /**
  * The fuzzer treats the input bytes as an SkSL program. The requested number of uniforms and
@@ -35,52 +36,9 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
         return false;
     }
 
-    // Create storage for our uniforms.
-    sk_sp<SkData> uniformBytes = SkData::MakeZeroInitialized(effect->uniformSize());
-    void* uniformData = uniformBytes->writable_data();
-
-    for (const SkRuntimeEffect::Uniform& u : effect->uniforms()) {
-        // We treat scalars, vectors, matrices and arrays the same. We just figure out how many
-        // uniform slots need to be filled, and write consecutive numbers into those slots.
-        static_assert(sizeof(int) == 4 && sizeof(float) == 4);
-        size_t numFields = u.sizeInBytes() / 4;
-
-        if (u.type == SkRuntimeEffect::Uniform::Type::kInt ||
-            u.type == SkRuntimeEffect::Uniform::Type::kInt2 ||
-            u.type == SkRuntimeEffect::Uniform::Type::kInt3 ||
-            u.type == SkRuntimeEffect::Uniform::Type::kInt4) {
-            int intVal = 0;
-            while (numFields--) {
-                // Assign increasing integer values to each slot (0, 1, 2, ...).
-                *static_cast<int*>(uniformData) = intVal++;
-                uniformData = static_cast<int*>(uniformData) + 1;
-            }
-        } else {
-            float floatVal = 0.0f;
-            while (numFields--) {
-                // Assign increasing float values to each slot (0.0, 1.0, 2.0, ...).
-                *static_cast<float*>(uniformData) = floatVal++;
-                uniformData = static_cast<float*>(uniformData) + 1;
-            }
-        }
-    }
-
-    // Create valid children for any requested child effects.
-    std::vector<SkRuntimeEffect::ChildPtr> children;
-    children.reserve(effect->children().size());
-    for (const SkRuntimeEffect::Child& c : effect->children()) {
-        switch (c.type) {
-            case SkRuntimeEffect::ChildType::kShader:
-                children.push_back(SkShaders::Color(SK_ColorRED));
-                break;
-            case SkRuntimeEffect::ChildType::kColorFilter:
-                children.push_back(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kModulate));
-                break;
-            case SkRuntimeEffect::ChildType::kBlender:
-                children.push_back(SkBlenders::Arithmetic(0.50f, 0.25f, 0.10f, 0.05f, false));
-                break;
-        }
-    }
+    sk_sp<SkData> uniformBytes;
+    TArray<SkRuntimeEffect::ChildPtr> children;
+    FuzzCreateValidInputsForRuntimeEffect(effect, uniformBytes, children);
 
     sk_sp<SkShader> shader = effect->makeShader(uniformBytes, SkSpan(children));
     if (!shader) {
