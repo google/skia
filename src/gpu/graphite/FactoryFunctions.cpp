@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/FactoryFunctions.h"
 
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -317,6 +318,9 @@ private:
         // Only the type and number of stops are accessed when there is no gatherer
         GradientShaderBlocks::GradientData gradData(fType, kStopVariants[intrinsicCombination]);
 
+        ColorSpaceTransformBlock::ColorSpaceTransformData data(
+                sk_srgb_singleton(), kPremul_SkAlphaType, sk_srgb_singleton(), kPremul_SkAlphaType);
+
         // TODO: we may need SkLocalMatrixShader-wrapped versions too
         Compose(keyContext, builder, /* gatherer= */ nullptr,
                 /* addInnerToKey= */ [&]() -> void {
@@ -325,10 +329,10 @@ private:
                     builder->endBlock();
                 },
                 /* addOuterToKey= */  [&]() -> void {
-                    ColorSpaceTransformBlock::BeginBlock(keyContext, builder,
-                                                         /* gatherer= */ nullptr,
-                                                         /* data= */ nullptr);
-                    builder->endBlock();
+                    ColorSpaceTransformBlock::AddBlock(keyContext,
+                                                       builder,
+                                                       /* gatherer= */ nullptr,
+                                                       data);
                 });
     }
 

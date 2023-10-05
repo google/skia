@@ -341,10 +341,10 @@ struct ColorSpaceTransformBlock {
         SkColorSpaceXformSteps fSteps;
     };
 
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const ColorSpaceTransformData*);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const ColorSpaceTransformData&);
 };
 
 /**
