@@ -20,11 +20,15 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMeshPriv.h"
+#include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <memory>
 
+using namespace skia_private;
+
 namespace skiagm {
+
 class MeshGM : public skiagm::GM {
 public:
     MeshGM() {}
@@ -1223,5 +1227,278 @@ private:
 };
 
 DEF_GM(return new PictureMesh())
+
+class MeshWithShadersGM : public skiagm::GM {
+public:
+    enum class Type {
+        kMeshWithImage,
+        kMeshWithPaintColor,
+        kMeshWithPaintImage,
+        kMeshWithEffects,
+    };
+
+    MeshWithShadersGM(Type type) : fType(type) {
+        // Create a grid of evenly spaced points for our mesh
+        this->onAnimate(0.0);
+
+        // Create an index buffer of triangles over our point mesh.
+        for (int y = 0; y < kMeshSize - 1; ++y) {
+            for (int x = 0; x < kMeshSize - 1; ++x) {
+                SkASSERT(((y + 1) * kMeshSize + x + 1) < fVerts.size());
+
+                uint16_t TL =  y      * kMeshSize + x;
+                uint16_t TR =  y      * kMeshSize + x + 1;
+                uint16_t BL = (y + 1) * kMeshSize + x;
+                uint16_t BR = (y + 1) * kMeshSize + x + 1;
+
+                fIndices.push_back(TL);
+                fIndices.push_back(TR);
+                fIndices.push_back(BL);
+
+                fIndices.push_back(BR);
+                fIndices.push_back(BL);
+                fIndices.push_back(TR);
+            }
+        }
+    }
+
+protected:
+    using Attribute = SkMeshSpecification::Attribute;
+    using Varying   = SkMeshSpecification::Varying;
+
+    SkISize getISize() override { return {320, 320}; }
+
+    void onOnceBeforeDraw() override {
+        {
+            static const Attribute kAttributes[] = {
+                    {Attribute::Type::kFloat2, 0, SkString{"position"}},
+                    {Attribute::Type::kFloat2, 8, SkString{"uv"}},
+            };
+            static const Varying kVaryings[] = {
+                    {Varying::Type::kFloat2, SkString{"uv"}},
+            };
+            static constexpr char kVS[] = R"(
+                    Varyings main(const in Attributes attributes) {
+                        Varyings varyings;
+                        varyings.uv       = attributes.uv;
+                        varyings.position = attributes.position;
+                        return varyings;
+                    }
+            )";
+            static constexpr char kFS[] = R"(
+                    uniform shader myShader1;
+                    uniform shader myShader2;
+                    uniform colorFilter myColorFilter;
+                    uniform blender myBlend;
+
+                    float2 main(const in Varyings varyings, out half4 color) {
+                        half4 color1 = myShader1.eval(varyings.uv);
+                        half4 color2 = myShader2.eval(varyings.uv);
+
+                        // Apply a inverse color filter to the first image.
+                        color1 = myColorFilter.eval(color1);
+
+                        // Fade in the second image horizontally, leveraging the UVs.
+                        color2 *= varyings.uv.x / 128.0;
+
+                        // Combine the two images by using a blender (set to dst-over).
+                        color = myBlend.eval(color1, color2);
+
+                        return varyings.uv;
+                    }
+            )";
+            auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                           sizeof(Vertex),
+                                                           kVaryings,
+                                                           SkString(kVS),
+                                                           SkString(kFS));
+            if (!spec) {
+                SkDebugf("%s\n", error.c_str());
+            }
+            fSpec = std::move(spec);
+        }
+
+
+        switch (fType) {
+            case Type::kMeshWithImage: {
+                fShader1 = GetResourceAsImage("images/mandrill_128.png")
+                                   ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+                fShader2 = nullptr;
+                fColorFilter = nullptr;
+                fBlender = nullptr;
+                fPaintShader = nullptr;
+                break;
+            }
+            case Type::kMeshWithEffects: {
+                uint8_t inverseTable[256];
+                for (int index = 0; index < 256; ++index) {
+                    inverseTable[index] = 255 - index;
+                }
+
+                fShader1 = GetResourceAsImage("images/mandrill_128.png")
+                                   ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+                fShader2 = GetResourceAsImage("images/color_wheel.png")
+                                   ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+                fColorFilter = SkColorFilters::TableARGB(/*tableA=*/nullptr,
+                                                         inverseTable,
+                                                         inverseTable,
+                                                         inverseTable);
+                fBlender = SkBlender::Mode(SkBlendMode::kDstOver);
+                fPaintShader = nullptr;
+                break;
+            }
+            case Type::kMeshWithPaintColor: {
+                fShader1 = nullptr;
+                fShader2 = GetResourceAsImage("images/mandrill_128.png")
+                                   ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+                fColorFilter = nullptr;
+                fBlender = SkBlender::Mode(SkBlendMode::kDst);
+                fPaintShader = SkShaders::Color(SK_ColorGREEN);
+                break;
+            }
+            case Type::kMeshWithPaintImage: {
+                fShader1 = GetResourceAsImage("images/color_wheel.png")
+                                   ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+                fShader2 = nullptr;
+                fColorFilter = nullptr;
+                fBlender = nullptr;
+                fPaintShader = GetResourceAsImage("images/mandrill_128.png")
+                                       ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+                break;
+            }
+            default:
+                SkUNREACHABLE;
+        }
+    }
+
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* string) override {
+        auto dc = GrAsDirectContext(canvas->recordingContext());
+        this->ensureBuffers();
+        if (!dc || dc->abandoned()) {
+            return DrawResult::kOk;
+        }
+
+        fVB = SkMeshes::CopyVertexBuffer(dc, fVB);
+        fIB = SkMeshes::CopyIndexBuffer (dc, fIB);
+        return (!fVB || !fIB) ? DrawResult::kFail
+                              : DrawResult::kOk;
+    }
+
+    void onGpuTeardown() override {
+        // Destroy the GPU buffers and recreate on CPU
+        fVB = nullptr;
+        fIB = nullptr;
+        this->ensureBuffers();
+    }
+
+    SkString getName() const override {
+        switch (fType) {
+            case Type::kMeshWithImage:      return SkString("mesh_with_image");
+            case Type::kMeshWithEffects:    return SkString("mesh_with_effects");
+            case Type::kMeshWithPaintColor: return SkString("mesh_with_paint_color");
+            case Type::kMeshWithPaintImage: return SkString("mesh_with_paint_image");
+            default: SkUNREACHABLE;
+        }
+    }
+
+    bool onAnimate(double nanos) override {
+        // `periodic` goes from zero to 2π every four seconds, then wraps around.
+        double periodic = nanos / 4'000'000'000.;
+        periodic -= std::floor(periodic);
+        periodic *= 2 * SK_DoublePI;
+
+        double xOff[kMeshSize], yOff[kMeshSize];
+        for (int index = 0; index < kMeshSize; ++index) {
+            xOff[index] = std::sin(periodic) * 6.0;
+            yOff[index] = std::sin(periodic + 10.0) * 6.0;
+            periodic += 0.8;
+        }
+
+        fVerts.clear();
+        for (int y = 0; y < kMeshSize; ++y) {
+            float yf = (float)y / (kMeshSize - 1);  // yf = 0 .. 1
+            for (int x = 0; x < kMeshSize; ++x) {
+                float xf = (float)x / (kMeshSize - 1);  // xf = 0 .. 1
+
+                Vertex* vert = &fVerts.push_back();
+                vert->pos[0] = kRect.left() + xf * kRect.width()  + xOff[y];
+                vert->pos[1] = kRect.top()  + yf * kRect.height() + yOff[x];
+                vert->uv[0]  = kUV.left()   + xf * kUV.width();
+                vert->uv[1]  = kUV.top()    + yf * kUV.height();
+            }
+        }
+
+        return true;
+    }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString*) override {
+        SkRuntimeEffect::ChildPtr child[4] = {fShader1, fShader2, fColorFilter, fBlender};
+
+        GrRecordingContext* rc = canvas->recordingContext();
+        GrDirectContext* dc = GrAsDirectContext(rc);
+        fVB->update(dc, fVerts.data(), /*offset=*/0, fVerts.size_bytes());
+
+        SkMesh::Result result = SkMesh::MakeIndexed(fSpec,
+                                                    SkMesh::Mode::kTriangles,
+                                                    fVB,
+                                                    fVerts.size(),
+                                                    /*vertexOffset=*/0,
+                                                    fIB,
+                                                    fIndices.size(),
+                                                    /*indexOffset=*/0,
+                                                    /*uniforms=*/nullptr,
+                                                    /*children=*/child,
+                                                    kRect);
+        if (!result.mesh.isValid()) {
+            SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
+            return DrawResult::kFail;
+        }
+
+        SkPaint paint;
+        paint.setShader(fPaintShader);
+
+        canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kDstOver), paint);
+
+        return DrawResult::kOk;
+    }
+
+private:
+    void ensureBuffers() {
+        if (!fVB) {
+            fVB = SkMeshes::MakeVertexBuffer(fVerts.data(), fVerts.size_bytes());
+        }
+        if (!fIB) {
+            fIB = SkMeshes::MakeIndexBuffer(fIndices.data(), fIndices.size_bytes());
+        }
+    }
+
+    struct Vertex {
+        float pos[2];
+        float uv[2];
+    };
+
+    static constexpr auto kRect = SkRect::MakeLTRB(20, 20, 300, 300);
+    static constexpr auto kUV   = SkRect::MakeLTRB( 0,  0, 128, 128);
+    static constexpr int kMeshSize = 16;
+
+    Type fType;
+
+    TArray<Vertex>   fVerts;
+    TArray<uint16_t> fIndices;
+
+    sk_sp<SkShader> fShader1, fShader2, fPaintShader;
+    sk_sp<SkColorFilter> fColorFilter;
+    sk_sp<SkBlender> fBlender;
+
+    sk_sp<SkMeshSpecification> fSpec;
+
+    sk_sp<SkMesh::VertexBuffer> fVB;
+    sk_sp<SkMesh::IndexBuffer> fIB;
+};
+
+DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithImage))
+DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithPaintColor))
+DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithPaintImage))
+DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithEffects))
 
 }  // namespace skiagm

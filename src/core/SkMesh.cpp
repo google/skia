@@ -794,13 +794,6 @@ std::tuple<bool, SkString> SkMesh::validate() const {
         }
     }
 
-    // TODO(b/40045302): only allow null child effects. Non-null children are a work in progress.
-    for (const ChildPtr& child : fChildren) {
-        if (child.type().has_value()) {
-            FAIL_MESH_VALIDATE("effects are not permitted in mesh fragment shaders");
-        }
-    }
-
     auto vb = static_cast<SkMeshPriv::VB*>(fVB.get());
     auto ib = static_cast<SkMeshPriv::IB*>(fIB.get());
 

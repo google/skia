@@ -425,14 +425,10 @@ DEF_TEST(Mesh_ChildEffectsMatchSpec, reporter) {
     test("uniform shader myfilter;", childNull);
     test("uniform shader myblender;", childNull);
 
-    // These are expected to match in type, but support is not actually implemented yet, so this
-    // will report "effects are not permitted in mesh fragment shaders" for now.
-    test("uniform shader myshader;", childShader,
-         "effects are not permitted in mesh fragment shaders");
-    test("uniform colorFilter myfilter;", childFilter,
-         "effects are not permitted in mesh fragment shaders");
-    test("uniform blender myblender;", childBlender,
-         "effects are not permitted in mesh fragment shaders");
+    // Properly-typed child effects are supported.
+    test("uniform shader myshader;", childShader);
+    test("uniform colorFilter myfilter;", childFilter);
+    test("uniform blender myblender;", childBlender);
 
 }
 
