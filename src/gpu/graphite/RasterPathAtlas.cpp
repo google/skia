@@ -21,28 +21,34 @@
 namespace skgpu::graphite {
 namespace {
 
-// TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
-
-// TODO: for now
-constexpr uint16_t kAtlasDim = 4096;
-
 }  // namespace
 
 RasterPathAtlas::RasterPathAtlas()
-    : PathAtlas(kAtlasDim, kAtlasDim)
-    , fRectanizer(fWidth, fHeight) {}
+    : PathAtlas(kDefaultAtlasDim, kDefaultAtlasDim) {
+
+    // set up LRU list
+    Page* currPage = &fPageArray[0];
+    for (int i = 0; i < kMaxPages; ++i) {
+        fPageList.addToHead(currPage);
+        ++currPage;
+    }
+}
 
 void RasterPathAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
+
+    // TODO: cycle through all the pages and handle their uploads
+    Page* mru = fPageList.head();
+    SkASSERT(mru);
+
     // build an upload for the dirty rect and record it
-    if (!fDirtyRect.isEmpty()) {
+    if (!mru->fDirtyRect.isEmpty()) {
         std::vector<MipLevel> levels;
-        levels.push_back({fPixels.addr(), fPixels.rowBytes()});
+        levels.push_back({mru->fPixels.addr(), mru->fPixels.rowBytes()});
 
         SkColorInfo colorInfo(kAlpha_8_SkColorType, kUnknown_SkAlphaType, nullptr);
 
-        SkASSERT(this->texture());
-        if (!dc->recordUpload(recorder, sk_ref_sp(this->texture()), colorInfo, colorInfo, levels,
-                              fDirtyRect, nullptr)) {
+         if (!dc->recordUpload(recorder, mru->fTexture, colorInfo, colorInfo, levels,
+                              mru->fDirtyRect, nullptr)) {
             SKGPU_LOG_W("Coverage mask upload failed!");
             return;
         }
@@ -51,12 +57,12 @@ void RasterPathAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
     }
 }
 
-bool RasterPathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
+bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder) {
     if (!fTexture) {
         AtlasProvider* atlasProvider = recorder->priv().atlasProvider();
         fTexture = atlasProvider->getAtlasTexture(recorder,
-                                                  this->width(),
-                                                  this->height(),
+                                                  fRectanizer.width(),
+                                                  fRectanizer.height(),
                                                   kAlpha_8_SkColorType,
                                                   /*requiresStorageUsage=*/false);
     }
@@ -66,7 +72,10 @@ bool RasterPathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
 const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
                                              skvx::float2 atlasSize,
                                              SkIPoint16* pos) {
-    if (!this->initializeTextureIfNeeded(recorder)) {
+    // TODO: look through all pages and find the first one with room, and move that to MRU
+    Page* mru = fPageList.head();
+    SkASSERT(mru);
+    if (!mru->initializeTextureIfNeeded(recorder)) {
         SKGPU_LOG_E("Failed to instantiate an atlas texture");
         return nullptr;
     }
@@ -75,14 +84,14 @@ const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
     // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
     // another way. See PathAtlas::addShape().
     if (!all(atlasSize)) {
-        return fTexture.get();
+        return mru->fTexture.get();
     }
 
-    if (!fRectanizer.addRect(atlasSize.x(), atlasSize.y(), pos)) {
+    if (!mru->fRectanizer.addRect(atlasSize.x(), atlasSize.y(), pos)) {
         return nullptr;
     }
 
-    return fTexture.get();
+    return mru->fTexture.get();
 }
 
 void RasterPathAtlas::onAddShape(const Shape& shape,
@@ -93,20 +102,25 @@ void RasterPathAtlas::onAddShape(const Shape& shape,
     // TODO: look up shape and use cached texture
     // Need to push this up into addShape() somehow
 
+    // The MRU page should be already set up by addRect()
+    Page* mru = fPageList.head();
+    SkASSERT(mru);
+
     // allocate pixmap if needed
-    if (!fPixels.addr()) {
-        const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(kAtlasDim, kAtlasDim);
-        if (!fPixels.tryAlloc(bmImageInfo)) {
+    if (!mru->fPixels.addr()) {
+        const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(mru->fRectanizer.width(),
+                                                            mru->fRectanizer.height());
+        if (!mru->fPixels.tryAlloc(bmImageInfo)) {
             return;
         }
-        fPixels.erase(0);
+        mru->fPixels.erase(0);
     }
 
     // Rasterize path to backing pixmap
     // TODO: render in a separate thread?
     SkDrawBase draw;
     draw.fBlitterChooser = SkA8Blitter_Choose;
-    draw.fDst      = fPixels;
+    draw.fDst      = mru->fPixels;
     SkRasterClip rasterClip;
     SkIRect iAtlasBounds = atlasBounds.asSkIRect();
     rasterClip.setRect(iAtlasBounds);
@@ -134,17 +148,19 @@ void RasterPathAtlas::onAddShape(const Shape& shape,
     draw.drawPathCoverage(path, paint);
 
     // Add atlasBounds to dirtyRect for later upload
-    fDirtyRect.join(iAtlasBounds);
-
-    // TODO: cache shape data and texture used
+    mru->fDirtyRect.join(iAtlasBounds);
 }
 
 void RasterPathAtlas::reset() {
-    fRectanizer.reset();
+    // TODO: this will go away and we'll only reset the LRU page if we're out of space
+
+    Page* mru = fPageList.head();
+    SkASSERT(mru);
+    mru->fRectanizer.reset();
 
     // clear backing data for next pass
-    fDirtyRect.setEmpty();
-    fPixels.erase(0);
+    mru->fDirtyRect.setEmpty();
+    mru->fPixels.erase(0);
 }
 
 }  // namespace skgpu::graphite

@@ -8,6 +8,9 @@
 #ifndef skgpu_graphite_RasterPathAtlas_DEFINED
 #define skgpu_graphite_RasterPathAtlas_DEFINED
 
+#include "src/base/SkTInternalLList.h"
+#include "src/core/SkTHash.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/PathAtlas.h"
 
 namespace skgpu::graphite {
@@ -32,7 +35,8 @@ public:
     // the atlas can be considered cleared and available for new shape insertions. However this
     // method does not have any bearing on the contents of any atlas textures themselves, which may
     // be in use by GPU commands that are in-flight or yet to be submitted.
-    // TODO: can probably remove this once caching is working
+    // TODO: can probably remove this once caching is working, or only use it for the LRU page
+    // when out of space
     void reset();
 
 protected:
@@ -46,19 +50,34 @@ protected:
                                 SkIPoint16* pos) override;
 
 private:
-    const TextureProxy* texture() const { return fTexture.get(); }
-    bool initializeTextureIfNeeded(Recorder*);
+    // TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
+    static constexpr int kDefaultAtlasDim = 4096;
 
-    skgpu::RectanizerSkyline fRectanizer;
-    SkAutoPixmapStorage fPixels;
-    SkIRect fDirtyRect;
+    struct Page {
+        bool initializeTextureIfNeeded(Recorder* recorder);
 
-    // RasterPathAtlas lazily requests a texture from the AtlasProvider when the first shape gets
-    // added to it and references the same texture for the duration of its lifetime. A reference to
-    // this texture is stored here, which is used by AtlasShapeRenderStep when encoding the render
-    // pass.
-    // TODO: Store list of TextureProxys and Rectanizers that can be used to cache shapes instead.
-    sk_sp<TextureProxy> fTexture;
+        // A Page lazily requests a texture from the AtlasProvider when the first shape gets added
+        // to it and references the same texture for the duration of its lifetime. A reference to
+        // this texture is stored here, which is used by CoverageMaskRenderStep when encoding the
+        // render pass.
+        sk_sp<TextureProxy> fTexture;
+        // Tracks placement of paths in a Page
+        skgpu::RectanizerSkyline fRectanizer = {kDefaultAtlasDim, kDefaultAtlasDim};
+        // Rendered data that gets uploaded
+        SkAutoPixmapStorage fPixels;
+        // Area that's needed to be uploaded
+        SkIRect fDirtyRect;
+        // Tracks whether a path is already in this Page
+        skia_private::THashSet<skgpu::UniqueKey> fCachedShapes;
+
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(Page);
+    };
+
+    static constexpr int kMaxPages = 1;  // TODO: pick value - 4?
+    // LRU list of Pages (MRU at head - LRU at tail)
+    SkTInternalLList<Page> fPageList;
+    // Allocated array of pages (backing data for list)
+    Page fPageArray[kMaxPages];
 };
 
 }  // namespace skgpu::graphite
