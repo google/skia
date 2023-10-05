@@ -1409,8 +1409,8 @@ protected:
 
         double xOff[kMeshSize], yOff[kMeshSize];
         for (int index = 0; index < kMeshSize; ++index) {
-            xOff[index] = std::sin(periodic) * 6.0;
-            yOff[index] = std::sin(periodic + 10.0) * 6.0;
+            xOff[index] = std::sin(periodic) * kRippleSize;
+            yOff[index] = std::sin(periodic + 10.0) * kRippleSize;
             periodic += 0.8;
         }
 
@@ -1448,7 +1448,7 @@ protected:
                                                     /*indexOffset=*/0,
                                                     /*uniforms=*/nullptr,
                                                     /*children=*/child,
-                                                    kRect);
+                                                    kRect.makeOutset(kRippleSize, kRippleSize));
         if (!result.mesh.isValid()) {
             SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
             return DrawResult::kFail;
@@ -1480,6 +1480,7 @@ private:
     static constexpr auto kRect = SkRect::MakeLTRB(20, 20, 300, 300);
     static constexpr auto kUV   = SkRect::MakeLTRB( 0,  0, 128, 128);
     static constexpr int kMeshSize = 16;
+    static constexpr float kRippleSize = 6.0f;
 
     Type fType;
 
