@@ -6,7 +6,6 @@
  */
 
 #include "bench/Benchmark.h"
-#include "bench/ResultsWriter.h"
 #include "bench/benchmark_target/BenchmarkTarget.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -19,6 +18,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkTime.h"
+#include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/AutoreleasePool.h"
 #include "tools/ProcStats.h"
@@ -54,7 +54,7 @@ static DEFINE_string(
         links,
         "",
         "Space-separated name/URL pairs with additional information about the benchmark execution, "
-        "for example links to the Swarming but and task pages, named \"swarming_bot\" and "
+        "for example links to the Swarming bot and task pages, named \"swarming_bot\" and "
         "\"swarming_task\", respectively. These links are included in the "
         "results.json output file, which can be ingested by Perf.");
 
@@ -214,6 +214,131 @@ static void validate_flags(bool isBazelTest) {
         validate_int_flag_greater_or_equal("--ms", FLAGS_ms, 1);
     }
 }
+
+// Helper class to produce JSON files in Perf ingestion format. The format is determined by Perf's
+// format.Format Go struct:
+//
+// https://skia.googlesource.com/buildbot/+/e12f70e0a3249af6dd7754d55958ee64a22e0957/perf/go/ingest/format/format.go#168
+//
+// Note that the JSON format produced by this class differs from Nanobench. The latter follows
+// Perf's legacy format, which is determined by the format.BenchData Go struct:
+//
+// https://skia.googlesource.com/buildbot/+/e12f70e0a3249af6dd7754d55958ee64a22e0957/perf/go/ingest/format/leagacyformat.go#26
+class ResultsJSONWriter {
+public:
+    // This struct mirrors Perf's format.SingleMeasurement Go struct:
+    // https://skia.googlesource.com/buildbot/+/e12f70e0a3249af6dd7754d55958ee64a22e0957/perf/go/ingest/format/format.go#31.
+    struct SingleMeasurement {
+        std::string value;
+        double measurement;
+    };
+
+    // This struct mirrors Perf's format.Result Go struct:
+    // https://skia.googlesource.com/buildbot/+/e12f70e0a3249af6dd7754d55958ee64a22e0957/perf/go/ingest/format/format.go#69.
+    //
+    // Note that the format.Result Go struct supports either one single measurement, or multiple
+    // measurements represented as a dictionary from arbitrary string keys to an array of
+    // format.SingleMeasurement Go structs. This class focuses on the latter variant.
+    struct Result {
+        std::map<std::string, std::string> key;
+        std::map<std::string, std::vector<SingleMeasurement>> measurements;
+    };
+
+    ResultsJSONWriter(const char* path)
+            : fFileWStream(path)
+            , fJson(&fFileWStream, SkJSONWriter::Mode::kPretty)
+            , fAddingResults(false) {
+        fJson.beginObject();  // Root object.
+        fJson.appendS32("version", 1);
+    }
+
+    void addGitHash(std::string gitHash) {
+        assertNotAddingResults();
+        fJson.appendCString("git_hash", gitHash.c_str());
+    }
+
+    void addChangelistInfo(std::string issue, std::string patchset) {
+        assertNotAddingResults();
+        fJson.appendCString("issue", issue.c_str());
+        fJson.appendCString("patchset", patchset.c_str());
+    }
+
+    void addKey(std::map<std::string, std::string> key) {
+        assertNotAddingResults();
+        fJson.beginObject("key");
+        for (auto const& [name, value] : key) {
+            fJson.appendCString(name.c_str(), value.c_str());
+        }
+        fJson.endObject();
+    }
+
+    void addLinks(std::map<std::string, std::string> links) {
+        assertNotAddingResults();
+        fJson.beginObject("links");
+        for (auto const& [key, value] : links) {
+            fJson.appendCString(key.c_str(), value.c_str());
+        }
+        fJson.endObject();
+    }
+
+    void addResult(Result result) {
+        if (!fAddingResults) {
+            fAddingResults = true;
+            fJson.beginArray("results");  // "results" array.
+        }
+
+        fJson.beginObject();  // Result object.
+
+        // Key.
+        fJson.beginObject("key");  // "key" dictionary.
+        for (auto const& [name, value] : result.key) {
+            fJson.appendCString(name.c_str(), value.c_str());
+        }
+        fJson.endObject();  // "key" dictionary.
+
+        // Measurements.
+        fJson.beginObject("measurements");  // "measurements" dictionary.
+        for (auto const& [name, singleMeasurements] : result.measurements) {
+            fJson.beginArray(name.c_str());  // <name> array.
+            for (const SingleMeasurement& singleMeasurement : singleMeasurements) {
+                // Based on
+                // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/ResultsWriter.h#51.
+                //
+                // Don't record if NaN or Inf.
+                if (std::isfinite(singleMeasurement.measurement)) {
+                    fJson.beginObject();
+                    fJson.appendCString("value", singleMeasurement.value.c_str());
+                    fJson.appendDoubleDigits("measurement", singleMeasurement.measurement, 16);
+                    fJson.endObject();
+                }
+            }
+            fJson.endArray();  // <name> array.
+        }
+        fJson.endObject();  // "measurements" dictionary.
+
+        fJson.endObject();  // Result object.
+    }
+
+    void flush() { fJson.flush(); }
+
+    ~ResultsJSONWriter() {
+        if (fAddingResults) {
+            fJson.endArray();  // "results" array;
+        }
+        fJson.endObject();  // Root object.
+    }
+
+private:
+    void assertNotAddingResults() {
+        if (fAddingResults) {
+            SK_ABORT("Cannot perform this operation after addResults() is called.");
+        }
+    }
+
+    SkFILEWStream fFileWStream;
+    SkJSONWriter fJson;
+    bool fAddingResults;
+};
 
 // Manages an autorelease pool for Metal. On other platforms, pool.drain() is a no-op.
 AutoreleasePool pool;
@@ -467,29 +592,38 @@ int main(int argc, char** argv) {
     //
     // TODO(lovisolo): Define a constant with the file name, use it here and in flag descriptions.
     SkString jsonPath = SkOSPath::Join(outputDir.c_str(), "results.json");
-    SkFILEWStream jsonFile(jsonPath.c_str());
-    NanoJSONResultsWriter jsonWriter(&jsonFile, SkJSONWriter::Mode::kPretty);
+    ResultsJSONWriter jsonWriter(jsonPath.c_str());
 
-    jsonWriter.beginObject();  // Root object.
-
-    // Keys.
-    if (FLAGS_key.size()) {
-        jsonWriter.beginObject("key");  // "key" dictionary.
-        for (int i = 1; i < FLAGS_key.size(); i += 2) {
-            jsonWriter.appendCString(FLAGS_key[i - 1], FLAGS_key[i]);
-        }
-        jsonWriter.endObject();  // "key" dictionary.
+    if (FLAGS_gitHash.size() == 1) {
+        jsonWriter.addGitHash(FLAGS_gitHash[0]);
+    }
+    if (FLAGS_issue.size() == 1 && FLAGS_patchset.size() == 1) {
+        jsonWriter.addChangelistInfo(FLAGS_issue[0], FLAGS_patchset[0]);
     }
 
-    jsonWriter.beginObject("results");  // "results" dictionary.
+    // Keys.
+    std::map<std::string, std::string> keys = {
+            // Add a key that nanobench will never use in order to avoid accidentally polluting an
+            // existing trace.
+            {"build_system", "bazel"},
+    };
+    for (int i = 1; i < FLAGS_key.size(); i += 2) {
+        keys[FLAGS_key[i - 1]] = FLAGS_key[i];
+    }
+    jsonWriter.addKey(keys);
+
+    // Links.
+    if (FLAGS_links.size()) {
+        std::map<std::string, std::string> links;
+        for (int i = 1; i < FLAGS_links.size(); i += 2) {
+            links[FLAGS_links[i - 1]] = FLAGS_links[i];
+        }
+        jsonWriter.addLinks(links);
+    }
 
     int runs = 0;
     for (auto benchmarkFactory : BenchRegistry::Range()) {
         std::unique_ptr<Benchmark> benchmark(benchmarkFactory(nullptr));
-
-        jsonWriter.beginBench(benchmark->getUniqueName(),
-                              benchmark->getSize().width(),
-                              benchmark->getSize().height());
 
         benchmark->delayedSetup();
 
@@ -503,8 +637,8 @@ int main(int argc, char** argv) {
             skia_private::TArray<SkString> statKeys;
             skia_private::TArray<double> statValues;
             if (!sample_benchmark(target.get(), &loops, &samples, &statKeys, &statValues)) {
-                // Sampling failed. A warning has alredy been printed. Move on to the next
-                // benchmark.
+                // Sampling failed. A warning has alredy been printed.
+                pool.drain();
                 continue;
             }
 
@@ -514,70 +648,108 @@ int main(int argc, char** argv) {
                 maybe_write_png(target.get(), outputDir);
             }
 
-            // Building stats.plot often shows up in profiles, so skip building it when we're not
-            // going to print it anyway.
+            // Building stats.plot often shows up in profiles, so skip building it when we're
+            // not going to print it anyway.
             const bool want_plot = !FLAGS_quiet && !FLAGS_ms;
             Stats stats(samples, want_plot);
 
-            jsonWriter.beginObject(surfaceConfig.c_str());  // Config object.
+            print_benchmark_stats(&stats, &samples, target.get(), surfaceConfig, loops);
 
-            // Options.
-            //
-            // TODO(lovisolo): Determine these dynamically when we add support for other types of
-            //                 benchmarks (e.g. GMBench, SKPBench, etc.).
-            jsonWriter.beginObject("options");  // Options object.
-            jsonWriter.appendCString("name", benchmark->getName());
-            jsonWriter.appendCString("source_type", "bench");
-            jsonWriter.appendCString("bench_type", "micro");
-            jsonWriter.endObject();  // Options object.
+            ResultsJSONWriter::Result result;
+            result.key = {
+                    // Based on
+                    // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1566.
+                    {"name", std::string(benchmark->getName())},
 
-            // Metrics.
-            jsonWriter.appendMetric("min_ms", stats.min);
-            jsonWriter.appendMetric("min_ratio", sk_ieee_double_divide(stats.median, stats.min));
+                    // Replaces the "config" and "extra_config" keys set by nanobench.
+                    {"surface_config", surfaceConfig},
 
-            // Samples.
-            jsonWriter.beginArray("samples");  // Samples object.
-            for (double sample : samples) {
-                jsonWriter.appendDoubleDigits(sample, 16);
-            }
-            jsonWriter.endArray();  // Samples object.
+                    // Based on
+                    // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1578.
+                    //
+                    // TODO(lovisolo): Determine these dynamically when we add support for GMBench,
+                    //                 SKPBench, etc.
+                    {"source_type", "bench"},
+                    {"bench_type", "micro"},
 
-            // Statistics.
+                    // Nanobench adds a "test" key consisting of "<unique name>_<width>_<height>",
+                    // presumably with the goal of making the trace ID unique, see
+                    // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1456.
+                    //
+                    // However, we can accomplish unique trace IDs by expressing "<width>" and
+                    // "<height>" as their own keys.
+                    //
+                    // Regarding the "<unique name>" part of the "test" key:
+                    //
+                    //  - Nanobench sets "<unique name>" to the result of
+                    //    Benchmark::getUniqueName():
+                    //    https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/Benchmark.h#41.
+                    //
+                    //  - Benchmark::getUniqueName() returns Benchmark::getName() except for the
+                    //    following two cases.
+                    //
+                    //  - SKPBench::getUniqueName() returns "<name>_<scale>":
+                    //    https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/SKPBench.cpp#33.
+                    //
+                    //  - SKPAnimationBench returns "<name>_<tag>":
+                    //    https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/SKPAnimationBench.cpp#18.
+                    //
+                    // Therefore it is important that we add "<scale>" and "<tag>" as their own
+                    // keys when we eventually add support for these kinds of benchmarks.
+                    //
+                    // Based on
+                    // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1456.
+                    {"width", SkStringPrintf("%d", benchmark->getSize().width()).c_str()},
+                    {"height", SkStringPrintf("%d", benchmark->getSize().height()).c_str()},
+            };
+            result.measurements["ms"] = {
+                    // Based on
+                    // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1571.
+                    {.value = "min", .measurement = stats.min},
+                    {.value = "ratio",
+                     .measurement = sk_ieee_double_divide(stats.median, stats.min)},
+            };
             if (!statKeys.empty()) {
-                // Dump stats to JSON. Only SKPBench currently returns valid key/value pairs.
+                // Based on
+                // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1580.
+                //
+                // Only SKPBench currently returns valid key/value pairs.
                 SkASSERT(statKeys.size() == statValues.size());
-                for (int j = 0; j < statKeys.size(); j++) {
-                    jsonWriter.appendMetric(statKeys[j].c_str(), statValues[j]);
+                result.measurements["stats"] = {};
+                for (int i = 0; i < statKeys.size(); i++) {
+                    result.measurements["stats"].push_back(
+                            {.value = statKeys[i].c_str(), .measurement = statValues[i]});
                 }
             }
-
-            jsonWriter.endObject();  // Config object.
+            jsonWriter.addResult(result);
 
             runs++;
             if (runs % FLAGS_flushEvery == 0) {
                 jsonWriter.flush();
             }
 
-            print_benchmark_stats(&stats, &samples, target.get(), surfaceConfig, loops);
-
             pool.drain();
         }
-
-        jsonWriter.endBench();
     }
 
     BenchmarkTarget::printGlobalStats();
 
     SkGraphics::PurgeAllCaches();
 
-    jsonWriter.beginBench("memory_usage", 0, 0);  // Memory usage bench.
-    jsonWriter.beginObject("meta");               // Meta object.
-    jsonWriter.appendS32("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
-    jsonWriter.endObject();  // Meta object.
-    jsonWriter.endBench();   // Memory usage bench.
-
-    jsonWriter.endObject();  // "results" dictionary.
-    jsonWriter.endObject();  // Root object.
+    // Based on
+    // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1668.
+    jsonWriter.addResult({
+            .key =
+                    {
+                            {"name", "memory_usage"},
+                    },
+            .measurements =
+                    {
+                            {"resident_set_size_mb",
+                             {{.value = "max",
+                               .measurement = double(sk_tools::getMaxResidentSetSizeMB())}}},
+                    },
+    });
 
     SkDebugf("JSON file written to: %s\n", jsonPath.c_str());
     SkDebugf("PNGs (if any) written to: %s\n", outputDir.c_str());

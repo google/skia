@@ -27,7 +27,6 @@ skia_cc_library(
     testonly = True,
     srcs = [
         "BazelBenchmarkRunner.cpp",
-        "ResultsWriter.h",
         "//src/utils:json_hdrs",
         "//src/utils:json_srcs",
     ],
