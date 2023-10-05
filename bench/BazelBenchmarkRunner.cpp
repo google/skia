@@ -28,12 +28,43 @@
 
 #include <cinttypes>
 
-// When running under Bazel and overriding the output directory, you might encounter errors such
-// as "No such file or directory" and "Read-only file system". The former can happen when running
-// on RBE because the passed in output dir might not exist on the remote worker, whereas the latter
-// can happen when running locally in sandboxed mode, which is the default strategy when running
-// outside of RBE. One possible workaround is to run the test as a local subprocess, which can be
-// done by passing flag --strategy=TestRunner=local to Bazel.
+// TODO(lovisolo): Should this be mandatory?
+// TODO(lovisolo): Should we check that this is a valid Git hash?
+static DEFINE_string(
+        gitHash,
+        "",
+        "Git hash to include in the results.json output file, which can be ingested by Perf.");
+
+static DEFINE_string(issue,
+                     "",
+                     "Changelist ID (e.g. a Gerrit changelist number) to include in the "
+                     "results.json output file, which can be ingested by Perf.");
+
+static DEFINE_string(patchset,
+                     "",
+                     "Patchset ID (e.g. a Gerrit patchset number) to include in the results.json "
+                     "output file, which can be ingested by Perf.");
+
+static DEFINE_string(key,
+                     "",
+                     "Space-separated key/value pairs common to all benchmarks. These will be "
+                     "included in the results.json output file, which can be ingested by Perf.");
+
+static DEFINE_string(
+        links,
+        "",
+        "Space-separated name/URL pairs with additional information about the benchmark execution, "
+        "for example links to the Swarming but and task pages, named \"swarming_bot\" and "
+        "\"swarming_task\", respectively. These links are included in the "
+        "results.json output file, which can be ingested by Perf.");
+
+// When running under Bazel and overriding the output directory, you might encounter errors
+// such as "No such file or directory" and "Read-only file system". The former can happen
+// when running on RBE because the passed in output dir might not exist on the remote
+// worker, whereas the latter can happen when running locally in sandboxed mode, which is
+// the default strategy when running outside of RBE. One possible workaround is to run the
+// test as a local subprocess, which can be done by passing flag --strategy=TestRunner=local
+// to Bazel.
 //
 // Reference: https://bazel.build/docs/user-manual#execution-strategy.
 static DEFINE_string(outputDir,
@@ -54,11 +85,6 @@ static DEFINE_bool(
         writePNGs,
         false,
         "Whether or not to write to the output directory any bitmaps produced by benchmarks.");
-
-static DEFINE_string(key,
-                     "",
-                     "Space-separated key/value pairs identifying the benchmark. These will be "
-                     "included in the results.json output file, which can be ingested by Perf.");
 
 // Mutually exclusive with --autoTuneLoops.
 static DEFINE_int(loops, 0, "The number of benchmark runs that constitutes a single sample.");
@@ -92,59 +118,100 @@ static DEFINE_bool2(quiet, q, false, "if true, do not print status updates.");
 
 static DEFINE_bool2(verbose, v, false, "Enable verbose output from the test runner.");
 
+// TODO(lovisolo): Move these flag validation utilities under //tools/testrunners.
+
+static void validate_string_flag_nonempty(std::string name, CommandLineFlags::StringArray flag) {
+    if (flag.size() == 0) {
+        SK_ABORT("Flag %s cannot be empty.\n", name.c_str());
+    }
+}
+
+static void validate_string_flag_single_value(std::string name,
+                                              CommandLineFlags::StringArray flag) {
+    if (flag.size() > 1) {
+        SK_ABORT("Flag %s takes one single value, got: %d.\n", name.c_str(), flag.size());
+    }
+}
+
+static void validate_string_flag_even(std::string name, CommandLineFlags::StringArray flag) {
+    if (flag.size() % 2 == 1) {
+        SK_ABORT(
+                "Flag %s takes an even number of arguments, got: %d.\n", name.c_str(), flag.size());
+    }
+}
+
+static void validate_int_flag_greater_or_equal(std::string name, int flag, int min) {
+    if (flag < min) {
+        SK_ABORT("Flag %s must be greater or equal than %d, got: %d.\n", name.c_str(), min, flag);
+    }
+}
+
+static void validate_flags_all_or_none(std::map<std::string, bool> flags) {
+    std::string names;
+    unsigned int numFlagsSet = 0;
+    for (auto const& [name, isSet] : flags) {
+        if (names == "") {
+            names = name;
+        } else {
+            names += ", " + name;
+        }
+        if (isSet) {
+            numFlagsSet++;
+        }
+    }
+    if (numFlagsSet != flags.size() && numFlagsSet != 0) {
+        SK_ABORT("Either all or none of the following flags must be set: %s.\n", names.c_str());
+    }
+}
+
+static void validate_flags_exactly_one(std::map<std::string, bool> flags) {
+    std::string names;
+    unsigned int numFlagsSet = 0;
+    for (auto const& [name, isSet] : flags) {
+        if (names == "") {
+            names = name;
+        } else {
+            names += ", " + name;
+        }
+        if (isSet) {
+            numFlagsSet++;
+        }
+    }
+    if (numFlagsSet != 1) {
+        SK_ABORT("Exactly one of the following flags must be set: %s.\n", names.c_str());
+    }
+}
+
 static void validate_flags(bool isBazelTest) {
-    if (!isBazelTest && FLAGS_outputDir.isEmpty()) {
-        SK_ABORT("Flag --outputDir cannot be empty.");
+    validate_flags_all_or_none(
+            {{"--issue", FLAGS_issue.size() > 0}, {"--patchset", FLAGS_patchset.size() > 0}});
+    validate_string_flag_single_value("--issue", FLAGS_issue);
+    validate_string_flag_single_value("--patchset", FLAGS_patchset);
+    validate_string_flag_even("--key", FLAGS_key);
+    validate_string_flag_even("--links", FLAGS_links);
+
+    if (!isBazelTest) {
+        validate_string_flag_nonempty("--outputDir", FLAGS_outputDir);
     }
-    if (FLAGS_outputDir.size() > 1) {
-        SK_ABORT("Flag --outputDir takes one single value, got %d.", FLAGS_outputDir.size());
-    }
-    if (FLAGS_surfaceConfig.isEmpty()) {
-        SK_ABORT("Flag --surfaceConfig cannot be empty.");
-    }
-    if (FLAGS_surfaceConfig.size() > 1) {
-        SK_ABORT("Flag --surfaceConfig takes one single value, got %d.",
-                 FLAGS_surfaceConfig.size());
-    }
-    if (FLAGS_key.size() % 2 == 1) {
-        SK_ABORT("Flag --key takes an even number of arguments, got %d.\n", FLAGS_key.size());
+    validate_string_flag_single_value("--outputDir", FLAGS_outputDir);
+
+    validate_string_flag_nonempty("--surfaceConfig", FLAGS_surfaceConfig);
+    validate_string_flag_single_value("--surfaceConfig", FLAGS_surfaceConfig);
+
+    validate_flags_exactly_one(
+            {{"--loops", FLAGS_loops != 0}, {"--autoTuneLoops", FLAGS_autoTuneLoops}});
+    if (!FLAGS_autoTuneLoops) {
+        validate_int_flag_greater_or_equal("--loops", FLAGS_loops, 1);
     }
 
-    int waysToDetermineNumLoops = 0;
-    if (FLAGS_loops != 0) {
-        waysToDetermineNumLoops++;
-    }
-    if (FLAGS_autoTuneLoops) {
-        waysToDetermineNumLoops++;
-    }
-    if (waysToDetermineNumLoops != 1) {
-        SK_ABORT("Exactly one of the following flags must be set: --loops, --autoTuneLoops.\n");
-    }
+    validate_int_flag_greater_or_equal("--autoTuneLoopsMax", FLAGS_autoTuneLoopsMax, 1);
 
-    if (!FLAGS_autoTuneLoops && FLAGS_loops <= 0) {
-        SK_ABORT("Flag --loops must be greater or equal than 1, got %d.\n", FLAGS_loops);
+    validate_flags_exactly_one({{"--samples", FLAGS_samples != 0}, {"--ms", FLAGS_ms != 0}});
+    if (FLAGS_ms == 0) {
+        validate_int_flag_greater_or_equal("--samples", FLAGS_samples, 1);
     }
-    if (FLAGS_autoTuneLoopsMax <= 0) {
-        SK_ABORT("Flag --autoTuneLoopsMax must be greater or equal than 1, got %d.\n",
-                 FLAGS_autoTuneLoopsMax);
-    }
-
-    int waysToDetermineNumSamples = 0;
-    if (FLAGS_samples != 0) {
-        waysToDetermineNumSamples++;
-    }
-    if (FLAGS_ms != 0) {
-        waysToDetermineNumSamples++;
-    }
-    if (waysToDetermineNumSamples != 1) {
-        SK_ABORT("Exactly one of the following flags must be set: --samples, --ms.\n");
-    }
-
-    if (FLAGS_ms == 0 && FLAGS_samples <= 0) {
-        SK_ABORT("Flag --samples must be greater or equal than 1, got %d.\n", FLAGS_samples);
-    }
-    if (FLAGS_samples == 0 && FLAGS_ms <= 0) {
-        SK_ABORT("Flag --ms must be greater or equal than 1, got %d.\n", FLAGS_ms);
+    if (FLAGS_samples == 0) {
+        validate_int_flag_greater_or_equal("--ms", FLAGS_ms, 1);
     }
 }
 
