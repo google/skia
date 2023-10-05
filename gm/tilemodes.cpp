@@ -25,6 +25,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkTextUtils.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

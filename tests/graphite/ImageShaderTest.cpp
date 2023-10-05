@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/shaders/SkImageShader.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 namespace skgpu::graphite {

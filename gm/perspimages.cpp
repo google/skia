@@ -16,6 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

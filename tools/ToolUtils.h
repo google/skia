@@ -30,9 +30,9 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <vector>
+#include <functional>
 
 class SkBitmap;
 class SkCanvas;
@@ -50,12 +50,6 @@ enum SkColorType : int;
 enum class SkTextEncoding;
 enum class SkTileMode;
 struct SkImageInfo;
-
-#if defined(SK_GRAPHITE)
-namespace skgpu::graphite {
-struct RecorderOptions;
-}
-#endif
 
 namespace ToolUtils {
 
@@ -298,9 +292,6 @@ private:
     SkTDArray<uint32_t>      fTargets;
 };
 
-bool EncodeImageToPngFile(const char* path, const SkBitmap& src);
-bool EncodeImageToPngFile(const char* path, const SkPixmap& src);
-
 bool copy_to(SkBitmap* dst, SkColorType dstCT, const SkBitmap& src);
 void copy_to_g8(SkBitmap* dst, const SkBitmap& src);
 
@@ -348,12 +339,8 @@ private:
 using PathSniffCallback = void(const SkMatrix&, const SkPath&, const SkPaint&);
 
 // Calls the provided PathSniffCallback for each path in the given file.
-// Supported file formats are .svg and .skp.
-void sniff_paths(const char filepath[], std::function<PathSniffCallback>);
-
-#if defined(SK_GANESH)
-sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig);
-#endif
+// Supported file formats .skp. (See SvgPathExtractor for .svg)
+void ExtractPathsFromSKP(const char filepath[], std::function<PathSniffCallback>);
 
 // Initialised with a font, this class can be called to setup GM UI with sliders for font
 // variations, and returns a set of variation coordinates that matches what the sliders in the UI
@@ -386,10 +373,6 @@ private:
     std::unique_ptr<SkFontArguments::VariationPosition::Coordinate[]> fCoords;
     static constexpr size_t kAxisVarsSize = 3;
 };
-
-#if defined(SK_GRAPHITE)
-skgpu::graphite::RecorderOptions CreateTestingRecorderOptions();
-#endif
 
 }  // namespace ToolUtils
 

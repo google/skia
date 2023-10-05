@@ -2130,6 +2130,10 @@ if (skia_enable_tools) {
       "tools/DDLPromiseImageHelper.h",
       "tools/DDLTileHelper.cpp",
       "tools/DDLTileHelper.h",
+      "tools/EncodeUtils.cpp",
+      "tools/EncodeUtils.h",
+      "tools/GpuToolUtils.cpp",
+      "tools/GpuToolUtils.h",
       "tools/LsanSuppressions.cpp",
       "tools/MSKPPlayer.cpp",
       "tools/MSKPPlayer.h",
@@ -2172,6 +2176,12 @@ if (skia_enable_tools) {
       "tools/timer/Timer.cpp",
       "tools/timer/Timer.h",
     ]
+    if (skia_enable_svg) {
+      sources += [
+        "tools/SvgPathExtractor.cpp",
+        "tools/SvgPathExtractor.h",
+      ]
+    }
     if (target_cpu != "wasm") {
       sources += [ "tools/CrashHandler.cpp" ]
     }

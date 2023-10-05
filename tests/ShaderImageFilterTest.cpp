@@ -29,7 +29,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
+#include "tools/EncodeUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <vector>
@@ -129,14 +129,14 @@ static void test_scaled(skiatest::Reporter* reporter) {
         SkString encoded;
         SkString errString("Image filter doesn't match paint reference");
         errString.append("\nExpected: ");
-        if (BitmapToBase64DataURI(paintResult, &encoded)) {
+        if (ToolUtils::BitmapToBase64DataURI(paintResult, &encoded)) {
             errString.append(encoded);
         } else {
             errString.append("failed to encode");
         }
 
         errString.append("\nActual: ");
-        if (BitmapToBase64DataURI(filterResult, &encoded)) {
+        if (ToolUtils::BitmapToBase64DataURI(filterResult, &encoded)) {
             errString.append(encoded);
         } else {
             errString.append("failed to encode");

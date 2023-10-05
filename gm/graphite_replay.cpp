@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

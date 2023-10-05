@@ -13,6 +13,10 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 
+#if defined(SK_ENABLE_SVG)
+#include "tools/SvgPathExtractor.h"
+#endif
+
 using namespace skia_private;
 
 static DEFINE_string(intersectionTreeFile, "",
@@ -126,9 +130,9 @@ private:
         if (FLAGS_intersectionTreeFile.isEmpty()) {
             return;
         }
-        ToolUtils::sniff_paths(FLAGS_intersectionTreeFile[0], [&](const SkMatrix& matrix,
-                                                                  const SkPath& path,
-                                                                  const SkPaint& paint) {
+        auto callback = [&](const SkMatrix& matrix,
+                            const SkPath& path,
+                            const SkPaint& paint) {
             if (paint.getStyle() == SkPaint::kStroke_Style) {
                 return;  // Goes to stroker.
             }
@@ -145,7 +149,17 @@ private:
                 return;  // Goes to inner triangulator.
             }
             rects->push_back(drawBounds);
-        });
+        };
+        const char* path = FLAGS_intersectionTreeFile[0];
+        if (const char* ext = strrchr(path, '.'); ext && !strcmp(ext, ".svg")) {
+#if defined(SK_ENABLE_SVG)
+            ToolUtils::ExtractPathsFromSVG(path, callback);
+#else
+            SK_ABORT("must compile with svg backend to process svgs");
+#endif
+        } else {
+            ToolUtils::ExtractPathsFromSKP(path, callback);
+        }
         SkDebugf(">> Found %i stencil/cover paths in %s <<\n",
                  rects->size(), FLAGS_intersectionTreeFile[0]);
     }

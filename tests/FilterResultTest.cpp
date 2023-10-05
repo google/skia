@@ -40,7 +40,7 @@
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
+#include "tools/EncodeUtils.h"
 #include "tools/gpu/ContextType.h"
 
 #include <cmath>
@@ -673,12 +673,12 @@ private:
         }
 
         SkString expectedURL;
-        BitmapToBase64DataURI(expected, &expectedURL);
+        ToolUtils::BitmapToBase64DataURI(expected, &expectedURL);
         SkDebugf("Expected:\n%s\n\n", expectedURL.c_str());
 
         if (!actual.empty()) {
             SkString actualURL;
-            BitmapToBase64DataURI(actual, &actualURL);
+            ToolUtils::BitmapToBase64DataURI(actual, &actualURL);
             SkDebugf("Actual:\n%s\n\n", actualURL.c_str());
         } else {
             SkDebugf("Actual: null (fully transparent)\n\n");
@@ -689,7 +689,7 @@ private:
                 expected.erase(SkColors::kRed, SkIRect::MakeXYWH(p.fX, p.fY, 1, 1));
             }
             SkString markedURL;
-            BitmapToBase64DataURI(expected, &markedURL);
+            ToolUtils::BitmapToBase64DataURI(expected, &markedURL);
             SkDebugf("Errors:\n%s\n\n", markedURL.c_str());
         }
 

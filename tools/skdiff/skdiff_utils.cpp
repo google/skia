@@ -9,6 +9,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "tools/EncodeUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/skdiff/skdiff.h"
 #include "tools/skdiff/skdiff_utils.h"

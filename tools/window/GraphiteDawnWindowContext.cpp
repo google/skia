@@ -19,6 +19,7 @@
 #include "include/gpu/graphite/dawn/DawnUtils.h"
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/GpuToolUtils.h"
 
 #include "dawn/dawn_proc.h"
 

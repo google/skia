@@ -22,6 +22,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <cstddef>

@@ -18,6 +18,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {

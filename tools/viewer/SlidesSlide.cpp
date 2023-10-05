@@ -11,7 +11,7 @@
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "tools/ToolUtils.h"
+#include "tools/EncodeUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 #define BG_COLOR    0xFFDDDDDD

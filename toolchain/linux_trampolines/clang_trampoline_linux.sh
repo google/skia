@@ -116,6 +116,9 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/gl/GrGLGpu.cpp"
   "src/gpu/ganesh/ops/AtlasTextOp.cpp"
   "src/pdf/SkJpeg"
+  "tools/EncodeUtils.cpp"
+  "tools/GpuToolUtils.cpp"
+  "tools/SvgPathExtractor.cpp"
   "tools/ToolUtils.cpp"
 
   # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.

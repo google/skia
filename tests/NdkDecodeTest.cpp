@@ -7,7 +7,9 @@
 
 #include "include/core/SkTypes.h"
 #ifdef SK_ENABLE_NDK_IMAGES
+#include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkStream.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"

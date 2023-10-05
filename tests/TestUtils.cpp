@@ -5,24 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "tests/TestUtils.h"
+
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkStream.h"
-#include "include/core/SkString.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "include/utils/SkBase64.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -35,7 +31,6 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/utils/SkCharToGlyphCache.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -122,41 +117,6 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
     SkASSERT(dstContext);
 
     TestReadPixels(reporter, dContext, dstContext.get(), expectedPixelValues, testName);
-}
-
-bool BitmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
-    SkPixmap pm;
-    if (!bitmap.peekPixels(&pm)) {
-        dst->set("peekPixels failed");
-        return false;
-    }
-
-    // We're going to embed this PNG in a data URI, so make it as small as possible
-    SkPngEncoder::Options options;
-    options.fFilterFlags = SkPngEncoder::FilterFlag::kAll;
-    options.fZLibLevel = 9;
-
-    SkDynamicMemoryWStream wStream;
-    if (!SkPngEncoder::Encode(&wStream, pm, options)) {
-        dst->set("SkPngEncoder::Encode failed");
-        return false;
-    }
-
-    sk_sp<SkData> pngData = wStream.detachAsData();
-    size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
-
-    // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs.
-    // Infra says these can be pretty big, as long as we're only outputting them on failure.
-    static const size_t kMaxBase64Length = 1024 * 1024;
-    if (len > kMaxBase64Length) {
-        dst->printf("Encoded image too large (%u bytes)", static_cast<uint32_t>(len));
-        return false;
-    }
-
-    dst->resize(len);
-    SkBase64::Encode(pngData->data(), pngData->size(), dst->data());
-    dst->prepend("data:image/png;base64,");
-    return true;
 }
 
 static bool compare_colors(int x, int y,

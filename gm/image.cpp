@@ -39,6 +39,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/image/SkImage_Base.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 #if defined(SK_GRAPHITE)

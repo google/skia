@@ -16,6 +16,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "tools/EncodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

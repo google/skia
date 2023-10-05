@@ -14,7 +14,6 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkDataTable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
@@ -28,6 +27,7 @@
 #include "include/core/SkPixelRef.h"  // IWYU pragma: keep
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint3.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
@@ -35,7 +35,6 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkTemplates.h"
@@ -44,28 +43,6 @@
 
 #include <cmath>
 #include <cstring>
-
-#if defined(SK_GRAPHITE)
-#include "include/core/SkTiledImageUtils.h"
-#include "include/gpu/graphite/Image.h"
-#include "include/gpu/graphite/ImageProvider.h"
-#include "include/gpu/graphite/Recorder.h"
-#include "src/core/SkLRUCache.h"
-#endif
-
-#if defined(SK_ENABLE_SVG)
-#include "modules/svg/include/SkSVGDOM.h"
-#include "modules/svg/include/SkSVGNode.h"
-#include "src/xml/SkDOM.h"
-#endif
-
-#if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#endif
 
 #ifdef SK_BUILD_FOR_WIN
 #include "include/ports/SkTypeface_win.h"
@@ -546,74 +523,6 @@ sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
     return surf;
 }
 
-void sniff_paths(const char filepath[], std::function<PathSniffCallback> callback) {
-    SkFILEStream stream(filepath);
-    if (!stream.isValid()) {
-        SkDebugf("sniff_paths: invalid input file at \"%s\"\n", filepath);
-        return;
-    }
-
-    class PathSniffer : public SkCanvas {
-    public:
-        PathSniffer(std::function<PathSniffCallback> callback)
-                : SkCanvas(4096, 4096, nullptr)
-                , fPathSniffCallback(callback) {}
-    private:
-        void onDrawPath(const SkPath& path, const SkPaint& paint) override {
-            fPathSniffCallback(this->getTotalMatrix(), path, paint);
-        }
-        std::function<PathSniffCallback> fPathSniffCallback;
-    };
-
-    PathSniffer pathSniffer(callback);
-    if (const char* ext = strrchr(filepath, '.'); ext && !strcmp(ext, ".svg")) {
-#if defined(SK_ENABLE_SVG)
-        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(stream);
-        if (!svg) {
-            SkDebugf("sniff_paths: couldn't load svg at \"%s\"\n", filepath);
-            return;
-        }
-        svg->setContainerSize(SkSize::Make(pathSniffer.getBaseLayerSize()));
-        svg->render(&pathSniffer);
-#endif
-    } else {
-        sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream);
-        if (!skp) {
-            SkDebugf("sniff_paths: couldn't load skp at \"%s\"\n", filepath);
-            return;
-        }
-        skp->playback(&pathSniffer);
-    }
-}
-
-sk_sp<SkImage> MakeTextureImage(SkCanvas* canvas, sk_sp<SkImage> orig) {
-    if (!orig) {
-        return nullptr;
-    }
-
-#if defined(SK_GANESH)
-    if (canvas->recordingContext() && canvas->recordingContext()->asDirectContext()) {
-        GrDirectContext* dContext = canvas->recordingContext()->asDirectContext();
-        const GrCaps* caps = dContext->priv().caps();
-
-        if (orig->width() >= caps->maxTextureSize() || orig->height() >= caps->maxTextureSize()) {
-            // Ganesh is able to tile large SkImage draws. Always forcing SkImages to be uploaded
-            // prevents this feature from being tested by our tools. For now, leave excessively
-            // large SkImages as bitmaps.
-            return orig;
-        }
-
-        return SkImages::TextureFromImage(dContext, orig);
-    }
-#endif
-#if defined(SK_GRAPHITE)
-    if (canvas->recorder()) {
-        return SkImages::TextureFromImage(canvas->recorder(), orig, {false});
-    }
-#endif
-    return orig;
-}
-
 VariationSliders::VariationSliders(SkTypeface* typeface,
                                    SkFontArguments::VariationPosition variationPosition) {
     if (!typeface) {
@@ -695,109 +604,6 @@ void VariationSliders::readControls(const SkMetaData& controls, bool* changed) {
 SkSpan<const SkFontArguments::VariationPosition::Coordinate> VariationSliders::getCoordinates() {
     return SkSpan<const SkFontArguments::VariationPosition::Coordinate>{fCoords.get(),
                                                                         fAxisSliders.size()};
-}
-
-#if defined(SK_GRAPHITE)
-
-// Currently, we give each new Recorder its own ImageProvider. This means we don't have to deal
-// w/ any threading issues.
-// TODO: We should probably have this class generate and report some cache stats
-// TODO: Hook up to listener system?
-// TODO: add testing of a single ImageProvider passed to multiple recorders
-class TestingImageProvider : public skgpu::graphite::ImageProvider {
-public:
-    TestingImageProvider() : fCache(kDefaultNumCachedImages) {}
-    ~TestingImageProvider() override {}
-
-    sk_sp<SkImage> findOrCreate(skgpu::graphite::Recorder* recorder,
-                                const SkImage* image,
-                                SkImage::RequiredProperties requiredProps) override {
-        if (!requiredProps.fMipmapped) {
-            // If no mipmaps are required, check to see if we have a mipmapped version anyway -
-            // since it can be used in that case.
-            // TODO: we could get fancy and, if ever a mipmapped key eclipsed a non-mipmapped
-            // key, we could remove the hidden non-mipmapped key/image from the cache.
-            ImageKey mipMappedKey(image, /* mipmapped= */ true);
-            auto result = fCache.find(mipMappedKey);
-            if (result) {
-                return *result;
-            }
-        }
-
-        ImageKey key(image, requiredProps.fMipmapped);
-
-        auto result = fCache.find(key);
-        if (result) {
-            return *result;
-        }
-
-        sk_sp<SkImage> newImage = SkImages::TextureFromImage(recorder, image, requiredProps);
-        if (!newImage) {
-            return nullptr;
-        }
-
-        result = fCache.insert(key, std::move(newImage));
-        SkASSERT(result);
-
-        return *result;
-    }
-
-private:
-    static constexpr int kDefaultNumCachedImages = 256;
-
-    class ImageKey {
-    public:
-        ImageKey(const SkImage* image, bool mipmapped) {
-            uint32_t flags = mipmapped ? 0x1 : 0x0;
-            SkTiledImageUtils::GetImageKeyValues(image, &fValues[1]);
-            fValues[kNumValues-1] = flags;
-            fValues[0] = SkChecksum::Hash32(&fValues[1], (kNumValues-1) * sizeof(uint32_t));
-        }
-
-        uint32_t hash() const { return fValues[0]; }
-
-        bool operator==(const ImageKey& other) const {
-            for (int i = 0; i < kNumValues; ++i) {
-                if (fValues[i] != other.fValues[i]) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        bool operator!=(const ImageKey& other) const { return !(*this == other); }
-
-    private:
-        static const int kNumValues = SkTiledImageUtils::kNumImageKeyValues + 2;
-
-        uint32_t fValues[kNumValues];
-    };
-
-    struct ImageHash {
-        size_t operator()(const ImageKey& key) const { return key.hash(); }
-    };
-
-    SkLRUCache<ImageKey, sk_sp<SkImage>, ImageHash> fCache;
-};
-
-skgpu::graphite::RecorderOptions CreateTestingRecorderOptions() {
-    skgpu::graphite::RecorderOptions options;
-
-    options.fImageProvider.reset(new TestingImageProvider);
-
-    return options;
-}
-
-#endif // SK_GRAPHITE
-
-bool EncodeImageToPngFile(const char* path, const SkBitmap& src) {
-    SkFILEWStream file(path);
-    return file.isValid() && SkPngEncoder::Encode(&file, src.pixmap(), {});
-}
-
-bool EncodeImageToPngFile(const char* path, const SkPixmap& src) {
-    SkFILEWStream file(path);
-    return file.isValid() && SkPngEncoder::Encode(&file, src, {});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -950,6 +756,34 @@ SkColor4f HilbertGenerator::getColor(float curLen) {
     }
 
     return SkColors::kBlack;
+}
+
+void ExtractPathsFromSKP(const char filepath[], std::function<PathSniffCallback> callback) {
+    SkFILEStream stream(filepath);
+    if (!stream.isValid()) {
+        SkDebugf("ExtractPaths: invalid input file at \"%s\"\n", filepath);
+        return;
+    }
+
+    class PathSniffer : public SkCanvas {
+    public:
+        PathSniffer(std::function<PathSniffCallback> callback)
+                : SkCanvas(4096, 4096, nullptr)
+                , fPathSniffCallback(callback) {}
+    private:
+        void onDrawPath(const SkPath& path, const SkPaint& paint) override {
+            fPathSniffCallback(this->getTotalMatrix(), path, paint);
+        }
+        std::function<PathSniffCallback> fPathSniffCallback;
+    };
+
+    sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream);
+    if (!skp) {
+        SkDebugf("ExtractPaths: couldn't load skp at \"%s\"\n", filepath);
+        return;
+    }
+    PathSniffer pathSniffer(callback);
+    skp->playback(&pathSniffer);
 }
 
 }  // namespace ToolUtils

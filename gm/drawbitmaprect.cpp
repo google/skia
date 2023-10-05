@@ -31,6 +31,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkBlurMask.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 static SkBitmap make_chessbm(int w, int h) {

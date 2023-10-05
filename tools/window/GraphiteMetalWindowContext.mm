@@ -17,7 +17,7 @@
 #include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #include "src/base/SkMathPriv.h"
-#include "tools/ToolUtils.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/window/GraphiteMetalWindowContext.h"
 
 using skwindow::DisplayParams;

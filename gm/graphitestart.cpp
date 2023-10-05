@@ -17,6 +17,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

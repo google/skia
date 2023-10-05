@@ -27,6 +27,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTLazy.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>

@@ -9,6 +9,8 @@ skia_cc_library(
     name = "tool_utils",
     testonly = True,
     srcs = [
+        "EncodeUtils.cpp",
+        "GpuToolUtils.cpp",
         "Resources.cpp",
         "ToolUtils.cpp",
         "ResourceFactory.h",
@@ -19,6 +21,8 @@ skia_cc_library(
     ],
     hdrs = [
         "DecodeFile.h",
+        "EncodeUtils.h",
+        "GpuToolUtils.h",
         "Resources.h",
         "SkMetaData.h",
         "ToolUtils.h",

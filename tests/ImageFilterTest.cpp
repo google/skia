@@ -54,6 +54,7 @@
 #include "src/image/SkImage_Base.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

@@ -16,6 +16,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

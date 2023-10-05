@@ -25,6 +25,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkRandom.h"
+#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> makebm(int w, int h) {
