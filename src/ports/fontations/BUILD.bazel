@@ -1,11 +1,11 @@
+load("@rules_rust//rust:defs.bzl", "rust_static_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
     "skia_cc_deps",
     "skia_cc_library",
 )
-load("@rules_rust//rust:defs.bzl", "rust_static_library")
-load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 
 licenses(["notice"])
 

@@ -1,5 +1,5 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 

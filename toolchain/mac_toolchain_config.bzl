@@ -11,6 +11,9 @@ It follows the example of:
  - linux_amd64_toolchain_config.bzl
 """
 
+# https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+
 # https://github.com/bazelbuild/bazel/blob/master/tools/cpp/cc_toolchain_config_lib.bzl
 load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
@@ -21,9 +24,6 @@ load(
     "tool",
     "variable_with_value",
 )
-
-# https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
-load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
 # The location of the created clang toolchain.

@@ -1,6 +1,6 @@
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_filegroup", "wasm_cc_binary")
 load("//bazel/karma:karma_test.bzl", "karma_test")
-load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 
 licenses(["notice"])
 

@@ -5,9 +5,10 @@ This file contains helpers for defining build flags and options that are used to
 configure the Skia build.
 """
 
+load("@bazel_skylib//lib:selects.bzl", _selects = "selects")
+
 # https://github.com/bazelbuild/bazel-skylib/blob/main/rules/common_settings.bzl
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag", skylib_bool_flag = "bool_flag")
-load("@bazel_skylib//lib:selects.bzl", _selects = "selects")
 
 # Re-export other symbols from bazel_skylib for convenience
 selects = _selects

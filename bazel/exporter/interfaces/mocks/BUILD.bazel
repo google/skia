@@ -1,5 +1,5 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy")
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 

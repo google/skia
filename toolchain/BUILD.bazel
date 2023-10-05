@@ -1,5 +1,5 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy")
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
 load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
 load(":mac_toolchain_config.bzl", "provide_mac_toolchain_config")
 load(":ndk_linux_arm64_toolchain_config.bzl", "ndk_cc_toolchain_config")

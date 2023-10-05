@@ -1,3 +1,4 @@
+load("//bazel:flags.bzl", "selects")
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
@@ -5,7 +6,6 @@ load(
     "skia_cc_deps",
     "skia_filegroup",
 )
-load("//bazel:flags.bzl", "selects")
 
 licenses(["notice"])
 

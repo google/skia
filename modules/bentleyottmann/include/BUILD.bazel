@@ -8,10 +8,10 @@ skia_filegroup(
     name = "hdrs",
     srcs = [
         "BentleyOttmann1.h",
+        "BruteForceCrossings.h",
         "EventQueue.h",
         "Int96.h",
         "Point.h",
-        "BruteForceCrossings.h",
         "Segment.h",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],

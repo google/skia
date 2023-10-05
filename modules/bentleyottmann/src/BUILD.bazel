@@ -8,10 +8,10 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "BentleyOttmann1.cpp",
+        "BruteForceCrossings.cpp",
         "EventQueue.cpp",
         "Int96.cpp",
         "Point.cpp",
-        "BruteForceCrossings.cpp",
         "Segment.cpp",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],

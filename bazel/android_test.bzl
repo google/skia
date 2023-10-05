@@ -1,9 +1,9 @@
 """This module defines the android_test macro."""
 
-load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
-load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
 load("//bazel:adb_test.bzl", "adb_test")
 load("//bazel:binary_wrapper_script_with_cmdline_flags.bzl", "binary_wrapper_script_with_cmdline_flags")
+load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
 
 def android_test(
         name,

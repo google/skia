@@ -1,6 +1,6 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library")
 load("//bazel:flags.bzl", "bool_flag", "selects")
-load(":tests.bzl", "skia_cpu_tests", "skia_ganesh_tests")
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+load(":android_unit_test.bzl", "android_unit_test")
 load(
     ":testgroups.bzl",
     "CODEC_TESTS",
@@ -11,7 +11,7 @@ load(
     "PATHOPS_TESTS",
     "PDF_TESTS",
 )
-load(":android_unit_test.bzl", "android_unit_test")
+load(":tests.bzl", "skia_cpu_tests", "skia_ganesh_tests")
 
 skia_cc_library(
     name = "tests_base",

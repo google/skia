@@ -1,8 +1,8 @@
 """This module provides the gen_compile_flags_txt_linux_amd64 macro."""
 
-load("//toolchain:linux_amd64_toolchain_config.bzl", "EXTERNAL_TOOLCHAIN")
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
+load("//toolchain:linux_amd64_toolchain_config.bzl", "EXTERNAL_TOOLCHAIN")
 
 def _gen_compile_flags_txt_linux_amd64_rule_impl(ctx):
     # We need to set the working directory to the workspace root before invoking "bazel info

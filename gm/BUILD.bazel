@@ -1,5 +1,5 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 load(":android_gm_test.bzl", "android_gm_test")
 load(":png_codec.bzl", "png_codec_tests")
 

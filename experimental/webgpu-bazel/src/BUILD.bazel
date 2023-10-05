@@ -1,5 +1,5 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary")
 load("@emsdk//emscripten_toolchain:wasm_rules.bzl", "wasm_cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary")
 
 BASE_LINKOPTS = [
     #"-flto",  # https://github.com/emscripten-core/emsdk/issues/807

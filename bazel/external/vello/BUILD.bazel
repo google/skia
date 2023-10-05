@@ -24,13 +24,13 @@ rust_library(
     name = "vello_encoding",
     srcs = glob(
         include = ["crates/encoding/src/**/*.rs"],
-        allow_empty = False
+        allow_empty = False,
     ),
+    visibility = ["//visibility:public"],
     deps = [
         "@vello_deps//:bytemuck",
         "@vello_deps//:peniko",
     ],
-    visibility = ["//visibility:public"],
 )
 
 # The following setting is used to enable the WGSL -> MSL translation feature. Pass
@@ -53,6 +53,10 @@ config_setting(
 
 rust_library(
     name = "vello_shaders",
+    srcs = glob(
+        include = ["crates/shaders/src/**/*.rs"],
+        allow_empty = False,
+    ),
     crate_features = select({
         ":msl_shaders": ["msl"],
         "//conditions:default": [],
@@ -60,16 +64,18 @@ rust_library(
         ":wgsl_shaders": ["wgsl"],
         "//conditions:default": [],
     }),
-    srcs = glob(
-        include = ["crates/shaders/src/**/*.rs"],
-        allow_empty = False
-    ),
-    deps = [":vello_shaders_build_script"],
     visibility = ["//visibility:public"],
+    deps = [":vello_shaders_build_script"],
 )
 
 cargo_build_script(
     name = "vello_shaders_build_script",
+    srcs = [
+        "crates/shaders/build.rs",
+    ],
+    build_script_env = {
+        "WORKSPACE_MANIFEST_FILE": "$(location Cargo.toml)",
+    },
     crate_features = [
         "force_rw_storage",
     ] + select({
@@ -79,12 +85,6 @@ cargo_build_script(
         ":wgsl_shaders": ["wgsl"],
         "//conditions:default": [],
     }),
-    build_script_env = {
-        "WORKSPACE_MANIFEST_FILE": "$(location Cargo.toml)"
-    },
-    srcs = [
-        "crates/shaders/build.rs",
-    ],
     data = glob(
         include = [
             "Cargo.toml",  # Used to obtain WORKSPACE_MANIFEST_FILE
@@ -96,11 +96,11 @@ cargo_build_script(
             "shader/permutations",
             "shader/**/*.wgsl",
         ],
-        allow_empty = False
+        allow_empty = False,
     ),
     deps = [
         "@vello_deps//:naga",
         "@vello_deps//:regex",
         "@vello_deps//:thiserror",
-    ]
+    ],
 )

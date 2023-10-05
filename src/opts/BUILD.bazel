@@ -13,8 +13,8 @@ Skia's headers. These libraries are each compiled with a different set of compil
 
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_cc_library", "skia_filegroup")
 load("//bazel:flags.bzl", "selects")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_cc_library", "skia_filegroup")
 
 package(
     features = [

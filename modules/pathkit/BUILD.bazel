@@ -1,5 +1,5 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "wasm_cc_binary")
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
+load("//bazel:macros.bzl", "exports_files_legacy", "wasm_cc_binary")
 
 licenses(["notice"])
 

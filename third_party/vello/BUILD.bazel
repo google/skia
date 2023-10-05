@@ -1,13 +1,11 @@
+load("@rules_rust//rust:defs.bzl", "rust_static_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
     "select_multi",
-    "skia_cc_deps",
     "skia_cc_library",
-    "skia_filegroup",
 )
-load("@rules_rust//rust:defs.bzl", "rust_static_library")
-load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 
 exports_files_legacy()
 
@@ -22,30 +20,30 @@ skia_cc_library(
 # Generated C++ cxxbridge output
 rust_cxx_bridge(
     name = "ffi_gen",
+    src = "src/lib.rs",
     crate_features = select_multi(
         {
             "@vello//:msl_shaders": ["msl"],
             "@vello//:wgsl_shaders": ["wgsl"],
         },
     ),
-    src = "src/lib.rs",
-    deps = [":cpp"]
+    deps = [":cpp"],
 )
 
 # Linked rust code
 rust_static_library(
     name = "vello_rust",
+    srcs = [
+        "src/encoding.rs",
+        "src/lib.rs",
+        "src/shaders.rs",
+    ],
     crate_features = select_multi(
         {
             "@vello//:msl_shaders": ["msl"],
             "@vello//:wgsl_shaders": ["wgsl"],
         },
     ),
-    srcs = [
-        "src/encoding.rs",
-        "src/lib.rs",
-        "src/shaders.rs",
-    ],
     deps = [
         "@cxx",
         "@vello//:vello_encoding",
@@ -58,11 +56,11 @@ rust_static_library(
 # Linked C++ bridge code
 cc_library(
     name = "vello_ffi",
-    srcs = [ ":ffi_gen/filegroup" ],
+    srcs = [":ffi_gen/filegroup"],
+    visibility = ["//visibility:public"],
     deps = [
         ":cpp",
         ":ffi_gen/include",
-        ":vello_rust"
+        ":vello_rust",
     ],
-    visibility = ["//visibility:public"],
 )

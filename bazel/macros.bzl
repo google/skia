@@ -4,13 +4,14 @@ THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
 This file contains general helper macros that make our BUILD.bazel files easier to read.
 """
 
+load("@bazel_gazelle//:def.bzl", _gazelle = "gazelle")
+
 # https://github.com/bazelbuild/bazel-skylib
 load("@bazel_skylib//lib:selects.bzl", _selects = "selects")
-load("@rules_python//python:defs.bzl", _py_binary = "py_binary")
-load("@py_deps//:requirements.bzl", _requirement = "requirement")
-load("@bazel_gazelle//:def.bzl", _gazelle = "gazelle")
 load("@emsdk//emscripten_toolchain:wasm_rules.bzl", _wasm_cc_binary = "wasm_cc_binary")
 load("@io_bazel_rules_go//go:def.bzl", _go_binary = "go_binary", _go_library = "go_library")
+load("@py_deps//:requirements.bzl", _requirement = "requirement")
+load("@rules_python//python:defs.bzl", _py_binary = "py_binary")
 load("//bazel:flags.bzl", _bool_flag = "bool_flag", _string_flag_with_values = "string_flag_with_values")
 load(
     "//bazel:skia_rules.bzl",

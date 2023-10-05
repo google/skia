@@ -14,7 +14,8 @@ def _run_cxxbridge_cmd_impl(ctx):
     tool_as_list = [ctx.attr._cxxbridge]
     args = [
         # https://bazel.build/rules/lib/builtins/ctx#expand_location
-        ctx.expand_location(a, tool_as_list) for a in ctx.attr.args
+        ctx.expand_location(a, tool_as_list)
+        for a in ctx.attr.args
     ]
     for f in ctx.attr.crate_features:
         args.append("--cfg")
@@ -56,7 +57,7 @@ run_cxxbridge_cmd = rule(
             mandatory = True,
         ),
         "crate_features": attr.string_list(
-            doc = "Optional list of cargo features that CXX bridge definitions may depend on."
+            doc = "Optional list of cargo features that CXX bridge definitions may depend on.",
         ),
         "_cxxbridge": attr.label(
             default = Label("@cxxbridge_cmd//:cxxbridge"),

@@ -1,5 +1,5 @@
-load("@rules_python//python:defs.bzl", "py_binary")
 load("@py_deps//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary")
 
 # This file will be copied into //third_party/externals/dawn via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.

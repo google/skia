@@ -6,6 +6,9 @@ See also https://maskray.me/blog/2022-09-25-layering-check-with-clang and go/lay
 
 """
 
+# https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+
 # https://github.com/bazelbuild/bazel/blob/master/tools/cpp/cc_toolchain_config_lib.bzl
 load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
@@ -14,9 +17,6 @@ load(
     "flag_group",
     "flag_set",
 )
-
-# https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
-load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 
 def make_layering_check_features():
     """Returns a list of features which enforce "layering checks".

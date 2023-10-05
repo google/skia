@@ -1,5 +1,5 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary_with_flags")
 load("//bazel:macros.bzl", "py_binary")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary_with_flags")
 
 licenses(["notice"])
 

@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "select_multi")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -38,7 +38,7 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         ":base_srcs",
-        ":skunicode_srcs"
+        ":skunicode_srcs",
     ] + select_multi({
         "//modules/skshaper:use_harfbuzz_shaper": [":harfbuzz_srcs"],
         # TODO(kjlubick, bungeman) Make skunicode optional
