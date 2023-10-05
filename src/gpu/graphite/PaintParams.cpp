@@ -154,8 +154,7 @@ void AddModeBlend(const KeyContext& keyContext,
                   SkBlendMode bm) {
     SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(bm);
     if (!coeffs.empty()) {
-        CoeffBlenderBlock::BeginBlock(keyContext, builder, gatherer, coeffs);
-        builder->endBlock();
+        CoeffBlenderBlock::AddBlock(keyContext, builder, gatherer, coeffs);
     } else {
         BlendModeBlenderBlock::AddBlock(keyContext, builder, gatherer, bm);
     }

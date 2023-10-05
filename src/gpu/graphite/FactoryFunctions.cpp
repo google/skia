@@ -173,9 +173,8 @@ private:
         AddToKey<PrecompileShader>(keyContext, builder, fDstOptions, desiredDstCombination);
 
         if (desiredBlendCombination == fPorterDuffIndex) {
-            CoeffBlenderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
-                                          {}); // coeffs aren't used
-            builder->endBlock();
+            CoeffBlenderBlock::AddBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                        {}); // coeffs aren't used
         } else if (desiredBlendCombination == fSeparableModeIndex) {
             BlendModeBlenderBlock::AddBlock(keyContext, builder, /* gatherer= */ nullptr,
                                             SkBlendMode::kOverlay); // the blendmode is unused

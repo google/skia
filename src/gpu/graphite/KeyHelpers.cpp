@@ -768,17 +768,17 @@ void BlendModeBlenderBlock::AddBlock(const KeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-void CoeffBlenderBlock::BeginBlock(const KeyContext& keyContext,
-                                   PaintParamsKeyBuilder* builder,
-                                   PipelineDataGatherer* gatherer,
-                                   SkSpan<const float> coeffs) {
+void CoeffBlenderBlock::AddBlock(const KeyContext& keyContext,
+                                 PaintParamsKeyBuilder* builder,
+                                 PipelineDataGatherer* gatherer,
+                                 SkSpan<const float> coeffs) {
     if (gatherer) {
         VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kCoeffBlender)
         SkASSERT(coeffs.size() == 4);
         gatherer->write(SkSLType::kHalf4, coeffs.data());
     }
 
-    builder->beginBlock(BuiltInCodeSnippetID::kCoeffBlender);
+    builder->addBlock(BuiltInCodeSnippetID::kCoeffBlender);
 }
 
 //--------------------------------------------------------------------------------------------------

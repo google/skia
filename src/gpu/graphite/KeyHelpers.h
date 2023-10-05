@@ -283,10 +283,10 @@ struct BlendModeBlenderBlock {
 };
 
 struct CoeffBlenderBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           SkSpan<const float> coeffs);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         SkSpan<const float> coeffs);
 };
 
 struct ComposeBlock {
