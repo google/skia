@@ -2885,6 +2885,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_log2_IntrinsicKind:
         case k_radians_IntrinsicKind:
         case k_pow_IntrinsicKind:
+        case k_saturate_IntrinsicKind:
         case k_sign_IntrinsicKind:
         case k_sin_IntrinsicKind:
         case k_sqrt_IntrinsicKind:
