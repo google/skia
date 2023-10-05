@@ -40,14 +40,16 @@ public:
     void reset();
 
 protected:
-    void onAddShape(const Shape&,
-                    const Transform& transform,
-                    const Rect& atlasBounds,
-                    skvx::int2 deviceOffset,
-                    const SkStrokeRec&) override;
+    const TextureProxy* onAddShape(Recorder* recorder,
+                                   const Shape&,
+                                   const Transform& transform,
+                                   const SkStrokeRec&,
+                                   skvx::float2 atlasSize,
+                                   skvx::int2 deviceOffset,
+                                   skvx::half2* outPos) override;
     const TextureProxy* addRect(Recorder* recorder,
                                 skvx::float2 atlasSize,
-                                SkIPoint16* pos) override;
+                                SkIPoint16* outPos);
 
 private:
     // TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?

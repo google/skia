@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkBlitter_A8.h"
 #include "src/core/SkDrawBase.h"
+#include "src/core/SkIPoint16.h"
 #include "src/core/SkRasterClip.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/DrawContext.h"
@@ -71,7 +72,7 @@ bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder) {
 
 const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
                                              skvx::float2 atlasSize,
-                                             SkIPoint16* pos) {
+                                             SkIPoint16* outPos) {
     // TODO: look through all pages and find the first one with room, and move that to MRU
     Page* mru = fPageList.head();
     SkASSERT(mru);
@@ -87,31 +88,49 @@ const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
         return mru->fTexture.get();
     }
 
-    if (!mru->fRectanizer.addRect(atlasSize.x(), atlasSize.y(), pos)) {
+    if (!mru->fRectanizer.addRect(atlasSize.x(), atlasSize.y(), outPos)) {
         return nullptr;
     }
 
     return mru->fTexture.get();
 }
 
-void RasterPathAtlas::onAddShape(const Shape& shape,
-                                 const Transform& transform,
-                                 const Rect& atlasBounds,
-                                 skvx::int2 deviceOffset,
-                                 const SkStrokeRec& strokeRec) {
+const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
+                                                const Shape& shape,
+                                                const Transform& transform,
+                                                const SkStrokeRec& strokeRec,
+                                                skvx::float2 atlasSize,
+                                                skvx::int2 deviceOffset,
+                                                skvx::half2* outPos) {
     // TODO: look up shape and use cached texture
-    // Need to push this up into addShape() somehow
+
+    // Try to add to Rectanizer
+    SkIPoint16 iPos;
+    const TextureProxy* texProxy = this->addRect(recorder, atlasSize, &iPos);
+    if (!texProxy) {
+        return nullptr;
+    }
+    *outPos = skvx::half2(iPos.x(), iPos.y());
+    // If the mask is empty, just return.
+    // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
+    // another way. See PathAtlas::addShape().
+    if (!all(atlasSize)) {
+        return texProxy;
+    }
+
+    // Set up render
 
     // The MRU page should be already set up by addRect()
     Page* mru = fPageList.head();
     SkASSERT(mru);
+    SkASSERT(mru->fTexture.get() == texProxy);
 
     // allocate pixmap if needed
     if (!mru->fPixels.addr()) {
         const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(mru->fRectanizer.width(),
                                                             mru->fRectanizer.height());
         if (!mru->fPixels.tryAlloc(bmImageInfo)) {
-            return;
+            return nullptr;
         }
         mru->fPixels.erase(0);
     }
@@ -122,7 +141,8 @@ void RasterPathAtlas::onAddShape(const Shape& shape,
     draw.fBlitterChooser = SkA8Blitter_Choose;
     draw.fDst      = mru->fPixels;
     SkRasterClip rasterClip;
-    SkIRect iAtlasBounds = atlasBounds.asSkIRect();
+    SkIRect iAtlasBounds = SkIRect::MakeXYWH(iPos.x(), iPos.y(),
+                                             atlasSize.x(), atlasSize.y());
     rasterClip.setRect(iAtlasBounds);
     draw.fRC       = &rasterClip;
 
@@ -137,8 +157,8 @@ void RasterPathAtlas::onAddShape(const Shape& shape,
     // The atlas transform of the shape is the linear-components (scale, rotation, skew) of
     // `localToDevice` translated by the top-left offset of `atlasBounds`, accounting for the 1
     // pixel-wide border we added earlier, so that the shape is correctly centered.
-    translatedMatrix.postTranslate(atlasBounds.x() + 1 - deviceOffset.x(),
-                                   atlasBounds.y() + 1 - deviceOffset.y());
+    translatedMatrix.postTranslate(iAtlasBounds.x() + 1 - deviceOffset.x(),
+                                   iAtlasBounds.y() + 1 - deviceOffset.y());
     draw.fCTM = &translatedMatrix;
     SkPath path = shape.asPath();
     if (path.isInverseFillType()) {
@@ -149,6 +169,8 @@ void RasterPathAtlas::onAddShape(const Shape& shape,
 
     // Add atlasBounds to dirtyRect for later upload
     mru->fDirtyRect.join(iAtlasBounds);
+
+    return texProxy;
 }
 
 void RasterPathAtlas::reset() {

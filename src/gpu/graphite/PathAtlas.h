@@ -48,6 +48,7 @@ public:
     /**
      * Searches the atlas for a slot that can fit a coverage mask for a clipped shape with the given
      * bounds in device coordinates and submits the mask to be drawn into the found atlas region.
+     * For atlases that cache coverage masks, will first search the cache before adding.
      *
      * If the shape will fit in the atlas, returns the TextureProxy where the shape data will be
      * stored and populates `outAtlasBounds` with the atlas-space boundaries of the mask region.
@@ -79,14 +80,13 @@ public:
     uint32_t height() const { return fHeight; }
 
 protected:
-    virtual const TextureProxy* addRect(Recorder* recorder,
-                                        skvx::float2 atlasSize,
-                                        SkIPoint16* pos) = 0;
-    virtual void onAddShape(const Shape&,
-                            const Transform& transform,
-                            const Rect& atlasBounds,
-                            skvx::int2 deviceOffset,
-                            const SkStrokeRec&) = 0;
+    virtual const TextureProxy* onAddShape(Recorder* recorder,
+                                           const Shape&,
+                                           const Transform& transform,
+                                           const SkStrokeRec&,
+                                           skvx::float2 atlasSize,
+                                           skvx::int2 deviceOffset,
+                                           skvx::half2* outPos) = 0;
 
     struct MaskFormat {
         SkColorType fColorType = kUnknown_SkColorType;
@@ -125,7 +125,7 @@ protected:
     const TextureProxy* texture() const { return fTexture.get(); }
     const TextureProxy* addRect(Recorder* recorder,
                                 skvx::float2 atlasSize,
-                                SkIPoint16* pos) override;
+                                SkIPoint16* outPos);
 
     virtual void onReset() = 0;
 
@@ -152,8 +152,13 @@ public:
     std::unique_ptr<DispatchGroup> recordDispatches(Recorder*) const override;
 
 private:
-    void onAddShape(
-            const Shape&, const Transform&, const Rect&, skvx::int2, const SkStrokeRec&) override;
+    const TextureProxy* onAddShape(Recorder* recorder,
+                                   const Shape&,
+                                   const Transform& transform,
+                                   const SkStrokeRec&,
+                                   skvx::float2 atlasSize,
+                                   skvx::int2 deviceOffset,
+                                   skvx::half2* outPos) override;
     void onReset() override {
         fScene.reset();
         fOccuppiedWidth = fOccuppiedHeight = 0;
