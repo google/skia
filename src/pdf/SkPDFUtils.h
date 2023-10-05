@@ -55,7 +55,11 @@ void MoveTo(SkScalar x, SkScalar y, SkWStream* content);
 void AppendLine(SkScalar x, SkScalar y, SkWStream* content);
 void AppendRectangle(const SkRect& rect, SkWStream* content);
 void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-              SkWStream* content, SkScalar tolerance = 0.25f);
+              bool doConsumeDegerates, SkWStream* content, SkScalar tolerance = 0.25f);
+inline void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
+                     SkWStream* content, SkScalar tolerance = 0.25f) {
+    SkPDFUtils::EmitPath(path, paintStyle, true, content, tolerance);
+}
 void ClosePath(SkWStream* content);
 void PaintPath(SkPaint::Style style, SkPathFillType fill, SkWStream* content);
 void StrokePath(SkWStream* content);

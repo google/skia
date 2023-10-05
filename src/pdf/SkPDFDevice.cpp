@@ -625,16 +625,12 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     constexpr SkScalar kToleranceScale = 0.0625f;  // smaller = better conics (circles).
     SkScalar matrixScale = matrix.mapRadius(1.0f);
     SkScalar tolerance = matrixScale > 0.0f ? kToleranceScale / matrixScale : kToleranceScale;
-    // For compatibility with SVG, preserve degenerate segments when stroking.
-    if (paint->getStyle() == SkPaint::kFill_Style) {
-        if (!pathIsMutable) {
-            modifiedPath = origPath;
-            pathPtr = &modifiedPath;
-            pathIsMutable = true;
-        }
-        Simplify(*pathPtr, pathPtr);
-    }
-    SkPDFUtils::EmitPath(*pathPtr, paint->getStyle(), content.stream(), tolerance);
+    bool consumeDegeratePathSegments =
+           paint->getStyle() == SkPaint::kFill_Style ||
+           (paint->getStrokeCap() != SkPaint::kRound_Cap &&
+            paint->getStrokeCap() != SkPaint::kSquare_Cap);
+    SkPDFUtils::EmitPath(*pathPtr, paint->getStyle(), consumeDegeratePathSegments, content.stream(),
+                         tolerance);
     SkPDFUtils::PaintPath(paint->getStyle(), pathPtr->getFillType(), content.stream());
 }
 
