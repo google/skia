@@ -100,7 +100,7 @@ solutions = [
 		}
 
 		cmd := []string{
-			"vpython", "-u", botUpdateScript,
+			"vpython3", "-u", botUpdateScript,
 			"--spec-path", specPath,
 			"--patch_root", patchRoot,
 			"--revision_mapping_file", revMapFile,
@@ -121,7 +121,7 @@ solutions = [
 			return err
 		}
 
-		if _, err := exec.RunCwd(ctx, checkoutRoot, "vpython", "-u", filepath.Join(depotToolsDir, "gclient.py"), "runhooks"); err != nil {
+		if _, err := exec.RunCwd(ctx, checkoutRoot, "vpython3", "-u", filepath.Join(depotToolsDir, "gclient.py"), "runhooks"); err != nil {
 			return err
 		}
 
@@ -203,6 +203,23 @@ func main() {
 	}); err != nil {
 		td.Fatal(ctx, err)
 	}
+
+	// Hack warning: Sync depot tools to HEAD because of problems syncing chrome
+	// due to submodule-related failures on older depot tools revisions
+	// (b/303291416). Updating depot tools via recipes.cfg was risky because
+	// recipes.cfg has not been updated in years and other tasks may break if that
+	// was done. We may move away from recipes in the future anyway.
+	depotToolsUpdateCommand := &exec.Command{
+		Name: filepath.Join(depotToolsDir, "update_depot_tools"),
+		Dir:  skiaDir,
+		Env: []string{
+			fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), depotToolsDir),
+		},
+	}
+	if err := exec.Run(ctx, depotToolsUpdateCommand); err != nil {
+		td.Fatal(ctx, err)
+	}
+
 	ctx = td.WithEnv(ctx, []string{"PATH=%(PATH)s:" + depotToolsDir})
 
 	// Sync Chrome.
