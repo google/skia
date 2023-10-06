@@ -26,12 +26,27 @@ namespace SkSL {
 class Context;
 enum class OperatorPrecedence : uint8_t;
 
+namespace SwizzleComponent {
+
+enum Type : int8_t {
+    X  =  0,  Y =  1,  Z =  2,  W =  3,
+    R  =  4,  G =  5,  B =  6,  A =  7,
+    S  =  8,  T =  9,  P = 10,  Q = 11,
+    UL = 12, UT = 13, UR = 14, UB = 15,
+    ZERO,
+    ONE
+};
+
+}  // namespace SwizzleComponent
+
 /**
  * Represents a vector swizzle operation such as 'float3(1, 2, 3).zyx'.
  */
 class Swizzle final : public Expression {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kSwizzle;
+
+    using Component = SwizzleComponent::Type;
 
     Swizzle(const Context& context, Position pos, std::unique_ptr<Expression> base,
             const ComponentArray& components)
