@@ -61,7 +61,7 @@ static std::string bitmap_to_base64_data_uri(const SkBitmap& bitmap) {
     }
 
     sk_sp<SkData> pngData = wStream.detachAsData();
-    size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+    size_t len = SkBase64::EncodedSize(pngData->size());
 
     // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs
     // and should only output them on failure.

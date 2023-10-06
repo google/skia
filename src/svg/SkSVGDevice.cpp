@@ -549,7 +549,7 @@ sk_sp<SkData> AsDataUri(SkImage* image) {
         }
     }
 
-    size_t b64Size = SkBase64::Encode(imageData->data(), imageData->size(), nullptr);
+    size_t b64Size = SkBase64::EncodedSize(imageData->size());
     sk_sp<SkData> dataUri = SkData::MakeUninitialized(selectedPrefixLength + b64Size);
     char* dest = (char*)dataUri->writable_data();
     memcpy(dest, selectedPrefix, selectedPrefixLength);
@@ -983,7 +983,7 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
         return;
     }
 
-    size_t b64Size = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+    size_t b64Size = SkBase64::EncodedSize(pngData->size());
     AutoTMalloc<char> b64Data(b64Size);
     SkBase64::Encode(pngData->data(), pngData->size(), b64Data.get());
 

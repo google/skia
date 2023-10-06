@@ -26,17 +26,23 @@ DEF_TEST(SkBase64, reporter) {
         size_t length = 256 - offset;
 
         // Encode
-        size_t encodeLength = SkBase64::Encode(all + offset, length, nullptr);
-        AutoTMalloc<char> src(encodeLength + 1);
-        SkBase64::Encode(all + offset, length, src.get());
+        size_t predictedEncodeLength = SkBase64::EncodedSize(length);
+        size_t actualEncodeLength = SkBase64::Encode(all + offset, length, nullptr);
 
-        src[SkToInt(encodeLength)] = '\0';
+        REPORTER_ASSERT(reporter, actualEncodeLength == predictedEncodeLength,
+                        "input size %zu; output size %zu != %zu", length,
+                        actualEncodeLength, predictedEncodeLength);
+        AutoTMalloc<char> src(actualEncodeLength + 1);
+        size_t n = SkBase64::Encode(all + offset, length, src.get());
+        REPORTER_ASSERT(reporter, n == predictedEncodeLength);
+
+        src[SkToInt(actualEncodeLength)] = '\0';
 
         // Decode
         SkBase64::Error err;
 
         size_t decodeLength;
-        err = SkBase64::Decode(src.get(), encodeLength, nullptr, &decodeLength);
+        err = SkBase64::Decode(src.get(), actualEncodeLength, nullptr, &decodeLength);
         if (err != SkBase64::kNoError) {
             REPORT_FAILURE(reporter, "err", SkString("SkBase64::Decode failed!"));
             continue;
@@ -44,7 +50,7 @@ DEF_TEST(SkBase64, reporter) {
         REPORTER_ASSERT(reporter, decodeLength == length);
 
         AutoTMalloc<char> dst(decodeLength);
-        err = SkBase64::Decode(src.get(), encodeLength, dst, &decodeLength);
+        err = SkBase64::Decode(src.get(), actualEncodeLength, dst, &decodeLength);
         if (err != SkBase64::kNoError) {
             REPORT_FAILURE(reporter, "err", SkString("SkBase64::Decode failed!"));
             continue;

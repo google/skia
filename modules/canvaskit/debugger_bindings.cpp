@@ -266,7 +266,7 @@ class SkpDebugPlayer {
     // Return type is the PNG data as a base64 encoded string with prepended URI.
     std::string getImageResource(int index) {
       sk_sp<SkData> pngData = SkPngEncoder::Encode(nullptr, fImages[index].get(), {});
-      size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+      size_t len = SkBase64::EncodedSize(pngData->size());
       SkString dst;
       dst.resize(len);
       SkBase64::Encode(pngData->data(), pngData->size(), dst.data());

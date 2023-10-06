@@ -19,7 +19,7 @@
 #define LOG_MEMORY_CACHE 0
 
 static SkString data_to_str(const SkData& data) {
-    size_t encodeLength = SkBase64::Encode(data.data(), data.size(), nullptr);
+    size_t encodeLength = SkBase64::EncodedSize(data.size());
     SkString str;
     str.resize(encodeLength);
     SkBase64::Encode(data.data(), data.size(), str.data());

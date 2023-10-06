@@ -41,7 +41,7 @@ bool BitmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
     }
 
     sk_sp<SkData> pngData = wStream.detachAsData();
-    size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
+    size_t len = SkBase64::EncodedSize(pngData->size());
 
     // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs.
     // Infra says these can be pretty big, as long as we're only outputting them on failure.

@@ -37,6 +37,15 @@ public:
     static size_t Encode(const void* src, size_t length, void* dst, const char* encode = nullptr);
 
     /**
+       Returns the length of the buffer that needs to be allocated to encode srcDataLength bytes.
+    */
+    static size_t EncodedSize(size_t srcDataLength) {
+        // Take the floor of division by 3 to find the number of groups that need to be encoded.
+        // Each group takes 4 bytes to be represented in base64.
+        return ((srcDataLength + 2) / 3) * 4;
+    }
+
+    /**
        Base64 decodes src into dst.
 
        Normally this is called once with 'dst' nullptr to get the required size, then again with an

@@ -150,5 +150,5 @@ size_t SkBase64::Encode(const void* srcv, size_t length, void* dstv, const char*
             *dst++ = encode[EncodePad];
         }
     }
-    return (length + 2) / 3 * 4;
+    return EncodedSize(length);
 }
