@@ -116,8 +116,10 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/gl/GrGLGpu.cpp"
   "src/gpu/ganesh/ops/AtlasTextOp.cpp"
   "src/pdf/SkJpeg"
+  "tools/DecodeUtils.cpp"
   "tools/EncodeUtils.cpp"
   "tools/GpuToolUtils.cpp"
+  "tools/Resources.cpp"
   "tools/SvgPathExtractor.cpp"
   "tools/ToolUtils.cpp"
 

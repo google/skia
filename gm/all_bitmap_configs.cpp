@@ -22,6 +22,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -135,7 +136,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     ToolUtils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 
     SkBitmap bitmap;
-    if (GetResourceAsBitmap("images/color_wheel.png", &bitmap)) {
+    if (ToolUtils::GetResourceAsBitmap("images/color_wheel.png", &bitmap)) {
         bitmap.setImmutable();
         draw(canvas, p, font, bitmap, kN32_SkColorType, "Native 32");
 

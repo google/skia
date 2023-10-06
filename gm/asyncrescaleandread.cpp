@@ -19,6 +19,7 @@
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/base/SkScopeExit.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
@@ -280,7 +281,7 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas,
                                                 ReadSource source,
                                                 Type type,
                                                 SkString* errorMsg) {
-    auto image = GetResourceAsImage(imageFile);
+    auto image = ToolUtils::GetResourceAsImage(imageFile);
     if (!image) {
         errorMsg->printf("Could not load image file %s.", imageFile);
         return skiagm::DrawResult::kFail;
@@ -432,7 +433,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_yuv_no_scale, canvas, errorMsg, 400, 300) {
         return skiagm::DrawResult::kSkip;
     }
 
-    auto image = GetResourceAsImage("images/yellow_rose.webp");
+    auto image = ToolUtils::GetResourceAsImage("images/yellow_rose.webp");
     if (!image) {
         return skiagm::DrawResult::kFail;
     }

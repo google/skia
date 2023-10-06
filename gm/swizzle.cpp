@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GPU_GM(swizzle, rContext, canvas, 512, 512) {
@@ -27,7 +28,7 @@ DEF_SIMPLE_GPU_GM(swizzle, rContext, canvas, 512, 512) {
     }
 
     SkBitmap bmp;
-    GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
+    ToolUtils::GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(
             rContext, bmp, /*label=*/"Gm_Swizzle", skgpu::Mipmapped::kNo));
     if (!view) {

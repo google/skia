@@ -11,7 +11,7 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "tools/Resources.h"
+#include "tools/DecodeUtils.h"
 
 // Like other Benchmark subclasses, Encoder benchmarks are run by:
 // nanobench --match ^Encode_
@@ -32,7 +32,7 @@ public:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDelayedSetup() override {
-        SkAssertResult(GetResourceAsBitmap(fSourceFilename, &fBitmap));
+        SkAssertResult(ToolUtils::GetResourceAsBitmap(fSourceFilename, &fBitmap));
     }
 
     void onDraw(int loops, SkCanvas*) override {

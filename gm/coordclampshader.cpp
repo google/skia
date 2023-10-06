@@ -13,10 +13,11 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GM(coordclampshader, canvas, 1074, 795) {
-    auto image = GetResourceAsImage("images/mandrill_256.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     if (!image) {
         return;
     }

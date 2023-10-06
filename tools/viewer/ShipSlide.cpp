@@ -10,6 +10,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkPaintPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/timer/Timer.h"
 #include "tools/viewer/Slide.h"
@@ -50,10 +51,10 @@ class DrawShipSlide : public Slide {
 public:
     DrawShipSlide(const char name[], DrawAtlasProc proc) : fProc(proc) {
         fName = name;
-        fAtlas = GetResourceAsImage("images/ship.png");
+        fAtlas = ToolUtils::GetResourceAsImage("images/ship.png");
         if (!fAtlas) {
             SkDebugf("\nCould not decode file ship.png. Falling back to penguin mode.\n");
-            fAtlas = GetResourceAsImage("images/baby_tux.png");
+            fAtlas = ToolUtils::GetResourceAsImage("images/baby_tux.png");
             if (!fAtlas) {
                 SkDebugf("\nCould not decode file baby_tux.png. Did you forget"
                          " to set the resourcePath?\n");

@@ -16,6 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
+#include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -24,11 +25,13 @@
 
 using namespace skia_private;
 
-static sk_sp<SkImage> make_image1() { return GetResourceAsImage("images/mandrill_128.png"); }
+static sk_sp<SkImage> make_image1() {
+    return ToolUtils::GetResourceAsImage("images/mandrill_128.png");
+}
 
 static sk_sp<SkImage> make_image2() {
-    return GetResourceAsImage("images/brickwork-texture.jpg")->
-            makeSubset(nullptr, {0, 0, 128, 128});
+    return ToolUtils::GetResourceAsImage("images/brickwork-texture.jpg")
+            ->makeSubset(nullptr, {0, 0, 128, 128});
 }
 
 namespace skiagm {

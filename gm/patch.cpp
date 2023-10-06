@@ -20,6 +20,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/utils/SkPatchUtils.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 static sk_sp<SkShader> make_shader() {
@@ -164,7 +165,7 @@ DEF_SIMPLE_GM(patch_image, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
     };
-    dopatch(canvas, colors, GetResourceAsImage("images/mandrill_128.png"), nullptr);
+    dopatch(canvas, colors, ToolUtils::GetResourceAsImage("images/mandrill_128.png"), nullptr);
 }
 DEF_SIMPLE_GM(patch_image_persp, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {
@@ -173,7 +174,7 @@ DEF_SIMPLE_GM(patch_image_persp, canvas, 1500, 1100) {
     SkMatrix localM;
     localM.reset();
     localM[6] = 0.00001f;    // force perspective
-    dopatch(canvas, colors, GetResourceAsImage("images/mandrill_128.png"), &localM);
+    dopatch(canvas, colors, ToolUtils::GetResourceAsImage("images/mandrill_128.png"), &localM);
 }
 DEF_SIMPLE_GM(patch_alpha, canvas, 1500, 1100) {
     const SkColor colors[SkPatchUtils::kNumCorners] = {

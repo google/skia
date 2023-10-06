@@ -17,6 +17,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -68,7 +69,7 @@ DEF_SIMPLE_GM(localmatriximageshader, canvas, 250, 250) {
 DEF_SIMPLE_GM(localmatriximageshader_filtering, canvas, 256, 256) {
     // Test that filtering decisions (eg bicubic for upscale) are made correctly when the scale
     // comes from a local matrix shader.
-    auto image = GetResourceAsImage("images/mandrill_256.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     SkPaint p;
     SkMatrix m = SkMatrix::Scale(2, 2);
     p.setShader(image->makeShader(SkSamplingOptions(SkCubicResampler::Mitchell()))

@@ -29,6 +29,7 @@
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -179,7 +180,7 @@ protected:
 
         SkSamplingOptions sampling(SkFilterMode::kLinear,
                                    SkMipmapMode::kLinear);
-        sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_512.png"));
+        sk_sp<SkImage> image(ToolUtils::GetResourceAsImage("images/mandrill_512.png"));
 
         canvas->translate(20, 20);
         for (const auto& xform : xforms) {
@@ -200,7 +201,7 @@ DEF_GM(return new SaveLayerWithBackdropGM();)
 // Test that color filters and mask filters are applied before the image filter, even if it would
 // normally be a sprite draw that could avoid an auto-saveLayer.
 DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
-    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_256.png"));
+    sk_sp<SkImage> image(ToolUtils::GetResourceAsImage("images/mandrill_256.png"));
     auto direct = GrAsDirectContext(canvas->recordingContext());
     if (direct) {
         if (sk_sp<SkImage> gpuImage = SkImages::TextureFromImage(direct, image)) {

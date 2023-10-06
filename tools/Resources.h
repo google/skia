@@ -8,36 +8,24 @@
 #ifndef Resources_DEFINED
 #define Resources_DEFINED
 
-#include "include/core/SkBitmap.h"
-#include "include/core/SkData.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkData.h"  // IWYU pragma: keep
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 
+#include <memory>
 #include <string>
 
-class SkBitmap;
-class SkData;
 class SkStreamAsset;
 class SkTypeface;
 
 SkString GetResourcePath(const char* resource = "");
 
-void SetResourcePath(const char* );
-
-bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst);
+void SetResourcePath(const char*);
 
 sk_sp<SkData> GetResourceAsData(const char* resource);
 
 inline sk_sp<SkData> GetResourceAsData(std::string resource) {
     return GetResourceAsData(resource.c_str());
-}
-
-inline bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
-    return DecodeDataToBitmap(GetResourceAsData(resource), dst);
-}
-
-inline sk_sp<SkImage> GetResourceAsImage(const char* resource) {
-    return SkImages::DeferredFromEncodedData(GetResourceAsData(resource));
 }
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource,

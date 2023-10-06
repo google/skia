@@ -28,6 +28,7 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 #include "src/utils/SkPatchUtils.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -309,7 +310,7 @@ DEF_SIMPLE_GM(vertices_perspective, canvas, 256, 256) {
 }
 
 DEF_SIMPLE_GM(skbug_13047, canvas, 200, 200) {
-    auto image = GetResourceAsImage("images/mandrill_128.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
 
     const float w = image->width();
     const float h = image->height();

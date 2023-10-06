@@ -16,12 +16,13 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
-    sk_sp<SkImage> image(GetResourceAsImage(resource));
+    sk_sp<SkImage> image(ToolUtils::GetResourceAsImage(resource));
     if (image) {
         canvas->drawImage(image, SkIntToScalar(x), SkIntToScalar(y));
     } else {

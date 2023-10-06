@@ -21,6 +21,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <cstdint>
@@ -79,8 +80,8 @@ DEF_TEST(Image_isAlphaOnly, reporter) {
     };
     for (auto& image : {
                  SkImages::RasterFromPixmapCopy(pmap),
-                 GetResourceAsImage("images/mandrill_128.png"),
-                 GetResourceAsImage("images/color_wheel.jpg"),
+                 ToolUtils::GetResourceAsImage("images/mandrill_128.png"),
+                 ToolUtils::GetResourceAsImage("images/color_wheel.jpg"),
                  SkImages::DeferredFromPicture(make_picture(),
                                                {10, 10},
                                                nullptr,

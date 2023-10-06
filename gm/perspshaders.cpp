@@ -25,6 +25,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
@@ -205,8 +206,8 @@ static SkPath make_path() {
 
 DEF_SIMPLE_GM(perspective_clip, canvas, 800, 800) {
     SkPath path = make_path();
-    auto shader = GetResourceAsImage("images/mandrill_128.png")
-                                    ->makeShader(SkSamplingOptions(), SkMatrix::Scale(3, 3));
+    auto shader = ToolUtils::GetResourceAsImage("images/mandrill_128.png")
+                          ->makeShader(SkSamplingOptions(), SkMatrix::Scale(3, 3));
 
     SkPaint paint;
     paint.setColor({0.75, 0.75, 0.75, 1});

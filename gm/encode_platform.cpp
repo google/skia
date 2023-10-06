@@ -22,6 +22,7 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 namespace {
@@ -82,13 +83,13 @@ protected:
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkBitmap opaqueBm, premulBm, unpremulBm;
 
-        if (!GetResourceAsBitmap("images/mandrill_256.png", &opaqueBm)) {
+        if (!ToolUtils::GetResourceAsBitmap("images/mandrill_256.png", &opaqueBm)) {
             *errorMsg = "Could not load images/mandrill_256.png.png. "
                         "Did you forget to set the resourcePath?";
             return DrawResult::kFail;
         }
         SkBitmap tmp;
-        if (!GetResourceAsBitmap("images/yellow_rose.png", &tmp)) {
+        if (!ToolUtils::GetResourceAsBitmap("images/yellow_rose.png", &tmp)) {
             *errorMsg = "Could not load images/yellow_rose.png. "
                         "Did you forget to set the resourcePath?";
             return DrawResult::kFail;

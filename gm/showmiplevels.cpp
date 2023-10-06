@@ -22,6 +22,7 @@
 #include "include/core/SkTileMode.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapBuilder.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -35,7 +36,7 @@ class ShowMipLevels3 : public skiagm::GM {
     SkISize getISize() override { return {1130, 970}; }
 
     void onOnceBeforeDraw() override {
-        fImg = GetResourceAsImage("images/ship.png");
+        fImg = ToolUtils::GetResourceAsImage("images/ship.png");
         fImg = fImg->makeRasterImage(); // makeWithMips only works on raster for now
 
         const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };

@@ -43,6 +43,7 @@
 #include "src/core/SkStreamPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -1741,7 +1742,7 @@ DEF_TEST(Codec_ossfuzz6274, r) {
     }
 
     const char* file = "invalid_images/ossfuzz6274.gif";
-    auto image = GetResourceAsImage(file);
+    auto image = ToolUtils::GetResourceAsImage(file);
 
 #ifdef SK_HAS_WUFFS_LIBRARY
     // We are transitioning from an old GIF implementation to a new (Wuffs) GIF
@@ -1856,7 +1857,7 @@ DEF_TEST(Codec_crbug807324, r) {
     }
 
     const char* file = "images/crbug807324.png";
-    auto image = GetResourceAsImage(file);
+    auto image = ToolUtils::GetResourceAsImage(file);
     if (!image) {
         ERRORF(r, "Missing %s", file);
         return;

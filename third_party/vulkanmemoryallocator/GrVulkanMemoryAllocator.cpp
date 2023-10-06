@@ -23,6 +23,11 @@
 #include <windows.h>
 #endif
 
+// Work around https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/issues/312
+// We should be able to remove this when we are able to update to the latest
+// version (as of Oct 2023, blocked on version mismatch in G3)
+#include <cstdio>
+
 #include <vulkan/vulkan_core.h>
 #include "GrVulkanMemoryAllocator.h"
 

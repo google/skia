@@ -11,6 +11,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 class FilteringBench : public Benchmark {
@@ -25,7 +26,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        auto img = GetResourceAsImage("images/ship.png");
+        auto img = ToolUtils::GetResourceAsImage("images/ship.png");
         // need to force raster since lazy doesn't support filteroptions yet
         img = img->makeRasterImage();
 

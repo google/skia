@@ -14,6 +14,7 @@
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <functional>
@@ -150,7 +151,8 @@ private:
     void onDelayedSetup() override {
         // Pass the image though a premul canvas so that we "forget" it is opaque.
         auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(256, 256));
-        surface->getCanvas()->drawImage(GetResourceAsImage("images/mandrill_256.png"), 0, 0);
+        surface->getCanvas()->drawImage(
+                ToolUtils::GetResourceAsImage("images/mandrill_256.png"), 0, 0);
 
         fImage = surface->makeImageSnapshot();
         fColorFilter = fFactory();

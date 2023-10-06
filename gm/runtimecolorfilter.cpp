@@ -19,6 +19,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <stddef.h>
@@ -95,7 +96,7 @@ protected:
     SkISize getISize() override { return SkISize::Make(256 * 3, 256 * 2); }
 
     void onOnceBeforeDraw() override {
-        fImg = GetResourceAsImage("images/mandrill_256.png");
+        fImg = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     }
 
     void onDraw(SkCanvas* canvas) override {

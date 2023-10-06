@@ -16,6 +16,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <memory>
@@ -34,7 +35,7 @@ protected:
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         // Create image.
         const char* path = "images/mandrill_512_q075.jpg";
-        sk_sp<SkImage> image = GetResourceAsImage(path);
+        sk_sp<SkImage> image = ToolUtils::GetResourceAsImage(path);
         if (!image) {
             *errorMsg = "Couldn't load images/mandrill_512_q075.jpg. "
                         "Did you forget to set the resource path?";

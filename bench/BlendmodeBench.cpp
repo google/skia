@@ -13,6 +13,7 @@
 #include "include/core/SkTextBlob.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlendModePriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 namespace {
@@ -40,7 +41,7 @@ protected:
 
     void onDelayedSetup() override {
         if (fType == kSprite) {
-            fImage = GetResourceAsImage("images/color_wheel.png");
+            fImage = ToolUtils::GetResourceAsImage("images/color_wheel.png");
         }
     }
 

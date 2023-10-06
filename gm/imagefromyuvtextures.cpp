@@ -31,6 +31,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 
@@ -48,7 +49,7 @@ protected:
 
     static std::unique_ptr<sk_gpu_test::LazyYUVImage> CreatePlanes(const char* name) {
         SkBitmap bmp;
-        if (!GetResourceAsBitmap(name, &bmp)) {
+        if (!ToolUtils::GetResourceAsBitmap(name, &bmp)) {
             return {};
         }
         if (bmp.colorType() != kRGBA_8888_SkColorType) {

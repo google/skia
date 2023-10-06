@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -45,9 +46,11 @@ static skiagm::DrawResult draw_rotated_image(SkCanvas* canvas, const SkImage* im
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(repeated_bitmap, canvas, errorMsg, 576, 576) {
-    return draw_rotated_image(canvas, GetResourceAsImage("images/randPixels.png").get(), errorMsg);
+    return draw_rotated_image(
+            canvas, ToolUtils::GetResourceAsImage("images/randPixels.png").get(), errorMsg);
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(repeated_bitmap_jpg, canvas, errorMsg, 576, 576) {
-    return draw_rotated_image(canvas, GetResourceAsImage("images/color_wheel.jpg").get(), errorMsg);
+    return draw_rotated_image(
+            canvas, ToolUtils::GetResourceAsImage("images/color_wheel.jpg").get(), errorMsg);
 }

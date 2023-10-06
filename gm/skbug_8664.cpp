@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GM(skbug_8664, canvas, 830, 550) {
@@ -28,7 +29,7 @@ DEF_SIMPLE_GM(skbug_8664, canvas, 830, 550) {
     SkSamplingOptions sampling(SkFilterMode::kLinear,
                                SkMipmapMode::kLinear);
 
-    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_512.png"));
+    sk_sp<SkImage> image(ToolUtils::GetResourceAsImage("images/mandrill_512.png"));
 
     SkPaint overlayPaint;
     overlayPaint.setColor(0x80FFFFFF);

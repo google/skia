@@ -2130,6 +2130,8 @@ if (skia_enable_tools) {
       "tools/DDLPromiseImageHelper.h",
       "tools/DDLTileHelper.cpp",
       "tools/DDLTileHelper.h",
+      "tools/DecodeUtils.cpp",
+      "tools/DecodeUtils.h",
       "tools/EncodeUtils.cpp",
       "tools/EncodeUtils.h",
       "tools/GpuToolUtils.cpp",

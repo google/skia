@@ -26,6 +26,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkTDArray.h"
 #include "tests/Test.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -47,7 +48,7 @@ struct State {
 };
 
 DEF_TEST(serial_procs_image, reporter) {
-    auto src_img = GetResourceAsImage("images/mandrill_128.png");
+    auto src_img = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     const char magic_str[] = "magic signature";
 
     const SkSerialImageProc sprocs[] = {

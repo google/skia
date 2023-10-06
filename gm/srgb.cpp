@@ -10,10 +10,11 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GM(srgb_colorfilter, canvas, 512, 256*3) {
-    auto img = GetResourceAsImage("images/mandrill_256.png");
+    auto img = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
 
     const float array[] = {
         1, 0, 0, 0, 0,

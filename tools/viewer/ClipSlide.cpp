@@ -14,6 +14,7 @@
 #include "include/core/SkShader.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkPathPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 #include "tools/viewer/Slide.h"
@@ -503,8 +504,8 @@ public:
 
     void load(SkScalar w, SkScalar h) override {
         fPath = make_path();
-        fShader = GetResourceAsImage("images/mandrill_128.png")
-                        ->makeShader(SkSamplingOptions(), SkMatrix::Scale(3, 3));
+        fShader = ToolUtils::GetResourceAsImage("images/mandrill_128.png")
+                          ->makeShader(SkSamplingOptions(), SkMatrix::Scale(3, 3));
     }
 
     bool onChar(SkUnichar uni) override {
@@ -584,7 +585,8 @@ public:
         fPatch[10] = {  0, 200 };
         fPatch[11] = {  0, 100 };
 
-        fShader = GetResourceAsImage("images/mandrill_256.png")->makeShader(SkSamplingOptions());
+        fShader = ToolUtils::GetResourceAsImage("images/mandrill_256.png")
+                          ->makeShader(SkSamplingOptions());
     }
 
     void draw(SkCanvas* canvas) override {

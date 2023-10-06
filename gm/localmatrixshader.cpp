@@ -21,6 +21,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -120,7 +121,7 @@ DEF_SIMPLE_GM(localmatrixshader_nested, canvas, 450, 1200) {
 }
 
 DEF_SIMPLE_GM(localmatrixshader_persp, canvas, 542, 266) {
-    auto image = GetResourceAsImage("images/yellow_rose.png");
+    auto image = ToolUtils::GetResourceAsImage("images/yellow_rose.png");
 
     SkBitmap downsized;
     downsized.allocPixels(image->imageInfo().makeWH(128, 128));
@@ -228,8 +229,8 @@ protected:
     SkISize getISize() override { return SkISize::Make(500, 500); }
 
     void onOnceBeforeDraw() override {
-        auto mandrill = GetResourceAsImage("images/mandrill_256.png");  // 256x256
-        auto example5 = GetResourceAsImage("images/example_5.png");     // 128x128
+        auto mandrill = ToolUtils::GetResourceAsImage("images/mandrill_256.png");  // 256x256
+        auto example5 = ToolUtils::GetResourceAsImage("images/example_5.png");     // 128x128
 
         auto mshader = mandrill->makeShader(
                 SkTileMode::kRepeat,

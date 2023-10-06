@@ -25,7 +25,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapBuilder.h"
 #include "tests/Test.h"
-#include "tools/Resources.h"
+#include "tools/DecodeUtils.h"
 
 static void make_bitmap(SkBitmap* bm, int width, int height) {
     bm->allocN32Pixels(width, height);
@@ -239,7 +239,7 @@ static void fill_in_mips(SkMipmapBuilder* builder, sk_sp<SkImage> img) {
 
 DEF_TEST(image_mip_factory, reporter) {
     // TODO: what do to about lazy images and mipmaps?
-    auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
+    auto img = ToolUtils::GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
 
     REPORTER_ASSERT(reporter, !img->hasMipmaps());
     auto img1 = img->withDefaultMipmaps();
@@ -266,7 +266,7 @@ DEF_TEST(image_mip_mismatch, reporter) {
         REPORTER_ASSERT(reporter, img.get() == img2.get());
     };
 
-    auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
+    auto img = ToolUtils::GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
 
     // check size, colortype, and alphatype
 

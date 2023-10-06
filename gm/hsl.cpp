@@ -13,6 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -208,7 +209,7 @@ static sk_sp<SkShader> make_grad(SkScalar width) {
 }
 
 DEF_SIMPLE_GM(HSL_duck, canvas, 1110, 620) {
-    auto src = GetResourceAsImage("images/ducky.png");
+    auto src = ToolUtils::GetResourceAsImage("images/ducky.png");
     auto dst = make_grad(src->width());
     SkRect r = SkRect::MakeIWH(src->width(), src->height());
 

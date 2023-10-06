@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkVertices.h"
@@ -237,12 +238,11 @@ static void gradient_slide(SkCanvas* canvas) {
 #include "include/core/SkStream.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkOSFile.h"
-#include "tools/DecodeFile.h"
+#include "tools/DecodeUtils.h"
 
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
-    SkBitmap    bm;
-
-    decode_file("/skimages/logo.gif", &bm);
+    SkBitmap bm;
+    ToolUtils::GetResourceAsBitmap("images/baby_tux.png", &bm);
     size->set(bm.width(), bm.height());
     return bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear));
 }

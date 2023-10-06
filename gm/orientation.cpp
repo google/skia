@@ -16,10 +16,10 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "tools/DecodeUtils.h"
 #include "tools/EncodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
-
 
 static constexpr int kImgW = 100;
 static constexpr int kImgH =  80;
@@ -133,7 +133,7 @@ static void draw(SkCanvas* canvas, const char* suffix) {
     canvas->save();
     for (char i = '1'; i <= '8'; i++) {
         SkString path = SkStringPrintf("images/orientation/%c%s.jpg", i, suffix);
-        auto image = GetResourceAsImage(path.c_str());
+        auto image = ToolUtils::GetResourceAsImage(path.c_str());
         if (!image) {
             continue;
         }

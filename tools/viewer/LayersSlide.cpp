@@ -18,6 +18,7 @@
 #include "include/utils/SkCamera.h"
 #include "src/base/SkTime.h"
 #include "src/base/SkUTF.h"
+#include "tools/DecodeUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 #include "tools/viewer/Slide.h"
 
@@ -169,7 +170,7 @@ public:
     BackdropSlide() {
         fCenter.set(200, 150);
         fAngle = 0;
-        fImage = GetResourceAsImage("images/mandrill_512.png");
+        fImage = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
         fFilter = SkImageFilters::Dilate(8, 8, nullptr);
         fName = "Backdrop";
     }

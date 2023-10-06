@@ -28,6 +28,7 @@
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -167,7 +168,7 @@ private:
 DEF_GM(return new LumaFilterGM;)
 
 DEF_SIMPLE_GM(AlternateLuma, canvas, 384,128) {
-    sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_128.png");
+    sk_sp<SkImage> img = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     if (!img) {
         return;
     }

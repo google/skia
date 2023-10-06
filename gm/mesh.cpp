@@ -20,6 +20,7 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMeshPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
 
@@ -1321,7 +1322,7 @@ protected:
 
         switch (fType) {
             case Type::kMeshWithImage: {
-                fShader1 = GetResourceAsImage("images/mandrill_128.png")
+                fShader1 = ToolUtils::GetResourceAsImage("images/mandrill_128.png")
                                    ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
                 fShader2 = nullptr;
                 fColorFilter = nullptr;
@@ -1335,9 +1336,9 @@ protected:
                     inverseTable[index] = 255 - index;
                 }
 
-                fShader1 = GetResourceAsImage("images/mandrill_128.png")
+                fShader1 = ToolUtils::GetResourceAsImage("images/mandrill_128.png")
                                    ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
-                fShader2 = GetResourceAsImage("images/color_wheel.png")
+                fShader2 = ToolUtils::GetResourceAsImage("images/color_wheel.png")
                                    ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
                 fColorFilter = SkColorFilters::TableARGB(/*tableA=*/nullptr,
                                                          inverseTable,
@@ -1349,7 +1350,7 @@ protected:
             }
             case Type::kMeshWithPaintColor: {
                 fShader1 = nullptr;
-                fShader2 = GetResourceAsImage("images/mandrill_128.png")
+                fShader2 = ToolUtils::GetResourceAsImage("images/mandrill_128.png")
                                    ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
                 fColorFilter = nullptr;
                 fBlender = SkBlender::Mode(SkBlendMode::kDst);
@@ -1357,12 +1358,12 @@ protected:
                 break;
             }
             case Type::kMeshWithPaintImage: {
-                fShader1 = GetResourceAsImage("images/color_wheel.png")
+                fShader1 = ToolUtils::GetResourceAsImage("images/color_wheel.png")
                                    ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
                 fShader2 = nullptr;
                 fColorFilter = nullptr;
                 fBlender = nullptr;
-                fPaintShader = GetResourceAsImage("images/mandrill_128.png")
+                fPaintShader = ToolUtils::GetResourceAsImage("images/mandrill_128.png")
                                        ->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
                 break;
             }

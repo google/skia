@@ -37,6 +37,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkFontPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -322,7 +323,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
     const SkRSXform xform = SkRSXform::Make(1, 0, 0, 0);
     const SkColor color = 0x884488CC;
 
-    auto image = GetResourceAsImage("images/mandrill_128.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     auto verts = make_vertices(image, tex, color);
     const sk_sp<SkColorFilter> filters[] = {
         nullptr,

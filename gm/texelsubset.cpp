@@ -26,6 +26,7 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/gpu/TestOps.h"
 
@@ -82,7 +83,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkAssertResult(GetResourceAsBitmap("images/mandrill_128.png", &fBitmap));
+        SkAssertResult(ToolUtils::GetResourceAsBitmap("images/mandrill_128.png", &fBitmap));
         // Make the bitmap non-square to detect any width/height confusion.
         fBitmap.extractSubset(&fBitmap, SkIRect::MakeSize(fBitmap.dimensions()).makeInset(0, 20));
         SkASSERT(fBitmap.dimensions() == kImageSize);

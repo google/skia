@@ -10,6 +10,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "modules/skottie/include/Skottie.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 class DecodeBench : public Benchmark {
@@ -47,7 +48,7 @@ public:
     void onDraw(int loops, SkCanvas*) override {
         while (loops-- > 0) {
             SkBitmap bm;
-            SkAssertResult(DecodeDataToBitmap(fData, &bm));
+            SkAssertResult(ToolUtils::DecodeDataToBitmap(fData, &bm));
         }
     }
 

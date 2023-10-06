@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <thread>
@@ -30,7 +31,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest1, r, context, CtsEnforcement::
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
     SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
+    bool success = ToolUtils::GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
     REPORTER_ASSERT(r, success);
     if (!success) {
         return;
@@ -59,7 +60,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest2, r, context, CtsEnforcement::
     ProxyCache* proxyCache2 = recorder2->priv().proxyCache();
 
     SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
+    bool success = ToolUtils::GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
     REPORTER_ASSERT(r, success);
     if (!success) {
         return;
@@ -93,7 +94,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest3, r, context, CtsEnforcement::
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
     SkBitmap bitmap;
-    bool success = GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
+    bool success = ToolUtils::GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
     REPORTER_ASSERT(r, success);
     if (!success) {
         return;
@@ -150,8 +151,8 @@ ProxyCacheSetup setup_test(Context* context, Recorder* recorder, skiatest::Repor
 
     ProxyCacheSetup setup;
 
-    bool success1 = GetResourceAsBitmap("images/mandrill_32.png", &setup.fBitmap1);
-    bool success2 = GetResourceAsBitmap("images/mandrill_64.png", &setup.fBitmap2);
+    bool success1 = ToolUtils::GetResourceAsBitmap("images/mandrill_32.png", &setup.fBitmap1);
+    bool success2 = ToolUtils::GetResourceAsBitmap("images/mandrill_64.png", &setup.fBitmap2);
     if (!success1 || !success2) {
         return {};
     }

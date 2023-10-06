@@ -19,6 +19,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkRandom.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -90,7 +91,7 @@ DEF_SIMPLE_GM(rtif_unsharp, canvas, 512, 256) {
     )")).effect;
     SkRuntimeShaderBuilder builder(std::move(effect));
 
-    auto image = GetResourceAsImage("images/mandrill_256.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     auto blurredSrc = SkImageFilters::Blur(1, 1, /*input=*/nullptr);
 
     std::string_view childNames[] = { "content", "blurred" };

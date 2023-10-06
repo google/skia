@@ -13,6 +13,7 @@
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/base/SkUtils.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
@@ -36,7 +37,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         if (!fImg) {
-            fImg = GetResourceAsImage("images/mandrill_256.png");
+            fImg = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
             fCF0 = SkColorFilters::Matrix(gMat);
             fCF1 = SkColorFilters::Blend(0xFF44CC88, SkBlendMode::kScreen);
         }

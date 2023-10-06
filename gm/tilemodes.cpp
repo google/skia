@@ -25,6 +25,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkTextUtils.h"
+#include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -268,7 +269,7 @@ DEF_GM( return new Tiling2GM(make_grad, "tilemode_gradient"); )
 ////////////////////
 
 DEF_SIMPLE_GM(tilemode_decal, canvas, 720, 1100) {
-    auto img = GetResourceAsImage("images/mandrill_128.png");
+    auto img = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     SkPaint bgpaint;
     bgpaint.setColor(SK_ColorYELLOW);
 

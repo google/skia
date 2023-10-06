@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/effects/SkImageFilters.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #if defined(SK_GANESH)
@@ -72,7 +73,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        fImage = GetResourceAsImage("images/mandrill_512.png");
+        fImage = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {

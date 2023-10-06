@@ -4,7 +4,6 @@
 // HASH=7d3751e82d1b6ec328ffa3d6f48ca831
 REG_FIDDLE(Canvas_saveLayer_3, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
-    // sk_sp<SkImage> image = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(image, 0, 0);
     SkCanvas::SaveLayerRec rec;
     SkPaint paint;

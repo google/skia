@@ -10,6 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 static const skcms_TransferFunction gTFs[] = {
@@ -71,7 +72,7 @@ static void draw_colorspace_gm(Strategy strategy, SkCanvas* canvas) {
         return;
     }
 
-    sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_128.png");
+    sk_sp<SkImage> img = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     if (!img) {
         canvas->drawString("Could not load our test image!",
                            W,H, SkFont{}, SkPaint{});

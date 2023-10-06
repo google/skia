@@ -21,6 +21,7 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <cmath>
@@ -31,7 +32,7 @@ public:
 
     void onOnceBeforeDraw() override {
         // Load the mandrill into a shader.
-        sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_512.png");
+        sk_sp<SkImage> img = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
         if (!img) {
             SkDebugf("Unable to load mandrill_512 from resources directory");
             return;

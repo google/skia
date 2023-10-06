@@ -9,10 +9,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 DEF_SIMPLE_GM(makeRasterImage, canvas, 128,128) {
-    if (auto img = GetResourceAsImage("images/color_wheel.png")) {
+    if (auto img = ToolUtils::GetResourceAsImage("images/color_wheel.png")) {
         canvas->drawImage(img->makeRasterImage(), 0,0);
     }
 }

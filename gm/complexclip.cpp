@@ -22,6 +22,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -210,7 +211,7 @@ DEF_GM(return new ComplexClipGM(true, true, true);)
 }  // namespace skiagm
 
 DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
-    auto img = GetResourceAsImage("images/yellow_rose.png");
+    auto img = ToolUtils::GetResourceAsImage("images/yellow_rose.png");
     auto sh = img->makeShader(SkSamplingOptions());
 
     SkRect r = SkRect::MakeIWH(img->width(), img->height());
@@ -247,7 +248,7 @@ DEF_SIMPLE_GM(clip_shader, canvas, 840, 650) {
 }
 
 DEF_SIMPLE_GM(clip_shader_layer, canvas, 430, 320) {
-    auto img = GetResourceAsImage("images/yellow_rose.png");
+    auto img = ToolUtils::GetResourceAsImage("images/yellow_rose.png");
     auto sh = img->makeShader(SkSamplingOptions());
 
     SkRect r = SkRect::MakeIWH(img->width(), img->height());
@@ -365,7 +366,7 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
     };
 
     // The image that is drawn
-    auto img = GetResourceAsImage("images/yellow_rose.png");
+    auto img = ToolUtils::GetResourceAsImage("images/yellow_rose.png");
     // Scale factor always applied to the image shader so that it tiles
     SkMatrix scale = SkMatrix::Scale(1.f / 4.f, 1.f / 4.f);
     // The perspective matrix applied wherever needed
@@ -443,7 +444,7 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
 }
 
 DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
-    auto image = GetResourceAsImage("images/yellow_rose.png");
+    auto image = ToolUtils::GetResourceAsImage("images/yellow_rose.png");
     canvas->clear(SK_ColorGRAY);
 
     SkRect rect = SkRect::MakeWH(256, 256);

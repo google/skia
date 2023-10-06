@@ -20,6 +20,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkImagePriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <initializer_list>
@@ -73,8 +74,8 @@ DEF_SIMPLE_GM_CAN_FAIL(makecolorspace, canvas, errorMsg, 128 * 3, 128 * 4) {
     sk_sp<SkColorSpace> wideGamutLinear = wideGamut->makeLinearGamma();
 
     // Lazy images
-    sk_sp<SkImage> opaqueImage = GetResourceAsImage("images/mandrill_128.png");
-    sk_sp<SkImage> premulImage = GetResourceAsImage("images/color_wheel.png");
+    sk_sp<SkImage> opaqueImage = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
+    sk_sp<SkImage> premulImage = ToolUtils::GetResourceAsImage("images/color_wheel.png");
     if (!opaqueImage || !premulImage) {
         *errorMsg = "Failed to load images. Did you forget to set the resourcePath?";
         return skiagm::DrawResult::kFail;
@@ -102,8 +103,8 @@ DEF_SIMPLE_GM_CAN_FAIL(makecolorspace, canvas, errorMsg, 128 * 3, 128 * 4) {
 
 DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE) {
     sk_sp<SkImage> images[] = {
-        GetResourceAsImage("images/mandrill_128.png"),
-        GetResourceAsImage("images/color_wheel.png"),
+            ToolUtils::GetResourceAsImage("images/mandrill_128.png"),
+            ToolUtils::GetResourceAsImage("images/color_wheel.png"),
     };
     auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
 
@@ -196,7 +197,7 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
 
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
     sk_sp<SkColorSpace> spin = srgb->makeColorSpin();
-    sk_sp<SkImage> image = GetResourceAsImage("images/color_wheel.png");
+    sk_sp<SkImage> image = ToolUtils::GetResourceAsImage("images/color_wheel.png");
     if (!image) {
         *errorMsg = "Failed to load image. Did you forget to set the resourcePath?";
         return skiagm::DrawResult::kFail;

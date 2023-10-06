@@ -18,6 +18,7 @@
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
@@ -37,7 +38,7 @@ float lerp(float a, float b, float t) {
 }
 
 sk_sp<SkShader> make_image_shader(const char* resource) {
-    sk_sp<SkImage> img = GetResourceAsImage(resource);
+    sk_sp<SkImage> img = ToolUtils::GetResourceAsImage(resource);
 
     // Normalize to 1x1 for UV sampling.
     const auto lm = SkMatrix::Scale(1.0f/img->width(), 1.0f/img->height());

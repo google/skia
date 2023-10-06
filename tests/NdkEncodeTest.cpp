@@ -8,6 +8,7 @@
 #include "include/core/SkTypes.h"
 #ifdef SK_ENABLE_NDK_IMAGES
 #include "include/codec/SkEncodedImageFormat.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageGenerator.h"

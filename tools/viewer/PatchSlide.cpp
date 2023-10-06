@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
@@ -24,7 +25,7 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkOSFile.h"
-#include "tools/DecodeFile.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
@@ -33,7 +34,7 @@
 namespace {
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap bm;
-    decode_file(GetResourceAsData("images/dog.jpg"), &bm);
+    SkASSERT_RELEASE(ToolUtils::GetResourceAsBitmap("images/dog.jpg", &bm));
     *size = SkIPoint{bm.width(), bm.height()};
     return bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear));
 }

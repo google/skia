@@ -21,6 +21,7 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 
@@ -96,7 +97,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
         // This GM exists to exercise GPU planar images.
         return skiagm::DrawResult::kSkip;
     }
-    auto image = GetResourceAsImage("images/mandrill_256.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     if (!image) {
         return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
     }

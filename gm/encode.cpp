@@ -19,6 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 namespace skiagm {
@@ -34,7 +35,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap orig;
-        GetResourceAsBitmap("images/mandrill_512_q075.jpg", &orig);
+        ToolUtils::GetResourceAsBitmap("images/mandrill_512_q075.jpg", &orig);
         SkDynamicMemoryWStream stream;
         SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, orig.pixmap(), {}));
         sk_sp<SkData> pngData = stream.detachAsData();

@@ -15,13 +15,15 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
 #include "tests/Test.h"
-#include "tools/Resources.h"
+#include "tools/DecodeUtils.h"
 
 DEF_TEST(skbug_6389, r) {
     auto s = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     SkPaint p;
     p.setMaskFilter(SkMaskFilter::MakeBlur(SkBlurStyle::kNormal_SkBlurStyle, 5));
-    p.setImageFilter(SkImageFilters::Image(GetResourceAsImage("images/mandrill_512.png"),
-                                           {0, 0, 0, 0}, {0, 0, 0, 0}, SkSamplingOptions()));
+    p.setImageFilter(SkImageFilters::Image(ToolUtils::GetResourceAsImage("images/mandrill_512.png"),
+                                           {0, 0, 0, 0},
+                                           {0, 0, 0, 0},
+                                           SkSamplingOptions()));
     s->getCanvas()->drawPaint(p);
 }

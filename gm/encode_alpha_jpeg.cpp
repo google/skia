@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/base/SkTemplates.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 using namespace skia_private;
@@ -50,7 +51,7 @@ protected:
     SkISize getISize() override { return SkISize::Make(400, 200); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        sk_sp<SkImage> srcImg = GetResourceAsImage("images/rainbow-gradient.png");
+        sk_sp<SkImage> srcImg = ToolUtils::GetResourceAsImage("images/rainbow-gradient.png");
         if (!srcImg) {
             *errorMsg = "Could not load images/rainbow-gradient.png. "
                         "Did you forget to set the resourcePath?";

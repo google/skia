@@ -16,6 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkWebpEncoder.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 namespace skiagm {
@@ -47,7 +48,7 @@ static sk_sp<SkImage> make_image(SkColorType colorType, SkAlphaType alphaType) {
             break;
     }
 
-    auto image = GetResourceAsImage(resource);
+    auto image = ToolUtils::GetResourceAsImage(resource);
     if (!image) {
         return nullptr;
     }

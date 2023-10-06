@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -29,7 +30,7 @@ class GraphiteReplayGM : public GM {
 public:
     GraphiteReplayGM() {
         this->setBGColor(SK_ColorBLACK);
-        fImage = GetResourceAsImage("images/mandrill_128.png");
+        fImage = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     }
 
 protected:

@@ -19,6 +19,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <vector>
@@ -89,7 +90,7 @@ protected:
     SkISize getISize() override { return {840, 1100}; }
 
     void onOnceBeforeDraw() override {
-        sk_sp<SkImage> mandrill = GetResourceAsImage("images/mandrill_256.png");
+        sk_sp<SkImage> mandrill = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
         const auto lm = SkMatrix::RectToRect(SkRect::MakeWH(mandrill->width(), mandrill->height()),
                                              SkRect::MakeWH(kWheelSize, kWheelSize));
         fShaders.push_back(mandrill->makeShader(SkSamplingOptions(), &lm));

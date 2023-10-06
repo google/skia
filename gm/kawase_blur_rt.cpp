@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 class KawaseBlurFilter {
@@ -177,7 +178,7 @@ public:
     SkISize getISize() override { return {1280, 768}; }
 
     void onOnceBeforeDraw() override {
-        fMandrill = GetResourceAsImage("images/mandrill_256.png");
+        fMandrill = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     }
 
     void onDraw(SkCanvas* canvas) override {

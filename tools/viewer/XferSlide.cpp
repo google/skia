@@ -16,6 +16,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/base/SkRandom.h"
+#include "tools/DecodeUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 const SkBlendMode gModes[] = {
@@ -211,7 +212,7 @@ public:
         };
         SkRect r = {10, 10, 200, 200};
         for (auto name : names) {
-            fRecs.push_back({GetResourceAsImage(name), r});
+            fRecs.push_back({ToolUtils::GetResourceAsImage(name), r});
             r.offset(0, r.height() + 10);
         }
 

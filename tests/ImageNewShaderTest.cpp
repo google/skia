@@ -25,6 +25,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <cstring>
@@ -155,7 +156,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU,
 }
 
 DEF_TEST(ImageRawShader, reporter) {
-    auto image = GetResourceAsImage("images/mandrill_32.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_32.png");
     REPORTER_ASSERT(reporter, image);
 
     // We should be able to turn this into a "raw" image shader:

@@ -37,6 +37,7 @@
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkLineClipper.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
@@ -1018,7 +1019,7 @@ static ClipTileRendererArray make_shader_renderers() {
 }
 
 static ClipTileRendererArray make_image_renderers() {
-    sk_sp<SkImage> mandrill = GetResourceAsImage("images/mandrill_512.png");
+    sk_sp<SkImage> mandrill = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
     sk_sp<SkData> mandrillJpeg = GetResourceAsData("images/mandrill_h1v1.jpg");
     return ClipTileRendererArray{TextureSetRenderer::MakeUnbatched(mandrill),
                                  TextureSetRenderer::MakeBatched(mandrill, 0),
@@ -1027,7 +1028,7 @@ static ClipTileRendererArray make_image_renderers() {
 }
 
 static ClipTileRendererArray make_filtered_renderers() {
-    sk_sp<SkImage> mandrill = GetResourceAsImage("images/mandrill_512.png");
+    sk_sp<SkImage> mandrill = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
 
     SkColorMatrix cm;
     cm.setSaturation(10);

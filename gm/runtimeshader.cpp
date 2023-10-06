@@ -21,6 +21,7 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -155,8 +156,8 @@ public:
     void onOnceBeforeDraw() override {
         const SkISize size = {256, 256};
         fThreshold = make_threshold(size);
-        fBefore = make_shader(GetResourceAsImage("images/mandrill_256.png"), size);
-        fAfter = make_shader(GetResourceAsImage("images/dog.jpg"), size);
+        fBefore = make_shader(ToolUtils::GetResourceAsImage("images/mandrill_256.png"), size);
+        fAfter = make_shader(ToolUtils::GetResourceAsImage("images/dog.jpg"), size);
 
         this->RuntimeShaderGM::onOnceBeforeDraw();
     }
@@ -245,7 +246,7 @@ public:
     sk_sp<SkImage> fMandrill;
 
     void onOnceBeforeDraw() override {
-        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
+        fMandrill = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
         this->RuntimeShaderGM::onOnceBeforeDraw();
     }
 
@@ -301,10 +302,10 @@ public:
     sk_sp<SkImage> fMandrill, fMandrillSepia, fIdentityCube, fSepiaCube;
 
     void onOnceBeforeDraw() override {
-        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
-        fMandrillSepia = GetResourceAsImage("images/mandrill_sepia.png");
-        fIdentityCube  = GetResourceAsImage("images/lut_identity.png");
-        fSepiaCube     = GetResourceAsImage("images/lut_sepia.png");
+        fMandrill = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
+        fMandrillSepia = ToolUtils::GetResourceAsImage("images/mandrill_sepia.png");
+        fIdentityCube = ToolUtils::GetResourceAsImage("images/lut_identity.png");
+        fSepiaCube = ToolUtils::GetResourceAsImage("images/lut_sepia.png");
 
         this->RuntimeShaderGM::onOnceBeforeDraw();
     }
@@ -384,10 +385,10 @@ public:
     sk_sp<SkImage> fMandrill, fMandrillSepia, fIdentityCube, fSepiaCube;
 
     void onOnceBeforeDraw() override {
-        fMandrill      = GetResourceAsImage("images/mandrill_256.png");
-        fMandrillSepia = GetResourceAsImage("images/mandrill_sepia.png");
-        fIdentityCube  = GetResourceAsImage("images/lut_identity.png");
-        fSepiaCube     = GetResourceAsImage("images/lut_sepia.png");
+        fMandrill = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
+        fMandrillSepia = ToolUtils::GetResourceAsImage("images/mandrill_sepia.png");
+        fIdentityCube = ToolUtils::GetResourceAsImage("images/lut_identity.png");
+        fSepiaCube = ToolUtils::GetResourceAsImage("images/lut_sepia.png");
 
         this->RuntimeShaderGM::onOnceBeforeDraw();
     }
@@ -870,7 +871,7 @@ DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
         return;
     }
 
-    auto image     = GetResourceAsImage("images/mandrill_128.png");
+    auto image = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     auto imgShader = image->makeShader(SkFilterMode::kNearest);
 
     auto r = SkRect::MakeWH(image->width(), image->height());

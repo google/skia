@@ -15,6 +15,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -49,7 +50,7 @@ class FilterIndiaBoxGM : public skiagm::GM {
 
     void onOnceBeforeDraw() override {
         constexpr char kResource[] = "images/box.gif";
-        if (!GetResourceAsBitmap(kResource, &fBM)) {
+        if (!ToolUtils::GetResourceAsBitmap(kResource, &fBM)) {
             fBM.allocN32Pixels(1, 1);
             fBM.eraseARGB(255, 255, 0 , 0); // red == bad
         }

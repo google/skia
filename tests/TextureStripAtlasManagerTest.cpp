@@ -24,7 +24,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/Resources.h"
+#include "tools/DecodeUtils.h"
 
 #include <cstdint>
 #include <utility>
@@ -73,8 +73,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest,
                                        CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
 
-    sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_128.png");
-
+    sk_sp<SkImage> img = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
 
     uint8_t identity[256];
     for (int i = 0; i < 256; i++) {

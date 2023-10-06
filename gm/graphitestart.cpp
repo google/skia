@@ -17,6 +17,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -256,7 +257,7 @@ class GraphiteStartGM : public GM {
 public:
     GraphiteStartGM() {
         this->setBGColor(SK_ColorBLACK);
-        GetResourceAsBitmap("images/color_wheel.gif", &fBitmap);
+        ToolUtils::GetResourceAsBitmap("images/color_wheel.gif", &fBitmap);
     }
 
 protected:
@@ -307,7 +308,7 @@ protected:
 
         // Middle-right tile
         {
-            sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_128.png"));
+            sk_sp<SkImage> image(ToolUtils::GetResourceAsImage("images/mandrill_128.png"));
             sk_sp<SkShader> shader;
 
             if (image) {

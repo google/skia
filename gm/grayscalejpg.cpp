@@ -10,6 +10,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 /*
@@ -18,7 +19,7 @@
  */
 DEF_SIMPLE_GM(grayscalejpg, canvas, 128, 128) {
     const char kResource[] = "images/grayscale.jpg";
-    sk_sp<SkImage> image(GetResourceAsImage(kResource));
+    sk_sp<SkImage> image(ToolUtils::GetResourceAsImage(kResource));
     if (image) {
         canvas->drawImage(image, 0.0f, 0.0f);
     } else {

@@ -24,6 +24,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <string.h>
@@ -79,7 +80,7 @@ static sk_sp<SkShader> sh_make_lineargradient1() {
 }
 
 static sk_sp<SkShader> sh_make_image() {
-    sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_128.png"));
+    sk_sp<SkImage> image(ToolUtils::GetResourceAsImage("images/mandrill_128.png"));
     if (!image) {
         return nullptr;
     }

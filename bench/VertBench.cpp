@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
 #include "src/base/SkRandom.h"
+#include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 // Just want to trigger perspective handling, not dramatically change size
@@ -54,7 +55,7 @@ class VertBench : public Benchmark {
 
     void onDelayedSetup() override {
         if (fFlags & kTexture_VertFlag) {
-            auto img = GetResourceAsImage("images/mandrill_256.png");
+            auto img = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
             if (img) {
                 SkFilterMode fm = (fFlags & kBilerp_VertFlag) ? SkFilterMode::kLinear
                                                               : SkFilterMode::kNearest;
@@ -192,7 +193,7 @@ public:
 protected:
     const char* onGetName() override { return fName.c_str(); }
     void onDelayedSetup() override {
-        fAtlas = GetResourceAsImage("images/mandrill_256.png");
+        fAtlas = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
         if (fAtlas) {
             fAtlas = fAtlas->makeRasterImage();
         }
