@@ -510,6 +510,7 @@ skia_filegroup(
     ],
     visibility = [
         "//gm:__pkg__",
+        "//src/ports/fontations:__pkg__",
         "//tests:__pkg__",
     ],
 )

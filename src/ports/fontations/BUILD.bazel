@@ -1,4 +1,4 @@
-load("@rules_rust//rust:defs.bzl", "rust_static_library")
+load("@rules_rust//rust:defs.bzl", "rust_static_library", "rust_test")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
@@ -43,4 +43,11 @@ skia_cc_deps(
         ":fontations_ffi",
         ":path_bridge_include",
     ],
+)
+
+rust_test(
+    name = "test_colr_cpal",
+    timeout = "short",
+    crate = ":bridge_rust_side",
+    data = ["//resources"],
 )
