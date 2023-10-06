@@ -12,6 +12,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/base/SkOnce.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkScalerContext.h"
 #include "src/ports/fontations/src/ffi.rs.h"
@@ -96,7 +97,7 @@ protected:
     void onGetFamilyName(SkString* familyName) const override;
     bool onGetPostScriptName(SkString*) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
-    bool onGlyphMaskNeedsCurrentColor() const override { return false; }
+    bool onGlyphMaskNeedsCurrentColor() const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
@@ -112,6 +113,9 @@ private:
     // lifetime of fBridgeFontRef to safely request parsed data.
     rust::Box<fontations_ffi::BridgeFontRef> fBridgeFontRef;
     rust::Box<fontations_ffi::BridgeNormalizedCoords> fBridgeNormalizedCoords;
+
+    mutable SkOnce fGlyphMasksMayNeedCurrentColorOnce;
+    mutable bool fGlyphMasksMayNeedCurrentColor;
 };
 
 #endif  // SkTypeface_Fontations_DEFINED
