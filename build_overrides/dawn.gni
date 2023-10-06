@@ -7,7 +7,6 @@
 
 # Skia doesn't have Chromium's //build directory. Tell Dawn to do without.
 dawn_has_build = false
-tint_has_build = false
 
 dawn_abseil_dir = "//third_party/externals/abseil-cpp"
 dawn_angle_dir = "//third_party/externals/angle2"

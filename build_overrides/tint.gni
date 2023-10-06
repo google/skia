@@ -5,6 +5,9 @@
 
 # These are variables that are overridable by projects that include Tint.
 
+# Skia doesn't have Chromium's //build directory. Tell Tint to do without.
+tint_has_build = false
+
 tint_root_dir = "//third_party/externals/dawn"
 tint_spirv_tools_dir = "//third_party/externals/spirv-tools"
 tint_spirv_headers_dir = "//third_party/externals/spirv-headers"
@@ -15,3 +18,4 @@ tint_build_wgsl_reader = true
 tint_build_wgsl_writer = true
 
 tint_build_unittests = false
+tint_build_benchmarks = false
