@@ -23,7 +23,6 @@
 #include <utility>
 
 #include "avif/avif.h"
-#include "avif/internal.h"
 
 void AvifDecoderDeleter::operator()(avifDecoder* decoder) const {
     if (decoder != nullptr) {
@@ -212,11 +211,9 @@ SkCodec::Result SkAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     if (this->dimensions() != dstInfo.dimensions()) {
-        if (!avifImageScale(fAvifDecoder->image,
-                            dstInfo.width(),
-                            dstInfo.height(),
-                            fAvifDecoder->imageSizeLimit,
-                            &fAvifDecoder->diag)) {
+        result = avifImageScale(
+                fAvifDecoder->image, dstInfo.width(), dstInfo.height(), &fAvifDecoder->diag);
+        if (result != AVIF_RESULT_OK) {
             return kInvalidInput;
         }
     }
