@@ -60,6 +60,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "skdescriptor_deserialize\n"
                                          "skmeshspecialization\n"
                                          "skp\n"
+                                         "skruntimecolorfilter\n"
                                          "skruntimeeffect\n"
                                          "sksl2glsl\n"
                                          "svg_dom\n"
@@ -93,6 +94,7 @@ static void fuzz_region_set_path(sk_sp<SkData>);
 static void fuzz_skdescriptor_deserialize(sk_sp<SkData>);
 static void fuzz_skmeshspecification(sk_sp<SkData>);
 static void fuzz_skp(sk_sp<SkData>);
+static void fuzz_skruntimecolorfilter(sk_sp<SkData>);
 static void fuzz_skruntimeeffect(sk_sp<SkData>);
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 static void fuzz_sksl2metal(sk_sp<SkData>);
@@ -243,6 +245,10 @@ static int fuzz_file(SkString path, SkString type) {
     }
     if (type.equals("skp")) {
         fuzz_skp(bytes);
+        return 0;
+    }
+    if (type.equals("skruntimecolorfilter")) {
+        fuzz_skruntimecolorfilter(bytes);
         return 0;
     }
     if (type.equals("skruntimeeffect")) {
@@ -786,13 +792,23 @@ static void fuzz_skmeshspecification(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] SkMeshSpecification::Make didn't crash!\n");
 }
 
+bool FuzzSkRuntimeColorFilter(sk_sp<SkData> bytes);
+
+static void fuzz_skruntimecolorfilter(sk_sp<SkData> bytes) {
+    if (FuzzSkRuntimeColorFilter(bytes)) {
+        SkDebugf("[terminated] Success! Compiled and executed SkSL color filter.\n");
+    } else {
+        SkDebugf("[terminated] Could not compile or execute SkSL color filter.\n");
+    }
+}
+
 bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes);
 
 static void fuzz_skruntimeeffect(sk_sp<SkData> bytes) {
     if (FuzzSkRuntimeEffect(bytes)) {
-        SkDebugf("[terminated] Success! Compiled and executed SkSL code.\n");
+        SkDebugf("[terminated] Success! Compiled and executed SkSL shader.\n");
     } else {
-        SkDebugf("[terminated] Could not compile or execute SkSL code.\n");
+        SkDebugf("[terminated] Could not compile or execute SkSL shader.\n");
     }
 }
 

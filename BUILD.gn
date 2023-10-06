@@ -2623,6 +2623,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzSkDescriptorDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzSkMeshSpecification.cpp",
       "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
+      "fuzz/oss_fuzz/FuzzSkRuntimeColorFilter.cpp",
       "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
       "tools/UrlDataManager.cpp",
@@ -3455,6 +3456,11 @@ if (skia_enable_tools) {
     libfuzzer_app("svg_dom") {
       sources = [ "fuzz/oss_fuzz/FuzzSVG.cpp" ]
       deps = [ "modules/svg" ]
+    }
+
+    libfuzzer_app("skruntimecolorfilter") {
+      sources = [ "fuzz/oss_fuzz/FuzzSkRuntimeColorFilter.cpp" ]
+      deps = []
     }
 
     libfuzzer_app("skruntimeeffect") {

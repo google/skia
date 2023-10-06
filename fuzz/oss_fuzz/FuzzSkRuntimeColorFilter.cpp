@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google, LLC
+ * Copyright 2023 Google, LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -18,8 +18,8 @@
 using namespace skia_private;
 
 /**
- * The fuzzer treats the input bytes as an SkSL shader program. The requested number of uniforms and
- * children are automatically synthesized to match the program's needs.
+ * The fuzzer treats the input bytes as an SkSL color-filter program. The requested number of
+ * uniforms and children are automatically synthesized to match the program's needs.
  *
  * We fuzz twice, with two different settings for inlining in the SkSL compiler. By default, the
  * compiler inlines most small to medium functions. This can hide bugs related to function-calling.
@@ -27,10 +27,10 @@ using namespace skia_private;
  * This gives us better coverage, and eases the burden on the fuzzer to inject useless noise into
  * functions to suppress inlining.
  */
-static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
-                                     const SkRuntimeEffect::Options& options) {
+static bool FuzzSkRuntimeColorFilter_Once(sk_sp<SkData> codeBytes,
+                                          const SkRuntimeEffect::Options& options) {
     SkString shaderText{static_cast<const char*>(codeBytes->data()), codeBytes->size()};
-    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForShader(shaderText, options);
+    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForColorFilter(shaderText, options);
     SkRuntimeEffect* effect = result.effect.get();
     if (!effect) {
         return false;
@@ -40,12 +40,13 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
     TArray<SkRuntimeEffect::ChildPtr> children;
     FuzzCreateValidInputsForRuntimeEffect(effect, uniformBytes, children);
 
-    sk_sp<SkShader> shader = effect->makeShader(uniformBytes, SkSpan(children));
-    if (!shader) {
+    sk_sp<SkColorFilter> cf = effect->makeColorFilter(uniformBytes, SkSpan(children));
+    if (!cf) {
         return false;
     }
     SkPaint paint;
-    paint.setShader(std::move(shader));
+    paint.setColor(SK_ColorRED);
+    paint.setColorFilter(std::move(cf));
 
     sk_sp<SkSurface> s = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(4, 4));
     if (!s) {
@@ -56,15 +57,15 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
     return true;
 }
 
-bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes) {
+bool FuzzSkRuntimeColorFilter(sk_sp<SkData> bytes) {
     // Test once with optimization disabled...
     SkRuntimeEffect::Options options;
     options.forceUnoptimized = true;
-    bool result = FuzzSkRuntimeEffect_Once(bytes, options);
+    bool result = FuzzSkRuntimeColorFilter_Once(bytes, options);
 
     // ... and then with optimization enabled.
     options.forceUnoptimized = false;
-    result = FuzzSkRuntimeEffect_Once(bytes, options) || result;
+    result = FuzzSkRuntimeColorFilter_Once(bytes, options) || result;
 
     return result;
 }
@@ -75,7 +76,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         return 0;
     }
     auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzSkRuntimeEffect(bytes);
+    FuzzSkRuntimeColorFilter(bytes);
     return 0;
 }
 #endif
