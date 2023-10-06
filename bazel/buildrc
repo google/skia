@@ -128,7 +128,7 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --compilation_mode=dbg --keep_going \
                    --with_gl_standard=gl_standard --gpu_backend=gl_ganesh \
                    --gpu_backend=vulkan_ganesh \
-                   --enable_gpu_test_utils --force_cpu_tests \
+                   --enable_gpu_test_utils \
                    --include_fontmgr=custom_directory_fontmgr --include_fontmgr=custom_embedded_fontmgr \
                    --include_fontmgr=custom_empty_fontmgr --fontmgr_factory=custom_directory_fontmgr_factory \
                    --include_decoder=avif_decode_codec --include_decoder=gif_decode_codec \
