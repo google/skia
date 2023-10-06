@@ -59,18 +59,19 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "region_set_path\n"
                                          "skdescriptor_deserialize\n"
                                          "skmeshspecialization\n"
+#if defined(SK_ENABLE_SKOTTIE)
+                                         "skottie_json\n"
+#endif
                                          "skp\n"
                                          "skruntimeblender\n"
                                          "skruntimecolorfilter\n"
                                          "skruntimeeffect\n"
                                          "sksl2glsl\n"
-                                         "svg_dom\n"
                                          "sksl2metal\n"
                                          "sksl2pipeline\n"
                                          "sksl2spirv\n"
-#if defined(SK_ENABLE_SKOTTIE)
-                                         "skottie_json\n"
-#endif
+                                         "sksl2wgsl\n"
+                                         "svg_dom\n"
                                          "textblob";
 
 static DEFINE_string2(type, t, "", g_type_message);
@@ -102,6 +103,7 @@ static void fuzz_sksl2glsl(sk_sp<SkData>);
 static void fuzz_sksl2metal(sk_sp<SkData>);
 static void fuzz_sksl2pipeline(sk_sp<SkData>);
 static void fuzz_sksl2spirv(sk_sp<SkData>);
+static void fuzz_sksl2wgsl(sk_sp<SkData>);
 static void fuzz_textblob_deserialize(sk_sp<SkData>);
 
 static void print_api_names();
@@ -269,12 +271,16 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_sksl2metal(bytes);
         return 0;
     }
+    if (type.equals("sksl2pipeline")) {
+        fuzz_sksl2pipeline(bytes);
+        return 0;
+    }
     if (type.equals("sksl2spirv")) {
         fuzz_sksl2spirv(bytes);
         return 0;
     }
-    if (type.equals("sksl2pipeline")) {
-        fuzz_sksl2pipeline(bytes);
+    if (type.equals("sksl2wgsl")) {
+        fuzz_sksl2wgsl(bytes);
         return 0;
     }
 #if defined(SK_ENABLE_SVG)
@@ -838,16 +844,6 @@ static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     }
 }
 
-bool FuzzSKSL2SPIRV(sk_sp<SkData> bytes);
-
-static void fuzz_sksl2spirv(sk_sp<SkData> bytes) {
-    if (FuzzSKSL2SPIRV(bytes)) {
-        SkDebugf("[terminated] Success! Compiled input to SPIRV.\n");
-    } else {
-        SkDebugf("[terminated] Could not compile input to SPIRV.\n");
-    }
-}
-
 bool FuzzSKSL2Metal(sk_sp<SkData> bytes);
 
 static void fuzz_sksl2metal(sk_sp<SkData> bytes) {
@@ -865,6 +861,26 @@ static void fuzz_sksl2pipeline(sk_sp<SkData> bytes) {
         SkDebugf("[terminated] Success! Compiled input to pipeline stage.\n");
     } else {
         SkDebugf("[terminated] Could not compile input to pipeline stage.\n");
+    }
+}
+
+bool FuzzSKSL2SPIRV(sk_sp<SkData> bytes);
+
+static void fuzz_sksl2spirv(sk_sp<SkData> bytes) {
+    if (FuzzSKSL2SPIRV(bytes)) {
+        SkDebugf("[terminated] Success! Compiled input to SPIR-V.\n");
+    } else {
+        SkDebugf("[terminated] Could not compile input to SPIR-V.\n");
+    }
+}
+
+bool FuzzSKSL2WGSL(sk_sp<SkData> bytes);
+
+static void fuzz_sksl2wgsl(sk_sp<SkData> bytes) {
+    if (FuzzSKSL2WGSL(bytes)) {
+        SkDebugf("[terminated] Success! Compiled input to WGSL.\n");
+    } else {
+        SkDebugf("[terminated] Could not compile input to WGSL.\n");
     }
 }
 

@@ -2619,6 +2619,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzSKSL2Metal.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp",
       "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
+      "fuzz/oss_fuzz/FuzzSKSL2WGSL.cpp",
       "fuzz/oss_fuzz/FuzzSVG.cpp",
       "fuzz/oss_fuzz/FuzzSkDescriptorDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzSkMeshSpecification.cpp",
@@ -3434,11 +3435,6 @@ if (skia_enable_tools) {
       deps = []
     }
 
-    libfuzzer_app("sksl2spirv") {
-      sources = [ "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp" ]
-      deps = []
-    }
-
     libfuzzer_app("sksl2metal") {
       sources = [ "fuzz/oss_fuzz/FuzzSKSL2Metal.cpp" ]
       deps = []
@@ -3446,6 +3442,16 @@ if (skia_enable_tools) {
 
     libfuzzer_app("sksl2pipeline") {
       sources = [ "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp" ]
+      deps = []
+    }
+
+    libfuzzer_app("sksl2spirv") {
+      sources = [ "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp" ]
+      deps = []
+    }
+
+    libfuzzer_app("sksl2wgsl") {
+      sources = [ "fuzz/oss_fuzz/FuzzSKSL2WGSL.cpp" ]
       deps = []
     }
 
