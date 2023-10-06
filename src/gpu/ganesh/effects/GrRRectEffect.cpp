@@ -511,6 +511,10 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
 //////////////////////////////////////////////////////////////////////////////
 
 static bool elliptical_effect_uses_scale(const GrShaderCaps& caps, const SkRRect& rrect) {
+    // Keep shaders consistent across varying radii when in reduced shader mode.
+    if (caps.fReducedShaderMode) {
+        return true;
+    }
     // If we're on a device where float != fp32 then we'll do the distance computation in a space
     // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
     // radii uniform values are already in this normalized space.
