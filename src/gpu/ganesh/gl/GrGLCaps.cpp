@@ -2993,7 +2993,11 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             if (ctxInfo.hasExtension("GL_EXT_texture_compression_s3tc")) {
                 info.fFlags = FormatInfo::kTexturable_Flag;
             }
-        } // No WebGL support
+        } else if (GR_IS_GR_WEBGL(standard)) {
+            if (ctxInfo.hasExtension("WEBGL_compressed_texture_s3tc")) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
+        }
 
         // There are no support GrColorTypes for this format
     }
@@ -3007,9 +3011,13 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             if (ctxInfo.hasExtension("GL_EXT_texture_compression_s3tc")) {
                 info.fFlags = FormatInfo::kTexturable_Flag;
             }
-        } // No WebGL support
+        } else if (GR_IS_GR_WEBGL(standard)) {
+            if (ctxInfo.hasExtension("WEBGL_compressed_texture_s3tc")) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
+        }
 
-          // There are no support GrColorTypes for this format
+        // There are no support GrColorTypes for this format
     }
 
     // Format: COMPRESSED_RGB8_ETC2
@@ -3028,7 +3036,11 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture")) {
                     info.fFlags = FormatInfo::kTexturable_Flag;
                 }
-            } // No WebGL support
+            } else if (GR_IS_GR_WEBGL(standard)) {
+                if (ctxInfo.hasExtension("WEBGL_compressed_texture_etc")) {
+                    info.fFlags = FormatInfo::kTexturable_Flag;
+                }
+            }
         }
 
         // There are no support GrColorTypes for this format
@@ -3043,7 +3055,12 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             if (ctxInfo.hasExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
                 info.fFlags = FormatInfo::kTexturable_Flag;
             }
-        } // No GL or WebGL support
+        } else if (GR_IS_GR_WEBGL(standard)) {
+            if (ctxInfo.hasExtension("WEBGL_compressed_texture_etc1")) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
+        }
+        // No GL support
 
         // There are no support GrColorTypes for this format
     }
