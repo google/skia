@@ -44,7 +44,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
-#include "include/utils/SkBase64.h"
+#include "src/base/SkBase64.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkClipStack.h"

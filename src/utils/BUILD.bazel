@@ -21,7 +21,6 @@ split_srcs_and_hdrs(
 
 UTIL_FILES = [
     "SkAnimCodecPlayer.cpp",
-    "SkBase64.cpp",
     "SkBitSet.h",
     "SkCallableTraits.h",
     "SkCamera.cpp",
@@ -170,7 +169,6 @@ skia_filegroup(
 skia_filegroup(
     name = "core_srcs",
     srcs = [
-        "SkBase64.cpp",
         "SkCanvasStack.cpp",
         "SkCustomTypeface.cpp",
         "SkDashPath.cpp",

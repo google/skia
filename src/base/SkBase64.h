@@ -8,8 +8,6 @@
 #ifndef SkBase64_DEFINED
 #define SkBase64_DEFINED
 
-#include "include/core/SkTypes.h"
-
 #include <cstddef>
 
 struct SkBase64 {

@@ -15,7 +15,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/utils/SkBase64.h"
+#include "src/base/SkBase64.h"
 
 #include <sstream>
 #include <string>

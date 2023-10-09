@@ -8,7 +8,6 @@ skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "SkAnimCodecPlayer.h",
-        "SkBase64.h",
         "SkCamera.h",
         "SkCanvasStateUtils.h",
         "SkCustomTypeface.h",
@@ -30,7 +29,6 @@ skia_filegroup(
 skia_filegroup(
     name = "core_hdrs",
     srcs = [
-        "SkBase64.h",
         "SkCustomTypeface.h",
         "SkEventTracer.h",
         "SkNWayCanvas.h",

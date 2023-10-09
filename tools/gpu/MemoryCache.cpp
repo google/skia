@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkBase64.h"
+#include "src/base/SkBase64.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/gpu/ganesh/GrPersistentCacheUtils.h"

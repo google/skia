@@ -13,7 +13,7 @@
 #include "include/core/SkImage.h"
 #include "include/private/base/SkTPin.h"
 #include "include/utils/SkAnimCodecPlayer.h"
-#include "include/utils/SkBase64.h"
+#include "src/base/SkBase64.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 

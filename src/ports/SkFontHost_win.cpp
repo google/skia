@@ -20,7 +20,7 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "include/utils/SkBase64.h"
+#include "src/base/SkBase64.h"
 #include "src/base/SkLeanWindows.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"

@@ -6,7 +6,9 @@
  */
 
 
-#include "include/utils/SkBase64.h"
+#include "src/base/SkBase64.h"
+
+#include "include/private/base/SkAssert.h"
 
 #include <cstdint>
 

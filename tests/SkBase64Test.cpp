@@ -8,7 +8,7 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "include/utils/SkBase64.h"
+#include "src/base/SkBase64.h"
 #include "tests/Test.h"
 
 #include <cstring>

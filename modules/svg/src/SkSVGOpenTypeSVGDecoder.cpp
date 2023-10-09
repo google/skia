@@ -10,7 +10,6 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkBase64.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGNode.h"
@@ -18,6 +17,7 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGSVG.h"
 #include "modules/svg/include/SkSVGUse.h"
+#include "src/base/SkBase64.h"
 #include "src/core/SkEnumerate.h"
 
 #include <memory>
