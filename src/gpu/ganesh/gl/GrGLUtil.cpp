@@ -161,6 +161,9 @@ static GrGLVendor get_vendor(const char* vendorString) {
     if (0 == strcmp(vendorString, "ATI Technologies Inc.")) {
         return GrGLVendor::kATI;
     }
+    if (0 == strcmp(vendorString, "Apple")) {
+        return GrGLVendor::kApple;
+    }
     return GrGLVendor::kOther;
 }
 

@@ -2657,6 +2657,12 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         } else if (GR_IS_GR_WEBGL(standard)) {
             rg8Support = version >= GR_GL_VER(2, 0);
         }
+#if defined(SK_BUILD_FOR_MAC)
+        // The Apple M1 OpenGL driver generates incorrect results for RG88 transfers (b/40042882)
+        if (ctxInfo.vendor() == GrGLVendor::kApple) {
+            rg8Support = false;
+        }
+#endif
         if (rg8Support) {
             info.fFlags |= FormatInfo::kTexturable_Flag
                         |  FormatInfo::kTransfers_Flag

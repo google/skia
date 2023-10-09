@@ -142,6 +142,7 @@ enum class GrGLVendor {
     kQualcomm,
     kNVIDIA,
     kATI,
+    kApple,
 
     kOther
 };
