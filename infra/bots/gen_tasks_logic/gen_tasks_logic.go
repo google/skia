@@ -2145,7 +2145,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"modules_canvaskit_js_tests":     {"//modules/canvaskit:canvaskit_js_tests", ""},
 	"skia_public":                    {"//:skia_public", ""},
 	"skottie_tool_gpu":               {"//modules/skottie:skottie_tool_gpu", ""},
-	"tests":                          {"//tests:linux_rbe_build", ""},
+	"all_tests":                      {"//tests:linux_rbe_tests", ""},
 	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
 	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
 	"hello_bazel_world_test":         {"//gm:hello_bazel_world_test", ""},
@@ -2178,11 +2178,6 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 
 	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use
 	// by subsequent CI tasks.
-	"android_codec_test":              {"//tests:android_codec_test", "tests"},
-	"android_ganesh_test":             {"//tests:android_ganesh_test", "tests"},
-	"android_pathops_test":            {"//tests:android_pathops_test", "tests"},
-	"android_cpu_only_test":           {"//tests:android_cpu_only_test", "tests"},
-	"android_discardable_memory_test": {"//tests:android_discardable_memory_test", "tests"},
 	"hello_bazel_world_android_test":  {"//gm:hello_bazel_world_android_test", "gm"},
 }
 

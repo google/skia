@@ -14,7 +14,10 @@ skia_filegroup(
         "TestTypeface.h",
         "ToolUtilsFont.cpp",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = [
+        "//tests:__pkg__",
+        "//tools:__subpackages__",
+    ],
 )
 
 skia_filegroup(
@@ -26,7 +29,10 @@ skia_filegroup(
         "test_font_sans_serif.inc",
         "test_font_serif.inc",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = [
+        "//tests:__pkg__",
+        "//tools:__subpackages__",
+    ],
 )
 
 skia_filegroup(

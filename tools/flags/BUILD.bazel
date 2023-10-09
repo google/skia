@@ -2,7 +2,10 @@ load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
-exports_files_legacy()
+exports_files_legacy(label_list = [
+    "CommandLineFlags.cpp",
+    "CommandLineFlags.h",
+])
 
 skia_filegroup(
     name = "flags",

@@ -514,3 +514,14 @@ skia_filegroup(
         "//tests:__pkg__",
     ],
 )
+
+filegroup(
+    name = "core_test_resources",
+    srcs = [
+        "images/baby_tux.png",
+        "images/baby_tux.webp",
+    ],
+    visibility = [
+        "//tests:__pkg__",
+    ],
+)

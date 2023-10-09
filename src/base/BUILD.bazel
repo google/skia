@@ -124,6 +124,9 @@ skia_cc_library(
         "//include/private/base:private_hdrs",
     ],
     features = ["layering_check"],
-    visibility = ["//src:__subpackages__"],
+    visibility = [
+        "//src:__subpackages__",
+        "//tests:__subpackages__",
+    ],
     deps = ["@skia_user_config//:user_config"],
 )

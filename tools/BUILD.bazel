@@ -3,7 +3,16 @@ load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_
 
 licenses(["notice"])
 
-exports_files_legacy()
+exports_files_legacy(label_list = [
+    "ToolUtils.h",
+    "ToolUtils.cpp",
+    "SkMetaData.h",
+    "SkMetaData.cpp",
+    "Registry.h",
+    "Resources.h",
+    "Resources.cpp",
+    "ResourceFactory.h",
+])
 
 skia_cc_library(
     name = "tool_utils",

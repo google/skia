@@ -1,0 +1,76 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+load(
+    ":testgroups.bzl",
+    "CORE_TESTS",
+    "RECORD_TESTS",
+)
+load(":tests.bzl", "skia_tests")
+
+skia_cc_library(
+    name = "tests_base",
+    testonly = True,
+    srcs = [
+        "CtsEnforcement.cpp",
+        "Test.cpp",
+        "TestHarness.cpp",
+        "//tools:Registry.h",
+        "//tools:ResourceFactory.h",
+        "//tools:Resources.cpp",
+        "//tools:SkMetaData.cpp",
+        "//tools:SkMetaData.h",
+        "//tools:ToolUtils.cpp",
+        "//tools/flags:CommandLineFlags.cpp",
+        "//tools/fonts:test_font_manager_srcs",
+    ],
+    hdrs = [
+        "CtsEnforcement.h",
+        "Test.h",
+        "TestHarness.h",
+        "//tools:Resources.h",
+        "//tools:ToolUtils.h",
+        "//tools/flags:CommandLineFlags.h",
+        "//tools/fonts:test_empty_typeface",
+    ],
+    textual_hdrs = [
+        "//tools/fonts:test_fonts",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+    ],
+)
+
+skia_tests(
+    name = "core_tests",
+    resources = [
+        "//resources:core_test_resources",
+    ],
+    tests = CORE_TESTS,
+    deps = [
+        ":tests_base",
+        "//:core",
+        "//:default_font_manager_empty",
+        "//:default_malloc",
+    ],
+)
+
+skia_tests(
+    name = "record_tests",
+    extra_srcs = ["RecordTestUtils.h"],
+    tests = RECORD_TESTS,
+    deps = [
+        ":tests_base",
+        "//:core",
+        "//:default_font_manager_empty",
+        "//:default_malloc",
+    ],
+)
+
+# The set of all tests that can be compiled on Linux RBE
+test_suite(
+    name = "linux_rbe_tests",
+    tests = [
+        ":core_tests",
+        ":record_tests",
+    ],
+)
