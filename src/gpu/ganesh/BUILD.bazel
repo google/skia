@@ -201,7 +201,6 @@ CORE_FILES = [
     "GrSurface.cpp",
     "GrSurface.h",
     "GrSurfaceCharacterization.cpp",
-    "GrSurfaceInfo.cpp",
     "GrSurfaceProxy.cpp",
     "GrSurfaceProxy.h",
     "GrSurfaceProxyPriv.h",

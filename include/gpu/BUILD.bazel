@@ -26,7 +26,6 @@ skia_filegroup(
         "GrDriverBugWorkarounds.h",
         "GrDriverBugWorkaroundsAutogen.h",
         "GrRecordingContext.h",
-        "GrSurfaceInfo.h",
         "GrTypes.h",
         "GrYUVABackendTextures.h",
         "//include/gpu/mock:public_hdrs",
