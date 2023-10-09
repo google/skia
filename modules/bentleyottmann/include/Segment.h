@@ -35,5 +35,15 @@ std::optional<Point> intersect(const Segment& s0, const Segment& s1);
 // It is an error to pass segments that don't intersect the horizontal line at y.
 bool lessThanAt(const Segment& s0, const Segment& s1, int32_t y);
 
+// Compare the slopes of two segments. If a slope is horizontal, then its slope is greater than
+// all other slopes or equal of the other segment is also horizontal. The slope for
+// non-horizontal segments monotonically increases from the smallest along the negative x-axis
+// increasing counterclockwise to the largest along the positive x-axis.
+// Returns:
+// * -1 - slope(s0) < slope(s1)
+// *  0 - slope(s0) == slope(s1)
+// *  1 - slope(s0) > slope(s1)
+int compareSlopes(const Segment& s0, const Segment& s1);
+
 }  // namespace bentleyottmann
 #endif  // Segment_DEFINED

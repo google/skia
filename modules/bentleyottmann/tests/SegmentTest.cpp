@@ -201,3 +201,55 @@ DEF_TEST(BO_lessAtBasic, reporter) {
         REPORTER_ASSERT(reporter, lessThanAt(s1, s0, 100));
     }
 }
+
+DEF_TEST(BO_compareSlopesBasic, reporter) {
+    { // Both horizontal
+        Segment s0 = {{-1, 1}, {0, 1}},
+                s1 = {{-2, 1}, {1, 1}};
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s1) == 0);
+        REPORTER_ASSERT(reporter, compareSlopes(s1, s0) == 0);
+    }
+    { // One horizontal
+        Segment s0 = {{-1, 1}, {0, 0}},
+                s1 = {{-2, 1}, {1, 1}};
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s1) == -1);
+        REPORTER_ASSERT(reporter, compareSlopes(s1, s0) == 1);
+    }
+    { // One vertical
+        Segment s0 = {{-1, 1}, {-1, 0}}, // Vertical
+                s1 = {{-2, 1}, {-1, 0}},
+                s2 = {{2, 1}, {-1, 0}};
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s1) == 1);
+        REPORTER_ASSERT(reporter, compareSlopes(s1, s0) == -1);
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s2) == -1);
+        REPORTER_ASSERT(reporter, compareSlopes(s2, s0) == 1);
+    }
+
+    { // Equal slope
+        Segment s0 = {{-2, 1}, {0, 0}},
+                s1 = {{-4, 2}, {0, 0}};
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s1) == 0);
+        REPORTER_ASSERT(reporter, compareSlopes(s1, s0) == 0);
+    }
+
+    { // Equal slope
+        Segment s0 = {{2, 1}, {0, 0}},
+                s1 = {{4, 2}, {0, 0}};
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s1) == 0);
+        REPORTER_ASSERT(reporter, compareSlopes(s1, s0) == 0);
+    }
+
+    {
+        Segment s0 = {{-2, 1}, {0, 0}},
+                s1 = {{4, 2}, {0, 0}};
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s1) == -1);
+        REPORTER_ASSERT(reporter, compareSlopes(s1, s0) == 1);
+    }
+
+    {
+        Segment s0 = {{-2, 1}, {0, 0}},
+                s1 = {{-3, 1}, {0, 0}};
+        REPORTER_ASSERT(reporter, compareSlopes(s0, s1) == 1);
+        REPORTER_ASSERT(reporter, compareSlopes(s1, s0) == -1);
+    }
+}
