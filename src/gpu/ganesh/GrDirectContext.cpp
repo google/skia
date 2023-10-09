@@ -74,9 +74,6 @@ class GrSemaphore;
 #include "include/gpu/mtl/GrMtlBackendContext.h"
 #include "src/gpu/ganesh/mtl/GrMtlTrampoline.h"
 #endif
-#ifdef SK_VULKAN
-#include "src/gpu/ganesh/vk/GrVkGpu.h"
-#endif
 #ifdef SK_DIRECT3D
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 #endif
@@ -1185,26 +1182,6 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOption
 
     return direct;
 }
-
-#ifdef SK_VULKAN
-/*************************************************************************************************/
-sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext) {
-    GrContextOptions defaultOptions;
-    return MakeVulkan(backendContext, defaultOptions);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeVulkan(const GrVkBackendContext& backendContext,
-                                                   const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kVulkan, options));
-
-    direct->fGpu = GrVkGpu::Make(backendContext, options, direct.get());
-    if (!direct->init()) {
-        return nullptr;
-    }
-
-    return direct;
-}
-#endif
 
 #ifdef SK_METAL
 /*************************************************************************************************/

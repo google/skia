@@ -24,6 +24,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
+#include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/base/SkAutoMalloc.h"
@@ -589,7 +590,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     ACQUIRE_DEVICE_VK_PROC(ImportSemaphoreFdKHR);
     ACQUIRE_DEVICE_VK_PROC(DestroySemaphore);
 
-    fDirectContext = GrDirectContext::MakeVulkan(fBackendContext);
+    fDirectContext = GrDirectContexts::MakeVulkan(fBackendContext);
     REPORTER_ASSERT(reporter, fDirectContext.get());
     if (!fDirectContext) {
         return false;

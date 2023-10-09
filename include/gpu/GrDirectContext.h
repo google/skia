@@ -73,7 +73,7 @@ public:
     static sk_sp<GrDirectContext> MakeGL();
 #endif
 
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_GRDIRECTCONTEXT_FACTORIES)
     /**
      * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned
      * GrDirectContext is destroyed. This also means that any objects created with this

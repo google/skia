@@ -23,6 +23,7 @@ VK_FILES = [
     "GrVkDescriptorSet.h",
     "GrVkDescriptorSetManager.cpp",
     "GrVkDescriptorSetManager.h",
+    "GrVkDirectContext.cpp",
     "GrVkFramebuffer.cpp",
     "GrVkFramebuffer.h",
     "GrVkGpu.cpp",

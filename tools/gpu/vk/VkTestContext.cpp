@@ -10,6 +10,7 @@
 #ifdef SK_VULKAN
 
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
@@ -63,7 +64,7 @@ public:
     void finish() override {}
 
     sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
-        return GrDirectContext::MakeVulkan(fVk, options);
+        return GrDirectContexts::MakeVulkan(fVk, options);
     }
 
 protected:

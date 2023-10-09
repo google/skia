@@ -751,6 +751,7 @@ skia_skgpu_v1_sources = [
 #  //include/gpu/ganesh/vk:public_hdrs
 skia_gpu_vk_public = [
   "$_include/gpu/ganesh/vk/GrVkBackendSurface.h",
+  "$_include/gpu/ganesh/vk/GrVkDirectContext.h",
   "$_include/gpu/vk/GrVkBackendContext.h",
   "$_include/gpu/vk/GrVkExtensions.h",
   "$_include/gpu/vk/GrVkMemoryAllocator.h",
@@ -784,6 +785,7 @@ skia_gpu_vk_private = [
   "$_src/gpu/ganesh/vk/GrVkDescriptorSet.h",
   "$_src/gpu/ganesh/vk/GrVkDescriptorSetManager.cpp",
   "$_src/gpu/ganesh/vk/GrVkDescriptorSetManager.h",
+  "$_src/gpu/ganesh/vk/GrVkDirectContext.cpp",
   "$_src/gpu/ganesh/vk/GrVkFramebuffer.cpp",
   "$_src/gpu/ganesh/vk/GrVkFramebuffer.h",
   "$_src/gpu/ganesh/vk/GrVkGpu.cpp",

@@ -8,6 +8,7 @@ skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "GrVkBackendSurface.h",
+        "GrVkDirectContext.h",
     ],
     visibility = ["//include/gpu/ganesh:__pkg__"],
 )

@@ -15,6 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "tools/gpu/vk/VkTestUtils.h"
@@ -79,7 +80,7 @@ int main(int argc, char** argv) {
     ACQUIRE_INST_VK_PROC(DestroyDevice);
 
     // Create a GrDirectContext with our GrVkBackendContext
-    sk_sp<GrDirectContext> context = GrDirectContext::MakeVulkan(backendContext);
+    sk_sp<GrDirectContext> context = GrDirectContexts::MakeVulkan(backendContext);
     if (!context) {
         fVkDestroyDevice(backendContext.fDevice, nullptr);
         if (debugCallback != VK_NULL_HANDLE) {
