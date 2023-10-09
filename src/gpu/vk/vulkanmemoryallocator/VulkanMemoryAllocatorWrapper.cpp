@@ -29,5 +29,5 @@
 #include <cstdio>
 
 #include <vulkan/vulkan_core.h>
-#include "GrVulkanMemoryAllocator.h"
+#include "VulkanMemoryAllocatorWrapper.h"
 

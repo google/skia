@@ -106,10 +106,10 @@ cc_defaults {
     target: {
       android: {
         srcs: [
-          "third_party/vulkanmemoryallocator/GrVulkanMemoryAllocator.cpp",
+          "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorWrapper.cpp",
         ],
         local_include_dirs: [
-          "third_party/vulkanmemoryallocator/",
+          "src/gpu/vk/vulkanmemoryallocator",
           "vma_android/include",
         ],
       },
@@ -604,7 +604,9 @@ gm_includes   .add("modules/skcms")
 def strip_headers(sources):
   return {s for s in sources if not s.endswith('.h')}
 
-gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', android_srcs, None)
+VMA_DEP = "//src/gpu/vk/vulkanmemoryallocator:vulkanmemoryallocator"
+
+gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', android_srcs, VMA_DEP)
 android_srcs    = strip_headers(android_srcs)
 
 js_linux        = gn_to_bp_utils.GenerateJSONFromGN(gn_args_linux)
@@ -649,7 +651,7 @@ js_renderengine   = gn_to_bp_utils.GenerateJSONFromGN(gn_args_renderengine)
 renderengine_srcs = strip_slashes(
     js_renderengine['targets']['//:skia']['sources'])
 gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:skia', 'sources',
-                                   renderengine_srcs, None)
+                                   renderengine_srcs, VMA_DEP)
 renderengine_srcs = strip_headers(renderengine_srcs)
 
 # Execute GN for specialized SkQP target
@@ -666,7 +668,7 @@ skqp_defines   = strip_slashes(js_skqp['targets']['//:libskqp_jni']['defines'])
 skqp_includes.update(strip_slashes(js_skqp['targets']['//:public']['include_dirs']))
 
 gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'sources',
-                                   skqp_srcs, None)
+                                   skqp_srcs, VMA_DEP)
 # We are exlcuding gpu here to get rid of the includes that are being added from
 # vulkanmemoryallocator. This does not seem to remove any other incldues from gpu so things
 # should work out fine for now

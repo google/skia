@@ -30,7 +30,7 @@ public:
 
 #else
 
-#include "GrVulkanMemoryAllocator.h"
+#include "VulkanMemoryAllocatorWrapper.h"
 
 class VulkanAMDMemoryAllocator : public VulkanMemoryAllocator {
 public:

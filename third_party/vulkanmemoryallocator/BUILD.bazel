@@ -1,32 +1,8 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
-
 licenses(["notice"])
+# TODO(kjlubick) remove this after G3 rolls
 
-exports_files_legacy()
-
-skia_cc_library(
+alias(
     name = "vulkanmemoryallocator",
-    srcs = [
-        "GrVulkanMemoryAllocator.cpp",
-    ],
-    copts = [
-        # Because `copts` options don't propagate up the stack, some static errors in
-        # `vk_mem_alloc.h` need to be suppressed in the BUILD rule which includes the library.
-        #
-        # https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/issues/298
-        "-Wno-unused-variable",
-        # https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/issues/299
-        "-Wno-implicit-fallthrough",
-    ],
-    includes = [
-        ".",
-    ],
-    textual_hdrs = [
-        "GrVulkanMemoryAllocator.h",
-    ],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//include/third_party/vulkan",
-        "@vulkanmemoryallocator//:hdrs",
-    ],
+    actual = "//src/gpu/vk/vulkanmemoryallocator:vulkanmemoryallocator",
+    visibility = ["//visibility:public"],
 )

@@ -3,7 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("../../gn/skia.gni")
+import("../../../../gn/skia.gni")
 
 config("vulkanmemoryallocator_public") {
   include_dirs = [
@@ -15,15 +15,15 @@ config("vulkanmemoryallocator_public") {
 source_set("vulkanmemoryallocator") {
   public_configs = [ ":vulkanmemoryallocator_public" ]
 
-  include_dirs = [ "../../include/third_party/vulkan" ]
+  include_dirs = [ "../../../../include/third_party/vulkan" ]
 
   if (skia_disable_vma_stl_shared_mutex) {
     defines = [ "VMA_USE_STL_SHARED_MUTEX=0" ]
   }
 
   sources = [
-    "GrVulkanMemoryAllocator.cpp",
-    "GrVulkanMemoryAllocator.h",
+    "VulkanMemoryAllocatorWrapper.cpp",
+    "VulkanMemoryAllocatorWrapper.h",
   ]
 
   # Warnings are just noise if we're not maintaining the code.

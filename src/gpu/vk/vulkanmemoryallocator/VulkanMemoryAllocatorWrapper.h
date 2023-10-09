@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-// We use this header to include vk_mem_alloc.h to make sure we always include GrVkDefines.h first.
-// We need to do this so that the corect defines are setup before we include vulkan.h inside of
-// vk_mem_alloc.h
+// We use this header to include vk_mem_alloc.h to make sure we have the corect defines before we
+// include vulkan.h inside of vk_mem_alloc.h
 
-#ifndef GrVulkanMemoryAllocator_DEFINED
-#define GrVulkanMemoryAllocator_DEFINED
+#ifndef VulkanMemoryAllocatorWrapper_DEFINED
+#define VulkanMemoryAllocatorWrapper_DEFINED
 
 // We only ever include this from src files which have already included vulkan.
 #ifndef VULKAN_CORE_H_
