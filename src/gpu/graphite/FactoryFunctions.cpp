@@ -323,9 +323,8 @@ private:
         // TODO: we may need SkLocalMatrixShader-wrapped versions too
         Compose(keyContext, builder, /* gatherer= */ nullptr,
                 /* addInnerToKey= */ [&]() -> void {
-                    GradientShaderBlocks::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
-                                                     gradData);
-                    builder->endBlock();
+                    GradientShaderBlocks::AddBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                                   gradData);
                 },
                 /* addOuterToKey= */  [&]() -> void {
                     ColorSpaceTransformBlock::AddBlock(keyContext,
@@ -374,7 +373,7 @@ private:
         LocalMatrixShaderBlock::BeginBlock(keyContext, builder,
                                            /* gatherer= */ nullptr, /* lmShaderData= */ nullptr);
 
-        fWrapped->priv().addToKey(keyContext, desiredCombination, builder);
+            fWrapped->priv().addToKey(keyContext, desiredCombination, builder);
 
         builder->endBlock();
     }
@@ -486,10 +485,8 @@ private:
                   PaintParamsKeyBuilder* builder) const override {
         SkASSERT(desiredCombination == 0);
 
-        MatrixColorFilterBlock::BeginBlock(keyContext, builder,
-                                           /* gatherer= */ nullptr,
-                                           /* matrixCFData= */ nullptr);
-        builder->endBlock();
+        MatrixColorFilterBlock::AddBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                         /* matrixCFData= */ nullptr);
     }
 };
 

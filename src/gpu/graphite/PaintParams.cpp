@@ -171,10 +171,8 @@ void AddDstReadBlock(const KeyContext& keyContext,
         case DstReadRequirement::kTextureCopy:
             [[fallthrough]];
         case DstReadRequirement::kTextureSample:
-            DstReadSampleBlock::BeginBlock(keyContext, builder, gatherer,
-                                           keyContext.dstTexture(),
-                                           keyContext.dstOffset());
-            builder->endBlock();
+            DstReadSampleBlock::AddBlock(keyContext, builder, gatherer, keyContext.dstTexture(),
+                                         keyContext.dstOffset());
             break;
         case DstReadRequirement::kFramebufferFetch:
             builder->addBlock(BuiltInCodeSnippetID::kDstReadFetch);
@@ -201,8 +199,7 @@ void AddDitherBlock(const KeyContext& keyContext,
 
     DitherShaderBlock::DitherData data(skgpu::DitherRangeForConfig(ct), std::move(proxy));
 
-    DitherShaderBlock::BeginBlock(keyContext, builder, gatherer, data);
-    builder->endBlock();
+    DitherShaderBlock::AddBlock(keyContext, builder, gatherer, data);
 }
 
 void PaintParams::addPaintColorToKey(const KeyContext& keyContext,

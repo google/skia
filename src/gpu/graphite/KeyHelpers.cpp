@@ -174,16 +174,16 @@ void add_dst_read_sample_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void DstReadSampleBlock::BeginBlock(const KeyContext& keyContext,
-                                    PaintParamsKeyBuilder* builder,
-                                    PipelineDataGatherer* gatherer,
-                                    sk_sp<TextureProxy> dstTexture,
-                                    SkIPoint dstOffset) {
+void DstReadSampleBlock::AddBlock(const KeyContext& keyContext,
+                                  PaintParamsKeyBuilder* builder,
+                                  PipelineDataGatherer* gatherer,
+                                  sk_sp<TextureProxy> dstTexture,
+                                  SkIPoint dstOffset) {
     if (gatherer) {
         add_dst_read_sample_uniform_data(
                 keyContext.dict(), gatherer, std::move(dstTexture), dstOffset);
     }
-    builder->beginBlock(BuiltInCodeSnippetID::kDstReadSample);
+    builder->addBlock(BuiltInCodeSnippetID::kDstReadSample);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,10 +351,10 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
     }
 }
 
-void GradientShaderBlocks::BeginBlock(const KeyContext& keyContext,
-                                      PaintParamsKeyBuilder *builder,
-                                      PipelineDataGatherer* gatherer,
-                                      const GradientData& gradData) {
+void GradientShaderBlocks::AddBlock(const KeyContext& keyContext,
+                                    PaintParamsKeyBuilder *builder,
+                                    PipelineDataGatherer* gatherer,
+                                    const GradientData& gradData) {
     auto dict = keyContext.dict();
 
     if (gradData.fNumStops > GradientData::kNumInternalStorageStops && gatherer) {
@@ -409,7 +409,7 @@ void GradientShaderBlocks::BeginBlock(const KeyContext& keyContext,
             break;
     }
 
-    builder->beginBlock(codeSnippetID);
+    builder->addBlock(codeSnippetID);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -685,10 +685,10 @@ void add_dither_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
-                                   PaintParamsKeyBuilder* builder,
-                                   PipelineDataGatherer* gatherer,
-                                   const DitherData& data) {
+void DitherShaderBlock::AddBlock(const KeyContext& keyContext,
+                                 PaintParamsKeyBuilder* builder,
+                                 PipelineDataGatherer* gatherer,
+                                 const DitherData& data) {
     if (gatherer) {
         add_dither_uniform_data(keyContext.dict(), data, gatherer);
 
@@ -699,7 +699,7 @@ void DitherShaderBlock::BeginBlock(const KeyContext& keyContext,
         gatherer->add(kNearest, kRepeatTiling, data.fLUTProxy);
     }
 
-    builder->beginBlock(BuiltInCodeSnippetID::kDitherShader);
+    builder->addBlock(BuiltInCodeSnippetID::kDitherShader);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -726,10 +726,10 @@ void add_perlin_noise_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void PerlinNoiseShaderBlock::BeginBlock(const KeyContext& keyContext,
-                                        PaintParamsKeyBuilder* builder,
-                                        PipelineDataGatherer* gatherer,
-                                        const PerlinNoiseData* noiseData) {
+void PerlinNoiseShaderBlock::AddBlock(const KeyContext& keyContext,
+                                      PaintParamsKeyBuilder* builder,
+                                      PipelineDataGatherer* gatherer,
+                                      const PerlinNoiseData* noiseData) {
     SkASSERT(!gatherer == !noiseData);
 
     auto dict = keyContext.dict();
@@ -737,7 +737,7 @@ void PerlinNoiseShaderBlock::BeginBlock(const KeyContext& keyContext,
         add_perlin_noise_uniform_data(dict, *noiseData, gatherer);
     }
 
-    builder->beginBlock(BuiltInCodeSnippetID::kPerlinNoiseShader);
+    builder->addBlock(BuiltInCodeSnippetID::kPerlinNoiseShader);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -804,10 +804,10 @@ void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void MatrixColorFilterBlock::BeginBlock(const KeyContext& keyContext,
-                                        PaintParamsKeyBuilder* builder,
-                                        PipelineDataGatherer* gatherer,
-                                        const MatrixColorFilterData* matrixCFData) {
+void MatrixColorFilterBlock::AddBlock(const KeyContext& keyContext,
+                                      PaintParamsKeyBuilder* builder,
+                                      PipelineDataGatherer* gatherer,
+                                      const MatrixColorFilterData* matrixCFData) {
     SkASSERT(!gatherer == !matrixCFData);
 
     auto dict = keyContext.dict();
@@ -816,7 +816,7 @@ void MatrixColorFilterBlock::BeginBlock(const KeyContext& keyContext,
         add_matrix_colorfilter_uniform_data(dict, *matrixCFData, gatherer);
     }
 
-    builder->beginBlock(BuiltInCodeSnippetID::kMatrixColorFilter);
+    builder->addBlock(BuiltInCodeSnippetID::kMatrixColorFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -834,10 +834,10 @@ void add_table_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void TableColorFilterBlock::BeginBlock(const KeyContext& keyContext,
-                                       PaintParamsKeyBuilder* builder,
-                                       PipelineDataGatherer* gatherer,
-                                       const TableColorFilterData& data) {
+void TableColorFilterBlock::AddBlock(const KeyContext& keyContext,
+                                     PaintParamsKeyBuilder* builder,
+                                     PipelineDataGatherer* gatherer,
+                                     const TableColorFilterData& data) {
     auto dict = keyContext.dict();
 
     if (gatherer) {
@@ -846,7 +846,7 @@ void TableColorFilterBlock::BeginBlock(const KeyContext& keyContext,
         add_table_colorfilter_uniform_data(dict, data, gatherer);
     }
 
-    builder->beginBlock(BuiltInCodeSnippetID::kTableColorFilter);
+    builder->addBlock(BuiltInCodeSnippetID::kTableColorFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1116,8 +1116,7 @@ static void add_to_key(const KeyContext& keyContext,
     bool inHSLA = filter->domain() == SkMatrixColorFilter::Domain::kHSLA;
     MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(filter->matrix(), inHSLA);
 
-    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, &matrixCFData);
-    builder->endBlock();
+    MatrixColorFilterBlock::AddBlock(keyContext, builder, gatherer, &matrixCFData);
 }
 
 static void add_to_key(const KeyContext& keyContext,
@@ -1157,8 +1156,7 @@ static void add_to_key(const KeyContext& keyContext,
 
     TableColorFilterBlock::TableColorFilterData data(std::move(proxy));
 
-    TableColorFilterBlock::BeginBlock(keyContext, builder, gatherer, data);
-    builder->endBlock();
+    TableColorFilterBlock::AddBlock(keyContext, builder, gatherer, data);
 }
 
 static void add_to_key(const KeyContext& keyContext,
@@ -1503,7 +1501,7 @@ static void add_to_key(const KeyContext& keyContext,
 
         LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
 
-        AddToKey(newContext, builder, gatherer, wrappedShader);
+            AddToKey(newContext, builder, gatherer, wrappedShader);
 
         builder->endBlock();
     } else  {
@@ -1574,8 +1572,7 @@ static void add_to_key(const KeyContext& keyContext,
     KeyContextWithLocalMatrix newContext(keyContext, shader2Local);
 
     LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
-        PerlinNoiseShaderBlock::BeginBlock(newContext, builder, gatherer, &data);
-        builder->endBlock();
+        PerlinNoiseShaderBlock::AddBlock(newContext, builder, gatherer, &data);
     builder->endBlock();
 
 }
@@ -1780,12 +1777,11 @@ static void make_interpolated_to_dst(const KeyContext& keyContext,
             intermediateCS, intermediateAlphaType, dstColorSpace, dstColorInfo.alphaType());
 
     // The gradient block and colorSpace conversion block need to be combined
-    // (via the compose block) so that the localMatrix block can treat them as
+    // (via the Compose block) so that the localMatrix block can treat them as
     // one child.
     Compose(keyContext, builder, gatherer,
             /* addInnerToKey= */ [&]() -> void {
-                GradientShaderBlocks::BeginBlock(keyContext, builder, gatherer, gradData);
-                builder->endBlock();
+                GradientShaderBlocks::AddBlock(keyContext, builder, gatherer, gradData);
             },
             /* addOuterToKey= */ [&]() -> void {
                 ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, data);

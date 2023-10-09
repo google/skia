@@ -54,11 +54,11 @@ enum class DstColorType {
  */
 
 struct DstReadSampleBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           sk_sp<TextureProxy> dst,
-                           SkIPoint dstOffset);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         sk_sp<TextureProxy> dst,
+                         SkIPoint dstOffset);
 };
 
 struct SolidColorShaderBlock {
@@ -128,10 +128,10 @@ struct GradientShaderBlocks {
         SkGradientShader::Interpolation fInterpolation;
     };
 
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const GradientData&);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const GradientData&);
 };
 
 struct LocalMatrixShaderBlock {
@@ -229,11 +229,10 @@ struct DitherShaderBlock {
         sk_sp<TextureProxy> fLUTProxy;
     };
 
-    // The gatherer and data should be null or non-null together
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const DitherData&);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const DitherData&);
 };
 
 struct PerlinNoiseShaderBlock {
@@ -265,10 +264,10 @@ struct PerlinNoiseShaderBlock {
     };
 
     // The gatherer and data should be null or non-null together
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const PerlinNoiseData*);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const PerlinNoiseData*);
 };
 
 struct BlendShaderBlock {
@@ -313,10 +312,10 @@ struct MatrixColorFilterBlock {
     };
 
     // The gatherer and matrixCFData should be null or non-null together
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const MatrixColorFilterData*);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const MatrixColorFilterData*);
 };
 
 struct TableColorFilterBlock {
@@ -326,10 +325,10 @@ struct TableColorFilterBlock {
         sk_sp<TextureProxy> fTextureProxy;
     };
 
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*,
-                           const TableColorFilterData&);
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const TableColorFilterData&);
 };
 
 struct ColorSpaceTransformBlock {
