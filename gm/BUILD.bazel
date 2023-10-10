@@ -21,8 +21,6 @@ skia_cc_library(
     testonly = True,
     srcs = [
         "gm.cpp",
-        "verifiers/gmverifier.cpp",
-        "verifiers/gmverifier.h",
     ],
     hdrs = ["gm.h"],
     visibility = [

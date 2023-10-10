@@ -6,7 +6,6 @@
  */
 
 #include "dm/DMSrcSink.h"
-#include "gm/verifiers/gmverifier.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorSpace.h"
@@ -174,11 +173,6 @@ void GMSrc::modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* option
     gm->modifyGraphiteContextOptions(options);
 }
 #endif
-
-std::unique_ptr<skiagm::verifiers::VerifierList> GMSrc::getVerifiers() const {
-    std::unique_ptr<skiagm::GM> gm(fFactory());
-    return gm->getVerifiers();
-}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

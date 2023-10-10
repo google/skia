@@ -7,7 +7,6 @@
 
 #include "gm/gm.h"
 
-#include "gm/verifiers/gmverifier.h"  // IWYU pragma: keep
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -160,11 +159,6 @@ bool GM::animate(double nanos) { return this->onAnimate(nanos); }
 
 bool GM::runAsBench() const { return false; }
 
-std::unique_ptr<verifiers::VerifierList> GM::getVerifiers() const {
-    // No verifiers by default.
-    return nullptr;
-}
-
 void GM::onOnceBeforeDraw() {}
 
 bool GM::onAnimate(double /*nanos*/) { return false; }
@@ -185,10 +179,6 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 template GMRegistry* GMRegistry::gHead;
 
 #if defined(SK_GANESH)
-std::unique_ptr<verifiers::VerifierList> GpuGM::getVerifiers() const {
-    return nullptr;
-}
-
 DrawResult GpuGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
     this->onDraw(rContext, canvas);
     return DrawResult::kOk;

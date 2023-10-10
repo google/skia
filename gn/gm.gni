@@ -399,7 +399,6 @@ gm_sources = [
   "$_gm/unpremul.cpp",
   "$_gm/userfont.cpp",
   "$_gm/variedtext.cpp",
-  "$_gm/verifiers/gmverifier.cpp",
   "$_gm/vertices.cpp",
   "$_gm/verylargebitmap.cpp",
   "$_gm/wacky_yuv_formats.cpp",

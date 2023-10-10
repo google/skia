@@ -177,8 +177,6 @@ namespace skiagm {
         virtual void modifyGrContextOptions(GrContextOptions*) {}
         virtual void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const {}
 
-        virtual std::unique_ptr<verifiers::VerifierList> getVerifiers() const;
-
         // Convenience method to skip Bazel-only GMs from DM.
         //
         // As of Q3 2023, lovisolo@ is experimenting with reimplementing some DM behaviors as
@@ -257,11 +255,6 @@ namespace skiagm {
     class GpuGM : public GM {
     public:
         GpuGM(SkColor backgroundColor = SK_ColorWHITE) : GM(backgroundColor) {}
-
-        // TODO(tdenniston): Currently GpuGMs don't have verifiers (because they do not render on
-        //   CPU), but we may want to be able to verify the output images standalone, without
-        //   requiring a gold image for comparison.
-        std::unique_ptr<verifiers::VerifierList> getVerifiers() const override;
 
     private:
         using GM::onDraw;

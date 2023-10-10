@@ -109,11 +109,6 @@ struct Src {
     virtual SkISize size([[maybe_unused]] int page) const { return this->size(); }
     // Force Tasks using this Src to run on the main thread?
     virtual bool serial() const { return false; }
-
-    /** Return a list of verifiers for the src, or null if no verifiers should be run .*/
-    virtual std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const {
-        return nullptr;
-    }
 };
 
 struct Sink {
@@ -149,8 +144,6 @@ public:
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const override;
 #endif
-
-    std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const override;
 
 private:
     skiagm::GMFactory fFactory;
