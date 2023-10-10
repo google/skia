@@ -2,7 +2,7 @@
 
 error: :15:20 error: unresolved call target 'intBitsToFloat'
     let _skTemp0 = intBitsToFloat(expectedB.x);
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   ^^^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);

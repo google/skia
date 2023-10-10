@@ -2,7 +2,7 @@
 
 error: :12:20 error: unresolved call target 'bitCount'
     let _skTemp0 = bitCount(_globalUniforms.a);
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   ^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);

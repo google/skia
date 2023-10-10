@@ -2,7 +2,7 @@
 
 error: :15:20 error: unresolved call target 'isnan'
     let _skTemp0 = isnan(valueIsNaN.x);
-                   ^^^^^^^^^^^^^^^^^^^
+                   ^^^^^
 
 
 diagnostic(off, derivative_uniformity);

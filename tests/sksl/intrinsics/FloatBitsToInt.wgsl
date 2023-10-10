@@ -2,7 +2,7 @@
 
 error: :15:20 error: unresolved call target 'floatBitsToInt'
     let _skTemp0 = floatBitsToInt(inputVal.x);
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   ^^^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);

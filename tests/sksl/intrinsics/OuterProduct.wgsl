@@ -2,7 +2,7 @@
 
 error: :16:20 error: unresolved call target 'outerProduct'
     let _skTemp0 = outerProduct(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   ^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);

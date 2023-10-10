@@ -2,7 +2,7 @@
 
 error: :12:20 error: unresolved call target 'findLSB'
     let _skTemp0 = findLSB(_globalUniforms.a);
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   ^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
