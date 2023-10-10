@@ -57,10 +57,10 @@ skia_cc_library(
     ],
     visibility = [
         "//bench:__pkg__",
-        "//bench/benchmark_target:__pkg__",
         "//modules/skottie:__pkg__",
         "//tests:__pkg__",
-        "//tools/testrunners/surface_manager:__pkg__",
+        "//tools/testrunners/benchmark/target:__pkg__",
+        "//tools/testrunners/common/surface_manager:__pkg__",
         "//tools/viewer:__pkg__",
     ],
     deps = ["//:skia_internal"] + select_multi({

@@ -1,6 +1,6 @@
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
-load(":android_gm_test.bzl", "android_gm_test")
+load("//tools/testrunners/gm:android_gm_test.bzl", "android_gm_test")
 load(":png_codec.bzl", "png_codec_tests")
 
 licenses(["notice"])
@@ -24,7 +24,7 @@ skia_cc_library(
     ],
     hdrs = ["gm.h"],
     visibility = [
-        "//gm:__subpackages__",
+        "//tools/testrunners/gm:__subpackages__",
         "//tools/viewer:__pkg__",
     ],
     deps = [
@@ -38,16 +38,11 @@ skia_cc_library(
     name = "tests_base",
     testonly = True,
     srcs = [
-        "//src/utils:json_hdrs",
-        "//src/utils:json_srcs",
         "//tools/flags",
         "//tools/flags:common_flags",
     ],
     deps = [
         ":gm",
-        "//gm/vias",
-        "//tools:hash_and_encode",
-        "//tools/testrunners/surface_manager",
         "//tools/timer",  # Required by animatedimageblurs.cpp.
     ],
 )
@@ -500,7 +495,7 @@ GPU_GMS = [
 #     $ unzip -l bazel-testlogs/gm/cpu_8888_test/test.outputs/outputs.zip
 cc_test_with_flags(
     name = "cpu_8888_test",
-    srcs = ["BazelGMRunner.cpp"] + CPU_GMS,
+    srcs = CPU_GMS,
     args = [
         "--surfaceConfig",
         "8888",
@@ -512,7 +507,10 @@ cc_test_with_flags(
             "webp_decode_codec",
         ],
     },
-    deps = [":tests_base"],
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/gm:testrunner",
+    ],
 )
 
 # Currently fails the "arithmode_blender" GM with "Deserialized and reference bitmap pixels do not
@@ -523,7 +521,7 @@ cc_test_with_flags(
 #                 the "via" flag in sync.
 cc_test_with_flags(
     name = "cpu_8888_via_picture_serialization_test",
-    srcs = ["BazelGMRunner.cpp"] + CPU_GMS,
+    srcs = CPU_GMS,
     args = [
         "--surfaceConfig",
         "8888",
@@ -541,12 +539,15 @@ cc_test_with_flags(
         ],
         "via": ["picture_serialization"],
     },
-    deps = [":tests_base"],
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/gm:testrunner",
+    ],
 )
 
 cc_test_with_flags(
     name = "cpu_8888_via_picture_test",
-    srcs = ["BazelGMRunner.cpp"] + CPU_GMS,
+    srcs = CPU_GMS,
     args = [
         "--surfaceConfig",
         "8888",
@@ -564,7 +565,10 @@ cc_test_with_flags(
         ],
         "via": ["picture"],
     },
-    deps = [":tests_base"],
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/gm:testrunner",
+    ],
 )
 
 png_codec_tests(name = "png_codec_tests")
@@ -581,7 +585,7 @@ test_suite(
 
 cc_test_with_flags(
     name = "gpu_gles_test",
-    srcs = ["BazelGMRunner.cpp"] + GPU_GMS,
+    srcs = GPU_GMS,
     args = [
         "--surfaceConfig",
         "gles",
@@ -593,21 +597,24 @@ cc_test_with_flags(
             "webp_decode_codec",
         ],
     },
-    deps = [":tests_base"],
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/gm:testrunner",
+    ],
 )
 
 cc_test_with_flags(
     name = "hello_bazel_world_test",
-    srcs = [
-        "BazelGMRunner.cpp",
-        "hello_bazel_world.cpp",
-    ],
+    srcs = ["hello_bazel_world.cpp"],
     args = [
         "--surfaceConfig",
         "8888",
     ],
     data = ["//resources"],
-    deps = [":tests_base"],
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/gm:testrunner",
+    ],
 )
 
 android_gm_test(

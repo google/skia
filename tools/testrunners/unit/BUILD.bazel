@@ -1,0 +1,16 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "testrunner",
+    testonly = True,
+    srcs = ["BazelUnitTestRunner.cpp"],
+    visibility = ["//tests:__pkg__"],
+    deps = [
+        "//:core",
+        "//tests:test_harness",
+    ],
+)

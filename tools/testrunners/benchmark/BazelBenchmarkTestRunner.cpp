@@ -6,7 +6,6 @@
  */
 
 #include "bench/Benchmark.h"
-#include "bench/benchmark_target/BenchmarkTarget.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorType.h"
@@ -24,6 +23,7 @@
 #include "tools/ProcStats.h"
 #include "tools/Stats.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
 #include "tools/timer/Timer.h"
 
 #include <cinttypes>
@@ -79,7 +79,7 @@ static DEFINE_string(surfaceConfig,
                      "Name of the Surface configuration to use (e.g. \"8888\"). This determines "
                      "how we construct the SkSurface from which we get the SkCanvas that "
                      "benchmarks will draw on. See file "
-                     "//tools/testrunners/surface_manager/SurfaceManager.h for details.");
+                     "//tools/testrunners/common/surface_manager/SurfaceManager.h for details.");
 
 static DEFINE_bool(
         writePNGs,

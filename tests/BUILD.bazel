@@ -4,28 +4,44 @@ load(
     "CORE_TESTS",
     "RECORD_TESTS",
 )
-load(":tests.bzl", "skia_tests")
+load("//tools/testrunners/unit:unit_tests.bzl", "unit_tests")
 
 skia_cc_library(
-    name = "tests_base",
+    name = "test_harness",
     testonly = True,
     srcs = [
         "CtsEnforcement.cpp",
         "Test.cpp",
         "TestHarness.cpp",
         "//tools:Registry.h",
-        "//tools:ResourceFactory.h",
-        "//tools:Resources.cpp",
-        "//tools:SkMetaData.cpp",
-        "//tools:SkMetaData.h",
-        "//tools:ToolUtils.cpp",
         "//tools/flags:CommandLineFlags.cpp",
-        "//tools/fonts:test_font_manager_srcs",
+        "//tools/flags:CommandLineFlags.h",
     ],
     hdrs = [
         "CtsEnforcement.h",
         "Test.h",
         "TestHarness.h",
+    ],
+    visibility = ["//tools/testrunners/unit:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+    ],
+)
+
+skia_cc_library(
+    name = "tests_base",
+    testonly = True,
+    srcs = [
+        "//tools:Registry.h",
+        "//tools:ResourceFactory.h",
+        "//tools:Resources.cpp",
+        "//tools:SkMetaData.cpp",
+        "//tools:SkMetaData.h",
+        "//tools:ToolUtils.cpp",
+        "//tools/fonts:test_font_manager_srcs",
+    ],
+    hdrs = [
         "//tools:Resources.h",
         "//tools:ToolUtils.h",
         "//tools/flags:CommandLineFlags.h",
@@ -40,7 +56,7 @@ skia_cc_library(
     ],
 )
 
-skia_tests(
+unit_tests(
     name = "core_tests",
     resources = [
         "//resources:core_test_resources",
@@ -54,7 +70,7 @@ skia_tests(
     ],
 )
 
-skia_tests(
+unit_tests(
     name = "record_tests",
     extra_srcs = ["RecordTestUtils.h"],
     tests = RECORD_TESTS,

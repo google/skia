@@ -1,0 +1,26 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "testrunner",
+    testonly = True,
+    srcs = [
+        "BazelGMTestRunner.cpp",
+        "//src/utils:json_hdrs",
+        "//src/utils:json_srcs",
+        "//tools/flags",
+    ],
+    visibility = [
+        "//gm:__subpackages__",
+    ],
+    deps = [
+        "//:skia_internal",
+        "//gm",
+        "//tools:hash_and_encode",
+        "//tools/testrunners/common/surface_manager",
+        "//tools/testrunners/gm/vias",
+    ],
+)
