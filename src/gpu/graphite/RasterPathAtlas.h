@@ -69,8 +69,12 @@ private:
         SkAutoPixmapStorage fPixels;
         // Area that's needed to be uploaded
         SkIRect fDirtyRect;
-        // Tracks whether a path is already in this Page
-        skia_private::THashSet<skgpu::UniqueKey> fCachedShapes;
+        // Tracks whether a path is already in this Page, and its location in the atlas
+        struct UniqueKeyHash {
+            uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
+        };
+        skia_private::THashMap<skgpu::UniqueKey, skvx::half2, UniqueKeyHash> fCachedShapes;
+        bool fNeedsReset = false;
 
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Page);
     };

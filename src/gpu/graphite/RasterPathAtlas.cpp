@@ -95,6 +95,56 @@ const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
     return mru->fTexture.get();
 }
 
+namespace {
+skgpu::UniqueKey generate_key(const Shape& shape,
+                              const Transform& transform,
+                              const SkStrokeRec& strokeRec,
+                              skvx::float2 atlasSize) {
+    skgpu::UniqueKey maskKey;
+    {
+        static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+        skgpu::UniqueKey::Builder builder(&maskKey, kDomain, 7 + shape.keySize(),
+                                          "Raster Path Mask");
+        builder[0] = atlasSize.x();
+        builder[1] = atlasSize.y();
+
+        // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
+        SkMatrix mat = transform.matrix().asM33();
+        SkScalar sx = mat.get(SkMatrix::kMScaleX);
+        SkScalar sy = mat.get(SkMatrix::kMScaleY);
+        SkScalar kx = mat.get(SkMatrix::kMSkewX);
+        SkScalar ky = mat.get(SkMatrix::kMSkewY);
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        // Fractional translate does not affect caching on Android. This is done for better cache
+        // hit ratio and speed and is matching HWUI behavior, which didn't consider the matrix
+        // at all when caching paths.
+        SkFixed fracX = 0;
+        SkFixed fracY = 0;
+#else
+        SkScalar tx = mat.get(SkMatrix::kMTransX);
+        SkScalar ty = mat.get(SkMatrix::kMTransY);
+        // Allow 8 bits each in x and y of subpixel positioning.
+        SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
+        SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
+#endif
+        builder[2] = SkFloat2Bits(sx);
+        builder[3] = SkFloat2Bits(sy);
+        builder[4] = SkFloat2Bits(kx);
+        builder[5] = SkFloat2Bits(ky);
+        // FracX and fracY are &ed with 0x0000ff00, so need to shift one down to fill 16 bits.
+        uint32_t fracBits = fracX | (fracY >> 8);
+        // Distinguish between hairline and filled paths. For hairlines, we also need to include
+        // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). Note that
+        // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
+        // all cases we might see.
+        uint32_t styleBits = strokeRec.isHairlineStyle() ? ((strokeRec.getCap() << 1) | 1) : 0;
+        builder[6] = fracBits | (styleBits << 16);
+        shape.writeKey(&builder[7]);
+    }
+    return maskKey;
+}
+} // namespace
+
 const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
                                                 const Shape& shape,
                                                 const Transform& transform,
@@ -102,12 +152,29 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
                                                 skvx::float2 atlasSize,
                                                 skvx::int2 deviceOffset,
                                                 skvx::half2* outPos) {
-    // TODO: look up shape and use cached texture
+    // TODO: iterate through pagelist in MRU order
+    Page* mru = fPageList.head();
+    SkASSERT(mru);
+
+    // Look up shape and use cached texture and position if found.
+    skgpu::UniqueKey maskKey;
+    bool hasKey = shape.hasKey();
+    if (hasKey) {
+        maskKey = generate_key(shape, transform, strokeRec, atlasSize);
+        skvx::half2* found = mru->fCachedShapes.find(maskKey);
+        if (found) {
+            *outPos = *found;
+            return mru->fTexture.get();
+        }
+    }
 
     // Try to add to Rectanizer
     SkIPoint16 iPos;
     const TextureProxy* texProxy = this->addRect(recorder, atlasSize, &iPos);
     if (!texProxy) {
+        // Failed, request flush and reset this Page
+        // TODO: only reset LRU Page
+        mru->fNeedsReset = true;
         return nullptr;
     }
     *outPos = skvx::half2(iPos.x(), iPos.y());
@@ -119,10 +186,6 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
     }
 
     // Set up render
-
-    // The MRU page should be already set up by addRect()
-    Page* mru = fPageList.head();
-    SkASSERT(mru);
     SkASSERT(mru->fTexture.get() == texProxy);
 
     // allocate pixmap if needed
@@ -170,19 +233,26 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
     // Add atlasBounds to dirtyRect for later upload
     mru->fDirtyRect.join(iAtlasBounds);
 
+    // Add to cache
+    if (hasKey) {
+        mru->fCachedShapes.set(maskKey, *outPos);
+    }
+
     return texProxy;
 }
 
 void RasterPathAtlas::reset() {
-    // TODO: this will go away and we'll only reset the LRU page if we're out of space
-
+    // TODO: only reset LRU Page if needed
     Page* mru = fPageList.head();
     SkASSERT(mru);
-    mru->fRectanizer.reset();
+    if (mru->fNeedsReset) {
+        mru->fRectanizer.reset();
 
-    // clear backing data for next pass
-    mru->fDirtyRect.setEmpty();
-    mru->fPixels.erase(0);
+        // clear backing data for next pass
+        mru->fDirtyRect.setEmpty();
+        mru->fPixels.erase(0);
+        mru->fNeedsReset = false;
+    }
 }
 
 }  // namespace skgpu::graphite
