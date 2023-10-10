@@ -1127,6 +1127,7 @@ skia_filegroup(
         "wgsl/OutParams.sksl",
         "wgsl/PixelLocalStorage.sksl",
         "wgsl/Sample.sksl",
+        "wgsl/SubpassInput.sksl",
         "wgsl/TextureIntrinsics.compute",
         "wgsl/UniformArrays.sksl",
         "wgsl/UniformMatrices.sksl",

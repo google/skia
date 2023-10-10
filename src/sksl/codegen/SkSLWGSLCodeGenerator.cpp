@@ -474,12 +474,11 @@ std::string to_wgsl_type(const Context& context, const Type& raw, const Layout* 
                         return result + "write>";
                 }
             }
-            // WGSL only bakes in the pixel format for read-only textures.
-            SkASSERTF(type.matches(*context.fTypes.fReadOnlyTexture2D),
-                      "unexpected texture type: %s", type.description().c_str());
-            return "texture_2d<f32>";
+            if (type.matches(*context.fTypes.fReadOnlyTexture2D)) {
+                return "texture_2d<f32>";
+            }
+            break;
         }
-
         default:
             break;
     }
