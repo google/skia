@@ -17,7 +17,8 @@
 namespace skgpu::graphite {
 
 AtlasProvider::AtlasProvider(Recorder* recorder)
-        : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder)) {
+        : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder))
+        , fRasterPathAtlas(std::make_unique<RasterPathAtlas>()) {
     fPathAtlasFlags |= PathAtlasFlags::kRaster;
 #ifdef SK_ENABLE_VELLO_SHADERS
     if (recorder->priv().caps()->computeSupport()) {
@@ -35,11 +36,8 @@ std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas() const 
     return nullptr;
 }
 
-std::unique_ptr<RasterPathAtlas> AtlasProvider::createRasterPathAtlas() const {
-    if (fPathAtlasFlags & PathAtlasFlags::kRaster) {
-        return std::make_unique<RasterPathAtlas>();
-    }
-    return nullptr;
+RasterPathAtlas* AtlasProvider::getRasterPathAtlas() const {
+    return fRasterPathAtlas.get();
 }
 
 sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,

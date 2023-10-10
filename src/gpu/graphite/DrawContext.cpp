@@ -139,13 +139,6 @@ PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     return fComputePathAtlas.get();
 }
 
-PathAtlas* DrawContext::getRasterPathAtlas(Recorder* recorder) {
-    if (!fRasterPathAtlas) {
-        fRasterPathAtlas = recorder->priv().atlasProvider()->createRasterPathAtlas();
-    }
-    return fRasterPathAtlas.get();
-}
-
 void DrawContext::snapDrawPass(Recorder* recorder) {
     if (fPendingDraws->drawCount() == 0 && fPendingLoadOp != LoadOp::kClear) {
         return;
@@ -268,9 +261,10 @@ sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
 }
 
 sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
-    if (fRasterPathAtlas) {
-        fRasterPathAtlas->recordUploads(this, recorder);
-        fRasterPathAtlas->reset();
+    RasterPathAtlas* rasterPathAtlas = recorder->priv().atlasProvider()->getRasterPathAtlas();
+    if (rasterPathAtlas) {
+        rasterPathAtlas->recordUploads(this, recorder);
+        rasterPathAtlas->reset();
     }
 
     if (!fPendingUploads || fPendingUploads->size() == 0) {

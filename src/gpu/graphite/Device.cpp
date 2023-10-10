@@ -25,6 +25,7 @@
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PathAtlas.h"
+#include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
@@ -1240,7 +1241,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
                strategy == PathRendererStrategy::kRasterAA) {
         // TODO: With the default strategy, enable this if
         // fRecorder->priv().caps()->defaultMSAASamplesCount() <= 1
-        pathAtlas = fDC->getRasterPathAtlas(fRecorder);
+        pathAtlas = atlasProvider->getRasterPathAtlas();
     }
     // We currently always use a coverage mask renderer if a `PathAtlas` is selected.
     if (!requireMSAA && pathAtlas) {
