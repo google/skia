@@ -43,18 +43,23 @@ void RasterPathAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
 
     // build an upload for the dirty rect and record it
     if (!mru->fDirtyRect.isEmpty()) {
+        size_t rowBytes = mru->fPixels.rowBytes();
+        const unsigned char* dataPtr = (const unsigned char*) mru->fPixels.addr();
+        dataPtr += rowBytes * mru->fDirtyRect.fTop;
+        dataPtr += mru->fPixels.info().bytesPerPixel() * mru->fDirtyRect.fLeft;
+
         std::vector<MipLevel> levels;
-        levels.push_back({mru->fPixels.addr(), mru->fPixels.rowBytes()});
+        levels.push_back({dataPtr, rowBytes});
 
         SkColorInfo colorInfo(kAlpha_8_SkColorType, kUnknown_SkAlphaType, nullptr);
 
-         if (!dc->recordUpload(recorder, mru->fTexture, colorInfo, colorInfo, levels,
+        if (!dc->recordUpload(recorder, mru->fTexture, colorInfo, colorInfo, levels,
                               mru->fDirtyRect, nullptr)) {
             SKGPU_LOG_W("Coverage mask upload failed!");
             return;
         }
 
-        // TODO: Keep using this texture until full and cache the results, then get a new one.
+        mru->fDirtyRect.setEmpty();
     }
 }
 
@@ -249,8 +254,9 @@ void RasterPathAtlas::reset() {
         mru->fRectanizer.reset();
 
         // clear backing data for next pass
-        mru->fDirtyRect.setEmpty();
+        SkASSERT(mru->fDirtyRect.isEmpty());
         mru->fPixels.erase(0);
+        mru->fCachedShapes.reset();
         mru->fNeedsReset = false;
     }
 }
