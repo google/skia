@@ -2163,7 +2163,7 @@ VULKAN_SRCS = [
     "src/gpu/ganesh/vk/GrVkPipelineStateBuilder.h",
     "src/gpu/ganesh/vk/GrVkPipelineStateCache.cpp",
     "src/gpu/ganesh/vk/GrVkPipelineState.cpp",
-    "src/gpu/ganesh/vk/GrVkPipelineStafteDataManager.cpp",
+    "src/gpu/ganesh/vk/GrVkPipelineStateDataManager.cpp",
     "src/gpu/ganesh/vk/GrVkPipelineStateDataManager.h",
     "src/gpu/ganesh/vk/GrVkPipelineState.h",
     "src/gpu/ganesh/vk/GrVkRenderPass.cpp",
