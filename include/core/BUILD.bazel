@@ -206,6 +206,7 @@ skia_filegroup(
     srcs = [
         "SkAlphaType.h",
         "SkColor.h",
+        "SkColorPriv.h",
         "SkScalar.h",
         "SkTypes.h",
     ],

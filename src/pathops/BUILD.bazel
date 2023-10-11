@@ -65,14 +65,14 @@ PATHOPS_FILES = [
 ]
 
 split_srcs_and_hdrs(
-    name = "_pathops",
+    name = "legacy_pathops",
     files = PATHOPS_FILES,
 )
 
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":_pathops_srcs",
+        ":legacy_pathops_srcs",
     ],
     visibility = ["//src:__pkg__"],
 )
@@ -80,7 +80,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        ":_pathops_hdrs",
+        ":legacy_pathops_hdrs",
     ],
     visibility = ["//src:__pkg__"],
 )
@@ -88,8 +88,8 @@ skia_filegroup(
 skia_cc_library(
     name = "pathops",
     srcs = [
-        ":_pathops_hdrs",
-        ":_pathops_srcs",
+        ":legacy_pathops_hdrs",
+        ":legacy_pathops_srcs",
     ],
     hdrs = [
         "//include/pathops:public_hdrs",

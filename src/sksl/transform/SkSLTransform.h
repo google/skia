@@ -9,6 +9,8 @@
 #define SKSL_TRANSFORM
 
 #include "include/core/SkSpan.h"
+#include "src/sksl/ir/SkSLModifierFlags.h"
+
 #include <memory>
 #include <vector>
 

@@ -67,3 +67,11 @@ skia_filegroup(
     ],
     visibility = ["//src/codec:__pkg__"],
 )
+
+skia_filegroup(
+    name = "opts_srcs",
+    srcs = [
+        "SkColorData.h",
+    ],
+    visibility = ["//src/opts:__pkg__"],
+)

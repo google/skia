@@ -66,7 +66,6 @@ unit_tests(
         ":tests_base",
         "//:core",
         "//:default_font_manager_empty",
-        "//:default_malloc",
     ],
 )
 
@@ -78,7 +77,6 @@ unit_tests(
         ":tests_base",
         "//:core",
         "//:default_font_manager_empty",
-        "//:default_malloc",
     ],
 )
 

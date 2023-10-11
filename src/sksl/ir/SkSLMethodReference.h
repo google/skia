@@ -8,6 +8,7 @@
 #ifndef SKSL_METHODREFERENCE
 #define SKSL_METHODREFERENCE
 
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
 

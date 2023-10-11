@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLExpression.h"
 
 namespace SkSL {
 

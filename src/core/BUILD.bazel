@@ -533,12 +533,21 @@ skia_filegroup(
         "SkYUVAInfoLocation.h",
         "SkYUVMath.h",
         "SkYUVPlanesCache.h",
+        "//include/private:core_priv_hdrs",
+        "//src/effects:core_priv_hdrs",
+        "//src/image:core_priv_hdrs",
+        "//src/sfnt:core_priv_hdrs",
+        "//src/shaders:core_priv_hdrs",
+        "//src/sksl:core_priv_hdrs",
+        "//src/text:core_priv_hdrs",
+        "//src/utils:core_priv_hdrs",
     ],
 )
 
 skia_filegroup(
     name = "opts_srcs",
     srcs = [
+        "Sk4px.h",
         "SkOpts.h",
         "SkOptsTargets.h",
         "SkRasterPipeline.h",
@@ -550,14 +559,13 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "core_srcs",
+    name = "core_priv_srcs",
     srcs = [
         # Private Headers (not used in other modules [except tests/gms])
         "SkAlphaRuns.h",
         "SkAnalyticEdge.h",
         "SkAutoBlitterChoose.h",
         "SkBigPicture.h",
-        "SkBlitBWMaskTemplate.h",
         "SkBlitMask.h",
         "SkBlitRow.h",
         "SkBlitter.h",
@@ -590,7 +598,15 @@ skia_filegroup(
         "SkSpriteBlitter.h",
         "SkStrokerPriv.h",
         "SkWritePixelsRec.h",
-    ] + [
+        "//include/private:core_srcs",
+        "//include/private/chromium:core_hdrs",
+        "//src/sksl/codegen:rasterpipeline_hdrs",
+    ],
+)
+
+skia_filegroup(
+    name = "core_srcs",
+    srcs = [
         # Implementation of public and private headers
         "SkAAClip.cpp",
         "SkATrace.cpp",
@@ -786,31 +802,23 @@ skia_filegroup(
     ],
 )
 
-CORE_PRIV_HDRS = [
-    "//include/private:core_priv_hdrs",
-    "//src/effects:core_priv_hdrs",
-    "//src/image:core_priv_hdrs",
-    "//src/sfnt:core_priv_hdrs",
-    "//src/shaders:core_priv_hdrs",
-    "//src/sksl:core_priv_hdrs",
-    "//src/text:core_priv_hdrs",
-    "//src/utils:core_priv_hdrs",
-    ":core_priv_hdrs",
-]
+skia_filegroup(
+    name = "textual_hdrs",
+    srcs = ["SkBlitBWMaskTemplate.h"],
+)
 
 skia_cc_library(
     name = "core",
-    srcs = CORE_PRIV_HDRS + [
+    srcs = [
+        ":core_priv_hdrs",
+        ":core_priv_srcs",
         ":core_srcs",
-        "//include/private:core_srcs",
-        "//include/private/chromium:core_hdrs",
         "//src/effects:core_srcs",
         "//src/image:core_srcs",
         "//src/ports:core_srcs",
         "//src/sfnt:core_srcs",
         "//src/shaders:core_srcs",
         "//src/sksl:core_srcs",
-        "//src/sksl/codegen:rasterpipeline_hdrs",
         "//src/sksl/codegen:rasterpipeline_srcs",
         "//src/text:core_srcs",
         "//src/utils:core_srcs",
@@ -830,6 +838,7 @@ skia_cc_library(
     ],
     textual_hdrs = [
         "//src/opts:textual_hdrs",
+        ":textual_hdrs",
     ],
     visibility = [
         "//:__pkg__",
@@ -845,11 +854,13 @@ skia_cc_library(
 
 skia_cc_library(
     name = "core_priv",
-    hdrs = CORE_PRIV_HDRS,
+    srcs = [":core_priv_srcs"],
+    hdrs = [":core_priv_hdrs"],
     features = ["layering_check"],
     visibility = ["//src:__subpackages__"],
     deps = [
         ":core",
+        "//modules/skcms",
         "//src/base",
     ],
 )

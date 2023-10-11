@@ -19,7 +19,6 @@ cc_library(
     deps = [
         "@skia//:core",
         "@skia//:default_font_manager_empty",
-        "@skia//:default_malloc",
         "@skia//:pathops",
     ],
 )
@@ -35,7 +34,6 @@ cc_binary(
     deps = [
         "@skia//:core",
         "@skia//:default_font_manager_empty",
-        "@skia//:default_malloc",
         "@skia//:png_decode_codec",
     ],
 )

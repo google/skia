@@ -354,18 +354,14 @@ skia_cc_deps(
     }),
 )
 
-skia_cc_library(
-    name = "default_malloc",
-    srcs = [":malloc"],
-    features = ["layering_check"],
-    visibility = ["//:__pkg__"],
-    deps = ["//src/base"],
-)
-
 skia_filegroup(
     name = "base_srcs",
     srcs = [
         ":skdebug",
+        # TODO(kjlubick) Chromium will need a way to overwrite the malloc impls. Having malloc
+        # be a module doesn't quite work because ld complains "backward reference detected"
+        # when something in a module like pathops uses malloc without depending on it.
+        ":malloc",
     ],
     visibility = ["//src/base:__pkg__"],
 )

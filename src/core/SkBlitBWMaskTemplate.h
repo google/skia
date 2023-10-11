@@ -4,10 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+// This file does not have include guards because it is not meant to be used on its own.
 
-
-#include "include/core/SkBitmap.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkMask.h"
+
+#include <cstddef>
+#include <cstdint>
 
 #ifndef ClearLow3Bits_DEFINED
 #define ClearLow3Bits_DEFINED
@@ -15,7 +20,7 @@
 #endif
 
 /*
-    SK_BLITBWMASK_NAME          name of function(const SkBitmap& bitmap, const SkMask& mask, const SkIRect& clip, SK_BLITBWMASK_ARGS)
+    SK_BLITBWMASK_NAME          name of function(const SkPixmap& dstPixmap, const SkMask& mask, const SkIRect& clip, SK_BLITBWMASK_ARGS)
     SK_BLITBWMASK_ARGS          list of additional arguments to SK_BLITBWMASK_NAME, beginning with a comma
     SK_BLITBWMASK_BLIT8         name of function(U8CPU byteMask, SK_BLITBWMASK_DEVTYPE* dst, int x, int y)
     SK_BLITBWMASK_GETADDR       either writable_addr[8,16,32]

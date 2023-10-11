@@ -88,8 +88,8 @@ skia_cc_library(
     name = "hsw",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2
     srcs = [
         "SkOpts_hsw.cpp",
-        ":private_hdrs",
         "//include/core:opts_srcs",
+        "//include/private:opts_srcs",
         "//src/core:opts_srcs",
         "//src/sksl/tracing:opts_srcs",
     ],
@@ -97,6 +97,7 @@ skia_cc_library(
     local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = [
         "SkRasterPipeline_opts.h",
+        ":private_hdrs",
     ],
     deps = [
         "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h

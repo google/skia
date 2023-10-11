@@ -78,8 +78,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//include/pathops:public_hdrs"}},
 		{Var: "skia_pathops_sources",
 			Rules: []string{
-				"//src/pathops:_pathops_hdrs",
-				"//src/pathops:_pathops_srcs",
+				"//src/pathops:legacy_pathops_hdrs",
+				"//src/pathops:legacy_pathops_srcs",
 			}},
 		{Var: "skia_encode_public",
 			Rules: []string{"//include/encode:encode_hdrs"}},

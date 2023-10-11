@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef SkTextFormatParams_DEFINES
 #define SkTextFormatParams_DEFINES
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+
+#include <iterator>
 
 // The fraction of text size to embolden fake bold text scales with text size.
 // At 9 points or below, the stroke width is increased by text size / 24.
