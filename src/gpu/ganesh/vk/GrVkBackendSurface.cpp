@@ -16,9 +16,9 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "include/private/gpu/ganesh/GrVkTypesPriv.h"
 #include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"
+#include "src/gpu/ganesh/vk/GrVkTypesPriv.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 

@@ -14,7 +14,6 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
-#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLBuffer.h"
@@ -23,6 +22,7 @@
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 #include "src/gpu/ganesh/gl/GrGLTextureRenderTarget.h"
+#include "src/gpu/ganesh/gl/GrGLTypesPriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 

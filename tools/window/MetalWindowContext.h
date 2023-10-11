@@ -10,7 +10,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/ports/SkCFObject.h"
-#include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
+#include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"
 
 #include "tools/window/WindowContext.h"
 

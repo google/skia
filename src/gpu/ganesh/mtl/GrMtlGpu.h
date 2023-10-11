@@ -10,7 +10,7 @@
 
 #include "include/gpu/mtl/GrMtlBackendContext.h"
 #include "include/private/base/SkDeque.h"
-#include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
+#include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"
 
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrGpu.h"

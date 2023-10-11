@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
+#include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"
 
 GrMtlSurfaceInfo GrMtlTextureSpecToSurfaceInfo(const GrMtlTextureSpec& mtlSpec,
                                                uint32_t sampleCount,

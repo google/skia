@@ -10,9 +10,9 @@
 #define GrGLTexture_DEFINED
 
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/gl/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 class GrGLGpu;

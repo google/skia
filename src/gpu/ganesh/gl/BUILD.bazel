@@ -46,6 +46,7 @@ CORE_FILES = [
     "GrGLTextureRenderTarget.cpp",
     "GrGLTextureRenderTarget.h",
     "GrGLTypesPriv.cpp",
+    "GrGLTypesPriv.h",
     "GrGLUniformHandler.cpp",
     "GrGLUniformHandler.h",
     "GrGLUtil.cpp",

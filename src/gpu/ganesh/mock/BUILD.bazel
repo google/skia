@@ -16,6 +16,7 @@ MOCK_FILES = [
     "GrMockSurfaceProxy.h",
     "GrMockTexture.h",
     "GrMockTypes.cpp",
+    "GrMockTypesPriv.h",
 ]
 
 split_srcs_and_hdrs(

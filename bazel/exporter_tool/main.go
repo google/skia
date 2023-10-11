@@ -274,7 +274,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_ganesh_private",
 			Rules: []string{
 				"//include/private/gpu/ganesh:private_hdrs",
-				"//include/private/gpu/ganesh:gl_private_hdrs",
 				"//src/gpu/ganesh/effects:effects_hdrs",
 				"//src/gpu/ganesh/effects:effects_srcs",
 				"//src/gpu/ganesh/geometry:geometry_hdrs",
@@ -338,7 +337,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_gpu_vk_private",
 			Rules: []string{
-				"//include/private/gpu/ganesh:vk_private_hdrs",
 				"//src/gpu/ganesh/vk:vk_hdrs",
 				"//src/gpu/ganesh/vk:vk_srcs",
 			}},
@@ -359,7 +357,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_gpu_metal_private",
 			Rules: []string{
-				"//include/private/gpu/ganesh:mtl_private_hdrs",
 				"//src/gpu/ganesh/surface:mtl_objc_srcs",
 				"//src/gpu/ganesh/mtl:mtl_hdrs",
 				"//src/gpu/ganesh/mtl:mtl_srcs",

@@ -13,13 +13,13 @@
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "include/private/gpu/ganesh/GrVkTypesPriv.h"
 #include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/GrRefCnt.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"
+#include "src/gpu/ganesh/vk/GrVkTypesPriv.h"
 
 #include <cinttypes>
 

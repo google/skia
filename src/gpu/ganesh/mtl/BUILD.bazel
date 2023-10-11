@@ -53,6 +53,7 @@ MTL_FILES = [
     "GrMtlTextureRenderTarget.h",
     "GrMtlTextureRenderTarget.mm",
     "GrMtlTrampoline.mm",
+    "GrMtlTypesPriv.h",
     "GrMtlTypesPriv.mm",
     "GrMtlUniformHandler.h",
     "GrMtlUniformHandler.mm",

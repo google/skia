@@ -1,25 +1,8 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
-
-# In own group for mapping to //gpu.gni:skia_dawn_sources.
-skia_filegroup(
-    name = "dawn_private_hdrs",
-    srcs = ["GrDawnTypesPriv.h"],
-)
-
-skia_filegroup(
-    name = "gl_private_hdrs",
-    srcs = ["GrGLTypesPriv.h"],
-)
-
-# In own group for mapping to //gpu.gni:skia_gpu_vk_private.
-skia_filegroup(
-    name = "vk_private_hdrs",
-    srcs = ["GrVkTypesPriv.h"],
-)
 
 # In own group for mapping to //gn/gpu.gni:skia_direct3d_sources.
 skia_filegroup(
@@ -27,28 +10,13 @@ skia_filegroup(
     srcs = ["GrD3DTypesMinimal.h"],
 )
 
-# In own group for mapping to //gn/gpu.gni:skia_gpu_metal_private.
-skia_filegroup(
-    name = "mtl_private_hdrs",
-    srcs = ["GrMtlTypesPriv.h"],
-)
-
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "GrContext_Base.h",
         "GrImageContext.h",
-        "GrMockTypesPriv.h",
-        "GrMtlTypesPriv.h",
         "GrTextureGenerator.h",
         "GrTypesPriv.h",
-    ] + select_multi(
-        {
-            "//src/gpu:gl_ganesh": [":gl_private_hdrs"],
-            "//src/gpu:vulkan_ganesh": [":vk_private_hdrs"],
-            "//src/gpu:metal_ganesh": [":mtl_private_hdrs"],
-            # TODO(kjlubick) Direct3D Backend
-        },
-    ),
+    ],
     visibility = ["//include/private/gpu:__pkg__"],
 )

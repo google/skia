@@ -22,7 +22,6 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
@@ -46,6 +45,7 @@
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
+#include "src/gpu/ganesh/gl/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "src/gpu/ganesh/gl/GrGLVertexArray.h"
 

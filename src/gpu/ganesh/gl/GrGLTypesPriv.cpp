@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/gpu/ganesh/gl/GrGLTypesPriv.h"
 
 #include "include/core/SkScalar.h"
-#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 

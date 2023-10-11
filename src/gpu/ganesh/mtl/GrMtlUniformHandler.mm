@@ -7,10 +7,10 @@
 
 #include "src/gpu/ganesh/mtl/GrMtlUniformHandler.h"
 
-#include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrUtil.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag

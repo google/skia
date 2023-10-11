@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/gpu/ganesh/GrVkTypesPriv.h"
+#include "src/gpu/ganesh/vk/GrVkTypesPriv.h"
 
 #include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/ganesh/vk/GrVkImageLayout.h"

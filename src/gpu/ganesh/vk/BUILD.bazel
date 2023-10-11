@@ -64,6 +64,7 @@ VK_FILES = [
     "GrVkTextureRenderTarget.cpp",
     "GrVkTextureRenderTarget.h",
     "GrVkTypesPriv.cpp",
+    "GrVkTypesPriv.h",
     "GrVkUniformHandler.cpp",
     "GrVkUniformHandler.h",
     "GrVkUtil.cpp",
