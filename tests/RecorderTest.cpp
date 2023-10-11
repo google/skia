@@ -98,7 +98,11 @@ DEF_TEST(Recorder_drawImage_takeReference, reporter) {
         Tally tally;
         tally.apply(record);
 
+#if defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
         REPORTER_ASSERT(reporter, 1 == tally.count<SkRecords::DrawImage>());
+#else
+        REPORTER_ASSERT(reporter, 1 == tally.count<SkRecords::DrawImageRect>());
+#endif
     }
     REPORTER_ASSERT(reporter, image->unique());
 

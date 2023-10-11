@@ -46,7 +46,6 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
@@ -66,6 +65,7 @@
 #include <utility>
 
 #if defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
+#include "src/core/SkMatrixUtils.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #endif
 
@@ -753,9 +753,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
         }
     }
 
-    // Start out with an empty source image, to be replaced with the converted 'image', and a
-    // desired output equal to the calculated initial source layer bounds, which accounts for
-    // how the image filters will access 'image' (possibly different than just 'outputBounds').
+    // Start out with an empty source image, to be replaced with the snapped 'src' device.
     auto backend = dst->createImageFilteringBackend(src ? src->surfaceProps() : dst->surfaceProps(),
                                                     filterColorType);
     skif::Context ctx{std::move(backend),
@@ -2045,6 +2043,28 @@ void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], i
                                                const SkPaint* paint,
                                                SrcRectConstraint constraint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
+#if !defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
+    // Route single, rectangular quads to drawImageRect() to take advantage of image filter
+    // optimizations that avoid a layer.
+    if (paint && paint->getImageFilter() && cnt == 1) {
+        const auto& entry = imageSet[0];
+        // If the preViewMatrix is skipped or a positive-scale + translate matrix, we can apply it
+        // to the entry's dstRect w/o changing output behavior.
+        const bool canMapDstRect = entry.fMatrixIndex < 0 ||
+            (preViewMatrices[entry.fMatrixIndex].isScaleTranslate() &&
+             preViewMatrices[entry.fMatrixIndex].getScaleX() > 0.f &&
+             preViewMatrices[entry.fMatrixIndex].getScaleY() > 0.f);
+        if (!entry.fHasClip && canMapDstRect) {
+            SkRect dst = entry.fDstRect;
+            if (entry.fMatrixIndex >= 0) {
+                preViewMatrices[entry.fMatrixIndex].mapRect(&dst);
+            }
+            this->drawImageRect(entry.fImage.get(), entry.fSrcRect, dst,
+                                sampling, paint, constraint);
+            return;
+        } // Else the entry is doing more than can be represented by drawImageRect
+    } // Else no filter, or many entries that should be filtered together
+#endif
     this->onDrawEdgeAAImageSet2(imageSet, cnt, dstClips, preViewMatrices, sampling, paint,
                                 constraint);
 }
@@ -2254,8 +2274,10 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
+// TODO: Delete this once SK_RESOLVE_FILTERS_BEFORE_RESTORE is unneeded
 bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h,
                                      const SkSamplingOptions& sampling, const SkPaint& paint) {
+#if defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
     if (!paint.getImageFilter()) {
         return false;
     }
@@ -2282,6 +2304,9 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h,
     // contains check equivalent to between ir and device bounds
     ir.outset(1, 1);
     return ir.contains(fQuickRejectBounds);
+#else
+    return false;
+#endif
 }
 
 // Clean-up the paint to match the drawing semantics for drawImage et al. (skbug.com/7804).
@@ -2304,8 +2329,10 @@ static SkPaint clean_paint_for_drawVertices(SkPaint paint) {
     return paint;
 }
 
+// TODO: Delete this once SK_RESOLVE_FILTERS_BEFORE_RESTORE is unneeded and clean up subclasses
 void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
                             const SkSamplingOptions& sampling, const SkPaint* paint) {
+#if defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
     SkPaint realPaint = clean_paint_for_drawImage(paint);
 
     SkRect dst = SkRect::MakeXYWH(x, y, image->width(), image->height());
@@ -2361,6 +2388,10 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
         this->topDevice()->drawImageRect(image, nullptr, dst, sampling,
                                          layer->paint(), kFast_SrcRectConstraint);
     }
+#else
+    // drawImage() should call into onDrawImageRect() if SK_RESOLVE_FILTERS_BEFORE_RESTORE is off
+    SkUNREACHABLE;
+#endif
 }
 
 static SkSamplingOptions clean_sampling_for_constraint(
@@ -2392,6 +2423,67 @@ void SkCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const S
         return;
     }
 
+#if !defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
+    // drawImageRect()'s behavior is modified by the presence of an image filter, a mask filter, a
+    // color filter, the paint's alpha, the paint's blender, and--when it's an alpha-only image--
+    // the paint's color or shader. When there's an image filter, the paint's blender is applied to
+    // the result of the image filter function, but every other aspect would influence the source
+    // image that's then rendered with src-over blending into a transparent temporary layer.
+    //
+    // However, skif::FilterResult can apply the paint alpha and any color filter often without
+    // requiring a layer, and src-over blending onto a transparent dst is a no-op, so we can use the
+    // input image directly as the source for filtering. When the image is alpha-only and must be
+    // colorized, or when a mask filter would change the coverage we skip this optimization for
+    // simplicity since *somehow* embedding colorization or mask blurring into the filter graph
+    // would likely be equivalent to using the existing AutoLayerForImageFilter functionality.
+    if (realPaint.getImageFilter() && !image->isAlphaOnly() && !realPaint.getMaskFilter()) {
+        SkDevice* device = this->topDevice();
+
+        skif::ParameterSpace<SkRect> imageBounds{dst};
+        skif::DeviceSpace<SkIRect> outputBounds{device->devClipBounds()};
+        auto mappingAndBounds = get_layer_mapping_and_bounds(realPaint.getImageFilter(),
+                                                             device->localToDevice(),
+                                                             outputBounds,
+                                                             imageBounds);
+        if (!mappingAndBounds) {
+            return;
+        }
+        if (!this->predrawNotify()) {
+            return;
+        }
+
+        // Start out with an empty source image, to be replaced with the converted 'image', and a
+        // desired output equal to the calculated initial source layer bounds, which accounts for
+        // how the image filters will access 'image' (possibly different than just 'outputBounds').
+        auto backend = device->createImageFilteringBackend(
+                device->surfaceProps(),
+                image_filter_color_type(device->imageInfo()));
+        auto [mapping, srcBounds] = *mappingAndBounds;
+        skif::Context ctx{std::move(backend),
+                          mapping,
+                          srcBounds,
+                          skif::FilterResult{},
+                          device->imageInfo().colorSpace()};
+
+        auto source = skif::FilterResult::MakeFromImage(
+                ctx, sk_ref_sp(image), src, imageBounds, sampling);
+        // Apply effects that are normally processed on the draw *before* any layer/image filter.
+        source = apply_alpha_and_colorfilter(ctx, source, realPaint);
+
+        // Evaluate the image filter, with a context pointing to the source created directly from
+        // 'image' (which will not require intermediate renderpasses when 'src' is integer aligned).
+        // and a desired output matching the device clip bounds.
+        ctx = ctx.withNewDesiredOutput(mapping.deviceToLayer(outputBounds))
+                 .withNewSource(source);
+        auto result = as_IFB(realPaint.getImageFilter())->filterImage(ctx);
+        result.draw(ctx, device, realPaint.getBlender());
+        return;
+    }
+
+    // When there's a alpha-only image that must be colorized or a mask filter to apply, go through
+    // the regular auto-layer-for-imagefilter process
+#endif
+
     auto layer = this->aboutToDraw(this, realPaint, &dst, CheckForOverwrite::kYes,
                                    image->isOpaque() ? kOpaque_ShaderOverrideOpacity
                                                      : kNotOpaque_ShaderOverrideOpacity);
@@ -2419,7 +2511,16 @@ void SkCanvas::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                          const SkSamplingOptions& sampling, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(image);
+#if defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
     this->onDrawImage2(image, x, y, sampling, paint);
+#else
+    this->drawImageRect(image,
+                        /*src=*/SkRect::MakeWH(image->width(), image->height()),
+                        /*dst=*/SkRect::MakeXYWH(x, y, image->width(), image->height()),
+                        sampling,
+                        paint,
+                        kFast_SrcRectConstraint);
+#endif
 }
 
 void SkCanvas::drawImageRect(const SkImage* image, const SkRect& src, const SkRect& dst,
