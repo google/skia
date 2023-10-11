@@ -992,6 +992,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, TernaryResultsCannotBeInlined,            
 SKSL_TEST(CPU | GPU,     kApiLevel_T, TernaryTestCanBeInlined,                          "inliner/TernaryTestCanBeInlined.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, TrivialArgumentsInlineDirectly,                   "inliner/TrivialArgumentsInlineDirectly.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      TrivialArgumentsInlineDirectlyES3,                "inliner/TrivialArgumentsInlineDirectlyES3.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,TypeShadowing,                                    "inliner/TypeShadowing.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      WhileBodyMustBeInlinedIntoAScope,                 "inliner/WhileBodyMustBeInlinedIntoAScope.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      WhileTestCannotBeInlined,                         "inliner/WhileTestCannotBeInlined.sksl")
 

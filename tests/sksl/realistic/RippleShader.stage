@@ -16,14 +16,43 @@ uniform vec2 in_tRotation3;
 layout (color) uniform vec4 in_color;
 layout (color) uniform vec4 in_sparkleColor;
 const float PI_0 = 3.14159274;
+float sparkles_0(float2 uv, float t);
 float softCircle_0(float2 uv, float2 xy, float radius, float blur);
+float softRing_0(float2 uv, float2 xy, float radius, float progress, float blur);
 float subProgress_0(float start, float end, float progress);
 float circle_grid_0(float2 resolution, float2 coord, float time, float2 center, float2 rotation, float cell_diameter);
+float turbulence_0(float2 uv, float t);
+float sparkles_0(float2 uv, float t)
+{
+	float2 _0_n = uv;
+	_0_n = fract(_0_n * float2(5.3987, 5.4421));
+	_0_n += dot(_0_n.yx, _0_n + float2(21.5351, 14.3137));
+	float _1_xy = _0_n.x * _0_n.y;
+	float n = (fract(_1_xy * 95.4307) + fract(_1_xy * 75.04961)) - 1.0;
+	float s = 0.0;
+	for (float i = 0.0;i < 4.0; i += 1.0) 
+	{
+		float l = i * 0.1;
+		float h = l + 0.05;
+		float o = sin(PI_0 * (t + 0.35 * i));
+		float _2_v = n + o;
+		s += step(l, _2_v) * (1.0 - step(h, _2_v));
+	}
+	return saturate(s) * in_sparkleColor.w;
+}
 float softCircle_0(float2 uv, float2 xy, float radius, float blur)
 {
 	float blurHalf = blur * 0.5;
 	float d = distance(uv, xy);
 	return 1.0 - smoothstep(1.0 - blurHalf, 1.0 + blurHalf, d / radius);
+}
+float softRing_0(float2 uv, float2 xy, float radius, float progress, float blur)
+{
+	float thickness = 0.05 * radius;
+	float currentRadius = radius * progress;
+	float circle_outer = softCircle_0(uv, xy, currentRadius + thickness, blur);
+	float circle_inner = softCircle_0(uv, xy, max(currentRadius - thickness, 0.0), blur);
+	return saturate(circle_outer - circle_inner);
 }
 float subProgress_0(float start, float end, float progress)
 {
@@ -38,6 +67,16 @@ float circle_grid_0(float2 resolution, float2 coord, float time, float2 center, 
 	float radius = 0.65 * normal_radius;
 	return softCircle_0(coord, float2(normal_radius), radius, radius * 50.0);
 }
+float turbulence_0(float2 uv, float t)
+{
+	const float2 scale = float2(0.8);
+	uv = uv * scale;
+	float g1 = circle_grid_0(scale, uv, t, in_tCircle1, in_tRotation1, 0.17);
+	float g2 = circle_grid_0(scale, uv, t, in_tCircle2, in_tRotation2, 0.2);
+	float g3 = circle_grid_0(scale, uv, t, in_tCircle3, in_tRotation3, 0.275);
+	float v = ((g1 * g1 + g2) - g3) * 0.5;
+	return saturate(0.45 + 0.8 * v);
+}
 float4 main(float2 p)
 {
 	float fadeIn = subProgress_0(0.0, 0.13, in_progress);
@@ -45,37 +84,12 @@ float4 main(float2 p)
 	float fadeOutNoise = subProgress_0(0.4, 0.5, in_progress);
 	float fadeOutRipple = subProgress_0(0.4, 1.0, in_progress);
 	float2 center = mix(in_touch, in_origin, saturate(in_progress * 2.0));
-	float _3_thickness = 0.05 * in_maxRadius;
-	float _4_currentRadius = in_maxRadius * scaleIn;
-	float _5_circle_outer = softCircle_0(_coords, center, _4_currentRadius + _3_thickness, 1.0);
-	float _6_circle_inner = softCircle_0(_coords, center, max(_4_currentRadius - _3_thickness, 0.0), 1.0);
-	float ring = saturate(_5_circle_outer - _6_circle_inner);
+	float ring = softRing_0(_coords, center, in_maxRadius, scaleIn, 1.0);
 	float alpha = min(fadeIn, 1.0 - fadeOutNoise);
 	float2 uv = _coords * in_resolutionScale;
 	float2 densityUv = uv - mod(uv, in_noiseScale);
-	float2 _7_uv = uv;
-	const float2 _8_scale = float2(0.8);
-	_7_uv = _7_uv * _8_scale;
-	float _9_g1 = circle_grid_0(_8_scale, _7_uv, in_turbulencePhase, in_tCircle1, in_tRotation1, 0.17);
-	float _10_g2 = circle_grid_0(_8_scale, _7_uv, in_turbulencePhase, in_tCircle2, in_tRotation2, 0.2);
-	float _11_g3 = circle_grid_0(_8_scale, _7_uv, in_turbulencePhase, in_tCircle3, in_tRotation3, 0.275);
-	float _12_v = ((_9_g1 * _9_g1 + _10_g2) - _11_g3) * 0.5;
-	float turbulence = saturate(0.45 + 0.8 * _12_v);
-	float2 _13_n = densityUv;
-	_13_n = fract(_13_n * float2(5.3987, 5.4421));
-	_13_n += dot(_13_n.yx, _13_n + float2(21.5351, 14.3137));
-	float _14_xy = _13_n.x * _13_n.y;
-	float _15_n = (fract(_14_xy * 95.4307) + fract(_14_xy * 75.04961)) - 1.0;
-	float _16_s = 0.0;
-	for (float _17_i = 0.0;_17_i < 4.0; _17_i += 1.0) 
-	{
-		float _18_l = _17_i * 0.1;
-		float _19_h = _18_l + 0.05;
-		float _20_o = sin(PI_0 * (in_noisePhase + 0.35 * _17_i));
-		float _21_v = _15_n + _20_o;
-		_16_s += step(_18_l, _21_v) * (1.0 - step(_19_h, _21_v));
-	}
-	float sparkleAlpha = (((saturate(_16_s) * in_sparkleColor.w) * ring) * alpha) * turbulence;
+	float turbulence = turbulence_0(uv, in_turbulencePhase);
+	float sparkleAlpha = ((sparkles_0(densityUv, in_noisePhase) * ring) * alpha) * turbulence;
 	float fade = min(fadeIn, 1.0 - fadeOutRipple);
 	float waveAlpha = (softCircle_0(_coords, center, in_maxRadius * scaleIn, 1.0) * fade) * in_color.w;
 	float4 waveColor = float4(in_color.xyz * waveAlpha, waveAlpha);

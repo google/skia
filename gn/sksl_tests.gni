@@ -813,6 +813,7 @@ sksl_inliner_tests = [
   "inliner/TernaryTestCanBeInlined.sksl",
   "inliner/TrivialArgumentsInlineDirectly.sksl",
   "inliner/TrivialArgumentsInlineDirectlyES3.sksl",
+  "inliner/TypeShadowing.sksl",
   "inliner/WhileBodyMustBeInlinedIntoAScope.sksl",
   "inliner/WhileTestCannotBeInlined.sksl",
 ]

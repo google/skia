@@ -156,14 +156,18 @@ public:
      */
     const Type* addArrayDimension(const Type* type, int arraySize);
 
-    // Call fn for every symbol in the table.  You may not mutate anything.
+    // Call fn for every symbol in the table. You may not mutate anything.
     template <typename Fn>
     void foreach(Fn&& fn) const {
         fSymbols.foreach(
                 [&fn](const SymbolKey& key, const Symbol* symbol) { fn(key.fName, symbol); });
     }
 
-    size_t count() {
+    // Checks `this` directly against `other` to see if the two symbol tables have any names in
+    // common. Parent tables are not considered.
+    bool wouldShadowSymbolsFrom(const SymbolTable* other) const;
+
+    size_t count() const {
         return fSymbols.count();
     }
 

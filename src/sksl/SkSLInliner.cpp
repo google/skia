@@ -677,8 +677,13 @@ public:
         switch (pe->kind()) {
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
-                fEnclosingFunction = &funcDef;
-                this->visitStatement(&funcDef.body());
+                const SymbolTable* parameterSymbols = funcDef.parameterSymbolTable();
+                // If this function has parameter names that would shadow globally-scoped names, we
+                // don't look for any inline candidates, because it's too late to mangle the names.
+                if (!parameterSymbols->wouldShadowSymbolsFrom(fSymbolTableStack.front().get())) {
+                    fEnclosingFunction = &funcDef;
+                    this->visitStatement(&funcDef.body());
+                }
                 break;
             }
             default:
@@ -694,6 +699,13 @@ public:
         }
 
         Analysis::SymbolTableStackBuilder scopedStackBuilder(stmt->get(), &fSymbolTableStack);
+        // If this statement contains symbols that would shadow globally-scoped names, we don't look
+        // for any inline candidates, because it's too late to mangle the names.
+        if (scopedStackBuilder.foundSymbolTable() &&
+            fSymbolTableStack.back()->wouldShadowSymbolsFrom(fSymbolTableStack.front().get())) {
+            return;
+        }
+
         size_t oldEnclosingStmtStackSize = fEnclosingStmtStack.size();
 
         if (isViableAsEnclosingStatement) {

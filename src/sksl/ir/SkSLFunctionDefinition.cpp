@@ -17,7 +17,6 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -39,7 +38,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <forward_list>
-#include <string_view>
 #include <type_traits>
 
 namespace SkSL {
@@ -320,19 +318,24 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
     // We don't allow modules to define actual functions with intrinsic names. (Those should be
     // reserved for actual intrinsics.)
     if (function.isIntrinsic()) {
-        context.fErrors->error(function.fPosition,
-                               SkSL::String::printf("Intrinsic function '%.*s' should not have "
-                                                    "a definition",
-                                                    (int)function.name().size(),
-                                                    function.name().data()));
+        context.fErrors->error(function.fPosition, "Intrinsic function '" +
+                                                   std::string(function.name()) +
+                                                   "' should not have a definition");
+        return nullptr;
+    }
+
+    // A function body must always be a braced block. (The parser should enforce this already, but
+    // we rely on it, so it's best to be certain.)
+    if (!body || !body->is<Block>() || !body->as<Block>().isScope()) {
+        context.fErrors->error(function.fPosition, "function body '" + function.description() +
+                                                   "' must be a braced block");
         return nullptr;
     }
 
     // A function can't have more than one definition.
     if (function.definition()) {
-        context.fErrors->error(function.fPosition,
-                               SkSL::String::printf("function '%s' was already defined",
-                                                    function.description().c_str()));
+        context.fErrors->error(function.fPosition, "function '" + function.description() +
+                                                   "' was already defined");
         return nullptr;
     }
 
@@ -348,7 +351,31 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                                                 "' can exit without returning a value");
     }
 
+    return FunctionDefinition::Make(context, pos, function, std::move(body), builtin);
+}
+
+std::unique_ptr<FunctionDefinition> FunctionDefinition::Make(const Context&,
+                                                             Position pos,
+                                                             const FunctionDeclaration& function,
+                                                             std::unique_ptr<Statement> body,
+                                                             bool builtin) {
+    SkASSERT(!function.isIntrinsic());
+    SkASSERT(body && body->as<Block>().isScope());
+    SkASSERT(!function.definition());
+
     return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
+}
+
+std::unique_ptr<ProgramElement> FunctionDefinition::clone() const {
+    return std::make_unique<FunctionDefinition>(fPosition,
+                                                &this->declaration(),
+                                                /*builtin=*/false,
+                                                this->body()->clone());
+}
+
+const SymbolTable* FunctionDefinition::parameterSymbolTable() const {
+    // Parameters are always held in a symbol table immediately above the body.
+    return fBody->as<Block>().symbolTable()->fParent.get();
 }
 
 }  // namespace SkSL

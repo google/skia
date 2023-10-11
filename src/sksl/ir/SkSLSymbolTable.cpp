@@ -32,6 +32,29 @@ const Symbol* SymbolTable::findBuiltinSymbol(std::string_view name) const {
     return this->find(name);
 }
 
+bool SymbolTable::wouldShadowSymbolsFrom(const SymbolTable* other) const {
+    // We are checking two hash maps for overlap; we always iterate over the smaller one to minimize
+    // the total number of checks.
+    const SymbolTable* self = this;
+    if (self->count() > other->count()) {
+        std::swap(self, other);
+    }
+
+    bool foundShadow = false;
+
+    self->fSymbols.foreach([&](const SymbolKey& key, const Symbol* symbol) {
+        if (foundShadow) {
+            // We've already found a shadowed symbol; stop searching.
+            return;
+        }
+        if (other->fSymbols.find(key) != nullptr) {
+            foundShadow = true;
+        }
+    });
+
+    return foundShadow;
+}
+
 Symbol* SymbolTable::lookup(const SymbolKey& key) const {
     Symbol** symbolPPtr = fSymbols.find(key);
     if (symbolPPtr) {

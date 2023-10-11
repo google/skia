@@ -1,0 +1,17 @@
+uniform half4 colorRed, colorGreen;
+
+struct S { int c; };
+
+bool inner_test() {
+    S x = S(1);
+    S y = S(1);
+    return x == y;
+}
+
+bool test(bool S) {
+    return inner_test();
+}
+
+half4 main(float2 S) {
+    return test(true) ? colorGreen : colorRed;
+}

@@ -259,6 +259,11 @@ public:
     // If a symbol table was added to the stack earlier, removes it from the stack.
     ~SymbolTableStackBuilder();
 
+    // Returns true if an entry was added to the symbol-table stack.
+    bool foundSymbolTable() {
+        return fStackToPop != nullptr;
+    }
+
 private:
     std::vector<std::shared_ptr<SymbolTable>>* fStackToPop = nullptr;
 };
