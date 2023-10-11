@@ -180,16 +180,16 @@ namespace skiagm {
         // Convenience method to skip Bazel-only GMs from DM.
         //
         // As of Q3 2023, lovisolo@ is experimenting with reimplementing some DM behaviors as
-        // smaller, independent Bazel targets. For example, file //gm/BazelGMRunner.cpp provides a
-        // main function that can run GMs. With this file, one can define multiple small Bazel
-        // tests to run groups of related GMs with Bazel. However, GMs are only one kind of
-        // "source" supported by DM (see class GMSrc). DM supports other kinds of sources as well,
-        // such as codecs (CodecSrc class) and image generators (ImageGenSrc class). One possible
-        // strategy to support these sources in our Bazel build is to turn them into GMs. For
-        // example, instead of using the CodecSrc class from Bazel, we could have a GM subclass
-        // that takes an image as an input, decodes it using a codec, and draws in on a canvas.
-        // Given that this overlaps with existing DM functionality, we would mark such GMs as
-        // Bazel-only.
+        // smaller, independent Bazel targets. For example, file
+        // //tools/testrunners/gm/BazelGMTestRunner.cpp provides a main function that can run GMs.
+        // With this file, one can define multiple small Bazel tests to run groups of related GMs
+        // with Bazel. However, GMs are only one kind of "source" supported by DM (see class
+        // GMSrc). DM supports other kinds of sources as well, such as codecs (CodecSrc class) and
+        // image generators (ImageGenSrc class). One possible strategy to support these sources in
+        // our Bazel build is to turn them into GMs. For example, instead of using the CodecSrc
+        // class from Bazel, we could have a GM subclass that takes an image as an input, decodes
+        // it using a codec, and draws in on a canvas. Given that this overlaps with existing DM
+        // functionality, we would mark such GMs as Bazel-only.
         //
         // Another possibility is to slowly replace all existing DM source types with just GMs.
         // This would lead to a simpler DM architecture where there is only one source type and
@@ -244,7 +244,7 @@ namespace skiagm {
     // It should return the empty string on success, or a human-friendly message in the case of
     // errors.
     //
-    // Only used by //gm/BazelGMRunner.cpp for now.
+    // Only used by //tools/testrunners/gm/BazelGMTestRunner.cpp for now.
     using GMRegistererFn = std::function<std::string()>;
     using GMRegistererFnRegistry = sk_tools::Registry<GMRegistererFn>;
 

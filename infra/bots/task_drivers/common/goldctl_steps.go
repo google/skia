@@ -270,8 +270,8 @@ func extractOutputsZip(ctx context.Context, outputsZipPath string) (string, erro
 	return extractionDir, nil
 }
 
-// gmJSONOutput represents a JSON file produced by //gm/BazelGMRunner.cpp, plus bookkeeping
-// information required by this task driver.
+// gmJSONOutput represents a JSON file produced by //tools/testrunners/gm/BazelGMTestRunner.cpp,
+// plus bookkeeping information required by this task driver.
 type gmJSONOutput struct {
 	MD5  string            `json:"md5"`
 	Keys map[string]string `json:"keys"`

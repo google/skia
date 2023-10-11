@@ -1,0 +1,27 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "testrunner",
+    testonly = True,
+    srcs = [
+        "BazelBenchmarkTestRunner.cpp",
+        "//src/utils:json_hdrs",
+        "//src/utils:json_srcs",
+    ],
+    visibility = ["//bench:__pkg__"],
+    deps = [
+        "//:skia_internal",
+        "//bench:benchmark",
+        "//tools:autorelease_pool",
+        "//tools:proc_stats",
+        "//tools:registry",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/testrunners/benchmark/target",
+        "//tools/timer",
+    ],
+)

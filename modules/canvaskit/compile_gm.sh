@@ -189,14 +189,10 @@ GLOBIGNORE+="tests/BackendAllocationTest.cpp:"\
 "tests/VkHardwareBufferTest.cpp:"
 
 # All the tests in these files crash.
-GLOBIGNORE+="tests/GrThreadSafeCacheTest.cpp"
+GLOBIGNORE+="tests/GrThreadSafeCacheTest.cpp:"
 
 # Bazel-related ignores (test runners, incompatible GMs, etc.).
-GLOBIGNORE+="tests/BazelNoopRunner.cpp:"\
-"tests/BazelTestRunner.cpp:"\
-"gm/BazelGMRunner.cpp:"\
-"gm/BazelNoopRunner.cpp:"\
-"gm/png_codec.cpp"
+GLOBIGNORE+="gm/png_codec.cpp"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
