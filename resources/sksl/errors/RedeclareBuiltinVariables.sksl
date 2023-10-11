@@ -7,7 +7,7 @@ layout(location=0,index=0,builtin=10001) out half4 sk_FragColor;
 layout(builtin=10008) half4 sk_LastFragColor;
 layout(builtin=10012) out half4 sk_SecondaryFragColor;
 
-// We only variables to be declared with `builtin` within a module.
+// We only allow variables to be declared with `builtin` within a module.
 layout (builtin=123) in float mysteryIn;
 layout (builtin=456) out float mysteryOut;
 layout (builtin=789) float mysteryGlobal;
