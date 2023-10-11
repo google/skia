@@ -35,7 +35,7 @@ struct SkPDFObjectSerializer;
 
 struct SkPDFIndirectReference {
     int fValue = -1;
-    explicit operator bool() { return fValue != -1; }
+    explicit operator bool() const { return fValue != -1; }
 };
 
 inline static bool operator==(SkPDFIndirectReference u, SkPDFIndirectReference v) {

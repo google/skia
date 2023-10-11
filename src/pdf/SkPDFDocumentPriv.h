@@ -118,11 +118,13 @@ public:
     // Used to allow marked content to refer to its corresponding structure
     // tree node, via a page entry in the parent tree. Returns -1 if no
     // mark ID.
-    int createMarkIdForNodeId(int nodeId);
+    SkPDFTagTree::Mark createMarkIdForNodeId(int nodeId, SkPoint);
     // Used to allow annotations to refer to their corresponding structure
     // tree node, via the struct parent tree. Returns -1 if no struct parent
     // key.
     int createStructParentKeyForNodeId(int nodeId);
+
+    void addNodeTitle(int nodeId, SkSpan<const char>);
 
     std::unique_ptr<SkPDFArray> getAnnotations();
 

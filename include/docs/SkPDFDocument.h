@@ -145,6 +145,11 @@ struct Metadata {
     */
     StructureElementNode* fStructureElementTreeRoot = nullptr;
 
+    enum class Outline : int {
+        None = 0,
+        StructureElementHeaders = 1,
+    } fOutline = Outline::None;
+
     /** Executor to handle threaded work within PDF Backend. If this is nullptr,
         then all work will be done serially on the main thread. To have worker
         threads assist with various tasks, set this to a valid SkExecutor
