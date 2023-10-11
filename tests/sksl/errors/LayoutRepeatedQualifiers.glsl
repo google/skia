@@ -75,6 +75,9 @@ layout (
 error: 1: layout qualifier 'set' is not permitted here
 layout (
 ^^^^^^^^...
+error: 1: layout qualifier 'builtin' is not permitted here
+layout (
+^^^^^^^^...
 error: 1: layout qualifier 'rgba8' is not permitted here
 layout (
 ^^^^^^^^...
@@ -84,4 +87,4 @@ layout (
 error: 1: layout qualifier 'r32f' is not permitted here
 layout (
 ^^^^^^^^...
-28 errors
+29 errors
