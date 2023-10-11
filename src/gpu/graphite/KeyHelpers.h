@@ -154,11 +154,13 @@ struct ImageShaderBlock {
         ImageData(const SkSamplingOptions& sampling,
                   SkTileMode tileModeX,
                   SkTileMode tileModeY,
+                  SkISize imgSize,
                   SkRect subset,
                   ReadSwizzle readSwizzle);
 
         SkSamplingOptions fSampling;
         SkTileMode fTileModes[2];
+        SkISize fImgSize;
         SkRect fSubset;
         ReadSwizzle fReadSwizzle;
 
@@ -181,11 +183,12 @@ struct YUVImageShaderBlock {
         ImageData(const SkSamplingOptions& sampling,
                   SkTileMode tileModeX,
                   SkTileMode tileModeY,
+                  SkISize imgSize,
                   SkRect subset);
 
-        SkPoint fImgSize;
         SkSamplingOptions fSampling;
         SkTileMode fTileModes[2];
+        SkISize fImgSize;
         SkRect fSubset;
         SkColor4f fChannelSelect[4];
         SkMatrix fYUVtoRGBMatrix;

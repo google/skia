@@ -113,6 +113,7 @@ public:
     void write(const SkRect& rect) { fUniformManager.write(rect); }
     void write(const SkV2& v) { fUniformManager.write(v); }
     void write(const SkV4& v) { fUniformManager.write(v); }
+    void write(const SkSize& size) { fUniformManager.write(size); }
     void write(const SkPoint& point) { fUniformManager.write(point); }
     void write(const SkPoint3& point3) { fUniformManager.write(point3); }
     void write(float f) { fUniformManager.write(f); }

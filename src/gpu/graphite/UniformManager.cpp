@@ -633,6 +633,11 @@ void UniformManager::write(const SkPoint& point) {
     this->write(kType, &point);
 }
 
+void UniformManager::write(const SkSize& size) {
+    static constexpr SkSLType kType = SkSLType::kFloat2;
+    this->write(kType, &size);
+}
+
 void UniformManager::write(const SkPoint3& point3) {
     static constexpr SkSLType kType = SkSLType::kFloat3;
     this->write(kType, &point3);

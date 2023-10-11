@@ -21,6 +21,7 @@ class SkMatrix;
 struct SkPoint;
 struct SkPoint3;
 struct SkRect;
+struct SkSize;
 struct SkV2;
 struct SkV4;
 
@@ -85,6 +86,7 @@ public:
     void write(const SkRect&);
     void write(const SkV2&);
     void write(const SkV4&);
+    void write(const SkSize&);
     void write(const SkPoint&);
     void write(const SkPoint3&);
     void write(float f);

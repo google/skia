@@ -465,12 +465,7 @@ void add_image_uniform_data(const ShaderCodeDictionary* dict,
     SkASSERT(!imgData.fSampling.useCubic);
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kImageShader)
 
-    if (imgData.fTextureProxy) {
-        gatherer->write(SkPoint::Make(imgData.fTextureProxy->dimensions().fWidth,
-                                      imgData.fTextureProxy->dimensions().fHeight));
-    } else {
-        gatherer->write(SkPoint::Make(0.0f, 0.0f));
-    }
+    gatherer->write(SkSize::Make(imgData.fImgSize));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
@@ -480,19 +475,13 @@ void add_image_uniform_data(const ShaderCodeDictionary* dict,
     add_color_space_uniforms(imgData.fSteps, gatherer);
 }
 
-
 void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
                                   const ImageShaderBlock::ImageData& imgData,
                                   PipelineDataGatherer* gatherer) {
     SkASSERT(imgData.fSampling.useCubic);
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicImageShader)
 
-    if (imgData.fTextureProxy) {
-        gatherer->write(SkPoint::Make(imgData.fTextureProxy->dimensions().fWidth,
-                                      imgData.fTextureProxy->dimensions().fHeight));
-    } else {
-        gatherer->write(SkPoint::Make(0.0f, 0.0f));
-    }
+    gatherer->write(SkSize::Make(imgData.fImgSize));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
@@ -508,10 +497,12 @@ void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
 ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
                                        SkTileMode tileModeX,
                                        SkTileMode tileModeY,
+                                       SkISize imgSize,
                                        SkRect subset,
                                        ReadSwizzle readSwizzle)
         : fSampling(sampling)
         , fTileModes{tileModeX, tileModeY}
+        , fImgSize(imgSize)
         , fSubset(subset)
         , fReadSwizzle(readSwizzle) {
     SkASSERT(fSteps.flags.mask() == 0);   // By default, the colorspace should have no effect
@@ -548,7 +539,7 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
                                 PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kYUVImageShader)
 
-    gatherer->write(imgData.fImgSize);
+    gatherer->write(SkSize::Make(imgData.fImgSize));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
@@ -575,9 +566,11 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
 YUVImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
                                           SkTileMode tileModeX,
                                           SkTileMode tileModeY,
+                                          SkISize imgSize,
                                           SkRect subset)
         : fSampling(sampling)
         , fTileModes{tileModeX, tileModeY}
+        , fImgSize(imgSize)
         , fSubset(subset) {
     SkASSERT(fSteps.flags.mask() == 0);   // By default, the colorspace should have no effect
 }
@@ -1258,9 +1251,11 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             static_cast<const Image_YUVA*>(imageToDraw.get())->yuvaProxies();
     const SkYUVAInfo& yuvaInfo = yuvaProxies.yuvaInfo();
 
-    YUVImageShaderBlock::ImageData imgData(sampling, origShader->tileModeX(),
-                                           origShader->tileModeY(), origShader->subset());
-    imgData.fImgSize = { (float)imageToDraw->width(), (float)imageToDraw->height() };
+    YUVImageShaderBlock::ImageData imgData(sampling,
+                                           origShader->tileModeX(),
+                                           origShader->tileModeY(),
+                                           imageToDraw->dimensions(),
+                                           origShader->subset());
     for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {
         memset(&imgData.fChannelSelect[i], 0, sizeof(SkColor4f));
     }
@@ -1365,8 +1360,11 @@ static void add_to_key(const KeyContext& keyContext,
 
     auto [view, _] = AsView(keyContext.recorder(), imageToDraw.get(), mipmapped);
 
-    ImageShaderBlock::ImageData imgData(shader->sampling(), shader->tileModeX(),
-                                        shader->tileModeY(), shader->subset(),
+    ImageShaderBlock::ImageData imgData(shader->sampling(),
+                                        shader->tileModeX(),
+                                        shader->tileModeY(),
+                                        view.proxy()->dimensions(),
+                                        shader->subset(),
                                         ReadSwizzle::kRGBA);
     imgData.fSampling = newSampling;
     imgData.fTextureProxy = view.refProxy();
