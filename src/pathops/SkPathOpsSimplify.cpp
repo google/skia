@@ -147,7 +147,6 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* writer) {
     return true;
 }
 
-#if !defined(SK_IGNORE_PATHOPS_SIMPLIFY_TRIVIAL_FIX)
 static bool path_is_trivial(const SkPath& path) {
     SkPath::Iter iter(path, true);
 
@@ -201,7 +200,6 @@ static bool path_is_trivial(const SkPath& path) {
     }
     return true;
 }
-#endif
 
 // FIXME : add this as a member of SkPath
 bool SimplifyDebug(const SkPath& path, SkPath* result
@@ -211,13 +209,10 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
             : SkPathFillType::kEvenOdd;
 
     if (path.isConvex()) {
-#if !defined(SK_IGNORE_PATHOPS_SIMPLIFY_TRIVIAL_FIX)
         // If the path is trivially convex, simplify to empty.
         if (path_is_trivial(path)) {
             result->reset();
-        } else
-#endif
-        if (result != &path) {
+        } else if (result != &path) {
             *result = path;
         }
         result->setFillType(fillType);
