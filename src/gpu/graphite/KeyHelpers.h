@@ -146,7 +146,7 @@ struct LocalMatrixShaderBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
-                           const LMShaderData*);
+                           const LMShaderData&);
 };
 
 struct ImageShaderBlock {
@@ -216,7 +216,7 @@ struct CoordClampShaderBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
-                           const CoordClampData*);
+                           const CoordClampData&);
 };
 
 struct DitherShaderBlock {
@@ -267,7 +267,7 @@ struct PerlinNoiseShaderBlock {
     static void AddBlock(const KeyContext&,
                          PaintParamsKeyBuilder*,
                          PipelineDataGatherer*,
-                         const PerlinNoiseData*);
+                         const PerlinNoiseData&);
 };
 
 struct BlendShaderBlock {
@@ -315,7 +315,7 @@ struct MatrixColorFilterBlock {
     static void AddBlock(const KeyContext&,
                          PaintParamsKeyBuilder*,
                          PipelineDataGatherer*,
-                         const MatrixColorFilterData*);
+                         const MatrixColorFilterData&);
 };
 
 struct TableColorFilterBlock {

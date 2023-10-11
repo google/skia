@@ -22,6 +22,7 @@ namespace skgpu::graphite {
 
 enum class Coverage;
 class KeyContext;
+class PipelineDataGatherer;
 class PrecompileBasePriv;
 class UniquePaintParamsID;
 
@@ -64,6 +65,7 @@ protected:
     template<typename T>
     static void AddToKey(const KeyContext&,
                          PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
                          const std::vector<sk_sp<T>>& options,
                          int desiredOption);
 
@@ -74,8 +76,9 @@ private:
     virtual bool isALocalMatrixShader() const { return false; }
 
     virtual void addToKey(const KeyContext&,
-                          int desiredCombination,
-                          PaintParamsKeyBuilder*) const = 0;
+                          PaintParamsKeyBuilder*,
+                          PipelineDataGatherer*,
+                          int desiredCombination) const = 0;
 
     Type fType;
 };
@@ -97,11 +100,12 @@ std::pair<sk_sp<T>, int> PrecompileBase::SelectOption(const std::vector<sk_sp<T>
 template<typename T>
 void PrecompileBase::AddToKey(const KeyContext& keyContext,
                               PaintParamsKeyBuilder* builder,
+                              PipelineDataGatherer* gatherer,
                               const std::vector<sk_sp<T>>& options,
                               int desiredOption) {
     auto [option, childOptions] = SelectOption(options, desiredOption);
     if (option) {
-        option->priv().addToKey(keyContext, childOptions, builder);
+        option->priv().addToKey(keyContext, builder, gatherer, childOptions);
     }
 }
 
@@ -191,10 +195,15 @@ private:
 
     int numCombinations() const;
     // 'desiredCombination' must be less than the result of the numCombinations call
-    void createKey(const KeyContext&, int desiredCombination,
-                   PaintParamsKeyBuilder*, bool addPrimitiveBlender, Coverage coverage) const;
+    void createKey(const KeyContext&,
+                   PaintParamsKeyBuilder*,
+                   PipelineDataGatherer*,
+                   int desiredCombination,
+                   bool addPrimitiveBlender,
+                   Coverage coverage) const;
     void buildCombinations(
         const KeyContext&,
+        PipelineDataGatherer*,
         bool addPrimitiveBlender,
         Coverage coverage,
         const std::function<void(UniquePaintParamsID)>& processCombination) const;

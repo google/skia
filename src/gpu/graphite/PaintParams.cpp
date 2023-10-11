@@ -184,17 +184,13 @@ void AddDitherBlock(const KeyContext& keyContext,
                     PaintParamsKeyBuilder* builder,
                     PipelineDataGatherer* gatherer,
                     SkColorType ct) {
+    static const SkBitmap gLUT = skgpu::MakeDitherLUT();
 
-    sk_sp<TextureProxy> proxy;
-    if (gatherer) {
-        static const SkBitmap gLUT = skgpu::MakeDitherLUT();
-
-        proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), gLUT);
-        if (!proxy) {
-            SKGPU_LOG_W("Couldn't create dither shader's LUT");
-            builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
-            return;
-        }
+    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), gLUT);
+    if (keyContext.recorder() && !proxy) {
+        SKGPU_LOG_W("Couldn't create dither shader's LUT");
+        builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+        return;
     }
 
     DitherShaderBlock::DitherData data(skgpu::DitherRangeForConfig(ct), std::move(proxy));

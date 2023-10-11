@@ -382,6 +382,10 @@ sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,
                                                     const SkBitmap& bitmap,
                                                     Mipmapped mipmapped) {
     SkASSERT(!bitmap.isNull());
+
+    if (!recorder) {
+        return nullptr;
+    }
     return recorder->priv().proxyCache()->findOrCreateCachedProxy(recorder, bitmap, mipmapped);
 }
 

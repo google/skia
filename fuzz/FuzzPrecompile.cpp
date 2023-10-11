@@ -366,6 +366,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
 
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(precompileKeyContext,
+                                          &gatherer,
                                           /* addPrimitiveBlender= */ false,
                                           coverage,
                                           [&](UniquePaintParamsID id) {
