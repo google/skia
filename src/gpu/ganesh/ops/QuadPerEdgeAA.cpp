@@ -385,10 +385,6 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
         // a geometry subset if corners are not right angles
         SkRect geomSubset;
         if (fVertexSpec.requiresGeometrySubset()) {
-#ifdef SK_USE_LEGACY_AA_QUAD_SUBSET
-            geomSubset = deviceQuad->bounds();
-            geomSubset.outset(0.5f, 0.5f); // account for AA expansion
-#else
             // Our GP code expects a 0.5 outset rect (coverage is computed as 0 at the values of
             // the uniform). However, if we have quad edges that aren't supposed to be antialiased
             // they may lie close to the bounds. So in that case we outset by an additional 0.5.
@@ -396,7 +392,6 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
             // parallel edges produces long thin extrusions from the original geometry.
             float outset = aaFlags == GrQuadAAFlags::kAll ? 0.5f : 1.f;
             geomSubset = deviceQuad->bounds().makeOutset(outset, outset);
-#endif
         }
 
         if (aaFlags == GrQuadAAFlags::kNone) {
@@ -791,27 +786,15 @@ public:
                         args.fVaryingHandler->addPassThroughAttribute(gp.fGeomSubset.asShaderVar(),
                                                                       "geoSubset",
                                                                       Interpolation::kCanBeFlat);
-#ifdef SK_USE_LEGACY_AA_QUAD_SUBSET
                         args.fFragBuilder->codeAppend(
-                                "if (coverage < 0.5) {"
-                                "   float4 dists4 = clamp(float4(1, 1, -1, -1) * "
-                                        "(sk_FragCoord.xyxy - geoSubset), 0, 1);"
-                                "   float2 dists2 = dists4.xy * dists4.zw;"
-                                "   coverage = min(coverage, dists2.x * dists2.y);"
-                                "}");
-#else
-                        args.fFragBuilder->codeAppend(
-                                // This is lifted from GrAARectEffect. It'd be nice if we could
-                                // invoke a FP from a GP rather than duplicate this code.
-                                "half4 dists4 = clamp(half4(1, 1, -1, -1) * "
-                                               "half4(sk_FragCoord.xyxy - geoSubset), 0, 1);\n"
-                                "half2 dists2 = dists4.xy + dists4.zw - 1;\n"
-                                "half subsetCoverage = dists2.x * dists2.y;\n"
-                                "coverage = min(coverage, subsetCoverage);");
-#endif
+                                // This is lifted from GrFragmentProcessor::Rect.
+                                "float4 dists4 = saturate(float4(1, 1, -1, -1) * "
+                                                         "(sk_FragCoord.xyxy - geoSubset));"
+                                "float2 dists2 = dists4.xy + dists4.zw - 1;"
+                                "coverage = min(coverage, dists2.x * dists2.y);");
                     }
 
-                    args.fFragBuilder->codeAppendf("half4 %s = half4(half(coverage));",
+                    args.fFragBuilder->codeAppendf("half4 %s = half4(coverage);",
                                                    args.fOutputCoverage);
                 } else {
                     // Set coverage to 1, since it's either non-AA or the coverage was already
