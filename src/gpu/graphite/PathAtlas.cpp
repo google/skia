@@ -94,6 +94,7 @@ bool ComputePathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
                                                                      this->width(),
                                                                      this->height(),
                                                                      targetCT,
+                                                                     /*identifier=*/0,
                                                                      /*requiresStorageUsage=*/true);
     }
     return fTexture != nullptr;

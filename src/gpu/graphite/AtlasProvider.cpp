@@ -44,10 +44,12 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
                                                    uint16_t width,
                                                    uint16_t height,
                                                    SkColorType colorType,
+                                                   uint16_t identifier,
                                                    bool requireStorageUsage) {
     uint64_t key = static_cast<uint64_t>(width)  << 48 |
                    static_cast<uint64_t>(height) << 32 |
-                   static_cast<uint64_t>(colorType);
+                   static_cast<uint64_t>(colorType) << 16 |
+                   static_cast<uint64_t>(identifier);
     auto iter = fTexturePool.find(key);
     if (iter != fTexturePool.end()) {
         return iter->second;
