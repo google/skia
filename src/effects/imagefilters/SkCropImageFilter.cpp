@@ -242,13 +242,9 @@ SkRect SkCropImageFilter::computeFastBounds(const SkRect& bounds) const {
     // TODO(michaelludwig) - This is conceptually very similar to calling onGetOutputLayerBounds()
     // with an identity skif::Mapping (hence why fCropRect can be used directly), but it also does
     // not involve any rounding to pixels for both the content bounds or the output.
-    // FIXME(michaelludwig) - There is a limitation in the current system for "fast bounds", since
-    // there's no way for the crop image filter to hide the fact that a child affects transparent
-    // black, so the entire DAG still is treated as if it cannot compute fast bounds. If we migrate
-    // getOutputLayerBounds() to operate on float rects, and to report infinite bounds for
-    // nodes that affect transparent black, then fastBounds() and onAffectsTransparentBlack() impls
-    // can go away entirely. That's not feasible until everything else is migrated onto the new crop
-    // rect filter and the new APIs.
+    // NOTE: This relies on all image filters returning an infinite bounds when they affect
+    // transparent black.
+#if defined(SK_USE_LEGACY_CONTENT_BOUNDS_PROPAGATION)
     SkRect inputBounds = bounds;
     if (this->getInput(0)) {
         if (this->getInput(0)->canComputeFastBounds()) {
@@ -258,7 +254,9 @@ SkRect SkCropImageFilter::computeFastBounds(const SkRect& bounds) const {
             inputBounds = SkRectPriv::MakeLargeS32();
         }
     }
-
+#else
+    SkRect inputBounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(bounds) : bounds;
+#endif
     if (!inputBounds.intersect(SkRect(fCropRect))) {
         return SkRect::MakeEmpty();
     }

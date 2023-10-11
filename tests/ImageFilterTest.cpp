@@ -54,6 +54,7 @@
 #include "src/image/SkImage_Base.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/EncodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -815,8 +816,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
                     const SkRect clipRect = SkRect::MakeXYWH(x, y, tileSize, tileSize);
                     tiledCanvas.clipRect(clipRect);
                     if (filters.needsSaveLayer(i)) {
-                        const SkRect layerBounds = SkRect::MakeIWH(width, height);
-                        tiledCanvas.saveLayer(&layerBounds, &combinedPaint);
+                        tiledCanvas.saveLayer(nullptr, &combinedPaint);
                             tiledCanvas.scale(SkIntToScalar(scale), SkIntToScalar(scale));
                             tiledCanvas.drawString(text, 0, yPos, font, textPaint);
                         tiledCanvas.restore();
@@ -830,8 +830,23 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             }
 
             if (!ToolUtils::equal_pixels(untiledResult, tiledResult)) {
-                ERRORF(reporter, "%s", filters.getName(i));
-                break;
+                SkString encoded;
+                SkString errString("Tiled image filter doesn't match untiled reference");
+                errString.append("\nExpected: ");
+                if (ToolUtils::BitmapToBase64DataURI(untiledResult, &encoded)) {
+                    errString.append(encoded);
+                } else {
+                    errString.append("failed to encode");
+                }
+
+                errString.append("\nActual: ");
+                if (ToolUtils::BitmapToBase64DataURI(tiledResult, &encoded)) {
+                    errString.append(encoded);
+                } else {
+                    errString.append("failed to encode");
+                }
+
+                ERRORF(reporter, "%s\n%s", filters.getName(i), errString.c_str());
             }
         }
     }
@@ -902,45 +917,68 @@ DEF_TEST(ImageFilterBlurThenShadowBounds, reporter) {
     sk_sp<SkImageFilter> filter1(make_blur(nullptr));
     sk_sp<SkImageFilter> filter2(make_drop_shadow(std::move(filter1)));
 
-    SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    // Drop shadow offset pads 1px on top-left for linear filtering
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-134, -134, 237, 237);
-    bounds = filter2->filterBounds(bounds, SkMatrix::I(),
-                                   SkImageFilter::kReverse_MapDirection, &bounds);
+    static const SkIRect kContentBounds = SkIRect::MakeXYWH(0, 0, 100, 100);
 
-    REPORTER_ASSERT(reporter, bounds == expectedBounds);
+    // For output, the [0,0,100,100] source is expanded to [-3,-3,103,103] by the initial blur.
+    // The drop shadow is translated by [100,100] and further outset by 30px -> [67,67,233,233],
+    // The blend unions the inner blur result with the drop shadow to get [-3,-3,233,233].
+    static const SkIRect kExpectedOutputBounds = SkIRect::MakeLTRB(-3, -3, 233, 233);
+    SkIRect outputBounds = filter2->filterBounds(kContentBounds,
+                                                 SkMatrix::I(),
+                                                 SkImageFilter::kForward_MapDirection);
+    REPORTER_ASSERT(reporter, outputBounds == kExpectedOutputBounds);
+
+    // For input, it should be able to restrict itself to the source content.
+    SkIRect inputBounds = filter2->filterBounds(kExpectedOutputBounds,
+                                                SkMatrix::I(),
+                                                SkImageFilter::kReverse_MapDirection,
+                                                &kContentBounds);
+
+    REPORTER_ASSERT(reporter, inputBounds == kContentBounds);
 }
 
 DEF_TEST(ImageFilterShadowThenBlurBounds, reporter) {
     sk_sp<SkImageFilter> filter1(make_drop_shadow(nullptr));
     sk_sp<SkImageFilter> filter2(make_blur(std::move(filter1)));
 
-    SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    // NOTE: 'bounds' is used as both the desired output and the available content bounds.
-    // The outer blur requires [-3,-3,103,103] for its input ('bounds' outset by 3*sigma).
-    // However, the blend at the root of the drop shadow dag is able to realize that it will not
-    // output anything to the left or above (0,0) so the drop shadow's blur and offset are only
-    // applied to [0,0,103,103], which is simply an outset by 31px (3*sigma + 1 for bilerp) and
-    // translate by -100,-100. This produces [-131,-131,34,34] which is then unioned with the
-    // original foreground bounds of the drop shadow to produce 'expectedBounds':
-    SkIRect expectedBounds = SkIRect::MakeLTRB(-131, -131, 103, 103);
-    bounds = filter2->filterBounds(bounds, SkMatrix::I(),
-                                   SkImageFilter::kReverse_MapDirection, &bounds);
+    static const SkIRect kContentBounds = SkIRect::MakeXYWH(0, 0, 100, 100);
+    // For output, the [0,0,100,100] source is translated by 100px and outset by 30px for the drop
+    // shadow = [70,70,230,230], then blended back with its original to get [0,0,230,230]. This is
+    // then outset by 3px for the outer blur to get [-3,-3,233,233].
+    static const SkIRect kExpectedOutputBounds = SkIRect::MakeLTRB(-3, -3, 233, 233);
+    SkIRect outputBounds = filter2->filterBounds(kContentBounds,
+                                                 SkMatrix::I(),
+                                                 SkImageFilter::kForward_MapDirection);
+    REPORTER_ASSERT(reporter, outputBounds == kExpectedOutputBounds);
 
-    REPORTER_ASSERT(reporter, bounds == expectedBounds);
+    // For input, it should be able to restrict itself to the source content.
+    SkIRect inputBounds = filter2->filterBounds(kExpectedOutputBounds,
+                                                SkMatrix::I(),
+                                                SkImageFilter::kReverse_MapDirection,
+                                                &kContentBounds);
+    REPORTER_ASSERT(reporter, inputBounds == kContentBounds);
 }
 
 DEF_TEST(ImageFilterDilateThenBlurBounds, reporter) {
     sk_sp<SkImageFilter> filter1(SkImageFilters::Dilate(2, 2, nullptr));
     sk_sp<SkImageFilter> filter2(make_drop_shadow(std::move(filter1)));
 
-    SkIRect bounds = SkIRect::MakeXYWH(0, 0, 100, 100);
-    // Drop shadow offset pads 1px on top-left for linear filtering
-    SkIRect expectedBounds = SkIRect::MakeXYWH(-133, -133, 235, 235);
-    bounds = filter2->filterBounds(bounds, SkMatrix::I(),
-                                   SkImageFilter::kReverse_MapDirection, &bounds);
+    static const SkIRect kContentBounds = SkIRect::MakeXYWH(0, 0, 100, 100);
+    // For output, the [0,0,100,100] source is outset by dilate radius (2px) to [-2,-2,102,102].
+    // This is then translated by 100px and outset by 30px for the drop shadow = [68,68,232,232].
+    // Finally this is joined with the original dilate result to get [-2,-2,232,232].
+    static const SkIRect kExpectedOutputBounds = SkIRect::MakeLTRB(-2, -2, 232, 232);
+    SkIRect outputBounds = filter2->filterBounds(kContentBounds,
+                                                 SkMatrix::I(),
+                                                 SkImageFilter::kForward_MapDirection);
+    REPORTER_ASSERT(reporter, outputBounds == kExpectedOutputBounds);
 
-    REPORTER_ASSERT(reporter, bounds == expectedBounds);
+    // For input, it should be able to restrict itself to the source content.
+    SkIRect inputBounds = filter2->filterBounds(kExpectedOutputBounds,
+                                                SkMatrix::I(),
+                                                SkImageFilter::kReverse_MapDirection,
+                                                &kContentBounds);
+    REPORTER_ASSERT(reporter, inputBounds == kContentBounds);
 }
 
 DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
@@ -953,54 +991,46 @@ DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
         // Uniform scale by 2.
         SkMatrix scaleMatrix;
         scaleMatrix.setScale(2, 2);
-        SkIRect bounds = SkIRect::MakeLTRB(0, 0, 200, 200);
+        static const SkIRect kBounds = SkIRect::MakeLTRB(0, 0, 200, 200);
 
-        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-6, -6, 206, 206);
+        static const SkIRect kExpectedBlurBounds = SkIRect::MakeLTRB(-6, -6, 206, 206);
         SkIRect blurBounds = blur->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
-        REPORTER_ASSERT(reporter, blurBounds == expectedBlurBounds);
+                kBounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
+        REPORTER_ASSERT(reporter, blurBounds == kExpectedBlurBounds);
         SkIRect reverseBlurBounds = blur->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &bounds);
-        REPORTER_ASSERT(reporter, reverseBlurBounds == expectedBlurBounds);
+                kExpectedBlurBounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &kBounds);
+        REPORTER_ASSERT(reporter, reverseBlurBounds == kBounds);
 
-        SkIRect expectedShadowBounds = SkIRect::MakeLTRB(0, 0, 460, 460);
+        static const SkIRect kExpectedShadowBounds = SkIRect::MakeLTRB(0, 0, 460, 460);
         SkIRect shadowBounds = dropShadow->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
-        REPORTER_ASSERT(reporter, shadowBounds == expectedShadowBounds);
+                kBounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
+        REPORTER_ASSERT(reporter, shadowBounds == kExpectedShadowBounds);
 
-        // An outset by 1px for linear filtering is applied to the input bounds, but only
-        // the L and T values are visible after the original bounds are joined with it.
-        SkIRect expectedReverseShadowBounds =
-                SkIRect::MakeLTRB(-261, -261, 200, 200);
         SkIRect reverseShadowBounds = dropShadow->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &bounds);
-        REPORTER_ASSERT(reporter, reverseShadowBounds == expectedReverseShadowBounds);
+                kExpectedShadowBounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &kBounds);
+        REPORTER_ASSERT(reporter, reverseShadowBounds == kBounds);
     }
     {
         // Vertical flip.
         SkMatrix scaleMatrix;
         scaleMatrix.setScale(1, -1);
-        SkIRect bounds = SkIRect::MakeLTRB(0, -100, 100, 0);
+        static const SkIRect kBounds = SkIRect::MakeLTRB(0, -100, 100, 0);
 
-        SkIRect expectedBlurBounds = SkIRect::MakeLTRB(-3, -103, 103, 3);
+        static const SkIRect kExpectedBlurBounds = SkIRect::MakeLTRB(-3, -103, 103, 3);
         SkIRect blurBounds = blur->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
-        REPORTER_ASSERT(reporter, blurBounds == expectedBlurBounds);
+                kBounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
+        REPORTER_ASSERT(reporter, blurBounds == kExpectedBlurBounds);
         SkIRect reverseBlurBounds = blur->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &bounds);
-        REPORTER_ASSERT(reporter, reverseBlurBounds == expectedBlurBounds);
+                kExpectedBlurBounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &kBounds);
+        REPORTER_ASSERT(reporter, reverseBlurBounds == kBounds);
 
-        SkIRect expectedShadowBounds = SkIRect::MakeLTRB(0, -230, 230, 0);
+        SkIRect kExpectedShadowBounds = SkIRect::MakeLTRB(0, -230, 230, 0);
         SkIRect shadowBounds = dropShadow->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
-        REPORTER_ASSERT(reporter, shadowBounds == expectedShadowBounds);
-        // Like above, the linear outset of 1px only remains visible on the L and B edges
-        // after joining the original bounds with what's required for the offset.
-        SkIRect expectedReverseShadowBounds =
-                SkIRect::MakeLTRB(-131, -100, 100, 131);
+                kBounds, scaleMatrix, SkImageFilter::kForward_MapDirection, nullptr);
+        REPORTER_ASSERT(reporter, shadowBounds == kExpectedShadowBounds);
         SkIRect reverseShadowBounds = dropShadow->filterBounds(
-                bounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &bounds);
-        REPORTER_ASSERT(reporter, reverseShadowBounds == expectedReverseShadowBounds);
+                kExpectedShadowBounds, scaleMatrix, SkImageFilter::kReverse_MapDirection, &kBounds);
+        REPORTER_ASSERT(reporter, reverseShadowBounds == kBounds);
     }
 }
 
@@ -1010,11 +1040,11 @@ DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
     sk_sp<SkImageFilter> composedFilter(SkImageFilters::Compose(std::move(filter1),
                                                                 std::move(filter2)));
 
-    SkRect boundsSrc = SkRect::MakeIWH(100, 100);
-    SkRect expectedBounds = SkRect::MakeXYWH(-6, -6, 112, 112);
-    SkRect boundsDst = composedFilter->computeFastBounds(boundsSrc);
+    static const SkRect kBoundsSrc = SkRect::MakeIWH(100, 100);
+    static const SkRect kExpectedBounds = SkRect::MakeXYWH(-6, -6, 112, 112);
+    SkRect boundsDst = composedFilter->computeFastBounds(kBoundsSrc);
 
-    REPORTER_ASSERT(reporter, boundsDst == expectedBounds);
+    REPORTER_ASSERT(reporter, boundsDst == kExpectedBounds);
 }
 
 DEF_TEST(ImageFilterUnionBounds, reporter) {
@@ -2027,12 +2057,11 @@ DEF_TEST(OffsetImageFilterBounds, reporter) {
 
     SkIRect expectedReverse = SkRect::Make(src).makeOffset(-srcOffset.fX, -srcOffset.fY).roundOut();
 
-    // TODO (skbug:10984) - Enable this intersection after content bounds propagate
     // Intersect 'expectedReverse' with the source because we are passing &src in as the known
     // input bounds, which is the bounds of non-transparent pixels that can be moved by the offset.
     // While the ::Offset filter could show all pixels inside 'expectedReverse' given that 'src'
     // is also the target device output of the filter, the required input can be made tighter.
-    // SkAssertResult(expectedReverse.intersect(src));
+    SkAssertResult(expectedReverse.intersect(src));
 
     SkIRect boundsReverse = offset->filterBounds(src, SkMatrix::I(),
                                                  SkImageFilter::kReverse_MapDirection, &src);
@@ -2049,15 +2078,24 @@ DEF_TEST(OffsetImageFilterBoundsNoOverflow, reporter) {
                                   SkImageFilters::Offset(bigOffset, bigOffset, nullptr));
     SkIRect boundsForward = filter->filterBounds(src, SkMatrix::I(),
                                                  SkImageFilter::kForward_MapDirection, nullptr);
-    SkIRect boundsReverse = filter->filterBounds(src, SkMatrix::I(),
-                                                 SkImageFilter::kReverse_MapDirection, nullptr);
     // NOTE: isEmpty() will return true even if the l/r or t/b didn't overflow but the dimensions
     // would overflow an int32. However, when isEmpty64() is false, it means the actual edge coords
     // are valid, which is good enough for our purposes (and gfx::Rect has its own strategies for
     // ensuring such a rectangle doesn't get accidentally treated as empty during chromium's
     // conversions).
     REPORTER_ASSERT(reporter, !boundsForward.isEmpty64());
+
+    // When querying with unbounded input content, it should not overflow and should not be empty.
+    SkIRect boundsReverse = filter->filterBounds(src, SkMatrix::I(),
+                                                 SkImageFilter::kReverse_MapDirection, nullptr);
     REPORTER_ASSERT(reporter, !boundsReverse.isEmpty64());
+
+    // However in this case, when 'src' is also passed as the content bounds, the ::Offset() filters
+    // detect that they would be transparent black. This propagates up to the src-over blend and
+    // the entire graph is identified as empty.
+    boundsReverse = filter->filterBounds(src, SkMatrix::I(),
+                                         SkImageFilter::kReverse_MapDirection, &src);
+    REPORTER_ASSERT(reporter, boundsReverse.isEmpty64());
 }
 
 static void test_arithmetic_bounds(skiatest::Reporter* reporter, float k1, float k2, float k3,

@@ -13,7 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkImageFilterCache.h"
@@ -66,9 +66,14 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     skif::Mapping mapping{ctm};
     if (kReverse_MapDirection == direction) {
         skif::LayerSpace<SkIRect> targetOutput(src);
-        // TODO (michaelludwig): This should pass in an uninstantiated optional when inputRect is
-        // null, but for now preserve legacy behavior.
+#if defined(SK_USE_LEGACY_CONTENT_BOUNDS_PROPAGATION)
         skif::LayerSpace<SkIRect> content(inputRect ? *inputRect : src);
+#else
+        std::optional<skif::LayerSpace<SkIRect>> content;
+        if (inputRect) {
+            content = skif::LayerSpace<SkIRect>(*inputRect);
+        }
+#endif
         return SkIRect(as_IFB(this)->onGetInputLayerBounds(mapping, targetOutput, content));
     } else {
         SkASSERT(!inputRect);
@@ -228,20 +233,23 @@ void SkImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
 }
 
 skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context) const {
-    // TODO: Once all image filters operate on FilterResult, we should allow null source images.
-    // Some filters that use a source input will produce non-transparent black values even if the
-    // input is fully transparent (null). For now, at least allow filters that do not use the source
-    // at all to still produce an output image.
     skif::FilterResult result;
-    if (context.desiredOutput().isEmpty() ||
-        (fUsesSrcInput && !context.source()) ||
-        !context.mapping().layerMatrix().isFinite()) {
+#if defined(SK_USE_LEGACY_CONTENT_PROPAGATION)
+    if (fUsesSrcInput && !context.source()) {
+        return result;
+    }
+#endif
+    if (context.desiredOutput().isEmpty() || !context.mapping().layerMatrix().isFinite()) {
         return result;
     }
 
-    uint32_t srcGenID = fUsesSrcInput ? context.source().image()->uniqueID() : 0;
-    const SkIRect srcSubset = fUsesSrcInput ? context.source().image()->subset()
-                                            : SkIRect::MakeWH(0, 0);
+    // Some image filters that operate on the source image still affect transparent black, so if
+    // there is clipping, we may have optimized away the source image as an empty input, but still
+    // need to run the filter on it. This means `fUsesSrcInput` is not equivalent to the source
+    // being non-null.
+    const bool srcInKey = fUsesSrcInput && context.source();
+    uint32_t srcGenID = srcInKey ? context.source().image()->uniqueID() : SK_InvalidUniqueID;
+    const SkIRect srcSubset = srcInKey ? context.source().image()->subset() : SkIRect::MakeWH(0, 0);
 
     SkImageFilterCacheKey key(fUniqueID,
                               context.mapping().layerMatrix(),
@@ -308,6 +316,7 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
     }
 
     // Process the layer-space desired output with the filter DAG to determine required input
+#if defined(SK_USE_LEGACY_CONTENT_BOUNDS_PROPAGATION)
     skif::LayerSpace<SkIRect> requiredInput = this->onGetInputLayerBounds(
             mapping, desiredBounds, contentBounds);
     // If we know what's actually going to be drawn into the layer, and we don't change transparent
@@ -322,6 +331,9 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
         }
     }
     return requiredInput;
+#else
+    return this->onGetInputLayerBounds(mapping, desiredBounds, contentBounds);
+#endif
 }
 
 std::optional<skif::DeviceSpace<SkIRect>> SkImageFilter_Base::getOutputBounds(
@@ -357,17 +369,26 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getChildInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
         std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
-    // The required input for childFilter filter, or 'contentBounds' intersected with 'desiredOutput'
-    // if the filter is null and the source image is used (i.e. the identity filter).
+    // The required input for childFilter filter, or 'contentBounds' intersected with
+    // 'desiredOutput' if the filter is null and the source image is used (i.e. the identity filter)
     const SkImageFilter* childFilter = this->getInput(index);
     if (childFilter) {
         return as_IFB(childFilter)->onGetInputLayerBounds(mapping, desiredOutput, contentBounds);
     } else {
-        // TODO: The leaf bounds should be the contentBounds intersected with the desired output,
-        // but currently legacy filters often discard or replace the contentBounds with the
-        // desiredOutput. We also need to be robust to unbounded content (i.e. when it's unknown).
-        // See skbug.com/10984
+#if defined(SK_USE_LEGACY_CONTENT_BOUNDS_PROPAGATION)
         return desiredOutput;
+#else
+        // NOTE: We don't calculate the intersection between content and root desired output because
+        // the desired output can expand or contract as it propagates through the filter graph to
+        // the leaves that would actually sample from the source content.
+        skif::LayerSpace<SkIRect> visibleContent = desiredOutput;
+        if (contentBounds && !visibleContent.intersect(*contentBounds)) {
+            return skif::LayerSpace<SkIRect>::Empty();
+        } else {
+            // This will be equal to 'desiredOutput' if the contentBounds are unknown.
+            return visibleContent;
+        }
+#endif
     }
 }
 
