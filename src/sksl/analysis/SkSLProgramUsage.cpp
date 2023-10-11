@@ -48,7 +48,8 @@ public:
                 // Ensure function-parameter variables exist in the variable usage map. They aren't
                 // otherwise declared, but ProgramUsage::get() should be able to find them, even if
                 // they are unread and unwritten.
-                fUsage->fVariableCounts[param];
+                ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[param];
+                counts.fVarExists += fDelta;
             }
         } else if (pe.is<InterfaceBlock>()) {
             // Ensure interface-block variables exist in the variable usage map.

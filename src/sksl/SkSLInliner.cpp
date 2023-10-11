@@ -531,7 +531,6 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
                                                             fMangler,
                                                             function.declaration().name(),
                                                             &function.declaration().returnType(),
-                                                            ModifierFlag::kNone,
                                                             symbolTable.get(),
                                                             /*initialValue=*/nullptr);
         inlineStatements.push_back(std::move(var.fVarDecl));
@@ -552,7 +551,6 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
                                                             fMangler,
                                                             param->name(),
                                                             &arg->type(),
-                                                            param->modifierFlags(),
                                                             symbolTable.get(),
                                                             arg->clone());
         inlineStatements.push_back(std::move(var.fVarDecl));

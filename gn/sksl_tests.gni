@@ -647,6 +647,7 @@ sksl_shared_tests = [
   "shared/Ossfuzz50636.sksl",
   "shared/Ossfuzz58483.sksl",
   "shared/Ossfuzz60077.sksl",
+  "shared/Ossfuzz63170.sksl",
   "shared/OutParams.sksl",
   "shared/OutParamsAreDistinct.sksl",
   "shared/OutParamsAreDistinctFromGlobal.sksl",

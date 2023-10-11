@@ -181,7 +181,6 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
                                                         Mangler& mangler,
                                                         std::string_view baseName,
                                                         const Type* type,
-                                                        ModifierFlags modifierFlags,
                                                         SymbolTable* symbolTable,
                                                         std::unique_ptr<Expression> initialValue) {
     // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
@@ -191,9 +190,6 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
         SkDEBUGFAIL("found a $literal type in MakeScratchVariable");
         type = &type->scalarTypeForLiteral();
     }
-
-    // Out-parameters aren't supported.
-    SkASSERT(!(modifierFlags & ModifierFlag::kOut));
 
     // Provide our new variable with a unique name, and add it to our symbol table.
     const std::string* name =

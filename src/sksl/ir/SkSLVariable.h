@@ -84,7 +84,6 @@ public:
                                                Mangler& mangler,
                                                std::string_view baseName,
                                                const Type* type,
-                                               ModifierFlags modifierFlags,
                                                SymbolTable* symbolTable,
                                                std::unique_ptr<Expression> initialValue);
     ModifierFlags modifierFlags() const {

@@ -1,0 +1,19 @@
+// This is almost a clone of OutParamsFunctionCallInArgument; `out_param_func1` has a small
+// change which allows its body to be eliminated.
+
+uniform half4 colorGreen, colorRed;
+
+void out_param_func1(inout half v) {
+    v < colorGreen.g;
+}
+
+int out_param_func2(out half v) {
+    v = colorRed.r;
+    return int(v);
+}
+
+half4 main(float2 c) {
+    half testArray[2];
+    out_param_func1(testArray[out_param_func2(testArray[0])]);
+    return (testArray[0] == 1 && testArray[1] == 1) ? colorGreen : colorRed;
+}

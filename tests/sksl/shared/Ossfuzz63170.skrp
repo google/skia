@@ -1,0 +1,21 @@
+18 instructions
+
+store_src_rg                   c = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+splat_2_constants              testArray[0], testArray[1] = 0
+copy_uniform                   v = colorRed(0)
+copy_slot_unmasked             $12 = v
+cast_to_int_from_float         $12 = FloatToInt($12)
+copy_slot_unmasked             testArray[0] = v
+label                          label 0
+copy_from_indirect_unmasked    $0 = Indirect(testArray[0] + $12)
+copy_slot_unmasked             $0 = testArray[0]
+cmpeq_imm_float                $0 = equal($0, 0x3F800000 (1.0))
+copy_slot_unmasked             $1 = testArray[1]
+cmpeq_imm_float                $1 = equal($1, 0x3F800000 (1.0))
+bitwise_and_int                $0 &= $1
+swizzle_4                      $0..3 = ($0..3).xxxx
+copy_4_uniforms                $4..7 = colorRed
+copy_4_uniforms                $8..11 = colorGreen
+mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+load_src                       src.rgba = $0..3
