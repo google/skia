@@ -6,8 +6,8 @@
  */
 
 #include "bench/Benchmark.h"
+#include "bench/benchmark_target/BenchmarkTarget.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
 
 static DEFINE_int(maxCalibrationAttempts,
                   3,
@@ -18,7 +18,7 @@ static DEFINE_double(overheadGoal,
                      "Loop until timer overhead is at most this fraction of our measurments.");
 static DEFINE_int(overheadLoops, 100000, "Loops to estimate timer overhead.");
 
-// Defined in BazelBenchmarkTestRunner.cpp.
+// Defined in BazelBenchmarkRunner.cpp.
 SkString humanize(double ms);
 
 void BenchmarkTarget::printGlobalStats() {}

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "bench/benchmark_target/BenchmarkTarget.h"
 #include "src/base/SkTime.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
 
 DECLARE_int(loops);
 DECLARE_int(maxLoops);

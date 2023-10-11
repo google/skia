@@ -9,7 +9,7 @@ exports_files_legacy()
 go_library(
     name = "adb_test_runner_lib",
     srcs = ["adb_test_runner.go"],
-    importpath = "go.skia.org/skia/tools/testrunners/common/android/adb_test_runner",
+    importpath = "go.skia.org/skia/bazel/adb_test_runner",
     visibility = ["//visibility:private"],
 )
 

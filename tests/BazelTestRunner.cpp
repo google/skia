@@ -118,7 +118,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, ContextTypeFilterFn* fil
 #endif // #if defined(SK_GANESH)
 
 TestHarness CurrentTestHarness() {
-    return TestHarness::kBazelUnitTestRunner;
+    return TestHarness::kBazelTestRunner;
 }
 
 std::string now() {

@@ -6,14 +6,14 @@
  */
 
 #include "bench/Benchmark.h"
+#include "bench/benchmark_target/BenchmarkTarget.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/TestContext.h"
-#include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
-#include "tools/testrunners/common/surface_manager/SurfaceManager.h"
+#include "tools/testrunners/surface_manager/SurfaceManager.h"
 
 // Based on flags found here:
 // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/tools/flags/CommonFlagsGpu.cpp

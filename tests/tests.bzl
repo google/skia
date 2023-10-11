@@ -1,9 +1,9 @@
-"""This module contains macros to generate C++ unit test targets."""
+"""This module contains macros to generate C++ test targets."""
 
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 
-def unit_tests(
+def skia_tests(
         name,
         tests,
         deps,
@@ -12,7 +12,7 @@ def unit_tests(
         tags = None):
     """This macro will create one cc_test rule for each file in tests.
 
-    These tests are configured to use the BazelUnitTestRunner and run all tests
+    These tests are configured to use the BazelTestRunner and run all tests
     (e.g. those defined with DEF_TEST) in the file.
 
     Args:
@@ -25,7 +25,7 @@ def unit_tests(
             it's not super important that this be a precise list.
         extra_srcs: Any extra files (e.g. headers) that are needed to build these tests. This is
             a more convenient way to include a few extra files without needing to create a
-            distinct test cc_library.
+            distinct test skia_cc_library.
         tags: Added to all the generated test targets
     """
     test_targets = []
@@ -39,8 +39,11 @@ def unit_tests(
             copts = DEFAULT_COPTS,
             linkopts = DEFAULT_LINKOPTS,
             size = "small",
-            srcs = [filename] + extra_srcs,
-            deps = deps + ["//tools/testrunners/unit:testrunner"],
+            srcs = [
+                "BazelTestRunner.cpp",
+                filename,
+            ] + extra_srcs,
+            deps = deps,
             data = resources,
             tags = tags,
         )

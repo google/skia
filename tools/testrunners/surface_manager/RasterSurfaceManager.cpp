@@ -10,7 +10,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurface.h"
 #include "include/private/base/SkAssert.h"
-#include "tools/testrunners/common/surface_manager/SurfaceManager.h"
+#include "tools/testrunners/surface_manager/SurfaceManager.h"
 
 #include <string>
 

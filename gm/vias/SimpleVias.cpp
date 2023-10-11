@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "gm/vias/Draw.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPicture.h"
@@ -15,7 +16,6 @@
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
 #include "src/base/SkBase64.h"
-#include "tools/testrunners/gm/vias/Draw.h"
 
 #include <sstream>
 #include <string>

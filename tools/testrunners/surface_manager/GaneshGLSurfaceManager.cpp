@@ -13,7 +13,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkAssert.h"
 #include "tools/gpu/GrContextFactory.h"
-#include "tools/testrunners/common/surface_manager/SurfaceManager.h"
+#include "tools/testrunners/surface_manager/SurfaceManager.h"
 
 #include <string>
 

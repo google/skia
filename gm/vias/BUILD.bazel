@@ -13,9 +13,7 @@ skia_cc_library(
         ":needs_simple_vias": ["SimpleVias.cpp"],
     }),
     hdrs = ["Draw.h"],
-    visibility = [
-        "//tools/testrunners/gm:__pkg__",
-    ],
+    visibility = ["//gm:__pkg__"],
     deps = [
         "//:skia_internal",
         "//gm",
@@ -27,7 +25,7 @@ string_flag_with_values(
     default = "direct",
     values = [
         # The android_gm_test macro assumes that the below values and the --via flag values
-        # accepted by BazelGMTestRunner.cpp are the same, so they should be kept in sync.
+        # accepted by BazelGMRunner.cpp are the same, so they should be kept in sync.
         "direct",
         "picture",
         "picture_serialization",

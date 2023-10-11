@@ -53,7 +53,6 @@ skia_cc_library(
         "//bench:__pkg__",
         "//gm:__pkg__",
         "//tests:__subpackages__",
-        "//tools/testrunners/benchmark:__pkg__",
         "//tools/viewer:__pkg__",
     ],
     deps = ["//:skia_internal"],
@@ -67,7 +66,7 @@ skia_cc_library(
         "//tools/flags",
     ],
     hdrs = ["HashAndEncode.h"],
-    visibility = ["//tools/testrunners/gm:__pkg__"],
+    visibility = ["//gm:__pkg__"],
     deps = [
         "//:skia_internal",
         "@libpng",
@@ -84,8 +83,8 @@ skia_cc_library(
     name = "autorelease_pool",
     hdrs = ["AutoreleasePool.h"],
     visibility = [
+        "//bench:__pkg__",
         "//tools/gpu:__pkg__",
-        "//tools/testrunners/benchmark:__pkg__",
     ],
 )
 
@@ -151,7 +150,7 @@ skia_cc_library(
 skia_cc_library(
     name = "stats",
     hdrs = ["Stats.h"],
-    visibility = ["//tools/testrunners/benchmark:__pkg__"],
+    visibility = ["//bench:__pkg__"],
     deps = ["//:skia_internal"],
 )
 
@@ -159,7 +158,7 @@ skia_cc_library(
     name = "proc_stats",
     srcs = ["ProcStats.cpp"],
     hdrs = ["ProcStats.h"],
-    visibility = ["//tools/testrunners/benchmark:__pkg__"],
+    visibility = ["//bench:__pkg__"],
     deps = ["//:skia_internal"],
 )
 

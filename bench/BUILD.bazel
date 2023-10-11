@@ -15,7 +15,7 @@ skia_cc_library(
     name = "benchmark",
     srcs = ["Benchmark.cpp"],
     hdrs = ["Benchmark.h"],
-    visibility = ["//tools/testrunners/benchmark:__subpackages__"],
+    visibility = ["//bench/benchmark_target:__pkg__"],
     deps = [
         "//:skia_internal",
         "//tools:registry",
@@ -25,10 +25,21 @@ skia_cc_library(
 skia_cc_library(
     name = "benchmarks_base",
     testonly = True,
+    srcs = [
+        "BazelBenchmarkRunner.cpp",
+        "//src/utils:json_hdrs",
+        "//src/utils:json_srcs",
+    ],
     deps = [
         ":benchmark",
         "//:skia_internal",
-        "//tools/testrunners/benchmark:testrunner",
+        "//bench/benchmark_target",
+        "//tools:autorelease_pool",
+        "//tools:proc_stats",
+        "//tools:registry",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/timer",
     ],
 )
 

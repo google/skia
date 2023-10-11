@@ -10,8 +10,7 @@ load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 # SkPngDecoder. The decode mode, destination color type and alpha type are specified via the
 # decode_mode, dst_color_type and dst_alpha_type fields, respectively. The resulting image is then
 # drawn into an SkSurface specified via the surface_config field, and is saved as an undeclared
-# test output which may be uploaded to Gold. See //tools/testrunners/gm/BazelGMTestRunner.cpp for
-# more details.
+# test output which may be uploaded to Gold. See //gm/BazelGMRunner.cpp for more details.
 #
 # Some combinations of parameters are excluded because they are mutually incompatible or redundant.
 _GRAYSCALE_8888_TESTS = [
@@ -99,6 +98,7 @@ def png_codec_tests(name):
             name = test_name,
             size = "large",
             srcs = [
+                "BazelGMRunner.cpp",
                 "png_codec.cpp",
             ],
             args = [
@@ -119,10 +119,7 @@ def png_codec_tests(name):
                     "png_decode_codec",
                 ],
             },
-            deps = [
-                ":tests_base",
-                "//tools/testrunners/gm:testrunner",
-            ],
+            deps = [":tests_base"],
         )
 
     native.test_suite(

@@ -1,6 +1,6 @@
 """This module defines the android_unit_test macro."""
 
-load("//tools/testrunners/common/android:android_test.bzl", "android_test")
+load("//bazel:android_test.bzl", "android_test")
 
 def android_unit_test(**kwargs):
     """Defines an Android unit test.
@@ -12,7 +12,7 @@ def android_unit_test(**kwargs):
         **kwargs: Any arguments to pass to the underlying android_test macro instance.
     """
     android_test(
-        test_runner_if_required_condition_is_satisfied = "//tools/testrunners/unit:testrunner",
-        test_runner_if_required_condition_is_not_satisfied = "//tools/testrunners/common:noop_testrunner",
+        test_runner_if_required_condition_is_satisfied = "//tests:BazelTestRunner.cpp",
+        test_runner_if_required_condition_is_not_satisfied = "//tests:BazelNoopRunner.cpp",
         **kwargs
     )

@@ -9,6 +9,7 @@
  */
 
 #include "gm/gm.h"
+#include "gm/vias/Draw.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
@@ -23,8 +24,7 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/HashAndEncode.h"
-#include "tools/testrunners/common/surface_manager/SurfaceManager.h"
-#include "tools/testrunners/gm/vias/Draw.h"
+#include "tools/testrunners/surface_manager/SurfaceManager.h"
 
 #include <ctime>
 #include <filesystem>
@@ -57,7 +57,7 @@ static DEFINE_string(surfaceConfig,
                      "",
                      "Name of the Surface configuration to use (e.g. \"8888\"). This determines "
                      "how we construct the SkSurface from which we get the SkCanvas that GMs will "
-                     "draw on. See file //tools/testrunners/common/surface_manager/SurfaceManager.h for "
+                     "draw on. See file //tools/testrunners/surface_manager/SurfaceManager.h for "
                      "details.");
 
 static DEFINE_string(via,

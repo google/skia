@@ -1,6 +1,6 @@
 """This module defines the android_test macro."""
 
-load("//tools/testrunners/common/android:adb_test.bzl", "adb_test")
+load("//bazel:adb_test.bzl", "adb_test")
 load("//bazel:binary_wrapper_script_with_cmdline_flags.bzl", "binary_wrapper_script_with_cmdline_flags")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
@@ -102,12 +102,12 @@ def android_test(
     cc_binary_with_flags(
         name = test_binary,
         srcs = select({
-            requires_condition: srcs,
-            "//conditions:default": [],
+            requires_condition: srcs + [test_runner_if_required_condition_is_satisfied],
+            "//conditions:default": [test_runner_if_required_condition_is_not_satisfied],
         }),
         deps = select({
-            requires_condition: [test_runner_if_required_condition_is_satisfied] + deps,
-            "//conditions:default": [test_runner_if_required_condition_is_not_satisfied],
+            requires_condition: deps,
+            "//conditions:default": [],
         }),
         set_flags = flags,
         testonly = True,  # Needed to gain access to test-only files.

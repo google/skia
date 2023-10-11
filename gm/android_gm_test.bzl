@@ -1,9 +1,9 @@
 """This module defines the android_gm_test macro."""
 
-load("//tools/testrunners/common/android:android_test.bzl", "android_test")
+load("//bazel:android_test.bzl", "android_test")
 
 # This list should be kept in sync with the union of all configs supported by all surface factories
-# in //tools/testrunners/common/surface_factory.
+# in //gm/surface_factory.
 _KNOWN_CONFIGS = [
     "8888",
     "565",
@@ -35,8 +35,8 @@ def android_gm_test(config, via = None, extra_args = [], flags = {}, **kwargs):
         flags.update([("via", [via])])
 
     android_test(
-        test_runner_if_required_condition_is_satisfied = "//tools/testrunners/gm:testrunner",
-        test_runner_if_required_condition_is_not_satisfied = "//tools/testrunners/common:noop_testrunner",
+        test_runner_if_required_condition_is_satisfied = "//gm:BazelGMRunner.cpp",
+        test_runner_if_required_condition_is_not_satisfied = "//gm:BazelNoopRunner.cpp",
         extra_args = extra_args + [
             "--outputDir",
             # This environment variable is set by the adb_test_runner.go program.
