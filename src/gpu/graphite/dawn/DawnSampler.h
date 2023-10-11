@@ -11,7 +11,7 @@
 #include "src/gpu/graphite/Sampler.h"
 
 #include "include/core/SkTileMode.h"
-#include "webgpu/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 struct SkSamplingOptions;
 

@@ -17,7 +17,7 @@ extern "C" {
     // We need to include stdio.h before jpeg because jpeg does not include it, but uses FILE
     // See https://github.com/libjpeg-turbo/libjpeg-turbo/issues/17
     #include <stdio.h> // IWYU pragma: keep
-    #include "jpeglib.h"
+    #include "jpeglib.h"  // NO_G3_REWRITE
 }
 
 class SkWStream;

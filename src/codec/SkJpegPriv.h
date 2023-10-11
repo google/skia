@@ -18,8 +18,8 @@
 #include <stdio.h>
 
 extern "C" {
-    #include "jpeglib.h"
-    #include "jerror.h"
+    #include "jpeglib.h"  // NO_G3_REWRITE
+    #include "jerror.h"  // NO_G3_REWRITE
 }
 
 /*

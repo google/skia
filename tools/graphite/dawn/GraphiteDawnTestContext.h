@@ -14,7 +14,7 @@
 
 #include <optional>
 
-#include "webgpu/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 #include "dawn/native/DawnNative.h"
 
 namespace skiatest::graphite {

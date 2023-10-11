@@ -43,9 +43,9 @@
 
 // If moving libwebp out of skia source tree, path for webp headers must be
 // updated accordingly. Here, we enforce using local copy in webp sub-directory.
-#include "webp/decode.h"
-#include "webp/demux.h"
-#include "webp/mux_types.h"
+#include "webp/decode.h"  // NO_G3_REWRITE
+#include "webp/demux.h"  // NO_G3_REWRITE
+#include "webp/mux_types.h"  // NO_G3_REWRITE
 
 bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
     // WEBP starts with the following:

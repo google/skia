@@ -24,10 +24,10 @@
 #include "src/core/SkStreamPriv.h"
 #include "src/core/SkSwizzlePriv.h"
 
-#include "jxl/codestream_header.h"
-#include "jxl/decode.h"
-#include "jxl/decode_cxx.h"
-#include "jxl/types.h"
+#include "jxl/codestream_header.h"  // NO_G3_REWRITE
+#include "jxl/decode.h"  // NO_G3_REWRITE
+#include "jxl/decode_cxx.h"  // NO_G3_REWRITE
+#include "jxl/types.h"  // NO_G3_REWRITE
 
 #include <cstdint>
 #include <cstring>

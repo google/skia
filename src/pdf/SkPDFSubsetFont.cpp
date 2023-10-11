@@ -9,8 +9,8 @@
 #include "include/private/base/SkTo.h"
 #include "src/utils/SkCallableTraits.h"
 
-#include "hb.h"
-#include "hb-subset.h"
+#include "hb.h"  // NO_G3_REWRITE
+#include "hb-subset.h"  // NO_G3_REWRITE
 
 using HBBlob = std::unique_ptr<hb_blob_t, SkFunctionObject<hb_blob_destroy>>;
 using HBFace = std::unique_ptr<hb_face_t, SkFunctionObject<hb_face_destroy>>;

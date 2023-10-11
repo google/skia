@@ -30,7 +30,7 @@ public:
 
 #else
 
-#include "VulkanMemoryAllocatorWrapper.h"
+#include "VulkanMemoryAllocatorWrapper.h"  // NO_G3_REWRITE
 
 class VulkanAMDMemoryAllocator : public VulkanMemoryAllocator {
 public:

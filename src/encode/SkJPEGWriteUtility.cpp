@@ -16,8 +16,8 @@
 #include <cstddef>
 
 extern "C" {
-    #include "jerror.h"
-    #include "jmorecfg.h"
+    #include "jerror.h"  // NO_G3_REWRITE
+    #include "jmorecfg.h"  // NO_G3_REWRITE
 }
 
 ///////////////////////////////////////////////////////////////////////////////

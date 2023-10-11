@@ -39,9 +39,9 @@ class SkImage;
 extern "C" {
 // If moving libwebp out of skia source tree, path for webp headers must be
 // updated accordingly. Here, we enforce using local copy in webp sub-directory.
-#include "webp/encode.h"
-#include "webp/mux.h"
-#include "webp/mux_types.h"
+#include "webp/encode.h"  // NO_G3_REWRITE
+#include "webp/mux.h"  // NO_G3_REWRITE
+#include "webp/mux_types.h"  // NO_G3_REWRITE
 }
 
 static int stream_writer(const uint8_t* data, size_t data_size, const WebPPicture* const picture) {

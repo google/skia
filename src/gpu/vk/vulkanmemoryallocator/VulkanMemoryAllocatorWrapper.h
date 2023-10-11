@@ -31,7 +31,7 @@
 #define VULKAN_H_
 #define GR_NEEDED_TO_DEFINE_VULKAN_H
 #endif
-#include "vk_mem_alloc.h"
+#include "vk_mem_alloc.h"  // NO_G3_REWRITE
 #ifdef GR_NEEDED_TO_DEFINE_VULKAN_H
 #undef VULKAN_H_
 #endif

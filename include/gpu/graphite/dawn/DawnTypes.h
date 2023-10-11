@@ -9,7 +9,7 @@
 #define skgpu_graphite_DawnTypes_DEFINED
 
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "webgpu/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 namespace skgpu::graphite {
 

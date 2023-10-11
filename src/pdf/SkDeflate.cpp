@@ -12,7 +12,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkTraceEvent.h"
 
-#include "zlib.h"
+#include "zlib.h"  // NO_G3_REWRITE
 
 #include <algorithm>
 

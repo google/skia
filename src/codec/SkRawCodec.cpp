@@ -36,29 +36,29 @@
 #include <utility>
 #include <vector>
 
-#include "dng_area_task.h"
-#include "dng_color_space.h"
-#include "dng_errors.h"
-#include "dng_exceptions.h"
-#include "dng_host.h"
-#include "dng_image.h"
-#include "dng_info.h"
-#include "dng_memory.h"
-#include "dng_mosaic_info.h"
-#include "dng_negative.h"
-#include "dng_pixel_buffer.h"
-#include "dng_point.h"
-#include "dng_rational.h"
-#include "dng_rect.h"
-#include "dng_render.h"
-#include "dng_sdk_limits.h"
-#include "dng_stream.h"
-#include "dng_tag_types.h"
-#include "dng_types.h"
-#include "dng_utils.h"
+#include "dng_area_task.h"  // NO_G3_REWRITE
+#include "dng_color_space.h"  // NO_G3_REWRITE
+#include "dng_errors.h"  // NO_G3_REWRITE
+#include "dng_exceptions.h"  // NO_G3_REWRITE
+#include "dng_host.h"  // NO_G3_REWRITE
+#include "dng_image.h"  // NO_G3_REWRITE
+#include "dng_info.h"  // NO_G3_REWRITE
+#include "dng_memory.h"  // NO_G3_REWRITE
+#include "dng_mosaic_info.h"  // NO_G3_REWRITE
+#include "dng_negative.h"  // NO_G3_REWRITE
+#include "dng_pixel_buffer.h"  // NO_G3_REWRITE
+#include "dng_point.h"  // NO_G3_REWRITE
+#include "dng_rational.h"  // NO_G3_REWRITE
+#include "dng_rect.h"  // NO_G3_REWRITE
+#include "dng_render.h"  // NO_G3_REWRITE
+#include "dng_sdk_limits.h"  // NO_G3_REWRITE
+#include "dng_stream.h"  // NO_G3_REWRITE
+#include "dng_tag_types.h"  // NO_G3_REWRITE
+#include "dng_types.h"  // NO_G3_REWRITE
+#include "dng_utils.h"  // NO_G3_REWRITE
 
-#include "src/piex.h"
-#include "src/piex_types.h"
+#include "src/piex.h"  // NO_G3_REWRITE
+#include "src/piex_types.h"  // NO_G3_REWRITE
 
 using namespace skia_private;
 

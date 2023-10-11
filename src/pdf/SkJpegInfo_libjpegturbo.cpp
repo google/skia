@@ -24,7 +24,7 @@
 #include <csetjmp>
 
 extern "C" {
-    #include "jpeglib.h"
+    #include "jpeglib.h"  // NO_G3_REWRITE
 }
 
 bool SkGetJpegInfo(const void* data, size_t len,

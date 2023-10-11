@@ -26,7 +26,7 @@
     // This is achieved in Skia by having a nested WORKSPACE in include/config and a cc_library
     // defined in that folder. As a result, we do not try to include SkUserConfig.h from the
     // top of Skia because Bazel sandboxing will move it to a different location.
-    #include "SkUserConfig.h"
+    #include "SkUserConfig.h"  // NO_G3_REWRITE
 #else
     #include "include/config/SkUserConfig.h"
 #endif

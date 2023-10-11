@@ -57,7 +57,7 @@
 #if defined(WUFFS_IMPLEMENTATION)
 #error "SkWuffsCodec should not #define WUFFS_IMPLEMENTATION"
 #endif
-#include "wuffs-v0.3.c"
+#include "wuffs-v0.3.c"  // NO_G3_REWRITE
 // Commit count 2514 is Wuffs 0.3.0-alpha.4.
 #if WUFFS_VERSION_BUILD_METADATA_COMMIT_COUNT < 2514
 #error "Wuffs version is too old. Upgrade to the latest version."

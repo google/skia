@@ -13,7 +13,7 @@
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-#include "webgpu/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 namespace SkSL {
 class Compiler;

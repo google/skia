@@ -12,7 +12,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 
-#include "webgpu/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 using namespace skgpu::graphite;
 
