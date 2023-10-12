@@ -50,6 +50,7 @@ skia_cc_library(
     srcs = [
         "SkOpts_hsw.cpp",
         "//include/core:opts_srcs",
+        "//include/private:opts_srcs",
         "//include/private/base:private_hdrs",
         "//src/base:private_hdrs",
         "//src/core:opts_srcs",
