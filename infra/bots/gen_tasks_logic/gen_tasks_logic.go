@@ -2194,9 +2194,7 @@ func (b *jobBuilder) bazelBuild() {
 
 	b.addTask(b.Name, func(b *taskBuilder) {
 		cmd := []string{
-			// TODO(lovisolo): Uncomment after publishing a new CIPD package.
-			// "bazel_build_task_driver/bazel_build",
-			"./bazel_build", // TODO(lovisolo): Delete.
+			"bazel_build_task_driver/bazel_build",
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
 			"--task_name=" + b.Name,
@@ -2229,8 +2227,9 @@ func (b *jobBuilder) bazelBuild() {
 			// TODO(kjlubick) For now, this only has the linux version. We could build the task
 			//   driver for all hosts that we support running Bazel from in this CIPD package
 			//   if/when needed.
-			// TODO(lovisolo): Uncomment after publishing a new CIPD package.
-			// b.cipd(b.MustGetCipdPackageFromAsset("bazel_build_task_driver"))
+			// TODO(kjlubick,lovisolo) Could we get our task drivers built automatically
+			// into CIPD instead of this being a manual process?
+			b.cipd(b.MustGetCipdPackageFromAsset("bazel_build_task_driver"))
 
 			if labelAndSavedOutputDir.savedOutputDir != "" {
 				// We assume that builds which require storing a subset of //bazel-bin to CAS are Android
@@ -2251,8 +2250,6 @@ func (b *jobBuilder) bazelBuild() {
 			panic("unsupported Bazel host " + host)
 		}
 		b.cmd(cmd...)
-		// TODO(lovisolo): Delete after publishing a new CIPD package.
-		b.dep(b.buildTaskDrivers("linux", "amd64"))
 
 		b.idempotent()
 		b.cas(CAS_BAZEL)
