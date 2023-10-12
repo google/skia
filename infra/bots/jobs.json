@@ -109,6 +109,7 @@
    "cq_config": {}
    },
   {"name": "Build-Debian10-Clang-x86_64-Debug-Graphite_Dawn"},
+  {"name": "Build-Debian10-Clang-x86_64-Debug-Graphite_Dawn_Vello"},
   {"name": "Build-Debian10-Clang-x86_64-Debug-Graphite_Vulkan",
    "cq_config": {}
    },
@@ -130,6 +131,7 @@
   {"name": "Build-Debian10-Clang-x86_64-Release-Chromebook_GLES"},
   {"name": "Build-Debian10-Clang-x86_64-Release-Fast"},
   {"name": "Build-Debian10-Clang-x86_64-Release-Graphite_Dawn"},
+  {"name": "Build-Debian10-Clang-x86_64-Release-Graphite_Dawn_Vello"},
   {"name": "Build-Debian10-Clang-x86_64-Release-Graphite_Vulkan"},
   {"name": "Build-Debian10-Clang-x86_64-Release-MSAN"},
   {"name": "Build-Debian10-Clang-x86_64-Release-NoDEPS"},
@@ -162,6 +164,7 @@
   {"name": "Build-Debian11-Clang-x86_64-Debug-ASAN"},
   {"name": "Build-Debian11-Clang-x86_64-Debug-ASAN_Vulkan"},
   {"name": "Build-Debian11-Clang-x86_64-Debug-Graphite_Dawn"},
+  {"name": "Build-Debian11-Clang-x86_64-Debug-Graphite_Dawn_Vello"},
   {"name": "Build-Debian11-Clang-x86_64-Debug-Graphite_Vulkan"},
   {"name": "Build-Debian11-Clang-x86_64-Debug-TSAN"},
   {"name": "Build-Debian11-Clang-x86_64-Debug-Vulkan"},
@@ -169,6 +172,7 @@
   {"name": "Build-Debian11-Clang-x86_64-Release"},
   {"name": "Build-Debian11-Clang-x86_64-Release-ASAN"},
   {"name": "Build-Debian11-Clang-x86_64-Release-Graphite_Dawn"},
+  {"name": "Build-Debian11-Clang-x86_64-Release-Graphite_Dawn_Vello"},
   {"name": "Build-Debian11-Clang-x86_64-Release-Graphite_Vulkan"},
   {"name": "Build-Debian11-Clang-x86_64-Release-TSAN"},
   {"name": "Build-Debian11-Clang-x86_64-Release-TSAN_Vulkan"},
@@ -176,6 +180,7 @@
   {"name": "Build-Mac-Clang-arm64-Debug"},
   {"name": "Build-Mac-Clang-arm64-Debug-Android"},
   {"name": "Build-Mac-Clang-arm64-Debug-ANGLE"},
+  {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Vello"},
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Metal_Vello"},
   {"name": "Build-Mac-Clang-arm64-Debug-iOS"},
   {"name": "Build-Mac-Clang-arm64-Debug-Metal"},
@@ -206,6 +211,8 @@
   {"name": "Build-Mac-Clang-x86_64-Debug-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*"]}
   },
+  {"name": "Build-Mac-Clang-x86_64-Debug-Graphite_Dawn_Vello"},
+  {"name": "Build-Mac-Clang-x86_64-Debug-Graphite_Metal_Vello"},
   {"name": "Build-Mac-Clang-x86_64-Debug-Metal"},
   {"name": "Build-Mac-Clang-x86_64-Release",
    "cq_config": {}
@@ -215,6 +222,7 @@
   {"name": "Build-Mac-Clang-x86_64-Release-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*"]}
   },
+  {"name": "Build-Mac-Clang-x86_64-Release-Graphite_Dawn_Vello"},
   {"name": "Build-Mac-Clang-x86_64-Release-Graphite_Metal_Vello"},
   {"name": "Build-Mac-Clang-x86_64-Release-Metal"},
   {"name": "Build-Mac-Clang-x86_64-Release-TSAN"},
@@ -717,6 +725,7 @@
   {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
   {"name": "Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts"},
   {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-NativeFonts"},
+  {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Vello"},
   {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Metal_Vello"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"},

@@ -1331,7 +1331,7 @@ func (b *jobBuilder) compile() string {
 				}
 				b.asset("ccache_linux")
 				b.usesCCache()
-				if b.extraConfig("Fontations") {
+				if b.extraConfig("Vello") || b.extraConfig("Fontations") {
 					b.usesBazel("linux_x64")
 					b.attempts(1)
 				}
