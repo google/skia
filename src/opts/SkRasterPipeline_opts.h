@@ -96,6 +96,8 @@ using NoCtx = const void*;
 //   12 bits of precision while rcp_precise should be accurate for float size. For ARM rcp_precise
 //   requires 2 Newton-Raphson refinement steps because its estimate has 8 bit precision, and for
 //   Intel this requires one additional step because its estimate has 12 bit precision.
+//
+// * Don't call rcp_approx or rsqrt_approx directly; only use rcp_fast and rsqrt.
 
 namespace SK_OPTS_NS {
 #if defined(JUMPER_IS_SCALAR)
@@ -119,8 +121,8 @@ namespace SK_OPTS_NS {
     SI I32 abs_  (I32 v)        { return v < 0 ? -v : v; }
     SI F   floor_(F v)          { return floorf(v); }
     SI F    ceil_(F v)          { return ceilf(v); }
-    SI F   rcp_fast(F v)        { return 1.0f / v; }
-    SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
+    SI F   rcp_approx(F v)      { return 1.0f / v; }  // use rcp_fast instead
+    SI F   rsqrt_approx(F v)    { return 1.0f / sqrtf(v); }
     SI F   sqrt_ (F v)          { return sqrtf(v); }
     SI F   rcp_precise (F v)    { return 1.0f / v; }
 
@@ -206,11 +208,11 @@ namespace SK_OPTS_NS {
     SI I32 max(I32 a, I32 b) { return vmaxq_s32(a,b); }
     SI U32 max(U32 a, U32 b) { return vmaxq_u32(a,b); }
 
-    SI F   abs_  (F v)   { return vabsq_f32(v); }
-    SI I32 abs_  (I32 v) { return vabsq_s32(v); }
-    SI F   rcp_fast(F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
-    SI F   rcp_precise (F v) { auto e = rcp_fast(v); return vrecpsq_f32 (v,e  ) * e; }
-    SI F   rsqrt (F v)   { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    SI F   abs_  (F v)       { return vabsq_f32(v); }
+    SI I32 abs_  (I32 v)     { return vabsq_s32(v); }
+    SI F   rcp_approx(F v)   { auto e = vrecpeq_f32(v);  return vrecpsq_f32 (v,e  ) * e; }
+    SI F   rcp_precise(F v)  { auto e = rcp_approx(v);   return vrecpsq_f32 (v,e  ) * e; }
+    SI F   rsqrt_approx(F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
 
     SI U16 pack(U32 v)       { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)       { return __builtin_convertvector(v,  U8); }
@@ -393,15 +395,15 @@ namespace SK_OPTS_NS {
     SI I32 max(I32 a, I32 b) { return _mm256_max_epi32(a,b); }
     SI U32 max(U32 a, U32 b) { return _mm256_max_epu32(a,b); }
 
-    SI F   abs_  (F v)   { return _mm256_and_ps(v, 0-v); }
-    SI I32 abs_  (I32 v) { return _mm256_abs_epi32(v);   }
-    SI F   floor_(F v)   { return _mm256_floor_ps(v);    }
-    SI F   ceil_(F v)    { return _mm256_ceil_ps(v);     }
-    SI F   rcp_fast(F v) { return _mm256_rcp_ps  (v);    }
-    SI F   rsqrt (F v)   { return _mm256_rsqrt_ps(v);    }
-    SI F   sqrt_ (F v)   { return _mm256_sqrt_ps (v);    }
-    SI F rcp_precise (F v) {
-        F e = rcp_fast(v);
+    SI F   abs_  (F v)       { return _mm256_and_ps(v, 0-v); }
+    SI I32 abs_  (I32 v)     { return _mm256_abs_epi32(v);   }
+    SI F   floor_(F v)       { return _mm256_floor_ps(v);    }
+    SI F   ceil_(F v)        { return _mm256_ceil_ps(v);     }
+    SI F   rcp_approx(F v)   { return _mm256_rcp_ps  (v);    }  // use rcp_fast instead
+    SI F   rsqrt_approx(F v) { return _mm256_rsqrt_ps(v);    }
+    SI F   sqrt_ (F v)       { return _mm256_sqrt_ps (v);    }
+    SI F   rcp_precise (F v) {
+        F e = rcp_approx(v);
         return _mm256_fnmadd_ps(v, e, _mm256_set1_ps(2.0f)) * e;
     }
 
@@ -775,9 +777,9 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
 #else
     SI I32 abs_(I32 v)         { return max(v, -v); }
 #endif
-    SI F   rcp_fast(F v)       { return _mm_rcp_ps  (v);    }
-    SI F   rcp_precise (F v)   { F e = rcp_fast(v); return e * (2.0f - v * e); }
-    SI F   rsqrt (F v)         { return _mm_rsqrt_ps(v);    }
+    SI F   rcp_approx(F v)     { return _mm_rcp_ps  (v);    }  // use rcp_fast instead
+    SI F   rcp_precise (F v)   { F e = rcp_approx(v); return e * (2.0f - v * e); }
+    SI F   rsqrt_approx(F v)   { return _mm_rsqrt_ps(v);    }
     SI F    sqrt_(F v)         { return _mm_sqrt_ps (v);    }
 
     SI U32 round(F v)          { return _mm_cvtps_epi32(v); }
@@ -1132,6 +1134,17 @@ SI U16 to_half(F f) {
                                    , (s>>16) + (em>>13) - ((127-15)<<10)));
 #endif
 }
+
+#if defined(SK_IMPROVE_RASTER_PIPELINE_PRECISION) && (defined(JUMPER_IS_SCALAR) || \
+                                                      defined(JUMPER_IS_SSE2))
+    // In scalar and SSE2 mode, we always use precise math so we can have more predictable results.
+    // Chrome will use the SSE2 implementation when --disable-skia-runtime-opts is set. (b/40042946)
+    SI F rcp_fast(F v) { return rcp_precise(v); }
+    SI F rsqrt(F v)    { return rcp_precise(sqrt_(v)); }
+#else
+    SI F rcp_fast(F v) { return rcp_approx(v); }
+    SI F rsqrt(F v)    { return rsqrt_approx(v); }
+#endif
 
 // Our fundamental vector depth is our pixel stride.
 static constexpr size_t N = sizeof(F) / sizeof(float);
