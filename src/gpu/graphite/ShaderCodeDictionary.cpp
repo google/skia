@@ -865,6 +865,17 @@ static constexpr Uniform kCubicImageShaderUniforms[] = {
         { "csXformCoeffs",         SkSLType::kHalf4x4 },
 };
 
+static constexpr Uniform kHWImageShaderUniforms[] = {
+        { "imgSize",               SkSLType::kFloat2 },
+        { "readSwizzle",           SkSLType::kInt },
+        // The next 5 uniforms are for the color space transformation
+        { "csXformFlags",          SkSLType::kInt },
+        { "csXformSrcKind",        SkSLType::kInt },
+        { "csXformGamutTransform", SkSLType::kHalf3x3 },
+        { "csXformDstKind",        SkSLType::kInt },
+        { "csXformCoeffs",         SkSLType::kHalf4x4 },
+};
+
 static constexpr TextureAndSampler kISTexturesAndSamplers[] = {
         {"sampler"},
 };
@@ -894,6 +905,7 @@ static_assert(5 == static_cast<int>(ReadSwizzle::k000R),
 
 static constexpr char kImageShaderName[] = "sk_image_shader";
 static constexpr char kCubicImageShaderName[] = "sk_cubic_image_shader";
+static constexpr char kHWImageShaderName[] = "sk_hw_image_shader";
 
 //--------------------------------------------------------------------------------------------------
 
@@ -1600,6 +1612,16 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kLocalCoords,
             SkSpan(kISTexturesAndSamplers),
             kCubicImageShaderName,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
+            kNoChildren
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHWImageShader] = {
+            "HardwareImageShader",
+            SkSpan(kHWImageShaderUniforms),
+            SnippetRequirementFlags::kLocalCoords,
+            SkSpan(kISTexturesAndSamplers),
+            kHWImageShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
             kNoChildren
