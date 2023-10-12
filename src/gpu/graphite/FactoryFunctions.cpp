@@ -271,7 +271,7 @@ public:
 
 private:
     int numIntrinsicCombinations() const override {
-        return 3;  // hardware-tiled, shader-tiled and cubic sampling
+        return 2; // cubic and non-cubic sampling
     }
 
     void addToKey(const KeyContext& keyContext,
@@ -281,19 +281,11 @@ private:
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
 
-        // ImageShaderBlock will use hardware tiling when the subset covers the entire image, so we
-        // create subset + image size combinations where subset == imgSize (for a shader that uses
-        // hardware tiling) and subset < imgSize (for a shader that does shader-based tiling).
-        static constexpr SkRect kSubset = SkRect::MakeWH(1.0f, 1.0f);
-        static constexpr SkISize kHwTileableSize = SkISize::Make(1, 1);
-        static constexpr SkISize kNonHwTileableSize = SkISize::Make(2, 2);
-
-        ImageShaderBlock::ImageData imgData(desiredCombination == 2 ? kDefaultCubicSampling
-                                                                    : kDefaultSampling,
+        ImageShaderBlock::ImageData imgData(desiredCombination > 0 ? kDefaultCubicSampling
+                                                                   : kDefaultSampling,
                                             SkTileMode::kClamp, SkTileMode::kClamp,
-                                            desiredCombination == 1 ? kHwTileableSize
-                                                                    : kNonHwTileableSize,
-                                            kSubset, ReadSwizzle::kRGBA);
+                                            SkISize::MakeEmpty(), SkRect::MakeEmpty(),
+                                            ReadSwizzle::kRGBA);
 
         ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
     }

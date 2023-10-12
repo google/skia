@@ -492,18 +492,6 @@ void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
     add_color_space_uniforms(imgData.fSteps, gatherer);
 }
 
-void add_hw_image_uniform_data(const ShaderCodeDictionary* dict,
-                               const ImageShaderBlock::ImageData& imgData,
-                               PipelineDataGatherer* gatherer) {
-    SkASSERT(!imgData.fSampling.useCubic);
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWImageShader)
-
-    gatherer->write(SkSize::Make(imgData.fImgSize));
-    gatherer->write(SkTo<int>(imgData.fReadSwizzle));
-
-    add_color_space_uniforms(imgData.fSteps, gatherer);
-}
-
 } // anonymous namespace
 
 ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
@@ -520,14 +508,6 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
     SkASSERT(fSteps.flags.mask() == 0);   // By default, the colorspace should have no effect
 }
 
-static bool can_do_tiling_in_hw(const Caps* caps, const ImageShaderBlock::ImageData& imgData) {
-    if (!caps->clampToBorderSupport() && (imgData.fTileModes[0] == SkTileMode::kDecal ||
-                                          imgData.fTileModes[1] == SkTileMode::kDecal)) {
-        return false;
-    }
-    return imgData.fSubset.contains(SkRect::Make(imgData.fImgSize));
-}
-
 void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
                                 PaintParamsKeyBuilder* builder,
                                 PipelineDataGatherer* gatherer,
@@ -538,18 +518,9 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
         return;
     }
 
-    const Caps* caps = keyContext.caps();
-    const bool doTilingInHw = !imgData.fSampling.useCubic && can_do_tiling_in_hw(caps, imgData);
+    gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxy);
 
-    static constexpr SkTileMode kDefaultTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
-    gatherer->add(imgData.fSampling,
-                  doTilingInHw ? imgData.fTileModes : kDefaultTileModes,
-                  imgData.fTextureProxy);
-
-    if (doTilingInHw) {
-        add_hw_image_uniform_data(keyContext.dict(), imgData, gatherer);
-        builder->addBlock(BuiltInCodeSnippetID::kHWImageShader);
-    } else if (imgData.fSampling.useCubic) {
+    if (imgData.fSampling.useCubic) {
         add_cubic_image_uniform_data(keyContext.dict(), imgData, gatherer);
         builder->addBlock(BuiltInCodeSnippetID::kCubicImageShader);
     } else {
