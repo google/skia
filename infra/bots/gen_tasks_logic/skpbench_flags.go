@@ -8,7 +8,4 @@ func (b *taskBuilder) skpbenchFlags() {
 	if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		b.recipeProp("dont_reduce_ops_task_splitting", "true")
 	}
-	if b.model("NUC7i5BNK") {
-		b.recipeProp("gpu_resource_cache_limit", "16777216")
-	}
 }

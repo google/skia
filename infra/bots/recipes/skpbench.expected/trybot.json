@@ -315,9 +315,7 @@
       "--adb_binary",
       "adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/skps",
-      "--dontReduceOpsTaskSplitting",
-      "--gpuResourceCacheLimit",
-      "16777216"
+      "--dontReduceOpsTaskSplitting"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
