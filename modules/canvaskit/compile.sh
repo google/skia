@@ -40,6 +40,7 @@ mkdir -p $BUILD_DIR
 rm -f $BUILD_DIR/*.a
 
 ENABLE_GANESH="true"
+ENABLE_GRAPHITE="false"
 ENABLE_WEBGL="false"
 ENABLE_WEBGPU="false"
 if [[ $@ == *cpu* ]]; then
@@ -48,6 +49,8 @@ if [[ $@ == *cpu* ]]; then
 elif [[ $@ == *webgpu* ]]; then
   echo "Using WebGPU instead of WebGL"
   ENABLE_WEBGPU="true"
+  ENABLE_GRAPHITE="true"
+  ENABLE_GANESH="false"
 else
   ENABLE_WEBGL="true"
 fi
@@ -235,6 +238,7 @@ echo "Compiling"
   skia_use_wuffs=true \
   skia_use_zlib=true \
   skia_enable_ganesh=${ENABLE_GANESH} \
+  skia_enable_graphite=${ENABLE_GRAPHITE} \
   skia_build_for_debugger=${DEBUGGER_ENABLED} \
   skia_enable_sksl_tracing=${ENABLE_SKSL_TRACE} \
   \
