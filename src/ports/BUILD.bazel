@@ -216,11 +216,6 @@ skia_filegroup(
     srcs = ["SkGlobalInitialization_default.cpp"],
 )
 
-skia_filegroup(
-    name = "image_generator",
-    srcs = ["SkImageGenerator_empty.cpp"],
-)
-
 # In own group to prevent exporting to *.gni files.
 skia_filegroup(
     name = "osfile_platform",

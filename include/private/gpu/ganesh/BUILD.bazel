@@ -20,13 +20,3 @@ skia_filegroup(
     ],
     visibility = ["//include/private/gpu:__pkg__"],
 )
-
-skia_filegroup(
-    name = "gl_private_hdrs",
-    srcs = ["GrGLTypes_empty.h"],
-)
-
-skia_filegroup(
-    name = "vk_private_hdrs",
-    srcs = ["GrVkTypes_empty.h"],
-)
