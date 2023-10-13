@@ -560,6 +560,7 @@ void SkottieSlide::init() {
             text_props.erase(text_props.cbegin());
             fTextEditor = sk_make_sp<skottie_utils::TextEditor>(std::move(editor_target),
                                                                 std::move(text_props));
+            fTextEditor->setCursorWeight(1.2f);
         }
     } else {
         SkDebugf("failed to load Bodymovin animation: %s\n", fPath.c_str());

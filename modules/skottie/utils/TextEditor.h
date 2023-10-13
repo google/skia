@@ -33,6 +33,8 @@ public:
 
     bool onCharInput(SkUnichar c);
 
+    void setCursorWeight(float w) { fCursorWeight = w; }
+
 private:
     struct GlyphData {
         SkRect fDevBounds; // Glyph bounds mapped to device space.
@@ -53,10 +55,11 @@ private:
     const SkRect                                                    fCursorBounds;
 
     std::vector<GlyphData>     fGlyphData;
-    std::tuple<size_t, size_t> fSelection   = {0,0};  // Indices in the glyphs domain.
-    size_t                     fCursorIndex = 0;      // Index in the UTF8 domain.
-    bool                       fEnabled     = false;
-    bool                       fMouseDown   = false;
+    std::tuple<size_t, size_t> fSelection    = {0,0};  // Indices in the glyphs domain.
+    size_t                     fCursorIndex  = 0;      // Index in the UTF8 domain.
+    float                      fCursorWeight = 1;
+    bool                       fEnabled      = false;
+    bool                       fMouseDown    = false;
 
     std::chrono::time_point<std::chrono::steady_clock> fTimeBase;
 };

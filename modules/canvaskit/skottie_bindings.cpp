@@ -589,6 +589,12 @@ public:
                 : false;
     }
 
+    void setEditorCursorWeight(float w) {
+        if (fTextEditor) {
+            fTextEditor->setCursorWeight(w);
+        }
+    }
+
     bool setTextSlot(const std::string& slotID, SimpleSlottableTextProperty t) {
         return fSlotMgr->setTextSlot(SkString(slotID), t);
     }
@@ -710,6 +716,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("enableEditor"         , &ManagedAnimation::enableEditor)
         .function("dispatchEditorKey"    , &ManagedAnimation::dispatchEditorKey)
         .function("dispatchEditorPointer", &ManagedAnimation::dispatchEditorPointer)
+        .function("setEditorCursorWeight", &ManagedAnimation::setEditorCursorWeight)
         .function("getTextSlot"      , &ManagedAnimation::getTextSlot)
         .function("_setTextSlot"     , &ManagedAnimation::setTextSlot)
         .function("setImageSlot"     , &ManagedAnimation::setImageSlot);

@@ -152,6 +152,7 @@ var CanvasKit = {
       enableEditor:          function() {},
       dispatchEditorKey:     function() {},
       dispatchEditorPointer: function() {},
+      setEditorCursorWeight: function() {},
     },
     _render: function() {},
     _seek: function() {},

@@ -169,6 +169,7 @@ describe('Skottie behavior', () => {
         }
 
         animation.enableEditor(true);
+        animation.setEditorCursorWeight(1.5);
 
         // To be fully functional, the editor requires glyph data issued during rendering callbacks.
         animation.seek(0);

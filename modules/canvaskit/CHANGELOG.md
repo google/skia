@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Paragraph.getLineMetricsAt`, returns the line metrics of a line.
 - `Paragraph.getNumberOfLines`, returns the number of visible lines in the paragraph.
 - `Paragraph.getLineNumberAt`, finds the line that contains the given UTF-16 index.
+- `ManagedAnimation.setEditorCursorWeight` -- adjust the WYSIWYG editor cursor weight.
 
 
 ### Fixed

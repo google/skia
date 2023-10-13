@@ -1063,6 +1063,9 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
 
     // Send pointer events to the active editor, in canvas coordinates.
     dispatchEditorPointer(x: number, y: number, state: InputState, modifier: ModifierKey): boolean;
+
+    // Adjust the relative cursor weight (default: 1).
+    setEditorCursorWeight(w: number): void;
 }
 
 /**
