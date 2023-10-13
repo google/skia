@@ -432,6 +432,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
         supportsMTLEvent = true;
     }
     fSemaphoreSupport = supportsMTLEvent;
+    fBackendSemaphoreSupport = fSemaphoreSupport;
 
     fCrossContextTextureSupport = true;
     fHalfFloatVertexAttributeSupport = true;

@@ -1632,7 +1632,7 @@ void GrMtlGpu::deleteFence(GrFence fence) {
 std::unique_ptr<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                                             GrSemaphoreWrapType /* wrapType */,
                                                             GrWrapOwnership /*ownership*/) {
-    SkASSERT(this->caps()->semaphoreSupport());
+    SkASSERT(this->caps()->backendSemaphoreSupport());
     return GrMtlSemaphore::MakeWrapped(semaphore.mtlSemaphore(), semaphore.mtlValue());
 }
 

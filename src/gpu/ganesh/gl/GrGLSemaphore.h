@@ -9,8 +9,11 @@
 #define GrGLSemaphore_DEFINED
 
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
+
+#include <memory>
 
 class GrGLGpu;
 
@@ -20,24 +23,13 @@ public:
         return std::unique_ptr<GrGLSemaphore>(new GrGLSemaphore(gpu, isOwned));
     }
 
-    static std::unique_ptr<GrGLSemaphore> MakeWrapped(GrGLGpu* gpu,
-                                                      GrGLsync sync,
-                                                      GrWrapOwnership ownership) {
-        auto sema = std::unique_ptr<GrGLSemaphore>(
-                new GrGLSemaphore(gpu, kBorrow_GrWrapOwnership != ownership));
-        sema->setSync(sync);
-        return sema;
-    }
-
     ~GrGLSemaphore() override;
 
     GrGLsync sync() const { return fSync; }
     void setSync(const GrGLsync& sync) { fSync = sync; }
 
     GrBackendSemaphore backendSemaphore() const override {
-        GrBackendSemaphore backendSemaphore;
-        backendSemaphore.initGL(fSync);
-        return backendSemaphore;
+        SK_ABORT("Unsupported");
     }
 
 private:

@@ -261,7 +261,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
     auto ctx = ctxInfo.directContext();
-    if (!ctx->priv().caps()->semaphoreSupport()) {
+    if (!ctx->priv().caps()->backendSemaphoreSupport()) {
+        // For example, the GL backend does not support these.
         return;
     }
 
@@ -282,18 +283,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest,
             ctx->flush(mainSurface.get(), SkSurfaces::BackendSurfaceAccess::kNoAccess, flushInfo);
     REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
     ctx->submit();
-
-#ifdef SK_GL
-    if (GrBackendApi::kOpenGL == ctxInfo.backend()) {
-        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->priv().getGpu());
-        const GrGLInterface* interface = gpu->glInterface();
-        GrGLsync sync = semaphore.glSync();
-        REPORTER_ASSERT(reporter, sync);
-        bool result;
-        GR_GL_CALL_RET(interface, result, IsSync(sync));
-        REPORTER_ASSERT(reporter, result);
-    }
-#endif
 
 #ifdef SK_VULKAN
     if (GrBackendApi::kVulkan == ctxInfo.backend()) {

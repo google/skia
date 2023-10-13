@@ -127,6 +127,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/GrAuditTrail.h",
   "$_src/gpu/ganesh/GrAutoLocaleSetter.h",
   "$_src/gpu/ganesh/GrBackendSemaphore.cpp",
+  "$_src/gpu/ganesh/GrBackendSemaphorePriv.h",
   "$_src/gpu/ganesh/GrBackendSurface.cpp",
   "$_src/gpu/ganesh/GrBackendSurfacePriv.h",
   "$_src/gpu/ganesh/GrBackendTextureImageGenerator.cpp",
