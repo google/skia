@@ -186,7 +186,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "vulkan_headers",
         build_file = ws + "//bazel/external/vulkan_headers:BUILD.bazel",
-        commit = "3fb9d9fde5e8e771a24f7cccf5b13896da743ce4",
+        commit = "07ff4233bc69e573ae0a6b4b48ad16451ac4e37f",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers",
     )
 
@@ -200,7 +200,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "vulkan_utility_libraries",
         build_file = ws + "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-        commit = "ca0ad5798733d94a80a322c98dab9ca9a0cd0fb2",
+        commit = "dc2ec1edeb3713bdaf0c08d60513466659563498",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries",
     )
 
