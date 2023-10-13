@@ -364,7 +364,7 @@ void SkPathOpsDebug::DumpCoinDict() {
 }
 
 void SkPathOpsDebug::CoinDict::dump(const char* str, bool visitCheck) const {
-    int count = fDict.count();
+    int count = fDict.size();
     for (int index = 0; index < count; ++index) {
         const auto& entry = fDict[index];
         if (visitCheck || entry.fGlitchType == kUninitialized_Glitch) {

@@ -64,8 +64,8 @@ const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor", "rdi
 int SkPathOpsDebug::gContourID = 0;
 int SkPathOpsDebug::gSegmentID = 0;
 
-bool SkPathOpsDebug::ChaseContains(const SkTDArray<SkOpSpanBase* >& chaseArray,
-        const SkOpSpanBase* span) {
+bool SkPathOpsDebug::ChaseContains(const SkTDArray<SkOpSpanBase*>& chaseArray,
+                                   const SkOpSpanBase* span) {
     for (int index = 0; index < chaseArray.size(); ++index) {
         const SkOpSpanBase* entry = chaseArray[index];
         if (entry == span) {
@@ -81,6 +81,9 @@ SkString SkPathOpsDebug::gActiveSpans;
 #endif
 
 #if DEBUG_COIN
+
+#include "src/pathops/SkOpContour.h"
+
 class SkCoincidentSpans;
 
 SkPathOpsDebug::CoinDict SkPathOpsDebug::gCoinSumChangedDict;
@@ -113,7 +116,7 @@ struct SkPathOpsDebug::GlitchLog {
     }
 
     SpanGlitch* recordCommon(GlitchType type) {
-        SpanGlitch* glitch = fGlitches.push();
+        SpanGlitch* glitch = fGlitches.append();
         glitch->fBase = nullptr;
         glitch->fSuspect = nullptr;
         glitch->fSegment = nullptr;
@@ -131,22 +134,21 @@ struct SkPathOpsDebug::GlitchLog {
         return glitch;
     }
 
-    void record(GlitchType type, const SkOpSpanBase* base,
-            const SkOpSpanBase* suspect = NULL) {
+    void record(GlitchType type, const SkOpSpanBase* base, const SkOpSpanBase* suspect = nullptr) {
         SpanGlitch* glitch = recordCommon(type);
         glitch->fBase = base;
         glitch->fSuspect = suspect;
     }
 
-    void record(GlitchType type, const SkOpSpanBase* base,
-            const SkOpPtT* ptT) {
+    void record(GlitchType type, const SkOpSpanBase* base, const SkOpPtT* ptT) {
         SpanGlitch* glitch = recordCommon(type);
         glitch->fBase = base;
         glitch->fCoinSpan = ptT;
     }
 
-    void record(GlitchType type, const SkCoincidentSpans* coin,
-            const SkCoincidentSpans* opp = NULL) {
+    void record(GlitchType type,
+                const SkCoincidentSpans* coin,
+                const SkCoincidentSpans* opp = nullptr) {
         SpanGlitch* glitch = recordCommon(type);
         glitch->fCoinSpan = coin->coinPtTStart();
         glitch->fEndSpan = coin->coinPtTEnd();
@@ -242,14 +244,14 @@ struct SkPathOpsDebug::GlitchLog {
 
 
 void SkPathOpsDebug::CoinDict::add(const SkPathOpsDebug::CoinDict& dict) {
-    int count = dict.fDict.count();
+    int count = dict.fDict.size();
     for (int index = 0; index < count; ++index) {
         this->add(dict.fDict[index]);
     }
 }
 
 void SkPathOpsDebug::CoinDict::add(const CoinDictEntry& key) {
-    int count = fDict.count();
+    int count = fDict.size();
     for (int index = 0; index < count; ++index) {
         CoinDictEntry* entry = &fDict[index];
         if (entry->fIteration == key.fIteration && entry->fLineNumber == key.fLineNumber) {
@@ -266,7 +268,8 @@ void SkPathOpsDebug::CoinDict::add(const CoinDictEntry& key) {
 #endif
 
 #if DEBUG_COIN
-static void missing_coincidence(SkPathOpsDebug::GlitchLog* glitches, const SkOpContourHead* contourList) {
+static void missing_coincidence(SkPathOpsDebug::GlitchLog* glitches,
+                                const SkOpContourHead* contourList) {
     const SkOpContour* contour = contourList;
     // bool result = false;
     do {
@@ -275,7 +278,8 @@ static void missing_coincidence(SkPathOpsDebug::GlitchLog* glitches, const SkOpC
     return;
 }
 
-static void move_multiples(SkPathOpsDebug::GlitchLog* glitches, const SkOpContourHead* contourList) {
+static void move_multiples(SkPathOpsDebug::GlitchLog* glitches,
+                           const SkOpContourHead* contourList) {
     const SkOpContour* contour = contourList;
     do {
         contour->debugMoveMultiples(glitches);
@@ -289,7 +293,6 @@ static void move_nearby(SkPathOpsDebug::GlitchLog* glitches, const SkOpContourHe
         contour->debugMoveNearby(glitches);
     } while ((contour = contour->next()));
 }
-
 
 #endif
 
@@ -330,7 +333,7 @@ void SkOpGlobalState::debugAddToCoinChangedDict() {
     } else {
         SkASSERT(0);   // add missing case
     }
-    if (glitches.fGlitches.count()) {
+    if (glitches.fGlitches.size()) {
         fCoinDictEntry.fGlitchType = glitches.fGlitches[0].fType;
     }
     fCoinChangedDict.add(fCoinDictEntry);
@@ -376,7 +379,7 @@ void SkPathOpsDebug::CheckHealth(SkOpContourHead* contourList) {
     coincidence->debugAddExpanded(&glitches);
     coincidence->debugMark(&glitches);
     unsigned mask = 0;
-    for (int index = 0; index < glitches.fGlitches.count(); ++index) {
+    for (int index = 0; index < glitches.fGlitches.size(); ++index) {
         const SpanGlitch& glitch = glitches.fGlitches[index];
         mask |= 1 << glitch.fType;
     }
@@ -384,7 +387,7 @@ void SkPathOpsDebug::CheckHealth(SkOpContourHead* contourList) {
         SkDebugf(mask & (1 << index) ? "x" : "-");
     }
     SkDebugf(" %s\n", contourList->globalState()->debugCoinDictEntry().fFunctionName);
-    for (int index = 0; index < glitches.fGlitches.count(); ++index) {
+    for (int index = 0; index < glitches.fGlitches.size(); ++index) {
         const SpanGlitch& glitch = glitches.fGlitches[index];
         SkDebugf("%02d: ", index);
         if (glitch.fBase) {
@@ -1047,7 +1050,7 @@ void SkOpSegment::debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const {
         const SkOpPtT* ptT = spanBase->ptT();
         const SkOpPtT* headPtT = ptT;
         while ((ptT = ptT->next()) != headPtT) {
-              const SkOpSpanBase* test = ptT->span();
+            const SkOpSpanBase* test = ptT->span();
             if (ptT->segment() == this && !ptT->deleted() && test != spanBase
                     && test->ptT() == ptT) {
                 if (test->final()) {
@@ -1739,8 +1742,8 @@ void SkOpCoincidence::debugAddOrOverlap(SkPathOpsDebug::GlitchLog* log,
             coinTe, oppTs, oppTe, &overlaps)) {
         return;
     }
-    const SkCoincidentSpans* overlap = overlaps.count() ? overlaps[0] : nullptr;
-    for (int index = 1; index < overlaps.count(); ++index) { // combine overlaps before continuing
+    const SkCoincidentSpans* overlap = overlaps.size() ? overlaps[0] : nullptr;
+    for (int index = 1; index < overlaps.size(); ++index) { // combine overlaps before continuing
         const SkCoincidentSpans* test = overlaps[index];
         if (overlap->coinPtTStart()->fT > test->coinPtTStart()->fT) {
             log->record(SkPathOpsDebug::kAddOrOverlap_Glitch, overlap, test->coinPtTStart());
