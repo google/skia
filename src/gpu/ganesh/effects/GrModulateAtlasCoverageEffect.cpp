@@ -88,7 +88,7 @@ GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
     private:
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrFragmentProcessor& processor) override {
-            auto fp = processor.cast<GrModulateAtlasCoverageEffect>();
+            const auto& fp = processor.cast<GrModulateAtlasCoverageEffect>();
             if (fp.fFlags & Flags::kCheckBounds) {
                 pdman.set4fv(fBoundsUniform, 1, SkRect::Make(fp.fBounds).asScalars());
             }
