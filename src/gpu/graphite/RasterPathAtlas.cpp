@@ -63,6 +63,8 @@ void RasterPathAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
         }
         pageIter.next();
     }
+
+    this->reset();
 }
 
 bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder, uint16_t identifier) {

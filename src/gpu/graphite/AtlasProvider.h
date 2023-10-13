@@ -19,6 +19,7 @@
 namespace skgpu::graphite {
 
 class ComputePathAtlas;
+class DrawContext;
 class PathAtlas;
 class RasterPathAtlas;
 class Recorder;
@@ -66,6 +67,9 @@ public:
             bool requireStorageUsage);
 
     void clearTexturePool();
+
+    // Push any pending uploads to atlases onto the draw context
+    void recordUploads(DrawContext*, Recorder*);
 
 private:
     std::unique_ptr<TextAtlasManager> fTextAtlasManager;

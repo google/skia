@@ -247,7 +247,6 @@ bool TextAtlasManager::recordUploads(UploadList* ul, bool useCachedUploads) {
         }
     }
 
-    fRecorder->priv().tokenTracker()->issueFlushToken();
     return true;
 }
 

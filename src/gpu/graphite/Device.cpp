@@ -1303,16 +1303,15 @@ void Device::flushPendingWorkToRecorder() {
     // TODO: we may need to further split this function up since device->device drawList and
     // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
 
-    // push any pending uploads from the atlasmanager
-    auto textAtlasManager = fRecorder->priv().atlasProvider()->textAtlasManager();
-    if (!fDC->recordTextUploads(textAtlasManager)) {
-        SKGPU_LOG_E("TextAtlasManager uploads have failed -- may see invalid results.");
-    }
+    // Push any pending uploads from the atlasProvider
+    fRecorder->priv().atlasProvider()->recordUploads(fDC.get(), fRecorder);
 
     auto uploadTask = fDC->snapUploadTask(fRecorder);
     if (uploadTask) {
         fRecorder->priv().add(std::move(uploadTask));
     }
+    // Issue next upload flush token
+    fRecorder->priv().tokenTracker()->issueFlushToken();
 
     fClip.recordDeferredClipDraws();
 

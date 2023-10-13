@@ -8,6 +8,8 @@
 #include "src/gpu/graphite/AtlasProvider.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "src/gpu/graphite/DrawContext.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -83,6 +85,16 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
 
 void AtlasProvider::clearTexturePool() {
     fTexturePool.clear();
+}
+
+void AtlasProvider::recordUploads(DrawContext* dc, Recorder* recorder) {
+    if (!dc->recordTextUploads(fTextAtlasManager.get())) {
+        SKGPU_LOG_E("TextAtlasManager uploads have failed -- may see invalid results.");
+    }
+
+    if (fRasterPathAtlas) {
+        fRasterPathAtlas->recordUploads(dc, recorder);
+    }
 }
 
 }  // namespace skgpu::graphite
