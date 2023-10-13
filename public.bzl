@@ -110,6 +110,7 @@ SKIA_PUBLIC_HDRS = [
     "include/core/SkVertices.h",
     "include/core/SkYUVAInfo.h",
     "include/core/SkYUVAPixmaps.h",
+    "include/docs/SkMultiPictureDocument.h",
     "include/docs/SkPDFDocument.h",
     "include/docs/SkXPSDocument.h",
     "include/effects/Sk1DPathEffect.h",

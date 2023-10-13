@@ -53,6 +53,7 @@
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/utils/SkJSONWriter.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkTestCanvas.h"
@@ -1386,10 +1387,11 @@ bool SVGSrc::veto(SinkFlags flags) const {
 
 MSKPSrc::MSKPSrc(Path path) : fPath(path) {
     std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(fPath.c_str());
-    int count = SkMultiPictureDocumentReadPageCount(stream.get());
+    int count = SkMultiPictureDocument::ReadPageCount(stream.get());
     if (count > 0) {
         fPages.reset(count);
-        (void)SkMultiPictureDocumentReadPageSizes(stream.get(), &fPages[0], fPages.size());
+        SkASSERT_RELEASE(SkMultiPictureDocument::ReadPageSizes(stream.get(), &fPages[0],
+                                                               fPages.size()));
     }
 }
 
@@ -1416,7 +1418,7 @@ Result MSKPSrc::draw(int i, SkCanvas* canvas) const {
         if (!stream) {
             return Result::Fatal("Unable to open file: %s", fPath.c_str());
         }
-        if (!SkMultiPictureDocumentRead(stream.get(), &fPages[0], fPages.size())) {
+        if (!SkMultiPictureDocument::Read(stream.get(), &fPages[0], fPages.size())) {
             return Result::Fatal("SkMultiPictureDocument reader failed on page %d: %s", i,
                                  fPath.c_str());
         }

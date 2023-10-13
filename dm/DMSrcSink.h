@@ -15,7 +15,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
 #include "include/gpu/graphite/ContextOptions.h"
-#include "src/utils/SkMultiPictureDocument.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
 

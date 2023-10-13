@@ -226,6 +226,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/utils/mac:public_hdrs"}},
 		{Var: "skia_utils_chromium",
 			Rules: []string{
+				"//include/docs:chromium_hdrs",
 				"//src/utils:chromium_hdrs"}},
 		{Var: "skia_utils_private",
 			Rules: []string{

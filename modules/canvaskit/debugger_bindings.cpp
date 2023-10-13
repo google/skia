@@ -18,7 +18,7 @@
 #include "src/base/SkBase64.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/utils/SkJSONWriter.h"
-#include "src/utils/SkMultiPictureDocument.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
@@ -399,7 +399,7 @@ class SkpDebugPlayer {
         procs.fImageProc = SkSharingDeserialContext::deserializeImage;
         procs.fImageCtx = deserialContext.get();
 
-        int page_count = SkMultiPictureDocumentReadPageCount(stream);
+        int page_count = SkMultiPictureDocument::ReadPageCount(stream);
         if (!page_count) {
           // MSKP's have a version separate from the SKP subpictures they contain.
           return "Not a MultiPictureDocument, MultiPictureDocument file version too old, or MultiPictureDocument contained 0 frames.";
@@ -407,7 +407,7 @@ class SkpDebugPlayer {
         SkDebugf("Expecting %d frames\n", page_count);
 
         std::vector<SkDocumentPage> pages(page_count);
-        if (!SkMultiPictureDocumentRead(stream, pages.data(), page_count, &procs)) {
+        if (!SkMultiPictureDocument::Read(stream, pages.data(), page_count, &procs)) {
           return "Reading frames from MultiPictureDocument failed";
         }
 

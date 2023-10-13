@@ -28,7 +28,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "src/utils/SkMultiPictureDocument.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "tests/Test.h"
 #include "tools/SkSharingProc.h"
 #include "tools/ToolUtils.h"
@@ -103,7 +103,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
     procs.fImageCtx = &ctx;
 
     // Create the multi picture document used for recording frames.
-    sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs);
+    sk_sp<SkDocument> multipic = SkMultiPictureDocument::Make(&stream, &procs);
 
     static const int NUM_FRAMES = 12;
     static const int WIDTH = 256;
@@ -149,15 +149,15 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
     dprocs.fImageCtx = &deserialContext;
 
     // Confirm data is a MultiPictureDocument
-    int frame_count = SkMultiPictureDocumentReadPageCount(writtenStream.get());
+    int frame_count = SkMultiPictureDocument::ReadPageCount(writtenStream.get());
     REPORTER_ASSERT(reporter, frame_count == NUM_FRAMES,
         "Expected %d frames, got %d. \n 0 frames may indicate the written file was not a "
         "MultiPictureDocument.", NUM_FRAMES, frame_count);
 
-    // Deserailize
+    // Deserialize
     std::vector<SkDocumentPage> frames(frame_count);
     REPORTER_ASSERT(reporter,
-        SkMultiPictureDocumentRead(writtenStream.get(), frames.data(), frame_count, &dprocs),
+        SkMultiPictureDocument::Read(writtenStream.get(), frames.data(), frame_count, &dprocs),
         "Failed while reading MultiPictureDocument");
 
     // Examine each frame.
@@ -347,7 +347,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
 
     // Create the multi picture document used for recording frames.
     // Pass a lambda as the onEndPage callback that captures our sharing context
-    sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs,
+    sk_sp<SkDocument> multipic = SkMultiPictureDocument::Make(&stream, &procs,
         [sharingCtx = &ctx](const SkPicture* pic) {
             SkSharingSerialContext::collectNonTextureImagesFromPicture(pic, sharingCtx);
         });
@@ -392,7 +392,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
     dprocs.fImageCtx = &deserialContext;
 
     // Confirm data is a MultiPictureDocument
-    int frame_count = SkMultiPictureDocumentReadPageCount(writtenStream.get());
+    int frame_count = SkMultiPictureDocument::ReadPageCount(writtenStream.get());
     REPORTER_ASSERT(reporter, frame_count == 1,
         "Expected 1 frame, got %d. \n 0 frames may indicate the written file was not a "
         "MultiPictureDocument.", frame_count);
@@ -400,7 +400,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
     // Deserialize
     std::vector<SkDocumentPage> frames(frame_count);
     REPORTER_ASSERT(reporter,
-        SkMultiPictureDocumentRead(writtenStream.get(), frames.data(), frame_count, &dprocs),
+        SkMultiPictureDocument::Read(writtenStream.get(), frames.data(), frame_count, &dprocs),
         "Failed while reading MultiPictureDocument");
 
     // Examine frame.

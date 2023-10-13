@@ -51,8 +51,7 @@ ignorelist = [
   # Used by Ganesh and Graphite
   'Device.h',
   # Temporary shims
-  'SkEncodedImageFormat.h',
-  'SkICC.h',
+  'SkMultiPictureDocument.h',
   # Transitional
   'tools/window',
 ]

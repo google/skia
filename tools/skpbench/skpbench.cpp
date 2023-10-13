@@ -23,7 +23,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
-#include "src/utils/SkMultiPictureDocument.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
@@ -181,12 +181,12 @@ public:
 
         // The outer format of multi-frame skps is the multi-picture document, which is a
         // skp file containing subpictures separated by annotations.
-        int page_count = SkMultiPictureDocumentReadPageCount(stream.get());
+        int page_count = SkMultiPictureDocument::ReadPageCount(stream.get());
         if (!page_count) {
             return nullptr;
         }
         std::vector<SkDocumentPage> frames(page_count); // can't call reserve, why?
-        if (!SkMultiPictureDocumentRead(stream.get(), frames.data(), page_count, &procs)) {
+        if (!SkMultiPictureDocument::Read(stream.get(), frames.data(), page_count, &procs)) {
             return nullptr;
         }
 
