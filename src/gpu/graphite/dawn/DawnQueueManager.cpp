@@ -20,22 +20,12 @@ public:
                        DawnQueueManager* queueManager,
                        wgpu::Device device)
             : GpuWorkSubmission(std::move(cmdBuffer), queueManager), fAsyncWait(std::move(device)) {
-#ifdef WGPU_BREAKING_WORK_DONE_SIGNAL_VALUE_CHANGE
-              queueManager->dawnQueue().OnSubmittedWorkDone(
-                [](WGPUQueueWorkDoneStatus, void* userData) {
-                    auto asyncWaitPtr = static_cast<DawnAsyncWait*>(userData);
-                    asyncWaitPtr->signal();
-                },
-                &fAsyncWait);
-#else
         queueManager->dawnQueue().OnSubmittedWorkDone(
-                0,
                 [](WGPUQueueWorkDoneStatus, void* userData) {
                     auto asyncWaitPtr = static_cast<DawnAsyncWait*>(userData);
                     asyncWaitPtr->signal();
                 },
                 &fAsyncWait);
-#endif
     }
     ~DawnWorkSubmission() override {}
 
