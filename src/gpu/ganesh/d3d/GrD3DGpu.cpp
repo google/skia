@@ -1774,7 +1774,7 @@ bool GrD3DGpu::onSubmitToGpu(GrSyncCpu sync) {
 std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                                             GrSemaphoreWrapType /* wrapType */,
                                                             GrWrapOwnership /* ownership */) {
-    SkASSERT(this->caps()->backendSemaphoreSupport());
+    SkASSERT(this->caps()->semaphoreSupport());
     GrD3DFenceInfo fenceInfo;
     if (!semaphore.getD3DFenceInfo(&fenceInfo)) {
         return nullptr;

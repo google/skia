@@ -401,7 +401,7 @@ void GrDirectContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
 ////////////////////////////////////////////////////////////////////////////////
 bool GrDirectContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
                            bool deleteSemaphoresAfterWait) {
-    if (!fGpu || !fGpu->caps()->backendSemaphoreSupport()) {
+    if (!fGpu || !fGpu->caps()->semaphoreSupport()) {
         return false;
     }
     GrWrapOwnership ownership =

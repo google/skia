@@ -31,7 +31,6 @@ CORE_FILES = [
     "GrAuditTrail.h",
     "GrAutoLocaleSetter.h",
     "GrBackendSemaphore.cpp",
-    "GrBackendSemaphorePriv.h",
     "GrBackendSurface.cpp",
     "GrBackendSurfacePriv.h",
     "GrBackendTextureImageGenerator.cpp",

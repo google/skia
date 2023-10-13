@@ -401,12 +401,8 @@ public:
     /** Supports using GrFence. */
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
 
-    /** Supports using GrSemaphores. */
+    /** Supports using GrSemaphore. */
     bool semaphoreSupport() const { return fSemaphoreSupport; }
-
-    /** Supports using GrBackendSemaphore as "signal" semaphores or for waiting. See also
-     *  GrFlushInfo and GrDirectContext. */
-    bool backendSemaphoreSupport() const { return fBackendSemaphoreSupport; }
 
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
     /**
@@ -637,7 +633,6 @@ protected:
 
     bool fFenceSyncSupport                           : 1;
     bool fSemaphoreSupport                           : 1;
-    bool fBackendSemaphoreSupport                     : 1;
 
     // Requires fence sync support in GL.
     bool fCrossContextTextureSupport                 : 1;
