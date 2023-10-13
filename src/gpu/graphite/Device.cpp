@@ -1218,7 +1218,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     const Shape& shape = geometry.shape();
     // We can't use this renderer if we require MSAA for an effect (i.e. clipping or stroke+fill).
     if (!requireMSAA && is_simple_shape(shape, type) &&
-        strategy == PathRendererStrategy::kDefault) {
+        (strategy == PathRendererStrategy::kDefault ||
+         strategy == PathRendererStrategy::kRasterAA)) {
         return {renderers->analyticRRect(), nullptr};
     }
 
@@ -1238,9 +1239,9 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     // Only use CPU rendered paths when multisampling is disabled
     // TODO: enable other uses of the software path renderer
     } else if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
-               strategy == PathRendererStrategy::kRasterAA) {
-        // TODO: With the default strategy, enable this if
-        // fRecorder->priv().caps()->defaultMSAASamplesCount() <= 1
+               (strategy == PathRendererStrategy::kRasterAA ||
+                (strategy == PathRendererStrategy::kDefault &&
+                 fRecorder->priv().caps()->defaultMSAASamplesCount() <= 1))) {
         pathAtlas = atlasProvider->getRasterPathAtlas();
     }
     // We currently always use a coverage mask renderer if a `PathAtlas` is selected.

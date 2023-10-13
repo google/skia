@@ -80,10 +80,10 @@ private:
     // in-flight or yet to be submitted.
     void reset();
 
-    // Moving from one cached page to two gives improved results on some of our more complex SKPs.
-    // Any higher uses more memory seemly without much of an overall perf gain. More investigation
-    // will have to be done to tune this value.
-    static constexpr int kMaxPages = 2;
+    // Investigation shows that eight pages helps with some of the more complex skps, and
+    // since we're using less complex vertex setups with the RPA, we have more GPU memory
+    // to take advantage of.
+    static constexpr int kMaxPages = 8;
     typedef SkTInternalLList<Page> PageList;
     // LRU list of Pages (MRU at head - LRU at tail)
     PageList fPageList;
