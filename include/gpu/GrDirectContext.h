@@ -41,7 +41,6 @@ class SkTaskGroup;
 class SkTraceMemoryDump;
 enum SkColorType : int;
 enum class SkTextureCompressionType;
-struct GrGLInterface;
 struct GrMockOptions;
 struct GrVkBackendContext; // IWYU pragma: keep
 struct GrD3DBackendContext; // IWYU pragma: keep
@@ -62,17 +61,6 @@ enum class BackendSurfaceAccess;
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
-#if defined(SK_GL) && !defined(SK_DISABLE_LEGACY_GL_GRDIRECTCONTEXT_FACTORIES)
-    /**
-     * Creates a GrDirectContext for a backend context. If no GrGLInterface is provided then the
-     * result of GrGLMakeNativeInterface() is used if it succeeds.
-     */
-    static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
-    static sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>);
-    static sk_sp<GrDirectContext> MakeGL(const GrContextOptions&);
-    static sk_sp<GrDirectContext> MakeGL();
-#endif
-
 #if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_GRDIRECTCONTEXT_FACTORIES)
     /**
      * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned

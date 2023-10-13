@@ -96,24 +96,3 @@ sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface> glInterface,
 }
 
 }  // namespace GrDirectContexts
-
-#if !defined(SK_DISABLE_LEGACY_GL_GRDIRECTCONTEXT_FACTORIES)
-sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface) {
-    GrContextOptions defaultOptions;
-    return GrDirectContexts::MakeGL(std::move(glInterface), defaultOptions);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeGL(const GrContextOptions& options) {
-    return GrDirectContexts::MakeGL(options);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeGL() {
-    return GrDirectContexts::MakeGL();
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeGL(sk_sp<const GrGLInterface> glInterface,
-                                               const GrContextOptions& options) {
-    return GrDirectContexts::MakeGL(std::move(glInterface), options);
-}
-
-#endif  // !defined(SK_DISABLE_LEGACY_GL_GRDIRECTCONTEXT_FACTORIES)
