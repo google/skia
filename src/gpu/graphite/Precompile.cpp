@@ -38,6 +38,15 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileCo
     return PrecompileShaders::ColorFilter(sk_ref_sp(this), std::move(cf));
 }
 
+sk_sp<PrecompileColorFilter> PrecompileColorFilter::makeComposed(
+        sk_sp<PrecompileColorFilter> inner) const {
+    if (!inner) {
+        return sk_ref_sp(this);
+    }
+
+    return PrecompileColorFilters::Compose({ sk_ref_sp(this) }, { std::move(inner) });
+}
+
 //--------------------------------------------------------------------------------------------------
 int PaintOptions::numShaderCombinations() const {
     int numShaderCombinations = 0;

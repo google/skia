@@ -25,6 +25,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlenderBase.h"
+#include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -55,17 +56,17 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_random_colo
 
 enum class ShaderType {
     kNone,
-    kSolidColor,
-    kLinearGradient,
-    kRadialGradient,
-    kSweepGradient,
-    kConicalGradient,
-    kLocalMatrix,
-    kColorFilter,
-    kImage,
     kBlend,
+    kColorFilter,
+    kConicalGradient,
+    kImage,
+    kLinearGradient,
+    kLocalMatrix,
+    kRadialGradient,
+    kSolidColor,
+    kSweepGradient,
 
-    kLast          = kBlend
+    kLast          = kSweepGradient
 };
 
 static constexpr int kShaderTypeCount = static_cast<int>(ShaderType::kLast) + 1;
@@ -84,12 +85,20 @@ static constexpr int kBlenderTypeCount = static_cast<int>(BlenderType::kLast) + 
 
 enum class ColorFilterType {
     kNone,
-    kBlend,
-    kMatrix,
+    kBlendMode,
+    kColorSpaceXform,
+    kCompose,
+    kGaussian,
     kHSLAMatrix,
-    // TODO: add more color filters
+    kLighting,
+    kLinearToSRGB,
+    kMatrix,
+    kRuntime,
+    kSRGBToLinear,
+    kTable,
+    kWorkingFormat,
 
-    kLast = kHSLAMatrix
+    kLast = kWorkingFormat
 };
 
 static constexpr int kColorFilterTypeCount = static_cast<int>(ColorFilterType::kLast) + 1;
@@ -105,6 +114,10 @@ static constexpr skcms_TransferFunction gTransferFunctions[] = {
 
 static constexpr int kTransferFunctionCount = std::size(gTransferFunctions);
 
+const skcms_TransferFunction& random_xfer_function(SkRandom* rand) {
+    return gTransferFunctions[rand->nextULessThan(kTransferFunctionCount)];
+}
+
 static constexpr skcms_Matrix3x3 gGamuts[] = {
     SkNamedGamut::kSRGB,
     SkNamedGamut::kAdobeRGB,
@@ -114,6 +127,10 @@ static constexpr skcms_Matrix3x3 gGamuts[] = {
 };
 
 static constexpr int kGamutCount = std::size(gGamuts);
+
+const skcms_Matrix3x3& random_gamut(SkRandom* rand) {
+    return gGamuts[rand->nextULessThan(kGamutCount)];
+}
 
 enum class ColorSpaceType {
     kNone,
@@ -141,9 +158,7 @@ sk_sp<SkColorSpace> random_colorspace(SkRandom* rand) {
         case ColorSpaceType::kSRGBLinear:
             return SkColorSpace::MakeSRGBLinear();
         case ColorSpaceType::kRGB:
-            return SkColorSpace::MakeRGB(
-                    gTransferFunctions[rand->nextULessThan(kTransferFunctionCount)],
-                    gGamuts[rand->nextULessThan(kGamutCount)]);
+            return SkColorSpace::MakeRGB(random_xfer_function(rand), random_gamut(rand));
     }
 
     SkUNREACHABLE;
@@ -454,7 +469,78 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_random_blender(SkRa
 }
 
 //--------------------------------------------------------------------------------------------------
-std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_blend_colorfilter(
+//--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> double_colorfilter() {
+    static SkRuntimeEffect* sSrcEffect = SkMakeRuntimeEffect(
+            SkRuntimeEffect::MakeForColorFilter,
+            "half4 main(half4 c) {"
+                "return 2*c;"
+            "}"
+    );
+
+    return { sSrcEffect->makeColorFilter(/* uniforms= */ nullptr),
+             MakePrecompileColorFilter(sk_ref_sp(sSrcEffect)) };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> half_colorfilter() {
+    static SkRuntimeEffect* sDestEffect = SkMakeRuntimeEffect(
+            SkRuntimeEffect::MakeForColorFilter,
+            "half4 main(half4 c) {"
+                "return 0.5*c;"
+            "}"
+    );
+
+    return { sDestEffect->makeColorFilter(/* uniforms= */ nullptr),
+             MakePrecompileColorFilter(sk_ref_sp(sDestEffect)) };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> combo_colorfilter() {
+    static SkRuntimeEffect* sComboEffect = SkMakeRuntimeEffect(
+            SkRuntimeEffect::MakeForColorFilter,
+            "uniform float blendFrac;"
+            "uniform colorFilter a;"
+            "uniform colorFilter b;"
+            "half4 main(half4 c) {"
+                "return (blendFrac * a.eval(c)) + ((1 - blendFrac) * b.eval(c));"
+            "}"
+    );
+
+    auto [src, srcO] = double_colorfilter();
+    auto [dst, dstO] = half_colorfilter();
+
+    SkRuntimeEffect::ChildPtr children[] = { src, dst };
+    const PrecompileChildPtr childOptions[] = { srcO, dstO };
+
+    const float kUniforms[] = { 0.5f };
+
+    sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
+    sk_sp<SkColorFilter> cf = sComboEffect->makeColorFilter(std::move(uniforms), children);
+    sk_sp<PrecompileColorFilter> o = MakePrecompileColorFilter(sk_ref_sp(sComboEffect),
+                                                               { childOptions });
+    return { std::move(cf) , std::move(o) };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_rt_colorfilter(
+        SkRandom* rand) {
+    int option = rand->nextULessThan(3);
+
+    switch (option) {
+        case 0: return double_colorfilter();
+        case 1: return half_colorfilter();
+        case 2: return combo_colorfilter();
+    }
+
+    return { nullptr, nullptr };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_lighting_colorfilter() {
+    // TODO: the lighting color filter factory special cases when nothing is added and converts it
+    // to a blendmode color filter
+    return { SkColorFilters::Lighting(SK_ColorGREEN, SK_ColorRED),
+             PrecompileColorFilters::Lighting() };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_blendmode_colorfilter(
         SkRandom* rand) {
 
     sk_sp<SkColorFilter> cf;
@@ -469,7 +555,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_blend_color
 
     sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Blend();
 
-    return { cf, o };
+    return { std::move(cf), std::move(o) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_matrix_colorfilter() {
@@ -477,7 +563,63 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_matrix_colo
             SkColorMatrix::RGBtoYUV(SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace));
     sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Matrix();
 
-    return { cf, o };
+    return { std::move(cf), std::move(o) };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_color_space_colorfilter(
+        SkRandom* rand) {
+    return { SkColorFilterPriv::MakeColorSpaceXform(random_colorspace(rand),
+                                                    random_colorspace(rand)),
+             PrecompileColorFilters::ColorSpaceXform() };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_linear_to_srgb_colorfilter() {
+    return { SkColorFilters::LinearToSRGBGamma(), PrecompileColorFilters::LinearToSRGBGamma() };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_srgb_to_linear_colorfilter() {
+    return { SkColorFilters::SRGBToLinearGamma(), PrecompileColorFilters::SRGBToLinearGamma() };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_compose_colorfilter(
+        SkRandom* rand) {
+    auto [outerCF, outerO] = create_random_colorfilter(rand);
+    auto [innerCF, innerO] = create_random_colorfilter(rand);
+
+    return { SkColorFilters::Compose(std::move(outerCF), std::move(innerCF)),
+             PrecompileColorFilters::Compose({ std::move(outerO) }, { std::move(innerO) }) };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_gaussian_colorfilter() {
+    return { SkColorFilterPriv::MakeGaussian(), PrecompileColorFilters::Gaussian() };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_table_colorfilter() {
+    static constexpr uint8_t kTable[256] = { 0 };
+
+    return { SkColorFilters::Table(kTable), PrecompileColorFilters::Table() };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_workingformat_colorfilter(
+        SkRandom* rand) {
+    auto [childCF, childO] = create_random_colorfilter(rand);
+
+    if (!childCF) {
+        return { nullptr, nullptr };
+    }
+
+    SkASSERT(childCF && childO);
+
+    SkAlphaType unpremul = kUnpremul_SkAlphaType;
+    sk_sp<SkColorFilter> cf = SkColorFilterPriv::WithWorkingFormat(std::move(childCF),
+                                                                   &random_xfer_function(rand),
+                                                                   &random_gamut(rand),
+                                                                   &unpremul);
+
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::WithWorkingFormat(
+            { std::move(childO) });
+
+    return { std::move(cf), std::move(o) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_hsla_matrix_colorfilter() {
@@ -485,7 +627,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_hsla_matrix
             SkColorMatrix::RGBtoYUV(SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace));
     sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::HSLAMatrix();
 
-    return { cf, o };
+    return { std::move(cf), std::move(o) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter(
@@ -495,12 +637,31 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter
     switch (type) {
         case ColorFilterType::kNone:
             return { nullptr, nullptr };
-        case ColorFilterType::kBlend:
-            return create_blend_colorfilter(rand);
-        case ColorFilterType::kMatrix:
-            return create_matrix_colorfilter();
+        case ColorFilterType::kBlendMode:
+            return create_blendmode_colorfilter(rand);
+        case ColorFilterType::kColorSpaceXform:
+            return create_color_space_colorfilter(rand);
+        case ColorFilterType::kCompose:
+            return create_compose_colorfilter(rand);
+        case ColorFilterType::kGaussian:
+            return create_gaussian_colorfilter();
         case ColorFilterType::kHSLAMatrix:
             return create_hsla_matrix_colorfilter();
+        case ColorFilterType::kLighting:
+            return create_lighting_colorfilter();
+        case ColorFilterType::kLinearToSRGB:
+            return create_linear_to_srgb_colorfilter();
+        case ColorFilterType::kMatrix:
+            return create_matrix_colorfilter();
+        case ColorFilterType::kRuntime:
+            return create_rt_colorfilter(rand);
+        case ColorFilterType::kSRGBToLinear:
+            return create_srgb_to_linear_colorfilter();
+        case ColorFilterType::kTable:
+            return create_table_colorfilter();
+        case ColorFilterType::kWorkingFormat:
+            return create_workingformat_colorfilter(rand);
+
     }
 
     SkUNREACHABLE;
@@ -633,6 +794,9 @@ void check_draw(skiatest::Reporter* reporter,
 
 } // anonymous namespace
 
+// Set this to 1 for more expansive (aka far slower) local testing
+#define EXPANDED_SET 0
+
 // This is intended to be a smoke test for the agreement between the two ways of creating a
 // PaintParamsKey:
 //    via ExtractPaintData (i.e., from an SkPaint)
@@ -687,16 +851,61 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context,
     PipelineDataGatherer paramsGatherer(Layout::kMetal);
     PipelineDataGatherer precompileGatherer(Layout::kMetal);
 
-    for (auto s : { ShaderType::kSolidColor,
-                    ShaderType::kRadialGradient,
-                    ShaderType::kImage,
-                    ShaderType::kBlend  }) {
-        for (auto bm : { BlenderType::kPorterDuff,
-                         BlenderType::kShaderBased,
-                         BlenderType::kRuntime }) {
-            for (auto cf : { ColorFilterType::kNone,
-                             ColorFilterType::kBlend,
-                             ColorFilterType::kMatrix }) {
+    ShaderType shaders[] = {
+            ShaderType::kBlend,
+            ShaderType::kImage,
+            ShaderType::kRadialGradient,
+            ShaderType::kSolidColor,
+#if EXPANDED_SET
+            ShaderType::kNone,
+            ShaderType::kColorFilter,
+            ShaderType::kConicalGradient,
+            ShaderType::kLinearGradient,
+            ShaderType::kLocalMatrix,
+            ShaderType::kSweepGradient,
+#endif
+    };
+
+    BlenderType blenders[] = {
+            BlenderType::kPorterDuff,
+            BlenderType::kShaderBased,
+            BlenderType::kRuntime,
+#if EXPANDED_SET
+            BlenderType::kNone,
+#endif
+    };
+
+    ColorFilterType colorFilters[] = {
+            ColorFilterType::kNone,
+            ColorFilterType::kBlendMode,
+            ColorFilterType::kMatrix,
+#if EXPANDED_SET
+            ColorFilterType::kColorSpaceXform,
+            ColorFilterType::kCompose,
+            ColorFilterType::kGaussian,
+            ColorFilterType::kHSLAMatrix,
+            ColorFilterType::kLighting,
+            ColorFilterType::kLinearToSRGB,
+            ColorFilterType::kRuntime,
+            ColorFilterType::kSRGBToLinear,
+            ColorFilterType::kTable,
+            ColorFilterType::kWorkingFormat,
+#endif
+    };
+
+#if EXPANDED_SET
+    size_t kExpected = std::size(shaders) * std::size(blenders) * std::size(colorFilters);
+    int current = 0;
+#endif
+
+    for (auto s : shaders) {
+        for (auto bm : blenders) {
+            for (auto cf : colorFilters) {
+
+#if EXPANDED_SET
+                SkDebugf("%d/%zu\n", current, kExpected);
+                ++current;
+#endif
 
                 auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 
@@ -791,6 +1000,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context,
             }
         }
     }
+
+#if EXPANDED_SET
+    SkASSERT(current == (int) kExpected);
+#endif
 }
 
 #endif // SK_GRAPHITE

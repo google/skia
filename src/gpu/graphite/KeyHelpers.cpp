@@ -767,7 +767,7 @@ void TableColorFilterBlock::AddBlock(const KeyContext& keyContext,
                                      PaintParamsKeyBuilder* builder,
                                      PipelineDataGatherer* gatherer,
                                      const TableColorFilterData& data) {
-    SkASSERT(data.fTextureProxy);
+    SkASSERT(data.fTextureProxy || !keyContext.recorder());
 
     add_table_colorfilter_uniform_data(keyContext.dict(), data, gatherer);
 
@@ -985,6 +985,8 @@ void AddToKey(const KeyContext& keyContext,
     SkUNREACHABLE;
 }
 
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 static SkPMColor4f map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
     SkPMColor4f color = {c.fR, c.fG, c.fB, c.fA};
     SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType, dst, kPremul_SkAlphaType).apply(color.vec());
@@ -1009,9 +1011,9 @@ static void add_to_key(const KeyContext& keyContext,
     SkASSERT(filter);
 
     constexpr SkAlphaType kAlphaType = kPremul_SkAlphaType;
-    ColorSpaceTransformBlock::ColorSpaceTransformData data(
-            filter->src().get(), kAlphaType, filter->dst().get(), kAlphaType);
-    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, data);
+    ColorSpaceTransformBlock::ColorSpaceTransformData csData(filter->src().get(), kAlphaType,
+                                                             filter->dst().get(), kAlphaType);
+    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, csData);
 }
 
 static void add_to_key(const KeyContext& keyContext,

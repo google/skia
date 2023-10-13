@@ -270,14 +270,17 @@ public:
     PrecompileImageShader() {}
 
 private:
-    int numIntrinsicCombinations() const override {
-        return 2; // cubic and non-cubic sampling
-    }
+    // cubic and non-cubic sampling
+    inline static constexpr int kNumIntrinsicCombinations = 2;
+
+    int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
 
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
+        SkASSERT(desiredCombination < kNumIntrinsicCombinations);
+
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
 
@@ -322,8 +325,9 @@ private:
 
         GradientShaderBlocks::GradientData gradData(fType, kStopVariants[intrinsicCombination]);
 
-        ColorSpaceTransformBlock::ColorSpaceTransformData csData(
-                sk_srgb_singleton(), kPremul_SkAlphaType, sk_srgb_singleton(), kPremul_SkAlphaType);
+        constexpr SkAlphaType kAlphaType = kPremul_SkAlphaType;
+        ColorSpaceTransformBlock::ColorSpaceTransformData csData(sk_srgb_singleton(), kAlphaType,
+                                                                 sk_srgb_singleton(), kAlphaType);
 
         // TODO: we may need SkLocalMatrixShader-wrapped versions too
         Compose(keyContext, builder, gatherer,
@@ -363,7 +367,7 @@ private:
     bool isALocalMatrixShader() const override { return true; }
 
     int numChildCombinations() const override {
-        return fWrapped->numChildCombinations();
+        return fWrapped->numCombinations();
     }
 
     void addToKey(const KeyContext& keyContext,
@@ -459,6 +463,7 @@ sk_sp<PrecompileMaskFilter> PrecompileMaskFilters::Blur() {
 }
 
 //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 class PrecompileBlendModeColorFilter : public PrecompileColorFilter {
 public:
     PrecompileBlendModeColorFilter() {}
@@ -482,11 +487,130 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::Blend() {
 }
 
 //--------------------------------------------------------------------------------------------------
-class PrecompileMatrixColorFilter : public PrecompileColorFilter {
+class PrecompileColorSpaceXformColorFilter : public PrecompileColorFilter {
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination == 0);
+
+        constexpr SkAlphaType kAlphaType = kPremul_SkAlphaType;
+        ColorSpaceTransformBlock::ColorSpaceTransformData csData(sk_srgb_singleton(), kAlphaType,
+                                                                 sk_srgb_singleton(), kAlphaType);
+
+        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, csData);
+    }
+};
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::LinearToSRGBGamma() {
+    return sk_make_sp<PrecompileColorSpaceXformColorFilter>();
+}
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::SRGBToLinearGamma() {
+    return sk_make_sp<PrecompileColorSpaceXformColorFilter>();
+}
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::ColorSpaceXform() {
+    return sk_make_sp<PrecompileColorSpaceXformColorFilter>();
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileComposeColorFilter : public PrecompileColorFilter {
 public:
-    PrecompileMatrixColorFilter() {}
+    PrecompileComposeColorFilter(SkSpan<const sk_sp<PrecompileColorFilter>> outerOptions,
+                                 SkSpan<const sk_sp<PrecompileColorFilter>> innerOptions)
+            : fOuterOptions(outerOptions.begin(), outerOptions.end())
+            , fInnerOptions(innerOptions.begin(), innerOptions.end()) {
+
+        fNumOuterCombos = 0;
+        for (auto outerOption : fOuterOptions) {
+            fNumOuterCombos += outerOption ? outerOption->numCombinations() : 1;
+        }
+
+        fNumInnerCombos = 0;
+        for (auto innerOption : fInnerOptions) {
+            fNumInnerCombos += innerOption ? innerOption->numCombinations() : 1;
+        }
+    }
 
 private:
+    int numChildCombinations() const override { return fNumOuterCombos * fNumInnerCombos; }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination < this->numCombinations());
+
+        const int desiredOuterCombination = desiredCombination % fNumOuterCombos;
+        int remainingCombinations = desiredCombination / fNumOuterCombos;
+
+        const int desiredInnerCombination = remainingCombinations % fNumInnerCombos;
+        remainingCombinations /= fNumInnerCombos;
+
+        SkASSERT(!remainingCombinations);
+
+        sk_sp<PrecompileColorFilter> inner, outer;
+        int innerChildOptions, outerChildOptions;
+
+        std::tie(outer, outerChildOptions) = SelectOption<PrecompileColorFilter>(
+                fOuterOptions, desiredOuterCombination);
+        std::tie(inner, innerChildOptions) = SelectOption<PrecompileColorFilter>(
+                fInnerOptions, desiredInnerCombination);
+
+        if (!inner && !outer) {
+            // A "passthrough" color filter returns the input color as-is.
+            builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+        } else if (!inner) {
+            outer->priv().addToKey(keyContext, builder, gatherer, outerChildOptions);
+        } else if (!outer) {
+            inner->priv().addToKey(keyContext, builder, gatherer, innerChildOptions);
+        } else {
+            Compose(keyContext, builder, gatherer,
+                    /* addInnerToKey= */ [&]() -> void {
+                        inner->priv().addToKey(keyContext, builder, gatherer, innerChildOptions);
+                    },
+                    /* addOuterToKey= */ [&]() -> void {
+                        outer->priv().addToKey(keyContext, builder, gatherer, outerChildOptions);
+                    });
+        }
+    }
+
+    std::vector<sk_sp<PrecompileColorFilter>> fOuterOptions;
+    std::vector<sk_sp<PrecompileColorFilter>> fInnerOptions;
+
+    int fNumOuterCombos;
+    int fNumInnerCombos;
+};
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Compose(
+        SkSpan<const sk_sp<PrecompileColorFilter>> outerOptions,
+        SkSpan<const sk_sp<PrecompileColorFilter>> innerOptions) {
+    if (outerOptions.empty() && innerOptions.empty()) {
+        return nullptr;
+    }
+
+    return sk_make_sp<PrecompileComposeColorFilter>(outerOptions, innerOptions);
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileGaussianColorFilter : public PrecompileColorFilter {
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination == 0);
+
+        builder->addBlock(BuiltInCodeSnippetID::kGaussianColorFilter);
+    }
+};
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Gaussian() {
+    return sk_make_sp<PrecompileGaussianColorFilter>();
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileMatrixColorFilter : public PrecompileColorFilter {
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
@@ -512,6 +636,88 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::HSLAMatrix() {
     return sk_make_sp<PrecompileMatrixColorFilter>();
 }
 
+//--------------------------------------------------------------------------------------------------
+class PrecompileTableColorFilter : public PrecompileColorFilter {
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination == 0);
+
+        TableColorFilterBlock::TableColorFilterData data(/* proxy= */ nullptr);
+
+        TableColorFilterBlock::AddBlock(keyContext, builder, gatherer, data);
+    }
+};
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Table() {
+    return sk_make_sp<PrecompileTableColorFilter>();
+}
+
+//--------------------------------------------------------------------------------------------------
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Lighting() {
+    return PrecompileColorFilters::Matrix();
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileWithWorkingFormatColorFilter : public PrecompileColorFilter {
+public:
+    PrecompileWithWorkingFormatColorFilter(SkSpan<const sk_sp<PrecompileColorFilter>> childOptions)
+            : fChildOptions(childOptions.begin(), childOptions.end()) {
+
+        fNumChildCombos = 0;
+        for (auto childOption : fChildOptions) {
+            fNumChildCombos += childOption->numCombinations();
+        }
+    }
+
+private:
+    int numChildCombinations() const override { return fNumChildCombos; }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination < fNumChildCombos);
+
+        constexpr SkAlphaType kAlphaType = kPremul_SkAlphaType;
+        ColorSpaceTransformBlock::ColorSpaceTransformData csData(sk_srgb_singleton(), kAlphaType,
+                                                                 sk_srgb_singleton(), kAlphaType);
+
+        // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
+        // while appearing as one block to the parent node.
+        Compose(keyContext, builder, gatherer,
+                /* addInnerToKey= */ [&]() -> void {
+                    // Inner compose
+                    Compose(keyContext, builder, gatherer,
+                            /* addInnerToKey= */ [&]() -> void {
+                                // Innermost (inner of inner compose)
+                                ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
+                                                                   csData);
+                            },
+                            /* addOuterToKey= */ [&]() -> void {
+                                // Middle (outer of inner compose)
+                                AddToKey<PrecompileColorFilter>(keyContext, builder, gatherer,
+                                                                fChildOptions, desiredCombination);
+                            });
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    // Outermost (outer of outer compose)
+                    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, csData);
+                });
+    }
+
+    std::vector<sk_sp<PrecompileColorFilter>> fChildOptions;
+
+    int fNumChildCombos;
+};
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::WithWorkingFormat(
+        SkSpan<const sk_sp<PrecompileColorFilter>> childOptions) {
+    return sk_make_sp<PrecompileWithWorkingFormatColorFilter>(childOptions);
+}
+
+//--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
 // TODO: need to figure out how we're going to decompose ImageFilters
 sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blur() {

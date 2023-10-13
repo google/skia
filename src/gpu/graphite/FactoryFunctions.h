@@ -74,6 +74,9 @@ private:
 // This will move to be beside SkColorFilters in include/core/SkColorFilter.h
 class PrecompileColorFilters {
 public:
+    static sk_sp<PrecompileColorFilter> Compose(SkSpan<const sk_sp<PrecompileColorFilter>> outer,
+                                                SkSpan<const sk_sp<PrecompileColorFilter>> inner);
+
     // This encompasses both variants of SkColorFilters::Blend
     static sk_sp<PrecompileColorFilter> Blend();
 
@@ -83,7 +86,22 @@ public:
     // This encompasses both variants of SkColorFilters::HSLAMatrix
     static sk_sp<PrecompileColorFilter> HSLAMatrix();
 
-    // TODO: Compose, LinearToSRGBGamma/SRGBToLinearGamma, Lerp, Table(ARGB), Lighting
+    // TODO: add Lerp
+    static sk_sp<PrecompileColorFilter> LinearToSRGBGamma();
+    static sk_sp<PrecompileColorFilter> SRGBToLinearGamma();
+
+    // This encompases both variants of SkColorFilters::Table and TableARGB
+    static sk_sp<PrecompileColorFilter> Table();
+
+    static sk_sp<PrecompileColorFilter> Lighting();
+
+    // The remaining three match those in SkColorFilterPriv
+    static sk_sp<PrecompileColorFilter> Gaussian();
+
+    static sk_sp<PrecompileColorFilter> ColorSpaceXform();
+
+    static sk_sp<PrecompileColorFilter> WithWorkingFormat(
+            SkSpan<const sk_sp<PrecompileColorFilter>> childOptions);
 
 private:
     PrecompileColorFilters() = delete;
