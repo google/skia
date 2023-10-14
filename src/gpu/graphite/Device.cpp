@@ -1178,29 +1178,45 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     }
 
     PathAtlas* pathAtlas = nullptr;
+    bool msaaSupported = fRecorder->priv().caps()->defaultMSAASamplesCount() > 1;
+
     // Prefer compute atlas draws if supported. This currently implicitly filters out clip draws as
     // they require MSAA. Eventually we may want to route clip shapes to the atlas as well but not
     // if hardware MSAA is required.
-    // TODO(b/285195175): There may be reasons to prefer tessellation, e.g. if the shape is large
-    // and hardware MSAA looks acceptable.
     AtlasProvider* atlasProvider = fRecorder->priv().atlasProvider();
     if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kCompute) &&
         (strategy == PathRendererStrategy::kComputeAnalyticAA ||
          strategy == PathRendererStrategy::kDefault)) {
-        // TODO: vello can't do correct strokes yet. Maybe this shouldn't get selected for stroke
-        // renders until all stroke styles are supported?
         pathAtlas = fDC->getComputePathAtlas(fRecorder);
     // Only use CPU rendered paths when multisampling is disabled
     // TODO: enable other uses of the software path renderer
     } else if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
                (strategy == PathRendererStrategy::kRasterAA ||
-                (strategy == PathRendererStrategy::kDefault &&
-                 fRecorder->priv().caps()->defaultMSAASamplesCount() <= 1))) {
+                (strategy == PathRendererStrategy::kDefault && !msaaSupported))) {
         pathAtlas = atlasProvider->getRasterPathAtlas();
     }
-    // We currently always use a coverage mask renderer if a `PathAtlas` is selected.
+
+    // Use an atlas only if an MSAA technique isn't required.
     if (!requireMSAA && pathAtlas) {
-        return {renderers->coverageMask(), pathAtlas};
+        // Don't use a coverage mask renderer if the shape is too large for the atlas such that it
+        // cannot be efficiently rasterized. The only exception is if hardware MSAA is not supported
+        // as a fallback or one of the atlas strategies was explicitly requested.
+        //
+        // If the hardware doesn't support MSAA and anti-aliasing is required, then we always render
+        // paths with atlasing.
+        if (!msaaSupported || strategy == PathRendererStrategy::kComputeAnalyticAA ||
+            strategy == PathRendererStrategy::kRasterAA) {
+            return {renderers->coverageMask(), pathAtlas};
+        }
+
+        // Use the conservative clip bounds for a rough estimate of the mask size (this avoids
+        // having to evaluate the entire clip stack before choosing the renderer as it will have to
+        // get evaluated again if we fall back to a different renderer).
+        Rect drawBounds = localToDevice.mapRect(shape.bounds());
+        drawBounds.intersect(fClip.conservativeBounds());
+        if (pathAtlas->isSuitableForAtlasing(drawBounds)) {
+            return {renderers->coverageMask(), pathAtlas};
+        }
     }
 
     // If we got here, it requires tessellated path rendering or an MSAA technique applied to a

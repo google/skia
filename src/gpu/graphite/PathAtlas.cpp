@@ -100,6 +100,30 @@ bool ComputePathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
     return fTexture != nullptr;
 }
 
+bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds) const {
+    Rect maskBounds = transformedShapeBounds.makeRoundOut();
+    skvx::float2 maskSize = maskBounds.size();
+    float width = maskSize.x(), height = maskSize.y();
+
+    if (width > kComputeAtlasDim || height > kComputeAtlasDim) {
+        return false;
+    }
+
+    // For now we're allowing paths that are smaller than 1/32nd of the full 4096x4096 atlas size
+    // to prevent the atlas texture from filling up too often. There are several approaches we
+    // should explore to alleviate the cost of atlasing large paths.
+    //
+    // 1. Rendering multiple atlas textures requires an extra compute pass for each texture. This
+    // impairs performance because there is a fixed cost to each dispatch and all dispatches get
+    // serialized by pipeline barrier synchronization. We should explore ways to render to multiple
+    // textures by issuing more workgroups in fewer dispatches as well as removing pipeline barriers
+    // across dispatches that target different atlas pages.
+    //
+    // 2. Implement a compressed "sparse" mask rendering scheme to render paths with a large
+    // bounding box using less texture space.
+    return (width * height) <= (1024 * 512);
+}
+
 const TextureProxy* ComputePathAtlas::addRect(Recorder* recorder,
                                               skvx::float2 atlasSize,
                                               SkIPoint16* outPos) {

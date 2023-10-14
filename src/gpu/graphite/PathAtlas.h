@@ -76,6 +76,12 @@ public:
                                  const SkStrokeRec& style,
                                  CoverageMaskShape::MaskInfo* outMaskInfo);
 
+    /**
+     * Returns true if a path coverage mask with the given device-space bounds is sufficiently
+     * small to benefit from atlasing without causing too many atlas renders.
+     */
+    virtual bool isSuitableForAtlasing(const Rect& transformedShapeBounds) const { return true; }
+
     uint32_t width() const { return fWidth; }
     uint32_t height() const { return fHeight; }
 
@@ -126,6 +132,7 @@ protected:
     const TextureProxy* addRect(Recorder* recorder,
                                 skvx::float2 atlasSize,
                                 SkIPoint16* outPos);
+    bool isSuitableForAtlasing(const Rect& transformedShapeBounds) const override;
 
     virtual void onReset() = 0;
 
