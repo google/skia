@@ -78,10 +78,9 @@ public:
         commands for this secondary CB. The wait semaphores will get added to the VkCommandBuffer
         owned by this GrContext when flush() is called, and not the command buffer which the
         Secondary CB is from. This will guarantee that the driver waits on the semaphores before
-        the secondary command buffer gets executed. We will submit the semphore to wait at
-        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT. If this call returns false, then the GPU back end
-        will not wait on any passed in semaphores, and the client will still own the semaphores,
-        regardless of the value of deleteSemaphoresAfterWait.
+        the secondary command buffer gets executed. If this call returns false, then the GPU
+        back end will not wait on any passed in semaphores, and the client will still own the
+        semaphores, regardless of the value of deleteSemaphoresAfterWait.
 
         If deleteSemaphoresAfterWait is false then Skia will not delete the semaphores. In this case
         it is the client's responsibility to not destroy or attempt to reuse the semaphores until it

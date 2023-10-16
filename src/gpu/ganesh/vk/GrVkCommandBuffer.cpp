@@ -624,10 +624,7 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
             if (waitSemaphores[i]->shouldWait()) {
                 this->addResource(waitSemaphores[i]);
                 vkWaitSems.push_back(waitSemaphores[i]->semaphore());
-                // We only block the fragment stage since client provided resources are not used
-                // before the fragment stage. This allows the driver to begin vertex work while
-                // waiting on the semaphore.
-                vkWaitStages.push_back(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+                vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
             }
         }
         submitted = submit_to_queue(gpu, queue, fSubmitFence, vkWaitSems.size(),
