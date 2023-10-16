@@ -809,6 +809,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/GrAuditTrail.h",
     "src/gpu/ganesh/GrAutoLocaleSetter.h",
     "src/gpu/ganesh/GrBackendSemaphore.cpp",
+    "src/gpu/ganesh/GrBackendSemaphorePriv.h",
     "src/gpu/ganesh/GrBackendSurface.cpp",
     "src/gpu/ganesh/GrBackendSurfacePriv.h",
     "src/gpu/ganesh/GrBackendTextureImageGenerator.cpp",

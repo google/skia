@@ -17,7 +17,6 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
@@ -4327,11 +4326,10 @@ void GrGLGpu::deleteFence(GrFence fence) {
     return GrGLSemaphore::Make(this, isOwned);
 }
 
-std::unique_ptr<GrSemaphore> GrGLGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                           GrSemaphoreWrapType /* wrapType */,
-                                                           GrWrapOwnership ownership) {
-    SkASSERT(this->caps()->semaphoreSupport());
-    return GrGLSemaphore::MakeWrapped(this, semaphore.glSync(), ownership);
+std::unique_ptr<GrSemaphore> GrGLGpu::wrapBackendSemaphore(const GrBackendSemaphore&,
+                                                           GrSemaphoreWrapType,
+                                                           GrWrapOwnership) {
+    SK_ABORT("Unsupported");
 }
 
 void GrGLGpu::insertSemaphore(GrSemaphore* semaphore) {

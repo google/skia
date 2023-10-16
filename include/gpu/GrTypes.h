@@ -220,13 +220,7 @@ typedef void (*GrDirectContextDestroyedProc)(GrDirectContextDestroyedContext des
  * The submittedProc is useful to the client to know when semaphores that were sent with the flush
  * have actually been submitted to the GPU so that they can be waited on (or deleted if the submit
  * fails).
- * Note about GL: In GL work gets sent to the driver immediately during the flush call, but we don't
- * really know when the driver sends the work to the GPU. Therefore, we treat the submitted proc as
- * we do in other backends. It will be called when the next GrContext::submit is called after the
- * flush (or possibly during the flush if there is no work to be done for the flush). The main use
- * case for the submittedProc is to know when semaphores have been sent to the GPU and even in GL
- * it is required to call GrContext::submit to flush them. So a client should be able to treat all
- * backend APIs the same in terms of how the submitted procs are treated.
+ * GrBackendSemaphores are not supported for the GL backend and will be ignored if set.
  */
 struct GrFlushInfo {
     size_t fNumSemaphores = 0;

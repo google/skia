@@ -353,6 +353,8 @@ public:
      * it is the client's responsibility to not destroy or attempt to reuse the semaphores until it
      * knows that Skia has finished waiting on them. This can be done by using finishedProcs on
      * flush calls.
+     *
+     * This is not supported on the GL backend.
      */
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait = true);

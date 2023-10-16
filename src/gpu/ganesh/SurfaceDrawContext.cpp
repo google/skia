@@ -1505,7 +1505,7 @@ bool SurfaceDrawContext::waitOnSemaphores(int numSemaphores,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    if (numSemaphores && !this->caps()->semaphoreSupport()) {
+    if (numSemaphores && !this->caps()->backendSemaphoreSupport()) {
         return false;
     }
 

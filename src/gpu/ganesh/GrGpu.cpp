@@ -691,7 +691,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
 
     std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores(
             new std::unique_ptr<GrSemaphore>[info.fNumSemaphores]);
-    if (this->caps()->semaphoreSupport() && info.fNumSemaphores) {
+    if (this->caps()->backendSemaphoreSupport() && info.fNumSemaphores) {
         for (size_t i = 0; i < info.fNumSemaphores; ++i) {
             if (info.fSignalSemaphores[i].isInitialized()) {
                 semaphores[i] = resourceProvider->wrapBackendSemaphore(
