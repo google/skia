@@ -1,6 +1,6 @@
 """This module defines the binary_wrapper_script_with_cmdline_flags rule."""
 
-load(":remove_indentation.bzl", "remove_indentation")
+load("//bazel:remove_indentation.bzl", "remove_indentation")
 
 # https://bazel.build/rules/lib/builtins/ctx
 def _binary_wrapper_script_with_cmdline_flags_impl(ctx):
@@ -37,9 +37,9 @@ def _binary_wrapper_script_with_cmdline_flags_impl(ctx):
     )]
 
 binary_wrapper_script_with_cmdline_flags = rule(
-    doc = """Produces a script that invokes a C++ binary with a fixed set of command-line flags.
+    doc = """Produces a script that invokes a C++ test runner with the given command-line flags.
 
-    This rule is intended to wrap C++ unit tests and GMs and therefore has convenience attributes
+    This rule is intended to wrap C++ test runners and therefore has convenience attributes
     specific to said binaries, such as requires_resources_dir.
 
     The reason why we use a custom rule rather than a genrule is that we wish to select() the

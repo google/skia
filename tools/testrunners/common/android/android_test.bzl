@@ -1,9 +1,9 @@
 """This module defines the android_test macro."""
 
-load("//tools/testrunners/common/android:adb_test.bzl", "adb_test")
-load("//bazel:binary_wrapper_script_with_cmdline_flags.bzl", "binary_wrapper_script_with_cmdline_flags")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
+load("//tools/testrunners/common:binary_wrapper_script_with_cmdline_flags.bzl", "binary_wrapper_script_with_cmdline_flags")
+load("//tools/testrunners/common/android:adb_test.bzl", "adb_test")
 
 def android_test(
         name,
@@ -140,7 +140,7 @@ def android_test(
         srcs = archive_srcs,
         outs = ["%s.tar.gz" % name],
         cmd = """
-            $(location //bazel/make_tarball) \
+            $(location //tools/testrunners/common/make_tarball) \
                 --execpaths "{execpaths}" \
                 --rootpaths "{rootpaths}" \
                 --output-file $@
@@ -152,7 +152,7 @@ def android_test(
         # Tools are always built for the exec platform
         # (https://bazel.build/reference/be/general#genrule.tools), e.g. Linux on x86_64 when
         # running on a gLinux workstation or on a Linux GCE machine.
-        tools = ["//bazel/make_tarball"],
+        tools = ["//tools/testrunners/common/make_tarball"],
     )
 
     adb_test(

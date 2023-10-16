@@ -8,7 +8,7 @@ exports_files_legacy()
 go_library(
     name = "make_tarball_lib",
     srcs = ["make_tarball.go"],
-    importpath = "go.skia.org/skia/bazel/make_tarball",
+    importpath = "go.skia.org/skia/tools/testrunners/common/make_tarball",
     visibility = ["//visibility:private"],
 )
 
