@@ -620,8 +620,8 @@ cc_test_with_flags(
 android_gm_test(
     name = "hello_bazel_world_android_test",
     srcs = ["hello_bazel_world.cpp"],
-    config = "8888",
     requires_resources_dir = True,
+    surface_config = "8888",
     deps = [":tests_base"],
 )
 
@@ -634,9 +634,8 @@ android_gm_test(
     #
     #     $ unzip -l bazel-testlogs/gm/cpu_8888_android_test/test.outputs/outputs.zip
     android_gm_test(
-        name = "cpu_%s_android_test" % config,
+        name = "cpu_%s_android_test" % surface_config,
         srcs = CPU_GMS,
-        config = config,
         flags = {
             "include_decoder": [
                 "gif_decode_codec",
@@ -644,9 +643,10 @@ android_gm_test(
             ],
         },
         requires_resources_dir = True,
+        surface_config = surface_config,
         deps = [":tests_base"],
     )
-    for config in [
+    for surface_config in [
         "8888",
         "565",
     ]
@@ -655,7 +655,6 @@ android_gm_test(
 android_gm_test(
     name = "gpu_gles_android_test",
     srcs = GPU_GMS,
-    config = "gles",
     flags = {
         "include_decoder": [
             "png_decode_codec",
@@ -664,6 +663,7 @@ android_gm_test(
     },
     requires_condition = "//src/gpu:gl_ganesh",
     requires_resources_dir = True,
+    surface_config = "gles",
     deps = [":tests_base"],
 )
 
@@ -673,7 +673,6 @@ android_gm_test(
 android_gm_test(
     name = "gpu_gles_via_picture_serialization_android_test",
     srcs = GPU_GMS,
-    config = "gles",
     flags = {
         "include_decoder": [
             "png_decode_codec",
@@ -685,6 +684,7 @@ android_gm_test(
     },
     requires_condition = "//src/gpu:gl_ganesh",
     requires_resources_dir = True,
+    surface_config = "gles",
     via = "picture_serialization",
     deps = [":tests_base"],
 )
@@ -695,7 +695,6 @@ android_gm_test(
 android_gm_test(
     name = "gpu_gles_via_picture_android_test",
     srcs = GPU_GMS,
-    config = "gles",
     flags = {
         "include_decoder": [
             "png_decode_codec",
@@ -707,6 +706,7 @@ android_gm_test(
     },
     requires_condition = "//src/gpu:gl_ganesh",
     requires_resources_dir = True,
+    surface_config = "gles",
     via = "picture",
     deps = [":tests_base"],
 )

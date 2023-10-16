@@ -84,6 +84,7 @@ def _adb_test_impl(ctx):
 
         $(rootpath {adb_test_runner}) \
             --device {device} \
+            {benchmark} \
             --archive $(rootpath {archive}) \
             --test-runner $(rootpath {test_runner}) \
             {output_dir_flag}
@@ -102,6 +103,7 @@ def _adb_test_impl(ctx):
     # Expand variables.
     template = ctx.expand_location(template.format(
         device = ctx.attr.device,
+        benchmark = "--benchmark" if ctx.attr.benchmark else "",
         archive = ctx.attr.archive.label,
         test_runner = ctx.attr.test_runner.label,
         adb_test_runner = ctx.attr._adb_test_runner[0].label,
@@ -128,9 +130,9 @@ adb_test = rule(
     doc = """Runs an Android test on device via `adb`.
 
     Note: This rule is not intended to be used directly in BUILD files. Instead, please use macros
-    android_unit_test, android_gm_test, etc.
+    android_unit_test, android_gm_test, android_benchmark_test, etc.
 
-    This test rule produces a wrapper shell script that invokes a Go proram that issues adb
+    This test rule produces a wrapper shell script that invokes a Go program that issues adb
     commands to interact with the device under test.
 
     When building a test that should run on a different host (e.g. a Skolo Raspberry Pi), invoke
@@ -147,6 +149,14 @@ adb_test = rule(
                 "pixel_7",
                 "unknown",
             ],
+        ),
+        "benchmark": attr.bool(
+            doc = (
+                "Set up the device for benchmark tests. This might affect e.g. CPU and GPU " +
+                "settings specific to the Android device under test."
+            ),
+            mandatory = False,
+            default = False,
         ),
         "test_runner": attr.label(
             doc = (

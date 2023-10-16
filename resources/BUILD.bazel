@@ -12,6 +12,7 @@ load("//bazel:skia_rules.bzl", "skia_filegroup")
 exports_files(
     ["README"],
     visibility = [
+        "//bench:__pkg__",
         "//gm:__pkg__",
         "//tests:__pkg__",
     ],
@@ -509,6 +510,7 @@ skia_filegroup(
         "//resources/sksl",
     ],
     visibility = [
+        "//bench:__pkg__",
         "//gm:__pkg__",
         "//src/ports/fontations:__pkg__",
         "//tests:__pkg__",

@@ -43,10 +43,13 @@ var AllDevices = []Device{
 
 func main() {
 	deviceFlag := flag.String("device", "", `Device under test, e.g. "pixel_5".`)
+	benchmarkFlag := flag.Bool("benchmark", false, "Whether this is a benchmark terst or not. Might affect CPU/GPU settings, etc.")
 	archiveFlag := flag.String("archive", "", "Tarball with the payload to upload to the device under test.")
 	testRunnerFlag := flag.String("test-runner", "", "Path to the test runner inside the tarball.")
 	outputDirFlag := flag.String("output-dir", "", "Path on the host machine where to write any outputs produced by the test.")
 	flag.Parse()
+
+	log("adb_test_runner invoked with arguments: %s", strings.Join(os.Args[1:], " "))
 
 	if *deviceFlag == "" {
 		die("Flag --device is required.\n")
@@ -100,19 +103,20 @@ func main() {
 
 	ctx, cancelFn := context.WithTimeout(context.Background(), timeout)
 	defer cancelFn()
-	if err := runTest(ctx, device, *archiveFlag, *testRunnerFlag, *outputDirFlag); err != nil {
+	if err := runTest(ctx, device, *benchmarkFlag, *archiveFlag, *testRunnerFlag, *outputDirFlag); err != nil {
 		die("%s\n", err)
 	}
 }
 
 // runTest runs the test on device via adb.
-func runTest(ctx context.Context, device Device, archive, testRunner, outputDir string) error {
+func runTest(ctx context.Context, device Device, benchmark bool, archive, testRunner, outputDir string) error {
 	// TODO(lovisolo): Add any necessary device-specific setup steps such as turning cores on/off and
-	//                 setting the CPU/GPU frequencies.
+	//                 setting the CPU/GPU frequencies, taking into account whether or not the test
+	//                 is a benchmark.
 
 	// TODO(lovisolo): Should we check that the machine is attached to the expected device type?
 	//                 E.g. run "adb devices -l" and check that the output contains
-	//                 "model:Pixel_5".
+	//                 "model:Pixel_5". What happens if there are more than one device?
 
 	// Clean up the device before running the test. Previous tests might have left the device in a
 	// dirty state.
@@ -231,13 +235,12 @@ func adb(ctx context.Context, args ...string) error {
 
 // adbWithStdin runs adb with the given arguments, and pipes the given input via standard input.
 func adbWithStdin(ctx context.Context, stdin string, args ...string) error {
-	timestamp := time.Now().Format(time.RFC3339)
 	commandAndArgs := strings.Join(append([]string{"adb"}, args...), " ")
 	withStdin := ""
 	if stdin != "" {
 		withStdin = fmt.Sprintf(" with standard input %q", stdin)
 	}
-	fmt.Printf("[%s] Executing: %q%s...\n", timestamp, commandAndArgs, withStdin)
+	log("Executing: %q%s...", commandAndArgs, withStdin)
 
 	cmd := exec.CommandContext(ctx, "adb", args...)
 	if stdin != "" {
@@ -246,6 +249,13 @@ func adbWithStdin(ctx context.Context, stdin string, args ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
+}
+
+func log(msg string, a ...interface{}) {
+	timestamp := time.Now().Format(time.RFC3339)
+	fmtString := "[%s] " + msg + "\n"
+	args := append([]interface{}{timestamp}, a...)
+	fmt.Printf(fmtString, args...)
 }
 
 func die(msg string, a ...interface{}) {
