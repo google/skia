@@ -34,6 +34,7 @@
 class FilterResultTestAccess;  // for testing
 class SkBitmap;
 class SkBlender;
+class SkBlurEngine;
 class SkDevice;
 class SkImage;
 class SkImageFilter;
@@ -992,18 +993,8 @@ public:
     // For internal data to be accessed by filter implementations
     virtual sk_sp<SkImage> getCachedBitmap(const SkBitmap& data) const = 0;
 
-    // For backend-optimized blurring implementations (TODO: Possibly replaced by a SkBlurEngine).
-    // The srcRect and dstRect are relative to (0,0) of 'input's logical image (which may have its
-    // own offset to backing data). The returned image should have a width and height equal to the
-    // dstRect's dimensions and its (0,0) pixel is assumed to be located at dstRect.topLeft().
-    virtual sk_sp<SkSpecialImage> blur(SkSize sigma,
-                                       sk_sp<SkSpecialImage> input,
-                                       SkIRect srcRect,
-                                       SkIRect dstRect,
-                                       sk_sp<SkColorSpace>) const = 0;
-
-    // Temporary, until SkBlurImageFilter always delegates to FilterResult::blur()
-    virtual bool isBlurSupported() const = 0;
+    // TODO: Once all Backends provide a blur engine, maybe just have Backend extend it.
+    virtual const SkBlurEngine* getBlurEngine() const = 0;
 
     // Properties controlling the pixel data for offscreen surfaces rendered to during filtering.
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }

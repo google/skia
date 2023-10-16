@@ -24,6 +24,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkBlenderBase.h"
+#include "src/core/SkBlurEngine.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterCache.h"
@@ -385,17 +386,7 @@ public:
         return SkImages::RasterFromBitmap(data);
     }
 
-    sk_sp<SkSpecialImage> blur(SkSize sigma,
-                               sk_sp<SkSpecialImage> input,
-                               SkIRect srcRect,
-                               SkIRect dstRect,
-                               sk_sp<SkColorSpace>) const override {
-        return nullptr;
-    }
-
-    bool isBlurSupported() const override {
-        return false;
-    }
+    const SkBlurEngine* getBlurEngine() const override { return nullptr; }
 };
 
 } // anonymous namespace
@@ -1420,7 +1411,18 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
 
     // TODO: The blur functor is only supported for GPU contexts; SkBlurImageFilter should have
     // detected this.
-    SkASSERT(fContext.backend()->isBlurSupported());
+    const SkBlurEngine* blurEngine = fContext.backend()->getBlurEngine();
+    SkASSERT(blurEngine);
+
+    // TODO: All tilemodes are applied right now in resolve() so query with just kDecal
+    const SkBlurEngine::Algorithm* algorithm = blurEngine->findAlgorithm(
+            SkSize(sigma), SkTileMode::kDecal, fContext.backend()->colorType());
+    if (!algorithm) {
+        return {};
+    }
+
+    // TODO: Move resizing logic out of GrBlurUtils into this function
+    SkASSERT(sigma.width() <= algorithm->maxSigma() && sigma.height() <= algorithm->maxSigma());
 
     // TODO: De-duplicate this logic between SkBlurImageFilter, here, and skgpu::BlurUtils.
     skif::LayerSpace<SkISize> radii =
@@ -1449,6 +1451,9 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     // TODO: The presence of a non-decal tilemode should not force resolving to a simple image; it
     // should be incorporated into the image that's sampled by the blur effect (modulo biasing edge
     // pixels somehow for very large clamp blurs).
+    // TODO: resolve() doesn't actually guarantee that the returned image has the same color space
+    // as the Context, but probably should since the blur algorithm operates in the color space of
+    // the input image.
     auto [image, origin] = fInputs[0].fImage.resolve(fContext, sampleBounds);
     if (!image) {
         return {};
@@ -1458,11 +1463,11 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     // for creating their own target surfaces.
     auto srcRelativeOutput = outputBounds;
     srcRelativeOutput.offset(-origin);
-    image = fContext.backend()->blur(SkSize(sigma),
-                                     image,
-                                     SkIRect::MakeSize(image->dimensions()),
-                                     SkIRect(srcRelativeOutput),
-                                     fContext.refColorSpace());
+    image = algorithm->blur(SkSize(sigma),
+                            image,
+                            SkIRect::MakeSize(image->dimensions()),
+                            SkTileMode::kDecal,
+                            SkIRect(srcRelativeOutput));
 
     // TODO: Allow the blur functor to provide an upscaling transform that is applied to the
     // FilterResult so that a render pass can possibly be elided if this is the final operation.

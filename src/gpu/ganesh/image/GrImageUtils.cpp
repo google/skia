@@ -16,9 +16,9 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
@@ -33,6 +33,7 @@
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTextureGenerator.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkBlurEngine.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -728,7 +729,7 @@ namespace skif {
 
 namespace {
 
-class GaneshBackend : public Backend {
+class GaneshBackend : public Backend, private SkBlurEngine, private SkBlurEngine::Algorithm {
 public:
 
     GaneshBackend(sk_sp<GrRecordingContext> context,
@@ -740,6 +741,7 @@ public:
             , fContext(std::move(context))
             , fOrigin(origin) {}
 
+    // Backend
     sk_sp<SkDevice> makeDevice(SkISize size,
                                sk_sp<SkColorSpace> colorSpace,
                                const SkSurfaceProps* props) const override {
@@ -788,11 +790,27 @@ public:
                                           data.info().colorInfo());
     }
 
+    const SkBlurEngine* getBlurEngine() const override { return this; }
+
+    // SkBlurEngine
+    const SkBlurEngine::Algorithm* findAlgorithm(SkSize sigma,
+                                                 SkTileMode tileMode,
+                                                 SkColorType colorType) const override {
+        // GrBlurUtils supports all tile modes and color types
+        return this;
+    }
+
+    // SkBlurEngine::Algorithm
+    float maxSigma() const override {
+        // GrBlurUtils handles resizing at the moment
+        return SK_ScalarInfinity;
+    }
+
     sk_sp<SkSpecialImage> blur(SkSize sigma,
                                sk_sp<SkSpecialImage> input,
-                               SkIRect srcRect,
-                               SkIRect dstRect,
-                               sk_sp<SkColorSpace> cs) const override {
+                               const SkIRect& srcRect,
+                               SkTileMode tileMode,
+                               const SkIRect& dstRect) const override {
         GrSurfaceProxyView inputView = SkSpecialImages::AsView(fContext.get(), input);
         if (!inputView.proxy()) {
             return nullptr;
@@ -801,19 +819,17 @@ public:
 
         // Update srcRect and dstRect to be relative to the underlying texture proxy of 'input'.
         auto proxyOffset = input->subset().topLeft() - srcRect.topLeft();
-        srcRect.offset(proxyOffset);
-        dstRect.offset(proxyOffset);
         auto sdc = GrBlurUtils::GaussianBlur(
                 fContext.get(),
                 std::move(inputView),
                 SkColorTypeToGrColorType(input->colorType()),
                 input->alphaType(),
-                std::move(cs),
-                dstRect,
-                srcRect,
+                sk_ref_sp(input->getColorSpace()),
+                dstRect.makeOffset(proxyOffset),
+                srcRect.makeOffset(proxyOffset),
                 sigma.width(),
                 sigma.height(),
-                SkTileMode::kDecal); // TODO: Have the blur image functor take a tile mode
+                tileMode);
         if (!sdc) {
             return nullptr;
         }
@@ -824,10 +840,6 @@ public:
                                                     sdc->readSurfaceView(),
                                                     sdc->colorInfo(),
                                                     this->surfaceProps());
-    }
-
-    bool isBlurSupported() const override {
-        return true;
     }
 
 private:

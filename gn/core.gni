@@ -297,6 +297,7 @@ skia_core_sources = [
   "$_src/core/SkBlitter_A8.h",
   "$_src/core/SkBlitter_ARGB32.cpp",
   "$_src/core/SkBlitter_Sprite.cpp",
+  "$_src/core/SkBlurEngine.h",
   "$_src/core/SkBlurMask.cpp",
   "$_src/core/SkBlurMask.h",
   "$_src/core/SkBlurMaskFilterImpl.cpp",
