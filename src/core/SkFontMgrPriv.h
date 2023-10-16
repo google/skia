@@ -9,6 +9,9 @@
 
 #include "include/core/SkFontMgr.h"
 
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
 extern sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)();
 
 #endif  // SkFontMgrPriv_DEFINED
+
+#endif

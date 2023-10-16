@@ -157,6 +157,7 @@ sk_sp<SkFontMgr> SkFontMgr::RefEmpty() {
     return singleton;
 }
 
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
 // A global function pointer that's not declared, but can be overriden at startup by test tools.
 sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)() = nullptr;
 
@@ -165,12 +166,17 @@ sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
     static sk_sp<SkFontMgr> singleton;
 
     once([]{
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
         sk_sp<SkFontMgr> fm = gSkFontMgr_DefaultFactory ? gSkFontMgr_DefaultFactory()
                                                         : SkFontMgr::Factory();
         singleton = fm ? std::move(fm) : RefEmpty();
+#else
+        singleton = nullptr;
+#endif
     });
     return singleton;
 }
+#endif  // SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT
 
 /**
 * Width has the greatest priority.

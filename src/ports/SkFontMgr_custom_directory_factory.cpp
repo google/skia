@@ -16,6 +16,8 @@
 #  endif
 #endif
 
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     return SkFontMgr_New_Custom_Directory(SK_FONT_FILE_PREFIX);
 }
+#endif

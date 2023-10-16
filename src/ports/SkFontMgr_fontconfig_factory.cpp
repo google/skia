@@ -9,6 +9,8 @@
 #include "include/core/SkTypes.h"
 #include "include/ports/SkFontMgr_fontconfig.h"
 
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     return SkFontMgr_New_FontConfig(nullptr);
 }
+#endif

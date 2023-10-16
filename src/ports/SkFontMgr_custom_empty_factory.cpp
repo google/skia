@@ -8,6 +8,8 @@
 #include "include/core/SkFontMgr.h"
 #include "include/ports/SkFontMgr_empty.h"
 
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     return SkFontMgr_New_Custom_Empty();
 }
+#endif
