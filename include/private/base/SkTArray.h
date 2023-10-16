@@ -185,9 +185,8 @@ public:
     bool empty() const { return fSize == 0; }
 
     /**
-     * Adds 1 new default-initialized T value and returns it by reference. Note
-     * the reference only remains valid until the next call that adds or removes
-     * elements.
+     * Adds one new default-initialized T value and returns it by reference. Note that the reference
+     * only remains valid until the next call that adds or removes elements.
      */
     T& push_back() {
         void* newT = this->push_back_raw(1);
@@ -195,19 +194,42 @@ public:
     }
 
     /**
-     * Version of above that uses a copy constructor to initialize the new item
+     * Adds one new T value which is copy-constructed, returning it by reference. As always,
+     * the reference only remains valid until the next call that adds or removes elements.
      */
     T& push_back(const T& t) {
-        void* newT = this->push_back_raw(1);
-        return *new (newT) T(t);
+        T* newT;
+        if (this->capacity() > fSize) SK_LIKELY {
+            // Copy over the element directly.
+            newT = new (fData + fSize) T(t);
+        } else {
+            // Allocate more space, then copy-construct the element into our buffer.
+            SkSpan<std::byte> buffer = this->preallocateNewData(/*delta=*/1, kGrowing);
+            newT = new (TCast(buffer.data()) + fSize) T(t);
+            this->installDataAndUpdateCapacity(buffer);
+        }
+
+        fSize += 1;
+        return *newT;
     }
 
     /**
-     * Version of above that uses a move constructor to initialize the new item
+     * Adds one new T value which is copy-constructed, returning it by reference.
      */
     T& push_back(T&& t) {
-        void* newT = this->push_back_raw(1);
-        return *new (newT) T(std::move(t));
+        T* newT;
+        if (this->capacity() > fSize) SK_LIKELY {
+            // Move over the element directly.
+            newT = new (fData + fSize) T(std::move(t));
+        } else {
+            // Allocate more space, then move-construct the element into our buffer.
+            SkSpan<std::byte> buffer = this->preallocateNewData(/*delta=*/1, kGrowing);
+            newT = new (TCast(buffer.data()) + fSize) T(std::move(t));
+            this->installDataAndUpdateCapacity(buffer);
+        }
+
+        fSize += 1;
+        return *newT;
     }
 
     /**
@@ -503,7 +525,7 @@ private:
         // to a full divide instruction. If done here the size is known at compile, and usually
         // can be implemented by a right shift. The full divide takes ~50X longer than the shift.
         size_t size = std::min(allocation.size() / sizeof(T), SkToSizeT(kMaxCapacity));
-        setData(SkSpan<T>(data, size));
+        this->setData(SkSpan<T>(data, size));
     }
 
     void setData(SkSpan<T> array) {
@@ -596,16 +618,21 @@ private:
     }
 
     void checkRealloc(int delta, double growthFactor) {
-        // This constant needs to be declared in the function where it is used to work around
-        // MSVC's persnickety nature about template definitions.
         SkASSERT(delta >= 0);
         SkASSERT(fSize >= 0);
         SkASSERT(fCapacity >= 0);
 
-        // Return if there are enough remaining allocated elements to satisfy the request.
-        if (this->capacity() - fSize >= delta) {
-            return;
+        // Check if there are enough remaining allocated elements to satisfy the request.
+        if (this->capacity() - fSize < delta) {
+            // Looks like we need to reallocate.
+            this->installDataAndUpdateCapacity(this->preallocateNewData(delta, growthFactor));
         }
+    }
+
+    SkSpan<std::byte> preallocateNewData(int delta, double growthFactor) {
+        SkASSERT(delta >= 0);
+        SkASSERT(fSize >= 0);
+        SkASSERT(fCapacity >= 0);
 
         // Don't overflow fSize or size_t later in the memory allocation. Overflowing memory
         // allocation really only applies to fSizes on 32-bit machines; on 64-bit machines this
@@ -616,14 +643,15 @@ private:
         }
         const int newCount = fSize + delta;
 
-        SkSpan<std::byte> allocation = Allocate(newCount, growthFactor);
+        return Allocate(newCount, growthFactor);
+    }
 
+    void installDataAndUpdateCapacity(SkSpan<std::byte> allocation) {
         this->move(TCast(allocation.data()));
         if (fOwnMemory) {
             sk_free(fData);
         }
         this->setDataFromBytes(allocation);
-        SkASSERT(this->capacity() >= newCount);
         SkASSERT(fData != nullptr);
     }
 
