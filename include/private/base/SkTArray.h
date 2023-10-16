@@ -373,7 +373,7 @@ public:
     T* data() { return fData; }
     const T* data() const { return fData; }
     int size() const { return fSize; }
-    size_t size_bytes() const { return this->bytes(fSize); }
+    size_t size_bytes() const { return Bytes(fSize); }
     void resize(size_t count) { this->resize_back((int)count); }
 
     void clear() {
@@ -540,7 +540,7 @@ private:
         return (T*)buffer;
     }
 
-    size_t bytes(int n) const {
+    static size_t Bytes(int n) {
         SkASSERT(n <= kMaxCapacity);
         return SkToSizeT(n) * sizeof(T);
     }
@@ -593,10 +593,10 @@ private:
 
     void move(void* dst) {
         if constexpr (MEM_MOVE) {
-            sk_careful_memcpy(dst, fData, this->bytes(fSize));
+            sk_careful_memcpy(dst, fData, Bytes(fSize));
         } else {
             for (int i = 0; i < this->size(); ++i) {
-                new (static_cast<char*>(dst) + this->bytes(i)) T(std::move(fData[i]));
+                new (static_cast<char*>(dst) + Bytes(i)) T(std::move(fData[i]));
                 fData[i].~T();
             }
         }
