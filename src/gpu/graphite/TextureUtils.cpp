@@ -338,8 +338,9 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
         texels[0].fPixels = bmpToUpload.getPixels();
         texels[0].fRowBytes = bmpToUpload.rowBytes();
     } else {
-        mipmaps = SkToBool(mipmapsIn) ? mipmapsIn
-                                      : sk_ref_sp(SkMipmap::Build(bmpToUpload.pixmap(), nullptr));
+        mipmaps = SkToBool(mipmapsIn)
+                          ? mipmapsIn
+                          : sk_sp<SkMipmap>(SkMipmap::Build(bmpToUpload.pixmap(), nullptr));
         if (!mipmaps) {
             return {};
         }
