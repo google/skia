@@ -408,7 +408,7 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
         // of all sampled textures from the drawpass so they can be sampled from the shader.
         const skia_private::TArray<sk_sp<TextureProxy>>& sampledTextureProxies =
                 drawPass->sampledTextures();
-        for (sk_sp<TextureProxy> textureProxy : sampledTextureProxies) {
+        for (const sk_sp<TextureProxy>& textureProxy : sampledTextureProxies) {
             VulkanTexture* vulkanTexture = const_cast<VulkanTexture*>(
                                            static_cast<const VulkanTexture*>(
                                            textureProxy->texture()));
@@ -543,12 +543,11 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         frameBufferWidth = depthStencilTexture->dimensions().width();
         frameBufferHeight = depthStencilTexture->dimensions().height();
     }
-    sk_sp<VulkanFramebuffer> framebuffer =
-            fResourceProvider->createFramebuffer(fSharedContext,
-                                                 attachmentViews,
-                                                 *(vulkanRenderPass.get()),
-                                                 frameBufferWidth,
-                                                 frameBufferHeight);
+    sk_sp<VulkanFramebuffer> framebuffer = fResourceProvider->createFramebuffer(fSharedContext,
+                                                                                attachmentViews,
+                                                                                *vulkanRenderPass,
+                                                                                frameBufferWidth,
+                                                                                frameBufferHeight);
     if (!framebuffer) {
         SKGPU_LOG_W("Could not create Vulkan Framebuffer");
         return false;

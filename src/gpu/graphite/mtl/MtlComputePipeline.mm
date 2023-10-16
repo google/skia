@@ -50,7 +50,7 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(const MtlSharedContext* share
     sk_cfp<id<MTLComputePipelineState>> pso([sharedContext->device()
             newComputePipelineStateWithDescriptor:psoDescriptor.get()
                                           options:MTLPipelineOptionNone
-                                       reflection:NULL
+                                       reflection:nil
                                             error:&error]);
     if (!pso) {
         SKGPU_LOG_E("Compute pipeline creation failure:\n%s", error.debugDescription.UTF8String);

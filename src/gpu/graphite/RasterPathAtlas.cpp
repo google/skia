@@ -75,7 +75,7 @@ bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder, uint16
                                                   fRectanizer.height(),
                                                   kAlpha_8_SkColorType,
                                                   identifier,
-                                                  /*requiresStorageUsage=*/false);
+                                                  /*requireStorageUsage=*/false);
     }
     return fTexture != nullptr;
 }

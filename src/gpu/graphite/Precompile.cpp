@@ -81,7 +81,7 @@ int PaintOptions::numColorFilterCombinations() const {
 int PaintOptions::numBlendModeCombinations() const {
     bool bmBased = false;
     int numBlendCombos = 0;
-    for (auto b: fBlenderOptions) {
+    for (const auto& b: fBlenderOptions) {
         if (b->asBlendMode().has_value()) {
             bmBased = true;
         } else {

@@ -78,7 +78,7 @@ public:
 
     // Returns the device-space bounds of the clipped coverage mask shape. For inverse fills this
     // is different from the actual draw bounds stored in the Clip.
-    const Rect bounds() const {
+    Rect bounds() const {
         return Rect(skvx::float2((float)this->deviceOrigin().x(), float(this->deviceOrigin().y())),
                     skvx::float2((float)this->maskSize().x(), (float)(this->maskSize().y())));
     }

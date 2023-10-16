@@ -136,6 +136,6 @@ private:
     TextureProxy* const fTextureProxy;
 };
 
-} // namepsace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureProxy_DEFINED

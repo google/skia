@@ -449,7 +449,8 @@ std::string BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
 
     if (defineShadingSsboIndexVarying) {
         // Assign SSBO index value to the SSBO index varying
-        SkSL::String::appendf(&sksl, "shadingSsboIndexVar = %s;", step->ssboIndex());
+        SkSL::String::appendf(&sksl, "shadingSsboIndexVar = %s;",
+                              skgpu::graphite::RenderStep::ssboIndex());
     }
 
     if (defineLocalCoordsVarying) {

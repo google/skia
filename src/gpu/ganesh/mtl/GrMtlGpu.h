@@ -45,7 +45,7 @@ public:
     GrThreadSafePipelineBuilder* pipelineBuilder() override;
     sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder() override;
 
-    const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
+    const GrMtlCaps& mtlCaps() const { return *fMtlCaps; }
 
     id<MTLDevice> device() const { return fDevice; }
 

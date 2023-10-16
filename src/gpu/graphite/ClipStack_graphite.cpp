@@ -1281,4 +1281,4 @@ void ClipStack::recordDeferredClipDraws() {
     }
 }
 
-} // namespace skgpu
+}  // namespace skgpu::graphite

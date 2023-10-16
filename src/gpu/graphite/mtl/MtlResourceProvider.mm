@@ -95,7 +95,7 @@ sk_sp<MtlGraphicsPipeline> MtlResourceProvider::findOrCreateLoadMSAAPipeline(
                                              /*stencilRefValue=*/0,
                                              noBlend,
                                              renderPassDesc,
-                                             /*pipelineShaders=*/nullptr);
+                                             /*pipelineInfo=*/nullptr);
         if (pipeline) {
             fLoadMSAAPipelines.set(renderPassKey, pipeline);
         }

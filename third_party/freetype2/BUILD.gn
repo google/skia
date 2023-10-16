@@ -28,7 +28,8 @@ if (skia_use_system_freetype2) {
   }
 } else {
   third_party("freetype2") {
-    public_defines = [ "SK_FREETYPE_MINIMUM_RUNTIME_VERSION=(((FREETYPE_MAJOR) << 24) | ((FREETYPE_MINOR) << 16) | ((FREETYPE_PATCH) << 8))" ]
+    public_defines =
+        [ "SK_FREETYPE_MININUM_RUNTIME_VERSION_IS_BUILD_VERSION=1" ]
     public_include_dirs = [ "include" ]
 
     deps = [ "//third_party/libpng" ]

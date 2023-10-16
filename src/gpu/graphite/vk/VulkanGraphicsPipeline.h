@@ -36,16 +36,18 @@ public:
     inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
     inline static constexpr unsigned int kNumUniformBuffers = 3;
 
-    inline static const DescriptorData kIntrinsicUniformBufferDescriptor  =
-            {DescriptorType::kUniformBuffer,
-             /*count=*/1,
-             VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex};
-    inline static const DescriptorData kRenderStepUniformDescriptor =
-            {DescriptorType::kUniformBuffer, /*count=*/1,
-             VulkanGraphicsPipeline::kRenderStepUniformBufferIndex};
-    inline static const DescriptorData kPaintUniformDescriptor      =
-            {DescriptorType::kUniformBuffer, /*count=*/1,
-             VulkanGraphicsPipeline::kPaintUniformBufferIndex};
+    inline static const DescriptorData kIntrinsicUniformBufferDescriptor = {
+            DescriptorType::kUniformBuffer,
+            /*descCount=*/1,
+            VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex};
+    inline static const DescriptorData kRenderStepUniformDescriptor = {
+            DescriptorType::kUniformBuffer,
+            /*descCount=*/1,
+            VulkanGraphicsPipeline::kRenderStepUniformBufferIndex};
+    inline static const DescriptorData kPaintUniformDescriptor = {
+            DescriptorType::kUniformBuffer,
+            /*descCount=*/1,
+            VulkanGraphicsPipeline::kPaintUniformBufferIndex};
 
     // For now, rigidly assign all uniform buffer descriptors to be in one descriptor set in binding
     // 0 and all texture/samplers to be in binding 1.

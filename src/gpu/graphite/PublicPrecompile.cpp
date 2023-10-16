@@ -60,7 +60,7 @@ void compile(const RendererProvider* rendererProvider,
                                                                : UniquePaintParamsID::InvalidID();
             GraphicsPipelineDesc pipelineDesc(s, paintID);
 
-            for (RenderPassDesc renderPassDesc : renderPassDescs) {
+            for (const RenderPassDesc& renderPassDesc : renderPassDescs) {
                 auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(
                         keyContext.rtEffectDict(),
                         pipelineDesc,

@@ -118,4 +118,4 @@ DEF_GRAPHITE_TEST(skgpu_Rect, reporter, CtsEnforcement::kNextRelease) {
     }}}}
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite

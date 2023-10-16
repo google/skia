@@ -1353,7 +1353,7 @@ sk_sp<SkTypeface> SkTypeface_Mac::MakeFromStream(std::unique_ptr<SkStreamAsset> 
     SkUniqueCFRef<CTFontRef> ctVariant;
     CTFontVariation ctVariation;
     if (args.getVariationDesignPosition().coordinateCount == 0) {
-        ctVariant.reset(ct.release());
+        ctVariant = std::move(ct);
     } else {
         SkUniqueCFRef<CFArrayRef> axes(CTFontCopyVariationAxes(ct.get()));
         ctVariation = ctvariation_from_SkFontArguments(ct.get(), axes.get(), args);
@@ -1369,7 +1369,7 @@ sk_sp<SkTypeface> SkTypeface_Mac::MakeFromStream(std::unique_ptr<SkStreamAsset> 
                     CTFontDescriptorCreateWithAttributes(attributes.get()));
             ctVariant.reset(CTFontCreateCopyWithAttributes(ct.get(), 0, nullptr, varDesc.get()));
         } else {
-            ctVariant.reset(ct.release());
+            ctVariant = std::move(ct);
         }
     }
     if (!ctVariant) {

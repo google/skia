@@ -76,7 +76,7 @@ bool RecordingPriv::hasNonVolatileLazyProxies() const {
 bool RecordingPriv::instantiateNonVolatileLazyProxies(ResourceProvider* resourceProvider) {
     SkASSERT(this->hasNonVolatileLazyProxies());
 
-    for (auto proxy : fRecording->fNonVolatileLazyProxies) {
+    for (const auto& proxy : fRecording->fNonVolatileLazyProxies) {
         if (!proxy->lazyInstantiate(resourceProvider)) {
             return false;
         }
@@ -95,7 +95,7 @@ bool RecordingPriv::hasVolatileLazyProxies() const {
 bool RecordingPriv::instantiateVolatileLazyProxies(ResourceProvider* resourceProvider) {
     SkASSERT(this->hasVolatileLazyProxies());
 
-    for (auto proxy : fRecording->fVolatileLazyProxies) {
+    for (const auto& proxy : fRecording->fVolatileLazyProxies) {
         if (!proxy->lazyInstantiate(resourceProvider)) {
             return false;
         }
@@ -109,7 +109,7 @@ void RecordingPriv::deinstantiateVolatileLazyProxies() {
         return;
     }
 
-    for (auto proxy : fRecording->fVolatileLazyProxies) {
+    for (const auto& proxy : fRecording->fVolatileLazyProxies) {
         SkASSERT(proxy->isVolatile());
         proxy->deinstantiate();
     }

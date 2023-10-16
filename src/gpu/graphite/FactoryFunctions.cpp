@@ -84,7 +84,7 @@ public:
             , fSrcOptions(srcs.begin(), srcs.end()) {
 
         fNumBlenderCombos = 0;
-        for (auto rt : fRuntimeBlendEffects) {
+        for (const auto& rt : fRuntimeBlendEffects) {
             fNumBlenderCombos += rt->numCombinations();
         }
         if (needsPorterDuffBased) {
@@ -97,12 +97,12 @@ public:
         SkASSERT(fNumBlenderCombos >= 1);
 
         fNumDstCombos = 0;
-        for (auto d : fDstOptions) {
+        for (const auto& d : fDstOptions) {
             fNumDstCombos += d->numCombinations();
         }
 
         fNumSrcCombos = 0;
-        for (auto s : fSrcOptions) {
+        for (const auto& s : fSrcOptions) {
             fNumSrcCombos += s->numCombinations();
         }
 
@@ -212,7 +212,7 @@ sk_sp<PrecompileShader> PrecompileShaders::Blend(
     bool needsPorterDuffBased = false;
     bool needsBlendModeBased = false;
 
-    for (auto b : blenders) {
+    for (const auto& b : blenders) {
         if (!b) {
             needsPorterDuffBased = true; // fall back to kSrcOver
         } else if (b->asBlendMode().has_value()) {
@@ -523,12 +523,12 @@ public:
             , fInnerOptions(innerOptions.begin(), innerOptions.end()) {
 
         fNumOuterCombos = 0;
-        for (auto outerOption : fOuterOptions) {
+        for (const auto& outerOption : fOuterOptions) {
             fNumOuterCombos += outerOption ? outerOption->numCombinations() : 1;
         }
 
         fNumInnerCombos = 0;
-        for (auto innerOption : fInnerOptions) {
+        for (const auto& innerOption : fInnerOptions) {
             fNumInnerCombos += innerOption ? innerOption->numCombinations() : 1;
         }
     }
@@ -666,7 +666,7 @@ public:
             : fChildOptions(childOptions.begin(), childOptions.end()) {
 
         fNumChildCombos = 0;
-        for (auto childOption : fChildOptions) {
+        for (const auto& childOption : fChildOptions) {
             fNumChildCombos += childOption->numCombinations();
         }
     }

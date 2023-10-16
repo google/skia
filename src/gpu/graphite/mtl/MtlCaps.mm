@@ -404,7 +404,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 2;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA8Unorm, Surface: kRGBA_8888
         {
@@ -426,7 +426,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatR8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 3;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: R8Unorm, Surface: kR8_unorm
         {
@@ -456,7 +456,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatA8Unorm)];
         info->fFlags = FormatInfo::kTexturable_Flag;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: A8Unorm, Surface: kAlpha_8
         {
@@ -471,7 +471,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGRA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: BGRA8Unorm, Surface: kBGRA_8888
         {
@@ -488,7 +488,8 @@ void MtlCaps::initFormatTable() {
                 info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
                 info->fFlags = FormatInfo::kAllFlags;
                 info->fColorTypeInfoCount = 1;
-                info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+                info->fColorTypeInfos =
+                        std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
                 int ctIdx = 0;
                 // Format: B5G6R5Unorm, Surface: kBGR_565
                 {
@@ -504,7 +505,8 @@ void MtlCaps::initFormatTable() {
                 info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
                 info->fFlags = FormatInfo::kAllFlags;
                 info->fColorTypeInfoCount = 1;
-                info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+                info->fColorTypeInfos =
+                        std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
                 int ctIdx = 0;
                 // Format: ABGR4Unorm, Surface: kABGR_4444
                 {
@@ -522,7 +524,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm_sRGB)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA8Unorm_sRGB, Surface: kSRGBA_8888
         {
@@ -541,7 +543,7 @@ void MtlCaps::initFormatTable() {
             info->fFlags = FormatInfo::kTexturable_Flag;
         }
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGB10A2Unorm, Surface: kRGBA_1010102
         {
@@ -556,7 +558,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Float)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 2;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA16Float, Surface: RGBA_F16
         {
@@ -577,7 +579,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Float)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: R16Float, Surface: kA16_float
         {
@@ -594,7 +596,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RG8Unorm, Surface: kR8G8_unorm
         {
@@ -613,7 +615,7 @@ void MtlCaps::initFormatTable() {
             info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
         }
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA16Unorm, Surface: kR16G16B16A16_unorm
         {
@@ -628,7 +630,7 @@ void MtlCaps::initFormatTable() {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRG16Float)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RG16Float, Surface: kR16G16_float
         {
@@ -647,7 +649,7 @@ void MtlCaps::initFormatTable() {
             info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
         }
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: R16Unorm, Surface: kA16_unorm
         {
@@ -668,7 +670,7 @@ void MtlCaps::initFormatTable() {
             info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
         }
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RG16Unorm, Surface: kR16G16_unorm
         {
@@ -705,7 +707,7 @@ void MtlCaps::initFormatTable() {
         if (this->isMac() || fFamilyGroup >= 3) {
             info->fFlags |= FormatInfo::kResolve_Flag;
         }
-         info->fColorTypeInfoCount = 0;
+        info->fColorTypeInfoCount = 0;
     }
 
     ////////////////////////////////////////////////////////////////////////////

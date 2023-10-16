@@ -143,6 +143,6 @@ private:
     uint32_t fReqAlignment = 0;
 };
 
-} // namespace skgpu
+}  // namespace skgpu::graphite
 
 #endif // skgpu_UniformManager_DEFINED

@@ -107,4 +107,4 @@ YUVATextureProxies::YUVATextureProxies(const Recorder* recorder,
     SkASSERT(this->isValid());
 }
 
-}
+}  // namespace skgpu::graphite

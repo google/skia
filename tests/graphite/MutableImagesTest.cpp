@@ -322,7 +322,7 @@ public:
                                                     info,
                                                     SkColorInfo(kRGBA_8888_SkColorType,
                                                                 kPremul_SkAlphaType,
-                                                                /* colorSpace= */ nullptr),
+                                                                /* cs= */ nullptr),
                                                     Volatile::kYes,
                                                     fulfill,
                                                     imageRelease,

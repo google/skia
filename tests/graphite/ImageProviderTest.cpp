@@ -353,7 +353,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter
     std::unique_ptr<Recorder> recorderUP = context->makeRecorder();
     auto recorder = recorderUP.get();
 
-    for (auto test : testcases) {
+    for (const auto& test : testcases) {
         sk_sp<SkImage> orig = test.fFactory(recorder);
         skiatest::ReporterContext subtest(reporter, test.name);
         for (bool mipmapped : {false, true}) {
@@ -464,7 +464,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context,
 
     const Caps* caps = recorder->priv().caps();
 
-    for (auto testcase : testcases) {
+    for (const auto& testcase : testcases) {
         skiatest::ReporterContext subtest(reporter, testcase.name);
         sk_sp<SkImage> orig = testcase.fFactory(recorder.get());
 

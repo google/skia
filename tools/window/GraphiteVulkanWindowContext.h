@@ -110,7 +110,7 @@ private:
     VkSemaphore            fWaitSemaphore = VK_NULL_HANDLE;
 };
 
-}   // namespace sk_app
+}  // namespace skwindow::internal
 
 #endif // SK_VULKAN
 

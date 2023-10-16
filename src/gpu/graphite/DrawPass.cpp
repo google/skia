@@ -415,7 +415,7 @@ sk_sp<TextureProxy> add_copy_target_task(Recorder* recorder,
     }
 
     sk_sp<CopyTextureToTextureTask> copyTask = CopyTextureToTextureTask::Make(
-            std::move(target), dstSrcRect, copy, /*dstOffset=*/{0, 0});
+            std::move(target), dstSrcRect, copy, /*dstPoint=*/{0, 0});
     if (!copyTask) {
         SKGPU_LOG_W("Failed to create destination copy task for dst read.");
         return nullptr;

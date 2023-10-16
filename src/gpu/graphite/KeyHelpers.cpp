@@ -1217,10 +1217,10 @@ static void add_to_key(const KeyContext& keyContext,
     SkASSERT(shader);
 
     Compose(keyContext, builder, gatherer,
-            /* emitInnerToKey= */ [&]() -> void {
+            /* addInnerToKey= */ [&]() -> void {
                 AddToKey(keyContext, builder, gatherer, shader->shader().get());
             },
-            /* emitOuterToKey= */ [&]() -> void {
+            /* addOuterToKey= */ [&]() -> void {
                 AddToKey(keyContext, builder, gatherer, shader->filter().get());
             });
 }
