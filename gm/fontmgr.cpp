@@ -231,7 +231,7 @@ private:
         SkRect min = SkRect::MakeLTRB(SK_ScalarInfinity, SK_ScalarInfinity,
                                       SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity);
         {
-            int numGlyphs = font.getTypefaceOrDefault()->countGlyphs();
+            int numGlyphs = SkFontPriv::GetTypefaceOrDefault(font)->countGlyphs();
             for (int i = 0; i < numGlyphs; ++i) {
                 SkGlyphID glyphId = i;
                 SkRect cur;
@@ -299,7 +299,7 @@ private:
 
         if (labelBounds) {
             SkString name;
-            font.getTypefaceOrDefault()->getFamilyName(&name);
+            SkFontPriv::GetTypefaceOrDefault(font)->getFamilyName(&name);
             canvas->drawString(name, min.fLeft, min.fBottom, labelFont, SkPaint());
         }
         for (const GlyphToDraw& glyphToDraw : glyphsToDraw) {
@@ -350,7 +350,7 @@ private:
                 font.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 // Fonts with lots of glyphs are interesting, but can take a long time to find
                 // the glyphs which make up the maximum extent.
-                SkTypeface* typeface = font.getTypefaceOrDefault();
+                SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
                 if (typeface && 0 < typeface->countGlyphs() && typeface->countGlyphs() < 1000) {
                     SkColor color = boundsColors[index & 1];
                     SkRect drawBounds = show_bounds(canvas, font, x, y, color, fLabelBounds);

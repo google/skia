@@ -19,6 +19,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontPriv.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -85,7 +86,7 @@ DEF_TEST(FontHostStream, reporter) {
         drawBG(&origCanvas);
         origCanvas.drawString("A", point.fX, point.fY, font, paint);
 
-        sk_sp<SkTypeface> typeface = font.refTypefaceOrDefault();
+        sk_sp<SkTypeface> typeface = SkFontPriv::RefTypefaceOrDefault(font);
 
         {
             SkDynamicMemoryWStream wstream;

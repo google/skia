@@ -164,7 +164,7 @@ SkStrikeSpec::SkStrikeSpec(const SkFont& font, const SkPaint& paint,
 
     fMaskFilter = sk_ref_sp(effects.fMaskFilter);
     fPathEffect = sk_ref_sp(effects.fPathEffect);
-    fTypeface = font.refTypefaceOrDefault();
+    fTypeface = SkFontPriv::RefTypefaceOrDefault(font);
 }
 
 sk_sp<sktext::StrikeForGPU> SkStrikeSpec::findOrCreateScopedStrike(

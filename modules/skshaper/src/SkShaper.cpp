@@ -13,6 +13,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "src/core/SkFontPriv.h"
 
 #ifdef SK_SHAPER_UNICODE_AVAILABLE
 #include "modules/skunicode/include/SkUnicode.h"
@@ -99,13 +100,13 @@ public:
         , fRequestStyle(requestStyle)
         , fLanguage(lang)
     {
-        fFont.setTypeface(font.refTypefaceOrDefault());
+        fFont.setTypeface(SkFontPriv::RefTypefaceOrDefault(font));
         fFallbackFont.setTypeface(nullptr);
     }
     FontMgrRunIterator(const char* utf8, size_t utf8Bytes,
                        const SkFont& font, sk_sp<SkFontMgr> fallbackMgr)
         : FontMgrRunIterator(utf8, utf8Bytes, font, std::move(fallbackMgr),
-                             nullptr, font.refTypefaceOrDefault()->fontStyle(), nullptr)
+                             nullptr, SkFontPriv::RefTypefaceOrDefault(font)->fontStyle(), nullptr)
     {}
 
     void consume() override {

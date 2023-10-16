@@ -60,7 +60,7 @@ void SkTextBlobTrace::DumpTrace(const std::vector<SkTextBlobTrace::Record>& trac
             SkDebugf("Run %d\n    ", runNumber);
             SkFont font = iter.font();
             SkDebugf("Font %d %g %g %g %d %d %d\n    ",
-                    font.getTypefaceOrDefault()->uniqueID(),
+                    SkFontPriv::GetTypefaceOrDefault(font)->uniqueID(),
                     font.getSize(),
                     font.getScaleX(),
                     font.getSkewX(),

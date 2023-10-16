@@ -50,6 +50,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkAnnotationKeys.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -575,7 +576,7 @@ static void TestTypefaceSerialization(skiatest::Reporter* reporter, sk_sp<SkType
 }
 DEF_TEST(Serialization_Typeface, reporter) {
     SkFont font;
-    TestTypefaceSerialization(reporter, font.refTypefaceOrDefault());
+    TestTypefaceSerialization(reporter, SkFontPriv::RefTypefaceOrDefault(font));
     TestTypefaceSerialization(reporter, ToolUtils::sample_user_typeface());
 }
 

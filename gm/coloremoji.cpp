@@ -26,6 +26,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "src/core/SkFontPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -115,7 +116,7 @@ protected:
                 for (int makeGray = 0; makeGray < 2; makeGray++) {
                     for (int makeMode = 0; makeMode < 2; ++makeMode) {
                         for (int alpha = 0; alpha < 2; ++alpha) {
-                            SkFont shaderFont(font.refTypefaceOrDefault());
+                            SkFont shaderFont(SkFontPriv::RefTypefaceOrDefault(font));
                             SkPaint shaderPaint;
                             if (SkToBool(makeLinear)) {
                                 shaderPaint.setShader(MakeLinear());

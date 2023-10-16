@@ -11,6 +11,7 @@
 #include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/base/SkUTF.h"
+#include "src/core/SkFontPriv.h"
 
 class SkShaperPrimitive : public SkShaper {
 public:
@@ -144,7 +145,7 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
         font.consume();
         skfont = font.currentFont();
     } else {
-        skfont.setTypeface(sk_ref_sp(skfont.getTypefaceOrDefault()));
+        skfont.setTypeface(sk_ref_sp(SkFontPriv::GetTypefaceOrDefault(skfont)));
     }
     SkASSERT(skfont.getTypeface());
     bool skbidi = 0;

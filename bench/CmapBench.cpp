@@ -11,6 +11,7 @@
 #include "include/core/SkTypeface.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
+#include "src/core/SkFontPriv.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 enum {
@@ -42,7 +43,7 @@ static void charsToGlyphs_proc(const Rec& r) {
     uint16_t glyphs[NGLYPHS];
     SkASSERT(r.fCount <= NGLYPHS);
 
-    SkTypeface* face = r.fFont.getTypefaceOrDefault();
+    SkTypeface* face = SkFontPriv::GetTypefaceOrDefault(r.fFont);
     for (int i = 0; i < r.fLoops; ++i) {
         face->unicharsToGlyphs(r.fText, r.fCount, glyphs);
     }

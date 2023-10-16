@@ -15,6 +15,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "src/core/SkFontPriv.h"
 #include "tools/Resources.h"
 
 #include <string.h>
@@ -36,7 +37,7 @@ DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
     SkPaint p;
 
     SkFont font(MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf"), 60);
-    if (!font.getTypefaceOrDefault()) {
+    if (!SkFontPriv::GetTypefaceOrDefault(font)) {
         *errorMsg = "Could not load fonts/Roboto2-Regular_NoEmbed.ttf. "
                     "Did you forget to set the resourcePath?";
         return skiagm::DrawResult::kFail;

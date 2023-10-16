@@ -15,6 +15,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/utils/SkCustomTypeface.h"
+#include "src/core/SkFontPriv.h"
 #include "tools/Resources.h"
 
 static sk_sp<SkDrawable> make_drawable(const SkPath& path) {
@@ -35,7 +36,7 @@ static sk_sp<SkDrawable> make_drawable(const SkPath& path) {
 static sk_sp<SkTypeface> make_tf() {
     SkCustomTypefaceBuilder builder;
     SkFont font;
-    const float upem = font.getTypefaceOrDefault()->getUnitsPerEm();
+    const float upem = SkFontPriv::GetTypefaceOrDefault(font)->getUnitsPerEm();
 
     // request a big size, to improve precision at the fontscaler level
     font.setSize(upem);
@@ -49,7 +50,7 @@ static sk_sp<SkTypeface> make_tf() {
         font.getMetrics(&metrics);
         builder.setMetrics(metrics, 1.0f/upem);
     }
-    builder.setFontStyle(font.getTypefaceOrDefault()->fontStyle());
+    builder.setFontStyle(SkFontPriv::GetTypefaceOrDefault(font)->fontStyle());
 
     // Steal the first 128 chars from the default font
     for (SkGlyphID index = 0; index <= 127; ++index) {
