@@ -94,6 +94,7 @@ skia_filegroup(
         "SkBezierCurves.cpp",
         "SkBuffer.cpp",
         "SkCubics.cpp",
+        "SkDebug.cpp",
         "SkDeque.cpp",
         "SkFloatingPoint.cpp",
         "SkQuads.cpp",
