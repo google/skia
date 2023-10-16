@@ -25,6 +25,15 @@ struct Segment {
     std::tuple<int32_t, int32_t, int32_t, int32_t> bounds() const;
 };
 
+bool operator==(const Segment& s0, const Segment& s1);
+bool operator<(const Segment& s0, const Segment& s1);
+
+struct Crossing {
+    const Segment s0;
+    const Segment s1;
+    const Point crossing;
+};
+
 bool no_intersection_by_bounding_box(const Segment& s0, const Segment& s1);
 
 // Finds the intersection of s0 and s1. Returns nullopt if there is no intersection.

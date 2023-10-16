@@ -28,6 +28,14 @@ std::tuple<int32_t, int32_t, int32_t, int32_t> Segment::bounds() const {
     return std::make_tuple(l, t, r, b);
 }
 
+bool operator==(const Segment& s0, const Segment& s1) {
+    return s0.upper() == s1.upper() && s0.lower() == s1.lower();
+}
+
+bool operator<(const Segment& s0, const Segment& s1) {
+    return std::make_tuple(s0.upper(), s0.lower()) < std::make_tuple(s1.upper(), s1.lower());
+}
+
 bool no_intersection_by_bounding_box(const Segment& s0, const Segment& s1) {
     auto [left0, top0, right0, bottom0] = s0.bounds();
     auto [left1, top1, right1, bottom1] = s1.bounds();

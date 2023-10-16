@@ -15,6 +15,7 @@ bentleyottmann_public = [
   "$_modules/bentleyottmann/include/BentleyOttmann1.h",
   "$_modules/bentleyottmann/include/BruteForceCrossings.h",
   "$_modules/bentleyottmann/include/EventQueue.h",
+  "$_modules/bentleyottmann/include/EventQueueInterface.h",
   "$_modules/bentleyottmann/include/Int96.h",
   "$_modules/bentleyottmann/include/Point.h",
   "$_modules/bentleyottmann/include/Segment.h",

@@ -10,20 +10,23 @@
 
 namespace bentleyottmann {
 
-class SweepLine {
+class SweepLine : public SweepLineInterface {
 public:
-    void handleEvent(const Event& event, EventQueue* eventQueue) {}
+    void handleDeletions(Point eventPoint, const DeletionSegmentSet& removing) override {}
+
+    void
+    handleInsertionsAndCheckForNewCrossings(Point eventPoint, const InsertionSegmentSet& inserting,
+                                            EventQueueInterface* queue) override {}
 };
 
-std::optional<std::vector<Point>> bentley_ottmann_1(SkSpan<const Segment> segments) {
+std::optional<std::vector<Crossing>> bentley_ottmann_1(SkSpan<const Segment> segments)  {
     if (auto possibleEQ = EventQueue::Make(segments)) {
         EventQueue eventQueue = std::move(possibleEQ.value());
         SweepLine sweepLine;
         while(eventQueue.hasMoreEvents()) {
-            Event event = eventQueue.nextEvent();
-            sweepLine.handleEvent(event, &eventQueue);
+            eventQueue.handleNextEventPoint(&sweepLine);
         }
-
+        return eventQueue.crossings();
     }
     return std::nullopt;
 }

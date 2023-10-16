@@ -14,7 +14,7 @@ namespace bentleyottmann {
 // Takes in a list of segments, and returns intersection points found in the list of segments.
 // An empty vector means there are no self intersections.
 //
-std::optional<std::vector<Point>> brute_force_crossings(SkSpan<const Segment> segments);
+std::optional<std::vector<Crossing>> brute_force_crossings(SkSpan<const Segment> segments);
 }  // namespace bentleyottmann
 
 #endif  // QuadraticCrossings_DEFINED

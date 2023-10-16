@@ -6,6 +6,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkAssert.h"
+#include "modules/bentleyottmann/include/EventQueueInterface.h"
 #include "modules/bentleyottmann/include/Point.h"
 #include "modules/bentleyottmann/include/Segment.h"
 
@@ -15,6 +16,7 @@
 #include <set>
 #include <tuple>
 #include <variant>
+#include <vector>
 
 namespace bentleyottmann {
 
@@ -71,7 +73,7 @@ struct Event {
     }
 };
 
-class EventQueue {
+class EventQueue : public EventQueueInterface {
 public:
     // Queue ordered by Event where the point is the most important followed by type and then
     // contents of the event. The ordering of the contents of the event is arbitrary but need to
@@ -81,14 +83,24 @@ public:
     static std::optional<EventQueue> Make(SkSpan<const Segment> segments);
 
     EventQueue(Queue&& queue);
+    EventQueue() = default;
+
+    void addCrossing(Point crossingPoint, const Segment& s0, const Segment& s1) override;
+
+    bool hasMoreEvents() const;
+    void handleNextEventPoint(SweepLineInterface* handler);
+    std::vector<Crossing> crossings();
+
+private:
+    friend class EventQueueTestingPeer;
+    Point fLastEventPoint = Point::Smallest();
 
     void add(const Event& e);
 
-    bool hasMoreEvents() const;
-    Event nextEvent();
-
-private:
+    DeletionSegmentSet fDeletionSet;
+    InsertionSegmentSet fInsertionSet;
     Queue fQueue;
+    std::vector<Crossing> fCrossings;
 };
 }  // namespace bentleyottmann
 #endif  // EventQueue_DEFINED

@@ -16,7 +16,7 @@ namespace bentleyottmann {
 // are no self intersections.
 //
 // If nullopt is returned, you could divide all your points by 2, and try again.
-std::optional<std::vector<Point>> bentley_ottmann_1(SkSpan<const Segment> segments);
+std::optional<std::vector<Crossing>> bentley_ottmann_1(SkSpan<const Segment> segments);
 }  // namespace bentleyottmann
 
 #endif  // BentleyOttman1_DEFINED
