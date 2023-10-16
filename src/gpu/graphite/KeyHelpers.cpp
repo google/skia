@@ -444,7 +444,11 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps, PipelineDataG
     SkMatrix gamutTransform;
     if (steps.flags.gamut_transform) {
         // TODO: it seems odd to copy this into an SkMatrix just to write it to the gatherer
-        gamutTransform.set9(steps.src_to_dst_matrix);
+        // src_to_dst_matrix is column-major, SkMatrix is row-major.
+        const float* m = steps.src_to_dst_matrix;
+        gamutTransform.setAll(m[0], m[3], m[6],
+                              m[1], m[4], m[7],
+                              m[2], m[5], m[8]);
     }
     gatherer->writeHalf(gamutTransform);
 

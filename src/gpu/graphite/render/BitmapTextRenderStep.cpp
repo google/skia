@@ -131,7 +131,7 @@ void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     SkASSERT(proxies && numProxies > 0);
 
     // write uniforms
-    gatherer->write(params.transform());  // subRunDeviceMatrix
+    gatherer->write(params.transform().matrix());  // subRunDeviceMatrix
     gatherer->write(subRunData.deviceToLocal());
     SkV2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
                                    1.f/proxies[0]->dimensions().height()};

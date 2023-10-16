@@ -18,17 +18,6 @@ namespace skgpu::graphite {
 
 class Buffer;
 
-enum class CType : unsigned {
-    // Any float/half, vector of floats/half, or matrices of floats/halfs are a tightly
-    // packed array of floats. Similarly, any bool/shorts/ints are a tightly packed array
-    // of int32_t.
-    kDefault,
-    // Can be used with kFloat3x3 or kHalf3x3
-    kSkMatrix,
-
-    kLast = kSkMatrix
-};
-
 /**
  * Geometric primitives used for drawing.
  */

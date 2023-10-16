@@ -558,7 +558,10 @@ void UniformManager::doneWithExpectedUniforms() {
     SkDEBUGCODE(fExpectedUniforms = {};)
 }
 
-void UniformManager::writeInternal(SkSLType type, unsigned int count, const void* src) {
+void UniformManager::writeInternal(SkSLType type,
+                                   CType ctype,
+                                   unsigned int count,
+                                   const void* src) {
     SkSLType revisedType = this->getUniformTypeForLayout(type);
 
     const uint32_t startOffset = fOffset;
@@ -571,35 +574,39 @@ void UniformManager::writeInternal(SkSLType type, unsigned int count, const void
         fStorage.append(alignedStartOffset - startOffset);
     }
     char* dst = fStorage.append(bytesNeeded);
-    [[maybe_unused]] uint32_t bytesWritten =
-            fWriteUniform(revisedType, CType::kDefault, dst, count, src);
+    [[maybe_unused]] uint32_t bytesWritten = fWriteUniform(revisedType, ctype, dst, count, src);
     SkASSERT(bytesNeeded == bytesWritten);
 
     fReqAlignment = std::max(fReqAlignment, sksltype_to_alignment_mask(revisedType) + 1);
 }
 
-void UniformManager::write(SkSLType type, const void* src) {
+void UniformManager::write(SkSLType type, const void* src, CType ctype) {
     this->checkExpected(type, 1);
-    this->writeInternal(type, Uniform::kNonArray, src);
+    this->writeInternal(type, ctype, Uniform::kNonArray, src);
 }
 
-void UniformManager::writeArray(SkSLType type, const void* src, unsigned int count) {
+void UniformManager::writeArray(SkSLType type, const void* src, unsigned int count, CType ctype) {
     // Don't write any elements if count is 0. Since Uniform::kNonArray == 0, passing count
     // directly would cause a one-element non-array write.
     if (count > 0) {
         this->checkExpected(type, count);
-        this->writeInternal(type, count, src);
+        this->writeInternal(type, ctype, count, src);
     }
 }
 
 void UniformManager::write(const Uniform& u, const uint8_t* src) {
     this->checkExpected(u.type(), (u.count() == Uniform::kNonArray) ? 1 : u.count());
-    this->writeInternal(u.type(), u.count(), src);
+    this->writeInternal(u.type(), CType::kDefault, u.count(), src);
 }
 
 void UniformManager::write(const SkM44& mat) {
     static constexpr SkSLType kType = SkSLType::kFloat4x4;
     this->write(kType, &mat);
+}
+
+void UniformManager::write(const SkMatrix& mat) {
+    static constexpr SkSLType kType = SkSLType::kFloat3x3;
+    this->write(kType, &mat, CType::kSkMatrix);
 }
 
 void UniformManager::write(const SkPMColor4f& color) {
@@ -685,7 +692,7 @@ void UniformManager::writeHalf(float f) {
 
 void UniformManager::writeHalf(const SkMatrix& mat) {
     static constexpr SkSLType kType = SkSLType::kHalf3x3;
-    this->write(kType, &mat);
+    this->write(kType, &mat, CType::kSkMatrix);
 }
 
 void UniformManager::writeHalf(const SkM44& mat) {

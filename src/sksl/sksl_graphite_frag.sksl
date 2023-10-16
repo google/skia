@@ -358,7 +358,7 @@ $pure half4 sk_yuv_image_shader(float2 coords,
     float V = dot(channelSelectV, sampleColorV);
     half3 preColor = half3(Y, U, V);
     half4 sampleColor;
-    sampleColor.rgb = saturate(preColor.rgb * yuvToRGBMatrix + half3(yuvToRGBTranslate));
+    sampleColor.rgb = saturate(yuvToRGBMatrix * preColor.rgb + half3(yuvToRGBTranslate));
     if (channelSelectA == half4(0)) {
         sampleColor.a = 1;
     } else {

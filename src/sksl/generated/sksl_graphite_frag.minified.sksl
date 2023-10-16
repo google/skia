@@ -49,7 +49,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "g!=0?$o(a,b,c,d,e,h,0,u):$n(a,b,c,d,e,f,0,u);half4 z=g!=0?$o(a,b,c,d,e,h,0,"
 "t):$n(a,b,c,d,e,f,0,v);float A=float(dot(i,x));float B=float(dot(j,y));float"
 " C=float(dot(k,z));half3 D=half3(half(A),half(B),half(C));half4 E;E.xyz=saturate"
-"(D*m+half3(n));if(l==half4(0.)){E.w=1.;}else{half4 F=g!=0?$o(a,b,c,d,e,h,0,"
+"(m*D+half3(n));if(l==half4(0.)){E.w=1.;}else{half4 F=g!=0?$o(a,b,c,d,e,h,0,"
 "w):$n(a,b,c,d,e,f,0,w);E.w=dot(l,F);E.xyz*=E.w;}return sk_color_space_transform"
 "(E,o,p,q,r,s);}$pure half4 sk_dither_shader(half4 a,float2 b,half c,sampler2D"
 " d){half f=sample(d,b*.125).x-.5;return half4(clamp(a.xyz+f*c,0.,a.w),a.w);"
