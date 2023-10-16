@@ -110,8 +110,6 @@ VkDescriptorType DsTypeEnumToVkDs(DescriptorType type) {
     switch (type) {
         case DescriptorType::kUniformBuffer:
             return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case DescriptorType::kInlineUniform:
-            return VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT;
         case DescriptorType::kTextureSampler:
             return VK_DESCRIPTOR_TYPE_SAMPLER;
         case DescriptorType::kTexture:

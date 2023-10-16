@@ -46,7 +46,8 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     bufInfo.size = size;
 
     // To support SkMesh buffer updates we make Vertex and Index buffers capable of being transfer
-    // dsts.
+    // dsts. To support rtAdjust uniform buffer updates, we make host-visible uniform buffers also
+    // capable of being transfer dsts.
     switch (type) {
         case BufferType::kVertex:
             bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -168,12 +169,6 @@ void VulkanBuffer::freeGpuData() {
         this->internalUnmap(0, this->size());
         fMapPtr = nullptr;
     }
-
-    // TODO: If this is a uniform buffer, we must clean up the descriptor set.
-    //if (fUniformDescriptorSet) {
-    //    fUniformDescriptorSet->recycle();
-    //    fUniformDescriptorSet = nullptr;
-    //}
 
     const VulkanSharedContext* sharedContext =
             static_cast<const VulkanSharedContext*>(this->sharedContext());

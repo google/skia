@@ -72,8 +72,11 @@ GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDe
 VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
                                                SingleOwner* singleOwner,
                                                uint32_t recorderID,
-                                               size_t resourceBudget)
-        : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget) {}
+                                               size_t resourceBudget,
+                                               sk_sp<Buffer> intrinsicConstantUniformBuffer)
+        : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget)
+        , fIntrinsicUniformBuffer(std::move(intrinsicConstantUniformBuffer)) {
+}
 
 VulkanResourceProvider::~VulkanResourceProvider() {
     if (fPipelineCache != VK_NULL_HANDLE) {
@@ -96,6 +99,11 @@ sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture
                                       texture.getVkImage(),
                                       {});
 }
+
+sk_sp<Buffer> VulkanResourceProvider::refIntrinsicConstantBuffer() const {
+    return fIntrinsicUniformBuffer;
+}
+
 
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,

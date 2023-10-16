@@ -10,6 +10,8 @@
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/vk/VulkanBuffer.h"
 #include "src/gpu/graphite/vk/VulkanCaps.h"
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 #include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
@@ -130,10 +132,28 @@ std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
         SingleOwner* singleOwner,
         uint32_t recorderID,
         size_t resourceBudget) {
-    return std::unique_ptr<ResourceProvider>(new VulkanResourceProvider(this,
-                                                                        singleOwner,
-                                                                        recorderID,
-                                                                        resourceBudget));
+    // Establish a uniform buffer that can be updated across multiple render passes and cmd buffers
+    size_t alignedIntrinsicConstantSize =
+            std::max(VulkanResourceProvider::kIntrinsicConstantSize,
+                     this->vulkanCaps().requiredUniformBufferAlignment());
+    auto intrinsicConstantBuffer = VulkanBuffer::Make(this,
+                                                      alignedIntrinsicConstantSize,
+                                                      BufferType::kUniform,
+                                                      AccessPattern::kGpuOnly);
+    if (!intrinsicConstantBuffer) {
+        SKGPU_LOG_E("Failed to create a uniform buffer necessary for VulkanResourceProvider"
+                    "creation.");
+        return nullptr;
+    }
+    SkASSERT(static_cast<VulkanBuffer*>(intrinsicConstantBuffer.get())->bufferUsageFlags()
+             & VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+
+    return std::unique_ptr<ResourceProvider>(
+            new VulkanResourceProvider(this,
+                                       singleOwner,
+                                       recorderID,
+                                       resourceBudget,
+                                       std::move(intrinsicConstantBuffer)));
 }
 
 bool VulkanSharedContext::checkVkResult(VkResult result) const {
