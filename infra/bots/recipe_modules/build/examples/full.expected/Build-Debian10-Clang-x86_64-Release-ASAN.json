@@ -51,7 +51,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Release-ASAN/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DPLACEHOLDER_clang_linux_version=42\", \"-DSK_ENABLE_SCOPED_LSAN_SUPPRESSIONS\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\"] is_debug=false sanitize=\"ASAN\" skia_enable_spirv_validation=false target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DPLACEHOLDER_clang_linux_version=42\", \"-DSK_ENABLE_SCOPED_LSAN_SUPPRESSIONS\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\"] is_debug=false sanitize=\"ASAN\" skia_enable_spirv_validation=false skia_use_client_icu=true target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

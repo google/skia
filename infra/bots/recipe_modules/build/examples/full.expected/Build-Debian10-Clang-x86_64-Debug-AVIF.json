@@ -51,7 +51,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-AVIF/Debug",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DPLACEHOLDER_clang_linux_version=42\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\"] skia_use_libavif=true target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DPLACEHOLDER_clang_linux_version=42\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\"] skia_use_client_icu=true skia_use_libavif=true target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

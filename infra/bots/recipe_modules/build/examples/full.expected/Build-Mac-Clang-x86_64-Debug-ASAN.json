@@ -69,7 +69,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-ASAN/Debug",
-      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=12c33\", \"-O1\"] sanitize=\"ASAN\" skia_enable_spirv_validation=false target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=12c33\", \"-O1\"] sanitize=\"ASAN\" skia_enable_spirv_validation=false skia_use_client_icu=true target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

@@ -70,7 +70,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Release-Graphite_Dawn/Release",
-      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=12c33\"] is_debug=false skia_enable_graphite=true skia_use_dawn=true skia_use_gl=false target_cpu=\"arm64\" werror=true"
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=12c33\"] is_debug=false skia_enable_graphite=true skia_use_client_icu=true skia_use_dawn=true skia_use_gl=false target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

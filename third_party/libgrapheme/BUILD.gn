@@ -18,112 +18,130 @@ config("c99") {
   }
 }
 
-copy("copy_unicode_data") {
-  unicode_tools_dir = "../../third_party/externals/unicodetools/unicodetools/data/ucd/$UNICODE_VERSION"
-  external_data_dir = "../../third_party/externals/libgrapheme/data/"
-  sources = [
-    "$unicode_tools_dir/BidiBrackets.txt",
-    "$unicode_tools_dir/BidiCharacterTest.txt",
-    "$unicode_tools_dir/BidiMirroring.txt",
-    "$unicode_tools_dir/BidiTest.txt",
-    "$unicode_tools_dir/DerivedCoreProperties.txt",
-    "$unicode_tools_dir/EastAsianWidth.txt",
-    "$unicode_tools_dir/LineBreak.txt",
-    "$unicode_tools_dir/SpecialCasing.txt",
-    "$unicode_tools_dir/UnicodeData.txt",
-    "$unicode_tools_dir/auxiliary/GraphemeBreakProperty.txt",
-    "$unicode_tools_dir/auxiliary/GraphemeBreakTest.txt",
-    "$unicode_tools_dir/auxiliary/LineBreakTest.txt",
-    "$unicode_tools_dir/auxiliary/SentenceBreakProperty.txt",
-    "$unicode_tools_dir/auxiliary/SentenceBreakTest.txt",
-    "$unicode_tools_dir/auxiliary/WordBreakProperty.txt",
-    "$unicode_tools_dir/auxiliary/WordBreakTest.txt",
-    "$unicode_tools_dir/emoji/emoji-data.txt",
-    "$unicode_tools_dir/extracted/DerivedBidiClass.txt",
-  ]
-  output_dir = rebase_path(external_data_dir, root_out_dir)
-  outputs = [ "$root_out_dir/$output_dir/{{source_file_part}}" ]
-}
+# Header generation only happens on the host.
+# Ensure it will not be built for non-host even when implicitly building all targets.
+if (current_toolchain == "//gn/toolchain:$host_toolchain") {
+  copy("copy_unicode_data") {
+    unicode_tools_dir =
+        "../externals/unicodetools/unicodetools/data/ucd/$UNICODE_VERSION"
+    sources = [
+      "$unicode_tools_dir/BidiBrackets.txt",
+      "$unicode_tools_dir/BidiCharacterTest.txt",
+      "$unicode_tools_dir/BidiMirroring.txt",
+      "$unicode_tools_dir/BidiTest.txt",
+      "$unicode_tools_dir/DerivedCoreProperties.txt",
+      "$unicode_tools_dir/EastAsianWidth.txt",
+      "$unicode_tools_dir/LineBreak.txt",
+      "$unicode_tools_dir/SpecialCasing.txt",
+      "$unicode_tools_dir/UnicodeData.txt",
+      "$unicode_tools_dir/auxiliary/GraphemeBreakProperty.txt",
+      "$unicode_tools_dir/auxiliary/GraphemeBreakTest.txt",
+      "$unicode_tools_dir/auxiliary/LineBreakTest.txt",
+      "$unicode_tools_dir/auxiliary/SentenceBreakProperty.txt",
+      "$unicode_tools_dir/auxiliary/SentenceBreakTest.txt",
+      "$unicode_tools_dir/auxiliary/WordBreakProperty.txt",
+      "$unicode_tools_dir/auxiliary/WordBreakTest.txt",
+      "$unicode_tools_dir/emoji/emoji-data.txt",
+      "$unicode_tools_dir/extracted/DerivedBidiClass.txt",
+    ]
+    outputs =
+        [ "$root_gen_dir/third_party/libgrapheme/data/{{source_file_part}}" ]
+  }
 
-template("compile_tool") {
-  executable(target_name) {
-    deps = [ ":copy_unicode_data" ]
-    forward_variables_from(invoker, "*", [ "deps" ])
-    if (defined(invoker.deps)) {
-      deps += invoker.deps
+  template("compile_tool") {
+    executable(target_name) {
+      forward_variables_from(invoker, "*", [ "deps" ])
+      if (defined(invoker.deps)) {
+        deps += invoker.deps
+      }
+      configs += [ ":c99" ]
+      sources += [ "../externals/libgrapheme/gen/util.c" ]
     }
-    configs += [ ":c99" ]
-    lib_dirs = [ "../../third_party/externals/libgrapheme/gen" ]
-    sources += [ "../../third_party/externals/libgrapheme/gen/util.c" ]
+  }
+
+  compile_tool("bidirectional") {
+    sources = [ "../externals/libgrapheme/gen/bidirectional.c" ]
+  }
+
+  compile_tool("case") {
+    sources = [ "../externals/libgrapheme/gen/case.c" ]
+  }
+
+  compile_tool("character") {
+    sources = [ "../externals/libgrapheme/gen/character.c" ]
+  }
+
+  compile_tool("line") {
+    sources = [ "../externals/libgrapheme/gen/line.c" ]
+  }
+
+  compile_tool("sentence") {
+    sources = [ "../externals/libgrapheme/gen/sentence.c" ]
+  }
+
+  compile_tool("word") {
+    sources = [ "../externals/libgrapheme/gen/word.c" ]
+  }
+
+  # Run an executable that will produce a header
+  action_foreach("generate_headers") {
+    script = "generate_headers.py"
+    cmd_dir = rebase_path(root_out_dir)
+    args = [
+      "$cmd_dir/{{source_name_part}}",
+      rebase_path(
+          "$root_gen_dir/third_party/libgrapheme/gen/{{source_name_part}}.h",
+          root_build_dir),
+      rebase_path("$root_gen_dir/third_party/libgrapheme", root_build_dir),
+    ]
+    _src = "../externals/libgrapheme/gen"
+    sources = [
+      "$_src/bidirectional.c",
+      "$_src/case.c",
+      "$_src/character.c",
+      "$_src/line.c",
+      "$_src/sentence.c",
+      "$_src/word.c",
+    ]
+    outputs =
+        [ "$root_gen_dir/third_party/libgrapheme/gen/{{source_name_part}}.h" ]
+    deps = [
+      ":bidirectional",
+      ":case",
+      ":character",
+      ":copy_unicode_data",
+      ":line",
+      ":sentence",
+      ":word",
+    ]
   }
 }
 
-compile_tool("bidirectional") {
-  sources = [ "../../third_party/externals/libgrapheme/gen/bidirectional.c" ]
-}
-
-compile_tool("case") {
-  sources = [ "../../third_party/externals/libgrapheme/gen/case.c" ]
-}
-
-compile_tool("character") {
-  sources = [ "../../third_party/externals/libgrapheme/gen/character.c" ]
-}
-
-compile_tool("line") {
-  sources = [ "../../third_party/externals/libgrapheme/gen/line.c" ]
-}
-
-compile_tool("sentence") {
-  sources = [ "../../third_party/externals/libgrapheme/gen/sentence.c" ]
-}
-
-compile_tool("word") {
-  sources = [ "../../third_party/externals/libgrapheme/gen/word.c" ]
-}
-
-# Run an executable that will produce a header
-action_foreach("generate_headers") {
-  script = "generate_headers.py"
-  root_dir = rebase_path(root_out_dir, "")
-  args = [
-    "$root_dir/{{source_name_part}}",
-    "../../third_party/externals/libgrapheme/gen/{{source_name_part}}.h",
-    "../../third_party/externals/libgrapheme/",
-  ]
-  _src = "../externals/libgrapheme/gen"
-  sources = [
-    "$_src/bidirectional.c",
-    "$_src/case.c",
-    "$_src/character.c",
-    "$_src/line.c",
-    "$_src/sentence.c",
-    "$_src/word.c",
-  ]
-  output_dir = rebase_path(_src, root_out_dir)
-  outputs = [ "$root_out_dir/$output_dir/{{source_name_part}}.h" ]
-  deps = [
-    ":bidirectional",
-    ":case",
-    ":character",
-    ":line",
-    ":sentence",
-    ":word",
-  ]
+# libgrapheme is built for the target and so must be able to always see headers and headers_config.
+config("headers_config") {
+  if (current_toolchain == "//gn/toolchain:$host_toolchain") {
+    include_dirs = [ "$root_gen_dir/third_party/libgrapheme/gen" ]
+  }
 }
 
 source_set("headers") {
-  sources = get_target_outputs(":generate_headers")
+  if (current_toolchain == "//gn/toolchain:$host_toolchain") {
+    # Prevent :generate_headers from being run when building all targets.
+    sources = get_target_outputs(":generate_headers")
 
-  #get_target_outputs does not actually depend on the outputs
-  deps = [ ":generate_headers" ]
+    #get_target_outputs does not actually depend on the outputs
+    deps = [ ":generate_headers" ]
+  }
 }
 
 third_party("libgrapheme") {
   public_include_dirs = [ "../externals/libgrapheme" ]
   _src = "../externals/libgrapheme/src"
 
-  configs = [ ":c99" ]
+  configs = [
+    ":c99",
+    ":headers_config(//gn/toolchain:$host_toolchain)",
+  ]
 
   sources = [
     "$_src/bidirectional.c",
@@ -136,5 +154,5 @@ third_party("libgrapheme") {
     "$_src/word.c",
   ]
 
-  deps = [ ":headers" ]
+  deps = [ ":headers(//gn/toolchain:$host_toolchain)" ]
 }

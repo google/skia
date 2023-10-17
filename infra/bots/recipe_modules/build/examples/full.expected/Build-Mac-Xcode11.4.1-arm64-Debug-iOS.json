@@ -69,7 +69,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Xcode11.4.1-arm64-Debug-iOS/Debug",
-      "--args=cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=11e503a\", \"-O1\"] ios_min_target=\"11.0\" skia_ios_identity=\".*83FNP.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Testing_Provisioning_Profile.mobileprovision\" target_cpu=\"arm64\" target_os=\"ios\" werror=true"
+      "--args=cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=11e503a\", \"-O1\"] ios_min_target=\"11.0\" skia_ios_identity=\".*83FNP.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Testing_Provisioning_Profile.mobileprovision\" skia_use_client_icu=true target_cpu=\"arm64\" target_os=\"ios\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
