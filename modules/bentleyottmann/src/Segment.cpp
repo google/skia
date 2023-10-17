@@ -78,8 +78,8 @@ bool no_intersection_by_bounding_box(const Segment& s0, const Segment& s1) {
 //    t = (Q x R) / ((Q x R) - (Q x S)).
 // This is then substituted into I = (x2 + t(x3 - x2), y2 + t(y3 - y2)).
 //
-// This method of calculating the intersection only uses 6 multiplies, and 1 division. It also
-// determines if the two segments cross with no round-off error and is always correct using 4
+// This method of calculating the intersection only uses 10 multiplies, and 1 division. It also
+// determines if the two segments cross with no round-off error and is always correct using 8
 // multiplies. However, the actual crossing point is rounded to fit back into the int32_t.
 std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
 
@@ -88,11 +88,15 @@ std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
         return std::nullopt;
     }
 
-    // Create the Q, R, and S vectors rooted at s0.p0.
-    Point O = s0.p0,
-          Q = s0.p1 - O,
-          R = s1.p0 - O,
-          S = s1.p1 - O;
+    // Create the Qa, Ra, and Sa vectors rooted at s0.p0, Qb, Rb, Sb rooted at s1.p0.
+    Point Oa = s0.p0,
+          Qa = s0.p1 - Oa,
+          Ra = s1.p0 - Oa,
+          Sa = s1.p1 - Oa,
+          Ob = s1.p0,
+          Qb = s1.p1 - Ob,
+          Rb = s0.p0 - Ob,
+          Sb = s0.p1 - Ob;
 
     // 64-bit cross product.
     auto cross = [](const Point& v0, const Point& v1) {
@@ -103,19 +107,24 @@ std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
         return x0 * y1 - y0 * x1;
     };
 
-    // Calculate the two cross products.
-    int64_t QxR = cross(Q, R),
-            QxS = cross(Q, S);
+    // Calculate the four cross products. Calculate the cross product of two sets of two
+    // triangles -- the 'a' set and the b set. The two for the 'a' set are described by the vectors
+    // Qa x Ra and Qa x Sa, and like wise for the 'b' set. If either set of cross products have the
+    // same signs, then there is no crossing.
+    int64_t QaxRa = cross(Qa, Ra),
+            QaxSa = cross(Qa, Sa),
+            QbxRb = cross(Qb, Rb),
+            QbxSb = cross(Qb, Sb);
 
     // If the endpoint is on Q, then there is no crossing. Only true intersections are returned.
     // For the intersection calculation, line segments do not include their end-points.
-    if (QxR == 0 || QxS == 0) {
+    if (QaxRa == 0 || QaxSa == 0 || QbxRb == 0 || QbxSb == 0) {
         return std::nullopt;
     }
 
     // The cross products have the same sign, so no intersection. There is no round-off error in
-    // QXR or QXS. This ensures that there is really an intersection.
-    if ((QxR ^ QxS) >= 0) {
+    // QaxRa, QaxSa, QbxRb or QbxSb. This ensures that there is really an intersection.
+    if ((QaxRa ^ QaxSa) >= 0 || (QbxRb ^ QbxSb) >= 0) {
         return std::nullopt;
     }
 
@@ -123,8 +132,8 @@ std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
     // 96-bit / 64-bit -> 32-bit quotient and a 64-bit remainder. Fake it with doubles below.
     // N / D constitute a value on [0, 1], where the intersection I is
     //     I = s0.p0 + (s0.p1 - s0.p0) * N/D.
-    double N = QxR,
-           D = QxR - QxS,
+    double N = QaxRa,
+           D = QaxRa - QaxSa,
            t = N / D;
 
     SkASSERT(0 <= t && t <= 1);

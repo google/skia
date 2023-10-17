@@ -159,6 +159,23 @@ DEF_TEST(BO_intersectBasic, reporter) {
             }
         }
     }
+
+    {
+        Segment s0 = {{0, -100}, {0, -50}},
+                s1 = {{100, -100}, {-100, 100}};  // goes through (0,0)
+        auto answer = intersect(s0, s1);
+        REPORTER_ASSERT(reporter, !answer.has_value());
+        answer = intersect(s1, s0);
+        REPORTER_ASSERT(reporter, !answer.has_value());
+    }
+    {
+        Segment s0 = {{0, 100}, {0, 50}},
+                s1 = {{100, -100}, {-100, 100}};  // goes through (0,0)
+        auto answer = intersect(s0, s1);
+        REPORTER_ASSERT(reporter, !answer.has_value());
+        answer = intersect(s1, s0);
+        REPORTER_ASSERT(reporter, !answer.has_value());
+    }
 }
 
 DEF_TEST(BO_lessAtBasic, reporter) {
