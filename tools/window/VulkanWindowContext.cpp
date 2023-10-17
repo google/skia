@@ -38,8 +38,8 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
                                          CanPresentFn canPresent,
                                          PFN_vkGetInstanceProcAddr instProc)
     : WindowContext(params)
-    , fCreateVkSurfaceFn(createVkSurface)
-    , fCanPresentFn(canPresent)
+    , fCreateVkSurfaceFn(std::move(createVkSurface))
+    , fCanPresentFn(std::move(canPresent))
     , fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
     , fImages(nullptr)

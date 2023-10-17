@@ -27,8 +27,8 @@ namespace CommonFlags {
  *  - If |dir| is a single file, assume the user is deliberately testing this image,
  *    regardless of file type.
  */
-bool CollectImages(CommandLineFlags::StringArray dir, skia_private::TArray<SkString>* output);
-
+bool CollectImages(const CommandLineFlags::StringArray& dir,
+                   skia_private::TArray<SkString>* output);
 /**
  *  Helper to set GrContextOptions from common GPU flags, including
  *     --gpuThreads

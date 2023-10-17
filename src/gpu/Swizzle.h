@@ -24,8 +24,8 @@ public:
     constexpr Swizzle() : Swizzle(0x3210) {}
     explicit constexpr Swizzle(const char c[4]);
 
-    constexpr Swizzle(const Swizzle&);
-    constexpr Swizzle& operator=(const Swizzle& that);
+    constexpr Swizzle(const Swizzle&) = default;
+    constexpr Swizzle& operator=(const Swizzle& that) = default;
 
     static constexpr Swizzle Concat(const Swizzle& a, const Swizzle& b);
 
@@ -78,14 +78,6 @@ private:
 constexpr Swizzle::Swizzle(const char c[4])
         : fKey(static_cast<uint16_t>((CToI(c[0]) << 0) | (CToI(c[1]) << 4) | (CToI(c[2]) << 8) |
                                      (CToI(c[3]) << 12))) {}
-
-constexpr Swizzle::Swizzle(const Swizzle& that)
-        : fKey(that.fKey) {}
-
-constexpr Swizzle& Swizzle::operator=(const Swizzle& that) {
-    fKey = that.fKey;
-    return *this;
-}
 
 constexpr std::array<float, 4> Swizzle::applyTo(std::array<float, 4> color) const {
     uint32_t key = fKey;

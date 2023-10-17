@@ -113,7 +113,7 @@ enum class PlaceholderAlignment {
 };
 
 struct FontFeature {
-    FontFeature(const SkString name, int value) : fName(name), fValue(value) {}
+    FontFeature(SkString name, int value) : fName(std::move(name)), fValue(value) {}
     bool operator==(const FontFeature& that) const {
         return fName == that.fName && fValue == that.fValue;
     }
@@ -178,7 +178,8 @@ public:
         fForeground = std::move(paint);
     }
     // DEPRECATED: prefer `setForegroundPaint`.
-    void setForegroundColor(SkPaint paint) { setForegroundPaint(paint); }
+    void setForegroundColor(SkPaint paint) { setForegroundPaint(std::move(paint)); }
+
     // Set the foreground to a paint ID.  This is intended for use by clients
     // that implement a custom ParagraphPainter that can not accept an SkPaint.
     void setForegroundPaintID(ParagraphPainter::PaintID paintID) {
@@ -200,7 +201,7 @@ public:
         fBackground = std::move(paint);
     }
     // DEPRECATED: prefer `setBackgroundPaint`.
-    void setBackgroundColor(SkPaint paint) { setBackgroundPaint(paint); }
+    void setBackgroundColor(SkPaint paint) { setBackgroundPaint(std::move(paint)); }
     void setBackgroundPaintID(ParagraphPainter::PaintID paintID) {
         fHasBackground = true;
         fBackground = paintID;

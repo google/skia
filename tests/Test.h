@@ -70,7 +70,7 @@ public:
     void push(const SkString& message) {
         fContextStack.push_back(message);
     }
-    void push(const std::string message) {
+    void push(const std::string& message) {
         fContextStack.push_back(SkString(message));
     }
 
@@ -97,7 +97,7 @@ public:
     ReporterContext(Reporter* reporter, const SkString& message) : fReporter(reporter) {
         fReporter->push(message);
     }
-    ReporterContext(Reporter* reporter, const std::string message) : fReporter(reporter) {
+    ReporterContext(Reporter* reporter, const std::string& message) : fReporter(reporter) {
         fReporter->push(message);
     }
     ~ReporterContext() {

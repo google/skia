@@ -137,7 +137,7 @@ private:
 // Returns a single specified typeface for all requests.
 class MockFontMgr : public SkFontMgr {
  public:
-    MockFontMgr(sk_sp<SkTypeface> test_font) : fTestFont(test_font) {}
+    MockFontMgr(sk_sp<SkTypeface> test_font) : fTestFont(std::move(test_font)) {}
 
     int onCountFamilies() const override { return 1; }
     void onGetFamilyName(int index, SkString* familyName) const override {}

@@ -124,7 +124,7 @@ private:
         FontKey() {}
 
         FontKey(SkUnichar unicode, SkFontStyle fontStyle, SkString locale)
-            : fUnicode(unicode), fFontStyle(fontStyle), fLocale(locale) { }
+            : fUnicode(unicode), fFontStyle(fontStyle), fLocale(std::move(locale)) { }
         SkUnichar fUnicode;
         SkFontStyle fFontStyle;
         SkString fLocale;

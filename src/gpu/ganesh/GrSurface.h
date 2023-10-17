@@ -159,6 +159,8 @@ private:
 
     // Unmanaged backends (e.g. Vulkan) may want to specially handle the release proc in order to
     // ensure it isn't called until GPU work related to the resource is completed.
+
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     virtual void onSetRelease(sk_sp<RefCntedReleaseProc>) {}
 
     void invokeReleaseProc() {

@@ -32,15 +32,15 @@ FontCollection::FontCollection()
 size_t FontCollection::getFontManagersCount() const { return this->getFontManagerOrder().size(); }
 
 void FontCollection::setAssetFontManager(sk_sp<SkFontMgr> font_manager) {
-    fAssetFontManager = font_manager;
+    fAssetFontManager = std::move(font_manager);
 }
 
 void FontCollection::setDynamicFontManager(sk_sp<SkFontMgr> font_manager) {
-    fDynamicFontManager = font_manager;
+    fDynamicFontManager = std::move(font_manager);
 }
 
 void FontCollection::setTestFontManager(sk_sp<SkFontMgr> font_manager) {
-    fTestFontManager = font_manager;
+    fTestFontManager = std::move(font_manager);
 }
 
 void FontCollection::setDefaultFontManager(sk_sp<SkFontMgr> fontManager,
@@ -56,7 +56,7 @@ void FontCollection::setDefaultFontManager(sk_sp<SkFontMgr> fontManager,
 }
 
 void FontCollection::setDefaultFontManager(sk_sp<SkFontMgr> fontManager) {
-    fDefaultFontManager = fontManager;
+    fDefaultFontManager = std::move(fontManager);
 }
 
 // Return the available font managers in the order they should be queried.

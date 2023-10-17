@@ -138,7 +138,7 @@ void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRe
 // This is how flutter calculates the thickness
 void Decorations::calculateThickness(TextStyle textStyle, sk_sp<SkTypeface> typeface) {
 
-    textStyle.setTypeface(typeface);
+    textStyle.setTypeface(std::move(typeface));
     textStyle.getFontMetrics(&fFontMetrics);
 
     fThickness = textStyle.getFontSize() / 14.0f;

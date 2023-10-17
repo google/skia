@@ -28,11 +28,12 @@
 struct BaseOption {
     std::string selector;
     std::string description;
-    virtual void set(std::string _value) = 0;
+    virtual void set(const std::string& _value) = 0;
     virtual std::string valueToString() = 0;
 
     BaseOption(std::string _selector, std::string _description)
-        : selector(_selector), description(_description) {}
+            : selector(std::move(_selector))
+            , description(std::move(_description)) {}
 
     virtual ~BaseOption() {}
 
@@ -43,7 +44,8 @@ template <class T>
 struct Option : BaseOption {
     T value;
     Option(std::string _selector, std::string _description, T defaultValue)
-        : BaseOption(_selector, _description), value(defaultValue) {}
+            : BaseOption(std::move(_selector), std::move(_description))
+            , value(defaultValue) {}
 };
 
 void BaseOption::Init(const std::vector<BaseOption*> &option_list,
@@ -77,25 +79,25 @@ void BaseOption::Init(const std::vector<BaseOption*> &option_list,
 }
 
 struct DoubleOption : Option<double> {
-    void set(std::string _value) override { value = atof(_value.c_str()); }
+    void set(const std::string& _value) override { value = atof(_value.c_str()); }
     std::string valueToString() override {
         std::ostringstream stm;
         stm << value;
         return stm.str();
     }
-    DoubleOption(std::string _selector,
-                 std::string _description,
-                 double defaultValue)
-        : Option<double>(_selector, _description, defaultValue) {}
+    DoubleOption(std::string _selector, std::string _description, double defaultValue)
+            : Option<double>(std::move(_selector),
+                             std::move(_description),
+                             std::move(defaultValue)) {}
 };
 
 struct StringOption : Option<std::string> {
-    void set(std::string _value) override { value = _value; }
+    void set(const std::string& _value) override { value = _value; }
     std::string valueToString() override { return value; }
-    StringOption(std::string _selector,
-                 std::string _description,
-                 std::string defaultValue)
-        : Option<std::string>(_selector, _description, defaultValue) {}
+    StringOption(std::string _selector, std::string _description, std::string defaultValue)
+            : Option<std::string>(std::move(_selector),
+                                  std::move(_description),
+                                  std::move(defaultValue)) {}
 };
 
 // Config //////////////////////////////////////////////////////////////////////

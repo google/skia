@@ -62,9 +62,8 @@ struct StyleBlock {
 };
 
 struct ResolvedFontDescriptor {
-
     ResolvedFontDescriptor(TextIndex index, SkFont font)
-        : fFont(font), fTextStart(index) { }
+            : fFont(std::move(font)), fTextStart(index) {}
     SkFont fFont;
     TextIndex fTextStart;
 };

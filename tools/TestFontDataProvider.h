@@ -30,7 +30,7 @@ public:
         std::vector<LangSample> langSamples;
     };
 
-    TestFontDataProvider(const std::string fontFilterRegexp, const std::string langFilterRegexp);
+    TestFontDataProvider(const std::string& fontFilterRegexp, const std::string& langFilterRegexp);
 
     bool next(TestSet* testSet);
 

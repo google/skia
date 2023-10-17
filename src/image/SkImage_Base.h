@@ -174,6 +174,7 @@ public:
     virtual sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const = 0;
 
     // on failure, returns nullptr
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     virtual sk_sp<SkImage> onMakeWithMipmaps(sk_sp<SkMipmap>) const {
         return nullptr;
     }
@@ -202,7 +203,7 @@ static inline const SkImage_Base* as_IB(const SkImage* image) {
     return static_cast<const SkImage_Base*>(image);
 }
 
-static inline const SkImage_Base* as_IB(sk_sp<const SkImage> image) {
+static inline const SkImage_Base* as_IB(const sk_sp<const SkImage>& image) {
     return static_cast<const SkImage_Base*>(image.get());
 }
 

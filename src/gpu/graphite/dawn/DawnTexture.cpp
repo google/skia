@@ -172,7 +172,7 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
 sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                         SkISize dimensions,
                                         const TextureInfo& info,
-                                        wgpu::TextureView textureView) {
+                                        const wgpu::TextureView& textureView) {
     if (!textureView) {
         SKGPU_LOG_E("No valid texture passed into MakeWrapped\n");
         return {};

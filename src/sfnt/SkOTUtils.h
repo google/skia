@@ -80,8 +80,7 @@ struct SkOTUtils {
     class LocalizedStrings_SingleName : public SkTypeface::LocalizedStrings {
     public:
         LocalizedStrings_SingleName(SkString name, SkString language)
-            : fName(name), fLanguage(language), fHasNext(true)
-        { }
+                : fName(std::move(name)), fLanguage(std::move(language)), fHasNext(true) {}
 
         bool next(SkTypeface::LocalizedString* localizedString) override {
             localizedString->fString = fName;

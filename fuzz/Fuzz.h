@@ -23,7 +23,7 @@
 
 class Fuzz {
 public:
-    explicit Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
+    explicit Fuzz(sk_sp<SkData> bytes) : fBytes(std::move(bytes)), fNextByte(0) {}
     Fuzz() = delete;
 
     // Make noncopyable

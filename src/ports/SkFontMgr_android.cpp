@@ -468,7 +468,7 @@ private:
         }
         fStyleSets.emplace_back(std::move(newSet));
     }
-    void buildNameToFamilyMap(SkTDArray<FontFamily*> families, const bool isolated) {
+    void buildNameToFamilyMap(const SkTDArray<FontFamily*>& families, const bool isolated) {
         int familyIndex = 0;
         for (FontFamily* family : families) {
             addFamily(*family, isolated, familyIndex++);

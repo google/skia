@@ -1385,7 +1385,7 @@ class Zalgo {
     }
 
 public:
-    std::u16string zalgo(std::string victim) {
+    std::u16string zalgo(const std::string& victim) {
         std::u16string result;
         for (auto& c : victim) {
             result += c;
@@ -2292,7 +2292,7 @@ public:
         auto res2 = paragraph->getRectsForRange(359, 360, RectHeightStyle::kTight, RectWidthStyle::kTight);
         auto res3 = paragraph->getRectsForRange(358, 359, RectHeightStyle::kTight, RectWidthStyle::kTight);
 
-        auto draw = [&](std::vector<TextBox> res, SkColor color) {
+        auto draw = [&](const std::vector<TextBox>& res, SkColor color) {
             SkPaint paint;
             paint.setColor(color);
             for (auto& r : res) {
@@ -4027,7 +4027,7 @@ public:
         paragraph_style.setTextStyle(text_style);
         paragraph_style.setTextAlign(TextAlign::kStart);
         paragraph_style.setEllipsis(u"\u2026");
-        auto draw = [&](std::u16string text, size_t lines, TextDirection dir) {
+        auto draw = [&](const std::u16string& text, size_t lines, TextDirection dir) {
             paragraph_style.setMaxLines(lines);
             paragraph_style.setTextDirection(dir);
             ParagraphBuilderImpl builder(paragraph_style, fontCollection);
@@ -4240,7 +4240,7 @@ public:
         paragraph_style.setTextStyle(text_style);
         paragraph_style.setTextAlign(TextAlign::kStart);
         paragraph_style.setEllipsis(u"\u2026");
-        auto draw = [&](std::u16string text) {
+        auto draw = [&](const std::u16string& text) {
             paragraph_style.setMaxLines(1);
             ParagraphBuilderImpl builder(paragraph_style, fontCollection);
             builder.pushStyle(text_style);

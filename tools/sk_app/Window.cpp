@@ -24,7 +24,7 @@ Window::~Window() {}
 
 void Window::detach() { fWindowContext = nullptr; }
 
-void Window::visitLayers(std::function<void(Layer*)> visitor) {
+void Window::visitLayers(const std::function<void(Layer*)>& visitor) {
     for (int i = 0; i < fLayers.size(); ++i) {
         if (fLayers[i]->fActive) {
             visitor(fLayers[i]);
@@ -32,7 +32,7 @@ void Window::visitLayers(std::function<void(Layer*)> visitor) {
     }
 }
 
-bool Window::signalLayers(std::function<bool(Layer*)> visitor) {
+bool Window::signalLayers(const std::function<bool(Layer*)>& visitor) {
     for (int i = fLayers.size() - 1; i >= 0; --i) {
         if (fLayers[i]->fActive && visitor(fLayers[i])) {
             return true;

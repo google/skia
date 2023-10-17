@@ -31,7 +31,8 @@ public:
     SkLanguage(const SkString& tag) : fTag(tag) { }
     SkLanguage(const char* tag) : fTag(tag) { }
     SkLanguage(const char* tag, size_t len) : fTag(tag, len) { }
-    SkLanguage(const SkLanguage& b) : fTag(b.fTag) { }
+    SkLanguage(const SkLanguage&) = default;
+    SkLanguage& operator=(const SkLanguage&) = default;
 
     /** Gets a BCP 47 language identifier for this SkLanguage.
         @return a BCP 47 language identifier representing this language
@@ -48,10 +49,6 @@ public:
     }
     bool operator!=(const SkLanguage& b) const {
         return fTag != b.fTag;
-    }
-    SkLanguage& operator=(const SkLanguage& b) {
-        fTag = b.fTag;
-        return *this;
     }
 
 private:

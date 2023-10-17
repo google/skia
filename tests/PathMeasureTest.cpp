@@ -244,7 +244,7 @@ DEF_TEST(PathMeasure_nextctr, reporter) {
     REPORTER_ASSERT(reporter, !meas.nextContour());
 }
 
-static void test_90_degrees(sk_sp<SkContourMeasure> cm, SkScalar radius,
+static void test_90_degrees(const sk_sp<SkContourMeasure>& cm, SkScalar radius,
                             skiatest::Reporter* reporter) {
     SkPoint pos;
     SkVector tan;

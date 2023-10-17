@@ -241,8 +241,8 @@ public:
     virtual bool getClosestUTF16GlyphInfoAt(SkScalar dx, SkScalar dy, GlyphInfo* glyphInfo) = 0;
 
     struct FontInfo {
-        FontInfo(const SkFont font, const TextRange textRange)
-            : fFont(font), fTextRange(textRange) { }
+        FontInfo(const SkFont& font, const TextRange textRange)
+                : fFont(font), fTextRange(textRange) {}
         virtual ~FontInfo() = default;
         FontInfo(const FontInfo& ) = default;
         SkFont fFont;

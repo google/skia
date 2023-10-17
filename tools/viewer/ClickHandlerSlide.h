@@ -25,7 +25,7 @@ public:
     class Click {
     public:
         Click() {}
-        Click(std::function<bool(Click*)> f) : fFunc(f), fHasFunc(true) {}
+        Click(std::function<bool(Click*)> f) : fFunc(std::move(f)), fHasFunc(true) {}
         virtual ~Click() = default;
 
         SkPoint fOrig = {0, 0};

@@ -423,6 +423,7 @@ public:
     virtual void checkFinishProcs() = 0;
     virtual void finishOutstandingGpuWork() = 0;
 
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     virtual void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) {}
 
     /**

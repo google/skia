@@ -27,9 +27,9 @@ using namespace skia_private;
 class SkData;
 
 SkTypeface_Custom::SkTypeface_Custom(const SkFontStyle& style, bool isFixedPitch,
-                                     bool sysFont, const SkString familyName, int index)
+                                     bool sysFont, SkString familyName, int index)
     : INHERITED(style, isFixedPitch)
-    , fIsSysFont(sysFont), fFamilyName(familyName), fIndex(index)
+    , fIsSysFont(sysFont), fFamilyName(std::move(familyName)), fIndex(index)
 { }
 
 bool SkTypeface_Custom::isSysFont() const { return fIsSysFont; }

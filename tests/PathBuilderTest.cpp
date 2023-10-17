@@ -393,7 +393,7 @@ DEF_TEST(SkPathBuilder_lineToMoveTo, reporter) {
 }
 
 DEF_TEST(SkPathBuilder_arcToPtPtRad_invalidInputsResultInALine, reporter) {
-    auto test = [&](std::string name, SkPoint start, SkPoint end, SkScalar radius,
+    auto test = [&](const std::string& name, SkPoint start, SkPoint end, SkScalar radius,
                     SkPoint expectedLineTo) {
         SkPathBuilder pb;
         // Remember there is an implicit moveTo(0, 0) if arcTo is the first command called.

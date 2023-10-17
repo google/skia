@@ -24,7 +24,7 @@ void SetResourcePath(const char*);
 
 sk_sp<SkData> GetResourceAsData(const char* resource);
 
-inline sk_sp<SkData> GetResourceAsData(std::string resource) {
+inline sk_sp<SkData> GetResourceAsData(const std::string& resource) {
     return GetResourceAsData(resource.c_str());
 }
 

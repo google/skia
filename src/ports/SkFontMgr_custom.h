@@ -25,7 +25,7 @@ class SkTypeface;
 class SkTypeface_Custom : public SkTypeface_FreeType {
 public:
     SkTypeface_Custom(const SkFontStyle& style, bool isFixedPitch,
-                      bool sysFont, const SkString familyName, int index);
+                      bool sysFont, SkString familyName, int index);
     bool isSysFont() const;
 
 protected:

@@ -270,7 +270,7 @@ public:
                    const SkShaders::MatrixRec& matrixRec,
                    SkColorType dstColorType,
                    SkColorSpace* dstColorSpace,
-                   SkSurfaceProps props)
+                   const SkSurfaceProps& props)
                 : fMatrixRec(matrixRec)
                 , fDstColorType(dstColorType)
                 , fDstColorSpace(dstColorSpace)

@@ -108,7 +108,7 @@ static void init_surface(Fuzz* fuzz, sk_sp<SkSurface>* s) {
 
 
 static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> typeface) {
-    SkFont font(typeface);
+    SkFont font(std::move(typeface));
     SkPaint p;
     init_paint(fuzz, &p);
     sk_sp<SkSurface> surface;

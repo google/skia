@@ -98,7 +98,7 @@ SkPath GeometryTransform::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
 
 namespace  {
 
-sk_sp<SkPathEffect> make_dash(const std::vector<float> intervals, float phase) {
+sk_sp<SkPathEffect> make_dash(const std::vector<float>& intervals, float phase) {
     if (intervals.empty()) {
         return nullptr;
     }

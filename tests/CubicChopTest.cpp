@@ -33,7 +33,7 @@ static bool nearly_equal(double expected, double actual) {
     return sk_doubles_nearly_equal_ulps(expected, actual, 64);
 }
 
-static void testChopCubicAtT(skiatest::Reporter* reporter, std::string name,
+static void testChopCubicAtT(skiatest::Reporter* reporter, const std::string& name,
                              SkSpan<const DoublePoint> curveInputs, double t,
                              SkSpan<const DoublePoint> expectedOutputs) {
     skiatest::ReporterContext subtest(reporter, name);

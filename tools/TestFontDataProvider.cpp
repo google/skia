@@ -49,8 +49,8 @@ SkString prefixWithFontsPath(SkString suffix) {
 
 }  // namespace
 
-TestFontDataProvider::TestFontDataProvider(const std::string fontFilterRegexp,
-                                           const std::string langFilterRegexp)
+TestFontDataProvider::TestFontDataProvider(const std::string& fontFilterRegexp,
+                                           const std::string& langFilterRegexp)
         : fFontFilter(fontFilterRegexp), fLangFilter(langFilterRegexp) {
     SkString testDataLocation = prefixWithTestDataPath(SkString(kTestDataJsonFilename));
     sk_sp<SkData> jsonTestData = SkData::MakeFromFileName(testDataLocation.c_str());

@@ -9,14 +9,17 @@ namespace text {
     bool Paint::drawText(std::u16string text, SkCanvas* canvas, SkScalar x, SkScalar y) {
         SkPaint foregroundPaint(SkColors::kBlack);
         SkPaint backgroundPaint(SkColors::kWhite);
-        return drawText(std::move(text), canvas, TextDirection::kLtr, TextAlign::kLeft, foregroundPaint, backgroundPaint, SkString("Roboto"), 14, SkFontStyle::Normal(), x, y);
+        return drawText(std::move(text), canvas, TextDirection::kLtr, TextAlign::kLeft,
+                        std::move(foregroundPaint), std::move(backgroundPaint), SkString("Roboto"),
+                        14, SkFontStyle::Normal(), x, y);
     }
 
     bool Paint::drawText(std::u16string text, SkCanvas* canvas, SkScalar width) {
         SkPaint foregroundPaint(SkColors::kBlack);
         SkPaint backgroundPaint(SkColors::kWhite);
         return drawText(std::move(text), canvas,
-                        TextDirection::kLtr, TextAlign::kLeft, foregroundPaint, backgroundPaint, SkString("Roboto"), 14, SkFontStyle::Normal(),
+                        TextDirection::kLtr, TextAlign::kLeft, std::move(foregroundPaint),
+                        std::move(backgroundPaint), SkString("Roboto"), 14, SkFontStyle::Normal(),
                         SkSize::Make(width, SK_ScalarInfinity), 0, 0);
     }
 
@@ -24,15 +27,16 @@ namespace text {
                          TextDirection textDirection, TextAlign textAlign,
                          SkPaint foreground, SkPaint background,
                          const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y) {
-        return drawText(std::move(text), canvas,
-                        textDirection, textAlign, foreground, background,
-                        fontFamily, fontSize, fontStyle, SkSize::Make(SK_ScalarInfinity, SK_ScalarInfinity), x, y);
+        return drawText(std::move(text), canvas, textDirection, textAlign, std::move(foreground),
+                        std::move(background), fontFamily, fontSize, fontStyle,
+                        SkSize::Make(SK_ScalarInfinity, SK_ScalarInfinity), x, y);
     }
 
     bool Paint::drawText(std::u16string text, SkCanvas* canvas,
                          TextDirection textDirection, TextAlign textAlign,
                          SkPaint foreground, SkPaint background,
-                         const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkSize reqSize, SkScalar x, SkScalar y) {
+                         const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
+                         SkSize reqSize, SkScalar x, SkScalar y) {
 
         size_t textSize = text.size();
         sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>(fontFamily.c_str(), fontSize, fontStyle);
@@ -46,7 +50,7 @@ namespace text {
             return false;
         }
 
-        DecoratedBlock decoratedBlock(textSize, foreground, background);
+        DecoratedBlock decoratedBlock(textSize, std::move(foreground), std::move(background));
         Paint paint;
         paint.paint(canvas, SkPoint::Make(x, y), nullptr, formattedText.get(), SkSpan<DecoratedBlock>(&decoratedBlock, 1));
 

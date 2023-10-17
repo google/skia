@@ -12,7 +12,7 @@
 #include "tools/fonts/TestFontMgr.h"
 
 void FuzzSkottieJSON(sk_sp<SkData> bytes) {
-    SkMemoryStream stream(bytes);
+    SkMemoryStream stream(std::move(bytes));
     auto animation = skottie::Animation::Make(&stream);
     if (!animation) {
         return;

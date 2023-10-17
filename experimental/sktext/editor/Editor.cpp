@@ -7,11 +7,11 @@ using namespace skia::text;
 namespace skia {
 namespace editor {
 
-std::unique_ptr<Editor> Editor::Make(std::u16string text, SkSize size) {
+std::unique_ptr<Editor> Editor::Make(const std::u16string& text, SkSize size) {
     return std::make_unique<Editor>(text, size);
 }
 
-Editor::Editor(std::u16string text, SkSize size)
+Editor::Editor(const std::u16string& text, SkSize size)
         : fDefaultPositionType(PositionType::kGraphemeCluster)
         , fInsertMode(true) {
 

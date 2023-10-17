@@ -37,7 +37,7 @@ static bool nearly_equal(double expected, double actual) {
     return sk_doubles_nearly_equal_ulps(expected, actual, 64);
 }
 
-static void testConvertToPolynomial(skiatest::Reporter* reporter, std::string name,
+static void testConvertToPolynomial(skiatest::Reporter* reporter, const std::string& name,
                                     SkSpan<const SkDPoint> curveInputs, bool yValues,
                                     double expectedA, double expectedB,
                                     double expectedC, double expectedD) {

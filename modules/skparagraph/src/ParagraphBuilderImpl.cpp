@@ -16,22 +16,24 @@
 namespace skia {
 namespace textlayout {
 
-std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
-        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) {
-    return ParagraphBuilderImpl::make(style, fontCollection);
+std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(const ParagraphStyle& style,
+                                                         sk_sp<FontCollection> fontCollection) {
+    return ParagraphBuilderImpl::make(style, std::move(fontCollection));
 }
 
-std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(
-        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection) {
-    return std::make_unique<ParagraphBuilderImpl>(style, fontCollection);
+std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(const ParagraphStyle& style,
+                                                             sk_sp<FontCollection> fontCollection) {
+    return std::make_unique<ParagraphBuilderImpl>(style, std::move(fontCollection));
 }
 
-std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(
-        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection, std::unique_ptr<SkUnicode> unicode) {
+std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(const ParagraphStyle& style,
+                                                             sk_sp<FontCollection> fontCollection,
+                                                             std::unique_ptr<SkUnicode> unicode) {
     if (nullptr == unicode) {
         return nullptr;
     }
-    return std::make_unique<ParagraphBuilderImpl>(style, fontCollection, std::move(unicode));
+    return std::make_unique<ParagraphBuilderImpl>(style, std::move(fontCollection),
+                                                  std::move(unicode));
 }
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(

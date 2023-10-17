@@ -8,7 +8,7 @@
 using namespace skia_private;
 
 namespace CommonFlags {
-bool CollectImages(CommandLineFlags::StringArray images, TArray<SkString>* output) {
+bool CollectImages(const CommandLineFlags::StringArray& images, TArray<SkString>* output) {
     SkASSERT(output);
 
     static const char* const exts[] = {

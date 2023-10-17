@@ -24,10 +24,10 @@ using namespace skia::text;
 
 class Editor : public sk_app::Window::Layer {
 public:
-    static std::unique_ptr<Editor> Make(std::u16string text, SkSize size);
+    static std::unique_ptr<Editor> Make(const std::u16string& text, SkSize size);
     static std::unique_ptr<Editor> MakeDemo(SkScalar width, SkScalar height);
 
-    Editor(std::u16string text, SkSize size);
+    Editor(const std::u16string& text, SkSize size);
     ~Editor() override = default;
 
     void paint(SkCanvas* canvas);
