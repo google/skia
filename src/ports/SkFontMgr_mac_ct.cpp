@@ -45,7 +45,7 @@ using namespace skia_private;
 #if (defined(SK_BUILD_FOR_IOS) && defined(__IPHONE_14_0) &&  \
       __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_14_0) ||  \
     (defined(SK_BUILD_FOR_MAC) && defined(__MAC_11_0) &&     \
-      __MAC_OS_VERSION_MIN_REQUIRED >= __MAC_11_0)
+      __MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_11_0)
 
 static uint32_t SkGetCoreTextVersion() {
     // If compiling for iOS 14.0+ or macOS 11.0+, the CoreText version number
