@@ -370,6 +370,21 @@ template<typename Array> static void test_reserve(skiatest::Reporter* reporter) 
     }
 }
 
+template <typename T>
+static void test_inner_push(skiatest::Reporter* reporter) {
+    T a;
+    a.push_back(12345);
+    for (int x=0; x<50; ++x) {
+        a.push_back(a.front());
+    }
+    for (int x=0; x<50; ++x) {
+        a.push_back(a.back());
+    }
+
+    REPORTER_ASSERT(reporter, a.size() == 101);
+    REPORTER_ASSERT(reporter, std::count(a.begin(), a.end(), 12345) == a.size());
+}
+
 DEF_TEST(TArray, reporter) {
     // ints are POD types and can work with either MEM_MOVE=true or false.
     TestTSet_basic<int, true>(reporter);
@@ -401,6 +416,11 @@ DEF_TEST(TArray, reporter) {
     test_construction<STArray<5, char>>(reporter);
     test_construction<STArray<7, TestClass>>(reporter);
     test_construction<STArray<10, float>>(reporter);
+
+    test_inner_push<TArray<int>>(reporter);
+    test_inner_push<STArray<1, int>>(reporter);
+    test_inner_push<STArray<99, int>>(reporter);
+    test_inner_push<STArray<200, int>>(reporter);
 
     test_skstarray_compatibility<STArray<1, int>, TArray<int>>(reporter);
     test_skstarray_compatibility<STArray<5, char>, TArray<char>>(reporter);
