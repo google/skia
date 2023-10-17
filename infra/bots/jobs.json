@@ -346,7 +346,6 @@
    "cq_config": {}
    },
   {"name": "Housekeeper-PerCommit-CreateDockerImage_Skia_Release"},
-  {"name": "Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release"},
   {"name": "Housekeeper-PerCommit-InfraTests_Linux",
    "cq_config": {}
    },
