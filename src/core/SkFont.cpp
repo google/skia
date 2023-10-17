@@ -325,7 +325,11 @@ SkTypeface* SkFont::getTypefaceOrDefault() const {
 }
 
 sk_sp<SkTypeface> SkFont::refTypefaceOrDefault() const {
+#if !defined(SK_DISABLE_LEGACY_DEFAULT_TYPEFACE)
     return fTypeface ? fTypeface : SkTypeface::MakeDefault();
+#else
+    return fTypeface ? fTypeface : SkTypeface::MakeEmpty();
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

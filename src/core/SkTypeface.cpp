@@ -146,6 +146,7 @@ SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
 }
 
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
+#if !defined(SK_DEFAULT_TYPEFACE_IS_EMPTY)
     static SkOnce once[4];
     static sk_sp<SkTypeface> defaults[4];
 
@@ -156,16 +157,30 @@ SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
         defaults[style] = t ? t : SkEmptyTypeface::Make();
     });
     return defaults[style].get();
+#else
+    static sk_sp<SkTypeface> empty = SkEmptyTypeface::Make();
+    return empty.get();
+#endif  // !defined(SK_DEFAULT_TYPEFACE_IS_EMPTY)
 }
 
+#if !defined(SK_DISABLE_LEGACY_DEFAULT_TYPEFACE)
 sk_sp<SkTypeface> SkTypeface::MakeDefault() {
     return sk_ref_sp(GetDefaultTypeface());
 }
+#endif
+
+sk_sp<SkTypeface> SkTypeface::MakeEmpty() {
+    return SkEmptyTypeface::Make();
+}
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
+#if !defined(SK_DISABLE_LEGACY_DEFAULT_TYPEFACE)
     if (nullptr == face) {
         face = GetDefaultTypeface();
     }
+#else
+    SkASSERT(face);
+#endif
     return face->uniqueID();
 }
 
@@ -204,6 +219,7 @@ namespace {
 
 }  // namespace
 
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
 sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
                                            SkFontStyle fontStyle) {
     if (nullptr == name && (fontStyle.slant() == SkFontStyle::kItalic_Slant ||
@@ -247,6 +263,7 @@ sk_sp<SkTypeface> SkTypeface::MakeFromData(sk_sp<SkData> data, int index) {
 sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
     return SkFontMgr::RefDefault()->makeFromFile(path, index);
 }
+#endif  // !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
 
 sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
     return this->onMakeClone(args);
@@ -299,7 +316,13 @@ sk_sp<SkData> SkTypeface::serialize(SerializeBehavior behavior) const {
     return stream.detachAsData();
 }
 
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
 sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
+    return MakeDeserialize(stream, SkFontMgr::RefDefault());
+}
+#endif
+
+sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream, sk_sp<SkFontMgr> lastResortMgr) {
     SkFontDescriptor desc;
     if (!SkFontDescriptor::Deserialize(stream, &desc)) {
         return nullptr;
@@ -317,15 +340,25 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
                  (id >> 24) & 0xFF, (id >> 16) & 0xFF, (id >> 8) & 0xFF, (id >> 0) & 0xFF,
                  desc.getFamilyName());
 
-        sk_sp<SkFontMgr> defaultFm = SkFontMgr::RefDefault();
-        sk_sp<SkTypeface> typeface = defaultFm->makeFromStream(desc.detachStream(),
-                                                               desc.getFontArguments());
-        if (typeface) {
-            return typeface;
+        if (lastResortMgr) {
+            // If we've gotten to here, we will try desperately to find something that might match
+            // as a kind of last ditch effort to make something work (and maybe this SkFontMgr knows
+            // something about the serialization and can look up the right thing by name anyway if
+            // the user provides it).
+            // Any time it is used the user will probably get the wrong glyphs drawn (and if they're
+            // right it is totally by accident). But sometimes drawing something or getting lucky
+            // while debugging is better than drawing nothing at all.
+            sk_sp<SkTypeface> typeface = lastResortMgr->makeFromStream(desc.detachStream(),
+                                                                       desc.getFontArguments());
+            if (typeface) {
+                return typeface;
+            }
         }
     }
-
-    return SkTypeface::MakeFromName(desc.getFamilyName(), desc.getStyle());
+    if (lastResortMgr) {
+        return lastResortMgr->legacyMakeTypeface(desc.getFamilyName(), desc.getStyle());
+    }
+    return SkEmptyTypeface::Make();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
