@@ -23,7 +23,16 @@
 #include "src/gpu/graphite/render/VerticesRenderStep.h"
 #include "src/sksl/SkSLUtil.h"
 
+#ifdef SK_ENABLE_VELLO_SHADERS
+#include "src/gpu/graphite/compute/VelloRenderer.h"
+#endif
+
 namespace skgpu::graphite {
+
+// The destructor is intentionally defined here and not in the header file to allow forward
+// declared types (such as `VelloRenderer`) to be defined as a `std::unique_ptr` parameter type
+// in members.
+RendererProvider::~RendererProvider() = default;
 
 RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* bufferManager) {
     // This constructor requires all Renderers be densely packed so that it can simply iterate over

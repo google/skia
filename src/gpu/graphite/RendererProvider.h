@@ -12,16 +12,16 @@
 #include "include/core/SkVertices.h"
 #include "src/gpu/graphite/Renderer.h"
 
-#ifdef SK_ENABLE_VELLO_SHADERS
-#include "src/gpu/graphite/compute/VelloRenderer.h"
-#endif
-
 #include <vector>
 
 namespace skgpu::graphite {
 
 class Caps;
 class StaticBufferManager;
+
+#ifdef SK_ENABLE_VELLO_SHADERS
+class VelloRenderer;
+#endif
 
 /**
  * Graphite defines a limited set of renderers in order to increase the likelihood of batching
@@ -33,6 +33,8 @@ class StaticBufferManager;
  */
 class RendererProvider {
 public:
+    ~RendererProvider();
+
     // TODO: Add configuration options to disable "optimization" renderers in favor of the more
     // general case, or renderers that won't be used by the application. When that's added, these
     // functions could return null.
