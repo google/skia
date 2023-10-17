@@ -192,9 +192,9 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
         fUTF16IndexForUTF8Index.clear();
         // This is the place where SkUnicode is paired with SkParagraph
         fUnicode = SkUnicode::MakeClientBasedUnicode(this->getText(),
-                                                    std::move(fWordsUtf16),
-                                                    std::move(fGraphemeBreaksUtf8),
-                                                    std::move(fLineBreaksUtf8));
+                                                     std::move(fWordsUtf16),
+                                                     std::move(fGraphemeBreaksUtf8),
+                                                     std::move(fLineBreaksUtf8));
     }
 #endif
 

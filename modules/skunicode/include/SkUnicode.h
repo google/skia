@@ -298,9 +298,9 @@ class SKUNICODE_API SkUnicode {
 
         static std::unique_ptr<SkUnicode> MakeClientBasedUnicode(
                 SkSpan<char> text,
-                const std::vector<SkUnicode::Position>& words,
-                const std::vector<SkUnicode::Position>& graphemeBreaks,
-                const std::vector<SkUnicode::LineBreakBefore>& lineBreaks);
+                std::vector<SkUnicode::Position> words,
+                std::vector<SkUnicode::Position> graphemeBreaks,
+                std::vector<SkUnicode::LineBreakBefore> lineBreaks);
 
         static std::unique_ptr<SkUnicode> MakeLibgraphemeBasedUnicode();
 };
