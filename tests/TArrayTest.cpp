@@ -385,6 +385,28 @@ static void test_inner_push(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, std::count(a.begin(), a.end(), 12345) == a.size());
 }
 
+struct EmplaceStruct {
+    EmplaceStruct(int v) : fValue(v) {}
+    int fValue;
+};
+
+template <typename T>
+static void test_inner_emplace(skiatest::Reporter* reporter) {
+    T a;
+    a.emplace_back(12345);
+    for (int x=0; x<50; ++x) {
+        a.emplace_back(a.front().fValue);
+    }
+    for (int x=0; x<50; ++x) {
+        a.emplace_back(a.back().fValue);
+    }
+
+    REPORTER_ASSERT(reporter, a.size() == 101);
+    REPORTER_ASSERT(reporter, std::all_of(a.begin(), a.end(), [](const EmplaceStruct& s) {
+                        return s.fValue == 12345;
+                    }));
+}
+
 DEF_TEST(TArray, reporter) {
     // ints are POD types and can work with either MEM_MOVE=true or false.
     TestTSet_basic<int, true>(reporter);
@@ -421,6 +443,11 @@ DEF_TEST(TArray, reporter) {
     test_inner_push<STArray<1, int>>(reporter);
     test_inner_push<STArray<99, int>>(reporter);
     test_inner_push<STArray<200, int>>(reporter);
+
+    test_inner_emplace<TArray<EmplaceStruct>>(reporter);
+    test_inner_emplace<STArray<1, EmplaceStruct>>(reporter);
+    test_inner_emplace<STArray<99, EmplaceStruct>>(reporter);
+    test_inner_emplace<STArray<200, EmplaceStruct>>(reporter);
 
     test_skstarray_compatibility<STArray<1, int>, TArray<int>>(reporter);
     test_skstarray_compatibility<STArray<5, char>, TArray<char>>(reporter);

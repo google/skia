@@ -203,7 +203,7 @@ public:
             // Copy over the element directly.
             newT = new (fData + fSize) T(t);
         } else {
-            newT = this->growAndPushBack(t);
+            newT = this->growAndConstructAtEnd(t);
         }
 
         fSize += 1;
@@ -219,7 +219,7 @@ public:
             // Move over the element directly.
             newT = new (fData + fSize) T(std::move(t));
         } else {
-            newT = this->growAndPushBack(std::move(t));
+            newT = this->growAndConstructAtEnd(std::move(t));
         }
 
         fSize += 1;
@@ -227,11 +227,19 @@ public:
     }
 
     /**
-     *  Construct a new T at the back of this array.
+     *  Constructs a new T at the back of this array, returning it by reference.
      */
-    template<class... Args> T& emplace_back(Args&&... args) {
-        void* newT = this->push_back_raw(1);
-        return *new (newT) T(std::forward<Args>(args)...);
+    template <typename... Args> T& emplace_back(Args&&... args) {
+        T* newT;
+        if (this->capacity() > fSize) SK_LIKELY {
+            // Emplace the new element in directly.
+            newT = new (fData + fSize) T(std::forward<Args>(args)...);
+        } else {
+            newT = this->growAndConstructAtEnd(std::forward<Args>(args)...);
+        }
+
+        fSize += 1;
+        return *newT;
     }
 
     /**
@@ -611,10 +619,10 @@ private:
         return ptr;
     }
 
-    template <typename U>
-    SK_ALWAYS_INLINE T* growAndPushBack(U&& t) {
+    template <typename... Args>
+    SK_ALWAYS_INLINE T* growAndConstructAtEnd(Args&&... args) {
         SkSpan<std::byte> buffer = this->preallocateNewData(/*delta=*/1, kGrowing);
-        T* newT = new (TCast(buffer.data()) + fSize) T(std::forward<U>(t));
+        T* newT = new (TCast(buffer.data()) + fSize) T(std::forward<Args>(args)...);
         this->installDataAndUpdateCapacity(buffer);
 
         return newT;
