@@ -345,7 +345,7 @@ protected:
             sk_sp<SkTypeface_AndroidSystem> face(family->matchAStyle(style));
 
             if (!langTag.isEmpty() &&
-                std::none_of(face->fLang.begin(), face->fLang.end(), [&](SkLanguage lang){
+                std::none_of(face->fLang.begin(), face->fLang.end(), [&](const SkLanguage& lang){
                     return lang.getTag().startsWith(langTag.c_str());
                 }))
             {

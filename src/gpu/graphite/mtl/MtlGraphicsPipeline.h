@@ -39,7 +39,7 @@ public:
 
     using MSLFunction = std::pair<id<MTLLibrary>, std::string>;
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
-                                           std::string label,
+                                           const std::string& label,
                                            MSLFunction vertexMain,
                                            SkSpan<const Attribute> vertexAttrs,
                                            SkSpan<const Attribute> instanceAttrs,

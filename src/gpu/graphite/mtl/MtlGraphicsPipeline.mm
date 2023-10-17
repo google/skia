@@ -253,7 +253,7 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
 } // anonymous namespace
 
 sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sharedContext,
-                                                     std::string label,
+                                                     const std::string& label,
                                                      MSLFunction vertexMain,
                                                      SkSpan<const Attribute> vertexAttrs,
                                                      SkSpan<const Attribute> instanceAttrs,
@@ -328,7 +328,7 @@ MtlGraphicsPipeline::MtlGraphicsPipeline(const skgpu::graphite::SharedContext* s
                                          uint32_t refValue)
         : GraphicsPipeline(sharedContext, pipelineInfo)
         , fPipelineState(std::move(pso))
-        , fDepthStencilState(dss)
+        , fDepthStencilState(std::move(dss))
         , fStencilReferenceValue(refValue) {}
 
 void MtlGraphicsPipeline::freeGpuData() {

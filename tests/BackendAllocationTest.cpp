@@ -95,8 +95,8 @@ using sk_gpu_test::ManagedBackendTexture;
 // Test wrapping of GrBackendObjects in SkSurfaces and SkImages (non-static since used in Mtl test)
 void test_wrapping(GrDirectContext* dContext,
                    skiatest::Reporter* reporter,
-                   std::function<sk_sp<ManagedBackendTexture>(
-                           GrDirectContext*, skgpu::Mipmapped, GrRenderable)> create,
+                   const std::function<sk_sp<ManagedBackendTexture>(
+                           GrDirectContext*, skgpu::Mipmapped, GrRenderable)>& create,
                    GrColorType grColorType,
                    skgpu::Mipmapped mipmapped,
                    GrRenderable renderable) {
@@ -367,8 +367,8 @@ static void check_base_readbacks(GrDirectContext* dContext,
 void test_color_init(
         GrDirectContext* dContext,
         skiatest::Reporter* reporter,
-        std::function<sk_sp<ManagedBackendTexture>(
-                GrDirectContext*, const SkColor4f&, skgpu::Mipmapped, GrRenderable)> create,
+        const std::function<sk_sp<ManagedBackendTexture>(
+                GrDirectContext*, const SkColor4f&, skgpu::Mipmapped, GrRenderable)>& create,
         GrColorType colorType,
         const SkColor4f& color,
         skgpu::Mipmapped mipmapped,
@@ -491,11 +491,11 @@ static void check_mipmaps(GrDirectContext* dContext,
 // Test initialization of GrBackendObjects using SkPixmaps (non-static since used in Mtl test)
 void test_pixmap_init(GrDirectContext* dContext,
                       skiatest::Reporter* reporter,
-                      std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
-                                                                 const SkPixmap srcData[],
-                                                                 int numLevels,
-                                                                 GrSurfaceOrigin,
-                                                                 GrRenderable)> create,
+                      const std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
+                                                                       const SkPixmap srcData[],
+                                                                       int numLevels,
+                                                                       GrSurfaceOrigin,
+                                                                       GrRenderable)>& create,
                       SkColorType skColorType,
                       GrSurfaceOrigin origin,
                       skgpu::Mipmapped mipmapped,

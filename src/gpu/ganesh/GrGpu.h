@@ -589,6 +589,7 @@ public:
     virtual bool setBackendTextureState(const GrBackendTexture&,
                                         const skgpu::MutableTextureState&,
                                         skgpu::MutableTextureState* previousState,
+                                        // NOLINTNEXTLINE(performance-unnecessary-value-param)
                                         sk_sp<skgpu::RefCntedCallback> finishedCallback) {
         return false;
     }
@@ -596,6 +597,7 @@ public:
     virtual bool setBackendRenderTargetState(const GrBackendRenderTarget&,
                                              const skgpu::MutableTextureState&,
                                              skgpu::MutableTextureState* previousState,
+                                            // NOLINTNEXTLINE(performance-unnecessary-value-param)
                                              sk_sp<skgpu::RefCntedCallback> finishedCallback) {
         return false;
     }

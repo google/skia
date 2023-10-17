@@ -34,7 +34,7 @@ public:
 
     explicit Geometry(const Shape& shape) { this->setShape(shape); }
     explicit Geometry(const SubRunData& subrun) { this->setSubRun(subrun); }
-    explicit Geometry(sk_sp<SkVertices> vertices) { this->setVertices(vertices); }
+    explicit Geometry(sk_sp<SkVertices> vertices) { this->setVertices(std::move(vertices)); }
     explicit Geometry(const EdgeAAQuad& edgeAAQuad) { this->setEdgeAAQuad(edgeAAQuad); }
     explicit Geometry(const CoverageMaskShape& mask) { this->setCoverageMaskShape(mask); }
 

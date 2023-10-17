@@ -23,7 +23,6 @@
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <utility>
 
 static constexpr char kTraceVersion[] = "20220209";
 
@@ -94,9 +93,9 @@ void DebugTracePriv::setTraceCoord(const SkIPoint& coord) {
     fTraceCoord = coord;
 }
 
-void DebugTracePriv::setSource(std::string source) {
+void DebugTracePriv::setSource(const std::string& source) {
     fSource.clear();
-    std::stringstream stream{std::move(source)};
+    std::stringstream stream{source};
     while (stream.good()) {
         fSource.push_back({});
         std::getline(stream, fSource.back(), '\n');
@@ -398,7 +397,7 @@ bool DebugTracePriv::readTrace(SkStream* r) {
 namespace SkSL {
     void DebugTracePriv::setTraceCoord(const SkIPoint &coord) {}
 
-    void DebugTracePriv::setSource(std::string source) {}
+    void DebugTracePriv::setSource(const std::string& source) {}
 
     bool DebugTracePriv::readTrace(SkStream *r) { return false; }
 

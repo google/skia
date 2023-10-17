@@ -41,7 +41,8 @@ sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
  * space (offset by subset().topLeft()).
  */
 GrSurfaceProxyView AsView(GrRecordingContext*, const SkSpecialImage*);
-inline GrSurfaceProxyView AsView(GrRecordingContext* rContext, sk_sp<const SkSpecialImage> img) {
+inline GrSurfaceProxyView AsView(GrRecordingContext* rContext,
+                                 const sk_sp<const SkSpecialImage>& img) {
     return AsView(rContext, img.get());
 }
 

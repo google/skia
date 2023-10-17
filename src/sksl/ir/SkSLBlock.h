@@ -42,7 +42,7 @@ public:
     Block(Position pos,
           StatementArray statements,
           Kind kind = Kind::kBracedScope,
-          const std::shared_ptr<SymbolTable> symbols = nullptr)
+          std::shared_ptr<SymbolTable> symbols = nullptr)
             : INHERITED(pos, kIRNodeKind)
             , fChildren(std::move(statements))
             , fBlockKind(kind)

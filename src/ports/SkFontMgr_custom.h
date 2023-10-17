@@ -61,7 +61,7 @@ private:
 class SkTypeface_File : public SkTypeface_Custom {
 public:
     SkTypeface_File(const SkFontStyle& style, bool isFixedPitch, bool sysFont,
-                    const SkString familyName, const char path[], int index);
+                    SkString familyName, const char path[], int index);
 
 protected:
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
@@ -83,7 +83,7 @@ private:
  */
 class SkFontStyleSet_Custom : public SkFontStyleSet {
 public:
-    explicit SkFontStyleSet_Custom(const SkString familyName);
+    explicit SkFontStyleSet_Custom(SkString familyName);
 
     /** Should only be called during the initial build phase. */
     void appendTypeface(sk_sp<SkTypeface> typeface);

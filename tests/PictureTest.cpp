@@ -624,7 +624,7 @@ struct CountingBBH : public SkBBoxHierarchy {
 
 class SpoonFedBBHFactory : public SkBBHFactory {
 public:
-    explicit SpoonFedBBHFactory(sk_sp<SkBBoxHierarchy> bbh) : fBBH(bbh) {}
+    explicit SpoonFedBBHFactory(sk_sp<SkBBoxHierarchy> bbh) : fBBH(std::move(bbh)) {}
     sk_sp<SkBBoxHierarchy> operator()() const override {
         return fBBH;
     }
@@ -892,7 +892,7 @@ DEF_TEST(Picture_fillsBBH, r) {
 }
 
 DEF_TEST(Picture_nested_op_count, r) {
-    auto make_pic = [](int n, sk_sp<SkPicture> pic) {
+    auto make_pic = [](int n, const sk_sp<SkPicture>& pic) {
         SkPictureRecorder rec;
         SkCanvas* c = rec.beginRecording({0,0, 100,100});
         for (int i = 0; i < n; i++) {
@@ -905,7 +905,7 @@ DEF_TEST(Picture_nested_op_count, r) {
         return rec.finishRecordingAsPicture();
     };
 
-    auto check = [r](sk_sp<SkPicture> pic, int shallow, int nested) {
+    auto check = [r](const sk_sp<SkPicture>& pic, int shallow, int nested) {
         int s = pic->approximateOpCount(false);
         int n = pic->approximateOpCount(true);
         REPORTER_ASSERT(r, s == shallow);

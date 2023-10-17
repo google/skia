@@ -54,7 +54,7 @@ static SkAlpha ScaleAlpha(SkAlpha alpha, float opacity) {
    return SkToU8(sk_float_round2int(alpha * opacity));
 }
 
-static sk_sp<SkShader> LocalShader(const sk_sp<SkShader> shader,
+static sk_sp<SkShader> LocalShader(const sk_sp<SkShader>& shader,
                                    const SkMatrix& base,
                                    const SkMatrix& ctm) {
     // Mask filters / shaders are declared to operate under a specific transform, but due to the

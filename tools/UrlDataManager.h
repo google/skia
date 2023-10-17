@@ -43,7 +43,7 @@ public:
     /*
      * returns the UrlData object which should be hosted at 'url'
      */
-    UrlData* getDataFromUrl(SkString url) {
+    UrlData* getDataFromUrl(const SkString& url) {
         return fUrlLookup.find(url);
     }
     void reset();

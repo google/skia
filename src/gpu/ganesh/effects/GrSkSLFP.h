@@ -123,7 +123,7 @@ public:
             sk_sp<SkColorSpace> dstColorSpace,
             std::unique_ptr<GrFragmentProcessor> inputFP,
             std::unique_ptr<GrFragmentProcessor> destColorFP,
-            sk_sp<const SkData> uniforms,
+            sk_sp<const SkData> uniforms, // NOLINT(performance-unnecessary-value-param)
             SkSpan<std::unique_ptr<GrFragmentProcessor>> childFPs);
 
     /*

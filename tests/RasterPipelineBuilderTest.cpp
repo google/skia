@@ -19,7 +19,7 @@ static sk_sp<SkData> get_program_dump(SkSL::RP::Program& program) {
     return stream.detachAsData();
 }
 
-static std::string_view as_string_view(sk_sp<SkData> dump) {
+static std::string_view as_string_view(const sk_sp<SkData>& dump) {
     return std::string_view(static_cast<const char*>(dump->data()), dump->size());
 }
 

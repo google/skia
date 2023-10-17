@@ -77,7 +77,7 @@ private:
 class GrGLBackendTextureInfo {
 public:
     GrGLBackendTextureInfo(const GrGLTextureInfo& info, sk_sp<GrGLTextureParameters> params)
-            : fInfo(info), fParams(params) {}
+            : fInfo(info), fParams(std::move(params)) {}
     const GrGLTextureInfo& info() const { return fInfo; }
     GrGLTextureParameters* parameters() const { return fParams.get(); }
     sk_sp<GrGLTextureParameters> refParameters() const { return fParams; }

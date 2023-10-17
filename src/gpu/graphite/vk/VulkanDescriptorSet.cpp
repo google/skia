@@ -13,7 +13,7 @@
 namespace skgpu::graphite {
 
 sk_sp<VulkanDescriptorSet> VulkanDescriptorSet::Make(const VulkanSharedContext* ctxt,
-                                                     sk_sp<VulkanDescriptorPool> pool,
+                                                     const sk_sp<VulkanDescriptorPool>& pool,
                                                      const VkDescriptorSetLayout layout) {
     SkASSERT(layout != VK_NULL_HANDLE && pool);
     VkDescriptorSet descSet;

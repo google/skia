@@ -87,7 +87,7 @@ public:
     OpacityAdapter(const skjson::ObjectValue& jobject,
                    sk_sp<sksg::RenderNode> child,
                    const AnimationBuilder& abuilder)
-        : INHERITED(sksg::OpacityEffect::Make(child)) {
+        : INHERITED(sksg::OpacityEffect::Make(std::move(child))) {
         this->bind(abuilder, jobject["o"], fOpacity);
     }
 

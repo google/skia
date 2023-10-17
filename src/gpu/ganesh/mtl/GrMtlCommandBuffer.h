@@ -54,7 +54,7 @@ public:
         [fCmdBuffer addCompletedHandler:block];
     }
 
-    void addResource(sk_sp<const GrManagedResource> resource) {
+    void addResource(const sk_sp<const GrManagedResource>& resource) {
 // Disable generic resource tracking for now
 //        SkASSERT(resource);
 //        fTrackedResources.push_back(std::move(resource));

@@ -59,8 +59,8 @@ sk_sp<SkTypeface> SkTypeface_Empty::onMakeClone(const SkFontArguments& args) con
 std::unique_ptr<SkFontData> SkTypeface_Empty::onMakeFontData() const { return nullptr; }
 
 SkTypeface_File::SkTypeface_File(const SkFontStyle& style, bool isFixedPitch, bool sysFont,
-                                 const SkString familyName, const char path[], int index)
-    : INHERITED(style, isFixedPitch, sysFont, familyName, index)
+                                 SkString familyName, const char path[], int index)
+    : INHERITED(style, isFixedPitch, sysFont, std::move(familyName), index)
     , fPath(path)
 { }
 
@@ -95,7 +95,8 @@ std::unique_ptr<SkFontData> SkTypeface_File::onMakeFontData() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFontStyleSet_Custom::SkFontStyleSet_Custom(const SkString familyName) : fFamilyName(familyName) {}
+SkFontStyleSet_Custom::SkFontStyleSet_Custom(SkString familyName)
+        : fFamilyName(std::move(familyName)) {}
 
 void SkFontStyleSet_Custom::appendTypeface(sk_sp<SkTypeface> typeface) {
     fStyles.emplace_back(std::move(typeface));

@@ -20,7 +20,7 @@ namespace skgpu::graphite {
 
 // static
 sk_sp<MtlComputePipeline> MtlComputePipeline::Make(const MtlSharedContext* sharedContext,
-                                                   std::string label,
+                                                   const std::string& label,
                                                    MSLFunction computeMain) {
     id<MTLLibrary> library = std::get<0>(computeMain);
     if (!library) {

@@ -249,7 +249,7 @@ private:
 
     // Move 'node' to the index-th slot of the sort. The index-th slot should not have a current
     // occupant.
-    void moveNodeInSort(sk_sp<Node> node, int index) {
+    void moveNodeInSort(const sk_sp<Node>& node, int index) {
         SkASSERT(!fNodes[index]);
         fNodes[index] = node;
         node->setIndexInSort(index);

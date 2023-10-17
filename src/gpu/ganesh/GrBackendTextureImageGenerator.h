@@ -54,7 +54,7 @@ protected:
 
 private:
     GrBackendTextureImageGenerator(const SkColorInfo&,
-                                   sk_sp<GrTexture>,
+                                   const sk_sp<GrTexture>&,
                                    GrSurfaceOrigin,
                                    GrDirectContext::DirectContextID owningContextID,
                                    std::unique_ptr<GrSemaphore>);

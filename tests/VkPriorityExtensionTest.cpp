@@ -52,7 +52,7 @@ struct GrContextOptions;
 
 #define GET_PROC_LOCAL(F, inst) PFN_vk ## F F = (PFN_vk ## F) getProc("vk" #F, inst, VK_NULL_HANDLE)
 
-static void destroy_instance(skgpu::VulkanGetProc getProc, VkInstance inst) {
+static void destroy_instance(const skgpu::VulkanGetProc& getProc, VkInstance inst) {
     ACQUIRE_VK_PROC_LOCAL(DestroyInstance, inst);
     grVkDestroyInstance(inst, nullptr);
 }

@@ -40,7 +40,7 @@ void AnimatablePropertyContainer::attachDiscardableAdapter(
         return;
     }
 
-    fAnimators.push_back(child);
+    fAnimators.push_back(std::move(child));
 }
 
 void AnimatablePropertyContainer::shrink_to_fit() {

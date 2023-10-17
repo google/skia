@@ -49,7 +49,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> AsView(
 
 inline std::tuple<GrSurfaceProxyView, GrColorType> AsView(
         GrRecordingContext* ctx,
-        sk_sp<const SkImage> img,
+        const sk_sp<const SkImage>& img,
         skgpu::Mipmapped mm,
         GrImageTexGenPolicy policy = GrImageTexGenPolicy::kDraw) {
     return AsView(ctx, img.get(), mm, policy);
@@ -98,7 +98,7 @@ std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingContext*,
                                                          const SkRect* domain = nullptr);
 
 inline std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingContext* ctx,
-                                                                sk_sp<const SkImage> img,
+                                                                const sk_sp<const SkImage>& img,
                                                                 SkSamplingOptions opt,
                                                                 const SkTileMode tm[2],
                                                                 const SkMatrix& m,

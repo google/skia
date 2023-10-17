@@ -22,7 +22,7 @@
 #include <limits>
 #include <string>
 
-static void testQuadRootsReal(skiatest::Reporter* reporter, std::string name,
+static void testQuadRootsReal(skiatest::Reporter* reporter, const std::string& name,
                                double A, double B, double C,
                                SkSpan<const double> expectedRoots) {
     skiatest::ReporterContext subtest(reporter, name);

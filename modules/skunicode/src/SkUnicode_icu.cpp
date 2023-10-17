@@ -368,7 +368,7 @@ class SkUnicode_icu : public SkUnicode {
 
     static bool extractPositions(const char utf8[], int utf8Units,
                                  BreakType type, const char* locale,
-                                 std::function<void(int, int)> setBreak) {
+                                 const std::function<void(int, int)>& setBreak) {
 
         UErrorCode status = U_ZERO_ERROR;
         ICUUText text(sk_utext_openUTF8(nullptr, &utf8[0], utf8Units, &status));

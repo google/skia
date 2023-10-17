@@ -25,7 +25,7 @@ class VulkanSharedContext;
 class VulkanDescriptorSet : public Resource {
 public:
     static sk_sp<VulkanDescriptorSet> Make(const VulkanSharedContext*,
-                                           sk_sp<VulkanDescriptorPool>,
+                                           const sk_sp<VulkanDescriptorPool>&,
                                            const VkDescriptorSetLayout);
 
     VulkanDescriptorSet(const VulkanSharedContext*,

@@ -18,8 +18,8 @@ using sk_gpu_test::ManagedBackendTexture;
 // In BackendAllocationTest.cpp
 void test_wrapping(GrDirectContext*,
                    skiatest::Reporter*,
-                   std::function<sk_sp<ManagedBackendTexture>(
-                           GrDirectContext*, skgpu::Mipmapped, GrRenderable)> create,
+                   const std::function<sk_sp<ManagedBackendTexture>(
+                           GrDirectContext*, skgpu::Mipmapped, GrRenderable)>& create,
                    GrColorType,
                    skgpu::Mipmapped,
                    GrRenderable);
@@ -27,8 +27,8 @@ void test_wrapping(GrDirectContext*,
 void test_color_init(
         GrDirectContext*,
         skiatest::Reporter*,
-        std::function<sk_sp<ManagedBackendTexture>(
-                GrDirectContext*, const SkColor4f&, skgpu::Mipmapped, GrRenderable)> create,
+        const std::function<sk_sp<ManagedBackendTexture>(
+                GrDirectContext*, const SkColor4f&, skgpu::Mipmapped, GrRenderable)>& create,
         GrColorType,
         const SkColor4f&,
         skgpu::Mipmapped,
@@ -36,11 +36,11 @@ void test_color_init(
 
 void test_pixmap_init(GrDirectContext*,
                       skiatest::Reporter*,
-                      std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
-                                                                 const SkPixmap srcData[],
-                                                                 int numLevels,
-                                                                 GrSurfaceOrigin,
-                                                                 GrRenderable)> create,
+                      const std::function<sk_sp<ManagedBackendTexture>(GrDirectContext*,
+                                                                       const SkPixmap srcData[],
+                                                                       int numLevels,
+                                                                       GrSurfaceOrigin,
+                                                                       GrRenderable)>& create,
                       SkColorType,
                       GrSurfaceOrigin,
                       skgpu::Mipmapped,

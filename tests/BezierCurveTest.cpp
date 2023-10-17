@@ -32,7 +32,7 @@ static bool nearly_equal(double expected, double actual) {
     return sk_doubles_nearly_equal_ulps(expected, actual, 64);
 }
 
-static void testCubicEvalAtT(skiatest::Reporter* reporter, std::string name,
+static void testCubicEvalAtT(skiatest::Reporter* reporter, const std::string& name,
                              SkSpan<const DoublePoint> curveInputs, double t,
                              const DoublePoint& expectedXY) {
     skiatest::ReporterContext subtest(reporter, name);
@@ -86,7 +86,7 @@ DEF_TEST(BezierCubicEvalAt, reporter) {
                      { 3, 13 });
 }
 
-static void testCubicConvertToPolynomial(skiatest::Reporter* reporter, std::string name,
+static void testCubicConvertToPolynomial(skiatest::Reporter* reporter, const std::string& name,
                                          SkSpan<const DoublePoint> curveInputs, bool yValues,
                                          double expectedA, double expectedB,
                                          double expectedC, double expectedD) {
