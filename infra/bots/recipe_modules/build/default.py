@@ -168,6 +168,7 @@ def compile_fn(api, checkout_root, out_dir):
     # Increase ClangTidy code coverage by enabling features.
     args.update({
       'skia_enable_fontmgr_empty':     'true',
+      'skia_enable_graphite':          'true',
       'skia_enable_pdf':               'true',
       'skia_use_expat':                'true',
       'skia_use_freetype':             'true',
