@@ -143,6 +143,7 @@ skia_core_public = [
 skia_core_sources = [
   "$_include/private/SkColorData.h",
   "$_include/private/SkEncodedInfo.h",
+  "$_include/private/SkExif.h",
   "$_include/private/SkGainmapInfo.h",
   "$_include/private/SkGainmapShader.h",
   "$_include/private/SkIDChangeListener.h",

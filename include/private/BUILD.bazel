@@ -17,6 +17,7 @@ skia_filegroup(
     srcs = [
         "SkColorData.h",
         "SkEncodedInfo.h",
+        "SkExif.h",
         "SkGainmapInfo.h",
         "SkGainmapShader.h",
         "SkIDChangeListener.h",
