@@ -1293,6 +1293,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "bug6783")
 		match = append(match, "colorspace")
 		match = append(match, "colorspace2")
+		match = append(match, "coloremoji")
 		match = append(match, "composeCF")
 		match = append(match, "crbug_224618")
 		match = append(match, "drawlines_with_local_matrix")
