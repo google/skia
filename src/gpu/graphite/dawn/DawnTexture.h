@@ -60,6 +60,6 @@ private:
     wgpu::TextureView fRenderTextureView;
 };
 
-} // namepsace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DawnTexture_DEFINED

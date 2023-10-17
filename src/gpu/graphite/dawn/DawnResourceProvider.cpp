@@ -80,7 +80,7 @@ wgpu::RenderPipeline create_blit_render_pipeline(const wgpu::Device& device,
 
     return device.CreateRenderPipeline(&descriptor);
 }
-}
+}  // namespace
 
 DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
                                            SingleOwner* singleOwner,

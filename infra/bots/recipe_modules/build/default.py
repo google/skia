@@ -170,6 +170,7 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_enable_fontmgr_empty':     'true',
       'skia_enable_graphite':          'true',
       'skia_enable_pdf':               'true',
+      'skia_use_dawn':                 'true',
       'skia_use_expat':                'true',
       'skia_use_freetype':             'true',
       'skia_use_vulkan':               'true',

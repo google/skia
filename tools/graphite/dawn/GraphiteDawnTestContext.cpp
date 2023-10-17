@@ -56,7 +56,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
                              std::tuple(propB.adapterType, propB.backendType);
                   });
 
-        for (auto adapter : adapters) {
+        for (const auto& adapter : adapters) {
             wgpu::AdapterProperties props;
             adapter.GetProperties(&props);
             if (backend.has_value() && backend.value() == props.backendType) {

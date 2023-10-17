@@ -325,7 +325,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RGBA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 2;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA8Unorm, Surface: kRGBA_8888
         {
@@ -348,7 +348,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::R8Unorm)];
         info->fFlags = FormatInfo::kAllFlags & ~FormatInfo::kStorage_Flag;
         info->fColorTypeInfoCount = 3;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: R8Unorm, Surface: kR8_unorm
         {
@@ -381,7 +381,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         if (supportNorm16) {
             info->fFlags = FormatInfo::kAllFlags & ~FormatInfo::kStorage_Flag;
             info->fColorTypeInfoCount = 1;
-            info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+            info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: R16Unorm, Surface: kA16_unorm
             {
@@ -399,7 +399,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::BGRA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 2;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: BGRA8Unorm, Surface: kBGRA_8888
         {
@@ -420,7 +420,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RGBA16Float)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA16Float, Surface: RGBA_F16
         {
@@ -435,7 +435,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::R16Float)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: R16Float, Surface: kA16_float
         {
@@ -453,7 +453,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RG8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RG8Unorm, Surface: kR8G8_unorm
         {
@@ -470,7 +470,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         if (supportNorm16) {
             info->fFlags = FormatInfo::kAllFlags;
             info->fColorTypeInfoCount = 1;
-            info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+            info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: RG16Unorm, Surface: kR16G16_unorm
             {
@@ -486,7 +486,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RGB10A2Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGB10A2Unorm, Surface: kRGBA_1010102
         {
@@ -501,7 +501,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::RG16Float)];
         info->fFlags = FormatInfo::kAllFlags;
         info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RG16Float, Surface: kR16G16_float
         {
