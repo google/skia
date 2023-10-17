@@ -82,11 +82,16 @@ def _adb_test_impl(ctx):
         # List the test runner binary for debugging purposes.
         ls -l $(rootpath {adb_test_runner})
 
+        # Any additional arguments to pass to the C++ binary. These can be set via Bazel's
+        # --test_arg flag, or can be passed directly to the binary produced by "bazel build".
+        TEST_RUNNER_EXTRA_ARGS="$@"
+
         $(rootpath {adb_test_runner}) \
             --device {device} \
             {benchmark} \
             --archive $(rootpath {archive}) \
             --test-runner $(rootpath {test_runner}) \
+            --test-runner-extra-args "$TEST_RUNNER_EXTRA_ARGS" \
             {output_dir_flag}
     """)
 
@@ -94,14 +99,14 @@ def _adb_test_impl(ctx):
         template = remove_indentation("""
             #!/bin/bash
 
-            echo "FAILED: No Android device was specified. Try re-running with a Bazel flag that"
+            echo "FAILED: No Android device was specified. Try re-running with a Bazel config that"
             echo "        specifies an Android device under test, such as --config=pixel_5."
 
             exit 1
         """)
 
     # Expand variables.
-    template = ctx.expand_location(template.format(
+    script = ctx.expand_location(template.format(
         device = ctx.attr.device,
         benchmark = "--benchmark" if ctx.attr.benchmark else "",
         archive = ctx.attr.archive.label,
@@ -116,7 +121,7 @@ def _adb_test_impl(ctx):
     ])
 
     output_file = ctx.actions.declare_file(ctx.attr.name)
-    ctx.actions.write(output_file, template, is_executable = True)
+    ctx.actions.write(output_file, script, is_executable = True)
 
     runfiles = ctx.runfiles(files = [ctx.file.archive])
     runfiles = runfiles.merge(ctx.attr._adb_test_runner[0][DefaultInfo].default_runfiles)

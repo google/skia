@@ -46,6 +46,7 @@ func main() {
 	benchmarkFlag := flag.Bool("benchmark", false, "Whether this is a benchmark terst or not. Might affect CPU/GPU settings, etc.")
 	archiveFlag := flag.String("archive", "", "Tarball with the payload to upload to the device under test.")
 	testRunnerFlag := flag.String("test-runner", "", "Path to the test runner inside the tarball.")
+	testRunnerExtraArgsFlag := flag.String("test-runner-extra-args", "", "Any extra command-line arguments to pass to the test runner inside the tarball.")
 	outputDirFlag := flag.String("output-dir", "", "Path on the host machine where to write any outputs produced by the test.")
 	flag.Parse()
 
@@ -103,13 +104,13 @@ func main() {
 
 	ctx, cancelFn := context.WithTimeout(context.Background(), timeout)
 	defer cancelFn()
-	if err := runTest(ctx, device, *benchmarkFlag, *archiveFlag, *testRunnerFlag, *outputDirFlag); err != nil {
+	if err := runTest(ctx, device, *benchmarkFlag, *archiveFlag, *testRunnerFlag, *testRunnerExtraArgsFlag, *outputDirFlag); err != nil {
 		die("%s\n", err)
 	}
 }
 
 // runTest runs the test on device via adb.
-func runTest(ctx context.Context, device Device, benchmark bool, archive, testRunner, outputDir string) error {
+func runTest(ctx context.Context, device Device, benchmark bool, archive, testRunner, testRunnerExtraArgs, outputDir string) error {
 	// TODO(lovisolo): Add any necessary device-specific setup steps such as turning cores on/off and
 	//                 setting the CPU/GPU frequencies, taking into account whether or not the test
 	//                 is a benchmark.
@@ -162,7 +163,7 @@ func runTest(ctx context.Context, device Device, benchmark bool, archive, testRu
 	}
 
 	// Run test.
-	stdin := fmt.Sprintf("cd %s && %s %s", getArchiveExtractionDirOnDevice(device), outputDirEnvVar, testRunner)
+	stdin := fmt.Sprintf("cd %s && %s %s %s", getArchiveExtractionDirOnDevice(device), outputDirEnvVar, testRunner, testRunnerExtraArgs)
 	if err := adbWithStdin(ctx, stdin, "shell", "su", "root"); err != nil {
 		return fmt.Errorf("while running the test: %s", err)
 	}

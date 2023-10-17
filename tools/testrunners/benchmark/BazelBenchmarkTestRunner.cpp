@@ -28,7 +28,6 @@
 
 #include <cinttypes>
 
-// TODO(lovisolo): Should this be mandatory?
 // TODO(lovisolo): Should we check that this is a valid Git hash?
 static DEFINE_string(
         gitHash,
@@ -601,16 +600,16 @@ int main(int argc, char** argv) {
         jsonWriter.addChangelistInfo(FLAGS_issue[0], FLAGS_patchset[0]);
     }
 
-    // Keys.
-    std::map<std::string, std::string> keys = {
-            // Add a key that nanobench will never use in order to avoid accidentally polluting an
-            // existing trace.
+    // Key.
+    std::map<std::string, std::string> keyValuePairs = {
+            // Add a key/value pair that nanobench will never use in order to avoid accidentally
+            // polluting an existing trace.
             {"build_system", "bazel"},
     };
     for (int i = 1; i < FLAGS_key.size(); i += 2) {
-        keys[FLAGS_key[i - 1]] = FLAGS_key[i];
+        keyValuePairs[FLAGS_key[i - 1]] = FLAGS_key[i];
     }
-    jsonWriter.addKey(keys);
+    jsonWriter.addKey(keyValuePairs);
 
     // Links.
     if (FLAGS_links.size()) {

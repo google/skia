@@ -7,7 +7,14 @@ def _binary_wrapper_script_with_cmdline_flags_impl(ctx):
     args = ([
         "--resourcePath",
         "$(dirname $(realpath $(rootpath %s)))" % ctx.attr._arbitrary_file_in_resources_dir.label,
-    ] if ctx.attr.requires_resources_dir else []) + ctx.attr.extra_args
+    ] if ctx.attr.requires_resources_dir else [])
+    args += ctx.attr.extra_args
+
+    # This will gather any additional command-line arguments passed to the C++ binary. When running
+    # the binary via "bazel test", additional arguments can be passed via Bazel's --test_arg flag.
+    # When building the binary with "bazel build" and running the resulting binary outside of
+    # Bazel, any arguments passed to the Bazel-built binary will be captured here.
+    args.append("$@")
 
     template = remove_indentation("""
         #!/bin/sh
