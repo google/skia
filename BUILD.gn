@@ -2609,6 +2609,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
       "fuzz/oss_fuzz/FuzzAnimatedImage.cpp",
       "fuzz/oss_fuzz/FuzzCOLRv1.cpp",
+      "fuzz/oss_fuzz/FuzzColorspace.cpp",
       "fuzz/oss_fuzz/FuzzImage.cpp",
       "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
@@ -3510,6 +3511,11 @@ if (skia_enable_tools) {
         "fuzz/FuzzCubicRoots.cpp",
         "fuzz/oss_fuzz/FuzzCubicRoots.cpp",
       ]
+      deps = []
+    }
+
+    libfuzzer_app("skcolorspace") {
+      sources = [ "fuzz/oss_fuzz/FuzzColorspace.cpp" ]
       deps = []
     }
   }

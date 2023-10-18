@@ -747,13 +747,10 @@ static void fuzz_skp(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Finished SKP\n");
 }
 
+void FuzzColorspace(sk_sp<SkData> bytes);
 static void fuzz_color_deserialize(sk_sp<SkData> bytes) {
-    sk_sp<SkColorSpace> space(SkColorSpace::Deserialize(bytes->data(), bytes->size()));
-    if (!space) {
-        SkDebugf("[terminated] Couldn't deserialize Colorspace.\n");
-        return;
-    }
-    SkDebugf("[terminated] Success! deserialized Colorspace.\n");
+    FuzzColorspace(bytes);
+    SkDebugf("[terminated] Finished SkColorspace\n");
 }
 
 void FuzzPathDeserialize(SkReadBuffer& buf);

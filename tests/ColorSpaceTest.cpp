@@ -103,6 +103,16 @@ static void test_serialize(skiatest::Reporter* r, sk_sp<SkColorSpace> space, boo
     sk_sp<SkData> data2 = SkData::MakeUninitialized(bytes);
     space->writeToMemory(data2->writable_data());
 
+    // Handy for creating some seed data for fuzzing
+#if defined(SK_DUMP_TO_DISK)
+    static int counter = 0;
+    SkFILEWStream outFile(SkStringPrintf("/tmp/colorspace_%d.icc", counter).c_str());
+    counter += 1;
+    REPORTER_ASSERT(r, outFile.write(data2->data(), data2->size()));
+    outFile.flush();
+    outFile.fsync();
+#endif
+
     sk_sp<SkColorSpace> newSpace1 = SkColorSpace::Deserialize(data1->data(), data1->size());
     sk_sp<SkColorSpace> newSpace2 = SkColorSpace::Deserialize(data2->data(), data2->size());
 
