@@ -13,7 +13,7 @@ void fuzz_CreateDDL(Fuzz* f);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-    auto fuzz = Fuzz(SkData::MakeWithoutCopy(data, size));
+    auto fuzz = Fuzz(data, size);
     fuzz_CreateDDL(&fuzz);
     return 0;
 }

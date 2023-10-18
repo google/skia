@@ -24,7 +24,7 @@ extern "C" {
             return 0;
         }
         gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-        auto fuzz = Fuzz(SkData::MakeWithoutCopy(data, size));
+        auto fuzz = Fuzz(data, size);
         fuzz_Precompile(&fuzz);
         return 0;
     }

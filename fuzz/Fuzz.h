@@ -23,7 +23,7 @@
 
 class Fuzz {
 public:
-    explicit Fuzz(sk_sp<SkData> bytes) : fBytes(std::move(bytes)), fNextByte(0) {}
+    explicit Fuzz(const uint8_t* data, size_t size) : fData(data), fSize(size), fNextByte(0) {}
     Fuzz() = delete;
 
     // Make noncopyable
@@ -31,18 +31,25 @@ public:
     Fuzz& operator=(Fuzz&) = delete;
 
     // Returns the total number of "random" bytes available.
-    size_t size() { return fBytes->size(); }
-    // Returns if there are no bytes remaining for fuzzing.
-    bool exhausted() {
-        return fBytes->size() == fNextByte;
+    size_t size() const {
+        return fSize;
     }
 
-    size_t remaining() {
-        return fBytes->size() - fNextByte;
+    // Returns if there are no bytes remaining for fuzzing.
+    bool exhausted() const {
+        return fSize == fNextByte;
     }
 
     void deplete() {
-        fNextByte = fBytes->size();
+        fNextByte = fSize;
+    }
+
+    size_t remainingSize() const {
+        return fSize - fNextByte;
+    }
+
+    const uint8_t *remainingData() const {
+        return fData + fNextByte;
     }
 
     // next() loads fuzzed bytes into the variable passed in by pointer.
@@ -72,7 +79,7 @@ public:
     template <typename T>
     void nextN(T* ptr, int n);
 
-    void signalBug(){
+    void signalBug() {
         // Tell the fuzzer that these inputs found a bug.
         SkDebugf("Signal bug\n");
         raise(SIGSEGV);
@@ -94,7 +101,8 @@ private:
     template <typename T>
     T nextT();
 
-    sk_sp<SkData> fBytes;
+    const uint8_t *fData;
+    size_t fSize;
     size_t fNextByte;
     friend void fuzz__MakeEncoderCorpus(Fuzz*);
 
@@ -150,4 +158,4 @@ struct Fuzzable {
     sk_tools::Registry<Fuzzable> register_##name({#name, fuzz_##name}); \
     void fuzz_##name(Fuzz* f)
 
-#endif//Fuzz_DEFINED
+#endif  // Fuzz_DEFINED

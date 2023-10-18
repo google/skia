@@ -127,7 +127,7 @@ void BuildPath(Fuzz* fuzz, SkPath* path) {
 
     switch (operation % (SkPath::Verb::kDone_Verb + 1)) {
       case SkPath::Verb::kMove_Verb:
-        if (fuzz->remaining() < (2*sizeof(SkScalar))) {
+        if (fuzz->remainingSize() < (2*sizeof(SkScalar))) {
             fuzz->deplete();
             return;
         }
@@ -136,7 +136,7 @@ void BuildPath(Fuzz* fuzz, SkPath* path) {
         break;
 
       case SkPath::Verb::kLine_Verb:
-        if (fuzz->remaining() < (2*sizeof(SkScalar))) {
+        if (fuzz->remainingSize() < (2*sizeof(SkScalar))) {
             fuzz->deplete();
             return;
         }
@@ -145,7 +145,7 @@ void BuildPath(Fuzz* fuzz, SkPath* path) {
         break;
 
       case SkPath::Verb::kQuad_Verb:
-        if (fuzz->remaining() < (4*sizeof(SkScalar))) {
+        if (fuzz->remainingSize() < (4*sizeof(SkScalar))) {
             fuzz->deplete();
             return;
         }
@@ -154,7 +154,7 @@ void BuildPath(Fuzz* fuzz, SkPath* path) {
         break;
 
       case SkPath::Verb::kConic_Verb:
-        if (fuzz->remaining() < (5*sizeof(SkScalar))) {
+        if (fuzz->remainingSize() < (5*sizeof(SkScalar))) {
             fuzz->deplete();
             return;
         }
@@ -163,7 +163,7 @@ void BuildPath(Fuzz* fuzz, SkPath* path) {
         break;
 
       case SkPath::Verb::kCubic_Verb:
-        if (fuzz->remaining() < (6*sizeof(SkScalar))) {
+        if (fuzz->remainingSize() < (6*sizeof(SkScalar))) {
             fuzz->deplete();
             return;
         }

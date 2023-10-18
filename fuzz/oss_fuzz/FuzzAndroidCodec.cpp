@@ -70,12 +70,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 10240) {
         return 0;
     }
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    Fuzz fuzz(bytes);
+    Fuzz fuzz(data, size);
     uint8_t sampleSize;
     fuzz.nextRange(&sampleSize, 1, 64);
-    bytes = SkData::MakeSubset(bytes.get(), 1, size - 1);
-    FuzzAndroidCodec(bytes, sampleSize);
+    FuzzAndroidCodec(SkData::MakeWithoutCopy(fuzz.remainingData(), fuzz.remainingSize()),
+                     sampleSize);
     return 0;
 }
 #endif

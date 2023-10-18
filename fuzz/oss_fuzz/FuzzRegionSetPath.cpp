@@ -42,8 +42,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 512) {
         return 0;
     }
-    sk_sp<SkData> bytes(SkData::MakeWithoutCopy(data, size));
-    Fuzz fuzz(bytes);
+    Fuzz fuzz(data, size);
     FuzzRegionSetPath(&fuzz);
     return 0;
 }

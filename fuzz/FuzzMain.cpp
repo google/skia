@@ -436,11 +436,11 @@ static void print_api_names(){
     }
 }
 
-static void fuzz_api(sk_sp<SkData> bytes, SkString name) {
+static void fuzz_api(sk_sp<SkData> data, SkString name) {
     for (const Fuzzable& fuzzable : sk_tools::Registry<Fuzzable>::Range()) {
         if (name.equals(fuzzable.name)) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
-            Fuzz fuzz(std::move(bytes));
+            Fuzz fuzz(data->bytes(), data->size());
             fuzzable.fn(&fuzz);
             SkDebugf("[terminated] Success!\n");
             return;
@@ -490,12 +490,12 @@ static void fuzz_image_decode_incremental(sk_sp<SkData> bytes) {
 
 bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize);
 
-static void fuzz_android_codec(sk_sp<SkData> bytes) {
-    Fuzz fuzz(bytes);
+static void fuzz_android_codec(sk_sp<SkData> data) {
+    Fuzz fuzz(data->bytes(), data->size());
     uint8_t sampleSize;
     fuzz.nextRange(&sampleSize, 1, 64);
-    bytes = SkData::MakeSubset(bytes.get(), 1, bytes->size() - 1);
-    if (FuzzAndroidCodec(bytes, sampleSize)) {
+    if (FuzzAndroidCodec(SkData::MakeWithoutCopy(fuzz.remainingData(), fuzz.remainingSize()),
+                         sampleSize)) {
         SkDebugf("[terminated] Success on Android Codec sampleSize=%u!\n", sampleSize);
         return;
     }
@@ -781,8 +781,8 @@ static void fuzz_textblob_deserialize(sk_sp<SkData> bytes) {
 
 void FuzzRegionSetPath(Fuzz* fuzz);
 
-static void fuzz_region_set_path(sk_sp<SkData> bytes) {
-    Fuzz fuzz(bytes);
+static void fuzz_region_set_path(sk_sp<SkData> data) {
+    Fuzz fuzz(data->bytes(), data->size());
     FuzzRegionSetPath(&fuzz);
     SkDebugf("[terminated] region_set_path didn't crash!\n");
 }
