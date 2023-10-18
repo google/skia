@@ -123,6 +123,6 @@ std::vector<Crossing> EventQueue::crossings() {
 
 bool OrderBySlope::operator()(const bentleyottmann::Segment& s0,
                               const bentleyottmann::Segment& s1) const {
-    return compareSlopes(s0, s1) < 0;
+    return compare_slopes(s0, s1) < 0;
 }
 }  // namespace bentleyottmann

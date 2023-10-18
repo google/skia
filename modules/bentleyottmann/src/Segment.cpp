@@ -166,7 +166,7 @@ std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
 // and the same applies to the other side of the <?. Because y0 <= y1 and y2 <= y3, then the
 // differences of (y1 - y0) and (y3 - y2) are positive allowing us to multiply through without
 // worrying about sign changes.
-bool lessThanAt(const Segment& s0, const Segment& s1, int32_t y) {
+bool less_than_at(const Segment& s0, const Segment& s1, int32_t y) {
     auto [l0, t0, r0, b0] = s0.bounds();
     auto [l1, t1, r1, b1] = s1.bounds();
     SkASSERT(t0 <= y && y <= b0);
@@ -202,7 +202,38 @@ bool lessThanAt(const Segment& s0, const Segment& s1, int32_t y) {
     return s0Factor < s1Factor;
 }
 
-int compareSlopes(const Segment& s0, const Segment& s1) {
+bool point_less_than_segment_in_x(Point p, const Segment& segment) {
+    auto [l, t, r, b] = segment.bounds();
+
+    // Ensure that the segment intersects the horizontal sweep line
+    SkASSERT(t <= p.y && p.y <= b);
+
+    // Fast answers using bounding boxes.
+    if (p.x < l) {
+        return true;
+    } else if (p.x >= r) {
+        return false;
+    }
+
+    auto [x0, y0] = segment.upper();
+    auto [x1, y1] = segment.lower();
+    auto [x2, y2] = p;
+
+    // For a point and a segment the comparison is:
+    //    x2 < x0 + (y2 - y0)(x1 - x0) / (y1 - y0)
+    // becomes
+    //    (x2 - x0)(y1 - y0) < (x1 - x0)(y2 - y0)
+    // We don't need to worry about the signs changing in the cross multiply because (y1 - y0) is
+    // always positive. Manipulating a little further derives predicate 2 from "Robust Plane
+    // Sweep for Intersecting Segments" page 9.
+    //    0 < (x1 - x0)(y2 - y0) - (x2 - x0)(y1 - y0)
+    // becomes
+    //        | x1-x0   x2-x0 |
+    //   0 <  | y1-y0   y2-y0 |
+    return SkToS64(x2 - x0) * SkToS64(y1 - y0) < SkToS64(y2 - y0) * SkToS64(x1 - x0);
+}
+
+int compare_slopes(const Segment& s0, const Segment& s1) {
     Point s0Delta = s0.lower() - s0.upper(),
           s1Delta = s1.lower() - s1.upper();
 
@@ -224,8 +255,8 @@ int compareSlopes(const Segment& s0, const Segment& s1) {
     // * proper slope ordering - the slope monotonically increases from the smallest along the
     //                           negative x-axis increasing counterclockwise to the largest along
     //                           the positive x-axis.
-    int64_t lhs = (int64_t)s0Delta.x * (int64_t)s1Delta.y,
-            rhs = (int64_t)s1Delta.x * (int64_t)s0Delta.y;
+    int64_t lhs = SkToS64(s0Delta.x) * SkToS64(s1Delta.y),
+            rhs = SkToS64(s1Delta.x) * SkToS64(s0Delta.y);
 
     if (lhs < rhs) {
         return -1;
