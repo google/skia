@@ -153,14 +153,19 @@ $pure float $tile(int tileMode, float f, float low, float high) {
     }
 }
 
-$pure half4 $sample_image(float2 pos,
-                          float2 imgSize,
-                          float4 subset,
-                          int tileModeX,
-                          int tileModeY,
-                          int filterMode,
-                          int readSwizzle,
-                          sampler2D s) {
+$pure half4 $sample_image(float2 pos, float2 imgSize, int readSwizzle, sampler2D s) {
+    half4 color = sample(s, pos / imgSize);
+    return $apply_swizzle(readSwizzle, color);
+}
+
+$pure half4 $sample_image_subset(float2 pos,
+                                 float2 imgSize,
+                                 float4 subset,
+                                 int tileModeX,
+                                 int tileModeY,
+                                 int filterMode,
+                                 int readSwizzle,
+                                 sampler2D s) {
     // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
     // subset boundaries. Snap the input coordinates to nearest neighbor before comparing to the
     // subset rect, to avoid GPU interpolation errors. See https://crbug.com/skia/10403.
@@ -189,8 +194,7 @@ $pure half4 $sample_image(float2 pos,
         insetClamp = float4(subset.xy + $kLinearInset, subset.zw - $kLinearInset);
     }
     float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
-    half4 color = sample(s, clampedPos / imgSize);
-    color = $apply_swizzle(readSwizzle, color);
+    half4 color = $sample_image(clampedPos, imgSize, readSwizzle, s);
 
     if (filterMode == $kFilterModeLinear) {
         // Remember the amount the coord moved for clamping. This is used to implement shader-based
@@ -210,17 +214,17 @@ $pure half4 $sample_image(float2 pos,
             half4 extraColorY;
             if (sampleExtraX) {
                 extraCoordX = error.x > 0 ? insetClamp.x : insetClamp.z;
-                extraColorX = sample(s, float2(extraCoordX, clampedPos.y) / imgSize);
-                extraColorX = $apply_swizzle(readSwizzle, extraColorX);
+                extraColorX = $sample_image(float2(extraCoordX, clampedPos.y),
+                                            imgSize, readSwizzle, s);
             }
             if (sampleExtraY) {
                 extraCoordY = error.y > 0 ? insetClamp.y : insetClamp.w;
-                extraColorY = sample(s, float2(clampedPos.x, extraCoordY) / imgSize);
-                extraColorY = $apply_swizzle(readSwizzle, extraColorY);
+                extraColorY = $sample_image(float2(clampedPos.x, extraCoordY),
+                                            imgSize, readSwizzle, s);
             }
             if (sampleExtraX && sampleExtraY) {
-                half4 extraColorXY = sample(s, float2(extraCoordX, extraCoordY) / imgSize);
-                extraColorXY = $apply_swizzle(readSwizzle, extraColorXY);
+                half4 extraColorXY = $sample_image(float2(extraCoordX, extraCoordY),
+                                                   imgSize, readSwizzle, s);
                 color = mix(mix(color, extraColorX, absError.x),
                             mix(extraColorY, extraColorXY, absError.x),
                             absError.y);
@@ -265,9 +269,9 @@ $pure half4 $cubic_filter_image(float2 pos,
     for (int y = 0; y < 4; ++y) {
         half4 rowColor = half4(0);
         for (int x = 0; x < 4; ++x) {
-            rowColor += wx[x] * $sample_image(pos + float2(x, y), imgSize, subset,
-                                              tileModeX, tileModeY, $kFilterModeNearest,
-                                              readSwizzle, s);
+            rowColor += wx[x] * $sample_image_subset(pos + float2(x, y), imgSize, subset,
+                                                     tileModeX, tileModeY, $kFilterModeNearest,
+                                                     readSwizzle, s);
         }
         color += wy[y] * rowColor;
     }
@@ -290,8 +294,8 @@ $pure half4 sk_image_shader(float2 coords,
                             int csXformDstKind,
                             half4x4 csXformCoeffs,
                             sampler2D s) {
-    half4 sampleColor =
-        $sample_image(coords, imgSize, subset, tileModeX, tileModeY, filterMode, readSwizzle, s);
+    half4 sampleColor = $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY,
+                                             filterMode, readSwizzle, s);
     return sk_color_space_transform(sampleColor, csXformFlags, csXformSrcKind,
                                     csXformGamutTransform, csXformDstKind, csXformCoeffs);
 }
@@ -311,6 +315,20 @@ $pure half4 sk_cubic_image_shader(float2 coords,
                                   sampler2D s) {
     half4 sampleColor = $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY,
                                             cubicCoeffs, readSwizzle, s);
+    return sk_color_space_transform(sampleColor, csXformFlags, csXformSrcKind,
+                                    csXformGamutTransform, csXformDstKind, csXformCoeffs);
+}
+
+$pure half4 sk_hw_image_shader(float2 coords,
+                               float2 imgSize,
+                               int readSwizzle,
+                               int csXformFlags,
+                               int csXformSrcKind,
+                               half3x3 csXformGamutTransform,
+                               int csXformDstKind,
+                               half4x4 csXformCoeffs,
+                               sampler2D s) {
+    half4 sampleColor = $sample_image(coords, imgSize, readSwizzle, s);
     return sk_color_space_transform(sampleColor, csXformFlags, csXformSrcKind,
                                     csXformGamutTransform, csXformDstKind, csXformCoeffs);
 }
@@ -341,18 +359,18 @@ $pure half4 sk_yuv_image_shader(float2 coords,
     half4 sampleColorY = (useCubic != 0)
         ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
                               $kReadSwizzleNormalRGBA, sY)
-        : $sample_image(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
-                        $kReadSwizzleNormalRGBA, sY);
+        : $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
+                               $kReadSwizzleNormalRGBA, sY);
     half4 sampleColorU = (useCubic != 0)
         ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
                               $kReadSwizzleNormalRGBA, sU)
-        : $sample_image(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
-                        $kReadSwizzleNormalRGBA, sU);
+        : $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
+                               $kReadSwizzleNormalRGBA, sU);
     half4 sampleColorV = (useCubic != 0)
         ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
                               $kReadSwizzleNormalRGBA, sY)
-        : $sample_image(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
-                        $kReadSwizzleNormalRGBA, sV);
+        : $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
+                               $kReadSwizzleNormalRGBA, sV);
     float Y = dot(channelSelectY, sampleColorY);
     float U = dot(channelSelectU, sampleColorU);
     float V = dot(channelSelectV, sampleColorV);
@@ -365,8 +383,8 @@ $pure half4 sk_yuv_image_shader(float2 coords,
         half4 sampleColorA = (useCubic != 0)
             ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
                                   $kReadSwizzleNormalRGBA, sA)
-            : $sample_image(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
-                            $kReadSwizzleNormalRGBA, sA);
+            : $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
+                                   $kReadSwizzleNormalRGBA, sA);
         sampleColor.a = dot(channelSelectA, sampleColorA);
         // premul alpha
         sampleColor.rgb *= sampleColor.a;

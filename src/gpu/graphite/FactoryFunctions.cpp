@@ -270,8 +270,8 @@ public:
     PrecompileImageShader() {}
 
 private:
-    // cubic and non-cubic sampling
-    inline static constexpr int kNumIntrinsicCombinations = 2;
+    // hardware-tiled, shader-tiled and cubic sampling
+    inline static constexpr int kNumIntrinsicCombinations = 3;
 
     int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
 
@@ -284,11 +284,19 @@ private:
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
 
-        ImageShaderBlock::ImageData imgData(desiredCombination > 0 ? kDefaultCubicSampling
-                                                                   : kDefaultSampling,
+        // ImageShaderBlock will use hardware tiling when the subset covers the entire image, so we
+        // create subset + image size combinations where subset == imgSize (for a shader that uses
+        // hardware tiling) and subset < imgSize (for a shader that does shader-based tiling).
+        static constexpr SkRect kSubset = SkRect::MakeWH(1.0f, 1.0f);
+        static constexpr SkISize kHwTileableSize = SkISize::Make(1, 1);
+        static constexpr SkISize kNonHwTileableSize = SkISize::Make(2, 2);
+
+        ImageShaderBlock::ImageData imgData(desiredCombination == 2 ? kDefaultCubicSampling
+                                                                    : kDefaultSampling,
                                             SkTileMode::kClamp, SkTileMode::kClamp,
-                                            SkISize::MakeEmpty(), SkRect::MakeEmpty(),
-                                            ReadSwizzle::kRGBA);
+                                            desiredCombination == 1 ? kHwTileableSize
+                                                                    : kNonHwTileableSize,
+                                            kSubset, ReadSwizzle::kRGBA);
 
         ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
     }
