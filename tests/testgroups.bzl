@@ -43,13 +43,10 @@ CORE_TESTS = [
     "F16StagesTest.cpp",
     "FillPathTest.cpp",
     "FitsInTest.cpp",
-    "FlattenDrawableTest.cpp",
     "FlattenableFactoryToName.cpp",
     "FlattenableNameToFactory.cpp",
     "Float16Test.cpp",
     "FloatingPointTest.cpp",
-    "FontHostTest.cpp",
-    "FontNamesTest.cpp",
     "FontTest.cpp",
     "FrontBufferedStreamTest.cpp",
     "GeometryTest.cpp",
@@ -84,7 +81,6 @@ CORE_TESTS = [
     "OffsetSimplePolyTest.cpp",
     "OnceTest.cpp",
     "OverAlignedTest.cpp",
-    "PaintTest.cpp",
     "ParametricStageTest.cpp",
     "ParseColorTest.cpp",
     "ParsePathTest.cpp",
@@ -93,7 +89,6 @@ CORE_TESTS = [
     "PathMeasureTest.cpp",
     "PictureBBHTest.cpp",
     "PictureShaderTest.cpp",
-    "PictureTest.cpp",
     "PixelRefTest.cpp",
     "Point3Test.cpp",
     "PointTest.cpp",
@@ -134,7 +129,6 @@ CORE_TESTS = [
     "SkSharedMutexTest.cpp",
     "SkSpanTest.cpp",
     "SkStrikeCacheTest.cpp",
-    "SkStrikeTest.cpp",
     "SkStringViewTest.cpp",
     "SkTBlockListTest.cpp",
     "SkUTFTest.cpp",
@@ -160,6 +154,15 @@ CORE_CODEC_TESTS = [
     "MipMapTest.cpp",
     "SamplingTest.cpp",
     "Skbug6389.cpp",
+]
+
+FONT_TESTS = [
+    "FlattenDrawableTest.cpp",
+    "FontHostTest.cpp",
+    "FontNamesTest.cpp",
+    "PaintTest.cpp",
+    "PictureTest.cpp",
+    "SkStrikeTest.cpp",
 ]
 
 JSON_TESTS = [

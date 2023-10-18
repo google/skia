@@ -18,7 +18,6 @@ cc_library(
     name = "skia_core_and_pathops",
     deps = [
         "@skia//:core",
-        "@skia//:default_font_manager_empty",
         "@skia//:pathops",
     ],
 )
@@ -33,7 +32,6 @@ cc_binary(
     ],
     deps = [
         "@skia//:core",
-        "@skia//:default_font_manager_empty",
         "@skia//:png_decode_codec",
     ],
 )

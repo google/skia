@@ -299,13 +299,15 @@ static void check_cubic_type(skiatest::Reporter* reporter,
     // Classify the cubic even if the results will be undefined: check for crashes and asserts.
     SkCubicType actualType = SkClassifyCubic(bezierPoints.data());
     if (!undefined) {
-        REPORTER_ASSERT(reporter, actualType == expectedType);
+        REPORTER_ASSERT(reporter, actualType == expectedType,
+                        "%d != %d", (int)actualType, (int)expectedType);
     }
 }
 
-static void check_cubic_around_rect(skiatest::Reporter* reporter,
+static void check_cubic_around_rect(std::string name, skiatest::Reporter* reporter,
                                     float x1, float y1, float x2, float y2,
                                     bool undefined = false) {
+    skiatest::ReporterContext subtest(reporter, name);
     static constexpr SkCubicType expectations[24] = {
         SkCubicType::kLoop,
         SkCubicType::kCuspAtInfinity,
@@ -404,35 +406,38 @@ static void test_classify_cubic(skiatest::Reporter* reporter) {
     for (const auto& loop : kLinearCubics) {
         check_cubic_type(reporter, loop, SkCubicType::kLineOrPoint);
     }
-    check_cubic_around_rect(reporter, 0, 0, 1, 1);
-    check_cubic_around_rect(reporter,
+    check_cubic_around_rect("small box", reporter, 0, 0, 1, 1);
+    check_cubic_around_rect("biggest box", reporter,
                             -std::numeric_limits<float>::max(),
                             -std::numeric_limits<float>::max(),
                             +std::numeric_limits<float>::max(),
                             +std::numeric_limits<float>::max());
-    check_cubic_around_rect(reporter, 1, 1,
+    check_cubic_around_rect("large quadrant", reporter, 1, 1,
                             +std::numeric_limits<float>::min(),
                             +std::numeric_limits<float>::max());
-    check_cubic_around_rect(reporter,
+    check_cubic_around_rect("smallest box", reporter,
                             -std::numeric_limits<float>::min(),
                             -std::numeric_limits<float>::min(),
                             +std::numeric_limits<float>::min(),
                             +std::numeric_limits<float>::min());
-    check_cubic_around_rect(reporter, +1, -std::numeric_limits<float>::min(), -1, -1);
-    check_cubic_around_rect(reporter,
+    check_cubic_around_rect("slightly negative box",reporter,
+                            +1, -std::numeric_limits<float>::min(), -1, -1);
+    check_cubic_around_rect("infinite box", reporter,
                             -std::numeric_limits<float>::infinity(),
                             -std::numeric_limits<float>::infinity(),
                             +std::numeric_limits<float>::infinity(),
                             +std::numeric_limits<float>::infinity(),
                             true);
-    check_cubic_around_rect(reporter, 0, 0, 1, +std::numeric_limits<float>::infinity(), true);
-    check_cubic_around_rect(reporter,
+    check_cubic_around_rect("one sided infinite box", reporter,
+                            0, 0, 1, +std::numeric_limits<float>::infinity(), true);
+    check_cubic_around_rect("nan box", reporter,
                             -std::numeric_limits<float>::quiet_NaN(),
                             -std::numeric_limits<float>::quiet_NaN(),
                             +std::numeric_limits<float>::quiet_NaN(),
                             +std::numeric_limits<float>::quiet_NaN(),
                             true);
-    check_cubic_around_rect(reporter, 0, 0, 1, +std::numeric_limits<float>::quiet_NaN(), true);
+    check_cubic_around_rect("partial nan box", reporter,
+                            0, 0, 1, +std::numeric_limits<float>::quiet_NaN(), true);
 }
 
 static std::array<SkPoint, 4> kCusps[] = {

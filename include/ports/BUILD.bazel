@@ -76,3 +76,9 @@ skia_filegroup(
     }),
     visibility = ["//include:__pkg__"],
 )
+
+skia_filegroup(
+    name = "core_hdrs",
+    srcs = ["SkImageGeneratorCG.h"],
+    visibility = ["//src/core:__pkg__"],
+)

@@ -45,6 +45,13 @@ CORE_COPTS = [
         # (e.g. "undefined reference to `SkString::data()'").
         "-fvisibility=hidden",
     ],
+}) + select({
+    "@platforms//os:windows": [],
+    "//conditions:default": [
+        # In Clang 14, this default was changed. We turn this off to (hopefully) make our
+        # GMs more consistent and avoid some floating-point related test failures on M1 macs.
+        "-ffp-contract=off",
+    ],
 })
 
 OPT_LEVEL = select({

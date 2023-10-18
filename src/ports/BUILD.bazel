@@ -4,7 +4,6 @@ load(
     "exports_files_legacy",
     "select_multi",
     "skia_cc_deps",
-    "skia_cc_library",
     "skia_filegroup",
 )
 
@@ -368,12 +367,4 @@ skia_filegroup(
         ":osfile",
     ],
     visibility = ["//src/core:__pkg__"],
-)
-
-skia_cc_library(
-    name = "default_font_manager_empty",
-    srcs = [":fontmgr_empty_factory"],
-    features = ["layering_check"],
-    visibility = ["//:__pkg__"],
-    deps = ["//src/core"],
 )
