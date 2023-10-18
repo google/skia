@@ -80,6 +80,10 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
             SKGPU_LOG_E("Recordings are expected to be replayed in order");
             return false;
         }
+
+        // Note the new Recording ID.
+        fLastAddedRecordingIDs.set(info.fRecording->priv().recorderID(),
+                                   info.fRecording->priv().uniqueID());
     }
 
     if (info.fTargetSurface &&
@@ -150,8 +154,6 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
 
     info.fRecording->priv().deinstantiateVolatileLazyProxies();
 
-    fLastAddedRecordingIDs.set(info.fRecording->priv().recorderID(),
-                               info.fRecording->priv().uniqueID());
     return true;
 }
 
