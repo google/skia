@@ -1149,8 +1149,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         return {renderers->vertices(info.mode(), info.hasColors(), info.hasTexCoords()), nullptr};
     } else if (geometry.isEdgeAAQuad()) {
         SkASSERT(!requireMSAA && style.isFillStyle());
-        // handled by the same system as rects and round rects
-        return {renderers->analyticRRect(), nullptr};
+        // handled by specialized system, simplified from rects and round rects
+        return {renderers->perEdgeAAQuad(), nullptr};
     } else if (!geometry.isShape()) {
         // We must account for new Geometry types with specific Renderers
         return {nullptr, nullptr};

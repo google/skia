@@ -63,8 +63,11 @@ public:
         return &fVertices[4*triStrip + 2*hasColors + hasTexCoords];
     }
 
-    // Filled and stroked [r]rects and per-edge AA quadrilaterals
+    // Filled and stroked [r]rects
     const Renderer* analyticRRect() const { return &fAnalyticRRect; }
+
+    // Per-edge AA quadrilaterals
+    const Renderer* perEdgeAAQuad() const { return &fPerEdgeAAQuad; }
 
     // TODO: May need to add support for inverse filled strokes (need to check SVG spec if this is a
     // real thing).
@@ -111,6 +114,7 @@ private:
     Renderer fSDFText[2]; // bool isLCD
 
     Renderer fAnalyticRRect;
+    Renderer fPerEdgeAAQuad;
 
     Renderer fVertices[kVerticesCount];
 
