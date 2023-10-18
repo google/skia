@@ -13,7 +13,8 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "tools/fonts/TestFontMgr.h"
 
-void FuzzTextBlobDeserialize(SkReadBuffer& buf) {
+void FuzzTextBlobDeserialize(const uint8_t *data, size_t size) {
+    SkReadBuffer buf(data, size);
     auto tb = SkTextBlobPriv::MakeFromBuffer(buf);
     if (!buf.isValid()) {
         return;
@@ -34,8 +35,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         return 0;
     }
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-    SkReadBuffer buf(data, size);
-    FuzzTextBlobDeserialize(buf);
+    FuzzTextBlobDeserialize(data, size);
     return 0;
 }
 #endif

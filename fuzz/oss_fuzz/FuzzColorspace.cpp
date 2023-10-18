@@ -10,8 +10,8 @@
 #include "include/core/SkData.h"
 #include "modules/skcms/skcms.h"
 
-void FuzzColorspace(sk_sp<SkData> bytes) {
-    sk_sp<SkColorSpace> space(SkColorSpace::Deserialize(bytes->data(), bytes->size()));
+void FuzzColorspace(const uint8_t *data, size_t size) {
+    sk_sp<SkColorSpace> space(SkColorSpace::Deserialize(data, size));
     if (!space) {
         return;
     }
@@ -42,8 +42,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 4000) {
         return 0;
     }
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzColorspace(bytes);
+    FuzzColorspace(data, size);
     return 0;
 }
 #endif

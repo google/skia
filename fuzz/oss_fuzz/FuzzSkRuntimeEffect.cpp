@@ -27,9 +27,8 @@ using namespace skia_private;
  * This gives us better coverage, and eases the burden on the fuzzer to inject useless noise into
  * functions to suppress inlining.
  */
-static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
+static bool FuzzSkRuntimeEffect_Once(const SkString& shaderText,
                                      const SkRuntimeEffect::Options& options) {
-    SkString shaderText{static_cast<const char*>(codeBytes->data()), codeBytes->size()};
     SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForShader(shaderText, options);
     SkRuntimeEffect* effect = result.effect.get();
     if (!effect) {
@@ -56,15 +55,16 @@ static bool FuzzSkRuntimeEffect_Once(sk_sp<SkData> codeBytes,
     return true;
 }
 
-bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes) {
+bool FuzzSkRuntimeEffect(const uint8_t *data, size_t size) {
     // Test once with optimization disabled...
+    SkString shaderText{reinterpret_cast<const char*>(data), size};
     SkRuntimeEffect::Options options;
     options.forceUnoptimized = true;
-    bool result = FuzzSkRuntimeEffect_Once(bytes, options);
+    bool result = FuzzSkRuntimeEffect_Once(shaderText, options);
 
     // ... and then with optimization enabled.
     options.forceUnoptimized = false;
-    result = FuzzSkRuntimeEffect_Once(bytes, options) || result;
+    result = FuzzSkRuntimeEffect_Once(shaderText, options) || result;
 
     return result;
 }
@@ -74,8 +74,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 3000) {
         return 0;
     }
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzSkRuntimeEffect(bytes);
+    FuzzSkRuntimeEffect(data, size);
     return 0;
 }
 #endif

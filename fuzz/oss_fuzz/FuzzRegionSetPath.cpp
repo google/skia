@@ -7,7 +7,6 @@
 
 #include "fuzz/Fuzz.h"
 #include "fuzz/FuzzCommon.h"
-#include "include/core/SkData.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
 

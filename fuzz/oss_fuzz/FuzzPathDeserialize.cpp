@@ -11,7 +11,9 @@
 #include "include/core/SkSurface.h"
 #include "src/core/SkReadBuffer.h"
 
-void FuzzPathDeserialize(SkReadBuffer& buf) {
+void FuzzPathDeserialize(const uint8_t *data, size_t size) {
+    SkReadBuffer buf(data, size);
+
     SkPath path;
     buf.readPath(&path);
     if (!buf.isValid()) {
@@ -40,8 +42,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         // only focus on those branches.
         return 0;
     }
-    SkReadBuffer buf(data, size);
-    FuzzPathDeserialize(buf);
+    FuzzPathDeserialize(data, size);
     return 0;
 }
 #endif

@@ -23,10 +23,11 @@ T extract(SkSpan<const uint8_t>& data) {
     return result;
 }
 
-static void FuzzSkMeshSpecification(SkSpan<const uint8_t> data) {
+void FuzzSkMeshSpecification(const uint8_t *fuzzData, size_t fuzzSize) {
     using Attribute = SkMeshSpecification::Attribute;
     using Varying = SkMeshSpecification::Varying;
 
+    SkSpan<const uint8_t> data(fuzzData, fuzzSize);
     STArray<SkMeshSpecification::kMaxAttributes, Attribute> attributes;
     STArray<SkMeshSpecification::kMaxVaryings,   Varying>   varyings;
     size_t vertexStride;
@@ -212,17 +213,12 @@ static void FuzzSkMeshSpecification(SkSpan<const uint8_t> data) {
     }
 }
 
-bool FuzzSkMeshSpecification(sk_sp<SkData> fuzz) {
-    FuzzSkMeshSpecification(SkSpan(fuzz->bytes(), fuzz->size()));
-    return true;
-}
-
 #if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 8000) {
         return 0;
     }
-    FuzzSkMeshSpecification(SkSpan<const uint8_t>(data, size));
+    FuzzSkMeshSpecification(data, size);
     return 0;
 }
 #endif

@@ -7,11 +7,11 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 #include "include/private/base/SkTemplates.h"
 
-bool FuzzIncrementalImageDecode(sk_sp<SkData> bytes) {
-    auto codec = SkCodec::MakeFromData(bytes);
+bool FuzzIncrementalImageDecode(const uint8_t *data, size_t size) {
+    auto codec = SkCodec::MakeFromStream(SkMemoryStream::MakeDirect(data, size));
     if (!codec) {
         return false;
     }
@@ -52,8 +52,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 10240) {
         return 0;
     }
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzIncrementalImageDecode(bytes);
+    FuzzIncrementalImageDecode(data, size);
     return 0;
 }
 #endif

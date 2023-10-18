@@ -8,8 +8,8 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkReadBuffer.h"
 
-void FuzzSkDescriptorDeserialize(sk_sp<SkData> bytes) {
-    SkReadBuffer buffer{bytes->data(), bytes->size()};
+void FuzzSkDescriptorDeserialize(const uint8_t *data, size_t size) {
+    SkReadBuffer buffer{data, size};
     auto sut = SkAutoDescriptor::MakeFromBuffer(buffer);
     if (!sut.has_value()) {
         return;
@@ -32,8 +32,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 1024) {
         return 0;
     }
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzSkDescriptorDeserialize(bytes);
+    FuzzSkDescriptorDeserialize(data, size);
     return 0;
 }
 #endif

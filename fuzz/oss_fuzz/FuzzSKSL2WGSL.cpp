@@ -13,12 +13,12 @@
 
 #include "fuzz/Fuzz.h"
 
-bool FuzzSKSL2WGSL(sk_sp<SkData> bytes) {
+bool FuzzSKSL2WGSL(const uint8_t *data, size_t size) {
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
     std::unique_ptr<SkSL::Program> program =
             compiler.convertProgram(SkSL::ProgramKind::kFragment,
-                                    std::string((const char*)bytes->data(), bytes->size()),
+                                    std::string(reinterpret_cast<const char*>(data), size),
                                     settings);
     std::string output;
     if (!program || !compiler.toWGSL(*program, &output)) {
@@ -32,8 +32,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 3000) {
         return 0;
     }
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzSKSL2WGSL(bytes);
+    FuzzSKSL2WGSL(data, size);
     return 0;
 }
 #endif

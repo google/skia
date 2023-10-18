@@ -8,11 +8,11 @@
 #include "include/android/SkAnimatedImage.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkData.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 
-bool FuzzAnimatedImage(sk_sp<SkData> bytes) {
-    auto codec = SkAndroidCodec::MakeFromData(bytes);
+bool FuzzAnimatedImage(const uint8_t *data, size_t size) {
+    auto codec = SkAndroidCodec::MakeFromStream(SkMemoryStream::MakeDirect(data, size));
     if (nullptr == codec) {
         return false;
     }
@@ -41,8 +41,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 10240) {
         return 0;
     }
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzAnimatedImage(bytes);
+    FuzzAnimatedImage(data, size);
     return 0;
 }
 #endif

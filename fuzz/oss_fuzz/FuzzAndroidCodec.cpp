@@ -8,15 +8,14 @@
 #include "include/codec/SkAndroidCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/private/SkGainmapInfo.h"
 
 #include "fuzz/Fuzz.h"
 
-bool FuzzAndroidCodec(sk_sp<SkData> bytes, uint8_t sampleSize) {
-    auto codec = SkAndroidCodec::MakeFromData(bytes);
+bool FuzzAndroidCodec(const uint8_t *fuzzData, size_t fuzzSize, uint8_t sampleSize) {
+    auto codec = SkAndroidCodec::MakeFromStream(SkMemoryStream::MakeDirect(fuzzData, fuzzSize));
     if (!codec) {
         return false;
     }
@@ -73,8 +72,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     Fuzz fuzz(data, size);
     uint8_t sampleSize;
     fuzz.nextRange(&sampleSize, 1, 64);
-    FuzzAndroidCodec(SkData::MakeWithoutCopy(fuzz.remainingData(), fuzz.remainingSize()),
-                     sampleSize);
+    FuzzAndroidCodec(fuzz.remainingData(), fuzz.remainingSize(), sampleSize);
     return 0;
 }
 #endif

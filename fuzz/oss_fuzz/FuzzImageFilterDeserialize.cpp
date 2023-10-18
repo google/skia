@@ -8,21 +8,20 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "tools/fonts/TestFontMgr.h"
 
-void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
+void FuzzImageFilterDeserialize(const uint8_t *data, size_t size) {
     const int BitmapSize = 24;
     SkBitmap bitmap;
     bitmap.allocN32Pixels(BitmapSize, BitmapSize);
     SkCanvas canvas(bitmap);
     canvas.clear(0x00000000);
 
-    auto flattenable = SkImageFilter::Deserialize(bytes->data(), bytes->size());
+    auto flattenable = SkImageFilter::Deserialize(data, size);
 
     if (flattenable != nullptr) {
         // Let's see if using the filters can cause any trouble...
@@ -46,8 +45,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         return 0;
     }
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-    auto bytes = SkData::MakeWithoutCopy(data, size);
-    FuzzImageFilterDeserialize(bytes);
+    FuzzImageFilterDeserialize(data, size);
     return 0;
 }
 #endif
