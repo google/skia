@@ -228,36 +228,19 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile& profile) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {
-    k0_Version, // Initial version, header + flags for matrix and profile
+    k0_Version, // Initial (deprecated) version, no longer supported
     k1_Version, // Simple header (version tag) + 16 floats
 
     kCurrent_Version = k1_Version,
 };
 
-enum NamedColorSpace {
-    kSRGB_NamedColorSpace,
-    kAdobeRGB_NamedColorSpace,
-    kSRGBLinear_NamedColorSpace,
-};
-
-enum NamedGamma {
-    kLinear_NamedGamma,
-    kSRGB_NamedGamma,
-    k2Dot2_NamedGamma,
-};
-
 struct ColorSpaceHeader {
-    // Flag values, only used by old (k0_Version) serialization
-    inline static constexpr uint8_t kMatrix_Flag     = 1 << 0;
-    inline static constexpr uint8_t kICC_Flag        = 1 << 1;
-    inline static constexpr uint8_t kTransferFn_Flag = 1 << 3;
-
     uint8_t fVersion = kCurrent_Version;
 
-    // Other fields are only used by k0_Version. Could be re-purposed in future versions.
-    uint8_t fNamed      = 0;
-    uint8_t fGammaNamed = 0;
-    uint8_t fFlags      = 0;
+    // Other fields were only used by k0_Version. Could be re-purposed in future versions.
+    uint8_t fReserved0 = 0;
+    uint8_t fReserved1 = 0;
+    uint8_t fReserved2 = 0;
 };
 
 size_t SkColorSpace::writeToMemory(void* memory) const {
@@ -288,89 +271,21 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
     ColorSpaceHeader header = *((const ColorSpaceHeader*) data);
     data = SkTAddOffset<const void>(data, sizeof(ColorSpaceHeader));
     length -= sizeof(ColorSpaceHeader);
-    if (k1_Version == header.fVersion) {
-        if (length < 16 * sizeof(float)) {
-            return nullptr;
-        }
-
-        skcms_TransferFunction transferFn;
-        memcpy(&transferFn, data, 7 * sizeof(float));
-        data = SkTAddOffset<const void>(data, 7 * sizeof(float));
-
-        skcms_Matrix3x3 toXYZ;
-        memcpy(&toXYZ, data, 9 * sizeof(float));
-        return SkColorSpace::MakeRGB(transferFn, toXYZ);
-    } else if (k0_Version == header.fVersion) {
-        if (0 == header.fFlags) {
-            switch ((NamedColorSpace)header.fNamed) {
-                case kSRGB_NamedColorSpace:
-                    return SkColorSpace::MakeSRGB();
-                case kSRGBLinear_NamedColorSpace:
-                    return SkColorSpace::MakeSRGBLinear();
-                case kAdobeRGB_NamedColorSpace:
-                    return SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2,
-                                                 SkNamedGamut::kAdobeRGB);
-            }
-        }
-
-        auto make_named_tf = [=](const skcms_TransferFunction& tf) {
-            if (ColorSpaceHeader::kMatrix_Flag != header.fFlags || length < 12 * sizeof(float)) {
-                return sk_sp<SkColorSpace>(nullptr);
-            }
-
-            // Version 0 matrix is row-major 3x4
-            skcms_Matrix3x3 toXYZ;
-            memcpy(&toXYZ.vals[0][0], (const float*)data + 0, 3 * sizeof(float));
-            memcpy(&toXYZ.vals[1][0], (const float*)data + 4, 3 * sizeof(float));
-            memcpy(&toXYZ.vals[2][0], (const float*)data + 8, 3 * sizeof(float));
-            return SkColorSpace::MakeRGB(tf, toXYZ);
-        };
-
-        switch ((NamedGamma) header.fGammaNamed) {
-            case kSRGB_NamedGamma:
-                return make_named_tf(SkNamedTransferFn::kSRGB);
-            case k2Dot2_NamedGamma:
-                return make_named_tf(SkNamedTransferFn::k2Dot2);
-            case kLinear_NamedGamma:
-                return make_named_tf(SkNamedTransferFn::kLinear);
-            default:
-                break;
-        }
-
-        switch (header.fFlags) {
-            case ColorSpaceHeader::kICC_Flag: {
-                // Deprecated and unsupported code path
-                return nullptr;
-            }
-            case ColorSpaceHeader::kTransferFn_Flag: {
-                if (length < 19 * sizeof(float)) {
-                    return nullptr;
-                }
-
-                // Version 0 TF is in abcdefg order
-                skcms_TransferFunction transferFn;
-                transferFn.a = *(((const float*) data) + 0);
-                transferFn.b = *(((const float*) data) + 1);
-                transferFn.c = *(((const float*) data) + 2);
-                transferFn.d = *(((const float*) data) + 3);
-                transferFn.e = *(((const float*) data) + 4);
-                transferFn.f = *(((const float*) data) + 5);
-                transferFn.g = *(((const float*) data) + 6);
-                data = SkTAddOffset<const void>(data, 7 * sizeof(float));
-
-                // Version 0 matrix is row-major 3x4
-                skcms_Matrix3x3 toXYZ;
-                memcpy(&toXYZ.vals[0][0], (const float*)data + 0, 3 * sizeof(float));
-                memcpy(&toXYZ.vals[1][0], (const float*)data + 4, 3 * sizeof(float));
-                memcpy(&toXYZ.vals[2][0], (const float*)data + 8, 3 * sizeof(float));
-                return SkColorSpace::MakeRGB(transferFn, toXYZ);
-            }
-            default:
-                return nullptr;
-        }
-    } else {
+    if (header.fVersion != k1_Version) {
         return nullptr;
     }
+
+    if (length < 16 * sizeof(float)) {
+        return nullptr;
+    }
+
+    skcms_TransferFunction transferFn;
+    memcpy(&transferFn, data, 7 * sizeof(float));
+    data = SkTAddOffset<const void>(data, 7 * sizeof(float));
+
+    skcms_Matrix3x3 toXYZ;
+    memcpy(&toXYZ, data, 9 * sizeof(float));
+    return SkColorSpace::MakeRGB(transferFn, toXYZ);
 }
 
 bool SkColorSpace::Equals(const SkColorSpace* x, const SkColorSpace* y) {
