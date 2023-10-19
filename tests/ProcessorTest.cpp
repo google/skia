@@ -397,7 +397,7 @@ class TestFPGenerator {
         std::unique_ptr<GrFragmentProcessor> make(int type, int randomTreeDepth,
                                                   GrSurfaceProxyView view,
                                                   SkAlphaType alpha = kPremul_SkAlphaType) {
-            return make(type, randomTreeDepth, GrTextureEffect::Make(view, alpha));
+            return make(type, randomTreeDepth, GrTextureEffect::Make(std::move(view), alpha));
         }
 
     private:

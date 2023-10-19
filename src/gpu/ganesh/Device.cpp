@@ -9,7 +9,6 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
-#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
@@ -157,7 +156,7 @@ bool init_vertices_paint(GrRecordingContext* rContext,
                          const GrColorInfo& colorInfo,
                          const SkPaint& skPaint,
                          const SkMatrix& ctm,
-                         sk_sp<SkBlender> blender,
+                         SkBlender* blender,
                          bool hasColors,
                          const SkSurfaceProps& props,
                          GrPaint* grPaint) {
@@ -166,7 +165,7 @@ bool init_vertices_paint(GrRecordingContext* rContext,
                                          colorInfo,
                                          skPaint,
                                          ctm,
-                                         blender.get(),
+                                         blender,
                                          props,
                                          grPaint);
     } else {
@@ -1087,7 +1086,7 @@ void Device::drawVertices(const SkVertices* vertices,
                              fSurfaceDrawContext->colorInfo(),
                              paint,
                              this->localToDevice(),
-                             std::move(blender),
+                             blender.get(),
                              info.hasColors(),
                              fSurfaceDrawContext->surfaceProps(),
                              &grPaint)) {
@@ -1113,7 +1112,7 @@ void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPain
                              fSurfaceDrawContext->colorInfo(),
                              paint,
                              this->localToDevice(),
-                             std::move(blender),
+                             blender.get(),
                              SkMeshSpecificationPriv::HasColors(*mesh.spec()),
                              fSurfaceDrawContext->surfaceProps(),
                              &grPaint)) {

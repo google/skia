@@ -56,7 +56,7 @@ void VulkanExtensions::init(VulkanGetProc getProc,
             SkTQSort(fExtensions.begin(), fExtensions.end(), extension_compare);
         }
     }
-    this->getSpecVersions(getProc, instance, physDev);
+    this->getSpecVersions(std::move(getProc), instance, physDev);
 }
 
 #define GET_PROC(F, inst)                                                        \

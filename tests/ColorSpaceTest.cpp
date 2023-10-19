@@ -96,7 +96,7 @@ DEF_TEST(ColorSpaceParseICCProfiles, r) {
             red, green, blue);
 }
 
-static void test_serialize(skiatest::Reporter* r, sk_sp<SkColorSpace> space, bool isNamed) {
+static void test_serialize(skiatest::Reporter* r, const sk_sp<SkColorSpace>& space, bool isNamed) {
     sk_sp<SkData> data1 = space->serialize();
 
     size_t bytes = space->writeToMemory(nullptr);

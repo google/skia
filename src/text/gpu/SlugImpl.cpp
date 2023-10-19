@@ -86,20 +86,19 @@ sk_sp<SlugImpl> SlugImpl::Make(const SkMatrix& viewMatrix,
     const SkMatrix positionMatrix = position_matrix(viewMatrix, glyphRunList.origin());
 
     auto subRuns = gpu::SubRunContainer::MakeInAlloc(glyphRunList,
-                                                positionMatrix,
-                                                drawingPaint,
-                                                strikeDeviceInfo,
-                                                strikeCache,
-                                                &alloc,
-                                                gpu::SubRunContainer::kAddSubRuns,
-                                                "Make Slug");
+                                                     positionMatrix,
+                                                     drawingPaint,
+                                                     strikeDeviceInfo,
+                                                     strikeCache,
+                                                     &alloc,
+                                                     gpu::SubRunContainer::kAddSubRuns,
+                                                     "Make Slug");
 
-    sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(initializer.initialize(
-            std::move(alloc),
-            std::move(subRuns),
-            glyphRunList.sourceBounds(),
-            initialPaint,
-            glyphRunList.origin()));
+    sk_sp<SlugImpl> slug = sk_sp<SlugImpl>(initializer.initialize(std::move(alloc),
+                                                                  std::move(subRuns),
+                                                                  glyphRunList.sourceBounds(),
+                                                                  initialPaint,
+                                                                  glyphRunList.origin()));
 
     // There is nothing to draw here. This is particularly a problem with RSX form blobs where a
     // single space becomes a run with no glyphs.

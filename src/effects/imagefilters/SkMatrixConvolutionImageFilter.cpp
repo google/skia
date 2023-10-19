@@ -69,8 +69,8 @@ class SkMatrixConvolutionImageFilter final : public SkImageFilter_Base {
 public:
     SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel,
                                    SkScalar gain, SkScalar bias, const SkIPoint& kernelOffset,
-                                   bool convolveAlpha, sk_sp<SkImageFilter> input)
-            : SkImageFilter_Base(&input, 1)
+                                   bool convolveAlpha, sk_sp<SkImageFilter> const* input)
+            : SkImageFilter_Base(input, 1)
             , fKernel(kernel, kernelSize.width() * kernelSize.height())
             , fKernelSize(kernelSize)
             , fKernelOffset({kernelOffset.fX, kernelOffset.fY})
@@ -254,7 +254,7 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixConvolution(const SkISize& kernelSize
         filter = SkImageFilters::Crop(*cropRect, tileMode, std::move(filter));
     }
     filter = sk_sp<SkImageFilter>(new SkMatrixConvolutionImageFilter(
-            kernelSize, kernel, gain, bias, kernelOffset, convolveAlpha, std::move(filter)));
+            kernelSize, kernel, gain, bias, kernelOffset, convolveAlpha, &filter));
     if (cropRect) {
         // But regardless of the tileMode, the output is decal cropped.
         filter = SkImageFilters::Crop(*cropRect, SkTileMode::kDecal, std::move(filter));

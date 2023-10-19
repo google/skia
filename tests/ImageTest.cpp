@@ -980,9 +980,11 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(SkImage_NewFromTextureRelease,
     REPORTER_ASSERT(reporter, 1 == releaseChecker.fReleaseCount);
 }
 
-static void test_cross_context_image(skiatest::Reporter* reporter, const GrContextOptions& options,
-                                     const char* testName,
-                                     std::function<sk_sp<SkImage>(GrDirectContext*)> imageMaker) {
+static void test_cross_context_image(
+        skiatest::Reporter* reporter,
+        const GrContextOptions& options,
+        const char* testName,
+        const std::function<sk_sp<SkImage>(GrDirectContext*)>& imageMaker) {
     for (int i = 0; i < skgpu::kContextTypeCount; ++i) {
         GrContextFactory testFactory(options);
         skgpu::ContextType ctxType = static_cast<skgpu::ContextType>(i);
@@ -1661,7 +1663,7 @@ DEF_TEST(image_subset_encode_skbug_7752, reporter) {
     const int W = image->width();
     const int H = image->height();
 
-    auto check_roundtrip = [&](sk_sp<SkImage> img) {
+    auto check_roundtrip = [&](const sk_sp<SkImage>& img) {
         auto img2 = SkImages::DeferredFromEncodedData(SkPngEncoder::Encode(nullptr, img.get(), {}));
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), img2.get()));
     };

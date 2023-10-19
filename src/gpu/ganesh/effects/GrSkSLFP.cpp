@@ -9,7 +9,6 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
@@ -293,7 +292,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
         sk_sp<SkColorSpace> dstColorSpace,
         std::unique_ptr<GrFragmentProcessor> inputFP,
         std::unique_ptr<GrFragmentProcessor> destColorFP,
-        sk_sp<const SkData> uniforms,
+        const sk_sp<const SkData>& uniforms,
         SkSpan<std::unique_ptr<GrFragmentProcessor>> childFPs) {
     if (uniforms->size() != effect->uniformSize()) {
         return nullptr;
@@ -313,7 +312,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
         fp->setDestColorFP(std::move(destColorFP));
     }
     if (fp->fEffect->usesColorTransform() && dstColorSpace) {
-        fp->addColorTransformChildren(std::move(dstColorSpace));
+        fp->addColorTransformChildren(dstColorSpace.get());
     }
     return fp;
 }
@@ -383,7 +382,7 @@ void GrSkSLFP::setDestColorFP(std::unique_ptr<GrFragmentProcessor> destColorFP) 
     this->registerChild(std::move(destColorFP), SkSL::SampleUsage::PassThrough());
 }
 
-void GrSkSLFP::addColorTransformChildren(sk_sp<SkColorSpace> dstColorSpace) {
+void GrSkSLFP::addColorTransformChildren(SkColorSpace* dstColorSpace) {
     SkASSERTF(fToLinearSrgbChildIndex == -1 && fFromLinearSrgbChildIndex == -1,
               "addColorTransformChildren should not be called more than once");
 
@@ -391,14 +390,14 @@ void GrSkSLFP::addColorTransformChildren(sk_sp<SkColorSpace> dstColorSpace) {
     // invoked, but each one injects a collection of uniforms and helper functions. Doing it
     // this way leverages per-FP name mangling to avoid conflicts.
     auto workingToLinear = GrColorSpaceXformEffect::Make(nullptr,
-                                                         dstColorSpace.get(),
+                                                         dstColorSpace,
                                                          kUnpremul_SkAlphaType,
                                                          sk_srgb_linear_singleton(),
                                                          kUnpremul_SkAlphaType);
     auto linearToWorking = GrColorSpaceXformEffect::Make(nullptr,
                                                          sk_srgb_linear_singleton(),
                                                          kUnpremul_SkAlphaType,
-                                                         dstColorSpace.get(),
+                                                         dstColorSpace,
                                                          kUnpremul_SkAlphaType);
 
     fToLinearSrgbChildIndex = this->numChildProcessors();

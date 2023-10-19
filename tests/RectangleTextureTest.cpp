@@ -60,7 +60,7 @@ struct GrContextOptions;
 
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext* dContext,
-                                   GrSurfaceProxyView rectView, GrColorType colorType,
+                                   const GrSurfaceProxyView& rectView, GrColorType colorType,
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
     auto sfc = dContext->priv().makeSFC(
             {colorType, kPremul_SkAlphaType, nullptr, rectView.dimensions()}, /*label=*/{});

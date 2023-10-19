@@ -545,7 +545,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
-        sk_sp<VulkanRenderPass> compatibleRenderPass,
+        const sk_sp<VulkanRenderPass>& compatibleRenderPass,
         VkPipelineCache pipelineCache) {
 
     SkSL::Program::Interface vsInterface, fsInterface;

@@ -19,7 +19,7 @@ public:
     FontArguments& operator=(const FontArguments&) = default;
     FontArguments& operator=(FontArguments&&) = default;
 
-    sk_sp<SkTypeface> CloneTypeface(sk_sp<SkTypeface> typeface) const;
+    sk_sp<SkTypeface> CloneTypeface(const sk_sp<SkTypeface>& typeface) const;
 
     friend bool operator==(const FontArguments& a, const FontArguments& b);
     friend bool operator!=(const FontArguments& a, const FontArguments& b);

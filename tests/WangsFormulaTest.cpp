@@ -90,7 +90,7 @@ static float wangs_formula_conic_reference_impl(float precision,
     return (tmax - tmin) / delta;
 }
 
-static void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
+static void for_random_matrices(SkRandom* rand, const std::function<void(const SkMatrix&)>& f) {
     SkMatrix m;
     m.setIdentity();
     f(m);
@@ -113,7 +113,7 @@ static void for_random_matrices(SkRandom* rand, std::function<void(const SkMatri
 }
 
 static void for_random_beziers(int numPoints, SkRandom* rand,
-                               std::function<void(const SkPoint[])> f,
+                               const std::function<void(const SkPoint[])>& f,
                                int maxExponent = 30) {
     SkASSERT(numPoints <= 4);
     SkPoint pts[4];

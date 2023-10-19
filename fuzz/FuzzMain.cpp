@@ -76,13 +76,13 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
 
 static DEFINE_string2(type, t, "", g_type_message);
 
-static int fuzz_file(SkString path, SkString type);
+static int fuzz_file(const SkString& path, SkString type);
 static uint8_t calculate_option(SkData*);
-static SkString try_auto_detect(SkString path, SkString* name);
+static SkString try_auto_detect(const SkString& path, SkString* name);
 
 static void fuzz_android_codec(const sk_sp<SkData>&);
 static void fuzz_animated_img(const sk_sp<SkData>&);
-static void fuzz_api(const sk_sp<SkData>&, SkString name);
+static void fuzz_api(const sk_sp<SkData>&, const SkString& name);
 static void fuzz_color_deserialize(const sk_sp<SkData>&);
 static void fuzz_colrv1(const sk_sp<SkData>&);
 static void fuzz_filter_fuzz(const sk_sp<SkData>&);
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-static int fuzz_file(SkString path, SkString type) {
+static int fuzz_file(const SkString& path, SkString type) {
     sk_sp<SkData> bytes(SkData::MakeFromFileName(path.c_str()));
     if (!bytes) {
         SkDebugf("Could not read %s\n", path.c_str());
@@ -172,11 +172,11 @@ static int fuzz_file(SkString path, SkString type) {
         return 1;
     }
     if (type.equals("android_codec")) {
-        fuzz_android_codec(bytes);
+        fuzz_android_codec(std::move(bytes));
         return 0;
     }
     if (type.equals("animated_image_decode")) {
-        fuzz_animated_img(bytes);
+        fuzz_animated_img(std::move(bytes));
         return 0;
     }
     if (type.equals("api")) {
@@ -184,49 +184,49 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
     if (type.equals("color_deserialize")) {
-        fuzz_color_deserialize(bytes);
+        fuzz_color_deserialize(std::move(bytes));
         return 0;
     }
     if (type.equals("colrv1")) {
-        fuzz_colrv1(bytes);
+        fuzz_colrv1(std::move(bytes));
         return 0;
     }
     if (type.equals("filter_fuzz")) {
-        fuzz_filter_fuzz(bytes);
+        fuzz_filter_fuzz(std::move(bytes));
         return 0;
     }
     if (type.equals("image_decode")) {
-        fuzz_image_decode(bytes);
+        fuzz_image_decode(std::move(bytes));
         return 0;
     }
     if (type.equals("image_decode_incremental")) {
-        fuzz_image_decode_incremental(bytes);
+        fuzz_image_decode_incremental(std::move(bytes));
         return 0;
     }
     if (type.equals("image_scale")) {
         uint8_t option = calculate_option(bytes.get());
-        fuzz_img(bytes, option, 0);
+        fuzz_img(std::move(bytes), option, 0);
         return 0;
     }
     if (type.equals("image_mode")) {
         uint8_t option = calculate_option(bytes.get());
-        fuzz_img(bytes, 0, option);
+        fuzz_img(std::move(bytes), 0, option);
         return 0;
     }
     if (type.equals("json")) {
-        fuzz_json(bytes);
+        fuzz_json(std::move(bytes));
         return 0;
     }
     if (type.equals("path_deserialize")) {
-        fuzz_path_deserialize(bytes);
+        fuzz_path_deserialize(std::move(bytes));
         return 0;
     }
     if (type.equals("region_deserialize")) {
-        fuzz_region_deserialize(bytes);
+        fuzz_region_deserialize(std::move(bytes));
         return 0;
     }
     if (type.equals("region_set_path")) {
-        fuzz_region_set_path(bytes);
+        fuzz_region_set_path(std::move(bytes));
         return 0;
     }
     if (type.equals("pipe")) {
@@ -234,63 +234,63 @@ static int fuzz_file(SkString path, SkString type) {
         return 0;
     }
     if (type.equals("skdescriptor_deserialize")) {
-        fuzz_skdescriptor_deserialize(bytes);
+        fuzz_skdescriptor_deserialize(std::move(bytes));
         return 0;
     }
 #if defined(SK_ENABLE_SKOTTIE)
     if (type.equals("skottie_json")) {
-        fuzz_skottie_json(bytes);
+        fuzz_skottie_json(std::move(bytes));
         return 0;
     }
 #endif
     if (type.equals("skmeshspecification")) {
-        fuzz_skmeshspecification(bytes);
+        fuzz_skmeshspecification(std::move(bytes));
         return 0;
     }
     if (type.equals("skp")) {
-        fuzz_skp(bytes);
+        fuzz_skp(std::move(bytes));
         return 0;
     }
     if (type.equals("skruntimeblender")) {
-        fuzz_skruntimeblender(bytes);
+        fuzz_skruntimeblender(std::move(bytes));
         return 0;
     }
     if (type.equals("skruntimecolorfilter")) {
-        fuzz_skruntimecolorfilter(bytes);
+        fuzz_skruntimecolorfilter(std::move(bytes));
         return 0;
     }
     if (type.equals("skruntimeeffect")) {
-        fuzz_skruntimeeffect(bytes);
+        fuzz_skruntimeeffect(std::move(bytes));
         return 0;
     }
     if (type.equals("sksl2glsl")) {
-        fuzz_sksl2glsl(bytes);
+        fuzz_sksl2glsl(std::move(bytes));
         return 0;
     }
     if (type.equals("sksl2metal")) {
-        fuzz_sksl2metal(bytes);
+        fuzz_sksl2metal(std::move(bytes));
         return 0;
     }
     if (type.equals("sksl2pipeline")) {
-        fuzz_sksl2pipeline(bytes);
+        fuzz_sksl2pipeline(std::move(bytes));
         return 0;
     }
     if (type.equals("sksl2spirv")) {
-        fuzz_sksl2spirv(bytes);
+        fuzz_sksl2spirv(std::move(bytes));
         return 0;
     }
     if (type.equals("sksl2wgsl")) {
-        fuzz_sksl2wgsl(bytes);
+        fuzz_sksl2wgsl(std::move(bytes));
         return 0;
     }
 #if defined(SK_ENABLE_SVG)
     if (type.equals("svg_dom")) {
-        fuzz_svg_dom(bytes);
+        fuzz_svg_dom(std::move(bytes));
         return 0;
     }
 #endif
     if (type.equals("textblob")) {
-        fuzz_textblob_deserialize(bytes);
+        fuzz_textblob_deserialize(std::move(bytes));
         return 0;
     }
     SkDebugf("Unknown type %s\n", type.c_str());
@@ -352,7 +352,7 @@ static std::map<std::string, std::string> cf_map = {
     {"textblob_deserialize", "textblob"}
 };
 
-static SkString try_auto_detect(SkString path, SkString* name) {
+static SkString try_auto_detect(const SkString& path, SkString* name) {
     std::cmatch m;
     std::regex clusterfuzz("clusterfuzz-testcase(-minimized)?-([a-z0-9_]+)-[\\d]+");
     std::regex skiafuzzer("(api-)?(\\w+)-[a-f0-9]+");
@@ -436,7 +436,7 @@ static void print_api_names(){
     }
 }
 
-static void fuzz_api(const sk_sp<SkData>& data, SkString name) {
+static void fuzz_api(const sk_sp<SkData>& data, const SkString& name) {
     for (const Fuzzable& fuzzable : sk_tools::Registry<Fuzzable>::Range()) {
         if (name.equals(fuzzable.name)) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);

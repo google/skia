@@ -205,7 +205,7 @@ static sk_sp<GrSurfaceProxy> make_proxy(GrDirectContext* dContext, const ProxyPa
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
 // assigned different GrSurfaces.
 static void overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
-                         sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
+                         const sk_sp<GrSurfaceProxy>& p1, const sk_sp<GrSurfaceProxy>& p2,
                          bool expectedResult) {
     GrResourceAllocator alloc(dContext);
 
@@ -229,7 +229,7 @@ static void overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext
 // Test various cases when two proxies do not have overlapping intervals.
 // This mainly acts as a test of the ResourceAllocator's free pool.
 static void non_overlap_test(skiatest::Reporter* reporter, GrDirectContext* dContext,
-                             sk_sp<GrSurfaceProxy> p1, sk_sp<GrSurfaceProxy> p2,
+                             const sk_sp<GrSurfaceProxy>& p1, const sk_sp<GrSurfaceProxy>& p2,
                              bool expectedResult) {
     GrResourceAllocator alloc(dContext);
 

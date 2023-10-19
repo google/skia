@@ -82,7 +82,7 @@ bool BitmapRegionDecoder::decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator
     // Create the image info for the decode
     SkAlphaType dstAlphaType = fCodec->computeOutputAlphaType(requireUnpremul);
     SkImageInfo decodeInfo =
-            SkImageInfo::Make(scaledSize, dstColorType, dstAlphaType, dstColorSpace);
+            SkImageInfo::Make(scaledSize, dstColorType, dstAlphaType, std::move(dstColorSpace));
 
     // Initialize the destination bitmap
     int scaledOutX = 0;

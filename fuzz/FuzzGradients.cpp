@@ -68,7 +68,7 @@ static void logOptionalMatrix(const char* label, const SkMatrix* m) {
 
 static void logLinearGradient(const SkPoint pts[2],
                               const std::vector<SkColor>& colors,
-                              const std::vector<SkScalar> pos,
+                              const std::vector<SkScalar>& pos,
                               SkTileMode mode,
                               uint32_t flags,
                               const SkMatrix* localMatrix,

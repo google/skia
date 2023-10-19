@@ -400,7 +400,7 @@ public:
         return true;
     }
 
-    bool checkImage(skiatest::Reporter* reporter, sk_sp<SkSurface> s) {
+    bool checkImage(skiatest::Reporter* reporter, const sk_sp<SkSurface>& s) {
         SkBitmap actual;
 
         actual.allocPixels(default_ii(kImageWH));

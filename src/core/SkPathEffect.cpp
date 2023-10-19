@@ -96,7 +96,7 @@ public:
     }
 
     SkComposePathEffect(sk_sp<SkPathEffect> outer, sk_sp<SkPathEffect> inner)
-        : INHERITED(outer, inner) {}
+            : INHERITED(std::move(outer), std::move(inner)) {}
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                        const SkRect* cullRect, const SkMatrix& ctm) const override {
@@ -157,7 +157,7 @@ public:
     }
 
     SkSumPathEffect(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second)
-        : INHERITED(first, second) {}
+            : INHERITED(std::move(first), std::move(second)) {}
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                       const SkRect* cullRect, const SkMatrix& ctm) const override {

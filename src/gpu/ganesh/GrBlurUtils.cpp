@@ -952,7 +952,7 @@ static void make_blurred_rrect_key(skgpu::UniqueKey* key,
 
 static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                const GrSurfaceProxyView& lazyView,
-                               sk_sp<GrThreadSafeCache::Trampoline> trampoline,
+                               GrThreadSafeCache::Trampoline* trampoline,
                                const SkRRect& rrectToDraw,
                                const SkISize& dimensions,
                                float xformedSigma) {
@@ -1181,7 +1181,7 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
 
         if (!fillin_view_on_gpu(dContext,
                                 lazyView,
-                                std::move(trampoline),
+                                trampoline.get(),
                                 rrectToDraw,
                                 dimensions,
                                 xformedSigma)) {
@@ -2413,7 +2413,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> two_pass_gaussian(
                              radiusY,
                              sigmaY,
                              mode,
-                             colorSpace,
+                             std::move(colorSpace),
                              fit);
 }
 

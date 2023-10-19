@@ -72,7 +72,7 @@ void Transform::RenamePrivateSymbols(Context& context,
 
         static std::string FindShortNameForSymbol(const Symbol* sym,
                                                   const SymbolTable* symbolTable,
-                                                  std::string namePrefix) {
+                                                  const std::string& namePrefix) {
             static constexpr std::string_view kLetters[] = {
                     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
                     "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",

@@ -62,7 +62,7 @@ using sk_gpu_test::GLTestContext;
 static void cleanup(GLTestContext* glctx0,
                     GrGLuint texID0,
                     GLTestContext* glctx1,
-                    sk_sp<GrDirectContext> dContext,
+                    const sk_sp<GrDirectContext>& dContext,
                     GrEGLImage image1) {
     if (glctx1) {
         glctx1->makeCurrent();

@@ -55,7 +55,7 @@ bool operator!=(const skia::textlayout::FontArguments& a, const skia::textlayout
     return !(a == b);
 }
 
-sk_sp<SkTypeface> FontArguments::CloneTypeface(sk_sp<SkTypeface> typeface) const {
+sk_sp<SkTypeface> FontArguments::CloneTypeface(const sk_sp<SkTypeface>& typeface) const {
     SkFontArguments::VariationPosition position{
         fCoordinates.data(),
         static_cast<int>(fCoordinates.size())

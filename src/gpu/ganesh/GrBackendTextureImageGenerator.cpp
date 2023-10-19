@@ -39,7 +39,7 @@ GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
 }
 
 std::unique_ptr<GrTextureGenerator>
-GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture,
+GrBackendTextureImageGenerator::Make(const sk_sp<GrTexture>& texture,
                                      GrSurfaceOrigin origin,
                                      std::unique_ptr<GrSemaphore> semaphore,
                                      SkColorType colorType,
@@ -55,7 +55,7 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture,
     SkColorInfo info(colorType, alphaType, std::move(colorSpace));
     return std::unique_ptr<GrTextureGenerator>(new GrBackendTextureImageGenerator(
             info,
-            std::move(texture),
+            texture,
             origin,
             dContext->directContextID(),
             std::move(semaphore)));

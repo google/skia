@@ -64,7 +64,7 @@ public:
                                               const RuntimeEffectDictionary*,
                                               const GraphicsPipelineDesc&,
                                               const RenderPassDesc&,
-                                              sk_sp<VulkanRenderPass> compatibleRenderPass,
+                                              const sk_sp<VulkanRenderPass>& compatibleRenderPass,
                                               VkPipelineCache);
 
     ~VulkanGraphicsPipeline() override {}

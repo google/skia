@@ -207,7 +207,7 @@ DEF_TEST(ChopCubicAtT_ArbitraryCubic, reporter) {
     );
 }
 
-static void testCubicExtrema(skiatest::Reporter* reporter, std::string name,
+static void testCubicExtrema(skiatest::Reporter* reporter, const std::string& name,
                              double A, double B, double C, double D,
                              SkSpan<const double> expectedExtrema) {
     skiatest::ReporterContext subtest(reporter, name);
@@ -328,8 +328,8 @@ DEF_TEST(CubicExtrema_FindsLocalMinAndMaxInRangeZeroToOneInclusive, reporter) {
                 {0.0});
 }
 
-static void testCubicInflectionPoints(skiatest::Reporter* reporter,
-                                      std::string name, SkSpan<const DoublePoint> curveInputs,
+static void testCubicInflectionPoints(skiatest::Reporter* reporter, const std::string& name,
+                                      SkSpan<const DoublePoint> curveInputs,
                                       SkSpan<const double> expectedTValues) {
     skiatest::ReporterContext subtest(reporter, name);
     // Validate test case
@@ -416,7 +416,7 @@ DEF_TEST(CubicInflectionPoints_FindsConvexityChangesInRangeZeroToOneInclusive, r
 }
 
 static void testBezierCurveHorizontalIntersectBinarySearch(skiatest::Reporter* reporter,
-                std::string name, SkSpan<const DoublePoint> curveInputs, double xToIntersect,
+                const std::string& name, SkSpan<const DoublePoint> curveInputs, double xToIntersect,
                 SkSpan<const double> expectedTValues,
                 bool skipPathops = false) {
     skiatest::ReporterContext subtest(reporter, name);

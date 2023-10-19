@@ -543,7 +543,8 @@ SkString DumpFontMetrics(const SkFontMetrics& metrics) {
     m.appendf("StrikeoutPosition: %f\n", metrics.fStrikeoutPosition);
     return m;
 }
-static void TestTypefaceSerialization(skiatest::Reporter* reporter, sk_sp<SkTypeface> typeface) {
+static void TestTypefaceSerialization(skiatest::Reporter* reporter,
+                                      const sk_sp<SkTypeface>& typeface) {
     SkDynamicMemoryWStream typefaceWStream;
     typeface->serialize(&typefaceWStream);
 

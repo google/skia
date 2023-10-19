@@ -58,7 +58,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
 
 GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<skgpu::ganesh::Device> device,
                                                        const SkSurfaceProps* props)
-        : fDevice(device), fProps(SkSurfacePropsCopyOrDefault(props)) {}
+        : fDevice(std::move(device)), fProps(SkSurfacePropsCopyOrDefault(props)) {}
 
 GrVkSecondaryCBDrawContext::~GrVkSecondaryCBDrawContext() {
     SkASSERT(!fDevice);

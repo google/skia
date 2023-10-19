@@ -30,9 +30,9 @@ std::unique_ptr<SkUnicode> SkUnicode::Make() {
 
 std::unique_ptr<SkUnicode> MakeClientBasedUnicode(
         SkSpan<char> text,
-        std::vector<SkUnicode::Position> words,
-        std::vector<SkUnicode::Position> graphemeBreaks,
-        std::vector<SkUnicode::LineBreakBefore> lineBreaks) {
+        std::vector<SkUnicode::Position> words,               // NOLINT(performance-unnecessary-value-param)
+        std::vector<SkUnicode::Position> graphemeBreaks,      // NOLINT(performance-unnecessary-value-param)
+        std::vector<SkUnicode::LineBreakBefore> lineBreaks) { // NOLINT(performance-unnecessary-value-param)
 #ifdef SK_UNICODE_CLIENT_IMPLEMENTATION
     std::unique_ptr<SkUnicode> unicode = SkUnicode::MakeClientBasedUnicode(
             text, std::move(words), std::move(graphemeBreaks), std::move(lineBreaks));

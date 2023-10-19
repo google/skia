@@ -441,7 +441,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
             return nullptr;
         }
         if (image) {
-            image = add_mipmaps(image, data, fProcs, alphaType);
+            image = add_mipmaps(image, std::move(data), fProcs, alphaType);
         }
     }
     return image ? image : MakeEmptyImage(1, 1);

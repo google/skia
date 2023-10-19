@@ -108,7 +108,7 @@ private:
              ClipStack::ClipState expectedState,
              std::vector<ClipStack::Element> actual,
              std::vector<ClipStack::Element> expected)
-        : fName(name)
+        : fName(std::move(name))
         , fElements(std::move(actual))
         , fDeviceBounds(deviceBounds)
         , fExpectedElements(std::move(expected))
