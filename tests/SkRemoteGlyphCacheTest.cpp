@@ -880,10 +880,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting,
     SkStrikeClient client(discardableManager, false);
 
     auto serverTypeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    REPORTER_ASSERT(reporter, serverTypeface);
 
     // Create the clientTypeface proxy directly from the serverTypeface.
     auto clientTypeface = sk_make_sp<SkTypefaceProxy>(
-            SkTypeface::UniqueID(serverTypeface.get()),
+            serverTypeface->uniqueID(),
             serverTypeface->countGlyphs(),
             serverTypeface->fontStyle(),
             serverTypeface->isFixedPitch(),

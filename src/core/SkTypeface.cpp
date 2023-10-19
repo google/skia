@@ -173,19 +173,17 @@ sk_sp<SkTypeface> SkTypeface::MakeEmpty() {
     return SkEmptyTypeface::Make();
 }
 
-uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
-#if !defined(SK_DISABLE_LEGACY_DEFAULT_TYPEFACE)
-    if (nullptr == face) {
-        face = GetDefaultTypeface();
-    }
-#else
-    SkASSERT(face);
-#endif
-    return face->uniqueID();
-}
-
 bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
-    return facea == faceb || SkTypeface::UniqueID(facea) == SkTypeface::UniqueID(faceb);
+    if (facea == faceb) {
+        return true;
+    }
+    if (!facea) {
+        facea = GetDefaultTypeface();
+    }
+    if (!faceb) {
+        faceb = GetDefaultTypeface();
+    }
+    return facea->uniqueID() == faceb->uniqueID();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
