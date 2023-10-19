@@ -18,6 +18,7 @@ genrule(
     name = "all_task_drivers",
     srcs = [
         "//infra/bots/task_drivers/bazel_build",
+        "//infra/bots/task_drivers/bazel_test_benchmark",
         "//infra/bots/task_drivers/bazel_test_gm",
         "//infra/bots/task_drivers/bazel_test_precompiled",
         "//infra/bots/task_drivers/canvaskit_gold",

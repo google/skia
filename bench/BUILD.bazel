@@ -43,13 +43,6 @@ cc_test_with_flags(
         "--surfaceConfig",
         "nonrendering",
         "--autoTuneLoops",
-        "--writePNGs",  # For debugging only. We don't want this in CI.
-        # Example keys. For CI tasks, these should be set by the task driver.
-        "--key",
-        "key-1",
-        "value-1",
-        "key-2",
-        "value-2",
     ],
     set_flags = {
         "include_encoder": [
@@ -69,13 +62,6 @@ cc_test_with_flags(
         "--surfaceConfig",
         "8888",
         "--autoTuneLoops",
-        "--writePNGs",  # For debugging only. We don't want this in CI.
-        # Example keys. For CI tasks, these should be set by the task driver.
-        "--key",
-        "key-1",
-        "value-1",
-        "key-2",
-        "value-2",
     ],
     set_flags = {
         "include_encoder": [
@@ -95,13 +81,6 @@ cc_test_with_flags(
         "--surfaceConfig",
         "gles",
         "--autoTuneLoops",
-        "--writePNGs",  # For debugging only. We don't want this in CI.
-        # Example keys. For CI tasks, these should be set by the task driver.
-        "--key",
-        "key-1",
-        "value-1",
-        "key-2",
-        "value-2",
     ],
     set_flags = {
         "include_encoder": [
@@ -119,13 +98,6 @@ android_benchmark_test(
     ],
     extra_args = [
         "--autoTuneLoops",
-        "--writePNGs",  # For debugging only. We don't want this in CI.
-        # Example keys. For CI tasks, these should be set by the task driver.
-        "--key",
-        "key-1",
-        "value-1",
-        "key-2",
-        "value-2",
     ],
     surface_config = "nonrendering",
     deps = [":benchmarks_base"],
@@ -139,13 +111,6 @@ android_benchmark_test(
     ],
     extra_args = [
         "--autoTuneLoops",
-        "--writePNGs",  # For debugging only. We don't want this in CI.
-        # Example keys. For CI tasks, these should be set by the task driver.
-        "--key",
-        "key-1",
-        "value-1",
-        "key-2",
-        "value-2",
     ],
     surface_config = "8888",
     deps = [":benchmarks_base"],
@@ -159,13 +124,6 @@ android_benchmark_test(
     ],
     extra_args = [
         "--autoTuneLoops",
-        "--writePNGs",  # For debugging only. We don't want this in CI.
-        # Example keys. For CI tasks, these should be set by the task driver.
-        "--key",
-        "key-1",
-        "value-1",
-        "key-2",
-        "value-2",
     ],
     surface_config = "gles",
     deps = [":benchmarks_base"],

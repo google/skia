@@ -5,12 +5,36 @@
 
 package common
 
-import "runtime"
+import (
+	"context"
+	"runtime"
+)
 
-// ComputeTaskSpecificGoldAndPerfKeyValuePairs returns the set of task-specific key-value pairs.
+type computeGoldAndPerfKeyValuePairsContextKeyType = string
+
+// ComputeGoldAndPerfKeyValuePairsContextKey is a context key that can be used from tests to
+// override the set of key/value pairs returned by ComputeGoldAndPerfKeyValuePairs.
+const ComputeGoldAndPerfKeyValuePairsContextKey = computeGoldAndPerfKeyValuePairsContextKeyType("overwriteComputeGoldAndPerfKeyValuePairs")
+
+// WithGoldAndPerfKeyValuePairsContext overrides the key/value pairs returned by
+// ComputeGoldAndPerfKeyValuePairs.
+func WithGoldAndPerfKeyValuePairsContext(ctx context.Context, keyValuePairs map[string]string) context.Context {
+	return context.WithValue(ctx, ComputeGoldAndPerfKeyValuePairsContextKey, keyValuePairs)
+}
+
+// ComputeGoldAndPerfKeyValuePairs returns the set of Gold and Perf key/value pairs that should be
+// determined by the task driver.
 //
-// TODO(lovisolo): Infer these key-value pairs from the Bazel config, host, etc.
-func ComputeTaskSpecificGoldAndPerfKeyValuePairs() map[string]string {
+// TODO(lovisolo): Infer these key/value pairs from the Bazel config, host, etc.
+func ComputeGoldAndPerfKeyValuePairs(ctx context.Context) map[string]string {
+	if ctxValue := ctx.Value(ComputeGoldAndPerfKeyValuePairsContextKey); ctxValue != nil {
+		keyValuePairs, ok := ctxValue.(map[string]string)
+		if !ok {
+			panic("context value associated with ComputeGoldAndPerfKeyValuePairsContextKey is not a map[string]string")
+		}
+		return keyValuePairs
+	}
+
 	// The "os" key produced by DM can have values like these:
 	//
 	// - Android

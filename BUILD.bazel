@@ -116,6 +116,7 @@ test_suite(
     tests = [
         # Go tests in this list will be tested in CI. Please add any new Go tests to this suite.
         "//bazel/exporter:exporter_test",
+        "//infra/bots/task_drivers/bazel_test_benchmark:bazel_test_benchmark_test",
         "//infra/bots/task_drivers/bazel_test_gm:bazel_test_gm_test",
         "//infra/bots/task_drivers/bazel_test_precompiled:bazel_test_precompiled_test",
         "//infra/bots/task_drivers/codesize:codesize_test",
@@ -129,7 +130,7 @@ test_suite(
 # Generates a compile_flags.txt file for use with clangd against the Bazel-downloaded Linux AMD64
 # clang hermetic toolchain.
 #
-# This command prints to standard input a compile_flags.txt file that can be used with clangd to
+# This command prints to standard output a compile_flags.txt file that can be used with clangd to
 # enable autocompletion on editors that support it. See:
 # https://clangd.llvm.org/design/compile-commands.
 #

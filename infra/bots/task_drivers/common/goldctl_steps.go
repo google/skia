@@ -111,7 +111,7 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZIPOrDir
 
 		// Prepare task-specific key:value pairs.
 		var taskSpecificKeyValuePairs []string
-		for k, v := range ComputeTaskSpecificGoldAndPerfKeyValuePairs() {
+		for k, v := range ComputeGoldAndPerfKeyValuePairs(ctx) {
 			taskSpecificKeyValuePairs = append(taskSpecificKeyValuePairs, k+":"+v)
 		}
 		sort.Strings(taskSpecificKeyValuePairs) // Sort for determinism.

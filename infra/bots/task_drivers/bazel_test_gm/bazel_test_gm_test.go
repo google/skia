@@ -58,6 +58,11 @@ func TestRun_Success(t *testing.T) {
 
 			commandCollector := exec.CommandCollector{}
 			res := td.RunTestSteps(t, false, func(ctx context.Context) error {
+				ctx = common.WithGoldAndPerfKeyValuePairsContext(ctx, map[string]string{
+					"os":   "linux",
+					"arch": "x86_64",
+				})
+
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 				var bazelCacheDirPath string
 				ctx, bazelCacheDirPath = common.WithEnoughSpaceOnBazelCachePartitionTestOnlyContext(ctx)
@@ -174,7 +179,7 @@ func TestRun_Success(t *testing.T) {
 			bazelConfig: "linux_rbe",
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key arch:x86_64 --key os:linux",
 		[]string{
 			"imgtest",
 			"init",
@@ -183,6 +188,7 @@ func TestRun_Success(t *testing.T) {
 			"--url", "https://gold.skia.org",
 			"--bucket", "skia-infra-gm",
 			"--git_hash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
+			"--key", "arch:x86_64",
 			"--key", "os:linux",
 		},
 	)
@@ -204,7 +210,7 @@ func TestRun_Success(t *testing.T) {
 			bazelConfig: "linux_rbe",
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key arch:x86_64 --key os:linux",
 		[]string{
 			"imgtest",
 			"init",
@@ -218,6 +224,7 @@ func TestRun_Success(t *testing.T) {
 			"--changelist", "changelist-id",
 			"--patchset", "1",
 			"--jobid", "tryjob-id",
+			"--key", "arch:x86_64",
 			"--key", "os:linux",
 		},
 	)

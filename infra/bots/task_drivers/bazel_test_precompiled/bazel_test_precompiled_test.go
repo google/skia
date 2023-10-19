@@ -80,6 +80,11 @@ func TestRun_GMTest_Success(t *testing.T) {
 
 			commandCollector := exec.CommandCollector{}
 			res := td.RunTestSteps(t, false, func(ctx context.Context) error {
+				ctx = common.WithGoldAndPerfKeyValuePairsContext(ctx, map[string]string{
+					"os":   "linux",
+					"arch": "x86_64",
+				})
+
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 
 				// We don't need to assert the exact number of times that os_steps.TempDir() is called
@@ -175,7 +180,7 @@ func TestRun_GMTest_Success(t *testing.T) {
 			undeclaredOutputsDir: t.TempDir(),
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key arch:x86_64 --key os:linux",
 		[]string{
 			"imgtest",
 			"init",
@@ -184,6 +189,7 @@ func TestRun_GMTest_Success(t *testing.T) {
 			"--url", "https://gold.skia.org",
 			"--bucket", "skia-infra-gm",
 			"--git_hash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
+			"--key", "arch:x86_64",
 			"--key", "os:linux",
 		},
 	)
@@ -208,7 +214,7 @@ func TestRun_GMTest_Success(t *testing.T) {
 			undeclaredOutputsDir: t.TempDir(),
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key arch:x86_64 --key os:linux",
 		[]string{
 			"imgtest",
 			"init",
@@ -222,6 +228,7 @@ func TestRun_GMTest_Success(t *testing.T) {
 			"--changelist", "changelist-id",
 			"--patchset", "1",
 			"--jobid", "tryjob-id",
+			"--key", "arch:x86_64",
 			"--key", "os:linux",
 		},
 	)
