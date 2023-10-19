@@ -3124,7 +3124,6 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             }
             int slotCount = arg0.type().slotCount();
             if (slotCount > 1) {
-#if defined(SK_USE_RSQRT_IN_RP_NORMALIZE)
                 // Instead of `x / sqrt(dot(x, x))`, we can get roughly the same result in less time
                 // by computing `x * invsqrt(dot(x, x))`.
                 fBuilder.push_clone(slotCount);
@@ -3137,21 +3136,6 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
 
                 // Return `x * vec(inversesqrt(dot(x, x)))`.
                 return this->binaryOp(arg0.type(), kMultiplyOps);
-#else
-                // TODO: We can get roughly the same result in less time by using `invsqrt`, but
-                // that leads to more variance across architectures, which Chromium layout tests do
-                // not handle nicely.
-                fBuilder.push_clone(slotCount);
-                fBuilder.push_clone(slotCount);
-                fBuilder.dot_floats(slotCount);
-
-                // Compute `vec(sqrt(dot(x, x)))`.
-                fBuilder.unary_op(BuilderOp::sqrt_float, 1);
-                fBuilder.push_duplicates(slotCount - 1);
-
-                // Return `x / vec(sqrt(dot(x, x)))`.
-                return this->binaryOp(arg0.type(), kDivideOps);
-#endif
             } else {
                 // For single-slot normalization, we can simplify `sqrt(x * x)` into `abs(x)`.
                 fBuilder.push_clone(slotCount);
