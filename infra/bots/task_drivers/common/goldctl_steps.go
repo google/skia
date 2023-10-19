@@ -6,17 +6,12 @@
 package common
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
-	"regexp"
-	"runtime"
 	"sort"
 	"strings"
 
@@ -36,35 +31,6 @@ import (
 var goldctlBazelLabelAllowList = map[string]bool{
 	"//gm:hello_bazel_world_test":         true,
 	"//gm:hello_bazel_world_android_test": true,
-}
-
-// validLabelRegexps represent valid, fully-qualified Bazel labels.
-var validLabelRegexps = []*regexp.Regexp{
-	regexp.MustCompile(`^//:[a-zA-Z0-9_-]+$`),                  // Matches "//:foo".
-	regexp.MustCompile(`^/(/[a-zA-Z0-9_-]+)+:[a-zA-Z0-9_-]+$`), // Matches "//foo:bar", "//foo/bar:baz", etc.
-}
-
-// ValidateLabelAndReturnOutputsZipPath validates the given Bazel label and returns the path within
-// the checkout directory where the ZIP archive with undeclared test outputs will be found, if
-// applicable.
-func ValidateLabelAndReturnOutputsZipPath(checkoutDir, label string) (string, error) {
-	valid := false
-	for _, re := range validLabelRegexps {
-		if re.MatchString(label) {
-			valid = true
-			break
-		}
-	}
-	if !valid {
-		return "", skerr.Fmt("invalid label: %q", label)
-	}
-
-	return filepath.Join(
-		checkoutDir,
-		"bazel-testlogs",
-		strings.ReplaceAll(strings.TrimPrefix(label, "//"), ":", "/"),
-		"test.outputs",
-		"outputs.zip"), nil
 }
 
 // UploadToGoldArgs gathers the inputs to the UploadToGold function.
@@ -112,7 +78,7 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZIPOrDir
 		outputsDir = outputsZIPOrDir
 	} else {
 		var err error
-		outputsDir, err = extractOutputsZip(ctx, outputsZIPOrDir)
+		outputsDir, err = ExtractOutputsZip(ctx, outputsZIPOrDir)
 		if err != nil {
 			return skerr.Wrap(err)
 		}
@@ -145,7 +111,7 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZIPOrDir
 
 		// Prepare task-specific key:value pairs.
 		var taskSpecificKeyValuePairs []string
-		for k, v := range computeTaskSpecificGoldctlKeyValuePairs() {
+		for k, v := range ComputeTaskSpecificGoldAndPerfKeyValuePairs() {
 			taskSpecificKeyValuePairs = append(taskSpecificKeyValuePairs, k+":"+v)
 		}
 		sort.Strings(taskSpecificKeyValuePairs) // Sort for determinism.
@@ -207,67 +173,6 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZIPOrDir
 		// Finalize and upload screenshots to Gold.
 		return goldctl(ctx, utgArgs.GoldctlPath, "imgtest", "finalize", "--work-dir", goldctlWorkDir)
 	})
-}
-
-// extractOutputsZip extracts the undeclared outputs ZIP archive into a temporary directory, and
-// returns the path to said directory.
-func extractOutputsZip(ctx context.Context, outputsZipPath string) (string, error) {
-	// Create extraction directory.
-	extractionDir, err := os_steps.TempDir(ctx, "", "bazel-test-output-dir-*")
-	if err != nil {
-		return "", skerr.Wrap(err)
-	}
-
-	// Extract ZIP archive.
-	if err := td.Do(ctx, td.Props(fmt.Sprintf("Extract undeclared outputs archive %s into %s", outputsZipPath, extractionDir)), func(ctx context.Context) error {
-		outputsZip, err := zip.OpenReader(outputsZipPath)
-		if err != nil {
-			return skerr.Wrap(err)
-		}
-		defer util.Close(outputsZip)
-
-		for _, file := range outputsZip.File {
-			// Skip directories. We assume all output files are at the root directory of the archive.
-			if file.FileInfo().IsDir() {
-				if err := td.Do(ctx, td.Props(fmt.Sprintf("Not extracting subdirectory: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
-					return skerr.Wrap(err)
-				}
-				continue
-			}
-
-			// Ignore anything that is not a PNG or JSON file.
-			if !strings.HasSuffix(strings.ToLower(file.Name), ".png") && !strings.HasSuffix(strings.ToLower(file.Name), ".json") {
-				if err := td.Do(ctx, td.Props(fmt.Sprintf("Not extracting non-PNG / non-JSON file: %s", file.Name)), func(ctx context.Context) error { return nil }); err != nil {
-					return skerr.Wrap(err)
-				}
-				continue
-			}
-
-			// Extract file.
-			if err := td.Do(ctx, td.Props(fmt.Sprintf("Extracting file: %s", file.Name)), func(ctx context.Context) error {
-				reader, err := file.Open()
-				if err != nil {
-					return skerr.Wrap(err)
-				}
-				defer util.Close(reader)
-
-				buf := &bytes.Buffer{}
-				if _, err := io.Copy(buf, reader); err != nil {
-					return skerr.Wrap(err)
-				}
-
-				return skerr.Wrap(os.WriteFile(filepath.Join(extractionDir, file.Name), buf.Bytes(), 0644))
-			}); err != nil {
-				return skerr.Wrap(err)
-			}
-		}
-
-		return nil
-	}); err != nil {
-		return "", skerr.Wrap(err)
-	}
-
-	return extractionDir, nil
 }
 
 // gmJSONOutput represents a JSON file produced by //tools/testrunners/gm/BazelGMTestRunner.cpp,
@@ -373,49 +278,4 @@ func goldctl(ctx context.Context, goldctlPath string, args ...string) error {
 	}
 	_, err := sk_exec.RunCommand(ctx, cmd)
 	return skerr.Wrap(err)
-}
-
-// computeTaskSpecificGoldctlKeyValuePairs returns the set of task-specific key-value pairs.
-//
-// TODO(lovisolo): Infer these key-value pairs from the Bazel config, host, etc.
-func computeTaskSpecificGoldctlKeyValuePairs() map[string]string {
-	// The "os" key produced by DM can have values like these:
-	//
-	// - Android
-	// - ChromeOS
-	// - Debian10
-	// - Mac10.15.7
-	// - Mac11
-	// - Ubuntu18
-	// - Win10
-	// - Win2019
-	// - iOS
-	//
-	// TODO(lovisolo): Determine the "os" key in a fashion similar to DM.
-	if runtime.GOOS != "linux" {
-		panic("only linux is supported at this time")
-	}
-	os := "linux"
-
-	// TODO(lovisolo): Delete this temporary hack.
-	if runtime.GOARCH == "arm" || runtime.GOARCH == "arm64" {
-		// As a temporary hack to be able to generate diferent traces for the same GM on Linux vs.
-		// Android, we assume that if the task driver is running on an ARM machine, then it's a
-		// Raspberry Pi connected to an Android phone. This is only for use while we experiment with
-		// Bazel-built GMs.
-		//
-		// Moving forward, we should try to derive the "os", "model" and "arch" keys from the
-		// BazelTest-* task's "host" component. A potential approach could be to use hosts such as
-		// "NUC9i7QN_Debian11". In this example, we can derive the "model" and "arch" keys from the
-		// "NUC9i7QN" part, and the "os" key would match the "Debian11" part.
-		os = "android"
-	}
-
-	// TODO(lovisolo): "arch" key ("arm", "arm64", "x86", "x86_64", etc.).
-	// TODO(lovisolo): "configuration" key ("Debug", "Release", "OptimizeForSize", etc.).
-	// TODO(lovisolo): "model" key ("MacBook10.1", "Pixel5", "iPadPro", "iPhone11", etc.).
-
-	return map[string]string{
-		"os": os,
-	}
 }

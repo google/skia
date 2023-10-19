@@ -7,7 +7,6 @@ package common
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,57 +20,6 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 	"go.skia.org/skia/infra/bots/task_drivers/testutils"
 )
-
-func TestValidateLabelAndReturnOutputZipPath_ValidLabel_Success(t *testing.T) {
-	test := func(label, expected string) {
-		t.Run(label, func(t *testing.T) {
-			actual, err := ValidateLabelAndReturnOutputsZipPath("/path/to/skia", label)
-			require.NoError(t, err)
-			assert.Equal(t, expected, actual)
-		})
-	}
-
-	test("//:foo", "/path/to/skia/bazel-testlogs/foo/test.outputs/outputs.zip")
-	test("//foo:bar", "/path/to/skia/bazel-testlogs/foo/bar/test.outputs/outputs.zip")
-	test("//foo/bar:baz", "/path/to/skia/bazel-testlogs/foo/bar/baz/test.outputs/outputs.zip")
-	test("//foo/bar/baz:qux", "/path/to/skia/bazel-testlogs/foo/bar/baz/qux/test.outputs/outputs.zip")
-}
-
-func TestValidateLabelAndReturnOutputZipPath_InvalidLabel_Error(t *testing.T) {
-	test := func(label string) {
-		t.Run(label, func(t *testing.T) {
-			_, err := ValidateLabelAndReturnOutputsZipPath("/path/to/skia", label)
-			require.Error(t, err)
-			assert.Contains(t, err.Error(), fmt.Sprintf("invalid label: %q", label))
-		})
-	}
-
-	test("foo")
-	test("/foo")
-	test("//foo")
-	test(":foo")
-	test("/:foo")
-
-	test("foo/bar")
-	test("foo:bar")
-	test("/foo/bar")
-	test("/foo:bar")
-	test(":foo/bar")
-	test(":foo:bar")
-	test("//foo/bar")
-
-	test("foo/bar/baz")
-	test("foo/bar:baz")
-	test("foo:bar/baz")
-	test("foo:bar:baz")
-	test("/foo/bar/baz")
-	test("/foo/bar:baz")
-	test("/foo:bar/baz")
-	test("/foo:bar:baz")
-	test("//foo/bar/baz")
-	test("//foo:bar/baz")
-	test("//foo:bar:baz")
-}
 
 func TestUploadToGold_NoOutputsZIPOrDir_NoGoldctlInvocations(t *testing.T) {
 	test := func(name string, utgArgs UploadToGoldArgs) {
