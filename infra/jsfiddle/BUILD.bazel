@@ -21,6 +21,10 @@ skia_app_container(
                 "//modules/canvaskit:version.js",
                 "0644",
             ],
+            [
+                "//modules/canvaskit:npm_build/types/index.d.ts",
+                "0644",
+            ],
         ],
     },
     entrypoint = "/usr/local/bin/jsfiddle",

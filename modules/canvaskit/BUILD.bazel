@@ -4,7 +4,10 @@ load("//bazel/karma:karma_test.bzl", "karma_test")
 
 licenses(["notice"])
 
-exports_files_legacy()
+exports_files_legacy(
+    label_list = ["npm_build/types/index.d.ts"],
+    visibility = ["//infra:__subpackages__"],
+)
 
 BASE_LINKOPTS = [
     #"-flto",  # https://github.com/emscripten-core/emsdk/issues/807
