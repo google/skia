@@ -21,8 +21,8 @@ using Subset = skgpu::ganesh::QuadPerEdgeAA::Subset;
 using IndexBufferOption = skgpu::ganesh::QuadPerEdgeAA::IndexBufferOption;
 
 // Draw a line through the two points, outset by a fixed length in screen space
-static void draw_extended_line(SkCanvas* canvas, const SkPaint paint,
-                              const SkPoint& p0, const SkPoint& p1) {
+static void draw_extended_line(SkCanvas* canvas, const SkPaint& paint,
+                               const SkPoint& p0, const SkPoint& p1) {
     SkVector v = p1 - p0;
     v.setLength(v.length() + 3.f);
     canvas->drawLine(p1 - v, p0 + v, paint);

@@ -74,7 +74,7 @@ public:
     // work (even to other proxies) that has already been recorded or will be recorded later. The
     // only guarantee is that future work to the passed in proxy will wait on the semaphores to be
     // signaled.
-    void newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
+    void newWaitRenderTask(const sk_sp<GrSurfaceProxy>& proxy,
                            std::unique_ptr<std::unique_ptr<GrSemaphore>[]>,
                            int numSemaphores);
 
@@ -83,7 +83,7 @@ public:
     // to be copied. The surfaceColorType says how we should interpret the data when reading back
     // from the source. DstColorType describes how the data should be stored in the dstBuffer.
     // DstOffset is the offset into the dstBuffer where we will start writing data.
-    void newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy, const SkIRect& srcRect,
+    void newTransferFromRenderTask(const sk_sp<GrSurfaceProxy>& srcProxy, const SkIRect& srcRect,
                                    GrColorType surfaceColorType, GrColorType dstColorType,
                                    sk_sp<GrGpuBuffer> dstBuffer, size_t dstOffset);
 
@@ -98,7 +98,7 @@ public:
     // it skippable if the copy is later deemed unnecessary.
     sk_sp<GrRenderTask> newCopyRenderTask(sk_sp<GrSurfaceProxy> dst,
                                           SkIRect dstRect,
-                                          sk_sp<GrSurfaceProxy> src,
+                                          const sk_sp<GrSurfaceProxy>& src,
                                           SkIRect srcRect,
                                           GrSamplerState::Filter filter,
                                           GrSurfaceOrigin);

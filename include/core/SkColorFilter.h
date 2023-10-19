@@ -82,8 +82,10 @@ private:
 
 class SK_API SkColorFilters {
 public:
-    static sk_sp<SkColorFilter> Compose(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner) {
-        return outer ? outer->makeComposed(inner) : inner;
+    static sk_sp<SkColorFilter> Compose(const sk_sp<SkColorFilter>& outer,
+                                        sk_sp<SkColorFilter> inner) {
+        return outer ? outer->makeComposed(std::move(inner))
+                     : std::move(inner);
     }
 
     // Blends between the constant color (src) and input color (dst) based on the SkBlendMode.

@@ -39,8 +39,8 @@ private:
 
     SkLocalMatrixImageFilter(const SkMatrix& localMatrix,
                              const SkMatrix& invLocalMatrix,
-                             sk_sp<SkImageFilter> input)
-            : SkImageFilter_Base(&input, 1)
+                             sk_sp<SkImageFilter> const* input)
+            : SkImageFilter_Base(input, 1)
             , fLocalMatrix{localMatrix}
             , fInvLocalMatrix{invLocalMatrix} {}
 

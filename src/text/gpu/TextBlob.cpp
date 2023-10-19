@@ -239,7 +239,7 @@ const TextBlob::Key& TextBlob::key() const { return fKey; }
 void TextBlob::draw(SkCanvas* canvas,
                     SkPoint drawOrigin,
                     const SkPaint& paint,
-                    AtlasDrawDelegate atlasDelegate) {
+                    const AtlasDrawDelegate& atlasDelegate) {
     fSubRuns->draw(canvas, drawOrigin, paint, this, atlasDelegate);
 }
 

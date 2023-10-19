@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 class SkMatrix;
@@ -255,7 +256,7 @@ public:
 
         @param tf  font and style used to draw text
     */
-    void setTypeface(sk_sp<SkTypeface> tf) { fTypeface = tf; }
+    void setTypeface(sk_sp<SkTypeface> tf) { fTypeface = std::move(tf); }
 
     /** Sets text size in points.
         Has no effect if textSize is not greater than or equal to zero.

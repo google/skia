@@ -66,8 +66,8 @@ public:
     SkSurfaceProps();
     SkSurfaceProps(uint32_t flags, SkPixelGeometry);
 
-    SkSurfaceProps(const SkSurfaceProps&);
-    SkSurfaceProps& operator=(const SkSurfaceProps&);
+    SkSurfaceProps(const SkSurfaceProps&) = default;
+    SkSurfaceProps& operator=(const SkSurfaceProps&) = default;
 
     SkSurfaceProps cloneWithPixelGeometry(SkPixelGeometry newPixelGeometry) const {
         return SkSurfaceProps(fFlags, newPixelGeometry);

@@ -41,7 +41,7 @@ void TextBlobRedrawCoordinator::drawGlyphRunList(SkCanvas* canvas,
                                                  const sktext::GlyphRunList& glyphRunList,
                                                  const SkPaint& paint,
                                                  SkStrikeDeviceInfo strikeDeviceInfo,
-                                                 AtlasDrawDelegate atlasDelegate) {
+                                                 const AtlasDrawDelegate& atlasDelegate) {
     sk_sp<TextBlob> blob = this->findOrCreateBlob(viewMatrix, glyphRunList, paint,
                                                   strikeDeviceInfo);
 

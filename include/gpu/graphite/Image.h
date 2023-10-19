@@ -207,7 +207,7 @@ SK_API sk_sp<SkImage> TextureFromImage(skgpu::graphite::Recorder*,
                                        SkImage::RequiredProperties = {});
 
 inline sk_sp<SkImage> TextureFromImage(skgpu::graphite::Recorder* r,
-                                       sk_sp<const SkImage> img,
+                                       const sk_sp<const SkImage>& img,
                                        SkImage::RequiredProperties props = {}) {
     return TextureFromImage(r, img.get(), props);
 }

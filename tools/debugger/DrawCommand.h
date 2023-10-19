@@ -99,7 +99,7 @@ public:
 
     static const int kOpTypeCount = kLast_OpType + 1;
 
-    static void WritePNG(SkBitmap bitmap, SkWStream& out);
+    static void WritePNG(const SkBitmap& bitmap, SkWStream& out);
 
     DrawCommand(OpType opType);
 

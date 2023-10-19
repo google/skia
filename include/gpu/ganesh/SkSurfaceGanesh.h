@@ -199,7 +199,7 @@ SK_API GrBackendRenderTarget GetBackendRenderTarget(SkSurface*, BackendHandleAcc
     GrDirectContext::flush.
  */
 SK_API void ResolveMSAA(SkSurface* surface);
-inline void ResolveMSAA(sk_sp<SkSurface> surface) {
+inline void ResolveMSAA(const sk_sp<SkSurface>& surface) {
     return ResolveMSAA(surface.get());
 }
 

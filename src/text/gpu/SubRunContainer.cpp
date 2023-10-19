@@ -383,7 +383,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt>,
-              AtlasDrawDelegate) const override {
+              const AtlasDrawDelegate&) const override {
         fPathDrawing.submitDraws(canvas, drawOrigin, paint);
     }
 
@@ -591,7 +591,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt>,
-              AtlasDrawDelegate) const override {
+              const AtlasDrawDelegate&) const override {
         fDrawingDrawing.submitDraws(canvas, drawOrigin, paint);
     }
 
@@ -723,7 +723,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              AtlasDrawDelegate drawAtlas) const override {
+              const AtlasDrawDelegate& drawAtlas) const override {
         drawAtlas(this, drawOrigin, paint, std::move(subRunStorage),
                   {/* isSDF = */false, fVertexFiller.isLCD()});
     }
@@ -963,7 +963,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              AtlasDrawDelegate drawAtlas) const override {
+              const AtlasDrawDelegate& drawAtlas) const override {
         drawAtlas(this, drawOrigin, paint, std::move(subRunStorage),
                   {/* isSDF = */false, fVertexFiller.isLCD()});
     }
@@ -1193,7 +1193,7 @@ public:
               SkPoint drawOrigin,
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
-              AtlasDrawDelegate drawAtlas) const override {
+              const AtlasDrawDelegate& drawAtlas) const override {
         drawAtlas(this, drawOrigin, paint, std::move(subRunStorage),
                   {/* isSDF = */true, /* isLCD = */fUseLCDText});
     }
@@ -1981,7 +1981,7 @@ void SubRunContainer::draw(SkCanvas* canvas,
                            SkPoint drawOrigin,
                            const SkPaint& paint,
                            const SkRefCnt* subRunStorage,
-                           AtlasDrawDelegate atlasDelegate) const {
+                           const AtlasDrawDelegate& atlasDelegate) const {
     for (auto& subRun : fSubRuns) {
         subRun.draw(canvas, drawOrigin, paint, sk_ref_sp(subRunStorage), atlasDelegate);
     }

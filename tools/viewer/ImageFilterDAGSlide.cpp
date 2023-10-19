@@ -289,7 +289,7 @@ static float draw_dag(SkCanvas* canvas, SkSurface* nodeSurface, const FilterNode
     return std::max(y, nodeResults->height() + textHeight + kPad);
 }
 
-static void draw_dag(SkCanvas* canvas, sk_sp<SkImageFilter> filter,
+static void draw_dag(SkCanvas* canvas, SkImageFilter* filter,
                      const SkRect& rect, const SkISize& surfaceSize) {
     // Get the current CTM, which includes all the viewer's UI modifications, which we want to
     // pass into our mock canvases for each DAG node.
@@ -301,7 +301,7 @@ static void draw_dag(SkCanvas* canvas, sk_sp<SkImageFilter> filter,
 
     // Process the image filter DAG to display intermediate results later on, which will apply the
     // provided CTM during draw_node calls.
-    FilterNode dag = build_dag(ctm, rect, filter.get());
+    FilterNode dag = build_dag(ctm, rect, filter);
 
     sk_sp<SkSurface> nodeSurface =
             canvas->makeSurface(canvas->imageInfo().makeDimensions(surfaceSize));
@@ -330,7 +330,7 @@ public:
 
         sk_sp<SkImageFilter> merge0 = SkImageFilters::Merge(std::move(blur1), std::move(cf1));
 
-        draw_dag(canvas, std::move(merge0), kFilterRect, kFilterSurfaceSize);
+        draw_dag(canvas, merge0.get(), kFilterRect, kFilterSurfaceSize);
     }
 
     // We want to use the viewer calculated CTM in the mini surfaces used per DAG node. The rotation

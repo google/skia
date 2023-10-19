@@ -47,7 +47,7 @@ public:
                           const GlyphRunList& glyphRunList,
                           const SkPaint& paint,
                           SkStrikeDeviceInfo strikeDeviceInfo,
-                          AtlasDrawDelegate);
+                          const AtlasDrawDelegate&);
 
     void freeAll() SK_EXCLUDES(fSpinLock);
 

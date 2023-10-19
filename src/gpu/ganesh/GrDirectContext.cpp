@@ -8,7 +8,6 @@
 
 #include "include/gpu/GrDirectContext.h"
 
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSize.h"
@@ -465,7 +464,7 @@ bool GrDirectContext::submit(GrSyncCpu sync) {
     return fGpu->submitToGpu(sync);
 }
 
-GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<const SkImage> image,
+GrSemaphoresSubmitted GrDirectContext::flush(const sk_sp<const SkImage>& image,
                                              const GrFlushInfo& flushInfo) {
     if (!image) {
         return GrSemaphoresSubmitted::kNo;
@@ -478,9 +477,11 @@ GrSemaphoresSubmitted GrDirectContext::flush(sk_sp<const SkImage> image,
     return igb->flush(this, flushInfo);
 }
 
-void GrDirectContext::flush(sk_sp<const SkImage> image) { this->flush(image, {}); }
+void GrDirectContext::flush(const sk_sp<const SkImage>& image) {
+    this->flush(image, {});
+}
 
-void GrDirectContext::flushAndSubmit(sk_sp<const SkImage> image) {
+void GrDirectContext::flushAndSubmit(const sk_sp<const SkImage>& image) {
     this->flush(image, {});
     this->submit();
 }

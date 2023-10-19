@@ -891,7 +891,7 @@ sk_sp<IndexBuffer> MakeIndexBuffer(const void* data, size_t size) {
     return SkMeshPriv::CpuIndexBuffer::Make(data, size);
 }
 
-sk_sp<IndexBuffer> CopyIndexBuffer(sk_sp<IndexBuffer> src) {
+sk_sp<IndexBuffer> CopyIndexBuffer(const sk_sp<IndexBuffer>& src) {
     if (!src) {
         return nullptr;
     }
@@ -907,7 +907,7 @@ sk_sp<VertexBuffer> MakeVertexBuffer(const void* data, size_t size) {
     return SkMeshPriv::CpuVertexBuffer::Make(data, size);
 }
 
-sk_sp<VertexBuffer> CopyVertexBuffer(sk_sp<VertexBuffer> src) {
+sk_sp<VertexBuffer> CopyVertexBuffer(const sk_sp<VertexBuffer>& src) {
     if (!src) {
         return nullptr;
     }

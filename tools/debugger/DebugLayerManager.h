@@ -49,7 +49,7 @@ public:
     // Store an SkPicture under a given nodeId (and under the currently set frame number)
     // `dirty` is the recorded rect that was used to call androidFramework_setDeviceClipRestriction
     // when the layer was drawn.
-    void storeSkPicture(int nodeId, int frame, sk_sp<SkPicture> picture, SkIRect dirty);
+    void storeSkPicture(int nodeId, int frame, const sk_sp<SkPicture>& picture, SkIRect dirty);
 
     // Set's the command playback head for a given picture/draw event.
     void setCommand(int nodeId, int frame, int command);

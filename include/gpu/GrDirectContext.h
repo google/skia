@@ -406,13 +406,13 @@ public:
      *  @param image    the non-null image to flush.
      *  @param info     flush options
      */
-    GrSemaphoresSubmitted flush(sk_sp<const SkImage> image, const GrFlushInfo& info);
-    void flush(sk_sp<const SkImage> image);
+    GrSemaphoresSubmitted flush(const sk_sp<const SkImage>& image, const GrFlushInfo& info);
+    void flush(const sk_sp<const SkImage>& image);
 
     /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
      *   GPU.
      */
-    void flushAndSubmit(sk_sp<const SkImage> image);
+    void flushAndSubmit(const sk_sp<const SkImage>& image);
 
     /** Issues pending SkSurface commands to the GPU-backed API objects and resolves any SkSurface
      *  MSAA. A call to GrDirectContext::submit is always required to ensure work is actually sent

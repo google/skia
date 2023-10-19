@@ -108,7 +108,7 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(sk_sp<GrContextThreadSafeProxy> gpu
     around forever.
 */
 SK_API GrDirectContext* GetContext(const SkImage* src);
-inline GrDirectContext* GetContext(sk_sp<const SkImage> src) {
+inline GrDirectContext* GetContext(const sk_sp<const SkImage>& src) {
     return GetContext(src.get());
 }
 

@@ -516,7 +516,7 @@ private:
         std::unique_ptr<Type> fStruct;
     };
 
-    void writeUniformBuffer(std::shared_ptr<SymbolTable> topLevelSymbolTable);
+    void writeUniformBuffer(const std::shared_ptr<SymbolTable>& topLevelSymbolTable);
 
     void addRTFlipUniform(Position pos);
 

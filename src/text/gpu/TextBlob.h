@@ -115,7 +115,7 @@ public:
     void draw(SkCanvas*,
               SkPoint drawOrigin,
               const SkPaint& paint,
-              AtlasDrawDelegate);
+              const AtlasDrawDelegate&);
 
     const AtlasSubRun* testingOnlyFirstSubRun() const;
 

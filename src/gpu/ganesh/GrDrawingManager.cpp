@@ -771,7 +771,7 @@ void GrDrawingManager::newTextureResolveRenderTask(sk_sp<GrSurfaceProxy> proxy,
     SkDEBUGCODE(this->validate());
 }
 
-void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
+void GrDrawingManager::newWaitRenderTask(const sk_sp<GrSurfaceProxy>& proxy,
                                          std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores,
                                          int numSemaphores) {
     SkDEBUGCODE(this->validate());
@@ -816,7 +816,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
     SkDEBUGCODE(this->validate());
 }
 
-void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
+void GrDrawingManager::newTransferFromRenderTask(const sk_sp<GrSurfaceProxy>& srcProxy,
                                                  const SkIRect& srcRect,
                                                  GrColorType surfaceColorType,
                                                  GrColorType dstColorType,
@@ -907,7 +907,7 @@ void GrDrawingManager::newBufferUpdateTask(sk_sp<SkData> src,
 
 sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> dst,
                                                         SkIRect dstRect,
-                                                        sk_sp<GrSurfaceProxy> src,
+                                                        const sk_sp<GrSurfaceProxy>& src,
                                                         SkIRect srcRect,
                                                         GrSamplerState::Filter filter,
                                                         GrSurfaceOrigin origin) {

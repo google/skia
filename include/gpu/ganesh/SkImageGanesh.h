@@ -206,7 +206,7 @@ SK_API sk_sp<SkImage> TextureFromImage(GrDirectContext*,
                                        skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                        skgpu::Budgeted = skgpu::Budgeted::kYes);
 inline sk_sp<SkImage> TextureFromImage(GrDirectContext* ctx,
-                                       sk_sp<const SkImage> img,
+                                       const sk_sp<const SkImage>& img,
                                        skgpu::Mipmapped m = skgpu::Mipmapped::kNo,
                                        skgpu::Budgeted b = skgpu::Budgeted::kYes) {
     return TextureFromImage(ctx, img.get(), m, b);
@@ -276,7 +276,7 @@ SK_API bool GetBackendTextureFromImage(const SkImage* img,
                                        GrBackendTexture* outTexture,
                                        bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin = nullptr);
-inline bool GetBackendTextureFromImage(sk_sp<const SkImage> img,
+inline bool GetBackendTextureFromImage(const sk_sp<const SkImage>& img,
                                        GrBackendTexture* outTexture,
                                        bool flushPendingGrContextIO,
                                        GrSurfaceOrigin* origin = nullptr) {

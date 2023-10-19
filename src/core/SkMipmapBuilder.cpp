@@ -32,6 +32,6 @@ SkPixmap SkMipmapBuilder::level(int index) const {
     return pm;
 }
 
-sk_sp<SkImage> SkMipmapBuilder::attachTo(sk_sp<const SkImage> src) {
+sk_sp<SkImage> SkMipmapBuilder::attachTo(const sk_sp<const SkImage>& src) {
     return src->withMipmaps(fMM);
 }

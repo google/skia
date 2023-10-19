@@ -450,7 +450,7 @@ static void fuzz_api(const sk_sp<SkData>& data, SkString name) {
     print_api_names();
 }
 
-static void dump_png(SkBitmap bitmap) {
+static void dump_png(const SkBitmap& bitmap) {
     if (!FLAGS_dump.isEmpty()) {
         SkFILEWStream file(FLAGS_dump[0]);
         SkPngEncoder::Encode(&file, bitmap.pixmap(), {});

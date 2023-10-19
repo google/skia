@@ -132,7 +132,7 @@ public:
     virtual ~SubRun();
 
     virtual void draw(SkCanvas*, SkPoint drawOrigin, const SkPaint&, sk_sp<SkRefCnt> subRunStorage,
-                      AtlasDrawDelegate) const = 0;
+                      const AtlasDrawDelegate&) const = 0;
 
     void flatten(SkWriteBuffer& buffer) const;
     static SubRunOwner MakeFromBuffer(SkReadBuffer& buffer,
@@ -236,7 +236,7 @@ public:
     static size_t EstimateAllocSize(const GlyphRunList& glyphRunList);
 
     void draw(SkCanvas*, SkPoint drawOrigin, const SkPaint&, const SkRefCnt* subRunStorage,
-              AtlasDrawDelegate) const;
+              const AtlasDrawDelegate&) const;
 
     const SkMatrix& initialPosition() const { return fInitialPositionMatrix; }
     bool isEmpty() const { return fSubRuns.isEmpty(); }

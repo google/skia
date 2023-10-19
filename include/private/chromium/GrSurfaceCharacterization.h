@@ -178,7 +178,7 @@ private:
             // Dynamic MSAA is not currently supported with DDL.
             *this = {};
         } else {
-            fContextInfo = contextInfo;
+            fContextInfo = std::move(contextInfo);
             fCacheMaxResourceBytes = cacheMaxResourceBytes;
 
             fImageInfo = ii;

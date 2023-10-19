@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <utility>
 
 using namespace skia_private;
 
@@ -67,12 +68,13 @@ struct MultiPictureDocument final : public SkDocument {
     TArray<sk_sp<SkPicture>> fPages;
     TArray<SkSize> fSizes;
     std::function<void(const SkPicture*)> fOnEndPage;
-    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs,
-        std::function<void(const SkPicture*)> onEndPage)
-        : SkDocument(s)
-        , fProcs(procs ? *procs : SkSerialProcs())
-        , fOnEndPage(onEndPage)
-    {}
+    MultiPictureDocument(SkWStream* s,
+                         const SkSerialProcs* procs,
+                         std::function<void(const SkPicture*)> onEndPage)
+            : SkDocument(s)
+            , fProcs(procs ? *procs : SkSerialProcs())
+            , fOnEndPage(std::move(onEndPage)) {}
+
     ~MultiPictureDocument() override { this->close(); }
 
     SkCanvas* onBeginPage(SkScalar w, SkScalar h) override {
@@ -147,9 +149,10 @@ struct PagerCanvas : public SkNWayCanvas {
 }  // namespace
 
 namespace SkMultiPictureDocument {
-sk_sp<SkDocument> Make(SkWStream* dst, const SkSerialProcs* procs,
+sk_sp<SkDocument> Make(SkWStream* dst,
+                       const SkSerialProcs* procs,
                        std::function<void(const SkPicture*)> onEndPage) {
-    return sk_make_sp<MultiPictureDocument>(dst, procs, onEndPage);
+    return sk_make_sp<MultiPictureDocument>(dst, procs, std::move(onEndPage));
 }
 
 int ReadPageCount(SkStreamSeekable* src) {
