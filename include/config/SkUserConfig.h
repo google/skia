@@ -105,11 +105,6 @@
 //#define SK_NO_SANITIZE(A) __attribute__((no_sanitize(A)))
 //#define SK_TRIVIAL_ABI [[clang::trivial_abi]]
 
-/* When --disable-skia-runtime-opts is set in Chrome (or when SkGraphics::Init is not called),
-   Skia will prefer precision over performance when computing reciprocals and inverse-square roots.
-*/
-#define SK_IMPROVE_RASTER_PIPELINE_PRECISION
-
 /*
  * If compiling Skia as a DLL, public APIs should be exported. Skia will set
  * SK_API to something sensible for Clang and MSVC, but if clients need to
