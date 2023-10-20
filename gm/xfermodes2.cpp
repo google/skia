@@ -24,6 +24,8 @@
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
+
 #include <stdint.h>
 #include <string.h>
 
@@ -46,7 +48,7 @@ protected:
         const SkScalar w = SkIntToScalar(kSize);
         const SkScalar h = SkIntToScalar(kSize);
 
-        SkFont font(ToolUtils::create_portable_typeface());
+        SkFont font = ToolUtils::DefaultPortableFont();
 
         const int W = 6;
 

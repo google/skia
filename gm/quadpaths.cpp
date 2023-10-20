@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skiagm {
 
@@ -89,8 +90,8 @@ protected:
         path.fName = "moveTo-quad";
 
         SkPaint titlePaint;
-        SkFont  font(ToolUtils::create_portable_typeface(), 15);
-        SkFont  labelFont(ToolUtils::create_portable_typeface(), 10);
+        SkFont  font(ToolUtils::DefaultPortableTypeface(), 15);
+        SkFont  labelFont(ToolUtils::DefaultPortableTypeface(), 10);
 
         const char title[] = "Quad Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
@@ -217,8 +218,8 @@ protected:
         path.fName = "moveTo-quad-close";
 
         SkPaint titlePaint;
-        SkFont     font(ToolUtils::create_portable_typeface(), 15);
-        SkFont     labelFont(ToolUtils::create_portable_typeface(), 10);
+        SkFont     font(ToolUtils::DefaultPortableTypeface(), 15);
+        SkFont     labelFont(ToolUtils::DefaultPortableTypeface(), 10);
         const char title[] = "Quad Closed Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
         canvas->drawString(title, 20.0f, 20.0f, font, titlePaint);

@@ -29,6 +29,7 @@
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <functional>
 
@@ -97,7 +98,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint textPaint;
-        SkFont  font(ToolUtils::create_portable_typeface());
+        SkFont  font = ToolUtils::DefaultPortableFont();
 
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
 
@@ -228,7 +229,7 @@ private:
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(66);
 
-        SkFont font(ToolUtils::create_portable_typeface());
+        SkFont font = ToolUtils::DefaultPortableFont();
 
         for (size_t kx = 0; kx < std::size(gModes); kx++) {
             SkString str(gModeNames[kx]);

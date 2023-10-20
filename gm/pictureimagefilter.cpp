@@ -23,6 +23,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // This GM exercises the SkPictureImageFilter ImageFilter class.
 
@@ -42,7 +43,7 @@ static sk_sp<SkPicture> make_picture() {
     SkCanvas* canvas = recorder.beginRecording(100, 100);
     SkPaint paint;
     paint.setColor(0xFFFFFFFF);
-    SkFont font(ToolUtils::create_portable_typeface(), 96.0f);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 96.0f);
     canvas->drawString("e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();
 }
@@ -55,7 +56,7 @@ static sk_sp<SkPicture> make_LCD_picture() {
     SkPaint paint;
     paint.setColor(0xFFFFFFFF);
     // this has to be small enough that it doesn't become a path
-    SkFont font(ToolUtils::create_portable_typeface(), 36.0f);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 36.0f);
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
     canvas->drawString("e", 20.0f, 70.0f, font, paint);
     return recorder.finishRecordingAsPicture();

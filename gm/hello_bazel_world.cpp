@@ -26,6 +26,7 @@
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 class HelloBazelWorldGM : public skiagm::GM {
 public:
@@ -41,7 +42,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkFont font(ToolUtils::create_portable_typeface(), 50);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 50);
 
         const char* text = "Hello, Bazel world!";
         size_t text_length = strlen(text);

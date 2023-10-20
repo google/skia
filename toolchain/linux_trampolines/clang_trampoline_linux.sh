@@ -125,6 +125,7 @@ supported_files_or_dirs=(
   "tools/Resources.cpp"
   "tools/SvgPathExtractor.cpp"
   "tools/ToolUtils.cpp"
+  "tools/fonts/FontToolUtils.cpp"
 
   # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.
   "include/gen/"

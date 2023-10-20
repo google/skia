@@ -21,6 +21,7 @@
 #include "src/core/SkEnumerate.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 #include <initializer_list>
@@ -37,7 +38,7 @@ protected:
         char const * const fontName;
         char const * const text;
     };
-    static constexpr char const * const sampleText = ToolUtils::emoji_sample_text();
+    static constexpr char const * const sampleText = ToolUtils::EmojiSampleText();
     static constexpr const Test tests[] = {
         { Test::Source::Resource, "fonts/colr.ttf"     , sampleText  },
         { Test::Source::Resource, "fonts/sbix.ttf"     , sampleText  },
@@ -51,7 +52,7 @@ protected:
             if (test.fontSource == Test::Source::Resource) {
                 typefaces[i] = MakeResourceAsTypeface(test.fontName);
             } else if (test.fontSource == Test::Source::Portable) {
-                typefaces[i] = ToolUtils::create_portable_typeface(test.fontName, SkFontStyle());
+                typefaces[i] = ToolUtils::CreatePortableTypeface(test.fontName, SkFontStyle());
             } else {
                 SK_ABORT("Unknown test type");
             }

@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 /**
  * Draws text with random parameters. The text draws each get their own clip rect. It is also
@@ -62,10 +63,10 @@ protected:
         SkScalar h = SkIntToScalar(size.fHeight);
 
         SkASSERTF(4 == std::size(fTypefaces), "typeface_cnt");
-        fTypefaces[0] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle());
-        fTypefaces[1] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
-        fTypefaces[2] = ToolUtils::create_portable_typeface("serif", SkFontStyle());
-        fTypefaces[3] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Bold());
+        fTypefaces[0] = ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle());
+        fTypefaces[1] = ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Bold());
+        fTypefaces[2] = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
+        fTypefaces[3] = ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Bold());
 
         SkRandom random;
         for (int i = 0; i < kCnt; ++i) {

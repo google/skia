@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // This GM tests out the SkBlurMaskFilter's kIgnoreTransform flag. That flag causes the blur mask
 // filter to not apply the CTM to the blur's radius.
@@ -103,7 +104,7 @@ protected:
 
     void drawOverlay(SkCanvas* canvas) {
         canvas->translate(10, 0);
-        SkFont font(ToolUtils::create_portable_typeface());
+        SkFont font = ToolUtils::DefaultPortableFont();
         canvas->save();
         for (int i = 0; i < kNumBlurs; ++i) {
             canvas->drawString(kBlurFlags[i].fName, 100, 0, font, SkPaint());

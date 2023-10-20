@@ -13,6 +13,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTileMode.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // Exercises RSX text blobs + shader with various local matrix combinations.
 // Yellow grid should stay aligned for text vs. background.
@@ -27,7 +28,7 @@ private:
         const SkFontStyle style(SkFontStyle::kExtraBlack_Weight,
                                 SkFontStyle::kNormal_Width,
                                 SkFontStyle::kUpright_Slant);
-        SkFont font(ToolUtils::create_portable_typeface(nullptr, style), kFontSZ);
+        SkFont font(ToolUtils::CreatePortableTypeface("Sans", style), kFontSZ);
         font.setEdging(SkFont::Edging::kAntiAlias);
 
         static constexpr char txt[] = "TEST";

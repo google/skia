@@ -23,6 +23,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstdint>
 #include <cstring>
@@ -39,7 +40,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_empty,
     auto canvas = surface->getCanvas();
 
     static const char* kText = " ";
-    auto typeface = ToolUtils::create_portable_typeface("serif", SkFontStyle());
+    auto typeface = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
     SkFont font(typeface);
     size_t txtLen = strlen(kText);
     int glyphCount = font.countText(kText, txtLen, SkTextEncoding::kUTF8);

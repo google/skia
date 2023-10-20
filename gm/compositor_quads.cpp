@@ -40,6 +40,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
 
 #include <array>
@@ -192,7 +193,7 @@ static void draw_clipping_boundaries(SkCanvas* canvas, const SkMatrix& local) {
 }
 
 static void draw_text(SkCanvas* canvas, const char* text) {
-    SkFont font(ToolUtils::create_portable_typeface(), 12);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 12);
     canvas->drawString(text, 0, 0, font, SkPaint());
 }
 

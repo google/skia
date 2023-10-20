@@ -14,6 +14,7 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 using namespace skottie;
 
@@ -208,7 +209,7 @@ DEF_TEST(Skottie_Text_LayoutError, r) {
     class PortableRP final : public skresources::ResourceProvider {
     private:
         sk_sp<SkTypeface> loadTypeface(const char[], const char[]) const override {
-            return ToolUtils::create_portable_typeface("Serif", SkFontStyle());
+            return ToolUtils::CreatePortableTypeface("Serif", SkFontStyle());
         }
     };
 

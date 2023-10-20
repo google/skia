@@ -63,31 +63,6 @@ const char* tilemode_name(SkTileMode);
  */
 SkColor color_to_565(SkColor color);
 
-/* Return a color emoji typeface with planets to scale if available. */
-sk_sp<SkTypeface> planet_typeface();
-
-/** Return a color emoji typeface if available. */
-sk_sp<SkTypeface> emoji_typeface();
-
-/** Sample text for the emoji_typeface font. */
-constexpr const char* emoji_sample_text() {
-    return "\xF0\x9F\x98\x80"
-           " "
-           "\xE2\x99\xA2";  // 😀 ♢
-}
-
-/** A simple SkUserTypeface for testing. */
-sk_sp<SkTypeface> sample_user_typeface();
-
-/**
- * Returns a platform-independent text renderer.
- */
-sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style);
-
-static inline sk_sp<SkTypeface> create_portable_typeface() {
-    return create_portable_typeface(nullptr, SkFontStyle());
-}
-
 void get_text_path(const SkFont&,
                    const void* text,
                    size_t      length,
@@ -159,9 +134,6 @@ int make_pixmaps(SkColorType,
                  const SkColor4f colors[6],
                  SkPixmap pixmaps[6],
                  std::unique_ptr<char[]>* mem);
-
-SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
-sk_sp<SkImage> create_string_image(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
 
 // If the canvas doesn't make a surface (e.g. recording), make a raster surface
 sk_sp<SkSurface> makeSurface(SkCanvas*, const SkImageInfo&, const SkSurfaceProps* = nullptr);

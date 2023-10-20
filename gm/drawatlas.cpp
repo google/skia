@@ -40,6 +40,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <initializer_list>
 
@@ -235,7 +236,7 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 430, 860) {
 // Exercise xform blob and its bounds
 DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     SkFont font;
-    font.setTypeface(ToolUtils::create_portable_typeface());
+    font.setTypeface(ToolUtils::DefaultPortableTypeface());
     font.setSize(50);
 
     const char text[] = "CrazyXform";

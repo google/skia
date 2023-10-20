@@ -22,6 +22,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -35,7 +36,7 @@ protected:
     SkISize getISize() override { return SkISize::Make(600, 150); }
 
     void onOnceBeforeDraw() override {
-        fImage = ToolUtils::create_string_image(100, 100, SK_ColorWHITE, 20, 70, 96, "e");
+        fImage = ToolUtils::CreateStringImage(100, 100, SK_ColorWHITE, 20, 70, 96, "e");
     }
 
     void onDraw(SkCanvas* canvas) override {

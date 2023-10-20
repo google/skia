@@ -29,6 +29,7 @@
 #include "src/core/SkFontPriv.h"
 #include "tools/SkMetaData.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -295,7 +296,7 @@ private:
 
         SkFont labelFont;
         labelFont.setEdging(SkFont::Edging::kAntiAlias);
-        labelFont.setTypeface(ToolUtils::create_portable_typeface());
+        labelFont.setTypeface(ToolUtils::DefaultPortableTypeface());
 
         if (labelBounds) {
             SkString name;

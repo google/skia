@@ -22,6 +22,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // https://bug.skia.org/1316 shows that this cubic, when slightly clipped, creates big
 // (incorrect) changes to its control points.
@@ -184,7 +185,7 @@ class CubicPathGM : public skiagm::GM {
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        SkFont     font(ToolUtils::create_portable_typeface(), 15);
+        SkFont     font(ToolUtils::DefaultPortableTypeface(), 15);
         const char title[] = "Cubic Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
         canvas->drawString(title, 20, 20, font, titlePaint);
@@ -304,7 +305,7 @@ class CubicClosePathGM : public skiagm::GM {
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        SkFont     font(ToolUtils::create_portable_typeface(), 15);
+        SkFont     font(ToolUtils::DefaultPortableTypeface(), 15);
         const char title[] = "Cubic Closed Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
         canvas->drawString(title, 20, 20, font, titlePaint);
@@ -431,7 +432,7 @@ class CubicPathShaderGM : public skiagm::GM {
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        SkFont     font(ToolUtils::create_portable_typeface(), 15);
+        SkFont     font(ToolUtils::DefaultPortableTypeface(), 15);
         const char title[] = "Cubic Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, with stroke width 10";
         canvas->drawString(title, 20, 20, font, titlePaint);

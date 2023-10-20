@@ -36,6 +36,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cmath>
 #include <cstddef>
@@ -83,7 +84,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextBlobScaleAnimation,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
-    auto tf = ToolUtils::create_portable_typeface("Mono", SkFontStyle());
+    auto tf = ToolUtils::CreatePortableTypeface("Mono", SkFontStyle());
     SkFont font{tf};
     font.setHinting(SkFontHinting::kNormal);
     font.setSize(12);
@@ -114,7 +115,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
-    auto tf = ToolUtils::create_portable_typeface("Mono", SkFontStyle());
+    auto tf = ToolUtils::CreatePortableTypeface("Mono", SkFontStyle());
     SkFont font{tf};
     font.setHinting(SkFontHinting::kNormal);
     font.setSize(12);

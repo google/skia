@@ -24,6 +24,7 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/chromium/Slug.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
@@ -48,7 +49,7 @@ protected:
 #endif
 
     void onOnceBeforeDraw() override {
-        fTypeface = ToolUtils::create_portable_typeface("serif", SkFontStyle());
+        fTypeface = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
         SkFont font(fTypeface);
         size_t txtLen = strlen(fText);
         int glyphCount = font.countText(fText, txtLen, SkTextEncoding::kUTF8);

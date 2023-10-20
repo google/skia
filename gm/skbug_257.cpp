@@ -22,6 +22,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -67,7 +68,7 @@ static void exercise_draw_pos_text_h(SkCanvas* canvas,
 
 static void test_text(SkCanvas* canvas, SkScalar size,
                       SkColor color, SkScalar Y) {
-    SkFont font(ToolUtils::create_portable_typeface(), 24);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 24);
     font.setEdging(SkFont::Edging::kAlias);
     SkPaint type;
     type.setColor(color);

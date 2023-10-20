@@ -16,6 +16,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // Hue, Saturation, Color, and Luminosity blend modes are oddballs.
 // They nominally convert their inputs to unpremul, then to HSL, then
@@ -155,7 +156,7 @@ static SkColor blend(SkColor dst, SkColor src,
 
 DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
     SkPaint paint;
-    SkFont  font(ToolUtils::create_portable_typeface());
+    SkFont  font = ToolUtils::DefaultPortableFont();
 
     const char* comment = "HSL blend modes are correct when you see no circles in the squares.";
     canvas->drawString(comment, 10,10, font, paint);

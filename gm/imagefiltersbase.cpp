@@ -30,6 +30,7 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/utils/SkPatchUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -74,7 +75,7 @@ static void draw_text(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImage
     SkPaint paint;
     paint.setImageFilter(imf);
     paint.setColor(SK_ColorCYAN);
-    SkFont font(ToolUtils::create_portable_typeface(), r.height() / 2);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), r.height() / 2);
     SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint,
                             SkTextUtils::kCenter_Align);
 }
@@ -204,7 +205,7 @@ private:
 
         SkPaint atlasPaint;
         atlasPaint.setColor(SK_ColorGRAY);
-        SkFont font(ToolUtils::create_portable_typeface(), kSize.fHeight * 0.4f);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), kSize.fHeight * 0.4f);
         SkTextUtils::DrawString(atlasCanvas, "Atlas", kSize.fWidth * 0.5f, kSize.fHeight * 0.5f,
                                 font, atlasPaint, SkTextUtils::kCenter_Align);
         return atlasSurface->makeImageSnapshot();
@@ -242,7 +243,7 @@ protected:
             SkFont::Edging::kAntiAlias,
             SkFont::Edging::kSubpixelAntiAlias,
         };
-        SkFont font(ToolUtils::create_portable_typeface(), 30);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 30);
 
         SkAutoCanvasRestore acr(canvas, true);
         for (SkFont::Edging edging : kEdgings) {

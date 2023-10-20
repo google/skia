@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <math.h>
 #include <initializer_list>
@@ -573,7 +574,7 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     p.setStrokeJoin(SkPaint::kRound_Join);
     p.setARGB(0xff, 0xbb, 0x00, 0x00);
 
-    SkFont font(ToolUtils::create_portable_typeface(), 100);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 100);
 
     const SkScalar intervals[] = { 12, 12 };
     p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));

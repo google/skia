@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace {
 
@@ -65,7 +66,7 @@ class ChromeGradTextGM1 : public skiagm::GM {
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface
         paint.setShader(make_chrome_solid());
 
-        SkFont font(ToolUtils::create_portable_typeface(), 500);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 500);
         font.setEdging(SkFont::Edging::kAlias);
 
         canvas->drawString("I", 0, 100, font, paint);
@@ -80,7 +81,7 @@ class ChromeGradTextGM2 : public skiagm::GM {
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
-        SkFont  font(ToolUtils::create_portable_typeface());
+        SkFont  font = ToolUtils::DefaultPortableFont();
         font.setEdging(SkFont::Edging::kAlias);
 
         paint.setStyle(SkPaint::kFill_Style);
@@ -104,7 +105,7 @@ DEF_GM( return new ChromeGradTextGM2; )
 
 DEF_SIMPLE_GM(gradtext, canvas, 500, 480) {
     static constexpr float kTextSize = 26.0f;
-    SkFont                 font(ToolUtils::create_portable_typeface(), kTextSize);
+    SkFont                 font(ToolUtils::DefaultPortableTypeface(), kTextSize);
 
     canvas->drawRect({0, 0, 500, 240}, SkPaint());
     canvas->translate(20.0f, kTextSize);

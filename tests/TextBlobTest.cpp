@@ -30,6 +30,7 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -198,7 +199,7 @@ public:
         // Kitchen sink font.
         font.setSize(42);
         font.setScaleX(4.2f);
-        font.setTypeface(ToolUtils::create_portable_typeface(nullptr, SkFontStyle::Bold()));
+        font.setTypeface(ToolUtils::CreatePortableTypeface("Sans", SkFontStyle::Bold()));
         font.setSkewX(0.42f);
         font.setHinting(SkFontHinting::kFull);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);

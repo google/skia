@@ -19,6 +19,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -60,7 +61,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        SkFont font(ToolUtils::create_portable_typeface(), 20);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 20);
 
         constexpr struct {
             SkClipOp    fOp;

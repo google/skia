@@ -20,6 +20,7 @@
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
     sk_sp<SkImage> image(ToolUtils::GetResourceAsImage(resource));
@@ -49,7 +50,7 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
 }
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
-    SkFont font(ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold()), 18);
+    SkFont font(ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Bold()), 18);
     font.setEdging(SkFont::Edging::kAlias);
 
     canvas->clear(SK_ColorLTGRAY);

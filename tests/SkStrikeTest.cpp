@@ -38,6 +38,7 @@
 #include "src/text/StrikeForGPU.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <atomic>
 #include <cstddef>
@@ -107,7 +108,7 @@ prepare_for_mask_drawing(
 
 DEF_TEST(SkStrikeMultiThread, Reporter) {
     sk_sp<SkTypeface> typeface =
-            ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic());
+            ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Italic());
     static constexpr int kThreadCount = 4;
 
     Barrier barrier{kThreadCount};

@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // Inspired by svg/as-border-image/svg-as-border-image.html. Draws a four-color checker board bitmap
 // such that it is stretched and repeat tiled with different filter qualities. It is testing whether
@@ -69,7 +70,7 @@ private:
 
         SkPaint bmpPaint(textPaint);
 
-        SkFont font(ToolUtils::create_portable_typeface());
+        SkFont font = ToolUtils::DefaultPortableFont();
 
         SkAutoCanvasRestore acr(canvas, true);
 

@@ -8,11 +8,12 @@ skia_filegroup(
     name = "test_font_manager_srcs",
     testonly = True,
     srcs = [
+        "FontToolUtils.cpp",
+        "FontToolUtils.h",
         "TestFontMgr.cpp",
         "TestFontMgr.h",
         "TestTypeface.cpp",
         "TestTypeface.h",
-        "ToolUtilsFont.cpp",
     ],
     visibility = [
         "//tests:__pkg__",

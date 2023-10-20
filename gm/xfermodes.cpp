@@ -24,6 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.
@@ -239,7 +240,7 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
 
-        SkFont font(ToolUtils::create_portable_typeface());
+        SkFont font = ToolUtils::DefaultPortableFont();
 
         const int kWrap = 5;
 

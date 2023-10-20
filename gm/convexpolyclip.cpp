@@ -26,6 +26,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static sk_sp<SkImage> make_img(int w, int h) {
     auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32(w, h, kOpaque_SkAlphaType));
@@ -70,7 +71,7 @@ static sk_sp<SkImage> make_img(int w, int h) {
         mat.postScale(SK_Scalar1 / 3, SK_Scalar1 / 3);
     }
 
-    SkFont font(ToolUtils::create_portable_typeface(), wScalar / 2.2f);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), wScalar / 2.2f);
 
     paint.setShader(nullptr);
     paint.setColor(SK_ColorLTGRAY);
@@ -162,7 +163,7 @@ protected:
                               SkSamplingOptions(), &bgPaint);
 
         constexpr char kTxt[] = "Clip Me!";
-        SkFont         font(ToolUtils::create_portable_typeface(), 23);
+        SkFont         font(ToolUtils::DefaultPortableTypeface(), 23);
         SkScalar textW = font.measureText(kTxt, std::size(kTxt)-1, SkTextEncoding::kUTF8);
         SkPaint txtPaint;
         txtPaint.setColor(SK_ColorDKGRAY);

@@ -25,6 +25,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -85,7 +86,7 @@ protected:
 
         SkPath clipB = SkPath::Polygon({{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}, true);
 
-        SkFont font(ToolUtils::create_portable_typeface(), 20);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 20);
 
         constexpr struct {
             SkClipOp fOp;
@@ -341,7 +342,7 @@ static void draw_banner(SkCanvas* canvas, Config config) {
         banner.append(" (w/ LM, should equal top row)");
     }
 
-    static const SkFont kFont(ToolUtils::create_portable_typeface(), 12);
+    static const SkFont kFont(ToolUtils::DefaultPortableTypeface(), 12);
     canvas->drawString(banner.c_str(), 20.f, -30.f, kFont, SkPaint());
 };
 

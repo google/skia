@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPixelRef.h"  // IWYU pragma: keep
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkMutex.h"
 #include "include/utils/SkCustomTypeface.h"
@@ -20,7 +26,7 @@
 
 namespace ToolUtils {
 
-sk_sp<SkTypeface> planet_typeface() {
+sk_sp<SkTypeface> PlanetTypeface() {
     static const sk_sp<SkTypeface> planetTypeface = []() {
         const char* filename;
 #if defined(SK_BUILD_FOR_WIN)
@@ -39,7 +45,7 @@ sk_sp<SkTypeface> planet_typeface() {
     return planetTypeface;
 }
 
-sk_sp<SkTypeface> emoji_typeface() {
+sk_sp<SkTypeface> EmojiTypeface() {
     static const sk_sp<SkTypeface> emojiTypeface = []() {
         const char* filename;
 #if defined(SK_BUILD_FOR_WIN)
@@ -58,7 +64,7 @@ sk_sp<SkTypeface> emoji_typeface() {
     return emojiTypeface;
 }
 
-sk_sp<SkTypeface> sample_user_typeface() {
+sk_sp<SkTypeface> SampleUserTypeface() {
     SkCustomTypefaceBuilder builder;
     SkFont font;
     const float upem = 200;
@@ -96,12 +102,55 @@ sk_sp<SkTypeface> sample_user_typeface() {
     return builder.detach();
 }
 
-static sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
+sk_sp<SkTypeface> CreatePortableTypeface(const char* name, SkFontStyle style) {
     static sk_sp<SkFontMgr> portableFontMgr = MakePortableFontMgr();
-    return portableFontMgr->legacyMakeTypeface(name, style);
+    SkASSERT_RELEASE(portableFontMgr);
+    sk_sp<SkTypeface> face = portableFontMgr->legacyMakeTypeface(name, style);
+    SkASSERT_RELEASE(face);
+    return face;
 }
 
-sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style) {
-    return create_font(name, style);
+sk_sp<SkTypeface> DefaultPortableTypeface() {
+    // At last check, the default typeface is a serif font.
+    sk_sp<SkTypeface> face = CreatePortableTypeface(nullptr, SkFontStyle());
+    SkASSERT_RELEASE(face);
+    return face;
+}
+
+SkFont DefaultPortableFont() {
+    return SkFont(DefaultPortableTypeface(), 12);
+}
+
+SkBitmap CreateStringBitmap(int w, int h, SkColor c, int x, int y, int textSize,
+                            const char* str) {
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(w, h);
+    SkCanvas canvas(bitmap);
+
+    SkPaint paint;
+    paint.setColor(c);
+
+    SkFont font(DefaultPortableTypeface(), textSize);
+
+    canvas.clear(0x00000000);
+    canvas.drawSimpleText(str,
+                          strlen(str),
+                          SkTextEncoding::kUTF8,
+                          SkIntToScalar(x),
+                          SkIntToScalar(y),
+                          font,
+                          paint);
+
+    // Tag data as sRGB (without doing any color space conversion). Color-space aware configs
+    // will process this correctly but legacy configs will render as if this returned N32.
+    SkBitmap result;
+    result.setInfo(SkImageInfo::MakeS32(w, h, kPremul_SkAlphaType));
+    result.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
+    return result;
+}
+
+sk_sp<SkImage> CreateStringImage(int w, int h, SkColor c, int x, int y, int textSize,
+                                 const char* str) {
+    return CreateStringBitmap(w, h, c, x, y, textSize, str).asImage();
 }
 }  // namespace ToolUtils

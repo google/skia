@@ -17,6 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -31,7 +32,7 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
                                                              SkSamplingOptions(),
                                                              nullptr));
 
-        SkFont         font(ToolUtils::create_portable_typeface(), 100);
+        SkFont         font(ToolUtils::DefaultPortableTypeface(), 100);
         const SkScalar tile_size = SkIntToScalar(100);
         for (SkScalar y = 0; y < HEIGHT; y += tile_size) {
             for (SkScalar x = 0; x < WIDTH; x += tile_size) {

@@ -208,39 +208,6 @@ int make_pixmaps(SkColorType ct,
     return numMipLevels;
 }
 
-SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y, int textSize,
-                              const char* str) {
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(w, h);
-    SkCanvas canvas(bitmap);
-
-    SkPaint paint;
-    paint.setColor(c);
-
-    SkFont font(ToolUtils::create_portable_typeface(), textSize);
-
-    canvas.clear(0x00000000);
-    canvas.drawSimpleText(str,
-                          strlen(str),
-                          SkTextEncoding::kUTF8,
-                          SkIntToScalar(x),
-                          SkIntToScalar(y),
-                          font,
-                          paint);
-
-    // Tag data as sRGB (without doing any color space conversion). Color-space aware configs
-    // will process this correctly but legacy configs will render as if this returned N32.
-    SkBitmap result;
-    result.setInfo(SkImageInfo::MakeS32(w, h, kPremul_SkAlphaType));
-    result.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
-    return result;
-}
-
-sk_sp<SkImage> create_string_image(int w, int h, SkColor c, int x, int y, int textSize,
-                                   const char* str) {
-    return create_string_bitmap(w, h, c, x, y, textSize, str).asImage();
-}
-
 void add_to_text_blob_w_len(SkTextBlobBuilder* builder,
                             const char*        text,
                             size_t             len,

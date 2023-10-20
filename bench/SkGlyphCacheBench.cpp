@@ -19,6 +19,7 @@
 #include "src/core/SkTextBlobTrace.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 using namespace skia_private;
 
@@ -62,7 +63,7 @@ protected:
         SkFont font;
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSubpixel(true);
-        font.setTypeface(ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic()));
+        font.setTypeface(ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Italic()));
 
         for (int work = 0; work < loops; work++) {
             do_font_stuff(&font);
@@ -94,8 +95,8 @@ protected:
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
         sk_sp<SkTypeface> typefaces[] = {
-                ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic()),
-                ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Italic())};
+                ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Italic()),
+                ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Italic())};
 
         for (int work = 0; work < loops; work++) {
             SkTaskGroup().batch(16, [&](int threadIndex) {

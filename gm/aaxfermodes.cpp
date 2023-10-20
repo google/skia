@@ -21,6 +21,7 @@
 #include "include/core/SkTypes.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 enum {
     kXfermodeCount = (int)SkBlendMode::kLastMode + 1 + 1,   // extra for arith
@@ -76,7 +77,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fLabelFont.setTypeface(ToolUtils::create_portable_typeface());
+        fLabelFont.setTypeface(ToolUtils::DefaultPortableTypeface());
         fLabelFont.setSize(5 * kShapeSize/8);
         fLabelFont.setSubpixel(true);
 

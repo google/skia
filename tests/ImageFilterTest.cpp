@@ -58,6 +58,7 @@
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
@@ -792,7 +793,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
 
     SkPaint textPaint;
     textPaint.setColor(SK_ColorWHITE);
-    SkFont font(ToolUtils::create_portable_typeface(), height);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), height);
 
     const char* text = "ABC";
     const SkScalar yPos = SkIntToScalar(height);

@@ -20,6 +20,7 @@
 #include "include/core/SkTileMode.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrRecordingContext.h"
@@ -55,7 +56,7 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     bmp.allocN32Pixels(128, 64);
     SkCanvas bmpCanvas(bmp);
     bmpCanvas.drawColor(SK_ColorWHITE);
-    SkFont  font(ToolUtils::create_portable_typeface(), 20);
+    SkFont  font(ToolUtils::DefaultPortableTypeface(), 20);
     SkPaint paint(SkColors::kRed);
     bmpCanvas.drawString("GPU Only", 20, 40, font, paint);
     SkMatrix localM;

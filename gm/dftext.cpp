@@ -31,6 +31,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -44,8 +45,8 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fEmojiTypeface = ToolUtils::emoji_typeface();
-        fEmojiText     = ToolUtils::emoji_sample_text();
+        fEmojiTypeface = ToolUtils::EmojiTypeface();
+        fEmojiText     = ToolUtils::EmojiSampleText();
     }
 
     SkString getName() const override { return SkString("dftext"); }
@@ -76,7 +77,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        SkFont font(ToolUtils::create_portable_typeface("serif", SkFontStyle()));
+        SkFont font(ToolUtils::CreatePortableTypeface("serif", SkFontStyle()));
         font.setSubpixel(true);
 
         const char* text = "Hamburgefons";

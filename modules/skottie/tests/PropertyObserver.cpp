@@ -12,6 +12,7 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 using namespace skottie;
 
@@ -20,7 +21,7 @@ namespace {
 TextPropertyValue make_text_prop(const char* str) {
     TextPropertyValue prop;
 
-    prop.fTypeface = ToolUtils::create_portable_typeface();
+    prop.fTypeface = ToolUtils::DefaultPortableTypeface();
     prop.fText     = SkString(str);
 
     return prop;
@@ -266,7 +267,7 @@ static const char gTestJson[] = R"({
 }  // anonymous namespace
 
 DEF_TEST(Skottie_Props, reporter) {
-    auto test_typeface = ToolUtils::create_portable_typeface();
+    auto test_typeface = ToolUtils::DefaultPortableTypeface();
     REPORTER_ASSERT(reporter, test_typeface);
     auto test_font_manager = sk_make_sp<MockFontMgr>(test_typeface);
 
@@ -367,7 +368,7 @@ DEF_TEST(Skottie_Props, reporter) {
 }
 
 DEF_TEST(Skottie_Props_Revalidation, reporter) {
-    auto test_typeface = ToolUtils::create_portable_typeface();
+    auto test_typeface = ToolUtils::DefaultPortableTypeface();
     REPORTER_ASSERT(reporter, test_typeface);
     auto test_font_manager = sk_make_sp<MockFontMgr>(test_typeface);
 

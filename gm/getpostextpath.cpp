@@ -20,6 +20,7 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -39,7 +40,7 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     SkPath path;
 
     SkFont font;
-    font.setTypeface(ToolUtils::create_portable_typeface());
+    font.setTypeface(ToolUtils::DefaultPortableTypeface());
     font.setSize(48);
 
     SkPaint paint;

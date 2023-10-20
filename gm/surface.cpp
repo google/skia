@@ -32,6 +32,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 
 #define W 200
@@ -67,7 +68,7 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
     paint.setShader(nullptr);
 
     paint.setColor(SK_ColorWHITE);
-    SkFont font(ToolUtils::create_portable_typeface(), 32);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 32);
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
     SkTextUtils::DrawString(canvas, label, W / 2, H * 3 / 4, font, paint,
                             SkTextUtils::kCenter_Align);

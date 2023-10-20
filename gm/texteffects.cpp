@@ -23,6 +23,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -117,7 +118,7 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
 
     for (size_t font = 0; font < std::size(fam); ++font) {
         for (SkScalar textSize = 100; textSize > 10; textSize -= 20) {
-            SkFont skFont(ToolUtils::create_portable_typeface(fam[font], SkFontStyle()), textSize);
+            SkFont skFont(ToolUtils::CreatePortableTypeface(fam[font], SkFontStyle()), textSize);
             const SkScalar uWidth = textSize / 15;
             paint.setStrokeWidth(uWidth);
             paint.setStyle(SkPaint::kFill_Style);
@@ -240,7 +241,7 @@ DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {
     const char text[] = "Hyjay {worlp}.";
     const size_t length = strlen(text);
     SkFont font;
-    font.setTypeface(ToolUtils::create_portable_typeface());
+    font.setTypeface(ToolUtils::DefaultPortableTypeface());
     font.setSize(100);
     font.setEdging(SkFont::Edging::kAntiAlias);
     const int count = font.countText(text, length, SkTextEncoding::kUTF8);

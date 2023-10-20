@@ -23,6 +23,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -84,7 +85,7 @@ protected:
 
         canvas->drawImage(fBmp.asImage(), 5.f, 5.f, sampling, &bmpPaint);
 
-        SkFont  font(ToolUtils::create_portable_typeface(), SkIntToScalar(kPointSize));
+        SkFont  font(ToolUtils::DefaultPortableTypeface(), SkIntToScalar(kPointSize));
         SkPaint outlinePaint;
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);

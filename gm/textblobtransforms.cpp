@@ -19,6 +19,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -33,7 +34,7 @@ protected:
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
-        SkFont font(ToolUtils::create_portable_typeface(), 162);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 162);
         font.setEdging(SkFont::Edging::kAlias);
         const char* text = "A";
 

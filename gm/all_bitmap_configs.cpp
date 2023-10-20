@@ -25,6 +25,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 #include <initializer_list>
@@ -94,7 +95,7 @@ static void color_wheel_native(SkCanvas* canvas) {
 
     SkFont font;
     font.setEdging(SkFont::Edging::kAlias);
-    font.setTypeface(ToolUtils::create_portable_typeface(nullptr, SkFontStyle::Bold()));
+    font.setTypeface(ToolUtils::CreatePortableTypeface("Sans", SkFontStyle::Bold()));
     font.setSize(0.28125f * SCALE);
     draw_center_letter('K', font, SK_ColorBLACK, Z, Z, canvas);
     draw_center_letter('R', font, SK_ColorRED, Z, D, canvas);
@@ -131,7 +132,7 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkPaint p(SkColors::kBlack);
     p.setAntiAlias(true);
 
-    SkFont font(ToolUtils::create_portable_typeface());
+    SkFont font = ToolUtils::DefaultPortableFont();
 
     ToolUtils::draw_checkerboard(canvas, SK_ColorLTGRAY, SK_ColorWHITE, 8);
 

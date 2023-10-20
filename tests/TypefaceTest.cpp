@@ -31,6 +31,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <algorithm>
@@ -555,9 +556,9 @@ DEF_TEST(Typeface_serialize, reporter) {
 }
 
 DEF_TEST(Typeface_glyph_to_char, reporter) {
-    SkFont font(ToolUtils::emoji_typeface(), 12);
+    SkFont font(ToolUtils::EmojiTypeface(), 12);
     SkASSERT(font.getTypeface());
-    char const * text = ToolUtils::emoji_sample_text();
+    char const * text = ToolUtils::EmojiSampleText();
     size_t const textLen = strlen(text);
     SkString familyName;
     font.getTypeface()->getFamilyName(&familyName);

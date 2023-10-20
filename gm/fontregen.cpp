@@ -35,6 +35,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
@@ -74,7 +75,7 @@ class FontRegenGM : public skiagm::GM {
     void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorLTGRAY);
 
-        auto tf = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
+        auto tf = ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Normal());
 
         static const SkString kTexts[] = {
             SkString("abcdefghijklmnopqrstuvwxyz"),

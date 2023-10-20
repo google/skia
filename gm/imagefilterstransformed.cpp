@@ -29,6 +29,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <utility>
@@ -327,7 +328,7 @@ DEF_SIMPLE_GM(imagefilter_transformed_image, canvas, 256, 256) {
                SkM44::Rotate({0.f, 1.f, 0.f}, SK_ScalarPI / 6.f) *
                SkM44::RectToRect(imageRect, {-1.f, -1.f, 1.f, 1.f});
 
-    SkFont font(ToolUtils::create_portable_typeface());
+    SkFont font = ToolUtils::DefaultPortableFont();
     canvas->drawString("Columns should match", 5.f, 15.f, font, SkPaint());
     canvas->translate(0.f, 10.f);
 

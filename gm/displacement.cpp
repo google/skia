@@ -19,6 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -34,7 +35,7 @@ protected:
     SkString getName() const override { return SkString("displacement"); }
 
     void onOnceBeforeDraw() override {
-        fImage = ToolUtils::create_string_image(80, 80, 0xFF884422, 15, 55, 96, "g");
+        fImage = ToolUtils::CreateStringImage(80, 80, 0xFF884422, 15, 55, 96, "g");
 
         SkColor c1 = ToolUtils::color_to_565(0xFF244484);
         SkColor c2 = ToolUtils::color_to_565(0xFF804020);

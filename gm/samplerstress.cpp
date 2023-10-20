@@ -23,6 +23,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skiagm {
 
@@ -104,7 +105,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setShader(fShader);
         paint.setMaskFilter(fMaskFilter);
-        SkFont font(ToolUtils::create_portable_typeface(), 72);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 72);
 
         SkRect temp;
         temp.setLTRB(115, 75, 144, 110);

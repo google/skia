@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #define WIDTH 700
 #define HEIGHT 560
@@ -37,7 +38,7 @@ protected:
     void onOnceBeforeDraw() override {
         auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(135, 135));
 
-        SkFont  font(ToolUtils::create_portable_typeface(), 64.0f);
+        SkFont  font(ToolUtils::DefaultPortableTypeface(), 64.0f);
         SkPaint paint;
         paint.setColor(0xFFFFFFFF);
         surf->getCanvas()->drawString("ABC", 10, 55,  font, paint);

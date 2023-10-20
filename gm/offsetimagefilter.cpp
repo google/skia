@@ -21,6 +21,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -40,7 +41,7 @@ protected:
     SkISize getISize() override { return SkISize::Make(WIDTH, HEIGHT); }
 
     void onOnceBeforeDraw() override {
-        fBitmap = ToolUtils::create_string_image(80, 80, 0xD000D000, 15, 65, 96, "e");
+        fBitmap = ToolUtils::CreateStringImage(80, 80, 0xD000D000, 15, 65, 96, "e");
 
         fCheckerboard = ToolUtils::create_checkerboard_image(80, 80, 0xFFA0A0A0, 0xFF404040, 8);
     }

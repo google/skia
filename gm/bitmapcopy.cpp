@@ -21,6 +21,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -107,7 +108,7 @@ class BitmapCopyGM : public skiagm::GM {
         canvas->clear(0xFFDDDDDD);
         paint.setAntiAlias(true);
 
-        SkFont font(ToolUtils::create_portable_typeface());
+        SkFont font = ToolUtils::DefaultPortableFont();
 
         SkScalar width = SkIntToScalar(40);
         SkScalar height = SkIntToScalar(40);

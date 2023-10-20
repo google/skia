@@ -26,6 +26,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
@@ -82,7 +83,7 @@ class SrcModeGM : public skiagm::GM {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;
-        SkFont  font(ToolUtils::create_portable_typeface(), H / 4);
+        SkFont  font(ToolUtils::DefaultPortableTypeface(), H / 4);
         paint.setColor(0x80F60000);
 
         const Proc procs[] = {

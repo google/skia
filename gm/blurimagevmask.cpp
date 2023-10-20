@@ -22,6 +22,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <stdio.h>
 
@@ -30,7 +31,7 @@ DEF_SIMPLE_GM(blurimagevmask, canvas, 700, 1200) {
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLACK);
 
-    SkFont font(ToolUtils::create_portable_typeface(), 25);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 25);
 
     const double sigmas[] = {3.0, 8.0, 16.0, 24.0, 32.0};
 

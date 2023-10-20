@@ -18,6 +18,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static void make_bm(SkBitmap* bm) {
     const SkColor colors[4] = {
@@ -58,7 +59,7 @@ static SkScalar draw_row(SkCanvas* canvas, sk_sp<SkImage> img) {
     SkScalar x = 0;
     const int scale = 32;
 
-    SkFont      font(ToolUtils::create_portable_typeface());
+    SkFont      font = ToolUtils::DefaultPortableFont();
     const char* name = ToolUtils::colortype_name(img->colorType());
     canvas->drawString(name, x, SkIntToScalar(img->height())*scale*5/8, font, paint);
     canvas->translate(SkIntToScalar(48), 0);

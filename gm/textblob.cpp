@@ -23,6 +23,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTDArray.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstring>
 
@@ -86,7 +87,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fTypeface = ToolUtils::create_portable_typeface("serif", SkFontStyle());
+        fTypeface = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
         SkFont font(fTypeface);
         size_t txtLen = strlen(fText);
         int glyphCount = font.countText(fText, txtLen, SkTextEncoding::kUTF8);

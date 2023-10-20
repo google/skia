@@ -20,6 +20,7 @@
 #include "include/core/SkTypes.h"
 #include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skiagm {
 
@@ -293,7 +294,7 @@ class DegenerateSegmentsGM : public GM {
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
-        SkFont     font(ToolUtils::create_portable_typeface(), 15);
+        SkFont     font(ToolUtils::DefaultPortableTypeface(), 15);
         const char title[] = "Random Paths Drawn Into Rectangle Clips With "
                              "Indicated Style, Fill and Linecaps, "
                              "with Stroke width 6";

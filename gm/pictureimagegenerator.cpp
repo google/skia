@@ -35,6 +35,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/image/SkImageGeneratorPriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 #include <memory>
@@ -48,7 +49,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkFont font(ToolUtils::create_portable_typeface());
+    SkFont font = ToolUtils::DefaultPortableFont();
     font.setSubpixel(true);
     font.setEmbolden(true);
 

@@ -23,6 +23,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
     SkBlurStyle NONE = SkBlurStyle(-999);
@@ -57,7 +58,7 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
     }
     // draw text
     {
-        SkFont font(ToolUtils::create_portable_typeface(), 25);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 25);
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle,
                                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4))));
         SkScalar x = SkIntToScalar(70);

@@ -24,6 +24,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/gpu/BlurUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <vector>
 
@@ -57,7 +58,7 @@ protected:
         SkScalar pos[2] = { 0, 80.0f };
         paint.setShader(SkGradientShader::MakeLinear(
             pts, fColors, pos, 2, SkTileMode::kClamp));
-        SkFont font(ToolUtils::create_portable_typeface(), 180.0f);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 180.0f);
         surf->getCanvas()->drawString("e", -10.0f, 80.0f, font, paint);
         fImage = surf->makeImageSnapshot();
     }

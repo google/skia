@@ -23,6 +23,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // Create a square atlas of:
 //   opaque white  |     opaque red
@@ -139,7 +140,7 @@ protected:
             quadColors[i] = gColors[i];
         }
 
-        SkFont font(ToolUtils::create_portable_typeface(), kTextPad);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), kTextPad);
 
         for (int i = 0; i < numModes; ++i) {
             const char* label = SkBlendMode_Name(gModes[i]);

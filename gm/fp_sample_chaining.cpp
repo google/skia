@@ -19,6 +19,7 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace {
 
@@ -129,7 +130,7 @@ SkBitmap make_test_bitmap() {
     bitmap.allocN32Pixels(64, 64);
     SkCanvas canvas(bitmap);
 
-    SkFont font(ToolUtils::create_portable_typeface());
+    SkFont font = ToolUtils::DefaultPortableFont();
     const char* alpha = "ABCDEFGHIJKLMNOP";
 
     for (int i = 0; i < 16; ++i) {

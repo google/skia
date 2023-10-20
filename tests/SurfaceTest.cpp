@@ -68,6 +68,7 @@
 #include "tests/TestHarness.h"
 #include "tools/RuntimeBlendUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
@@ -532,7 +533,7 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
     EXPECT_COPY_ON_WRITE(drawPath(testPath, testPaint))
     EXPECT_COPY_ON_WRITE(drawImage(testBitmap.asImage(), 0, 0))
     EXPECT_COPY_ON_WRITE(drawImageRect(testBitmap.asImage(), testRect, SkSamplingOptions()))
-    EXPECT_COPY_ON_WRITE(drawString(testText, 0, 1, SkFont(), testPaint))
+    EXPECT_COPY_ON_WRITE(drawString(testText, 0, 1, ToolUtils::DefaultPortableFont(), testPaint))
 }
 DEF_TEST(SurfaceCopyOnWrite, reporter) {
     test_copy_on_write(reporter, create_surface().get());

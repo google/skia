@@ -23,6 +23,7 @@
 #include "src/core/SkAAClip.h"
 #include "src/core/SkMask.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skiagm {
 
@@ -164,7 +165,7 @@ protected:
         };
 
         SkPaint textPaint;
-        SkFont  font(ToolUtils::create_portable_typeface(), 24);
+        SkFont  font(ToolUtils::DefaultPortableTypeface(), 24);
         int xOff = 0;
 
         for (size_t op = 0; op < std::size(gOps); op++) {

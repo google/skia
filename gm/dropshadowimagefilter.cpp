@@ -22,6 +22,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -54,7 +55,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     paint.setColor(SK_ColorGREEN);
     paint.setAntiAlias(true);
 
-    SkFont font(ToolUtils::create_portable_typeface(), r.height() / 2);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), r.height() / 2);
     canvas->save();
     canvas->clipRect(r);
     SkTextUtils::DrawString(canvas, "Text", r.centerX(), r.centerY(), font, paint, SkTextUtils::kCenter_Align);

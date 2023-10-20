@@ -45,6 +45,7 @@
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 #include "src/shaders/SkImageShader.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 using namespace skgpu::graphite;
 
@@ -828,7 +829,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context,
                                                             skgpu::Budgeted::kNo);
     constexpr SkIPoint fakeDstOffset = SkIPoint::Make(0, 0);
 
-    SkFont font(ToolUtils::create_portable_typeface(), 16);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 16);
     const char text[] = "hambur";
 
     // TODO: add a drawVertices call w/o colors. That impacts whether the RenderSteps emit

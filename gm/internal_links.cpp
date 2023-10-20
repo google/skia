@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace {
 
@@ -62,7 +63,7 @@ class InternalLinksGM : public skiagm::GM {
                                        SkIntToScalar(50), SkIntToScalar(20));
         canvas->drawRect(rect, paint);
 
-        SkFont font(ToolUtils::create_portable_typeface(), 25);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 25);
         paint.setColor(SK_ColorBLACK);
         canvas->drawString(text, x, y, font, paint);
     }

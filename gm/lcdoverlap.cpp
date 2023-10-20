@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skiagm {
 
@@ -40,7 +41,7 @@ protected:
         // build text blob
         SkTextBlobBuilder builder;
 
-        SkFont      font(ToolUtils::create_portable_typeface(), 32);
+        SkFont      font(ToolUtils::DefaultPortableTypeface(), 32);
         const char* text = "able was I ere I saw elba";
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);

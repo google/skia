@@ -59,6 +59,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <algorithm>
 #include <array>
@@ -577,7 +578,7 @@ static void TestTypefaceSerialization(skiatest::Reporter* reporter, sk_sp<SkType
 DEF_TEST(Serialization_Typeface, reporter) {
     SkFont font;
     TestTypefaceSerialization(reporter, SkFontPriv::RefTypefaceOrDefault(font));
-    TestTypefaceSerialization(reporter, ToolUtils::sample_user_typeface());
+    TestTypefaceSerialization(reporter, ToolUtils::SampleUserTypeface());
 }
 
 static void setup_bitmap_for_canvas(SkBitmap* bitmap) {

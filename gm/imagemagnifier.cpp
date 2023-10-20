@@ -23,6 +23,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <utility>
@@ -33,7 +34,7 @@
 static void draw_content(SkCanvas* canvas, float maxTextSize, int count) {
     const char* str = "The quick brown fox jumped over the lazy dog.";
     SkRandom rand;
-    SkFont      font(ToolUtils::create_portable_typeface());
+    SkFont   font = ToolUtils::DefaultPortableFont();
     for (int i = 0; i < count; ++i) {
         int x = rand.nextULessThan(WIDTH);
         int y = rand.nextULessThan(HEIGHT);

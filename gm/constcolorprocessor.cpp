@@ -38,6 +38,7 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/gpu/TestOps.h"
 
 #include <utility>
@@ -146,7 +147,7 @@ protected:
                 // Draw labels for the input to the processor and the processor to the right of
                 // the test rect. The input label appears above the processor label.
                 SkFont labelFont;
-                labelFont.setTypeface(ToolUtils::create_portable_typeface());
+                labelFont.setTypeface(ToolUtils::DefaultPortableTypeface());
                 labelFont.setEdging(SkFont::Edging::kAntiAlias);
                 labelFont.setSize(10.f);
                 SkPaint labelPaint;

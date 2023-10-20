@@ -18,6 +18,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstddef>
 
@@ -85,7 +86,7 @@ DEF_TEST(Font_flatten, reporter) {
         kAllBits,
     };
     const sk_sp<SkTypeface> typefaces[] = {
-        nullptr, ToolUtils::sample_user_typeface()
+        nullptr, ToolUtils::SampleUserTypeface()
     };
 
     SkFont font;

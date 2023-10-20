@@ -17,6 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "src/base/SkRandom.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                      const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -83,7 +84,7 @@ static void draw(SkCanvas* canvas, bool doClose) {
         titlePaint.setColor(SK_ColorBLACK);
         titlePaint.setAntiAlias(true);
 
-        SkFont font(ToolUtils::create_portable_typeface(), 15.0f);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 15.0f);
 
         const char titleNoClose[] = "Line Drawn Into Rectangle Clips With "
             "Indicated Style, Fill and Linecaps, with stroke width 10";

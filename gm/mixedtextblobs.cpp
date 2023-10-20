@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -48,7 +49,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        fEmojiTypeface      = ToolUtils::planet_typeface();
+        fEmojiTypeface      = ToolUtils::PlanetTypeface();
         fEmojiText = "♁♃";
         fReallyBigATypeface = MakeResourceAsTypeface("fonts/ReallyBigA.ttf");
 
@@ -56,7 +57,7 @@ protected:
 
         // make textblob
         // Text so large we draw as paths
-        SkFont font(ToolUtils::create_portable_typeface(), 385);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 385);
         font.setEdging(SkFont::Edging::kAlias);
         const char* text = "O";
 

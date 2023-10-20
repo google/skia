@@ -14,13 +14,14 @@
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkZip.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static const char gText[] = "Call me Ishmael. Some years ago—never mind how long precisely";
 
 class DrawGlyphsGM : public skiagm::GM {
 public:
     void onOnceBeforeDraw() override {
-        fTypeface = ToolUtils::create_portable_typeface("serif", SkFontStyle());
+        fTypeface = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
         fFont = SkFont(fTypeface);
         fFont.setSubpixel(true);
         fFont.setSize(18);

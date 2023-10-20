@@ -839,6 +839,7 @@ skia_cc_library(
         "SK_SLUG_DISABLE_LEGACY_DESERIALIZE",
         "SK_DISABLE_LEGACY_PNG_WRITEBUFFER",
         "SK_DISABLE_LEGACY_IMAGE_READBUFFER",
+        "SK_DEFAULT_TYPEFACE_IS_EMPTY",
     ],
     textual_hdrs = [
         "//src/opts:textual_hdrs",

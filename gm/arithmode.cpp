@@ -28,6 +28,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -64,7 +65,7 @@ static sk_sp<SkImage> make_dst(int w, int h) {
 }
 
 static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar k[]) {
-    SkFont font(ToolUtils::create_portable_typeface(), 24);
+    SkFont font(ToolUtils::DefaultPortableTypeface(), 24);
     font.setEdging(SkFont::Edging::kAntiAlias);
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -159,7 +160,7 @@ class ArithmodeGM : public skiagm::GM {
                 canvas->translate(gap, 0);
 
                 // Label
-                SkFont   font(ToolUtils::create_portable_typeface(), 24);
+                SkFont   font(ToolUtils::DefaultPortableTypeface(), 24);
                 SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
                 canvas->drawString(str, 0, font.getSize(), font, SkPaint());
             }

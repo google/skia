@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -37,7 +38,7 @@ protected:
 
         // make textblob
         // Large text is used to trigger atlas eviction
-        SkFont font(ToolUtils::create_portable_typeface(), 256);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 256);
         font.setEdging(SkFont::Edging::kAlias);
         const char* text = "AB";
 

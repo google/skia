@@ -19,22 +19,11 @@ across platforms and configurations.
 GM font selection
 -----------------
 
-Each gm specifies the typeface to use when drawing text. For now, to set the
-portable typeface on the paint, call:
+Each gm specifies the typeface to use when drawing text. To create a portable
+typeface, use:
 
 ~~~~
-ToolUtils::set_portable_typeface(SkPaint* , const char* name = nullptr,
-SkFontStyle style = SkFontStyle());
-~~~~
-
-To create a portable typeface, use:
-
-~~~~
-SkTypeface* typeface = ToolUtils::create_portable_typeface(const char* name,
+SkTypeface* typeface = ToolUtils::CreatePortableTypeface(const char* name,
 SkFontStyle style);
 ~~~~
-
-Eventually, both `set_portable_typeface()` and `create_portable_typeface()` will be
-removed. Instead, a test-wide `SkFontMgr` will be selected to choose portable
-fonts or resource fonts.
 

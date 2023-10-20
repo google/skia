@@ -25,6 +25,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 using MaskFormat = skgpu::MaskFormat;
 
@@ -59,12 +60,12 @@ protected:
     SkISize getISize() override { return SkISize::Make(kSize, kSize); }
 
     void onOnceBeforeDraw() override {
-        fTypefaces[0] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic());
-        fTypefaces[1] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Italic());
-        fTypefaces[2] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Normal());
-        fTypefaces[3] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Normal());
-        fTypefaces[4] = ToolUtils::create_portable_typeface("serif", SkFontStyle::Bold());
-        fTypefaces[5] = ToolUtils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
+        fTypefaces[0] = ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Italic());
+        fTypefaces[1] = ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Italic());
+        fTypefaces[2] = ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Normal());
+        fTypefaces[3] = ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Normal());
+        fTypefaces[4] = ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Bold());
+        fTypefaces[5] = ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Bold());
     }
 
     void onDraw(SkCanvas* canvas) override {

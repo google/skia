@@ -19,6 +19,7 @@
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 /**
  *  Skia may draw from outlines when the size is very large, so we exercise that
@@ -37,7 +38,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkFont font(ToolUtils::create_portable_typeface(), 1500);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), 1500);
 
         SkRect r;
         (void)font.measureText("/", 1, SkTextEncoding::kUTF8, &r);
