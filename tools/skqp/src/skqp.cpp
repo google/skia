@@ -27,6 +27,10 @@
 #include "tools/gpu/vk/VkTestContext.h"
 #endif
 
+#ifdef SK_GRAPHITE
+#include "include/gpu/graphite/ContextOptions.h"
+#endif
+
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
 #endif
@@ -149,15 +153,32 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
             fErrors.push_back(std::string(desc.c_str(), desc.size()));
         }
     } r;
-    GrContextOptions options;
-    if (test->fCTSEnforcement.eval(fEnforcedAndroidAPILevel) ==
-        CtsEnforcement::RunMode::kRunStrict) {
-        options.fDisableDriverCorrectnessWorkarounds = true;
+
+    if (test->fTestType == skiatest::TestType::kGanesh) {
+        GrContextOptions options;
+        if (test->fCTSEnforcement.eval(fEnforcedAndroidAPILevel) ==
+            CtsEnforcement::RunMode::kRunStrict) {
+            options.fDisableDriverCorrectnessWorkarounds = true;
+        }
+        if (test->fGaneshContextOptionsProc) {
+            test->fGaneshContextOptionsProc(&options);
+        }
+        test->ganesh(&r, options);
     }
-    if (test->fGaneshContextOptionsProc) {
-        test->fGaneshContextOptionsProc(&options);
+#ifdef SK_GRAPHITE
+    else if (test->fTestType == skiatest::TestType::kGraphite) {
+        skgpu::graphite::ContextOptions options;
+        if (test->fCTSEnforcement.eval(fEnforcedAndroidAPILevel) ==
+            CtsEnforcement::RunMode::kRunStrict) {
+            options.fDisableDriverCorrectnessWorkarounds = true;
+        }
+        if (test->fGraphiteContextOptionsProc) {
+            test->fGraphiteContextOptionsProc(&options);
+        }
+        test->graphite(&r, options);
     }
-    test->ganesh(&r, options);
+#endif
+
     fTestResults.push_back(TestResult{test->fName, r.fErrors});
     return r.fErrors;
 }

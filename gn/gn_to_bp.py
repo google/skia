@@ -681,9 +681,10 @@ gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'cflags_cc',
 gn_to_bp_utils.GrabDependentValues(js_skqp, '//:libskqp_jni', 'defines',
                                    skqp_defines, None)
 
-skqp_defines.add("SK_ENABLE_DUMP_GPU")
-skqp_defines.add("SK_BUILD_FOR_SKQP")
+skqp_defines.add("GRAPHITE_TEST_UTILS")
 skqp_defines.add("SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1")
+skqp_defines.add("SK_BUILD_FOR_SKQP")
+skqp_defines.add("SK_ENABLE_DUMP_GPU")
 skqp_defines.remove("SK_USE_PERFETTO")
 
 skqp_srcs = strip_headers(skqp_srcs)

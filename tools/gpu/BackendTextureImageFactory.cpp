@@ -22,7 +22,6 @@
 #ifdef SK_GRAPHITE
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "src/gpu/graphite/ImageFactories.cpp"
 #include "src/gpu/graphite/RecorderPriv.h"
 #endif
 

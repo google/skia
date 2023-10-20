@@ -8,6 +8,7 @@ def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
         'is_debug':                         'true' if debug else 'false',
         'skia_enable_fontmgr_android':      'false',
         'skia_enable_fontmgr_empty':        'true',
+        'skia_enable_graphite':             'true',
         'skia_enable_pdf':                  'false',
         'skia_enable_skottie':              'false',
         'skia_enable_skshaper':             'false',
@@ -35,6 +36,8 @@ def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
             'target_os':          gn_quote("android"),
             'target_cpu':         gn_quote("none"),
             'is_official_build':  'true',
+            # gn_to_bp.py copies vk_mem_alloc.h to //vma_android/include
+            'skia_vulkan_memory_allocator_dir': '"//vma_android"',
         })
     else:
         gn_args.update({
