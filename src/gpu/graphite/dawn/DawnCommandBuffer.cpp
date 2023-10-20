@@ -284,28 +284,40 @@ bool DawnCommandBuffer::loadMSAAFromResolveAndBeginRenderPassEncoder(
     wgpuIntermediateRenderPassDesc.colorAttachmentCount = 1;
     wgpuIntermediateRenderPassDesc.colorAttachments = &wgpuIntermediateColorAttachment;
 
-    fActiveRenderPassEncoder = fCommandEncoder.BeginRenderPass(&wgpuIntermediateRenderPassDesc);
+    auto renderPassEncoder = fCommandEncoder.BeginRenderPass(&wgpuIntermediateRenderPassDesc);
 
-    if (!this->doBlitWithDraw(
-                intermediateRenderPassDesc,
-                /*sourceTextureView=*/wgpuRenderPassDesc.colorAttachments[0].resolveTarget,
-                msaaTexture->dimensions().width(),
-                msaaTexture->dimensions().height())) {
+    bool blitSucceeded = this->doBlitWithDraw(
+            renderPassEncoder,
+            intermediateRenderPassDesc,
+            /*sourceTextureView=*/wgpuRenderPassDesc.colorAttachments[0].resolveTarget,
+            msaaTexture->dimensions().width(),
+            msaaTexture->dimensions().height());
+
+    renderPassEncoder.End();
+
+    if (!blitSucceeded) {
         return false;
     }
 
-    fActiveRenderPassEncoder.End();
-
     // Start actual render pass (blit from MSAA load texture -> MSAA texture)
-    fActiveRenderPassEncoder = fCommandEncoder.BeginRenderPass(&wgpuRenderPassDesc);
+    renderPassEncoder = fCommandEncoder.BeginRenderPass(&wgpuRenderPassDesc);
 
-    return this->doBlitWithDraw(frontendRenderPassDesc,
-                                /*sourceTextureView=*/msaaLoadTexture->renderTextureView(),
-                                msaaTexture->dimensions().width(),
-                                msaaTexture->dimensions().height());
+    if (!this->doBlitWithDraw(renderPassEncoder,
+                              frontendRenderPassDesc,
+                              /*sourceTextureView=*/msaaLoadTexture->renderTextureView(),
+                              msaaTexture->dimensions().width(),
+                              msaaTexture->dimensions().height())) {
+        renderPassEncoder.End();
+        return false;
+    }
+
+    fActiveRenderPassEncoder = renderPassEncoder;
+
+    return true;
 }
 
-bool DawnCommandBuffer::doBlitWithDraw(const RenderPassDesc& frontendRenderPassDesc,
+bool DawnCommandBuffer::doBlitWithDraw(const wgpu::RenderPassEncoder& renderEncoder,
+                                       const RenderPassDesc& frontendRenderPassDesc,
                                        const wgpu::TextureView& sourceTextureView,
                                        int width,
                                        int height) {
@@ -315,9 +327,9 @@ bool DawnCommandBuffer::doBlitWithDraw(const RenderPassDesc& frontendRenderPassD
         return false;
     }
 
-    SkASSERT(fActiveRenderPassEncoder);
+    SkASSERT(renderEncoder);
 
-    fActiveRenderPassEncoder.SetPipeline(loadPipeline);
+    renderEncoder.SetPipeline(loadPipeline);
 
     // The load msaa pipeline takes no uniforms, no vertex/instance attributes and only uses
     // one texture that does not require a sampler.
@@ -335,13 +347,13 @@ bool DawnCommandBuffer::doBlitWithDraw(const RenderPassDesc& frontendRenderPassD
 
     auto bindGroup = fSharedContext->device().CreateBindGroup(&desc);
 
-    fActiveRenderPassEncoder.SetBindGroup(0, bindGroup);
+    renderEncoder.SetBindGroup(0, bindGroup);
 
-    fActiveRenderPassEncoder.SetScissorRect(0, 0, width, height);
-    fActiveRenderPassEncoder.SetViewport(0, 0, width, height, 0, 1);
+    renderEncoder.SetScissorRect(0, 0, width, height);
+    renderEncoder.SetViewport(0, 0, width, height, 0, 1);
 
     // Fullscreen triangle
-    fActiveRenderPassEncoder.Draw(3);
+    renderEncoder.Draw(3);
 
     return true;
 }

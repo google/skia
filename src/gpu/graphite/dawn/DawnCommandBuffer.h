@@ -59,7 +59,8 @@ private:
             const RenderPassDesc& frontendRenderPassDesc,
             const wgpu::RenderPassDescriptor& wgpuRenderPassDesc,
             const DawnTexture* msaaTexture);
-    bool doBlitWithDraw(const RenderPassDesc& frontendRenderPassDesc,
+    bool doBlitWithDraw(const wgpu::RenderPassEncoder& renderEncoder,
+                        const RenderPassDesc& frontendRenderPassDesc,
                         const wgpu::TextureView& sourceTextureView,
                         int width,
                         int height);
