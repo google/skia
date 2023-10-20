@@ -86,7 +86,7 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     // transfer dst usage bit in case we need to do a copy to write data. It doesn't really hurt
     // to set this extra usage flag, but we could narrow the scope of buffers we set it on more than
     // just not dynamic.
-    if (!requiresMappable) {
+    if (!requiresMappable || accessPattern == AccessPattern::kGpuOnly) {
         bufInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     }
 
