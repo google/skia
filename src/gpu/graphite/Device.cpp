@@ -845,6 +845,12 @@ void Device::drawGeometry(const Transform& localToDevice,
         return;
     }
 
+    if (geometry.isShape() && geometry.shape().isPath() && geometry.shape().path().isEmpty()) {
+        // Don't try to draw any empty paths
+        SKGPU_LOG_D("Skipping empty path.");
+        return;
+    }
+
     // Heavy weight paint options like path effects, mask filters, and stroke-and-fill style are
     // applied on the CPU by generating a new shape and recursing on drawShape() with updated flags
     if (!(flags & DrawFlags::kIgnorePathEffect) && paint.getPathEffect()) {
