@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 #include "src/gpu/graphite/dawn/DawnComputePipeline.h"
+#include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
@@ -78,7 +79,13 @@ wgpu::RenderPipeline create_blit_render_pipeline(const wgpu::Device& device,
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
-    return device.CreateRenderPipeline(&descriptor);
+    DawnErrorChecker errorChecker(device);
+    auto pipeline = device.CreateRenderPipeline(&descriptor);
+    if (errorChecker.popErrorScopes() != DawnErrorType::kNoError) {
+        return nullptr;
+    }
+
+    return pipeline;
 }
 }  // namespace
 
