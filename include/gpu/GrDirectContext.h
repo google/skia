@@ -345,9 +345,10 @@ public:
 
     /**
      * Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
-     * executing any more commands on the GPU. If this call returns false, then the GPU back-end
-     * will not wait on any passed in semaphores, and the client will still own the semaphores,
-     * regardless of the value of deleteSemaphoresAfterWait.
+     * executing any more commands on the GPU. We only guarantee blocking transfer and fragment
+     * shader work, but may block earlier stages as well depending on the backend.If this call
+     * returns false, then the GPU back-end will not wait on any passed in semaphores, and the
+     * client will still own the semaphores, regardless of the value of deleteSemaphoresAfterWait.
      *
      * If deleteSemaphoresAfterWait is false then Skia will not delete the semaphores. In this case
      * it is the client's responsibility to not destroy or attempt to reuse the semaphores until it

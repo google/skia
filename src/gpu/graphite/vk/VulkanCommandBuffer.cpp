@@ -309,7 +309,8 @@ bool VulkanCommandBuffer::submit(VkQueue queue) {
     int waitCount = fWaitSemaphores.size();
     TArray<VkPipelineStageFlags> vkWaitStages(waitCount);
     for (int i = 0; i < waitCount; ++i) {
-        vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        vkWaitStages.push_back(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                               VK_PIPELINE_STAGE_TRANSFER_BIT);
     }
 
     bool submitted = submit_to_queue(interface,
