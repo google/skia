@@ -1,9 +1,4 @@
 ### Compilation failed:
 
-error: 9: 'in' is not permitted here
-in S8 s8;
-^^
-error: 19: 'in' is not permitted here
-in SA8 sa8[2];
-^^
-2 errors
+error: code has no entrypoint
+1 error

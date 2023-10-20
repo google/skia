@@ -1240,12 +1240,21 @@ void WGSLCodeGenerator::writePipelineIODeclaration(const Layout& layout,
     // https://www.w3.org/TR/WGSL/#builtin-inputs-outputs
     if (layout.fLocation >= 0) {
         this->writeUserDefinedIODecl(layout, type, name, delimiter);
-    } else if (layout.fBuiltin >= 0) {
+        return;
+    }
+    if (layout.fBuiltin >= 0) {
+        if (layout.fBuiltin == SK_POINTSIZE_BUILTIN) {
+            // WebGPU does not support the point-size builtin, but we silently replace it with a
+            // global variable when it is used, instead of reporting an error.
+            return;
+        }
         auto builtin = builtin_from_sksl_name(layout.fBuiltin);
         if (builtin.has_value()) {
             this->writeBuiltinIODecl(type, name, *builtin, delimiter);
+            return;
         }
     }
+    fContext.fErrors->error(Position(), "declaration '" + std::string(name) + "' is not supported");
 }
 
 void WGSLCodeGenerator::writeUserDefinedIODecl(const Layout& layout,
@@ -3849,7 +3858,7 @@ void WGSLCodeGenerator::writeStageInputStruct() {
     fIndentation++;
 
     for (const Variable* v : fPipelineInputs) {
-        if (v->interfaceBlock()) {
+        if (v->type().isInterfaceBlock()) {
             for (const Field& f : v->type().fields()) {
                 this->writePipelineIODeclaration(f.fLayout, *f.fType, f.fName, Delimiter::kComma);
             }

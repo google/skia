@@ -23,7 +23,6 @@ struct S7 {
 struct S8 {
     S7 x;
 };
-in S8 s8;
 struct SA1 {
     int x[2];
 };
@@ -48,4 +47,3 @@ struct SA7 {
 struct SA8 {
     SA7 x[2];
 };
-in SA8 sa8[2];

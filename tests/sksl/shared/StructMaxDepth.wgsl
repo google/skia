@@ -1,13 +1,4 @@
-### Compilation failed:
-
-error: :2:1 error: structures must have at least one member
-struct FSIn {
-^^^^^^
-
-
 diagnostic(off, derivative_uniformity);
-struct FSIn {
-};
 struct S1 {
   x: i32,
 };
@@ -56,5 +47,3 @@ struct SA7 {
 struct SA8 {
   x: array<SA7, 2>,
 };
-
-1 error
