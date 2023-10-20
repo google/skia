@@ -161,9 +161,10 @@ public:
     /**
      * Writes keySize() bytes into the provided pointer. Assumes that there is enough
      * space allocated for the key and that keySize() does not return a negative value
-     * for this shape.
+     * for this shape. If includeInverted is false, non-inverted state will be written
+     * into the key regardless of the Shape's state.
      */
-    void writeKey(uint32_t* key) const;
+    void writeKey(uint32_t* key, bool includeInverted) const;
 
 private:
     void setType(Type type) {
@@ -173,9 +174,13 @@ private:
         fType = type;
     }
 
-    // Key for the state data in the shape. This includes path fill type,
-    // and any tracked inversion, as well as the class of geometry.
-    uint32_t stateKey() const;
+    /**
+     * Key for the state data in the shape. This includes path fill type,
+     * and any tracked inversion, as well as the class of geometry.
+     * If includeInverted is false, non-inverted state will be written into
+     * the key regardless of the Shape's state.
+     */
+    uint32_t stateKey(bool includeInverted) const;
 
     union {
         Rect    fRect; // p0 = top-left, p1 = bot-right if type is kLine (may be unsorted)

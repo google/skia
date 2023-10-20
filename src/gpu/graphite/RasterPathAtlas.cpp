@@ -164,7 +164,7 @@ skgpu::UniqueKey generate_key(const Shape& shape,
         // all cases we might see.
         uint32_t styleBits = strokeRec.isHairlineStyle() ? ((strokeRec.getCap() << 1) | 1) : 0;
         builder[6] = fracBits | (styleBits << 16);
-        shape.writeKey(&builder[7]);
+        shape.writeKey(&builder[7], /*includeInverted=*/false);
     }
     return maskKey;
 }

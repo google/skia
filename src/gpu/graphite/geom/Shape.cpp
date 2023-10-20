@@ -171,13 +171,13 @@ int Shape::keySize() const {
     return count;
 }
 
-void Shape::writeKey(uint32_t* key) const {
+void Shape::writeKey(uint32_t* key, bool includeInverted) const {
     SkASSERT(this->keySize());
     SkDEBUGCODE(uint32_t* origKey = key;)
 
     // Every key starts with the state from the Shape (this includes path fill type,
     // and any tracked inversion, as well as the class of geometry).
-    *key++ = this->stateKey();
+    *key++ = this->stateKey(includeInverted);
 
     switch(this->type()) {
         case Type::kPath: {
@@ -215,10 +215,31 @@ void Shape::writeKey(uint32_t* key) const {
     SkASSERT(key - origKey == this->keySize());
 }
 
-uint32_t Shape::stateKey() const {
-    // Use the path's full fill type instead of just whether or not it's inverted.
-    uint32_t key = this->isPath() ? static_cast<uint32_t>(fPath.getFillType())
-                                  : (fInverted ? 1 : 0);
+namespace {
+SkPathFillType noninverted_fill_type(SkPathFillType fillType) {
+    switch (fillType) {
+        case SkPathFillType::kWinding:
+        case SkPathFillType::kInverseWinding:
+            return SkPathFillType::kWinding;
+        case SkPathFillType::kEvenOdd:
+        case SkPathFillType::kInverseEvenOdd:
+            return SkPathFillType::kEvenOdd;
+    }
+    SkUNREACHABLE;
+}
+} // anonymous namespace
+
+uint32_t Shape::stateKey(bool includeInverted) const {
+    uint32_t key;
+    if (includeInverted) {
+        // Use the path's full fill type instead of just whether or not it's inverted.
+        key = this->isPath() ? static_cast<uint32_t>(fPath.getFillType())
+                             : (fInverted ? 1 : 0);
+    } else {
+        // Use the path's noninverted fill type.
+        key = this->isPath() ? static_cast<uint32_t>(noninverted_fill_type(fPath.getFillType()))
+                             : 0;
+    }
     key |= ((uint32_t) fType) << 2; // fill type was 2 bits
     return key;
 }
