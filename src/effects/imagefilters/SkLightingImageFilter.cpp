@@ -207,7 +207,7 @@ sk_sp<SkShader> make_normal_shader(sk_sp<SkShader> alphaMap,
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform shader alphaMap;"
         "uniform float4 edgeBounds;"
-        "uniform half surfaceDepth;"
+        "uniform half negSurfaceDepth;"
 
         "half3 normal(half3 alphaC0, half3 alphaC1, half3 alphaC2) {"
             // The right column (or bottom row) terms of the Sobel filter. The left/top is just
@@ -217,7 +217,7 @@ sk_sp<SkShader> make_normal_shader(sk_sp<SkShader> alphaMap,
             "half3 alphaR2 = half3(alphaC0.z, alphaC1.z, alphaC2.z);"
             "half nx = dot(kSobel, alphaC2) - dot(kSobel, alphaC0);"
             "half ny = dot(kSobel, alphaR2) - dot(kSobel, alphaR0);"
-            "return normalize(half3(-surfaceDepth*half2(nx, ny), 1));"
+            "return normalize(half3(negSurfaceDepth * half2(nx, ny), 1));"
         "}"
 
         "half4 main(float2 coord) {"
@@ -241,7 +241,7 @@ sk_sp<SkShader> make_normal_shader(sk_sp<SkShader> alphaMap,
     SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
     builder.child("alphaMap") = std::move(alphaMap);
     builder.uniform("edgeBounds") = SkRect::Make(SkIRect(edgeBounds)).makeInset(0.5f, 0.5f);
-    builder.uniform("surfaceDepth") = surfaceDepth.val();
+    builder.uniform("negSurfaceDepth") = -surfaceDepth.val();
 
     return builder.makeShader();
 }
