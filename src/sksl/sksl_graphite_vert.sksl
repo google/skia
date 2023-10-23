@@ -875,7 +875,7 @@ float4 text_vertex_fn(float2 baseCoords,
     unormTexCoords = baseCoords + uvPos;
     textureCoords = unormTexCoords * atlasSizeInv;
 
-    return float4(position.xy, depth, position.w);
+    return float4(position.xy, depth*position.w, position.w);
 }
 
 float4 coverage_mask_vertex_fn(float2 quadCoords,
@@ -939,7 +939,7 @@ float4 cover_bounds_vertex_fn(float2 corner,
         corner = mix(bounds.LT, bounds.RB, corner);
         float3 devCorner = matrix * corner.xy1;
         stepLocalCoords = corner;
-        return float4(devCorner.xy, depth, devCorner.z);
+        return float4(devCorner.xy, depth*devCorner.z, devCorner.z);
     } else {
         // An inverse fill
         corner = mix(bounds.RB, bounds.LT, corner);
