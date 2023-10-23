@@ -89,9 +89,8 @@ float4 main(float2 _21)
     x = _102;
     y = 6.0f;
     z = 6;
-    int2 _120 = (~5).xx;
-    int2 w = _120;
-    int2 _121 = ~_120;
+    int2 w = int2(-6, -6);
+    int2 _121 = ~int2(-6, -6);
     w = _121;
     bool _128 = false;
     if (_121.x == 5)

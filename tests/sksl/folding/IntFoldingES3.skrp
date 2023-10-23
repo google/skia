@@ -1,4 +1,4 @@
-43 instructions
+52 instructions
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -21,6 +21,15 @@ copy_slot_unmasked             _0_ok = $0
 copy_constant                  _1_x = 0x00000010 (2.242078e-44)
 copy_2_slots_unmasked          $0..1 = _0_ok, _1_x
 cmpeq_imm_int                  $1 = equal($1, 0x00000010)
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             _0_ok = $0
+bitwise_xor_imm_int            _1_x ^= 0xFFFFFFFF
+copy_2_slots_unmasked          $0..1 = _0_ok, _1_x
+cmpeq_imm_int                  $1 = equal($1, 0xFFFFFFEF)
+bitwise_and_int                $0 &= $1
+copy_slot_unmasked             _0_ok = $0
+copy_slot_unmasked             $1 = _1_x
+cmpeq_imm_int                  $1 = equal($1, 0xFFFFFFEF)
 bitwise_and_int                $0 &= $1
 copy_slot_unmasked             _0_ok = $0
 copy_constant                  _1_x = 0xFFFFFFF8

@@ -76,6 +76,8 @@
     %float_6 = OpConstant %float 6
       %v2int = OpTypeVector %int 2
 %_ptr_Function_v2int = OpTypePointer Function %v2int
+     %int_n6 = OpConstant %int -6
+        %120 = OpConstantComposite %v2int %int_n6 %int_n6
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_entrypoint_v = OpFunction %void None %12
          %13 = OpLabel
@@ -196,8 +198,6 @@
         %114 = OpLoad %v4float %113
         %115 = OpVectorShuffle %v2float %114 %114 2 3
                OpStore %z %int_6
-        %119 = OpNot %int %int_5
-        %120 = OpCompositeConstruct %v2int %119 %119
                OpStore %w %120
         %121 = OpNot %v2int %120
                OpStore %w %121

@@ -30,7 +30,7 @@ bool Expression::isIncomplete(const Context& context) const {
 
         case Kind::kTypeReference:
             context.fErrors->error(fPosition.after(),
-                    "expected '(' to begin constructor invocation");
+                                   "expected '(' to begin constructor invocation");
             return true;
 
         default:

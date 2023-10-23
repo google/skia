@@ -40,7 +40,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     x = float((_uniforms.colorGreen.xy, 6));
     y = float(((((float(b) * float(c)) * float(d)) * float(e)) * float(f), 6.0));
     z = int((_uniforms.colorRed.zw, 6));
-    int2 w = int2(~5);
+    int2 w = int2(-6);
     w = ~w;
     _out.sk_FragColor = (((w.x == 5 && w.y == 5) && x == 6.0) && y == 6.0) && z == 6 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;

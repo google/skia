@@ -2,5 +2,5 @@ int x[~2147483649];
 
 /*%%*
 value is out of range for type 'int': 2147483649
-array size must be an integer
+array size must be positive
 *%%*/

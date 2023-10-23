@@ -34,7 +34,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     x = f32(6);
     y = f32(6.0);
     z = i32(6);
-    var w: vec2<i32> = vec2<i32>(~5);
+    var w: vec2<i32> = vec2<i32>(-6);
     w = ~w;
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((w.x == 5) && (w.y == 5)) && (x == 6.0)) && (y == 6.0)) && (z == 6)));
   }

@@ -10,6 +10,14 @@ bool test() {
     ok = ok && (x == 5);
     x = 1 << 4;
     ok = ok && (x == 16);
+    x = ~~~x;
+    ok = ok && (x == ~16);
+    x = ~~~~x;
+    ok = ok && (x == ~16);
+
+    int3 v = ~int3(12, 34, 56);
+    ok = ok && (v == int3(~12, ~34, ~56));
+
     // Left-shifting a negative integer is undefined in C++, but allowed in GPU shading languages.
     // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29093
     x = -2 << 2;
