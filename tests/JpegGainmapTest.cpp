@@ -257,6 +257,76 @@ DEF_TEST(Codec_multiPictureParams, r) {
         REPORTER_ASSERT(r, mpParams->images[2].dataOffset == 2234524);
         REPORTER_ASSERT(r, mpParams->images[2].size == 38507);
     }
+
+    // Inserting various corrupt values.
+    {
+        const uint8_t bytes[] = {
+                0x4d, 0x50, 0x46, 0x00,  // 0: {'M', 'P', 'F',   0} signature
+                0x4d, 0x4d, 0x00, 0x2a,  // 4: {'M', 'M',   0, '*'} big-endian
+                0x00, 0x00, 0x00, 0x08,  // 8: Index IFD offset
+                0x00, 0x03,              // 12: Number of tags
+                0xb0, 0x00,              // 14: Version tag
+                0x00, 0x07,              // 16: Undefined type
+                0x00, 0x00, 0x00, 0x04,  // 18: Size
+                0x30, 0x31, 0x30, 0x30,  // 22: Value
+                0xb0, 0x01,              // 26: Number of images
+                0x00, 0x04,              // 28: Unsigned long type
+                0x00, 0x00, 0x00, 0x01,  // 30: Count
+                0x00, 0x00, 0x00, 0x02,  // 34: Value
+                0xb0, 0x02,              // 38: MP entry tag
+                0x00, 0x07,              // 40: Undefined type
+                0x00, 0x00, 0x00, 0x20,  // 42: Size
+                0x00, 0x00, 0x00, 0x32,  // 46: Value (offset)
+                0x00, 0x00, 0x00, 0x00,  // 50: Next IFD offset (null)
+                0x20, 0x03, 0x00, 0x00,  // 54: MP Entry 0 attributes
+                0x00, 0x56, 0xda, 0x2f,  // 58: MP Entry 0 size (5691951)
+                0x00, 0x00, 0x00, 0x00,  // 62: MP Entry 0 offset (0)
+                0x00, 0x00, 0x00, 0x00,  // 66: MP Entry 0 dependencies
+                0x00, 0x00, 0x00, 0x00,  // 70: MP Entry 1 attributes.
+                0x00, 0x14, 0xc6, 0x01,  // 74: MP Entry 1 size (1361409)
+                0x00, 0x55, 0x7c, 0x1f,  // 78: MP Entry 1 offset (5602335)
+                0x00, 0x00, 0x00, 0x00,  // 82: MP Entry 1 dependencies
+        };
+
+        // Verify the offsets labeled above.
+        REPORTER_ASSERT(r, bytes[22] == 0x30);
+        REPORTER_ASSERT(r, bytes[26] == 0xb0);
+        REPORTER_ASSERT(r, bytes[38] == 0xb0);
+        REPORTER_ASSERT(r, bytes[54] == 0x20);
+        REPORTER_ASSERT(r, bytes[81] == 0x1f);
+
+        {
+            // Change the version to {'0', '1', '0', '1'}.
+            auto bytesInvalid = SkData::MakeWithCopy(bytes, sizeof(bytes));
+            REPORTER_ASSERT(r, bytes[25] == '0');
+            reinterpret_cast<uint8_t*>(bytesInvalid->writable_data())[25] = '1';
+            REPORTER_ASSERT(r, SkJpegMultiPictureParameters::Make(bytesInvalid) == nullptr);
+        }
+
+        {
+            // Change the number of images to be undefined type instead of unsigned long type.
+            auto bytesInvalid = SkData::MakeWithCopy(bytes, sizeof(bytes));
+            REPORTER_ASSERT(r, bytes[29] == 0x04);
+            reinterpret_cast<uint8_t*>(bytesInvalid->writable_data())[29] = 0x07;
+            REPORTER_ASSERT(r, SkJpegMultiPictureParameters::Make(bytesInvalid) == nullptr);
+        }
+
+        {
+            // Make the MP entries point off of the end of the buffer.
+            auto bytesInvalid = SkData::MakeWithCopy(bytes, sizeof(bytes));
+            REPORTER_ASSERT(r, bytes[49] == 0x32);
+            reinterpret_cast<uint8_t*>(bytesInvalid->writable_data())[49] = 0xFE;
+            REPORTER_ASSERT(r, SkJpegMultiPictureParameters::Make(bytesInvalid) == nullptr);
+        }
+
+        {
+            // Make the MP entries too small.
+            auto bytesInvalid = SkData::MakeWithCopy(bytes, sizeof(bytes));
+            REPORTER_ASSERT(r, bytes[45] == 0x20);
+            reinterpret_cast<uint8_t*>(bytesInvalid->writable_data())[45] = 0x1F;
+            REPORTER_ASSERT(r, SkJpegMultiPictureParameters::Make(bytesInvalid) == nullptr);
+        }
+    }
 }
 
 DEF_TEST(Codec_jpegMultiPicture, r) {
