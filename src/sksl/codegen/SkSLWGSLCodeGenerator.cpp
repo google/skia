@@ -3895,7 +3895,7 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     bool declaredPositionBuiltin = false;
     bool requiresPointSizeBuiltin = false;
     for (const Variable* v : fPipelineOutputs) {
-        if (v->interfaceBlock()) {
+        if (v->type().isInterfaceBlock()) {
             for (const auto& f : v->type().fields()) {
                 this->writePipelineIODeclaration(f.fLayout, *f.fType, f.fName, Delimiter::kComma);
                 if (f.fLayout.fBuiltin == SK_POSITION_BUILTIN) {
@@ -3907,7 +3907,6 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
                     requiresPointSizeBuiltin = true;
                 }
             }
-
         } else {
             this->writePipelineIODeclaration(v->layout(), v->type(), v->mangledName(),
                                              Delimiter::kComma);

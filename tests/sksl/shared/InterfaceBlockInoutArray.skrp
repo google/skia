@@ -1,0 +1,9 @@
+### Compilation failed:
+
+error: 1: interface blocks are not allowed in this kind of program
+in  InterfaceBlockIn  { int x; } i[3];
+    ^^^^^^^^^^^^^^^^
+error: 2: interface blocks are not allowed in this kind of program
+out InterfaceBlockOut { int x; } o[3];
+    ^^^^^^^^^^^^^^^^^
+2 errors
