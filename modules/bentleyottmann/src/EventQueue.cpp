@@ -98,7 +98,7 @@ void EventQueue::handleNextEventPoint(SweepLineInterface* handler) {
     const auto queueEnd = fQueue.end();
     for (; cursor != queueEnd && cursor->where == eventPoint;
          ++cursor) {
-        const Event event = *cursor;
+        const Event& event = *cursor;
         std::visit(visitor, event.type);
     }
 

@@ -20,21 +20,6 @@
 
 namespace bentleyottmann {
 
-struct BoundingBox {
-    Point topLeft = Point::Largest();
-    Point bottomRight = Point::Smallest();
-
-    void addPoint(Point p) {
-        topLeft.x = std::min(p.x, topLeft.x);
-        topLeft.y = std::min(p.y, topLeft.y);
-        bottomRight.x = std::max(p.x, bottomRight.x);
-        bottomRight.y = std::max(p.y, bottomRight.y);
-    }
-};
-
-class EventQueue;
-class SweepStatus;
-
 struct Lower {
     // All Lowers are equal.
     friend bool operator< (const Lower&, const Lower&) {
