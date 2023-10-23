@@ -143,10 +143,11 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
         return nullptr;
     }
 
-    std::string vsSkSL = BuildVertexSkSL(fSharedContext->caps()->resourceBindingRequirements(),
-                                         step,
-                                         useShadingSsboIndex,
-                                         localCoordsNeeded);
+    VertSkSLInfo vsSkSLInfo = BuildVertexSkSL(fSharedContext->caps()->resourceBindingRequirements(),
+                                              step,
+                                              useShadingSsboIndex,
+                                              localCoordsNeeded);
+    const std::string& vsSkSL = vsSkSLInfo.fSkSL;
     if (!SkSLToMSL(&skslCompiler,
                    vsSkSL,
                    SkSL::ProgramKind::kGraphiteVertex,

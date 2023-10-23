@@ -40,12 +40,19 @@ class UniquePaintParamsID;
 
 struct ResourceBindingRequirements;
 
+struct VertSkSLInfo {
+    std::string fSkSL;
+    int fRenderStepUniformsTotalBytes = 0;
+};
+
 struct FragSkSLInfo {
     std::string fSkSL;
     BlendInfo fBlendInfo;
     bool fRequiresLocalCoords = false;
     int fNumTexturesAndSamplers = 0;
     int fNumPaintUniforms = 0;
+    int fRenderStepUniformsTotalBytes = 0;
+    int fPaintUniformsTotalBytes = 0;
 };
 
 std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
@@ -69,10 +76,10 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
 
 DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, Coverage);
 
-std::string BuildVertexSkSL(const ResourceBindingRequirements&,
-                            const RenderStep* step,
-                            bool defineShadingSsboIndexVarying,
-                            bool defineLocalCoordsVarying);
+VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements&,
+                             const RenderStep* step,
+                             bool defineShadingSsboIndexVarying,
+                             bool defineLocalCoordsVarying);
 
 FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                const ShaderCodeDictionary*,
@@ -89,11 +96,13 @@ std::string EmitPaintParamsUniforms(int bufferID,
                                     const Layout layout,
                                     SkSpan<const ShaderNode*> nodes,
                                     int* numPaintUniforms,
+                                    int* paintUniformsTotalBytes,
                                     bool* wrotePaintColor);
 std::string EmitRenderStepUniforms(int bufferID,
                                    const char* name,
                                    const Layout layout,
-                                   SkSpan<const Uniform> uniforms);
+                                   SkSpan<const Uniform> uniforms,
+                                   int* renderStepUniformsTotalBytes);
 std::string EmitPaintParamsStorageBuffer(int bufferID,
                                          const char* bufferTypePrefix,
                                          const char* bufferNamePrefix,

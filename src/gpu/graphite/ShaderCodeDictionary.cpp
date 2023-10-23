@@ -227,6 +227,8 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                                const bool useStorageBuffers,
                                int* numTexturesAndSamplersUsed,
                                int* numPaintUniforms,
+                               int* renderStepUniformTotalBytes,
+                               int* paintUniformsTotalBytes,
                                Swizzle writeSwizzle) {
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
     std::string preamble = EmitVaryings(step,
@@ -240,8 +242,11 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     // API-independent ones.
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
     if (step->numUniforms() > 0) {
-        preamble += EmitRenderStepUniforms(/*bufferID=*/1, "Step",
-                                           bindingReqs.fUniformBufferLayout, step->uniforms());
+        preamble += EmitRenderStepUniforms(/*bufferID=*/1,
+                                           "Step",
+                                           bindingReqs.fUniformBufferLayout,
+                                           step->uniforms(),
+                                           renderStepUniformTotalBytes);
     }
 
     bool wrotePaintColor = false;
@@ -257,6 +262,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                                   : bindingReqs.fUniformBufferLayout,
                 fRootNodes,
                 numPaintUniforms,
+                paintUniformsTotalBytes,
                 &wrotePaintColor);
     }
 

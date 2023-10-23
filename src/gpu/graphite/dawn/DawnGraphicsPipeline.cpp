@@ -307,10 +307,11 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         }
     }
 
-    std::string vsSkSL = BuildVertexSkSL(caps.resourceBindingRequirements(),
-                                         step,
-                                         useShadingSsboIndex,
-                                         localCoordsNeeded);
+    VertSkSLInfo vsSkSLInfo = BuildVertexSkSL(caps.resourceBindingRequirements(),
+                                              step,
+                                              useShadingSsboIndex,
+                                              localCoordsNeeded);
+    const std::string& vsSkSL = vsSkSLInfo.fSkSL;
     if (!SkSLToWGSL(compiler,
                     vsSkSL,
                     SkSL::ProgramKind::kGraphiteVertex,
@@ -393,7 +394,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             entries[0].binding = kIntrinsicUniformBufferIndex;
             entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
             entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
-            entries[0].buffer.hasDynamicOffset = false;
+            entries[0].buffer.hasDynamicOffset = true;
             entries[0].buffer.minBindingSize = 0;
 
             uint32_t numBuffers = 1;
@@ -403,7 +404,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                 entries[numBuffers].visibility =
                         wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
                 entries[numBuffers].buffer.type = wgpu::BufferBindingType::Uniform;
-                entries[numBuffers].buffer.hasDynamicOffset = false;
+                entries[numBuffers].buffer.hasDynamicOffset = true;
                 entries[numBuffers].buffer.minBindingSize = 0;
                 ++numBuffers;
             }
@@ -413,7 +414,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                 entries[numBuffers].binding = kPaintUniformBufferIndex;
                 entries[numBuffers].visibility = wgpu::ShaderStage::Fragment;
                 entries[numBuffers].buffer.type = wgpu::BufferBindingType::Uniform;
-                entries[numBuffers].buffer.hasDynamicOffset = false;
+                entries[numBuffers].buffer.hasDynamicOffset = true;
                 entries[numBuffers].buffer.minBindingSize = 0;
                 ++numBuffers;
             }
@@ -586,6 +587,9 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
 #endif
 
+    int fRenderStepUniformsTotalBytes = std::max(fsSkSLInfo.fRenderStepUniformsTotalBytes,
+                                                 vsSkSLInfo.fRenderStepUniformsTotalBytes);
+
     return sk_sp<DawnGraphicsPipeline>(
             new DawnGraphicsPipeline(sharedContext,
                                      pipelineInfoPtr,
@@ -593,8 +597,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                      std::move(groupLayouts),
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
-                                     !step->uniforms().empty(),
-                                     numFragmentUniforms > 0));
+                                     fRenderStepUniformsTotalBytes,
+                                     fsSkSLInfo.fPaintUniformsTotalBytes));
 }
 
 DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
@@ -603,15 +607,15 @@ DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext*
                                            BindGroupLayouts groupLayouts,
                                            PrimitiveType primitiveType,
                                            uint32_t refValue,
-                                           bool hasStepUniforms,
-                                           bool hasFragmentUniforms)
+                                           int stepUniformsTotalBytes,
+                                           int paintUniformsTotalBytes)
         : GraphicsPipeline(sharedContext, pipelineInfo)
         , fAsyncPipelineCreation(std::move(asyncCreationInfo))
         , fGroupLayouts(std::move(groupLayouts))
         , fPrimitiveType(primitiveType)
         , fStencilReferenceValue(refValue)
-        , fHasStepUniforms(hasStepUniforms)
-        , fHasFragmentUniforms(hasFragmentUniforms) {}
+        , fRenderStepUniformsTotalBytes(stepUniformsTotalBytes)
+        , fPaintUniformsTotalBytes(paintUniformsTotalBytes) {}
 
 void DawnGraphicsPipeline::freeGpuData() {
     fAsyncPipelineCreation = nullptr;

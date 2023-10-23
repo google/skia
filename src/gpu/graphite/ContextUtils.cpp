@@ -247,6 +247,7 @@ std::string EmitPaintParamsUniforms(int bufferID,
                                     const Layout layout,
                                     SkSpan<const ShaderNode*> nodes,
                                     int* numUniforms,
+                                    int* uniformsTotalBytes,
                                     bool* wrotePaintColor) {
     int offset = 0;
 
@@ -261,18 +262,27 @@ std::string EmitPaintParamsUniforms(int bufferID,
         return {};
     }
 
+    if (uniformsTotalBytes) {
+        *uniformsTotalBytes = offset;
+    }
+
     return result;
 }
 
 std::string EmitRenderStepUniforms(int bufferID,
                                    const char* name,
                                    const Layout layout,
-                                   SkSpan<const Uniform> uniforms) {
+                                   SkSpan<const Uniform> uniforms,
+                                   int* renderStepUniformsTotalBytes) {
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
     result += get_uniforms(layout, uniforms, &offset, -1, /* wrotePaintColor= */ nullptr);
     result.append("};\n\n");
+
+    if (renderStepUniformsTotalBytes) {
+        *renderStepUniformsTotalBytes = offset;
+    }
 
     return result;
 }
@@ -404,10 +414,11 @@ std::string EmitVaryings(const RenderStep* step,
     return result;
 }
 
-std::string BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
+VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
                             const RenderStep* step,
                             bool defineShadingSsboIndexVarying,
                             bool defineLocalCoordsVarying) {
+    VertSkSLInfo result;
     // TODO: To more completely support end-to-end rendering, this will need to be updated so that
     // the RenderStep shader snippet can produce a device coord, a local coord, and depth.
     // If the paint combination doesn't need the local coord it can be ignored, otherwise we need
@@ -431,8 +442,11 @@ std::string BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     // TODO: replace hard-coded bufferID with the backend's renderstep uniform-buffer index.
     if (step->numUniforms() > 0) {
-        sksl += EmitRenderStepUniforms(/* bufferID= */ 1, "Step",
-                                       bindingReqs.fUniformBufferLayout, step->uniforms());
+        sksl += EmitRenderStepUniforms(/* bufferID= */ 1,
+                                       "Step",
+                                       bindingReqs.fUniformBufferLayout,
+                                       step->uniforms(),
+                                       &result.fRenderStepUniformsTotalBytes);
     }
 
     // Varyings needed by RenderStep
@@ -459,7 +473,9 @@ std::string BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
     }
     sksl += "}";
 
-    return sksl;
+    result.fSkSL = std::move(sksl);
+
+    return result;
 }
 
 FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
@@ -486,6 +502,8 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                      useStorageBuffers,
                                      &result.fNumTexturesAndSamplers,
                                      &result.fNumPaintUniforms,
+                                     &result.fRenderStepUniformsTotalBytes,
+                                     &result.fPaintUniformsTotalBytes,
                                      writeSwizzle);
 
     // Extract blend info after integrating the RenderStep into the final fragment shader in case

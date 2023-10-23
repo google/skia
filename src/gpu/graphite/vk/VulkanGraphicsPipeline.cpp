@@ -595,10 +595,11 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         }
     }
 
-    std::string vsSkSL = BuildVertexSkSL(sharedContext->caps()->resourceBindingRequirements(),
-                                         step,
-                                         useShadingSsboIndex,
-                                         localCoordsNeeded);
+    VertSkSLInfo vsSkSLInfo = BuildVertexSkSL(sharedContext->caps()->resourceBindingRequirements(),
+                                              step,
+                                              useShadingSsboIndex,
+                                              localCoordsNeeded);
+    const std::string& vsSkSL = vsSkSLInfo.fSkSL;
     if (!SkSLToSPIRV(compiler,
                      vsSkSL,
                      SkSL::ProgramKind::kGraphiteVertex,

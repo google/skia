@@ -194,6 +194,8 @@ public:
                        const bool useStorageBuffers,
                        int* numTexturesAndSamplersUsed,
                        int* numPaintUniforms,
+                       int* renderStepUniformTotalBytes,
+                       int* paintUniformsTotalBytes,
                        Swizzle writeSwizzle);
 
 private:

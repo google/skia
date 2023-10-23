@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 
+#include "include/private/base/SkAlign.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
@@ -26,18 +27,7 @@ namespace skgpu::graphite {
 namespace {
 using IntrinsicConstant = float[4];
 
-uint64_t clamp_ubo_binding_size(uint64_t offset, uint64_t bufferSize) {
-    // Dawn's limit
-    constexpr uint32_t kMaxUniformBufferBindingSize = 64 * 1024;
-
-    SkASSERT(offset <= bufferSize);
-    auto remainSize = bufferSize - offset;
-    if (remainSize > kMaxUniformBufferBindingSize) {
-        return kMaxUniformBufferBindingSize;
-    }
-
-    return wgpu::kWholeSize;
-}
+constexpr int kBufferBindingSizeAlignment = 16;
 }  // namespace
 
 std::unique_ptr<DawnCommandBuffer> DawnCommandBuffer::Make(const DawnSharedContext* sharedContext,
@@ -547,6 +537,8 @@ void DawnCommandBuffer::bindTextureAndSamplers(
 void DawnCommandBuffer::syncUniformBuffers() {
     if (fBoundUniformBuffersDirty) {
         fBoundUniformBuffersDirty = false;
+
+        std::array<uint32_t, 3> dynamicOffsets;
         std::array<wgpu::BindGroupEntry, 3> entries;
         uint32_t numBuffers = 0;
 
@@ -554,37 +546,46 @@ void DawnCommandBuffer::syncUniformBuffers() {
         entries[numBuffers].buffer = fIntrinsicConstantBuffer;
         entries[numBuffers].offset = 0;
         entries[numBuffers].size = sizeof(IntrinsicConstant);
+        dynamicOffsets[numBuffers] = 0;
+
         ++numBuffers;
 
-        if (fActiveGraphicsPipeline->hasStepUniforms() &&
+        if (fActiveGraphicsPipeline->stepUniformsTotalBytes() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex]) {
             auto boundBuffer =
                     fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
 
             entries[numBuffers].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
             entries[numBuffers].buffer = boundBuffer->dawnBuffer();
+            entries[numBuffers].offset = 0;
+            // Dynamic offset only needs to be known when we call SetBindGroup().
+            // However, binding size needs to be known when we create the BindGroup. And we have to
+            // make sure when SetBindGroup() is called, the dynamic offset + binding size won't
+            // result in out of bound access.
+            // kWholeSize is not useful here because it relies on static offset passed to
+            // BindGroupEntry when we create the BindGroup. It doesn't take into account the dynamic
+            // offset.
+            entries[numBuffers].size = SkAlignTo(fActiveGraphicsPipeline->stepUniformsTotalBytes(),
+                                                 kBufferBindingSizeAlignment);
 
-            entries[numBuffers].offset =
+            dynamicOffsets[numBuffers] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
-
-            entries[numBuffers].size =
-                    clamp_ubo_binding_size(entries[numBuffers].offset, boundBuffer->size());
 
             ++numBuffers;
         }
 
-        if (fActiveGraphicsPipeline->hasFragmentUniforms() &&
+        if (fActiveGraphicsPipeline->paintUniformsTotalBytes() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]) {
             auto boundBuffer = fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
 
             entries[numBuffers].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
             entries[numBuffers].buffer = boundBuffer->dawnBuffer();
+            entries[numBuffers].offset = 0;
+            entries[numBuffers].size = SkAlignTo(fActiveGraphicsPipeline->paintUniformsTotalBytes(),
+                                                 kBufferBindingSizeAlignment);
 
-            entries[numBuffers].offset =
+            dynamicOffsets[numBuffers] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kPaintUniformBufferIndex];
-
-            entries[numBuffers].size =
-                    clamp_ubo_binding_size(entries[numBuffers].offset, boundBuffer->size());
 
             ++numBuffers;
         }
@@ -598,7 +599,9 @@ void DawnCommandBuffer::syncUniformBuffers() {
         auto bindGroup = fSharedContext->device().CreateBindGroup(&desc);
 
         fActiveRenderPassEncoder.SetBindGroup(DawnGraphicsPipeline::kUniformBufferBindGroupIndex,
-                                              bindGroup);
+                                              bindGroup,
+                                              numBuffers,
+                                              dynamicOffsets.data());
     }
 }
 
