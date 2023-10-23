@@ -173,7 +173,7 @@ private:
 
     inline bool updatePlot(GrDeferredUploadTarget*, skgpu::AtlasLocator*, skgpu::Plot*);
 
-    inline void makeMRU(skgpu::Plot* plot, int pageIdx) {
+    inline void makeMRU(skgpu::Plot* plot, uint32_t pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {
             return;
         }

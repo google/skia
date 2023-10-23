@@ -83,7 +83,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
                                                            width, height, plotWidth, plotHeight,
                                                            generationCounter,
                                                            allowMultitexturing, label));
-    if (!atlas->getViews()[0].proxy()) {
+    if (!atlas->createPages(proxyProvider, generationCounter) || !atlas->getViews()[0].proxy()) {
         return nullptr;
     }
 
@@ -121,8 +121,6 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendForm
     SkASSERT(fPlotHeight * numPlotsY == fTextureHeight);
 
     fNumPlots = numPlotsX * numPlotsY;
-
-    this->createPages(proxyProvider, generationCounter);
 }
 
 inline void GrDrawOpAtlas::processEviction(PlotLocator plotLocator) {
@@ -152,7 +150,10 @@ void GrDrawOpAtlas::uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& wr
 
 inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
                                       AtlasLocator* atlasLocator, Plot* plot) {
-    int pageIdx = plot->pageIndex();
+    uint32_t pageIdx = plot->pageIndex();
+    if (pageIdx >= fNumActivePages) {
+        return false;
+    }
     this->makeMRU(plot, pageIdx);
 
     // If our most recent upload has already occurred then we have to insert a new
