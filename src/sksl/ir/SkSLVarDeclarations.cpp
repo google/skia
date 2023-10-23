@@ -353,7 +353,7 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context,
     ErrorCheck(context, var.fPosition, var.modifiersPosition(), var.layout(), var.modifierFlags(),
                &var.type(), baseType, var.storage());
     if (value) {
-        if (var.type().isOpaque()) {
+        if (var.type().isOpaque() || var.type().isOrContainsAtomic()) {
             context.fErrors->error(value->fPosition, "opaque type '" + var.type().displayName() +
                                                      "' cannot use initializer expressions");
             return false;

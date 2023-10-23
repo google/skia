@@ -288,6 +288,7 @@ sksl_error_tests = [
   "errors/StructVariableReservedName.rts",
   "errors/SwitchDuplicateCase.rts",
   "errors/SwitchDuplicateDefault.rts",
+  "errors/SwitchHoistingAtomicArray.sksl",
   "errors/SwitchTypes.rts",
   "errors/SwitchWithContinueInside.sksl",
   "errors/SwizzleConstantOutput.rts",

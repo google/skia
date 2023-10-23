@@ -1,0 +1,10 @@
+void test() {
+    int x;
+    switch (x) { case 0: atomicUint[7] a, b = a; }
+}
+
+/*%%*
+atomics are only permitted in workgroup variables and writable storage blocks
+atomics are only permitted in workgroup variables and writable storage blocks
+opaque type 'atomicUint[7]' cannot use initializer expressions
+*%%*/
