@@ -156,6 +156,9 @@ int Shape::keySize() const {
             if (this->path().isVolatile()) {
                 return -1; // volatile, so won't be keyed
             }
+            if (this->path().isEmpty()) {
+                return -1; // empty, so won't be keyed
+            }
             int dataKeySize = path_key_from_data_size(this->path());
             if (dataKeySize >= 0) {
                 count += dataKeySize;
@@ -182,6 +185,7 @@ void Shape::writeKey(uint32_t* key, bool includeInverted) const {
     switch(this->type()) {
         case Type::kPath: {
             SkASSERT(!this->path().isVolatile());
+            SkASSERT(!this->path().isEmpty());
             // Ensure that the path's inversion matches our state so that the path's key suffices.
             SkASSERT(this->inverted() == this->path().isInverseFillType());
 
