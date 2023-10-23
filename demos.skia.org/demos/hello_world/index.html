@@ -3,7 +3,9 @@
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Comment the following line out and the subsequent line in to use a local build of CanvasKit -->
 <script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/canvaskit.js"></script>
+<!-- <script type="text/javascript" src="/build/canvaskit.js"></script> -->
 
 <style>
   canvas {
@@ -18,7 +20,10 @@
 </body>
 
 <script type="text/javascript" charset="utf-8">
-  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/' + file });
+  // Comment the following line out and the subsequent line in to use a local build of CanvasKit
+  const base = 'https://unpkg.com/canvaskit-wasm@0.25.0/bin/full/';
+  // const base = '/build/';
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => base + file });
 
   ckLoaded.then((CanvasKit) => {
     const surface = CanvasKit.MakeCanvasSurface('draw');
