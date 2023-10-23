@@ -19,7 +19,6 @@
 #include "src/sksl/ir/SkSLConstructorArray.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
-#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -32,6 +31,10 @@ namespace SkSL {
 static ExpressionArray negate_operands(const Context& context,
                                        Position pos,
                                        const ExpressionArray& operands);
+
+static double negate_value(double value) {
+    return -value;
+}
 
 static double bitwise_not_value(double value) {
     return ~static_cast<SKSL_INT>(value);
@@ -70,15 +73,15 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
                                                      const Expression& originalExpr) {
     const Expression* value = ConstantFolder::GetConstantValueForVariable(originalExpr);
     switch (value->kind()) {
-        case Expression::Kind::kLiteral: {
-            // Convert -literal(1) to literal(-1).
-            double negated = -value->as<Literal>().value();
-            // Don't simplify the expression if the type can't hold the negated value.
-            const Type& type = value->type();
-            if (type.checkForOutOfRangeLiteral(context, negated, pos)) {
-                return nullptr;
+        case Expression::Kind::kLiteral:
+        case Expression::Kind::kConstructorSplat:
+        case Expression::Kind::kConstructorCompound: {
+            // Convert `-vecN(literal, ...)` into `vecN(-literal, ...)`.
+            if (std::unique_ptr<Expression> expr = apply_to_elements(context, pos, *value,
+                                                                     negate_value)) {
+                return expr;
             }
-            return Literal::Make(pos, negated, &type);
+            break;
         }
         case Expression::Kind::kPrefix: {
             // Convert `-(-expression)` into `expression`.
@@ -107,27 +110,6 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
                     return ConstructorDiagonalMatrix::Make(context, pos, ctor.type(),
                                                            std::move(simplified));
                 }
-            }
-            break;
-
-        case Expression::Kind::kConstructorSplat:
-            // Convert `-vector(literal)` into `vector(-literal)`.
-            if (Analysis::IsCompileTimeConstant(*value)) {
-                const ConstructorSplat& ctor = value->as<ConstructorSplat>();
-                if (std::unique_ptr<Expression> simplified = simplify_negation(context,
-                                                                               pos,
-                                                                               *ctor.argument())) {
-                    return ConstructorSplat::Make(context, pos, ctor.type(), std::move(simplified));
-                }
-            }
-            break;
-
-        case Expression::Kind::kConstructorCompound:
-            // Convert `-vecN(literal, ...)` into `vecN(-literal, ...)`.
-            if (Analysis::IsCompileTimeConstant(*value)) {
-                const ConstructorCompound& ctor = value->as<ConstructorCompound>();
-                return ConstructorCompound::Make(context, pos, ctor.type(),
-                                                 negate_operands(context, pos, ctor.arguments()));
             }
             break;
 
