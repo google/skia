@@ -122,10 +122,10 @@ bool SkTiffImageFileDirectory::ParseHeader(const SkData* data,
     }
     if (!is_valid_endian_marker(data->bytes(), outLittleEndian)) {
         SkCodecPrintf("Tiff header had invalid endian marker 0x%x,0x%x,0x%x,0x%x.\n",
-                      fData->bytes[0],
-                      fData->bytes[1],
-                      fData->bytes[2],
-                      fData->bytes[3]);
+                      data->bytes[0],
+                      data->bytes[1],
+                      data->bytes[2],
+                      data->bytes[3]);
         return false;
     }
     *outIfdOffset = get_endian_int(data->bytes() + 4, *outLittleEndian);
