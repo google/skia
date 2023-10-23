@@ -19,10 +19,15 @@ namespace skgpu::graphite {
 
 class DawnBuffer : public Buffer {
 public:
-    static sk_sp<Buffer> Make(const DawnSharedContext*,
-                              size_t size,
-                              BufferType type,
-                              AccessPattern);
+    static sk_sp<DawnBuffer> Make(const DawnSharedContext*,
+                                  size_t size,
+                                  BufferType type,
+                                  AccessPattern);
+    static sk_sp<DawnBuffer> Make(const DawnSharedContext*,
+                                  size_t size,
+                                  BufferType type,
+                                  AccessPattern,
+                                  const char* label);
 
     const wgpu::Buffer& dawnBuffer() const { return fBuffer; }
 

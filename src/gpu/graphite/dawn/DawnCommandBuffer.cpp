@@ -7,7 +7,6 @@
 
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 
-#include "include/private/base/SkAlign.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
@@ -25,9 +24,8 @@
 namespace skgpu::graphite {
 
 namespace {
-using IntrinsicConstant = float[4];
 
-constexpr int kBufferBindingSizeAlignment = 16;
+using IntrinsicConstant = float[4];
 
 constexpr int kBufferBindingOffsetAlignment = 256;
 
@@ -74,6 +72,8 @@ wgpu::CommandBuffer DawnCommandBuffer::finishEncoding() {
 }
 
 void DawnCommandBuffer::onResetCommandBuffer() {
+    fIntrinsicConstantBuffer = nullptr;
+
     fActiveGraphicsPipeline = nullptr;
     fActiveRenderPassEncoder = nullptr;
     fActiveComputePassEncoder = nullptr;
@@ -89,26 +89,6 @@ bool DawnCommandBuffer::setNewCommandBufferResources() {
     SkASSERT(!fCommandEncoder);
     fCommandEncoder = fSharedContext->device().CreateCommandEncoder();
     SkASSERT(fCommandEncoder);
-
-    wgpu::BufferDescriptor desc;
-#if defined(SK_DEBUG)
-    desc.label = "UnusedUnifomBufferSlot";
-#endif
-    desc.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform;
-    desc.size = kBufferBindingSizeAlignment;
-    desc.mappedAtCreation = false;
-
-    fUnusedUniformBuffer = fSharedContext->device().CreateBuffer(&desc);
-    SkASSERT(fUnusedUniformBuffer);
-
-#if defined(SK_DEBUG)
-    desc.label = "UnusedStorageBufferSlot";
-#endif
-    desc.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage;
-
-    fUnusedStorageBuffer = fSharedContext->device().CreateBuffer(&desc);
-    SkASSERT(fUnusedStorageBuffer);
-
     return true;
 }
 
@@ -588,77 +568,43 @@ void DawnCommandBuffer::syncUniformBuffers() {
         fBoundUniformBuffersDirty = false;
 
         std::array<uint32_t, 3> dynamicOffsets;
-        std::array<wgpu::BindGroupEntry, 3> entries;
-
-        entries[0].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
-        entries[0].buffer = fIntrinsicConstantBuffer;
-        entries[0].offset = 0;
-        entries[0].size = sizeof(IntrinsicConstant);
+        std::array<std::pair<const DawnBuffer*, uint32_t>, 3> boundBuffersAndSizes;
+        boundBuffersAndSizes[0].first = fIntrinsicConstantBuffer.get();
+        boundBuffersAndSizes[0].second = sizeof(IntrinsicConstant);
 
         int activeIntrinsicBufferSlot = fIntrinsicConstantBufferSlotsUsed - 1;
         dynamicOffsets[0] = activeIntrinsicBufferSlot * kIntrinsicConstantAlignedSize;
 
-        entries[1].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
-        entries[1].offset = 0;
         if (fActiveGraphicsPipeline->hasStepUniforms() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex]) {
-            auto boundBuffer =
+            boundBuffersAndSizes[1].first =
                     fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
-
-            entries[1].buffer = boundBuffer->dawnBuffer();
-            // Dynamic offset only needs to be known when we call SetBindGroup().
-            // However, binding size needs to be known when we create the BindGroup. And we have to
-            // make sure when SetBindGroup() is called, the dynamic offset + binding size won't
-            // result in out of bound access.
-            // kWholeSize is not useful here because it relies on static offset passed to
-            // BindGroupEntry when we create the BindGroup. It doesn't take into account the dynamic
-            // offset.
-            entries[1].size = SkAlignTo(
-                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kRenderStepUniformBufferIndex],
-                    kBufferBindingSizeAlignment);
-
+            boundBuffersAndSizes[1].second =
+                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
             dynamicOffsets[1] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
         } else {
             // Unused buffer entry
-            entries[1].buffer = fSharedContext->caps()->storageBufferPreferred()
-                                        ? fUnusedStorageBuffer
-                                        : fUnusedUniformBuffer;
-            entries[1].size = wgpu::kWholeSize;
-
+            boundBuffersAndSizes[1].first = nullptr;
             dynamicOffsets[1] = 0;
         }
 
-        entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
-        entries[2].offset = 0;
         if (fActiveGraphicsPipeline->hasPaintUniforms() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]) {
-            auto boundBuffer = fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
-
-            entries[2].buffer = boundBuffer->dawnBuffer();
-            entries[2].size = SkAlignTo(
-                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kPaintUniformBufferIndex],
-                    kBufferBindingSizeAlignment);
-
+            boundBuffersAndSizes[2].first =
+                    fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
+            boundBuffersAndSizes[2].second =
+                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kPaintUniformBufferIndex];
             dynamicOffsets[2] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kPaintUniformBufferIndex];
         } else {
             // Unused buffer entry
-            entries[2].buffer = fSharedContext->caps()->storageBufferPreferred()
-                                        ? fUnusedStorageBuffer
-                                        : fUnusedUniformBuffer;
-            entries[2].size = wgpu::kWholeSize;
-
+            boundBuffersAndSizes[2].first = nullptr;
             dynamicOffsets[2] = 0;
         }
 
-        wgpu::BindGroupDescriptor desc;
-        const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
-        desc.layout = groupLayouts[DawnGraphicsPipeline::kUniformBufferBindGroupIndex];
-        desc.entryCount = entries.size();
-        desc.entries = entries.data();
-
-        auto bindGroup = fSharedContext->device().CreateBindGroup(&desc);
+        auto bindGroup =
+                fResourceProvider->findOrCreateUniformBuffersBindGroup(boundBuffersAndSizes);
 
         fActiveRenderPassEncoder.SetBindGroup(DawnGraphicsPipeline::kUniformBufferBindGroupIndex,
                                               bindGroup,
@@ -697,21 +643,21 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     }
 
     if (needNewBuffer) {
-        wgpu::BufferDescriptor desc;
-#if defined(SK_DEBUG)
-        desc.label = "CommandBufferIntrinsicConstant";
-#endif
-        desc.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform;
+        size_t bufferSize;
 
         if constexpr (kNumSlotsForIntrinsicConstantBuffer > 1) {
-            desc.size = kIntrinsicConstantAlignedSize * kNumSlotsForIntrinsicConstantBuffer;
+            bufferSize = kIntrinsicConstantAlignedSize * kNumSlotsForIntrinsicConstantBuffer;
         } else {
-            desc.size = sizeof(IntrinsicConstant);
+            bufferSize = kIntrinsicConstantAlignedSize;
         }
-        desc.mappedAtCreation = false;
-        fIntrinsicConstantBuffer = fSharedContext->device().CreateBuffer(&desc);
+
+        fIntrinsicConstantBuffer = fResourceProvider->findOrCreateDawnBuffer(
+                bufferSize, BufferType::kUniform, AccessPattern::kGpuOnly);
+
         fIntrinsicConstantBufferSlotsUsed = 0;
         SkASSERT(fIntrinsicConstantBuffer);
+
+        this->trackResource(fIntrinsicConstantBuffer);
     }
 
     // TODO: https://b.corp.google.com/issues/259267703
@@ -724,14 +670,14 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
 
     if constexpr (kNumSlotsForIntrinsicConstantBuffer > 0) {
         uint64_t offset = fIntrinsicConstantBufferSlotsUsed * kIntrinsicConstantAlignedSize;
-        fSharedContext->queue().WriteBuffer(fIntrinsicConstantBuffer,
+        fSharedContext->queue().WriteBuffer(fIntrinsicConstantBuffer->dawnBuffer(),
                                             offset,
                                             &rtAdjust,
                                             sizeof(rtAdjust));
         fIntrinsicConstantBufferSlotsUsed++;
     } else {
 #if !defined(__EMSCRIPTEN__)
-        fCommandEncoder.WriteBuffer(fIntrinsicConstantBuffer,
+        fCommandEncoder.WriteBuffer(fIntrinsicConstantBuffer->dawnBuffer(),
                                     0,
                                     reinterpret_cast<const uint8_t*>(rtAdjust),
                                     sizeof(rtAdjust));

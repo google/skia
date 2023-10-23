@@ -27,10 +27,27 @@ static const char* kBufferTypeNames[kBufferTypeCount] = {
 };
 #endif
 
-sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
-                               size_t size,
-                               BufferType type,
-                               AccessPattern) {
+sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
+                                   size_t size,
+                                   BufferType type,
+                                   AccessPattern accessPattern) {
+    return DawnBuffer::Make(sharedContext,
+                            size,
+                            type,
+                            accessPattern,
+#ifdef SK_DEBUG
+                            /*label=*/kBufferTypeNames[static_cast<int>(type)]
+#else
+                            /*label=*/nullptr
+#endif
+                            );
+}
+
+sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
+                                   size_t size,
+                                   BufferType type,
+                                   AccessPattern,
+                                   const char* label) {
     if (size <= 0) {
         return nullptr;
     }
@@ -68,9 +85,7 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
     }
 
     wgpu::BufferDescriptor desc;
-#ifdef SK_DEBUG
-    desc.label = kBufferTypeNames[static_cast<int>(type)];
-#endif
+    desc.label = label;
     desc.usage = usage;
     desc.size  = size;
     // Specifying mappedAtCreation avoids clearing the buffer on the GPU which can cause MapAsync to
@@ -82,9 +97,7 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         return {};
     }
 
-    return sk_sp<Buffer>(new DawnBuffer(sharedContext,
-                                        size,
-                                        std::move(buffer)));
+    return sk_sp<DawnBuffer>(new DawnBuffer(sharedContext, size, std::move(buffer)));
 }
 
 DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext, size_t size, wgpu::Buffer buffer)
