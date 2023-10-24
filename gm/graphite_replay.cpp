@@ -28,12 +28,14 @@ namespace skiagm {
 
 class GraphiteReplayGM : public GM {
 public:
-    GraphiteReplayGM() {
+    GraphiteReplayGM() = default;
+
+protected:
+    void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorBLACK);
         fImage = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
     }
 
-protected:
     SkString getName() const override { return SkString("graphite-replay"); }
 
     SkISize getISize() override { return SkISize::Make(kTileWidth * 3, kTileHeight * 2); }

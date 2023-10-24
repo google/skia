@@ -205,20 +205,20 @@ DEF_SLIDE( return new XferSlide; )
 class CubicResamplerSlide : public ClickHandlerSlide {
 public:
     CubicResamplerSlide() {
-        const char* names[] = {
-            "images/mandrill_128.png",
-            "images/rle.bmp",
-            "images/example_4.png",
-        };
+        fName = "CubicResampler";
+    }
+
+protected:
+    void load(SkScalar, SkScalar) override {
         SkRect r = {10, 10, 200, 200};
-        for (auto name : names) {
+        for (const char* name : {"images/mandrill_128.png",
+                                 "images/rle.bmp",
+                                 "images/example_4.png"}) {
             fRecs.push_back({ToolUtils::GetResourceAsImage(name), r});
             r.offset(0, r.height() + 10);
         }
-
-        fDomain.setXYWH(r.fLeft + 3*r.width() + 40, 50, 200, 200);
+        fDomain.setXYWH(r.fLeft + 3 * r.width() + 40, 50, 200, 200);
         fCubic = {.3f, .5f};
-        fName = "CubicResampler";
     }
 
     void draw(SkCanvas* canvas) override {

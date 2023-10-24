@@ -168,11 +168,15 @@ class BackdropSlide : public ClickHandlerSlide {
 
 public:
     BackdropSlide() {
+        fName = "Backdrop";
+    }
+
+protected:
+    void load(SkScalar, SkScalar) override {
         fCenter.set(200, 150);
         fAngle = 0;
         fImage = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
         fFilter = SkImageFilters::Dilate(8, 8, nullptr);
-        fName = "Backdrop";
     }
 
     void draw(SkCanvas* canvas) override {
