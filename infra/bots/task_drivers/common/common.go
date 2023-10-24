@@ -58,7 +58,7 @@ func ComputeGoldAndPerfKeyValuePairs(ctx context.Context) map[string]string {
 		// As a temporary hack to be able to generate diferent traces for the same GM on Linux vs.
 		// Android, we assume that if the task driver is running on an ARM machine, then it's a
 		// Raspberry Pi connected to an Android phone. This is only for use while we experiment with
-		// Bazel-built GMs.
+		// Bazel-built GM and benchmark tests.
 		//
 		// Moving forward, we should try to derive the "os", "model" and "arch" keys from the
 		// BazelTest-* task's "host" component. A potential approach could be to use hosts such as

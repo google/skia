@@ -20,6 +20,9 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
+// PerfGCSBucketName is the name of the perf.skia.org GCS bucket.
+const PerfGCSBucketName = "skia-perf"
+
 // The name of the file produced by the C++ test that we should upload to Perf.
 const resultsJSON = "results.json"
 

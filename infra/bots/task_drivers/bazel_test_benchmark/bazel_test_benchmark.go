@@ -50,8 +50,6 @@ var (
 	output = flag.String("o", "", "If provided, dump a JSON blob of step data to the given file. Prints to stdout if '-' is given.")
 )
 
-const perfGCSBucketName = "skia-perf"
-
 func main() {
 	bazelFlags := common.MakeBazelFlags(common.MakeBazelFlagsOpts{
 		Label:  true,
@@ -76,18 +74,18 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	// Make an HTTP client with the required permissions to hit GCS, Gerrit and Gitiles.
+	// Make an HTTP client with the required permissions to upload to the perf.skia.org GCS bucket.
 	httpClient, _, err := auth_steps.InitHttpClient(ctx, *local, auth.ScopeReadWrite, auth.ScopeUserinfoEmail)
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
-	// Make a GCS client with the required permissions to upload to the perf.skia.org GCS bucket.
+	// Make a GCS client to to upload to the perf.skia.org GCS bucket.
 	store, err := storage.NewClient(ctx, option.WithHTTPClient(httpClient))
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
-	gcsClient := gcsclient.New(store, perfGCSBucketName)
+	gcsClient := gcsclient.New(store, common.PerfGCSBucketName)
 
 	if err := run(ctx, *bazelFlags.CacheDir, taskDriverArgs{
 		BenchmarkInfo: common.BenchmarkInfo{

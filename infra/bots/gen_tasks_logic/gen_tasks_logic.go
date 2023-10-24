@@ -2190,8 +2190,9 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 
 	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use
 	// by subsequent CI tasks.
-	"android_math_test":              {"//tests:android_math_test", "tests"},
-	"hello_bazel_world_android_test": {"//gm:hello_bazel_world_android_test", "gm"},
+	"android_math_test":               {"//tests:android_math_test", "tests"},
+	"hello_bazel_world_android_test":  {"//gm:hello_bazel_world_android_test", "gm"},
+	"cpu_8888_benchmark_android_test": {"//bench:cpu_8888_android_test", "bench"},
 }
 
 // bazelBuild adds a task which builds the specified single-target label (//foo:bar) or
@@ -2371,8 +2372,11 @@ func (b *jobBuilder) bazelTest() {
 
 			switch precompiledKind {
 			case precompiledBenchmarkTest:
-				// TODO(lovisolo): Implement.
-				panic("Precompiled benchmark tests are not yet supported.")
+				cmd = append(cmd,
+					"--kind=benchmark",
+					"--git_commit="+specs.PLACEHOLDER_REVISION,
+					"--changelist_id="+specs.PLACEHOLDER_ISSUE,
+					"--patchset_order="+specs.PLACEHOLDER_PATCHSET)
 
 			case precompiledGMTest:
 				cmd = append(cmd,
