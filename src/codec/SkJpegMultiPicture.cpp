@@ -106,6 +106,7 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegMultiPictureParameters::Make
                 sk_sp<SkData> data = ifd->getEntryUndefinedData(idfEntryIndex);
                 if (!data) {
                     SkCodecPrintf("Version must be undefined type.\n");
+                    return nullptr;
                 }
                 if (data->size() != kVersionSize) {
                     SkCodecPrintf("Version must be 4 bytes.\n");
