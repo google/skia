@@ -384,16 +384,33 @@ void VulkanCommandBuffer::updateRtAdjustUniform(const SkRect& viewport) {
     const float rtAdjust[4] = {invTwoW, invTwoH, -1.f - x * invTwoW, -1.f - y * invTwoH};
 
     auto intrinsicUniformBuffer = fResourceProvider->refIntrinsicConstantBuffer();
+    const auto intrinsicVulkanBuffer = static_cast<VulkanBuffer*>(intrinsicUniformBuffer.get());
+    SkASSERT(intrinsicVulkanBuffer);
 
     fUniformBuffersToBind[VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex] =
             {intrinsicUniformBuffer.get(), /*offset=*/0};
 
+    // TODO(b/307577875): Once synchronization for uniform buffers as a whole is improved, we should
+    // be able to rely upon the bindUniformBuffers() call to handle buffer access changes for us,
+    // removing the need to call setBufferAccess(...) within this method.
+
+    // Per the spec, vkCmdUpdateBuffer is treated as a “transfer" operation for the purposes of
+    // synchronization barriers. Ensure this write operation occurs after any previous read
+    // operations and without clobbering any other write operations on the same memory in the cache.
+    intrinsicVulkanBuffer->setBufferAccess(this, VK_ACCESS_TRANSFER_WRITE_BIT,
+                                           VK_PIPELINE_STAGE_TRANSFER_BIT);
+    this->submitPipelineBarriers();
+
     VULKAN_CALL(fSharedContext->interface(), CmdUpdateBuffer(
             fPrimaryCommandBuffer,
-            static_cast<VulkanBuffer*>(intrinsicUniformBuffer.get())->vkBuffer(),
+            intrinsicVulkanBuffer->vkBuffer(),
             /*dstOffset=*/0,
             VulkanResourceProvider::kIntrinsicConstantSize,
             &rtAdjust));
+
+    // Ensure the buffer update is completed and made visible before reading
+    intrinsicVulkanBuffer->setBufferAccess(this, VK_ACCESS_UNIFORM_READ_BIT,
+                                           VK_PIPELINE_STAGE_VERTEX_SHADER_BIT);
     this->trackResource(std::move(intrinsicUniformBuffer));
 }
 
@@ -1134,8 +1151,7 @@ bool VulkanCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     // Set current access mask for buffer
     const_cast<VulkanBuffer*>(dstBuffer)->setBufferAccess(this,
                                                           VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                          false);
+                                                          VK_PIPELINE_STAGE_TRANSFER_BIT);
 
     this->submitPipelineBarriers();
 
@@ -1245,8 +1261,7 @@ bool VulkanCommandBuffer::onCopyTextureToTexture(const Texture* src,
 bool VulkanCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* outDidResultInWork) {
     static_cast<const VulkanBuffer*>(buffer)->setBufferAccess(this,
                                                               VK_ACCESS_HOST_READ_BIT,
-                                                              VK_PIPELINE_STAGE_HOST_BIT,
-                                                              false);
+                                                              VK_PIPELINE_STAGE_HOST_BIT);
 
     *outDidResultInWork = true;
     return true;
@@ -1259,20 +1274,18 @@ bool VulkanCommandBuffer::onClearBuffer(const Buffer*, size_t offset, size_t siz
 void VulkanCommandBuffer::addBufferMemoryBarrier(const Resource* resource,
                                                  VkPipelineStageFlags srcStageMask,
                                                  VkPipelineStageFlags dstStageMask,
-                                                 bool byRegion,
                                                  VkBufferMemoryBarrier* barrier) {
     SkASSERT(resource);
     this->pipelineBarrier(resource,
                           srcStageMask,
                           dstStageMask,
-                          byRegion,
+                          /*byRegion=*/false,
                           kBufferMemory_BarrierType,
                           barrier);
 }
 
 void VulkanCommandBuffer::addBufferMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                                  VkPipelineStageFlags dstStageMask,
-                                                 bool byRegion,
                                                  VkBufferMemoryBarrier* barrier) {
     // We don't pass in a resource here to the command buffer. The command buffer only is using it
     // to hold a ref, but every place where we add a buffer memory barrier we are doing some other
@@ -1281,7 +1294,7 @@ void VulkanCommandBuffer::addBufferMemoryBarrier(VkPipelineStageFlags srcStageMa
     this->pipelineBarrier(/*resource=*/nullptr,
                           srcStageMask,
                           dstStageMask,
-                          byRegion,
+                          /*byRegion=*/false,
                           kBufferMemory_BarrierType,
                           barrier);
 }

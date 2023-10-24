@@ -15,7 +15,6 @@
 
 namespace skgpu::graphite {
 
-class VulkanBuffer;
 class VulkanCommandBuffer;
 class VulkanDescriptorSet;
 class VulkanFramebuffer;

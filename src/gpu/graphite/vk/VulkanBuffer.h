@@ -25,8 +25,7 @@ public:
 
     void setBufferAccess(VulkanCommandBuffer* buffer,
                          VkAccessFlags dstAccessMask,
-                         VkPipelineStageFlags dstStageMask,
-                         bool byRegion) const;
+                         VkPipelineStageFlags dstStageMask) const;
 
 private:
     VulkanBuffer(const VulkanSharedContext*,
