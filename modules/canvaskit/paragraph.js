@@ -77,7 +77,7 @@
       if (s['ellipsis']) {
         var str = s['ellipsis'];
         s['_ellipsisPtr'] = cacheOrCopyString(str);
-        s['_ellipsisLen'] = lengthBytesUTF8(str) + 1; // add 1 for the null terminator.
+        s['_ellipsisLen'] = lengthBytesUTF8(str);
       } else {
         s['_ellipsisPtr'] = nullptr;
         s['_ellipsisLen'] = 0;
@@ -232,7 +232,7 @@
       if (textStyle['locale']) {
         var str = textStyle['locale'];
         textStyle['_localePtr'] = cacheOrCopyString(str);
-        textStyle['_localeLen'] = lengthBytesUTF8(str) + 1; // add 1 for the null terminator.
+        textStyle['_localeLen'] = lengthBytesUTF8(str);
       } else {
         textStyle['_localePtr'] = nullptr;
         textStyle['_localeLen'] = 0;
