@@ -3082,6 +3082,7 @@ if (skia_enable_tools) {
           ":flags",
           ":gpu_tool_utils",
           ":skia",
+          ":tool_utils",
         ]
         defines = [
           "SK_BUILD_FOR_LIBFUZZER",
@@ -3101,17 +3102,7 @@ if (skia_enable_tools) {
     }
 
     libfuzzer_app("image_filter_deserialize") {
-      include_dirs = [
-        "tools",
-        "tools/fonts",
-      ]
-      sources = [
-        "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp",
-        "tools/Resources.cpp",
-        "tools/fonts/TestFontMgr.cpp",
-        "tools/fonts/TestSVGTypeface.cpp",
-        "tools/fonts/TestTypeface.cpp",
-      ]
+      sources = [ "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp" ]
       deps = [ "modules/svg" ]
     }
 
@@ -3121,17 +3112,7 @@ if (skia_enable_tools) {
     }
 
     libfuzzer_app("textblob_deserialize") {
-      include_dirs = [
-        "tools",
-        "tools/fonts",
-      ]
-      sources = [
-        "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
-        "tools/Resources.cpp",
-        "tools/fonts/TestFontMgr.cpp",
-        "tools/fonts/TestSVGTypeface.cpp",
-        "tools/fonts/TestTypeface.cpp",
-      ]
+      sources = [ "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp" ]
       deps = [ "modules/svg" ]
     }
 
@@ -3151,22 +3132,9 @@ if (skia_enable_tools) {
     }
 
     libfuzzer_app("api_create_ddl") {
-      include_dirs = [
-        "include",
-        "include/gpu",
-      ]
       sources = [
         "fuzz/FuzzCreateDDL.cpp",
         "fuzz/oss_fuzz/FuzzAPICreateDDL.cpp",
-        "tools/Resources.cpp",
-        "tools/UrlDataManager.cpp",
-        "tools/debugger/DebugCanvas.cpp",
-        "tools/debugger/DebugLayerManager.cpp",
-        "tools/debugger/DrawCommand.cpp",
-        "tools/debugger/JsonWriteBuffer.cpp",
-        "tools/fonts/TestFontMgr.cpp",
-        "tools/fonts/TestSVGTypeface.cpp",
-        "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
         "modules/svg",
@@ -3199,18 +3167,9 @@ if (skia_enable_tools) {
     }
 
     libfuzzer_app("api_image_filter") {
-      include_dirs = [
-        "tools",
-        "tools/debugger",
-      ]
       sources = [
         "fuzz/FuzzCanvas.cpp",
         "fuzz/oss_fuzz/FuzzAPIImageFilter.cpp",
-        "tools/UrlDataManager.cpp",
-        "tools/debugger/DebugCanvas.cpp",
-        "tools/debugger/DebugLayerManager.cpp",
-        "tools/debugger/DrawCommand.cpp",
-        "tools/debugger/JsonWriteBuffer.cpp",
       ]
       deps = [ "//third_party/libpng" ]
     }
@@ -3240,23 +3199,9 @@ if (skia_enable_tools) {
     }
 
     libfuzzer_app("api_raster_n32_canvas") {
-      include_dirs = [
-        "tools",
-        "tools/debugger",
-        "tools/fonts",
-      ]
       sources = [
         "fuzz/FuzzCanvas.cpp",
         "fuzz/oss_fuzz/FuzzRasterN32Canvas.cpp",
-        "tools/Resources.cpp",
-        "tools/UrlDataManager.cpp",
-        "tools/debugger/DebugCanvas.cpp",
-        "tools/debugger/DebugLayerManager.cpp",
-        "tools/debugger/DrawCommand.cpp",
-        "tools/debugger/JsonWriteBuffer.cpp",
-        "tools/fonts/TestFontMgr.cpp",
-        "tools/fonts/TestSVGTypeface.cpp",
-        "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
         "modules/svg",
@@ -3274,24 +3219,9 @@ if (skia_enable_tools) {
 
     if (skia_enable_ganesh) {
       libfuzzer_app("api_mock_gpu_canvas") {
-        include_dirs = [
-          "tools",
-          "tools/debugger",
-          "tools/fonts",
-        ]
         sources = [
           "fuzz/FuzzCanvas.cpp",
           "fuzz/oss_fuzz/FuzzMockGPUCanvas.cpp",
-          "tools/LsanSuppressions.cpp",
-          "tools/Resources.cpp",
-          "tools/UrlDataManager.cpp",
-          "tools/debugger/DebugCanvas.cpp",
-          "tools/debugger/DebugLayerManager.cpp",
-          "tools/debugger/DrawCommand.cpp",
-          "tools/debugger/JsonWriteBuffer.cpp",
-          "tools/fonts/TestFontMgr.cpp",
-          "tools/fonts/TestSVGTypeface.cpp",
-          "tools/fonts/TestTypeface.cpp",
         ]
         deps = [
           "modules/svg",
@@ -3302,35 +3232,18 @@ if (skia_enable_tools) {
 
     if (skia_enable_graphite && skia_enable_precompile) {
       libfuzzer_app("api_precompile") {
-        include_dirs = []
         sources = [
           "fuzz/FuzzPrecompile.cpp",
           "fuzz/oss_fuzz/FuzzPrecompile.cpp",
-          "tools/fonts/TestFontMgr.cpp",
-          "tools/fonts/TestTypeface.cpp",
         ]
         deps = []
       }
     }
 
     libfuzzer_app("api_null_canvas") {
-      include_dirs = [
-        "tools",
-        "tools/debugger",
-        "tools/fonts",
-      ]
       sources = [
         "fuzz/FuzzCanvas.cpp",
         "fuzz/oss_fuzz/FuzzNullCanvas.cpp",
-        "tools/Resources.cpp",
-        "tools/UrlDataManager.cpp",
-        "tools/debugger/DebugCanvas.cpp",
-        "tools/debugger/DebugLayerManager.cpp",
-        "tools/debugger/DrawCommand.cpp",
-        "tools/debugger/JsonWriteBuffer.cpp",
-        "tools/fonts/TestFontMgr.cpp",
-        "tools/fonts/TestSVGTypeface.cpp",
-        "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
         "modules/svg",
@@ -3342,28 +3255,14 @@ if (skia_enable_tools) {
       sources = [
         "fuzz/FuzzSkParagraph.cpp",
         "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
-        "tools/Resources.cpp",
       ]
       deps = [ "modules/skparagraph" ]
     }
 
     libfuzzer_app("api_svg_canvas") {
-      include_dirs = [
-        "include",
-        "include/svg",
-      ]
       sources = [
         "fuzz/FuzzCanvas.cpp",
         "fuzz/oss_fuzz/FuzzAPISVGCanvas.cpp",
-        "tools/Resources.cpp",
-        "tools/UrlDataManager.cpp",
-        "tools/debugger/DebugCanvas.cpp",
-        "tools/debugger/DebugLayerManager.cpp",
-        "tools/debugger/DrawCommand.cpp",
-        "tools/debugger/JsonWriteBuffer.cpp",
-        "tools/fonts/TestFontMgr.cpp",
-        "tools/fonts/TestSVGTypeface.cpp",
-        "tools/fonts/TestTypeface.cpp",
       ]
       deps = [
         "modules/svg",
@@ -3396,13 +3295,7 @@ if (skia_enable_tools) {
     }
 
     libfuzzer_app("skottie_json") {
-      sources = [
-        "modules/skottie/fuzz/FuzzSkottieJSON.cpp",
-        "tools/Resources.cpp",
-        "tools/fonts/TestFontMgr.cpp",
-        "tools/fonts/TestSVGTypeface.cpp",
-        "tools/fonts/TestTypeface.cpp",
-      ]
+      sources = [ "modules/skottie/fuzz/FuzzSkottieJSON.cpp" ]
       deps = [
         "modules/skottie:skottie",
         "modules/svg",
