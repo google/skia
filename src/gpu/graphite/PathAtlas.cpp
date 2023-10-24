@@ -37,48 +37,42 @@ PathAtlas::PathAtlas(uint32_t width, uint32_t height) : fWidth(width), fHeight(h
 
 PathAtlas::~PathAtlas() = default;
 
-const TextureProxy* PathAtlas::addShape(Recorder* recorder,
-                                        const Rect& transformedShapeBounds,
-                                        const Shape& shape,
-                                        const Transform& localToDevice,
-                                        const SkStrokeRec& style,
-                                        CoverageMaskShape::MaskInfo* out) {
-    // Round out the shape bounds to preserve any fractional offset so that it is present in the
-    // translation that we use when deriving the atlas-space transform later.
-    Rect maskBounds = transformedShapeBounds.makeRoundOut();
-
-    // Add an additional one pixel outset as buffer between atlas slots. This prevents sampling from
-    // neighboring atlas slots; the CoverageMask renderer also uses the outset to sample zero
-    // coverage on inverse fill pixels that fall outside the mask bounds.
-    skvx::float2 maskSize = maskBounds.size();
-    skvx::float2 atlasSize = maskSize + 2;
+std::optional<CoverageMaskShape> PathAtlas::addShape(Recorder* recorder,
+                                                     const Rect& transformedShapeBounds,
+                                                     const Shape& shape,
+                                                     const Transform& localToDevice,
+                                                     const SkStrokeRec& style) {
     // It is possible for the transformed shape bounds to be fully clipped out while the draw still
     // produces coverage due to an inverse fill. In this case, don't render any mask;
     // CoverageMaskShapeRenderStep will automatically handle the simple fill. We'll handle this
     // by adding an empty mask.
-    if (transformedShapeBounds.isEmptyNegativeOrNaN()) {
-        atlasSize = 0;
-    }
+    // TODO: We could have addShape() handle this fully except we need a valid TextureProxy still.
+    const bool emptyMask = transformedShapeBounds.isEmptyNegativeOrNaN();
 
-    SkASSERT(out);
-    out->fDeviceOrigin = skvx::int2((int)maskBounds.x(), (int)maskBounds.y());
+    // Round out the shape bounds to preserve any fractional offset so that it is present in the
+    // translation that we use when deriving the atlas-space transform later.
+    Rect maskBounds = transformedShapeBounds.makeRoundOut();
 
-    skvx::half2 pos;
+    CoverageMaskShape::MaskInfo maskInfo;
+    // TODO: fDeviceOrigin will be removed from MaskInfo when CoverageMaskRenderStep uses the
+    // DrawParam's local-to-device transform, at which point addShape() will return
+    // maskBounds.topLeft() separately.
+    maskInfo.fDeviceOrigin = skvx::cast<int32_t>(maskBounds.topLeft());
+    // This size does *not* include any padding that the atlas may place around the mask. This size
+    // represents the area the shape can actually modify.
+    maskInfo.fMaskSize = emptyMask ? skvx::half2(0) : skvx::cast<uint16_t>(maskBounds.size());
+    Transform atlasTransform = localToDevice.postTranslate(-maskBounds.left(), -maskBounds.top());
     const TextureProxy* atlasProxy = this->onAddShape(recorder,
                                                       shape,
-                                                      localToDevice,
+                                                      atlasTransform,
                                                       style,
-                                                      atlasSize,
-                                                      out->fDeviceOrigin,
-                                                      &pos);
+                                                      maskInfo.fMaskSize,
+                                                      &maskInfo.fTextureOrigin);
     if (!atlasProxy) {
-        return nullptr;
+        return std::nullopt;
     }
 
-    out->fTextureOrigin = skvx::half2(pos.x(), pos.y());
-    out->fMaskSize = skvx::half2((uint16_t)maskSize.x(), (uint16_t)maskSize.y());
-
-    return atlasProxy;
+    return CoverageMaskShape(shape, atlasProxy, localToDevice.inverse(), maskInfo);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +119,7 @@ bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds)
 }
 
 const TextureProxy* ComputePathAtlas::addRect(Recorder* recorder,
-                                              skvx::float2 atlasSize,
+                                              skvx::half2 maskSize,
                                               SkIPoint16* outPos) {
     if (!this->initializeTextureIfNeeded(recorder)) {
         SKGPU_LOG_E("Failed to instantiate an atlas texture");
@@ -135,11 +129,12 @@ const TextureProxy* ComputePathAtlas::addRect(Recorder* recorder,
     // An empty mask always fits, so just return the texture.
     // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
     // another way. See PathAtlas::addShape().
-    if (!all(atlasSize)) {
+    if (!all(maskSize)) {
+        *outPos = {0, 0};
         return fTexture.get();
     }
 
-    if (!fRectanizer.addRect(atlasSize.x(), atlasSize.y(), outPos)) {
+    if (!fRectanizer.addPaddedRect(maskSize.x(), maskSize.y(), /*padding=*/1, outPos)) {
         return nullptr;
     }
 
@@ -167,15 +162,15 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
             recorder);
 }
 
-const TextureProxy* VelloComputePathAtlas::onAddShape(Recorder* recorder,
-                                                      const Shape& shape,
-                                                      const Transform& localToDevice,
-                                                      const SkStrokeRec& style,
-                                                      skvx::float2 atlasSize,
-                                                      skvx::int2 deviceOffset,
-                                                      skvx::half2* outPos) {
+const TextureProxy* VelloComputePathAtlas::onAddShape(
+        Recorder* recorder,
+        const Shape& shape,
+        const Transform& transform,
+        const SkStrokeRec& style,
+        skvx::half2 maskSize,
+        skvx::half2* outPos) {
     SkIPoint16 iPos;
-    const TextureProxy* texProxy = this->addRect(recorder, atlasSize, &iPos);
+    const TextureProxy* texProxy = this->addRect(recorder, maskSize, &iPos);
     if (!texProxy) {
         return nullptr;
     }
@@ -183,16 +178,16 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(Recorder* recorder,
     // If the mask is empty, just return.
     // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
     // another way. See PathAtlas::addShape().
-    if (!all(atlasSize)) {
+    if (!all(maskSize)) {
         return texProxy;
     }
 
     // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
     // appropriately transformed in that case.
-    SkASSERT(localToDevice.type() != Transform::Type::kProjection);
+    SkASSERT(transform.type() != Transform::Type::kProjection);
 
     // Restrict the render to the occupied area of the atlas.
-    Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x(), iPos.y()), atlasSize);
+    Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x(), iPos.y()), skvx::cast<float>(maskSize));
     fOccuppiedWidth = std::max(fOccuppiedWidth, (uint32_t)atlasBounds.right());
     fOccuppiedHeight = std::max(fOccuppiedHeight, (uint32_t)atlasBounds.bot());
 
@@ -207,23 +202,14 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(Recorder* recorder,
     // performance, future work will explore building an atlas-oriented element processing stage
     // that applies the atlas-relative translation while evaluating the stack monoid on the GPU.
 
-    // Clip the mask to the bounds of the atlas slot. When the rectangle gets turned into a path,
-    // its bottom and right edges are included in the clip, however semantically those pixels are
-    // outside the atlas region (the implementation of Rect::size() implies that the bottom-right
-    // bounds are exclusive). For the clip shape we inset the bottom and right edges by one pixel to
-    // avoid filling into neighboring regions.
-    Rect clipBounds(atlasBounds.topLeft() + 1, atlasBounds.botRight() - 1);
-    SkPath clipRect = SkPath::Rect(clipBounds.asSkRect());
+    // Clip the mask to the bounds of the atlas slot, which are already inset by 1px relative to
+    // the bounds that the Rectanizer assigned.
+    SkPath clipRect = SkPath::Rect(atlasBounds.asSkRect());
     fScene.pushClipLayer(clipRect, Transform::Identity());
 
     // The atlas transform of the shape is the linear-components (scale, rotation, skew) of
-    // `localToDevice` translated by the top-left offset of `atlasBounds`, accounting for the 1
-    // pixel-wide border we added earlier, so that the shape is correctly centered.
-    SkM44 atlasMatrix = localToDevice.matrix();
-    atlasMatrix.postTranslate(atlasBounds.x() + 1 - deviceOffset.x(),
-                              atlasBounds.y() + 1 - deviceOffset.y());
-
-    Transform atlasTransform(atlasMatrix);
+    // `localToDevice` translated by the top-left offset of `atlasBounds`.
+    Transform atlasTransform = transform.postTranslate(atlasBounds.x(), atlasBounds.y());
     SkPath devicePath = shape.asPath();
 
     // For stroke-and-fill, draw two masks into the same atlas slot: one for the stroke and one for

@@ -36,11 +36,10 @@ protected:
                                    const Shape&,
                                    const Transform& transform,
                                    const SkStrokeRec&,
-                                   skvx::float2 atlasSize,
-                                   skvx::int2 deviceOffset,
+                                   skvx::half2 maskSize,
                                    skvx::half2* outPos) override;
     const TextureProxy* addRect(Recorder* recorder,
-                                skvx::float2 atlasSize,
+                                skvx::half2 maskSize,
                                 SkIPoint16* outPos);
 
 private:

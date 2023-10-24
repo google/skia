@@ -9,8 +9,7 @@
 #define skgpu_Rectanizer_DEFINED
 
 #include "include/gpu/GrTypes.h"
-
-struct SkIPoint16;
+#include "src/core/SkIPoint16.h"
 
 namespace skgpu {
 
@@ -32,6 +31,15 @@ public:
     // successful the position in the atlas is returned in 'loc'.
     virtual bool addRect(int width, int height, SkIPoint16* loc) = 0;
     virtual float percentFull() const = 0;
+
+    bool addPaddedRect(int width, int height, int16_t padding, SkIPoint16* loc) {
+        if (this->addRect(width + 2*padding, height + 2*padding, loc)) {
+            loc->fX += padding;
+            loc->fY += padding;
+            return true;
+        }
+        return false;
+    }
 
     /**
      *  Our factory, which returns the subclass du jour

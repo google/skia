@@ -902,23 +902,20 @@ float4 coverage_mask_vertex_fn(float2 quadCoords,
     // AtlasShape is always defined based on a regular Shape geometry and we can derive the local
     // coordinates from the bounds by simply applying the inverse of the shape's localToDevice
     // transform.
-
     // Vertex coordinates.
-    float2 drawCoords = drawBounds.xy + quadCoords * max(drawBounds.zw - drawBounds.xy, maskDims);
+    float2 drawCoords = mix(drawBounds.xy, drawBounds.zw, quadCoords);
 
-    // Local coordinates used for shading.
+    // Local coordinates used for shading are derived from the final device coords and the inverse
+    // of the original local-to-device matrix.
     float3 localCoords = deviceToLocal * drawCoords.xy1;
     stepLocalCoords = localCoords.xy / localCoords.z;
 
-    // Adjust the `maskBounds` to span the full atlas entry with a 2-pixel outset (-1 since the
-    // clamp we apply in the fragment shader is inclusive). `textureCoords` get set with a 1 pixel
-    // inset and its dimensions should exactly match the draw coords.
-    //
     // For an inverse fill, `textureCoords` will get clamped to `maskBounds` and the edge pixels
-    // will always land on a 0-coverage border pixel.
+    // will always land on a 0-coverage border pixel assuming the atlas was prepared with 1px
+    // padding around each mask entry.
     if (all(greaterThan(maskDims, float2(0)))) {
-        maskBounds    = float4(uvPos, uvPos + maskDims + float2(1)) * atlasSizeInv.xyxy;
-        textureCoords = (uvPos + float2(1) + drawCoords - deviceOrigin) * atlasSizeInv;
+        maskBounds    = float4(uvPos, uvPos + maskDims) * atlasSizeInv.xyxy;
+        textureCoords = (uvPos + drawCoords - deviceOrigin) * atlasSizeInv;
     } else {
         // The mask is clipped out so send the texture coordinates to 0. This pixel should
         // always be empty.

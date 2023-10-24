@@ -50,11 +50,15 @@ public:
      * bounds in device coordinates and submits the mask to be drawn into the found atlas region.
      * For atlases that cache coverage masks, will first search the cache before adding.
      *
-     * If the shape will fit in the atlas, returns the TextureProxy where the shape data will be
-     * stored and populates `outAtlasBounds` with the atlas-space boundaries of the mask region.
-     * Otherwise, returns nullptr;
+     * Returns an empty result if a the shape cannot fit in the atlas. Otherwise, returns the
+     * CoverageMaskShape (including the texture proxy) for sampling the eventually-rendered coverage
+     * mask and the device-space origin the mask should be drawn at (e.g. its recorded draw should
+     * be an integer translation matrix).
      *
      * The bounds of the atlas entry is laid out with a 1 pixel outset from the given dimensions.
+     * The returned shape's UV origin accounts for the padding, and its mask size does not include
+     * the padding. This allows the mask to be sampled safely with linear filtering without worrying
+     * about HW filtering accessing pixels from other entries.
      *
      * `shape` will be drawn after applying the linear components (scale, rotation, skew) of the
      * provided `localToDevice` transform. This is done by  translating the shape by the inverse of
@@ -69,12 +73,11 @@ public:
      * The stroke-and-fill style is drawn as a single combined coverage mask containing the stroke
      * and the fill.
      */
-    const TextureProxy* addShape(Recorder*,
-                                 const Rect& transformedShapeBounds,
-                                 const Shape& shape,
-                                 const Transform& localToDevice,
-                                 const SkStrokeRec& style,
-                                 CoverageMaskShape::MaskInfo* outMaskInfo);
+    std::optional<CoverageMaskShape> addShape(Recorder*,
+                                              const Rect& transformedShapeBounds,
+                                              const Shape& shape,
+                                              const Transform& localToDevice,
+                                              const SkStrokeRec& style);
 
     /**
      * Returns true if a path coverage mask with the given device-space bounds is sufficiently
@@ -86,18 +89,15 @@ public:
     uint32_t height() const { return fHeight; }
 
 protected:
+    // The 'transform' has been adjusted to draw the Shape into a logical image from (0,0) to
+    // 'maskSize'. The actual rendering into the returned TextureProxy will need to be further
+    // translated by the value written to 'outPos', which is the responsibility of subclasses.
     virtual const TextureProxy* onAddShape(Recorder* recorder,
                                            const Shape&,
                                            const Transform& transform,
                                            const SkStrokeRec&,
-                                           skvx::float2 atlasSize,
-                                           skvx::int2 deviceOffset,
+                                           skvx::half2 maskSize,
                                            skvx::half2* outPos) = 0;
-
-    struct MaskFormat {
-        SkColorType fColorType = kUnknown_SkColorType;
-        bool requiresStorageUsage = false;
-    };
 
     uint32_t fWidth;
     uint32_t fHeight;
@@ -130,7 +130,7 @@ public:
 protected:
     const TextureProxy* texture() const { return fTexture.get(); }
     const TextureProxy* addRect(Recorder* recorder,
-                                skvx::float2 atlasSize,
+                                skvx::half2 maskSize,
                                 SkIPoint16* outPos);
     bool isSuitableForAtlasing(const Rect& transformedShapeBounds) const override;
 
@@ -163,8 +163,7 @@ private:
                                    const Shape&,
                                    const Transform& transform,
                                    const SkStrokeRec&,
-                                   skvx::float2 atlasSize,
-                                   skvx::int2 deviceOffset,
+                                   skvx::half2 maskSize,
                                    skvx::half2* outPos) override;
     void onReset() override {
         fScene.reset();

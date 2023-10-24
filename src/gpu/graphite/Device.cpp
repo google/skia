@@ -949,33 +949,29 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // If an atlas path renderer was chosen we need to insert the shape into the atlas and schedule
     // it to be drawn.
-    CoverageMaskShape::MaskInfo atlasMaskInfo;  // only used if `pathAtlas != nullptr`
-
-    const TextureProxy* pathAtlasTextureProxy = nullptr;
+    std::optional<CoverageMaskShape> atlasMask;  // only used if `pathAtlas != nullptr`
     if (pathAtlas != nullptr) {
-        pathAtlasTextureProxy = pathAtlas->addShape(recorder(),
-                                                    clip.transformedShapeBounds(),
-                                                    geometry.shape(),
-                                                    localToDevice,
-                                                    style,
-                                                    &atlasMaskInfo);
+        atlasMask = pathAtlas->addShape(recorder(),
+                                        clip.transformedShapeBounds(),
+                                        geometry.shape(),
+                                        localToDevice,
+                                        style);
 
         // If there was no space in the atlas and we haven't flushed already, then flush pending
         // work to clear up space in the atlas. If we had already flushed once (which would have
         // cleared the atlas) then the atlas is too small for this shape.
-        if (!pathAtlasTextureProxy && !needsFlush) {
+        if (!atlasMask && !needsFlush) {
             this->flushPendingWorkToRecorder();
 
             // Try inserting the shape again.
-            pathAtlasTextureProxy = pathAtlas->addShape(recorder(),
-                                                        clip.transformedShapeBounds(),
-                                                        geometry.shape(),
-                                                        localToDevice,
-                                                        style,
-                                                        &atlasMaskInfo);
+            atlasMask = pathAtlas->addShape(recorder(),
+                                            clip.transformedShapeBounds(),
+                                            geometry.shape(),
+                                            localToDevice,
+                                            style);
         }
 
-        if (!pathAtlasTextureProxy) {
+        if (!atlasMask) {
             SKGPU_LOG_E("Failed to add shape to atlas!");
             // TODO(b/285195175): This can happen if the atlas is not large enough or a compatible
             // atlas texture cannot be created. Handle the first case in `chooseRenderer` and make
@@ -1043,13 +1039,12 @@ void Device::drawGeometry(const Transform& localToDevice,
     // The shape will be scheduled to be rendered or uploaded into the atlas during the
     // next invocation of flushPendingWorkToRecorder().
     if (pathAtlas != nullptr) {
+        SkASSERT(atlasMask.has_value());
         // Record the draw as a fill since stroking is handled by the atlas render/upload.
-        Geometry coverageMask(CoverageMaskShape(geometry.shape(),
-                                                pathAtlasTextureProxy,
-                                                localToDevice.inverse(),
-                                                atlasMaskInfo));
-        fDC->recordDraw(
-                renderer, Transform::Identity(), coverageMask, clip, order, &shading, nullptr);
+        // TODO: This will use Transform::Translate(deviceOrigin) once CoverageMaskRenderStep uses
+        // the DrawParams transform.
+        fDC->recordDraw(renderer, Transform::Identity(), Geometry(*atlasMask),
+                        clip, order, &shading, nullptr);
     } else {
         if (styleType == SkStrokeRec::kStroke_Style ||
             styleType == SkStrokeRec::kHairline_Style ||
