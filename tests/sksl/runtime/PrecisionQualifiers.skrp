@@ -217,7 +217,7 @@ trace_var                      TraceVar(hp2₁) when $13 is true
 trace_line                     TraceLine(36) when $13 is true
 copy_4_immutables_unmasked     mp3₁(0..3) = i4..7 [0x40400000 (3.0), 0, 0, 0]
 copy_4_immutables_unmasked     mp3₁(4..7) = i8..11 [0x40400000 (3.0), 0, 0, 0]
-copy_immutable_unmasked        mp3₁(8) = i12 [0x40400000 (3.0)]
+copy_constant                  mp3₁(8) = 0x40400000 (3.0)
 trace_var                      TraceVar(mp3₁) when $13 is true
 trace_line                     TraceLine(37) when $13 is true
 copy_4_slots_unmasked          hp3₁(0..3) = mp3₁(0..3)

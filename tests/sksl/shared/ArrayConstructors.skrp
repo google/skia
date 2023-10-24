@@ -24,7 +24,7 @@ i19 = 0x41800000 (16.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_immutable_unmasked        $0 = i3 [0x40800000 (4.0)]
+copy_constant                  $0 = 0x40800000 (4.0)
 copy_2_immutables_unmasked     $1..2 = i2..3 [0x40400000 (3.0), 0x40800000 (4.0)]
 swizzle_1                      $1 = ($1..2).y
 add_float                      $0 += $1

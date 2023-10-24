@@ -63,7 +63,7 @@ copy_2_immutables_unmasked     d[0], d[1] = i0..1 [0, 0x41200000 (10.0)]
 store_loop_mask                $0 = LoopMask
 jump                           jump +8 (label 7 at #61)
 label                          label 0x00000008
-copy_immutable_unmasked        $1 = i2 [0x3F800000 (1.0)]
+copy_constant                  $1 = 0x3F800000 (1.0)
 mul_imm_float                  $1 *= 0x41100000 (9.0)
 copy_slot_masked               result(3) = Mask($1)
 copy_slot_unmasked             $1 = d[0]

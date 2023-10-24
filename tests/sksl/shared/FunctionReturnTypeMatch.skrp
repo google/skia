@@ -139,11 +139,11 @@ merge_condition_mask           CondMask = $204 & $205
 branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 17 at #94)
 copy_4_immutables_unmasked     $186..189 = i14..17 [0x40400000 (3.0), 0, 0, 0]
 copy_4_immutables_unmasked     $190..193 = i18..21 [0x40400000 (3.0), 0, 0, 0]
-copy_immutable_unmasked        $194 = i22 [0x40400000 (3.0)]
+copy_constant                  $194 = 0x40400000 (3.0)
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 26 at #87)
 copy_4_immutables_unmasked     $195..198 = i14..17 [0x40400000 (3.0), 0, 0, 0]
 copy_4_immutables_unmasked     $199..202 = i18..21 [0x40400000 (3.0), 0, 0, 0]
-copy_immutable_unmasked        $203 = i22 [0x40400000 (3.0)]
+copy_constant                  $203 = 0x40400000 (3.0)
 label                          label 0x0000001A
 cmpeq_n_floats                 $186..194 = equal($186..194, $195..203)
 bitwise_and_4_ints             $187..190 &= $191..194
@@ -242,11 +242,11 @@ merge_condition_mask           CondMask = $112 & $113
 branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 10 at #197)
 copy_4_immutables_unmasked     $94..97 = i14..17 [0x40400000 (3.0), 0, 0, 0]
 copy_4_immutables_unmasked     $98..101 = i18..21 [0x40400000 (3.0), 0, 0, 0]
-copy_immutable_unmasked        $102 = i22 [0x40400000 (3.0)]
+copy_constant                  $102 = 0x40400000 (3.0)
 branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 33 at #190)
 copy_4_immutables_unmasked     $103..106 = i14..17 [0x40400000 (3.0), 0, 0, 0]
 copy_4_immutables_unmasked     $107..110 = i18..21 [0x40400000 (3.0), 0, 0, 0]
-copy_immutable_unmasked        $111 = i22 [0x40400000 (3.0)]
+copy_constant                  $111 = 0x40400000 (3.0)
 label                          label 0x00000021
 cmpeq_n_floats                 $94..102 = equal($94..102, $103..111)
 bitwise_and_4_ints             $95..98 &= $99..102

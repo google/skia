@@ -18,8 +18,8 @@ i13 = 0x3F800000 (1.0)
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_4_immutables_unmasked     $0..3 = i0..3 [0x3F800000 (1.0), 0x3F800000 (1.0), 0x3F800000 (1.0), 0x3F800000 (1.0)]
-copy_immutable_unmasked        $4 = i4 [0x3F800000 (1.0)]
+splat_4_constants              $0..3 = 0x3F800000 (1.0)
+copy_constant                  $4 = 0x3F800000 (1.0)
 copy_4_uniforms                $5..8 = testArray[0], testArray[1], testArray[2], testArray[3]
 copy_uniform                   $9 = testArray[4]
 cmpeq_n_floats                 $0..4 = equal($0..4, $5..9)
@@ -31,14 +31,14 @@ copy_2_uniforms                $3..4 = colorRed(0..1)
 cmpeq_2_floats                 $1..2 = equal($1..2, $3..4)
 bitwise_and_int                $1 &= $2
 bitwise_or_int                 $0 |= $1
-copy_4_immutables_unmasked     $1..4 = i0..3 [0x3F800000 (1.0), 0x3F800000 (1.0), 0x3F800000 (1.0), 0x3F800000 (1.0)]
+splat_4_constants              $1..4 = 0x3F800000 (1.0)
 copy_4_uniforms                $5..8 = testMatrix2x2
 cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
 bitwise_and_2_ints             $1..2 &= $3..4
 bitwise_and_int                $1 &= $2
 bitwise_or_int                 $0 |= $1
 copy_4_immutables_unmasked     $1..4 = i5..8 [0, 0x3F800000 (1.0), 0x40000000 (2.0), 0x40400000 (3.0)]
-copy_immutable_unmasked        $5 = i9 [0x40800000 (4.0)]
+copy_constant                  $5 = 0x40800000 (4.0)
 copy_4_uniforms                $6..9 = testArray[0], testArray[1], testArray[2], testArray[3]
 copy_uniform                   $10 = testArray[4]
 cmpeq_n_floats                 $1..5 = equal($1..5, $6..10)

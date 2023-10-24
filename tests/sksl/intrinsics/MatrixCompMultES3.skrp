@@ -48,8 +48,8 @@ i43 = 0x41000000 (8.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_4_immutables_unmasked     $0..3 = i0..3 [0x41100000 (9.0), 0x41100000 (9.0), 0x41100000 (9.0), 0x41100000 (9.0)]
-copy_4_immutables_unmasked     $4..7 = i4..7 [0x41100000 (9.0), 0x41100000 (9.0), 0x41100000 (9.0), 0x41100000 (9.0)]
+splat_4_constants              $0..3 = 0x41100000 (9.0)
+splat_4_constants              $4..7 = 0x41100000 (9.0)
 copy_4_uniforms                $8..11 = colorRed
 copy_4_uniforms                $12..15 = colorGreen
 mul_n_floats                   $0..7 *= $8..15

@@ -192,12 +192,14 @@ private:
     // These methods are used to split up multi-slot copies into multiple ops as needed.
     void appendCopy(skia_private::TArray<Stage>* pipeline,
                     SkArenaAlloc* alloc,
+                    std::byte* basePtr,
                     ProgramOp baseStage,
                     SkRPOffset dst, int dstStride,
                     SkRPOffset src, int srcStride,
                     int numSlots) const;
     void appendCopyImmutableUnmasked(skia_private::TArray<Stage>* pipeline,
                                      SkArenaAlloc* alloc,
+                                     std::byte* basePtr,
                                      SkRPOffset dst,
                                      SkRPOffset src,
                                      int numSlots) const;

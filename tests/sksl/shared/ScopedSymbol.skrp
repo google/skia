@@ -32,7 +32,7 @@ load_condition_mask            CondMask = $18
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $15 & $16
 branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 2 at #33)
-copy_immutable_unmasked        $14 = i1 [0x00000001 (1.401298e-45)]
+copy_constant                  $14 = 0x00000001 (1.401298e-45)
 cmpeq_imm_int                  $14 = equal($14, 0x00000001)
 label                          label 0x00000008
 copy_slot_masked               $13 = Mask($14)
