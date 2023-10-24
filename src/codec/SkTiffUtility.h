@@ -65,6 +65,9 @@ public:
     bool getEntrySignedRational(uint16_t entryIndex, uint32_t count, float* values) const {
         return getEntryValuesGeneric(entryIndex, kTypeSignedRational, count, values);
     }
+    bool getEntryUnsignedRational(uint16_t entryIndex, uint32_t count, float* values) const {
+        return getEntryValuesGeneric(entryIndex, kTypeUnsignedRational, count, values);
+    }
 
     /*
      * If |entryIndex| has type undefined (7), then return the bytes specified by the count field
