@@ -2880,6 +2880,9 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
 }
 
 bool Generator::pushConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c) {
+    if (this->pushImmutableData(c)) {
+        return true;
+    }
     fBuilder.push_zeros(1);
     if (!this->pushExpression(*c.argument())) {
         return unsupported();

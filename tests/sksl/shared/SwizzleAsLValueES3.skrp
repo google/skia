@@ -1,14 +1,23 @@
 86 instructions
 
 [immutable slots]
-i0 = 0x3E800000 (0.25)
+i0 = 0x3F000000 (0.5)
 i1 = 0
 i2 = 0
-i3 = 0x3F400000 (0.75)
-i4 = 0x3F800000 (1.0)
-i5 = 0x3F800000 (1.0)
-i6 = 0x3E800000 (0.25)
-i7 = 0x3F800000 (1.0)
+i3 = 0
+i4 = 0x3F000000 (0.5)
+i5 = 0
+i6 = 0
+i7 = 0
+i8 = 0x3F000000 (0.5)
+i9 = 0x3E800000 (0.25)
+i10 = 0
+i11 = 0
+i12 = 0x3F400000 (0.75)
+i13 = 0x3F800000 (1.0)
+i14 = 0x3F800000 (1.0)
+i15 = 0x3E800000 (0.25)
+i16 = 0x3F800000 (1.0)
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -40,9 +49,9 @@ copy_constant                  $15 = 0
 label                          label 0x00000003
 mul_imm_int                    $15 *= 0x00000004
 copy_from_indirect_unmasked    $3..5 = Indirect(array[0](1..3) + $15)
-copy_constant                  $6 = 0
-copy_constant                  $7 = 0x3F000000 (0.5)
-shuffle                        $6..14 = ($6..14)[1 0 0 0 1 0 0 0 1]
+copy_4_immutables_unmasked     $6..9 = i0..3 [0x3F000000 (0.5), 0, 0, 0]
+copy_4_immutables_unmasked     $10..13 = i4..7 [0x3F000000 (0.5), 0, 0, 0]
+copy_immutable_unmasked        $14 = i8 [0x3F000000 (0.5)]
 matrix_multiply_3              mat3x1($0..2) = mat3x1($3..5) * mat3x3($6..14)
 copy_to_indirect_masked        Indirect(array[0](1..3) + $15) = Mask($0..2)
 add_imm_int                    gAccessCount += 0x00000001
@@ -51,7 +60,7 @@ label                          label 0x00000004
 mul_imm_int                    $15 *= 0x00000004
 copy_from_indirect_unmasked    $0..3 = Indirect(array[0] + $15)
 swizzle_4                      $0..3 = ($0..3).zywx
-copy_4_immutables_unmasked     $4..7 = i0..3 [0x3E800000 (0.25), 0, 0, 0x3F400000 (0.75)]
+copy_4_immutables_unmasked     $4..7 = i9..12 [0x3E800000 (0.25), 0, 0, 0x3F400000 (0.75)]
 add_4_floats                   $0..3 += $4..7
 swizzle_copy_to_indirect_maske Indirect(array[0] + $15).zywx = Mask($0..3)
 add_imm_int                    gAccessCount += 0x00000001
@@ -95,7 +104,7 @@ copy_to_indirect_masked        Indirect(array[0](0) + $15) = Mask($0)
 copy_slot_unmasked             $0 = gAccessCount
 cmpeq_imm_int                  $0 = equal($0, 0x00000008)
 copy_4_slots_unmasked          $1..4 = array[0]
-copy_4_immutables_unmasked     $5..8 = i4..7 [0x3F800000 (1.0), 0x3F800000 (1.0), 0x3E800000 (0.25), 0x3F800000 (1.0)]
+copy_4_immutables_unmasked     $5..8 = i13..16 [0x3F800000 (1.0), 0x3F800000 (1.0), 0x3E800000 (0.25), 0x3F800000 (1.0)]
 cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
 bitwise_and_2_ints             $1..2 &= $3..4
 bitwise_and_int                $1 &= $2

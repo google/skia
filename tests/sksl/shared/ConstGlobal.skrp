@@ -1,4 +1,4 @@
-32 instructions
+33 instructions
 
 [immutable slots]
 i0 = 0x00000007 (9.809089e-45)
@@ -37,9 +37,10 @@ copy_4_slots_unmasked          $1..4 = matrixFive(0..3)
 copy_4_slots_unmasked          $5..8 = matrixFive(4..7)
 copy_4_slots_unmasked          $9..12 = matrixFive(8..11)
 copy_4_slots_unmasked          $13..16 = matrixFive(12..15)
-copy_constant                  $17 = 0
-copy_constant                  $18 = 0x40A00000 (5.0)
-shuffle                        $17..32 = ($17..32)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
+copy_4_immutables_unmasked     $17..20 = i2..5 [0x40A00000 (5.0), 0, 0, 0]
+copy_4_immutables_unmasked     $21..24 = i6..9 [0, 0x40A00000 (5.0), 0, 0]
+copy_4_immutables_unmasked     $25..28 = i10..13 [0, 0, 0x40A00000 (5.0), 0]
+copy_4_immutables_unmasked     $29..32 = i14..17 [0, 0, 0, 0x40A00000 (5.0)]
 cmpeq_n_floats                 $1..16 = equal($1..16, $17..32)
 bitwise_and_4_ints             $9..12 &= $13..16
 bitwise_and_4_ints             $5..8 &= $9..12
