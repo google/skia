@@ -110,19 +110,16 @@ public:
 constexpr int kMaxPictureOpsToUnrollInsteadOfRef = 1;
 
 /**
- *  We implement ImageFilters for a given draw by creating a layer, then applying the
- *  imagefilter to the pixels of that layer (its backing surface/image), and then
- *  we call restore() to xfer that layer to the main canvas.
+ *  We implement ImageFilters and MaskFilters for a given draw by creating a layer, then applying
+ *  the filter to the pixels of that layer (its backing surface/image), and then we call restore()
+ *  to blend that layer to the main canvas.
  *
- *  1. SaveLayer (with a paint containing the current imagefilter and xfermode)
- *  2. Generate the src pixels:
- *      Remove the imagefilter and the xfermode from the paint that we (AutoDrawLooper)
- *      return (fPaint). We then draw the primitive (using srcover) into a cleared
- *      buffer/surface.
- *  3. Restore the layer created in #1
- *      The imagefilter is passed the buffer/surface from the layer (now filled with the
- *      src pixels of the primitive). It returns a new "filtered" buffer, which we
- *      draw onto the previous layer using the xfermode from the original paint.
+ *  If the paint has neither an image filter nor a mask filter, there will be no layer and paint()
+ *  returns the original without modification.
+ *
+ * NOTE: This works by assuming all sources of color and shading are represented by the SkPaint.
+ * Operations like drawImageRect must convert to an equivalent drawRect call if there's a mask
+ * filter, or otherwise ensure there are no mask filters (e.g. drawAtlas).
  */
 class AutoLayerForImageFilter {
 public:
@@ -145,9 +142,14 @@ public:
     const SkPaint& paint() const { return fPaint; }
 
 private:
+    void addImageFilterLayer(const SkRect* drawBounds);
+    void addMaskFilterLayer(const SkRect* drawBounds);
+
+    void addLayer(const SkPaint& restorePaint, const SkRect* drawBounds, bool coverageOnly);
+
     SkPaint         fPaint;
     SkCanvas*       fCanvas;
-    bool            fTempLayerForImageFilter;
+    int             fTempLayersForFilters;
 
     SkDEBUGCODE(int fSaveCount;)
 };

@@ -9,9 +9,12 @@
 #define SkBlurMaskFilterImpl_DEFINED
 
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
+
+class SkImageFilter;
 class SkMatrix;
 class SkRRect;
 class SkReadBuffer;
@@ -34,6 +37,7 @@ public:
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
     bool asABlur(BlurRec*) const override;
+    sk_sp<SkImageFilter> asImageFilter(const SkMatrix& ctm) const override;
 
 
     SkScalar computeXformedSigma(const SkMatrix& ctm) const;

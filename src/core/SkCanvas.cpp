@@ -44,6 +44,7 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
@@ -177,10 +178,12 @@ bool SkCanvas::predrawNotify(const SkRect* rect, const SkPaint* paint,
 
 SkCanvas::Layer::Layer(sk_sp<SkDevice> device,
                        sk_sp<SkImageFilter> imageFilter,
-                       const SkPaint& paint)
+                       const SkPaint& paint,
+                       bool isCoverage)
         : fDevice(std::move(device))
         , fImageFilter(std::move(imageFilter))
         , fPaint(paint)
+        , fIsCoverage(isCoverage)
         , fDiscard(false) {
     SkASSERT(fDevice);
     // Any image filter should have been pulled out and stored in 'imageFilter' so that 'paint'
@@ -207,9 +210,11 @@ SkCanvas::MCRec::~MCRec() {}
 
 void SkCanvas::MCRec::newLayer(sk_sp<SkDevice> layerDevice,
                                sk_sp<SkImageFilter> filter,
-                               const SkPaint& restorePaint) {
+                               const SkPaint& restorePaint,
+                               bool layerIsCoverage) {
     SkASSERT(!fBackImage);
-    fLayer = std::make_unique<Layer>(std::move(layerDevice), std::move(filter), restorePaint);
+    fLayer = std::make_unique<Layer>(std::move(layerDevice), std::move(filter),
+                                     restorePaint, layerIsCoverage);
     fDevice = fLayer->fDevice.get();
 }
 
@@ -676,7 +681,8 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
                                             const SkImageFilter* filter,
                                             const SkPaint& paint,
                                             DeviceCompatibleWithFilter compat,
-                                            SkScalar scaleFactor) {
+                                            SkScalar scaleFactor,
+                                            bool srcIsCoverageLayer) {
     // The dst is always required, the src can be null if 'filter' is non-null and does not require
     // a source image.
     SkASSERT(dst);
@@ -693,7 +699,8 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
     //  - For backdrop filters, 'src' is the parent device and 'dst' is the layer, which was already
     //    constructed as image_filter_color_type(src). Calling image_filter_color_type twice does
     //    not change the color type, so it remains the color type of the layer.
-    const SkColorType filterColorType = image_filter_color_type(dst->imageInfo());
+    const SkColorType filterColorType =
+            srcIsCoverageLayer ? kAlpha_8_SkColorType : image_filter_color_type(dst->imageInfo());
 
     // 'filter' sees the src device's buffer as the implicit input image, and processes the image
     // in this device space (referred to as the "layer" space). However, the filter
@@ -818,8 +825,24 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
              .withNewSource(source);
 
     auto result = filter ? as_IFB(filter)->filterImage(ctx) : source;
-    result = apply_alpha_and_colorfilter(ctx, result, paint);
-    result.draw(ctx, dst, paint.getBlender());
+
+    if (srcIsCoverageLayer) {
+        SkASSERT(dst->useDrawCoverageMaskForMaskFilters());
+        // TODO: Can FilterResult optimize this in any meaningful way if it still has to go through
+        // drawCoverageMask that requires an image (vs a coverage shader)?
+        auto [coverageMask, origin] = result.imageAndOffset(ctx);
+        if (coverageMask) {
+            SkMatrix deviceMatrixWithOffset = mapping.layerToDevice();
+            deviceMatrixWithOffset.preTranslate(origin.x(), origin.y());
+            dst->drawCoverageMask(coverageMask.get(),
+                                  deviceMatrixWithOffset,
+                                  result.sampling(),
+                                  paint);
+        }
+    } else {
+        result = apply_alpha_and_colorfilter(ctx, result, paint);
+        result.draw(ctx, dst, paint.getBlender());
+    }
 }
 
 #else
@@ -838,7 +861,11 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
                                             const SkImageFilter* filter,
                                             const SkPaint& paint,
                                             DeviceCompatibleWithFilter compat,
-                                            SkScalar scaleFactor) {
+                                            SkScalar scaleFactor,
+                                            bool srcIsCoverageLayer) {
+    // coverage image filters won't be supported in the old filter rendering code path
+    (void) srcIsCoverageLayer;
+
     check_drawdevice_colorspaces(src, dst);
     sk_sp<SkColorSpace> filterColorSpace = dst->imageInfo().refColorSpace(); // == src.refColorSpace
 
@@ -1075,7 +1102,9 @@ static bool must_cover_prior_device(const SkImageFilter* backdrop,
 
 #endif // SK_RESOLVE_FILTERS_BEFORE_RESTORE
 
-void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
+void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
+                                 SaveLayerStrategy strategy,
+                                 bool coverageOnly) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     // Do this before we create the layer. We don't call the public save() since that would invoke a
     // possibly overridden virtual.
@@ -1200,9 +1229,14 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     if (strategy == kFullLayer_SaveLayerStrategy) {
         SkASSERT(!layerBounds.isEmpty());
 
-        SkColorType layerColorType = SkToBool(rec.fSaveLayerFlags & kF16ColorType)
-                ? kRGBA_F16_SkColorType
-                : image_filter_color_type(priorDevice->imageInfo());
+        SkColorType layerColorType;
+        if (coverageOnly) {
+            layerColorType = kAlpha_8_SkColorType;
+        } else {
+            layerColorType = SkToBool(rec.fSaveLayerFlags & kF16ColorType)
+                                    ? kRGBA_F16_SkColorType
+                                    : image_filter_color_type(priorDevice->imageInfo());
+        }
         SkImageInfo info = SkImageInfo::Make(layerBounds.width(), layerBounds.height(),
                                              layerColorType, kPremul_SkAlphaType,
                                              priorDevice->imageInfo().refColorSpace());
@@ -1239,6 +1273,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             layerBounds.top());
 
     if (initBackdrop) {
+        SkASSERT(!coverageOnly);
         SkPaint backdropPaint;
 #if defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
         const SkImageFilter* backdropFilter = optimize_layer_filter(rec.fBackdrop, &backdropPaint);
@@ -1260,7 +1295,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                            rec.fExperimentalBackdropScale);
     }
 
-    fMCRec->newLayer(std::move(newDevice), sk_ref_sp(filter), restorePaint);
+    fMCRec->newLayer(std::move(newDevice), sk_ref_sp(filter), restorePaint, coverageOnly);
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }
 
@@ -1356,11 +1391,14 @@ void SkCanvas::internalRestore() {
                                                    dstDev,               // dst
                                                    layer->fImageFilter.get(),
                                                    layer->fPaint,
-                                                   DeviceCompatibleWithFilter::kYes);
+                                                   DeviceCompatibleWithFilter::kYes,
+                                                   /*scaleFactor=*/1.0f,
+                                                   layer->fIsCoverage);
             } else {
                 // NOTE: We don't just call internalDrawDeviceWithFilter with a null filter
                 // because we want to take advantage of overridden drawDevice functions for
                 // document-based devices.
+                SkASSERT(!layer->fIsCoverage);
                 SkSamplingOptions sampling;
                 dstDev->drawDevice(layer->fDevice.get(), sampling, layer->fPaint);
             }
@@ -2484,6 +2522,19 @@ void SkCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const S
     // the regular auto-layer-for-imagefilter process
 #endif
 
+    if (realPaint.getMaskFilter() && this->topDevice()->useDrawCoverageMaskForMaskFilters()) {
+        // Route mask-filtered drawImages to drawRect() to use the auto-layer for mask filters,
+        // which require all shading to be encoded in the paint.
+        SkRect drawDst = SkModifyPaintAndDstForDrawImageRect(
+                image, sampling, src, dst, constraint == kStrict_SrcRectConstraint, &realPaint);
+        if (drawDst.isEmpty()) {
+            return;
+        } else {
+            this->drawRect(drawDst, realPaint);
+            return;
+        }
+    }
+
     auto layer = this->aboutToDraw(this, realPaint, &dst, CheckForOverwrite::kYes,
                                    image->isOpaque() ? kOpaque_ShaderOverrideOpacity
                                                      : kNotOpaque_ShaderOverrideOpacity);
@@ -2790,6 +2841,9 @@ void SkCanvas::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const
         return;
     }
 
+    // drawAtlas should not have mask filters on its paint, so we don't need to worry about
+    // converting its "drawImage" behavior into the paint to work with the auto-mask-filter system.
+    SkASSERT(!realPaint.getMaskFilter());
     auto layer = this->aboutToDraw(this, realPaint);
     if (layer) {
         this->topDevice()->drawAtlas(xform, tex, colors, count, SkBlender::Mode(bmode),

@@ -7,8 +7,10 @@
 
 #include "src/core/SkBlurMaskFilterImpl.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
@@ -22,6 +24,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
@@ -41,6 +44,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 
 SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle style, bool respectCTM)
     : fSigma(sigma)
@@ -64,6 +68,35 @@ bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
         rec->fStyle = fBlurStyle;
     }
     return true;
+}
+
+sk_sp<SkImageFilter> SkBlurMaskFilterImpl::asImageFilter(const SkMatrix& ctm) const {
+    float sigma = fSigma;
+    if (this->ignoreXform()) {
+        // This is analogous to computeXformedSigma(), but it might be more correct to wrap the
+        // blur image filter in a local matrix with ctm^-1, or to control the skif::Mapping when
+        // the mask filter layer is restored. This is inaccurate when 'ctm' has skew or perspective
+        float xformedSigma = ctm.mapRadius(fSigma);
+        sigma /= xformedSigma;
+    }
+
+    // The null input image filter will be bound to the original coverage mask.
+    sk_sp<SkImageFilter> filter = SkImageFilters::Blur(sigma, sigma, nullptr);
+    // Combine the original coverage mask (src) and the blurred coverage mask (dst)
+    switch(fBlurStyle) {
+        case kInner_SkBlurStyle: //  dst = dst * src
+                                 //      = 0 * src + src * dst
+            return SkImageFilters::Blend(SkBlendMode::kDstIn, std::move(filter), nullptr);
+        case kSolid_SkBlurStyle: //  dst = src + dst - src * dst
+                                 //      = 1 * src + (1 - src) * dst
+            return SkImageFilters::Blend(SkBlendMode::kSrcOver, std::move(filter), nullptr);
+        case kOuter_SkBlurStyle: //  dst = dst * (1 - src)
+                                 //      = 0 * src + (1 - src) * dst
+            return SkImageFilters::Blend(SkBlendMode::kDstOut, std::move(filter), nullptr);
+        case kNormal_SkBlurStyle:
+            return filter;
+    }
+    SkUNREACHABLE;
 }
 
 SkScalar SkBlurMaskFilterImpl::computeXformedSigma(const SkMatrix& ctm) const {

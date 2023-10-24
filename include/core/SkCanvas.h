@@ -2326,9 +2326,13 @@ private:
         sk_sp<SkDevice>      fDevice;
         sk_sp<SkImageFilter> fImageFilter; // applied to layer *before* being drawn by paint
         SkPaint              fPaint;
+        bool                 fIsCoverage;
         bool                 fDiscard;
 
-        Layer(sk_sp<SkDevice> device, sk_sp<SkImageFilter> imageFilter, const SkPaint& paint);
+        Layer(sk_sp<SkDevice> device,
+              sk_sp<SkImageFilter> imageFilter,
+              const SkPaint& paint,
+              bool isCoverage);
     };
 
     // Encapsulate state needed to restore from saveBehind()
@@ -2365,7 +2369,8 @@ private:
 
         void newLayer(sk_sp<SkDevice> layerDevice,
                       sk_sp<SkImageFilter> filter,
-                      const SkPaint& restorePaint);
+                      const SkPaint& restorePaint,
+                      bool layerIsCoverage);
 
         void reset(SkDevice* device);
     };
@@ -2470,7 +2475,7 @@ private:
                              const SkMatrix* matrix = nullptr);
 
     void internalDrawPaint(const SkPaint& paint);
-    void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
+    void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy, bool coverageOnly=false);
     void internalSaveBehind(const SkRect*);
 
     void internalConcat44(const SkM44&);
@@ -2501,7 +2506,8 @@ private:
     void internalDrawDeviceWithFilter(SkDevice* src, SkDevice* dst,
                                       const SkImageFilter* filter, const SkPaint& paint,
                                       DeviceCompatibleWithFilter compat,
-                                      SkScalar scaleFactor = 1.f);
+                                      SkScalar scaleFactor = 1.f,
+                                      bool srcIsCoverageLayer = false);
 
     /*
      *  Returns true if drawing the specified rect (or all if it is null) with the specified
