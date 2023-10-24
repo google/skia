@@ -2190,6 +2190,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 
 	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use
 	// by subsequent CI tasks.
+	"android_math_test":              {"//tests:android_math_test", "tests"},
 	"hello_bazel_world_android_test": {"//gm:hello_bazel_world_android_test", "gm"},
 }
 
@@ -2273,6 +2274,15 @@ func (b *jobBuilder) bazelBuild() {
 	})
 }
 
+type precompiledBazelTestKind int
+
+const (
+	precompiledBazelTestNone precompiledBazelTestKind = iota
+	precompiledBenchmarkTest
+	precompiledGMTest
+	precompiledUnitTest
+)
+
 func (b *jobBuilder) bazelTest() {
 	taskdriverName, shorthand, config, host, cross := b.parts.bazelTestParts()
 	labelAndSavedOutputDir, ok := shorthandToLabel[shorthand]
@@ -2281,13 +2291,18 @@ func (b *jobBuilder) bazelTest() {
 	}
 
 	// Expand task driver name to keep task names short.
-	isPrecompiledGM := false
-	if taskdriverName == "precompiled" {
+	precompiledKind := precompiledBazelTestNone
+	if taskdriverName == "precompiled_benchmark" {
 		taskdriverName = "bazel_test_precompiled"
+		precompiledKind = precompiledBenchmarkTest
 	}
 	if taskdriverName == "precompiled_gm" {
 		taskdriverName = "bazel_test_precompiled"
-		isPrecompiledGM = true
+		precompiledKind = precompiledGMTest
+	}
+	if taskdriverName == "precompiled_test" {
+		taskdriverName = "bazel_test_precompiled"
+		precompiledKind = precompiledUnitTest
 	}
 	if taskdriverName == "gm" {
 		taskdriverName = "bazel_test_gm"
@@ -2354,9 +2369,14 @@ func (b *jobBuilder) bazelTest() {
 				"--command="+command,
 				"--command_workdir="+commandWorkDir)
 
-			if isPrecompiledGM {
+			switch precompiledKind {
+			case precompiledBenchmarkTest:
+				// TODO(lovisolo): Implement.
+				panic("Precompiled benchmark tests are not yet supported.")
+
+			case precompiledGMTest:
 				cmd = append(cmd,
-					"--gm",
+					"--kind=gm",
 					"--bazel_label="+labelAndSavedOutputDir.label,
 					"--goldctl_path=./cipd_bin_packages/goldctl",
 					"--git_commit="+specs.PLACEHOLDER_REVISION,
@@ -2364,6 +2384,12 @@ func (b *jobBuilder) bazelTest() {
 					"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
 					"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
 				b.cipd(CIPD_PKGS_GOLDCTL)
+
+			case precompiledUnitTest:
+				cmd = append(cmd, "--kind=unit")
+
+			default:
+				panic(fmt.Sprintf("Unknown precompiled test kind: %v", precompiledKind))
 			}
 
 		case "bazel_test_gm":

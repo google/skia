@@ -1,4 +1,5 @@
 load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//tools/testrunners/unit:android_unit_test.bzl", "android_unit_test")
 load(
     ":testgroups.bzl",
     "CORE_TESTS",
@@ -85,4 +86,9 @@ test_suite(
         ":core_tests",
         ":record_tests",
     ],
+)
+
+android_unit_test(
+    name = "android_math_test",
+    srcs = ["MathTest.cpp"],
 )

@@ -28,6 +28,7 @@ func TestRun_UnitTest_Success(t *testing.T) {
 			commandPath:    "/path/to/command",
 			commandArgs:    []string{"--foo", "bar", "--baz", "qux"},
 			commandWorkDir: "/path/to/workdir",
+			testKind:       unitTest,
 		})
 
 		assert.NoError(t, err)
@@ -176,7 +177,7 @@ func TestRun_GMTest_Success(t *testing.T) {
 			commandPath:          "/path/to/command",
 			commandArgs:          []string{"--foo", "bar", "--baz", "qux"},
 			commandWorkDir:       "/path/to/workdir",
-			isGM:                 true,
+			testKind:             gmTest,
 			undeclaredOutputsDir: t.TempDir(),
 		},
 		goldctlWorkDir,
@@ -210,7 +211,7 @@ func TestRun_GMTest_Success(t *testing.T) {
 			commandPath:          "/path/to/command",
 			commandArgs:          []string{"--foo", "bar", "--baz", "qux"},
 			commandWorkDir:       "/path/to/workdir",
-			isGM:                 true,
+			testKind:             gmTest,
 			undeclaredOutputsDir: t.TempDir(),
 		},
 		goldctlWorkDir,

@@ -31,12 +31,10 @@ var (
 	workdir        = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
 	command        = flag.String("command", "", "Path to the command to run (e.g. a shell script in a directory with CAS inputs).")
 	commandWorkDir = flag.String("command_workdir", "", "Path to the working directory of the command to run (e.g. a directory with CAS inputs).")
+	kind           = flag.String("kind", "", `Test kind ("benchmark", "gm" or "unit"). Required.`)
 
 	// Flags required for GM tests.
-	isGM  = flag.Bool("gm", false, "Whether this test is a GM (if so, we'll upload any produced images to Gold)")
-	label = flag.String("bazel_label", "", "The label of the Bazel target to test (only used if --gm is set)")
-
-	// goldctl data.
+	label            = flag.String("bazel_label", "", "The label of the Bazel target to test (only used for GM tests)")
 	goldctlPath      = flag.String("goldctl_path", "", "The path to the golctl binary on disk.")
 	gitCommit        = flag.String("git_commit", "", "The git hash to which the data should be associated. This will be used when changelist_id and patchset_order are not set to report data to Gold that belongs on the primary branch.")
 	changelistID     = flag.String("changelist_id", "", "Should be non-empty only when run on the CQ.")
@@ -54,6 +52,21 @@ func main() {
 	ctx := td.StartRun(projectId, taskId, taskName, output, local)
 	defer td.EndRun(ctx)
 
+	if *kind == "" {
+		td.Fatal(ctx, skerr.Fmt("Flag --kind is required."))
+	}
+
+	var testKind testKind
+	if *kind == "benchmark" {
+		testKind = benchmarkTest
+	} else if *kind == "gm" {
+		testKind = gmTest
+	} else if *kind == "unit" {
+		testKind = unitTest
+	} else {
+		td.Fatal(ctx, skerr.Fmt("Unknown flag --kind value: %q", *kind))
+	}
+
 	wd, err := os_steps.Abs(ctx, *workdir)
 	if err != nil {
 		td.Fatal(ctx, err)
@@ -69,12 +82,12 @@ func main() {
 			TryjobID:      *tryjobID,
 		},
 
-		isGM:           *isGM,
+		testKind:       testKind,
 		commandPath:    filepath.Join(wd, *command),
 		commandArgs:    *commandArgs,
 		commandWorkDir: filepath.Join(wd, *commandWorkDir),
 	}
-	if *isGM {
+	if testKind == gmTest {
 		tdArgs.undeclaredOutputsDir, err = os_steps.TempDir(ctx, "", "test-undeclared-outputs-dir-*")
 		if err != nil {
 			td.Fatal(ctx, err)
@@ -86,6 +99,14 @@ func main() {
 	}
 }
 
+type testKind int
+
+const (
+	benchmarkTest testKind = iota
+	gmTest
+	unitTest
+)
+
 // taskDriverArgs gathers the inputs to this task driver, and decouples the task driver's
 // entry-point function from the command line flags, which facilitates writing unit tests.
 type taskDriverArgs struct {
@@ -94,7 +115,7 @@ type taskDriverArgs struct {
 	commandPath          string
 	commandArgs          []string
 	commandWorkDir       string
-	isGM                 bool
+	testKind             testKind
 	undeclaredOutputsDir string
 }
 
@@ -102,7 +123,7 @@ type taskDriverArgs struct {
 func run(ctx context.Context, tdArgs taskDriverArgs) error {
 	// GM tests require an output directory in which to store any PNGs produced.
 	var env []string
-	if tdArgs.isGM {
+	if tdArgs.testKind == gmTest {
 		env = append(env, fmt.Sprintf("TEST_UNDECLARED_OUTPUTS_DIR=%s", tdArgs.undeclaredOutputsDir))
 	}
 
@@ -120,7 +141,7 @@ func run(ctx context.Context, tdArgs taskDriverArgs) error {
 		return skerr.Wrap(err)
 	}
 
-	if tdArgs.isGM {
+	if tdArgs.testKind == gmTest {
 		return skerr.Wrap(common.UploadToGold(ctx, tdArgs.UploadToGoldArgs, tdArgs.undeclaredOutputsDir))
 	}
 
