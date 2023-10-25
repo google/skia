@@ -54,6 +54,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -670,6 +671,7 @@ static void test_ganesh(skiatest::Reporter* r,
 #endif
 
 #if defined(SK_GRAPHITE)
+// Note: SKSL_TEST sets CTS enforcement API level to max(kApiLevel_V, ctsEnforcement) for Graphite.
 static void test_graphite(skiatest::Reporter* r,
                           skgpu::graphite::Context* ctx,
                           skiatest::graphite::GraphiteTestContext* testCtx,
@@ -905,7 +907,7 @@ static bool is_native_context_or_dawn(skgpu::ContextType type) {
     DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }                        \
     DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                               \
     DEF_GANESH_SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
-    DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path)
+    DEF_GRAPHITE_SKSL_TEST(flags, std::max(kApiLevel_V, ctsEnforcement), name, path)
 
 /**
  * Test flags:
@@ -928,6 +930,7 @@ constexpr SkSLTestFlags GPU_ES3 = SkSLTestFlag::GPU_ES3;
 constexpr SkSLTestFlags UsesNaN = SkSLTestFlag::UsesNaN;
 constexpr auto kApiLevel_T = CtsEnforcement::kApiLevel_T;
 constexpr auto kApiLevel_U = CtsEnforcement::kApiLevel_U;
+[[maybe_unused]] constexpr auto kApiLevel_V = CtsEnforcement::kApiLevel_V;
 constexpr auto kNever = CtsEnforcement::kNever;
 [[maybe_unused]] constexpr auto kNextRelease = CtsEnforcement::kNextRelease;
 
