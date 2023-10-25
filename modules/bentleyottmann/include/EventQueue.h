@@ -5,13 +5,10 @@
 #define EventQueue_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkAssert.h"
 #include "modules/bentleyottmann/include/EventQueueInterface.h"
 #include "modules/bentleyottmann/include/Point.h"
 #include "modules/bentleyottmann/include/Segment.h"
 
-#include <algorithm>
-#include <cstdint>
 #include <optional>
 #include <set>
 #include <tuple>

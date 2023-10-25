@@ -3,9 +3,11 @@
 
 #include "modules/bentleyottmann/include/BentleyOttmann1.h"
 
+#include "modules/bentleyottmann/include/Point.h"
 #include "modules/bentleyottmann/include/Segment.h"
-
 #include "tests/Test.h"
+
+#include <vector>
 
 using namespace bentleyottmann;
 

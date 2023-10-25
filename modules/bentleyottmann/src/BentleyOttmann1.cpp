@@ -4,9 +4,11 @@
 #include "modules/bentleyottmann/include/BentleyOttmann1.h"
 
 #include "modules/bentleyottmann/include/EventQueue.h"
+#include "modules/bentleyottmann/include/Segment.h"
 #include "modules/bentleyottmann/include/SweepLine.h"
 
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace bentleyottmann {

@@ -5,9 +5,13 @@
 
 #include "include/private/base/SkAssert.h"
 #include "modules/bentleyottmann/include/EventQueueInterface.h"
-
+#include "modules/bentleyottmann/include/Point.h"
 #include <algorithm>
+#include <iterator>
 #include <limits>
+#include <optional>
+#include <set>
+
 
 namespace bentleyottmann {
 

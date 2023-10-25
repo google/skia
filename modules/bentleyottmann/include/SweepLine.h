@@ -5,13 +5,13 @@
 #define SweepLine_DEFINED
 
 #include "modules/bentleyottmann/include/EventQueueInterface.h"
-#include "modules/bentleyottmann/include/Point.h"
 #include "modules/bentleyottmann/include/Segment.h"
 
-#include <limits>
+#include <cstdint>
 #include <vector>
 
 namespace bentleyottmann {
+struct Point;
 
 class SweepLine : public SweepLineInterface {
 public:

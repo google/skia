@@ -3,9 +3,9 @@
 
 #include "modules/bentleyottmann/include/BruteForceCrossings.h"
 
-#include "modules/bentleyottmann/include/Point.h"
 #include "modules/bentleyottmann/include/Segment.h"
 
+#include <optional>
 #include <vector>
 
 namespace bentleyottmann {

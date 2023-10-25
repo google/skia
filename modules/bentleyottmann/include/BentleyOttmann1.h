@@ -5,12 +5,14 @@
 #define BentleyOttman1_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "modules/bentleyottmann/include/Point.h"
-#include "modules/bentleyottmann/include/Segment.h"
 
+#include <optional>
 #include <vector>
 
 namespace bentleyottmann {
+struct Crossing;
+struct Segment;
+
 // Takes in a list of segments, and returns intersection points found in the list of segments.
 // A return value of nullopt means that the data are out of range. An empty vector means there
 // are no self intersections.

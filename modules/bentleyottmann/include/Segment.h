@@ -6,6 +6,7 @@
 
 #include "modules/bentleyottmann/include/Point.h"
 
+#include <cstdint>
 #include <optional>
 #include <tuple>
 
