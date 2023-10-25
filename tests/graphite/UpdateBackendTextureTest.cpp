@@ -91,11 +91,11 @@ sk_sp<SkImage> wrap_backend_texture(skiatest::Reporter* reporter,
                                     const skgpu::graphite::BackendTexture& backendTex,
                                     SkColorType ct,
                                     bool withMips) {
-    sk_sp<SkImage> image = SkImages::AdoptTextureFrom(recorder,
-                                                      backendTex,
-                                                      ct,
-                                                      kPremul_SkAlphaType,
-                                                      /* colorSpace= */ nullptr);
+    sk_sp<SkImage> image = SkImages::WrapTexture(recorder,
+                                                 backendTex,
+                                                 ct,
+                                                 kPremul_SkAlphaType,
+                                                 /* colorSpace= */ nullptr);
     REPORTER_ASSERT(reporter, image);
     REPORTER_ASSERT(reporter, image->hasMipmaps() == withMips);
 

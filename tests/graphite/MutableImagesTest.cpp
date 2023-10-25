@@ -224,11 +224,11 @@ public:
         update_backend_texture(fReporter, fRecorder, fBETexture, kRGBA_8888_SkColorType,
                                fWithMips, kInitialColor);
 
-        fMutatingImg = SkImages::AdoptTextureFrom(fRecorder,
-                                                  fBETexture,
-                                                  kRGBA_8888_SkColorType,
-                                                  kPremul_SkAlphaType,
-                                                  /* colorSpace= */ nullptr);
+        fMutatingImg = SkImages::WrapTexture(fRecorder,
+                                             fBETexture,
+                                             kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType,
+                                             /* colorSpace= */ nullptr);
         REPORTER_ASSERT(fReporter, fMutatingImg);
 
         return fRecorder->snap();

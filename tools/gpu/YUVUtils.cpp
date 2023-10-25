@@ -447,13 +447,13 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
                 if (!mbet) {
                     return false;
                 }
-                planeImgs[i] = SkImages::AdoptTextureFrom(recorder,
-                                                          mbet->texture(),
-                                                          fPixmaps.plane(i).colorType(),
-                                                          fPixmaps.plane(i).alphaType(),
-                                                          fColorSpace,
-                                                          ManagedGraphiteTexture::ImageReleaseProc,
-                                                          mbet->releaseContext());
+                planeImgs[i] = SkImages::WrapTexture(recorder,
+                                                     mbet->texture(),
+                                                     fPixmaps.plane(i).colorType(),
+                                                     fPixmaps.plane(i).alphaType(),
+                                                     fColorSpace,
+                                                     ManagedGraphiteTexture::ImageReleaseProc,
+                                                     mbet->releaseContext());
             }
 
             fYUVImage[idx] = SkImages::TextureFromYUVAImages(

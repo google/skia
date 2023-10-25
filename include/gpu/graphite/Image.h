@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Image_DEFINED
 #define skgpu_graphite_Image_DEFINED
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -45,7 +46,8 @@ using GraphitePromiseImageYUVAFulfillProc =
 using GraphitePromiseImageReleaseProc = void (*)(GraphitePromiseImageContext);
 using GraphitePromiseTextureReleaseProc = void (*)(GraphitePromiseTextureReleaseContext);
 
-/** Creates an SkImage from a GPU texture associated with the recorder.
+/** Creates an SkImage from a GPU texture associated with the recorder. The client is still
+    responsible for managing the backend texture's lifetime.
 
     SkImage is returned if the format of backendTexture is recognized and supported.
     Recognized formats vary by GPU back-end.
@@ -63,57 +65,77 @@ using GraphitePromiseTextureReleaseProc = void (*)(GraphitePromiseTextureRelease
                                BottomLeft
     @return                    created SkImage, or nullptr
 */
-SK_API sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder*,
-                                       const skgpu::graphite::BackendTexture&,
+SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
+                                  const skgpu::graphite::BackendTexture&,
+                                  SkColorType colorType,
+                                  SkAlphaType alphaType,
+                                  sk_sp<SkColorSpace> colorSpace,
+                                  skgpu::Origin origin,
+                                  TextureReleaseProc = nullptr,
+                                  ReleaseContext = nullptr);
+
+SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
+                                  const skgpu::graphite::BackendTexture&,
+                                  SkColorType colorType,
+                                  SkAlphaType alphaType,
+                                  sk_sp<SkColorSpace> colorSpace,
+                                  TextureReleaseProc = nullptr,
+                                  ReleaseContext = nullptr);
+
+#if !defined(SK_DISABLE_LEGACY_GRAPHITE_IMAGES)
+inline sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder* recorder,
+                                       const skgpu::graphite::BackendTexture& tex,
                                        SkColorType colorType,
                                        SkAlphaType alphaType,
                                        sk_sp<SkColorSpace> colorSpace,
                                        skgpu::Origin origin,
-                                       TextureReleaseProc = nullptr,
-                                       ReleaseContext = nullptr);
+                                       TextureReleaseProc trProc = nullptr,
+                                       ReleaseContext ctx = nullptr) {
+    return WrapTexture(recorder, tex, colorType, alphaType, colorSpace, origin, trProc, ctx);
+}
 
-SK_API sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder*,
-                                       const skgpu::graphite::BackendTexture&,
+inline sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder* recorder,
+                                       const skgpu::graphite::BackendTexture& tex,
                                        SkColorType colorType,
                                        SkAlphaType alphaType,
                                        sk_sp<SkColorSpace> colorSpace,
-                                       TextureReleaseProc = nullptr,
-                                       ReleaseContext = nullptr);
+                                       TextureReleaseProc trProc = nullptr,
+                                       ReleaseContext ctx = nullptr) {
+    return WrapTexture(recorder, tex, colorType, alphaType, colorSpace, trProc, ctx);
+}
+#endif
 
-/** Create a new SkImage that is very similar to an SkImage created by
-    AdoptTextureFrom. The difference is that the caller need not have created the
-    backend texture nor populated it with data when creating the image. Instead of passing a
-    BackendTexture to the factory the client supplies a description of the texture consisting
-    of dimensions, TextureInfo, SkColorInfo and Volatility.
+/** Create a new SkImage that is very similar to an SkImage created by WrapTexture. The difference
+    is that the caller need not have created the backend texture nor populated it with data when
+    creating the image. Instead of passing a BackendTexture to the factory the client supplies a
+    description of the texture consisting of dimensions, TextureInfo, SkColorInfo and Volatility.
 
-    In general, 'fulfill' must return a BackendTexture that matches the properties
-    provided at SkImage creation time. The BackendTexture must refer to a valid existing
-    texture in the backend API context/device, and already be populated with data.
-    The texture cannot be deleted until 'textureRelease' is called. 'textureRelease' will
-    be called with the textureReleaseContext returned by 'fulfill'.
+    In general, 'fulfill' must return a BackendTexture that matches the properties provided at
+    SkImage creation time. The BackendTexture must refer to a valid existing texture in the backend
+    API context/device, and already be populated with data. The texture cannot be deleted until
+    'textureRelease' is called. 'textureRelease' will be called with the textureReleaseContext
+    returned by 'fulfill'.
 
-    Wrt when and how often the fulfill, imageRelease, and textureRelease callbacks will
-    be called:
+    Wrt when and how often the fulfill, imageRelease, and textureRelease callbacks will be called:
 
-    For non-volatile promise images, 'fulfill' will be called at Context::insertRecording
-    time. Regardless of whether 'fulfill' succeeded or failed, 'imageRelease' will always be
-    called only once - when Skia will no longer try calling 'fulfill' to get a backend
-    texture. If 'fulfill' failed (i.e., it didn't return a valid backend texture) then
-    'textureRelease' will never be called. If 'fulfill' was successful then
-    'textureRelease' will be called only once when the GPU is done with the contents of the
-    promise image. This will usually occur during a Context::submit call but it could occur
-    earlier due to error conditions. 'fulfill' can be called multiple times if the promise
-    image is used in multiple recordings. If 'fulfill' fails, the insertRecording itself will
-    fail. Subsequent insertRecording calls (with Recordings that use the promise image) will
-    keep calling 'fulfill' until it succeeds.
+    For non-volatile promise images, 'fulfill' will be called at Context::insertRecording time.
+    Regardless of whether 'fulfill' succeeded or failed, 'imageRelease' will always be called only
+    once - when Skia will no longer try calling 'fulfill' to get a backend texture. If 'fulfill'
+    failed (i.e., it didn't return a valid backend texture) then 'textureRelease' will never be
+    called. If 'fulfill' was successful then 'textureRelease' will be called only once when the GPU
+    is done with the contents of the promise image. This will usually occur during a Context::submit
+    call but it could occur earlier due to error conditions. 'fulfill' can be called multiple times
+    if the promise image is used in multiple recordings. If 'fulfill' fails, the insertRecording
+    itself will fail. Subsequent insertRecording calls (with Recordings that use the promise image)
+    will keep calling 'fulfill' until it succeeds.
 
-    For volatile promise images, 'fulfill' will be called each time the Recording is inserted
-    into a Context. Regardless of whether 'fulfill' succeeded or failed, 'imageRelease'
-    will always be called only once just like the non-volatile case. If 'fulfill' fails at
-    insertRecording-time, 'textureRelease' will never be called. If 'fulfill' was successful
-    then a 'textureRelease' matching that 'fulfill' will be called when the GPU is done with
-    the contents of the promise image. This will usually occur during a Context::submit call
-    but it could occur earlier due to error conditions.
+    For volatile promise images, 'fulfill' will be called each time the Recording is inserted into a
+    Context. Regardless of whether 'fulfill' succeeded or failed, 'imageRelease' will always be
+    called only once just like the non-volatile case. If 'fulfill' fails at insertRecording-time,
+    'textureRelease' will never be called. If 'fulfill' was successful then a 'textureRelease'
+    matching that 'fulfill' will be called when the GPU is done with the contents of the promise
+    image. This will usually occur during a Context::submit call but it could occur earlier due to
+    error conditions.
 
     @param recorder       the recorder that will capture the commands creating the image
     @param dimensions     width & height of promised gpu texture
@@ -150,16 +172,16 @@ SK_API sk_sp<SkImage> PromiseTextureFrom(skgpu::graphite::Recorder*,
                                          GraphitePromiseImageContext);
 
 /** This is similar to 'PromiseTextureFrom' but it creates a GPU-backed SkImage from YUV[A] data.
-    The source data may be planar (i.e. spread across multiple textures). In
-    the extreme Y, U, V, and A are all in different planes and thus the image is specified by
-    four textures. 'backendTextureInfo' describes the planar arrangement, texture formats,
-    and conversion to RGB. Separate 'fulfill' and 'textureRelease' calls are made for each texture.
-    Each texture has its own GraphitePromiseTextureContext. The GraphitePromiseImageReleaseProc
-    will be made even on failure. 'textureContexts' has one entry for each of the up to four
-    textures, as indicated by 'backendTextureInfo'. Currently the mipmapped property of
-    'backendTextureInfo' is ignored. However, in the near future it will be required that if it is
-    kYes then the fulfillProc must return a mip mapped texture for each plane in order to
-    successfully draw the image.
+    The source data may be planar (i.e. spread across multiple textures). In the extreme Y, U, V,
+    and A are all in different planes and thus the image is specified by four textures.
+    'backendTextureInfo' describes the planar arrangement, texture formats, and conversion to RGB.
+    Separate 'fulfill' and 'textureRelease' calls are made for each texture. Each texture has its
+    own GraphitePromiseTextureContext. The GraphitePromiseImageReleaseProc will be made even on
+    failure. 'textureContexts' has one entry for each of the up to four textures, as indicated by
+    'backendTextureInfo'. Currently the mipmapped property of 'backendTextureInfo' is ignored.
+    However, in the near future it will be required that if it is kYes then the fulfillProc must
+    return a mip mapped texture for each plane in order to successfully draw the image.
+
     @param recorder            the recorder that will capture the commands creating the image
     @param backendTextureInfo  info about the promised yuva gpu texture(s)
     @param imageColorSpace     range of colors; may be nullptr
@@ -184,19 +206,19 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder*,
                                              GraphitePromiseTextureContext textureContexts[]);
 
 
-/** Returns an SkImage backed by a Graphite texture, using the provided Recorder for creation
-    and uploads if necessary. The returned SkImage respects the required image properties'
-    mipmap setting for non-Graphite SkImages; i.e., if mipmapping is required, the backing
-    Graphite texture will have allocated mip map levels.
+/** Returns an SkImage backed by a Graphite texture, using the provided Recorder for creation and
+    uploads if necessary. The returned SkImage respects the required image properties' mipmap
+    setting for non-Graphite SkImages; i.e., if mipmapping is required, the backing Graphite texture
+    will have allocated mip map levels.
 
     It is assumed that MIP maps are always supported by the GPU.
 
-    Returns original SkImage if the image is already Graphite-backed and the required mipmapping
-    is compatible with the backing Graphite texture. If the required mipmapping is not
-    compatible, nullptr will be returned.
+    Returns original SkImage if the image is already Graphite-backed and the required mipmapping is
+    compatible with the backing Graphite texture. If the required mipmapping is not compatible,
+    nullptr will be returned.
 
-    Returns nullptr if no Recorder is provided, or if SkImage was created with another
-    Recorder and work on that Recorder has not been submitted.
+    Returns nullptr if no Recorder is provided, or if SkImage was created with another Recorder and
+    work on that Recorder has not been submitted.
 
     @param Recorder            the Recorder to use for storing commands
     @param RequiredProperties  properties the returned SkImage must possess (e.g. mipmaps)
@@ -214,13 +236,12 @@ inline sk_sp<SkImage> TextureFromImage(skgpu::graphite::Recorder* r,
 
 /** Creates SkImage from SkYUVAPixmaps.
 
-    The image will remain planar with each plane converted to a texture using the passed
-    Recorder.
+    The image will remain planar with each plane converted to a texture using the passed Recorder.
 
-    SkYUVAPixmaps has a SkYUVAInfo which specifies the transformation from YUV to RGB.
-    The SkColorSpace of the resulting RGB values is specified by imgColorSpace. This will
-    be the SkColorSpace reported by the image and when drawn the RGB values will be converted
-    from this space into the destination space (if the destination is tagged).
+    SkYUVAPixmaps has a SkYUVAInfo which specifies the transformation from YUV to RGB. The
+    SkColorSpace of the resulting RGB values is specified by imgColorSpace. This will be the
+    SkColorSpace reported by the image and when drawn the RGB values will be converted from this
+    space into the destination space (if the destination is tagged).
 
     This is only supported using the GPU backend and will fail if recorder is nullptr.
 
@@ -259,10 +280,10 @@ SK_API sk_sp<SkImage> TextureFromYUVATextures(
 
 /** Creates an SkImage from YUV[A] planar SkImages associated with the recorder.
 
-    The images should have kGraphite type, and the result will be nullptr if any are not.
-    The resulting SkImage will not take a ref on the given SkImages but will take a ref on
-    the underlying TextureProxies. The releaseProcs, if any, for those Textures will be the
-    ones set when the given SkImages were created.
+    The images should have kGraphite type, and the result will be nullptr if any are not. The
+    resulting SkImage will not take a ref on the given SkImages but will take a ref on the
+    underlying TextureProxies. The releaseProcs, if any, for those Textures will be the ones set
+    when the given SkImages were created.
 
      @param recorder            The recorder.
      @param yuvaInfo            Structure describing the YUVA format
@@ -297,19 +318,17 @@ SK_API sk_sp<SkImage> SubsetTextureFrom(skgpu::graphite::Recorder* recorder,
                                         SkImage::RequiredProperties props = {});
 
 /** Creates a filtered SkImage on the GPU. filter processes the src image, potentially changing
-    color, position, and size. subset is the bounds of src that are processed
-    by filter. clipBounds is the expected bounds of the filtered SkImage. outSubset
-    is required storage for the actual bounds of the filtered SkImage. offset is
-    required storage for translation of returned SkImage.
+    color, position, and size. subset is the bounds of src that are processed by filter. clipBounds
+    is the expected bounds of the filtered SkImage. outSubset is required storage for the actual
+    bounds of the filtered SkImage. offset is required storage for translation of returned SkImage.
 
-    Returns nullptr if SkImage could not be created. If nullptr is returned, outSubset
-    and offset are undefined.
+    Returns nullptr if SkImage could not be created. If nullptr is returned, outSubset and offset
+    are undefined.
 
-    Useful for animation of SkImageFilter that varies size from frame to frame.
-    Returned SkImage is created larger than required by filter so that GPU texture
-    can be reused with different sized effects. outSubset describes the valid bounds
-    of GPU texture returned. offset translates the returned SkImage to keep subsequent
-    animation frames aligned with respect to each other.
+    Useful for animation of SkImageFilter that varies size from frame to frame. Returned SkImage is
+    created larger than required by filter so that GPU texture can be reused with different sized
+    effects. outSubset describes the valid bounds of GPU texture returned. offset translates the
+    returned SkImage to keep subsequent animation frames aligned with respect to each other.
 
     @param recorder    the recorder in which the filtering operation is to be performed
     @param filter      how SkImage is sampled when transformed

@@ -62,14 +62,14 @@ static bool validate_backend_texture(const skgpu::graphite::Caps* caps,
     return caps->areColorTypeAndTextureInfoCompatible(info.colorType(), texture.info());
 }
 
-sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
-                                const BackendTexture& backendTex,
-                                SkColorType ct,
-                                SkAlphaType at,
-                                sk_sp<SkColorSpace> cs,
-                                skgpu::Origin origin,
-                                TextureReleaseProc releaseP,
-                                ReleaseContext releaseC) {
+sk_sp<SkImage> WrapTexture(Recorder* recorder,
+                           const BackendTexture& backendTex,
+                           SkColorType ct,
+                           SkAlphaType at,
+                           sk_sp<SkColorSpace> cs,
+                           skgpu::Origin origin,
+                           TextureReleaseProc releaseP,
+                           ReleaseContext releaseC) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
 
     if (!recorder) {
@@ -99,21 +99,21 @@ sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
     return sk_make_sp<skgpu::graphite::Image>(kNeedNewImageUniqueID, view, info);
 }
 
-sk_sp<SkImage> AdoptTextureFrom(Recorder* recorder,
-                                const BackendTexture& backendTex,
-                                SkColorType ct,
-                                SkAlphaType at,
-                                sk_sp<SkColorSpace> cs,
-                                TextureReleaseProc releaseP,
-                                ReleaseContext releaseC) {
-    return AdoptTextureFrom(recorder,
-                            backendTex,
-                            ct,
-                            at,
-                            std::move(cs),
-                            skgpu::Origin::kTopLeft,
-                            releaseP,
-                            releaseC);
+sk_sp<SkImage> WrapTexture(Recorder* recorder,
+                           const BackendTexture& backendTex,
+                           SkColorType ct,
+                           SkAlphaType at,
+                           sk_sp<SkColorSpace> cs,
+                           TextureReleaseProc releaseP,
+                           ReleaseContext releaseC) {
+    return WrapTexture(recorder,
+                       backendTex,
+                       ct,
+                       at,
+                       std::move(cs),
+                       skgpu::Origin::kTopLeft,
+                       releaseP,
+                       releaseC);
 }
 
 sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
