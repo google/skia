@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "skcms.h"  // NO_G3_REWRITE
-#include "skcms_internal.h"  // NO_G3_REWRITE
+#include "skcms.h"
+#include "skcms_internal.h"
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
@@ -2305,7 +2305,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 typedef enum {
     Op_load_a8,
     Op_load_g8,
-    Op_load_8888_palette8,
     Op_load_4444,
     Op_load_565,
     Op_load_888,
@@ -2577,26 +2576,25 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
 
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     switch (fmt >> 1) {   // ignore rgb/bgr
-        case skcms_PixelFormat_A_8                >> 1: return  1;
-        case skcms_PixelFormat_G_8                >> 1: return  1;
-        case skcms_PixelFormat_RGBA_8888_Palette8 >> 1: return  1;
-        case skcms_PixelFormat_ABGR_4444          >> 1: return  2;
-        case skcms_PixelFormat_RGB_565            >> 1: return  2;
-        case skcms_PixelFormat_RGB_888            >> 1: return  3;
-        case skcms_PixelFormat_RGBA_8888          >> 1: return  4;
-        case skcms_PixelFormat_RGBA_8888_sRGB     >> 1: return  4;
-        case skcms_PixelFormat_RGBA_1010102       >> 1: return  4;
-        case skcms_PixelFormat_RGB_101010x_XR     >> 1: return  4;
-        case skcms_PixelFormat_RGB_161616LE       >> 1: return  6;
-        case skcms_PixelFormat_RGBA_16161616LE    >> 1: return  8;
-        case skcms_PixelFormat_RGB_161616BE       >> 1: return  6;
-        case skcms_PixelFormat_RGBA_16161616BE    >> 1: return  8;
-        case skcms_PixelFormat_RGB_hhh_Norm       >> 1: return  6;
-        case skcms_PixelFormat_RGBA_hhhh_Norm     >> 1: return  8;
-        case skcms_PixelFormat_RGB_hhh            >> 1: return  6;
-        case skcms_PixelFormat_RGBA_hhhh          >> 1: return  8;
-        case skcms_PixelFormat_RGB_fff            >> 1: return 12;
-        case skcms_PixelFormat_RGBA_ffff          >> 1: return 16;
+        case skcms_PixelFormat_A_8             >> 1: return  1;
+        case skcms_PixelFormat_G_8             >> 1: return  1;
+        case skcms_PixelFormat_ABGR_4444       >> 1: return  2;
+        case skcms_PixelFormat_RGB_565         >> 1: return  2;
+        case skcms_PixelFormat_RGB_888         >> 1: return  3;
+        case skcms_PixelFormat_RGBA_8888       >> 1: return  4;
+        case skcms_PixelFormat_RGBA_8888_sRGB  >> 1: return  4;
+        case skcms_PixelFormat_RGBA_1010102    >> 1: return  4;
+        case skcms_PixelFormat_RGB_101010x_XR  >> 1: return  4;
+        case skcms_PixelFormat_RGB_161616LE    >> 1: return  6;
+        case skcms_PixelFormat_RGBA_16161616LE >> 1: return  8;
+        case skcms_PixelFormat_RGB_161616BE    >> 1: return  6;
+        case skcms_PixelFormat_RGBA_16161616BE >> 1: return  8;
+        case skcms_PixelFormat_RGB_hhh_Norm    >> 1: return  6;
+        case skcms_PixelFormat_RGBA_hhhh_Norm  >> 1: return  8;
+        case skcms_PixelFormat_RGB_hhh         >> 1: return  6;
+        case skcms_PixelFormat_RGBA_hhhh       >> 1: return  8;
+        case skcms_PixelFormat_RGB_fff         >> 1: return 12;
+        case skcms_PixelFormat_RGBA_ffff       >> 1: return 16;
     }
     assert(false);
     return 0;
@@ -2629,22 +2627,7 @@ bool skcms_Transform(const void*             src,
                      skcms_PixelFormat       dstFmt,
                      skcms_AlphaFormat       dstAlpha,
                      const skcms_ICCProfile* dstProfile,
-                     size_t                  npixels) {
-    return skcms_TransformWithPalette(src, srcFmt, srcAlpha, srcProfile,
-                                      dst, dstFmt, dstAlpha, dstProfile,
-                                      npixels, nullptr);
-}
-
-bool skcms_TransformWithPalette(const void*             src,
-                                skcms_PixelFormat       srcFmt,
-                                skcms_AlphaFormat       srcAlpha,
-                                const skcms_ICCProfile* srcProfile,
-                                void*                   dst,
-                                skcms_PixelFormat       dstFmt,
-                                skcms_AlphaFormat       dstAlpha,
-                                const skcms_ICCProfile* dstProfile,
-                                size_t                  nz,
-                                const void*             palette) {
+                     size_t                  nz) {
     const size_t dst_bpp = bytes_per_pixel(dstFmt),
                  src_bpp = bytes_per_pixel(srcFmt);
     // Let's just refuse if the request is absurdly big.
@@ -2666,10 +2649,6 @@ bool skcms_TransformWithPalette(const void*             src,
         return false;
     }
     // TODO: more careful alias rejection (like, dst == src + 1)?
-
-    if (needs_palette(srcFmt) && !palette) {
-        return false;
-    }
 
     Op          program  [32];
     const void* arguments[32];
@@ -2706,9 +2685,6 @@ bool skcms_TransformWithPalette(const void*             src,
         case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_load_fff;        break;
         case skcms_PixelFormat_RGBA_ffff       >> 1: *ops++ = Op_load_ffff;       break;
 
-        case skcms_PixelFormat_RGBA_8888_Palette8 >> 1: *ops++  = Op_load_8888_palette8;
-                                                        *args++ = palette;
-                                                        break;
         case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
             *ops++ = Op_load_8888;
             *ops++ = Op_tf_r;       *args++ = skcms_sRGB_TransferFunction();

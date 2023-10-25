@@ -819,17 +819,6 @@ static void exec_ops(const Op* ops, const void** args,
                 a = cast<F>((rgba >> 24) & 0xff) * (1/255.0f);
             } break;
 
-            case Op_load_8888_palette8:{
-                const uint8_t* palette = (const uint8_t*) *args++;
-                I32 ix = cast<I32>(load<U8>(src + 1*i));
-                U32 rgba = gather_32(palette, ix);
-
-                r = cast<F>((rgba >>  0) & 0xff) * (1/255.0f);
-                g = cast<F>((rgba >>  8) & 0xff) * (1/255.0f);
-                b = cast<F>((rgba >> 16) & 0xff) * (1/255.0f);
-                a = cast<F>((rgba >> 24) & 0xff) * (1/255.0f);
-            } break;
-
             case Op_load_1010102:{
                 U32 rgba = load<U32>(src + 4*i);
 
