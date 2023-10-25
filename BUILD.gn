@@ -1490,6 +1490,7 @@ skia_component("skia") {
   ]
 
   public = skia_core_public
+  public += skia_codec_public
   public += skia_utils_public
   public += skia_effects_public
   public += skia_effects_imagefilter_public

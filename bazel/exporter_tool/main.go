@@ -19,6 +19,11 @@ import (
 
 var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/codec.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_codec_public",
+			Rules: []string{
+				"//include/codec:public_hdrs",
+			},
+		},
 		{Var: "skia_codec_core",
 			Rules: []string{
 				"//src/codec:core_hdrs",
