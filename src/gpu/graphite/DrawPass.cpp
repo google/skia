@@ -66,8 +66,7 @@ public:
 
     // See note below in GeometryUniformField. This value can be round-tripped within the SortKey
     // packing for all fields but will not be produced when recording actual draw data.
-    static constexpr Index kInvalidIndex{1 << SkNextLog2_portable(Renderer::kMaxRenderSteps *
-                                                                  DrawList::kMaxDraws)};
+    static constexpr Index kInvalidIndex{1 << SkNextLog2_portable(DrawList::kMaxRenderSteps)};
 
     bool empty() const { return fIndexToData.empty(); }
     size_t size() const { return fIndexToData.size(); }
@@ -370,15 +369,15 @@ private:
     using ColorDepthOrderField = Bitfield<16, 48>; // sizeof(CompressedPaintersOrder)
     using StencilIndexField    = Bitfield<16, 32>; // sizeof(DisjointStencilIndex)
     using RenderStepField      = Bitfield<2,  30>; // bits >= log2(Renderer::kMaxRenderSteps)
-    using PipelineField        = Bitfield<30, 0>;  // bits >= log2(max steps*DrawList::kMaxDraws)
+    using PipelineField        = Bitfield<30, 0>;  // bits >= log2(max total steps in draw list)
     uint64_t fPipelineKey;
 
     // The uniform/texture index fields need 1 extra bit to encode "no-data". Values that are
     // greater than or equal to 2^(bits-1) represent "no-data", while values between
     // [0, 2^(bits-1)-1] can access data arrays without extra logic.
-    using GeometryUniformField = Bitfield<22, 42>; // bits >= 1+log2(max steps * max draw count)
-    using ShadingUniformField  = Bitfield<21, 21>; // bits >= 1+log2(max steps * max draw count)
-    using TextureBindingsField = Bitfield<21, 0>;  // bits >= 1+log2(max steps * max draw count)
+    using GeometryUniformField = Bitfield<17, 47>; // bits >= 1+log2(max total steps)
+    using ShadingUniformField  = Bitfield<17, 30>; // bits >= 1+log2(max total steps)
+    using TextureBindingsField = Bitfield<30, 0>;  // bits >= 1+log2(max total steps)
     uint64_t fUniformKey;
 
     // Backpointer to the draw that produced the sort key
@@ -387,14 +386,10 @@ private:
     static_assert(ColorDepthOrderField::kBits >= sizeof(CompressedPaintersOrder));
     static_assert(StencilIndexField::kBits    >= sizeof(DisjointStencilIndex));
     static_assert(RenderStepField::kBits      >= SkNextLog2_portable(Renderer::kMaxRenderSteps));
-    static_assert(PipelineField::kBits        >=
-                          SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
-    static_assert(GeometryUniformField::kBits >=
-                          1 + SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
-    static_assert(ShadingUniformField::kBits  >=
-                          1 + SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
-    static_assert(TextureBindingsField::kBits >=
-                          1 + SkNextLog2_portable(Renderer::kMaxRenderSteps * DrawList::kMaxDraws));
+    static_assert(PipelineField::kBits        >= SkNextLog2_portable(DrawList::kMaxRenderSteps));
+    static_assert(GeometryUniformField::kBits >= 1+SkNextLog2_portable(DrawList::kMaxRenderSteps));
+    static_assert(ShadingUniformField::kBits  >= 1+SkNextLog2_portable(DrawList::kMaxRenderSteps));
+    static_assert(TextureBindingsField::kBits >= 1+SkNextLog2_portable(DrawList::kMaxRenderSteps));
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ public:
 
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
-    int pendingDrawCount() const { return fPendingDraws->drawCount(); }
+    int pendingRenderSteps() const { return fPendingDraws->renderStepCount(); }
 
     void clear(const SkColor4f& clearColor);
 

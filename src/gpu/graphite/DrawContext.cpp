@@ -140,7 +140,7 @@ PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
 }
 
 void DrawContext::snapDrawPass(Recorder* recorder) {
-    if (fPendingDraws->drawCount() == 0 && fPendingLoadOp != LoadOp::kClear) {
+    if (fPendingDraws->renderStepCount() == 0 && fPendingLoadOp != LoadOp::kClear) {
         return;
     }
 

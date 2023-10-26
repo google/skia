@@ -937,12 +937,16 @@ void Device::drawGeometry(const Transform& localToDevice,
     // When using a tessellating path renderer a stroke-and-fill is rendered using two draws. When
     // drawing from an atlas we issue a single draw as the atlas mask covers both styles.
     SkStrokeRec::Style styleType = style.getStyle();
-    const int numNewDraws = !pathAtlas && (styleType == SkStrokeRec::kStrokeAndFill_Style) ? 2 : 1;
+    const int numNewRenderSteps =
+            renderer->numRenderSteps() +
+            (!pathAtlas && (styleType == SkStrokeRec::kStrokeAndFill_Style)
+                     ? fRecorder->priv().rendererProvider()->tessellatedStrokes()->numRenderSteps()
+                     : 0);
 
     // Decide if we have any reason to flush pending work. We want to flush before updating the clip
     // state or making any permanent changes to a path atlas, since otherwise clip operations and/or
     // atlas entries for the current draw will be flushed.
-    const bool needsFlush = this->needsFlushBeforeDraw(numNewDraws, dstReadReq);
+    const bool needsFlush = this->needsFlushBeforeDraw(numNewRenderSteps, dstReadReq);
     if (needsFlush) {
         this->flushPendingWorkToRecorder();
     }
@@ -1080,10 +1084,6 @@ void Device::drawClipShape(const Transform& localToDevice,
                            const Shape& shape,
                            const Clip& clip,
                            DrawOrder order) {
-    // This call represents one of the deferred clip shapes that's already pessimistically counted
-    // in needsFlushBeforeDraw(), so the DrawContext should have room to add it.
-    SkASSERT(fDC->pendingDrawCount() + 1 < DrawList::kMaxDraws);
-
     // A clip draw's state is almost fully defined by the ClipStack. The only thing we need
     // to account for is selecting a Renderer and tracking the stencil buffer usage.
     Geometry geometry{shape};
@@ -1099,6 +1099,10 @@ void Device::drawClipShape(const Transform& localToDevice,
                                                                  clip.drawBounds());
         order.dependsOnStencil(setIndex);
     }
+
+    // This call represents one of the deferred clip shapes that's already pessimistically counted
+    // in needsFlushBeforeDraw(), so the DrawContext should have room to add it.
+    SkASSERT(fDC->pendingRenderSteps() + renderer->numRenderSteps() < DrawList::kMaxRenderSteps);
 
     // Anti-aliased clipping requires the renderer to use MSAA to modify the depth per sample, so
     // analytic coverage renderers cannot be used.
@@ -1303,12 +1307,12 @@ void Device::flushPendingWorkToRecorder() {
     // drawn into the Device, and not just the currently accumulating pass.
 }
 
-bool Device::needsFlushBeforeDraw(int numNewDraws, DstReadRequirement dstReadReq) const {
+bool Device::needsFlushBeforeDraw(int numNewRenderSteps, DstReadRequirement dstReadReq) const {
     // Must also account for the elements in the clip stack that might need to be recorded.
-    numNewDraws += fClip.maxDeferredClipDraws();
+    numNewRenderSteps += fClip.maxDeferredClipDraws() * Renderer::kMaxRenderSteps;
     return
             // Need flush if we don't have room to record into the current list.
-            (DrawList::kMaxDraws - fDC->pendingDrawCount()) < numNewDraws ||
+            (DrawList::kMaxRenderSteps - fDC->pendingRenderSteps()) < numNewRenderSteps ||
             // Need flush if this draw needs to copy the dst surface for reading.
             dstReadReq == DstReadRequirement::kTextureCopy;
 }

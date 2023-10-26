@@ -56,13 +56,13 @@ class Renderer;
  */
 class DrawList {
 public:
-    // The maximum number of draw calls that can be recorded into a DrawList before it must be
+    // The maximum number of render steps that can be recorded into a DrawList before it must be
     // converted to a DrawPass. The true fundamental limit is imposed by the limits of the depth
     // attachment and precision of CompressedPaintersOrder and PaintDepth. These values can be
     // shared by multiple draw calls so it's more difficult to reason about how much room is left
     // in a DrawList. Limiting it to this keeps tracking simple and ensures that the sequences in
     // DrawOrder cannot overflow since they are always less than or equal to the number of draws.
-    static constexpr int kMaxDraws = std::numeric_limits<uint16_t>::max();
+    static constexpr int kMaxRenderSteps = std::numeric_limits<uint16_t>::max();
 
     // DrawList requires that all Transforms be valid and asserts as much; invalid transforms should
     // be detected at the Device level or similar. The provided Renderer must be compatible with the
@@ -77,7 +77,6 @@ public:
                     const PaintParams* paint,
                     const StrokeStyle* stroke);
 
-    int drawCount() const { return fDraws.count(); }
     int renderStepCount() const { return fRenderStepCount; }
 
     // Bounds for a dst copy required by this DrawList.
