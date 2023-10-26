@@ -10,7 +10,7 @@
 // skcms_internal.h contains APIs shared by skcms' internals and its test tools.
 // Please don't use this header from outside the skcms repo.
 
-#include "skcms.h"
+#include "skcms.h"  // NO_G3_REWRITE
 #include <stdbool.h>
 #include <stdint.h>
 

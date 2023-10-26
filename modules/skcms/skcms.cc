@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "skcms.h"
-#include "skcms_internal.h"
+#include "skcms.h"  // NO_G3_REWRITE
+#include "skcms_internal.h"  // NO_G3_REWRITE
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
