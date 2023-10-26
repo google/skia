@@ -6,7 +6,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 VK_FILES = [
-    "AHardwareBufferVk.cpp",
     "GrVkBackendSurface.cpp",
     "GrVkBackendSurfacePriv.h",
     "GrVkBuffer.cpp",
@@ -89,8 +88,14 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "android_srcs",
+    srcs = ["AHardwareBufferVk.cpp"],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [
+        ":android_srcs",
         ":vk_srcs",
     ] + select({
         ":enable_secondary_draw_context_true": [":vk_chromium_srcs"],

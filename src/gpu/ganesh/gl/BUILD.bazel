@@ -6,7 +6,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 CORE_FILES = [
-    "AHardwareBufferGL.cpp",
     "GrGLAssembleGLESInterfaceAutogen.cpp",
     "GrGLAssembleGLInterfaceAutogen.cpp",
     "GrGLAssembleHelpers.cpp",
@@ -86,8 +85,14 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "android_srcs",
+    srcs = ["AHardwareBufferGL.cpp"],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [
+        ":android_srcs",
         ":core_srcs",
         "//src/gpu/ganesh/gl/builders:srcs",
     ] + select({

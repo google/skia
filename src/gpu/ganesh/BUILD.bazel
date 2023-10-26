@@ -21,9 +21,6 @@ CORE_FILES = [
     "Device.cpp",
     "Device_drawTexture.cpp",
     "Device.h",
-    "GrAHardwareBufferImageGenerator.cpp",
-    "GrAHardwareBufferImageGenerator.h",
-    "GrAHardwareBufferUtils.cpp",
     "GrAppliedClip.h",
     "GrAttachment.cpp",
     "GrAttachment.h",
@@ -270,8 +267,18 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
+    name = "android_srcs",
+    srcs = [
+        "GrAHardwareBufferImageGenerator.cpp",
+        "GrAHardwareBufferImageGenerator.h",
+        "GrAHardwareBufferUtils.cpp",
+    ],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [
+        ":android_srcs",
         ":core_skslc_srcs",
         ":core_srcs",
         "//src/gpu/ganesh/effects:srcs",
