@@ -61,7 +61,7 @@ public:
         kHasTexCoords_BuilderFlag   = 1 << 0,
         kHasColors_BuilderFlag      = 1 << 1,
     };
-    class Builder {
+    class SK_API Builder {
     public:
         Builder(VertexMode mode, int vertexCount, int indexCount, uint32_t flags);
 
