@@ -182,9 +182,13 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SkColor4fXformer {
-    SkColor4fXformer(const SkGradientBaseShader* shader, SkColorSpace* dst);
+    SkColor4fXformer(const SkGradientBaseShader* shader,
+                     SkColorSpace* dst,
+                     bool forceExplicitPositions = false);
 
     skia_private::STArray<4, SkPMColor4f, true> fColors;
+    skia_private::STArray<4, float> fPositionStorage;
+    float* fPositions;
     sk_sp<SkColorSpace> fIntermediateColorSpace;
 };
 

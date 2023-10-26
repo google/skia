@@ -810,37 +810,28 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
     }
 
     // Convert all colors into destination space and into SkPMColor4fs, and handle
-    // premul issues depending on the interpolation mode
-    bool inputPremul = shader.interpolateInPremul();
-    bool allOpaque = true;
-    SkColor4fXformer xformedColors(&shader, args.fDstColorInfo->colorSpace());
+    // premul issues depending on the interpolation mode.
+    //
+    // SkGradientShader stores positions implicitly when they are evenly spaced, but the getPos()
+    // implementation performs a branch for every position index. Since the shader conversion
+    // requires lots of position tests, instruct the xformer to calculate all of the positions up
+    // front if needed.
+    SkColor4fXformer xformedColors(
+            &shader, args.fDstColorInfo->colorSpace(), /*forceExplicitPositions=*/true);
     const SkPMColor4f* colors = xformedColors.fColors.begin();
+    const SkScalar* positions = xformedColors.fPositions;
+    const int colorCount = xformedColors.fColors.size();
 
-    for (int i = 0; i < shader.fColorCount; i++) {
+    bool allOpaque = true;
+    for (int i = 0; i < colorCount; i++) {
         if (allOpaque && !SkScalarNearlyEqual(colors[i].fA, 1.0)) {
             allOpaque = false;
         }
     }
 
-    // SkGradientShader stores positions implicitly when they are evenly spaced, but the getPos()
-    // implementation performs a branch for every position index. Since the shader conversion
-    // requires lots of position tests, calculate all of the positions up front if needed.
-    TArray<SkScalar, true> implicitPos;
-    SkScalar* positions;
-    if (shader.fPositions) {
-        positions = shader.fPositions;
-    } else {
-        implicitPos.reserve_exact(shader.fColorCount);
-        SkScalar posScale = SK_Scalar1 / (shader.fColorCount - 1);
-        for (int i = 0 ; i < shader.fColorCount; i++) {
-            implicitPos.push_back(SkIntToScalar(i) * posScale);
-        }
-        positions = implicitPos.begin();
-    }
-
     // All gradients are colorized the same way, regardless of layout
-    std::unique_ptr<GrFragmentProcessor> colorizer =
-            make_uniform_colorizer(colors, positions, shader.fColorCount, inputPremul, args);
+    std::unique_ptr<GrFragmentProcessor> colorizer = make_uniform_colorizer(
+            colors, positions, colorCount, shader.interpolateInPremul(), args);
 
     if (colorizer) {
         // If we made a uniform colorizer, wrap it in a conversion from interpolated space to
@@ -859,7 +850,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
         // hard-stops.)
         colorizer = make_textured_colorizer(colors,
                                             positions,
-                                            shader.fColorCount,
+                                            colorCount,
                                             allOpaque,
                                             shader.fInterpolation,
                                             xformedColors.fIntermediateColorSpace.get(),
@@ -893,7 +884,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
 
             // However, we need to finish converting to destination color space. (These are still
             // in the interpolated color space).
-            SkPMColor4f borderColors[2] = { colors[0], colors[shader.fColorCount - 1] };
+            SkPMColor4f borderColors[2] = { colors[0], colors[colorCount - 1] };
             SkArenaAlloc alloc(/*firstHeapAllocation=*/0);
             SkRasterPipeline p(&alloc);
             SkRasterPipeline_MemoryCtx ctx = { borderColors, 0 };

@@ -1769,13 +1769,15 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                                 float scale) {
     SkColor4fXformer xformedColors(shader, keyContext.dstColorInfo().colorSpace());
     const SkPMColor4f* colors = xformedColors.fColors.begin();
+    const float* positions = xformedColors.fPositions;
+    const int colorCount = xformedColors.fColors.size();
 
     sk_sp<TextureProxy> proxy;
 
-    if (shader->getColorCount() > GradientShaderBlocks::GradientData::kNumInternalStorageStops) {
+    if (colorCount > GradientShaderBlocks::GradientData::kNumInternalStorageStops) {
         if (shader->cachedBitmap().empty()) {
-            SkBitmap colorsAndOffsetsBitmap = create_color_and_offset_bitmap(
-                    shader->getColorCount(), colors, shader->getPositions());
+            SkBitmap colorsAndOffsetsBitmap =
+                    create_color_and_offset_bitmap(colorCount, colors, positions);
             if (colorsAndOffsetsBitmap.empty()) {
                 SKGPU_LOG_W("Couldn't create GradientShader's color and offset bitmap");
                 builder->addBlock(BuiltInCodeSnippetID::kError);
@@ -1800,9 +1802,9 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                                             bias,
                                             scale,
                                             shader->getTileMode(),
-                                            shader->getColorCount(),
+                                            colorCount,
                                             colors,
-                                            shader->getPositions(),
+                                            positions,
                                             std::move(proxy),
                                             shader->getInterpolation());
 

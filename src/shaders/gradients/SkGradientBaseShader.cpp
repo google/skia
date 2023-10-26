@@ -505,7 +505,10 @@ bool SkGradientBaseShader::appendStages(const SkStageRec& rec,
 
     // Transform all of the colors to destination color space, possibly premultiplied
     SkColor4fXformer xformedColors(this, rec.fDstCS);
-    AppendGradientFillStages(p, alloc, xformedColors.fColors.begin(), fPositions, fColorCount);
+    AppendGradientFillStages(p, alloc,
+                             xformedColors.fColors.begin(),
+                             xformedColors.fPositions,
+                             xformedColors.fColors.size());
     AppendInterpolatedToDstStages(p, alloc, fColorsAreOpaque, fInterpolation,
                                   xformedColors.fIntermediateColorSpace.get(), rec.fDstCS);
 
@@ -702,14 +705,35 @@ static bool color_space_is_polar(SkGradientShader::Interpolation::ColorSpace cs)
 //    Two have hue as the first component, and two have it as the third component. To reduce
 //    complexity, we always store hue in the first component, swapping it with luminance for
 //    LCH and Oklch. The backend code (eg, shaders) needs to know about this.
-SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader, SkColorSpace* dst) {
+SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader,
+                                   SkColorSpace* dst,
+                                   bool forceExplicitPositions) {
     using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
     using HueMethod = SkGradientShader::Interpolation::HueMethod;
 
     const int colorCount = shader->fColorCount;
     const SkGradientShader::Interpolation interpolation = shader->fInterpolation;
 
-    // 1) Determine the color space of our intermediate colors
+    // 0) Copy the shader's position pointer.
+    fPositions = shader->fPositions;
+
+    auto ensureExplicitPositions = [=]() {
+        if (!fPositions) {
+            fPositionStorage.reserve_exact(colorCount);
+            float posScale = 1.0f / (colorCount - 1);
+            for (int i = 0; i < colorCount; i++) {
+                fPositionStorage.push_back(i * posScale);
+            }
+            fPositions = fPositionStorage.data();
+        }
+    };
+
+    // Ganesh requires that the positions be explicit (rather than implicitly evenly spaced)
+    if (forceExplicitPositions) {
+        ensureExplicitPositions();
+    }
+
+    // 1) Determine the color space of our intermediate colors.
     fIntermediateColorSpace = intermediate_color_space(interpolation.fColorSpace, dst);
 
     // 2) Convert all colors to the intermediate color space
