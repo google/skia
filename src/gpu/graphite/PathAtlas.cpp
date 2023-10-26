@@ -147,6 +147,34 @@ void ComputePathAtlas::reset() {
 
 #ifdef SK_ENABLE_VELLO_SHADERS
 
+/**
+ * ComputePathAtlas that uses a VelloRenderer.
+ */
+class VelloComputePathAtlas final : public ComputePathAtlas {
+public:
+    // Record the compute dispatches that will draw the atlas contents.
+    std::unique_ptr<DispatchGroup> recordDispatches(Recorder*) const override;
+
+private:
+    const TextureProxy* onAddShape(Recorder* recorder,
+                                   const Shape&,
+                                   const Transform& transform,
+                                   const SkStrokeRec&,
+                                   skvx::half2 maskSize,
+                                   skvx::half2* outPos) override;
+    void onReset() override {
+        fScene.reset();
+        fOccuppiedWidth = fOccuppiedHeight = 0;
+    }
+
+    // Contains the encoded scene buffer data that serves as the input to a vello compute pass.
+    VelloScene fScene;
+
+    // Occuppied bounds of the atlas
+    uint32_t fOccuppiedWidth = 0;
+    uint32_t fOccuppiedHeight = 0;
+};
+
 std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder* recorder) const {
     if (!this->texture()) {
         return nullptr;
@@ -249,5 +277,13 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
 }
 
 #endif  // SK_ENABLE_VELLO_SHADERS
+
+std::unique_ptr<ComputePathAtlas> ComputePathAtlas::CreateDefault() {
+#ifdef SK_ENABLE_VELLO_SHADERS
+    return std::make_unique<VelloComputePathAtlas>();
+#else
+    return nullptr;
+#endif
+}
 
 }  // namespace skgpu::graphite

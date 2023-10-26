@@ -30,6 +30,14 @@
 
 namespace skgpu::graphite {
 
+bool RendererProvider::IsVelloRendererSupported(const Caps* caps) {
+#ifdef SK_ENABLE_VELLO_SHADERS
+    return caps->computeSupport();
+#else
+    return false;
+#endif
+}
+
 // The destructor is intentionally defined here and not in the header file to allow forward
 // declared types (such as `VelloRenderer`) to be defined as a `std::unique_ptr` parameter type
 // in members.

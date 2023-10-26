@@ -33,6 +33,8 @@ class VelloRenderer;
  */
 class RendererProvider {
 public:
+    static bool IsVelloRendererSupported(const Caps*);
+
     ~RendererProvider();
 
     // TODO: Add configuration options to disable "optimization" renderers in favor of the more

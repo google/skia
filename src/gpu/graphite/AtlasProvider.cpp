@@ -13,28 +13,30 @@
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/text/TextAtlasManager.h"
 
 namespace skgpu::graphite {
 
-AtlasProvider::AtlasProvider(Recorder* recorder)
-        : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder))
-        , fRasterPathAtlas(std::make_unique<RasterPathAtlas>()) {
-    fPathAtlasFlags |= PathAtlasFlags::kRaster;
-#ifdef SK_ENABLE_VELLO_SHADERS
-    if (recorder->priv().caps()->computeSupport()) {
-        fPathAtlasFlags |= PathAtlasFlags::kCompute;
+AtlasProvider::PathAtlasFlagsBitMask AtlasProvider::QueryPathAtlasSupport(const Caps* caps) {
+    PathAtlasFlagsBitMask flags = PathAtlasFlags::kNone;
+    flags |= PathAtlasFlags::kRaster;
+    if (RendererProvider::IsVelloRendererSupported(caps)) {
+        flags |= PathAtlasFlags::kCompute;
     }
-#endif  // SK_ENABLE_VELLO_SHADERS
+    return flags;
 }
 
+AtlasProvider::AtlasProvider(Recorder* recorder)
+        : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder))
+        , fRasterPathAtlas(std::make_unique<RasterPathAtlas>())
+        , fPathAtlasFlags(QueryPathAtlasSupport(recorder->priv().caps())) {}
+
 std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas() const {
-#ifdef SK_ENABLE_VELLO_SHADERS
-    if (fPathAtlasFlags & PathAtlasFlags::kCompute) {
-        return std::make_unique<VelloComputePathAtlas>();
+    if (this->isAvailable(PathAtlasFlags::kCompute)) {
+        return ComputePathAtlas::CreateDefault();
     }
-#endif  // SK_ENABLE_VELLO_SHADERS
     return nullptr;
 }
 

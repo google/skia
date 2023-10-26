@@ -20,6 +20,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ClientMappedBufferManager.h"
@@ -816,16 +817,15 @@ void ContextPriv::deregisterRecorder(const Recorder* recorder) {
 }
 
 bool ContextPriv::supportsPathRendererStrategy(PathRendererStrategy strategy) {
+    AtlasProvider::PathAtlasFlagsBitMask pathAtlasFlags =
+            AtlasProvider::QueryPathAtlasSupport(this->caps());
     switch (strategy) {
         case PathRendererStrategy::kDefault:
             return true;
         case PathRendererStrategy::kComputeAnalyticAA:
-#ifdef SK_ENABLE_VELLO_SHADERS
-            return this->caps()->computeSupport();
-#else
-            return false;
-#endif
+            return SkToBool(pathAtlasFlags & AtlasProvider::PathAtlasFlags::kCompute);
         case PathRendererStrategy::kRasterAA:
+            return SkToBool(pathAtlasFlags & AtlasProvider::PathAtlasFlags::kRaster);
         case PathRendererStrategy::kTessellation:
             return true;
     }
