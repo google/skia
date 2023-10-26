@@ -1189,50 +1189,50 @@ float4 text_vertex_fn(float2 baseCoords,
 
 float4 coverage_mask_vertex_fn(float2 quadCoords,
                                // Uniforms
-                               float2 atlasSizeInv,
+                               float3x3 maskToDeviceRemainder,
                                // Instance Attributes
                                float4 drawBounds,
+                               float4 maskBoundsIn,
                                float2 deviceOrigin,
-                               float2 uvPos,
-                               float2 maskDims,
                                float depth,
                                float3x3 deviceToLocal,
                                // Varyings
                                out float4 maskBounds,
                                out float2 textureCoords,
+                               out half invert,
                                // Render Step
                                out float2 stepLocalCoords) {
     // An atlas shape is an axis-aligned rectangle tessellated as a triangle strip.
     //
-    // The bounds coordinates that we use here have already been transformed to device space and
-    // match the desired vertex coordinates of the draw (taking clipping into account), so a
-    // localToDevice transform is always the identity matrix.
-    //
-    // AtlasShape is always defined based on a regular Shape geometry and we can derive the local
-    // coordinates from the bounds by simply applying the inverse of the shape's localToDevice
-    // transform.
-    // Vertex coordinates.
-    float2 drawCoords = mix(drawBounds.xy, drawBounds.zw, quadCoords);
+    // The bounds coordinates are in an intermediate space, pixel-aligned with the mask texture
+    // that's sampled in the fragment shader. The coords must be transformed by both
+    // maskToDeviceRemainder and translated by deviceOrigin to get device coords.
+    textureCoords = mix(drawBounds.xy, drawBounds.zw, quadCoords);
+    float3 drawCoords = maskToDeviceRemainder*((textureCoords + deviceOrigin).xy1);
 
     // Local coordinates used for shading are derived from the final device coords and the inverse
     // of the original local-to-device matrix.
-    float3 localCoords = deviceToLocal * drawCoords.xy1;
+    float3 localCoords = deviceToLocal * drawCoords;
+    // TODO: Support float3 local coordinates if the matrix has perspective so that W is
+    // interpolated correctly to the fragment shader.
     stepLocalCoords = localCoords.xy / localCoords.z;
 
     // For an inverse fill, `textureCoords` will get clamped to `maskBounds` and the edge pixels
     // will always land on a 0-coverage border pixel assuming the atlas was prepared with 1px
-    // padding around each mask entry.
-    if (all(greaterThan(maskDims, float2(0)))) {
-        maskBounds    = float4(uvPos, uvPos + maskDims) * atlasSizeInv.xyxy;
-        textureCoords = (uvPos + drawCoords - deviceOrigin) * atlasSizeInv;
+    // padding around each mask entry. This includes inverse fills where the mask was fully clipped
+    // out, since then maskBounds.RBLT == (0,0,-1,-1) and we sample the top-left-most pixel of the
+    // atlas, which is guaranteed to be transparent.
+    if (all(lessThanEqual(maskBoundsIn.LT, maskBoundsIn.RB))) {
+        // Regular fill
+        maskBounds = maskBoundsIn;
+        invert = 0;
     } else {
-        // The mask is clipped out so send the texture coordinates to 0. This pixel should
-        // always be empty.
-        maskBounds = float4(0);
-        textureCoords = float2(0);
+        // Re-arrange the mask bounds to sorted order for texture clamping in the fragment shader
+        maskBounds = maskBoundsIn.RBLT;
+        invert = 1;
     }
 
-    return float4(drawCoords, depth, 1);
+    return float4(drawCoords.xy, depth*drawCoords.z, drawCoords.z);
 }
 
 float4 cover_bounds_vertex_fn(float2 corner,

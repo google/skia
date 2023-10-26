@@ -20,11 +20,6 @@
 #include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
-namespace {
-
-static constexpr int kEntryPadding = 1;
-
-}  // namespace
 
 RasterPathAtlas::RasterPathAtlas()
     : PathAtlas(kDefaultAtlasDim, kDefaultAtlasDim) {

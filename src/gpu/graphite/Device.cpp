@@ -953,7 +953,7 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // If an atlas path renderer was chosen we need to insert the shape into the atlas and schedule
     // it to be drawn.
-    std::optional<CoverageMaskShape> atlasMask;  // only used if `pathAtlas != nullptr`
+    std::optional<PathAtlas::MaskAndOrigin> atlasMask;  // only used if `pathAtlas != nullptr`
     if (pathAtlas != nullptr) {
         atlasMask = pathAtlas->addShape(recorder(),
                                         clip.transformedShapeBounds(),
@@ -1043,11 +1043,10 @@ void Device::drawGeometry(const Transform& localToDevice,
     // The shape will be scheduled to be rendered or uploaded into the atlas during the
     // next invocation of flushPendingWorkToRecorder().
     if (pathAtlas != nullptr) {
-        SkASSERT(atlasMask.has_value());
         // Record the draw as a fill since stroking is handled by the atlas render/upload.
-        // TODO: This will use Transform::Translate(deviceOrigin) once CoverageMaskRenderStep uses
-        // the DrawParams transform.
-        fDC->recordDraw(renderer, Transform::Identity(), Geometry(*atlasMask),
+        SkASSERT(atlasMask.has_value());
+        auto [mask, origin] = *atlasMask;
+        fDC->recordDraw(renderer, Transform::Translate(origin.fX, origin.fY), Geometry(mask),
                         clip, order, &shading, nullptr);
     } else {
         if (styleType == SkStrokeRec::kStroke_Style ||

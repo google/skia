@@ -21,9 +21,18 @@ class TextureProxy;
  * texture. This excludes font glyphs that are rendered to a persistent atlas, as those are
  * represented by the SubRunData geometry type.
  *
- * The bounds of a coverage mask shape are always specified in device space and the transform of
- * the DrawParams is expected to be identity. These bounds are restricted to the conservative bounds
- * of the draw's clip stack and may have the draw's clip stack fully applied to the mask shape.
+ * Coverage masks are defined relative to an intermediate coordinate space between the final
+ * device space and the original geometry and shading's local space. For atlases and simple cases
+ * this intermediate space is pixel-aligned with the final device space, meaning only an integer
+ * translation is necessary to align the mask with where the original geometry would have been
+ * rendered into the device. In complex cases, the remaining transform may include rotation, skew,
+ * or even perspective that has to be applied after some filter effect.
+ *
+ * Regardless, the DrawParams that records the CoverageMaskShape stores this remaining transform as
+ * the "local-to-device" tranform, i.e. "local" refers to the mask's coordinate space. The
+ * CoverageMaskShape stores the original local-to-device inverse so that it can reconstruct coords
+ * for shading. Like other Geometry types, the bounds() returned by CoverageMaskShape are relative
+ * to its local space, so they are identical to its mask size.
  */
 class CoverageMaskShape {
     using half2 = skvx::half2;
@@ -31,20 +40,6 @@ class CoverageMaskShape {
 
 public:
     struct MaskInfo {
-        // The top-left device space coordinates of the clipped mask shape. For regular fills
-        // this is equal to the device origin of the draw bounds rounded out to pixel boundaries.
-        // For inverse fills this point is often within the draw bounds, however it is allowed to be
-        // smaller for a partially clipped inverse fill that has its mask shape completely clipped
-        // out.
-        //
-        // This is used to determine the position of the UV bounds of the mask relative to the draw
-        // bounds, especially for inverse fills that may contain a larger draw bounds than the
-        // coverage mask. The resulting offset is added to the UV coordinates of the corners of the
-        // rendered quad and rounding this to the nearest pixel coordinate samples the correct
-        // coverage value, since the mask is rendered into the atlas with any fractional (sub-pixel)
-        // offset present in the draw's transform.
-        int2 fDeviceOrigin;
-
         // The texture-relative integer UV coordinates of the top-left corner of this shape's
         // coverage mask bounds. This will include the rounded out transformed device space bounds
         // of the shape plus a 1-pixel border.
@@ -76,21 +71,14 @@ public:
     CoverageMaskShape& operator=(CoverageMaskShape&&) = delete;
     CoverageMaskShape& operator=(const CoverageMaskShape&) = default;
 
-    // Returns the device-space bounds of the clipped coverage mask shape. For inverse fills this
+    // Returns the mask-space bounds of the clipped coverage mask shape. For inverse fills this
     // is different from the actual draw bounds stored in the Clip.
     Rect bounds() const {
-        return Rect(skvx::float2((float)this->deviceOrigin().x(), float(this->deviceOrigin().y())),
-                    skvx::float2((float)this->maskSize().x(), (float)(this->maskSize().y())));
+        return Rect(0.f, 0.f, (float) this->maskSize().x(), (float) this->maskSize().y());
     }
 
     // The inverse local-to-device matrix.
     const SkM44& deviceToLocal() const { return fDeviceToLocal; }
-
-    // The top-left device-space coordinates of the (clipped) coverage mask shape. For regular fills
-    // this is equal to the device-space origin of the draw bounds. For inverse fills this point
-    // is often within the draw bounds, however it is allowed to be smaller for a partially clipped
-    // inverse fill that has its mask shape completely clipped out.
-    const int2& deviceOrigin() const { return fMaskInfo.fDeviceOrigin; }
 
     // The texture-relative integer UV coordinates of the top-left corner of this shape's
     // coverage mask bounds.
