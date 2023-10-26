@@ -505,7 +505,7 @@ PerEdgeAAQuadRenderStep::~PerEdgeAAQuadRenderStep() {}
 std::string PerEdgeAAQuadRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
-    return "float4 devPosition = analytic_rrect_vertex_fn("
+    return "float4 devPosition = per_edge_aa_quad_vertex_fn("
                    // Vertex Attributes
                    "position, normal, normalScale, centerWeight, "
                    // Instance Attributes
@@ -520,13 +520,13 @@ std::string PerEdgeAAQuadRenderStep::vertexSkSL() const {
 const char* PerEdgeAAQuadRenderStep::fragmentCoverageSkSL() const {
     // The returned SkSL must write its coverage into a 'half4 outputCoverage' variable (defined in
     // the calling code) with the actual coverage splatted out into all four channels.
-    return "outputCoverage = analytic_rrect_coverage_fn(sk_FragCoord, "
-                                                       "jacobian, "
-                                                       "edgeDistances, "
-                                                       "xRadii, "
-                                                       "yRadii, "
-                                                       "strokeParams, "
-                                                       "perPixelControl);";
+    return "outputCoverage = per_edge_aa_quad_coverage_fn(sk_FragCoord, "
+                                                          "jacobian, "
+                                                          "edgeDistances, "
+                                                          "xRadii, "
+                                                          "yRadii, "
+                                                          "strokeParams, "
+                                                          "perPixelControl);";
 }
 
 float PerEdgeAAQuadRenderStep::boundsOutset(const Transform& localToDevice,
