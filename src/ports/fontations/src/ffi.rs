@@ -158,6 +158,8 @@ fn localized_name_next(
     match bridge_localized_strings.localized_strings.next() {
         Some(localized_string) => {
             out_localized_name.string = localized_string.to_string();
+            // TODO(b/307906051): Remove the suffix before shipping.
+            out_localized_name.string.push_str(" (Fontations)");
             out_localized_name.language = localized_string
                 .language()
                 .map(|l| l.to_string())
