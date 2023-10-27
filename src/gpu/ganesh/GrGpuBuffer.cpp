@@ -89,7 +89,7 @@ void GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(size_t size,
 }
 
 void GrGpuBuffer::computeScratchKey(skgpu::ScratchKey* key) const {
-    if (SkIsPow2(fSizeInBytes) && kDynamic_GrAccessPattern == fAccessPattern) {
+    if (kDynamic_GrAccessPattern == fAccessPattern) {
         ComputeScratchKeyForDynamicBuffer(fSizeInBytes, fIntendedType, key);
     }
 }

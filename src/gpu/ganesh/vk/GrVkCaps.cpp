@@ -580,6 +580,15 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMustLoadFullImageWithDiscardableMSAA = true;
     }
 
+    // There seems to be bug in swiftshader when we reuse scratch buffers for uploads. We end up
+    // with very slight pixel diffs. For example:
+    // (https://ci.chromium.org/ui/p/chromium/builders/try/linux-rel/1585128/overview).
+    // Since swiftshader is only really used for testing, to try and make things more stable we
+    // disable the reuse of buffers.
+    if (properties.vendorID == kGoogle_VkVendor && properties.deviceID == kSwiftshader_DeviceID) {
+        fReuseScratchBuffers = false;
+    }
+
 #ifdef SK_BUILD_FOR_UNIX
     if (kIntel_VkVendor == properties.vendorID) {
         // At least on our linux Debug Intel HD405 bot we are seeing issues doing read pixels with
