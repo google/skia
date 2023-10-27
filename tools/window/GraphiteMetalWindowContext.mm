@@ -54,8 +54,8 @@ void GraphiteMetalWindowContext::initializeContext() {
     fValid = this->onInitializeContext();
 
     skgpu::graphite::MtlBackendContext backendContext = {};
-    backendContext.fDevice.retain((skgpu::graphite::MtlHandle)fDevice.get());
-    backendContext.fQueue.retain((skgpu::graphite::MtlHandle)fQueue.get());
+    backendContext.fDevice.retain((CFTypeRef)fDevice.get());
+    backendContext.fQueue.retain((CFTypeRef)fQueue.get());
 
     fDisplayParams.fGraphiteContextOptions.fOptions.fDisableCachedGlyphUploads = true;
     // Needed to make synchronous readPixels work:
@@ -94,14 +94,14 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
     }
 
     skgpu::graphite::BackendTexture backendTex(this->dimensions(),
-                                               (skgpu::graphite::MtlHandle)currentDrawable.texture);
+                                               (CFTypeRef)currentDrawable.texture);
 
     surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                              backendTex,
                                              kBGRA_8888_SkColorType,
                                              fDisplayParams.fColorSpace,
                                              &fDisplayParams.fSurfaceProps);
-    fDrawableHandle = CFRetain((skgpu::graphite::MtlHandle) currentDrawable);
+    fDrawableHandle = CFRetain((CFTypeRef) currentDrawable);
 
     return surface;
 }

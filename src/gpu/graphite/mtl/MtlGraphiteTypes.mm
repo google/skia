@@ -11,7 +11,7 @@
 
 namespace skgpu::graphite {
 
-MtlTextureInfo::MtlTextureInfo(MtlHandle texture) {
+MtlTextureInfo::MtlTextureInfo(CFTypeRef texture) {
     SkASSERT(texture);
     id<MTLTexture> mtlTex = (id<MTLTexture>)texture;
 

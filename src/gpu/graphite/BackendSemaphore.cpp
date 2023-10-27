@@ -49,11 +49,11 @@ BackendSemaphore& BackendSemaphore::operator=(const BackendSemaphore& that) {
 }
 
 #ifdef SK_METAL
-BackendSemaphore::BackendSemaphore(MtlHandle mtlEvent, uint64_t value)
+BackendSemaphore::BackendSemaphore(CFTypeRef mtlEvent, uint64_t value)
         : fMtlEvent(mtlEvent)
         , fMtlValue(value) {}
 
-MtlHandle BackendSemaphore::getMtlEvent() const {
+CFTypeRef BackendSemaphore::getMtlEvent() const {
     if (this->isValid() && this->backend() == BackendApi::kMetal) {
         return fMtlEvent;
     }

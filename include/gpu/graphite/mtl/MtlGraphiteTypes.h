@@ -35,7 +35,6 @@ namespace skgpu::graphite {
 using MtlPixelFormat = unsigned int;
 using MtlTextureUsage = unsigned int;
 using MtlStorageMode = unsigned int;
-using MtlHandle = const void*;
 
 struct MtlTextureInfo {
     uint32_t fSampleCount = 1;
@@ -49,7 +48,7 @@ struct MtlTextureInfo {
     bool fFramebufferOnly = false;
 
     MtlTextureInfo() = default;
-    MtlTextureInfo(MtlHandle mtlTexture);
+    MtlTextureInfo(CFTypeRef mtlTexture);
     MtlTextureInfo(uint32_t sampleCount,
                    skgpu::Mipmapped mipmapped,
                    MtlPixelFormat format,

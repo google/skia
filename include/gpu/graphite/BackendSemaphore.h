@@ -26,7 +26,7 @@ public:
     BackendSemaphore();
 #ifdef SK_METAL
     // TODO: Determine creator's responsibility for setting refcnt.
-    BackendSemaphore(MtlHandle mtlEvent, uint64_t value);
+    BackendSemaphore(CFTypeRef mtlEvent, uint64_t value);
 #endif
 
 #ifdef SK_VULKAN
@@ -43,7 +43,7 @@ public:
     BackendApi backend() const { return fBackend; }
 
 #ifdef SK_METAL
-    MtlHandle getMtlEvent() const;
+    CFTypeRef getMtlEvent() const;
     uint64_t getMtlValue() const;
 #endif
 
@@ -59,7 +59,7 @@ private:
 #endif
 #ifdef SK_METAL
         struct {
-            MtlHandle fMtlEvent;    // Expected to be an id<MTLEvent>
+            CFTypeRef fMtlEvent;    // Expected to be an id<MTLEvent>
             uint64_t fMtlValue;
         };
 #endif

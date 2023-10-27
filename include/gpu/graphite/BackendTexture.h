@@ -61,9 +61,9 @@ public:
                    WGPUTextureView textureView);
 #endif
 #ifdef SK_METAL
-    // The BackendTexture will not call retain or release on the passed in MtlHandle. Thus the
-    // client must keep the MtlHandle valid until they are no longer using the BackendTexture.
-    BackendTexture(SkISize dimensions, MtlHandle mtlTexture);
+    // The BackendTexture will not call retain or release on the passed in CFTypeRef. Thus the
+    // client must keep the CFTypeRef valid until they are no longer using the BackendTexture.
+    BackendTexture(SkISize dimensions, CFTypeRef mtlTexture);
 #endif
 
 #ifdef SK_VULKAN
@@ -103,7 +103,7 @@ public:
     WGPUTextureView getDawnTextureViewPtr() const;
 #endif
 #ifdef SK_METAL
-    MtlHandle getMtlTexture() const;
+    CFTypeRef getMtlTexture() const;
 #endif
 
 #ifdef SK_VULKAN
@@ -137,7 +137,7 @@ private:
         };
 #endif
 #ifdef SK_METAL
-        MtlHandle fMtlTexture;
+        CFTypeRef fMtlTexture;
 #endif
 #ifdef SK_VULKAN
         VkImage fVkImage = VK_NULL_HANDLE;
