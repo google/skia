@@ -1145,6 +1145,11 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     } else if (geometry.isVertices()) {
         SkVerticesPriv info(geometry.vertices()->priv());
         return {renderers->vertices(info.mode(), info.hasColors(), info.hasTexCoords()), nullptr};
+    } else if (geometry.isCoverageMaskShape()) {
+        // drawCoverageMask() passes in CoverageMaskShapes that reference a provided texture.
+        // The CoverageMask renderer can also be chosen later on if the shape is assigned to
+        // to be rendered into the PathAtlas, in which case the 2nd return value is non-null.
+        return {renderers->coverageMask(), nullptr};
     } else if (geometry.isEdgeAAQuad()) {
         SkASSERT(!requireMSAA && style.isFillStyle());
         // handled by specialized system, simplified from rects and round rects
@@ -1343,6 +1348,52 @@ void Device::drawSpecial(SkSpecialImage* special,
     this->drawGeometry(Transform(SkM44(localToDevice)),
                        Geometry(Shape(dst)),
                        paintWithShader,
+                       DefaultFillStyle(),
+                       DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
+}
+
+void Device::drawCoverageMask(const SkSpecialImage* mask,
+                              const SkMatrix& localToDevice,
+                              const SkSamplingOptions& sampling,
+                              const SkPaint& paint) {
+    CoverageMaskShape::MaskInfo maskInfo{/*fTextureOrigin=*/{SkTo<uint16_t>(mask->subset().fLeft),
+                                                             SkTo<uint16_t>(mask->subset().fTop)},
+                                         /*fMaskSize=*/{SkTo<uint16_t>(mask->width()),
+                                                        SkTo<uint16_t>(mask->height())}};
+
+    auto maskProxyView = SkSpecialImages::AsTextureProxyView(mask);
+    if (!maskProxyView) {
+        SKGPU_LOG_W("Couldn't get Graphite-backed special image as texture proxy view");
+        return;
+    }
+
+    // 'mask' logically has 0 coverage outside of its pixels, which is equivalent to kDecal tiling.
+    // However, since we draw geometry tightly fitting 'mask', we can use the better-supported
+    // kClamp tiling and behave effectively the same way.
+    const SkTileMode kClamp[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
+
+    // Ensure this is kept alive; normally textures are kept alive by the PipelineDataGatherer for
+    // image shaders, or by the PathAtlas. This is a unique circumstance.
+    // TODO: Find a cleaner way to ensure 'maskProxyView' is transferred to the final Recording.
+    TextureDataBlock tdb;
+    // TODO: Ideally we'd switch to kLinear filtering if `localToDevice` is not pixel-aligned, but
+    // CoverageMaskRenderStep registers the sampler right now as kNearest.
+    tdb.add(SkFilterMode::kNearest, kClamp, maskProxyView.refProxy());
+    fRecorder->priv().textureDataCache()->insert(tdb);
+
+    // CoverageMaskShape() wraps a Shape when it's used as a PathAtlas, but in this case the
+    // original shape has been long lost, so just use a Rect that bounds the image.
+    CoverageMaskShape maskShape{Shape{Rect::WH((float)mask->width(), (float)mask->height())},
+                                maskProxyView.proxy(),
+                                // Use the active local-to-device transform for this since it
+                                // determines the local coords for evaluating the skpaint, whereas
+                                // the provided 'localToDevice' just places the coverage mask.
+                                this->localToDeviceTransform().inverse(),
+                                maskInfo};
+
+    this->drawGeometry(Transform(SkM44(localToDevice)),
+                       Geometry(maskShape),
+                       paint,
                        DefaultFillStyle(),
                        DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
 }
