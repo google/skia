@@ -773,10 +773,11 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
 
             // This is an nvidia extension that isn't supported by the debug layers so we get lots
             // of warnings. We don't actually use it, so it is easiest to just not enable it.
-            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency") ||
+            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_EXT_provoking_vertex") ||
                 0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_acquire_winrt_display") ||
                 0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_cuda_kernel_launch") ||
-                0 == strcmp(deviceExtensions[i].extensionName, "VK_EXT_provoking_vertex")) {
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency") ||
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_present_barrier")) {
                 continue;
             }
 
