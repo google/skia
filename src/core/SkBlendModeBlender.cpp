@@ -75,3 +75,23 @@ bool SkBlendModeBlender::onAppendStages(const SkStageRec& rec) const {
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }
+
+bool SkBlenderBase::affectsTransparentBlack() const {
+    if (auto blendMode = this->asBlendMode()) {
+        SkBlendModeCoeff src, dst;
+        if (SkBlendMode_AsCoeff(*blendMode, &src, &dst)) {
+            // If the source is (0,0,0,0), then dst is preserved as long as its coefficient
+            // evaluates to 1.0. This is true for kOne, kISA, and kISC. Anything else means the
+            // blend mode affects transparent black.
+            return dst != SkBlendModeCoeff::kOne &&
+                   dst != SkBlendModeCoeff::kISA &&
+                   dst != SkBlendModeCoeff::kISC;
+        } else {
+            // An advanced blend mode, which do not affect transparent black
+            return false;
+        }
+    } else {
+        // Blenders that aren't blend modes are assumed to modify transparent black.
+       return true;
+    }
+}

@@ -44,6 +44,8 @@ public:
      */
     virtual std::optional<SkBlendMode> asBlendMode() const { return {}; }
 
+    bool affectsTransparentBlack() const;
+
     [[nodiscard]] bool appendStages(const SkStageRec& rec) const {
         return this->onAppendStages(rec);
     }

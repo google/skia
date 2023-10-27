@@ -1064,25 +1064,7 @@ void FilterResult::draw(const Context& ctx,
                         SkDevice* device,
                         bool preserveDeviceState,
                         const SkBlender* blender) const {
-    bool blendAffectsTransparentBlack = false;
-    if (blender) {
-        if (auto blendMode = as_BB(blender)->asBlendMode()) {
-            SkBlendModeCoeff src, dst;
-            if (SkBlendMode_AsCoeff(*blendMode, &src, &dst)) {
-                // If the source is (0,0,0,0), then dst is preserved as long as its coefficient
-                // evaluates to 1.0. This is true for kOne, kISA, and kISC. Anything else means the
-                // blend mode affects transparent black.
-                blendAffectsTransparentBlack =
-                        dst != SkBlendModeCoeff::kOne &&
-                        dst != SkBlendModeCoeff::kISA &&
-                        dst != SkBlendModeCoeff::kISC;
-            } // else an advanced blend mode, which do not affect transparent black
-        } else {
-            // Blenders that aren't blend modes are assumed to modify transparent black.
-            blendAffectsTransparentBlack = true;
-        }
-    } // else src-over default, which does not modify transparent black
-
+    const bool blendAffectsTransparentBlack = blender && as_BB(blender)->affectsTransparentBlack();
     if (!fImage) {
         // The image is transparent black, this is a no-op unless we need to apply the blend mode
         if (blendAffectsTransparentBlack) {

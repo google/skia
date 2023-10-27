@@ -40,6 +40,7 @@
 #include "include/private/chromium/Slug.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/base/SkMSAN.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -53,6 +54,7 @@
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkVerticesPriv.h"
+#include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/image/SkSurface_Base.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
@@ -67,7 +69,6 @@
 
 #if defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
 #include "src/core/SkMatrixUtils.h"
-#include "src/effects/colorfilters/SkColorFilterBase.h"
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
@@ -1144,18 +1145,28 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
             contentBounds,
             must_cover_prior_device(rec.fBackdrop, restorePaint));
 #else
-    const SkImageFilter* filter = rec.fPaint ? rec.fPaint->getImageFilter() : nullptr;
 
-    // When this is true, restoring the layer filled with unmodified prior contents should be
+    const SkImageFilter* filter = rec.fPaint ? rec.fPaint->getImageFilter() : nullptr;
+    const SkColorFilter* cf = restorePaint.getColorFilter();
+    const SkBlender* blender = restorePaint.getBlender();
+
+    // When this is false, restoring the layer filled with unmodified prior contents should be
     // identical to the prior contents, so we can restrict the layer even more than just the
     // clip bounds. A regular filter applied to a layer initialized with prior contents is somewhat
     // analogous to a backdrop filter so they are treated the same.
-    const bool trivialRestore = !rec.fBackdrop &&
-                                (!(rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) ||
-                                 (!restorePaint.getColorFilter() &&
-                                  !restorePaint.getBlender() &&
-                                  restorePaint.getAlphaf() >= 1.f &&
-                                  !filter));
+    const bool filtersPriorDevice = rec.fBackdrop ||
+            ((rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) &&
+             (filter || cf || blender || restorePaint.getAlphaf() < 1.f));
+    // If the restorePaint has a transparency-affecting colorfilter or blender, the output is
+    // unbounded during restore(). `internalDrawDeviceWithFilter` automatically applies these
+    // effects. When there's no image filter, SkDevice::drawDevice is used, which does
+    // not apply effects beyond the layer's image so we mark `trivialRestore` as false too.
+    // TODO: drawDevice() could be updated to apply transparency-affecting effects to a content-
+    // clipped image, but this is the simplest solution when considering document-based SkDevices.
+    const bool drawDeviceMustFillClip = !filter &&
+            ((cf && as_CFB(cf)->affectsTransparentBlack()) ||
+                (blender && as_BB(blender)->affectsTransparentBlack()));
+    const bool trivialRestore = !filtersPriorDevice && !drawDeviceMustFillClip;
 
     // Size the new layer relative to the prior device, which may already be aligned for filters.
     SkDevice* priorDevice = this->topDevice();
