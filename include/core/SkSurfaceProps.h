@@ -59,8 +59,6 @@ public:
         // Currently this only impacts GPU backends
         kAlwaysDither_Flag              = 1 << 2,
     };
-    /** Deprecated alias used by Chromium. Will be removed. */
-    static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;
 
     /** No flags, unknown pixel geometry. */
     SkSurfaceProps();
