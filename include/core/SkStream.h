@@ -81,6 +81,9 @@ public:
     virtual size_t peek(void* /*buffer*/, size_t /*size*/) const { return 0; }
 
     /** Returns true when all the bytes in the stream have been read.
+     *  As SkStream represents synchronous I/O, isAtEnd returns false when the
+     *  final stream length isn't known yet, even when all the bytes available
+     *  so far have been read.
      *  This may return true early (when there are no more bytes to be read)
      *  or late (after the first unsuccessful read).
      */
