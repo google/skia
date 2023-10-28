@@ -14,6 +14,7 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/shaders/SkShaderBase.h"
+#include <memory>
 
 class SkBitmap;
 class SkData;
@@ -89,5 +90,14 @@ private:
 
     static size_t AllocLevelsSize(int levelCount, size_t pixelSize);
 };
+
+struct SkMipmapDownSampler {
+    virtual ~SkMipmapDownSampler() {}
+
+    virtual void buildLevel(const SkPixmap& dst, const SkPixmap& src) = 0;
+};
+
+// built-in HQ downsampler
+std::unique_ptr<SkMipmapDownSampler> SkMakeHQDownSampler(const SkPixmap&);
 
 #endif
