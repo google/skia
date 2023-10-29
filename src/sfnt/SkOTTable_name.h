@@ -538,6 +538,9 @@ struct SkOTTableName {
         }; //langTagRecord[langTagCount]
     }; //format1ext (if format == format_1)
 
+// The iterator should not be packed.
+#pragma pack(pop)
+
     class Iterator {
     public:
         Iterator(const uint8_t* nameTable, size_t size)
@@ -566,12 +569,10 @@ struct SkOTTableName {
     };
 };
 
-#pragma pack(pop)
 
-
-static_assert(sizeof(SkOTTableName) == 6, "sizeof_SkOTTableName_not_6");
-static_assert(sizeof(SkOTTableName::Format1Ext) == 2, "sizeof_SkOTTableNameF1_not_2");
-static_assert(sizeof(SkOTTableName::Format1Ext::LangTagRecord) == 4, "sizeof_SkOTTableNameLangTagRecord_not_4");
-static_assert(sizeof(SkOTTableName::Record) == 12, "sizeof_SkOTTableNameRecord_not_12");
+static_assert(sizeof(SkOTTableName) == 6, "sizeof(SkOTTableName) not 6");
+static_assert(sizeof(SkOTTableName::Format1Ext) == 2, "sizeof(SkOTTableNameF1) not 2");
+static_assert(sizeof(SkOTTableName::Format1Ext::LangTagRecord) == 4, "sizeof(SkOTTableNameLangTagRecord) not 4");
+static_assert(sizeof(SkOTTableName::Record) == 12, "sizeof(SkOTTableNameRecord) not 12");
 
 #endif
