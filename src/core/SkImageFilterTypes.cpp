@@ -8,7 +8,6 @@
 #include "src/core/SkImageFilterTypes.h"
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
@@ -370,12 +369,7 @@ public:
                                                   this->colorType(),
                                                   kPremul_SkAlphaType,
                                                   std::move(colorSpace));
-        SkBitmap bitmap;
-        if (!bitmap.tryAllocPixels(imageInfo)) {
-            return nullptr;
-        }
-
-        return sk_make_sp<SkBitmapDevice>(bitmap, props ? *props : this->surfaceProps());
+        return SkBitmapDevice::Create(imageInfo, props ? *props : this->surfaceProps());
     }
 
     sk_sp<SkSpecialImage> makeImage(const SkIRect& subset, sk_sp<SkImage> image) const override {
