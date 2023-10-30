@@ -465,16 +465,16 @@ DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
 }
 
 DEF_TEST(TextBlob_iter, reporter) {
-    sk_sp<SkTypeface> tf = SkTypeface::MakeFromName(nullptr, SkFontStyle::BoldItalic());
+    sk_sp<SkTypeface> tf = ToolUtils::CreateTestTypeface(nullptr, SkFontStyle::BoldItalic());
 
     SkTextBlobBuilder builder;
-    add_run(&builder, "Hello", 10, 20, nullptr);
-    add_run(&builder, "World", 10, 40, tf);
+    add_run(&builder, "Hello", 10, 20, tf);
+    add_run(&builder, "World!", 10, 40, tf);
     auto blob = builder.make();
 
     SkTextBlob::Iter::Run expected[] = {
-        { nullptr, 5, nullptr },
         { tf.get(), 5, nullptr },
+        { tf.get(), 6, nullptr },
     };
 
     SkTextBlob::Iter iter(*blob);
@@ -484,7 +484,8 @@ DEF_TEST(TextBlob_iter, reporter) {
         REPORTER_ASSERT(reporter, run.fTypeface == exp.fTypeface);
         REPORTER_ASSERT(reporter, run.fGlyphCount == exp.fGlyphCount);
         for (int i = 0; i < run.fGlyphCount; ++i) {
-            REPORTER_ASSERT(reporter, run.fGlyphIndices[i] != 0);
+            REPORTER_ASSERT(reporter, run.fGlyphIndices[i] != 0,
+                            "Glyph Index %d is unexpectedly 0", i);
         }
     }
     REPORTER_ASSERT(reporter, !iter.next(&run));    // we're done
@@ -496,7 +497,7 @@ DEF_TEST(TextBlob_iter, reporter) {
 }
 
 DEF_TEST(TextBlob_getIntercepts, reporter) {
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     font.setSize(16);
 
     SkPoint lowPos[1] = { SkPoint::Make(0, 5) };

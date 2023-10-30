@@ -344,14 +344,16 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
 
 DEF_TEST(Typeface, reporter) {
 
-    sk_sp<SkTypeface> t1(SkTypeface::MakeFromName(nullptr, SkFontStyle()));
-    sk_sp<SkTypeface> t2(SkTypeface::MakeDefault());
+    sk_sp<SkTypeface> t1(ToolUtils::CreateTestTypeface(nullptr, SkFontStyle()));
+    sk_sp<SkTypeface> t2(ToolUtils::DefaultTypeface());
 
     REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), t2.get()));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t1.get()));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, t2.get()));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(t1.get(), nullptr));
-    REPORTER_ASSERT(reporter, SkTypeface::Equal(t2.get(), nullptr));
+    REPORTER_ASSERT(reporter, SkTypeface::Equal(nullptr, nullptr));
+
+    REPORTER_ASSERT(reporter, !SkTypeface::Equal(nullptr, t1.get()));
+    REPORTER_ASSERT(reporter, !SkTypeface::Equal(nullptr, t2.get()));
+    REPORTER_ASSERT(reporter, !SkTypeface::Equal(t1.get(), nullptr));
+    REPORTER_ASSERT(reporter, !SkTypeface::Equal(t2.get(), nullptr));
 }
 
 DEF_TEST(TypefaceAxesParameters, reporter) {
@@ -549,7 +551,7 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, skiatest::Reporter* 
 }
 
 DEF_TEST(Typeface_serialize, reporter) {
-    check_serialize_behaviors(SkTypeface::MakeDefault(), reporter);
+    check_serialize_behaviors(ToolUtils::DefaultTypeface(), reporter);
     check_serialize_behaviors(
         SkTypeface::MakeFromStream(GetResourceAsStream("fonts/Distortable.ttf")), reporter);
 

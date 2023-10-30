@@ -15,6 +15,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkPaintPriv.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static const int kBmpSize = 24;
 static const int kMaxX = 250;
@@ -289,7 +290,7 @@ DEF_FUZZ(DrawFunctions, fuzz) {
 
     switch(i) {
         case 0: {
-            sk_sp<SkTypeface> f = SkTypeface::MakeDefault();
+            sk_sp<SkTypeface> f = ToolUtils::DefaultPortableTypeface();
             if (f == nullptr) {
               SkDebugf("Could not initialize font.\n");
               fuzz->signalBug();

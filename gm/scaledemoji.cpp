@@ -109,8 +109,7 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
 
         SkPaint paint;
-        SkFont font;
-        font.setTypeface(fEmojiFont.fTypeface);
+        SkFont font(fEmojiFont.fTypeface, 12);
         const char* text = fEmojiFont.fText;
 
         // draw text at different point sizes
@@ -177,9 +176,7 @@ protected:
         taper.setPerspY(-0.0025f);
 
         SkPaint paint;
-        SkFont font;
-        font.setTypeface(fEmojiFont.fTypeface);
-        font.setSize(40);
+        SkFont font(fEmojiFont.fTypeface, 40);
         sk_sp<SkTextBlob> blob = make_hpos_test_blob_utf8(fEmojiFont.fText.c_str(), font);
 
         // draw text at different point sizes

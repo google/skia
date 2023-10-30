@@ -499,8 +499,9 @@ DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
         canvas->save();
         canvas->translate(256, 256);
         canvas->clipShader(shader, SkClipOp::kDifference);
+        SkFont font = SkFont(ToolUtils::DefaultPortableTypeface(), 64.f);
         for (int y = 0; y < 4; ++y) {
-            canvas->drawString("Hello", 32.f, y * 64.f, SkFont(nullptr, 64.f), paint);
+            canvas->drawString("Hello", 32.f, y * 64.f, font, paint);
         }
         canvas->restore();
     }

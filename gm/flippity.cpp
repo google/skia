@@ -88,9 +88,8 @@ static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
     paint.setAntiAlias(true);
     paint.setColor(color);
 
-    SkFont font;
+    SkFont font = ToolUtils::DefaultPortableFont();
     font.setEdging(SkFont::Edging::kAntiAlias);
-    font.setTypeface(ToolUtils::DefaultPortableTypeface());
     font.setSize(32);
 
     SkRect bounds;

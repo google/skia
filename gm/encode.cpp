@@ -21,6 +21,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skiagm {
 
@@ -49,7 +50,7 @@ protected:
         canvas->drawImage(pngImage.get(), 0.0f, 0.0f);
         canvas->drawImage(jpgImage.get(), 512.0f, 0.0f);
 
-        SkFont font;
+        SkFont font = ToolUtils::DefaultPortableFont();
         font.setEdging(SkFont::Edging::kAlias);
         canvas->drawString("Images should look identical.", 450.0f, 550.0f, font, SkPaint());
     }

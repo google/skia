@@ -105,7 +105,7 @@ public:
     SkTypefaceID uniqueID() const { return fUniqueID; }
 
     /** Returns true if the two typefaces reference the same underlying font,
-        handling either being null (treating null as the default font)
+        handling either being null (treating null as not equal to any font).
      */
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
 

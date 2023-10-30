@@ -28,7 +28,7 @@ import("gn/ios.gni")
 config("skia_public") {
   include_dirs = [ "." ]
 
-  defines = []
+  defines = [ "SK_DEFAULT_TYPEFACE_IS_EMPTY" ]
   cflags_objcc = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
@@ -2644,6 +2644,7 @@ if (skia_enable_tools) {
       "tools/debugger/DebugLayerManager.cpp",
       "tools/debugger/DrawCommand.cpp",
       "tools/debugger/JsonWriteBuffer.cpp",
+      "tools/fonts/FontToolUtils.cpp",
     ]
     if (skia_enable_graphite && skia_enable_precompile) {
       sources += [ "fuzz/FuzzPrecompile.cpp" ]

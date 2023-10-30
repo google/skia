@@ -27,6 +27,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkAssert.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <initializer_list>
 #include <math.h>
@@ -1139,6 +1140,7 @@ DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 205, SK_ColorGRAY) {
     SkPaint p;
     SkGradientShader::Interpolation interpolation;
     canvas->translate(5, 5);
+    SkFont font = ToolUtils::DefaultPortableFont();
 
     for (const Config& config : kConfigs) {
         interpolation.fColorSpace = config.fColorSpace;
@@ -1146,7 +1148,7 @@ DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 205, SK_ColorGRAY) {
                                                  SkTileMode::kClamp, interpolation, nullptr));
         canvas->drawRect({0, 0, 200, 20}, p);
         canvas->drawSimpleText(config.fLabel, strlen(config.fLabel), SkTextEncoding::kUTF8, 210, 15,
-                               SkFont{}, labelPaint);
+                               font, labelPaint);
         canvas->translate(0, 25);
     }
 }
@@ -1173,6 +1175,7 @@ DEF_SIMPLE_GM_BG(gradients_hue_method, canvas, 285, 155, SK_ColorGRAY) {
     SkGradientShader::Interpolation interpolation;
     interpolation.fColorSpace = SkGradientShader::Interpolation::ColorSpace::kHSL;
     canvas->translate(5, 5);
+    SkFont font = ToolUtils::DefaultPortableFont();
 
     for (const Config& config : kConfigs) {
         interpolation.fHueMethod = config.fHueMethod;
@@ -1180,7 +1183,7 @@ DEF_SIMPLE_GM_BG(gradients_hue_method, canvas, 285, 155, SK_ColorGRAY) {
                                                  SkTileMode::kClamp, interpolation, nullptr));
         canvas->drawRect({0, 0, 200, 20}, p);
         canvas->drawSimpleText(config.fLabel, strlen(config.fLabel), SkTextEncoding::kUTF8, 210, 15,
-                               SkFont{}, labelPaint);
+                               font, labelPaint);
         canvas->translate(0, 25);
     }
 

@@ -19,6 +19,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -144,7 +145,7 @@ DEF_TEST(SkPDF_document_skbug_4734, r) {
     canvas->translate(20.0f, 10.0f);
     canvas->rotate(30.0f);
     const char text[] = "HELLO";
-    canvas->drawString(text, 0, 0, SkFont(), SkPaint());
+    canvas->drawString(text, 0, 0, ToolUtils::DefaultFont(), SkPaint());
 }
 
 static bool contains(const uint8_t* result, size_t size, const char expectation[]) {

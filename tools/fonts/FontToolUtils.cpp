@@ -153,4 +153,28 @@ sk_sp<SkImage> CreateStringImage(int w, int h, SkColor c, int x, int y, int text
                                  const char* str) {
     return CreateStringBitmap(w, h, c, x, y, textSize, str).asImage();
 }
+
+sk_sp<SkFontMgr> TestFontMgr() {
+    // TODO(b/305780908) Replace this with something that detects which FontMgr is compiled in.
+    return SkFontMgr::RefDefault();
+}
+
+sk_sp<SkTypeface> DefaultTypeface() {
+    return CreateTestTypeface(nullptr, SkFontStyle());
+}
+
+sk_sp<SkTypeface> CreateTestTypeface(const char* name, SkFontStyle style) {
+    sk_sp<SkFontMgr> fm = TestFontMgr();
+    SkASSERT_RELEASE(fm);
+    sk_sp<SkTypeface> face = fm->legacyMakeTypeface(name, style);
+    if (face) {
+        return face;
+    }
+    return CreatePortableTypeface(name, style);
+}
+
+SkFont DefaultFont() {
+    return SkFont(DefaultTypeface(), 12);
+}
+
 }  // namespace ToolUtils

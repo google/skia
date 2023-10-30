@@ -85,7 +85,7 @@ class FontMgrGM : public skiagm::GM {
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar y = 20;
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setSubpixel(true);
         font.setSize(17);
@@ -96,7 +96,7 @@ class FontMgrGM : public skiagm::GM {
         for (int i = 0; i < count; ++i) {
             SkString familyName;
             fm->getFamilyName(i, &familyName);
-            font.setTypeface(nullptr);
+            font.setTypeface(ToolUtils::DefaultTypeface());
             (void)drawString(canvas, familyName, 20, y, font);
 
             SkScalar x = 220;
@@ -171,7 +171,7 @@ class FontMgrMatchGM : public skiagm::GM {
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setSubpixel(true);
         font.setSize(17);
@@ -328,7 +328,7 @@ private:
     SkISize getISize() override { return {1024, 850}; }
 
     void onDraw(SkCanvas* canvas) override {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSubpixel(true);
         font.setSize(100);

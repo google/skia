@@ -240,8 +240,7 @@ static void draw_blob_adorned(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
 DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {
     const char text[] = "Hyjay {worlp}.";
     const size_t length = strlen(text);
-    SkFont font;
-    font.setTypeface(ToolUtils::DefaultPortableTypeface());
+    SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(100);
     font.setEdging(SkFont::Edging::kAntiAlias);
     const int count = font.countText(text, length, SkTextEncoding::kUTF8);

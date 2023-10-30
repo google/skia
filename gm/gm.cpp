@@ -44,7 +44,7 @@ static void draw_failure_message(SkCanvas* canvas, const char format[], ...) {
 
     constexpr SkScalar kOffset = 5.0f;
     canvas->drawColor(SkColorSetRGB(200,0,0));
-    SkFont font;
+    SkFont font = ToolUtils::DefaultPortableFont();
     SkRect bounds;
     font.measureText(failureMsg.c_str(), failureMsg.size(), SkTextEncoding::kUTF8, &bounds);
     SkPaint textPaint(SkColors::kWhite);

@@ -24,6 +24,7 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstdint>
 #include <cstring>
@@ -270,7 +271,7 @@ DEF_TEST(FlattenRecordedDrawable, r) {
     canvas->drawPaint(paint);
     SkPaint textPaint;
     textPaint.setColor(SK_ColorBLUE);
-    canvas->drawString("TEXT", 467.0f, 100.0f, SkFont(), textPaint);
+    canvas->drawString("TEXT", 467.0f, 100.0f, ToolUtils::DefaultFont(), textPaint);
 
     // Draw some drawables as well
     sk_sp<SkDrawable> drawable(new IntDrawable(1, 2, 3, 4));

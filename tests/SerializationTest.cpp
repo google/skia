@@ -50,7 +50,6 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkAnnotationKeys.h"
-#include "src/core/SkFontPriv.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -577,8 +576,7 @@ static void TestTypefaceSerialization(skiatest::Reporter* reporter,
         DumpTypeface(*cloneTypeface).c_str());
 }
 DEF_TEST(Serialization_Typeface, reporter) {
-    SkFont font;
-    TestTypefaceSerialization(reporter, SkFontPriv::RefTypefaceOrDefault(font));
+    TestTypefaceSerialization(reporter, ToolUtils::DefaultTypeface());
     TestTypefaceSerialization(reporter, ToolUtils::SampleUserTypeface());
 }
 
@@ -943,8 +941,7 @@ DEF_TEST(WriteBuffer_storage, reporter) {
 }
 
 DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
-    SkFont font;
-    font.setTypeface(SkTypeface::MakeDefault());
+    SkFont font = ToolUtils::DefaultFont();
 
     SkTextBlobBuilder builder;
     int glyph_count = 5;

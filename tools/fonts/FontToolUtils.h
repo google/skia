@@ -15,6 +15,7 @@
 class SkBitmap;
 class SkImage;
 class SkFont;
+class SkFontMgr;
 class SkTypeface;
 
 namespace ToolUtils {
@@ -49,6 +50,20 @@ sk_sp<SkTypeface> SampleUserTypeface();
 
 SkBitmap CreateStringBitmap(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
 sk_sp<SkImage> CreateStringImage(int w, int h, SkColor c, int x, int y, int textSize, const char* str);
+
+// This returns the SkFontMgr that has been compiled in and configured (e.g. via CLI flag)
+sk_sp<SkFontMgr> TestFontMgr();
+
+// This returns the default SkTypeface returned by the TestFontMgr(). If there was no default
+// Typeface, DefaultPortableTypeface() is returned instead.
+sk_sp<SkTypeface> DefaultTypeface();
+
+// Returns a Typeface matching the given criteria as returned by TestFontMgr(). This may be different
+// on different platforms.
+sk_sp<SkTypeface> CreateTestTypeface(const char* name, SkFontStyle style);
+
+// This returns a font using DefaultTypeface()
+SkFont DefaultFont();
 
 }  // namespace ToolUtils
 

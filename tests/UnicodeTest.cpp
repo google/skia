@@ -10,6 +10,7 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstdint>
 #include <cstring>
@@ -50,7 +51,7 @@ DEF_TEST(Unicode_textencodings, reporter) {
 }
 
 DEF_TEST(glyphs_to_unichars, reporter) {
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
 
     const int N = 52;
     SkUnichar uni[N];

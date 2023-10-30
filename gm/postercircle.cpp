@@ -21,6 +21,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
 // Mimics https://output.jsbin.com/falefice/1/quiet?CC_POSTER_CIRCLE, which can't be captured as
@@ -41,7 +42,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultPortableFont();
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setEmbolden(true);
         font.setSize(24.f);

@@ -20,6 +20,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkOverdrawColorFilter.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -33,6 +34,7 @@ DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
     // Set up the overdraw canvas.
     SkImageInfo offscreenInfo = SkImageInfo::MakeA8(WIDTH, HEIGHT);
     sk_sp<SkSurface> offscreen = SkSurfaces::Raster(offscreenInfo);
+    SkFont font = ToolUtils::DefaultPortableFont();
     auto c = offscreen->getCanvas();
 
     SkOverdrawCanvas overdrawCanvas(c);
@@ -45,7 +47,7 @@ DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
     overdrawCanvas.drawRect(SkRect::MakeLTRB(60, 60, 150, 150), SkPaint());
 
     char text[] = "Ae_p";
-    overdrawCanvas.drawSimpleText(text, 4, SkTextEncoding::kUTF8, 300, 300, SkFont(), SkPaint());
+    overdrawCanvas.drawSimpleText(text, 4, SkTextEncoding::kUTF8, 300, 300, font, SkPaint());
 
     sk_sp<SkImage> counts = offscreen->makeImageSnapshot();
 
@@ -53,7 +55,7 @@ DEF_SIMPLE_GM_BG(overdraw_canvas,       canvas, WIDTH, HEIGHT, SK_ColorWHITE) {
     SkPaint paint;
     paint.setColorFilter(SkOverdrawColorFilter::MakeWithSkColors(kOverdrawColors));
     canvas->drawImage(counts.get(), 0.0f, 0.0f, SkSamplingOptions(), &paint);
-    canvas->drawString("This is some text:", 180, 300, SkFont(), SkPaint());
+    canvas->drawString("This is some text:", 180, 300, font, SkPaint());
 }
 
 static sk_sp<SkImage> overdraw_text_grid(bool useCTM) {
@@ -62,6 +64,8 @@ static sk_sp<SkImage> overdraw_text_grid(bool useCTM) {
 
     SkPaint paint;
     paint.setColor(SK_ColorWHITE);
+
+    SkFont font = ToolUtils::DefaultPortableFont();
 
     for (int n = 1; n <= 20; n++) {
         const float x = 10.0f;
@@ -72,10 +76,10 @@ static sk_sp<SkImage> overdraw_text_grid(bool useCTM) {
             if (useCTM) {
                 canvas.save();
                 canvas.translate(x, y);
-                canvas.drawString(text, 0, 0, SkFont(), paint);
+                canvas.drawString(text, 0, 0, font, paint);
                 canvas.restore();
             } else {
-                canvas.drawString(text, x, y, SkFont(), paint);
+                canvas.drawString(text, x, y, font, paint);
             }
         }
     }

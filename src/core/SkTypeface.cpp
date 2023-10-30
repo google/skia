@@ -177,11 +177,8 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
     if (facea == faceb) {
         return true;
     }
-    if (!facea) {
-        facea = GetDefaultTypeface();
-    }
-    if (!faceb) {
-        faceb = GetDefaultTypeface();
+    if (!facea || !faceb) {
+        return false;
     }
     return facea->uniqueID() == faceb->uniqueID();
 }

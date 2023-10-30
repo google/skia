@@ -27,6 +27,7 @@
 #include "include/private/base/SkTPin.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <math.h>
 #include <string.h>
@@ -53,7 +54,7 @@ static void compare_pixel(const char* label,
                           SkCanvas* canvas, int x, int y,
                           SkColor4f color, SkColorSpace* cs) {
     SkPaint paint;
-    SkFont font;
+    SkFont font = ToolUtils::DefaultPortableFont();
     auto canvas_cs = canvas->imageInfo().refColorSpace();
 
     // I'm not really sure if this makes things easier or harder to follow,

@@ -355,7 +355,7 @@ using TextBlob = sktext::gpu::TextBlob;
 
 DEF_TEST(KeyEqualityOnPerspective, r) {
     SkTextBlobBuilder builder;
-    SkFont font(SkTypeface::MakeDefault(), 16);
+    SkFont font(ToolUtils::DefaultTypeface(), 16);
     auto runBuffer = builder.allocRun(font, 1, 0.0f, 0.0f);
     runBuffer.glyphs[0] = 3;
     auto blob = builder.make();

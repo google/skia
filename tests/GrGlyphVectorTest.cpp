@@ -21,6 +21,7 @@
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <initializer_list>
 #include <limits.h>
@@ -76,7 +77,7 @@ DEF_TEST(GlyphVector_Serialization, r) {
 }
 
 DEF_TEST(GlyphVector_BadLengths, r) {
-    auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(SkFont());
+    auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(ToolUtils::DefaultFont());
 
     // Strike to keep in the strike cache.
     auto strike = strikeSpec.findOrCreateStrike();

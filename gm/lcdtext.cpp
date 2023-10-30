@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "tools/fonts/FontToolUtils.h"
 
 class LcdTextGM : public skiagm::GM {
     static constexpr SkScalar kTextHeight = 36;
@@ -44,7 +45,7 @@ class LcdTextGM : public skiagm::GM {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setDither(true);
-        SkFont font(nullptr, kTextHeight);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), kTextHeight);
         if (subpixelTextEnabled) {
             font.setSubpixel(true);
         }
@@ -58,7 +59,7 @@ class LcdTextGM : public skiagm::GM {
 
 /*
  *  Skia will automatically disable LCD requests if the total size exceeds some limit
- *  (hard coded in this test for now, as it is now avaiable as an API)
+ *  (hard coded in this test for now, as it is now available as an API)
  *
  *  Test this both by changing "textsize" and by changing the computed size (textsize * CTM)
  */
@@ -95,7 +96,7 @@ class LcdTextSizeGM : public skiagm::GM {
             const SkPoint loc = rec[i].fLoc;
             SkAutoCanvasRestore acr(canvas, true);
 
-            SkFont font(nullptr, rec[i].fTextSize);
+            SkFont font(ToolUtils::DefaultPortableTypeface(), rec[i].fTextSize);
             font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
             ScaleAbout(canvas, rec[i].fScale, rec[i].fScale, loc.x(), loc.y());
@@ -127,7 +128,7 @@ class SaveLayerPreserveLCDTextGM : public skiagm::GM {
         paint.setColor(SK_ColorWHITE);
         canvas->drawRect(SkRect::MakeXYWH(0, y - 10, 640, kTextHeight + 20), paint);
         paint.setColor(SK_ColorBLACK);
-        SkFont font(nullptr, kTextHeight);
+        SkFont font(ToolUtils::DefaultPortableTypeface(), kTextHeight);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         canvas->drawString(string, 10, y, font, paint);
         canvas->restore();

@@ -189,7 +189,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     const int N = sizeof(text0) - 1;
     SkPoint pos[N];
 
-    SkFont font;
+    SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(100);
 
     SkPaint paint;
@@ -235,8 +235,7 @@ DEF_SIMPLE_GM(drawTextRSXform, canvas, 430, 860) {
 
 // Exercise xform blob and its bounds
 DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
-    SkFont font;
-    font.setTypeface(ToolUtils::DefaultPortableTypeface());
+    SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(50);
 
     const char text[] = "CrazyXform";
@@ -273,6 +272,9 @@ DEF_SIMPLE_GM(blob_rsxform_distortable, canvas, 500, 100) {
         SkFontArguments params;
         params.setVariationDesignPosition({position, std::size(position)});
         typeface = fm->makeFromStream(std::move(distortable), params);
+    }
+    if (!typeface) {
+        typeface = ToolUtils::DefaultPortableTypeface();
     }
 
     SkFont font(typeface, 50);

@@ -26,6 +26,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTArray.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <initializer_list>
 
@@ -47,7 +48,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         for (int i = 0; i < 3; ++i) {
-            SkFont font;
+            SkFont font = ToolUtils::DefaultPortableFont();
             font.setSize(32);
             font.setEdging(i == 0 ? SkFont::Edging::kAlias :
                            (i == 1 ? SkFont::Edging::kAntiAlias :

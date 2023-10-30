@@ -31,6 +31,7 @@
 #include "src/core/SkBlurMask.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -45,7 +46,11 @@ protected:
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
-        SkFont font(MakeResourceAsTypeface("fonts/HangingS.ttf"), 262);
+        sk_sp<SkTypeface> tf = MakeResourceAsTypeface("fonts/HangingS.ttf");
+        if (!tf) {
+            tf = ToolUtils::DefaultPortableTypeface();
+        }
+        SkFont font(tf, 262);
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 

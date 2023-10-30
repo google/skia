@@ -57,9 +57,7 @@ protected:
                                                     0, &local));
 
         sk_sp<SkTypeface> orig(ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Bold()));
-        if (nullptr == orig) {
-            orig = SkTypeface::MakeDefault();
-        }
+        SkASSERT(orig);
         fColorType = ToolUtils::EmojiTypeface();
 
         fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,

@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/utils/SkTextUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <initializer_list>
 
@@ -18,7 +19,7 @@ class SkCanvas;
 DEF_SIMPLE_GM(text_scale_skew, canvas, 256, 128) {
     SkPaint p;
     p.setAntiAlias(true);
-    SkFont font;
+    SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(18.0f);
     float y = 10.0f;
     for (float scale : { 0.5f, 0.71f, 1.0f, 1.41f, 2.0f }) {

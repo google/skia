@@ -149,7 +149,7 @@ class BadAppleGM : public skiagm::GM {
                 SkString("iPad Pro"),
         };
 
-        SkFont font;
+        SkFont font = ToolUtils::DefaultPortableFont();
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         font.setSubpixel(true);
         font.setSize(256);

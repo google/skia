@@ -48,6 +48,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <algorithm>
 #include <cfloat>
@@ -5674,11 +5675,11 @@ DEF_TEST(path_last_move_to_index, r) {
     constexpr size_t len = sizeof(text) - 1;
     SkGlyphID glyphs[len];
 
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
 
     SkPath copyPath;
-    SkFont().getPaths(glyphs, len, [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+    font.getPaths(glyphs, len, [](const SkPath* src, const SkMatrix& mx, void* ctx) {
         if (src) {
             ((SkPath*)ctx)->addPath(*src, mx);
         }

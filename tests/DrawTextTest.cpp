@@ -23,6 +23,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <array>
 #include <cmath>
@@ -83,7 +84,7 @@ DEF_TEST(DrawText_dashout, reporter) {
     SkCanvas emptyCanvas(emptyBitmap);
 
     SkPoint point = SkPoint::Make(25.0f, 25.0f);
-    SkFont font(nullptr, 20);
+    SkFont font(ToolUtils::DefaultTypeface(), 20);
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
     font.setSubpixel(true);
 
@@ -116,20 +117,21 @@ DEF_TEST(DrawText_dashout, reporter) {
 DEF_TEST(DrawText_weirdCoordinates, r) {
     auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10));
     auto canvas = surface->getCanvas();
+    SkFont font = ToolUtils::DefaultFont();
 
     SkScalar oddballs[] = { 0.0f, (float)INFINITY, (float)NAN, 34359738368.0f };
 
     for (auto x : oddballs) {
-        canvas->drawString("a", +x, 0.0f, SkFont(), SkPaint());
-        canvas->drawString("a", -x, 0.0f, SkFont(), SkPaint());
+        canvas->drawString("a", +x, 0.0f, font, SkPaint());
+        canvas->drawString("a", -x, 0.0f, font, SkPaint());
     }
     for (auto y : oddballs) {
-        canvas->drawString("a", 0.0f, +y, SkFont(), SkPaint());
-        canvas->drawString("a", 0.0f, -y, SkFont(), SkPaint());
+        canvas->drawString("a", 0.0f, +y, font, SkPaint());
+        canvas->drawString("a", 0.0f, -y, font, SkPaint());
     }
 }
 
-// Test drawing text with some unusual matricies.
+// Test drawing text with some unusual matrices.
 // We measure success by not crashing or asserting.
 DEF_TEST(DrawText_weirdMatricies, r) {
     auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
@@ -171,13 +173,14 @@ DEF_TEST(DrawText_weirdMatricies, r) {
 DEF_TEST(DrawText_noglyphs, r) {
     auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     auto canvas = surface->getCanvas();
+    SkFont font = ToolUtils::DefaultFont();
     auto text = "Hamburgfons";
     {
         // scoped to ensure blob is deleted.
-        auto blob = SkTextBlob::MakeFromText(text, strlen(text), SkFont());
+        auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
         canvas->drawTextBlob(blob, 10, 10, SkPaint());
     }
     canvas->drawString(
             "\x0d\xf3\xf2\xf2\xe9\x0d\x0d\x0d\x05\x0d\x0d\xe3\xe3\xe3\xe3\xe3\xe3\xe3\xe3\xe3",
-            10, 20, SkFont(), SkPaint());
+            10, 20, font, SkPaint());
 }

@@ -52,6 +52,9 @@ protected:
         fEmojiTypeface      = ToolUtils::PlanetTypeface();
         fEmojiText = "♁♃";
         fReallyBigATypeface = MakeResourceAsTypeface("fonts/ReallyBigA.ttf");
+        if (!fReallyBigATypeface) {
+            fReallyBigATypeface = ToolUtils::DefaultPortableTypeface();
+        }
 
         SkTextBlobBuilder builder;
 

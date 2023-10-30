@@ -24,6 +24,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 #include <utility>
@@ -94,6 +95,7 @@ static constexpr SkFontStyle gStyles[] = {
 
 constexpr int gStylesCount = std::size(gStyles);
 
+// TODO(bungeman) delete this GM, as it is no longer useful.
 class TypefaceStylesGM : public skiagm::GM {
     sk_sp<SkTypeface> fFaces[gStylesCount];
     bool fApplyKerning;
@@ -104,7 +106,7 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         for (int i = 0; i < gStylesCount; i++) {
-            fFaces[i] = SkTypeface::MakeFromName(nullptr, gStyles[i]);
+            fFaces[i] = ToolUtils::CreateTestTypeface(nullptr, gStyles[i]);
         }
     }
 
@@ -119,7 +121,8 @@ protected:
     SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkFont font;
+        // Need to use a font to get dy below.
+        SkFont font = ToolUtils::DefaultFont();
         font.setSize(30);
 
         const char* text = fApplyKerning ? "Type AWAY" : "Hamburgefons";
@@ -127,6 +130,7 @@ protected:
 
         SkScalar x = SkIntToScalar(10);
         SkScalar dy = font.getMetrics(nullptr);
+        SkASSERT(dy > 0);
         SkScalar y = dy;
 
         if (fApplyKerning) {
@@ -137,6 +141,7 @@ protected:
 
         SkPaint paint;
         for (int i = 0; i < gStylesCount; i++) {
+            SkASSERT(fFaces[i]);
             font.setTypeface(fFaces[i]);
             canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8, x, y, font, paint);
             if (fApplyKerning) {
@@ -400,9 +405,10 @@ DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfb, canvas, errMsg, 640, 840) {
 // Exercise different paint styles and embolden, and compare with strokeandfill patheffect
 DEF_SIMPLE_GM(typeface_styling, canvas, 710, 360) {
     sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto-Regular.ttf");
-    SkFont font;
-    font.setTypeface(face);
-    font.setSize(100);
+    if (!face) {
+        face = ToolUtils::DefaultPortableTypeface();
+    }
+    SkFont font(face, 100);
     font.setEdging(SkFont::Edging::kAntiAlias);
 
     uint16_t glyphs[1] = { font.unicharToGlyph('A') };

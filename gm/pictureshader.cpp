@@ -24,6 +24,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static struct {
     SkTileMode tmx;
@@ -259,10 +260,8 @@ DEF_SIMPLE_GM(pictureshader_persp, canvas, 215, 110) {
     };
 
     auto picture = []() {
-        sk_sp<SkTypeface> typeface = SkTypeface::MakeDefault();
-        if (!typeface) {
-            typeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
-        }
+        sk_sp<SkTypeface> typeface = ToolUtils::DefaultPortableTypeface();
+        SkASSERT(typeface);
         SkFont font;
         font.setTypeface(typeface);
         font.setHinting(SkFontHinting::kNormal);

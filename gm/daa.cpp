@@ -13,6 +13,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // This GM shows off a flaw in delta-based rasterizers (DAA, CCPR, etc.).
 // See also the bottom of dashing4 and skia:6886.
@@ -22,11 +23,12 @@ static const int K = 49;
 DEF_SIMPLE_GM(daa, canvas, K+350, 5*K) {
     SkPaint paint;
     paint.setAntiAlias(true);
+    SkFont font = ToolUtils::DefaultPortableFont();
 
     {
         paint.setColor(SK_ColorBLACK);
         canvas->drawString("Should be a green square with no red showing through.",
-                           K*1.5f, K*0.5f, SkFont(), paint);
+                           K*1.5f, K*0.5f, font, paint);
 
         paint.setColor(SK_ColorRED);
         canvas->drawRect({0,0,K,K}, paint);
@@ -45,7 +47,7 @@ DEF_SIMPLE_GM(daa, canvas, K+350, 5*K) {
     {
         paint.setColor(SK_ColorBLACK);
         canvas->drawString("Adjacent rects, two draws.  Blue then green, no red?",
-                           K*1.5f, K*0.5f, SkFont(), paint);
+                           K*1.5f, K*0.5f, font, paint);
 
         paint.setColor(SK_ColorRED);
         canvas->drawRect({0,0,K,K}, paint);
@@ -67,7 +69,7 @@ DEF_SIMPLE_GM(daa, canvas, K+350, 5*K) {
     {
         paint.setColor(SK_ColorBLACK);
         canvas->drawString("Adjacent rects, wound together.  All green?",
-                           K*1.5f, K*0.5f, SkFont(), paint);
+                           K*1.5f, K*0.5f, font, paint);
 
         paint.setColor(SK_ColorRED);
         canvas->drawRect({0,0,K,K}, paint);
@@ -86,7 +88,7 @@ DEF_SIMPLE_GM(daa, canvas, K+350, 5*K) {
     {
         paint.setColor(SK_ColorBLACK);
         canvas->drawString("Adjacent rects, wound opposite.  All green?",
-                           K*1.5f, K*0.5f, SkFont(), paint);
+                           K*1.5f, K*0.5f, font, paint);
 
         paint.setColor(SK_ColorRED);
         canvas->drawRect({0,0,K,K}, paint);
@@ -105,7 +107,7 @@ DEF_SIMPLE_GM(daa, canvas, K+350, 5*K) {
     {
         paint.setColor(SK_ColorBLACK);
         canvas->drawString("One poly, wound opposite.  All green?",
-                           K*1.5f, K*0.5f, SkFont(), paint);
+                           K*1.5f, K*0.5f, font, paint);
 
         paint.setColor(SK_ColorRED);
         canvas->drawRect({0,0,K,K}, paint);

@@ -227,7 +227,7 @@ DEF_SIMPLE_GM(HSL_duck, canvas, 1110, 620) {
         { SkBlendMode::kLuminosity, "Luminosity" },
     };
 
-    SkFont font;
+    SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(40);
     font.setEdging(SkFont::Edging::kAntiAlias);
 

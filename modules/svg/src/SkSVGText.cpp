@@ -77,7 +77,10 @@ static SkFont ResolveFont(const SkSVGRenderContext& ctx) {
     // TODO: we likely want matchFamilyStyle here, but switching away from legacyMakeTypeface
     // changes all the results when using the default fontmgr.
     auto tf = ctx.fontMgr()->legacyMakeTypeface(family.c_str(), style);
-
+    if (!tf) {
+        tf = ctx.fontMgr()->legacyMakeTypeface(nullptr, style);
+    }
+    SkASSERT(tf);
     SkFont font(std::move(tf), size);
     font.setHinting(SkFontHinting::kNone);
     font.setSubpixel(true);

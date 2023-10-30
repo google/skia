@@ -88,7 +88,7 @@ private:
                                           SkString("abcdefghijklmnopqrstuvwxyz"),
                                           SkString("0123456789"),
                                           SkString("!@#$%^&*()<>[]{}")};
-        SkFont font;
+        SkFont font = ToolUtils::DefaultPortableFont();
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSubpixel(true);
 

@@ -56,9 +56,7 @@ protected:
 
         // Setup our random scaler context
         auto typeface = ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Bold());
-        if (!typeface) {
-            typeface = SkTypeface::MakeDefault();
-        }
+        SkASSERT(typeface);
         font.setTypeface(sk_make_sp<SkRandomTypeface>(std::move(typeface), paint, false));
 
         SkScalar y = 0;

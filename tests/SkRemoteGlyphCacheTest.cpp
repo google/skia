@@ -664,8 +664,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath,
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
+    SkFont font = ToolUtils::DefaultFont();
     REPORTER_ASSERT(reporter,
-            SkStrikeSpec::ShouldDrawAsPath(paint, SkFont(), SkMatrix::I()));
+            SkStrikeSpec::ShouldDrawAsPath(paint, font, SkMatrix::I()));
 
     // Server.
     auto serverTypeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
