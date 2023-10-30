@@ -1387,12 +1387,12 @@ $pure half4 analytic_rrect_coverage_fn(float4 coords,
 }
 
 $pure half4 per_edge_aa_quad_coverage_fn(float4 coords,
-                                         float4 jacobian,
-                                         float4 edgeDistances,
-                                         float4 xRadii,
-                                         float4 yRadii,
-                                         float2 strokeParams,
-                                         float2 perPixelControl) {
+                                        float4 jacobian,
+                                        float4 edgeDistances,
+                                        float4 xRadii,
+                                        float4 yRadii,
+                                        float2 strokeParams,
+                                        float2 perPixelControl) {
     if (perPixelControl.x > 0.0) {
         // A trivially solid interior pixel, either from a filled rect or round rect, or a
         // stroke with sufficiently large width that the interior completely overlaps itself.
