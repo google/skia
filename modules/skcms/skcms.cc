@@ -2344,6 +2344,11 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     M(lab_to_xyz)         \
     M(xyz_to_lab)         \
                           \
+    M(gamma_r)            \
+    M(gamma_g)            \
+    M(gamma_b)            \
+    M(gamma_a)            \
+                          \
     M(tf_r)               \
     M(tf_g)               \
     M(tf_b)               \
@@ -2559,28 +2564,36 @@ namespace baseline {
 
 #endif
 
-typedef struct {
+static bool tf_is_gamma(const skcms_TransferFunction& tf) {
+    return tf.g > 0 && tf.a == 1 &&
+           tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0;
+}
+
+struct OpAndArg {
     Op          op;
     const void* arg;
-} OpAndArg;
+};
 
 static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
-    static const struct { Op sRGBish, PQish, HLGish, HLGinvish, table; } ops[] = {
-        { Op_tf_r, Op_pq_r, Op_hlg_r, Op_hlginv_r, Op_table_r },
-        { Op_tf_g, Op_pq_g, Op_hlg_g, Op_hlginv_g, Op_table_g },
-        { Op_tf_b, Op_pq_b, Op_hlg_b, Op_hlginv_b, Op_table_b },
-        { Op_tf_a, Op_pq_a, Op_hlg_a, Op_hlginv_a, Op_table_a },
+    struct OpType {
+        Op sGamma, sRGBish, PQish, HLGish, HLGinvish, table;
     };
-    const auto& op = ops[channel];
+    static constexpr OpType kOps[] = {
+        { Op_gamma_r, Op_tf_r, Op_pq_r, Op_hlg_r, Op_hlginv_r, Op_table_r },
+        { Op_gamma_g, Op_tf_g, Op_pq_g, Op_hlg_g, Op_hlginv_g, Op_table_g },
+        { Op_gamma_b, Op_tf_b, Op_pq_b, Op_hlg_b, Op_hlginv_b, Op_table_b },
+        { Op_gamma_a, Op_tf_a, Op_pq_a, Op_hlg_a, Op_hlginv_a, Op_table_a },
+    };
+    const auto& op = kOps[channel];
 
     if (curve->table_entries == 0) {
         const OpAndArg noop = { Op_load_a8/*doesn't matter*/, nullptr };
 
         const skcms_TransferFunction& tf = curve->parametric;
 
-        if (tf.g == 1 && tf.a == 1 &&
-            tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
-            return noop;
+        if (tf_is_gamma(tf)) {
+            return tf.g != 1 ? OpAndArg{op.sGamma, &tf}
+                             : noop;
         }
 
         switch (classify(tf)) {

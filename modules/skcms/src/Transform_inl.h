@@ -292,19 +292,35 @@ SI F approx_exp(F x) {
     return approx_exp2(log2_e * x);
 }
 
+SI F strip_sign(F x, U32* sign) {
+    U32 bits = bit_pun<U32>(x);
+    *sign = bits & 0x80000000;
+    return bit_pun<F>(bits ^ *sign);
+}
+
+SI F apply_sign(F x, U32 sign) {
+    return bit_pun<F>(sign | bit_pun<U32>(x));
+}
+
 // Return tf(x).
 SI F apply_tf(const skcms_TransferFunction* tf, F x) {
     // Peel off the sign bit and set x = |x|.
-    U32 bits = bit_pun<U32>(x),
-        sign = bits & 0x80000000;
-    x = bit_pun<F>(bits ^ sign);
+    U32 sign;
+    x = strip_sign(x, &sign);
 
     // The transfer function has a linear part up to d, exponential at d and after.
     F v = if_then_else(x < tf->d,            tf->c*x + tf->f
                                 , approx_pow(tf->a*x + tf->b, tf->g) + tf->e);
 
     // Tack the sign bit back on.
-    return bit_pun<F>(sign | bit_pun<U32>(v));
+    return apply_sign(v, sign);
+}
+
+// Return the gamma function (|x|^G with the original sign re-applied to x).
+SI F apply_gamma(const skcms_TransferFunction* tf, F x) {
+    U32 sign;
+    x = strip_sign(x, &sign);
+    return apply_sign(approx_pow(x, tf->g), sign);
 }
 
 SI F apply_pq(const skcms_TransferFunction* tf, F x) {
@@ -1109,6 +1125,11 @@ STAGE(xyz_to_lab, NoCtx) {
     g = (A + 128.0f) * (1/255.0f);
     b = (B + 128.0f) * (1/255.0f);
 }
+
+STAGE(gamma_r, const skcms_TransferFunction* tf) { r = apply_gamma(tf, r); }
+STAGE(gamma_g, const skcms_TransferFunction* tf) { g = apply_gamma(tf, g); }
+STAGE(gamma_b, const skcms_TransferFunction* tf) { b = apply_gamma(tf, b); }
+STAGE(gamma_a, const skcms_TransferFunction* tf) { a = apply_gamma(tf, a); }
 
 STAGE(tf_r, const skcms_TransferFunction* tf) { r = apply_tf(tf, r); }
 STAGE(tf_g, const skcms_TransferFunction* tf) { g = apply_tf(tf, g); }
