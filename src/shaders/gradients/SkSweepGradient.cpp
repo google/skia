@@ -140,10 +140,8 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
         mode = SkTileMode::kClamp;
     }
 
-    SkGradientBaseShader::ColorStopOptimizer opt(colors, pos, colorCount, mode);
-
     SkGradientBaseShader::Descriptor desc(
-            opt.fColors, std::move(colorSpace), opt.fPos, opt.fCount, mode, interpolation);
+            colors, std::move(colorSpace), pos, colorCount, mode, interpolation);
 
     const SkScalar t0 = startAngle / 360,
                    t1 =   endAngle / 360;

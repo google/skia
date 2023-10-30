@@ -247,89 +247,6 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestGradientOptimization(skiatest::Reporter* reporter) {
-    static const struct {
-        GradProc fProc;
-        bool     fIsClampRestricted;
-    } gProcInfo[] = {
-        { linear_gradproc       , false },
-        { linear_gradproc_matrix, false },
-        { radial_gradproc       , false },
-        { sweep_gradproc        , true  }, // sweep is funky in that it always pretends to be kClamp.
-        { conical_gradproc      , false },
-    };
-
-    static const SkColor   gC_00[] = { 0xff000000, 0xff000000 };
-    static const SkColor   gC_01[] = { 0xff000000, 0xffffffff };
-    static const SkColor   gC_11[] = { 0xffffffff, 0xffffffff };
-    static const SkColor  gC_001[] = { 0xff000000, 0xff000000, 0xffffffff };
-    static const SkColor  gC_011[] = { 0xff000000, 0xffffffff, 0xffffffff };
-    static const SkColor gC_0011[] = { 0xff000000, 0xff000000, 0xffffffff, 0xffffffff };
-
-    static const SkScalar   gP_01[] = { 0, 1 };
-    static const SkScalar  gP_001[] = { 0,   0, 1 };
-    static const SkScalar  gP_011[] = { 0,   1, 1 };
-    static const SkScalar  gP_0x1[] = { 0, .5f, 1 };
-    static const SkScalar gP_0011[] = { 0, 0, 1, 1 };
-
-    static const SkPoint    gPts[] = { {0, 0}, {1, 1} };
-    static const SkScalar gRadii[] = { 1, 2 };
-
-    static const struct {
-        const SkColor*  fCol;
-        const SkScalar* fPos;
-        int             fCount;
-
-        const SkColor*  fExpectedCol;
-        const SkScalar* fExpectedPos;
-        int             fExpectedCount;
-        bool            fRequiresNonClamp;
-    } gTests[] = {
-        { gC_001,  gP_001, 3,  gC_01,  gP_01, 2, false },
-        { gC_001,  gP_011, 3,  gC_00,  gP_01, 2, true  },
-        { gC_001,  gP_0x1, 3, gC_001, gP_0x1, 3, false },
-        { gC_001, nullptr, 3, gC_001, gP_0x1, 3, false },
-
-        { gC_011,  gP_001, 3,  gC_11,  gP_01, 2, true  },
-        { gC_011,  gP_011, 3,  gC_01,  gP_01, 2, false },
-        { gC_011,  gP_0x1, 3, gC_011, gP_0x1, 3, false },
-        { gC_011, nullptr, 3, gC_011, gP_0x1, 3, false },
-
-        { gC_0011, gP_0011, 4, gC_0011, gP_0011, 4, false },
-    };
-
-    const SkTileMode modes[] = {
-        SkTileMode::kClamp, SkTileMode::kRepeat, SkTileMode::kMirror,
-        // TODO: add kDecal_TileMode when it is implemented
-    };
-    for (size_t i = 0; i < std::size(gProcInfo); ++i) {
-        for (auto mode : modes) {
-            if (gProcInfo[i].fIsClampRestricted && mode != SkTileMode::kClamp) {
-                continue;
-            }
-
-            for (size_t t = 0; t < std::size(gTests); ++t) {
-                GradRec rec;
-                rec.fColorCount = gTests[t].fCount;
-                rec.fColors     = gTests[t].fCol;
-                rec.fPos        = gTests[t].fPos;
-                rec.fTileMode   = mode;
-                rec.fPoint      = gPts;
-                rec.fRadius     = gRadii;
-
-                GradRec expected = rec;
-                if (!gTests[t].fRequiresNonClamp || mode != SkTileMode::kClamp) {
-                    expected.fColorCount = gTests[t].fExpectedCount;
-                    expected.fColors     = gTests[t].fExpectedCol;
-                    expected.fPos        = gTests[t].fExpectedPos;
-                }
-
-                gProcInfo[i].fProc(reporter, rec, expected);
-            }
-        }
-    }
-}
-
 static void test_nearly_vertical(skiatest::Reporter* reporter) {
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(200, 200)));
 
@@ -687,7 +604,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
 
 DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
-    TestGradientOptimization(reporter);
     TestConstantGradient(reporter);
     test_big_grad(reporter);
     test_nearly_vertical(reporter);

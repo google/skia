@@ -111,10 +111,8 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
                 colors, pos, colorCount, std::move(colorSpace), mode);
     }
 
-    SkGradientBaseShader::ColorStopOptimizer opt(colors, pos, colorCount, mode);
-
     SkGradientBaseShader::Descriptor desc(
-            opt.fColors, std::move(colorSpace), opt.fPos, opt.fCount, mode, interpolation);
+            colors, std::move(colorSpace), pos, colorCount, mode, interpolation);
     return SkLocalMatrixShader::MakeWrapped<SkRadialGradient>(localMatrix, center, radius, desc);
 }
 

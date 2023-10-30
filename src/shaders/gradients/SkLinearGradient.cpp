@@ -119,10 +119,8 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                 colors, pos, colorCount, std::move(colorSpace), mode);
     }
 
-    SkGradientBaseShader::ColorStopOptimizer opt(colors, pos, colorCount, mode);
-
     SkGradientBaseShader::Descriptor desc(
-            opt.fColors, std::move(colorSpace), opt.fPos, opt.fCount, mode, interpolation);
+            colors, std::move(colorSpace), pos, colorCount, mode, interpolation);
     return SkLocalMatrixShader::MakeWrapped<SkLinearGradient>(localMatrix, pts, desc);
 }
 

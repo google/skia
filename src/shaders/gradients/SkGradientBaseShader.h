@@ -93,17 +93,6 @@ public:
                                                   sk_sp<SkColorSpace> colorSpace,
                                                   SkTileMode mode);
 
-    struct ColorStopOptimizer {
-        ColorStopOptimizer(const SkColor4f* colors,
-                           const SkScalar* pos,
-                           int count,
-                           SkTileMode mode);
-
-        const SkColor4f* fColors;
-        const SkScalar* fPos;
-        int fCount;
-    };
-
     // The default SkScalarNearlyZero threshold of .0024 is too big and causes regressions for svg
     // gradients defined in the wild.
     static constexpr SkScalar kDegenerateThreshold = SK_Scalar1 / (1 << 15);
