@@ -30,7 +30,7 @@ describe('Canvas Behavior', () => {
 
         canvas.drawArc(CanvasKit.LTRBRect(55, 35, 95, 80), 15, 270, true, paint);
 
-        const font = new CanvasKit.Font(null, 20);
+        const font = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 20);
         canvas.drawText('this is ascii text', 5, 100, paint, font);
 
         const blob = CanvasKit.TextBlob.MakeFromText('Unicode chars 💩 é É ص', font);
@@ -50,7 +50,7 @@ describe('Canvas Behavior', () => {
         textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
         textPaint.setAntiAlias(true);
 
-        const textFont = new CanvasKit.Font(null, 30);
+        const textFont = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 30);
 
         const dpe = CanvasKit.PathEffect.MakeDash([15, 5, 5, 10], 1);
 
@@ -283,7 +283,7 @@ describe('Canvas Behavior', () => {
         const textPaint = new CanvasKit.Paint();
         textPaint.setAntiAlias(true);
 
-        const textFont = new CanvasKit.Font(null, 10);
+        const textFont = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 10);
 
         let x = 10;
         let y = 20;

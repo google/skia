@@ -570,7 +570,7 @@
     paint.setColor(CanvasKit.RED);
 
     const textPaint = new CanvasKit.Paint();
-    const textFont = new CanvasKit.Font(null, 20);
+    const textFont = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 20);
     const pr = new CanvasKit.PictureRecorder();
     const skpCanvas = pr.beginRecording(CanvasKit.LTRBRect(0, 0, 200, 200));
     skpCanvas.drawRect(CanvasKit.LTRBRect(10, 10, 50, 50), paint);
@@ -653,7 +653,7 @@
     const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
     builder.addText(text);
     const paragraph = builder.build();
-    const font = new CanvasKit.Font(null, 18);
+    const font = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 18);
     // wrap the text to a given width.
     paragraph.layout(sizeX - margin*2);
 

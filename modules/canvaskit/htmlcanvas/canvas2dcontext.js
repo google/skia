@@ -8,7 +8,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
   this._fontString = '10px monospace';
 
-  this._font = new CanvasKit.Font(null, 10);
+  this._font = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 10);
   this._font.setSubpixel(true);
 
   this._strokeStyle    = CanvasKit.BLACK;

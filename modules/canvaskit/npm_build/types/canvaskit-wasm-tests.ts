@@ -563,8 +563,8 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     const q = p.getLineMetricsAt(0); // $ExpectType LineMetrics | null
     const r = p.getNumberOfLines(); // $ExpectType number
     const s = p.getLineNumberAt(0); // $ExpectType number
-    const t = p.getGlyphInfoAt(0);  //$ExpectType GlyphInfo | null
-    const u = p.getClosestGlyphInfoAtCoordinate(10, 3);  //$ExpectType GlyphInfo | null
+    const t = p.getGlyphInfoAt(0);  // $ExpectType GlyphInfo | null
+    const u = p.getClosestGlyphInfoAtCoordinate(10, 3);  // $ExpectType GlyphInfo | null
 }
 
 function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) {
@@ -1002,8 +1002,8 @@ function textBlobTests(CK: CanvasKit, font?: Font, path?: Path) {
 }
 
 function typefaceTests(CK: CanvasKit) {
-    const face = CK.Typeface.MakeFreeTypeFaceFromData(new ArrayBuffer(10));
-
+    const face = CK.Typeface.MakeTypefaceFromData(new ArrayBuffer(10));
+    const face2 = CK.Typeface.GetDefault(); // $ExpectType Typeface | null
     const ids = face!.getGlyphIDs('abcd');
     face!.getGlyphIDs('efgh', 4, ids);
 }

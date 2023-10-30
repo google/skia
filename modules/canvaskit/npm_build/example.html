@@ -149,7 +149,7 @@
     }
 
     const paint = new CanvasKit.Paint();
-    const roboto = CanvasKit.Typeface.MakeFreeTypeFaceFromData(robotoData);
+    const roboto = CanvasKit.Typeface.MakeTypefaceFromData(robotoData);
 
     const textPaint = new CanvasKit.Paint();
     textPaint.setColor(CanvasKit.RED);
@@ -1077,7 +1077,7 @@
                               pos, CanvasKit.TileMode.Mirror, transform);
 
     paint.setShader(shader);
-    const textFont = new CanvasKit.Font(null, 75);
+    const textFont = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 75);
     const textBlob = CanvasKit.TextBlob.MakeFromText('Radial', textFont);
 
     canvas.drawTextBlob(textBlob, 10, 200, paint);
@@ -1100,7 +1100,7 @@
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setAntiAlias(true);
 
-    const font = new CanvasKit.Font(null, 24);
+    const font = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 24);
     const fontPaint = new CanvasKit.Paint();
     fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
     fontPaint.setAntiAlias(true);
@@ -1134,7 +1134,7 @@
     }
     const canvas = surface.getCanvas();
     const paint = new CanvasKit.Paint();
-    const font = new CanvasKit.Font(null, 16);
+    const font = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 16);
     paint.setAntiAlias(true);
 
     let glyphs = [];

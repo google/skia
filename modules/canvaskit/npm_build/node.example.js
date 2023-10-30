@@ -55,7 +55,7 @@ function fancyAPI(CanvasKit) {
   const paint = new CanvasKit.Paint();
 
   let robotoData = fs.readFileSync(path.join(assetPath, 'Roboto-Regular.woff'));
-  const roboto = CanvasKit.Typeface.MakeFreeTypeFaceFromData(robotoData);
+  const roboto = CanvasKit.Typeface.MakeTypefaceFromData(robotoData);
 
   const textPaint = new CanvasKit.Paint();
   textPaint.setColor(CanvasKit.Color(40, 0, 0));

@@ -22,7 +22,7 @@ function HTMLCanvas(skSurface) {
   };
 
   this.loadFont = function(buffer, descriptors) {
-    var newFont = CanvasKit.Typeface.MakeFreeTypeFaceFromData(buffer);
+    var newFont = CanvasKit.Typeface.MakeTypefaceFromData(buffer);
     if (!newFont) {
       Debug('font could not be processed', descriptors);
       return null;

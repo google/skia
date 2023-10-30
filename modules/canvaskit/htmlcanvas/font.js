@@ -73,15 +73,20 @@ function getTypeface(fontstr) {
   return descriptors;
 }
 
-// null means use the default typeface (which is currently NotoMono)
-var fontCache = {
-  'Noto Mono': {
-    '*': null, // is used if we have this font family, but not the right style/variant/weight
-  },
-  'monospace': {
-    '*': null,
+var fontCache;
+function initCache() {
+  if (!fontCache) {
+    fontCache = {
+      'Noto Mono': {
+         // is used if we have this font family, but not the right style/variant/weight
+        '*': CanvasKit.Typeface.GetDefault(),
+      },
+      'monospace': {
+        '*': CanvasKit.Typeface.GetDefault(),
+      }
+    };
   }
-};
+}
 
 // descriptors is like https://developer.mozilla.org/en-US/docs/Web/API/FontFace/FontFace
 // The ones currently supported are family, style, variant, weight.
@@ -90,6 +95,7 @@ function addToFontCache(typeface, descriptors) {
             (descriptors['variant'] || 'normal') + '|' +
             (descriptors['weight']  || 'normal');
   var fam = descriptors['family'];
+  initCache();
   if (!fontCache[fam]) {
     // preload with a fallback to this typeface
     fontCache[fam] = {
@@ -104,8 +110,9 @@ function getFromFontCache(descriptors) {
             (descriptors['variant'] || 'normal') + '|' +
             (descriptors['weight']  || 'normal');
   var fam = descriptors['family'];
+  initCache();
   if (!fontCache[fam]) {
-    return null;
+    return CanvasKit.Typeface.GetDefault();
   }
   return fontCache[fam][key] || fontCache[fam]['*'];
 }

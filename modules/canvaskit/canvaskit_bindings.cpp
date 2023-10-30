@@ -58,6 +58,7 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
+#include "include/private/base/SkOnce.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkPathPriv.h"
@@ -109,6 +110,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
+#include "src/ports/SkFontHost_FreeType_common.h"
 #ifdef CK_INCLUDE_PARAGRAPH
 #include "modules/skparagraph/include/Paragraph.h"
 #endif // CK_INCLUDE_PARAGRAPH
@@ -124,6 +126,12 @@
 
 #ifndef CK_NO_FONTS
 #include "include/ports/SkFontMgr_data.h"
+#endif
+
+#if defined(CK_EMBED_FONT)
+struct SkEmbeddedResource { const uint8_t* data; size_t size; };
+struct SkEmbeddedResourceHeader { const SkEmbeddedResource* entries; int count; };
+extern "C" const SkEmbeddedResourceHeader SK_EMBEDDED_FONTS;
 #endif
 
 #if GR_TEST_UTILS
@@ -2332,12 +2340,29 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkTypeface>("Typeface")
         .smart_ptr<sk_sp<SkTypeface>>("sk_sp<Typeface>")
-        .class_function("_MakeFreeTypeFaceFromData", optional_override([](WASMPointerU8 fPtr,
-                                                int flen)->sk_sp<SkTypeface> {
+        .class_function("GetDefault", optional_override([]()->sk_sp<SkTypeface> {
+#if defined(CK_EMBED_FONT)
+            if (SK_EMBEDDED_FONTS.count == 0) {
+                return nullptr;
+            }
+            static sk_sp<SkTypeface> default_face;
+            static SkOnce once;
+            once([] {
+                const SkEmbeddedResource& fontEntry = SK_EMBEDDED_FONTS.entries[0];
+                auto stream = std::make_unique<SkMemoryStream>(fontEntry.data, fontEntry.size, false);
+                default_face = SkTypeface_FreeType::MakeFromStream(std::move(stream), SkFontArguments());
+            });
+            return default_face;
+#else
+            return nullptr;
+#endif
+        }), allow_raw_pointers())
+        .class_function("_MakeTypefaceFromData", optional_override([](
+                    WASMPointerU8 fPtr, int flen)->sk_sp<SkTypeface> {
             uint8_t* font = reinterpret_cast<uint8_t*>(fPtr);
-            sk_sp<SkData> fontData = SkData::MakeFromMalloc(font, flen);
-
-            return SkFontMgr::RefDefault()->makeFromData(fontData);
+            std::unique_ptr<SkMemoryStream> stream(new SkMemoryStream());
+            stream->setMemoryOwned(font, flen);
+            return SkTypeface_FreeType::MakeFromStream(std::move(stream), SkFontArguments());
         }), allow_raw_pointers())
         .function("_getGlyphIDs", optional_override([](SkTypeface& self, WASMPointerU8 sptr,
                                                    size_t strLen, size_t expectedCodePoints,

@@ -553,7 +553,7 @@ describe('Path Behavior', () => {
 
         const paint = new CanvasKit.Paint();
         paint.setStyle(CanvasKit.PaintStyle.Fill);
-        const font = new CanvasKit.Font(null, 20);
+        const font = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 20);
 
         canvas.drawText('Original path (even odd)', 5, 20, paint, font);
         canvas.translate(0, 50);

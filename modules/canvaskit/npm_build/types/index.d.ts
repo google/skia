@@ -995,7 +995,7 @@ export interface SlotInfo {
  * Text property for ManagedAnimation's slot support
  */
 export interface SlottableTextProperty {
-    typeface?: Typeface
+    typeface?: Typeface;
     text?: string;
 
     textSize?: number;
@@ -1036,7 +1036,7 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
     // can be observed and editted live like with the other get/set tools. The slot id passed in
     // must match the name of the property in the Essential Graphics window. Property Groups support
     // one-to-many relationships.
-    getSlotInfo() : SlotInfo;
+    getSlotInfo(): SlotInfo;
 
     setColorSlot(key: string, color: InputColor): boolean;
     setScalarSlot(key: string, scalar: number): boolean;
@@ -4203,20 +4203,26 @@ export interface TextStyleConstructor {
 
 export interface SlottableTextPropertyConstructor {
    /**
-     * Fills out all optional fields with defaults. The emscripten bindings complain if there
-     * is a field undefined and it was expecting a float (for example).
-     * @param text
-     */
+    * Fills out all optional fields with defaults. The emscripten bindings complain if there
+    * is a field undefined and it was expecting a float (for example).
+    * @param text
+    */
    new(text: SlottableTextProperty): SlottableTextProperty;
 }
 
 export interface TypefaceFactory {
     /**
+     * By default, CanvasKit has a default monospace typeface compiled in so that text works out
+     * of the box. This returns that typeface if it is available, null otherwise.
+     */
+    GetDefault(): Typeface | null;
+
+    /**
      * Create a typeface using Freetype from the specified bytes and return it. CanvasKit supports
      * .ttf, .woff and .woff2 fonts. It returns null if the bytes cannot be decoded.
      * @param fontData
      */
-    MakeFreeTypeFaceFromData(fontData: ArrayBuffer): Typeface | null;
+    MakeTypefaceFromData(fontData: ArrayBuffer): Typeface | null;
 }
 
 export interface TypefaceFontProviderFactory {

@@ -800,11 +800,12 @@ var CanvasKit = {
   },
 
   Typeface: {
-    MakeFreeTypeFaceFromData: function() {},
+    GetDefault: function() {},
+    MakeTypefaceFromData: function() {},
     prototype: {
       getGlyphIDs: function() {},
     },
-    _MakeFreeTypeFaceFromData: function() {},
+    _MakeTypefaceFromData: function() {},
     _getGlyphIDs: function() {},
   },
 

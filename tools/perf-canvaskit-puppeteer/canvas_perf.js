@@ -689,7 +689,7 @@ for (const variant of ['ttf', 'woff', 'woff2']) {
         description: `Get glyphIDs from a ${variant} font`,
         setup: function (CanvasKit, ctx) {
             const robotoData = ctx.files['Roboto-Regular.' + variant];
-            ctx.robotoFace = CanvasKit.Typeface.MakeFreeTypeFaceFromData(robotoData);
+            ctx.robotoFace = CanvasKit.Typeface.MakeTypefaceFromData(robotoData);
             if (!ctx.robotoFace) {
                 throw 'could not load ' + variant;
             }
