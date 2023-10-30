@@ -1179,6 +1179,10 @@ GrTriangulator::BoolFail GrTriangulator::checkForIntersection(
     }
     SkPoint p;
     uint8_t alpha;
+    // If we are going to call intersect, then there must be tops and bottoms.
+    if (!left->fTop || !left->fBottom || !right->fTop || !right->fBottom) {
+        return BoolFail::kFail;
+    }
     if (left->intersect(*right, &p, &alpha) && p.isFinite()) {
         Vertex* v;
         TESS_LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
