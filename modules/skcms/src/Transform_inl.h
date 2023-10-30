@@ -1131,25 +1131,55 @@ STAGE(gamma_g, const skcms_TransferFunction* tf) { g = apply_gamma(tf, g); }
 STAGE(gamma_b, const skcms_TransferFunction* tf) { b = apply_gamma(tf, b); }
 STAGE(gamma_a, const skcms_TransferFunction* tf) { a = apply_gamma(tf, a); }
 
+STAGE(gamma_rgb, const skcms_TransferFunction* tf) {
+    r = apply_gamma(tf, r);
+    g = apply_gamma(tf, g);
+    b = apply_gamma(tf, b);
+}
+
 STAGE(tf_r, const skcms_TransferFunction* tf) { r = apply_tf(tf, r); }
 STAGE(tf_g, const skcms_TransferFunction* tf) { g = apply_tf(tf, g); }
 STAGE(tf_b, const skcms_TransferFunction* tf) { b = apply_tf(tf, b); }
 STAGE(tf_a, const skcms_TransferFunction* tf) { a = apply_tf(tf, a); }
+
+STAGE(tf_rgb, const skcms_TransferFunction* tf) {
+    r = apply_tf(tf, r);
+    g = apply_tf(tf, g);
+    b = apply_tf(tf, b);
+}
 
 STAGE(pq_r, const skcms_TransferFunction* tf) { r = apply_pq(tf, r); }
 STAGE(pq_g, const skcms_TransferFunction* tf) { g = apply_pq(tf, g); }
 STAGE(pq_b, const skcms_TransferFunction* tf) { b = apply_pq(tf, b); }
 STAGE(pq_a, const skcms_TransferFunction* tf) { a = apply_pq(tf, a); }
 
+STAGE(pq_rgb, const skcms_TransferFunction* tf) {
+    r = apply_pq(tf, r);
+    g = apply_pq(tf, g);
+    b = apply_pq(tf, b);
+}
+
 STAGE(hlg_r, const skcms_TransferFunction* tf) { r = apply_hlg(tf, r); }
 STAGE(hlg_g, const skcms_TransferFunction* tf) { g = apply_hlg(tf, g); }
 STAGE(hlg_b, const skcms_TransferFunction* tf) { b = apply_hlg(tf, b); }
 STAGE(hlg_a, const skcms_TransferFunction* tf) { a = apply_hlg(tf, a); }
 
+STAGE(hlg_rgb, const skcms_TransferFunction* tf) {
+    r = apply_hlg(tf, r);
+    g = apply_hlg(tf, g);
+    b = apply_hlg(tf, b);
+}
+
 STAGE(hlginv_r, const skcms_TransferFunction* tf) { r = apply_hlginv(tf, r); }
 STAGE(hlginv_g, const skcms_TransferFunction* tf) { g = apply_hlginv(tf, g); }
 STAGE(hlginv_b, const skcms_TransferFunction* tf) { b = apply_hlginv(tf, b); }
 STAGE(hlginv_a, const skcms_TransferFunction* tf) { a = apply_hlginv(tf, a); }
+
+STAGE(hlginv_rgb, const skcms_TransferFunction* tf) {
+    r = apply_hlginv(tf, r);
+    g = apply_hlginv(tf, g);
+    b = apply_hlginv(tf, b);
+}
 
 STAGE(table_r, const skcms_Curve* curve) { r = table(curve, r); }
 STAGE(table_g, const skcms_Curve* curve) { g = table(curve, g); }
