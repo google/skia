@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/trietmn/go-wiki v1.0.1
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20231027022255-ac82f8a7da91
+	go.skia.org/infra v0.0.0-20231028062919-f5454137fb7d
 	google.golang.org/api v0.74.0
 	google.golang.org/protobuf v1.28.0
 )
@@ -26,8 +26,8 @@ require (
 	cloud.google.com/go/secretmanager v1.4.0 // indirect
 	github.com/aclements/go-moremath v0.0.0-20190830160640-d16893ddf098 // indirect
 	github.com/anaskhan96/soup v1.2.5 // indirect
-	github.com/bazelbuild/remote-apis v0.0.0-20201209220655-9e72daff42c9 // indirect
-	github.com/bazelbuild/remote-apis-sdks v0.0.0-20201120151053-8f976b9bf4fc // indirect
+	github.com/bazelbuild/remote-apis v0.0.0-20230822133051-6c32c3b917cc // indirect
+	github.com/bazelbuild/remote-apis-sdks v0.0.0-20220429154201-6c8489803a6f // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -39,6 +39,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -48,11 +49,14 @@ require (
 	github.com/jcgregorio/logger v0.1.3 // indirect
 	github.com/jcgregorio/slog v0.0.0-20190423190439-e6f2d537f900 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
-	github.com/klauspost/compress v1.11.3 // indirect
+	github.com/klauspost/compress v1.12.3 // indirect
+	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
+	github.com/mostynb/zstdpool-syncpool v0.0.7 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/xattr v0.4.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.11.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
@@ -77,7 +81,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220426171045-31bebdecfb46 // indirect
-	google.golang.org/grpc v1.45.0 // indirect
+	google.golang.org/grpc v1.51.0 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
