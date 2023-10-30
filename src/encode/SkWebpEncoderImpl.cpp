@@ -138,7 +138,9 @@ bool Encode(SkWStream* stream, const SkPixmap& pixmap, const Options& opts) {
     }
 
     WebPPicture pic;
-    WebPPictureInit(&pic);
+    if (!WebPPictureInit(&pic)) {
+        return false;
+    }
     SkAutoTCallVProc<WebPPicture, WebPPictureFree> autoPic(&pic);
 
     if (!preprocess_webp_picture(&pic, &webp_config, pixmap, opts)) {
@@ -212,7 +214,9 @@ bool EncodeAnimated(SkWStream* stream, SkSpan<const SkEncoder::Frame> frames, co
         }
 
         WebPPicture pic;
-        WebPPictureInit(&pic);
+        if (!WebPPictureInit(&pic)) {
+            return false;
+        }
         SkAutoTCallVProc<WebPPicture, WebPPictureFree> autoPic(&pic);
 
         if (!preprocess_webp_picture(&pic, &webp_config, pixmap, opts)) {
