@@ -97,7 +97,7 @@ struct SkMipmapDownSampler {
     virtual void buildLevel(const SkPixmap& dst, const SkPixmap& src) = 0;
 };
 
-// built-in HQ downsampler
 std::unique_ptr<SkMipmapDownSampler> SkMakeHQDownSampler(const SkPixmap&);
+std::unique_ptr<SkMipmapDownSampler> SkMakeDrawDownSampler(const SkPixmap&);
 
 #endif
