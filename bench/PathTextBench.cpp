@@ -14,6 +14,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 static constexpr int kScreenWidth = 1500;
 static constexpr int kScreenHeight = 1500;
@@ -46,7 +47,7 @@ private:
     SkISize onGetSize() override { return SkISize::Make(kScreenWidth, kScreenHeight); }
 
     void onDelayedSetup() override {
-        SkFont defaultFont;
+        SkFont defaultFont = ToolUtils::DefaultFont();
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
         SkBulkGlyphMetricsAndPaths pathMaker{strikeSpec};
         for (int i = 0; i < kNumGlyphs; ++i) {
@@ -63,6 +64,7 @@ private:
             const SkPath& glyph = fGlyphs[i % kNumGlyphs];
             const SkRect& bounds = glyph.getBounds();
             float glyphSize = std::max(bounds.width(), bounds.height());
+            SkASSERT(glyphSize > 0);
 
             float t0 = pow(rand.nextF(), 100);
             float size = (1 - t0) * std::min(kScreenWidth, kScreenHeight) / 50 +

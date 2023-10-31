@@ -16,6 +16,7 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ public:
     void load(SkScalar w, SkScalar h) final {
         fSize = {w, h};
 
-        SkFont defaultFont;
+        SkFont defaultFont = ToolUtils::DefaultFont();
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
         SkBulkGlyphMetricsAndPaths pathMaker{strikeSpec};
         SkPath glyphPaths[52];
