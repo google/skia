@@ -156,6 +156,9 @@ CanvasKit._extraInitializations.push(function() {
     return font;
   };
 
+  // TODO(kjlubick) remove this after clients have migrated.
+  CanvasKit.Typeface["MakeFreeTypeFaceFromData"] = CanvasKit.Typeface.MakeTypefaceFromData;
+
   CanvasKit.Typeface.prototype.getGlyphIDs = function(str, numGlyphIDs, optionalOutputArray) {
     if (!numGlyphIDs) {
       numGlyphIDs = str.length;

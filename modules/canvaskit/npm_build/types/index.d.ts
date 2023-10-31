@@ -4223,6 +4223,8 @@ export interface TypefaceFactory {
      * @param fontData
      */
     MakeTypefaceFromData(fontData: ArrayBuffer): Typeface | null;
+    // Legacy
+    MakeFreeTypeFaceFromData(fontData: ArrayBuffer): Typeface | null;
 }
 
 export interface TypefaceFontProviderFactory {
