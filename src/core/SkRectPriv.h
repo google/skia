@@ -91,8 +91,12 @@ public:
     }
 
     // Returns true if the quadrilateral formed by transforming the four corners of 'a' contains 'b'
-    static bool QuadContainsRect(const SkMatrix& m, const SkIRect& a, const SkIRect& b);
-    static bool QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect& b);
+    // 'tol' is in the same coordinate space as 'b', to treat 'b' as 'tol' units inset.
+    static bool QuadContainsRect(const SkMatrix& m,
+                                 const SkIRect& a,
+                                 const SkIRect& b,
+                                 float tol=0.f);
+    static bool QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect& b, float tol=0.f);
 
     // Assuming 'src' does not intersect 'dst', returns the edge or corner of 'src' that is closest
     // to 'dst', e.g. the pixels that would be sampled from 'src' when clamp-tiled into 'dst'.

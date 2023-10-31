@@ -776,28 +776,30 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
         if (!srcToLayer.inverseMapRect(requiredInput, &srcSubset)) {
             return;
         }
-        if (!srcSubset.intersect(skif::LayerSpace<SkIRect>(SkIRect::MakeSize(src->size())))) {
+
+        auto availSrc = srcSubset;
+        if (!availSrc.intersect(skif::LayerSpace<SkIRect>(SkIRect::MakeSize(src->size())))) {
             // We apply clamp tiling for unavailable pixels for backdrop filters. For forward
             // filters, this should have been detected as an unnecessary layer or a filter that
             // could be invoked on an empty input and never reached internalDrawDeviceWithFilter.
             SkASSERT(compat == DeviceCompatibleWithFilter::kUnknown);
-            srcSubset = skif::LayerSpace<SkIRect>(SkRectPriv::ClosestDisjointEdge(
+            availSrc = skif::LayerSpace<SkIRect>(SkRectPriv::ClosestDisjointEdge(
                     SkIRect::MakeSize(src->size()),
-                    SkIRect(srcSubset)));
+                    SkIRect(availSrc)));
         }
 
         if (SkMatrix(srcToLayer).isScaleTranslate()) {
             // Apply the srcToLayer transformation directly while snapping an image from the src
             // device. Calculate the subset of requiredInput that corresponds to srcSubset that was
             // restricted to the actual src dimensions.
-            auto requiredSubset = srcToLayer.mapRect(srcSubset);
-            if (requiredSubset.width() == srcSubset.width() &&
-                requiredSubset.height() == srcSubset.height()) {
+            auto requiredSubset = srcToLayer.mapRect(availSrc);
+            if (requiredSubset.width() == availSrc.width() &&
+                requiredSubset.height() == availSrc.height()) {
                 // Unlike snapSpecialScaled(), snapSpecial() can avoid a copy when the underlying
                 // representation permits it.
-                source = {src->snapSpecial(SkIRect(srcSubset)), requiredSubset.topLeft()};
+                source = {src->snapSpecial(SkIRect(availSrc)), requiredSubset.topLeft()};
             } else {
-                source = {src->snapSpecialScaled(SkIRect(srcSubset),
+                source = {src->snapSpecialScaled(SkIRect(availSrc),
                                                  SkISize(requiredSubset.size())),
                           requiredSubset.topLeft()};
             }
@@ -810,9 +812,11 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
         if (!requiredInput.isEmpty() && !source) {
             // Snap the source image at its original resolution and then apply srcToLayer to map to
             // the effective layer coordinate space.
-            source = {src->snapSpecial(SkIRect(srcSubset)), srcSubset.topLeft()};
+            source = {src->snapSpecial(SkIRect(availSrc)), availSrc.topLeft()};
             // We adjust the desired output of the applyCrop() because ctx was original set to
-            // fulfill 'requiredInput', which is valid *after* we apply srcToLayer.
+            // fulfill 'requiredInput', which is valid *after* we apply srcToLayer. Use the original
+            // 'srcSubset' for the desired output so that the kClamp applied to the available subset
+            // is not discarded as a no-op.
             source = source.applyCrop(ctx.withNewDesiredOutput(srcSubset),
                                       source.layerBounds(),
                                       SkTileMode::kClamp)

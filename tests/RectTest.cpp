@@ -287,6 +287,7 @@ DEF_TEST(Rect_QuadContainsRect, reporter) {
         SkMatrix m;
         SkIRect a;
         SkIRect b;
+        float tol = 0.f;
     };
 
     TestCase tests[] = {
@@ -325,18 +326,39 @@ DEF_TEST(Rect_QuadContainsRect, reporter) {
 
         { "Unsorted rect is contained", /*expect=*/true,
           /*m=*/SkMatrix::I(), /*a=*/{0,0,10,10}, /*b=*/{8,8,2,2}},
+
+        // NOTE: preTranslate(65.f, 0.f) gives enough of a different matrix that the contains()
+        // passes even without the epsilon allowance.
+        { "Epsilon not contained", /*expect=*/true,
+          /*m=*/SkMatrix::MakeAll( 0.984808f, 0.173648f, -98.4808f,
+                                  -0.173648f, 0.984808f,  17.3648f,
+                                   0.000000f, 0.000000f,   1.0000f)
+                         .preTranslate(65.f, 0.f),
+          /*a=*/{0, 0, 134, 215}, /*b=*/{0, 0, 100, 200}, /*tol=*/0.001f},
     };
 
     for (const TestCase& t : tests) {
         skiatest::ReporterContext c{reporter, t.label};
-        REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(t.m, t.a, t.b) == t.expect);
+        REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(t.m, t.a, t.b, t.tol) == t.expect);
 
         // Generate equivalent tests for SkRect and SkM44 by translating a by 1/2px and 'b' by
         // 1/2px in post-transform space
         SkVector bOffset = t.m.mapVector(0.5f, 0.5f);
         SkRect af = SkRect::Make(t.a).makeOffset(0.5f, 0.5f);
         SkRect bf = SkRect::Make(t.b).makeOffset(bOffset.fX, bOffset.fY);
-        REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(SkM44(t.m), af, bf) == t.expect);
+        REPORTER_ASSERT(reporter,
+                        SkRectPriv::QuadContainsRect(SkM44(t.m), af, bf, t.tol) == t.expect);
+
+        if (t.tol != 0.f) {
+            // Expect the opposite result if we do not provide any tol.
+            REPORTER_ASSERT(reporter, SkRectPriv::QuadContainsRect(t.m, t.a, t.b) == !t.expect);
+
+            bOffset = t.m.mapVector(0.5f, 0.5f);
+            af = SkRect::Make(t.a).makeOffset(0.5f, 0.5f);
+            bf = SkRect::Make(t.b).makeOffset(bOffset.fX, bOffset.fY);
+            REPORTER_ASSERT(reporter,
+                            SkRectPriv::QuadContainsRect(SkM44(t.m), af, bf) == !t.expect);
+        }
     }
 
     // Test some more complicated scenarios with perspective that don't fit into the TestCase

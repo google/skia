@@ -258,11 +258,14 @@ bool SkRectPriv::Subtract(const SkIRect& a, const SkIRect& b, SkIRect* out) {
 }
 
 
-bool SkRectPriv::QuadContainsRect(const SkMatrix& m, const SkIRect& a, const SkIRect& b) {
-    return QuadContainsRect(SkM44(m), SkRect::Make(a), SkRect::Make(b));
+bool SkRectPriv::QuadContainsRect(const SkMatrix& m,
+                                  const SkIRect& a,
+                                  const SkIRect& b,
+                                  float tol) {
+    return QuadContainsRect(SkM44(m), SkRect::Make(a), SkRect::Make(b), tol);
 }
 
-bool SkRectPriv::QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect& b) {
+bool SkRectPriv::QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect& b, float tol) {
     SkDEBUGCODE(SkM44 inverse;)
     SkASSERT(m.invert(&inverse));
     // With empty rectangles, the calculated edges could give surprising results. If 'a' were not
@@ -300,10 +303,11 @@ bool SkRectPriv::QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect&
 
     // Calculate distance from 'b' to each edge. Since 'b' has presumably been transformed by 'm'
     // *and* projected, this assumes W = 1.
-    auto d0 = sign * (lA*b.fLeft  + lB*b.fTop    + lC);
-    auto d1 = sign * (lA*b.fRight + lB*b.fTop    + lC);
-    auto d2 = sign * (lA*b.fRight + lB*b.fBottom + lC);
-    auto d3 = sign * (lA*b.fLeft  + lB*b.fBottom + lC);
+    SkRect bInset = b.makeInset(tol, tol);
+    auto d0 = sign * (lA*bInset.fLeft  + lB*bInset.fTop    + lC);
+    auto d1 = sign * (lA*bInset.fRight + lB*bInset.fTop    + lC);
+    auto d2 = sign * (lA*bInset.fRight + lB*bInset.fBottom + lC);
+    auto d3 = sign * (lA*bInset.fLeft  + lB*bInset.fBottom + lC);
 
     // 'b' is contained in the mapped rectangle if all distances are >= 0
     return all((d0 >= 0.f) & (d1 >= 0.f) & (d2 >= 0.f) & (d3 >= 0.f));

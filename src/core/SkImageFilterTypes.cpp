@@ -227,7 +227,8 @@ bool decal_tiling_differs_from_aa(const LayerSpace<SkMatrix> transform,
     // transformed 'imageBounds', then the sampling would not access texels outside the image bounds
     if (SkRectPriv::QuadContainsRect(SkMatrix(transform),
                                      SkIRect(imageBounds),
-                                     SkIRect(bufferedSampleBounds.roundOut()))) {
+                                     SkIRect(bufferedSampleBounds.roundOut()),
+                                     kRoundEpsilon)) {
         return false;
     }
 
@@ -675,7 +676,8 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
             // won't be visible; otherwise add the analysis flag.
             if (!SkRectPriv::QuadContainsRect(SkMatrix::Concat(xtraTransform, SkMatrix(fTransform)),
                                               SkIRect::MakeSize(fImage->dimensions()),
-                                              dstBounds)) {
+                                              dstBounds,
+                                              kRoundEpsilon)) {
                 // We add the effects-visible flag for any reason, but we only mark the effect as
                 // filling layer bounds if there's an effect that applies *before* the layer clip.
                 // If it's just a non-transparency-preserving blend, that applies after the layer
@@ -703,7 +705,8 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         // NOTE: For the identity transform, this is equal to !fLayerBounds.contains(dstBounds)
         if (!SkRectPriv::QuadContainsRect(SkMatrix(xtraTransform),
                                           SkIRect(fLayerBounds),
-                                          dstBounds)) {
+                                          dstBounds,
+                                          kRoundEpsilon)) {
             analysis |= BoundsAnalysis::kLayerCropVisible;
         }
     }

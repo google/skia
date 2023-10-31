@@ -1967,4 +1967,29 @@ DEF_TEST_SUITE(CroppedTransformedTransparencyAffectingColorFilter, r, CtsEnforce
             .run(/*requestedOutput=*/{15, 15, 21, 21});
 }
 
+DEF_TEST_SUITE(BackdropFilterRotated, r,
+               CtsEnforcement::kNextRelease, CtsEnforcement::kNextRelease) {
+    // These values are extracted from a cc_unittest that had a 200x200 image, with a 10-degree
+    // rotated 100x200 layer over the right half of the base image, with a backdrop blur. The
+    // rotation forces SkCanvas to crop and transform the base device's content to be aligned with
+    // the layer space of the blur. The rotation is such that the backdrop image must be clamped
+    // (hence the first crop) and the clamp tiling remains visible in the layer image. However,
+    // floating point precision in the layer bounds analysis was causing FilterResult to think that
+    // the layer decal was also visible so the first crop would be resolved before the transform was
+    // applied.
+    //
+    // While it's expected that the second clamping crop (part of the blur effect), forces the
+    // transform and first clamp to be resolved, we were incorrectly producing two new images
+    // instead of just one.
+    TestCase(r, "Layer decal shouldn't be visible")
+            .source({65, 0, 199, 200})
+            .applyCrop({65, 0, 199, 200}, SkTileMode::kClamp, Expect::kDeferredImage)
+            .applyTransform(SkMatrix::MakeAll( 0.984808f, 0.173648f, -98.4808f,
+                                              -0.173648f, 0.984808f,  17.3648f,
+                                               0.000000f, 0.000000f,   1.0000f),
+                            Expect::kDeferredImage)
+            .applyCrop({0, 0, 100, 200}, SkTileMode::kClamp, Expect::kNewImage)
+            .run(/*requestedOutput=*/{-15, -15, 115, 215});
+}
+
 } // anonymous namespace
