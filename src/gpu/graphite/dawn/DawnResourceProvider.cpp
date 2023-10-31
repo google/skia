@@ -200,6 +200,7 @@ sk_sp<GraphicsPipeline> DawnResourceProvider::createGraphicsPipeline(
         const RenderPassDesc& renderPassDesc) {
     SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
     return DawnGraphicsPipeline::Make(this->dawnSharedContext(),
+                                      this,
                                       &skslCompiler,
                                       runtimeDict,
                                       pipelineDesc,
@@ -253,6 +254,43 @@ void DawnResourceProvider::onDeleteBackendTexture(const BackendTexture& texture)
 
 const DawnSharedContext* DawnResourceProvider::dawnSharedContext() const {
     return static_cast<const DawnSharedContext*>(fSharedContext);
+}
+
+const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBindGroupLayout() {
+    if (fUniformBuffersBindGroupLayout) {
+        return fUniformBuffersBindGroupLayout;
+    }
+
+    std::array<wgpu::BindGroupLayoutEntry, 3> entries;
+    entries[0].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
+    entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
+    entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
+    entries[0].buffer.hasDynamicOffset = true;
+    entries[0].buffer.minBindingSize = 0;
+
+    entries[1].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
+    entries[1].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
+    entries[1].buffer.type = wgpu::BufferBindingType::Uniform;
+    entries[1].buffer.hasDynamicOffset = true;
+    entries[1].buffer.minBindingSize = 0;
+
+    entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
+    entries[2].visibility = wgpu::ShaderStage::Fragment;
+    entries[2].buffer.type = wgpu::BufferBindingType::Uniform;
+    entries[2].buffer.hasDynamicOffset = true;
+    entries[2].buffer.minBindingSize = 0;
+
+    wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
+#if defined(SK_DEBUG)
+    groupLayoutDesc.label = "Uniform buffers bind group layout";
+#endif
+
+    groupLayoutDesc.entryCount = entries.size();
+    groupLayoutDesc.entries = entries.data();
+    fUniformBuffersBindGroupLayout =
+            this->dawnSharedContext()->device().CreateBindGroupLayout(&groupLayoutDesc);
+
+    return fUniformBuffersBindGroupLayout;
 }
 
 } // namespace skgpu::graphite

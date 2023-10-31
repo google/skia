@@ -540,24 +540,21 @@ void DawnCommandBuffer::syncUniformBuffers() {
 
         std::array<uint32_t, 3> dynamicOffsets;
         std::array<wgpu::BindGroupEntry, 3> entries;
-        uint32_t numBuffers = 0;
 
-        entries[numBuffers].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
-        entries[numBuffers].buffer = fIntrinsicConstantBuffer;
-        entries[numBuffers].offset = 0;
-        entries[numBuffers].size = sizeof(IntrinsicConstant);
-        dynamicOffsets[numBuffers] = 0;
+        entries[0].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
+        entries[0].buffer = fIntrinsicConstantBuffer;
+        entries[0].offset = 0;
+        entries[0].size = sizeof(IntrinsicConstant);
+        dynamicOffsets[0] = 0;
 
-        ++numBuffers;
-
+        entries[1].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
+        entries[1].offset = 0;
         if (fActiveGraphicsPipeline->stepUniformsTotalBytes() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex]) {
             auto boundBuffer =
                     fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
 
-            entries[numBuffers].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
-            entries[numBuffers].buffer = boundBuffer->dawnBuffer();
-            entries[numBuffers].offset = 0;
+            entries[1].buffer = boundBuffer->dawnBuffer();
             // Dynamic offset only needs to be known when we call SetBindGroup().
             // However, binding size needs to be known when we create the BindGroup. And we have to
             // make sure when SetBindGroup() is called, the dynamic offset + binding size won't
@@ -565,42 +562,50 @@ void DawnCommandBuffer::syncUniformBuffers() {
             // kWholeSize is not useful here because it relies on static offset passed to
             // BindGroupEntry when we create the BindGroup. It doesn't take into account the dynamic
             // offset.
-            entries[numBuffers].size = SkAlignTo(fActiveGraphicsPipeline->stepUniformsTotalBytes(),
-                                                 kBufferBindingSizeAlignment);
+            entries[1].size = SkAlignTo(fActiveGraphicsPipeline->stepUniformsTotalBytes(),
+                                        kBufferBindingSizeAlignment);
 
-            dynamicOffsets[numBuffers] =
+            dynamicOffsets[1] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
+        } else {
+            // Unused buffer entry
+            entries[1].buffer = fIntrinsicConstantBuffer;
+            entries[1].size = wgpu::kWholeSize;
 
-            ++numBuffers;
+            dynamicOffsets[1] = 0;
         }
 
+        entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
+        entries[2].offset = 0;
         if (fActiveGraphicsPipeline->paintUniformsTotalBytes() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]) {
             auto boundBuffer = fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
 
-            entries[numBuffers].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
-            entries[numBuffers].buffer = boundBuffer->dawnBuffer();
-            entries[numBuffers].offset = 0;
-            entries[numBuffers].size = SkAlignTo(fActiveGraphicsPipeline->paintUniformsTotalBytes(),
-                                                 kBufferBindingSizeAlignment);
+            entries[2].buffer = boundBuffer->dawnBuffer();
+            entries[2].size = SkAlignTo(fActiveGraphicsPipeline->paintUniformsTotalBytes(),
+                                        kBufferBindingSizeAlignment);
 
-            dynamicOffsets[numBuffers] =
+            dynamicOffsets[2] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kPaintUniformBufferIndex];
+        } else {
+            // Unused buffer entry
+            entries[2].buffer = fIntrinsicConstantBuffer;
+            entries[2].size = wgpu::kWholeSize;
 
-            ++numBuffers;
+            dynamicOffsets[2] = 0;
         }
 
         wgpu::BindGroupDescriptor desc;
         const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
         desc.layout = groupLayouts[DawnGraphicsPipeline::kUniformBufferBindGroupIndex];
-        desc.entryCount = numBuffers;
+        desc.entryCount = entries.size();
         desc.entries = entries.data();
 
         auto bindGroup = fSharedContext->device().CreateBindGroup(&desc);
 
         fActiveRenderPassEncoder.SetBindGroup(DawnGraphicsPipeline::kUniformBufferBindGroupIndex,
                                               bindGroup,
-                                              numBuffers,
+                                              dynamicOffsets.size(),
                                               dynamicOffsets.data());
     }
 }

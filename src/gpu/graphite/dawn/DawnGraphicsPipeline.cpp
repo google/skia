@@ -255,6 +255,7 @@ static wgpu::BlendOperation blend_equation_to_dawn_blend_op(skgpu::BlendEquation
 
 // static
 sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* sharedContext,
+                                                       DawnResourceProvider* resourceProvider,
                                                        SkSL::Compiler* compiler,
                                                        const RuntimeEffectDictionary* runtimeDict,
                                                        const GraphicsPipelineDesc& pipelineDesc,
@@ -289,7 +290,6 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
     const int numTexturesAndSamplers = fsSkSLInfo.fNumTexturesAndSamplers;
-    const int numFragmentUniforms = fsSkSLInfo.fNumPaintUniforms;
 
     bool hasFragmentSkSL = !fsSkSL.empty();
     if (hasFragmentSkSL) {
@@ -389,47 +389,9 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     // Pipeline layout
     BindGroupLayouts groupLayouts;
     {
-        {
-            std::array<wgpu::BindGroupLayoutEntry, 3> entries;
-            entries[0].binding = kIntrinsicUniformBufferIndex;
-            entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-            entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
-            entries[0].buffer.hasDynamicOffset = true;
-            entries[0].buffer.minBindingSize = 0;
-
-            uint32_t numBuffers = 1;
-
-            if (!step->uniforms().empty()) {
-                entries[numBuffers].binding = kRenderStepUniformBufferIndex;
-                entries[numBuffers].visibility =
-                        wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-                entries[numBuffers].buffer.type = wgpu::BufferBindingType::Uniform;
-                entries[numBuffers].buffer.hasDynamicOffset = true;
-                entries[numBuffers].buffer.minBindingSize = 0;
-                ++numBuffers;
-            }
-
-            bool hasFragmentUniforms = hasFragmentSkSL && numFragmentUniforms > 0;
-            if (hasFragmentUniforms) {
-                entries[numBuffers].binding = kPaintUniformBufferIndex;
-                entries[numBuffers].visibility = wgpu::ShaderStage::Fragment;
-                entries[numBuffers].buffer.type = wgpu::BufferBindingType::Uniform;
-                entries[numBuffers].buffer.hasDynamicOffset = true;
-                entries[numBuffers].buffer.minBindingSize = 0;
-                ++numBuffers;
-            }
-
-            wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
-#if defined(SK_DEBUG)
-            groupLayoutDesc.label = step->name();
-#endif
-
-            groupLayoutDesc.entryCount = numBuffers;
-            groupLayoutDesc.entries = entries.data();
-            groupLayouts[0] = device.CreateBindGroupLayout(&groupLayoutDesc);
-            if (!groupLayouts[0]) {
-                return {};
-            }
+        groupLayouts[0] = resourceProvider->getOrCreateUniformBuffersBindGroupLayout();
+        if (!groupLayouts[0]) {
+            return {};
         }
 
         bool hasFragmentSamplers = hasFragmentSkSL && numTexturesAndSamplers > 0;

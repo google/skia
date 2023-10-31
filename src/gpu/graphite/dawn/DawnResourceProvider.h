@@ -31,6 +31,7 @@ public:
 
     wgpu::RenderPipeline findOrCreateBlitWithDrawPipeline(const RenderPassDesc& renderPassDesc);
 
+    const wgpu::BindGroupLayout& getOrCreateUniformBuffersBindGroupLayout();
 private:
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
                                                    const GraphicsPipelineDesc&,
@@ -50,6 +51,8 @@ private:
     const DawnSharedContext* dawnSharedContext() const;
 
     skia_private::THashMap<uint64_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
+
+    wgpu::BindGroupLayout fUniformBuffersBindGroupLayout;
 };
 
 } // namespace skgpu::graphite

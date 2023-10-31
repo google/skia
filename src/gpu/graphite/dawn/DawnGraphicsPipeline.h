@@ -53,6 +53,7 @@ public:
     inline static constexpr unsigned int kNumVertexBuffers = 2;
 
     static sk_sp<DawnGraphicsPipeline> Make(const DawnSharedContext* sharedContext,
+                                            DawnResourceProvider* resourceProvider,
                                             SkSL::Compiler* compiler,
                                             const RuntimeEffectDictionary* runtimeDict,
                                             const GraphicsPipelineDesc& pipelineDesc,
