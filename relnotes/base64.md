@@ -1,1 +1,0 @@
-`SkBase64.h` has been removed from the public API.
