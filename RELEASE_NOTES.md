@@ -2,6 +2,47 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 120
+-------------
+  * `SkBase64.h` has been removed from the public API.
+  * `SkFont::refTypefaceOrDefault` and `SkFont::getTypefaceOrDefault()` have been removed from the
+    public API.
+  * `GrBackendSemaphore::initGL` and `GrBackendSemaphore::glSync` have been removed
+    from the public API.
+  * For Graphite, `SkImages::AdoptTextureFrom` has been renamed to `SkImages::WrapTexture` to
+    better reflect what is happening to the passed in texture.
+  * `GrSurfaceInfo.h` has been removed from the public API.
+  * SkMesh now allows shaders, color filters, and blenders to be used in the mesh-fragment program.
+    Pass in effects using the `children` parameter of `SkMesh::Make` or `SkMesh::MakeIndexed`.
+    For a working example, see `gm/mesh.cpp`.
+  * The behavior for SkPicture deserialization (via SkReadBuffer) to fallback to
+    `SkImages::DeferredFromEncodedData` when `SkDeserialImageProc` is not set or returns null is
+    deprecated and will be removed shortly.
+
+    `SkDeserialImageFromDataProc` has been added to SkDeserialProcs to allow clients to *safely*
+    avoid a copy when decoding image data in SkPictures.
+
+    `SkDeserialImageProc` now takes in an optional AlphaType which can be used to override the
+    AlphaType that an image was serialized with, if desired.
+  * skgpu::graphite::RecorderOptions::kDefaultRecorderBudget is now a static data member.
+  * `SkTypeface::MakeFromName`, `SkTypeface::MakeFromFile`, `SkTypeface::MakeFromStream`, and
+    `SkTypeface::MakeFromData` are deprecated and will be removed eventually. These should be replaced
+    with calls directly to the SkFontMgr that can provide the appropriate typefaces.
+
+    `SkTypeface::MakeDefault()` has been deprecated. Soon it will return an empty typeface and
+    eventually be removed.
+
+    `SkTypeface::UniqueID()` has been removed - clients should use the method instead of this static
+    function.
+  * `GrDirectContext::MakeVulkan...` has been moved to `GrDirectContexts::MakeVulkan...` which are defined
+    in `include/gpu/ganesh/vk/GrVkDirectContext.h`
+  * The various GPU wait calls on GrDirectContext, SkSurface, and GrVkSecondaryCBContext which take
+    a client supplied semaphore, now only guarantee to block the gpu transfer and fragment stages
+    instead of all gpu commands. This shouldn't affect any client since client provided gpu resources
+    (e.g. textures) are only ever used by Skia in the fragment stages.
+
+* * *
+
 Milestone 119
 -------------
   * Added new `SkImageFilters::Crop(SkRect, SkTileMode, sk_sp<SkImageFilter>)` image filter effect that crops the output from the wrapped SkImageFilter and optionally applies the SkTileMode when sampling outside of the crop rect.
