@@ -64,23 +64,17 @@ static const union {
 } inf_ = { 0x7f800000 };
 #define INFINITY_ inf_.f
 
-#if defined(__clang__) || defined(__GNUC__)
-    #define small_memcpy __builtin_memcpy
-#else
-    #define small_memcpy memcpy
-#endif
-
 static float log2f_(float x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
     int32_t bits;
-    small_memcpy(&bits, &x, sizeof(bits));
+    memcpy(&bits, &x, sizeof(bits));
 
     float e = (float)bits * (1.0f / (1<<23));
 
     // If we use the mantissa too we can refine the error signficantly.
     int32_t m_bits = (bits & 0x007fffff) | 0x3f000000;
     float m;
-    small_memcpy(&m, &m_bits, sizeof(m));
+    memcpy(&m, &m_bits, sizeof(m));
 
     return (e - 124.225514990f
               -   1.498030302f*m
@@ -114,7 +108,7 @@ static float exp2f_(float x) {
     }
 
     int32_t bits = (int32_t)fbits;
-    small_memcpy(&x, &bits, sizeof(x));
+    memcpy(&x, &bits, sizeof(x));
     return x;
 }
 

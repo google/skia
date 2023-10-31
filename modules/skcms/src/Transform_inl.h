@@ -106,12 +106,12 @@ using U8  = V<uint8_t>;
 template <typename T, typename P>
 SI T load(const P* ptr) {
     T val;
-    small_memcpy(&val, ptr, sizeof(val));
+    memcpy(&val, ptr, sizeof(val));
     return val;
 }
 template <typename T, typename P>
 SI void store(P* ptr, const T& val) {
-    small_memcpy(ptr, &val, sizeof(val));
+    memcpy(ptr, &val, sizeof(val));
 }
 
 // (T)v is a cast when N == 1 and a bit-pun when N>1,
