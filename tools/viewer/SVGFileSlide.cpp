@@ -16,6 +16,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "src/xml/SkDOM.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
 namespace {
@@ -34,7 +35,7 @@ public:
             return;
         }
 
-        fDom = SkSVGDOM::MakeFromStream(svgStream);
+        fDom = SkSVGDOM::Builder().setFontManager(ToolUtils::TestFontMgr()).make(svgStream);
         if (fDom) {
             fDom->setContainerSize(SkSize{w, h});
         }

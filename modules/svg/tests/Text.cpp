@@ -10,6 +10,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "modules/svg/src/SkSVGTextPriv.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 DEF_TEST(Svg_Text_PosProvider, r) {
     const auto L = [](float x) { return SkSVGLength(x); };
@@ -161,7 +162,7 @@ DEF_TEST(Svg_Text_PosProvider, r) {
         const SkSVGLengthContext lctx({0,0});
         const SkSVGPresentationContext pctx;
         SkNoDrawCanvas canvas(0, 0);
-        sk_sp<SkFontMgr> fmgr;
+        sk_sp<SkFontMgr> fmgr = ToolUtils::TestFontMgr();
         sk_sp<skresources::ResourceProvider> rp;
         const SkSVGRenderContext ctx(&canvas, fmgr, rp, mapper, lctx, pctx, {nullptr, nullptr});
 

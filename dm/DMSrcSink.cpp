@@ -19,6 +19,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -53,7 +54,6 @@
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/utils/SkJSONWriter.h"
-#include "include/docs/SkMultiPictureDocument.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkTestCanvas.h"
@@ -66,6 +66,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/MemoryCache.h"
 
@@ -1333,8 +1334,10 @@ SVGSrc::SVGSrc(Path path)
                   skresources::FileResourceProvider::Make(SkOSPath::Dirname(path.c_str()),
                                                           /*predecode=*/true),
                   /*predecode=*/true);
-    fDom = SkSVGDOM::Builder().setResourceProvider(std::move(rp))
-                              .make(*stream);
+    fDom = SkSVGDOM::Builder()
+                   .setResourceProvider(std::move(rp))
+                   .setFontManager(ToolUtils::TestFontMgr())
+                   .make(*stream);
     if (!fDom) {
         return;
     }
@@ -2365,7 +2368,8 @@ Result ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             return result;
         }
         std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
-        auto dom = SkSVGDOM::MakeFromStream(*rstream);
+        sk_sp<SkSVGDOM> dom =
+                SkSVGDOM::Builder().setFontManager(ToolUtils::TestFontMgr()).make(*rstream);
         if (dom) {
             dom->setContainerSize(SkSize::Make(size));
             dom->render(canvas);

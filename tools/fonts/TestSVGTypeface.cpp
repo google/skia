@@ -47,6 +47,7 @@
 #include "src/core/SkScalerContext.h"
 #include "src/sfnt/SkOTUtils.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <utility>
 
@@ -86,7 +87,8 @@ void TestSVGTypeface::Glyph::withSVG(Fn&& fn) const {
             return;
         }
 
-        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream);
+        sk_sp<SkSVGDOM> svg =
+                SkSVGDOM::Builder().setFontManager(ToolUtils::TestFontMgr()).make(*stream);
         if (!svg) {
             return;
         }

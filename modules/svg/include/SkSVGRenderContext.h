@@ -138,7 +138,10 @@ public:
     }
 
     sk_sp<SkFontMgr> fontMgr() const {
-        return fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
+        // It is probably an oversight to try to render <text> without having set the SkFontMgr.
+        // We will assert this in debug mode, but fallback to an empty fontmgr in release builds.
+        SkASSERT(fFontMgr);
+        return fFontMgr ? fFontMgr : SkFontMgr::RefEmpty();
     }
 
     // Returns the translate/scale transformation required to map into the current OBB scope,
