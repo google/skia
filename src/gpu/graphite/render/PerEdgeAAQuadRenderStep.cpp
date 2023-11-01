@@ -24,7 +24,7 @@
 // float4 quadYs - these values provide the Y coordinates of the quadrilateral.
 //
 // From the other direction, per-edge AA quads produce instance values like:
-//  - [aa(t,r,b,l) ? 1 : 0]   [xs(tl,tr,br,bl)]     [ys(tl,tr,br,bl)]
+//  - [aa(t,r,b,l) ? 255 : 0]   [xs(tl,tr,br,bl)]     [ys(tl,tr,br,bl)]
 //
 // From this encoding, data can be unpacked for each corner, which are equivalent under
 // rotational symmetry. Per-edge quads are always mitered and fill the interior, but the
@@ -208,18 +208,9 @@ static bool is_clockwise(const EdgeAAQuad& quad) {
     return winding >= 0.f;
 }
 
-static skvx::float2 quad_center(const EdgeAAQuad& quad) {
-    // The center of the bounding box is *not* a good center to use. Take the average of the
-    // four points instead (which is slightly biased if they form a triangle, but still okay).
-    return skvx::float2(dot(quad.xs(), skvx::float4(0.25f)),
-                        dot(quad.ys(), skvx::float4(0.25f)));
-}
-
 // Represents the per-vertex attributes used in each instance.
 struct Vertex {
-    SkV2 fPosition;
     SkV2 fNormal;
-    float fNormalScale;
 };
 
 // Allowed values for the center weight instance value (selected at record time based on style
@@ -250,14 +241,6 @@ static void write_index_buffer(VertexWriter writer) {
 }
 
 static void write_vertex_buffer(VertexWriter writer) {
-    // Allowed values for the normal scale attribute. +1 signals a device-space outset along the
-    // normal away from the outer edge of the quad. 0 signals no outset, but placed on the outer
-    // edge of the quad.
-    static constexpr float kOutset = 1.0;
-
-    // Zero, but named this way to help call out non-zero parameters.
-    static constexpr float _______ = 0.f;
-
     static constexpr float kHR2 = 0.5f * SK_FloatSqrt2; // "half root 2"
 
     // This template is repeated 4 times in the vertex buffer, for each of the four corners.
@@ -265,13 +248,13 @@ static void write_vertex_buffer(VertexWriter writer) {
     // but otherwise this vertex data produces a consistent clockwise mesh from
     // TL -> TR -> BR -> BL.
     static constexpr Vertex kCornerTemplate[kCornerVertexCount] = {
-        // Device-space AA outsets from outer curve
-        { {1.0f, 0.0f}, {1.0f, 0.0f}, kOutset },
-        { {1.0f, 0.0f}, {kHR2, kHR2}, kOutset },
-        { {0.0f, 1.0f}, {0.0f, 1.0f}, kOutset },
+        // Normals for device-space AA outsets from outer curve
+        { {1.0f, 0.0f} },
+        { {kHR2, kHR2} },
+        { {0.0f, 1.0f} },
 
-        // Outer anchor (no local or device-space normal outset)
-        { {1.0f, 0.0f}, {kHR2, kHR2}, _______ },
+        // Normal for outer anchor (zero length to signal no local or device-space normal outset)
+        { {0.0f, 0.0f} },
     };
 
     writer << kCornerTemplate  // TL
@@ -288,18 +271,12 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferMana
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
                      /*vertexAttrs=*/{
-                            {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                             {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                            // TODO: This value is all +1/0, so could be packed
-                            // much more densely than as floats.
-                            {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
                      },
                      /*instanceAttrs=*/
-                            {{"edgeFlags", VertexAttribType::kFloat4, SkSLType::kFloat4},
+                            {{"edgeFlags", VertexAttribType::kUByte4_norm, SkSLType::kFloat4},
                              {"quadXs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"quadYs", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                             // stores center of rrect in local coords.
-                             {"center", VertexAttribType::kFloat2, SkSLType::kFloat2},
 
                              // TODO: pack depth and ssboIndex into 32-bits
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
@@ -368,9 +345,9 @@ std::string PerEdgeAAQuadRenderStep::vertexSkSL() const {
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = per_edge_aa_quad_vertex_fn("
                    // Vertex Attributes
-                   "position, normal, normalScale, "
+                   "normal, "
                    // Instance Attributes
-                   "edgeFlags, quadXs, quadYs, center, depth, "
+                   "edgeFlags, quadXs, quadYs, depth, "
                    "float3x3(mat0, mat1, mat2), "
                    // Varyings
                    "jacobian, edgeDistances, xRadii, yRadii, strokeParams, perPixelControl, "
@@ -408,11 +385,12 @@ void PerEdgeAAQuadRenderStep::writeVertices(DrawWriter* writer,
     SkDEBUGCODE(Rect bounds = params.geometry().bounds());
     SkASSERT(!bounds.isEmptyNegativeOrNaN());
 
-    // 1 for AA on, 0 for AA off
-    auto edgeSigns = skvx::float4{quad.edgeFlags() & AAFlags::kLeft   ? 1.f : 0.f,
-                                  quad.edgeFlags() & AAFlags::kTop    ? 1.f : 0.f,
-                                  quad.edgeFlags() & AAFlags::kRight  ? 1.f : 0.f,
-                                  quad.edgeFlags() & AAFlags::kBottom ? 1.f : 0.f};
+    constexpr uint8_t kAAOn = 255;
+    constexpr uint8_t kAAOff = 0;
+    auto edgeSigns = skvx::byte4{quad.edgeFlags() & AAFlags::kLeft   ? kAAOn : kAAOff,
+                                 quad.edgeFlags() & AAFlags::kTop    ? kAAOn : kAAOff,
+                                 quad.edgeFlags() & AAFlags::kRight  ? kAAOn : kAAOff,
+                                 quad.edgeFlags() & AAFlags::kBottom ? kAAOn : kAAOff};
 
     // The vertex shader expects points to be in clockwise order. EdgeAAQuad is the only
     // shape that *might* have counter-clockwise input.
@@ -426,10 +404,8 @@ void PerEdgeAAQuadRenderStep::writeVertices(DrawWriter* writer,
 
     // All instance types share the remaining instance attribute definitions
     const SkM44& m = params.transform().matrix();
-    auto center = quad_center(params.geometry().edgeAAQuad());
 
-    vw << center
-       << params.order().depthAsFloat()
+    vw << params.order().depthAsFloat()
        << ssboIndex
        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)  // mat0
        << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)  // mat1

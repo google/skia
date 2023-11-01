@@ -843,14 +843,11 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
 }
 
 float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
-                                  float2 position,
                                   float2 normal,
-                                  float normalScale,
                                   // Instance Attributes
                                   float4 edgeAA,
                                   float4 xs, // ordered TL, TR, BR, BL
                                   float4 ys,
-                                  float2 center,
                                   float depth,
                                   float3x3 localToDevice,
                                   // Varyings
@@ -942,7 +939,7 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
 
     // Only outset for a vertex that is in front of the w=0 plane to avoid dealing with outset
     // triangles rasterizing differently from the main triangles as w crosses 0.
-    if (normalScale > 0.0 && devPos.z > 0.0) {
+    if ((normal.x != 0.0 || normal.y != 0.0) && devPos.z > 0.0) {
         // Note that when there's no perspective, the jacobian is equivalent to the normal
         // matrix (inverse transpose), but produces correct results when there's perspective
         // because it accounts for the position's influence on a line's projected direction.
