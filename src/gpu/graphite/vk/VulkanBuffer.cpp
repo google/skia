@@ -189,17 +189,24 @@ void VulkanBuffer::internalMap(size_t readOffset, size_t readSize) {
 
         auto allocator = sharedContext->memoryAllocator();
         auto checkResult = [sharedContext](VkResult result) {
+            VULKAN_LOG_IF_NOT_SUCCESS(result, "skgpu::VulkanMemory::MapAlloc");
             return sharedContext->checkVkResult(result);
         };
         fMapPtr = skgpu::VulkanMemory::MapAlloc(allocator, fAlloc, checkResult);
         if (fMapPtr && readSize != 0) {
+            auto checkResult_invalidate = [sharedContext, readOffset, readSize](VkResult result) {
+                VULKAN_LOG_IF_NOT_SUCCESS(result, "skgpu::VulkanMemory::InvalidateMappedAlloc "
+                                                  "(readOffset:%zu, readSize:%zu)",
+                                          readOffset, readSize);
+                return sharedContext->checkVkResult(result);
+            };
             // "Invalidate" here means make device writes visible to the host. That is, it makes
             // sure any GPU writes are finished in the range we might read from.
             skgpu::VulkanMemory::InvalidateMappedAlloc(allocator,
                                                        fAlloc,
                                                        readOffset,
                                                        readSize,
-                                                       nullptr);
+                                                       checkResult_invalidate);
         }
     }
 }
@@ -210,8 +217,16 @@ void VulkanBuffer::internalUnmap(size_t flushOffset, size_t flushSize) {
     SkASSERT(fAlloc.fSize > 0);
     SkASSERT(fAlloc.fSize >= flushOffset + flushSize);
 
-    auto allocator = this->vulkanSharedContext()->memoryAllocator();
-    skgpu::VulkanMemory::FlushMappedAlloc(allocator, fAlloc, flushOffset, flushSize, nullptr);
+    const VulkanSharedContext* sharedContext = this->vulkanSharedContext();
+    auto checkResult = [sharedContext, flushOffset, flushSize](VkResult result) {
+       VULKAN_LOG_IF_NOT_SUCCESS(result, "skgpu::VulkanMemory::FlushMappedAlloc "
+                                         "(flushOffset:%zu, flushSize:%zu)",
+                                         flushOffset, flushSize);
+        return sharedContext->checkVkResult(result);
+    };
+
+    auto allocator = sharedContext->memoryAllocator();
+    skgpu::VulkanMemory::FlushMappedAlloc(allocator, fAlloc, flushOffset, flushSize, checkResult);
     skgpu::VulkanMemory::UnmapAlloc(allocator, fAlloc);
 }
 
@@ -301,4 +316,3 @@ VkPipelineStageFlags VulkanBuffer::AccessMaskToPipelineSrcStageFlags(const VkAcc
 }
 
 } // namespace skgpu::graphite
-

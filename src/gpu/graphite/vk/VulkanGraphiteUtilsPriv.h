@@ -20,6 +20,14 @@
 #define VULKAN_CALL(IFACE, X) (IFACE)->fFunctions.f##X
 
 // TODO: This needs to add checks for device lost on calls. See Ganesh version
+#define VULKAN_LOG_IF_NOT_SUCCESS(RESULT, X, ...)                                       \
+    do {                                                                                \
+        if (RESULT != VK_SUCCESS) {                                                     \
+            SkDebugf("Failed vulkan call. Error: %d, " X "\n", RESULT, ##__VA_ARGS__);  \
+        }                                                                               \
+    } while (false)
+
+// TODO: This needs to add checks for device lost on calls. See Ganesh version
 #define VULKAN_CALL_RESULT(IFACE, RESULT, X)                               \
     do {                                                                   \
         (RESULT) = VULKAN_CALL(IFACE, X);                                  \
