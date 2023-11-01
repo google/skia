@@ -769,7 +769,7 @@ struct Ctx {
     template <typename T> operator T*() { return (const T*)fArg; }
 };
 
-#define STAGE(name, arg)                                                                        \
+#define DECLARE_STAGE(name, arg)                                                                \
     SI void Exec_##name##_k(arg, const char* src, char* dst, F& r, F& g, F& b, F& a, int i);    \
                                                                                                 \
     SI void Exec_##name(const void* v, const char* s, char* d, F& r, F& g, F& b, F& a, int i) { \
@@ -784,6 +784,12 @@ struct Ctx {
                             SKCMS_MAYBE_UNUSED F& b,                                            \
                             SKCMS_MAYBE_UNUSED F& a,                                            \
                             SKCMS_MAYBE_UNUSED int i)
+
+#define STAGE(name, arg) \
+    DECLARE_STAGE(name, arg)
+
+#define FINAL_STAGE(name, arg) \
+    DECLARE_STAGE(name, arg)
 
 STAGE(load_a8, NoCtx) {
     a = F_from_U8(load<U8>(src + 1*i));
@@ -1189,31 +1195,31 @@ STAGE(clut_B2A, const skcms_B2A* b2a) {
     clut(b2a, &r,&g,&b,&a);
 }
 
-// Notice, from here on down the store_ ops all return, ending the loop.
+// From here on down, the store_ ops are all "final stages," ending the loop.
 
-STAGE(store_a8, NoCtx) {
+FINAL_STAGE(store_a8, NoCtx) {
     store(dst + 1*i, cast<U8>(to_fixed(a * 255)));
 }
 
-STAGE(store_g8, NoCtx) {
+FINAL_STAGE(store_g8, NoCtx) {
     // g should be holding luminance (Y) (r,g,b ~~~> X,Y,Z)
     store(dst + 1*i, cast<U8>(to_fixed(g * 255)));
 }
 
-STAGE(store_4444, NoCtx) {
+FINAL_STAGE(store_4444, NoCtx) {
     store<U16>(dst + 2*i, cast<U16>(to_fixed(r * 15) << 12)
                         | cast<U16>(to_fixed(g * 15) <<  8)
                         | cast<U16>(to_fixed(b * 15) <<  4)
                         | cast<U16>(to_fixed(a * 15) <<  0));
 }
 
-STAGE(store_565, NoCtx) {
+FINAL_STAGE(store_565, NoCtx) {
     store<U16>(dst + 2*i, cast<U16>(to_fixed(r * 31) <<  0 )
                         | cast<U16>(to_fixed(g * 63) <<  5 )
                         | cast<U16>(to_fixed(b * 31) << 11 ));
 }
 
-STAGE(store_888, NoCtx) {
+FINAL_STAGE(store_888, NoCtx) {
     uint8_t* rgb = (uint8_t*)dst + 3*i;
 #if defined(USING_NEON)
     // Same deal as load_888 but in reverse... we'll store using uint8x8x3_t, but
@@ -1235,14 +1241,14 @@ STAGE(store_888, NoCtx) {
 #endif
 }
 
-STAGE(store_8888, NoCtx) {
+FINAL_STAGE(store_8888, NoCtx) {
     store(dst + 4*i, cast<U32>(to_fixed(r * 255)) <<  0
                    | cast<U32>(to_fixed(g * 255)) <<  8
                    | cast<U32>(to_fixed(b * 255)) << 16
                    | cast<U32>(to_fixed(a * 255)) << 24);
 }
 
-STAGE(store_101010x_XR, NoCtx) {
+FINAL_STAGE(store_101010x_XR, NoCtx) {
     static constexpr float min = -0.752941f;
     static constexpr float max = 1.25098f;
     static constexpr float range = max - min;
@@ -1251,14 +1257,15 @@ STAGE(store_101010x_XR, NoCtx) {
                    | cast<U32>(to_fixed(((b - min) / range) * 1023)) << 20);
     return;
 }
-STAGE(store_1010102, NoCtx) {
+
+FINAL_STAGE(store_1010102, NoCtx) {
     store(dst + 4*i, cast<U32>(to_fixed(r * 1023)) <<  0
                    | cast<U32>(to_fixed(g * 1023)) << 10
                    | cast<U32>(to_fixed(b * 1023)) << 20
                    | cast<U32>(to_fixed(a *    3)) << 30);
 }
 
-STAGE(store_161616LE, NoCtx) {
+FINAL_STAGE(store_161616LE, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 6*i);
     assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;          // for this cast to uint16_t* to be safe.
@@ -1277,7 +1284,7 @@ STAGE(store_161616LE, NoCtx) {
 
 }
 
-STAGE(store_16161616LE, NoCtx) {
+FINAL_STAGE(store_16161616LE, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 8*i);
     assert( (ptr & 1) == 0 );               // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;        // for this cast to uint16_t* to be safe.
@@ -1298,7 +1305,7 @@ STAGE(store_16161616LE, NoCtx) {
 #endif
 }
 
-STAGE(store_161616BE, NoCtx) {
+FINAL_STAGE(store_161616BE, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 6*i);
     assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;          // for this cast to uint16_t* to be safe.
@@ -1320,7 +1327,7 @@ STAGE(store_161616BE, NoCtx) {
 
 }
 
-STAGE(store_16161616BE, NoCtx) {
+FINAL_STAGE(store_16161616BE, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 8*i);
     assert( (ptr & 1) == 0 );               // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;        // for this cast to uint16_t* to be safe.
@@ -1341,7 +1348,7 @@ STAGE(store_16161616BE, NoCtx) {
 #endif
 }
 
-STAGE(store_hhh, NoCtx) {
+FINAL_STAGE(store_hhh, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 6*i);
     assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
     uint16_t* rgb = (uint16_t*)ptr;          // for this cast to uint16_t* to be safe.
@@ -1363,7 +1370,7 @@ STAGE(store_hhh, NoCtx) {
 #endif
 }
 
-STAGE(store_hhhh, NoCtx) {
+FINAL_STAGE(store_hhhh, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 8*i);
     assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
     uint16_t* rgba = (uint16_t*)ptr;         // for this cast to uint16_t* to be safe.
@@ -1388,7 +1395,7 @@ STAGE(store_hhhh, NoCtx) {
 #endif
 }
 
-STAGE(store_fff, NoCtx) {
+FINAL_STAGE(store_fff, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 12*i);
     assert( (ptr & 3) == 0 );                // The dst pointer must be 4-byte aligned
     float* rgb = (float*)ptr;                // for this cast to float* to be safe.
@@ -1406,7 +1413,7 @@ STAGE(store_fff, NoCtx) {
 #endif
 }
 
-STAGE(store_ffff, NoCtx) {
+FINAL_STAGE(store_ffff, NoCtx) {
     uintptr_t ptr = (uintptr_t)(dst + 16*i);
     assert( (ptr & 3) == 0 );                // The dst pointer must be 4-byte aligned
     float* rgba = (float*)ptr;               // for this cast to float* to be safe.
@@ -1426,29 +1433,28 @@ STAGE(store_ffff, NoCtx) {
 #endif
 }
 
-static void exec_ops(const Op* ops, const void** args,
+static void exec_ops(const Op* ops, const void** contexts,
                      const char* src, char* dst, int i) {
     F r = F0, g = F0, b = F0, a = F1;
     while (true) {
         switch (*ops++) {
-#define M(name) case Op_##name: Exec_##name(*args++, src, dst, r, g, b, a, i); break;
+#define M(name) case Op::name: Exec_##name(*contexts++, src, dst, r, g, b, a, i); break;
             SKCMS_LOAD_OPS(M)
             SKCMS_WORK_OPS(M)
 #undef M
-#define M(name) case Op_##name: Exec_##name(*args++, src, dst, r, g, b, a, i); return;
+#define M(name) case Op::name: Exec_##name(*contexts++, src, dst, r, g, b, a, i); return;
             SKCMS_STORE_OPS(M)
 #undef M
         }
     }
 }
 
-
-static void run_program(const Op* program, const void** arguments,
+static void run_program(const Op* program, const void** contexts, ptrdiff_t /*programSize*/,
                         const char* src, char* dst, int n,
                         const size_t src_bpp, const size_t dst_bpp) {
     int i = 0;
     while (n >= N) {
-        exec_ops(program, arguments, src, dst, i);
+        exec_ops(program, contexts, src, dst, i);
         i += N;
         n -= N;
     }
@@ -1456,7 +1462,7 @@ static void run_program(const Op* program, const void** arguments,
         char tmp[4*4*N] = {0};
 
         memcpy(tmp, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
-        exec_ops(program, arguments, tmp, tmp, 0);
+        exec_ops(program, contexts, tmp, tmp, 0);
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp, (size_t)n*dst_bpp);
     }
 }
