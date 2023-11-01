@@ -134,6 +134,20 @@ struct BindBufferInfo {
     bool operator!=(const BindBufferInfo& o) const { return !(*this == o); }
 };
 
+/*
+ * Struct that can be passed into bind uniform buffer calls on the CommandBuffer.
+ * It is similar to BindBufferInfo with additional fBindingSize member.
+ */
+struct BindUniformBufferInfo : public BindBufferInfo {
+    // TODO(b/308933713): Add size to BindBufferInfo instead
+    uint32_t fBindingSize = 0;
+
+    bool operator==(const BindUniformBufferInfo& o) const {
+        return BindBufferInfo::operator==(o) && (!fBuffer || fBindingSize == o.fBindingSize);
+    }
+    bool operator!=(const BindUniformBufferInfo& o) const { return !(*this == o); }
+};
+
 /**
  * Represents a buffer region that should be cleared to 0. A ClearBuffersTask does not take an
  * owning reference to the buffer it clears. A higher layer is responsible for managing the lifetime

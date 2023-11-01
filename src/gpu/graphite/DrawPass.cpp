@@ -99,7 +99,7 @@ private:
 struct CpuOrGpuData {
     union {
         const UniformDataBlock* fCpuData;
-        BindBufferInfo fGpuData;
+        BindUniformBufferInfo fGpuData;
     };
 
     // Can only start from CPU data
@@ -233,14 +233,27 @@ public:
                     fUseStorageBuffers ? bufferMgr->getSsboWriter(udbSize * cache.size())
                                        : bufferMgr->getUniformWriter(udbSize * cache.size());
 
+            uint32_t bindingSize;
+            if (fUseStorageBuffers) {
+                // For storage buffer we will always bind all the blocks.
+                bindingSize = static_cast<uint32_t>(udbSize * cache.size());
+            }
+            else {
+                // For uniform buffer we will bind one block at a time.
+                bindingSize = static_cast<uint32_t>(udbSize);
+            }
+
             for (CpuOrGpuData& dataBlock : cache.data()) {
                 SkASSERT(dataBlock.fCpuData->size() == udbDataSize);
                 writer.write(dataBlock.fCpuData->data(), udbDataSize);
                 // Swap from tracking the CPU data to the location of the GPU data
-                dataBlock.fGpuData = bufferInfo;
+                dataBlock.fGpuData.fBuffer = bufferInfo.fBuffer;
+                dataBlock.fGpuData.fOffset = bufferInfo.fOffset;
+                dataBlock.fGpuData.fBindingSize = bindingSize;
+
                 if (!fUseStorageBuffers) {
-                    bufferInfo.fOffset += udbSize;
-                    writer.skipBytes(udbSize - udbDataSize);
+                    bufferInfo.fOffset += bindingSize;
+                    writer.skipBytes(bindingSize - udbDataSize);
                 } // else keep bufferInfo pointing to the start of the array
             }
         }
@@ -274,7 +287,7 @@ public:
         SkASSERT(fLastPipeline < GraphicsPipelineCache::kInvalidIndex &&
                  fLastIndex < UniformCache::kInvalidIndex);
         SkASSERT(!fUseStorageBuffers || fLastIndex == 0);
-        const BindBufferInfo& binding =
+        const BindUniformBufferInfo& binding =
                 fPerPipelineCaches[fLastPipeline].lookup(fLastIndex).fGpuData;
         commandList->bindUniformBuffer(binding, slot);
     }

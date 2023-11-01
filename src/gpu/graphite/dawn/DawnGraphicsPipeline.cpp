@@ -546,9 +546,6 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
 #endif
 
-    int fRenderStepUniformsTotalBytes = std::max(fsSkSLInfo.fRenderStepUniformsTotalBytes,
-                                                 vsSkSLInfo.fRenderStepUniformsTotalBytes);
-
     return sk_sp<DawnGraphicsPipeline>(
             new DawnGraphicsPipeline(sharedContext,
                                      pipelineInfoPtr,
@@ -556,8 +553,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                      std::move(groupLayouts),
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
-                                     fRenderStepUniformsTotalBytes,
-                                     fsSkSLInfo.fPaintUniformsTotalBytes));
+                                     /*hasStepUniforms=*/!step->uniforms().empty(),
+                                     /*hasPaintUniforms=*/fsSkSLInfo.fNumPaintUniforms > 0));
 }
 
 DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
@@ -566,15 +563,15 @@ DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext*
                                            BindGroupLayouts groupLayouts,
                                            PrimitiveType primitiveType,
                                            uint32_t refValue,
-                                           int stepUniformsTotalBytes,
-                                           int paintUniformsTotalBytes)
+                                           bool hasStepUniforms,
+                                           bool hasPaintUniforms)
         : GraphicsPipeline(sharedContext, pipelineInfo)
         , fAsyncPipelineCreation(std::move(asyncCreationInfo))
         , fGroupLayouts(std::move(groupLayouts))
         , fPrimitiveType(primitiveType)
         , fStencilReferenceValue(refValue)
-        , fRenderStepUniformsTotalBytes(stepUniformsTotalBytes)
-        , fPaintUniformsTotalBytes(paintUniformsTotalBytes) {}
+        , fHasStepUniforms(hasStepUniforms)
+        , fHasPaintUniforms(hasPaintUniforms) {}
 
 void DawnGraphicsPipeline::freeGpuData() {
     fAsyncPipelineCreation = nullptr;

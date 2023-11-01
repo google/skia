@@ -470,7 +470,7 @@ void DawnCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPip
     fBoundUniformBuffersDirty = true;
 }
 
-void DawnCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot slot) {
+void DawnCommandBuffer::bindUniformBuffer(const BindUniformBufferInfo& info, UniformSlot slot) {
     SkASSERT(fActiveRenderPassEncoder);
 
     auto dawnBuffer = static_cast<const DawnBuffer*>(info.fBuffer);
@@ -489,6 +489,7 @@ void DawnCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlo
 
     fBoundUniformBuffers[bufferIndex] = dawnBuffer;
     fBoundUniformBufferOffsets[bufferIndex] = static_cast<uint32_t>(info.fOffset);
+    fBoundUniformBufferSizes[bufferIndex] = info.fBindingSize;
 
     fBoundUniformBuffersDirty = true;
 }
@@ -579,7 +580,7 @@ void DawnCommandBuffer::syncUniformBuffers() {
 
         entries[1].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
         entries[1].offset = 0;
-        if (fActiveGraphicsPipeline->stepUniformsTotalBytes() &&
+        if (fActiveGraphicsPipeline->hasStepUniforms() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex]) {
             auto boundBuffer =
                     fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
@@ -592,8 +593,9 @@ void DawnCommandBuffer::syncUniformBuffers() {
             // kWholeSize is not useful here because it relies on static offset passed to
             // BindGroupEntry when we create the BindGroup. It doesn't take into account the dynamic
             // offset.
-            entries[1].size = SkAlignTo(fActiveGraphicsPipeline->stepUniformsTotalBytes(),
-                                        kBufferBindingSizeAlignment);
+            entries[1].size = SkAlignTo(
+                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kRenderStepUniformBufferIndex],
+                    kBufferBindingSizeAlignment);
 
             dynamicOffsets[1] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
@@ -607,13 +609,14 @@ void DawnCommandBuffer::syncUniformBuffers() {
 
         entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
         entries[2].offset = 0;
-        if (fActiveGraphicsPipeline->paintUniformsTotalBytes() &&
+        if (fActiveGraphicsPipeline->hasPaintUniforms() &&
             fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]) {
             auto boundBuffer = fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
 
             entries[2].buffer = boundBuffer->dawnBuffer();
-            entries[2].size = SkAlignTo(fActiveGraphicsPipeline->paintUniformsTotalBytes(),
-                                        kBufferBindingSizeAlignment);
+            entries[2].size = SkAlignTo(
+                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kPaintUniformBufferIndex],
+                    kBufferBindingSizeAlignment);
 
             dynamicOffsets[2] =
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kPaintUniformBufferIndex];
