@@ -17,6 +17,7 @@
 #include "src/ports/SkFontConfigInterface_direct.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <fontconfig/fontconfig.h>
 #include <memory>
@@ -45,7 +46,7 @@ bool fontmgr_understands_ft_named_instance_bits() {
         return false;
     }
 
-    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
     SkFontArguments params;
     // The first named variation position in Distortable is 'Thin'.
     params.setCollectionIndex(0x00010000);
@@ -100,7 +101,8 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
             // Intentionally go through manually creating the typeface so that SkFontStyle is
             // derived from data inside the font, not from the FcPattern that is the FontConfig
             // match result, see https://crbug.com/skia/12881
-            sk_sp<SkTypeface> typeface(fciDirect->makeTypeface(resultIdentity).release());
+            sk_sp<SkTypeface> typeface(fciDirect->makeTypeface(resultIdentity,
+                                                               ToolUtils::TestFontMgr()).release());
 
             if (!typeface) {
                 ERRORF(reporter, "Could not instantiate typeface, FcVersion: %d", FcGetVersion());
