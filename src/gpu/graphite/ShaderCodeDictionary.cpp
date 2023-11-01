@@ -224,16 +224,22 @@ void append_color_output(std::string* mainBody,
 //   in the Graphite pre-compiled module.
 std::string ShaderInfo::toSkSL(const Caps* caps,
                                const RenderStep* step,
-                               const bool useStorageBuffers,
+                               bool useStorageBuffers,
                                int* numTexturesAndSamplersUsed,
                                int* numPaintUniforms,
                                int* renderStepUniformTotalBytes,
                                int* paintUniformsTotalBytes,
                                Swizzle writeSwizzle) {
+    // If we're doing analytic coverage, we must also be doing shading.
+    SkASSERT(step->coverage() == Coverage::kNone || step->performsShading());
+    const bool hasStepUniforms = step->numUniforms() > 0 && step->coverage() != Coverage::kNone;
+    const bool useStepStorageBuffer = useStorageBuffers && hasStepUniforms;
+    const bool useShadingStorageBuffer = useStorageBuffers && step->performsShading();
+
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
     std::string preamble = EmitVaryings(step,
                                         /*direction=*/"in",
-                                        /*emitShadingSsboIndexVarying=*/useStorageBuffers,
+                                        /*emitSsboIndicesVarying=*/useShadingStorageBuffer,
                                         defineLocalCoordsVarying);
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
@@ -241,29 +247,31 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     // TODO: The use of these indices is Metal-specific. We should replace these functions with
     // API-independent ones.
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
-    if (step->numUniforms() > 0) {
-        preamble += EmitRenderStepUniforms(/*bufferID=*/1,
-                                           "Step",
-                                           bindingReqs.fUniformBufferLayout,
-                                           step->uniforms(),
-                                           renderStepUniformTotalBytes);
+    if (hasStepUniforms) {
+        if (useStepStorageBuffer) {
+            preamble += EmitRenderStepStorageBuffer(/*bufferID=*/1, step->uniforms());
+        } else {
+            preamble += EmitRenderStepUniforms(/*bufferID=*/1,
+                                               bindingReqs.fUniformBufferLayout,
+                                               step->uniforms(),
+                                               renderStepUniformTotalBytes);
+        }
     }
 
     bool wrotePaintColor = false;
-    if (this->ssboIndex()) {
-        preamble += EmitPaintParamsStorageBuffer(/*bufferID=*/2, "FS", "fs", fRootNodes,
+    if (useShadingStorageBuffer) {
+        preamble += EmitPaintParamsStorageBuffer(/*bufferID=*/2,
+                                                 fRootNodes,
                                                  numPaintUniforms,
                                                  &wrotePaintColor);
+        SkSL::String::appendf(&preamble, "uint %s;\n", this->ssboIndex());
     } else {
-        preamble += EmitPaintParamsUniforms(
-                /*bufferID=*/2,
-                "FS",
-                useStorageBuffers ? bindingReqs.fStorageBufferLayout
-                                  : bindingReqs.fUniformBufferLayout,
-                fRootNodes,
-                numPaintUniforms,
-                paintUniformsTotalBytes,
-                &wrotePaintColor);
+        preamble += EmitPaintParamsUniforms(/*bufferID=*/2,
+                                            bindingReqs.fUniformBufferLayout,
+                                            fRootNodes,
+                                            numPaintUniforms,
+                                            paintUniformsTotalBytes,
+                                            &wrotePaintColor);
     }
 
     {
@@ -295,6 +303,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     // specifying a color with a solid color shader.
     mainBody += "half4 initialColor = half4(0);";
 
+    if (useShadingStorageBuffer) {
+        SkSL::String::appendf(&mainBody,
+                              "%s = %s.y;\n",
+                              this->ssboIndex(),
+                              RenderStep::ssboIndicesVarying());
+    }
+
     if (step->emitsPrimitiveColor()) {
         mainBody += step->fragmentColorSkSL();
     }
@@ -324,6 +339,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     const char* outColor = args.fPriorStageOutput.c_str();
     const Coverage coverage = step->coverage();
     if (coverage != Coverage::kNone) {
+        if (useStepStorageBuffer) {
+            SkSL::String::appendf(&mainBody,
+                                  "uint stepSsboIndex = %s.x;\n",
+                                  RenderStep::ssboIndicesVarying());
+            mainBody += EmitUniformsFromStorageBuffer("step", "stepSsboIndex", step->uniforms());
+        }
+
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
 

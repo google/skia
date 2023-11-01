@@ -27,7 +27,7 @@ public:
     ~TessellateCurvesRenderStep() override;
 
     std::string vertexSkSL() const override;
-    void writeVertices(DrawWriter*, const DrawParams&, int ssboIndex) const override;
+    void writeVertices(DrawWriter*, const DrawParams&, skvx::ushort2 ssboIndices) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:

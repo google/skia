@@ -14,6 +14,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTLogic.h"
+#include "src/base/SkVx.h"
 
 #include <cstddef>
 #include <optional>
@@ -95,7 +96,7 @@ public:
     void fillInstanceData(skgpu::graphite::DrawWriter* dw,
                           int offset, int count,
                           unsigned short flags,
-                          int ssboIndex,
+                          skvx::ushort2 ssboIndex,
                           SkSpan<const Glyph*> glyphs,
                           SkScalar depth) const;
 

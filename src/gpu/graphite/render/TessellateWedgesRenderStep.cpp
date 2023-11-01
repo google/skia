@@ -42,13 +42,13 @@ using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountWedges>,
 
 // The order of the attribute declarations must match the order used by
 // PatchWriter::emitPatchAttribs, i.e.:
-//     join << fanPoint << stroke << color << depth << curveType << ssboIndex
+//     join << fanPoint << stroke << color << depth << curveType << ssboIndices
 static constexpr Attribute kBaseAttributes[] = {
         {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
         {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
         {"fanPointAttrib", VertexAttribType::kFloat2, SkSLType::kFloat2},
         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+        {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2}};
 
 static constexpr Attribute kAttributesWithCurveType[] = {
         {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
@@ -56,7 +56,7 @@ static constexpr Attribute kAttributesWithCurveType[] = {
         {"fanPointAttrib", VertexAttribType::kFloat2, SkSLType::kFloat2},
         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
         {"curveType", VertexAttribType::kFloat, SkSLType::kFloat},
-        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+        {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2}};
 
 static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveType,
                                                            kBaseAttributes};
@@ -120,7 +120,7 @@ std::string TessellateWedgesRenderStep::vertexSkSL() const {
 
 void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
                                                const DrawParams& params,
-                                               int ssboIndex) const {
+                                               skvx::ushort2 ssboIndices) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     int patchReserveCount = FixedCountWedges::PreallocCount(path.countVerbs());
@@ -130,7 +130,7 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
                   fIndexBuffer,
                   patchReserveCount};
     writer.updatePaintDepthAttrib(params.order().depthAsFloat());
-    writer.updateSsboIndexAttrib(ssboIndex);
+    writer.updateSsboIndexAttrib(ssboIndices);
 
     // The vector xform approximates how the control points are transformed by the shader to
     // more accurately compute how many *parametric* segments are needed.

@@ -54,7 +54,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                       // Remaining translation extracted from actual 'maskToDevice' transform.
                       {"deviceOrigin", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"depth"     , VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndex" , VertexAttribType::kInt  , SkSLType::kInt},
+                      {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       // deviceToLocal matrix for producing local coords for shader evaluation
                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
@@ -107,7 +107,7 @@ float CoverageMaskRenderStep::boundsOutset(const Transform& localToDevice, const
 
 void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
                                            const DrawParams& params,
-                                           int ssboIndex) const {
+                                           skvx::ushort2 ssboIndices) const {
     const CoverageMaskShape& coverageMask = params.geometry().coverageMaskShape();
     const TextureProxy* proxy = coverageMask.textureProxy();
     SkASSERT(proxy);
@@ -187,7 +187,7 @@ void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
 
     const SkM44& m = coverageMask.deviceToLocal();
     instances.append(1) << drawBounds << skvx::cast<uint16_t>(maskBounds) << deviceOrigin
-                        << params.order().depthAsFloat() << ssboIndex
+                        << params.order().depthAsFloat() << ssboIndices
                         << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)   // mat0
                         << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)   // mat1
                         << m.rc(0,3) << m.rc(1,3) << m.rc(3,3);  // mat2

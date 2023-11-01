@@ -51,7 +51,7 @@ BitmapTextRenderStep::BitmapTextRenderStep(bool isLCD)
                       {"indexAndFlags", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"strikeToSourceScale", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}},
+                      {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2}},
                      /*varyings=*/
                      {{"textureCoords", SkSLType::kFloat2},
                       {"texIndex", SkSLType::kHalf},
@@ -106,14 +106,14 @@ const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
 
 void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
                                          const DrawParams& params,
-                                         int ssboIndex) const {
+                                         skvx::ushort2 ssboIndices) const {
     const SubRunData& subRunData = params.geometry().subRunData();
 
     subRunData.subRun()->vertexFiller().fillInstanceData(dw,
                                                          subRunData.startGlyphIndex(),
                                                          subRunData.glyphCount(),
                                                          subRunData.subRun()->instanceFlags(),
-                                                         ssboIndex,
+                                                         ssboIndices,
                                                          subRunData.subRun()->glyphs(),
                                                          params.order().depthAsFloat());
 }

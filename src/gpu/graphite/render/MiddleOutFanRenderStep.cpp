@@ -27,7 +27,7 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
                      /*vertexAttrs=*/
                             {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                             {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}},
+                             {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2}},
                      /*instanceAttrs=*/{}) {}
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
@@ -42,7 +42,7 @@ std::string MiddleOutFanRenderStep::vertexSkSL() const {
 
 void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
                                            const DrawParams& params,
-                                           int ssboIndex) const {
+                                           skvx::ushort2 ssboIndices) const {
     // TODO: Have Shape provide a path-like iterator so we don't actually have to convert non
     // paths to SkPath just to iterate their pts/verbs
     SkPath path = params.geometry().shape().asPath();
@@ -55,9 +55,9 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
     verts.reserve(maxTrianglesInFans * 3);
     for (tess::PathMiddleOutFanIter it(path); !it.done();) {
         for (auto [p0, p1, p2] : it.nextStack()) {
-            verts.append(3) << p0 << depth << ssboIndex
-                            << p1 << depth << ssboIndex
-                            << p2 << depth << ssboIndex;
+            verts.append(3) << p0 << depth << ssboIndices
+                            << p1 << depth << ssboIndices
+                            << p2 << depth << ssboIndices;
         }
     }
 }

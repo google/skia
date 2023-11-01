@@ -92,23 +92,24 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
 std::string BuildComputeSkSL(const Caps*, const ComputeStep*);
 
 std::string EmitPaintParamsUniforms(int bufferID,
-                                    const char* name,
                                     const Layout layout,
                                     SkSpan<const ShaderNode*> nodes,
                                     int* numPaintUniforms,
                                     int* paintUniformsTotalBytes,
                                     bool* wrotePaintColor);
 std::string EmitRenderStepUniforms(int bufferID,
-                                   const char* name,
                                    const Layout layout,
                                    SkSpan<const Uniform> uniforms,
                                    int* renderStepUniformsTotalBytes);
 std::string EmitPaintParamsStorageBuffer(int bufferID,
-                                         const char* bufferTypePrefix,
-                                         const char* bufferNamePrefix,
                                          SkSpan<const ShaderNode*> nodes,
                                          int* numPaintUniforms,
                                          bool* wrotePaintColor);
+std::string EmitRenderStepStorageBuffer(int bufferID,
+                                        SkSpan<const Uniform> uniforms);
+std::string EmitUniformsFromStorageBuffer(const char* bufferNamePrefix,
+                                          const char* ssboIndex,
+                                          SkSpan<const Uniform> uniforms);
 std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
                                     const char* ssboIndex,
                                     const char* uniformName);
@@ -118,7 +119,7 @@ std::string EmitTexturesAndSamplers(const ResourceBindingRequirements&,
 std::string EmitSamplerLayout(const ResourceBindingRequirements&, int* binding);
 std::string EmitVaryings(const RenderStep* step,
                          const char* direction,
-                         bool emitShadingSsboIndexVarying,
+                         bool emitSsboIndicesVarying,
                          bool emitLocalCoordsVarying);
 
 } // namespace skgpu::graphite

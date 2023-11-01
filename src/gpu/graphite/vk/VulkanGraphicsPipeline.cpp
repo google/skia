@@ -553,10 +553,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     settings.fForceNoRTFlip = true; // TODO: Confirm
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
 
-    const RenderStep* step =
-            sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
-    bool useShadingSsboIndex =
-            sharedContext->caps()->storageBufferPreferred() && step->performsShading();
+    const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
+    const bool useStorageBuffers = sharedContext->caps()->storageBufferPreferred();
 
     if (step->vertexAttributes().size() + step->instanceAttributes().size() >
         sharedContext->vulkanCaps().maxVertexAttributes()) {
@@ -569,7 +567,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                                 runtimeDict,
                                                 step,
                                                 pipelineDesc.paintParamsID(),
-                                                useShadingSsboIndex,
+                                                useStorageBuffers,
                                                 renderPassDesc.fWriteSwizzle);
     std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
@@ -597,7 +595,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 
     VertSkSLInfo vsSkSLInfo = BuildVertexSkSL(sharedContext->caps()->resourceBindingRequirements(),
                                               step,
-                                              useShadingSsboIndex,
+                                              useStorageBuffers,
                                               localCoordsNeeded);
     const std::string& vsSkSL = vsSkSLInfo.fSkSL;
     if (!SkSLToSPIRV(compiler,

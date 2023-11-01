@@ -271,8 +271,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     ShaderErrorHandler* errorHandler = caps.shaderErrorHandler();
 
     const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
-
-    bool useShadingSsboIndex = caps.storageBufferPreferred() && step->performsShading();
+    const bool useStorageBuffers = caps.storageBufferPreferred();
 
     std::string vsCode, fsCode;
     wgpu::ShaderModule fsModule, vsModule;
@@ -284,7 +283,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                                 runtimeDict,
                                                 step,
                                                 pipelineDesc.paintParamsID(),
-                                                useShadingSsboIndex,
+                                                useStorageBuffers,
                                                 renderPassDesc.fWriteSwizzle);
     std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
@@ -309,7 +308,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     VertSkSLInfo vsSkSLInfo = BuildVertexSkSL(caps.resourceBindingRequirements(),
                                               step,
-                                              useShadingSsboIndex,
+                                              useStorageBuffers,
                                               localCoordsNeeded);
     const std::string& vsSkSL = vsSkSLInfo.fSkSL;
     if (!SkSLToWGSL(compiler,

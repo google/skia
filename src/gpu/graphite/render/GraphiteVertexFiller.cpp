@@ -25,7 +25,7 @@ struct AtlasPt {
 void VertexFiller::fillInstanceData(skgpu::graphite::DrawWriter* dw,
                                     int offset, int count,
                                     unsigned short flags,
-                                    int ssboIndex,
+                                    skvx::ushort2 ssboIndex,
                                     SkSpan<const Glyph*> glyphs,
                                     SkScalar depth) const {
     auto quadData = [&]() {

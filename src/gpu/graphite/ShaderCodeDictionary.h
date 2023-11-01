@@ -191,7 +191,7 @@ public:
 
     std::string toSkSL(const Caps* caps,
                        const RenderStep* step,
-                       const bool useStorageBuffers,
+                       bool useStorageBuffers,
                        int* numTexturesAndSamplersUsed,
                        int* numPaintUniforms,
                        int* renderStepUniformTotalBytes,

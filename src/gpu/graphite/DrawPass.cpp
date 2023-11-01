@@ -470,14 +470,13 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     GraphicsPipelineCache pipelineCache;
 
     // Geometry uniforms are currently always UBO-backed.
+    const bool useStorageBuffers = recorder->priv().caps()->storageBufferPreferred();
     const ResourceBindingRequirements& bindingReqs =
             recorder->priv().caps()->resourceBindingRequirements();
-    Layout geometryUniformLayout = bindingReqs.fUniformBufferLayout;
-    UniformTracker geometryUniformTracker(/*useStorageBuffers=*/false);
-
-    bool useStorageBuffers = recorder->priv().caps()->storageBufferPreferred();
-    Layout shadingUniformLayout =
+    Layout uniformLayout =
             useStorageBuffers ? bindingReqs.fStorageBufferLayout : bindingReqs.fUniformBufferLayout;
+
+    UniformTracker geometryUniformTracker(useStorageBuffers);
     UniformTracker shadingUniformTracker(useStorageBuffers);
     TextureBindingTracker textureBindingTracker;
 
@@ -486,7 +485,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     // The initial layout we pass here is not important as it will be re-assigned when writing
     // shading and geometry uniforms below.
-    PipelineDataGatherer gatherer(shadingUniformLayout);
+    PipelineDataGatherer gatherer(uniformLayout);
 
     // Copy of destination, if needed.
     sk_sp<TextureProxy> dst;
@@ -523,7 +522,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                     ExtractPaintData(recorder,
                                      &gatherer,
                                      &builder,
-                                     shadingUniformLayout,
+                                     uniformLayout,
                                      draw.fDrawParams.transform(),
                                      draw.fPaintParams.value(),
                                      curDst,
@@ -540,7 +539,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             auto [geometryUniforms, stepTextures] = ExtractRenderStepData(&geometryUniformDataCache,
                                                                           textureDataCache,
                                                                           &gatherer,
-                                                                          geometryUniformLayout,
+                                                                          uniformLayout,
                                                                           step,
                                                                           draw.fDrawParams);
 
@@ -633,7 +632,16 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             }
         }
 
-        renderStep.writeVertices(&drawWriter, draw.fDrawParams, key.shadingUniformIndex());
+        UniformCache::Index geometrySsboIndex =
+                (key.geometryUniformIndex() == UniformCache::kInvalidIndex)
+                        ? 0
+                        : key.geometryUniformIndex();
+        UniformCache::Index shadingSsboIndex =
+                (key.shadingUniformIndex() == UniformCache::kInvalidIndex)
+                        ? 0
+                        : key.shadingUniformIndex();
+        skvx::ushort2 ssboIndices = {SkToU16(geometrySsboIndex), SkToU16(shadingSsboIndex)};
+        renderStep.writeVertices(&drawWriter, draw.fDrawParams, ssboIndices);
     }
     // Finish recording draw calls for any collected data at the end of the loop
     drawWriter.flush();
