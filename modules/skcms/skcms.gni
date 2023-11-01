@@ -17,4 +17,5 @@ skcms_sources = [
   "$_modules/skcms/skcms.cc",
   "$_modules/skcms/skcms_internal.h",
   "$_modules/skcms/src/Transform_inl.h",
+  "$_modules/skcms/src/skcms_Transform.h",
 ]
