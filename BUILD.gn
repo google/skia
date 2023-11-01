@@ -3046,11 +3046,6 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("editor") {
-    is_shared_library = is_android
-    deps = [ "modules/skplaintexteditor:editor_app" ]
-  }
-
   skia_executable("image_diff_metric") {
     sources = [ "tools/image_diff_metric.cpp" ]
     deps = [ ":skia" ]
