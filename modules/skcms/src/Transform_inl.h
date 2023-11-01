@@ -18,9 +18,8 @@ using U32 = V<uint32_t>;
 using U16 = V<uint16_t>;
 using U8  = V<uint8_t>;
 
-
 #if defined(__GNUC__) && !defined(__clang__)
-    // Once again, GCC is kind of weird, not allowing vector = scalar directly.
+    // GCC is kind of weird, not allowing vector = scalar directly.
     static constexpr F F0 = F() + 0.0f,
                        F1 = F() + 1.0f,
                        FInfBits = F() + 0x7f800000; // equals 2139095040, the bit pattern of +Inf
@@ -84,19 +83,11 @@ using U8  = V<uint8_t>;
     #endif
 #endif
 
-#if defined(__clang__)
-    #define FALLTHROUGH [[clang::fallthrough]]
-#else
-    #define FALLTHROUGH
-#endif
-
 // We tag most helper functions as SI, to enforce good code generation
 // but also work around what we think is a bug in GCC: when targeting 32-bit
 // x86, GCC tends to pass U16 (4x uint16_t vector) function arguments in the
 // MMX mm0 register, which seems to mess with unrelated code that later uses
 // x87 FP instructions (MMX's mm0 is an alias for x87's st0 register).
-//
-// It helps codegen to call __builtin_memcpy() when we know the byte count at compile time.
 #if defined(__clang__) || defined(__GNUC__)
     #define SI static inline __attribute__((always_inline))
 #else
@@ -141,7 +132,6 @@ SI D bit_pun(const S& v) {
 // and for some reason compilers generate better code when converting to int32_t.
 // To serve both those ends, we use this function to_fixed() instead of direct cast().
 SI U32 to_fixed(F f) {  return (U32)cast<I32>(f + 0.5f); }
-
 
 // Sometimes we do something crazy on one branch of a conditonal,
 // like divide by zero or convert a huge float to an integer,
@@ -733,12 +723,12 @@ static void clut(uint32_t input_channels, uint32_t output_channels,
         switch ((dim-1)&3) {  // This lets the compiler know there are no other cases to handle.
             case 3: ix += index [3 + (combo&8)/2];
                     w  *= weight[3 + (combo&8)/2];
-                    FALLTHROUGH;
+                    SKCMS_FALLTHROUGH;
                     // fall through
 
             case 2: ix += index [2 + (combo&4)*1];
                     w  *= weight[2 + (combo&4)*1];
-                    FALLTHROUGH;
+                    SKCMS_FALLTHROUGH;
                     // fall through
 
             case 1: ix += index [1 + (combo&2)*2];
@@ -1491,5 +1481,3 @@ static void run_program(const Op* program, const void** arguments,
 #if defined(USING_NEON_F16C)
     #undef  USING_NEON_F16C
 #endif
-
-#undef FALLTHROUGH

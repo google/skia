@@ -38,27 +38,6 @@ void skcms_DisableRuntimeCPUDetection() {
     runtime_cpu_detection = false;
 }
 
-#if defined(__clang__)
-    #define SKCMS_MAYBE_UNUSED __attribute__((unused))
-    #pragma clang diagnostic ignored "-Wused-but-marked-unused"
-#elif defined(__GNUC__)
-    #define SKCMS_MAYBE_UNUSED __attribute__((unused))
-#elif defined(_MSC_VER)
-    #define SKCMS_MAYBE_UNUSED __pragma(warning(suppress:4100))
-#else
-    #define SKCMS_MAYBE_UNUSED
-#endif
-
-// sizeof(x) will return size_t, which is 32-bit on some machines and 64-bit on others.
-// We have better testing on 64-bit machines, so force 32-bit machines to behave like 64-bit.
-//
-// Please do not use sizeof() directly, and size_t only when required.
-// (We have no way of enforcing these requests...)
-#define SAFE_SIZEOF(x) ((uint64_t)sizeof(x))
-
-// Same sort of thing for _Layout structs with a variable sized array at the end (named "variable").
-#define SAFE_FIXED_SIZE(type) ((uint64_t)offsetof(type, variable))
-
 static const union {
     uint32_t bits;
     float    f;
