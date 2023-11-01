@@ -1746,10 +1746,6 @@ group("modules") {
   }
 }
 
-group("experimental") {
-  deps = [ "experimental/sktext" ]
-}
-
 config("our_vulkan_headers") {
   include_dirs = [ "include/third_party/vulkan" ]
 }
@@ -2329,7 +2325,6 @@ if (skia_enable_tools) {
       ":test",
       ":tool_utils",
       ":typeface_fontations_tests",
-      "experimental/sktext:tests",
       "modules/bentleyottmann:tests",
       "modules/skottie:tests",
       "modules/skparagraph:tests",
@@ -2996,8 +2991,6 @@ if (skia_enable_tools) {
         ":tool_utils",
         ":trace",
         ":xml",
-        "experimental/sktext",
-        "experimental/sktext:slides",
         "modules/audioplayer",
         "modules/skottie",
         "modules/skottie:utils",
@@ -3056,11 +3049,6 @@ if (skia_enable_tools) {
   test_app("editor") {
     is_shared_library = is_android
     deps = [ "modules/skplaintexteditor:editor_app" ]
-  }
-
-  test_app("text_editor") {
-    is_shared_library = is_android
-    deps = [ "experimental/sktext:text_editor" ]
   }
 
   skia_executable("image_diff_metric") {
