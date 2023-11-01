@@ -11,6 +11,17 @@
 
 namespace skgpu::graphite {
 
+namespace {
+uint32_t create_unique_id() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+} // namespace anonymous
+
 Resource::Resource(const SharedContext* sharedContext,
                    Ownership ownership,
                    skgpu::Budgeted budgeted,
@@ -21,7 +32,8 @@ Resource::Resource(const SharedContext* sharedContext,
         , fCacheRefCnt(0)
         , fOwnership(ownership)
         , fGpuMemorySize(gpuMemorySize)
-        , fBudgeted(budgeted) {
+        , fBudgeted(budgeted)
+        , fUniqueID(create_unique_id() ){
     // If we don't own the resource that must mean its wrapped in a client object. Thus we should
     // not be budgeted
     SkASSERT(fOwnership == Ownership::kOwned || fBudgeted == skgpu::Budgeted::kNo);
