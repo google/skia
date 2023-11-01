@@ -8,6 +8,8 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
+#include "include/private/base/SkSpan_impl.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
 #include <cstddef>
@@ -70,8 +72,10 @@ namespace SkOpts {
     extern StageFn ops_highp[kNumRasterPipelineHighpOps], just_return_highp;
     extern StageFn ops_lowp [kNumRasterPipelineLowpOps ], just_return_lowp;
 
-    extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);
-    extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);
+    extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, SkRasterPipelineStage*,
+                                        SkSpan<SkRasterPipeline_MemoryCtxPatch>);
+    extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, SkRasterPipelineStage*,
+                                        SkSpan<SkRasterPipeline_MemoryCtxPatch>);
 
     extern size_t raster_pipeline_lowp_stride;
     extern size_t raster_pipeline_highp_stride;
