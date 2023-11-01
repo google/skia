@@ -47,6 +47,8 @@ public:
 
     VkExtent2D granularity() { return fGranularity; }
 
+    const char* getResourceType() const override { return "Vulkan RenderPass"; }
+
 private:
     void freeGpuData() override;
 

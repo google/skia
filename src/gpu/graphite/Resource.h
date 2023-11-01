@@ -112,6 +112,13 @@ public:
     // when the content of the Resource object changes. This will never return 0.
     UniqueID uniqueID() const { return fUniqueID; }
 
+    // Describes the type of gpu resource that is represented by the implementing
+    // class (e.g. texture, buffer, etc).  This data is used for diagnostic
+    // purposes by dumpMemoryStatistics().
+    //
+    // The value returned is expected to be long lived and will not be copied by the caller.
+    virtual const char* getResourceType() const = 0;
+
     // Tests whether a object has been abandoned or released. All objects will be in this state
     // after their creating Context is destroyed or abandoned.
     //

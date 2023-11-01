@@ -29,6 +29,8 @@ public:
     // size if the value was statically assigned in the shader (when it's not possible to assign
     // them via specialization constants).
 
+    const char* getResourceType() const override { return "Compute Pipeline"; }
+
 protected:
     explicit ComputePipeline(const SharedContext*);
 };

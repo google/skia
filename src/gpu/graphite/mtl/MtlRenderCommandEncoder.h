@@ -31,6 +31,8 @@ public:
                                                                           std::move(encoder)));
     }
 
+    const char* getResourceType() const override { return "Metal Render Command Encoder"; }
+
     void setLabel(NSString* label) {
         [(*fCommandEncoder) setLabel:label];
     }

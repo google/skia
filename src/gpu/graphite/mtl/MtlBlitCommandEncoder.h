@@ -31,6 +31,8 @@ public:
                                                                       std::move(encoder)));
     }
 
+    const char* getResourceType() const override { return "Metal Blit Command Encoder"; }
+
     void pushDebugGroup(NSString* string) {
         [(*fCommandEncoder) pushDebugGroup:string];
     }

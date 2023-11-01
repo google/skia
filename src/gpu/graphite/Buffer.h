@@ -24,6 +24,8 @@ public:
 
     bool isMapped() const { return fMapPtr; }
 
+    const char* getResourceType() const override { return "Buffer"; }
+
 protected:
     Buffer(const SharedContext* sharedContext, size_t size)
             : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, size)

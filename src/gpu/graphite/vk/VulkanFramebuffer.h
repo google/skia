@@ -28,6 +28,8 @@ public:
         return fFramebuffer;
     }
 
+    const char* getResourceType() const override { return "Vulkan Framebuffer"; }
+
 private:
     VulkanFramebuffer(const VulkanSharedContext*, VkFramebuffer);
     void freeGpuData() override;

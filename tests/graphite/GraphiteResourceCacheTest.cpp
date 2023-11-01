@@ -53,6 +53,8 @@ public:
         return resource;
     }
 
+    const char* getResourceType() const override { return "Test Resource"; }
+
     static void CreateKey(GraphiteResourceKey* key, Shareable shareable) {
         // Internally we assert that we don't make the same key twice where the only difference is
         // shareable vs non-shareable. That allows us to now have Shareable be part of the Key's

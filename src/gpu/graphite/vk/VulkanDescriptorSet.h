@@ -34,6 +34,8 @@ public:
 
     const VkDescriptorSet* descriptorSet() { return &fDescSet; }
 
+    const char* getResourceType() const override { return "Vulkan Descriptor Set"; }
+
 private:
     void freeGpuData() override;
 

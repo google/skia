@@ -33,6 +33,8 @@ public:
 
     void setReleaseCallback(sk_sp<RefCntedCallback>);
 
+    const char* getResourceType() const override { return "Texture"; }
+
 #if defined(GRAPHITE_TEST_UTILS)
     const Texture* asTexture() const override { return this; }
 #endif
