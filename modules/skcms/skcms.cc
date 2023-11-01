@@ -7,6 +7,7 @@
 
 #include "skcms.h"  // NO_G3_REWRITE
 #include "skcms_internal.h"  // NO_G3_REWRITE
+#include "src/skcms_Transform.h"  // NO_G3_REWRITE
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
@@ -2404,17 +2405,6 @@ typedef enum {
 #undef M
 } Op;
 
-#if defined(__clang__)
-    template <int N, typename T> using Vec = T __attribute__((ext_vector_type(N)));
-#elif defined(__GNUC__)
-    // For some reason GCC accepts this nonsense, but not the more straightforward version,
-    //   template <int N, typename T> using Vec = T __attribute__((vector_size(N*sizeof(T))));
-    template <int N, typename T>
-    struct VecHelper { typedef T __attribute__((vector_size(N*sizeof(T)))) V; };
-
-    template <int N, typename T> using Vec = typename VecHelper<N,T>::V;
-#endif
-
 // First, instantiate our default exec_ops() implementation using the default compiliation target.
 
 namespace baseline {
@@ -2425,15 +2415,15 @@ namespace baseline {
     using Color = float;
 #elif defined(__AVX512F__) && defined(__AVX512DQ__)
     #define N 16
-    template <typename T> using V = Vec<N,T>;
+    template <typename T> using V = skcms_private::Vec<N,T>;
     using Color = float;
 #elif defined(__AVX__)
     #define N 8
-    template <typename T> using V = Vec<N,T>;
+    template <typename T> using V = skcms_private::Vec<N,T>;
     using Color = float;
 #else
     #define N 4
-    template <typename T> using V = Vec<N,T>;
+    template <typename T> using V = skcms_private::Vec<N,T>;
     using Color = float;
 #endif
 
@@ -2461,7 +2451,7 @@ namespace baseline {
             #define USING_AVX_F16C
             #define USING_AVX2
             #define N 8
-            template <typename T> using V = Vec<N,T>;
+            template <typename T> using V = skcms_private::Vec<N,T>;
             using Color = float;
 
             #include "src/Transform_inl.h"
@@ -2490,7 +2480,7 @@ namespace baseline {
         namespace skx {
             #define USING_AVX512F
             #define N 16
-            template <typename T> using V = Vec<N,T>;
+            template <typename T> using V = skcms_private::Vec<N,T>;
             using Color = float;
 
             #include "src/Transform_inl.h"
