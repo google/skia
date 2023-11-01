@@ -87,13 +87,17 @@
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*",
      "bazel/external/dawn/*", "DEPS"]}
   },
-  {"name": "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Vulkan"},
+  {"name": "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Vulkan",
+  "cq_config": {}
+  },
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_HWASAN"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android_API30"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn"},
-  {"name": "Build-Debian10-Clang-arm64-Release-Android_Graphite_Vulkan"},
+  {"name": "Build-Debian10-Clang-arm64-Release-Android_Graphite_Vulkan",
+  "cq_config": {}
+  },
   {"name": "Build-Debian10-Clang-arm64-Release-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android_Wuffs"},
   {"name": "Build-Debian10-Clang-x64-Debug-Android"},
@@ -101,7 +105,9 @@
   {"name": "Build-Debian10-Clang-x86-Debug"},
   {"name": "Build-Debian10-Clang-x86-Debug-Android"},
   {"name": "Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn"},
-  {"name": "Build-Debian10-Clang-x86-Debug-Android_Graphite_Vulkan"},
+  {"name": "Build-Debian10-Clang-x86-Debug-Android_Graphite_Vulkan",
+  "cq_config": {}
+  },
   {"name": "Build-Debian10-Clang-x86-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-x86-Release-Android"},
   {"name": "Build-Debian10-Clang-x86-Release-Android_Vulkan"},
