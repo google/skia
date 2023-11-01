@@ -8,6 +8,7 @@
 #ifndef SkRasterPipelineOpContexts_DEFINED
 #define SkRasterPipelineOpContexts_DEFINED
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 
@@ -20,10 +21,45 @@ namespace SkSL { class TraceHook; }
 inline static constexpr int SkRasterPipeline_kMaxStride = 16;
 inline static constexpr int SkRasterPipeline_kMaxStride_highp = 8;
 
+// How much space to allocate for each MemoryCtx scratch buffer, as part of tail-pixel handling.
+inline static constexpr size_t SkRasterPipeline_MaxScratchPerPatch =
+        std::max(SkRasterPipeline_kMaxStride_highp * 16,  // 16 == largest highp bpp (RGBA_F32)
+                 SkRasterPipeline_kMaxStride * 4);        // 4 == largest lowp bpp (RGBA_8888)
+
 // These structs hold the context data for many of the Raster Pipeline ops.
 struct SkRasterPipeline_MemoryCtx {
     void* pixels;
     int   stride;
+};
+
+// Raster Pipeline typically processes N (4, 8, 16) pixels at a time, in SIMT fashion. If the
+// number of pixels in a row isn't evenly divisible by N, there will be leftover pixels; this is
+// called the "tail". To avoid reading or writing past the end of any source or destination buffers
+// when we reach the tail:
+//
+//   1) Source buffers have their tail contents copied to a scratch buffer that is at least N wide.
+//      In practice, each scratch buffer uses SkRasterPipeline_MaxScratchPerPatch bytes.
+//   2) Each MemoryCtx in the pipeline is patched, such that access to them (at the current scanline
+//      and x-offset) will land in the scratch buffer.
+//   3) Pipeline is run as normal (with all memory access happening safely in the scratch buffers).
+//   4) Destination buffers have their tail contents copied back from the scratch buffer.
+//   5) Each MemoryCtx is "un-patched".
+//
+// To do all of this, the pipeline creates a MemoryCtxPatch for each unique MemoryCtx referenced by
+// the pipeline.
+struct SkRasterPipeline_MemoryCtxInfo {
+    SkRasterPipeline_MemoryCtx* context;
+
+    int bytesPerPixel;
+    bool load;
+    bool store;
+};
+
+struct SkRasterPipeline_MemoryCtxPatch {
+    SkRasterPipeline_MemoryCtxInfo info;
+
+    void* backup;  // Remembers context->pixels so we can restore it
+    std::byte scratch[SkRasterPipeline_MaxScratchPerPatch];
 };
 
 struct SkRasterPipeline_GatherCtx {

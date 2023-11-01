@@ -11,6 +11,8 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMacros.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
@@ -136,16 +138,24 @@ private:
     bool buildLowpPipeline(SkRasterPipelineStage* ip) const;
     void buildHighpPipeline(SkRasterPipelineStage* ip) const;
 
-    using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, SkRasterPipelineStage* program);
+    using StartPipelineFn = void (*)(size_t, size_t, size_t, size_t,
+                                     SkRasterPipelineStage* program,
+                                     SkSpan<SkRasterPipeline_MemoryCtxPatch>);
     StartPipelineFn buildPipeline(SkRasterPipelineStage*) const;
 
     void uncheckedAppend(SkRasterPipelineOp, void*);
     int stagesNeeded() const;
 
+    void addMemoryContext(SkRasterPipeline_MemoryCtx*, int bytesPerPixel, bool load, bool store);
+
     SkArenaAlloc*               fAlloc;
     SkRasterPipeline_RewindCtx* fRewindCtx;
     StageList*                  fStages;
     int                         fNumStages;
+
+    // Only 1 in 2 million CPU-backend pipelines used more than two MemoryCtxs.
+    // (See the comment in SkRasterPipelineOpContexts.h for how MemoryCtx patching works)
+    skia_private::STArray<2, SkRasterPipeline_MemoryCtxInfo> fMemoryCtxInfos;
 };
 
 template <size_t bytes>
