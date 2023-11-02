@@ -155,13 +155,13 @@ go_download_sdk(
     name = "go_sdk_linux_amd64",
     goarch = "amd64",
     goos = "linux",
-    version = "1.18",
+    version = "1.19.11",
 )
 
 # For the host machine
 go_download_sdk(
     name = "go_sdk",
-    version = "1.18",
+    version = "1.19.11",
 )
 
 # Do not specify a version here or it will be an error (because we
