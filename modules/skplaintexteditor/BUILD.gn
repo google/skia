@@ -1,0 +1,52 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+import("../../modules/skshaper/skshaper.gni")
+
+if ((skia_use_icu || skia_use_libgrapheme) && skia_enable_skshaper) {
+  skia_source_set("editor_lib") {
+    include_dirs = [ "../.." ]
+    public = [
+      "include/editor.h",
+      "include/stringslice.h",
+      "include/stringview.h",
+    ]
+    sources = [
+      "src/editor.cpp",
+      "src/stringslice.cpp",
+    ]
+    public_deps = [ "../..:skia" ]
+    deps = [ ":shape" ]
+  }
+
+  skia_source_set("shape") {
+    include_dirs = [ "../.." ]
+    public = [ "src/shape.h" ]
+    sources = [ "src/shape.cpp" ]
+    public_deps = [ "../..:skia" ]
+    deps = [
+      ":word_boundaries",
+      "../../modules/skshaper",
+    ]
+  }
+
+  skia_source_set("word_boundaries") {
+    include_dirs = [ "../.." ]
+    public = [ "src/word_boundaries.h" ]
+    sources = [ "src/word_boundaries.cpp" ]
+    configs = [ "../../third_party/icu/config:no_cxx" ]
+    deps = [ "//third_party/icu" ]
+  }
+
+  skia_source_set("editor_app") {
+    testonly = true
+    sources = [ "app/editor_application.cpp" ]
+    public_deps = [ "../..:sk_app" ]
+    deps = [ ":editor_lib" ]
+  }
+} else {
+  group("editor_app") {
+  }
+}
