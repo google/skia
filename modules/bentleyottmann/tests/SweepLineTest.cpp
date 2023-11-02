@@ -5,8 +5,9 @@
 
 #include "modules/bentleyottmann/include/EventQueueInterface.h"
 #include "modules/bentleyottmann/include/Point.h"
-
 #include "tests/Test.h"
+
+#include <iterator>
 
 using namespace bentleyottmann;
 
@@ -24,11 +25,73 @@ struct SweepLineTestingPeer {
         return fSL->fSweepLine.size();
     }
 
+    const std::vector<Segment>& sweepLine() const {
+        return fSL->fSweepLine;
+    }
+
     SweepLine* const fSL;
 };
 }  // namespace bentleyottmann
 
 using TP = SweepLineTestingPeer;
+
+DEF_TEST(BO_SweepLineSearch, reporter) {
+    {
+        SweepLine sweepLine;
+        TP tp{&sweepLine};
+
+        Point p0 = {-100, -100},
+              p1 = { 100,  100},
+              p2 = { 100, -100},
+              p3 = {-100,  100};
+        Segment s0 = {p0, p1},
+                s1 = {p2, p3};
+        tp.insertSegment(1, s0);
+        tp.insertSegment(2, s1);
+
+        auto& sl = tp.sweepLine();
+
+        const Point crossing = {0, 0};
+
+        const auto l = std::lower_bound(sl.begin(), sl.end(), crossing,
+                                        rounded_point_less_than_segment_in_x_lower);
+
+        const auto r = std::lower_bound(l, sl.end(), crossing,
+                                        rounded_point_less_than_segment_in_x_upper);
+
+        // Remember that the index is off by 1 because of the left sentinel.
+        REPORTER_ASSERT(reporter, std::distance(sl.begin(), l) == 1);
+        REPORTER_ASSERT(reporter, std::distance(sl.begin(), r) == 3);
+    }
+    {
+        SweepLine sweepLine;
+        TP tp{&sweepLine};
+
+        // No longer cross at {0, 0}, but still round to {0, 0}.
+        Point p0 = {-100, -100},
+              p1 = {  99,  100},
+              p2 = { 100, -100},
+              p3 = {-101,  100};
+        Segment s0 = {p0, p1},
+                s1 = {p2, p3};
+        tp.insertSegment(1, s0);
+        tp.insertSegment(2, s1);
+
+        auto& sl = tp.sweepLine();
+
+        const Point crossing = {0, 0};
+
+        const auto l = std::lower_bound(sl.begin(), sl.end(), crossing,
+                                        rounded_point_less_than_segment_in_x_lower);
+
+        const auto r = std::lower_bound(l, sl.end(), crossing,
+                                        rounded_point_less_than_segment_in_x_upper);
+
+        // Remember that the index is off by 1 because of the left sentinel.
+        REPORTER_ASSERT(reporter, std::distance(sl.begin(), l) == 1);
+        REPORTER_ASSERT(reporter, std::distance(sl.begin(), r) == 3);
+    }
+}
 
 DEF_TEST(BO_SweepLineInsert, reporter) {
     {

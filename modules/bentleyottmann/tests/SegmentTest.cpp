@@ -270,3 +270,73 @@ DEF_TEST(BO_compareSlopesBasic, reporter) {
         REPORTER_ASSERT(reporter, compare_slopes(s1, s0) == -1);
     }
 }
+
+DEF_TEST(BO_rounded_point_less_than_segment_in_x_lower, reporter) {
+    { // Vertical segment
+        Segment s = {{3, -50}, {3, 50}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_lower(s, {4, 7}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {3, 7}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {2, 7}));
+    }
+    { // Horizontal segment
+        Segment s = {{-10, 3}, {10, 3}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_lower(s, {11, 3}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {10, 3}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {4, 3}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {-10, 3}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {-11, 3}));
+    }
+    { // Pass through {0, 0}
+        Segment s = {{-100, -100}, {100, 100}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_lower(s, {1, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {0, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {-1, 0}));
+    }
+    { // Just left of {0, 0}, but still rounds to {0, 0}
+        Segment s = {{-100, -100}, {199, 200}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_lower(s, {1, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {0, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {-1, 0}));
+    }
+    { // Just right of {0, 0}, but still rounds to {0, 0}
+        Segment s = {{-100, -100}, {201, 200}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_lower(s, {1, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {0, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_lower(s, {-1, 0}));
+    }
+}
+
+DEF_TEST(BO_rounded_point_less_than_segment_in_x_upper, reporter) {
+    { // Vertical segment
+        Segment s = {{3, -50}, {3, 50}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {4, 7}));
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {3, 7}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_upper(s, {2, 7}));
+    }
+    { // Horizontal segment
+        Segment s = {{-10, 3}, {10, 3}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {11, 3}));
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {10, 3}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_upper(s, {4, 3}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_upper(s, {-10, 3}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_upper(s, {-11, 3}));
+    }
+    { // Pass through {0, 0}
+        Segment s = {{-100, -100}, {100, 100}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {1, 0}));
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {0, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_upper(s, {-1, 0}));
+    }
+    { // Just left of {0, 0}, but still rounds to {0, 0}
+        Segment s = {{-100, -100}, {199, 200}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {1, 0}));
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {0, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_upper(s, {-1, 0}));
+    }
+    { // Just right of {0, 0}, but still rounds to {0, 0}
+        Segment s = {{-100, -100}, {201, 200}};
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {1, 0}));
+        REPORTER_ASSERT(reporter, rounded_point_less_than_segment_in_x_upper(s, {0, 0}));
+        REPORTER_ASSERT(reporter, !rounded_point_less_than_segment_in_x_upper(s, {-1, 0}));
+    }
+}

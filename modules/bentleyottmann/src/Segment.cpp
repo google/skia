@@ -233,6 +233,90 @@ bool point_less_than_segment_in_x(Point p, const Segment& segment) {
     return SkToS64(x2 - x0) * SkToS64(y1 - y0) < SkToS64(y2 - y0) * SkToS64(x1 - x0);
 }
 
+// The design of this function allows its use with std::lower_bound. lower_bound returns the
+// iterator to the first segment where rounded_point_less_than_segment_in_x_lower returns false.
+// Therefore, we want s(y) < (x - ½) to return true, then start returning false when s(y) ≥ (x - ½).
+bool rounded_point_less_than_segment_in_x_lower(const Segment& s, Point p) {
+    const auto [l, t, r, b] = s.bounds();
+    const auto [x, y] = p;
+
+    // Ensure that the segment intersects the horizontal sweep line
+    SkASSERT(t <= y && y <= b);
+
+    // In the comparisons below, x is really x - ½
+    if (r < x) {
+        // s is entirely < p.
+        return true;
+    } else if (x <= l) {
+        // s is entirely > p. This also handles vertical lines, so we don't have to handle them
+        // below.
+        return false;
+    }
+
+    const auto [x0, y0] = s.upper();
+    const auto [x1, y1] = s.lower();
+
+    // Horizontal - from the guards above we know that p is on s.
+    if (y0 == y1) {
+        return false;
+    }
+
+    // s is not horizontal or vertical.
+    SkASSERT(x0 != x1 && y0 != y1);
+
+    // Given the segment upper = (x0, y0) and lower = (x1, y1)
+    // x0 + (x1 - x0)(y - y0) / (y1 - y0) < x - ½
+    // (x1 - x0)(y - y0) / (y1 - y0) < x - x0 - ½
+    // Because (y1 - y0) is always positive we can multiply through the inequality without
+    // worrying about sign changes.
+    // (x1 - x0)(y - y0) < (x - x0 - ½)(y1 - y0)
+    // (x1 - x0)(y - y0) < ½(2x - 2x0 - 1)(y1 - y0)
+    // 2(x1 - x0)(y - y0) < (2(x - x0) - 1)(y1 - y0)
+    return 2 * SkToS64(x1 - x0) * SkToS64(y - y0) < (2 * SkToS64(x - x0) - 1) * SkToS64(y1 - y0);
+}
+
+// The design of this function allows use with std::lower_bound. lower_bound returns the iterator
+// to the first segment where rounded_point_less_than_segment_in_x_upper is false. This function
+// implements s(y) < (x + ½).
+bool rounded_point_less_than_segment_in_x_upper(const Segment& s, Point p) {
+    const auto [l, t, r, b] = s.bounds();
+    const auto [x, y] = p;
+
+    // Ensure that the segment intersects the horizontal sweep line
+    SkASSERT(t <= y && y <= b);
+
+    // In the comparisons below, x is really x + ½
+    if (r <= x) {
+        // s is entirely < p.
+        return true;
+    } else if (x < l) {
+        // s is entirely > p. This also handles vertical lines, so we don't have to handle them
+        // below.
+        return false;
+    }
+
+    const auto [x0, y0] = s.upper();
+    const auto [x1, y1] = s.lower();
+
+    // Horizontal - from the guards above we know that p is on s.
+    if (y0 == y1) {
+        return false;
+    }
+
+    // s is not horizontal or vertical.
+    SkASSERT(x0 != x1 && y0 != y1);
+
+    // Given the segment upper = (x0, y0) and lower = (x1, y1)
+    // x0 + (x1 - x0)(y - y0) / (y1 - y0) < x + ½
+    // (x1 - x0)(y - y0) / (y1 - y0) < x - x0 + ½
+    // Because (y1 - y0) is always positive we can multiply through the inequality without
+    // worrying about sign changes.
+    // (x1 - x0)(y - y0) < (x - x0 + ½)(y1 - y0)
+    // (x1 - x0)(y - y0) < ½(2x - 2x0 + 1)(y1 - y0)
+    // 2(x1 - x0)(y - y0) < (2(x - x0) + 1)(y1 - y0)
+    return 2 * SkToS64(x1 - x0) * SkToS64(y - y0) < (2 * SkToS64(x - x0) + 1) * SkToS64(y1 - y0);
+}
+
 int compare_slopes(const Segment& s0, const Segment& s1) {
     Point s0Delta = s0.lower() - s0.upper(),
           s1Delta = s1.lower() - s1.upper();

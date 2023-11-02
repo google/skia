@@ -49,6 +49,18 @@ bool less_than_at(const Segment& s0, const Segment& s1, int32_t y);
 // segment.
 bool point_less_than_segment_in_x(Point p, const Segment& segment);
 
+// The following two routines are used to find the rounded comparison between a Point p and a
+// segment s. s(y) is the x value of the segment at y. The rounding definition is:
+//    x < ⌊s(y) + ½⌋
+// Expanding the floor operation results in
+//    (x - ½) ≤ s(y) < (x + ½)
+// The two functions are the two halves of the above inequality.
+// The rounding lower bound is: (x - ½) ≤ s(y). The ordering of the parameters facilitates using
+// std::lower_bound.
+bool rounded_point_less_than_segment_in_x_lower(const Segment& s, Point p);
+// The rounding upper bound is: s(y) < (x + ½)
+bool rounded_point_less_than_segment_in_x_upper(const Segment& s, Point p);
+
 // Compare the slopes of two segments. If a slope is horizontal, then its slope is greater than
 // all other slopes or equal of the other segment is also horizontal. The slope for
 // non-horizontal segments monotonically increases from the smallest along the negative x-axis
