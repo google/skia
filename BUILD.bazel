@@ -156,3 +156,14 @@ test_suite(
 gen_compile_flags_txt_linux_amd64(
     name = "gen_compile_flags_txt_linux_amd64",
 )
+
+######
+# go #
+######
+
+# Sample usage: "bazel run //:go -- generate ./...".
+alias(
+    name = "go",
+    actual = "@go_sdk//:bin/go",
+    visibility = ["//visibility:public"],
+)
