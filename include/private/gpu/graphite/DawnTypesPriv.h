@@ -16,30 +16,31 @@ namespace skgpu::graphite {
 struct DawnTextureSpec {
     DawnTextureSpec()
             : fFormat(wgpu::TextureFormat::Undefined)
-            , fUsage(wgpu::TextureUsage::None) {}
+            , fUsage(wgpu::TextureUsage::None)
+            , fAspect(wgpu::TextureAspect::All) {}
     DawnTextureSpec(const DawnTextureInfo& info)
-            : fFormat(info.fFormat)
-            , fUsage(info.fUsage) {}
+            : fFormat(info.fFormat), fUsage(info.fUsage), fAspect(info.fAspect) {}
 
     bool operator==(const DawnTextureSpec& that) const {
-        return fUsage == that.fUsage &&
-               fFormat == that.fFormat;
+        return fUsage == that.fUsage && fFormat == that.fFormat && fAspect == that.fAspect;
     }
 
     bool isCompatible(const DawnTextureSpec& that) const {
         // The usages may match or the usage passed in may be a superset of the usage stored within.
-        return fFormat == that.fFormat &&
-               (fUsage & that.fUsage) == fUsage;
+        return fFormat == that.fFormat && (fUsage & that.fUsage) == fUsage &&
+               fAspect == that.fAspect;
     }
 
     SkString toString() const {
-        return SkStringPrintf("format=0x%08X,usage=0x%08X",
+        return SkStringPrintf("format=0x%08X,usage=0x%08X,aspect=0x%08X",
                               static_cast<unsigned int>(fFormat),
-                              static_cast<unsigned int>(fUsage));
+                              static_cast<unsigned int>(fUsage),
+                              static_cast<unsigned int>(fAspect));
     }
 
     wgpu::TextureFormat fFormat;
     wgpu::TextureUsage fUsage;
+    wgpu::TextureAspect fAspect;
 };
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,

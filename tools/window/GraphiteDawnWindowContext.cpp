@@ -82,7 +82,8 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
                                           skgpu::Mipmapped::kNo,
                                           fSwapChainFormat,
-                                          texture.GetUsage());
+                                          texture.GetUsage(),
+                                          wgpu::TextureAspect::All);
     skgpu::graphite::BackendTexture backendTex(texture.Get());
     SkASSERT(this->graphiteRecorder());
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),

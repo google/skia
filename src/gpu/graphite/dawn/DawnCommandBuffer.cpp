@@ -890,13 +890,14 @@ bool DawnCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     SkASSERT(!fActiveRenderPassEncoder);
     SkASSERT(!fActiveComputePassEncoder);
 
-    auto& wgpuTexture = static_cast<const DawnTexture*>(texture)->dawnTexture();
+    const auto* wgpuTexture = static_cast<const DawnTexture*>(texture);
     auto& wgpuBuffer = static_cast<const DawnBuffer*>(buffer)->dawnBuffer();
 
     wgpu::ImageCopyTexture src;
-    src.texture = wgpuTexture;
+    src.texture = wgpuTexture->dawnTexture();
     src.origin.x = srcRect.x();
     src.origin.y = srcRect.y();
+    src.aspect = wgpuTexture->textureInfo().dawnTextureSpec().fAspect;
 
     wgpu::ImageCopyBuffer dst;
     dst.buffer = wgpuBuffer;

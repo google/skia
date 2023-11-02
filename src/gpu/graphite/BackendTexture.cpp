@@ -118,6 +118,14 @@ BackendTexture::BackendTexture(SkISize dimensions,
         , fDawnTexture(nullptr)
         , fDawnTextureView(textureView) {}
 
+BackendTexture::BackendTexture(SkISize dimensions,
+                               const DawnTextureInfo& info,
+                               WGPUTexture texture)
+        : fDimensions(dimensions)
+        , fInfo(info)
+        , fDawnTexture(texture)
+        , fDawnTextureView(nullptr) {}
+
 WGPUTexture BackendTexture::getDawnTexturePtr() const {
     if (this->isValid() && this->backend() == BackendApi::kDawn) {
         return fDawnTexture;
