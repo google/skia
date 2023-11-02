@@ -37,10 +37,6 @@ struct SkScalerContextRec;
 
 using SkTypefaceID = uint32_t;
 
-// SkFontID is deprecated, please use SkTypefaceID.
-using SkFontID = SkTypefaceID;
-
-
 /** Machine endian. */
 typedef uint32_t SkFontTableTag;
 
