@@ -211,14 +211,5 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "y;}if(o.x>=-.5&&n.x>p){p=n.x;}l=min(p,1.);m=coverage_bias(l);}else{l=(m=1.)"
 ";}}$C(k,h,f,c,d,e);float n=min(g.y,0.)*a.w;float o=l*(min(k.x+n,-k.y)+m);return"
 " half4(half(saturate(o)));}}$pure half4 per_edge_aa_quad_coverage_fn(float4"
-" a,float4 b,float4 c,float4 d,float4 e,float2 f,float2 g){if(g.x>0.){return"
-" half4(1.);}else if(g.y>1.){float2 h=min(c.xy,c.zw);float i=min(h.x,h.y)*a."
-"w;float j=(g.y-1.)*a.w;float k=coverage_bias(j);return half4(half(saturate("
-"j*(i+k))));}else{float2x2 h=float2x2(b)*(1./a.w);float2 i=float2($z(float2("
-"1.,0.),h),$z(float2(0.,1.),h));float2 j=i*(f.x+min(c.xy,c.zw));float2 k=float2"
-"(min(j.x,j.y),-1.);float l;float m;if(g.x>-.95){float2 n=i*((c.xy+c.zw)+2.*"
-"f.xx);l=min(min(n.x,n.y),1.);m=coverage_bias(l);}else{float2 n=(2.*f.x)*i;float2"
-" o=n-j;k.y=-max(o.x,o.y);if(f.x>0.){float p=min(n.x,n.y);if(o.y>=-.5&&n.y>p"
-"){p=n.y;}if(o.x>=-.5&&n.x>p){p=n.x;}l=min(p,1.);m=coverage_bias(l);}else{l="
-"(m=1.);}}$C(k,h,f,c,d,e);float n=min(g.y,0.)*a.w;float o=l*(min(k.x+n,-k.y)"
-"+m);return half4(half(saturate(o)));}}";
+" a,float4 b){float2 d=min(b.xy,b.zw);float e=min(d.x,d.y)*a.w;return half4("
+"half(saturate(e)));}";

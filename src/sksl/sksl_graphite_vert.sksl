@@ -851,23 +851,13 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
                                   float depth,
                                   float3x3 localToDevice,
                                   // Varyings
-                                  out float4 jacobian,
                                   out float4 edgeDistances,
-                                  out float4 xRadii,
-                                  out float4 yRadii,
-                                  out float2 strokeParams,
-                                  out float2 perPixelControl,
                                   // Render Step
                                   out float2 stepLocalCoords) {
     const int kCornerVertexCount = 4; // KEEP IN SYNC WITH C++'s
                                       // PerEdgeAAQuadRenderStep::kCornerVertexCount
 
     const float kEpsilon = 0.00024; // SK_ScalarNearlyZero
-
-    // Set some output variables
-    xRadii = float4(0.0);
-    yRadii = float4(0.0);
-    strokeParams = float2(0.0, 1.0); // Will be ignored, but set to a "miter"
 
     // Calculate the local edge vectors, ordered L, T, R, B starting from the bottom left point.
     // For quadrilaterals these are not necessarily axis-aligned, but in all cases they orient
@@ -920,8 +910,6 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
     // calculate it here instead.
     float3x3 deviceToLocal = inverse(localToDevice);
     float3 devPos = localToDevice * localPos.xy1;
-    jacobian = float4(deviceToLocal[0].xy - deviceToLocal[0].z*localPos,
-                      deviceToLocal[1].xy - deviceToLocal[1].z*localPos);
 
     // Apply the Jacobian in the vertex shader so any quadrilateral normals do not have to
     // be passed to the fragment shader. However, it's important to use the Jacobian at a
@@ -935,7 +923,8 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
     edgeDistances *= inversesqrt(gx*gx + gy*gy);
 
     // Bias non-AA edge distances by device W so its coverage contribution is >= 1.0
-    edgeDistances += (1 - edgeAA)*abs(devPos.z);
+    // Add additional 1/2 bias here so we don't have to do so in the fragment shader.
+    edgeDistances += (1.5 - edgeAA)*abs(devPos.z);
 
     // Only outset for a vertex that is in front of the w=0 plane to avoid dealing with outset
     // triangles rasterizing differently from the main triangles as w crosses 0.
@@ -943,7 +932,8 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
         // Note that when there's no perspective, the jacobian is equivalent to the normal
         // matrix (inverse transpose), but produces correct results when there's perspective
         // because it accounts for the position's influence on a line's projected direction.
-        float2x2 J = float2x2(jacobian);
+        float2x2 J = float2x2(deviceToLocal[0].xy - deviceToLocal[0].z*localPos,
+                              deviceToLocal[1].xy - deviceToLocal[1].z*localPos);
 
         float2 edgeAANormal = float2(edgeAA[cornerID], edgeAA.yzwx[cornerID]) * normal;
         float2 nx = edgeAANormal.x * perp(-yAxis) * J;
@@ -979,11 +969,6 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
         // Apply directly to edgeDistances to save work per pixel later on.
         edgeDistances -= devPos.z;
     }
-
-    // A zero value signals a solid interior with per-pixel coverage.
-    perPixelControl.x = 0.0;
-    // Standard 1px width pre W division.
-    perPixelControl.y = 1.0 + abs(devPos.z);
 
     // Write out final results
     stepLocalCoords = localPos;

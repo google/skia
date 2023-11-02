@@ -1387,83 +1387,10 @@ $pure half4 analytic_rrect_coverage_fn(float4 coords,
 }
 
 $pure half4 per_edge_aa_quad_coverage_fn(float4 coords,
-                                         float4 jacobian,
-                                         float4 edgeDistances,
-                                         float4 xRadii,
-                                         float4 yRadii,
-                                         float2 strokeParams,
-                                         float2 perPixelControl) {
-    if (perPixelControl.x > 0.0) {
-        // A trivially solid interior pixel, either from a filled rect or round rect, or a
-        // stroke with sufficiently large width that the interior completely overlaps itself.
-        return half4(1.0);
-    } else if (perPixelControl.y > 1.0) {
-        // This represents a filled rectangle or quadrilateral, where the distances have already
-        // been converted to device space. Mitered strokes cannot use this optimization because
-        // their scale and bias is not uniform over the shape; Rounded shapes cannot use this
-        // because they rely on the edge distances being in local space to reconstruct the
-        // per-corner positions for the elliptical implicit functions.
-        float2 outerDist = min(edgeDistances.xy, edgeDistances.zw);
-        float c = min(outerDist.x, outerDist.y) * coords.w;
-        float scale = (perPixelControl.y - 1.0) * coords.w;
-        float bias = coverage_bias(scale);
-        return half4(saturate(scale * (c + bias)));
-    } else {
-        // Compute per-pixel coverage, mixing four outer edge distances, possibly four inner
-        // edge distances, and per-corner elliptical distances into a final coverage value.
-        // The Jacobian needs to be multiplied by W, but coords.w stores 1/w.
-        float2x2 J = float2x2(jacobian) / coords.w;
-
-        float2 invGradLen = float2($inverse_grad_len(float2(1.0, 0.0), J),
-                                   $inverse_grad_len(float2(0.0, 1.0), J));
-        float2 outerDist = invGradLen * (strokeParams.x + min(edgeDistances.xy,
-                                                              edgeDistances.zw));
-
-        // d.x tracks minimum outer distance (pre scale-and-biasing to a coverage value).
-        // d.y tracks negative maximum inner distance (so min() over c accumulates min and outer
-        // and max inner simultaneously).)
-        float2 d = float2(min(outerDist.x, outerDist.y), -1.0);
-        float scale, bias;
-
-        // Check for bidirectional coverage, which is is marked as a -1 from the vertex shader.
-        // We don't just check for < 0 since extrapolated fill triangle samples can have small
-        // negative values.
-        if (perPixelControl.x > -0.95) {
-            // A solid interior, so update scale and bias based on full width and height
-            float2 dim = invGradLen * (edgeDistances.xy + edgeDistances.zw + 2*strokeParams.xx);
-            scale = min(min(dim.x, dim.y), 1.0);
-            bias = coverage_bias(scale);
-            // Since we leave d.y = -1.0, no inner curve coverage will adjust it closer to 0,
-            // so 'finalCoverage' is based solely on outer edges and curves.
-        } else {
-            // Bidirectional coverage, so we modify c.y to hold the negative of the maximum
-            // interior coverage, and update scale and bias based on stroke width.
-            float2 strokeWidth = 2.0 * strokeParams.x * invGradLen;
-            float2 innerDist = strokeWidth - outerDist;
-
-            d.y = -max(innerDist.x, innerDist.y);
-            if (strokeParams.x > 0.0) {
-                float strokeDim = min(strokeWidth.x, strokeWidth.y);
-                if (innerDist.y >= -0.5 && strokeWidth.y > strokeDim) {
-                    strokeDim = strokeWidth.y;
-                }
-                if (innerDist.x >= -0.5 && strokeWidth.x > strokeDim) {
-                    strokeDim = strokeWidth.x;
-                }
-                scale = min(strokeDim, 1.0);
-                bias = coverage_bias(scale);
-            } else {
-                // A hairline, so scale and bias should both be 1
-                 scale = bias = 1.0;
-            }
-        }
-
-        // Check all corners, although most pixels should only be influenced by 1.
-        $corner_distances(d, J, strokeParams, edgeDistances, xRadii, yRadii);
-
-        float outsetDist = min(perPixelControl.y, 0.0) * coords.w;
-        float finalCoverage = scale * (min(d.x + outsetDist, -d.y) + bias);
-
-        return half4(saturate(finalCoverage));
-    }
+                                         float4 edgeDistances) {
+    // This represents a filled rectangle or quadrilateral, where the distances have already
+    // been converted to device space.
+    float2 outerDist = min(edgeDistances.xy, edgeDistances.zw);
+    float c = min(outerDist.x, outerDist.y) * coords.w;
+    return half4(saturate(c));
 }
