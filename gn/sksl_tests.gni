@@ -199,6 +199,7 @@ sksl_error_tests = [
   "errors/Ossfuzz56373.sksl",
   "errors/Ossfuzz58037.sksl",
   "errors/Ossfuzz58375.sksl",
+  "errors/Ossfuzz63793.sksl",
   "errors/OverflowFloatIntrinsic.sksl",
   "errors/OverflowFloatLiteral.rts",
   "errors/OverflowInlinedLiteral.sksl",

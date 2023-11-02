@@ -1,0 +1,12 @@
+a {} S;
+struct S{} S[v];
+S {} p[]
+
+/*%%*
+interface block 'a' must contain at least one field
+struct 'S' must contain at least one field
+symbol 'S' was already defined
+unknown identifier 'v'
+symbol 'S' was already defined
+expected an identifier, but found '{'
+*%%*/

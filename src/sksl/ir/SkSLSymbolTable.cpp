@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -107,20 +108,20 @@ void SymbolTable::addWithoutOwnership(Symbol* symbol) {
         }
     }
 
+    Position pos = symbol->fPosition;
     if (fAtModuleBoundary && fParent && fParent->lookup(key)) {
         // We are attempting to declare a symbol at global scope that already exists in a parent
         // module. This is a duplicate symbol and should be rejected.
     } else {
-        Symbol*& refInSymbolTable = fSymbols[key];
-
-        if (refInSymbolTable == nullptr) {
-            refInSymbolTable = symbol;
+        std::swap(symbol, fSymbols[key]);
+        if (symbol == nullptr) {
             return;
         }
+        // There was previously a symbol in the symbol table with this name; report an error.
     }
 
     ThreadContext::ReportError("symbol '" + std::string(symbol->name()) + "' was already defined",
-                               symbol->fPosition);
+                               pos);
 }
 
 void SymbolTable::injectWithoutOwnership(Symbol* symbol) {

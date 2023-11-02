@@ -113,7 +113,8 @@ public:
     void addWithoutOwnership(Symbol* symbol);
 
     /**
-     * Adds a symbol to this symbol table, conferring ownership.
+     * Adds a symbol to this symbol table, conferring ownership; if the symbol already exists, an
+     * error will be reported. The symbol table will always be updated to reference the new symbol.
      */
     template <typename T>
     T* add(std::unique_ptr<T> symbol) {
