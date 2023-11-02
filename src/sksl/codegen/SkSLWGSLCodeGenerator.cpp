@@ -3269,12 +3269,13 @@ std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression
     std::string expr;
 
     // The trivial case is when neither branch has side effects and evaluate to a scalar or vector
-    // type. This can be represented with a call to the WGSL `select` intrinsic although it doesn't
-    // support short-circuiting.
+    // type. This can be represented with a call to the WGSL `select` intrinsic. Select doesn't
+    // support short-circuiting, so we should only use it when both the true- and false-expressions
+    // are trivial to evaluate.
     if ((t.type().isScalar() || t.type().isVector()) &&
         !Analysis::HasSideEffects(*t.test()) &&
-        !Analysis::HasSideEffects(*t.ifTrue()) &&
-        !Analysis::HasSideEffects(*t.ifFalse())) {
+        Analysis::IsTrivialExpression(*t.ifTrue()) &&
+        Analysis::IsTrivialExpression(*t.ifFalse())) {
 
         bool needParens = Precedence::kTernary >= parentPrecedence;
         if (needParens) {

@@ -17,7 +17,13 @@ fn _skslMain(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
     var itop: i32 = (i32(_stageIn.sk_InstanceID) * 313) % 17;
     var ibot: i32 = (itop + 1) + (i32(_stageIn.sk_InstanceID) * 1901) % (17 - itop);
     var outset: f32 = 0.03125;
-    outset = select(outset, -outset, 0 == ((x + y) % 2));
+    var _skTemp0: f32;
+    if 0 == ((x + y) % 2) {
+      _skTemp0 = -outset;
+    } else {
+      _skTemp0 = outset;
+    }
+    outset = _skTemp0;
     var l: f32 = f32(ileft) * 0.0625 - outset;
     var r: f32 = f32(iright) * 0.0625 + outset;
     var t: f32 = f32(itop) * 0.0625 - outset;

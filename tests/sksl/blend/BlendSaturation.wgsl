@@ -32,21 +32,27 @@ fn blend_hslc_h4h2h4h4(flipSat: vec2<f32>, src: vec4<f32>, dst: vec4<f32>) -> ve
         let _skTemp6 = max(l.x, l.y);
         let _skTemp7 = max(_skTemp6, l.z);
         var _3_mx: f32 = _skTemp7;
-        let _skTemp8 = blend_color_saturation_Qhh3(r);
-        l = select(vec3<f32>(0.0), ((l - _2_mn) * _skTemp8) / (_3_mx - _2_mn), vec3<bool>(_3_mx > _2_mn));
+        var _skTemp8: vec3<f32>;
+        if _3_mx > _2_mn {
+          let _skTemp9 = blend_color_saturation_Qhh3(r);
+          _skTemp8 = ((l - _2_mn) * _skTemp9) / (_3_mx - _2_mn);
+        } else {
+          _skTemp8 = vec3<f32>(0.0);
+        }
+        l = _skTemp8;
         r = dsa;
       }
     }
-    let _skTemp9 = dot(vec3<f32>(0.3, 0.59, 0.11), r);
-    var _4_lum: f32 = _skTemp9;
-    let _skTemp10 = dot(vec3<f32>(0.3, 0.59, 0.11), l);
-    var _5_result: vec3<f32> = (_4_lum - _skTemp10) + l;
-    let _skTemp11 = min(_5_result.x, _5_result.y);
-    let _skTemp12 = min(_skTemp11, _5_result.z);
-    var _6_minComp: f32 = _skTemp12;
-    let _skTemp13 = max(_5_result.x, _5_result.y);
-    let _skTemp14 = max(_skTemp13, _5_result.z);
-    var _7_maxComp: f32 = _skTemp14;
+    let _skTemp10 = dot(vec3<f32>(0.3, 0.59, 0.11), r);
+    var _4_lum: f32 = _skTemp10;
+    let _skTemp11 = dot(vec3<f32>(0.3, 0.59, 0.11), l);
+    var _5_result: vec3<f32> = (_4_lum - _skTemp11) + l;
+    let _skTemp12 = min(_5_result.x, _5_result.y);
+    let _skTemp13 = min(_skTemp12, _5_result.z);
+    var _6_minComp: f32 = _skTemp13;
+    let _skTemp14 = max(_5_result.x, _5_result.y);
+    let _skTemp15 = max(_skTemp14, _5_result.z);
+    var _7_maxComp: f32 = _skTemp15;
     if (_6_minComp < 0.0) && (_4_lum != _6_minComp) {
       {
         _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / ((_4_lum - _6_minComp) + sk_PrivkGuardedDivideEpsilon));
@@ -62,8 +68,8 @@ fn blend_hslc_h4h2h4h4(flipSat: vec2<f32>, src: vec4<f32>, dst: vec4<f32>) -> ve
 }
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp15 = blend_hslc_h4h2h4h4(vec2<f32>(1.0), _globalUniforms.src, _globalUniforms.dst);
-    (*_stageOut).sk_FragColor = _skTemp15;
+    let _skTemp16 = blend_hslc_h4h2h4h4(vec2<f32>(1.0), _globalUniforms.src, _globalUniforms.dst);
+    (*_stageOut).sk_FragColor = _skTemp16;
   }
 }
 @fragment fn main() -> FSOut {

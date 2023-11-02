@@ -80,7 +80,13 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
       _skTemp8 = b;
     }
     var c: bool = _skTemp8;
-    return select(select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((x == 8.0) && (y == 17.0))), _globalUniforms.colorRed, vec4<bool>(c));
+    var _skTemp9: vec4<f32>;
+    if c {
+      _skTemp9 = _globalUniforms.colorRed;
+    } else {
+      _skTemp9 = select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((x == 8.0) && (y == 17.0)));
+    }
+    return _skTemp9;
   }
 }
 @fragment fn main() -> FSOut {

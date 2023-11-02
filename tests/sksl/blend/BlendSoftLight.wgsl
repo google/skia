@@ -43,10 +43,16 @@ fn soft_light_component_Qhh2h2(s: vec2<f32>, d: vec2<f32>) -> f32 {
 }
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp1 = soft_light_component_Qhh2h2(_globalUniforms.src.xw, _globalUniforms.dst.xw);
-    let _skTemp2 = soft_light_component_Qhh2h2(_globalUniforms.src.yw, _globalUniforms.dst.yw);
-    let _skTemp3 = soft_light_component_Qhh2h2(_globalUniforms.src.zw, _globalUniforms.dst.zw);
-    (*_stageOut).sk_FragColor = select(vec4<f32>(_skTemp1, _skTemp2, _skTemp3, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w), _globalUniforms.src, vec4<bool>(_globalUniforms.dst.w == 0.0));
+    var _skTemp1: vec4<f32>;
+    if _globalUniforms.dst.w == 0.0 {
+      _skTemp1 = _globalUniforms.src;
+    } else {
+      let _skTemp2 = soft_light_component_Qhh2h2(_globalUniforms.src.xw, _globalUniforms.dst.xw);
+      let _skTemp3 = soft_light_component_Qhh2h2(_globalUniforms.src.yw, _globalUniforms.dst.yw);
+      let _skTemp4 = soft_light_component_Qhh2h2(_globalUniforms.src.zw, _globalUniforms.dst.zw);
+      _skTemp1 = vec4<f32>(_skTemp2, _skTemp3, _skTemp4, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w);
+    }
+    (*_stageOut).sk_FragColor = _skTemp1;
   }
 }
 @fragment fn main() -> FSOut {
