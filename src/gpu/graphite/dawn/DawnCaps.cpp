@@ -27,12 +27,16 @@ namespace {
 static constexpr wgpu::TextureFormat kFormats[skgpu::graphite::DawnCaps::kFormatCnt] = {
     wgpu::TextureFormat::RGBA8Unorm,
     wgpu::TextureFormat::R8Unorm,
+#if !defined(__EMSCRIPTEN__)
     wgpu::TextureFormat::R16Unorm,
+#endif
     wgpu::TextureFormat::BGRA8Unorm,
     wgpu::TextureFormat::RGBA16Float,
     wgpu::TextureFormat::R16Float,
     wgpu::TextureFormat::RG8Unorm,
+#if !defined(__EMSCRIPTEN__)
     wgpu::TextureFormat::RG16Unorm,
+#endif
     wgpu::TextureFormat::RGB10A2Unorm,
     wgpu::TextureFormat::RG16Float,
 
@@ -162,9 +166,11 @@ TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampled
     info.fFormat      = singleSpec.fFormat;
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
 
+#if !defined(__EMSCRIPTEN__)
     if (fTransientAttachmentSupport && discardable == Discardable::kYes) {
         info.fUsage |= wgpu::TextureUsage::TransientAttachment;
     }
+#endif
 
     return info;
 }
@@ -179,9 +185,11 @@ TextureInfo DawnCaps::getDefaultDepthStencilTextureInfo(
     info.fFormat      = DawnDepthStencilFlagsToFormat(depthStencilType);
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
 
+#if !defined(__EMSCRIPTEN__)
     if (fTransientAttachmentSupport) {
         info.fUsage |= wgpu::TextureUsage::TransientAttachment;
     }
+#endif
 
     return info;
 }
@@ -261,7 +269,7 @@ SkColorType DawnCaps::supportedReadPixelsColorType(SkColorType srcColorType,
 }
 
 void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& options) {
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GRAPHITE_TEST_UTILS) && !defined(__EMSCRIPTEN__)
     wgpu::AdapterProperties props;
     device.GetAdapter().GetProperties(&props);
     this->setDeviceName(props.name);
@@ -297,10 +305,12 @@ void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& option
     // TODO: support clamp to border.
     fClampToBorderSupport = false;
 
+#if !defined(__EMSCRIPTEN__)
     fMSAARenderToSingleSampledSupport =
             device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
 
     fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
+#endif
 }
 
 void DawnCaps::initShaderCaps(const wgpu::Device& device) {
@@ -313,9 +323,11 @@ void DawnCaps::initShaderCaps(const wgpu::Device& device) {
     // WGSL supports shader derivatives in the fragment shader
     shaderCaps->fShaderDerivativeSupport = true;
 
+#if !defined(__EMSCRIPTEN__)
     if (device.HasFeature(wgpu::FeatureName::DualSourceBlending)) {
         shaderCaps->fDualSourceBlendingSupport = true;
     }
+#endif
 }
 
 void DawnCaps::initFormatTable(const wgpu::Device& device) {
@@ -373,6 +385,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         }
     }
 
+#if !defined(__EMSCRIPTEN__)
     const bool supportNorm16 = device.HasFeature(wgpu::FeatureName::Norm16TextureFormats);
     // TODO(crbug.com/dawn/1856): Support storage binding for compute shader in Dawn.
     // Format: R16Unorm
@@ -393,6 +406,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
             }
         }
     }
+#endif
 
     // Format: BGRA8Unorm
     {
@@ -463,6 +477,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         }
     }
 
+#if !defined(__EMSCRIPTEN__)
     // TODO(crbug.com/dawn/1856): Support storage binding for compute shader in Dawn.
     // Format: RG16Unorm
     {
@@ -480,6 +495,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
             }
         }
     }
+#endif
 
     // Format: RGB10A2Unorm
     {
@@ -552,7 +568,6 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     std::fill_n(fColorTypeToFormatTable, kSkColorTypeCnt, wgpu::TextureFormat::Undefined);
 
     this->setColorType(kAlpha_8_SkColorType,          { wgpu::TextureFormat::R8Unorm });
-    this->setColorType(kA16_unorm_SkColorType,        { wgpu::TextureFormat::R16Unorm });
     this->setColorType(kRGBA_8888_SkColorType,        { wgpu::TextureFormat::RGBA8Unorm });
     this->setColorType(kRGB_888x_SkColorType,
                        {wgpu::TextureFormat::RGBA8Unorm, wgpu::TextureFormat::BGRA8Unorm});
@@ -562,9 +577,13 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     this->setColorType(kRGBA_F16_SkColorType,         { wgpu::TextureFormat::RGBA16Float });
     this->setColorType(kA16_float_SkColorType,        { wgpu::TextureFormat::R16Float });
     this->setColorType(kR8G8_unorm_SkColorType,       { wgpu::TextureFormat::RG8Unorm });
-    this->setColorType(kR16G16_unorm_SkColorType,     { wgpu::TextureFormat::RG16Unorm });
     this->setColorType(kRGBA_1010102_SkColorType,     { wgpu::TextureFormat::RGB10A2Unorm });
     this->setColorType(kR16G16_float_SkColorType,     { wgpu::TextureFormat::RG16Float });
+
+#if !defined(__EMSCRIPTEN__)
+    this->setColorType(kA16_unorm_SkColorType,        { wgpu::TextureFormat::R16Unorm });
+    this->setColorType(kR16G16_unorm_SkColorType,     { wgpu::TextureFormat::RG16Unorm });
+#endif
 }
 
 // static

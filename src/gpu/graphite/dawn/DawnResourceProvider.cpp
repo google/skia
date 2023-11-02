@@ -181,6 +181,7 @@ sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
     dawnMsaaLoadTextureInfo.fSampleCount = 1;
     dawnMsaaLoadTextureInfo.fUsage |= wgpu::TextureUsage::TextureBinding;
 
+#if !defined(__EMSCRIPTEN__)
     // MSAA texture can be transient attachment (memoryless) but the load texture cannot be.
     // This is because the load texture will need to have its content retained between two passes
     // loading:
@@ -188,6 +189,7 @@ sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
     // - 2nd pass: the actual render pass is started and the load texture is blitted to the MSAA
     // texture.
     dawnMsaaLoadTextureInfo.fUsage &= (~wgpu::TextureUsage::TransientAttachment);
+#endif
 
     auto texture = this->findOrCreateDiscardableMSAAAttachment(dimensions, dawnMsaaLoadTextureInfo);
 

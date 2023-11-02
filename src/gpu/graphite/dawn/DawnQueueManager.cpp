@@ -21,6 +21,11 @@ public:
                        const wgpu::Device& device)
             : GpuWorkSubmission(std::move(cmdBuffer), queueManager), fAsyncWait(std::move(device)) {
         queueManager->dawnQueue().OnSubmittedWorkDone(
+#if defined(__EMSCRIPTEN__)
+                // This is parameter is being removed:
+                // https://github.com/webgpu-native/webgpu-headers/issues/130
+                /*signalValue=*/0,
+#endif
                 [](WGPUQueueWorkDoneStatus, void* userData) {
                     auto asyncWaitPtr = static_cast<DawnAsyncWait*>(userData);
                     asyncWaitPtr->signal();

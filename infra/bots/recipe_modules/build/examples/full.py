@@ -65,6 +65,7 @@ TEST_BUILDERS = [
   'Build-Debian10-EMCC-wasm-Debug-CanvasKit',
   'Build-Debian10-EMCC-wasm-Debug-PathKit',
   'Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU',
+  'Build-Debian10-EMCC-wasm-Release-CanvasKit_WebGPU',
   'Build-Debian10-EMCC-wasm-Release-PathKit',
   'Build-Debian11-GCC-x86-Debug-Docker',
   'Build-Debian11-GCC-x86_64-Debug-Docker',

@@ -39,8 +39,13 @@ def compile_fn(api, checkout_root, _ignore):
   cmd = ['docker', 'run', '--rm', '--volume', '%s:/SRC' % checkout_root,
          '--volume', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
+
+  # The compile.sh script defaults to "gpu" which means Ganesh + WebGL. The other options are
+  # "cpu" (no GPU backend) and "webgpu" (Graphite + WebGPU).
   if 'CPU' in extra:
-    cmd.append('cpu') # It defaults to gpu
+    cmd.append('cpu')
+  if 'WebGPU' in extra:
+      cmd.append('webgpu')
 
   if configuration == 'Debug':
     cmd.append('debug') # It defaults to Release

@@ -163,6 +163,12 @@ size_t create_vertex_attributes(SkSpan<const Attribute> attrs,
 
 // TODO: share this w/ Ganesh dawn backend?
 static wgpu::BlendFactor blend_coeff_to_dawn_blend(const DawnCaps& caps, skgpu::BlendCoeff coeff) {
+#if defined(__EMSCRIPTEN__)
+#define VALUE_IF_DSB_OR_ZERO(VALUE) wgpu::BlendFactor::Zero
+#else
+#define VALUE_IF_DSB_OR_ZERO(VALUE) \
+    ((caps.shaderCaps()->fDualSourceBlendingSupport) ? (VALUE) : wgpu::BlendFactor::Zero)
+#endif
     switch (coeff) {
         case skgpu::BlendCoeff::kZero:
             return wgpu::BlendFactor::Zero;
@@ -189,33 +195,18 @@ static wgpu::BlendFactor blend_coeff_to_dawn_blend(const DawnCaps& caps, skgpu::
         case skgpu::BlendCoeff::kIConstC:
             return wgpu::BlendFactor::OneMinusConstant;
         case skgpu::BlendCoeff::kS2C:
-            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
-                return wgpu::BlendFactor::Src1;
-            } else {
-                return wgpu::BlendFactor::Zero;
-            }
+            return VALUE_IF_DSB_OR_ZERO(wgpu::BlendFactor::Src1);
         case skgpu::BlendCoeff::kIS2C:
-            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
-                return wgpu::BlendFactor::OneMinusSrc1;
-            } else {
-                return wgpu::BlendFactor::Zero;
-            }
+            return VALUE_IF_DSB_OR_ZERO(wgpu::BlendFactor::OneMinusSrc1);
         case skgpu::BlendCoeff::kS2A:
-            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
-                return wgpu::BlendFactor::Src1Alpha;
-            } else {
-                return wgpu::BlendFactor::Zero;
-            }
+            return VALUE_IF_DSB_OR_ZERO(wgpu::BlendFactor::Src1Alpha);
         case skgpu::BlendCoeff::kIS2A:
-            if (caps.shaderCaps()->fDualSourceBlendingSupport) {
-                return wgpu::BlendFactor::OneMinusSrc1Alpha;
-            } else {
-                return wgpu::BlendFactor::Zero;
-            }
+            return VALUE_IF_DSB_OR_ZERO(wgpu::BlendFactor::OneMinusSrc1Alpha);
         case skgpu::BlendCoeff::kIllegal:
             return wgpu::BlendFactor::Zero;
     }
     SkUNREACHABLE;
+#undef VALUE_IF_DSB_OR_ZERO
 }
 
 static wgpu::BlendFactor blend_coeff_to_dawn_blend_for_alpha(const DawnCaps& caps,
@@ -503,9 +494,15 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     // Multisampled state
     descriptor.multisample.count = renderPassDesc.fSampleCount;
+    [[maybe_unused]] bool isMSAARenderToSingleSampled =
+            renderPassDesc.fSampleCount > 1 &&
+            renderPassDesc.fColorAttachment.fTextureInfo.isValid() &&
+            renderPassDesc.fColorAttachment.fTextureInfo.numSamples() == 1;
+#if defined(__EMSCRIPTEN__)
+    SkASSERT(!isMSAARenderToSingleSampled);
+#else
     wgpu::DawnMultisampleStateRenderToSingleSampled pipelineMSAARenderToSingleSampledDesc;
-    if (renderPassDesc.fSampleCount > 1 && renderPassDesc.fColorAttachment.fTextureInfo.isValid() &&
-        renderPassDesc.fColorAttachment.fTextureInfo.numSamples() == 1) {
+    if (isMSAARenderToSingleSampled) {
         // If render pass is multi sampled but the color attachment is single sampled, we need
         // to activate multisampled render to single sampled feature for this graphics pipeline.
         SkASSERT(device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled));
@@ -513,6 +510,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         descriptor.multisample.nextInChain = &pipelineMSAARenderToSingleSampledDesc;
         pipelineMSAARenderToSingleSampledDesc.enabled = true;
     }
+#endif
 
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
