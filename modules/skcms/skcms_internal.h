@@ -43,7 +43,6 @@ extern "C" {
     #define SKCMS_MUSTTAIL
 #endif
 
-
 #if defined(__clang__)
     #define SKCMS_MAYBE_UNUSED __attribute__((unused))
     #pragma clang diagnostic ignored "-Wused-but-marked-unused"

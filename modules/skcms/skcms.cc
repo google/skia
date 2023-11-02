@@ -33,18 +33,12 @@
     #endif
 #endif
 
-using Op = skcms_private::Op;
+using namespace skcms_private;
 
 static bool runtime_cpu_detection = true;
 void skcms_DisableRuntimeCPUDetection() {
     runtime_cpu_detection = false;
 }
-
-static const union {
-    uint32_t bits;
-    float    f;
-} inf_ = { 0x7f800000 };
-#define INFINITY_ inf_.f
 
 static float log2f_(float x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
