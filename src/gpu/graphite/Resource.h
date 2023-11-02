@@ -310,9 +310,9 @@ private:
     mutable size_t fGpuMemorySize = kInvalidGpuMemorySize;
 
     // All resource created internally by Graphite and held in the ResourceCache as a shared
-    // shared resource or available scratch resource are considered budgeted. Resources that back
-    // client owned objects (e.g. SkSurface or SkImage) are not budgeted and do not count against
-    // cache limits.
+    // resource or available scratch resource are considered budgeted. Resources that back client
+    // owned objects (e.g. SkSurface or SkImage) are not budgeted and do not count against cache
+    // limits.
     skgpu::Budgeted fBudgeted;
 
     // This is only used by ProxyCache::purgeProxiesNotUsedSince which is called from

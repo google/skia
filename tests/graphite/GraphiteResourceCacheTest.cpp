@@ -135,7 +135,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     resourcePtr2->unref();
     resourceCache->forceProcessReturnedResources();
 
-    // Test making a non budgeted, non shareable resource.
+    // Test making a budgeted, shareable resource.
     resource = TestResource::Make(
             sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, Shareable::kYes);
     if (!resource) {
