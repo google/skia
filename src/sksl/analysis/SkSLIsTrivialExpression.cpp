@@ -8,11 +8,13 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLOperator.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -30,6 +32,19 @@ bool Analysis::IsTrivialExpression(const Expression& expr) {
             // All swizzles are considered to be trivial.
             return IsTrivialExpression(*expr.as<Swizzle>().base());
 
+        case Expression::Kind::kPrefix: {
+            const PrefixExpression& prefix = expr.as<PrefixExpression>();
+            switch (prefix.getOperator().kind()) {
+                case OperatorKind::PLUS:
+                case OperatorKind::MINUS:
+                case OperatorKind::LOGICALNOT:
+                case OperatorKind::BITWISENOT:
+                    return IsTrivialExpression(*prefix.operand());
+
+                default:
+                    return false;
+            }
+        }
         case Expression::Kind::kFieldAccess:
             // Accessing a field is trivial.
             return IsTrivialExpression(*expr.as<FieldAccess>().base());

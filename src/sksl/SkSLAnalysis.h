@@ -164,6 +164,10 @@ bool UpdateVariableRefKind(Expression* expr, VariableRefKind kind, ErrorReporter
  * - myArray[123]
  * - myStruct.myField
  * - half4(0)
+ * - !myBoolean
+ * - +myValue
+ * - -myValue
+ * - ~myInteger
  *
  * Trivial-ness is stackable. Somewhat large expressions can occasionally make the cut:
  * - half4(myColor.a)
