@@ -8,10 +8,10 @@
 // Intentionally NO #pragma once... included multiple times.
 
 // This file is included from skcms.cc in a namespace with some pre-defines:
-//    - N:    depth of all vectors, 1,4,8, or 16 (preprocessor define)
+//    - N:    SIMD width of all vectors; 1, 4, 8 or 16 (preprocessor define)
 //    - V<T>: a template to create a vector of N T's.
 
-using F   = V<Color>;   // Called F for historic reasons... maybe rename C?
+using F   = V<float>;
 using I32 = V<int32_t>;
 using U64 = V<uint64_t>;
 using U32 = V<uint32_t>;

@@ -2292,19 +2292,15 @@ namespace baseline {
                             || (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__))
     #define N 1
     template <typename T> using V = T;
-    using Color = float;
 #elif defined(__AVX512F__) && defined(__AVX512DQ__)
     #define N 16
     template <typename T> using V = skcms_private::Vec<N,T>;
-    using Color = float;
 #elif defined(__AVX__)
     #define N 8
     template <typename T> using V = skcms_private::Vec<N,T>;
-    using Color = float;
 #else
     #define N 4
     template <typename T> using V = skcms_private::Vec<N,T>;
-    using Color = float;
 #endif
 
     #include "src/Transform_inl.h"
@@ -2332,7 +2328,6 @@ namespace baseline {
             #define USING_AVX2
             #define N 8
             template <typename T> using V = skcms_private::Vec<N,T>;
-            using Color = float;
 
             #include "src/Transform_inl.h"
 
@@ -2361,7 +2356,6 @@ namespace baseline {
             #define USING_AVX512F
             #define N 16
             template <typename T> using V = skcms_private::Vec<N,T>;
-            using Color = float;
 
             #include "src/Transform_inl.h"
 
