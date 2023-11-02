@@ -27,10 +27,7 @@ public:
     class Builder final {
     public:
         /**
-         * Specify a font manager for loading fonts (e.g. from the system) to render <text>
-         * SVG nodes.
-         * If this is not set, but a font is required as part of rendering, the text will
-         * not be displayed.
+         * Specify a font manager for loading SVG fonts.
          */
         Builder& setFontManager(sk_sp<SkFontMgr>);
 

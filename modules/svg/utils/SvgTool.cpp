@@ -15,7 +15,6 @@
 #include "modules/svg/include/SkSVGDOM.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/fonts/FontToolUtils.h"
 
 static DEFINE_string2(input , i, nullptr, "Input SVG file.");
 static DEFINE_string2(output, o, nullptr, "Output PNG file.");
@@ -48,9 +47,9 @@ int main(int argc, char** argv) {
                   /*predecode=*/true);
 
     auto svg_dom = SkSVGDOM::Builder()
-                           .setFontManager(ToolUtils::TestFontMgr())
-                           .setResourceProvider(std::move(rp))
-                           .make(in);
+                        .setFontManager(SkFontMgr::RefDefault())
+                        .setResourceProvider(std::move(rp))
+                        .make(in);
     if (!svg_dom) {
         std::cerr << "Could not parse " << FLAGS_input[0] << "\n";
         return 1;

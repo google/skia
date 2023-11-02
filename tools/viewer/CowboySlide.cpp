@@ -18,7 +18,6 @@
 #include "src/utils/SkOSPath.h"
 #include "src/xml/SkDOM.h"
 #include "tools/Resources.h"
-#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
 namespace {
@@ -47,7 +46,7 @@ public:
         }
         SkMemoryStream svgStream(std::move(data));
 
-        fDom = SkSVGDOM::Builder().setFontManager(ToolUtils::TestFontMgr()).make(svgStream);
+        fDom = SkSVGDOM::MakeFromStream(svgStream);
         if (fDom) {
             fDom->setContainerSize(SkSize::Make(w, h));
         }

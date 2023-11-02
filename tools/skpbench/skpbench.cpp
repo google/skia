@@ -13,7 +13,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/docs/SkMultiPictureDocument.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -24,6 +23,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
@@ -32,7 +32,6 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
-#include "tools/fonts/FontToolUtils.h"
 #include "tools/gpu/FlushFinishTracker.h"
 #include "tools/gpu/GpuTimer.h"
 #include "tools/gpu/GrContextFactory.h"
@@ -709,8 +708,7 @@ static sk_sp<SkPicture> create_warmup_skp() {
 
 static sk_sp<SkPicture> create_skp_from_svg(SkStream* stream, const char* filename) {
 #if defined(SK_ENABLE_SVG)
-    sk_sp<SkSVGDOM> svg =
-            SkSVGDOM::Builder().setFontManager(ToolUtils::TestFontMgr()).make(*stream);
+    sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream);
     if (!svg) {
         exitf(ExitErr::kData, "failed to build svg dom from file %s", filename);
     }

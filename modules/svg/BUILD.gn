@@ -37,7 +37,6 @@ if (skia_enable_svg && skia_use_expat) {
         deps = [
           "../..:flags",
           "../..:skia",
-          "../..:tool_utils",
         ]
 
         public_deps = [ ":svg" ]
