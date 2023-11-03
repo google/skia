@@ -18,6 +18,12 @@ skia_filegroup(
     srcs = [
         "skcms.cc",
         "skcms_internal.h",
+        "src/skcms_Transform.h",
+        "src/skcms_TransformBaseline.cc",
+        "src/skcms_TransformHsw.cc",
+        "src/skcms_TransformSkx.cc",
+        "src/skcms_internals.h",
+        "src/skcms_public.h",
     ],
 )
 
@@ -27,7 +33,8 @@ skia_filegroup(
     name = "textual_hdrs",
     srcs = [
         "src/Transform_inl.h",
-        "src/skcms_Transform.h",
+        "src/skcms_RestoreTarget.h",
+        "src/skcms_SetTarget.h",
     ],
 )
 
@@ -36,6 +43,12 @@ skia_cc_library(
     srcs = [
         "skcms.cc",
         "skcms_internal.h",
+        "src/skcms_Transform.h",
+        "src/skcms_TransformBaseline.cc",
+        "src/skcms_TransformHsw.cc",
+        "src/skcms_TransformSkx.cc",
+        "src/skcms_internals.h",
+        "src/skcms_public.h",
     ],
     hdrs = [
         "skcms.h",
@@ -45,7 +58,8 @@ skia_cc_library(
     # This header does not compile on its own and is meant to be included from skcms.cc
     textual_hdrs = [
         "src/Transform_inl.h",
-        "src/skcms_Transform.h",
+        "src/skcms_RestoreTarget.h",
+        "src/skcms_SetTarget.h",
     ],
     visibility = ["//:__subpackages__"],
 )
