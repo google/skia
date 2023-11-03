@@ -103,44 +103,44 @@ public:
 
     // Appends a stage for the specified matrix.
     // Tries to optimize the stage by analyzing the type of matrix.
-    void append_matrix(SkArenaAlloc*, const SkMatrix&);
+    void appendMatrix(SkArenaAlloc*, const SkMatrix&);
 
     // Appends a stage for a constant uniform color.
     // Tries to optimize the stage based on the color.
-    void append_constant_color(SkArenaAlloc*, const float rgba[4]);
+    void appendConstantColor(SkArenaAlloc*, const float rgba[4]);
 
-    void append_constant_color(SkArenaAlloc* alloc, const SkColor4f& color) {
-        this->append_constant_color(alloc, color.vec());
+    void appendConstantColor(SkArenaAlloc* alloc, const SkColor4f& color) {
+        this->appendConstantColor(alloc, color.vec());
     }
 
-    // Like append_constant_color() but only affecting r,g,b, ignoring the alpha channel.
-    void append_set_rgb(SkArenaAlloc*, const float rgb[3]);
+    // Like appendConstantColor() but only affecting r,g,b, ignoring the alpha channel.
+    void appendSetRGB(SkArenaAlloc*, const float rgb[3]);
 
-    void append_set_rgb(SkArenaAlloc* alloc, const SkColor4f& color) {
-        this->append_set_rgb(alloc, color.vec());
+    void appendSetRGB(SkArenaAlloc* alloc, const SkColor4f& color) {
+        this->appendSetRGB(alloc, color.vec());
     }
 
-    void append_load    (SkColorType, const SkRasterPipeline_MemoryCtx*);
-    void append_load_dst(SkColorType, const SkRasterPipeline_MemoryCtx*);
-    void append_store   (SkColorType, const SkRasterPipeline_MemoryCtx*);
+    void appendLoad   (SkColorType, const SkRasterPipeline_MemoryCtx*);
+    void appendLoadDst(SkColorType, const SkRasterPipeline_MemoryCtx*);
+    void appendStore  (SkColorType, const SkRasterPipeline_MemoryCtx*);
 
-    void append_clamp_if_normalized(const SkImageInfo&);
+    void appendClampIfNormalized(const SkImageInfo&);
 
-    void append_transfer_function(const skcms_TransferFunction&);
+    void appendTransferFunction(const skcms_TransferFunction&);
 
-    void append_stack_rewind();
+    void appendStackRewind();
 
     bool empty() const { return fStages == nullptr; }
 
 private:
-    bool build_lowp_pipeline(SkRasterPipelineStage* ip) const;
-    void build_highp_pipeline(SkRasterPipelineStage* ip) const;
+    bool buildLowpPipeline(SkRasterPipelineStage* ip) const;
+    void buildHighpPipeline(SkRasterPipelineStage* ip) const;
 
     using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, SkRasterPipelineStage* program);
-    StartPipelineFn build_pipeline(SkRasterPipelineStage*) const;
+    StartPipelineFn buildPipeline(SkRasterPipelineStage*) const;
 
-    void unchecked_append(SkRasterPipelineOp, void*);
-    int stages_needed() const;
+    void uncheckedAppend(SkRasterPipelineOp, void*);
+    int stagesNeeded() const;
 
     SkArenaAlloc*               fAlloc;
     SkRasterPipeline_RewindCtx* fRewindCtx;

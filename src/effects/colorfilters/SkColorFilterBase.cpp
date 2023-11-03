@@ -35,7 +35,7 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     constexpr size_t kEnoughForCommonFilters = 2048;  // big enough for a tiny SkSL program
     SkSTArenaAlloc<kEnoughForCommonFilters> alloc;
     SkRasterPipeline    pipeline(&alloc);
-    pipeline.append_constant_color(&alloc, color.vec());
+    pipeline.appendConstantColor(&alloc, color.vec());
     SkSurfaceProps props{}; // default OK; colorFilters don't render text
     SkStageRec rec = {&pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, color.unpremul(), props};
 

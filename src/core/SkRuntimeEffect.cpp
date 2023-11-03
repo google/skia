@@ -294,7 +294,7 @@ bool RuntimeEffectRPCallbacks::appendShader(int index) {
         return as_SB(shader)->appendStages(fStage, nonPassthroughMatrix);
     }
     // Return transparent black when a null shader is evaluated.
-    fStage.fPipeline->append_constant_color(fStage.fAlloc, SkColors::kTransparent);
+    fStage.fPipeline->appendConstantColor(fStage.fAlloc, SkColors::kTransparent);
     return true;
 }
 bool RuntimeEffectRPCallbacks::appendColorFilter(int index) {

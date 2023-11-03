@@ -657,7 +657,7 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
     if (hasConversion) {
         loadSwizzle.apply(&pipeline);
         if (srcIsSRGB) {
-            pipeline.append_transfer_function(*skcms_sRGB_TransferFunction());
+            pipeline.appendTransferFunction(*skcms_sRGB_TransferFunction());
         }
         if (alphaOrCSConversion) {
             steps->apply(&pipeline);
@@ -678,7 +678,7 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
                 break;
         }
         if (dstIsSRGB) {
-            pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());
+            pipeline.appendTransferFunction(*skcms_sRGB_Inverse_TransferFunction());
         }
         storeSwizzle.apply(&pipeline);
     } else {
@@ -728,7 +728,7 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::arra
     char block[64];
     SkArenaAlloc alloc(block, sizeof(block), 1024);
     SkRasterPipeline_<256> pipeline;
-    pipeline.append_constant_color(&alloc, color.data());
+    pipeline.appendConstantColor(&alloc, color.data());
     switch (lumMode) {
         case LumMode::kNone:
             break;
@@ -744,7 +744,7 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::arra
             break;
     }
     if (dstIsSRGB) {
-        pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());
+        pipeline.appendTransferFunction(*skcms_sRGB_Inverse_TransferFunction());
     }
     storeSwizzle.apply(&pipeline);
     SkRasterPipeline_MemoryCtx dstCtx{dst, SkToInt(dstRB/dstInfo.bpp())};

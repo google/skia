@@ -2359,12 +2359,12 @@ DEF_TEST(SkRasterPipeline_Jump, r) {
     alignas(64) static constexpr float kColorGreen[4]   = {0.0f, 1.0f, 0.0f, 1.0f};
     const int offset = 2;
 
-    // Make a program which jumps over an append_constant_color op.
+    // Make a program which jumps over an appendConstantColor op.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
     SkRasterPipeline p(&alloc);
-    p.append_constant_color(&alloc, kColorGreen);      // assign green
+    p.appendConstantColor(&alloc, kColorGreen);        // assign green
     p.append(SkRasterPipelineOp::jump, &offset);       // jump over the dark-red color assignment
-    p.append_constant_color(&alloc, kColorDarkRed);    // (not executed)
+    p.appendConstantColor(&alloc, kColorDarkRed);      // (not executed)
     p.append(SkRasterPipelineOp::store_src, slots);    // store the result so we can check it
     p.run(0,0,1,1);
 
@@ -3369,11 +3369,11 @@ DEF_TEST(SkRasterPipeline_stack_rewind, r) {
         p.append(SkRasterPipelineOp::callback, stack.expectBaseline());
         p.append(SkRasterPipelineOp::load_8888,  &ptr);
         p.append(SkRasterPipelineOp::callback, stack.expectGrowth());
-        p.append_stack_rewind();
+        p.appendStackRewind();
         p.append(SkRasterPipelineOp::callback, stack.expectBaseline());
         p.append(SkRasterPipelineOp::swap_rb);
         p.append(SkRasterPipelineOp::callback, stack.expectGrowth());
-        p.append_stack_rewind();
+        p.appendStackRewind();
         p.append(SkRasterPipelineOp::callback, stack.expectBaseline());
         p.append(SkRasterPipelineOp::store_8888, &ptr);
         p.run(0,0,1,1);

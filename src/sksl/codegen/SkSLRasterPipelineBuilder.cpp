@@ -1665,7 +1665,7 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
     for (const Stage& stage : stages) {
         switch (stage.op) {
             case ProgramOp::stack_rewind:
-                pipeline->append_stack_rewind();
+                pipeline->appendStackRewind();
                 break;
 
             case ProgramOp::invoke_shader:

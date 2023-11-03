@@ -69,7 +69,7 @@ bool SkColorShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
     SkColor4f color = SkColor4f::FromColor(fColor);
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                            rec.fDstCS,          kUnpremul_SkAlphaType).apply(color.vec());
-    rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
+    rec.fPipeline->appendConstantColor(rec.fAlloc, color.premul().vec());
     return true;
 }
 
@@ -77,7 +77,7 @@ bool SkColor4Shader::appendStages(const SkStageRec& rec, const SkShaders::Matrix
     SkColor4f color = fColor;
     SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
                            rec.fDstCS,        kUnpremul_SkAlphaType).apply(color.vec());
-    rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
+    rec.fPipeline->appendConstantColor(rec.fAlloc, color.premul().vec());
     return true;
 }
 

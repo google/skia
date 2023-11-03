@@ -50,7 +50,7 @@ static void test(skiatest::Reporter* r,
     }
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     SkRasterPipeline pipeline(&alloc);
-    pipeline.append_constant_color(&alloc, startingColor);
+    pipeline.appendConstantColor(&alloc, startingColor);
     SkSL::DebugTracePriv debugTrace;
     std::unique_ptr<SkSL::RP::Program> rasterProg =
             SkSL::MakeRasterPipelineProgram(*program, *main->definition(), &debugTrace);

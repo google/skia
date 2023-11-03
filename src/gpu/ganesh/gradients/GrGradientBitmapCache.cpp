@@ -140,11 +140,11 @@ void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors,
     SkRasterPipeline_MemoryCtx ctx = { bitmap->getPixels(), 0 };
 
     p.append(SkRasterPipelineOp::seed_shader);
-    p.append_matrix(&alloc, SkMatrix::Scale(1.0f / bitmap->width(), 1.0f));
+    p.appendMatrix(&alloc, SkMatrix::Scale(1.0f / bitmap->width(), 1.0f));
     SkGradientBaseShader::AppendGradientFillStages(&p, &alloc, colors, positions, count);
     SkGradientBaseShader::AppendInterpolatedToDstStages(
             &p, &alloc, colorsAreOpaque, interpolation, intermediateColorSpace, dstColorSpace);
-    p.append_store(bitmap->colorType(), &ctx);
+    p.appendStore(bitmap->colorType(), &ctx);
     p.run(0, 0, bitmap->width(), 1);
 }
 

@@ -79,7 +79,7 @@ sk_sp<SkFlattenable> SkBlendModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 bool SkBlendModeColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     rec.fPipeline->append(SkRasterPipelineOp::move_src_dst);
     SkPMColor4f color = map_color(fColor, sk_srgb_singleton(), rec.fDstCS);
-    rec.fPipeline->append_constant_color(rec.fAlloc, color.vec());
+    rec.fPipeline->appendConstantColor(rec.fAlloc, color.vec());
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }

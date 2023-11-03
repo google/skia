@@ -479,7 +479,7 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
                                      fUniformSize / sizeof(float)};
         SkSTArenaAlloc<2048> alloc;  // sufficient for a tiny SkSL program
         SkRasterPipeline pipeline(&alloc);
-        pipeline.append_constant_color(&alloc, color.vec());
+        pipeline.appendConstantColor(&alloc, color.vec());
         ConstantOutputForConstantInput_SkRPCallbacks callbacks;
         if (program->appendStages(&pipeline, &alloc, &callbacks, uniforms)) {
             SkPMColor4f outputColor;

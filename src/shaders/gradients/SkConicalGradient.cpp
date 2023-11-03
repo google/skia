@@ -198,7 +198,7 @@ void SkConicalGradient::appendGradientStages(SkArenaAlloc* alloc,
         auto scale = std::max(fRadius1, fRadius2) / dRadius;
         auto bias = -fRadius1 / dRadius;
 
-        p->append_matrix(alloc, SkMatrix::Translate(bias, 0) * SkMatrix::Scale(scale, 1));
+        p->appendMatrix(alloc, SkMatrix::Translate(bias, 0) * SkMatrix::Scale(scale, 1));
         return;
     }
 

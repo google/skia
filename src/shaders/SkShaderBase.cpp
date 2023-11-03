@@ -39,8 +39,8 @@ std::optional<MatrixRec> MatrixRec::apply(const SkStageRec& rec, const SkMatrix&
     if (!fCTMApplied) {
         rec.fPipeline->append(SkRasterPipelineOp::seed_shader);
     }
-    // append_matrix is a no-op if total worked out to identity.
-    rec.fPipeline->append_matrix(rec.fAlloc, total);
+    // appendMatrix is a no-op if total worked out to identity.
+    rec.fPipeline->appendMatrix(rec.fAlloc, total);
     return MatrixRec{fCTM,
                      fTotalLocalMatrix,
                      /*pendingLocalMatrix=*/SkMatrix::I(),
