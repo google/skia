@@ -403,7 +403,7 @@ sk_sp<GrGpuBuffer> GrGpu::createBuffer(size_t size,
         return nullptr;
     }
     sk_sp<GrGpuBuffer> buffer = this->onCreateBuffer(size, intendedType, accessPattern);
-    if (!this->caps()->reuseScratchBuffers()) {
+    if (buffer && !this->caps()->reuseScratchBuffers()) {
         buffer->resourcePriv().removeScratchKey();
     }
     return buffer;
