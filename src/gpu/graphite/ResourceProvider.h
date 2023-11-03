@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 
 struct SkSamplingOptions;
+class SkTraceMemoryDump;
 
 namespace skgpu {
 class SingleOwner;
@@ -80,6 +81,10 @@ public:
     size_t getResourceCacheLimit() const { return fResourceCache->getMaxBudget(); }
     size_t getResourceCacheCurrentBudgetedBytes() const {
         return fResourceCache->currentBudgetedBytes();
+    }
+
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+        fResourceCache->dumpMemoryStatistics(traceMemoryDump);
     }
 
     void freeGpuResources();

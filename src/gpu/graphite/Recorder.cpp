@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkTraceMemoryDump.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
@@ -364,6 +365,13 @@ void Recorder::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
 size_t Recorder::currentBudgetedBytes() const {
     ASSERT_SINGLE_OWNER
     return fResourceProvider->getResourceCacheCurrentBudgetedBytes();
+}
+
+void Recorder::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    ASSERT_SINGLE_OWNER
+    fResourceProvider->dumpMemoryStatistics(traceMemoryDump);
+    // TODO: What is the graphite equivalent for the text blob cache and how do we print out its
+    // used bytes here (see Ganesh implementation).
 }
 
 void RecorderPriv::add(sk_sp<Task> task) {

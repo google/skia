@@ -522,6 +522,15 @@ void ResourceCache::setResourceTimestamp(Resource* resource, uint32_t timestamp)
     resource->setTimestamp(timestamp);
 }
 
+void ResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    for (int i = 0; i < fNonpurgeableResources.size(); ++i) {
+        fNonpurgeableResources[i]->dumpMemoryStatistics(traceMemoryDump);
+    }
+    for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+        fPurgeableQueue.at(i)->dumpMemoryStatistics(traceMemoryDump);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 const GraphiteResourceKey& ResourceCache::MapTraits::GetKey(const Resource& r) {

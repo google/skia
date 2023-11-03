@@ -17,6 +17,7 @@
 #include <atomic>
 
 class SkMutex;
+class SkTraceMemoryDump;
 
 namespace skgpu::graphite {
 
@@ -136,6 +137,9 @@ public:
         SkASSERT(key.shareable() == Shareable::kNo || this->budgeted() == skgpu::Budgeted::kYes);
         fKey = key;
     }
+
+    // Dumps memory usage information for this Resource to traceMemoryDump.
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
 #if defined(GRAPHITE_TEST_UTILS)
     bool testingShouldDeleteASAP() const { return fDeleteASAP == DeleteASAP::kYes; }

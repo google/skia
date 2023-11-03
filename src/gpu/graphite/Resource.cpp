@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/Resource.h"
 
+#include "include/core/SkTraceMemoryDump.h"
 #include "src/gpu/graphite/ResourceCache.h"
 
 namespace skgpu::graphite {
@@ -87,6 +88,48 @@ bool Resource::isPurgeable() const {
     // will always be greater than 1 since we add one on insert and don't remove that ref until
     // the Resource is removed from the cache.
     return !(this->hasUsageRef() || this->hasCommandBufferRef());
+}
+
+void Resource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    if (this->ownership() == Ownership::kWrapped && !traceMemoryDump->shouldDumpWrappedObjects()) {
+        return;
+    }
+
+    if (this->budgeted() == skgpu::Budgeted::kNo &&
+        !traceMemoryDump->shouldDumpUnbudgetedObjects()) {
+        return;
+    }
+
+    size_t size = this->gpuMemorySize();
+
+    // Avoid dumping objects without a size (e.g. Samplers, pipelines, etc).
+    // TODO: Would a client ever actually want to see all of this? Wouldn't be hard to add it as an
+    // option.
+    if (size == 0) {
+        return;
+    }
+
+    SkString resourceName("skia/gpu_resources/resource_");
+    resourceName.appendU32(this->uniqueID().asUInt());
+
+    traceMemoryDump->dumpNumericValue(resourceName.c_str(), "size", "bytes", size);
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "type", this->getResourceType());
+    // TODO: dump a "label" for the Resource
+    if (this->isPurgeable()) {
+        traceMemoryDump->dumpNumericValue(resourceName.c_str(), "purgeable_size", "bytes", size);
+    }
+    if (traceMemoryDump->shouldDumpWrappedObjects()) {
+        traceMemoryDump->dumpWrappedState(resourceName.c_str(),
+                                          this->ownership() == Ownership::kWrapped);
+    }
+    if (traceMemoryDump->shouldDumpUnbudgetedObjects()) {
+        traceMemoryDump->dumpBudgetedState(resourceName.c_str(),
+                                           this->budgeted() == skgpu::Budgeted::kYes);
+    }
+
+    // TODO: implement this to report real gpu id backing the resource. Will be virtual implemented
+    // by backend specific resource subclasses.
+    //this->setMemoryBacking(traceMemoryDump, resourceName);
 }
 
 } // namespace skgpu::graphite

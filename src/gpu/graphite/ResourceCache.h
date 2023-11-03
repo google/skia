@@ -22,6 +22,8 @@
 #endif
 #include <vector>
 
+class SkTraceMemoryDump;
+
 namespace skgpu {
 class SingleOwner;
 }
@@ -79,6 +81,8 @@ public:
     size_t getMaxBudget() const { return fMaxBytes; }
 
     size_t currentBudgetedBytes() const { return fBudgetedBytes; }
+
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
 #if defined(GRAPHITE_TEST_UTILS)
     void forceProcessReturnedResources() { this->processReturnedResources(); }

@@ -89,6 +89,21 @@ public:
      */
     virtual void dumpWrappedState(const char* /*dumpName*/, bool /*isWrappedObject*/) {}
 
+    /**
+     * Returns true if we should dump unbudgeted objects. Unbudgeted objects can either come from
+     * wrapped objects passed into Skia from the client or from Skia created objects currently held
+     * by the client in a public Skia object (e.g. SkSurface or SkImage). This call is only used
+     * when dumping Graphite memory statistics.
+     */
+    virtual bool shouldDumpUnbudgetedObjects() const { return true; }
+
+    /**
+     * If shouldDumpUnbudgetedObjects() returns true then this function will be called to populate
+     * the output with information on whether the item being dumped is budgeted. This call is only
+     * used when dumping Graphite memory statistics.
+     */
+    virtual void dumpBudgetedState(const char* /*dumpName*/, bool /*isBudgeted*/) {}
+
 protected:
     virtual ~SkTraceMemoryDump() = default;
     SkTraceMemoryDump() = default;

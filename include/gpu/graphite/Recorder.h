@@ -21,6 +21,7 @@
 class SkCanvas;
 struct SkImageInfo;
 class SkPixmap;
+class SkTraceMemoryDump;
 
 namespace skgpu {
 class RefCntedCallback;
@@ -158,6 +159,12 @@ public:
      * Returns the number of bytes of gpu memory currently budgeted in the Recorder's cache.
      */
     size_t currentBudgetedBytes() const;
+
+    /**
+     * Enumerates all cached GPU resources owned by the Recorder and dumps their memory to
+     * traceMemoryDump.
+     */
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
     // Provides access to functions that aren't part of the public API.
     RecorderPriv priv();
