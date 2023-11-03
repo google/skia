@@ -7,9 +7,9 @@ edition = "2021"
 version = "0.1.0"
 
 [dependencies]
-read-fonts = "0.11"
+read-fonts = "0.13"
 font-types = "0.4"
-skrifa = "0.10"
+skrifa = "0.12"
 cxx = "1.0.107"
 
 [lib]
