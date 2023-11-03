@@ -9,6 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGNode.h"
+#include "tools/fonts/TestFontMgr.h"
 
 #if defined(SK_ENABLE_SVG)
 
@@ -17,7 +18,8 @@ void FuzzSVG(const uint8_t *data, size_t size) {
     uint8_t h = 200;
 
     SkMemoryStream stream(data, size);
-    sk_sp<SkSVGDOM> dom = SkSVGDOM::MakeFromStream(stream);
+    sk_sp<SkSVGDOM> dom =
+            SkSVGDOM::Builder().setFontManager(ToolUtils::MakePortableFontMgr()).make(stream);
     if (!dom) {
         return;
     }
@@ -30,7 +32,6 @@ void FuzzSVG(const uint8_t *data, size_t size) {
     dom->setContainerSize(winSize);
     dom->containerSize();
     dom->render(s->getCanvas());
-
 }
 
 #if defined(SK_BUILD_FOR_LIBFUZZER)

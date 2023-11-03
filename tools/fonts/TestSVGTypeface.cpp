@@ -86,6 +86,10 @@ void TestSVGTypeface::Glyph::withSVG(Fn&& fn) const {
             return;
         }
 
+        // We expressly *do not want* to set a SkFontMgr when parsing these SVGs.
+        // 1) The SVGs we are processing have no <text> tags in them.
+        // 2) Trying to use ToolUtils::TestFontMgr() is a problem because the portable
+        //    SkFontMgr *calls* this function as it creates the typefaces.
         sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream);
         if (!svg) {
             return;
