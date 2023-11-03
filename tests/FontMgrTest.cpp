@@ -77,14 +77,14 @@ DEF_TEST(FontMgr_AliasNames, reporter) {
     };
 
     for (size_t i = 0; i < std::size(inNames); ++i) {
-        sk_sp<SkTypeface> first(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
+        sk_sp<SkTypeface> first(ToolUtils::CreateTestTypeface(inNames[i], SkFontStyle()));
         if (nullptr == first.get()) {
             continue;
         }
         SkString firstName;
         first->getFamilyName(&firstName);
         for (int j = 0; j < 10; ++j) {
-            sk_sp<SkTypeface> face(SkTypeface::MakeFromName(inNames[i], SkFontStyle()));
+            sk_sp<SkTypeface> face(ToolUtils::CreateTestTypeface(inNames[i], SkFontStyle()));
 
             SkString name;
             face->getFamilyName(&name);
@@ -96,7 +96,7 @@ DEF_TEST(FontMgr_AliasNames, reporter) {
 }
 
 DEF_TEST(FontMgr_Iter, reporter) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::TestFontMgr());
     int count = fm->countFamilies();
 
     for (int i = 0; i < count; ++i) {
@@ -154,13 +154,13 @@ DEF_TEST(FontMgr_Iter, reporter) {
 }
 
 DEF_TEST(FontMgr_Match, reporter) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::TestFontMgr());
     sk_sp<SkFontStyleSet> styleSet(fm->matchFamily(nullptr));
     REPORTER_ASSERT(reporter, styleSet);
 }
 
 DEF_TEST(FontMgr_MatchFamilyStyle, reporter) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::TestFontMgr());
 
     sk_sp<SkFontStyleSet> styleSet(fm->matchFamily("Non Existing Family Name"));
     REPORTER_ASSERT(reporter, styleSet);
@@ -795,7 +795,7 @@ DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
 }
 
 DEF_TEST(FontMgr_MatchCharacter, reporter) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::TestFontMgr());
     // 0xD800 <= codepoint <= 0xDFFF || 0x10FFFF < codepoint are invalid
     fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0x0);
     fm->matchFamilyStyleCharacter("Blah", SkFontStyle::Normal(), nullptr, 0, 0xD800);

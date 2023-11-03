@@ -6,8 +6,7 @@
  */
 
 #include "fuzz/Fuzz.h"
-#include "src/core/SkFontMgrPriv.h"
-#include "tools/fonts/TestFontMgr.h"
+#include "tools/fonts/FontToolUtils.h"
 
 void fuzz_RasterN32Canvas(Fuzz* f);
 
@@ -15,7 +14,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 4000) {
         return 0;
     }
-    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    ToolUtils::UsePortableFontMgr();
     auto fuzz = Fuzz(data, size);
     fuzz_RasterN32Canvas(&fuzz);
     return 0;

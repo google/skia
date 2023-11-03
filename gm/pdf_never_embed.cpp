@@ -37,7 +37,8 @@ static void excercise_draw_pos_text(SkCanvas* canvas,
 DEF_SIMPLE_GM_CAN_FAIL(pdf_never_embed, canvas, errorMsg, 512, 512) {
     SkPaint p;
 
-    sk_sp<SkTypeface> tf = MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf");
+    sk_sp<SkTypeface> tf =
+            ToolUtils::CreateTypefaceFromResource("fonts/Roboto2-Regular_NoEmbed.ttf");
     if (!tf) {
         tf = ToolUtils::DefaultPortableTypeface();
     }

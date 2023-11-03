@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
                              "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16Norm",
                              "RGBA_F16" };
     SkPaint paint;
-    SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 10);
+    SkFont font(fontMgr->matchFamilyStyle("monospace", SkFontStyle()), 10);
     int y = 15;
     canvas->drawString("    colorType  bytes", 10, y, font, paint);
     for (SkColorType colorType : {

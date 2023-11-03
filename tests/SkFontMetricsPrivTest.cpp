@@ -15,11 +15,12 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <optional>
 
 DEF_TEST(SkFontMetricsPriv_Basic, reporter) {
-    auto typeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+    auto typeface = ToolUtils::CreateTestTypeface("monospace", SkFontStyle());
     SkFont font{typeface};
     SkStrikeSpec spec = SkStrikeSpec::MakeWithNoDevice(font);
     auto context = spec.createScalerContext();

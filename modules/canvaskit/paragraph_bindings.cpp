@@ -575,7 +575,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                 size_t      textCount = textStorage.size();
 
                 auto fc = sk_make_sp<para::FontCollection>();
-                fc->setDefaultFontManager(SkFontMgr::RefDefault());
+                fc->setDefaultFontManager(SkFontMgr::RefEmpty());
                 fc->enableFontFallback();
 
                 para::ParagraphStyle pstyle;

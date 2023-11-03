@@ -21,6 +21,7 @@
 #include "include/core/SkTypes.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 
@@ -85,11 +86,11 @@ protected:
         SkFontArguments paletteArguments;
         paletteArguments.setPalette(fPalette);
 
-        fTypefaceDefault = MakeResourceAsTypeface(kColrCpalTestFontPath);
+        fTypefaceDefault = ToolUtils::CreateTypefaceFromResource(kColrCpalTestFontPath);
         fTypefaceCloned =
                 fTypefaceDefault ? fTypefaceDefault->makeClone(paletteArguments) : nullptr;
 
-        fTypefaceFromStream = SkFontMgr::RefDefault()->makeFromStream(
+        fTypefaceFromStream = ToolUtils::TestFontMgr()->makeFromStream(
                 GetResourceAsStream(kColrCpalTestFontPath), paletteArguments);
     }
 

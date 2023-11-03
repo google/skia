@@ -46,7 +46,7 @@ protected:
         SkTextBlobBuilder builder;
 
         // make textblob.  To stress distance fields, we choose sizes appropriately
-        sk_sp<SkTypeface> tf = MakeResourceAsTypeface("fonts/HangingS.ttf");
+        sk_sp<SkTypeface> tf = ToolUtils::CreateTypefaceFromResource("fonts/HangingS.ttf");
         if (!tf) {
             tf = ToolUtils::DefaultPortableTypeface();
         }

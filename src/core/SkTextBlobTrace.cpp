@@ -12,7 +12,8 @@
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
 
-std::vector<SkTextBlobTrace::Record> SkTextBlobTrace::CreateBlobTrace(SkStream* stream) {
+std::vector<SkTextBlobTrace::Record> SkTextBlobTrace::CreateBlobTrace(
+        SkStream* stream, sk_sp<SkFontMgr> lastResortMgr) {
     std::vector<SkTextBlobTrace::Record> trace;
 
     uint32_t typefaceCount;
@@ -22,7 +23,7 @@ std::vector<SkTextBlobTrace::Record> SkTextBlobTrace::CreateBlobTrace(SkStream* 
 
     std::vector<sk_sp<SkTypeface>> typefaceArray;
     for (uint32_t i = 0; i < typefaceCount; i++) {
-        typefaceArray.push_back(SkTypeface::MakeDeserialize(stream, SkFontMgr::RefDefault()));
+        typefaceArray.push_back(SkTypeface::MakeDeserialize(stream, lastResortMgr));
     }
 
     uint32_t restOfFile;

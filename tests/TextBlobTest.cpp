@@ -424,7 +424,7 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
  */
 DEF_TEST(TextBlob_serialize, reporter) {
     sk_sp<SkTextBlob> blob0 = []() {
-        sk_sp<SkTypeface> tf = SkTypeface::MakeFromName(nullptr, SkFontStyle::BoldItalic());
+        sk_sp<SkTypeface> tf = ToolUtils::CreateTestTypeface(nullptr, SkFontStyle::BoldItalic());
 
         SkTextBlobBuilder builder;
         add_run(&builder, "Hello", 10, 20, nullptr);    // don't flatten a typeface

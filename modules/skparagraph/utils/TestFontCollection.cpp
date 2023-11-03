@@ -1,9 +1,11 @@
 // Copyright 2019 Google LLC.
+#include "include/core/SkFontMgr.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkOSFile.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skia {
 namespace textlayout {
@@ -45,9 +47,10 @@ bool TestFontCollection::addFontFromFile(const std::string& path, const std::str
         return false;
     }
     if (familyName.empty()) {
-        fFontProvider->registerTypeface(SkTypeface::MakeFromData(data));
+        fFontProvider->registerTypeface(ToolUtils::TestFontMgr()->makeFromData(data));
     } else {
-        fFontProvider->registerTypeface(SkTypeface::MakeFromData(data), SkString(familyName.c_str()));
+        fFontProvider->registerTypeface(ToolUtils::TestFontMgr()->makeFromData(data),
+                                        SkString(familyName.c_str()));
     }
 
     return true;

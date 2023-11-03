@@ -73,11 +73,11 @@ private:
         constexpr SkFourByteTag wght = SkSetFourByteTag('w','g','h','t');
         //constexpr SkFourByteTag wdth = SkSetFourByteTag('w','d','t','h');
         fInfo = {
-            MakeResourceAsTypeface("fonts/Distortable.ttf"), wght, 0.5f, 2.0f
+            ToolUtils::CreateTypefaceFromResource("fonts/Distortable.ttf"), wght, 0.5f, 2.0f
             //SkTypeface::MakeFromFile("/Library/Fonts/Skia.ttf"), wght, 0.48f, 3.2f
-            //SkTypeface::MakeFromName("Skia", SkFontStyle()), wdth, 0.62f, 1.3f
+            //ToolUtils::CreateTestTypeface("Skia", SkFontStyle()), wdth, 0.62f, 1.3f
             //SkTypeface::MakeFromFile("/System/Library/Fonts/SFNS.ttf"), wght, 100.0f, 900.0f
-            //SkTypeface::MakeFromName(".SF NS", SkFontStyle()), wght, 100.0f, 900.0f
+            //ToolUtils::CreateTestTypeface(".SF NS", SkFontStyle()), wght, 100.0f, 900.0f
         };
 
         if (!fInfo.distortable) {

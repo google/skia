@@ -69,7 +69,7 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fEmFace = MakeResourceAsTypeface("fonts/Em.ttf");
+        fEmFace = ToolUtils::CreateTypefaceFromResource("fonts/Em.ttf");
         if (!fEmFace) {
             fEmFace = ToolUtils::DefaultPortableTypeface();
         }
