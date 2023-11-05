@@ -6,7 +6,7 @@
  */
 
 #include "skcms.h"  // NO_G3_REWRITE
-#include "skcms_internal.h"  // NO_G3_REWRITE
+#include "src/skcms_internals.h"  // NO_G3_REWRITE
 #include "src/skcms_Transform.h"  // NO_G3_REWRITE
 #include <assert.h>
 #include <float.h>
@@ -129,20 +129,29 @@ static float TFKind_marker(skcms_TFType kind) {
 
 static skcms_TFType classify(const skcms_TransferFunction& tf, TF_PQish*   pq = nullptr
                                                              , TF_HLGish* hlg = nullptr) {
-    if (tf.g < 0 && static_cast<float>(static_cast<int>(tf.g)) == tf.g) {
+    if (tf.g < 0) {
+        // Negative "g" is mapped to enum values; large negative are for sure invalid.
+        if (tf.g < -128) {
+            return skcms_TFType_Invalid;
+        }
+        int enum_g = -static_cast<int>(tf.g);
+        // Non-whole "g" values are invalid as well.
+        if (static_cast<float>(-enum_g) != tf.g) {
+            return skcms_TFType_Invalid;
+        }
         // TODO: soundness checks for PQ/HLG like we do for sRGBish?
-        switch ((int)tf.g) {
-            case -skcms_TFType_PQish:
+        switch (enum_g) {
+            case skcms_TFType_PQish:
                 if (pq) {
                     memcpy(pq , &tf.a, sizeof(*pq ));
                 }
                 return skcms_TFType_PQish;
-            case -skcms_TFType_HLGish:
+            case skcms_TFType_HLGish:
                 if (hlg) {
                     memcpy(hlg, &tf.a, sizeof(*hlg));
                 }
                 return skcms_TFType_HLGish;
-            case -skcms_TFType_HLGinvish:
+            case skcms_TFType_HLGinvish:
                 if (hlg) {
                     memcpy(hlg, &tf.a, sizeof(*hlg));
                 }
