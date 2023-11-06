@@ -458,6 +458,7 @@ ganesh_tests_sources = [
   "$_tests/BulkRectTest.cpp",
   "$_tests/ClearTest.cpp",
   "$_tests/DMSAATest.cpp",
+  "$_tests/DashPathEffectTestGanesh.cpp",
   "$_tests/DefaultPathRendererTest.cpp",
   "$_tests/DrawOpAtlasTest.cpp",
   "$_tests/GrClipStackTest.cpp",

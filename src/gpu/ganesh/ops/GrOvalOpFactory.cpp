@@ -458,10 +458,11 @@ private:
                     "half2 prevDash = half2(half(-dashParams.y) - half(dashParams.w),"
                                            "half(-dashParams.y) + half(dashParams.x) -"
                                                                  "half(dashParams.w));"
+                    "const half kDashBoundsEpsilon = 0.01;"
                     "half dashAlpha = 0;"
                 );
             fragBuilder->codeAppendf(
-                    "if (angleFromStart - x + dashParams.y >= 6.28318530718) {"
+                    "if (angleFromStart - x + dashParams.y >= 6.28318530718 + kDashBoundsEpsilon) {"
                          "dashAlpha += half(%s(x - wrapDashes.z, d) * %s(wrapDashes.w - x, d));"
                          "currDash.y = min(currDash.y, lastIntervalLength);"
                          "if (nextDash.x >= lastIntervalLength) {"
@@ -474,7 +475,7 @@ private:
                     "}"
             , fnName.c_str(), fnName.c_str());
             fragBuilder->codeAppendf(
-                    "if (angleFromStart - x - dashParams.y < -0.01) {"
+                    "if (angleFromStart - x - dashParams.y < -kDashBoundsEpsilon) {"
                          "dashAlpha += half(%s(x - wrapDashes.x, d) * %s(wrapDashes.y - x, d));"
                          "currDash.x = max(currDash.x, 0);"
                          "if (prevDash.y <= 0) {"
