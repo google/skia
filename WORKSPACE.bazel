@@ -581,7 +581,7 @@ container_pull(
 # Pulls the gcr.io/skia-public/skottie-base container.
 container_pull(
     name = "skottie-base",
-    digest = "sha256:f97385e8c26a3457f7294504de907c20633217765b92061489aeb9668f4f244b",
+    digest = "sha256:65712802736e0743e7b6d4be6ea165038da38772dd895b5230e422ecf6b80e41",
     registry = "gcr.io",
     repository = "skia-public/skottie-base",
 )
