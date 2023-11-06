@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "skcms.h"  // NO_G3_REWRITE
+#include "src/skcms_public.h"  // NO_G3_REWRITE
 #include "src/skcms_internals.h"  // NO_G3_REWRITE
 #include "src/skcms_Transform.h"  // NO_G3_REWRITE
 #include <assert.h>
@@ -35,9 +35,10 @@
 
 using namespace skcms_private;
 
-static bool runtime_cpu_detection = true;
+static bool sAllowRuntimeCPUDetection = true;
+
 void skcms_DisableRuntimeCPUDetection() {
-    runtime_cpu_detection = false;
+    sAllowRuntimeCPUDetection = false;
 }
 
 static float log2f_(float x) {
@@ -2294,22 +2295,37 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
-// First, instantiate our default exec_ops() implementation using the default compiliation target.
+// If this isn't Clang, GCC, or Emscripten with SIMD support, we are in SKCMS_PORTABLE mode.
+#if !defined(SKCMS_PORTABLE) && !(defined(__clang__) || \
+                                  defined(__GNUC__) || \
+                                  (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__)))
+    #define SKCMS_PORTABLE 1
+#endif
+
+// If we are in SKCMS_PORTABLE mode or running on a non-x86-64 platform, we can't enable HSW or SKX.
+#if defined(SKCMS_PORTABLE) || !defined(__x86_64__)
+    #undef SKCMS_FORCE_HSW
+    #if !defined(SKCMS_DISABLE_HSW)
+        #define SKCMS_DISABLE_HSW 1
+    #endif
+
+    #undef SKCMS_FORCE_SKX
+    #if !defined(SKCMS_DISABLE_SKX)
+        #define SKCMS_DISABLE_SKX 1
+    #endif
+#endif
 
 namespace baseline {
-#if defined(SKCMS_PORTABLE) || !(defined(__clang__) || defined(__GNUC__)) \
-                            || (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__))
+#if defined(SKCMS_PORTABLE)
+    // Build skcms in a portable scalar configuration.
     #define N 1
     template <typename T> using V = T;
-#elif defined(__AVX512F__) && defined(__AVX512DQ__)
-    #define N 16
-    template <typename T> using V = skcms_private::Vec<N,T>;
-#elif defined(__AVX__)
-    #define N 8
-    template <typename T> using V = skcms_private::Vec<N,T>;
 #else
+    // Build skcms with basic four-line SIMD support. (SSE on Intel, or Neon on ARM.) The precise
+    // level of support--e.g. SSE2 vs SSE4.1, or Neon F16C support--is decided by the `-march`
+    // compiler setting.
     #define N 4
-    template <typename T> using V = skcms_private::Vec<N,T>;
+    template <typename T> using V = skcms_private::Vec<N, T>;
 #endif
 
     #include "src/Transform_inl.h"
@@ -2317,126 +2333,121 @@ namespace baseline {
 }
 
 // Now, instantiate any other versions of run_program() we may want for runtime detection.
-#if !defined(SKCMS_PORTABLE) &&                           \
-    !defined(SKCMS_NO_RUNTIME_CPU_DETECTION) &&           \
-        (( defined(__clang__) && __clang_major__ >= 5) || \
-         (!defined(__clang__) && defined(__GNUC__)))      \
-     && defined(__x86_64__)
-
-    #if !defined(__AVX2__)
-        #if defined(__clang__)
-            #pragma clang attribute push(__attribute__((target("avx2,f16c"))), apply_to=function)
-        #elif defined(__GNUC__)
-            #pragma GCC push_options
-            #pragma GCC target("avx2,f16c")
-        #endif
-
-        namespace hsw {
-            #define USING_AVX
-            #define USING_AVX_F16C
-            #define USING_AVX2
-            #define N 8
-            template <typename T> using V = skcms_private::Vec<N,T>;
-
-            #include "src/Transform_inl.h"
-
-            // src/Transform_inl.h will undefine USING_* for us.
-            #undef N
-        }
-
-        #if defined(__clang__)
-            #pragma clang attribute pop
-        #elif defined(__GNUC__)
-            #pragma GCC pop_options
-        #endif
-
-        #define TEST_FOR_HSW
+#if !defined(SKCMS_DISABLE_HSW)
+    #if defined(__clang__)
+        #pragma clang attribute push(__attribute__((target("avx2,f16c"))), apply_to=function)
+    #elif defined(__GNUC__)
+        #pragma GCC push_options
+        #pragma GCC target("avx2,f16c")
     #endif
 
-    #if !defined(__AVX512F__) || !defined(__AVX512DQ__)
-        #if defined(__clang__)
-            #pragma clang attribute push(__attribute__((target("avx512f,avx512dq,avx512cd,avx512bw,avx512vl"))), apply_to=function)
-        #elif defined(__GNUC__)
-            #pragma GCC push_options
-            #pragma GCC target("avx512f,avx512dq,avx512cd,avx512bw,avx512vl")
-        #endif
+    namespace hsw {
+        #define USING_AVX
+        #define USING_AVX_F16C
+        #define USING_AVX2
+        #define N 8
+        template <typename T> using V = skcms_private::Vec<N,T>;
 
-        namespace skx {
-            #define USING_AVX512F
-            #define N 16
-            template <typename T> using V = skcms_private::Vec<N,T>;
+        #include "src/Transform_inl.h"
 
-            #include "src/Transform_inl.h"
+        // src/Transform_inl.h will undefine USING_* for us.
+        #undef N
+    }
 
-            // src/Transform_inl.h will undefine USING_* for us.
-            #undef N
-        }
-
-        #if defined(__clang__)
-            #pragma clang attribute pop
-        #elif defined(__GNUC__)
-            #pragma GCC pop_options
-        #endif
-
-        #define TEST_FOR_SKX
+    #if defined(__clang__)
+        #pragma clang attribute pop
+    #elif defined(__GNUC__)
+        #pragma GCC pop_options
     #endif
-
-    #if defined(TEST_FOR_HSW) || defined(TEST_FOR_SKX)
-        enum class CpuType { None, HSW, SKX };
-        static CpuType cpu_type() {
-            static const CpuType type = []{
-                if (!runtime_cpu_detection) {
-                    return CpuType::None;
-                }
-                // See http://www.sandpile.org/x86/cpuid.htm
-
-                // First, a basic cpuid(1) lets us check prerequisites for HSW, SKX.
-                uint32_t eax, ebx, ecx, edx;
-                __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-                                             : "0"(1), "2"(0));
-                if ((edx & (1u<<25)) &&  // SSE
-                    (edx & (1u<<26)) &&  // SSE2
-                    (ecx & (1u<< 0)) &&  // SSE3
-                    (ecx & (1u<< 9)) &&  // SSSE3
-                    (ecx & (1u<<12)) &&  // FMA (N.B. not used, avoided even)
-                    (ecx & (1u<<19)) &&  // SSE4.1
-                    (ecx & (1u<<20)) &&  // SSE4.2
-                    (ecx & (1u<<26)) &&  // XSAVE
-                    (ecx & (1u<<27)) &&  // OSXSAVE
-                    (ecx & (1u<<28)) &&  // AVX
-                    (ecx & (1u<<29))) {  // F16C
-
-                    // Call cpuid(7) to check for AVX2 and AVX-512 bits.
-                    __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-                                                 : "0"(7), "2"(0));
-                    // eax from xgetbv(0) will tell us whether XMM, YMM, and ZMM state is saved.
-                    uint32_t xcr0, dont_need_edx;
-                    __asm__ __volatile__("xgetbv" : "=a"(xcr0), "=d"(dont_need_edx) : "c"(0));
-
-                    if ((xcr0 & (1u<<1)) &&  // XMM register state saved?
-                        (xcr0 & (1u<<2)) &&  // YMM register state saved?
-                        (ebx  & (1u<<5))) {  // AVX2
-                        // At this point we're at least HSW.  Continue checking for SKX.
-                        if ((xcr0 & (1u<< 5)) && // Opmasks state saved?
-                            (xcr0 & (1u<< 6)) && // First 16 ZMM registers saved?
-                            (xcr0 & (1u<< 7)) && // High 16 ZMM registers saved?
-                            (ebx  & (1u<<16)) && // AVX512F
-                            (ebx  & (1u<<17)) && // AVX512DQ
-                            (ebx  & (1u<<28)) && // AVX512CD
-                            (ebx  & (1u<<30)) && // AVX512BW
-                            (ebx  & (1u<<31))) { // AVX512VL
-                            return CpuType::SKX;
-                        }
-                        return CpuType::HSW;
-                    }
-                }
-                return CpuType::None;
-            }();
-            return type;
-        }
-    #endif
-
 #endif
+
+#if !defined(SKCMS_DISABLE_SKX)
+    #if defined(__clang__)
+        #pragma clang attribute push(__attribute__((target("avx512f,avx512dq,avx512cd,avx512bw,avx512vl"))), apply_to=function)
+    #elif defined(__GNUC__)
+        #pragma GCC push_options
+        #pragma GCC target("avx512f,avx512dq,avx512cd,avx512bw,avx512vl")
+    #endif
+
+    namespace skx {
+        #define USING_AVX512F
+        #define N 16
+        template <typename T> using V = skcms_private::Vec<N,T>;
+
+        #include "src/Transform_inl.h"
+
+        // src/Transform_inl.h will undefine USING_* for us.
+        #undef N
+    }
+
+    #if defined(__clang__)
+        #pragma clang attribute pop
+    #elif defined(__GNUC__)
+        #pragma GCC pop_options
+    #endif
+#endif
+
+enum class CpuType { Baseline, HSW, SKX };
+
+static CpuType cpu_type() {
+    #if defined(SKCMS_PORTABLE) || !defined(__x86_64__) || defined(SKCMS_FORCE_BASELINE)
+        return CpuType::Baseline;
+    #elif defined(SKCMS_FORCE_HSW)
+        return CpuType::HSW;
+    #elif defined(SKCMS_FORCE_SKX)
+        return CpuType::SKX;
+    #else
+        static const CpuType type = []{
+            if (!sAllowRuntimeCPUDetection) {
+                return CpuType::Baseline;
+            }
+            // See http://www.sandpile.org/x86/cpuid.htm
+
+            // First, a basic cpuid(1) lets us check prerequisites for HSW, SKX.
+            uint32_t eax, ebx, ecx, edx;
+            __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+                                         : "0"(1), "2"(0));
+            if ((edx & (1u<<25)) &&  // SSE
+                (edx & (1u<<26)) &&  // SSE2
+                (ecx & (1u<< 0)) &&  // SSE3
+                (ecx & (1u<< 9)) &&  // SSSE3
+                (ecx & (1u<<12)) &&  // FMA (N.B. not used, avoided even)
+                (ecx & (1u<<19)) &&  // SSE4.1
+                (ecx & (1u<<20)) &&  // SSE4.2
+                (ecx & (1u<<26)) &&  // XSAVE
+                (ecx & (1u<<27)) &&  // OSXSAVE
+                (ecx & (1u<<28)) &&  // AVX
+                (ecx & (1u<<29))) {  // F16C
+
+                // Call cpuid(7) to check for AVX2 and AVX-512 bits.
+                __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+                                             : "0"(7), "2"(0));
+                // eax from xgetbv(0) will tell us whether XMM, YMM, and ZMM state is saved.
+                uint32_t xcr0, dont_need_edx;
+                __asm__ __volatile__("xgetbv" : "=a"(xcr0), "=d"(dont_need_edx) : "c"(0));
+
+                if ((xcr0 & (1u<<1)) &&  // XMM register state saved?
+                    (xcr0 & (1u<<2)) &&  // YMM register state saved?
+                    (ebx  & (1u<<5))) {  // AVX2
+                    // At this point we're at least HSW.  Continue checking for SKX.
+                    if ((xcr0 & (1u<< 5)) && // Opmasks state saved?
+                        (xcr0 & (1u<< 6)) && // First 16 ZMM registers saved?
+                        (xcr0 & (1u<< 7)) && // High 16 ZMM registers saved?
+                        (ebx  & (1u<<16)) && // AVX512F
+                        (ebx  & (1u<<17)) && // AVX512DQ
+                        (ebx  & (1u<<28)) && // AVX512CD
+                        (ebx  & (1u<<30)) && // AVX512BW
+                        (ebx  & (1u<<31))) { // AVX512VL
+                        return CpuType::SKX;
+                    }
+                    return CpuType::HSW;
+                }
+            }
+            return CpuType::Baseline;
+        }();
+        return type;
+    #endif
+}
 
 static bool tf_is_gamma(const skcms_TransferFunction& tf) {
     return tf.g > 0 && tf.a == 1 &&
@@ -2859,20 +2870,23 @@ bool skcms_Transform(const void*             src,
     assert(contexts <= context + ARRAY_COUNT(context));
 
     auto run = baseline::run_program;
-#if defined(TEST_FOR_HSW)
     switch (cpu_type()) {
-        case CpuType::None:                        break;
-        case CpuType::HSW: run = hsw::run_program; break;
-        case CpuType::SKX: run = hsw::run_program; break;
+        case CpuType::SKX:
+            #if !defined(SKCMS_DISABLE_SKX)
+                run = skx::run_program;
+                break;
+            #endif
+
+        case CpuType::HSW:
+            #if !defined(SKCMS_DISABLE_HSW)
+                run = hsw::run_program;
+                break;
+            #endif
+
+        case CpuType::Baseline:
+            break;
     }
-#endif
-#if defined(TEST_FOR_SKX)
-    switch (cpu_type()) {
-        case CpuType::None:                        break;
-        case CpuType::HSW:                         break;
-        case CpuType::SKX: run = skx::run_program; break;
-    }
-#endif
+
     run(program, context, ops - program, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
     return true;
 }
