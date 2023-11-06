@@ -457,4 +457,6 @@
   { symbol: ["skia_private", "private", "\"include/private/base/SkTArray.h\"", "public"] },
   { symbol: ["skia_private", "private", "\"src/core/SkTHash.h\"", "public"] },
   { symbol: ["skia_private", "private", "\"src/core/SkTraceEvent.h\"", "public"] },
+
+  { include: ["\"modules/skcms/src/skcms_public.h\"", "private", "\"modules/skcms/skcms.h\"", "public"] },
 ]
