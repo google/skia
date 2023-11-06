@@ -267,8 +267,6 @@ private:
 
     const sktext::gpu::SDFTControl fSDFTControl;
 
-    bool fDrawsOverlap;
-
     friend class ClipStack; // for recordDraw
 };
 
