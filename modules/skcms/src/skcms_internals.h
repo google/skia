@@ -71,6 +71,10 @@ typedef struct skcms_ICCTag {
     const uint8_t* buf;
 } skcms_ICCTag;
 
+typedef struct skcms_ICCProfile skcms_ICCProfile;
+typedef struct skcms_TransferFunction skcms_TransferFunction;
+typedef union skcms_Curve skcms_Curve;
+
 void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 

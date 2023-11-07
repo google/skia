@@ -7,4 +7,4 @@
 
 #pragma once
 
-#include "src/skcms_public.h"
+#include "src/skcms_public.h"  // NO_G3_REWRITE
