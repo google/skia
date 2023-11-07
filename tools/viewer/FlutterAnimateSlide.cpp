@@ -9,12 +9,10 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkTypeface.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTime.h"
-#include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/Timer.h"
 #include "tools/viewer/Slide.h"
 
@@ -26,7 +24,7 @@ public:
 
 public:
     void load(SkScalar w, SkScalar h) override {
-        fTypeface = ToolUtils::TestFontMgr()->makeFromFile("/skimages/samplefont.ttf");
+        fTypeface = SkTypeface::MakeFromFile("/skimages/samplefont.ttf");
         initChars();
     }
 

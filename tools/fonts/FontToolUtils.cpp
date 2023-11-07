@@ -16,42 +16,15 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixelRef.h"  // IWYU pragma: keep
-#include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkMutex.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "tools/Resources.h"
-#include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/TestFontMgr.h"
 
-#if defined(SK_BUILD_FOR_WIN)
-#include "include/ports/SkTypeface_win.h"
-#endif
-
-#if defined(SK_BUILD_FOR_ANDROID)
-#include "include/ports/SkFontMgr_android.h"
-#endif
-
-#if defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_MAC)
-#include "include/ports/SkFontMgr_mac_ct.h"
-#endif
-
-#if defined(SK_BUILD_FOR_UNIX)
-#include "include/ports/SkFontMgr_fontconfig.h"
-#endif
-
 namespace ToolUtils {
-
-static DEFINE_bool(nativeFonts,
-                   true,
-                   "If true, use native font manager and rendering. "
-                   "If false, fonts will draw as portably as possible.");
-#if defined(SK_BUILD_FOR_WIN)
-static DEFINE_bool(gdi, false, "Use GDI instead of DirectWrite for font rendering.");
-#endif
 
 sk_sp<SkTypeface> PlanetTypeface() {
     static const sk_sp<SkTypeface> planetTypeface = []() {
@@ -63,11 +36,11 @@ sk_sp<SkTypeface> PlanetTypeface() {
 #else
         filename = "fonts/planetcbdt.ttf";
 #endif
-        sk_sp<SkTypeface> typeface = CreateTypefaceFromResource(filename);
+        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
         if (typeface) {
             return typeface;
         }
-        return CreateTestTypeface("Planet", SkFontStyle());
+        return SkTypeface::MakeFromName("Planet", SkFontStyle());
     }();
     return planetTypeface;
 }
@@ -82,11 +55,11 @@ sk_sp<SkTypeface> EmojiTypeface() {
 #else
         filename = "fonts/cbdt.ttf";
 #endif
-        sk_sp<SkTypeface> typeface = CreateTypefaceFromResource(filename);
+        sk_sp<SkTypeface> typeface = MakeResourceAsTypeface(filename);
         if (typeface) {
             return typeface;
         }
-        return CreateTestTypeface("Emoji", SkFontStyle());
+        return SkTypeface::MakeFromName("Emoji", SkFontStyle());
     }();
     return emojiTypeface;
 }
@@ -182,46 +155,9 @@ sk_sp<SkImage> CreateStringImage(int w, int h, SkColor c, int x, int y, int text
 }
 
 sk_sp<SkFontMgr> TestFontMgr() {
-    static sk_sp<SkFontMgr> mgr;
-    static SkOnce once;
-    once([] {
-        if (!FLAGS_nativeFonts) {
-            mgr = MakePortableFontMgr();
-        }
-#if defined(SK_BUILD_FOR_WIN)
-        else if (FLAGS_gdi) {
-            mgr = SkFontMgr_New_GDI();
-        }
-#endif
-        else {
-#if defined(SK_BUILD_FOR_ANDROID)
-            mgr = SkFontMgr_New_Android(nullptr);
-#elif defined(SK_BUILD_FOR_WIN)
-            mgr = SkFontMgr_New_DirectWrite();
-#elif defined(SK_BUILD_FOR_IOS) || defined(SK_BUILD_FOR_MAC)
-            mgr = SkFontMgr_New_CoreText(nullptr);
-#elif defined(SK_BUILD_FOR_UNIX)
-            mgr = SkFontMgr_New_FontConfig(nullptr);
-#endif
-        }
-        SkASSERT_RELEASE(mgr);
-    });
-    return mgr;
+    // TODO(b/305780908) Replace this with something that detects which FontMgr is compiled in.
+    return SkFontMgr::RefDefault();
 }
-
-bool FontMgrIsGDI() {
-    if (!FLAGS_nativeFonts) {
-        return false;
-    }
-#if defined(SK_BUILD_FOR_WIN)
-    if (FLAGS_gdi) {
-        return true;
-    }
-#endif
-    return false;
-}
-
-void UsePortableFontMgr() { FLAGS_nativeFonts = false; }
 
 sk_sp<SkTypeface> DefaultTypeface() {
     return CreateTestTypeface(nullptr, SkFontStyle());
@@ -237,27 +173,8 @@ sk_sp<SkTypeface> CreateTestTypeface(const char* name, SkFontStyle style) {
     return CreatePortableTypeface(name, style);
 }
 
-sk_sp<SkTypeface> CreateTypefaceFromResource(const char* resource, int ttcIndex) {
-    sk_sp<SkFontMgr> fm = TestFontMgr();
-    SkASSERT_RELEASE(fm);
-    return fm->makeFromStream(GetResourceAsStream(resource), ttcIndex);
-}
-
 SkFont DefaultFont() {
     return SkFont(DefaultTypeface(), 12);
 }
-
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
-void SetDefaultFontMgr() {
-    if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-    }
-#if defined(SK_BUILD_FOR_WIN)
-    if (FLAGS_gdi) {
-        gSkFontMgr_DefaultFactory = &SkFontMgr_New_GDI;
-    }
-#endif
-}
-#endif
 
 }  // namespace ToolUtils

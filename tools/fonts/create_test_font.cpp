@@ -11,7 +11,6 @@
 
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
-#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkSpan.h"
@@ -24,14 +23,6 @@
 #include "src/utils/SkOSPath.h"
 
 #include <stdio.h>
-
-#if defined(SK_BUILD_FOR_MAC)
-#include "include/ports/SkFontMgr_mac_ct.h"
-#endif
-
-#if defined(SK_BUILD_FOR_UNIX)
-#include "include/ports/SkFontMgr_fontconfig.h"
-#endif
 
 namespace {
 
@@ -296,17 +287,14 @@ static SkString identifier(const FontFamilyDesc& family, const FontDesc& font) {
     return id;
 }
 
-static void generate_fonts(const char* basepath,
-                           const SkSpan<const FontFamilyDesc>& families,
-                           sk_sp<const SkFontMgr> mgr) {
-    SkASSERT_RELEASE(mgr);
+static void generate_fonts(const char* basepath, const SkSpan<const FontFamilyDesc>& families) {
     FILE* out = nullptr;
     for (const FontFamilyDesc& family : families) {
         out = font_header(family.fGenericName);
         for (const FontDesc& font : family.fFonts) {
             SkString filepath(SkOSPath::Join(basepath, font.fFile));
             SkASSERTF(sk_exists(filepath.c_str()), "The file %s does not exist.", filepath.c_str());
-            sk_sp<SkTypeface> resourceTypeface = mgr->makeFromFile(filepath.c_str(), 0);
+            sk_sp<SkTypeface> resourceTypeface = SkTypeface::MakeFromFile(filepath.c_str());
             SkASSERTF(resourceTypeface, "The file %s is not a font.", filepath.c_str());
             output_font(std::move(resourceTypeface), identifier(family, font).c_str(), out);
         }
@@ -422,14 +410,10 @@ int main(int , char * const []) {
 
     static constexpr SkSpan<const FontFamilyDesc> kFamilies(kFamiliesData);
 
-#if defined(SK_BUILD_FOR_UNIX)
-    sk_sp<SkFontMgr> mgr = SkFontMgr_New_FontConfig(nullptr);
-    generate_fonts("/usr/share/fonts/truetype/liberation/", kFamilies, mgr);
-#elif defined(SK_BUILD_FOR_MAC)
-    sk_sp<SkFontMgr> mgr = SkFontMgr_New_CoreText(nullptr);
-    generate_fonts("/Library/Fonts/", kFamilies, mgr);
+#ifdef SK_BUILD_FOR_UNIX
+    generate_fonts("/usr/share/fonts/truetype/liberation/", kFamilies);
 #else
-    #error "Unsupported OS"
+    generate_fonts("/Library/Fonts/", kFamilies);
 #endif
     generate_index(kFamilies, &kFamilies[1].fFonts[0]);
     return 0;

@@ -8,19 +8,18 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
-#include "tools/fonts/FontToolUtils.h"
+#include "src/core/SkFontMgrPriv.h"
 
 #include <algorithm>
 
 void FuzzCOLRv1(const uint8_t* data, size_t size) {
     // We do not want the portable fontmgr here, as it does not allow creation of fonts from bytes.
-    sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+    gSkFontMgr_DefaultFactory = nullptr;
     std::unique_ptr<SkStreamAsset> stream = SkMemoryStream::MakeDirect(data, size);
-    sk_sp<SkTypeface> typeface = mgr->makeFromStream(std::move(stream), 0);
+    sk_sp<SkTypeface> typeface = SkTypeface::MakeFromStream(std::move(stream));
 
     if (!typeface) {
         return;

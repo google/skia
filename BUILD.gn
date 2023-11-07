@@ -1794,7 +1794,7 @@ if (skia_enable_tools) {
     outputs = [ skia_h ]
   }
 
-  if (is_linux && target_cpu == "x64") {
+  if (target_cpu == "x64") {
     skia_executable("fiddle") {
       check_includes = false
       libs = []
@@ -2099,6 +2099,10 @@ if (skia_enable_tools) {
   }
   test_lib("common_flags_images") {
     sources = [ "tools/flags/CommonFlagsImages.cpp" ]
+    deps = [ ":flags" ]
+  }
+  test_lib("common_flags_fontmgr") {
+    sources = [ "tools/flags/CommonFlagsFontMgr.cpp" ]
     deps = [ ":flags" ]
   }
   test_lib("common_flags_aa") {
@@ -2411,6 +2415,7 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags_aa",
         ":common_flags_config",
+        ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":common_flags_images",
         ":flags",
@@ -2516,25 +2521,21 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (is_linux) {
-    test_app("sktexttopdf") {
-      sources = [ "tools/using_skia_and_harfbuzz.cpp" ]
-      deps = [
-        ":skia",
-        "modules/skshaper",
-      ]
-    }
+  test_app("sktexttopdf") {
+    sources = [ "tools/using_skia_and_harfbuzz.cpp" ]
+    deps = [
+      ":skia",
+      "modules/skshaper",
+    ]
   }
 
-  if (is_linux || is_mac) {
-    test_app("create_test_font") {
-      sources = [ "tools/fonts/create_test_font.cpp" ]
-      deps = [ ":skia" ]
-      assert_no_deps = [
-        # tool_utils requires the output of this app.
-        ":tool_utils",
-      ]
-    }
+  test_app("create_test_font") {
+    sources = [ "tools/fonts/create_test_font.cpp" ]
+    deps = [ ":skia" ]
+    assert_no_deps = [
+      # tool_utils requires the output of this app.
+      ":tool_utils",
+    ]
   }
 
   if (skia_use_expat) {
@@ -2981,6 +2982,7 @@ if (skia_enable_tools) {
       libs = []
 
       deps = [
+        ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":flags",
         ":gm",
@@ -3045,11 +3047,9 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_linux || is_win || is_mac) {
-    test_app("editor") {
-      is_shared_library = is_android
-      deps = [ "modules/skplaintexteditor:editor_app" ]
-    }
+  test_app("editor") {
+    is_shared_library = is_android
+    deps = [ "modules/skplaintexteditor:editor_app" ]
   }
 
   skia_executable("image_diff_metric") {

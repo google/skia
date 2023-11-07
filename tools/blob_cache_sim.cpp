@@ -7,7 +7,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
@@ -28,7 +27,7 @@ int main(int argc, char** argv) {
         const char* filename = argv[i];
 
         SkFILEStream in{filename};
-        std::vector<SkTextBlobTrace::Record> trace = SkTextBlobTrace::CreateBlobTrace(&in, nullptr);
+        std::vector<SkTextBlobTrace::Record> trace = SkTextBlobTrace::CreateBlobTrace(&in);
         for (const SkTextBlobTrace::Record& record : trace) {
             total++;
             const SkPaint paint = record.paint;

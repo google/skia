@@ -22,7 +22,6 @@
 #include "src/core/SkFontStream.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-#include "tools/fonts/FontToolUtils.h"
 
 #include <cstdint>
 #include <cstring>
@@ -128,7 +127,7 @@ static void test_fontstream(skiatest::Reporter* reporter) {
 
 // Exercise this rare cmap format (platform 3, encoding 0)
 static void test_symbolfont(skiatest::Reporter* reporter) {
-    auto tf = ToolUtils::CreateTypefaceFromResource("fonts/SpiderSymbol.ttf");
+    auto tf = MakeResourceAsTypeface("fonts/SpiderSymbol.ttf");
     if (tf) {
         SkUnichar c = 0xf021;
         uint16_t g = SkFont(tf).unicharToGlyph(c);
@@ -196,7 +195,7 @@ static void test_tables(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < std::size(gNames); ++i) {
-        sk_sp<SkTypeface> face(ToolUtils::CreateTestTypeface(gNames[i], SkFontStyle()));
+        sk_sp<SkTypeface> face(SkTypeface::MakeFromName(gNames[i], SkFontStyle()));
         if (face) {
 #ifdef DUMP_TABLES
             SkDebugf("%s\n", gNames[i]);
@@ -250,7 +249,7 @@ static void test_advances(skiatest::Reporter* reporter) {
     size_t textLen = strlen(txt);
 
     for (size_t i = 0; i < std::size(faces); i++) {
-        font.setTypeface(ToolUtils::CreateTestTypeface(faces[i], SkFontStyle()));
+        font.setTypeface(SkTypeface::MakeFromName(faces[i], SkFontStyle()));
 
         for (size_t j = 0; j  < std::size(settings); j++) {
             font.setHinting(settings[j].hinting);

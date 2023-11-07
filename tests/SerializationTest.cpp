@@ -400,7 +400,7 @@ static sk_sp<SkTypeface> deserialize_typeface_proc(const void* data, size_t leng
         return nullptr;
     }
 
-    sk_sp<SkTypeface> typeface = SkTypeface::MakeDeserialize(stream, ToolUtils::TestFontMgr());
+    sk_sp<SkTypeface> typeface = SkTypeface::MakeDeserialize(stream);
     return typeface;
 }
 
@@ -448,7 +448,7 @@ static sk_sp<SkTypeface> makeDistortableWithNonDefaultAxes(skiatest::Reporter* r
     SkFontArguments params;
     params.setVariationDesignPosition({position, std::size(position)});
 
-    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
 
     sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
     if (!typeface) {
@@ -468,7 +468,7 @@ static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
                                              skiatest::Reporter* reporter) {
     {
         // Load typeface from file to test CreateFromFile with index.
-        auto typeface = ToolUtils::CreateTypefaceFromResource("fonts/test.ttc", 1);
+        auto typeface = MakeResourceAsTypeface("fonts/test.ttc", 1);
         if (!typeface) {
             INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {
@@ -548,8 +548,7 @@ static void TestTypefaceSerialization(skiatest::Reporter* reporter,
     typeface->serialize(&typefaceWStream);
 
     std::unique_ptr<SkStream> typefaceStream = typefaceWStream.detachAsStream();
-    sk_sp<SkTypeface> cloneTypeface =
-            SkTypeface::MakeDeserialize(typefaceStream.get(), ToolUtils::TestFontMgr());
+    sk_sp<SkTypeface> cloneTypeface = SkTypeface::MakeDeserialize(typefaceStream.get());
     SkASSERT(cloneTypeface);
 
     SkString name, cloneName;

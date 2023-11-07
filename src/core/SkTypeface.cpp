@@ -146,7 +146,7 @@ SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
 }
 
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
-#if !defined(SK_DEFAULT_TYPEFACE_IS_EMPTY) && !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
+#if !defined(SK_DEFAULT_TYPEFACE_IS_EMPTY)
     static SkOnce once[4];
     static sk_sp<SkTypeface> defaults[4];
 

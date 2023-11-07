@@ -8,9 +8,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
+#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "tools/fonts/FontToolUtils.h"
+#include "tools/fonts/TestFontMgr.h"
 
 void FuzzTextBlobDeserialize(const uint8_t *data, size_t size) {
     SkReadBuffer buf(data, size);
@@ -33,7 +34,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 1024) {
         return 0;
     }
-    ToolUtils::UsePortableFontMgr();
+    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
     FuzzTextBlobDeserialize(data, size);
     return 0;
 }

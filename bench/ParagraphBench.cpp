@@ -12,7 +12,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
 #include "tools/Resources.h"
-#include "tools/fonts/FontToolUtils.h"
 
 #if defined(SK_ENABLE_PARAGRAPH)
 
@@ -43,7 +42,7 @@ protected:
 
     void onDelayedSetup() override {
         fFontCollection = sk_make_sp<skia::textlayout::FontCollection>();
-        fFontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+        fFontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
 
         fTStyle.setFontFamilies({SkString("Roboto")});
         fTStyle.setColor(SK_ColorBLACK);

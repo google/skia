@@ -1,11 +1,11 @@
 load("//bazel:skia_rules.bzl", "skia_cc_library")
 load("//tools/testrunners/unit:android_unit_test.bzl", "android_unit_test")
-load("//tools/testrunners/unit:unit_tests.bzl", "unit_tests")
 load(
     ":testgroups.bzl",
     "CORE_TESTS",
     "RECORD_TESTS",
 )
+load("//tools/testrunners/unit:unit_tests.bzl", "unit_tests")
 
 skia_cc_library(
     name = "test_harness",
@@ -53,7 +53,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//:fontmgr_fontconfig",
         "//src/base",
     ],
 )

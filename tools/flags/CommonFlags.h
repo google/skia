@@ -50,4 +50,9 @@ void SetCtxOptions(struct GrContextOptions*);
  */
 void SetAnalyticAA();
 
+/**
+ *  Turn on portable (--nonativeFonts) or GDI font rendering (--gdi).
+ */
+void SetDefaultFontMgr();
+
 }  // namespace CommonFlags

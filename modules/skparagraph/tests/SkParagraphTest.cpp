@@ -39,7 +39,6 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 #include <algorithm>
@@ -121,13 +120,12 @@ public:
         }
         SkASSERTF(fFontsFound, "--paragraph_fonts was set but didn't have the fonts we need");
 
-        sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
         for (auto& font : fonts) {
             SkString file_path;
             file_path.printf("%s/%s", fontDir, font.c_str());
             auto stream = SkStream::MakeFromFile(file_path.c_str());
             SkASSERTF(stream, "%s not readable", file_path.c_str());
-            sk_sp<SkTypeface> face = mgr->makeFromStream(std::move(stream), {});
+            auto face = SkTypeface::MakeFromStream(std::move(stream), {});
             // Without --nativeFonts, DM will use the portable test font manager which does
             // not know how to read in fonts from bytes.
             SkASSERTF(face, "%s was not turned into a Typeface. Did you set --nativeFonts?",
@@ -227,11 +225,11 @@ private:
         return;                                              \
     }
 
-#define NEED_SYSTEM_FONTS(fontCollection)                            \
-    if (!FLAGS_run_paragraph_tests_needing_system_fonts) {           \
-        return;                                                      \
-    }                                                                \
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr()); \
+#define NEED_SYSTEM_FONTS(fontCollection)                          \
+    if (!FLAGS_run_paragraph_tests_needing_system_fonts)  {        \
+        return;                                                    \
+    }                                                              \
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());\
     fontCollection->enableFontFallback();
 
 UNIX_ONLY_TEST(SkParagraph_SimpleParagraph, reporter) {
@@ -5195,7 +5193,7 @@ UNIX_ONLY_TEST(SkParagraph_CacheStyles, reporter) {
 UNIX_ONLY_TEST(SkParagraph_ParagraphWithLineBreak, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     fontCollection->enableFontFallback();
 
     TestCanvas canvas("SkParagraph_ParagraphWithLineBreak.png");
@@ -5224,7 +5222,7 @@ UNIX_ONLY_TEST(SkParagraph_ParagraphWithLineBreak, reporter) {
 UNIX_ONLY_TEST(SkParagraph_NullInMiddleOfText, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
 
     const SkString text("null terminator ->\u0000<- on purpose did you see it?");
 
@@ -5264,7 +5262,7 @@ UNIX_ONLY_TEST(SkParagraph_PlaceholderOnly, reporter) {
 UNIX_ONLY_TEST(SkParagraph_Fallbacks, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), "Arial");
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault(), "Arial");
     fontCollection->enableFontFallback();
     TestCanvas canvas("SkParagraph_Fallbacks.png");
 
@@ -5308,7 +5306,7 @@ UNIX_ONLY_TEST(SkParagraph_Fallbacks, reporter) {
 UNIX_ONLY_TEST(SkParagraph_Bidi1, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     fontCollection->enableFontFallback();
     TestCanvas canvas("SkParagraph_Bidi1.png");
 
@@ -5360,7 +5358,7 @@ UNIX_ONLY_TEST(SkParagraph_Bidi1, reporter) {
 UNIX_ONLY_TEST(SkParagraph_Bidi2, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     fontCollection->enableFontFallback();
     TestCanvas canvas("SkParagraph_Bidi2.png");
 
@@ -5402,7 +5400,7 @@ UNIX_ONLY_TEST(SkParagraph_Bidi2, reporter) {
 UNIX_ONLY_TEST(SkParagraph_NewlineOnly, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -5546,7 +5544,7 @@ UNIX_ONLY_TEST(SkParagraph_Shaping, reporter) {
 UNIX_ONLY_TEST(SkParagraph_Ellipsis, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     TestCanvas canvas("SkParagraph_Ellipsis.png");
 
     const char* text = "This\n"
@@ -5607,7 +5605,7 @@ UNIX_ONLY_TEST(SkParagraph_Ellipsis, reporter) {
 UNIX_ONLY_TEST(SkParagraph_MemoryLeak, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
 
     std::string text;
     for (size_t i = 0; i < 10; i++)
@@ -5638,7 +5636,7 @@ UNIX_ONLY_TEST(SkParagraph_MemoryLeak, reporter) {
 UNIX_ONLY_TEST(SkParagraph_FormattingInfinity, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     TestCanvas canvas("SkParagraph_FormattingInfinity.png");
 
     const char* text = "Some text\nAnother line";
@@ -7093,7 +7091,7 @@ UNIX_ONLY_TEST(SkParagraph_TabSubstitution, reporter) {
 UNIX_ONLY_TEST(SkParagraph_lineMetricsWithEllipsis, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     fontCollection->enableFontFallback();
 
     ParagraphStyle paragraph_style;
@@ -7115,7 +7113,7 @@ UNIX_ONLY_TEST(SkParagraph_lineMetricsWithEllipsis, reporter) {
 UNIX_ONLY_TEST(SkParagraph_lineMetricsAfterUpdate, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     fontCollection->enableFontFallback();
 
     auto text = std::u16string(u"hello world");
@@ -7657,7 +7655,7 @@ UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
 UNIX_ONLY_TEST(SkParagraph_getLineNumberAt_Ellipsis, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     TestCanvas canvas("SkParagraph_Ellipsis.png");
 
     // The second line will be ellipsized. The 10th glyph ("0") will be replaced
@@ -7889,7 +7887,7 @@ UNIX_ONLY_TEST(SkParagraph_SingleDummyPlaceholder, reporter) {
 
 UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
     sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
     fontCollection->enableFontFallback();
 
     const char* text = "A text ending with line separator.\u2028";
