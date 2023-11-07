@@ -151,6 +151,12 @@ inline sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeWithoutData(
  */
 class ManagedGraphiteTexture : public SkNVRefCnt<ManagedGraphiteTexture> {
 public:
+    static sk_sp<ManagedGraphiteTexture> MakeUnInit(Recorder*,
+                                                    const SkImageInfo&,
+                                                    skgpu::Mipmapped,
+                                                    skgpu::Renderable,
+                                                    skgpu::Protected = skgpu::Protected::kNo);
+
     static sk_sp<ManagedGraphiteTexture> MakeFromPixmap(Recorder*,
                                                         const SkPixmap&,
                                                         skgpu::Mipmapped,

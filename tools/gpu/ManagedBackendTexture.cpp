@@ -172,11 +172,41 @@ sk_sp<skgpu::RefCntedCallback> ManagedGraphiteTexture::refCountedCallback() cons
     return skgpu::RefCntedCallback::Make(FinishedProc, this->releaseContext());
 }
 
+sk_sp<ManagedGraphiteTexture> ManagedGraphiteTexture::MakeUnInit(Recorder* recorder,
+                                                                 const SkImageInfo& ii,
+                                                                 Mipmapped mipmapped,
+                                                                 Renderable renderable,
+                                                                 Protected isProtected) {
+    sk_sp<ManagedGraphiteTexture> mbet(new ManagedGraphiteTexture);
+    mbet->fContext = recorder->priv().context();
+    const skgpu::graphite::Caps* caps = recorder->priv().caps();
+
+    skgpu::graphite::TextureInfo info = caps->getDefaultSampledTextureInfo(ii.colorType(),
+                                                                           mipmapped,
+                                                                           isProtected,
+                                                                           renderable);
+
+    mbet->fTexture = recorder->createBackendTexture(ii.dimensions(), info);
+    if (!mbet->fTexture.isValid()) {
+        return nullptr;
+    }
+
+    recorder->addFinishInfo({mbet->releaseContext(), FinishedProc});
+
+    return mbet;
+}
+
 sk_sp<ManagedGraphiteTexture> ManagedGraphiteTexture::MakeFromPixmap(Recorder* recorder,
                                                                      const SkPixmap& src,
                                                                      Mipmapped mipmapped,
                                                                      Renderable renderable,
                                                                      Protected isProtected) {
+    sk_sp<ManagedGraphiteTexture> mbet = MakeUnInit(recorder, src.info(), mipmapped, renderable,
+                                                    isProtected);
+    if (!mbet) {
+        return nullptr;
+    }
+
     std::vector<SkPixmap> levels({src});
     std::unique_ptr<SkMipmap> mm;
 
@@ -192,24 +222,11 @@ sk_sp<ManagedGraphiteTexture> ManagedGraphiteTexture::MakeFromPixmap(Recorder* r
         }
     }
 
-    sk_sp<ManagedGraphiteTexture> mbet(new ManagedGraphiteTexture);
-    mbet->fContext = recorder->priv().context();
-
-    auto info = recorder->priv().caps()->getDefaultSampledTextureInfo(src.colorType(),
-                                                                      mipmapped,
-                                                                      isProtected,
-                                                                      renderable);
-    mbet->fTexture = recorder->createBackendTexture(src.dimensions(), info);
-    if (!mbet->fTexture.isValid()) {
-        return nullptr;
-    }
-
     if (!recorder->updateBackendTexture(mbet->fTexture,
                                         levels.data(),
                                         static_cast<int>(levels.size()))) {
         return nullptr;
     }
-    recorder->addFinishInfo({mbet->releaseContext(), FinishedProc});
 
     return mbet;
 }
