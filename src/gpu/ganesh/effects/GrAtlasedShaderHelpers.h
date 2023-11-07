@@ -79,8 +79,7 @@ static inline void append_multitexture_lookup(GrGeometryProcessor::ProgramImpl::
                                               int numTextureSamplers,
                                               const GrGLSLVarying& texIdx,
                                               const char* coordName,
-                                              const char* colorName,
-                                              GrGLSLColorSpaceXformHelper* cxh = nullptr) {
+                                              const char* colorName) {
     SkASSERT(numTextureSamplers > 0);
     // This shouldn't happen, but will avoid a crash if it does
     if (numTextureSamplers <= 0) {
@@ -92,14 +91,12 @@ static inline void append_multitexture_lookup(GrGeometryProcessor::ProgramImpl::
     for (int i = 0; i < numTextureSamplers-1; ++i) {
         args.fFragBuilder->codeAppendf("if (%s == %d) { %s = ", texIdx.fsIn(), i, colorName);
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i],
-                                               coordName,
-                                               cxh);
+                                               coordName);
         args.fFragBuilder->codeAppend("; } else ");
     }
     args.fFragBuilder->codeAppendf("{ %s = ", colorName);
     args.fFragBuilder->appendTextureLookup(args.fTexSamplers[numTextureSamplers - 1],
-                                           coordName,
-                                           cxh);
+                                           coordName);
     args.fFragBuilder->codeAppend("; }");
 }
 
