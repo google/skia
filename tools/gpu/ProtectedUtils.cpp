@@ -19,7 +19,6 @@ sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext* dContext,
                                           SkISize size,
                                           bool textureable,
                                           bool isProtected) {
-    SkSurfaceProps surfaceProps = SkSurfaceProps(0, kRGB_H_SkPixelGeometry);
     sk_sp<SkSurface> surface;
     if (textureable) {
         surface = sk_gpu_test::MakeBackendTextureSurface(dContext,
@@ -30,7 +29,7 @@ sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext* dContext,
                                                          /* colorSpace= */ nullptr,
                                                          skgpu::Mipmapped::kNo,
                                                          skgpu::Protected(isProtected),
-                                                         &surfaceProps);
+                                                         /* surfaceProps= */ nullptr);
     } else {
         surface = sk_gpu_test::MakeBackendRenderTargetSurface(dContext,
                                                               size,
@@ -39,7 +38,7 @@ sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext* dContext,
                                                               kRGBA_8888_SkColorType,
                                                               /* colorSpace= */ nullptr,
                                                               skgpu::Protected(isProtected),
-                                                              &surfaceProps);
+                                                              /* surfaceProps= */ nullptr);
     }
     if (!surface) {
         SK_ABORT("Could not create %s surface.", isProtected ? "protected" : "unprotected");
