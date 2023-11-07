@@ -20,6 +20,7 @@
 #endif
 
 #ifdef SK_GRAPHITE
+#include "include/core/SkBitmap.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -93,8 +94,11 @@ sk_sp<SkImage> MakeBackendTextureImage(Recorder* recorder,
                                        Renderable isRenderable,
                                        Origin origin,
                                        Protected isProtected) {
-    auto mbet = ManagedGraphiteTexture::MakeFromPixmap(
-            recorder, pixmap, isMipmapped, isRenderable, isProtected);
+    auto mbet = ManagedGraphiteTexture::MakeFromPixmap(recorder,
+                                                       pixmap,
+                                                       isMipmapped,
+                                                       isRenderable,
+                                                       isProtected);
     if (!mbet) {
         return nullptr;
     }
@@ -107,6 +111,26 @@ sk_sp<SkImage> MakeBackendTextureImage(Recorder* recorder,
                                  origin,
                                  sk_gpu_test::ManagedGraphiteTexture::ImageReleaseProc,
                                  mbet->releaseContext());
+}
+
+sk_sp<SkImage> MakeBackendTextureImage(Recorder* recorder,
+                                       const SkImageInfo& ii,
+                                       SkColor4f color,
+                                       skgpu::Mipmapped isMipmapped,
+                                       Renderable isRenderable,
+                                       Origin origin,
+                                       Protected isProtected) {
+    if (ii.alphaType() == kOpaque_SkAlphaType) {
+        color = color.makeOpaque();
+    }
+
+    SkBitmap bitmap;
+    bitmap.allocPixels(ii);
+
+    bitmap.eraseColor(color);
+
+    return MakeBackendTextureImage(recorder, bitmap.pixmap(), isMipmapped, isRenderable,
+                                   origin, isProtected);
 }
 #endif  // SK_GRAPHITE
 

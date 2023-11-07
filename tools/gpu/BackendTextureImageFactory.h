@@ -25,7 +25,6 @@ namespace skgpu::graphite {
     class Recorder;
 }
 using Origin = skgpu::Origin; // TODO: Can we migrate Ganesh to use this?
-#include "include/gpu/graphite/BackendTexture.h"
 #endif
 
 namespace sk_gpu_test {
@@ -48,7 +47,7 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
                                        GrSurfaceOrigin,
                                        Protected = Protected::kNo);
 
-/** Creates an image of with a solid color. */
+/** Creates a solid color image. */
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
                                        const SkImageInfo& info,
                                        SkColor4f,
@@ -60,7 +59,7 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext*,
 
 #ifdef SK_GRAPHITE
 /*
- * Graphite version of MakeBackendTextureImage
+ * Graphite versions of MakeBackendTextureImage
  */
 sk_sp<SkImage> MakeBackendTextureImage(skgpu::graphite::Recorder*,
                                        const SkPixmap&,
@@ -68,6 +67,16 @@ sk_sp<SkImage> MakeBackendTextureImage(skgpu::graphite::Recorder*,
                                        Renderable,
                                        Origin,
                                        Protected = Protected::kNo);
+
+/** Creates a solid color image. */
+sk_sp<SkImage> MakeBackendTextureImage(skgpu::graphite::Recorder*,
+                                       const SkImageInfo&,
+                                       SkColor4f,
+                                       Mipmapped,
+                                       Renderable,
+                                       Origin,
+                                       Protected = Protected::kNo);
+
 #endif  // SK_GRAPHITE
 
 }  // namespace sk_gpu_test
