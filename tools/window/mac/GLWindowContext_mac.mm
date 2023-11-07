@@ -65,37 +65,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     SkASSERT(nil != fMainView);
 
     if (!fGLContext) {
-        // set up pixel format
-        constexpr int kMaxAttributes = 19;
-        NSOpenGLPixelFormatAttribute attributes[kMaxAttributes];
-        int numAttributes = 0;
-        attributes[numAttributes++] = NSOpenGLPFAAccelerated;
-        attributes[numAttributes++] = NSOpenGLPFAClosestPolicy;
-        attributes[numAttributes++] = NSOpenGLPFADoubleBuffer;
-        attributes[numAttributes++] = NSOpenGLPFAOpenGLProfile;
-        attributes[numAttributes++] = NSOpenGLProfileVersion3_2Core;
-        attributes[numAttributes++] = NSOpenGLPFAColorSize;
-        attributes[numAttributes++] = 24;
-        attributes[numAttributes++] = NSOpenGLPFAAlphaSize;
-        attributes[numAttributes++] = 8;
-        attributes[numAttributes++] = NSOpenGLPFADepthSize;
-        attributes[numAttributes++] = 0;
-        attributes[numAttributes++] = NSOpenGLPFAStencilSize;
-        attributes[numAttributes++] = 8;
-        if (fDisplayParams.fMSAASampleCount > 1) {
-            attributes[numAttributes++] = NSOpenGLPFAMultisample;
-            attributes[numAttributes++] = NSOpenGLPFASampleBuffers;
-            attributes[numAttributes++] = 1;
-            attributes[numAttributes++] = NSOpenGLPFASamples;
-            attributes[numAttributes++] = fDisplayParams.fMSAASampleCount;
-        } else {
-            attributes[numAttributes++] = NSOpenGLPFASampleBuffers;
-            attributes[numAttributes++] = 0;
-        }
-        attributes[numAttributes++] = 0;
-        SkASSERT(numAttributes <= kMaxAttributes);
-
-        fPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
+        fPixelFormat = skwindow::GetGLPixelFormat(fDisplayParams.fMSAASampleCount);
         if (nil == fPixelFormat) {
             return nullptr;
         }

@@ -69,6 +69,9 @@ skia_component("window") {
       "GLWindowContext.cpp",
       "GLWindowContext.h",
     ]
+    if (skia_use_angle) {
+      sources += [ "ANGLEWindowContext.cpp" ]
+    }
     if (is_android) {
       sources += [ "android/GLWindowContext_android.cpp" ]
     } else if (is_linux) {
@@ -83,6 +86,9 @@ skia_component("window") {
         "mac/GLWindowContext_mac.mm",
         "mac/RasterWindowContext_mac.mm",
       ]
+      if (skia_use_angle) {
+        sources += [ "mac/ANGLEWindowContext_mac.mm" ]
+      }
     } else if (is_ios) {
       sources += [
         "ios/GLWindowContext_ios.mm",

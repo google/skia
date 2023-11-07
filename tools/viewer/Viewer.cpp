@@ -281,7 +281,7 @@ static const char* get_path_renderer_strategy(skgpu::graphite::PathRendererStrat
 const char* get_backend_string(sk_app::Window::BackendType type) {
     switch (type) {
         case sk_app::Window::kNativeGL_BackendType: return "OpenGL";
-#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+#if SK_ANGLE && (defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC))
         case sk_app::Window::kANGLE_BackendType: return "ANGLE";
 #endif
 #ifdef SK_DAWN
@@ -328,7 +328,7 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
         } else
 #endif
 #endif
-#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+#if SK_ANGLE && (defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC))
     if (0 == strcmp(str, "angle")) {
         return sk_app::Window::kANGLE_BackendType;
     } else
@@ -2080,7 +2080,7 @@ void Viewer::drawImGui() {
                 ImGui::RadioButton("Raster", &newBackend, sk_app::Window::kRaster_BackendType);
                 ImGui::SameLine();
                 ImGui::RadioButton("OpenGL", &newBackend, sk_app::Window::kNativeGL_BackendType);
-#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+#if SK_ANGLE && (defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC))
                 ImGui::SameLine();
                 ImGui::RadioButton("ANGLE", &newBackend, sk_app::Window::kANGLE_BackendType);
 #endif

@@ -63,7 +63,7 @@ public:
 #ifdef SK_GL
         kNativeGL_BackendType,
 #endif
-#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+#if SK_ANGLE && (defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC))
         kANGLE_BackendType,
 #endif
 #ifdef SK_DAWN

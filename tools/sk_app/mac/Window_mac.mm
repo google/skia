@@ -122,6 +122,11 @@ bool Window_mac::attach(BackendType attachType) {
     skwindow::MacWindowInfo info;
     info.fMainView = [fWindow contentView];
     switch (attachType) {
+#if SK_ANGLE
+        case kANGLE_BackendType:
+            fWindowContext = skwindow::MakeANGLEForMac(info, fRequestedDisplayParams);
+            break;
+#endif
 #ifdef SK_DAWN
 #if defined(SK_GRAPHITE)
         case kGraphiteDawn_BackendType:
