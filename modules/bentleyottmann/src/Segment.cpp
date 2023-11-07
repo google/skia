@@ -56,38 +56,43 @@ bool no_intersection_by_bounding_box(const Segment& s0, const Segment& s1) {
 //
 // Back substitute s into the equation for Y.
 //    y0 + ((x2 - x0 + t(x3 - x2)) / (x1 - x0))(y1 - y0) = y2 + t(y3 - y2)
-//    (x2 - x0 + t(x3 - x2)) / (x1 - x0) = (y2 - y1 + t(y3 - y2)) / (y1 - y0)
-//    (y1 - y0)(x2 - x0 + t(x3 - x2)) = (x1 - x0)(y2 - y1 + t(y3 - y2))
-//    (y1 - y0)(x2 - x0) + t(y1 - y0)(x3 - x2) = (x1 - x0)(y2 - y1) + t(x1 - x0)(y3 - y2)
+//    (x2 - x0 + t(x3 - x2)) / (x1 - x0) = (y2 - y0 + t(y3 - y2)) / (y1 - y0)
+//    (y1 - y0)(x2 - x0 + t(x3 - x2)) = (x1 - x0)(y2 - y0 + t(y3 - y2))
+//    (y1 - y0)(x2 - x0) + t(y1 - y0)(x3 - x2) = (x1 - x0)(y2 - y0) + t(x1 - x0)(y3 - y2)
 // Collecting t's on one side, and constants on the other.
-//    t((y1 - y0)(x3 - x2) - (x1 - x0)(y3 - y2)) = (x1 - x0)(y2 - y1) - (y1 - y0)(x2 - x0)
+//    t((y1 - y0)(x3 - x2) - (x1 - x0)(y3 - y2)) = (x1 - x0)(y2 - y0) - (y1 - y0)(x2 - x0)
+//
+// Solve for t in terms of x.
+//    x0 + s(x1 - x0) = x2 + t(x3 - x2)
+//    x0 - x2 + s(x1 - x0) = t(x3 - x2)
+//    (x0 - x2 + s(x1 - x0)) / (x3 - x2) = t
+// Back substitute t into the equation for Y.
+//    y0 + s(y1 - y0) = y2 + ((x0 - x2 + s(x1 - x0)) / (x3 - x2))(y3 - y2)
+//    (y0 - y2 + s(y1 - y0)) / (y3 - y2) = (x0 - x2 + s(x1 - x0)) / (x3 - x2)
+//    (x3 - x2)(y0 - y2 + s(y1 - y0)) = (y3 - y2)(x0 - x2 + s(x1 - x0))
+//    (x3 - x2)(y0 - y2) + s(x3 - x2)(y1 - y0) = (y3 - y2)(x0 - x2) + s(y3 - y2)(x1 - x0)
+// Collecting s's on on side and constants on the other.
+//    s((x3 - x2)(y1 - y0) - (y3 - y2)(x1 - x0)) = (y3 - y2)(x0 - x2) - (x3 - x2)(y0 - y2)
+
 // Assign names and vectors to extract the cross products. The vector (x0, y0) -> (x1, y1) is
 // P0 -> P1, and is named Q = (x1 - x0, y1 - y0) = P1 - P0. The following vectors are defined in
 // a similar way.
 //  * Q: P1 - P0
 //  * R: P2 - P0
-//  * S: P3 - P0
 //  * T: P3 - P2
-// Extracting cross products from above.
+// Extracting cross products from above for t.
 //    t((P3 - P2) x (P1 - P0)) = (P1 - P0) x (P2 - P0)
 //    t(T x Q) = Q x R
 //    t = (Q x R) / (T x Q)
-// But, T x Q is not something we want to calculate. What must be calculated is Q x R and Q x S.
-// If these two cross products have different signs, then there is an intersection, otherwise
-// there is not. We can calculate T x Q in terms of Q x R and Q x S in the following way.
-//    T x Q = Q x R - Q x S
-//          = (P1 - P0) x (P2 - P0) - (P1 - P0) x (P3 - P0)
-//          = (P1 - P0) x ((P2 - P0) - (P3 - P0))
-//          = (P1 - P0) x (P2 - P3)
-//          = Q x -T
-//          = -(Q x T)
-//          = T x Q.
-// So, t is equal to
-//    t = (Q x R) / ((Q x R) - (Q x S)).
-// This is then substituted into I = (x2 + t(x3 - x2), y2 + t(y3 - y2)).
+// Extracting cross products from above for t.
+//    s((P3 - P2) x (P1 - P0)) = (P0 - P2) x (P3 - P2)
+//    s(T x Q) = -R x T
+//    s = (T x R) / (T x Q)
 //
-// This method of calculating the intersection only uses 10 multiplies, and 1 division. It also
-// determines if the two segments cross with no round-off error and is always correct using 8
+// There is an intersection only if t and s are on [0, 1].
+//
+// This method of calculating the intersection only uses 8 multiplies, and 1 division. It also
+// determines if the two segments cross with no round-off error and is always correct using 6
 // multiplies. However, the actual crossing point is rounded to fit back into the int32_t.
 std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
 
@@ -96,15 +101,21 @@ std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
         return std::nullopt;
     }
 
-    // Create the Qa, Ra, and Sa vectors rooted at s0.p0, Qb, Rb, Sb rooted at s1.p0.
-    Point Oa = s0.p0,
-          Qa = s0.p1 - Oa,
-          Ra = s1.p0 - Oa,
-          Sa = s1.p1 - Oa,
-          Ob = s1.p0,
-          Qb = s1.p1 - Ob,
-          Rb = s0.p0 - Ob,
-          Sb = s0.p1 - Ob;
+    // Create the end Points for s0 and s1
+    const Point P0 = s0.upper(),
+                P1 = s0.lower(),
+                P2 = s1.upper(),
+                P3 = s1.lower();
+
+    if (P0 == P2 || P1 == P3 || P1 == P2 || P3 == P0) {
+        // Lines don't intersect if they share an end point.
+        return std::nullopt;
+    }
+
+    // Create the Q, R, and T.
+    const Point Q = P1 - P0,
+                R = P2 - P0,
+                T = P3 - P2;
 
     // 64-bit cross product.
     auto cross = [](const Point& v0, const Point& v1) {
@@ -115,46 +126,44 @@ std::optional<Point> intersect(const Segment& s0, const Segment& s1) {
         return x0 * y1 - y0 * x1;
     };
 
-    // Calculate the four cross products. Calculate the cross product of two sets of two
-    // triangles -- the 'a' set and the b set. The two for the 'a' set are described by the vectors
-    // Qa x Ra and Qa x Sa, and like wise for the 'b' set. If either set of cross products have the
-    // same signs, then there is no crossing.
-    int64_t QaxRa = cross(Qa, Ra),
-            QaxSa = cross(Qa, Sa),
-            QbxRb = cross(Qb, Rb),
-            QbxSb = cross(Qb, Sb);
+    // Calculate the cross products needed for calculating s and t.
+    const int64_t QxR = cross(Q, R),
+                  TxR = cross(T, R),
+                  TxQ = cross(T, Q);
 
-    // If the endpoint is on Q, then there is no crossing. Only true intersections are returned.
-    // For the intersection calculation, line segments do not include their end-points.
-    if (QaxRa == 0 || QaxSa == 0 || QbxRb == 0 || QbxSb == 0) {
+    if (TxQ == 0) {
+        // Both t and s are either < 0 or > 1 because the denominator is 0.
         return std::nullopt;
     }
 
-    // The cross products have the same sign, so no intersection. There is no round-off error in
-    // QaxRa, QaxSa, QbxRb or QbxSb. This ensures that there is really an intersection.
-    if ((QaxRa ^ QaxSa) >= 0 || (QbxRb ^ QbxSb) >= 0) {
+    // t = (Q x R) / (T x Q). s = (T x R) / (T x Q). Check that t & s are on [0, 1]
+    if ((QxR ^ TxQ) < 0 || (TxR ^ TxQ) < 0) {
+        // The division is negative and t or s < 0.
         return std::nullopt;
     }
 
-    // TODO: this calculation probably needs to use 32-bit x 64-bit -> 96-bit multiply and
-    // 96-bit / 64-bit -> 32-bit quotient and a 64-bit remainder. Fake it with doubles below.
-    // N / D constitute a value on [0, 1], where the intersection I is
-    //     I = s0.p0 + (s0.p1 - s0.p0) * N/D.
-    double N = QaxRa,
-           D = QaxRa - QaxSa,
-           t = N / D;
-
-    SkASSERT(0 <= t && t <= 1);
+    if (TxQ > 0) {
+        if (QxR > TxQ || TxR > TxQ) {
+            // t or s is greater than 1.
+            return std::nullopt;
+        }
+    } else {
+        if (QxR < TxQ || TxR < TxQ) {
+            // t or s is greater than 1.
+            return std::nullopt;
+        }
+    }
 
     // Calculate the intersection using doubles.
     // TODO: This is just a placeholder approximation for calculating x and y should use big math
     // above.
-    int32_t x = std::round(t * (s1.p1.x - s1.p0.x) + s1.p0.x),
-            y = std::round(t * (s1.p1.y - s1.p0.y) + s1.p0.y);
+    const double t = static_cast<double>(QxR) / static_cast<double>(TxQ);
+    SkASSERT(0 <= t && t <= 1);
+    const int32_t x = std::round(t * (P3.x - P2.x) + P2.x),
+                  y = std::round(t * (P3.y - P2.y) + P2.y);
 
     return Point{x, y};
 }
-
 
 // The comparison is:
 //     x0 + (y - y0)(x1 - x0) / (y1 - y0) <? x2 + (y - y2)(x3 - x2) / (y3 - y2)
