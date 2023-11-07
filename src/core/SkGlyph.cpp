@@ -646,6 +646,7 @@ void SkGlyphDigest::setActionFor(skglyph::ActionType actionType,
             }
             case kDirectMaskCPU: {
                 if (strike->prepareForImage(glyph)) {
+                    SkASSERT(!glyph->isEmpty());
                     action = GlyphAction::kAccept;
                 }
                 break;

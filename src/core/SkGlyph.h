@@ -457,7 +457,8 @@ public:
 
     // Returns true if the image has been set.
     bool setImageHasBeenCalled() const {
-        return fImage != nullptr || this->isEmpty() || this->imageTooLarge();
+        // Check for empty bounds first to guard against fImage somehow being set.
+        return this->isEmpty() || fImage != nullptr || this->imageTooLarge();
     }
 
     // Return a pointer to the path if the image exists, otherwise return nullptr.
@@ -511,9 +512,7 @@ public:
     int width()  const { return fWidth;  }
     int height() const { return fHeight; }
     bool isEmpty() const {
-        // fHeight == 0 -> fWidth == 0;
-        SkASSERT(fHeight != 0 || fWidth == 0);
-        return fWidth == 0;
+        return fWidth == 0 || fHeight == 0;
     }
     bool imageTooLarge() const { return fWidth >= kMaxGlyphWidth; }
 
