@@ -7,9 +7,9 @@
 #include "src/codec/SkHeifCodec.h"
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkTypes.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkEndian.h"
