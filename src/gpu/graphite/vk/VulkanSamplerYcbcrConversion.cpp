@@ -70,7 +70,11 @@ GraphiteResourceKey VulkanSamplerYcbcrConversion::MakeYcbcrConversionKey(
 
 VulkanSamplerYcbcrConversion::VulkanSamplerYcbcrConversion(
         const VulkanSharedContext* context, VkSamplerYcbcrConversion ycbcrConversion)
-        : Resource(context, Ownership::kOwned, skgpu::Budgeted::kNo, /*gpuMemorySize=*/0)
+        : Resource(context,
+                   Ownership::kOwned,
+                   skgpu::Budgeted::kNo,
+                   /*gpuMemorySize=*/0,
+                   /*label=*/"VulkanSamplerYcbcrConversion")
         , fYcbcrConversion (ycbcrConversion) {}
 
 void VulkanSamplerYcbcrConversion::freeGpuData() {
