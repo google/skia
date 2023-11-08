@@ -2254,6 +2254,12 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> reexpand(
     GrColorType srcColorType = src->colorInfo().colorType();
     SkAlphaType srcAlphaType = src->colorInfo().alphaType();
 
+#if defined(SK_USE_PADDED_BLUR_UPSCALE)
+    // The blur output completely filled the src SurfaceContext, so that is our subset boundary,
+    // ensuring we don't access undefined pixels in the approx-fit backing texture.
+    SkRect srcContent = SkRect::MakeIWH(src->width(), src->height());
+#endif
+
     src.reset();  // no longer needed
 
     // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
@@ -2278,8 +2284,12 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> reexpand(
                                           srcAlphaType,
                                           SkMatrix::I(),
                                           GrSamplerState::Filter::kLinear,
+#if defined(SK_USE_PADDED_BLUR_UPSCALE)
+                                          srcContent,
+#else
                                           srcBounds,
                                           srcBounds,
+#endif
                                           *rContext->priv().caps());
     paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -2562,19 +2572,7 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
     auto srcCtx = rContext->priv().makeSC(srcView, colorInfo);
     SkASSERT(srcCtx);
 
-    float scaleX = sigmaX > kMaxSigma ? kMaxSigma / sigmaX : 1.f;
-    float scaleY = sigmaY > kMaxSigma ? kMaxSigma / sigmaY : 1.f;
-    // We round down here so that when we recalculate sigmas we know they will be below
-    // kMaxSigma (but clamp to 1 do we don't have an empty texture).
-    SkISize rescaledSize = {std::max(sk_float_floor2int(srcBounds.width() * scaleX), 1),
-                            std::max(sk_float_floor2int(srcBounds.height() * scaleY), 1)};
-    // Compute the sigmas using the actual scale factors used once we integerized the
-    // rescaledSize.
-    scaleX = static_cast<float>(rescaledSize.width()) / srcBounds.width();
-    scaleY = static_cast<float>(rescaledSize.height()) / srcBounds.height();
-    sigmaX *= scaleX;
-    sigmaY *= scaleY;
-
+#if defined(SK_USE_PADDED_BLUR_UPSCALE)
     // When we are in clamp mode any artifacts in the edge pixels due to downscaling may be
     // exacerbated because of the tile mode. The particularly egregious case is when the original
     // image has transparent black around the edges and the downscaling pulls in some non-zero
@@ -2596,6 +2594,31 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
                                                                                                 : 0;
     int padY = mode == SkTileMode::kClamp || (mode == SkTileMode::kDecal && sigmaY > kMaxSigma) ? 1
                                                                                                 : 0;
+#endif
+
+    float scaleX = sigmaX > kMaxSigma ? kMaxSigma / sigmaX : 1.f;
+    float scaleY = sigmaY > kMaxSigma ? kMaxSigma / sigmaY : 1.f;
+    // We round down here so that when we recalculate sigmas we know they will be below
+    // kMaxSigma (but clamp to 1 do we don't have an empty texture).
+    SkISize rescaledSize = {std::max(sk_float_floor2int(srcBounds.width() * scaleX), 1),
+                            std::max(sk_float_floor2int(srcBounds.height() * scaleY), 1)};
+    // Compute the sigmas using the actual scale factors used once we integerized the
+    // rescaledSize.
+    scaleX = static_cast<float>(rescaledSize.width()) / srcBounds.width();
+    scaleY = static_cast<float>(rescaledSize.height()) / srcBounds.height();
+    sigmaX *= scaleX;
+    sigmaY *= scaleY;
+
+#if !defined(SK_USE_PADDED_BLUR_UPSCALE)
+    // Historically, padX and padY were calculated after scaling sigmaX,Y, which meant that they
+    // would never be greater than kMaxSigma. This causes pixel diffs so must be guarded along with
+    // the rest of the padding dst behavior.
+    int padX = mode == SkTileMode::kClamp || (mode == SkTileMode::kDecal && sigmaX > kMaxSigma) ? 1
+                                                                                                : 0;
+    int padY = mode == SkTileMode::kClamp || (mode == SkTileMode::kDecal && sigmaY > kMaxSigma) ? 1
+                                                                                                : 0;
+#endif
+
     // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
     // SurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
     auto rescaledSDC = skgpu::ganesh::SurfaceDrawContext::Make(
@@ -2686,8 +2709,17 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
     scaledDstBounds.fBottom *= scaleY;
     // Account for padding in our rescaled src, if any.
     scaledDstBounds.offset(padX, padY);
-    // Turn the scaled down dst bounds into an integer pixel rect.
+    // Turn the scaled down dst bounds into an integer pixel rect, adding 1px of padding to help
+    // with boundary sampling during re-expansion when there are extreme scale factors. This is
+    // particularly important when the blurs extend across Chrome raster tiles; w/o it the re-expand
+    // produces visible seams: crbug.com/1500021.
+#if defined(SK_USE_PADDED_BLUR_UPSCALE)
+    static constexpr int kDstPadding = 1;
+#else
+    static constexpr int kDstPadding = 0;
+#endif
     auto scaledDstBoundsI = scaledDstBounds.roundOut();
+    scaledDstBoundsI.outset(kDstPadding, kDstPadding);
 
     SkIRect scaledSrcBounds = SkIRect::MakeSize(srcView.dimensions());
     auto sdc = GaussianBlur(rContext,
@@ -2704,8 +2736,12 @@ std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> GaussianBlur(GrRecordingConte
     if (!sdc) {
         return nullptr;
     }
+
+    SkASSERT(sdc->width() == scaledDstBoundsI.width() &&
+             sdc->height() == scaledDstBoundsI.height());
     // We rounded out the integer scaled dst bounds. Select the fractional dst bounds from the
-    // integer dimension blurred result when we scale back up.
+    // integer dimension blurred result when we scale back up. This also accounts for the padding
+    // added to 'scaledDstBoundsI' when sampling from the blurred result.
     scaledDstBounds.offset(-scaledDstBoundsI.left(), -scaledDstBoundsI.top());
     return reexpand(rContext,
                     std::move(sdc),

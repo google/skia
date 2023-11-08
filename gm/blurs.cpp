@@ -9,6 +9,7 @@
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
@@ -157,5 +158,43 @@ DEF_SIMPLE_GM(BlurSmallSigma, canvas, 512, 256) {
         paint.setColor(SK_ColorBLACK);
         paint.setImageFilter(SkImageFilters::Blur(1e-5f, 1e-5f, nullptr));
         canvas->drawRect(rect, paint);
+    }
+}
+
+// Modeled after crbug.com/1500021, incorporates manual tiling to emulate Chrome's raster tiles
+// or the tiled rendering mode in Viewer.
+DEF_SIMPLE_GM(TiledBlurBigSigma, canvas, 1024, 768) {
+    static constexpr int kTileWidth = 342;
+    static constexpr int kTileHeight = 256;
+
+    SkM44 origCTM = canvas->getLocalToDevice();
+
+    for (int y = 0; y < 3; ++y) {
+        for (int x = 0; x < 3; ++x) {
+            // Define tiled grid in the canvas pixel space
+            canvas->save();
+                canvas->resetMatrix();
+
+                canvas->clipIRect(SkIRect::MakeXYWH(x*kTileWidth, y*kTileHeight,
+                                                    kTileWidth, kTileHeight));
+                canvas->setMatrix(origCTM);
+
+                auto flood = SkImageFilters::ColorFilter(SkColorFilters::Blend(
+                        SK_ColorBLACK, SkBlendMode::kSrc), nullptr);
+                auto blend = SkImageFilters::Blend(SkBlendMode::kSrcOver,
+                                                   std::move(flood), nullptr);
+                auto blur = SkImageFilters::Blur(206.f, 206.f, std::move(blend));
+
+                SkPaint p;
+                p.setImageFilter(std::move(blur));
+
+                canvas->clipRect({0, 0, 1970, 1223});
+                canvas->saveLayer(nullptr, &p);
+                    SkPaint fill;
+                    fill.setColor(SK_ColorBLUE);
+                    canvas->drawCircle(600, 150, 350, fill);
+                canvas->restore();
+            canvas->restore();
+        }
     }
 }
