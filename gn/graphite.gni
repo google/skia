@@ -18,6 +18,7 @@ skia_graphite_public = [
   "$_include/ImageProvider.h",
   "$_include/Recorder.h",
   "$_include/Recording.h",
+  "$_include/Surface.h",
   "$_include/TextureInfo.h",
   "$_include/YUVABackendTextures.h",
 ]

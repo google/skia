@@ -12,9 +12,10 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#include "src/core/SkSurfacePriv.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/core/SkSurfacePriv.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -224,7 +225,11 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
                                     const BackendTexture& backendTex,
                                     SkColorType ct,
                                     sk_sp<SkColorSpace> cs,
-                                    const SkSurfaceProps* props) {
+                                    const SkSurfaceProps* props,
+                                    TextureReleaseProc releaseP,
+                                    ReleaseContext releaseC) {
+    auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
+
     if (!recorder) {
         return nullptr;
     }
@@ -244,6 +249,7 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
     if (!texture) {
         return nullptr;
     }
+    texture->setReleaseCallback(std::move(releaseHelper));
 
     sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
 

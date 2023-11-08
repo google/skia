@@ -21,6 +21,9 @@ class Recorder;
 }  // namespace skgpu::graphite
 
 namespace SkSurfaces {
+using ReleaseContext = void*;
+using TextureReleaseProc = void (*)(ReleaseContext);
+
 /**
  * The 'asImage' and 'makeImageCopy' API/entry points are currently only available for
  * Graphite.
@@ -75,7 +78,9 @@ SK_API sk_sp<SkSurface> WrapBackendTexture(skgpu::graphite::Recorder*,
                                            const skgpu::graphite::BackendTexture&,
                                            SkColorType colorType,
                                            sk_sp<SkColorSpace> colorSpace,
-                                           const SkSurfaceProps* props);
+                                           const SkSurfaceProps* props,
+                                           TextureReleaseProc = nullptr,
+                                           ReleaseContext = nullptr);
 }  // namespace SkSurfaces
 
 #endif  // skgpu_graphite_Surface_DEFINED
