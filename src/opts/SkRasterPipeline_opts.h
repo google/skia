@@ -1038,18 +1038,6 @@ SI V if_then_else(I32 c, V t, V e) {
     return sk_bit_cast<V>(if_then_else(c, sk_bit_cast<F>(t), sk_bit_cast<F>(e)));
 }
 
-SI U16 bswap(U16 x) {
-#if defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41)
-    // Somewhat inexplicably Clang decides to do (x<<8) | (x>>8) in 32-bit lanes
-    // when generating code for SSE2 and SSE4.1.  We'll do it manually...
-    auto v = widen_cast<__m128i>(x);
-    v = _mm_slli_epi16(v,8) | _mm_srli_epi16(v,8);
-    return sk_unaligned_load<U16>(&v);
-#else
-    return (x<<8) | (x>>8);
-#endif
-}
-
 SI F fract(F v) { return v - floor_(v); }
 
 // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html
@@ -2777,17 +2765,6 @@ STAGE(store_f16, const SkRasterPipeline_MemoryCtx* ctx) {
                               , to_half(g)
                               , to_half(b)
                               , to_half(a));
-}
-
-STAGE(store_u16_be, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,dy);
-
-    U16 R = bswap(pack(to_unorm(r, 65535))),
-        G = bswap(pack(to_unorm(g, 65535))),
-        B = bswap(pack(to_unorm(b, 65535))),
-        A = bswap(pack(to_unorm(a, 65535)));
-
-    store4(ptr,tail, R,G,B,A);
 }
 
 STAGE(load_af16, const SkRasterPipeline_MemoryCtx* ctx) {
