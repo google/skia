@@ -162,7 +162,6 @@
     M(load_af16)   M(load_af16_dst) M(store_af16)  M(gather_af16)              \
     M(load_rgf16)  M(load_rgf16_dst) M(store_rgf16) M(gather_rgf16)            \
     M(load_f32)    M(load_f32_dst)  M(store_f32)   M(gather_f32)               \
-    M(load_rgf32)                   M(store_rgf32)                             \
     M(load_1010102) M(load_1010102_dst) M(store_1010102) M(gather_1010102)     \
     M(load_1010102_xr) M(load_1010102_xr_dst) M(store_1010102_xr)              \
     M(gather_1010102_xr)                                                       \

@@ -2876,17 +2876,6 @@ STAGE(store_f32, const SkRasterPipeline_MemoryCtx* ctx) {
     store4(ptr,tail, r,g,b,a);
 }
 
-STAGE(load_rgf32, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const float>(ctx, 2*dx,2*dy);
-    load2(ptr, tail, &r, &g);
-    b = 0;
-    a = 1;
-}
-STAGE(store_rgf32, const SkRasterPipeline_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<float>(ctx, 2*dx,2*dy);
-    store2(ptr, tail, r, g);
-}
-
 SI F exclusive_repeat(F v, const SkRasterPipeline_TileCtx* ctx) {
     return v - floor_(v*ctx->invScale)*ctx->scale;
 }
