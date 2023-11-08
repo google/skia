@@ -26,7 +26,8 @@ uint32_t create_unique_id() {
 Resource::Resource(const SharedContext* sharedContext,
                    Ownership ownership,
                    skgpu::Budgeted budgeted,
-                   size_t gpuMemorySize)
+                   size_t gpuMemorySize,
+                   std::string_view label)
         : fSharedContext(sharedContext)
         , fUsageRefCnt(1)
         , fCommandBufferRefCnt(0)
@@ -34,10 +35,12 @@ Resource::Resource(const SharedContext* sharedContext,
         , fOwnership(ownership)
         , fGpuMemorySize(gpuMemorySize)
         , fBudgeted(budgeted)
-        , fUniqueID(create_unique_id() ){
+        , fUniqueID(create_unique_id()) {
     // If we don't own the resource that must mean its wrapped in a client object. Thus we should
     // not be budgeted
     SkASSERT(fOwnership == Ownership::kOwned || fBudgeted == skgpu::Budgeted::kNo);
+
+    this->setLabel(label);
 }
 
 Resource::~Resource() {
@@ -114,7 +117,7 @@ void Resource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 
     traceMemoryDump->dumpNumericValue(resourceName.c_str(), "size", "bytes", size);
     traceMemoryDump->dumpStringValue(resourceName.c_str(), "type", this->getResourceType());
-    // TODO: dump a "label" for the Resource
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "label", this->getLabel().c_str());
     if (this->isPurgeable()) {
         traceMemoryDump->dumpNumericValue(resourceName.c_str(), "purgeable_size", "bytes", size);
     }

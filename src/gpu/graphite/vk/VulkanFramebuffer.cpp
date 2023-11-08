@@ -27,7 +27,11 @@ sk_sp<VulkanFramebuffer> VulkanFramebuffer::Make(const VulkanSharedContext* cont
 }
 
 VulkanFramebuffer::VulkanFramebuffer(const VulkanSharedContext* context, VkFramebuffer framebuffer)
-        : Resource(context, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0)
+        : Resource(context,
+                   Ownership::kOwned,
+                   skgpu::Budgeted::kYes,
+                   /*gpuMemorySize=*/0,
+                   /*label=*/"VulkanFramebuffer")
         , fSharedContext(context)
         , fFramebuffer(framebuffer) {
 }

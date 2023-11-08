@@ -38,7 +38,11 @@ sk_sp<VulkanDescriptorSet> VulkanDescriptorSet::Make(const VulkanSharedContext* 
 VulkanDescriptorSet::VulkanDescriptorSet(const VulkanSharedContext* ctxt,
                                          VkDescriptorSet set,
                                          sk_sp<VulkanDescriptorPool> pool)
-        : Resource(ctxt, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0)
+        : Resource(ctxt,
+                   Ownership::kOwned,
+                   skgpu::Budgeted::kYes,
+                   /*gpuMemorySize=*/0,
+                   /*label=*/"VulkanDescriptorSet")
         , fDescSet (set)
         , fPool (pool) {
     fPool->ref();

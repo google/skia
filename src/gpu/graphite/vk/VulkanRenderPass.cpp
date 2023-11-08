@@ -315,7 +315,11 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
 VulkanRenderPass::VulkanRenderPass(const VulkanSharedContext* context,
                                    VkRenderPass renderPass,
                                    VkExtent2D granularity)
-        : Resource(context, Ownership::kOwned, skgpu::Budgeted::kYes, /*gpuMemorySize=*/0)
+        : Resource(context,
+                   Ownership::kOwned,
+                   skgpu::Budgeted::kYes,
+                   /*gpuMemorySize=*/0,
+                   /*label=*/"VulkanRenderPass")
         , fSharedContext(context)
         , fRenderPass (renderPass)
         , fGranularity (granularity) {

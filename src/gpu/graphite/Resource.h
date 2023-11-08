@@ -120,6 +120,16 @@ public:
     // The value returned is expected to be long lived and will not be copied by the caller.
     virtual const char* getResourceType() const = 0;
 
+    std::string getLabel() const { return fLabel; }
+
+    // We allow the label on a Resource to change when used for a different function. For example
+    // when reusing a scratch Texture we can change the label to match callers current use.
+    void setLabel(std::string_view label) {
+        fLabel = label;
+        // TODO: call into subclasses to allow them to set the label on actual GPU objects if they
+        // want to.
+    }
+
     // Tests whether a object has been abandoned or released. All objects will be in this state
     // after their creating Context is destroyed or abandoned.
     //
@@ -148,7 +158,11 @@ public:
 #endif
 
 protected:
-    Resource(const SharedContext*, Ownership, skgpu::Budgeted, size_t gpuMemorySize);
+    Resource(const SharedContext*,
+             Ownership,
+             skgpu::Budgeted,
+             size_t gpuMemorySize,
+             std::string_view label);
     virtual ~Resource();
 
     const SharedContext* sharedContext() const { return fSharedContext; }
@@ -335,6 +349,9 @@ private:
     skgpu::StdSteadyClock::time_point fLastAccess;
 
     const UniqueID fUniqueID;
+
+    // String used to describe the current use of this Resource.
+    std::string fLabel;
 
     // This is only used during validation checking. Lots of the validation code depends on a
     // resource being purgeable or not. However, purgeable itself just means having no refs. The

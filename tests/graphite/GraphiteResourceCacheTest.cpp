@@ -70,7 +70,11 @@ private:
                  Ownership owned,
                  skgpu::Budgeted budgeted,
                  size_t gpuMemorySize)
-            : Resource(sharedContext, owned, budgeted, gpuMemorySize) {}
+            : Resource(sharedContext,
+                       owned,
+                       budgeted,
+                       gpuMemorySize,
+                       	/*label=*/"TestResource") {}
 
     void freeGpuData() override {}
 };

@@ -28,7 +28,11 @@ public:
 
 protected:
     Buffer(const SharedContext* sharedContext, size_t size)
-            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, size)
+            : Resource(sharedContext,
+                       Ownership::kOwned,
+                       skgpu::Budgeted::kYes,
+                       size,
+                       /*label=*/"Buffer")
             , fSize(size) {}
 
     void* fMapPtr = nullptr;
