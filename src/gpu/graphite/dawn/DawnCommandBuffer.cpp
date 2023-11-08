@@ -89,6 +89,26 @@ bool DawnCommandBuffer::setNewCommandBufferResources() {
     SkASSERT(!fCommandEncoder);
     fCommandEncoder = fSharedContext->device().CreateCommandEncoder();
     SkASSERT(fCommandEncoder);
+
+    wgpu::BufferDescriptor desc;
+#if defined(SK_DEBUG)
+    desc.label = "UnusedUnifomBufferSlot";
+#endif
+    desc.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform;
+    desc.size = kBufferBindingSizeAlignment;
+    desc.mappedAtCreation = false;
+
+    fUnusedUniformBuffer = fSharedContext->device().CreateBuffer(&desc);
+    SkASSERT(fUnusedUniformBuffer);
+
+#if defined(SK_DEBUG)
+    desc.label = "UnusedStorageBufferSlot";
+#endif
+    desc.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage;
+
+    fUnusedStorageBuffer = fSharedContext->device().CreateBuffer(&desc);
+    SkASSERT(fUnusedStorageBuffer);
+
     return true;
 }
 
@@ -601,7 +621,9 @@ void DawnCommandBuffer::syncUniformBuffers() {
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
         } else {
             // Unused buffer entry
-            entries[1].buffer = fIntrinsicConstantBuffer;
+            entries[1].buffer = fSharedContext->caps()->storageBufferPreferred()
+                                        ? fUnusedStorageBuffer
+                                        : fUnusedUniformBuffer;
             entries[1].size = wgpu::kWholeSize;
 
             dynamicOffsets[1] = 0;
@@ -622,7 +644,9 @@ void DawnCommandBuffer::syncUniformBuffers() {
                     fBoundUniformBufferOffsets[DawnGraphicsPipeline::kPaintUniformBufferIndex];
         } else {
             // Unused buffer entry
-            entries[2].buffer = fIntrinsicConstantBuffer;
+            entries[2].buffer = fSharedContext->caps()->storageBufferPreferred()
+                                        ? fUnusedStorageBuffer
+                                        : fUnusedUniformBuffer;
             entries[2].size = wgpu::kWholeSize;
 
             dynamicOffsets[2] = 0;

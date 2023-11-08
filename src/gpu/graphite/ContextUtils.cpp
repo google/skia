@@ -315,7 +315,7 @@ std::string EmitPaintParamsStorageBuffer(
     }
 
     SkSL::String::appendf(&result,
-                          "layout (binding=%d) buffer FSUniforms {\n"
+                          "layout (binding=%d) readonly buffer FSUniforms {\n"
                           "    FSUniformData fsUniformData[];\n"
                           "};\n",
                           bufferID);
@@ -332,7 +332,7 @@ std::string EmitRenderStepStorageBuffer(
               "};\n\n";
 
     SkSL::String::appendf(&result,
-                          "layout (binding=%d) buffer StepUniforms {\n"
+                          "layout (binding=%d) readonly buffer StepUniforms {\n"
                           "    StepUniformData stepUniformData[];\n"
                           "};\n",
                           bufferID);

@@ -151,6 +151,8 @@ private:
 
     wgpu::Buffer fIntrinsicConstantBuffer;
     int fIntrinsicConstantBufferSlotsUsed = 0;
+    wgpu::Buffer fUnusedUniformBuffer;
+    wgpu::Buffer fUnusedStorageBuffer;
 
     const DawnGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
     const DawnComputePipeline* fActiveComputePipeline = nullptr;
