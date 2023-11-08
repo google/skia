@@ -321,13 +321,15 @@ public:
     }
 
     /**
-     * Pushes or pops from the back to resize. Pushes will be default
-     * initialized.
+     * Pushes or pops from the back to resize. Pushes will be default initialized.
      */
     void resize_back(int newCount) {
         SkASSERT(newCount >= 0);
-
         if (newCount > this->size()) {
+            if (this->empty()) {
+                // When the container is completely empty, grow to exactly the requested size.
+                this->checkRealloc(newCount, kExactFit);
+            }
             this->push_back_n(newCount - fSize);
         } else if (newCount < this->size()) {
             this->pop_back_n(fSize - newCount);
